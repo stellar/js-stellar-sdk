@@ -1,138 +1,455 @@
 ---
-title: Overview
+title: Stellar JS SDK (js-stellar-sdk)
+description: A JavaScript library for communicating with a Stellar Horizon server and Stellar RPC.
 ---
-The JavaScript Stellar SDK facilitates integration with the Stellar [Horizon API server](https://developers.stellar.org/api/), the Stellar [Soroban RPC server](https://developers.stellar.org/network/soroban-rpc) and submission of Stellar transactions, either on Node.js or in the browser. It has three main uses: [querying Horizon](#querying-horizon), [interacting with Soroban RPC](), and [building, signing, and submitting transactions to the Stellar network](#building-transactions).
 
- * [Building and installing the SDK](https://github.com/stellar/js-stellar-sdk)
- * [Examples of using the SDK](./examples.md)
+# Stellar JS SDK (js-stellar-sdk)
 
-# Querying Horizon
-The Stellar SDK gives you access to all the endpoints exposed by Horizon.
 
-## Building requests
-js-stellar-sdk uses the [Builder pattern](https://en.wikipedia.org/wiki/Builder_pattern) to create the requests to send to Horizon. Starting with a [server](https://stellar.github.io/js-stellar-sdk/Server.html) object, you can chain methods together to generate a query. (See the [Horizon reference](https://developers.stellar.org/api/) documentation for what methods are possible.)
+<a href="https://badge.fury.io/js/@stellar%2Fstellar-sdk"><img src="https://badge.fury.io/js/@stellar%2Fstellar-sdk.svg" alt="npm version" height="18"></a>
+<a href="https://www.npmjs.com/package/@stellar/stellar-sdk">
+  <img alt="Weekly Downloads" src="https://img.shields.io/npm/dw/@stellar/stellar-sdk" />
+</a>
+<a href="https://github.com/stellar/js-stellar-sdk/actions/workflows/tests.yml"><img alt="Test Status" src="https://github.com/stellar/js-stellar-sdk/actions/workflows/tests.yml/badge.svg" /></a>
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/stellar/js-stellar-sdk)
+
+`js-stellar-sdk` is a JavaScript library for communicating with a
+[Stellar Horizon server](https://developers.stellar.org/docs/data/apis/horizon) and [Stellar RPC](https://developers.stellar.org/docs/data/apis/rpc).
+While primarily intended for applications built on Node.js or in the browser, it can be adapted for use in other environments with some tinkering.
+
+The library provides:
+
+- a networking layer API for Horizon endpoints (REST-based),
+- a networking layer for Soroban RPC (JSONRPC-based).
+- facilities for building and signing transactions, for communicating with a
+  Stellar Horizon instance, and for submitting transactions or querying network
+  history.
+
+**Jump to:**
+
+ * [Installation](#installation): details on hitting the ground running
+ * [Usage](#usage): links to documentation and a variety of workarounds for non-traditional JavaScript environments
+   - [...with React Native](#usage-with-react-native)
+   - [...with Expo](#usage-with-expo-managed-workflows)
+   - [...with CloudFlare Workers](#usage-with-cloudflare-workers)
+ * [CLI](#cli): generate TypeScript bindings for Stellar smart contracts
+ * [Developing](#developing): contribute to the project!
+ * [Understanding `stellar-sdk` vs. `stellar-base`](#stellar-sdk-vs-stellar-base)
+ * [License](#license)
+
+## Installation
+
+Using npm, pnpm, or yarn to include `stellar-sdk` in your own project:
+
+```shell
+npm install --save @stellar/stellar-sdk
+# or
+pnpm add @stellar/stellar-sdk
+# or
+yarn add @stellar/stellar-sdk
+```
+
+Then, require or import it in your JavaScript code:
 
 ```js
 var StellarSdk = require('@stellar/stellar-sdk');
-var server = new StellarSdk.Horizon.Server('https://horizon-testnet.stellar.org');
-// get a list of transactions that occurred in ledger 1400
-server.transactions()
-    .forLedger(1400)
-    .call().then(function(r){ console.log(r); });
-
-// get a list of transactions submitted by a particular account
-server.transactions()
-    .forAccount('GASOCNHNNLYFNMDJYQ3XFMI7BYHIOCFW3GJEOWRPEGK2TDPGTG2E5EDW')
-    .call().then(function(r){ console.log(r); });
+// or
+import * as StellarSdk from '@stellar/stellar-sdk';
 ```
 
-Once the request is built, it can be invoked with `.call()` or with `.stream()`. `call()` will return a [promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise) to the response given by Horizon.
+(Preferably, you would only import the pieces you need to enable tree-shaking and lower your final bundle sizes.)
 
-## Streaming requests
-Many requests can be invoked with `stream()`. Instead of returning a promise like `call()` does, `.stream()` will return an `EventSource`. Horizon will start sending responses from either the beginning of time or from the point specified with `.cursor()`. (See the [Horizon reference](https://developers.stellar.org/api/introduction/streaming/) documentation to learn which endpoints support streaming.)
+### Browsers
 
-For example, to log instances of transactions from a particular account:
+You can use a CDN:
+
+```html
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stellar-sdk/{version}/stellar-sdk.js"></script>
+```
+
+Note that this method relies on using a third party to host the JS library. This may not be entirely secure. You can self-host it via [Bower](http://bower.io):
+
+```shell
+bower install @stellar/stellar-sdk
+```
+
+and include it in the browser:
+
+```html
+<script src="./bower_components/stellar-sdk/stellar-sdk.js"></script>
+<script>
+  console.log(StellarSdk);
+</script>
+```
+
+If you don't want to use or install Bower, you can copy the packaged JS files from the [Bower repo](https://github.com/stellar/bower-js-stellar-sdk), or just build the package yourself locally (see [Developing :arrow_right: Building](#building)) and copy the bundle.
+
+| Always make sure that you are using the latest version number. They can be found on the [releases page](https://github.com/stellar/js-stellar-sdk/releases) in GitHub. |
+|----|
+
+### Custom Installation
+
+The default bundle uses a native-fetch HTTP client with no axios dependency. If you need the axios transport (for example, to match the behavior of older SDK versions), set the `USE_AXIOS` environment variable to `true` when building.
+
+#### Build with Axios
+```
+npm run build:browser:axios
+```
+This will create `stellar-sdk-axios.js` in `dist/`. Consumers can also import the axios-backed entry from Node via `@stellar/stellar-sdk/axios`.
+
+## Usage
+
+The usage documentation for this library lives in a handful of places:
+
+ * across the [Stellar Developer Docs](https://developers.stellar.org), which includes tutorials and examples,
+ * within [this repository itself](https://github.com/stellar/js-stellar-sdk/blob/master/docs/reference/readme.md), and
+ * on the generated [API doc site](https://stellar.github.io/js-stellar-sdk/).
+
+You can also refer to:
+
+ * the [documentation](https://developers.stellar.org/docs/data/horizon) for the Horizon REST API (if using the `Horizon` module) and
+ * the [documentation](https://developers.stellar.org/docs/data/rpc) for Soroban RPC's API (if using the `rpc` module)
+
+### Usage with React-Native
+
+1. Install `yarn add --dev rn-nodeify`
+2. Add the following postinstall script:
+```
+yarn rn-nodeify --install url,events,https,http,util,stream,crypto,vm,buffer --hack --yarn
+```
+3. Uncomment `require('crypto')` on shim.js
+4. `react-native link react-native-randombytes`
+5. Create file `rn-cli.config.js`
+```
+module.exports = {
+  resolver: {
+    extraNodeModules: require("node-libs-react-native"),
+  },
+};
+```
+6. Add `import "./shim";` to the top of `index.js`
+7. `yarn add @stellar/stellar-sdk`
+
+There is also a [sample](https://github.com/fnando/rn-stellar-sdk-sample) that you can follow.
+
+**Note**: Only the V8 compiler (on Android) and JSC (on iOS) have proper support for `Buffer` and `Uint8Array` as is needed by this library. Otherwise, you may see bizarre errors when doing XDR encoding/decoding such as `source not specified`.
+
+#### Usage with Expo managed workflows
+
+1. Install `yarn add --dev rn-nodeify`
+2. Add the following postinstall script:
+```
+yarn rn-nodeify --install process,url,events,https,http,util,stream,crypto,vm,buffer --hack --yarn
+```
+3. Add `import "./shim";` to your app's entry point (by default `./App.js`)
+4. `yarn add @stellar/stellar-sdk`
+5. `expo install expo-random`
+
+At this point, the Stellar SDK will work, except that `StellarSdk.Keypair.random()` will throw an error. To work around this, you can create your own method to generate a random keypair like this:
 
 ```javascript
-var StellarSdk = require('@stellar/stellar-sdk')
-var server = new StellarSdk.Horizon.Server('https://horizon-testnet.stellar.org');
-var lastCursor=0; // or load where you left off
+import * as Random from 'expo-random';
+import { Keypair } from '@stellar/stellar-sdk';
 
-var txHandler = function (txResponse) {
-    console.log(txResponse);
+const generateRandomKeypair = () => {
+  const randomBytes = Random.getRandomBytes(32);
+  return Keypair.fromRawEd25519Seed(Buffer.from(randomBytes));
 };
-
-var errorHandler = function (error) {
-    console.error("Stream encountered an error:", error);
-
-    setTimeout(() => {
-        console.log("Reconnecting...");
-        es();
-    }, 5000);
-};
-
-var es = server.transactions()
-    .forAccount(accountAddress)
-    .cursor(lastCursor)
-    .stream({
-        onmessage: txHandler,
-        onerror: errorHandler
-    })
 ```
 
-## Handling responses
+#### Usage with CloudFlare Workers
 
-### XDR
-The transaction endpoints will return some fields in raw [XDR](https://developers.stellar.org/api/introduction/xdr/)
-form. You can convert this XDR to JSON using the `.fromXDR()` method.
+Both `eventsource` (needed for streaming) and `axios` (needed for making HTTP requests) are problematic dependencies in the CFW environment. The experimental branch [`make-eventsource-optional`](https://github.com/stellar/js-stellar-sdk/pull/901) is an attempt to resolve these issues.
 
-An example of re-writing the txHandler from above to print the XDR fields as JSON:
+It requires the following additional tweaks to your project:
+ * the `axios-fetch-adapter` lets you use `axios` with `fetch` as a backend, which is available to CF workers
+ * it only works with `axios@"<= 1.0.0"` versions, so we need to force an override into the underlying dependency
+ * and this can be problematic with newer `yarn` versions, so we need to force the environment to use Yarn 1
 
-```javascript
-var txHandler = function (txResponse) {
-    console.log( JSON.stringify(StellarSdk.xdr.TransactionEnvelope.fromXDR(txResponse.envelope_xdr, 'base64')) );
-    console.log( JSON.stringify(StellarSdk.xdr.TransactionResult.fromXDR(txResponse.result_xdr, 'base64')) );
-    console.log( JSON.stringify(StellarSdk.xdr.TransactionMeta.fromXDR(txResponse.result_meta_xdr, 'base64')) );
-};
+In summary, the `package.json` tweaks look something like this:
 
+```jsonc
+"dependencies": {
+  // ...
+  "@stellar/stellar-sdk": "git+https://github.com/stellar/js-stellar-sdk#make-eventsource-optional",
+  "@vespaiach/axios-fetch-adapter": "^0.3.1",
+  "axios": "^0.26.1"
+},
+"overrides": {
+  "@stellar/stellar-sdk": {
+    "axios": "$axios"
+  }
+},
+"packageManager": "yarn@1.22.19"
 ```
 
+Then, you need to override the adapter in your codebase:
 
-### Following links
-The [HAL format](https://developers.stellar.org/api/introduction/response-format/) links returned with the Horizon response are converted into functions you can call on the returned object.
-This allows you to simply use `.next()` to page through results. It also makes fetching additional info, as in the following example, easy:
+```typescript
+import { Horizon } from '@stellar/stellar-sdk';
+import fetchAdapter from '@vespaiach/axios-fetch-adapter';
 
-```js
-server.payments()
-    .limit(1)
-    .call()
-    .then(function(response){
-        // will follow the transactions link returned by Horizon
-        response.records[0].transaction().then(function(txs){
-            console.log(txs);
-        });
-    });
+Horizon.AxiosClient.defaults.adapter = fetchAdapter as any;
+
+// then, the rest of your code...
 ```
 
+All HTTP calls will use `fetch`, now, meaning it should work in the CloudFlare Worker environment.
 
-# Transactions
+## CLI
 
-## Building transactions
+The SDK includes a command-line tool for generating TypeScript bindings from Stellar smart contracts. These bindings provide fully-typed client code with IDE autocompletion and compile-time type checking.
 
-See the [Building Transactions](https://github.com/stellar/js-stellar-base/blob/master/docs/reference/building-transactions.md) guide for information about assembling a transaction.
+### Running the CLI
 
-## Submitting transactions
-Once you have built your transaction, you can submit it to the Stellar network with `Server.submitTransaction()`.
-```js
-const StellarSdk = require('@stellar/stellar-sdk')
-const server = new StellarSdk.Horizon.Server('https://horizon-testnet.stellar.org');
+```shell
+# Using npx (no installation required)
+npx @stellar/stellar-sdk generate [options]
 
-(async function main() {
-    const account = await server.loadAccount(publicKey);
-
-    // Right now, we have one function that fetches the base fee.
-    const fee = await server.fetchBaseFee();
-
-    const transaction = new StellarSdk.TransactionBuilder(account, { fee, networkPassphrase: StellarSdk.Networks.TESTNET })
-        .addOperation(
-            // this operation funds the new account with XLM
-            StellarSdk.Operation.payment({
-                destination: "GASOCNHNNLYFNMDJYQ3XFMI7BYHIOCFW3GJEOWRPEGK2TDPGTG2E5EDW",
-                asset: StellarSdk.Asset.native(),
-                amount: "2"
-            })
-        )
-        .setTimeout(30)
-        .build();
-
-    // sign the transaction
-    transaction.sign(StellarSdk.Keypair.fromSecret(secretString));
-
-    try {
-        const transactionResult = await server.submitTransaction(transaction);
-        console.log(transactionResult);
-    } catch (err) {
-        console.error(err);
-    }
-})()
+# Or if installed globally
+stellar-js generate [options]
 ```
+
+### Generating Bindings
+
+You can generate bindings from three different sources:
+
+#### From a local WASM file
+
+```shell
+npx @stellar/stellar-sdk generate \
+  --wasm ./path/to/wasm_file/my_contract.wasm \
+  --output-dir ./my-contract-client \
+  --contract-name my-contract
+```
+
+#### From a WASM hash on the network
+
+```shell
+# testnet, futurenet, and localnet have default RPC URLs
+npx @stellar/stellar-sdk generate \
+  --wasm-hash <hex-encoded-hash> \
+  --network testnet \
+  --output-dir ./my-contract-client \
+  --contract-name my-contract
+```
+
+#### From a deployed contract ID
+
+```shell
+npx @stellar/stellar-sdk generate \
+  --contract-id CABC...XYZ \
+  --network testnet \
+  --output-dir ./my-contract-client
+```
+
+#### With custom RPC server options
+
+For mainnet or when connecting to RPC servers that require authentication:
+
+```shell
+# Mainnet requires --rpc-url (no default)
+npx @stellar/stellar-sdk generate \
+  --contract-id CABC...XYZ \
+  --rpc-url https://my-rpc-provider.com \
+  --network mainnet \
+  --output-dir ./my-contract-client
+
+# With custom timeout and headers for authenticated RPC servers
+npx @stellar/stellar-sdk generate \
+  --contract-id CABC...XYZ \
+  --rpc-url https://my-rpc-server.com \
+  --network mainnet \
+  --output-dir ./my-contract-client \
+  --timeout 30000 \
+  --headers '{"Authorization": "Bearer my-token"}'
+
+# localnet with default RPC URL auto-enables --allow-http
+npx @stellar/stellar-sdk generate \
+  --contract-id CABC...XYZ \
+  --network localnet \
+  --output-dir ./my-contract-client
+
+# When overriding the default URL, you must specify --allow-http if using HTTP
+npx @stellar/stellar-sdk generate \
+  --contract-id CABC...XYZ \
+  --rpc-url http://my-local-server:8000/rpc \
+  --network localnet \
+  --output-dir ./my-contract-client \
+  --allow-http
+```
+
+### CLI Options
+
+| Option | Description |
+|--------|-------------|
+| `--wasm <path>` | Path to a local WASM file |
+| `--wasm-hash <hash>` | Hex-encoded hash of WASM blob on the network |
+| `--contract-id <id>` | Contract ID of a deployed contract |
+| `--rpc-url <url>` | Stellar RPC server URL (has defaults for testnet/futurenet/localnet, required for mainnet) |
+| `--network <network>` | Network to use: `testnet`, `mainnet`, `futurenet`, or `localnet` (required for network sources) |
+| `--output-dir <dir>` | Output directory for generated bindings (required) |
+| `--contract-name <name>` | Name for the generated package (derived from filename if not provided) |
+| `--overwrite` | Overwrite existing files in the output directory |
+| `--allow-http` | Allow insecure HTTP connections to RPC server (default: false) |
+| `--timeout <ms>` | RPC request timeout in milliseconds |
+| `--headers <json>` | Custom headers as JSON object (e.g., `'{"Authorization": "Bearer token"}'`) |
+
+#### Default RPC URLs
+
+When using `--network`, the CLI provides default RPC URLs for most networks:
+
+| Network | Default RPC URL |
+|---------|-----------------|
+| `testnet` | `https://soroban-testnet.stellar.org` |
+| `futurenet` | `https://rpc-futurenet.stellar.org` |
+| `localnet` | `http://localhost:8000/rpc` (auto-enables `--allow-http` only when using default URL) |
+| `mainnet` | None - you must provide `--rpc-url` ([find providers](https://developers.stellar.org/docs/data/rpc/rpc-providers)) |
+
+### Generated Output
+
+The CLI generates a complete npm package structure:
+
+```
+my-contract-client/
+├── src/
+│   ├── index.ts      # Barrel exports
+│   ├── client.ts     # Typed Client class with contract methods
+│   └── types.ts      # TypeScript interfaces for contract types
+├── package.json
+├── tsconfig.json
+├── README.md
+└── .gitignore
+```
+
+### Using Generated Bindings
+
+After generating, you can use the bindings in your project:
+
+```typescript
+import { Client } from './my-contract-client';
+
+const client = new Client({
+  contractId: 'CABC...XYZ',
+  networkPassphrase: Networks.TESTNET,
+  rpcUrl: 'https://soroban-testnet.stellar.org',
+  publicKey: keypair.publicKey(),
+  ...basicNodeSigner(keypair, Networks.TESTNET),
+});
+
+// Fully typed method calls with IDE autocompletion
+const result = await client.transfer({
+  from: 'GABC...',
+  to: 'GDEF...',
+  amount: 1000n,
+});
+```
+
+## Developing
+
+So you want to contribute to the library: welcome! Whether you're working on a fork or want to make an upstream request, the dev-test loop is pretty straightforward.
+
+1. Clone the repo:
+
+```shell
+git clone https://github.com/stellar/js-stellar-sdk.git
+```
+
+2. Install Node
+
+Because we support the oldest maintenance version of Node, please install and develop on the version pinned in [`.nvmrc`](.nvmrc) (currently Node 22) so you don't get surprised when your code works locally but breaks in CI.
+
+Here's how to install `nvm` if you haven't: https://github.com/creationix/nvm
+
+```shell
+nvm install
+```
+
+If you work on several projects that use different Node versions, you might it helpful to install this automatic version manager: https://github.com/wbyoung/avn
+
+3. Enable Corepack
+
+```shell
+corepack enable
+```
+
+4. Install dependencies inside js-stellar-sdk folder:
+
+```shell
+cd js-stellar-sdk
+pnpm install
+```
+
+5. Observe the project's code style
+
+While you're making changes, make sure to run the linter to catch any linting
+errors (in addition to making sure your text editor supports ESLint) and conform to the project's code style.
+
+```shell
+pnpm run fmt
+```
+
+### Building
+You can build the developer version (unoptimized, commented, with source maps, etc.) or the production bundles:
+
+```shell
+pnpm run build
+# or
+pnpm run build:prod
+```
+
+### Testing
+
+To run all tests:
+
+```shell
+pnpm run test
+```
+
+To run a specific set of tests:
+
+```shell
+pnpm run test:node
+pnpm run test:browser
+pnpm run test:integration
+```
+
+In order to have a faster test loop, these suite-specific commands **do not** build the bundles first (unlike `pnpm run test`). If you make code changes, you will need to run `pnpm run build` before running the tests again to see your changes.
+
+To generate and check the documentation site:
+
+```shell
+# install the `serve` command if you don't have it already
+npm i -g serve
+
+# clone the base library for complete docs
+git clone https://github.com/stellar/js-stellar-base
+
+# generate the docs files
+pnpm run docs
+
+# get these files working in a browser
+cd jsdoc && serve .
+
+# you'll be able to browse the docs at http://localhost:5000
+```
+
+### Publishing
+
+For information on how to contribute or publish new versions of this software to `npm`, please refer to our [contribution guide](https://github.com/stellar/js-stellar-sdk/blob/master/CONTRIBUTING.md).
+
+## Miscellaneous
+
+### `stellar-sdk` vs `stellar-base`
+
+`stellar-sdk` is a high-level library that serves as client-side API for Horizon and Soroban RPC, while [`stellar-base](https://github.com/stellar/js-stellar-base) is lower-level library for creating Stellar primitive constructs via XDR helpers and wrappers.
+
+**Most people will want stellar-sdk instead of stellar-base.** You should only use stellar-base if you know what you're doing!
+
+If you add `stellar-sdk` to a project, **do not add `stellar-base`!** Mismatching versions could cause weird, hard-to-find bugs. `stellar-sdk` automatically installs `stellar-base` and exposes all of its exports in case you need them.
+
+### License
+
+js-stellar-sdk is licensed under an Apache-2.0 license. See the
+[LICENSE](https://github.com/stellar/js-stellar-sdk/blob/master/LICENSE) file
+for details.

@@ -3,7 +3,7 @@
 > A library for working with the Stellar network, including communication with the Horizon and Soroban RPC servers.
 
 - Version: 15.0.1
-- Generated: 7212ade7e35b40f9833fd6d277c665e15c657d62
+- Source ref: master
 
 ## Guides
 

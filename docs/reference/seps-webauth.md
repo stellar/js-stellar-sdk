@@ -1,6 +1,5 @@
 ---
 title: SEPs / WebAuth
-category: SEPs / WebAuth
 ---
 
 # SEPs / WebAuth
@@ -13,11 +12,11 @@ A parsed and validated challenge transaction, and some of its constituent detail
 type ChallengeTxDetails = unknown
 ```
 
-**Source:** [src/webauth/utils.ts:104](https://github.com/stellar/js-stellar-sdk/blob/7212ade7e35b40f9833fd6d277c665e15c657d62/src/webauth/utils.ts#L104)
+**Source:** [src/webauth/utils.ts:104](https://github.com/stellar/js-stellar-sdk/blob/master/src/webauth/utils.ts#L104)
 
 ## WebAuth.buildChallengeTx
 
-Returns a valid {@link SEP-10}
+Returns a valid `SEP-10`
 challenge transaction which you can use for Stellar Web Authentication.
 
 ```ts
@@ -26,25 +25,25 @@ buildChallengeTx(serverKeypair: Keypair, clientAccountID: string, homeDomain: st
 
 **Parameters**
 
-- `serverKeypair` — Keypair for server's signing account.
-- `clientAccountID` — The stellar account (G...) or muxed account
-   (M...) that the wallet wishes to authenticate with the server.
-- `homeDomain` — The fully qualified domain name of the service
-   requiring authentication
-- `timeout` — Challenge duration (default to 5 minutes).
-- `networkPassphrase` — The network passphrase. If you pass this
-   argument then timeout is required.
-- `webAuthDomain` — The fully qualified domain name of the service
-   issuing the challenge.
-- `memo` — The memo to attach to the challenge transaction. The
-   memo must be of type `id`. If the `clientaccountID` is a muxed account,
-   memos cannot be used.
-- `clientDomain` — The fully qualified domain of the client
-   requesting the challenge. Only necessary when the 'client_domain'
-   parameter is passed.
-- `clientSigningKey` — The public key assigned to the SIGNING_KEY
-   attribute specified on the stellar.toml hosted on the client domain. Only
-   necessary when the 'client_domain' parameter is passed.
+- **`serverKeypair`** — `Keypair` (required) — Keypair for server's signing account.
+- **`clientAccountID`** — `string` (required) — The stellar account (G...) or muxed account
+     (M...) that the wallet wishes to authenticate with the server.
+- **`homeDomain`** — `string` (required) — The fully qualified domain name of the service
+     requiring authentication
+- **`timeout`** — `number` (optional) (default: `300`) — Challenge duration (default to 5 minutes).
+- **`networkPassphrase`** — `string` (required) — The network passphrase. If you pass this
+     argument then timeout is required.
+- **`webAuthDomain`** — `string` (required) — The fully qualified domain name of the service
+     issuing the challenge.
+- **`memo`** — `string | null` (optional) (default: `null`) — The memo to attach to the challenge transaction. The
+     memo must be of type `id`. If the `clientaccountID` is a muxed account,
+     memos cannot be used.
+- **`clientDomain`** — `string | null` (optional) (default: `null`) — The fully qualified domain of the client
+     requesting the challenge. Only necessary when the 'client_domain'
+     parameter is passed.
+- **`clientSigningKey`** — `string | null` (optional) (default: `null`) — The public key assigned to the SIGNING_KEY
+     attribute specified on the stellar.toml hosted on the client domain. Only
+     necessary when the 'client_domain' parameter is passed.
 
 **Returns**
 
@@ -74,9 +73,9 @@ let challenge = WebAuth.buildChallengeTx(
 
 **See also**
 
-- {@link SEP-10: Stellar Web Auth}
+- `SEP-10: Stellar Web Auth`
 
-**Source:** [src/webauth/challenge_transaction.ts:63](https://github.com/stellar/js-stellar-sdk/blob/7212ade7e35b40f9833fd6d277c665e15c657d62/src/webauth/challenge_transaction.ts#L63)
+**Source:** [src/webauth/challenge_transaction.ts:63](https://github.com/stellar/js-stellar-sdk/blob/master/src/webauth/challenge_transaction.ts#L63)
 
 ## WebAuth.gatherTxSigners
 
@@ -90,8 +89,8 @@ gatherTxSigners(transaction: Transaction | FeeBumpTransaction, signers: string[]
 
 **Parameters**
 
-- `transaction` — The signed transaction.
-- `signers` — The signer's public keys.
+- **`transaction`** — `Transaction | FeeBumpTransaction` (required) — The signed transaction.
+- **`signers`** — `string[]` (required) — The signer's public keys.
 
 **Returns**
 
@@ -113,7 +112,7 @@ transaction.sign(keypair1, keypair2)
 WebAuth.gatherTxSigners(transaction, [keypair1.publicKey(), keypair2.publicKey()])
 ```
 
-**Source:** [src/webauth/utils.ts:32](https://github.com/stellar/js-stellar-sdk/blob/7212ade7e35b40f9833fd6d277c665e15c657d62/src/webauth/utils.ts#L32)
+**Source:** [src/webauth/utils.ts:32](https://github.com/stellar/js-stellar-sdk/blob/master/src/webauth/utils.ts#L32)
 
 ## WebAuth.readChallengeTx
 
@@ -126,8 +125,8 @@ It does not verify that the transaction has been signed by the client or that
 any signatures other than the server's on the transaction are valid. Use one
 of the following functions to completely verify the transaction:
 
-- {@link WebAuth.verifyChallengeTxThreshold}
-- {@link WebAuth.verifyChallengeTxSigners}
+- `WebAuth.verifyChallengeTxThreshold`
+- `WebAuth.verifyChallengeTxSigners`
 
 ```ts
 readChallengeTx(challengeTx: string, serverAccountID: string, networkPassphrase: string, homeDomains: string | string[], webAuthDomain: string): { clientAccountID: string; matchedHomeDomain: string; memo: string | null; tx: Transaction }
@@ -135,16 +134,16 @@ readChallengeTx(challengeTx: string, serverAccountID: string, networkPassphrase:
 
 **Parameters**
 
-- `challengeTx` — SEP0010 challenge transaction in base64.
-- `serverAccountID` — The server's stellar account (public key).
-- `networkPassphrase` — The network passphrase, e.g.: 'Test SDF
-   Network ; September 2015' (see {@link Networks})
-- `homeDomains` — The home domain that is expected
-   to be included in the first Manage Data operation's string key. If an
-   array is provided, one of the domain names in the array must match.
-- `webAuthDomain` — The home domain that is expected to be included
-   as the value of the Manage Data operation with the 'web_auth_domain' key.
-   If no such operation is included, this parameter is not used.
+- **`challengeTx`** — `string` (required) — SEP0010 challenge transaction in base64.
+- **`serverAccountID`** — `string` (required) — The server's stellar account (public key).
+- **`networkPassphrase`** — `string` (required) — The network passphrase, e.g.: 'Test SDF
+     Network ; September 2015' (see `Networks`)
+- **`homeDomains`** — `string | string[]` (required) — The home domain that is expected
+     to be included in the first Manage Data operation's string key. If an
+     array is provided, one of the domain names in the array must match.
+- **`webAuthDomain`** — `string` (required) — The home domain that is expected to be included
+     as the value of the Manage Data operation with the 'web_auth_domain' key.
+     If no such operation is included, this parameter is not used.
 
 **Returns**
 
@@ -155,9 +154,9 @@ The actual transaction and the
 
 **See also**
 
-- {@link SEP-10: Stellar Web Auth}
+- `SEP-10: Stellar Web Auth`
 
-**Source:** [src/webauth/challenge_transaction.ts:163](https://github.com/stellar/js-stellar-sdk/blob/7212ade7e35b40f9833fd6d277c665e15c657d62/src/webauth/challenge_transaction.ts#L163)
+**Source:** [src/webauth/challenge_transaction.ts:163](https://github.com/stellar/js-stellar-sdk/blob/master/src/webauth/challenge_transaction.ts#L163)
 
 ## WebAuth.verifyChallengeTxSigners
 
@@ -175,7 +174,7 @@ ignored.
 
 Errors will be raised if:
 - The transaction is invalid according to
-{@link WebAuth.readChallengeTx}.
+`WebAuth.readChallengeTx`.
 - No client signatures are found on the transaction.
 - One or more signatures in the transaction are not identifiable as the
 server account or one of the signers provided in the arguments.
@@ -186,18 +185,18 @@ verifyChallengeTxSigners(challengeTx: string, serverAccountID: string, networkPa
 
 **Parameters**
 
-- `challengeTx` — SEP0010 challenge transaction in base64.
-- `serverAccountID` — The server's stellar account (public key).
-- `networkPassphrase` — The network passphrase, e.g.: 'Test SDF
-   Network ; September 2015' (see {@link Networks}).
-- `signers` — The signers public keys. This list should
-   contain the public keys for all signers that have signed the transaction.
-- `homeDomains` — The home domain(s) that should
-   be included in the first Manage Data operation's string key. Required in
-   readChallengeTx().
-- `webAuthDomain` — The home domain that is expected to be included
-   as the value of the Manage Data operation with the 'web_auth_domain' key,
-   if present. Used in readChallengeTx().
+- **`challengeTx`** — `string` (required) — SEP0010 challenge transaction in base64.
+- **`serverAccountID`** — `string` (required) — The server's stellar account (public key).
+- **`networkPassphrase`** — `string` (required) — The network passphrase, e.g.: 'Test SDF
+     Network ; September 2015' (see `Networks`).
+- **`signers`** — `string[]` (required) — The signers public keys. This list should
+     contain the public keys for all signers that have signed the transaction.
+- **`homeDomains`** — `string | string[]` (required) — The home domain(s) that should
+     be included in the first Manage Data operation's string key. Required in
+     readChallengeTx().
+- **`webAuthDomain`** — `string` (required) — The home domain that is expected to be included
+     as the value of the Manage Data operation with the 'web_auth_domain' key,
+     if present. Used in readChallengeTx().
 
 **Returns**
 
@@ -244,9 +243,9 @@ WebAuth.verifyChallengeTxSigners(
 
 **See also**
 
-- {@link SEP-10: Stellar Web Auth}
+- `SEP-10: Stellar Web Auth`
 
-**Source:** [src/webauth/challenge_transaction.ts:419](https://github.com/stellar/js-stellar-sdk/blob/7212ade7e35b40f9833fd6d277c665e15c657d62/src/webauth/challenge_transaction.ts#L419)
+**Source:** [src/webauth/challenge_transaction.ts:419](https://github.com/stellar/js-stellar-sdk/blob/master/src/webauth/challenge_transaction.ts#L419)
 
 ## WebAuth.verifyChallengeTxThreshold
 
@@ -261,7 +260,7 @@ ignored.
 
 Errors will be raised if:
 - The transaction is invalid according to
-{@link WebAuth.readChallengeTx}.
+`WebAuth.readChallengeTx`.
 - No client signatures are found on the transaction.
 - One or more signatures in the transaction are not identifiable as the
 server account or one of the signers provided in the arguments.
@@ -273,21 +272,21 @@ verifyChallengeTxThreshold(challengeTx: string, serverAccountID: string, network
 
 **Parameters**
 
-- `challengeTx` — SEP0010 challenge transaction in base64.
-- `serverAccountID` — The server's stellar account (public key).
-- `networkPassphrase` — The network passphrase, e.g.: 'Test SDF
-   Network ; September 2015' (see {@link Networks}).
-- `threshold` — The required signatures threshold for verifying
-   this transaction.
-- `signerSummary` — a map of all
-   authorized signers to their weights. It's used to validate if the
-   transaction signatures have met the given threshold.
-- `homeDomains` — The home domain(s) that should
-   be included in the first Manage Data operation's string key. Required in
-   `verifyChallengeTxSigners() => readChallengeTx()`.
-- `webAuthDomain` — The home domain that is expected to be included
-   as the value of the Manage Data operation with the 'web_auth_domain' key,
-   if present. Used in `verifyChallengeTxSigners() => readChallengeTx()`.
+- **`challengeTx`** — `string` (required) — SEP0010 challenge transaction in base64.
+- **`serverAccountID`** — `string` (required) — The server's stellar account (public key).
+- **`networkPassphrase`** — `string` (required) — The network passphrase, e.g.: 'Test SDF
+     Network ; September 2015' (see `Networks`).
+- **`threshold`** — `number` (required) — The required signatures threshold for verifying
+     this transaction.
+- **`signerSummary`** — `AccountRecordSigners[]` (required) — a map of all
+     authorized signers to their weights. It's used to validate if the
+     transaction signatures have met the given threshold.
+- **`homeDomains`** — `string | string[]` (required) — The home domain(s) that should
+     be included in the first Manage Data operation's string key. Required in
+     `verifyChallengeTxSigners() => readChallengeTx()`.
+- **`webAuthDomain`** — `string` (required) — The home domain that is expected to be included
+     as the value of the Manage Data operation with the 'web_auth_domain' key,
+     if present. Used in `verifyChallengeTxSigners() => readChallengeTx()`.
 
 **Returns**
 
@@ -354,9 +353,9 @@ WebAuth.verifyChallengeTxThreshold(
 
 **See also**
 
-- {@link SEP-10: Stellar Web Auth}
+- `SEP-10: Stellar Web Auth`
 
-**Source:** [src/webauth/challenge_transaction.ts:645](https://github.com/stellar/js-stellar-sdk/blob/7212ade7e35b40f9833fd6d277c665e15c657d62/src/webauth/challenge_transaction.ts#L645)
+**Source:** [src/webauth/challenge_transaction.ts:645](https://github.com/stellar/js-stellar-sdk/blob/master/src/webauth/challenge_transaction.ts#L645)
 
 ## WebAuth.verifyTxSignedBy
 
@@ -368,8 +367,8 @@ verifyTxSignedBy(transaction: Transaction | FeeBumpTransaction, accountID: strin
 
 **Parameters**
 
-- `transaction` — The signed transaction.
-- `accountID` — The signer's public key.
+- **`transaction`** — `Transaction | FeeBumpTransaction` (required) — The signed transaction.
+- **`accountID`** — `string` (required) — The signer's public key.
 
 **Returns**
 
@@ -390,4 +389,4 @@ transaction.sign(keypair)
 WebAuth.verifyTxSignedBy(transaction, keypair.publicKey())
 ```
 
-**Source:** [src/webauth/utils.ts:94](https://github.com/stellar/js-stellar-sdk/blob/7212ade7e35b40f9833fd6d277c665e15c657d62/src/webauth/utils.ts#L94)
+**Source:** [src/webauth/utils.ts:94](https://github.com/stellar/js-stellar-sdk/blob/master/src/webauth/utils.ts#L94)

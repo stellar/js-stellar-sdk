@@ -38,11 +38,16 @@ export default defineConfig({
       sidebar: [
         {
           label: "Guides",
-          items: [{ autogenerate: { directory: "guides" } }],
+          // The `docs/` prefix is required because Starlight's autogenerate
+          // filter strips a hardcoded `src/content/docs/` prefix from each
+          // route's `filePath` before matching `directory`. With our custom
+          // content collection rooted at `./docs/`, that strip is a no-op,
+          // so paths still start with `docs/` at filter time.
+          items: [{ autogenerate: { directory: "docs/guides" } }],
         },
         {
           label: "Reference",
-          items: [{ autogenerate: { directory: "reference" } }],
+          items: [{ autogenerate: { directory: "docs/reference" } }],
         },
       ],
     }),

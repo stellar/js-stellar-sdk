@@ -45,6 +45,29 @@ The docs system has three parts:
 Authored and generated content are strictly separated: every file
 is either fully authored or fully generated. They never mix.
 
+### Renderer portability
+
+The generated markdown under `docs/` targets no specific docs platform.
+Starlight is the current renderer (chosen for its content collection,
+sidebar autogeneration, and search), but the same `docs/` files should
+render under Mintlify, Docusaurus, GitBook, Hugo, Jekyll, or any
+plain-markdown viewer (including raw GitHub view) without modification.
+That portability is a hard rule — when authoring TSDoc comments, guide
+markdown, or extending the build pipeline, do not introduce
+platform-specific syntax in the generated output:
+
+- No MDX components (`<Tabs>`, `<Card>`, `<TabItem>`, etc.).
+- No Starlight-specific directives or admonitions (`:::note`, `:::tip`,
+  `:::caution`).
+- Frontmatter limited to the universal `title` / `description`
+  convention. Avoid platform-private fields.
+- Cross-references between pages emitted as relative markdown links
+  (`./other-bucket.md#anchor`), never absolute URLs that bake in any
+  one platform's routing.
+
+Renderer-specific configuration belongs in `astro.config.mjs` and
+`src/content.config.ts`, not in the markdown.
+
 ### Layout
 
 - `src/**/*.ts` — TSDoc comments here drive the API reference.
@@ -113,8 +136,8 @@ the generator handles it.
 ### `llms.txt` and `llms-full.txt`
 
 - `llms.txt` is the LLM sitemap: project H1, blockquote tagline,
-  version metadata, and a `## Sections` block linking to every
-  published doc page.
+  version metadata, and per-area `## Guides` / `## Reference` /
+  `## Other` sections with link lists to every published doc page.
 - `llms-full.txt` concatenates the full content of every doc page
   into one bundle for AI-agent ingestion.
 
@@ -133,3 +156,22 @@ git diff docs/   # should be empty
 ```
 
 If `git diff docs/` shows changes, commit them.
+
+### Source-link ref
+
+Per-symbol "Source:" links in the generated reference and the
+`Source ref:` field in `llms.txt` are pinned to a configurable
+ref so local builds, PR-check builds, and release deploys can
+each produce the right URLs without churning each other:
+
+- **Default**: trunk branch (`master`). Set in
+  [scripts/docs-source-ref.ts](scripts/docs-source-ref.ts) — update
+  there if the trunk branch is renamed.
+- **Override** via the `DOCS_SOURCE_REF` env var. Release deploys
+  set it to the release tag (e.g. `v15.0.1`) so the deployed
+  snapshot links to the exact release source. Locally:
+  `DOCS_SOURCE_REF=v15.0.1 pnpm docs:reference`.
+
+Because the default is evergreen, repeated `pnpm docs:reference`
+or `pnpm docs:llms` runs are byte-idempotent — no per-commit SHA
+churn in `docs/`.

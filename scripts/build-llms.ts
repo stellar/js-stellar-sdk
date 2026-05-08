@@ -6,9 +6,10 @@
  * both feed the docs pipeline (`pnpm docs`).
  */
 
-import { execSync } from "node:child_process";
 import { mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+
+import { DOCS_SOURCE_REF } from "./docs-source-ref.js";
 
 const REPO_ROOT = process.cwd();
 const DOCS_DIR = join(REPO_ROOT, "docs");
@@ -141,7 +142,7 @@ function renderEntryTitleOnly(p: DocPage): string {
 function renderLlmsTxt(opts: {
   description: string;
   version: string;
-  sha: string;
+  sourceRef: string;
   guides: DocPage[];
   reference: DocPage[];
   agents: DocPage;
@@ -152,7 +153,7 @@ function renderLlmsTxt(opts: {
   lines.push(`> ${opts.description}`);
   lines.push("");
   lines.push(`- Version: ${opts.version}`);
-  lines.push(`- Generated: ${opts.sha}`);
+  lines.push(`- Source ref: ${opts.sourceRef}`);
   lines.push("");
   lines.push("## Guides");
   lines.push("");
@@ -198,15 +199,12 @@ function renderLlmsFullTxt(opts: {
 // === main ===
 
 function main(): void {
-  const sha = execSync("git rev-parse HEAD", { cwd: REPO_ROOT })
-    .toString()
-    .trim();
   const pkg = JSON.parse(readFileSync(PKG_PATH, "utf8")) as {
     version: string;
     description: string;
   };
   console.log(
-    `Building llms bundles: SDK v${pkg.version} at ${sha.substring(0, 8)}`,
+    `Building llms bundles: SDK v${pkg.version} with source ref '${DOCS_SOURCE_REF}'`,
   );
 
   const indexPage = readDoc("index.md");
@@ -221,7 +219,7 @@ function main(): void {
   const llmsTxt = renderLlmsTxt({
     description: pkg.description,
     version: pkg.version,
-    sha,
+    sourceRef: DOCS_SOURCE_REF,
     guides: guidesPages,
     reference: referencePages,
     agents: agentsPage,
