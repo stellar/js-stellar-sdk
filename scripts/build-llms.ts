@@ -7,13 +7,19 @@
  */
 
 import { execSync } from "node:child_process";
-import { readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 const REPO_ROOT = process.cwd();
 const DOCS_DIR = join(REPO_ROOT, "docs");
+const PUBLIC_DIR = join(REPO_ROOT, "public");
 const LLMS_OUT = join(DOCS_DIR, "llms.txt");
 const LLMS_FULL_OUT = join(DOCS_DIR, "llms-full.txt");
+// Mirrored copies under public/ so Astro publishes them at the site
+// root (`<site>/llms.txt`, `<site>/llms-full.txt`). The canonical
+// committed copy lives at docs/; public/ is gitignored and rebuilt.
+const PUBLIC_LLMS_OUT = join(PUBLIC_DIR, "llms.txt");
+const PUBLIC_LLMS_FULL_OUT = join(PUBLIC_DIR, "llms-full.txt");
 const CHANGELOG_PATH = join(REPO_ROOT, "CHANGELOG.md");
 const PKG_PATH = join(REPO_ROOT, "package.json");
 
@@ -232,8 +238,13 @@ function main(): void {
   writeFileSync(LLMS_OUT, llmsTxt, "utf8");
   writeFileSync(LLMS_FULL_OUT, llmsFullTxt, "utf8");
 
+  mkdirSync(PUBLIC_DIR, { recursive: true });
+  writeFileSync(PUBLIC_LLMS_OUT, llmsTxt, "utf8");
+  writeFileSync(PUBLIC_LLMS_FULL_OUT, llmsFullTxt, "utf8");
+
   console.log(`Wrote ${LLMS_OUT} (${llmsTxt.length}B).`);
   console.log(`Wrote ${LLMS_FULL_OUT} (${llmsFullTxt.length}B).`);
+  console.log(`Mirrored to ${PUBLIC_DIR} for Astro site-root serving.`);
 }
 
 main();

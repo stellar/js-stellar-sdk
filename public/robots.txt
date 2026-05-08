@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://stellar.github.io/js-stellar-sdk/sitemap-index.xml
+Sitemap: https://stellar.github.io/js-stellar-sdk/llms.txt
+Sitemap: https://stellar.github.io/js-stellar-sdk/llms-full.txt
