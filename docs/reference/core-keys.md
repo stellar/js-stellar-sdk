@@ -21,7 +21,7 @@ Use more convenient methods to create `Keypair` object:
 class Keypair
 ```
 
-**Source:** [src/base/keypair.ts:21](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/base/keypair.ts#L21)
+**Source:** [src/base/keypair.ts:21](https://github.com/stellar/js-stellar-sdk/blob/7212ade7e35b40f9833fd6d277c665e15c657d62/src/base/keypair.ts#L21)
 
 ## SignerKey
 
@@ -39,7 +39,7 @@ class SignerKey
 
 - {@link TransactionBuilder.setExtraSigners}
 
-**Source:** [src/base/signerkey.ts:19](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/base/signerkey.ts#L19)
+**Source:** [src/base/signerkey.ts:19](https://github.com/stellar/js-stellar-sdk/blob/7212ade7e35b40f9833fd6d277c665e15c657d62/src/base/signerkey.ts#L19)
 
 ## StrKey
 
@@ -51,7 +51,7 @@ string (i.e. "GABCD...", etc.) representations.
 class StrKey
 ```
 
-**Source:** [src/base/strkey.ts:54](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/base/strkey.ts#L54)
+**Source:** [src/base/strkey.ts:54](https://github.com/stellar/js-stellar-sdk/blob/7212ade7e35b40f9833fd6d277c665e15c657d62/src/base/strkey.ts#L54)
 
 ## sign
 
@@ -66,7 +66,7 @@ sign(data: Buffer, rawSecret: Uint8Array<ArrayBufferLike> | Buffer<ArrayBufferLi
 - `data` — the data to sign
 - `rawSecret` — the raw Ed25519 secret key
 
-**Source:** [src/base/signing.ts:20](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/base/signing.ts#L20)
+**Source:** [src/base/signing.ts:20](https://github.com/stellar/js-stellar-sdk/blob/7212ade7e35b40f9833fd6d277c665e15c657d62/src/base/signing.ts#L20)
 
 ## verify
 
@@ -82,4 +82,4 @@ verify(data: Buffer, signature: Buffer, rawPublicKey: Uint8Array<ArrayBufferLike
 - `signature` — the signature to verify
 - `rawPublicKey` — the raw Ed25519 public key
 
-**Source:** [src/base/signing.ts:31](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/base/signing.ts#L31)
+**Source:** [src/base/signing.ts:31](https://github.com/stellar/js-stellar-sdk/blob/7212ade7e35b40f9833fd6d277c665e15c657d62/src/base/signing.ts#L31)

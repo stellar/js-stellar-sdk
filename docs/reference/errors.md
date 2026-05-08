@@ -26,7 +26,7 @@ console.log('The following account requires a memo ', err.accountId)
 console.log('The account is used in operation: ', err.operationIndex)
 ```
 
-**Source:** [src/errors/account_requires_memo.ts:20](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/errors/account_requires_memo.ts#L20)
+**Source:** [src/errors/account_requires_memo.ts:20](https://github.com/stellar/js-stellar-sdk/blob/7212ade7e35b40f9833fd6d277c665e15c657d62/src/errors/account_requires_memo.ts#L20)
 
 ## BadRequestError
 
@@ -37,7 +37,7 @@ way (incorrect timebounds for trade call builders, for example.)
 class BadRequestError extends NetworkError
 ```
 
-**Source:** [src/errors/bad_request.ts:10](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/errors/bad_request.ts#L10)
+**Source:** [src/errors/bad_request.ts:10](https://github.com/stellar/js-stellar-sdk/blob/7212ade7e35b40f9833fd6d277c665e15c657d62/src/errors/bad_request.ts#L10)
 
 ## BadResponseError
 
@@ -51,7 +51,7 @@ Horizon.
 class BadResponseError extends NetworkError
 ```
 
-**Source:** [src/errors/bad_response.ts:13](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/errors/bad_response.ts#L13)
+**Source:** [src/errors/bad_response.ts:13](https://github.com/stellar/js-stellar-sdk/blob/7212ade7e35b40f9833fd6d277c665e15c657d62/src/errors/bad_response.ts#L13)
 
 ## NetworkError
 
@@ -62,7 +62,7 @@ some kind of problem.
 class NetworkError extends Error
 ```
 
-**Source:** [src/errors/network.ts:16](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/errors/network.ts#L16)
+**Source:** [src/errors/network.ts:16](https://github.com/stellar/js-stellar-sdk/blob/7212ade7e35b40f9833fd6d277c665e15c657d62/src/errors/network.ts#L16)
 
 ## NotFoundError
 
@@ -73,7 +73,7 @@ unavailable.
 class NotFoundError extends NetworkError
 ```
 
-**Source:** [src/errors/not_found.ts:10](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/errors/not_found.ts#L10)
+**Source:** [src/errors/not_found.ts:10](https://github.com/stellar/js-stellar-sdk/blob/7212ade7e35b40f9833fd6d277c665e15c657d62/src/errors/not_found.ts#L10)
 
 ## WebAuth.InvalidChallengeError
 
@@ -85,4 +85,4 @@ sequence number).
 class InvalidChallengeError extends Error
 ```
 
-**Source:** [src/webauth/errors.ts:8](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/webauth/errors.ts#L8)
+**Source:** [src/webauth/errors.ts:8](https://github.com/stellar/js-stellar-sdk/blob/7212ade7e35b40f9833fd6d277c665e15c657d62/src/webauth/errors.ts#L8)

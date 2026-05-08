@@ -47,4 +47,4 @@ const generator = BindingGenerator.fromSpec(spec);
 const bindings = generator.generate({ contractName: "my-contract" });
 ```
 
-**Source:** [src/bindings/generator.ts:78](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/bindings/generator.ts#L78)
+**Source:** [src/bindings/generator.ts:78](https://github.com/stellar/js-stellar-sdk/blob/7212ade7e35b40f9833fd6d277c665e15c657d62/src/bindings/generator.ts#L78)

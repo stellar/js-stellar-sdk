@@ -28,7 +28,7 @@ StellarSdk.Config.setAllowHttp(true);
 StellarSdk.Config.setTimeout(5000);
 ```
 
-**Source:** [src/config.ts:39](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/config.ts#L39)
+**Source:** [src/config.ts:39](https://github.com/stellar/js-stellar-sdk/blob/7212ade7e35b40f9833fd6d277c665e15c657d62/src/config.ts#L39)
 
 ## Utils
 
@@ -38,4 +38,4 @@ Miscellaneous utilities.
 class Utils
 ```
 
-**Source:** [src/utils.ts:7](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/utils.ts#L7)
+**Source:** [src/utils.ts:7](https://github.com/stellar/js-stellar-sdk/blob/7212ade7e35b40f9833fd6d277c665e15c657d62/src/utils.ts#L7)

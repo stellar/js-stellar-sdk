@@ -17,7 +17,7 @@ asset XLM, the issuer will be undefined.
 class Asset
 ```
 
-**Source:** [src/base/asset.ts:46](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/base/asset.ts#L46)
+**Source:** [src/base/asset.ts:46](https://github.com/stellar/js-stellar-sdk/blob/7212ade7e35b40f9833fd6d277c665e15c657d62/src/base/asset.ts#L46)
 
 ## AssetType
 
@@ -25,7 +25,7 @@ class Asset
 type AssetType = typeof AssetType[keyof typeof AssetType]
 ```
 
-**Source:** [src/base/asset.ts:7](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/base/asset.ts#L7)
+**Source:** [src/base/asset.ts:7](https://github.com/stellar/js-stellar-sdk/blob/7212ade7e35b40f9833fd6d277c665e15c657d62/src/base/asset.ts#L7)
 
 ## AssetType
 
@@ -33,7 +33,7 @@ type AssetType = typeof AssetType[keyof typeof AssetType]
 const AssetType: { readonly credit12: "credit_alphanum12"; readonly credit4: "credit_alphanum4"; readonly liquidityPoolShares: "liquidity_pool_shares"; readonly native: "native" }
 ```
 
-**Source:** [src/base/asset.ts:7](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/base/asset.ts#L7)
+**Source:** [src/base/asset.ts:7](https://github.com/stellar/js-stellar-sdk/blob/7212ade7e35b40f9833fd6d277c665e15c657d62/src/base/asset.ts#L7)
 
 ## AssetType.credit12
 
@@ -41,7 +41,7 @@ const AssetType: { readonly credit12: "credit_alphanum12"; readonly credit4: "cr
 type credit12 = "credit_alphanum12"
 ```
 
-**Source:** [src/base/asset.ts:20](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/base/asset.ts#L20)
+**Source:** [src/base/asset.ts:20](https://github.com/stellar/js-stellar-sdk/blob/7212ade7e35b40f9833fd6d277c665e15c657d62/src/base/asset.ts#L20)
 
 ## AssetType.credit4
 
@@ -49,7 +49,7 @@ type credit12 = "credit_alphanum12"
 type credit4 = "credit_alphanum4"
 ```
 
-**Source:** [src/base/asset.ts:19](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/base/asset.ts#L19)
+**Source:** [src/base/asset.ts:19](https://github.com/stellar/js-stellar-sdk/blob/7212ade7e35b40f9833fd6d277c665e15c657d62/src/base/asset.ts#L19)
 
 ## AssetType.liquidityPoolShares
 
@@ -57,7 +57,7 @@ type credit4 = "credit_alphanum4"
 type liquidityPoolShares = "liquidity_pool_shares"
 ```
 
-**Source:** [src/base/asset.ts:21](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/base/asset.ts#L21)
+**Source:** [src/base/asset.ts:21](https://github.com/stellar/js-stellar-sdk/blob/7212ade7e35b40f9833fd6d277c665e15c657d62/src/base/asset.ts#L21)
 
 ## AssetType.native
 
@@ -65,7 +65,7 @@ type liquidityPoolShares = "liquidity_pool_shares"
 type native = "native"
 ```
 
-**Source:** [src/base/asset.ts:18](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/base/asset.ts#L18)
+**Source:** [src/base/asset.ts:18](https://github.com/stellar/js-stellar-sdk/blob/7212ade7e35b40f9833fd6d277c665e15c657d62/src/base/asset.ts#L18)
 
 ## Claimant
 
@@ -77,7 +77,7 @@ The claim predicate is optional, it defaults to unconditional if none is specifi
 class Claimant
 ```
 
-**Source:** [src/base/claimant.ts:10](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/base/claimant.ts#L10)
+**Source:** [src/base/claimant.ts:10](https://github.com/stellar/js-stellar-sdk/blob/7212ade7e35b40f9833fd6d277c665e15c657d62/src/base/claimant.ts#L10)
 
 ## LiquidityPoolAsset
 
@@ -87,7 +87,7 @@ LiquidityPoolAsset class represents a liquidity pool trustline change.
 class LiquidityPoolAsset
 ```
 
-**Source:** [src/base/liquidity_pool_asset.ts:12](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/base/liquidity_pool_asset.ts#L12)
+**Source:** [src/base/liquidity_pool_asset.ts:12](https://github.com/stellar/js-stellar-sdk/blob/7212ade7e35b40f9833fd6d277c665e15c657d62/src/base/liquidity_pool_asset.ts#L12)
 
 ## LiquidityPoolFeeV18
 
@@ -95,7 +95,7 @@ class LiquidityPoolAsset
 const LiquidityPoolFeeV18: 30
 ```
 
-**Source:** [src/base/get_liquidity_pool_id.ts:22](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/base/get_liquidity_pool_id.ts#L22)
+**Source:** [src/base/get_liquidity_pool_id.ts:22](https://github.com/stellar/js-stellar-sdk/blob/7212ade7e35b40f9833fd6d277c665e15c657d62/src/base/get_liquidity_pool_id.ts#L22)
 
 ## LiquidityPoolId
 
@@ -106,7 +106,7 @@ liquidity pool.
 class LiquidityPoolId
 ```
 
-**Source:** [src/base/liquidity_pool_id.ts:7](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/base/liquidity_pool_id.ts#L7)
+**Source:** [src/base/liquidity_pool_id.ts:7](https://github.com/stellar/js-stellar-sdk/blob/7212ade7e35b40f9833fd6d277c665e15c657d62/src/base/liquidity_pool_id.ts#L7)
 
 ## LiquidityPoolParameters
 
@@ -114,7 +114,7 @@ class LiquidityPoolId
 type LiquidityPoolParameters = LiquidityPoolParameters.ConstantProduct
 ```
 
-**Source:** [src/base/get_liquidity_pool_id.ts:12](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/base/get_liquidity_pool_id.ts#L12)
+**Source:** [src/base/get_liquidity_pool_id.ts:12](https://github.com/stellar/js-stellar-sdk/blob/7212ade7e35b40f9833fd6d277c665e15c657d62/src/base/get_liquidity_pool_id.ts#L12)
 
 ## LiquidityPoolParameters.ConstantProduct
 
@@ -122,7 +122,7 @@ type LiquidityPoolParameters = LiquidityPoolParameters.ConstantProduct
 interface ConstantProduct
 ```
 
-**Source:** [src/base/get_liquidity_pool_id.ts:13](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/base/get_liquidity_pool_id.ts#L13)
+**Source:** [src/base/get_liquidity_pool_id.ts:13](https://github.com/stellar/js-stellar-sdk/blob/7212ade7e35b40f9833fd6d277c665e15c657d62/src/base/get_liquidity_pool_id.ts#L13)
 
 ## LiquidityPoolType
 
@@ -130,7 +130,7 @@ interface ConstantProduct
 type LiquidityPoolType = LiquidityPoolType.constantProduct
 ```
 
-**Source:** [src/base/get_liquidity_pool_id.ts:7](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/base/get_liquidity_pool_id.ts#L7)
+**Source:** [src/base/get_liquidity_pool_id.ts:7](https://github.com/stellar/js-stellar-sdk/blob/7212ade7e35b40f9833fd6d277c665e15c657d62/src/base/get_liquidity_pool_id.ts#L7)
 
 ## LiquidityPoolType.constantProduct
 
@@ -138,7 +138,7 @@ type LiquidityPoolType = LiquidityPoolType.constantProduct
 type constantProduct = "constant_product"
 ```
 
-**Source:** [src/base/get_liquidity_pool_id.ts:8](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/base/get_liquidity_pool_id.ts#L8)
+**Source:** [src/base/get_liquidity_pool_id.ts:8](https://github.com/stellar/js-stellar-sdk/blob/7212ade7e35b40f9833fd6d277c665e15c657d62/src/base/get_liquidity_pool_id.ts#L8)
 
 ## getLiquidityPoolId
 
@@ -163,4 +163,4 @@ getLiquidityPoolId(liquidityPoolType: "constant_product", liquidityPoolParameter
 
 - [stellar-core getPoolID](https://github.com/stellar/stellar-core/blob/9f3a48c6a8f1aa77b6043a055d0638661f718080/src/ledger/test/LedgerTxnTests.cpp#L3746-L3751)
 
-**Source:** [src/base/get_liquidity_pool_id.ts:38](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/base/get_liquidity_pool_id.ts#L38)
+**Source:** [src/base/get_liquidity_pool_id.ts:38](https://github.com/stellar/js-stellar-sdk/blob/7212ade7e35b40f9833fd6d277c665e15c657d62/src/base/get_liquidity_pool_id.ts#L38)

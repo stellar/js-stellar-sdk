@@ -1,0 +1,36 @@
+# @stellar/stellar-sdk
+
+> A library for working with the Stellar network, including communication with the Horizon and Soroban RPC servers.
+
+- Version: 15.0.1
+- Generated: 7212ade7e35b40f9833fd6d277c665e15c657d62
+
+## Guides
+
+- [Versioning & Compatibility](/guides/00-versioning): How SDK versions map to Stellar protocol versions, and why this site documents only the current major.
+- [Getting Started](/guides/01-getting-started): Install the Stellar SDK and write your first script against testnet.
+- [Building & Signing Transactions](/guides/04-building-and-signing-transactions): Construct, sign, and inspect Stellar transactions with TransactionBuilder.
+
+## Reference
+
+- [Core / Keys](/reference/core-keys)
+- [Core / Assets](/reference/core-assets)
+- [Core / Transactions](/reference/core-transactions)
+- [Core / XDR](/reference/core-xdr)
+- [Core / Soroban Primitives](/reference/core-soroban-primitives)
+- [Network / Horizon](/reference/network-horizon)
+- [Network / RPC](/reference/network-rpc)
+- [Network / Friendbot](/reference/network-friendbot)
+- [Network / HTTP](/reference/network-http)
+- [Contracts / Client](/reference/contracts-client)
+- [Contracts / Bindings](/reference/contracts-bindings)
+- [SEPs / Toml](/reference/seps-toml)
+- [SEPs / Federation](/reference/seps-federation)
+- [SEPs / WebAuth](/reference/seps-webauth)
+- [Errors](/reference/errors)
+- [Cross-cutting](/reference/cross-cutting)
+
+## Other
+
+- [AI Agents](/agents): Documentation bundles for LLM consumption, regenerated on every release deploy.
+- [Full bundle](/llms-full.txt): All guide and reference content plus CHANGELOG, in one file.

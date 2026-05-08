@@ -11,7 +11,7 @@ category: Core / Soroban Primitives
 class Address
 ```
 
-**Source:** [src/base/address.ts:20](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/base/address.ts#L20)
+**Source:** [src/base/address.ts:20](https://github.com/stellar/js-stellar-sdk/blob/7212ade7e35b40f9833fd6d277c665e15c657d62/src/base/address.ts#L20)
 
 ## AuthorizeInvocationParams
 
@@ -34,7 +34,7 @@ interface AuthorizeInvocationParams
 
 - authorizeEntry
 
-**Source:** [src/base/auth.ts:231](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/base/auth.ts#L231)
+**Source:** [src/base/auth.ts:231](https://github.com/stellar/js-stellar-sdk/blob/7212ade7e35b40f9833fd6d277c665e15c657d62/src/base/auth.ts#L231)
 
 ## Contract
 
@@ -49,7 +49,7 @@ for more information about how contracts work in Stellar.
 class Contract
 ```
 
-**Source:** [src/base/contract.ts:14](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/base/contract.ts#L14)
+**Source:** [src/base/contract.ts:14](https://github.com/stellar/js-stellar-sdk/blob/7212ade7e35b40f9833fd6d277c665e15c657d62/src/base/contract.ts#L14)
 
 ## CreateInvocation
 
@@ -65,7 +65,7 @@ Details about a contract creation invocation.
 interface CreateInvocation
 ```
 
-**Source:** [src/base/invocation.ts:23](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/base/invocation.ts#L23)
+**Source:** [src/base/invocation.ts:23](https://github.com/stellar/js-stellar-sdk/blob/7212ade7e35b40f9833fd6d277c665e15c657d62/src/base/invocation.ts#L23)
 
 ## ExecuteInvocation
 
@@ -80,7 +80,7 @@ Details about a contract function execution invocation.
 interface ExecuteInvocation
 ```
 
-**Source:** [src/base/invocation.ts:37](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/base/invocation.ts#L37)
+**Source:** [src/base/invocation.ts:37](https://github.com/stellar/js-stellar-sdk/blob/7212ade7e35b40f9833fd6d277c665e15c657d62/src/base/invocation.ts#L37)
 
 ## IntLike
 
@@ -88,7 +88,7 @@ interface ExecuteInvocation
 type IntLike = bigint | number | string
 ```
 
-**Source:** [src/base/sorobandata_builder.ts:3](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/base/sorobandata_builder.ts#L3)
+**Source:** [src/base/sorobandata_builder.ts:3](https://github.com/stellar/js-stellar-sdk/blob/7212ade7e35b40f9833fd6d277c665e15c657d62/src/base/sorobandata_builder.ts#L3)
 
 ## InvocationTree
 
@@ -104,7 +104,7 @@ A node in the invocation tree.
 interface InvocationTree
 ```
 
-**Source:** [src/base/invocation.ts:53](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/base/invocation.ts#L53)
+**Source:** [src/base/invocation.ts:53](https://github.com/stellar/js-stellar-sdk/blob/7212ade7e35b40f9833fd6d277c665e15c657d62/src/base/invocation.ts#L53)
 
 ## InvocationWalker
 
@@ -117,7 +117,7 @@ other return values are ignored.
 type InvocationWalker = (node: xdr.SorobanAuthorizedInvocation, depth: number, parent?: xdr.SorobanAuthorizedInvocation) => boolean | null | void
 ```
 
-**Source:** [src/base/invocation.ts:71](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/base/invocation.ts#L71)
+**Source:** [src/base/invocation.ts:71](https://github.com/stellar/js-stellar-sdk/blob/7212ade7e35b40f9833fd6d277c665e15c657d62/src/base/invocation.ts#L71)
 
 ## NativeToScValOpts
 
@@ -125,7 +125,7 @@ type InvocationWalker = (node: xdr.SorobanAuthorizedInvocation, depth: number, p
 interface NativeToScValOpts
 ```
 
-**Source:** [src/base/scval.ts:18](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/base/scval.ts#L18)
+**Source:** [src/base/scval.ts:18](https://github.com/stellar/js-stellar-sdk/blob/7212ade7e35b40f9833fd6d277c665e15c657d62/src/base/scval.ts#L18)
 
 ## SigningCallback
 
@@ -136,7 +136,7 @@ necessary to authorize an invocation tree.
 type SigningCallback = (preimage: xdr.HashIdPreimage) => Promise<BufferLike | { publicKey: string; signature: BufferLike }>
 ```
 
-**Source:** [src/base/auth.ts:35](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/base/auth.ts#L35)
+**Source:** [src/base/auth.ts:35](https://github.com/stellar/js-stellar-sdk/blob/7212ade7e35b40f9833fd6d277c665e15c657d62/src/base/auth.ts#L35)
 
 ## Soroban
 
@@ -146,7 +146,7 @@ Helper class to assist with formatting and parsing token amounts.
 class Soroban
 ```
 
-**Source:** [src/base/soroban.ts:2](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/base/soroban.ts#L2)
+**Source:** [src/base/soroban.ts:2](https://github.com/stellar/js-stellar-sdk/blob/7212ade7e35b40f9833fd6d277c665e15c657d62/src/base/soroban.ts#L2)
 
 ## SorobanDataBuilder
 
@@ -178,7 +178,7 @@ const newData = new SorobanDataBuilder()
   .build();
 ```
 
-**Source:** [src/base/sorobandata_builder.ts:29](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/base/sorobandata_builder.ts#L29)
+**Source:** [src/base/sorobandata_builder.ts:29](https://github.com/stellar/js-stellar-sdk/blob/7212ade7e35b40f9833fd6d277c665e15c657d62/src/base/sorobandata_builder.ts#L29)
 
 ## WasmCreateDetails
 
@@ -186,7 +186,7 @@ const newData = new SorobanDataBuilder()
 interface WasmCreateDetails
 ```
 
-**Source:** [src/base/invocation.ts:6](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/base/invocation.ts#L6)
+**Source:** [src/base/invocation.ts:6](https://github.com/stellar/js-stellar-sdk/blob/7212ade7e35b40f9833fd6d277c665e15c657d62/src/base/invocation.ts#L6)
 
 ## authorizeEntry
 
@@ -283,7 +283,7 @@ function multiPartyAuth(
 
 - authorizeInvocation
 
-**Source:** [src/base/auth.ts:123](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/base/auth.ts#L123)
+**Source:** [src/base/auth.ts:123](https://github.com/stellar/js-stellar-sdk/blob/7212ade7e35b40f9833fd6d277c665e15c657d62/src/base/auth.ts#L123)
 
 ## authorizeInvocation
 
@@ -291,7 +291,7 @@ function multiPartyAuth(
 authorizeInvocation(params: AuthorizeInvocationParams): Promise<SorobanAuthorizationEntry>
 ```
 
-**Source:** [src/base/auth.ts:239](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/base/auth.ts#L239)
+**Source:** [src/base/auth.ts:239](https://github.com/stellar/js-stellar-sdk/blob/7212ade7e35b40f9833fd6d277c665e15c657d62/src/base/auth.ts#L239)
 
 ## buildInvocationTree
 
@@ -344,7 +344,7 @@ s.simulateTransaction(tx).then(
 );
 ```
 
-**Source:** [src/base/invocation.ts:120](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/base/invocation.ts#L120)
+**Source:** [src/base/invocation.ts:120](https://github.com/stellar/js-stellar-sdk/blob/7212ade7e35b40f9833fd6d277c665e15c657d62/src/base/invocation.ts#L120)
 
 ## humanizeEvents
 
@@ -366,7 +366,7 @@ humanizeEvents(events: ContractEvent[] | DiagnosticEvent[]): SorobanEvent[]
 - `events` — either contract events or diagnostic events to parse into a
    friendly format
 
-**Source:** [src/base/events.ts:48](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/base/events.ts#L48)
+**Source:** [src/base/events.ts:48](https://github.com/stellar/js-stellar-sdk/blob/7212ade7e35b40f9833fd6d277c665e15c657d62/src/base/events.ts#L48)
 
 ## nativeToScVal
 
@@ -521,7 +521,7 @@ scValToNative(scv) == gigaMap;       // true
 
 - scValToNative
 
-**Source:** [src/base/scval.ts:161](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/base/scval.ts#L161)
+**Source:** [src/base/scval.ts:161](https://github.com/stellar/js-stellar-sdk/blob/7212ade7e35b40f9833fd6d277c665e15c657d62/src/base/scval.ts#L161)
 
 ## scValToNative
 
@@ -555,7 +555,7 @@ scValToNative(scv: ScVal): any
 
 - nativeToScVal
 
-**Source:** [src/base/scval.ts:375](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/base/scval.ts#L375)
+**Source:** [src/base/scval.ts:375](https://github.com/stellar/js-stellar-sdk/blob/7212ade7e35b40f9833fd6d277c665e15c657d62/src/base/scval.ts#L375)
 
 ## scvSortedMap
 
@@ -569,7 +569,7 @@ scvSortedMap(items: ScMapEntry[]): ScVal
 
 - `items` — the unsorted map entries
 
-**Source:** [src/base/scval.ts:487](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/base/scval.ts#L487)
+**Source:** [src/base/scval.ts:487](https://github.com/stellar/js-stellar-sdk/blob/7212ade7e35b40f9833fd6d277c665e15c657d62/src/base/scval.ts#L487)
 
 ## walkInvocationTree
 
@@ -588,4 +588,4 @@ walkInvocationTree(root: SorobanAuthorizedInvocation, callback: InvocationWalker
 - `root` — the tree to explore
 - `callback` — the callback to execute for each node
 
-**Source:** [src/base/invocation.ts:229](https://github.com/stellar/js-stellar-sdk/blob/df5c8d9eee3e63fcad94df7cf332a0bbac1775e8/src/base/invocation.ts#L229)
+**Source:** [src/base/invocation.ts:229](https://github.com/stellar/js-stellar-sdk/blob/7212ade7e35b40f9833fd6d277c665e15c657d62/src/base/invocation.ts#L229)
