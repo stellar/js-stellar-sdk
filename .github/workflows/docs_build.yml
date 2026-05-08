@@ -1,0 +1,48 @@
+name: Docs build
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Install Node (22.x)
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.x"
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile --network-concurrency 1
+
+      - name: Cache Astro build
+        uses: actions/cache@v4
+        with:
+          path: .astro
+          key: astro-${{ hashFiles('astro.config.mjs', 'pnpm-lock.yaml') }}
+
+      - name: Build reference docs
+        run: pnpm docs:reference
+
+      - name: Build llms.txt bundles
+        run: pnpm docs:llms
+
+      - name: Verify generated docs are up to date
+        run: git diff --exit-code -- docs/
+
+      - name: Build Starlight site
+        run: pnpm docs:site
