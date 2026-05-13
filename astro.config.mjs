@@ -2,11 +2,11 @@ import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
 import sitemap from "@astrojs/sitemap";
 
-const BASE = "/js-stellar-sdk";
+import { SITE_URL, BASE_PATH } from "./config/site.js";
 
 export default defineConfig({
-  site: "https://stellar.github.io",
-  base: BASE,
+  site: SITE_URL,
+  base: BASE_PATH,
   outDir: "./dist/site",
   prefetch: { prefetchAll: true },
   integrations: [
@@ -35,7 +35,7 @@ export default defineConfig({
             rel: "alternate",
             type: "text/plain",
             title: "LLMs sitemap",
-            href: `${BASE}/llms.txt`,
+            href: `${BASE_PATH}/llms.txt`,
           },
         },
       ],

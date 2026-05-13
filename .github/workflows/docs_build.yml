@@ -44,5 +44,11 @@ jobs:
       - name: Verify generated docs are up to date
         run: git diff --exit-code -- docs/
 
+      - name: Generate robots.txt from config
+        run: pnpm docs:robots
+
       - name: Build Starlight site
         run: pnpm docs:site
+
+      - name: Copy .md siblings into site output
+        run: pnpm docs:md-siblings

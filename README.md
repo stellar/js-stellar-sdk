@@ -98,7 +98,7 @@ The usage documentation for this library lives in a handful of places:
 
  * across the [Stellar Developer Docs](https://developers.stellar.org), which includes tutorials and examples,
  * within [this repository itself](https://github.com/stellar/js-stellar-sdk/blob/master/docs/reference/readme.md), and
- * on the generated [API doc site](https://stellar.github.io/js-stellar-sdk/).
+ * on the generated [API doc site](https://stellar.github.io/js-stellar-sdk/) — which also publishes [agent-friendly bundles, raw markdown siblings, and a crawler policy](https://stellar.github.io/js-stellar-sdk/agents/) for AI tools. The site's URL, base path, and AI policy values live in [`config/site.ts`](config/site.ts).
 
 You can also refer to:
 

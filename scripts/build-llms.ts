@@ -92,10 +92,15 @@ function parseFrontmatter(content: string): { fm: Frontmatter; body: string } {
   return { fm, body };
 }
 
+// Bundle-relative paths (no leading slash) so links resolve against the
+// bundle's own URL per RFC 3986. Keeps llms.txt portable across hosts and
+// base paths: served from `https://any-host/any-base/llms.txt`, a link
+// like `guides/00-versioning` resolves to
+// `https://any-host/any-base/guides/00-versioning`.
 function urlForDocsRelPath(docsRelPath: string): string {
   const stripped = docsRelPath.replace(/\.md$/, "");
-  if (stripped === "index") return "/";
-  return `/${stripped}`;
+  if (stripped === "index") return ".";
+  return stripped;
 }
 
 function readDoc(docsRelPath: string): DocPage {
@@ -167,7 +172,7 @@ function renderLlmsTxt(opts: {
   lines.push("");
   lines.push(renderEntryWithDescription(opts.agents));
   lines.push(
-    "- [Full bundle](/llms-full.txt): All guide and reference content plus CHANGELOG, in one file.",
+    "- [Full bundle](llms-full.txt): All guide and reference content plus CHANGELOG, in one file.",
   );
   return `${lines.join("\n")}\n`;
 }
