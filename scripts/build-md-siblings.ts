@@ -16,11 +16,12 @@
  */
 
 import {
-  copyFileSync,
   existsSync,
   mkdirSync,
+  readFileSync,
   readdirSync,
   statSync,
+  writeFileSync,
 } from "node:fs";
 import { dirname, join, relative } from "node:path";
 
@@ -42,6 +43,50 @@ function walkMarkdown(root: string): string[] {
   return out;
 }
 
+/**
+ * Adjusts a markdown link target for the `.md` sibling URL space.
+ *
+ * Source markdown is authored against the HTML render: each page lives at
+ * a directory URL with a trailing slash (e.g. `/js-stellar-sdk/agents/`),
+ * so a link like `../llms.txt` correctly resolves to the base root. The
+ * raw `.md` sibling lives at `<route>.md` (one fewer directory level),
+ * so the same link would resolve one level too high. Compensating is
+ * a deterministic single-step rewrite: drop one leading `../`.
+ *
+ * Skip cases (returned unchanged):
+ *  - Absolute URLs and protocol-relative (`http://`, `https://`, `//`)
+ *  - Absolute paths (`/foo`)
+ *  - Anchors only (`#section`)
+ *  - Intra-docs `.md` links — Starlight rewrites them for HTML and the
+ *    same source form works between sibling `.md` files at matching depths.
+ */
+function transformTarget(target: string): string {
+  if (/^[a-z][a-z0-9+.-]*:/i.test(target)) return target;
+  if (target.startsWith("//")) return target;
+  if (target.startsWith("/")) return target;
+  if (target.startsWith("#")) return target;
+
+  // .md link (with optional #anchor or ?query) — pass through.
+  const pathPart = target.split(/[#?]/)[0];
+  if (pathPart.endsWith(".md")) return target;
+
+  if (target.startsWith("../")) return target.slice(3);
+  return target;
+}
+
+// Inline links `[text](url)` and image links `![alt](url)`. URL is the
+// first whitespace-or-`)`-delimited token; any trailing `"title"` (or
+// equivalent) is preserved verbatim.
+const INLINE_LINK_RE = /(!?\[[^\]]*\])\(\s*([^)\s]+)((?:\s+[^)]*)?)\)/g;
+
+function rewriteLinks(content: string): string {
+  return content.replace(
+    INLINE_LINK_RE,
+    (_match, prefix: string, target: string, trailer: string) =>
+      `${prefix}(${transformTarget(target)}${trailer})`,
+  );
+}
+
 function main(): void {
   if (!existsSync(DIST_DIR)) {
     console.error(
@@ -56,7 +101,8 @@ function main(): void {
     const rel = relative(DOCS_DIR, src);
     const dst = join(DIST_DIR, rel);
     mkdirSync(dirname(dst), { recursive: true });
-    copyFileSync(src, dst);
+    const content = readFileSync(src, "utf8");
+    writeFileSync(dst, rewriteLinks(content), "utf8");
     written += 1;
   }
 
