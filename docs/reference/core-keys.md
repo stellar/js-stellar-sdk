@@ -1,5 +1,6 @@
 ---
 title: Core / Keys
+description: Public/private keypair handling — generate, sign, verify, and encode keys as Stellar strkeys.
 ---
 
 # Core / Keys

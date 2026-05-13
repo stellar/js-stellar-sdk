@@ -1,5 +1,6 @@
 ---
 title: Core / Soroban Primitives
+description: Soroban smart-contract primitives — Address, contract IDs, and ScVal conversion helpers.
 ---
 
 # Core / Soroban Primitives

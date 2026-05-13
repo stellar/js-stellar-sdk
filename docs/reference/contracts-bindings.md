@@ -1,5 +1,6 @@
 ---
 title: Contracts / Bindings
+description: Generate strongly-typed TypeScript bindings from a Soroban contract's WASM or interface metadata.
 ---
 
 # Contracts / Bindings

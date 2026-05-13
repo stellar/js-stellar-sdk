@@ -1,5 +1,6 @@
 ---
 title: Core / Transactions
+description: Build, sign, and inspect Stellar transactions with the TransactionBuilder API.
 ---
 
 # Core / Transactions

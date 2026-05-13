@@ -41,6 +41,48 @@ const BUCKET_TO_SLUG = {
 
 type BucketName = keyof typeof BUCKET_TO_SLUG;
 
+// Human-meaningful one-sentence summary per bucket, emitted as the
+// `description:` frontmatter field on each generated reference page.
+// Used for the rendered <meta description> (Lighthouse SEO check, social
+// link previews) and surfaced verbatim in the llms.txt bundle.
+//
+// Keep dash-separated phrasing (no `: `) so YAML scalar parsing stays
+// trivial and unambiguous without quoting.
+const BUCKET_DESCRIPTIONS: Record<BucketName, string> = {
+  "Core / Keys":
+    "Public/private keypair handling — generate, sign, verify, and encode keys as Stellar strkeys.",
+  "Core / Assets":
+    "Asset and liquidity-pool primitives — native, alphanumeric, claimable balances, and pool IDs.",
+  "Core / Transactions":
+    "Build, sign, and inspect Stellar transactions with the TransactionBuilder API.",
+  "Core / XDR":
+    "XDR encoding utilities and hashing helpers used by the SDK internally and re-exported for callers.",
+  "Core / Soroban Primitives":
+    "Soroban smart-contract primitives — Address, contract IDs, and ScVal conversion helpers.",
+  "Network / Horizon":
+    "Client for the Stellar Horizon REST API — accounts, payments, paths, offers, and streaming endpoints.",
+  "Network / RPC":
+    "Client for Soroban RPC — simulate, send, and poll Soroban smart-contract transactions.",
+  "Network / Friendbot":
+    "Testnet account funding via Friendbot — request lumens for accounts on test networks.",
+  "Network / HTTP":
+    "HTTP client primitives — timeouts, headers, and URL utilities shared by the Horizon and RPC clients.",
+  "Contracts / Client":
+    "High-level client for invoking Soroban smart contracts — assemble, simulate, sign, and submit calls.",
+  "Contracts / Bindings":
+    "Generate strongly-typed TypeScript bindings from a Soroban contract's WASM or interface metadata.",
+  "SEPs / Toml":
+    "Parse and validate stellar.toml files per SEP-1, including issuer metadata and currency descriptors.",
+  "SEPs / Federation":
+    "Federation protocol (SEP-2) client — resolve user-friendly addresses to Stellar account IDs.",
+  "SEPs / WebAuth":
+    "Wallet authentication via SEP-10 challenge transactions — build, sign, and validate WebAuth flows.",
+  Errors:
+    "Error classes thrown by the SDK and the patterns for distinguishing them at runtime.",
+  "Cross-cutting":
+    "Cross-cutting utilities — global configuration, BigNumber helpers, URL parsing, and shared internals.",
+};
+
 // Exact-file overrides take precedence over directory prefixes.
 // Use for files whose bucket differs from the directory's default
 // (e.g. src/webauth/errors.ts → Errors, not SEPs / WebAuth).
@@ -1139,6 +1181,7 @@ function renderFile(
   const header = [
     "---",
     `title: ${bucketName}`,
+    `description: ${BUCKET_DESCRIPTIONS[bucketName]}`,
     "---",
     "",
     `# ${bucketName}`,

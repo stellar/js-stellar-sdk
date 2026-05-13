@@ -1,5 +1,6 @@
 ---
 title: Network / Friendbot
+description: Testnet account funding via Friendbot — request lumens for accounts on test networks.
 ---
 
 # Network / Friendbot

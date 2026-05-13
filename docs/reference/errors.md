@@ -1,5 +1,6 @@
 ---
 title: Errors
+description: Error classes thrown by the SDK and the patterns for distinguishing them at runtime.
 ---
 
 # Errors

@@ -1,5 +1,6 @@
 ---
 title: Cross-cutting
+description: Cross-cutting utilities — global configuration, BigNumber helpers, URL parsing, and shared internals.
 ---
 
 # Cross-cutting

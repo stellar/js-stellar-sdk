@@ -1,5 +1,6 @@
 ---
 title: Core / XDR
+description: XDR encoding utilities and hashing helpers used by the SDK internally and re-exported for callers.
 ---
 
 # Core / XDR

@@ -1,5 +1,6 @@
 ---
 title: SEPs / WebAuth
+description: Wallet authentication via SEP-10 challenge transactions — build, sign, and validate WebAuth flows.
 ---
 
 # SEPs / WebAuth

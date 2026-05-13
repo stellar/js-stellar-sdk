@@ -1,5 +1,6 @@
 ---
 title: SEPs / Federation
+description: Federation protocol (SEP-2) client — resolve user-friendly addresses to Stellar account IDs.
 ---
 
 # SEPs / Federation

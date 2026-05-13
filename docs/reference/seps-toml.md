@@ -1,5 +1,6 @@
 ---
 title: SEPs / Toml
+description: Parse and validate stellar.toml files per SEP-1, including issuer metadata and currency descriptors.
 ---
 
 # SEPs / Toml

@@ -1,5 +1,6 @@
 ---
 title: Network / Horizon
+description: Client for the Stellar Horizon REST API — accounts, payments, paths, offers, and streaming endpoints.
 ---
 
 # Network / Horizon

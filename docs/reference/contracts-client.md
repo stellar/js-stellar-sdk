@@ -1,5 +1,6 @@
 ---
 title: Contracts / Client
+description: High-level client for invoking Soroban smart contracts — assemble, simulate, sign, and submit calls.
 ---
 
 # Contracts / Client

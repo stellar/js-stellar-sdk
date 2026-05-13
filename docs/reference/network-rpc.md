@@ -1,5 +1,6 @@
 ---
 title: Network / RPC
+description: Client for Soroban RPC — simulate, send, and poll Soroban smart-contract transactions.
 ---
 
 # Network / RPC

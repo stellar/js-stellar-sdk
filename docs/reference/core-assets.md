@@ -1,5 +1,6 @@
 ---
 title: Core / Assets
+description: Asset and liquidity-pool primitives — native, alphanumeric, claimable balances, and pool IDs.
 ---
 
 # Core / Assets
