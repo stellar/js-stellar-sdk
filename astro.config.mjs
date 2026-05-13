@@ -12,6 +12,10 @@ export default defineConfig({
   integrations: [
     starlight({
       title: "@stellar/stellar-sdk",
+      components: {
+        PageTitle: "./src/starlightComponents/PageTitle.astro",
+      },
+      customCss: ["./src/styles/overrides.css"],
       social: [
         {
           icon: "github",
@@ -49,6 +53,7 @@ export default defineConfig({
           label: "Reference",
           items: [{ autogenerate: { directory: "docs/reference" } }],
         },
+        { slug: "agents" },
       ],
     }),
     sitemap(),
