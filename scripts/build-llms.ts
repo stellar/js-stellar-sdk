@@ -1,9 +1,19 @@
 /**
- * Reads `docs/`, emits `docs/llms.txt` (compact index) and
- * `docs/llms-full.txt` (full corpus + appended CHANGELOG.md). The
- * llms.txt schema is locked in `.claude/notes/docs-plan.md` →
- * "`llms.txt` schema" subsection. Sibling to scripts/build-docs.ts;
- * both feed the docs pipeline (`pnpm docs`).
+ * Two responsibilities for the docs pipeline:
+ *
+ *   1. Syncs README.md → docs/index.md (the canonical homepage). The
+ *      docs/index.md file is README contents prefixed with a Starlight
+ *      frontmatter block. Title is derived from README's first H1;
+ *      description is hardcoded below.
+ *
+ *   2. Reads `docs/`, emits `docs/llms.txt` (compact index) and
+ *      `docs/llms-full.txt` (full corpus + appended CHANGELOG.md). The
+ *      llms.txt schema is locked in `.claude/notes/docs-plan.md` →
+ *      "`llms.txt` schema" subsection.
+ *
+ * Both outputs are committed in `docs/`; CI's `git diff --exit-code -- docs/`
+ * step catches drift. Sibling to scripts/build-docs.ts; both feed the docs
+ * pipeline (`pnpm docs`).
  */
 
 import { mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
@@ -14,6 +24,8 @@ import { DOCS_SOURCE_REF } from "./docs-source-ref.js";
 const REPO_ROOT = process.cwd();
 const DOCS_DIR = join(REPO_ROOT, "docs");
 const PUBLIC_DIR = join(REPO_ROOT, "public");
+const README_PATH = join(REPO_ROOT, "README.md");
+const INDEX_OUT = join(DOCS_DIR, "index.md");
 const LLMS_OUT = join(DOCS_DIR, "llms.txt");
 const LLMS_FULL_OUT = join(DOCS_DIR, "llms-full.txt");
 // Mirrored copies under public/ so Astro publishes them at the site
@@ -25,6 +37,12 @@ const CHANGELOG_PATH = join(REPO_ROOT, "CHANGELOG.md");
 const PKG_PATH = join(REPO_ROOT, "package.json");
 
 const PROJECT_NAME = "@stellar/stellar-sdk";
+
+// Docs site homepage frontmatter description. Kept here rather than
+// pulled from package.json#description because the docs site's tagline
+// is tuned for human readers, not npm registry surfacing.
+const INDEX_DESCRIPTION =
+  "A JavaScript library for communicating with a Stellar Horizon server and Stellar RPC.";
 
 // Reference-page slug order. Mirrors BUCKET_TO_SLUG insertion order
 // in scripts/build-docs.ts; keep in sync if either side changes. (If
@@ -201,9 +219,32 @@ function renderLlmsFullTxt(opts: {
   return `${sections.join("\n\n")}\n`;
 }
 
+// === README → docs/index.md sync ===
+
+// Writes docs/index.md as Starlight frontmatter + README contents. Title
+// is derived from README's first H1; description is hardcoded above.
+// Must run before any subsequent step that reads docs/index.md.
+function syncIndexFromReadme(): void {
+  const readme = readFileSync(README_PATH, "utf8");
+  const h1Match = readme.match(/^#\s+(.+)$/m);
+  if (h1Match === null) {
+    throw new Error(
+      "README.md has no '# ' heading — required to derive docs/index.md title.",
+    );
+  }
+  const title = h1Match[1].trim();
+  const frontmatter = `---\ntitle: ${title}\ndescription: ${INDEX_DESCRIPTION}\n---\n\n`;
+  writeFileSync(INDEX_OUT, frontmatter + readme, "utf8");
+  console.log(
+    `Synced README.md → ${INDEX_OUT} (${frontmatter.length + readme.length}B).`,
+  );
+}
+
 // === main ===
 
 function main(): void {
+  syncIndexFromReadme();
+
   const pkg = JSON.parse(readFileSync(PKG_PATH, "utf8")) as {
     version: string;
     description: string;

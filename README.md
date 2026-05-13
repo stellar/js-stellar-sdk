@@ -1,12 +1,12 @@
 # Stellar JS SDK (js-stellar-sdk)
 
 
-<a href="https://badge.fury.io/js/@stellar%2Fstellar-sdk"><img src="https://badge.fury.io/js/@stellar%2Fstellar-sdk.svg" alt="npm version" height="18"></a>
-<a href="https://www.npmjs.com/package/@stellar/stellar-sdk">
-  <img alt="Weekly Downloads" src="https://img.shields.io/npm/dw/@stellar/stellar-sdk" />
-</a>
-<a href="https://github.com/stellar/js-stellar-sdk/actions/workflows/tests.yml"><img alt="Test Status" src="https://github.com/stellar/js-stellar-sdk/actions/workflows/tests.yml/badge.svg" /></a>
-[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/stellar/js-stellar-sdk)
+<p class="badges">
+  <a href="https://badge.fury.io/js/@stellar%2Fstellar-sdk"><img src="https://badge.fury.io/js/@stellar%2Fstellar-sdk.svg" alt="npm version" height="18"></a>
+  <a href="https://www.npmjs.com/package/@stellar/stellar-sdk"><img alt="Weekly Downloads" src="https://img.shields.io/npm/dw/@stellar/stellar-sdk" /></a>
+  <a href="https://github.com/stellar/js-stellar-sdk/actions/workflows/tests.yml"><img alt="Test Status" src="https://github.com/stellar/js-stellar-sdk/actions/workflows/tests.yml/badge.svg" /></a>
+  <a href="https://deepwiki.com/stellar/js-stellar-sdk"><img src="https://deepwiki.com/badge.svg" alt="Ask DeepWiki" /></a>
+</p>
 
 `js-stellar-sdk` is a JavaScript library for communicating with a
 [Stellar Horizon server](https://developers.stellar.org/docs/data/apis/horizon) and [Stellar RPC](https://developers.stellar.org/docs/data/apis/rpc).

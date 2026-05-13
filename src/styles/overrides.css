@@ -12,3 +12,16 @@ main > .content-panel:has(> .sl-container > #_top:only-child) {
 main > .content-panel:has(> .sl-container > #_top:only-child) + .content-panel {
   border-top: none;
 }
+
+/* Homepage badge row (npm version, downloads, CI status, DeepWiki, etc.).
+   Source lives in README.md, synced into docs/index.md by build-llms.ts. */
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  margin-block: 1rem;
+}
+.badges img {
+  vertical-align: middle;
+}
