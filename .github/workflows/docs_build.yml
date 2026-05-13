@@ -47,8 +47,8 @@ jobs:
       - name: Generate robots.txt from config
         run: pnpm docs:robots
 
+      - name: Generate .htaccess from config (Apache hosts only)
+        run: pnpm docs:htaccess
+
       - name: Build Starlight site
         run: pnpm docs:site
-
-      - name: Copy .md siblings into site output
-        run: pnpm docs:md-siblings
