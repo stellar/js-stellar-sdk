@@ -81,9 +81,7 @@ describe("Contract", () => {
     it("returns a contract-type Address", () => {
       const contract = new Contract(VALID_ADDRESS);
       const scAddress = contract.address().toScAddress();
-      expect(scAddress.switch()).toBe(
-        xdr.ScAddressType.scAddressTypeContract(),
-      );
+      expect(scAddress.type).toBe("scAddressTypeContract");
     });
   });
 
@@ -93,36 +91,40 @@ describe("Contract", () => {
       expect(contract.contractId()).toBe(NULL_ADDRESS);
 
       const actual = contract.getFootprint();
-      const expected = xdr.LedgerKey.contractData(
-        new xdr.LedgerKeyContractData({
-          contract: contract.address().toScAddress(),
-          key: xdr.ScVal.scvLedgerKeyContractInstance(),
-          durability: xdr.ContractDataDurability.persistent(),
-        }),
-      );
+      const expected = xdr.LedgerKey.contractData({
+        contract: contract.address().toScAddress(),
+        key: xdr.ScVal.scvLedgerKeyContractInstance(),
+        durability: "persistent",
+      });
 
-      expect(actual.toXDR("hex")).toBe(expected.toXDR("hex"));
+      expect(xdr.LedgerKey.toXDR(actual, "hex")).toBe(
+        xdr.LedgerKey.toXDR(expected, "hex"),
+      );
     });
 
     it("returns a contractData ledger key", () => {
       const contract = new Contract(VALID_ADDRESS);
       const footprint = contract.getFootprint();
-      expect(footprint.switch()).toBe(xdr.LedgerEntryType.contractData());
+      expect(footprint.type).toBe("contractData");
     });
 
     it("uses persistent durability", () => {
       const contract = new Contract(VALID_ADDRESS);
       const footprint = contract.getFootprint();
-      expect(footprint.contractData().durability()).toBe(
-        xdr.ContractDataDurability.persistent(),
-      );
+      if (footprint.type !== "contractData") {
+        expect.fail("Expected contractData ledger key");
+      }
+      expect(footprint.contractData.durability).toBe("persistent");
     });
 
     it("uses the contract instance key", () => {
       const contract = new Contract(VALID_ADDRESS);
       const footprint = contract.getFootprint();
-      expect(footprint.contractData().key().switch()).toBe(
-        xdr.ScValType.scvLedgerKeyContractInstance(),
+      if (footprint.type !== "contractData") {
+        expect.fail("Expected contractData ledger key");
+      }
+      expect(footprint.contractData.key.type).toBe(
+        "scvLedgerKeyContractInstance",
       );
     });
   });
@@ -132,7 +134,7 @@ describe("Contract", () => {
       const contract = new Contract(NULL_ADDRESS);
       const op = contract.call("empty");
       // should serialize without error
-      op.toXDR();
+      xdr.Operation.toXDR(op);
     });
 
     it("builds valid XDR", () => {
@@ -142,33 +144,46 @@ describe("Contract", () => {
         nativeToScVal("arg!"),
         nativeToScVal(2, { type: "i32" }),
       );
-      op.toXDR();
+      xdr.Operation.toXDR(op);
     });
 
     it("passes the contract id as an ScAddress", () => {
       const contract = new Contract(NULL_ADDRESS);
       const op = contract.call("method");
-      const args = op
-        .body()
-        .invokeHostFunctionOp()
-        .hostFunction()
-        .invokeContract();
+      if (op.body.type !== "invokeHostFunction") {
+        expect.fail("Expected invokeHostFunction operation");
+      }
+      if (
+        op.body.invokeHostFunctionOp.hostFunction.type !==
+        "hostFunctionTypeInvokeContract"
+      ) {
+        expect.fail("Expected hostFunctionTypeInvokeContract");
+      }
+      const args = op.body.invokeHostFunctionOp.hostFunction.invokeContract;
 
-      expect(args.contractAddress().toXDR("hex")).toBe(
-        new Contract(NULL_ADDRESS).address().toScAddress().toXDR("hex"),
+      expect(xdr.ScAddress.toXDR(args.contractAddress, "hex")).toEqual(
+        xdr.ScAddress.toXDR(
+          new Contract(NULL_ADDRESS).address().toScAddress(),
+          "hex",
+        ),
       );
     });
 
     it("passes the method name as the function name", () => {
       const contract = new Contract(NULL_ADDRESS);
       const op = contract.call("myMethod");
-      const args = op
-        .body()
-        .invokeHostFunctionOp()
-        .hostFunction()
-        .invokeContract();
+      if (op.body.type !== "invokeHostFunction") {
+        expect.fail("Expected invokeHostFunction operation");
+      }
+      if (
+        op.body.invokeHostFunctionOp.hostFunction.type !==
+        "hostFunctionTypeInvokeContract"
+      ) {
+        expect.fail("Expected hostFunctionTypeInvokeContract");
+      }
+      const args = op.body.invokeHostFunctionOp.hostFunction.invokeContract;
 
-      expect(args.functionName()).toBe("myMethod");
+      expect(args.functionName).toBe("myMethod");
     });
 
     it("passes all params as args", () => {
@@ -178,47 +193,68 @@ describe("Contract", () => {
         nativeToScVal("arg!"),
         nativeToScVal(2, { type: "i32" }),
       );
-      const args = op
-        .body()
-        .invokeHostFunctionOp()
-        .hostFunction()
-        .invokeContract();
+      if (op.body.type !== "invokeHostFunction") {
+        expect.fail("Expected invokeHostFunction operation");
+      }
+      if (
+        op.body.invokeHostFunctionOp.hostFunction.type !==
+        "hostFunctionTypeInvokeContract"
+      ) {
+        expect.fail("Expected hostFunctionTypeInvokeContract");
+      }
+      const args = op.body.invokeHostFunctionOp.hostFunction.invokeContract;
 
-      const callArgs = args.args();
+      const callArgs = args.args;
       expect(callArgs).toHaveLength(2);
       const firstArg = expectDefined(callArgs[0]);
       const secondArg = expectDefined(callArgs[1]);
-      expect(firstArg.toXDR("hex")).toBe(
-        xdr.ScVal.scvString("arg!").toXDR("hex"),
+      expect(xdr.ScVal.toXDR(firstArg, "hex")).toBe(
+        xdr.ScVal.toXDR(xdr.ScVal.scvString("arg!"), "hex"),
       );
-      expect(secondArg.toXDR("hex")).toBe(xdr.ScVal.scvI32(2).toXDR("hex"));
+      expect(xdr.ScVal.toXDR(secondArg, "hex")).toBe(
+        xdr.ScVal.toXDR(xdr.ScVal.scvI32(2), "hex"),
+      );
     });
 
     it("passes empty args when called with no params", () => {
       const contract = new Contract(NULL_ADDRESS);
       const op = contract.call("noArgs");
-      const args = op
-        .body()
-        .invokeHostFunctionOp()
-        .hostFunction()
-        .invokeContract();
+      if (op.body.type !== "invokeHostFunction") {
+        expect.fail("Expected invokeHostFunction operation");
+      }
+      if (
+        op.body.invokeHostFunctionOp.hostFunction.type !==
+        "hostFunctionTypeInvokeContract"
+      ) {
+        expect.fail("Expected hostFunctionTypeInvokeContract");
+      }
+      const args = op.body.invokeHostFunctionOp.hostFunction.invokeContract;
 
-      expect(args.args()).toHaveLength(0);
+      expect(args.args).toHaveLength(0);
     });
 
     it("returns an invokeHostFunction operation", () => {
       const contract = new Contract(NULL_ADDRESS);
       const op = contract.call("method");
-      expect(op.body().switch()).toBe(xdr.OperationType.invokeHostFunction());
+      if (op.body.type !== "invokeHostFunction") {
+        expect.fail("Expected invokeHostFunction operation");
+      }
     });
 
     it("uses invokeContract host function type", () => {
       const contract = new Contract(NULL_ADDRESS);
       const op = contract.call("method");
-      const hostFn = op.body().invokeHostFunctionOp().hostFunction();
-      expect(hostFn.switch()).toBe(
-        xdr.HostFunctionType.hostFunctionTypeInvokeContract(),
-      );
+      if (op.body.type !== "invokeHostFunction") {
+        expect.fail("Expected invokeHostFunction operation");
+      }
+      if (
+        op.body.invokeHostFunctionOp.hostFunction.type !==
+        "hostFunctionTypeInvokeContract"
+      ) {
+        expect.fail("Expected hostFunctionTypeInvokeContract");
+      }
+      const hostFn = op.body.invokeHostFunctionOp.hostFunction;
+      expect(hostFn.type).toBe("hostFunctionTypeInvokeContract");
     });
   });
 });

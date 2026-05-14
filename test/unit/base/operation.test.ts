@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import xdr from "../../../src/base/xdr.js";
+
 import {
   checkUnsignedIntValue,
   fromXDRAmount,
@@ -99,12 +99,10 @@ describe("isValidAmount()", () => {
 
 describe("fromXDRAmount()", () => {
   it("correctly parses XDR amounts", () => {
-    expect(fromXDRAmount(xdr.Int64.fromString("1"))).toBe("0.0000001");
-    expect(fromXDRAmount(xdr.Int64.fromString("10000000"))).toBe("1.0000000");
-    expect(fromXDRAmount(xdr.Int64.fromString("10000000000"))).toBe(
-      "1000.0000000",
-    );
-    expect(fromXDRAmount(xdr.Int64.fromString("1000000000000000000"))).toBe(
+    expect(fromXDRAmount(BigInt("1"))).toBe("0.0000001");
+    expect(fromXDRAmount(BigInt("10000000"))).toBe("1.0000000");
+    expect(fromXDRAmount(BigInt("10000000000"))).toBe("1000.0000000");
+    expect(fromXDRAmount(BigInt("1000000000000000000"))).toBe(
       "100000000000.0000000",
     );
   });
@@ -123,27 +121,27 @@ describe("toXDRAmount()", () => {
 
 describe("fromXDRPrice()", () => {
   it("converts an XDR Price to a decimal string", () => {
-    expect(fromXDRPrice(new xdr.Price({ n: 1, d: 2 }))).toBe("0.5");
-    expect(fromXDRPrice(new xdr.Price({ n: 11, d: 10 }))).toBe("1.1");
-    expect(fromXDRPrice(new xdr.Price({ n: 1, d: 1 }))).toBe("1");
+    expect(fromXDRPrice({ n: 1, d: 2 })).toBe("0.5");
+    expect(fromXDRPrice({ n: 11, d: 10 })).toBe("1.1");
+    expect(fromXDRPrice({ n: 1, d: 1 })).toBe("1");
   });
 });
 
 describe("toXDRPrice()", () => {
   it("converts a string price to XDR", () => {
     const price = toXDRPrice("0.5");
-    expect(price.n() / price.d()).toBeCloseTo(0.5);
+    expect(price.n / price.d).toBeCloseTo(0.5);
   });
 
   it("converts a number price to XDR", () => {
     const price = toXDRPrice(1.5);
-    expect(price.n() / price.d()).toBeCloseTo(1.5);
+    expect(price.n / price.d).toBeCloseTo(1.5);
   });
 
   it("converts a {n, d} fraction to XDR", () => {
     const price = toXDRPrice({ n: 11, d: 10 });
-    expect(price.n()).toBe(11);
-    expect(price.d()).toBe(10);
+    expect(price.n).toBe(11);
+    expect(price.d).toBe(10);
   });
 
   it("throws for a negative price", () => {

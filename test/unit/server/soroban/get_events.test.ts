@@ -1,10 +1,9 @@
 import { describe, it, beforeEach, afterEach, expect, vi } from "vitest";
 
-import * as StellarSdk from "../../../../src/index.js";
-import { serverUrl } from "../../../constants";
+import { nativeToScVal, xdr, rpc } from "../../../../src/index.js";
+import { serverUrl } from "../../../constants.js";
 
-const { nativeToScVal, rpc } = StellarSdk;
-const { Server } = StellarSdk.rpc;
+const { Server } = rpc;
 
 // Helper functions
 function filterEvents(events: any[], filter: string): any[] {
@@ -33,11 +32,11 @@ function parseEvents(result: any): any {
 // Test data
 const contractId = "CA3D5KRYM6CB7OWQ6TWYRR3Z4T7GNZLKERYNZGGA5SOAOPIFY6YQGAXE";
 const topicVals = [
-  nativeToScVal("transfer", { type: "symbol" }).toXDR("base64"),
-  nativeToScVal(contractId, { type: "address" }).toXDR("base64"),
-  nativeToScVal(1234).toXDR("base64"),
+  xdr.ScVal.toXDR(nativeToScVal("transfer", { type: "symbol" }), "base64"),
+  xdr.ScVal.toXDR(nativeToScVal(contractId, { type: "address" }), "base64"),
+  xdr.ScVal.toXDR(nativeToScVal(1234), "base64"),
 ];
-const eventVal = nativeToScVal("wassup").toXDR("base64");
+const eventVal = xdr.ScVal.toXDR(nativeToScVal("wassup"), "base64");
 const getEventsResponseFixture = [
   {
     type: "system",
@@ -104,7 +103,7 @@ const getEventsResponseFixture = [
 ];
 
 describe("Server#getEvents", () => {
-  let server: any;
+  let server: rpc.Server;
   let mockPost: any;
 
   beforeEach(() => {

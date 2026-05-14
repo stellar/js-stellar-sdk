@@ -1,16 +1,14 @@
 import { describe, it, beforeEach, afterEach, expect, vi } from "vitest";
-import * as StellarSdk from "../../../../src/index.js";
+import { rpc } from "../../../../src/index.js";
 
-import { serverUrl } from "../../../constants";
-
-const { Server } = StellarSdk.rpc;
+import { serverUrl } from "../../../constants.js";
 
 describe("Server#getVersionInfo", () => {
-  let server: any;
+  let server: rpc.Server;
   let mockPost: any;
 
   beforeEach(() => {
-    server = new Server(serverUrl);
+    server = new rpc.Server(serverUrl);
     mockPost = vi.spyOn(server.httpClient, "post");
   });
 

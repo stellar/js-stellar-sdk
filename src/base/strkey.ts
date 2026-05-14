@@ -1,6 +1,7 @@
 /* eslint no-bitwise: ["error", {"allow": ["<<", ">>", "^", "&", "&="]}] */
 
 import base32 from "base32.js";
+
 import { verifyChecksum } from "./util/checksum.js";
 
 type VersionByteName =
@@ -458,7 +459,7 @@ export function encodeCheck(versionByteName: string, data: Buffer): string {
 }
 
 // Computes the CRC16-XModem checksum of `payload` in little-endian order
-function calculateChecksum(payload: Uint8Array): Uint8Array {
+function calculateChecksum(payload: Buffer): Buffer {
   const crcTable = [
     0x0000, 0x1021, 0x2042, 0x3063, 0x4084, 0x50a5, 0x60c6, 0x70e7, 0x8108,
     0x9129, 0xa14a, 0xb16b, 0xc18c, 0xd1ad, 0xe1ce, 0xf1ef, 0x1231, 0x0210,
@@ -503,7 +504,7 @@ function calculateChecksum(payload: Uint8Array): Uint8Array {
     crc16 = (crc16 << 8) ^ (crcTable[lookupIndex] ?? 0);
     crc16 &= 0xffff;
   }
-  const checksum = new Uint8Array(2);
+  const checksum = new Buffer(2);
   checksum[0] = crc16 & 0xff;
   checksum[1] = (crc16 >> 8) & 0xff;
   return checksum;

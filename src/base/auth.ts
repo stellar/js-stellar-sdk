@@ -1,4 +1,11 @@
-import xdr from "./xdr.js";
+import {
+  HashIdPreimage,
+  ScVal,
+  SorobanAddressCredentials,
+  SorobanAuthorizationEntry,
+  SorobanAuthorizedInvocation,
+  SorobanCredentials,
+} from "./generated/index.js";
 
 import { Keypair } from "./keypair.js";
 import { StrKey } from "./strkey.js";
@@ -31,10 +38,10 @@ function toBuffer(value: BufferLike): Buffer {
  *    preimage bytes, so `hash(preimage.toXDR())`) either naked, implying it is
  *    signed by the key corresponding to the public key in the entry you pass to
  *    {@link authorizeEntry} (decipherable from its
- *    `credentials().address().address()`), or alongside an explicit `publicKey`.
+ *    `credentials.address.address`), or alongside an explicit `publicKey`.
  */
 export type SigningCallback = (
-  preimage: xdr.HashIdPreimage,
+  preimage: HashIdPreimage,
 ) => Promise<BufferLike | { signature: BufferLike; publicKey: string }>;
 
 /**
@@ -45,7 +52,7 @@ export type SigningCallback = (
  * {@link Operation.invokeHostFunction} its attached to that:
  *   - a particular identity (i.e. signing {@link Keypair} or other signer)
  *   - approving the execution of an invocation tree (i.e. a simulation-acquired
- *     {@link xdr.SorobanAuthorizedInvocation} or otherwise built)
+ *     {@link SorobanAuthorizedInvocation} or otherwise built)
  *   - on a particular network (uniquely identified by its passphrase, see
  *     {@link Networks})
  *   - until a particular ledger sequence is reached.
@@ -56,7 +63,7 @@ export type SigningCallback = (
  *
  * @param entry - an unsigned authorization entry
  * @param signer - either a {@link Keypair} instance or a function which takes a
- *    {@link xdr.HashIdPreimageSorobanAuthorization} input payload and returns
+ *    {@link HashIdPreimageSorobanAuthorization} input payload and returns
  *    EITHER
  *
  *      (a) an object containing a `signature` of the hash of the raw payload
@@ -122,34 +129,40 @@ export type SigningCallback = (
  * ```
  */
 export async function authorizeEntry(
-  entry: xdr.SorobanAuthorizationEntry,
+  entry: SorobanAuthorizationEntry,
   signer: Keypair | SigningCallback,
   validUntilLedgerSeq: number,
   networkPassphrase: string,
-): Promise<xdr.SorobanAuthorizationEntry> {
+): Promise<SorobanAuthorizationEntry> {
   // no-op if it's source account auth
-  if (
-    entry.credentials().switch().value !==
-    xdr.SorobanCredentialsType.sorobanCredentialsAddress().value
-  ) {
+  if (entry.credentials.type !== "sorobanCredentialsAddress") {
     return entry;
   }
 
-  const clone = xdr.SorobanAuthorizationEntry.fromXDR(entry.toXDR());
+  const clone = SorobanAuthorizationEntry.fromXDR(
+    SorobanAuthorizationEntry.toXDR(entry, "raw"),
+  );
+  if (clone.credentials.type !== "sorobanCredentialsAddress") {
+    return clone;
+  }
 
-  const addrAuth: xdr.SorobanAddressCredentials = clone.credentials().address();
-  addrAuth.signatureExpirationLedger(validUntilLedgerSeq);
+  const addrAuth: SorobanAddressCredentials = {
+    ...clone.credentials.address,
+    signatureExpirationLedger: validUntilLedgerSeq,
+  };
+  const signedClone: SorobanAuthorizationEntry = {
+    ...clone,
+    credentials: SorobanCredentials.sorobanCredentialsAddress(addrAuth),
+  };
 
   const networkId = hash(Buffer.from(networkPassphrase));
-  const preimage = xdr.HashIdPreimage.envelopeTypeSorobanAuthorization(
-    new xdr.HashIdPreimageSorobanAuthorization({
-      networkId,
-      nonce: addrAuth.nonce(),
-      invocation: clone.rootInvocation(),
-      signatureExpirationLedger: addrAuth.signatureExpirationLedger(),
-    }),
-  );
-  const payload = hash(preimage.toXDR());
+  const preimage = HashIdPreimage.envelopeTypeSorobanAuthorization({
+    networkId: networkId,
+    nonce: addrAuth.nonce,
+    invocation: signedClone.rootInvocation,
+    signatureExpirationLedger: addrAuth.signatureExpirationLedger,
+  });
+  const payload = hash(Buffer.from(HashIdPreimage.toXDR(preimage, "raw")));
 
   let signature: Buffer;
   let publicKey: string;
@@ -165,7 +178,7 @@ export async function authorizeEntry(
     } else {
       // if using the deprecated form, assume it's for the entry
       signature = toBuffer(sigResult);
-      publicKey = Address.fromScAddress(addrAuth.address()).toString();
+      publicKey = Address.fromScAddress(addrAuth.address).toString();
     }
   } else {
     signature = toBuffer(signer.sign(payload));
@@ -194,8 +207,13 @@ export async function authorizeEntry(
     },
   );
 
-  addrAuth.signature(xdr.ScVal.scvVec([sigScVal]));
-  return clone;
+  return {
+    ...signedClone,
+    credentials: SorobanCredentials.sorobanCredentialsAddress({
+      ...addrAuth,
+      signature: ScVal.scvVec([sigScVal]),
+    }),
+  };
 }
 
 /**
@@ -203,7 +221,7 @@ export async function authorizeEntry(
  * function of:
  *   - a particular identity (i.e. signing {@link Keypair} or other signer)
  *   - approving the execution of an invocation tree (i.e. a simulation-acquired
- *     {@link xdr.SorobanAuthorizedInvocation} or otherwise built)
+ *     {@link SorobanAuthorizedInvocation} or otherwise built)
  *   - on a particular network (uniquely identified by its passphrase, see
  *     {@link Networks})
  *   - until a particular ledger sequence is reached.
@@ -213,7 +231,7 @@ export async function authorizeEntry(
  * @param params - the parameters for building and signing the authorization
  * @param params.signer - either a {@link Keypair} instance (or anything with a
  *    `.sign(buf): Buffer-like` method) or a function which takes a payload (a
- *    {@link xdr.HashIdPreimageSorobanAuthorization} instance) input and returns
+ *    {@link HashIdPreimageSorobanAuthorization} instance) input and returns
  *    the signature of the hash of the raw payload bytes (where the signing key
  *    should correspond to the address in the `entry`)
  * @param params.validUntilLedgerSeq - the (exclusive) future ledger sequence
@@ -232,14 +250,14 @@ export async function authorizeEntry(
 export interface AuthorizeInvocationParams {
   signer: Keypair | SigningCallback;
   validUntilLedgerSeq: number;
-  invocation: xdr.SorobanAuthorizedInvocation;
+  invocation: SorobanAuthorizedInvocation;
   networkPassphrase: string;
   publicKey?: string;
 }
 
 export function authorizeInvocation(
   params: AuthorizeInvocationParams,
-): Promise<xdr.SorobanAuthorizationEntry> {
+): Promise<SorobanAuthorizationEntry> {
   const {
     signer,
     validUntilLedgerSeq,
@@ -251,7 +269,7 @@ export function authorizeInvocation(
   // with any crypto dependencies. Note that this just has to be random and
   // unique, not cryptographically secure, so it's fine.
   const kp = Keypair.random().rawPublicKey();
-  const nonce = new xdr.Int64(bytesToInt64(kp));
+  const nonce = bytesToInt64(kp);
 
   const pk =
     publicKey || (signer instanceof Keypair ? signer.publicKey() : null);
@@ -259,17 +277,15 @@ export function authorizeInvocation(
     throw new Error(`authorizeInvocation requires publicKey parameter`);
   }
 
-  const entry = new xdr.SorobanAuthorizationEntry({
+  const entry: SorobanAuthorizationEntry = {
     rootInvocation: invocation,
-    credentials: xdr.SorobanCredentials.sorobanCredentialsAddress(
-      new xdr.SorobanAddressCredentials({
-        address: new Address(pk).toScAddress(),
-        nonce,
-        signatureExpirationLedger: 0, // replaced
-        signature: xdr.ScVal.scvVec([]), // replaced
-      }),
-    ),
-  });
+    credentials: SorobanCredentials.sorobanCredentialsAddress({
+      address: new Address(pk).toScAddress(),
+      nonce,
+      signatureExpirationLedger: 0, // replaced
+      signature: ScVal.scvVec([]), // replaced
+    }),
+  };
 
   return authorizeEntry(entry, signer, validUntilLedgerSeq, networkPassphrase);
 }

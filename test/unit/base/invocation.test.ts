@@ -28,13 +28,11 @@ function makeInvocation(
   name: string,
   ...args: any[]
 ): xdr.SorobanAuthorizedFunction {
-  return xdr.SorobanAuthorizedFunction.sorobanAuthorizedFunctionTypeContractFn(
-    new xdr.InvokeContractArgs({
-      contractAddress: contract.address().toScAddress(),
-      functionName: name,
-      args: args.map((a) => nativeToScVal(a)),
-    }),
-  );
+  return xdr.SorobanAuthorizedFunction.sorobanAuthorizedFunctionTypeContractFn({
+    contractAddress: contract.address().toScAddress(),
+    functionName: name,
+    args: args.map((a) => nativeToScVal(a)),
+  });
 }
 
 describe("buildInvocationTree", () => {
@@ -55,24 +53,24 @@ describe("buildInvocationTree", () => {
   //     |      +--- usdc.transfer(from, "1")
   //     +--- someNft.transfer(someNft, "2")
   //     +--- createV2(custom wasm contract)       (WASM V2 with ctor args)
-  const rootInvocation = new xdr.SorobanAuthorizedInvocation({
+  const rootInvocation: xdr.SorobanAuthorizedInvocation = {
     function: makeInvocation(nftContract, "purchase", `SomeNft:${nftId}`, 7),
     subInvocations: [
-      new xdr.SorobanAuthorizedInvocation({
+      {
         function:
           xdr.SorobanAuthorizedFunction.sorobanAuthorizedFunctionTypeCreateContractHostFn(
-            new xdr.CreateContractArgs({
+            {
               contractIdPreimage:
                 xdr.ContractIdPreimage.contractIdPreimageFromAsset(
                   new Asset("TEST", nftId).toXDRObject(),
                 ),
               executable:
                 xdr.ContractExecutable.contractExecutableStellarAsset(),
-            }),
+            },
           ),
         subInvocations: [],
-      }),
-      new xdr.SorobanAuthorizedInvocation({
+      },
+      {
         function: makeInvocation(
           swapContract,
           "swap",
@@ -82,7 +80,7 @@ describe("buildInvocationTree", () => {
           new Address(dest).toScVal(),
         ),
         subInvocations: [
-          new xdr.SorobanAuthorizedInvocation({
+          {
             function: makeInvocation(
               xlmContract,
               "transfer",
@@ -90,8 +88,8 @@ describe("buildInvocationTree", () => {
               "7",
             ),
             subInvocations: [],
-          }),
-          new xdr.SorobanAuthorizedInvocation({
+          },
+          {
             function: makeInvocation(
               usdcContract,
               "transfer",
@@ -99,10 +97,10 @@ describe("buildInvocationTree", () => {
               "1",
             ),
             subInvocations: [],
-          }),
+          },
         ],
-      }),
-      new xdr.SorobanAuthorizedInvocation({
+      },
+      {
         function: makeInvocation(
           nftContract,
           "transfer",
@@ -110,18 +108,16 @@ describe("buildInvocationTree", () => {
           "2",
         ),
         subInvocations: [],
-      }),
-      new xdr.SorobanAuthorizedInvocation({
+      },
+      {
         function:
           xdr.SorobanAuthorizedFunction.sorobanAuthorizedFunctionTypeCreateContractV2HostFn(
-            new xdr.CreateContractArgsV2({
+            {
               contractIdPreimage:
-                xdr.ContractIdPreimage.contractIdPreimageFromAddress(
-                  new xdr.ContractIdPreimageFromAddress({
-                    address: nftContract.address().toScAddress(),
-                    salt: Buffer.alloc(32, 0),
-                  }),
-                ),
+                xdr.ContractIdPreimage.contractIdPreimageFromAddress({
+                  address: nftContract.address().toScAddress(),
+                  salt: Buffer.alloc(32, 0),
+                }),
               constructorArgs: [1, "2", 3].map((arg, i) => {
                 return nativeToScVal(arg, {
                   type: ["u32", "string", "i32"][i] as any,
@@ -130,12 +126,12 @@ describe("buildInvocationTree", () => {
               executable: xdr.ContractExecutable.contractExecutableWasm(
                 Buffer.alloc(32, "\x20"),
               ),
-            }),
+            },
           ),
         subInvocations: [],
-      }),
+      },
     ],
-  });
+  };
 
   const expectedParsed = {
     type: "execute",
@@ -207,7 +203,9 @@ describe("buildInvocationTree", () => {
   };
 
   it("builds valid XDR for the root invocation", () => {
-    expect(() => rootInvocation.toXDR()).not.toThrow();
+    expect(() =>
+      xdr.SorobanAuthorizedInvocation.toXDR(rootInvocation),
+    ).not.toThrow();
   });
 
   it("outputs a human-readable version of the invocation tree", () => {
@@ -223,10 +221,10 @@ describe("buildInvocationTree", () => {
 
   it("handles a simple execute invocation", () => {
     const contract = randomContract();
-    const inv = new xdr.SorobanAuthorizedInvocation({
+    const inv = {
       function: makeInvocation(contract, "hello", "world"),
       subInvocations: [],
-    });
+    };
     const tree = buildInvocationTree(inv);
     expect(tree.type).toBe("execute");
     expect((tree.args as any).source).toBe(contract.contractId());
@@ -237,19 +235,19 @@ describe("buildInvocationTree", () => {
 
   it("handles a SAC creation invocation", () => {
     const issuer = randomKey();
-    const inv = new xdr.SorobanAuthorizedInvocation({
+    const inv = {
       function:
         xdr.SorobanAuthorizedFunction.sorobanAuthorizedFunctionTypeCreateContractHostFn(
-          new xdr.CreateContractArgs({
+          {
             contractIdPreimage:
               xdr.ContractIdPreimage.contractIdPreimageFromAsset(
                 new Asset("USD", issuer).toXDRObject(),
               ),
             executable: xdr.ContractExecutable.contractExecutableStellarAsset(),
-          }),
+          },
         ),
       subInvocations: [],
-    });
+    };
     const tree = buildInvocationTree(inv);
     expect(tree.type).toBe("create");
     expect((tree.args as any).type).toBe("sac");
@@ -260,22 +258,20 @@ describe("buildInvocationTree", () => {
     const contract = randomContract();
     const wasmHash = Buffer.alloc(32, "\x42");
     const salt = Buffer.alloc(32, "\x01");
-    const inv = new xdr.SorobanAuthorizedInvocation({
+    const inv = {
       function:
         xdr.SorobanAuthorizedFunction.sorobanAuthorizedFunctionTypeCreateContractHostFn(
-          new xdr.CreateContractArgs({
+          {
             contractIdPreimage:
-              xdr.ContractIdPreimage.contractIdPreimageFromAddress(
-                new xdr.ContractIdPreimageFromAddress({
-                  address: contract.address().toScAddress(),
-                  salt,
-                }),
-              ),
+              xdr.ContractIdPreimage.contractIdPreimageFromAddress({
+                address: contract.address().toScAddress(),
+                salt,
+              }),
             executable: xdr.ContractExecutable.contractExecutableWasm(wasmHash),
-          }),
+          },
         ),
       subInvocations: [],
-    });
+    };
     const tree = buildInvocationTree(inv);
     expect(tree.type).toBe("create");
     const args = tree.args as any;
@@ -289,25 +285,23 @@ describe("buildInvocationTree", () => {
 
   it("handles a WASM V2 creation with empty constructor args", () => {
     const contract = randomContract();
-    const inv = new xdr.SorobanAuthorizedInvocation({
+    const inv = {
       function:
         xdr.SorobanAuthorizedFunction.sorobanAuthorizedFunctionTypeCreateContractV2HostFn(
-          new xdr.CreateContractArgsV2({
+          {
             contractIdPreimage:
-              xdr.ContractIdPreimage.contractIdPreimageFromAddress(
-                new xdr.ContractIdPreimageFromAddress({
-                  address: contract.address().toScAddress(),
-                  salt: Buffer.alloc(32, 0),
-                }),
-              ),
+              xdr.ContractIdPreimage.contractIdPreimageFromAddress({
+                address: contract.address().toScAddress(),
+                salt: Buffer.alloc(32, 0),
+              }),
             constructorArgs: [],
             executable: xdr.ContractExecutable.contractExecutableWasm(
               Buffer.alloc(32, "\x10"),
             ),
-          }),
+          },
         ),
       subInvocations: [],
-    });
+    };
     const tree = buildInvocationTree(inv);
     expect(tree.type).toBe("create");
     const args = tree.args as any;
@@ -318,10 +312,10 @@ describe("buildInvocationTree", () => {
   it("throws for mismatched exec/preimage types", () => {
     // wasm executable + asset preimage = invalid
     const issuer = randomKey();
-    const inv = new xdr.SorobanAuthorizedInvocation({
+    const inv = {
       function:
         xdr.SorobanAuthorizedFunction.sorobanAuthorizedFunctionTypeCreateContractHostFn(
-          new xdr.CreateContractArgs({
+          {
             contractIdPreimage:
               xdr.ContractIdPreimage.contractIdPreimageFromAsset(
                 new Asset("USD", issuer).toXDRObject(),
@@ -329,10 +323,10 @@ describe("buildInvocationTree", () => {
             executable: xdr.ContractExecutable.contractExecutableWasm(
               Buffer.alloc(32, "\x01"),
             ),
-          }),
+          },
         ),
       subInvocations: [],
-    });
+    };
     expect(() => buildInvocationTree(inv)).toThrow(
       /creation function appears invalid/,
     );
@@ -342,20 +336,20 @@ describe("buildInvocationTree", () => {
 describe("walkInvocationTree", () => {
   it("walks all nodes depth-first", () => {
     const [c1, c2, c3] = [randomContract(), randomContract(), randomContract()];
-    const root = new xdr.SorobanAuthorizedInvocation({
+    const root = {
       function: makeInvocation(c1, "root"),
       subInvocations: [
-        new xdr.SorobanAuthorizedInvocation({
+        {
           function: makeInvocation(c2, "child1"),
           subInvocations: [
-            new xdr.SorobanAuthorizedInvocation({
+            {
               function: makeInvocation(c3, "grandchild"),
               subInvocations: [],
-            }),
+            },
           ],
-        }),
+        },
       ],
-    });
+    };
 
     let walkCount = 0;
     let maxDepth = 0;
@@ -363,7 +357,7 @@ describe("walkInvocationTree", () => {
 
     walkInvocationTree(root, (node, depth) => {
       walkCount++;
-      const s = node.toXDR("base64");
+      const s = xdr.SorobanAuthorizedInvocation.toXDR(node, "base64");
       if (s in walkSet) {
         const count = expectDefined(walkSet[s]);
         walkSet[s] = count + 1;
@@ -391,24 +385,24 @@ describe("walkInvocationTree", () => {
     const usdcId = randomKey();
     const dest = randomKey();
 
-    const rootInvocation = new xdr.SorobanAuthorizedInvocation({
+    const rootInvocation = {
       function: makeInvocation(nftContract, "purchase", `SomeNft:${nftId}`, 7),
       subInvocations: [
-        new xdr.SorobanAuthorizedInvocation({
+        {
           function:
             xdr.SorobanAuthorizedFunction.sorobanAuthorizedFunctionTypeCreateContractHostFn(
-              new xdr.CreateContractArgs({
+              {
                 contractIdPreimage:
                   xdr.ContractIdPreimage.contractIdPreimageFromAsset(
                     new Asset("TEST", nftId).toXDRObject(),
                   ),
                 executable:
                   xdr.ContractExecutable.contractExecutableStellarAsset(),
-              }),
+              },
             ),
           subInvocations: [],
-        }),
-        new xdr.SorobanAuthorizedInvocation({
+        },
+        {
           function: makeInvocation(
             swapContract,
             "swap",
@@ -418,7 +412,7 @@ describe("walkInvocationTree", () => {
             new Address(dest).toScVal(),
           ),
           subInvocations: [
-            new xdr.SorobanAuthorizedInvocation({
+            {
               function: makeInvocation(
                 xlmContract,
                 "transfer",
@@ -426,8 +420,8 @@ describe("walkInvocationTree", () => {
                 "7",
               ),
               subInvocations: [],
-            }),
-            new xdr.SorobanAuthorizedInvocation({
+            },
+            {
               function: makeInvocation(
                 usdcContract,
                 "transfer",
@@ -435,10 +429,10 @@ describe("walkInvocationTree", () => {
                 "1",
               ),
               subInvocations: [],
-            }),
+            },
           ],
-        }),
-        new xdr.SorobanAuthorizedInvocation({
+        },
+        {
           function: makeInvocation(
             nftContract,
             "transfer",
@@ -446,18 +440,16 @@ describe("walkInvocationTree", () => {
             "2",
           ),
           subInvocations: [],
-        }),
-        new xdr.SorobanAuthorizedInvocation({
+        },
+        {
           function:
             xdr.SorobanAuthorizedFunction.sorobanAuthorizedFunctionTypeCreateContractV2HostFn(
-              new xdr.CreateContractArgsV2({
+              {
                 contractIdPreimage:
-                  xdr.ContractIdPreimage.contractIdPreimageFromAddress(
-                    new xdr.ContractIdPreimageFromAddress({
-                      address: nftContract.address().toScAddress(),
-                      salt: Buffer.alloc(32, 0),
-                    }),
-                  ),
+                  xdr.ContractIdPreimage.contractIdPreimageFromAddress({
+                    address: nftContract.address().toScAddress(),
+                    salt: Buffer.alloc(32, 0),
+                  }),
                 constructorArgs: [1, "2", 3].map((arg, i) => {
                   return nativeToScVal(arg, {
                     type: ["u32", "string", "i32"][i] as any,
@@ -466,12 +458,12 @@ describe("walkInvocationTree", () => {
                 executable: xdr.ContractExecutable.contractExecutableWasm(
                   Buffer.alloc(32, "\x20"),
                 ),
-              }),
+              },
             ),
           subInvocations: [],
-        }),
+        },
       ],
-    });
+    };
 
     let walkCount = 0;
     const walkSet: Record<string, number> = {};
@@ -479,7 +471,7 @@ describe("walkInvocationTree", () => {
 
     walkInvocationTree(rootInvocation, (node, depth) => {
       walkCount++;
-      const s = node.toXDR("base64");
+      const s = xdr.SorobanAuthorizedInvocation.toXDR(node, "base64");
       if (s in walkSet) {
         const count = expectDefined(walkSet[s]);
         walkSet[s] = count + 1;
@@ -500,20 +492,20 @@ describe("walkInvocationTree", () => {
 
   it("stops exploring a subtree when callback returns false", () => {
     const [c1, c2, c3] = [randomContract(), randomContract(), randomContract()];
-    const root = new xdr.SorobanAuthorizedInvocation({
+    const root = {
       function: makeInvocation(c1, "root"),
       subInvocations: [
-        new xdr.SorobanAuthorizedInvocation({
+        {
           function: makeInvocation(c2, "child"),
           subInvocations: [
-            new xdr.SorobanAuthorizedInvocation({
+            {
               function: makeInvocation(c3, "grandchild"),
               subInvocations: [],
-            }),
+            },
           ],
-        }),
+        },
       ],
-    });
+    };
 
     let visited = 0;
     walkInvocationTree(root, (_node, depth) => {
@@ -531,15 +523,15 @@ describe("walkInvocationTree", () => {
 
   it("provides parent node to callback", () => {
     const [c1, c2] = [randomContract(), randomContract()];
-    const root = new xdr.SorobanAuthorizedInvocation({
+    const root = {
       function: makeInvocation(c1, "root"),
       subInvocations: [
-        new xdr.SorobanAuthorizedInvocation({
+        {
           function: makeInvocation(c2, "child"),
           subInvocations: [],
-        }),
+        },
       ],
-    });
+    };
 
     const parents: Array<xdr.SorobanAuthorizedInvocation | undefined> = [];
     walkInvocationTree(root, (_node, _depth, parent) => {
@@ -551,15 +543,17 @@ describe("walkInvocationTree", () => {
     expect(parents[0]).toBeUndefined();
     // Child's parent should be the root
     const parent = expectDefined(parents[1]);
-    expect(parent.toXDR("base64")).toBe(root.toXDR("base64"));
+    expect(xdr.SorobanAuthorizedInvocation.toXDR(parent, "base64")).toBe(
+      xdr.SorobanAuthorizedInvocation.toXDR(root, "base64"),
+    );
   });
 
   it("handles void return from callback (continues walking)", () => {
     const c1 = randomContract();
-    const root = new xdr.SorobanAuthorizedInvocation({
+    const root = {
       function: makeInvocation(c1, "root"),
       subInvocations: [],
-    });
+    };
 
     let visited = 0;
     walkInvocationTree(root, () => {

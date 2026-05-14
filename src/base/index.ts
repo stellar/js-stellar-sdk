@@ -1,13 +1,12 @@
 export { UnsignedHyper, Hyper } from "@stellar/js-xdr";
 
-import xdr from "./xdr.js";
 import cereal from "./jsxdr.js";
 
 //
 // Global exports
 //
 
-export { xdr };
+export { default as xdr, xdrSchema } from "./xdr.js";
 export { cereal };
 
 export { hash } from "./hashing.js";
@@ -62,6 +61,7 @@ export {
   extractBaseAddress,
   encodeMuxedAccount,
 } from "./util/decode_encode_muxed_account.js";
+export { expectUnionArm, tryArm, isArm } from "./util/narrow.js";
 
 //
 // Soroban

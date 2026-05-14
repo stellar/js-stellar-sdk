@@ -1,6 +1,11 @@
 import { Address } from "./address.js";
 import { Operation } from "./operation.js";
-import xdr from "./xdr.js";
+import {
+  ContractDataDurability,
+  LedgerKey,
+  Operation as XdrOperation,
+  ScVal,
+} from "./generated/index.js";
 import { StrKey } from "./strkey.js";
 
 /**
@@ -49,7 +54,7 @@ export class Contract {
    * Returns an operation that will invoke this contract call.
    *
    * @param method - name of the method to call
-   * @param params - arguments to pass to the method, as an array of xdr.ScVal
+   * @param params - arguments to pass to the method, as an array of ScVal
    *
    * @see Operation.invokeHostFunction
    * @see Operation.invokeContractFunction
@@ -57,10 +62,7 @@ export class Contract {
    * @see Operation.createStellarAssetContract
    * @see Operation.uploadContractWasm
    */
-  call(
-    method: string,
-    ...params: xdr.ScVal[]
-  ): xdr.Operation<Operation.InvokeHostFunction> {
+  call(method: string, ...params: ScVal[]): XdrOperation {
     return Operation.invokeContractFunction({
       contract: this.address().toString(),
       function: method,
@@ -73,13 +75,11 @@ export class Contract {
    * this contract, for convenience when manually adding it to your
    * transaction's overall footprint or doing bump/restore operations.
    */
-  getFootprint(): xdr.LedgerKey {
-    return xdr.LedgerKey.contractData(
-      new xdr.LedgerKeyContractData({
-        contract: this.address().toScAddress(),
-        key: xdr.ScVal.scvLedgerKeyContractInstance(),
-        durability: xdr.ContractDataDurability.persistent(),
-      }),
-    );
+  getFootprint(): LedgerKey {
+    return LedgerKey.contractData({
+      contract: this.address().toScAddress(),
+      key: ScVal.scvLedgerKeyContractInstance(),
+      durability: ContractDataDurability.persistent,
+    });
   }
 }

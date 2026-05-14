@@ -17,7 +17,7 @@ const { Horizon } = StellarSdk;
 const { SERVER_TIME_MAP } = StellarSdk.Horizon;
 
 describe("server.js non-transaction tests", () => {
-  let server: any;
+  let server: rpc.Server;
   let mockGet: any;
   beforeEach(() => {
     server = new Horizon.Server("https://horizon-live.stellar.org:1337");

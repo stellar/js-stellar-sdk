@@ -1,10 +1,6 @@
-import xdr from "../xdr.js";
+import { Operation, OperationBody } from "../generated/index.js";
 import { decodeAddressToMuxedAccount } from "../util/decode_encode_muxed_account.js";
-import {
-  AccountMergeOpts,
-  AccountMergeResult,
-  OperationAttributes,
-} from "./types.js";
+import { AccountMergeOpts, OperationAttributes } from "./types.js";
 import { setSourceAccount } from "../util/operations.js";
 
 /**
@@ -15,12 +11,10 @@ import { setSourceAccount } from "../util/operations.js";
  * @param opts.source - operation source account (defaults to
  *     transaction source)
  */
-export function accountMerge(
-  opts: AccountMergeOpts,
-): xdr.Operation<AccountMergeResult> {
-  let body: xdr.OperationBody;
+export function accountMerge(opts: AccountMergeOpts): Operation {
+  let body: OperationBody;
   try {
-    body = xdr.OperationBody.accountMerge(
+    body = OperationBody.accountMerge(
       decodeAddressToMuxedAccount(opts.destination),
     );
   } catch {
@@ -33,5 +27,5 @@ export function accountMerge(
   };
   setSourceAccount(opAttributes, opts);
 
-  return new xdr.Operation(opAttributes);
+  return opAttributes;
 }

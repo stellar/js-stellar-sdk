@@ -12,6 +12,7 @@ import { hash } from "../../../src/base/hashing.js";
 import { encodeMuxedAccountToAddress } from "../../../src/base/util/decode_encode_muxed_account.js";
 import { expectDefined } from "./support/expect_defined.js";
 import xdr from "../../../src/base/xdr.js";
+import { areUint8ArraysEqual, uint8ArrayToBase64 } from "uint8array-extras";
 
 function expectBuffersToBeEqual(
   left: { toString(encoding: BufferEncoding): string },
@@ -102,52 +103,63 @@ describe("FeeBumpTransaction", () => {
     const expectedXDR =
       "AAAABQAAAADgSJG2GOUMy/H9lHyjYZOwyuyytH8y0wWaoc596L+bEgAAAAAAAADIAAAAAgAAAABzdv3ojkzWHMD7KUoXhrPx0GH18vHKV0ZfqpMiEblG1gAAAGQAAAAAAAAACAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAA9IYXBweSBiaXJ0aGRheSEAAAAAAQAAAAAAAAABAAAAAOBIkbYY5QzL8f2UfKNhk7DK7LK0fzLTBZqhzn3ov5sSAAAAAAAAAASoF8gAAAAAAAAAAAERuUbWAAAAQK933Dnt1pxXlsf1B5CYn81PLxeYsx+MiV9EGbMdUfEcdDWUySyIkdzJefjpR5ejdXVp/KXosGmNUQ+DrIBlzg0AAAAAAAAAAei/mxIAAABAijIIQpL6KlFefiL4FP8UWQktWEz4wFgGNSaXe7mZdVMuiREntehi1b7MRqZ1h+W+Y0y+Z2HtMunsilT2yS5mAA==";
 
-    expect(transaction.toEnvelope().toXDR().toString("base64")).toBe(
-      expectedXDR,
-    );
+    expect(
+      xdr.TransactionEnvelope.toXDR(transaction.toEnvelope(), "base64"),
+    ).toBe(expectedXDR);
     const expectedTxEnvelope = xdr.TransactionEnvelope.fromXDR(
       expectedXDR,
       "base64",
-    ).value() as xdr.FeeBumpTransactionEnvelope;
-
+    );
+    if (expectedTxEnvelope.type !== xdr.EnvelopeType.envelopeTypeTxFeeBump) {
+      expect.fail("expected a fee bump transaction envelope");
+    }
+    if (
+      expectedTxEnvelope.feeBump.tx.innerTx.v1.tx.sourceAccount.type !==
+      "keyTypeEd25519"
+    ) {
+      expect.fail("expected source account to be of type ed25519");
+    }
     expect(innerTransaction.source).toEqual(
       StrKey.encodeEd25519PublicKey(
-        expectedTxEnvelope
-          .tx()
-          .innerTx()
-          .value()
-          .tx()
-          .sourceAccount()
-          .ed25519(),
+        Buffer.from(
+          expectedTxEnvelope.feeBump.tx.innerTx.v1.tx.sourceAccount.ed25519,
+        ),
       ),
     );
+    if (expectedTxEnvelope.feeBump.tx.feeSource.type !== "keyTypeEd25519") {
+      expect.fail("expected fee source to be of type ed25519");
+    }
     expect(transaction.feeSource).toEqual(
       StrKey.encodeEd25519PublicKey(
-        expectedTxEnvelope.tx().feeSource().ed25519(),
+        Buffer.from(expectedTxEnvelope.feeBump.tx.feeSource.ed25519),
       ),
     );
 
     expect(transaction.innerTransaction.fee).toEqual(
-      expectedTxEnvelope.tx().innerTx().value().tx().fee().toString(),
+      expectedTxEnvelope.feeBump.tx.innerTx.v1.tx.fee.toString(),
     );
-    expect(transaction.fee).toEqual(expectedTxEnvelope.tx().fee().toString());
+    expect(transaction.fee).toEqual(
+      expectedTxEnvelope.feeBump.tx.fee.toString(),
+    );
 
     expect(innerTransaction.signatures.length).toEqual(1);
     const innerSignature = expectDefined(innerTransaction.signatures[0]);
     const expectedInnerSignature = expectDefined(
-      expectedTxEnvelope.tx().innerTx().value().signatures()[0],
+      expectedTxEnvelope.feeBump.tx.innerTx.v1.signatures[0],
     );
-    expect(innerSignature.toXDR().toString("base64")).toEqual(
-      expectedInnerSignature.toXDR().toString("base64"),
+    expect(xdr.DecoratedSignature.toXDR(innerSignature, "base64")).toEqual(
+      xdr.DecoratedSignature.toXDR(expectedInnerSignature, "base64"),
     );
 
     expect(transaction.signatures.length).toEqual(1);
     const transactionSignature = expectDefined(transaction.signatures[0]);
     const expectedTransactionSignature = expectDefined(
-      expectedTxEnvelope.signatures()[0],
+      expectedTxEnvelope.feeBump.signatures[0],
     );
-    expect(transactionSignature.toXDR().toString("base64")).toEqual(
-      expectedTransactionSignature.toXDR().toString("base64"),
+    expect(
+      xdr.DecoratedSignature.toXDR(transactionSignature, "base64"),
+    ).toEqual(
+      xdr.DecoratedSignature.toXDR(expectedTransactionSignature, "base64"),
     );
   });
 
@@ -173,21 +185,28 @@ describe("FeeBumpTransaction", () => {
 
   it("signs correctly", () => {
     transaction.sign(feeSource);
-    const rawSig = expectDefined(
-      transaction.toEnvelope().feeBump().signatures()[0],
-    ).signature();
-    expect(feeSource.verify(transaction.hash(), rawSig)).toBe(true);
+    const envelope = transaction.toEnvelope();
+    if (envelope.type !== xdr.EnvelopeType.envelopeTypeTxFeeBump) {
+      expect.fail("expected a fee bump transaction envelope");
+    }
+    const rawSig = expectDefined(envelope.feeBump.signatures[0]).signature;
+    expect(feeSource.verify(transaction.hash(), Buffer.from(rawSig))).toBe(
+      true,
+    );
   });
 
   it("signs using hash preimage", () => {
     const preimage = createTestBytes(64);
     const preimageHash = hash(preimage);
     transaction.signHashX(preimage);
-    const env = transaction.toEnvelope().feeBump();
-    const decoratedSignature = expectDefined(env.signatures()[0]);
-    expectBuffersToBeEqual(decoratedSignature.signature(), preimage);
+    const env = transaction.toEnvelope();
+    if (env.type !== xdr.EnvelopeType.envelopeTypeTxFeeBump) {
+      expect.fail("expected a fee bump transaction envelope");
+    }
+    const decoratedSignature = expectDefined(env.feeBump.signatures[0]);
+    expectBuffersToBeEqual(decoratedSignature.signature, preimage);
     expectBuffersToBeEqual(
-      decoratedSignature.hint(),
+      decoratedSignature.hint,
       preimageHash.subarray(preimageHash.length - 4),
     );
   });
@@ -201,20 +220,23 @@ describe("FeeBumpTransaction", () => {
 
   describe("toEnvelope", () => {
     it("does not return a reference to source signatures", () => {
-      const envelope = transaction
-        .toEnvelope()
-        .value() as xdr.FeeBumpTransactionEnvelope;
-      envelope.signatures().push({} as xdr.DecoratedSignature);
+      const envelope = transaction.toEnvelope();
+      if (envelope.type !== xdr.EnvelopeType.envelopeTypeTxFeeBump) {
+        expect.fail("expected a fee bump transaction envelope");
+      }
+      (envelope.feeBump.signatures as any).push({} as xdr.DecoratedSignature);
 
       expect(transaction.signatures.length).toEqual(0);
     });
     it("does not return a reference to the source transaction", () => {
-      const envelope = transaction
-        .toEnvelope()
-        .value() as xdr.FeeBumpTransactionEnvelope;
-      envelope.tx().fee(xdr.Int64.fromString("300"));
+      const envelope = transaction.toEnvelope();
+      if (envelope.type !== xdr.EnvelopeType.envelopeTypeTxFeeBump) {
+        expect.fail("expected a fee bump transaction envelope");
+      }
+      const feeBumpEnvelope = envelope.feeBump;
+      (feeBumpEnvelope.tx.fee as any) = BigInt("300");
 
-      expect(transaction.tx.fee().toString()).toEqual("200");
+      expect(transaction.tx.fee.toString()).toEqual("200");
     });
   });
 
@@ -226,29 +248,40 @@ describe("FeeBumpTransaction", () => {
       networkPassphrase,
     );
 
-    const signature = feeSource.sign(presignHash).toString("base64");
+    const signature = uint8ArrayToBase64(feeSource.sign(presignHash));
 
     addedSignatureTx.addSignature(feeSource.publicKey(), signature);
 
-    const envelopeAddedSignature = addedSignatureTx.toEnvelope().feeBump();
+    const envelopeAddedSignature = addedSignatureTx.toEnvelope();
+    if (
+      envelopeAddedSignature.type !== xdr.EnvelopeType.envelopeTypeTxFeeBump
+    ) {
+      expect.fail("expected a fee bump transaction envelope");
+    }
     const addedSignature = expectDefined(
-      envelopeAddedSignature.signatures()[0],
+      envelopeAddedSignature.feeBump.signatures[0],
     );
 
     expect(
-      feeSource.verify(addedSignatureTx.hash(), addedSignature.signature()),
+      feeSource.verify(
+        addedSignatureTx.hash(),
+        Buffer.from(addedSignature.signature),
+      ),
     ).toBe(true);
 
     transaction.sign(feeSource);
-    const envelopeSigned = transaction.toEnvelope().feeBump();
-    const signedSignature = expectDefined(envelopeSigned.signatures()[0]);
+    const envelope = transaction.toEnvelope();
+    if (envelope.type !== xdr.EnvelopeType.envelopeTypeTxFeeBump) {
+      expect.fail("expected a fee bump transaction envelope");
+    }
+    const envelopeSigned = envelope.feeBump;
+    const signedSignature = expectDefined(envelopeSigned.signatures[0]);
 
-    expectBuffersToBeEqual(
-      signedSignature.signature(),
-      addedSignature.signature(),
-    );
+    expect(
+      areUint8ArraysEqual(signedSignature.signature, addedSignature.signature),
+    ).toBe(true);
 
-    expectBuffersToBeEqual(signedSignature.hint(), addedSignature.hint());
+    expectBuffersToBeEqual(signedSignature.hint, addedSignature.hint);
 
     expectBuffersToBeEqual(addedSignatureTx.hash(), transaction.hash());
   });
@@ -261,7 +294,7 @@ describe("FeeBumpTransaction", () => {
       networkPassphrase,
     ).getKeypairSignature(feeSource);
 
-    expect(feeSource.sign(presignHash).toString("base64")).toEqual(signature);
+    expect(uint8ArrayToBase64(feeSource.sign(presignHash))).toEqual(signature);
 
     const addedSignatureTx = new FeeBumpTransaction(
       transaction.toEnvelope(),
@@ -271,26 +304,37 @@ describe("FeeBumpTransaction", () => {
     expect(addedSignatureTx.signatures.length).toEqual(0);
     addedSignatureTx.addSignature(feeSource.publicKey(), signature);
 
-    const envelopeAddedSignature = addedSignatureTx.toEnvelope().feeBump();
+    const envelopeAddedSignature = addedSignatureTx.toEnvelope();
+    if (
+      envelopeAddedSignature.type !== xdr.EnvelopeType.envelopeTypeTxFeeBump
+    ) {
+      expect.fail("expected a fee bump transaction envelope");
+    }
     const addedSignature = expectDefined(
-      envelopeAddedSignature.signatures()[0],
+      envelopeAddedSignature.feeBump.signatures[0],
     );
 
     expect(
-      feeSource.verify(transaction.hash(), addedSignature.signature()),
+      feeSource.verify(
+        transaction.hash(),
+        Buffer.from(addedSignature.signature),
+      ),
     ).toBe(true);
 
     expect(transaction.signatures.length).toEqual(0);
     transaction.sign(feeSource);
-    const envelopeSigned = transaction.toEnvelope().feeBump();
-    const signedSignature = expectDefined(envelopeSigned.signatures()[0]);
+    const envelope = transaction.toEnvelope();
+    if (envelope.type !== xdr.EnvelopeType.envelopeTypeTxFeeBump) {
+      expect.fail("expected a fee bump transaction envelope");
+    }
+    const envelopeSigned = envelope.feeBump;
+    const signedSignature = expectDefined(envelopeSigned.signatures[0]);
 
-    expectBuffersToBeEqual(
-      signedSignature.signature(),
-      addedSignature.signature(),
-    );
+    expect(
+      areUint8ArraysEqual(signedSignature.signature, addedSignature.signature),
+    ).toBe(true);
 
-    expectBuffersToBeEqual(signedSignature.hint(), addedSignature.hint());
+    expectBuffersToBeEqual(signedSignature.hint, addedSignature.hint);
 
     expectBuffersToBeEqual(addedSignatureTx.hash(), transaction.hash());
   });
@@ -326,7 +370,10 @@ describe("FeeBumpTransaction", () => {
     const muxedAddress = encodeMuxedAccountToAddress(muxedFeeSource);
 
     const envelope = transaction.toEnvelope();
-    envelope.feeBump().tx().feeSource(muxedFeeSource);
+    if (envelope.type !== xdr.EnvelopeType.envelopeTypeTxFeeBump) {
+      expect.fail("expected a fee bump transaction envelope");
+    }
+    (envelope.feeBump.tx.feeSource as any) = muxedFeeSource;
 
     const txWithMuxedAccount = new FeeBumpTransaction(
       envelope,

@@ -1,13 +1,19 @@
 import { describe, it, beforeEach, afterEach, expect, vi } from "vitest";
 import * as StellarSdk from "../../../../src/index.js";
+import {
+  xdr,
+  Address,
+  Keypair,
+  nativeToScVal,
+  rpc,
+} from "../../../../src/index.js";
+import { serverUrl } from "../../../constants.js";
 
-import { serverUrl } from "../../../constants";
-
-const { Address, Keypair, xdr, nativeToScVal } = StellarSdk;
+// const { Address, Keypair, xdr, nativeToScVal } = StellarSdk;
 const { Server } = StellarSdk.rpc;
 
 describe("Server#getSACBalance|getAssetBalance", () => {
-  let server: any;
+  let server: rpc.Server;
   let mockPost: any;
 
   beforeEach(() => {
@@ -46,37 +52,36 @@ describe("Server#getSACBalance|getAssetBalance", () => {
       nativeToScVal(contract, { type: "address" }),
     ]);
 
-    const entry = xdr.LedgerEntryData.contractData(
-      new xdr.ContractDataEntry({
-        ext: new (xdr.ExtensionPoint as any)(0),
+    const entry: xdr.LedgerEntryData = {
+      type: "contractData",
+      contractData: {
+        ext: { type: "case0" },
         contract: contractAddress,
-        durability: xdr.ContractDataDurability.persistent(),
+        durability: "persistent",
         key,
         val,
-      }),
-    );
+      },
+    };
 
-    const ledgerKey = xdr.LedgerKey.contractData(
-      new xdr.LedgerKeyContractData({
-        contract: entry.contractData().contract(),
-        durability: entry.contractData().durability(),
-        key: entry.contractData().key(),
-      }),
-    );
+    const ledgerKey = xdr.LedgerKey.contractData({
+      contract: entry.contractData.contract,
+      durability: entry.contractData.durability,
+      key: entry.contractData.key,
+    });
 
     return { entry, ledgerKey };
   }
 
   function buildMockResult() {
     const { entry, ledgerKey } = buildBalanceArtifacts();
-    const result = {
+    const result: rpc.Api.RawGetLedgerEntriesResponse = {
       latestLedger: 1000,
       entries: [
         {
           lastModifiedLedgerSeq: 1,
           liveUntilLedgerSeq: 1000,
-          key: ledgerKey.toXDR("base64"),
-          xdr: entry.toXDR("base64"),
+          key: xdr.LedgerKey.toXDR(ledgerKey, "base64"),
+          xdr: xdr.LedgerEntryData.toXDR(entry, "base64"),
         },
       ],
     };
@@ -99,6 +104,9 @@ describe("Server#getSACBalance|getAssetBalance", () => {
     );
     expect(response.latestLedger).toBe(1000);
     expect(response.balanceEntry).toBeDefined();
+    if (!response.balanceEntry) {
+      expect.fail("balanceEntry should be defined");
+    }
     expect(response.balanceEntry.amount).toBe("1000000000000");
     expect(response.balanceEntry.authorized).toBeTruthy();
     expect(response.balanceEntry.clawback).toBeFalsy();
@@ -106,7 +114,7 @@ describe("Server#getSACBalance|getAssetBalance", () => {
       jsonrpc: "2.0",
       id: 1,
       method: "getLedgerEntries",
-      params: { keys: [ledgerKey.toXDR("base64")] },
+      params: { keys: [xdr.LedgerKey.toXDR(ledgerKey, "base64")] },
     });
     expect(mockPost).toHaveBeenCalledTimes(1);
 
@@ -121,14 +129,14 @@ describe("Server#getSACBalance|getAssetBalance", () => {
 
   it("infers the network passphrase", async () => {
     const { entry, ledgerKey } = buildBalanceArtifacts();
-    const balanceResult = {
+    const balanceResult: rpc.Api.RawGetLedgerEntriesResponse = {
       latestLedger: 1000,
       entries: [
         {
           lastModifiedLedgerSeq: 1,
           liveUntilLedgerSeq: 1000,
-          key: ledgerKey.toXDR("base64"),
-          xdr: entry.toXDR("base64"),
+          key: xdr.LedgerKey.toXDR(ledgerKey, "base64"),
+          xdr: xdr.LedgerEntryData.toXDR(entry, "base64"),
         },
       ],
     };
@@ -153,6 +161,9 @@ describe("Server#getSACBalance|getAssetBalance", () => {
     const response = await server.getSACBalance(contract, token);
     expect(response.latestLedger).toBe(1000);
     expect(response.balanceEntry).toBeDefined();
+    if (!response.balanceEntry) {
+      expect.fail("balanceEntry should be defined");
+    }
     expect(response.balanceEntry.amount).toBe("1000000000000");
     expect(response.balanceEntry.authorized).toBeTruthy();
     expect(response.balanceEntry.clawback).toBeFalsy();

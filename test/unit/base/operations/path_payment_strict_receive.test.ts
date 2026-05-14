@@ -43,25 +43,24 @@ describe("Operation.pathPaymentStrictReceive()", () => {
       destAmount,
       path,
     });
-    const xdrHex = op.toXDR("hex");
+    const xdrHex = xdr.Operation.toXDR(op, "hex");
     const operation = xdr.Operation.fromXDR(Buffer.from(xdrHex, "hex"));
     const obj = expectOperationType(
       Operation.fromXDRObject(operation),
       "pathPaymentStrictReceive",
     );
     expect(obj.sendAsset.equals(sendAsset)).toBe(true);
-    expect(
-      (operation.body().value() as xdr.PathPaymentStrictReceiveOp)
-        .sendMax()
-        .toString(),
-    ).toBe("30070000");
+    if (operation.body.type !== xdr.OperationType.pathPaymentStrictReceive) {
+      expect.fail("Expected pathPaymentStrictReceive operation");
+    }
+    expect(operation.body.pathPaymentStrictReceiveOp.sendMax.toString()).toBe(
+      "30070000",
+    );
     expect(obj.sendMax).toBe(sendMax);
     expect(obj.destination).toBe(destination);
     expect(obj.destAsset.equals(destAsset)).toBe(true);
     expect(
-      (operation.body().value() as xdr.PathPaymentStrictReceiveOp)
-        .destAmount()
-        .toString(),
+      operation.body.pathPaymentStrictReceiveOp.destAmount.toString(),
     ).toBe("31415000");
     expect(obj.destAmount).toBe(destAmount);
     expect(expectDefined(obj.path[0]).getCode()).toBe("USD");
@@ -82,7 +81,7 @@ describe("Operation.pathPaymentStrictReceive()", () => {
       destAsset,
       destAmount: "5.0000000",
     });
-    const xdrHex = op.toXDR("hex");
+    const xdrHex = xdr.Operation.toXDR(op, "hex");
     const operation = xdr.Operation.fromXDR(xdrHex, "hex");
     const obj = expectOperationType(
       Operation.fromXDRObject(operation),
@@ -109,7 +108,7 @@ describe("Operation.pathPaymentStrictReceive()", () => {
       source: muxedSource,
     });
 
-    const packed = xdr.Operation.fromXDR(op.toXDR("hex"), "hex");
+    const packed = xdr.Operation.fromXDR(xdr.Operation.toXDR(op, "hex"), "hex");
     const unpacked = expectOperationType(
       Operation.fromXDRObject(packed),
       "pathPaymentStrictReceive",
@@ -189,8 +188,8 @@ describe("Operation.pathPaymentStrictReceive()", () => {
       destAmount: "3.1415000",
       path,
     });
-    const hex = op.toXDR("hex");
+    const hex = xdr.Operation.toXDR(op, "hex");
     const roundtripped = xdr.Operation.fromXDR(hex, "hex");
-    expect(roundtripped.body().switch().name).toBe("pathPaymentStrictReceive");
+    expect(roundtripped.body.type).toBe("pathPaymentStrictReceive");
   });
 });

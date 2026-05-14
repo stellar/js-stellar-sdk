@@ -3,10 +3,13 @@ import { humanizeEvents } from "../../../src/base/events.js";
 import { nativeToScVal, scValToNative } from "../../../src/base/scval.js";
 import { StrKey } from "../../../src/base/strkey.js";
 import xdr from "../../../src/base/xdr.js";
+import { expectDefined, expectScVal } from "./support/expect_defined.js";
 
 describe("humanizing raw events", () => {
   const contractId = "CA3D5KRYM6CB7OWQ6TWYRR3Z4T7GNZLKERYNZGGA5SOAOPIFY6YQGAXE";
-  const topics1 = nativeToScVal([1, 2, 3]).value() as xdr.ScVal[];
+  const scval = nativeToScVal([1, 2, 3]);
+  const vec = expectDefined(expectScVal(scval, "scvVec").vec);
+  const topics1 = vec.map((v) => v);
   const data1 = nativeToScVal({ hello: "world" });
 
   // workaround for xdr.ContractEventBody.0(...) being invalid
@@ -14,48 +17,44 @@ describe("humanizing raw events", () => {
     topics: xdr.ScVal[];
     data: xdr.ScVal;
   }): xdr.ContractEventBody => {
-    const clone = new xdr.ContractEventBody(
-      0,
-      new xdr.ContractEventV0({
-        topics: [],
-        data: xdr.ScVal.scvVoid(),
-      }),
-    );
-    clone.v0().topics(newBody.topics);
-    clone.v0().data(newBody.data);
+    const clone = xdr.ContractEventBody.v0({
+      topics: [...newBody.topics], // placeholder, will be overwritten
+      data: newBody.data, // will be overwritten
+    });
+
     return clone;
   };
 
-  const events = [
-    new xdr.DiagnosticEvent({
+  const events: xdr.DiagnosticEvent[] = [
+    {
       inSuccessfulContractCall: true,
-      event: new xdr.ContractEvent({
-        ext: new xdr.ExtensionPoint(0),
+      event: {
+        ext: { type: "case0" },
         contractId: StrKey.decodeContract(contractId) as unknown as xdr.Hash,
-        type: xdr.ContractEventType.contract(),
+        type: "contract",
         body: cloneAndSet({
           topics: topics1,
           data: data1,
         }),
-      }),
-    }),
-    new xdr.DiagnosticEvent({
+      },
+    },
+    {
       inSuccessfulContractCall: true,
-      event: new xdr.ContractEvent({
-        ext: new xdr.ExtensionPoint(0),
+      event: {
+        ext: { type: "case0" },
         contractId: null,
-        type: xdr.ContractEventType.contract(),
+        type: "contract",
         body: cloneAndSet({
           topics: topics1,
           data: data1,
         }),
-      }),
-    }),
+      },
+    },
   ];
 
   it("built valid events for testing", () => {
     // sanity check: valid xdr
-    events.map((e) => e.toXDR());
+    events.map((e) => xdr.DiagnosticEvent.toXDR(e));
   });
 
   it("makes diagnostic events human-readable", () => {
@@ -76,25 +75,25 @@ describe("humanizing raw events", () => {
   });
 
   it("makes contract events human-readable", () => {
-    const contractEvents = [
-      new xdr.ContractEvent({
-        ext: new xdr.ExtensionPoint(0),
+    const contractEvents: xdr.ContractEvent[] = [
+      {
+        ext: { type: "case0" },
         contractId: StrKey.decodeContract(contractId) as unknown as xdr.Hash,
-        type: xdr.ContractEventType.contract(),
+        type: "contract",
         body: cloneAndSet({
           topics: topics1,
           data: data1,
         }),
-      }),
-      new xdr.ContractEvent({
-        ext: new xdr.ExtensionPoint(0),
+      },
+      {
+        ext: { type: "case0" },
         contractId: null,
-        type: xdr.ContractEventType.contract(),
+        type: "contract",
         body: cloneAndSet({
           topics: topics1,
           data: data1,
         }),
-      }),
+      },
     ];
 
     const readable = humanizeEvents(contractEvents);
@@ -114,16 +113,16 @@ describe("humanizing raw events", () => {
   });
 
   it("handles system event type", () => {
-    const systemEvents = [
-      new xdr.ContractEvent({
-        ext: new xdr.ExtensionPoint(0),
+    const systemEvents: xdr.ContractEvent[] = [
+      {
+        ext: { type: "case0" },
         contractId: null,
-        type: xdr.ContractEventType.system(),
+        type: "system",
         body: cloneAndSet({
           topics: topics1,
           data: data1,
         }),
-      }),
+      },
     ];
 
     const readable = humanizeEvents(systemEvents);

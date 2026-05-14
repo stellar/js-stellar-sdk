@@ -1,10 +1,10 @@
 import { setSourceAccount } from "../util/operations.js";
-import xdr from "../xdr.js";
 import {
-  ClaimClaimableBalanceResult,
-  ClaimClaimableBalanceOpts,
-  OperationAttributes,
-} from "./types.js";
+  ClaimableBalanceId,
+  Operation,
+  OperationBody,
+} from "../generated/index.js";
+import { ClaimClaimableBalanceOpts, OperationAttributes } from "./types.js";
 
 /**
  * Create a new claim claimable balance operation.
@@ -19,25 +19,25 @@ import {
  */
 export function claimClaimableBalance(
   opts: ClaimClaimableBalanceOpts = {} as ClaimClaimableBalanceOpts,
-): xdr.Operation<ClaimClaimableBalanceResult> {
+): Operation {
   validateClaimableBalanceId(opts.balanceId);
 
-  const balanceId: xdr.ClaimableBalanceId = xdr.ClaimableBalanceId.fromXDR(
+  const balanceId: ClaimableBalanceId = ClaimableBalanceId.fromXDR(
     opts.balanceId,
     "hex",
   );
-  const claimClaimableBalanceOp = new xdr.ClaimClaimableBalanceOp({
-    balanceId,
-  });
+  const claimClaimableBalanceOp = {
+    balanceId: balanceId,
+  };
 
   const opAttributes: OperationAttributes = {
     sourceAccount: null,
-    body: xdr.OperationBody.claimClaimableBalance(claimClaimableBalanceOp),
+    body: OperationBody.claimClaimableBalance(claimClaimableBalanceOp),
   };
 
   setSourceAccount(opAttributes, opts);
 
-  return new xdr.Operation(opAttributes);
+  return opAttributes;
 }
 
 /**

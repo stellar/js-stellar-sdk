@@ -5,12 +5,14 @@ import {
   setSourceAccount,
   toXDRPrice,
 } from "../util/operations.js";
-import xdr from "../xdr.js";
 import {
-  ManageSellOfferResult,
-  ManageSellOfferOpts,
-  OperationAttributes,
-} from "./types.js";
+  Asset,
+  Int64,
+  Operation,
+  OperationBody,
+  Price,
+} from "../generated/index.js";
+import { ManageSellOfferOpts, OperationAttributes } from "./types.js";
 
 /**
  * Returns a XDR ManageSellOfferOp. A "manage sell offer" operation creates, updates, or
@@ -26,41 +28,39 @@ import {
  * @param opts.source - The source account (defaults to transaction source).
  * @throws {Error} when the best rational approximation of `price` cannot be found.
  */
-export function manageSellOffer(
-  opts: ManageSellOfferOpts,
-): xdr.Operation<ManageSellOfferResult> {
-  const selling: xdr.Asset = opts.selling.toXDRObject();
-  const buying: xdr.Asset = opts.buying.toXDRObject();
+export function manageSellOffer(opts: ManageSellOfferOpts): Operation {
+  const selling: Asset = opts.selling.toWireXDRObject();
+  const buying: Asset = opts.buying.toWireXDRObject();
 
   if (!isValidAmount(opts.amount, true)) {
     throw new TypeError(constructAmountRequirementsError("amount"));
   }
 
-  const amount: xdr.Int64 = toXDRAmount(opts.amount);
+  const amount: Int64 = toXDRAmount(opts.amount);
 
   if (opts.price === undefined) {
     throw new TypeError("price argument is required");
   }
 
-  const price: xdr.Price = toXDRPrice(opts.price);
+  const price: Price = toXDRPrice(opts.price);
 
   const offerIdStr = opts.offerId !== undefined ? opts.offerId.toString() : "0";
-  const offerId: xdr.Int64 = xdr.Int64.fromString(offerIdStr);
+  const offerId: Int64 = BigInt(offerIdStr);
 
-  const manageSellOfferOp = new xdr.ManageSellOfferOp({
+  const manageSellOfferOp = {
     selling,
     buying,
     amount,
     price,
     offerId,
-  });
+  };
 
   const opAttributes: OperationAttributes = {
     sourceAccount: null,
-    body: xdr.OperationBody.manageSellOffer(manageSellOfferOp),
+    body: OperationBody.manageSellOffer(manageSellOfferOp),
   };
 
   setSourceAccount(opAttributes, opts);
 
-  return new xdr.Operation(opAttributes);
+  return opAttributes;
 }

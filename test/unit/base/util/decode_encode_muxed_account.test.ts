@@ -6,7 +6,8 @@ import {
   extractBaseAddress,
 } from "../../../../src/base/util/decode_encode_muxed_account.js";
 import { StrKey } from "../../../../src/base/strkey.js";
-import xdr from "../../../../src/base/xdr.js";
+import { xdr } from "../../../../src/index.js";
+import { areUint8ArraysEqual } from "uint8array-extras";
 
 const PUBKEY = "GA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJVSGZ";
 const MPUBKEY =
@@ -40,10 +41,14 @@ describe("decodeAddressToMuxedAccount", () => {
     const muxed = decodeAddressToMuxedAccount(PUBKEY);
 
     expect(xdr.MuxedAccount.isValid(muxed)).toBe(true);
-    expect(muxed.switch()).toEqual(xdr.CryptoKeyType.keyTypeEd25519());
-    expect(muxed.ed25519().equals(StrKey.decodeEd25519PublicKey(PUBKEY))).toBe(
-      true,
-    );
+    expect(muxed.type).toEqual("keyTypeEd25519");
+    expect(muxed).toHaveProperty("type");
+    if (muxed.type !== "keyTypeEd25519") {
+      expect.fail("Expected muxed account to be of type keyTypeEd25519");
+    }
+    expect(
+      areUint8ArraysEqual(muxed.ed25519, StrKey.decodeEd25519PublicKey(PUBKEY)),
+    ).toBe(true);
   });
 
   it.each(MUXED_CASES)(
@@ -52,13 +57,19 @@ describe("decodeAddressToMuxedAccount", () => {
       const muxed = decodeAddressToMuxedAccount(strkey);
 
       expect(xdr.MuxedAccount.isValid(muxed)).toBe(true);
-      expect(muxed.switch()).toEqual(xdr.CryptoKeyType.keyTypeMuxedEd25519());
+      expect(muxed.type).toEqual("keyTypeMuxedEd25519");
+      if (muxed.type !== "keyTypeMuxedEd25519") {
+        expect.fail("Expected muxed account to be of type keyTypeMuxedEd25519");
+      }
+      const inner = muxed.med25519;
 
-      const inner = muxed.med25519();
       expect(
-        inner.ed25519().equals(StrKey.decodeEd25519PublicKey(PUBKEY)),
+        areUint8ArraysEqual(
+          inner.ed25519,
+          StrKey.decodeEd25519PublicKey(PUBKEY),
+        ),
       ).toBe(true);
-      expect(inner.id()).toEqual(xdr.Uint64.fromString(id));
+      expect(inner.id).toEqual(BigInt(id));
     },
   );
 
@@ -91,26 +102,32 @@ describe("encodeMuxedAccount", () => {
     const muxed = encodeMuxedAccount(PUBKEY, "420");
 
     expect(xdr.MuxedAccount.isValid(muxed)).toBe(true);
-    expect(muxed.switch()).toEqual(xdr.CryptoKeyType.keyTypeMuxedEd25519());
-
-    const inner = muxed.med25519();
-    expect(inner.ed25519().equals(StrKey.decodeEd25519PublicKey(PUBKEY))).toBe(
-      true,
-    );
-    expect(inner.id()).toEqual(xdr.Uint64.fromString("420"));
+    if (muxed.type !== "keyTypeMuxedEd25519") {
+      expect.fail("Expected muxed account to be of type keyTypeMuxedEd25519");
+    }
+    const inner = muxed.med25519;
+    expect(
+      areUint8ArraysEqual(inner.ed25519, StrKey.decodeEd25519PublicKey(PUBKEY)),
+    ).toBe(true);
+    expect(inner.id).toEqual(BigInt("420"));
   });
 
   it("roundtrips through encodeMuxedAccountToAddress", () => {
     const muxed = encodeMuxedAccount(PUBKEY, "1234");
     const address = encodeMuxedAccountToAddress(muxed);
     const decoded = decodeAddressToMuxedAccount(address);
+    if (decoded.type !== "keyTypeMuxedEd25519") {
+      expect.fail(
+        "Expected decoded muxed account to be of type keyTypeMuxedEd25519",
+      );
+    }
+    expect(decoded.med25519.id).toEqual(BigInt("1234"));
 
-    expect(decoded.med25519().id()).toEqual(xdr.Uint64.fromString("1234"));
     expect(
-      decoded
-        .med25519()
-        .ed25519()
-        .equals(StrKey.decodeEd25519PublicKey(PUBKEY)),
+      areUint8ArraysEqual(
+        decoded.med25519.ed25519,
+        StrKey.decodeEd25519PublicKey(PUBKEY),
+      ),
     ).toBe(true);
   });
 

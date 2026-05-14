@@ -1,22 +1,22 @@
-import xdr from "../xdr.js";
-import { XdrLargeInt, type ScIntType } from "./xdr_large_int.js";
+import { ScVal } from "../generated/index.js";
 
-export { Uint128 } from "./uint128.js";
-export { Uint256 } from "./uint256.js";
-export { Int128 } from "./int128.js";
-export { Int256 } from "./int256.js";
-export { ScInt } from "./sc_int.js";
-export { XdrLargeInt };
-export type { ScIntType };
-
+export type ScIntType =
+  | "duration"
+  | "i64"
+  | "i128"
+  | "i256"
+  | "timepoint"
+  | "u64"
+  | "u128"
+  | "u256";
 /**
- * Transforms an opaque {@link xdr.ScVal} into a native bigint, if possible.
+ * Transforms an opaque {@link ScVal} into a native bigint, if possible.
  *
  * If you then want to use this in the abstractions provided by this module,
  * you can pass it to the constructor of {@link XdrLargeInt}.
  *
  * @example
- * let scv = contract.call("add", x, y); // assume it returns an xdr.ScVal
+ * let scv = contract.call("add", x, y); // assume it returns an ScVal
  * let bigi = scValToBigInt(scv);
  *
  * new ScInt(bigi);               // if you don't care about types, and
@@ -26,56 +26,34 @@ export type { ScIntType };
  *
  * @throws {TypeError} if the `scv` input value doesn't represent an integer
  */
-export function scValToBigInt(scv: xdr.ScVal): bigint {
-  const switchName = scv.switch().name;
-  const scIntType = XdrLargeInt.getType(switchName);
-  const value = scv.value();
+export function scValToBigInt(scv: ScVal): bigint {
+  const switchName = scv.type;
 
-  if (value === null) {
-    throw TypeError(`unexpected null value for ${switchName}`);
-  }
-
-  switch (switchName) {
+  switch (scv.type) {
     case "scvU32":
+      return BigInt(scv.u32);
     case "scvI32":
-      return BigInt(value as number);
+      return BigInt(scv.i32);
 
     case "scvU64":
+      return scv.u64;
     case "scvI64":
+      return scv.i64;
     case "scvTimepoint":
+      return scv.timepoint;
     case "scvDuration":
-      if (scIntType === undefined) {
-        throw TypeError(`invalid integer type for ${switchName}`);
-      }
-      return new XdrLargeInt(
-        scIntType,
-        value as xdr.Int64 | xdr.Uint64,
-      ).toBigInt();
+      return scv.duration;
 
     case "scvU128":
+      return scv.u128;
     case "scvI128": {
-      if (scIntType === undefined) {
-        throw TypeError(`invalid integer type for ${switchName}`);
-      }
-      const int128Value = value as xdr.Int128Parts | xdr.UInt128Parts;
-      return new XdrLargeInt(scIntType, [
-        int128Value.lo(),
-        int128Value.hi(),
-      ]).toBigInt();
+      return scv.i128;
     }
 
     case "scvU256":
+      return scv.u256;
     case "scvI256": {
-      if (scIntType === undefined) {
-        throw TypeError(`invalid integer type for ${switchName}`);
-      }
-      const int256Value = value as xdr.Int256Parts | xdr.UInt256Parts;
-      return new XdrLargeInt(scIntType, [
-        int256Value.loLo(),
-        int256Value.loHi(),
-        int256Value.hiLo(),
-        int256Value.hiHi(),
-      ]).toBigInt();
+      return scv.i256;
     }
 
     default:

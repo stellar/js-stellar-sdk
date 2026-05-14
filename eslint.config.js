@@ -19,7 +19,7 @@ const javascriptConfig = [
   js.configs.recommended,
   {
     name: "javascript/node-globals",
-    files: ["**/*.js", "**/*.ts"],
+    files: ["**/*.js", "**/*.ts", "**/*.mjs"],
     languageOptions: {
       globals: {
         ...globals.node,
@@ -118,7 +118,10 @@ const baseSdkConfig = [
     files: ["src/base/**/*.ts"],
     rules: {
       "@typescript-eslint/no-redeclare": "off",
-      "@typescript-eslint/no-use-before-define": ["error", { functions: false }],
+      "@typescript-eslint/no-use-before-define": [
+        "error",
+        { functions: false },
+      ],
       "@typescript-eslint/naming-convention": "off",
       "jsdoc/no-undefined-types": "off",
     },

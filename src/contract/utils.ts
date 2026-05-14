@@ -1,8 +1,10 @@
-import { xdr, cereal, Account } from "../base/index.js";
+import { Account } from "../base/index.js";
+import { ScSpecEntry, ScSpecType } from "../base/generated/index.js";
+import { SCSpecEntry as SchemaScSpecEntry } from "../base/generated/schema/sc-spec-entry.js";
 import { Server } from "../rpc/index.js";
 import { type AssembledTransaction } from "./assembled_transaction.js";
 import { NULL_ACCOUNT, type AssembledTransactionOptions } from "./types.js";
-
+import { Reader } from "../base/new-xdr/index.js";
 /**
  * Keep calling a `fn` for `timeoutInSeconds` seconds, if `keepWaitingIf` is
  * true. Returns an array of all attempts to call the function.
@@ -181,11 +183,11 @@ export function parseWasmCustomSections(
  * @private
  */
 export function processSpecEntryStream(buffer: Buffer) {
-  const reader = new cereal.XdrReader(buffer);
-  const res: xdr.ScSpecEntry[] = [];
-  while (!reader.eof) {
+  const reader = new Reader(buffer);
+  const res: ScSpecEntry[] = [];
+  while (reader.remaining > 0) {
     // @ts-ignore
-    res.push(xdr.ScSpecEntry.read(reader));
+    res.push(ScSpecEntry.fromXDRObject(SchemaScSpecEntry._read(reader)));
   }
   return res;
 }
@@ -197,4 +199,16 @@ export async function getAccount<T>(
   return options.publicKey
     ? server.getAccount(options.publicKey)
     : new Account(NULL_ACCOUNT, "0");
+}
+
+export function validateScSpecType(
+  typeDef: ScSpecType,
+  expectedType: ScSpecType,
+): void {
+  if (expectedType === ScSpecType.scSpecTypeResult) {
+    return;
+  }
+  if (typeDef !== expectedType) {
+    throw new Error(`Expected type ${expectedType} but got ${typeDef}`);
+  }
 }

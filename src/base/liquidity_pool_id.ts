@@ -1,4 +1,4 @@
-import xdr from "./xdr.js";
+import { TrustLineAsset } from "./generated/index.js";
 
 /**
  * LiquidityPoolId class represents the asset referenced by a trustline to a
@@ -22,35 +22,31 @@ export class LiquidityPoolId {
   }
 
   /**
-   * Returns a liquidity pool ID object from its xdr.TrustLineAsset representation.
+   * Returns a liquidity pool ID object from its TrustLineAsset representation.
    * @param tlAssetXdr - The asset XDR object.
    */
-  static fromOperation(tlAssetXdr: xdr.TrustLineAsset): LiquidityPoolId {
-    const assetType = tlAssetXdr.switch();
-    if (assetType === xdr.AssetType.assetTypePoolShare()) {
-      // tlAssetXdr.liquidityPoolId() is Buffer at runtime
-      const liquidityPoolId = (
-        tlAssetXdr.liquidityPoolId() as unknown as Buffer
-      ).toString("hex");
+  static fromOperation(tlAssetXdr: TrustLineAsset): LiquidityPoolId {
+    const assetType = tlAssetXdr.type;
+    if (assetType === "assetTypePoolShare") {
+      const liquidityPoolId = Buffer.from(tlAssetXdr.liquidityPoolId).toString(
+        "hex",
+      );
       return new LiquidityPoolId(liquidityPoolId);
     }
 
-    throw new Error(`Invalid asset type: ${assetType.name}`);
+    throw new Error(`Invalid asset type: ${assetType}`);
   }
 
   /**
-   * Returns the `xdr.TrustLineAsset` object for this liquidity pool ID.
+   * Returns the `TrustLineAsset` object for this liquidity pool ID.
    *
-   * Note: To convert from {@link Asset `Asset`} to `xdr.TrustLineAsset` please
+   * Note: To convert from {@link Asset `Asset`} to `TrustLineAsset` please
    * refer to the
    * {@link Asset.toTrustLineXDRObject `Asset.toTrustLineXDRObject`} method.
    */
-  toXDRObject(): xdr.TrustLineAsset {
-    const xdrPoolId = Buffer.from(
-      this.liquidityPoolId,
-      "hex",
-    ) as unknown as xdr.PoolId;
-    return xdr.TrustLineAsset.assetTypePoolShare(xdrPoolId);
+  toXDRObject(): TrustLineAsset {
+    const xdrPoolId = Buffer.from(this.liquidityPoolId, "hex");
+    return TrustLineAsset.assetTypePoolShare(xdrPoolId);
   }
 
   /**

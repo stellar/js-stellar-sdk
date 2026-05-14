@@ -1,4 +1,10 @@
-import { Address, Contract, StrKey, xdr } from "../base/index.js";
+import { Address, Contract, StrKey } from "../base/index.js";
+import {
+  ContractExecutableType,
+  LedgerEntryType,
+  LedgerKey,
+  ScContractInstance,
+} from "../base/generated/index.js";
 import { Server } from "../rpc/index.js";
 
 import { RpcServer } from "../rpc/server.js";
@@ -32,11 +38,9 @@ async function getRemoteWasmFromHash(
 ): Promise<Buffer> {
   try {
     // Create the ledger key for the contract code
-    const contractCodeKey = xdr.LedgerKey.contractCode(
-      new xdr.LedgerKeyContractCode({
-        hash: xdr.Hash.fromXDR(hashBuffer, "raw"),
-      }),
-    );
+    const contractCodeKey = LedgerKey.contractCode({
+      hash: hashBuffer,
+    });
 
     // Get the ledger entries
     const response = await server.getLedgerEntries(contractCodeKey);
@@ -46,12 +50,16 @@ async function getRemoteWasmFromHash(
     }
 
     const entry = response.entries[0];
-    if (entry.key.switch() !== xdr.LedgerEntryType.contractCode()) {
+    if (entry.key.type !== LedgerEntryType.contractCode) {
       throw new WasmFetchError("Invalid ledger entry type returned");
     }
 
-    const contractCode = entry.val.contractCode();
-    return Buffer.from(contractCode.code());
+    if (entry.val.type !== "contractCode") {
+      throw new WasmFetchError("Invalid ledger entry type returned");
+    }
+
+    const contractCode = entry.val.contractCode;
+    return Buffer.from(contractCode.code);
   } catch (error) {
     if (error instanceof WasmFetchError) {
       throw error;
@@ -63,11 +71,11 @@ async function getRemoteWasmFromHash(
 /**
  * Check if a contract is a Stellar Asset Contract
  */
-function isStellarAssetContract(instance: xdr.ScContractInstance): boolean {
+function isStellarAssetContract(instance: ScContractInstance): boolean {
   // Check if it's a Stellar Asset Contract (has no WASM hash)
   return (
-    instance.executable().switch() ===
-    xdr.ContractExecutableType.contractExecutableStellarAsset()
+    instance.executable.type ===
+    ContractExecutableType.contractExecutableStellarAsset
   );
 }
 
@@ -87,18 +95,28 @@ async function fetchWasmFromContract(
     }
 
     const entry = response.entries[0];
-    if (entry.key.switch() !== xdr.LedgerEntryType.contractData()) {
+    if (entry.key.type !== LedgerEntryType.contractData) {
       throw new WasmFetchError("Invalid ledger entry type returned");
     }
 
-    const contractData = entry.val.contractData();
-    const instance = contractData.val().instance();
+    if (
+      entry.val.type !== "contractData" ||
+      entry.val.contractData.val.type !== "scvContractInstance"
+    ) {
+      throw new WasmFetchError("Invalid ledger entry type returned");
+    }
+
+    const instance = entry.val.contractData.val.instance;
 
     if (isStellarAssetContract(instance)) {
       return { type: "stellar-asset-contract" };
     }
 
-    const wasmHash = instance.executable().wasmHash();
+    if (instance.executable.type !== "contractExecutableWasm") {
+      throw new WasmFetchError("Contract instance does not contain WASM");
+    }
+
+    const wasmHash = Buffer.from(instance.executable.wasm_hash);
     let wasmBytes = await getRemoteWasmFromHash(server, wasmHash);
     return { type: "wasm", wasmBytes };
   } catch (error) {

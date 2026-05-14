@@ -1,4 +1,4 @@
-import xdr from "./xdr.js";
+import { SorobanAuthorizedInvocation } from "./generated/index.js";
 import { Asset } from "./asset.js";
 import { Address } from "./address.js";
 import { scValToNative } from "./scval.js";
@@ -69,9 +69,9 @@ export interface InvocationTree {
  *    exist at the root)
  */
 export type InvocationWalker = (
-  node: xdr.SorobanAuthorizedInvocation,
+  node: SorobanAuthorizedInvocation,
   depth: number,
-  parent?: xdr.SorobanAuthorizedInvocation,
+  parent?: SorobanAuthorizedInvocation,
 ) => boolean | null | void;
 
 /**
@@ -85,7 +85,7 @@ export type InvocationWalker = (
  * @param root - the raw XDR of the invocation,
  *    likely acquired from transaction simulation. this is either from the
  *    {@link Operation.invokeHostFunction} itself (the `func` field), or from
- *    the authorization entries ({@link xdr.SorobanAuthorizationEntry}, the
+ *    the authorization entries ({@link SorobanAuthorizationEntry}, the
  *    `rootInvocation` field)
  *
  * @example
@@ -118,35 +118,32 @@ export type InvocationWalker = (
  * ```
  */
 export function buildInvocationTree(
-  root: xdr.SorobanAuthorizedInvocation,
+  root: SorobanAuthorizedInvocation,
 ): InvocationTree {
-  const fn = root.function();
+  const fn = root.function;
 
   const output: Partial<InvocationTree> = {};
-  const inner = fn.value();
 
-  switch (fn.switch().value) {
-    // sorobanAuthorizedFunctionTypeContractFn
-    case 0: {
-      const invokeArgs = fn.contractFn();
+  switch (fn.type) {
+    case "sorobanAuthorizedFunctionTypeContractFn": {
+      const invokeArgs = fn.contractFn;
       output.type = "execute";
       output.args = {
-        source: Address.fromScAddress(invokeArgs.contractAddress()).toString(),
-        function: invokeArgs.functionName().toString(),
+        source: Address.fromScAddress(invokeArgs.contractAddress).toString(),
+        function: invokeArgs.functionName,
 
-        args: invokeArgs.args().map((arg) => scValToNative(arg)),
+        args: invokeArgs.args.map((arg) => scValToNative(arg)),
       };
       break;
     }
 
-    // sorobanAuthorizedFunctionTypeCreateContractHostFn
-    // sorobanAuthorizedFunctionTypeCreateContractV2HostFn
-    case 1: // fallthrough: just no ctor args in V1
-    case 2: {
-      const createArgs = inner as
-        | xdr.CreateContractArgs
-        | xdr.CreateContractArgsV2;
-      const createV2 = fn.switch().value === 2;
+    case "sorobanAuthorizedFunctionTypeCreateContractHostFn":
+    case "sorobanAuthorizedFunctionTypeCreateContractV2HostFn": {
+      const createV2 =
+        fn.type === "sorobanAuthorizedFunctionTypeCreateContractV2HostFn";
+      const createArgs = createV2
+        ? fn.createContractV2HostFn
+        : fn.createContractHostFn;
       output.type = "create";
       const createInvocation: Partial<CreateInvocation> = {};
 
@@ -158,43 +155,52 @@ export function buildInvocationTree(
       // The first part may not be true in V2, but we'd need to update this code
       // anyway so it can still be an error.
       const [exec, preimage] = [
-        createArgs.executable(),
-        createArgs.contractIdPreimage(),
+        createArgs.executable,
+        createArgs.contractIdPreimage,
       ];
-      if (!!exec.switch().value !== !!preimage.switch().value) {
+      const creationTypesMatch =
+        (exec.type === "contractExecutableWasm" &&
+          preimage.type === "contractIdPreimageFromAddress") ||
+        (exec.type === "contractExecutableStellarAsset" &&
+          preimage.type === "contractIdPreimageFromAsset");
+
+      if (!creationTypesMatch) {
         throw new Error(
           `creation function appears invalid: ${JSON.stringify(
-            inner,
+            createArgs,
           )} (should be wasm+address or token+asset)`,
         );
       }
 
-      switch (exec.switch().value) {
-        // contractExecutableWasm
-        case 0: {
-          const details = preimage.fromAddress();
+      switch (exec.type) {
+        case "contractExecutableWasm": {
+          if (preimage.type !== "contractIdPreimageFromAddress") {
+            throw new Error(`unknown creation type: ${JSON.stringify(exec)}`);
+          }
+          const details = preimage.fromAddress;
 
           createInvocation.type = "wasm";
           createInvocation.wasm = {
-            salt: Buffer.from(details.salt()).toString("hex"),
-            hash: exec.wasmHash().toString("hex"),
-            address: Address.fromScAddress(details.address()).toString(),
+            salt: Buffer.from(details.salt).toString("hex"),
+            hash: Buffer.from(exec.wasm_hash).toString("hex"),
+            address: Address.fromScAddress(details.address).toString(),
             // only apply constructor args for WASM+CreateV2 scenario
             ...(createV2 && {
-              constructorArgs: (inner as xdr.CreateContractArgsV2)
-                .constructorArgs()
-
-                .map((arg) => scValToNative(arg)),
+              constructorArgs: fn.createContractV2HostFn.constructorArgs.map(
+                (arg) => scValToNative(arg),
+              ),
             }), // empty indicates V2 and no ctor, undefined indicates V1
           };
           break;
         }
 
-        // contractExecutableStellarAsset
-        case 1:
+        case "contractExecutableStellarAsset":
+          if (preimage.type !== "contractIdPreimageFromAsset") {
+            throw new Error(`unknown creation type: ${JSON.stringify(exec)}`);
+          }
           createInvocation.type = "sac";
           createInvocation.asset = Asset.fromOperation(
-            preimage.fromAsset(),
+            preimage.fromAsset,
           ).toString();
           break;
 
@@ -208,11 +214,11 @@ export function buildInvocationTree(
 
     default:
       throw new Error(
-        `unknown invocation type (${fn.switch().value}): ${JSON.stringify(fn)}`,
+        `unknown invocation type (${JSON.stringify(fn)}): ${JSON.stringify(fn)}`,
       );
   }
 
-  output.invocations = root.subInvocations().map((i) => buildInvocationTree(i));
+  output.invocations = root.subInvocations.map((i) => buildInvocationTree(i));
   return output as InvocationTree;
 }
 
@@ -227,23 +233,21 @@ export function buildInvocationTree(
  * @param callback - the callback to execute for each node
  */
 export function walkInvocationTree(
-  root: xdr.SorobanAuthorizedInvocation,
+  root: SorobanAuthorizedInvocation,
   callback: InvocationWalker,
 ): void {
   walkHelper(root, 1, callback);
 }
 
 function walkHelper(
-  node: xdr.SorobanAuthorizedInvocation,
+  node: SorobanAuthorizedInvocation,
   depth: number,
   callback: InvocationWalker,
-  parent?: xdr.SorobanAuthorizedInvocation,
+  parent?: SorobanAuthorizedInvocation,
 ): void {
   if (callback(node, depth, parent) === false /* allow void rv */) {
     return;
   }
 
-  node
-    .subInvocations()
-    .forEach((i) => walkHelper(i, depth + 1, callback, node));
+  node.subInvocations.forEach((i) => walkHelper(i, depth + 1, callback, node));
 }

@@ -55,16 +55,17 @@ describe("LiquidityPoolId", () => {
       const asset = new LiquidityPoolId(POOL_ID);
       const tlAsset = asset.toXDRObject();
 
-      expect(tlAsset).toBeInstanceOf(xdr.TrustLineAsset);
       // TODO: check generated XDR types to make sure they are up to date.
       // arm() exists at runtime on XDR union types but is not declared in types/curr.d.ts.
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
-      expect((tlAsset as any).arm()).toBe("liquidityPoolId");
+      if (tlAsset.type !== "assetTypePoolShare") {
+        expect.fail(`Expected assetTypePoolShare, got ${tlAsset.type}`);
+      }
       expect(
-        (tlAsset.liquidityPoolId() as unknown as Buffer).toString("hex"),
+        (tlAsset.liquidityPoolId as unknown as Buffer).toString("hex"),
       ).toBe(POOL_ID);
       expect(
-        (tlAsset.liquidityPoolId() as unknown as Buffer).toString("hex"),
+        (tlAsset.liquidityPoolId as unknown as Buffer).toString("hex"),
       ).toBe(asset.getLiquidityPoolId());
     });
   });
@@ -81,10 +82,10 @@ describe("LiquidityPoolId", () => {
       const issuerKey = xdr.PublicKey.publicKeyTypeEd25519(
         StrKey.decodeEd25519PublicKey(ISSUER),
       );
-      const assetXdr = new xdr.AlphaNum4({
+      const assetXdr = {
         assetCode: Buffer.from("KHL\0"),
         issuer: issuerKey,
-      });
+      };
       const tlAsset = xdr.TrustLineAsset.assetTypeCreditAlphanum4(assetXdr);
       expect(() => LiquidityPoolId.fromOperation(tlAsset)).toThrow(
         /Invalid asset type: assetTypeCreditAlphanum4/,
@@ -95,10 +96,10 @@ describe("LiquidityPoolId", () => {
       const issuerKey = xdr.PublicKey.publicKeyTypeEd25519(
         StrKey.decodeEd25519PublicKey(ISSUER),
       );
-      const assetXdr = new xdr.AlphaNum12({
+      const assetXdr = {
         assetCode: Buffer.from("KHLTOKEN\0\0\0\0"),
         issuer: issuerKey,
-      });
+      };
       const tlAsset = xdr.TrustLineAsset.assetTypeCreditAlphanum12(assetXdr);
       expect(() => LiquidityPoolId.fromOperation(tlAsset)).toThrow(
         /Invalid asset type: assetTypeCreditAlphanum12/,

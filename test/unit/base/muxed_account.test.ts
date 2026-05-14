@@ -2,8 +2,9 @@ import { describe, it, expect } from "vitest";
 import { Account } from "../../../src/base/account.js";
 import { MuxedAccount } from "../../../src/base/muxed_account.js";
 import { StrKey } from "../../../src/base/strkey.js";
-import xdr from "../../../src/base/xdr.js";
+
 import { encodeMuxedAccountToAddress } from "../../../src/base/util/decode_encode_muxed_account.js";
+import { areUint8ArraysEqual } from "uint8array-extras";
 
 const PUBKEY = "GA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJVSGZ";
 const MPUBKEY_ZERO =
@@ -23,13 +24,18 @@ describe("MuxedAccount.constructor", () => {
     expect(mux.accountId()).toBe(MPUBKEY_ID);
 
     const muxXdr = mux.toXDRObject();
-    expect(muxXdr.switch()).toEqual(xdr.CryptoKeyType.keyTypeMuxedEd25519());
 
-    const innerMux = muxXdr.med25519();
+    if (muxXdr.type !== "keyTypeMuxedEd25519") {
+      expect.fail(`Expected keyTypeMuxedEd25519, got ${muxXdr.type}`);
+    }
+    const innerMux = muxXdr.med25519;
     expect(
-      innerMux.ed25519().equals(StrKey.decodeEd25519PublicKey(PUBKEY)),
+      areUint8ArraysEqual(
+        innerMux.ed25519,
+        StrKey.decodeEd25519PublicKey(PUBKEY),
+      ),
     ).toBe(true);
-    expect(innerMux.id()).toEqual(xdr.Uint64.fromString("420"));
+    expect(innerMux.id).toEqual(BigInt("420"));
     expect(encodeMuxedAccountToAddress(muxXdr)).toBe(mux.accountId());
   });
 });

@@ -12,7 +12,7 @@ function copyJson(js: any) {
 }
 
 describe("/liquidity_pools tests", () => {
-  let server: any;
+  let server: rpc.Server;
   let mockGet: any;
 
   beforeEach(() => {

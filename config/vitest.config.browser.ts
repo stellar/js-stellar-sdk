@@ -88,6 +88,7 @@ export default defineConfig({
       "@noble/hashes/sha2.js",
       "buffer",
       "commander",
+"uint8array-extras",
     ],
   },
 });

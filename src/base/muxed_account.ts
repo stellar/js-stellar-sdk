@@ -1,4 +1,4 @@
-import xdr from "./xdr.js";
+import { MuxedAccount as XdrMuxedAccount } from "./generated/index.js";
 import { Account } from "./account.js";
 import { StrKey } from "./strkey.js";
 import {
@@ -58,7 +58,7 @@ function validateUint64Id(id: string): void {
  */
 export class MuxedAccount {
   private account: Account;
-  private _muxedXdr: xdr.MuxedAccount;
+  private _muxedXdr: XdrMuxedAccount;
   private _mAddress: string;
   private _id: string;
 
@@ -95,7 +95,10 @@ export class MuxedAccount {
   static fromAddress(mAddress: string, sequenceNum: string): MuxedAccount {
     const muxedAccount = decodeAddressToMuxedAccount(mAddress);
     const gAddress = extractBaseAddress(mAddress);
-    const id = muxedAccount.med25519().id().toString();
+    if (muxedAccount.type !== "keyTypeMuxedEd25519") {
+      throw new Error("mAddress is invalid");
+    }
+    const id = muxedAccount.med25519.id.toString();
 
     return new MuxedAccount(new Account(gAddress, sequenceNum), id);
   }
@@ -134,7 +137,13 @@ export class MuxedAccount {
 
     validateUint64Id(id);
 
-    this._muxedXdr.med25519().id(xdr.Uint64.fromString(id));
+    if (this._muxedXdr.type !== "keyTypeMuxedEd25519") {
+      throw new Error("muxed account is invalid");
+    }
+    this._muxedXdr = XdrMuxedAccount.keyTypeMuxedEd25519({
+      ...this._muxedXdr.med25519,
+      id: BigInt(id),
+    });
     this._mAddress = encodeMuxedAccountToAddress(this._muxedXdr);
     this._id = id;
     return this;
@@ -158,7 +167,7 @@ export class MuxedAccount {
    * Returns the XDR object representing this muxed account's
    * G-address and uint64 ID.
    */
-  toXDRObject(): xdr.MuxedAccount {
+  toXDRObject(): XdrMuxedAccount {
     return this._muxedXdr;
   }
 

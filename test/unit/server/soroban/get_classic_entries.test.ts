@@ -1,18 +1,33 @@
 import { describe, it, beforeEach, afterEach, expect, vi } from "vitest";
-import * as StellarSdk from "../../../../src/index.js";
-
-import { serverUrl } from "../../../constants";
+import {
+  Asset,
+  Keypair,
+  StrKey,
+  xdr,
+  hash,
+  rpc,
+} from "../../../../src/index.js";
+const { Server } = rpc;
+import { serverUrl } from "../../../constants.js";
 import { Api } from "../../../../src/rpc/index.js";
 
-const { Asset, Keypair, StrKey, xdr, hash } = StellarSdk;
-const { Server } = StellarSdk.rpc;
+// The XDR DX namespace shape we rely on for runtime validation + serialization
+// (e.g. `xdr.AccountEntry`, `xdr.TrustLineEntry`, `xdr.ClaimableBalanceEntry`).
+// Each DX namespace exposes `isValid` (structural check that round-trips through
+// the schema codec) and a static `toXDR` overload set.
+interface XdrTypeNamespace {
+  isValid(value: unknown): boolean;
+  toXDR(value: unknown): Uint8Array;
+  toXDR(value: unknown, format: "raw"): Uint8Array;
+  toXDR(value: unknown, format: "base64" | "hex"): string;
+}
 
 function expectLedgerEntryFound(
   mockPost: any,
   ledgerKeyXDR: string,
   ledgerEntryXDR: string,
   call: () => Promise<any>,
-  expectedType: any,
+  expectedType: XdrTypeNamespace,
   expectedXDR: string,
   times: number = 1,
 ) {
@@ -50,8 +65,8 @@ function expectLedgerEntryFound(
   });
 
   return call().then((entry: any) => {
-    expect(entry).toBeInstanceOf(expectedType);
-    expect(entry.toXDR("base64")).toBe(expectedXDR);
+    expect(expectedType.isValid(entry)).toBe(true);
+    expect(expectedType.toXDR(entry, "base64")).toBe(expectedXDR);
     expect(mockPost).toHaveBeenCalledWith(serverUrl, {
       jsonrpc: "2.0",
       id: 1,
@@ -97,7 +112,7 @@ function expectLedgerEntryNotFound(
 }
 
 describe("Server#getAccountEntry", () => {
-  let server: any;
+  let server: rpc.Server;
   let mockPost: any;
 
   beforeEach(() => {
@@ -111,24 +126,22 @@ describe("Server#getAccountEntry", () => {
 
   const account = "GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI";
   const accountId = Keypair.fromPublicKey(account).xdrAccountId();
-  const ledgerKey = xdr.LedgerKey.account(
-    new xdr.LedgerKeyAccount({ accountId }),
-  );
-  const accountEntry = new xdr.AccountEntry({
-    accountId,
-    balance: xdr.Int64.fromString("1"),
-    seqNum: xdr.Int64.fromString("1"),
+  const ledgerKey = xdr.LedgerKey.account({ accountId: accountId });
+  const accountEntry: xdr.AccountEntry = {
+    accountId: accountId,
+    balance: BigInt("1"),
+    seqNum: BigInt("1"),
     numSubEntries: 0,
     inflationDest: null,
     flags: 0,
     homeDomain: "",
     thresholds: Buffer.from("AQAAAA==", "base64"),
     signers: [],
-    ext: new (xdr.AccountEntryExt as any)(0),
-  });
+    ext: { type: "case0" },
+  };
   const ledgerEntry = xdr.LedgerEntryData.account(accountEntry);
-  const ledgerKeyXDR = ledgerKey.toXDR("base64");
-  const ledgerEntryXDR = ledgerEntry.toXDR("base64");
+  const ledgerKeyXDR = xdr.LedgerKey.toXDR(ledgerKey, "base64");
+  const ledgerEntryXDR = xdr.LedgerEntryData.toXDR(ledgerEntry, "base64");
 
   it("returns the account entry when one is found", () =>
     expectLedgerEntryFound(
@@ -137,7 +150,7 @@ describe("Server#getAccountEntry", () => {
       ledgerEntryXDR,
       () => server.getAccountEntry(account),
       xdr.AccountEntry,
-      accountEntry.toXDR("base64"),
+      xdr.AccountEntry.toXDR(accountEntry, "base64"),
     ));
 
   it("throws a helpful error when the account is missing", () =>
@@ -150,7 +163,7 @@ describe("Server#getAccountEntry", () => {
 });
 
 describe("Server#getTrustline", () => {
-  let server: any;
+  let server: rpc.Server;
   let mockPost: any;
 
   beforeEach(() => {
@@ -166,23 +179,24 @@ describe("Server#getTrustline", () => {
   const issuer = "GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5";
   const asset = new Asset("USDC", issuer);
   const accountId = Keypair.fromPublicKey(account).xdrAccountId();
-  const trustlineKey = xdr.LedgerKey.trustline(
-    new xdr.LedgerKeyTrustLine({
-      accountId,
-      asset: asset.toTrustLineXDRObject(),
-    }),
-  );
-  const trustlineEntry = new xdr.TrustLineEntry({
-    accountId,
+  const trustlineKey = xdr.LedgerKey.trustline({
+    accountId: accountId,
     asset: asset.toTrustLineXDRObject(),
-    balance: xdr.Int64.fromString("500"),
-    limit: xdr.Int64.fromString("1000"),
-    flags: 1,
-    ext: new (xdr.TrustLineEntryExt as any)(0),
   });
+  const trustlineEntry: xdr.TrustLineEntry = {
+    accountId: accountId,
+    asset: asset.toTrustLineXDRObject(),
+    balance: BigInt("500"),
+    limit: BigInt("1000"),
+    flags: 1,
+    ext: { type: "case0" },
+  };
   const trustlineLedgerEntry = xdr.LedgerEntryData.trustline(trustlineEntry);
-  const trustlineKeyXDR = trustlineKey.toXDR("base64");
-  const trustlineEntryXDR = trustlineLedgerEntry.toXDR("base64");
+  const trustlineKeyXDR = xdr.LedgerKey.toXDR(trustlineKey, "base64");
+  const trustlineEntryXDR = xdr.LedgerEntryData.toXDR(
+    trustlineLedgerEntry,
+    "base64",
+  );
 
   it("returns the trustline entry when it exists", () =>
     expectLedgerEntryFound(
@@ -194,34 +208,38 @@ describe("Server#getTrustline", () => {
           account,
           asset,
         );
-        return new xdr.TrustLineEntry({
-          accountId,
+        const trustline: xdr.TrustLineEntry = {
+          accountId: accountId,
           asset: asset.toTrustLineXDRObject(),
-          balance: xdr.Int64.fromString(tl.balanceEntry!.amount),
-          limit: xdr.Int64.fromString("1000"),
+          balance: BigInt(tl.balanceEntry!.amount),
+          limit: BigInt("1000"),
           flags:
             Number(tl.balanceEntry!.authorized) |
             (Number(tl.balanceEntry!.authorizedToMaintainLiabilities) << 1) |
             (Number(tl.balanceEntry!.clawback) << 2),
-          ext: new (xdr.TrustLineEntryExt as any)(0),
-        });
+          ext: { type: "case0" },
+        };
+
+        return trustline;
       },
       xdr.TrustLineEntry,
-      trustlineEntry.toXDR("base64"),
+      xdr.TrustLineEntry.toXDR(trustlineEntry, "base64"),
       2, // extra for getLatestLedger call
     ));
 
   it("correctly decodes trustline flags including clawback", () => {
-    const clawbackEntry = new xdr.TrustLineEntry({
-      accountId,
+    const clawbackEntry: xdr.TrustLineEntry = {
+      accountId: accountId,
       asset: asset.toTrustLineXDRObject(),
-      balance: xdr.Int64.fromString("500"),
-      limit: xdr.Int64.fromString("1000"),
+      balance: BigInt("500"),
+      limit: BigInt("1000"),
       flags: 5, // authorized (0x1) + clawback (0x4)
-      ext: new (xdr.TrustLineEntryExt as any)(0),
-    });
-    const clawbackEntryXDR =
-      xdr.LedgerEntryData.trustline(clawbackEntry).toXDR("base64");
+      ext: { type: "case0" },
+    };
+    const clawbackEntryXDR = xdr.LedgerEntryData.toXDR(
+      xdr.LedgerEntryData.trustline(clawbackEntry),
+      "base64",
+    );
 
     return expectLedgerEntryFound(
       mockPost,
@@ -238,7 +256,7 @@ describe("Server#getTrustline", () => {
         return clawbackEntry;
       },
       xdr.TrustLineEntry,
-      clawbackEntry.toXDR("base64"),
+      xdr.TrustLineEntry.toXDR(clawbackEntry, "base64"),
       2,
     );
   });
@@ -253,7 +271,7 @@ describe("Server#getTrustline", () => {
 });
 
 describe("Server#getClaimableBalance", () => {
-  let server: any;
+  let server: rpc.Server;
   let mockPost: any;
 
   beforeEach(() => {
@@ -270,30 +288,29 @@ describe("Server#getClaimableBalance", () => {
   const balanceIdBytes = hash(Buffer.from("claimable-balance-test"));
   const balanceId =
     xdr.ClaimableBalanceId.claimableBalanceIdTypeV0(balanceIdBytes);
-  const ledgerKey = xdr.LedgerKey.claimableBalance(
-    new xdr.LedgerKeyClaimableBalance({ balanceId }),
-  );
-  const claimant = xdr.Claimant.claimantTypeV0(
-    new xdr.ClaimantV0({
-      destination: Keypair.fromPublicKey(claimantAccount).xdrAccountId(),
-      predicate: xdr.ClaimPredicate.claimPredicateUnconditional(),
-    }),
-  );
-  const claimableBalanceEntry = new xdr.ClaimableBalanceEntry({
-    balanceId,
+  const ledgerKey = xdr.LedgerKey.claimableBalance({ balanceId: balanceId });
+  const claimant = xdr.Claimant.claimantTypeV0({
+    destination: Keypair.fromPublicKey(claimantAccount).xdrAccountId(),
+    predicate: xdr.ClaimPredicate.claimPredicateUnconditional(),
+  });
+  const claimableBalanceEntry: xdr.ClaimableBalanceEntry = {
+    balanceId: balanceId,
     claimants: [claimant],
     asset: Asset.native().toXDRObject(),
-    amount: xdr.Int64.fromString("200"),
-    ext: new (xdr.ClaimableBalanceEntryExt as any)(0),
-  });
+    amount: BigInt("200"),
+    ext: { type: "case0" },
+  };
   const ledgerEntry = xdr.LedgerEntryData.claimableBalance(
     claimableBalanceEntry,
   );
-  const ledgerKeyXDR = ledgerKey.toXDR("base64");
-  const ledgerEntryXDR = ledgerEntry.toXDR("base64");
-  const balanceIdHex = balanceId.toXDR("hex");
+  const ledgerKeyXDR = xdr.LedgerKey.toXDR(ledgerKey, "base64");
+  const ledgerEntryXDR = xdr.LedgerEntryData.toXDR(ledgerEntry, "base64");
+  const balanceIdHex = xdr.ClaimableBalanceId.toXDR(balanceId, "hex");
   const balanceIdStrKey = StrKey.encodeClaimableBalance(
-    Buffer.concat([Buffer.from([balanceId.switch().value]), balanceId.value()]),
+    Buffer.concat([
+      Buffer.from([xdr.ClaimableBalanceIdType.toXDRObject(balanceId.type)]),
+      balanceId.v0,
+    ]),
   );
 
   it("returns the claimable balance entry when found", () =>
@@ -303,7 +320,7 @@ describe("Server#getClaimableBalance", () => {
       ledgerEntryXDR,
       () => server.getClaimableBalance(balanceIdStrKey),
       xdr.ClaimableBalanceEntry,
-      claimableBalanceEntry.toXDR("base64"),
+      xdr.ClaimableBalanceEntry.toXDR(claimableBalanceEntry, "base64"),
     ));
 
   it("throws an error when the claimable balance does not exist", () =>

@@ -1,90 +1,103 @@
-import xdr from "./xdr.js";
+import {
+  ClaimPredicate,
+  Claimant as XdrClaimant,
+  ClaimantV0,
+} from "./generated/index.js";
 import { Keypair } from "./keypair.js";
 import { StrKey } from "./strkey.js";
 
+function isClaimPredicate(predicate: unknown): predicate is ClaimPredicate {
+  return (
+    typeof predicate === "object" &&
+    predicate !== null &&
+    "type" in predicate &&
+    typeof predicate.type === "string"
+  );
+}
+
 /**
- * Claimant class represents an xdr.Claimant
+ * Claimant class represents an XdrClaimant
  *
  * The claim predicate is optional, it defaults to unconditional if none is specified.
  */
 export class Claimant {
   private _destination: string;
-  private _predicate: xdr.ClaimPredicate;
+  private _predicate: ClaimPredicate;
 
   /**
    * @param destination - The destination account ID.
    * @param predicate - The claim predicate.
    */
-  constructor(destination: string, predicate?: xdr.ClaimPredicate) {
+  constructor(destination: string, predicate?: ClaimPredicate) {
     if (!StrKey.isValidEd25519PublicKey(destination)) {
       throw new Error("Destination is invalid");
     }
     this._destination = destination;
 
     if (!predicate) {
-      this._predicate = xdr.ClaimPredicate.claimPredicateUnconditional();
-    } else if (predicate instanceof xdr.ClaimPredicate) {
+      this._predicate = ClaimPredicate.claimPredicateUnconditional();
+    } else if (isClaimPredicate(predicate)) {
       this._predicate = predicate;
     } else {
-      throw new Error("Predicate should be an xdr.ClaimPredicate");
+      throw new Error("Predicate should be an ClaimPredicate");
     }
   }
 
   /**
    * Returns an unconditional claim predicate
    */
-  static predicateUnconditional(): xdr.ClaimPredicate {
-    return xdr.ClaimPredicate.claimPredicateUnconditional();
+  static predicateUnconditional(): ClaimPredicate {
+    return ClaimPredicate.claimPredicateUnconditional();
   }
 
   /**
    * Returns an `and` claim predicate
-   * @param left - an xdr.ClaimPredicate
-   * @param right - an xdr.ClaimPredicate
+   * @param left - an ClaimPredicate
+   * @param right - an ClaimPredicate
    */
   static predicateAnd(
-    left: xdr.ClaimPredicate,
-    right: xdr.ClaimPredicate,
-  ): xdr.ClaimPredicate {
-    if (!(left instanceof xdr.ClaimPredicate)) {
-      throw new Error("left Predicate should be an xdr.ClaimPredicate");
+    left: ClaimPredicate,
+    right: ClaimPredicate,
+  ): ClaimPredicate {
+    if (!isClaimPredicate(left)) {
+      throw new Error("left Predicate should be an ClaimPredicate");
     }
-    if (!(right instanceof xdr.ClaimPredicate)) {
-      throw new Error("right Predicate should be an xdr.ClaimPredicate");
+    if (!isClaimPredicate(right)) {
+      throw new Error("right Predicate should be an ClaimPredicate");
     }
 
-    return xdr.ClaimPredicate.claimPredicateAnd([left, right]);
+    return ClaimPredicate.claimPredicateAnd([left, right]);
   }
 
   /**
    * Returns an `or` claim predicate
-   * @param left - an xdr.ClaimPredicate
-   * @param right - an xdr.ClaimPredicate
+   * @param left - an ClaimPredicate
+   * @param right - an ClaimPredicate
    */
   static predicateOr(
-    left: xdr.ClaimPredicate,
-    right: xdr.ClaimPredicate,
-  ): xdr.ClaimPredicate {
-    if (!(left instanceof xdr.ClaimPredicate)) {
-      throw new Error("left Predicate should be an xdr.ClaimPredicate");
+    left: ClaimPredicate,
+    right: ClaimPredicate,
+  ): ClaimPredicate {
+    if (!isClaimPredicate(left)) {
+      throw new Error("left Predicate should be an ClaimPredicate");
     }
-    if (!(right instanceof xdr.ClaimPredicate)) {
-      throw new Error("right Predicate should be an xdr.ClaimPredicate");
+    if (!isClaimPredicate(right)) {
+      throw new Error("right Predicate should be an ClaimPredicate");
     }
 
-    return xdr.ClaimPredicate.claimPredicateOr([left, right]);
+    return ClaimPredicate.claimPredicateOr([left, right]);
   }
 
   /**
    * Returns a `not` claim predicate
-   * @param predicate - an xdr.ClaimPredicate
+   * @param predicate - an ClaimPredicate
    */
-  static predicateNot(predicate: xdr.ClaimPredicate): xdr.ClaimPredicate {
-    if (!(predicate instanceof xdr.ClaimPredicate)) {
-      throw new Error("Predicate should be an xdr.ClaimPredicate");
+  static predicateNot(predicate: ClaimPredicate): ClaimPredicate {
+    if (!isClaimPredicate(predicate)) {
+      throw new Error("Predicate should be an ClaimPredicate");
     }
 
-    return xdr.ClaimPredicate.claimPredicateNot(predicate);
+    return ClaimPredicate.claimPredicateNot(predicate);
   }
 
   /**
@@ -96,10 +109,8 @@ export class Claimant {
    *
    * @param absBefore - Unix epoch (in seconds) as a string
    */
-  static predicateBeforeAbsoluteTime(absBefore: string): xdr.ClaimPredicate {
-    return xdr.ClaimPredicate.claimPredicateBeforeAbsoluteTime(
-      xdr.Int64.fromString(absBefore),
-    );
+  static predicateBeforeAbsoluteTime(absBefore: string): ClaimPredicate {
+    return ClaimPredicate.claimPredicateBeforeAbsoluteTime(BigInt(absBefore));
   }
 
   /**
@@ -111,40 +122,38 @@ export class Claimant {
    *
    * @param seconds - seconds since closeTime of the ledger in which the ClaimableBalanceEntry was created (as string)
    */
-  static predicateBeforeRelativeTime(seconds: string): xdr.ClaimPredicate {
-    return xdr.ClaimPredicate.claimPredicateBeforeRelativeTime(
-      xdr.Int64.fromString(seconds),
-    );
+  static predicateBeforeRelativeTime(seconds: string): ClaimPredicate {
+    return ClaimPredicate.claimPredicateBeforeRelativeTime(BigInt(seconds));
   }
 
   /**
    * Returns a claimant object from its XDR object representation.
    * @param claimantXdr - The claimant xdr object.
    */
-  static fromXDR(claimantXdr: xdr.Claimant): Claimant {
-    let value;
-    switch (claimantXdr.switch()) {
-      case xdr.ClaimantType.claimantTypeV0():
-        value = claimantXdr.v0();
+  static fromXDR(claimantXdr: XdrClaimant): Claimant {
+    switch (claimantXdr.type) {
+      case "claimantTypeV0": {
+        const value = claimantXdr.v0;
         return new this(
-          StrKey.encodeEd25519PublicKey(value.destination().ed25519()),
-          value.predicate(),
+          StrKey.encodeEd25519PublicKey(Buffer.from(value.destination.ed25519)),
+          value.predicate,
         );
+      }
       default:
-        throw new Error(`Invalid claimant type: ${claimantXdr.switch().name}`);
+        throw new Error(`Invalid claimant type: ${claimantXdr.type}`);
     }
   }
 
   /**
    * Returns the xdr object for this claimant.
    */
-  toXDRObject(): xdr.Claimant {
-    const claimant = new xdr.ClaimantV0({
+  toXDRObject(): XdrClaimant {
+    const claimant: ClaimantV0 = {
       destination: Keypair.fromPublicKey(this._destination).xdrAccountId(),
       predicate: this._predicate,
-    });
+    };
 
-    return xdr.Claimant.claimantTypeV0(claimant);
+    return XdrClaimant.claimantTypeV0(claimant);
   }
 
   /**
@@ -165,7 +174,7 @@ export class Claimant {
     return this._predicate;
   }
 
-  set predicate(_value: xdr.ClaimPredicate) {
+  set predicate(_value: ClaimPredicate) {
     throw new Error("Claimant is immutable");
   }
 }

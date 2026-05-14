@@ -1,10 +1,6 @@
-import xdr from "../xdr.js";
+import { MuxedAccount, Operation, OperationBody } from "../generated/index.js";
 import { decodeAddressToMuxedAccount } from "../util/decode_encode_muxed_account.js";
-import {
-  OperationAttributes,
-  PathPaymentStrictReceiveResult,
-  PathPaymentStrictReceiveOpts,
-} from "./types.js";
+import { OperationAttributes, PathPaymentStrictReceiveOpts } from "./types.js";
 import {
   isValidAmount,
   constructAmountRequirementsError,
@@ -35,7 +31,7 @@ import {
  */
 export function pathPaymentStrictReceive(
   opts: PathPaymentStrictReceiveOpts,
-): xdr.Operation<PathPaymentStrictReceiveResult> {
+): Operation {
   if (!opts.sendAsset) {
     throw new Error("Must specify a send asset");
   }
@@ -49,7 +45,7 @@ export function pathPaymentStrictReceive(
     throw new TypeError(constructAmountRequirementsError("destAmount"));
   }
 
-  let destination: xdr.MuxedAccount;
+  let destination: MuxedAccount;
   try {
     destination = decodeAddressToMuxedAccount(opts.destination);
   } catch {
@@ -58,20 +54,20 @@ export function pathPaymentStrictReceive(
 
   const path = opts.path ? opts.path : [];
 
-  const paymentOp = new xdr.PathPaymentStrictReceiveOp({
-    sendAsset: opts.sendAsset.toXDRObject(),
+  const paymentOp = {
+    sendAsset: opts.sendAsset.toWireXDRObject(),
     sendMax: toXDRAmount(opts.sendMax),
     destination,
-    destAsset: opts.destAsset.toXDRObject(),
+    destAsset: opts.destAsset.toWireXDRObject(),
     destAmount: toXDRAmount(opts.destAmount),
-    path: path.map((x) => x.toXDRObject()),
-  });
+    path: path.map((x) => x.toWireXDRObject()),
+  };
 
   const opAttributes: OperationAttributes = {
     sourceAccount: null,
-    body: xdr.OperationBody.pathPaymentStrictReceive(paymentOp),
+    body: OperationBody.pathPaymentStrictReceive(paymentOp),
   };
   setSourceAccount(opAttributes, opts);
 
-  return new xdr.Operation(opAttributes);
+  return opAttributes;
 }

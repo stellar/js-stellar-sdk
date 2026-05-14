@@ -1,10 +1,15 @@
-import { describe, it, beforeEach, afterEach, expect, vi } from "vitest";
-import * as StellarSdk from "../../../../src/index.js";
+import {
+  describe,
+  it,
+  beforeEach,
+  afterEach,
+  expect,
+  vi,
+  assertType,
+} from "vitest";
+import { xdr, rpc } from "../../../../src/index.js";
 
-import { serverUrl } from "../../../constants";
-
-const { xdr } = StellarSdk;
-const { Server } = StellarSdk.rpc;
+import { serverUrl } from "../../../constants.js";
 
 function makeTxResult(
   ledger: number,
@@ -35,7 +40,7 @@ function makeTxResult(
 }
 
 function makeGetTransactionsResult(count = 2) {
-  const transactions = [];
+  const transactions: any[] = [];
   for (let i = 0; i < count; i += 1) {
     transactions.push(makeTxResult(1234 + i, i + 1, "SUCCESS"));
   }
@@ -49,11 +54,11 @@ function makeGetTransactionsResult(count = 2) {
   };
 }
 
-describe("Server#getTransactions", () => {
-  let server: any;
+describe("rpc.Server#getTransactions", () => {
+  let server: rpc.Server;
   let mockPost: any;
   beforeEach(() => {
-    server = new Server(serverUrl);
+    server = new rpc.Server(serverUrl);
     mockPost = vi.spyOn(server.httpClient, "post");
   });
 
@@ -66,25 +71,29 @@ describe("Server#getTransactions", () => {
     const mockResponse = { data: { id: 1, result: rawResult } };
     mockPost.mockResolvedValue(mockResponse);
 
-    const resp = await server.getTransactions({ startLedger: 1234, limit: 10 });
+    const resp = await server.getTransactions({
+      startLedger: 1234,
+      pagination: { limit: 10 },
+    });
     expect(resp.transactions).toHaveLength(2);
     expect(resp.transactions[0].status).toBe("SUCCESS");
-    expect(resp.transactions[0].envelopeXdr).toBeInstanceOf(
-      xdr.TransactionEnvelope,
-    );
-    expect(resp.transactions[0].resultXdr).toBeInstanceOf(
-      xdr.TransactionResult,
-    );
-    expect(resp.transactions[0].resultMetaXdr).toBeInstanceOf(
-      xdr.TransactionMeta,
-    );
+    // expect(resp.transactions[0].envelopeXdr).toHaveProperty(
+    //   xdr.TransactionEnvelope,
+    // );
+
+    assertType<xdr.TransactionEnvelope>(resp.transactions[0].envelopeXdr);
+    assertType<xdr.TransactionResult>(resp.transactions[0].resultXdr);
+    assertType<xdr.TransactionMeta>(resp.transactions[0].resultMetaXdr);
+
     expect(mockPost).toHaveBeenCalledWith(serverUrl, {
       jsonrpc: "2.0",
       id: 1,
       method: "getTransactions",
       params: {
         startLedger: 1234,
-        limit: 10,
+        pagination: {
+          limit: 10,
+        },
       },
     });
     expect(mockPost).toHaveBeenCalledTimes(1);
@@ -102,7 +111,10 @@ describe("Server#getTransactions", () => {
     const mockResponse = { data: { id: 1, result } };
     mockPost.mockResolvedValue(mockResponse);
 
-    const resp = await server.getTransactions({ startLedger: 1234, limit: 10 });
+    const resp = await server.getTransactions({
+      startLedger: 1234,
+      pagination: { limit: 10 },
+    });
     expect(Array.isArray(resp.transactions)).toBeTruthy();
     expect(resp.transactions).toHaveLength(0);
     expect(mockPost).toHaveBeenCalledWith(serverUrl, {
@@ -111,21 +123,22 @@ describe("Server#getTransactions", () => {
       method: "getTransactions",
       params: {
         startLedger: 1234,
-        limit: 10,
+        pagination: { limit: 10 },
       },
     });
     expect(mockPost).toHaveBeenCalledTimes(1);
   });
 
-  it("handles pagination", async () => {
+  it("handles limit pagination", async () => {
     const result = makeGetTransactionsResult(5);
     const mockResponse = { data: { id: 1, result } };
     mockPost.mockResolvedValue(mockResponse);
 
     const resp = await server.getTransactions({
       startLedger: 1234,
-      limit: 10,
-      cursor: "abc123",
+      pagination: {
+        limit: 10,
+      },
     });
     expect(resp.transactions).toHaveLength(5);
     expect(resp.cursor).toBe("123456");
@@ -135,8 +148,34 @@ describe("Server#getTransactions", () => {
       method: "getTransactions",
       params: {
         startLedger: 1234,
+        pagination: {
+          limit: 10,
+        },
+      },
+    });
+  });
+  it("handles cursor pagination", async () => {
+    const result = makeGetTransactionsResult(5);
+    const mockResponse = { data: { id: 1, result } };
+    mockPost.mockResolvedValue(mockResponse);
+
+    const resp = await server.getTransactions({
+      pagination: {
         limit: 10,
-        cursor: "abc123",
+        cursor: "123456",
+      },
+    });
+    expect(resp.transactions).toHaveLength(5);
+    expect(resp.cursor).toBe("123456");
+    expect(mockPost).toHaveBeenCalledWith(serverUrl, {
+      jsonrpc: "2.0",
+      id: 1,
+      method: "getTransactions",
+      params: {
+        pagination: {
+          limit: 10,
+          cursor: "123456",
+        },
       },
     });
   });

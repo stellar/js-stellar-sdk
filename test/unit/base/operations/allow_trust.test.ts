@@ -12,7 +12,7 @@ describe("Operation.allowTrust()", () => {
       assetCode: "USD",
       authorize: true,
     });
-    const xdrHex = op.toXDR("hex");
+    const xdrHex = xdr.Operation.toXDR(op, "hex");
     const operation = xdr.Operation.fromXDR(Buffer.from(xdrHex, "hex"));
     const obj = expectOperationType(
       Operation.fromXDRObject(operation),
@@ -29,7 +29,7 @@ describe("Operation.allowTrust()", () => {
       assetCode: "USD",
       authorize: false,
     });
-    const xdrHex = op.toXDR("hex");
+    const xdrHex = xdr.Operation.toXDR(op, "hex");
     const operation = xdr.Operation.fromXDR(Buffer.from(xdrHex, "hex"));
     const obj = expectOperationType(
       Operation.fromXDRObject(operation),
@@ -44,7 +44,7 @@ describe("Operation.allowTrust()", () => {
       assetCode: "USD",
       authorize: 2,
     });
-    const xdrHex = op.toXDR("hex");
+    const xdrHex = xdr.Operation.toXDR(op, "hex");
     const operation = xdr.Operation.fromXDR(Buffer.from(xdrHex, "hex"));
     const obj = expectOperationType(
       Operation.fromXDRObject(operation),
@@ -59,7 +59,7 @@ describe("Operation.allowTrust()", () => {
       assetCode: "USD",
       authorize: true,
     });
-    const xdrHex = op.toXDR("hex");
+    const xdrHex = xdr.Operation.toXDR(op, "hex");
     const operation = xdr.Operation.fromXDR(Buffer.from(xdrHex, "hex"));
     const obj = expectOperationType(
       Operation.fromXDRObject(operation),
@@ -74,7 +74,7 @@ describe("Operation.allowTrust()", () => {
       assetCode: "LONGASSET",
       authorize: true,
     });
-    const xdrHex = op.toXDR("hex");
+    const xdrHex = xdr.Operation.toXDR(op, "hex");
     const operation = xdr.Operation.fromXDR(Buffer.from(xdrHex, "hex"));
     const obj = expectOperationType(
       Operation.fromXDRObject(operation),
@@ -89,7 +89,7 @@ describe("Operation.allowTrust()", () => {
       assetCode: "ABCD",
       authorize: true,
     });
-    const xdrHex = op.toXDR("hex");
+    const xdrHex = xdr.Operation.toXDR(op, "hex");
     const operation = xdr.Operation.fromXDR(Buffer.from(xdrHex, "hex"));
     const obj = expectOperationType(
       Operation.fromXDRObject(operation),
@@ -104,7 +104,7 @@ describe("Operation.allowTrust()", () => {
       assetCode: "ABCDEFGHIJKL",
       authorize: true,
     });
-    const xdrHex = op.toXDR("hex");
+    const xdrHex = xdr.Operation.toXDR(op, "hex");
     const operation = xdr.Operation.fromXDR(Buffer.from(xdrHex, "hex"));
     const obj = expectOperationType(
       Operation.fromXDRObject(operation),
@@ -121,7 +121,7 @@ describe("Operation.allowTrust()", () => {
       authorize: true,
       source,
     });
-    const xdrHex = op.toXDR("hex");
+    const xdrHex = xdr.Operation.toXDR(op, "hex");
     const operation = xdr.Operation.fromXDR(Buffer.from(xdrHex, "hex"));
     const obj = expectOperationType(
       Operation.fromXDRObject(operation),
@@ -167,8 +167,8 @@ describe("Operation.allowTrust()", () => {
       assetCode: "USD",
       authorize: true,
     });
-    const hex = op.toXDR("hex");
+    const hex = xdr.Operation.toXDR(op, "hex");
     const roundtripped = xdr.Operation.fromXDR(hex, "hex");
-    expect(roundtripped.body().switch().name).toBe("allowTrust");
+    expect(roundtripped.body.type).toBe("allowTrust");
   });
 });

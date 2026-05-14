@@ -1,23 +1,16 @@
-import xdr from "../xdr.js";
+import xdr from "../generated/index.js";
 import { StrKey } from "../strkey.js";
 import { Keypair } from "../keypair.js";
 import { Asset } from "../asset.js";
 import { LiquidityPoolId } from "../liquidity_pool_id.js";
 import {
   RevokeAccountSponsorshipOpts,
-  RevokeAccountSponsorshipResult,
   RevokeTrustlineSponsorshipOpts,
-  RevokeTrustlineSponsorshipResult,
   RevokeOfferSponsorshipOpts,
-  RevokeOfferSponsorshipResult,
   RevokeDataSponsorshipOpts,
-  RevokeDataSponsorshipResult,
   RevokeClaimableBalanceSponsorshipOpts,
-  RevokeClaimableBalanceSponsorshipResult,
   RevokeLiquidityPoolSponsorshipOpts,
-  RevokeLiquidityPoolSponsorshipResult,
   RevokeSignerSponsorshipOpts,
-  RevokeSignerSponsorshipResult,
   OperationAttributes,
 } from "./types.js";
 import { setSourceAccount } from "../util/operations.js";
@@ -36,16 +29,14 @@ import { setSourceAccount } from "../util/operations.js";
  */
 export function revokeAccountSponsorship(
   opts: RevokeAccountSponsorshipOpts = {} as RevokeAccountSponsorshipOpts,
-): xdr.Operation<RevokeAccountSponsorshipResult> {
+): xdr.Operation {
   if (!StrKey.isValidEd25519PublicKey(opts.account)) {
     throw new Error("account is invalid");
   }
 
-  const ledgerKey = xdr.LedgerKey.account(
-    new xdr.LedgerKeyAccount({
-      accountId: Keypair.fromPublicKey(opts.account).xdrAccountId(),
-    }),
-  );
+  const ledgerKey = xdr.LedgerKey.account({
+    accountId: Keypair.fromPublicKey(opts.account).xdrAccountId(),
+  });
   const op = xdr.RevokeSponsorshipOp.revokeSponsorshipLedgerEntry(ledgerKey);
 
   const opAttributes: OperationAttributes = {
@@ -54,7 +45,7 @@ export function revokeAccountSponsorship(
   };
   setSourceAccount(opAttributes, opts);
 
-  return new xdr.Operation(opAttributes);
+  return opAttributes;
 }
 
 /**
@@ -76,7 +67,7 @@ export function revokeAccountSponsorship(
  */
 export function revokeTrustlineSponsorship(
   opts: RevokeTrustlineSponsorshipOpts = {} as RevokeTrustlineSponsorshipOpts,
-): xdr.Operation<RevokeTrustlineSponsorshipResult> {
+): xdr.Operation {
   if (!StrKey.isValidEd25519PublicKey(opts.account)) {
     throw new Error("account is invalid");
   }
@@ -84,19 +75,17 @@ export function revokeTrustlineSponsorship(
   let asset: xdr.TrustLineAsset;
 
   if (opts.asset instanceof Asset) {
-    asset = opts.asset.toTrustLineXDRObject();
+    asset = opts.asset.toWireTrustLineXDRObject();
   } else if (opts.asset instanceof LiquidityPoolId) {
     asset = opts.asset.toXDRObject();
   } else {
     throw new TypeError("asset must be an Asset or LiquidityPoolId");
   }
 
-  const ledgerKey = xdr.LedgerKey.trustline(
-    new xdr.LedgerKeyTrustLine({
-      accountId: Keypair.fromPublicKey(opts.account).xdrAccountId(),
-      asset,
-    }),
-  );
+  const ledgerKey = xdr.LedgerKey.trustline({
+    accountId: Keypair.fromPublicKey(opts.account).xdrAccountId(),
+    asset,
+  });
   const op = xdr.RevokeSponsorshipOp.revokeSponsorshipLedgerEntry(ledgerKey);
 
   const opAttributes: OperationAttributes = {
@@ -105,7 +94,7 @@ export function revokeTrustlineSponsorship(
   };
   setSourceAccount(opAttributes, opts);
 
-  return new xdr.Operation(opAttributes);
+  return opAttributes;
 }
 
 /**
@@ -124,7 +113,7 @@ export function revokeTrustlineSponsorship(
  */
 export function revokeOfferSponsorship(
   opts: RevokeOfferSponsorshipOpts = {} as RevokeOfferSponsorshipOpts,
-): xdr.Operation<RevokeOfferSponsorshipResult> {
+): xdr.Operation {
   if (!StrKey.isValidEd25519PublicKey(opts.seller)) {
     throw new Error("seller is invalid");
   }
@@ -133,12 +122,10 @@ export function revokeOfferSponsorship(
     throw new Error("offerId is invalid");
   }
 
-  const ledgerKey = xdr.LedgerKey.offer(
-    new xdr.LedgerKeyOffer({
-      sellerId: Keypair.fromPublicKey(opts.seller).xdrAccountId(),
-      offerId: xdr.Int64.fromString(opts.offerId),
-    }),
-  );
+  const ledgerKey = xdr.LedgerKey.offer({
+    sellerId: Keypair.fromPublicKey(opts.seller).xdrAccountId(),
+    offerId: BigInt(opts.offerId),
+  });
   const op = xdr.RevokeSponsorshipOp.revokeSponsorshipLedgerEntry(ledgerKey);
 
   const opAttributes: OperationAttributes = {
@@ -147,7 +134,7 @@ export function revokeOfferSponsorship(
   };
   setSourceAccount(opAttributes, opts);
 
-  return new xdr.Operation(opAttributes);
+  return opAttributes;
 }
 
 /**
@@ -166,7 +153,7 @@ export function revokeOfferSponsorship(
  */
 export function revokeDataSponsorship(
   opts: RevokeDataSponsorshipOpts = {} as RevokeDataSponsorshipOpts,
-): xdr.Operation<RevokeDataSponsorshipResult> {
+): xdr.Operation {
   if (!StrKey.isValidEd25519PublicKey(opts.account)) {
     throw new Error("account is invalid");
   }
@@ -175,12 +162,10 @@ export function revokeDataSponsorship(
     throw new Error("name must be a string, up to 64 characters");
   }
 
-  const ledgerKey = xdr.LedgerKey.data(
-    new xdr.LedgerKeyData({
-      accountId: Keypair.fromPublicKey(opts.account).xdrAccountId(),
-      dataName: opts.name,
-    }),
-  );
+  const ledgerKey = xdr.LedgerKey.data({
+    accountId: Keypair.fromPublicKey(opts.account).xdrAccountId(),
+    dataName: opts.name,
+  });
   const op = xdr.RevokeSponsorshipOp.revokeSponsorshipLedgerEntry(ledgerKey);
 
   const opAttributes: OperationAttributes = {
@@ -189,7 +174,7 @@ export function revokeDataSponsorship(
   };
   setSourceAccount(opAttributes, opts);
 
-  return new xdr.Operation(opAttributes);
+  return opAttributes;
 }
 
 /**
@@ -206,16 +191,14 @@ export function revokeDataSponsorship(
  */
 export function revokeClaimableBalanceSponsorship(
   opts: RevokeClaimableBalanceSponsorshipOpts = {} as RevokeClaimableBalanceSponsorshipOpts,
-): xdr.Operation<RevokeClaimableBalanceSponsorshipResult> {
+): xdr.Operation {
   if (typeof opts.balanceId !== "string") {
     throw new Error("balanceId is invalid");
   }
 
-  const ledgerKey = xdr.LedgerKey.claimableBalance(
-    new xdr.LedgerKeyClaimableBalance({
-      balanceId: xdr.ClaimableBalanceId.fromXDR(opts.balanceId, "hex"),
-    }),
-  );
+  const ledgerKey = xdr.LedgerKey.claimableBalance({
+    balanceId: xdr.ClaimableBalanceId.fromXDR(opts.balanceId, "hex"),
+  });
   const op = xdr.RevokeSponsorshipOp.revokeSponsorshipLedgerEntry(ledgerKey);
 
   const opAttributes: OperationAttributes = {
@@ -224,7 +207,7 @@ export function revokeClaimableBalanceSponsorship(
   };
   setSourceAccount(opAttributes, opts);
 
-  return new xdr.Operation(opAttributes);
+  return opAttributes;
 }
 
 /**
@@ -241,19 +224,14 @@ export function revokeClaimableBalanceSponsorship(
  */
 export function revokeLiquidityPoolSponsorship(
   opts: RevokeLiquidityPoolSponsorshipOpts = {} as RevokeLiquidityPoolSponsorshipOpts,
-): xdr.Operation<RevokeLiquidityPoolSponsorshipResult> {
+): xdr.Operation {
   if (typeof opts.liquidityPoolId !== "string") {
     throw new Error("liquidityPoolId is invalid");
   }
 
-  const ledgerKey = xdr.LedgerKey.liquidityPool(
-    new xdr.LedgerKeyLiquidityPool({
-      liquidityPoolId: Buffer.from(
-        opts.liquidityPoolId,
-        "hex",
-      ) as unknown as xdr.PoolId,
-    }),
-  );
+  const ledgerKey = xdr.LedgerKey.liquidityPool({
+    liquidityPoolId: Buffer.from(opts.liquidityPoolId, "hex"),
+  });
   const op = xdr.RevokeSponsorshipOp.revokeSponsorshipLedgerEntry(ledgerKey);
 
   const opAttributes: OperationAttributes = {
@@ -262,7 +240,7 @@ export function revokeLiquidityPoolSponsorship(
   };
   setSourceAccount(opAttributes, opts);
 
-  return new xdr.Operation(opAttributes);
+  return opAttributes;
 }
 
 /**
@@ -287,7 +265,7 @@ export function revokeLiquidityPoolSponsorship(
  */
 export function revokeSignerSponsorship(
   opts: RevokeSignerSponsorshipOpts = {} as RevokeSignerSponsorshipOpts,
-): xdr.Operation<RevokeSignerSponsorshipResult> {
+): xdr.Operation {
   if (!StrKey.isValidEd25519PublicKey(opts.account)) {
     throw new Error("account is invalid");
   }
@@ -313,7 +291,7 @@ export function revokeSignerSponsorship(
       throw new Error("signer.preAuthTx must be 32 bytes Buffer.");
     }
 
-    key = xdr.SignerKey.signerKeyTypePreAuthTx(buffer);
+    key = xdr.SignerKey.signerKeyTypePreAuthTx(Uint8Array.from(buffer));
   } else if (opts.signer.sha256Hash) {
     let buffer: Buffer;
 
@@ -327,7 +305,7 @@ export function revokeSignerSponsorship(
       throw new Error("signer.sha256Hash must be 32 bytes Buffer.");
     }
 
-    key = xdr.SignerKey.signerKeyTypeHashX(buffer);
+    key = xdr.SignerKey.signerKeyTypeHashX(Uint8Array.from(buffer));
   } else if (opts.signer.ed25519SignedPayload) {
     if (!StrKey.isValidSignedPayload(opts.signer.ed25519SignedPayload)) {
       throw new Error("signer.ed25519SignedPayload is invalid.");
@@ -345,10 +323,10 @@ export function revokeSignerSponsorship(
     throw new Error("signer is invalid");
   }
 
-  const signer = new xdr.RevokeSponsorshipOpSigner({
+  const signer = {
     accountId: Keypair.fromPublicKey(opts.account).xdrAccountId(),
     signerKey: key,
-  });
+  };
 
   const op = xdr.RevokeSponsorshipOp.revokeSponsorshipSigner(signer);
 
@@ -358,5 +336,5 @@ export function revokeSignerSponsorship(
   };
   setSourceAccount(opAttributes, opts);
 
-  return new xdr.Operation(opAttributes);
+  return opAttributes;
 }

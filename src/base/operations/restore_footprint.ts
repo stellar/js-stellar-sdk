@@ -1,10 +1,10 @@
 import { setSourceAccount } from "../util/operations.js";
-import xdr from "../xdr.js";
 import {
-  OperationAttributes,
-  RestoreFootprintResult,
-  RestoreFootprintOpts,
-} from "./types.js";
+  ExtensionPoint,
+  Operation,
+  OperationBody,
+} from "../generated/index.js";
+import { OperationAttributes, RestoreFootprintOpts } from "./types.js";
 
 /**
  * Builds an operation to restore the archived ledger entries specified
@@ -17,23 +17,21 @@ import {
  * transaction itself. See {@link TransactionBuilder}'s `opts.sorobanData`
  * parameter (or {@link TransactionBuilder.setSorobanData} /
  * {@link TransactionBuilder.setLedgerKeys}), which is a
- * {@link xdr.SorobanTransactionData} instance that contains fee data & resource
- * usage as part of {@link xdr.SorobanTransactionData}.
+ * {@link SorobanTransactionData} instance that contains fee data & resource
+ * usage as part of {@link SorobanTransactionData}.
  *
  *
  * @param opts - an optional set of parameters
  * @param opts.source - an optional source account
  */
-export function restoreFootprint(
-  opts: RestoreFootprintOpts = {},
-): xdr.Operation<RestoreFootprintResult> {
-  const op = new xdr.RestoreFootprintOp({
-    ext: new xdr.ExtensionPoint(0),
-  });
+export function restoreFootprint(opts: RestoreFootprintOpts = {}): Operation {
+  const op = {
+    ext: ExtensionPoint.case0(),
+  };
   const opAttributes: OperationAttributes = {
     sourceAccount: null,
-    body: xdr.OperationBody.restoreFootprint(op),
+    body: OperationBody.restoreFootprint(op),
   };
   setSourceAccount(opAttributes, opts);
-  return new xdr.Operation(opAttributes);
+  return opAttributes;
 }

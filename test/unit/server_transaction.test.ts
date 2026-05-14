@@ -1,43 +1,50 @@
 import { describe, it, beforeEach, afterEach, expect, vi } from "vitest";
 
-import * as StellarSdk from "../../src/index.js";
-
-const { NotFoundError } = StellarSdk;
-
-const { Horizon } = StellarSdk;
+import {
+  NotFoundError,
+  Horizon,
+  Account,
+  Asset,
+  Keypair,
+  Networks,
+  Operation,
+  TimeoutInfinite,
+  TransactionBuilder,
+  xdr,
+} from "../../src/index.js";
 
 describe("server.js transaction tests", () => {
-  let server: any;
+  let server: Horizon.Server;
   let mockPost: any;
   let mockGet: any;
   let transaction: any;
   let blob: string;
 
-  const keypair = StellarSdk.Keypair.random();
-  const account = new StellarSdk.Account(keypair.publicKey(), "56199647068161");
+  const keypair = Keypair.random();
+  const account = new Account(keypair.publicKey(), "56199647068161");
 
   beforeEach(() => {
     server = new Horizon.Server("https://horizon-live.stellar.org:1337");
     mockPost = vi.spyOn(server.httpClient, "post");
     mockGet = vi.spyOn(server.httpClient, "get");
-    transaction = new StellarSdk.TransactionBuilder(account, {
+    transaction = new TransactionBuilder(account, {
       fee: "100",
-      networkPassphrase: StellarSdk.Networks.TESTNET,
+      networkPassphrase: Networks.TESTNET,
     })
       .addOperation(
-        StellarSdk.Operation.payment({
+        Operation.payment({
           destination:
             "GASOCNHNNLYFNMDJYQ3XFMI7BYHIOCFW3GJEOWRPEGK2TDPGTG2E5EDW",
-          asset: StellarSdk.Asset.native(),
+          asset: Asset.native(),
           amount: "100.50",
         }),
       )
-      .setTimeout(StellarSdk.TimeoutInfinite)
+      .setTimeout(TimeoutInfinite)
       .build();
     transaction.sign(keypair);
 
     blob = encodeURIComponent(
-      transaction.toEnvelope().toXDR().toString("base64"),
+      xdr.TransactionEnvelope.toXDR(transaction.toEnvelope(), "base64"),
     );
   });
 
@@ -69,6 +76,7 @@ describe("server.js transaction tests", () => {
       },
       hash: "db2c69a07be57eb5baefbfbb72b95c7c20d2c4d6f2a0e84e7c27dd0359055a2f",
       ledger: 22895637,
+      successful: true,
       envelope_xdr:
         "AAAAAIUAEW3jQt3+fbT6nCASA1/8RWdp9fJ2woxqPHZPQUH/AAAAZAEH/OgAAAAjAAAAAQAAAAAAAAAAAAAAAFyIDdQAAAAAAAAAAQAAAAAAAAADAAAAAAAAAAFCQVQAAAAAAEZK09vHmzOmEMoVWYtbbZcKv3ZOoo06ckzbhyDIFKfhAAAAAAAAAAEAAAACAAAAAwAAAAAAAAAAAAAAAAAAAAFPQUH/AAAAQOJlnAnmSv1igsU/LjpXvuCqS/EcnM7oxgyk4ElnCwOz9YUEcvhXuc9GS2Sz1fMxsWvV9dHhmu3HvBrsphVl5A8=",
       result_xdr: "AAAAAAAAAGQAAAAAAAAAAQAAAAAAAAADAAAAAAAAAAAAAAACAAAAAA==",
@@ -89,7 +97,11 @@ describe("server.js transaction tests", () => {
     const res = await server.submitTransaction(transaction, {
       skipMemoRequiredCheck: true,
     });
+    if (!res.successful) {
+      expect.fail(`Expected transaction status to be ERROR, got ${res}`);
+    }
 
+    if (!res.offerResults) expect.fail("Expected offerResults to be defined");
     expect(res.offerResults).toBeInstanceOf(Array);
     expect(res.offerResults[0].offersClaimed).toBeInstanceOf(Array);
     expect(typeof res.offerResults[0].effect).toBe("string");
@@ -133,6 +145,7 @@ describe("server.js transaction tests", () => {
       skipMemoRequiredCheck: true,
     });
 
+    if (!res.offerResults) expect.fail("Expected offerResults to be defined");
     expect(res.offerResults).toBeInstanceOf(Array);
     expect(res.offerResults[0].offersClaimed).toBeInstanceOf(Array);
     expect(typeof res.offerResults[0].effect).toBe("string");
@@ -174,6 +187,7 @@ describe("server.js transaction tests", () => {
       skipMemoRequiredCheck: true,
     });
 
+    if (!res.offerResults) expect.fail("Expected offerResults to be defined");
     expect(res.offerResults).toBeInstanceOf(Array);
     expect(res.offerResults[0].offersClaimed).toBeInstanceOf(Array);
     expect(typeof res.offerResults[0].effect).toBe("string");
@@ -215,6 +229,7 @@ describe("server.js transaction tests", () => {
       skipMemoRequiredCheck: true,
     });
 
+    if (!res.offerResults) expect.fail("Expected offerResults to be defined");
     expect(res.offerResults).toBeInstanceOf(Array);
     expect(res.offerResults[0].offersClaimed).toBeInstanceOf(Array);
     expect(res.offerResults[0].offersClaimed).toHaveLength(1);
@@ -226,9 +241,11 @@ describe("server.js transaction tests", () => {
     expect(res.offerResults[0].wasPartiallyFilled).toBe(true);
     expect(res.offerResults[0].isFullyOpen).toBe(false);
     expect(res.offerResults[0].operationIndex).toBe(0);
-    expect(res.offerResults[0].currentOffer.selling.type).toBe("native");
-    expect(res.offerResults[0].currentOffer.buying.assetCode).toBe("BAT");
-    expect(res.offerResults[0].currentOffer.buying.issuer).toBe(
+    const currentOffer = res.offerResults[0].currentOffer;
+    if (!currentOffer) expect.fail("Expected currentOffer to be defined");
+    expect(currentOffer.selling.type).toBe("native");
+    expect(currentOffer.buying.assetCode).toBe("BAT");
+    expect(currentOffer.buying.issuer).toBe(
       "GBDEVU63Y6NTHJQQZIKVTC23NWLQVP3WJ2RI2OTSJTNYOIGICST6DUXR",
     );
   });
@@ -295,6 +312,7 @@ describe("server.js transaction tests", () => {
       skipMemoRequiredCheck: true,
     });
 
+    if (!res.offerResults) expect.fail("Expected offerResults to be defined");
     expect(res.offerResults).toBeInstanceOf(Array);
     expect(res.offerResults).toHaveLength(2);
     expect(res.offerResults[0].offersClaimed).toBeInstanceOf(Array);
@@ -336,15 +354,15 @@ describe("server.js transaction tests", () => {
     });
   });
   it("submits fee bump transactions", async () => {
-    const feeBumpTx = StellarSdk.TransactionBuilder.buildFeeBumpTransaction(
+    const feeBumpTx = TransactionBuilder.buildFeeBumpTransaction(
       keypair,
       "200",
       transaction,
-      StellarSdk.Networks.TESTNET,
+      Networks.TESTNET,
     );
 
     blob = encodeURIComponent(
-      feeBumpTx.toEnvelope().toXDR().toString("base64"),
+      xdr.TransactionEnvelope.toXDR(feeBumpTx.toEnvelope(), "base64"),
     );
 
     mockPost.mockImplementation((url: string, data: string) => {

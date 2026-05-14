@@ -1,7 +1,30 @@
 import { Hyper } from "@stellar/js-xdr";
 import BigNumber from "./util/bignumber.js";
 
-import xdr from "./xdr.js";
+import {
+  ContractDataDurability,
+  EnvelopeType,
+  FeeBumpTransaction as XdrFeeBumpTransaction,
+  FeeBumpTransactionEnvelope,
+  FeeBumpTransactionExt,
+  FeeBumpTransactionInnerTx,
+  LedgerKey,
+  Memo as XdrMemo,
+  MuxedAccount as XdrMuxedAccount,
+  Operation as XdrOperation,
+  Preconditions,
+  ScVal,
+  SequenceNumber,
+  SorobanAuthorizationEntry,
+  SorobanAuthorizedFunction,
+  SorobanCredentials,
+  SorobanTransactionData,
+  SorobanTransactionDataExt,
+  TimeBounds,
+  Transaction as XdrTransaction,
+  TransactionEnvelope,
+  TransactionExt,
+} from "./generated/index.js";
 
 import { Account } from "./account.js";
 import { MuxedAccount } from "./muxed_account.js";
@@ -93,11 +116,11 @@ export interface TransactionBuilderOptions {
   /** List of extra signers required for this transaction. */
   extraSigners?: string[];
   /**
-   * An instance of {@link xdr.SorobanTransactionData} or a base64 string.
+   * An instance of {@link SorobanTransactionData} or a base64 string.
    * Provides resource estimations for Soroban transactions. Has no effect on
    * non-contract transactions.
    */
-  sorobanData?: xdr.SorobanTransactionData | string;
+  sorobanData?: SorobanTransactionData | string;
 }
 
 /**
@@ -151,7 +174,7 @@ export interface TransactionBuilderOptions {
  */
 export class TransactionBuilder {
   source: Account | MuxedAccount;
-  operations: xdr.Operation[];
+  operations: XdrOperation[];
   baseFee: string;
   timebounds: {
     minTime?: Date | number | string;
@@ -164,7 +187,7 @@ export class TransactionBuilder {
   extraSigners: string[] | null;
   memo: Memo;
   networkPassphrase: string | null;
-  sorobanData: xdr.SorobanTransactionData | null;
+  sorobanData: SorobanTransactionData | null;
 
   /**
    * @param sourceAccount - source account for this transaction
@@ -271,7 +294,7 @@ export class TransactionBuilder {
    *    the {@link TransactionBuilder} constructor for detailed options)
    *
    * @warning This does not clone the transaction's
-   *    {@link xdr.SorobanTransactionData} (if applicable), use
+   *    {@link SorobanTransactionData} (if applicable), use
    *    {@link SorobanDataBuilder} and {@link TransactionBuilder.setSorobanData}
    *    as needed, instead..
    *
@@ -287,7 +310,7 @@ export class TransactionBuilder {
 
     const sequenceNum = (BigInt(tx.sequence) - 1n).toString();
 
-    let source;
+    let source: MuxedAccount | Account;
 
     // rebuild the source account based on the strkey
     if (StrKey.isValidMed25519PublicKey(tx.source)) {
@@ -341,7 +364,7 @@ export class TransactionBuilder {
 
     const builder = new TransactionBuilder(source, builderOpts);
 
-    tx.tx.operations().forEach((op) => builder.addOperation(op));
+    tx.tx.operations.forEach((op) => builder.addOperation(op));
 
     return builder;
   }
@@ -352,7 +375,7 @@ export class TransactionBuilder {
    * @param operation - The xdr operation object, use {@link
    *     Operation} static methods.
    */
-  addOperation(operation: xdr.Operation): TransactionBuilder {
+  addOperation(operation: XdrOperation): TransactionBuilder {
     this.operations.push(operation);
     return this;
   }
@@ -363,7 +386,7 @@ export class TransactionBuilder {
    * @param operation - The xdr operation object to add, use {@link Operation} static methods.
    * @param index - The index at which to insert the operation.
    */
-  addOperationAt(operation: xdr.Operation, index: number): TransactionBuilder {
+  addOperationAt(operation: XdrOperation, index: number): TransactionBuilder {
     this.operations.splice(index, 0, operation);
     return this;
   }
@@ -669,19 +692,19 @@ export class TransactionBuilder {
    *
    * For non-contract(non-Soroban) transactions, this setting has no effect. In
    * the case of Soroban transactions, this is either an instance of
-   * {@link xdr.SorobanTransactionData} or a base64-encoded string of said
+   * {@link SorobanTransactionData} or a base64-encoded string of said
    * structure. This is usually obtained from the simulation response based on a
    * transaction with a Soroban operation (e.g.
    * {@link Operation.invokeHostFunction}, providing necessary resource
    * and storage footprint estimations for contract invocation.
    *
-   * @param sorobanData - the {@link xdr.SorobanTransactionData} as a raw xdr
+   * @param sorobanData - the {@link SorobanTransactionData} as a raw xdr
    *    object or a base64 string to be decoded
    *
    * @see {SorobanDataBuilder}
    */
   setSorobanData(
-    sorobanData: xdr.SorobanTransactionData | string,
+    sorobanData: SorobanTransactionData | string,
   ): TransactionBuilder {
     this.sorobanData = new SorobanDataBuilder(sorobanData).build();
     return this;
@@ -777,47 +800,39 @@ export class TransactionBuilder {
     ];
     const isAssetNative = asset.isNative();
 
-    const auths = new xdr.SorobanAuthorizationEntry({
-      credentials: xdr.SorobanCredentials.sorobanCredentialsSourceAccount(),
-      rootInvocation: new xdr.SorobanAuthorizedInvocation({
+    const auths: SorobanAuthorizationEntry = {
+      credentials: SorobanCredentials.sorobanCredentialsSourceAccount(),
+      rootInvocation: {
         function:
-          xdr.SorobanAuthorizedFunction.sorobanAuthorizedFunctionTypeContractFn(
-            new xdr.InvokeContractArgs({
-              contractAddress: Address.fromString(contractId).toScAddress(),
-              functionName,
-              args,
-            }),
-          ),
-        subInvocations: [],
-      }),
-    });
-
-    const footprint = new xdr.LedgerFootprint({
-      readOnly: [
-        xdr.LedgerKey.contractData(
-          new xdr.LedgerKeyContractData({
-            contract: Address.fromString(contractId).toScAddress(),
-            key: xdr.ScVal.scvLedgerKeyContractInstance(),
-            durability: xdr.ContractDataDurability.persistent(),
+          SorobanAuthorizedFunction.sorobanAuthorizedFunctionTypeContractFn({
+            contractAddress: Address.fromString(contractId).toScAddress(),
+            functionName,
+            args,
           }),
-        ),
-      ],
-      readWrite: [],
-    });
+        subInvocations: [],
+      },
+    };
+
+    const footprintReadOnly: LedgerKey[] = [
+      LedgerKey.contractData({
+        contract: Address.fromString(contractId).toScAddress(),
+        key: ScVal.scvLedgerKeyContractInstance(),
+        durability: ContractDataDurability.persistent,
+      }),
+    ];
+    const footprintReadWrite: LedgerKey[] = [];
 
     // Ledger entries for the destination account
     if (isDestinationContract) {
-      footprint.readWrite().push(
-        xdr.LedgerKey.contractData(
-          new xdr.LedgerKeyContractData({
-            contract: Address.fromString(contractId).toScAddress(),
-            key: xdr.ScVal.scvVec([
-              nativeToScVal("Balance", { type: "symbol" }),
-              nativeToScVal(destination, { type: "address" }),
-            ]),
-            durability: xdr.ContractDataDurability.persistent(),
-          }),
-        ),
+      footprintReadWrite.push(
+        LedgerKey.contractData({
+          contract: Address.fromString(contractId).toScAddress(),
+          key: ScVal.scvVec([
+            nativeToScVal("Balance", { type: "symbol" }),
+            nativeToScVal(destination, { type: "address" }),
+          ]),
+          durability: ContractDataDurability.persistent,
+        }),
       );
 
       if (!isAssetNative) {
@@ -827,54 +842,44 @@ export class TransactionBuilder {
           throw new Error("Asset issuer must be set for non-native assets.");
         }
 
-        footprint.readOnly().push(
-          xdr.LedgerKey.account(
-            new xdr.LedgerKeyAccount({
-              accountId: Keypair.fromPublicKey(assetIssuer).xdrPublicKey(),
-            }),
-          ),
+        footprintReadOnly.push(
+          LedgerKey.account({
+            accountId: Keypair.fromPublicKey(assetIssuer).xdrPublicKey(),
+          }),
         );
       }
     } else if (isAssetNative) {
-      footprint.readWrite().push(
-        xdr.LedgerKey.account(
-          new xdr.LedgerKeyAccount({
-            accountId: Keypair.fromPublicKey(
-              destinationBaseAddress,
-            ).xdrPublicKey(),
-          }),
-        ),
+      footprintReadWrite.push(
+        LedgerKey.account({
+          accountId: Keypair.fromPublicKey(
+            destinationBaseAddress,
+          ).xdrPublicKey(),
+        }),
       );
     } else if (asset.getIssuer() !== destinationBaseAddress) {
-      footprint.readWrite().push(
-        xdr.LedgerKey.trustline(
-          new xdr.LedgerKeyTrustLine({
-            accountId: Keypair.fromPublicKey(
-              destinationBaseAddress,
-            ).xdrPublicKey(),
-            asset: asset.toTrustLineXDRObject(),
-          }),
-        ),
+      footprintReadWrite.push(
+        LedgerKey.trustline({
+          accountId: Keypair.fromPublicKey(
+            destinationBaseAddress,
+          ).xdrPublicKey(),
+          asset: asset.toWireTrustLineXDRObject(),
+        }),
       );
     }
 
     // Ledger entries for the source account
     if (asset.isNative()) {
-      footprint.readWrite().push(
-        xdr.LedgerKey.account(
-          new xdr.LedgerKeyAccount({
-            accountId: Keypair.fromPublicKey(sourceBaseAddress).xdrPublicKey(),
-          }),
-        ),
+      footprintReadWrite.push(
+        LedgerKey.account({
+          accountId: Keypair.fromPublicKey(sourceBaseAddress).xdrPublicKey(),
+        }),
       );
     } else if (asset.getIssuer() !== sourceBaseAddress) {
-      footprint.readWrite().push(
-        xdr.LedgerKey.trustline(
-          new xdr.LedgerKeyTrustLine({
-            accountId: Keypair.fromPublicKey(sourceBaseAddress).xdrPublicKey(),
-            asset: asset.toTrustLineXDRObject(),
-          }),
-        ),
+      footprintReadWrite.push(
+        LedgerKey.trustline({
+          accountId: Keypair.fromPublicKey(sourceBaseAddress).xdrPublicKey(),
+          asset: asset.toWireTrustLineXDRObject(),
+        }),
       );
     }
 
@@ -885,9 +890,12 @@ export class TransactionBuilder {
       resourceFee: BigInt(5_000_000),
     };
 
-    const sorobanData = new xdr.SorobanTransactionData({
-      resources: new xdr.SorobanResources({
-        footprint,
+    const sorobanData: SorobanTransactionData = {
+      resources: {
+        footprint: {
+          readOnly: footprintReadOnly,
+          readWrite: footprintReadWrite,
+        },
         instructions: sorobanFees
           ? sorobanFees.instructions
           : defaultPaymentFees.instructions,
@@ -897,12 +905,12 @@ export class TransactionBuilder {
         writeBytes: sorobanFees
           ? sorobanFees.writeBytes
           : defaultPaymentFees.writeBytes,
-      }),
-      ext: new xdr.SorobanTransactionDataExt(0),
-      resourceFee: new xdr.Int64(
-        sorobanFees ? sorobanFees.resourceFee : defaultPaymentFees.resourceFee,
-      ),
-    });
+      },
+      ext: SorobanTransactionDataExt.case0(),
+      resourceFee: sorobanFees
+        ? sorobanFees.resourceFee
+        : defaultPaymentFees.resourceFee,
+    };
     const operation = Operation.invokeContractFunction({
       contract: contractId,
       function: functionName,
@@ -932,14 +940,14 @@ export class TransactionBuilder {
 
     const attrs: {
       fee: number;
-      seqNum: xdr.SequenceNumber;
-      memo: xdr.Memo | null;
-      cond?: xdr.Preconditions;
-      sourceAccount?: xdr.MuxedAccount;
-      ext?: xdr.TransactionExt;
+      seqNum: SequenceNumber;
+      memo: XdrMemo | null;
+      cond?: Preconditions;
+      sourceAccount?: XdrMuxedAccount;
+      ext?: TransactionExt;
     } = {
       fee,
-      seqNum: xdr.Int64.fromString(sequenceNumber.toString()),
+      seqNum: BigInt(sequenceNumber.toString()),
       memo: this.memo ? this.memo.toXDRObject() : null,
     };
 
@@ -965,30 +973,27 @@ export class TransactionBuilder {
       );
     }
 
-    const minTime = xdr.Uint64.fromString(this.timebounds.minTime.toString());
-    const maxTime = xdr.Uint64.fromString(this.timebounds.maxTime.toString());
+    const minTime = BigInt(this.timebounds.minTime.toString());
+    const maxTime = BigInt(this.timebounds.maxTime.toString());
 
-    const timeBounds = new xdr.TimeBounds({ minTime, maxTime });
+    const timeBounds: TimeBounds = { minTime, maxTime };
 
     if (this.hasV2Preconditions()) {
       let ledgerBounds = null;
 
       if (this.ledgerbounds !== null) {
-        ledgerBounds = new xdr.LedgerBounds({
+        ledgerBounds = {
           minLedger: this.ledgerbounds.minLedger ?? 0,
           maxLedger: this.ledgerbounds.maxLedger ?? 0,
-        });
+        };
       }
 
       const minSeqNum = this.minAccountSequence
-        ? xdr.Int64.fromString(this.minAccountSequence)
+        ? BigInt(this.minAccountSequence)
         : null;
 
-      const minSeqAge = xdr.Uint64.fromString(
-        this.minAccountSequenceAge !== null
-          ? this.minAccountSequenceAge.toString()
-          : "0",
-      );
+      const minSeqAge =
+        this.minAccountSequenceAge !== null ? this.minAccountSequenceAge : 0n;
 
       const minSeqLedgerGap = this.minAccountSequenceLedgerGap || 0;
 
@@ -997,30 +1002,28 @@ export class TransactionBuilder {
           ? this.extraSigners.map((s) => SignerKey.decodeAddress(s))
           : [];
 
-      attrs.cond = xdr.Preconditions.precondV2(
-        new xdr.PreconditionsV2({
-          timeBounds,
-          ledgerBounds,
-          minSeqNum,
-          minSeqAge,
-          minSeqLedgerGap,
-          extraSigners,
-        }),
-      );
+      attrs.cond = Preconditions.precondV2({
+        timeBounds,
+        ledgerBounds,
+        minSeqNum,
+        minSeqAge,
+        minSeqLedgerGap,
+        extraSigners,
+      });
     } else {
-      attrs.cond = xdr.Preconditions.precondTime(timeBounds);
+      attrs.cond = Preconditions.precondTime(timeBounds);
     }
 
     attrs.sourceAccount = decodeAddressToMuxedAccount(this.source.accountId());
 
-    // Previously used @ts-ignore and passed xdr.Void as second arg to TransactionExt(0)
+    // Previously used @ts-ignore and passed Void as second arg to TransactionExt(0)
     // due to broken TransactionExt types in dts-xdr.
     // Fixed upstream: https://github.com/stellar/dts-xdr/issues/5
     if (this.sorobanData) {
-      attrs.ext = new xdr.TransactionExt(1, this.sorobanData);
+      attrs.ext = TransactionExt.sorobanData(this.sorobanData);
       // Soroban transactions pay the resource fee in addition to the regular fee, so we need to add it here.
       attrs.fee = new BigNumber(attrs.fee)
-        .plus(this.sorobanData.resourceFee().toString())
+        .plus(this.sorobanData.resourceFee.toString())
         .toNumber();
 
       if (attrs.fee > UINT32_MAX) {
@@ -1030,17 +1033,18 @@ export class TransactionBuilder {
         );
       }
     } else {
-      attrs.ext = new xdr.TransactionExt(0);
+      attrs.ext = TransactionExt.case0();
     }
 
-    const xtx = new xdr.Transaction(
-      attrs as ConstructorParameters<typeof xdr.Transaction>[0],
-    );
-    xtx.operations(this.operations);
+    const xtx: XdrTransaction = {
+      ...(attrs as Omit<XdrTransaction, "operations">),
+      operations: this.operations,
+    };
 
-    const txEnvelope = xdr.TransactionEnvelope.envelopeTypeTx(
-      new xdr.TransactionV1Envelope({ tx: xtx, signatures: [] }),
-    );
+    const txEnvelope = TransactionEnvelope.envelopeTypeTx({
+      tx: xtx,
+      signatures: [],
+    });
 
     if (this.networkPassphrase === null) {
       throw new Error("networkPassphrase must be set to build a transaction");
@@ -1102,10 +1106,13 @@ export class TransactionBuilder {
     // Do we need to do special Soroban fee handling? We only want the fee-bump
     // requirement to match the inclusion fee, not the inclusion+resource fee.
     const env = innerTx.toEnvelope();
-    switch (env.switch().value) {
-      case xdr.EnvelopeType.envelopeTypeTx().value: {
-        const sorobanData = env.v1().tx().ext().value();
-        resourceFee = new BigNumber(sorobanData?.resourceFee().toString() ?? 0);
+    switch (env.type) {
+      case EnvelopeType.envelopeTypeTx: {
+        const sorobanData =
+          env.v1.tx.ext.type === "sorobanData"
+            ? env.v1.tx.ext.sorobanData
+            : null;
+        resourceFee = new BigNumber(sorobanData?.resourceFee.toString() ?? 0);
 
         break;
       }
@@ -1132,31 +1139,29 @@ export class TransactionBuilder {
     }
 
     let innerTxEnvelope = innerTx.toEnvelope();
-    if (innerTxEnvelope.switch() === xdr.EnvelopeType.envelopeTypeTxV0()) {
-      const v0Tx = innerTxEnvelope.v0().tx();
-      const v0TimeBounds = v0Tx.timeBounds();
+    if (innerTxEnvelope.type === EnvelopeType.envelopeTypeTxV0) {
+      const v0Tx = innerTxEnvelope.v0.tx;
+      const v0TimeBounds = v0Tx.timeBounds;
 
       if (v0TimeBounds === null) {
         throw new Error("Inner transaction must have time bounds");
       }
 
-      const v1Tx = new xdr.Transaction({
-        sourceAccount: xdr.MuxedAccount.keyTypeEd25519(
-          v0Tx.sourceAccountEd25519(),
+      const v1Tx: XdrTransaction = {
+        sourceAccount: XdrMuxedAccount.keyTypeEd25519(
+          v0Tx.sourceAccountEd25519,
         ),
-        fee: v0Tx.fee(),
-        seqNum: v0Tx.seqNum(),
-        cond: xdr.Preconditions.precondTime(v0TimeBounds),
-        memo: v0Tx.memo(),
-        operations: v0Tx.operations(),
-        ext: new xdr.TransactionExt(0),
+        fee: v0Tx.fee,
+        seqNum: v0Tx.seqNum,
+        cond: Preconditions.precondTime(v0TimeBounds),
+        memo: v0Tx.memo,
+        operations: v0Tx.operations,
+        ext: TransactionExt.case0(),
+      };
+      innerTxEnvelope = TransactionEnvelope.envelopeTypeTx({
+        tx: v1Tx,
+        signatures: innerTxEnvelope.v0.signatures,
       });
-      innerTxEnvelope = xdr.TransactionEnvelope.envelopeTypeTx(
-        new xdr.TransactionV1Envelope({
-          tx: v1Tx,
-          signatures: innerTxEnvelope.v0().signatures(),
-        }),
-      );
     }
 
     let feeSourceAccount;
@@ -1166,32 +1171,34 @@ export class TransactionBuilder {
       feeSourceAccount = feeSource.xdrMuxedAccount();
     }
 
-    const tx = new xdr.FeeBumpTransaction({
+    if (innerTxEnvelope.type !== "envelopeTypeTx") {
+      throw new Error("Inner transaction must be a v1 transaction envelope");
+    }
+
+    const tx: XdrFeeBumpTransaction = {
       feeSource: feeSourceAccount,
-      fee: xdr.Int64.fromString(
+      fee: BigInt(
         base
           .times(innerOps + 1)
           .plus(resourceFee)
           .toString(),
       ),
-      innerTx: xdr.FeeBumpTransactionInnerTx.envelopeTypeTx(
-        innerTxEnvelope.v1(),
-      ),
-      ext: new xdr.FeeBumpTransactionExt(0),
-    });
-    const feeBumpTxEnvelope = new xdr.FeeBumpTransactionEnvelope({
+      innerTx: FeeBumpTransactionInnerTx.envelopeTypeTx(innerTxEnvelope.v1),
+      ext: FeeBumpTransactionExt.case0(),
+    };
+    const feeBumpTxEnvelope: FeeBumpTransactionEnvelope = {
       tx,
       signatures: [],
-    });
+    };
     const envelope =
-      xdr.TransactionEnvelope.envelopeTypeTxFeeBump(feeBumpTxEnvelope);
+      TransactionEnvelope.envelopeTypeTxFeeBump(feeBumpTxEnvelope);
 
     return new FeeBumpTransaction(envelope, networkPassphrase);
   }
 
   /**
    * Build a {@link Transaction} or {@link FeeBumpTransaction} from an
-   * xdr.TransactionEnvelope.
+   * TransactionEnvelope.
    *
    * @param envelope - The transaction envelope
    *     object or base64 encoded string.
@@ -1200,14 +1207,14 @@ export class TransactionBuilder {
    *     2015"), see {@link Networks}.
    */
   static fromXDR(
-    envelope: xdr.TransactionEnvelope | string,
+    envelope: TransactionEnvelope | string,
     networkPassphrase: string,
   ): FeeBumpTransaction | Transaction {
     if (typeof envelope === "string") {
-      envelope = xdr.TransactionEnvelope.fromXDR(envelope, "base64");
+      envelope = TransactionEnvelope.fromXDR(envelope, "base64");
     }
 
-    if (envelope.switch() === xdr.EnvelopeType.envelopeTypeTxFeeBump()) {
+    if (envelope.type === EnvelopeType.envelopeTypeTxFeeBump) {
       return new FeeBumpTransaction(envelope, networkPassphrase);
     }
 

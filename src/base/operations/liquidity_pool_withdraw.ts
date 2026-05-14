@@ -4,12 +4,8 @@ import {
   toXDRAmount,
   setSourceAccount,
 } from "../util/operations.js";
-import xdr from "../xdr.js";
-import {
-  LiquidityPoolWithdrawResult,
-  LiquidityPoolWithdrawOpts,
-  OperationAttributes,
-} from "./types.js";
+import { Operation, OperationBody, PoolId } from "../generated/index.js";
+import { LiquidityPoolWithdrawOpts, OperationAttributes } from "./types.js";
 
 /**
  * Creates a liquidity pool withdraw operation.
@@ -25,14 +21,14 @@ import {
  */
 export function liquidityPoolWithdraw(
   opts: LiquidityPoolWithdrawOpts = {} as LiquidityPoolWithdrawOpts,
-): xdr.Operation<LiquidityPoolWithdrawResult> {
+): Operation {
   if (!opts.liquidityPoolId) {
     throw new TypeError("liquidityPoolId argument is required");
   }
   const liquidityPoolId = Buffer.from(
     opts.liquidityPoolId,
     "hex",
-  ) as unknown as xdr.PoolId;
+  ) as unknown as PoolId;
 
   if (!isValidAmount(opts.amount)) {
     throw new TypeError(constructAmountRequirementsError("amount"));
@@ -49,18 +45,18 @@ export function liquidityPoolWithdraw(
   }
   const minAmountB = toXDRAmount(opts.minAmountB);
 
-  const liquidityPoolWithdrawOp = new xdr.LiquidityPoolWithdrawOp({
-    liquidityPoolId,
+  const liquidityPoolWithdrawOp = {
+    liquidityPoolId: liquidityPoolId,
     amount,
     minAmountA,
     minAmountB,
-  });
+  };
 
   const opAttributes: OperationAttributes = {
     sourceAccount: null,
-    body: xdr.OperationBody.liquidityPoolWithdraw(liquidityPoolWithdrawOp),
+    body: OperationBody.liquidityPoolWithdraw(liquidityPoolWithdrawOp),
   };
   setSourceAccount(opAttributes, opts);
 
-  return new xdr.Operation(opAttributes);
+  return opAttributes;
 }

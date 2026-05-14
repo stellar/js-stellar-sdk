@@ -1,7 +1,6 @@
 import { setSourceAccount } from "../util/operations.js";
-import xdr from "../xdr.js";
+import { Operation, OperationBody } from "../generated/index.js";
 import {
-  EndSponsoringFutureReservesResult,
   EndSponsoringFutureReservesOpts,
   OperationAttributes,
 } from "./types.js";
@@ -17,12 +16,12 @@ import {
  */
 export function endSponsoringFutureReserves(
   opts: EndSponsoringFutureReservesOpts = {},
-): xdr.Operation<EndSponsoringFutureReservesResult> {
+): Operation {
   const opAttributes: OperationAttributes = {
     sourceAccount: null,
-    body: xdr.OperationBody.endSponsoringFutureReserves(),
+    body: OperationBody.endSponsoringFutureReserves(),
   };
   setSourceAccount(opAttributes, opts);
 
-  return new xdr.Operation(opAttributes);
+  return opAttributes;
 }

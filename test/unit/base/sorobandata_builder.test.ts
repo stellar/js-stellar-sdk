@@ -7,16 +7,16 @@ describe("SorobanTransactionData can be built", () => {
   const contractId = "CA3D5KRYM6CB7OWQ6TWYRR3Z4T7GNZLKERYNZGGA5SOAOPIFY6YQGAXE";
   const c = new Contract(contractId);
 
-  const sentinel = new xdr.SorobanTransactionData({
-    ext: new xdr.SorobanTransactionDataExt(0),
-    resources: new xdr.SorobanResources({
-      footprint: new xdr.LedgerFootprint({ readOnly: [], readWrite: [] }),
+  const sentinel: xdr.SorobanTransactionData = {
+    ext: xdr.SorobanTransactionDataExt.case0(),
+    resources: {
+      footprint: { readOnly: [], readWrite: [] },
       instructions: 1,
       diskReadBytes: 2,
       writeBytes: 3,
-    }),
-    resourceFee: new xdr.Int64(5),
-  });
+    },
+    resourceFee: BigInt(5),
+  };
 
   const key = c.getFootprint(); // arbitrary key for testing
 
@@ -24,7 +24,9 @@ describe("SorobanTransactionData can be built", () => {
   it("constructs from xdr, base64, and nothing", () => {
     new SorobanDataBuilder();
     const fromRaw = new SorobanDataBuilder(sentinel).build();
-    const fromStr = new SorobanDataBuilder(sentinel.toXDR("base64")).build();
+    const fromStr = new SorobanDataBuilder(
+      xdr.SorobanTransactionData.toXDR(sentinel, "base64"),
+    ).build();
 
     expect(fromRaw).toEqual(sentinel);
     expect(fromStr).toEqual(sentinel);
@@ -45,8 +47,14 @@ describe("SorobanTransactionData can be built", () => {
     const withFootprint = new SorobanDataBuilder()
       .setFootprint([key], [key])
       .build();
-    expect(withFootprint.resources().footprint().readOnly()[0]).toEqual(key);
-    expect(withFootprint.resources().footprint().readWrite()[0]).toEqual(key);
+    const toLedgerKeyXDR = (k: xdr.LedgerKey) =>
+      xdr.LedgerKey.toXDR(k, "base64");
+    expect(
+      withFootprint.resources.footprint.readOnly.map(toLedgerKeyXDR),
+    ).toEqual([key].map(toLedgerKeyXDR));
+    expect(
+      withFootprint.resources.footprint.readWrite.map(toLedgerKeyXDR),
+    ).toEqual([key].map(toLedgerKeyXDR));
   });
 
   it("leaves untouched footprints untouched", () => {
@@ -55,10 +63,20 @@ describe("SorobanTransactionData can be built", () => {
     const data = builder.setFootprint([key], [key]).build();
     const data2 = new SorobanDataBuilder(data).setFootprint(null, []).build();
 
-    expect(data.resources().footprint().readOnly()).toEqual([key]);
-    expect(data.resources().footprint().readWrite()).toEqual([key]);
-    expect(data2.resources().footprint().readOnly()).toEqual([key]);
-    expect(data2.resources().footprint().readWrite()).toEqual([]);
+    const toLedgerKeyXDR = (k: xdr.LedgerKey) =>
+      xdr.LedgerKey.toXDR(k, "base64");
+    expect(data.resources.footprint.readOnly.map(toLedgerKeyXDR)).toEqual(
+      [key].map(toLedgerKeyXDR),
+    );
+    expect(data.resources.footprint.readWrite.map(toLedgerKeyXDR)).toEqual(
+      [key].map(toLedgerKeyXDR),
+    );
+    expect(data2.resources.footprint.readOnly.map(toLedgerKeyXDR)).toEqual(
+      [key].map(toLedgerKeyXDR),
+    );
+    expect(data2.resources.footprint.readWrite.map(toLedgerKeyXDR)).toEqual(
+      [].map(toLedgerKeyXDR),
+    );
   });
 
   it("appends footprints", () => {
@@ -71,8 +89,14 @@ describe("SorobanTransactionData can be built", () => {
 
     expect(data.getReadOnly()).toEqual([key, key, key]);
     expect(data.getReadWrite()).toEqual([key]);
-    expect(built.resources().footprint().readOnly()).toEqual([key, key, key]);
-    expect(built.resources().footprint().readWrite()).toEqual([key]);
+    const toLedgerKeyXDR = (k: xdr.LedgerKey) =>
+      xdr.LedgerKey.toXDR(k, "base64");
+    expect(built.resources.footprint.readOnly.map(toLedgerKeyXDR)).toEqual(
+      [key, key, key].map(toLedgerKeyXDR),
+    );
+    expect(built.resources.footprint.readWrite.map(toLedgerKeyXDR)).toEqual(
+      [key].map(toLedgerKeyXDR),
+    );
   });
 
   it("makes copies on build()", () => {
@@ -80,12 +104,12 @@ describe("SorobanTransactionData can be built", () => {
     const first = builder.build();
     const second = builder.setResourceFee(100).build();
 
-    expect(first.resourceFee()).not.toEqual(second.resourceFee());
+    expect(first.resourceFee).not.toEqual(second.resourceFee);
   });
 
   // Additional tests
   it("constructs from raw Uint8Array", () => {
-    const raw = sentinel.toXDR();
+    const raw = xdr.SorobanTransactionData.toXDR(sentinel);
     const fromBuf = new SorobanDataBuilder(Buffer.from(raw)).build();
     const fromUint8 = new SorobanDataBuilder(new Uint8Array(raw)).build();
 
@@ -94,8 +118,12 @@ describe("SorobanTransactionData can be built", () => {
   });
 
   it("fromXDR decodes base64 strings and raw buffers", () => {
-    const fromBase64 = SorobanDataBuilder.fromXDR(sentinel.toXDR("base64"));
-    const fromRaw = SorobanDataBuilder.fromXDR(sentinel.toXDR());
+    const fromBase64 = SorobanDataBuilder.fromXDR(
+      xdr.SorobanTransactionData.toXDR(sentinel, "base64"),
+    );
+    const fromRaw = SorobanDataBuilder.fromXDR(
+      xdr.SorobanTransactionData.toXDR(sentinel),
+    );
 
     expect(fromBase64).toEqual(sentinel);
     expect(fromRaw).toEqual(sentinel);
@@ -121,8 +149,12 @@ describe("SorobanTransactionData can be built", () => {
       .setReadWrite([key])
       .build();
 
-    expect(built.resources().footprint().readOnly()).toEqual([key]);
-    expect(built.resources().footprint().readWrite()).toEqual([key]);
+    expect(xdr.LedgerKey.toXDR(built.resources.footprint.readOnly[0])).toEqual(
+      xdr.LedgerKey.toXDR(key),
+    );
+    expect(xdr.LedgerKey.toXDR(built.resources.footprint.readWrite[0])).toEqual(
+      xdr.LedgerKey.toXDR(key),
+    );
   });
 
   it("setReadOnly and setReadWrite clear when called with no args", () => {
@@ -132,8 +164,8 @@ describe("SorobanTransactionData can be built", () => {
       .setReadWrite()
       .build();
 
-    expect(built.resources().footprint().readOnly()).toEqual([]);
-    expect(built.resources().footprint().readWrite()).toEqual([]);
+    expect(built.resources.footprint.readOnly).toEqual([]);
+    expect(built.resources.footprint.readWrite).toEqual([]);
   });
 
   it("setFootprint with undefined clears, null preserves", () => {
@@ -143,23 +175,29 @@ describe("SorobanTransactionData can be built", () => {
     const withUndefined = new SorobanDataBuilder(base.build())
       .setFootprint(undefined, undefined)
       .build();
-    expect(withUndefined.resources().footprint().readOnly()).toEqual([]);
-    expect(withUndefined.resources().footprint().readWrite()).toEqual([]);
+    expect(withUndefined.resources.footprint.readOnly).toEqual([]);
+    expect(withUndefined.resources.footprint.readWrite).toEqual([]);
 
     // null preserves existing values
     const withNull = new SorobanDataBuilder(base.build())
       .setFootprint(null, null)
       .build();
-    expect(withNull.resources().footprint().readOnly()).toEqual([key]);
-    expect(withNull.resources().footprint().readWrite()).toEqual([key]);
+    const toLedgerKeyXDR = (k: xdr.LedgerKey) =>
+      xdr.LedgerKey.toXDR(k, "base64");
+    expect(withNull.resources.footprint.readOnly.map(toLedgerKeyXDR)).toEqual(
+      [key].map(toLedgerKeyXDR),
+    );
+    expect(withNull.resources.footprint.readWrite.map(toLedgerKeyXDR)).toEqual(
+      [key].map(toLedgerKeyXDR),
+    );
   });
 
   it("getFootprint returns the footprint directly", () => {
     const builder = new SorobanDataBuilder().setFootprint([key], [key]);
     const footprint = builder.getFootprint();
 
-    expect(footprint.readOnly()).toEqual([key]);
-    expect(footprint.readWrite()).toEqual([key]);
+    expect(footprint.readOnly).toEqual([key]);
+    expect(footprint.readWrite).toEqual([key]);
   });
 
   it("throws when constructor receives an invalid base64 string", () => {

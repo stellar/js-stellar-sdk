@@ -24,7 +24,7 @@ describe("Operation.createPassiveSellOffer()", () => {
       amount,
       price,
     });
-    const xdrHex = op.toXDR("hex");
+    const xdrHex = xdr.Operation.toXDR(op, "hex");
     const operation = xdr.Operation.fromXDR(xdrHex, "hex");
     const obj = expectOperationType(
       Operation.fromXDRObject(operation),
@@ -33,11 +33,12 @@ describe("Operation.createPassiveSellOffer()", () => {
 
     expect(obj.selling.equals(selling)).toBe(true);
     expect(obj.buying.equals(buying)).toBe(true);
-    expect(
-      (operation.body().value() as xdr.CreatePassiveSellOfferOp)
-        .amount()
-        .toString(),
-    ).toBe("112782700");
+    if (operation.body.type !== xdr.OperationType.createPassiveSellOffer) {
+      expect.fail("Expected createPassiveSellOffer operation");
+    }
+    expect(operation.body.createPassiveSellOfferOp.amount.toString()).toBe(
+      "112782700",
+    );
     expect(obj.amount).toBe(amount);
     expect(obj.price).toBe(price);
   });
@@ -51,7 +52,9 @@ describe("Operation.createPassiveSellOffer()", () => {
       price,
     });
     const obj = expectOperationType(
-      Operation.fromXDRObject(xdr.Operation.fromXDR(op.toXDR("hex"), "hex")),
+      Operation.fromXDRObject(
+        xdr.Operation.fromXDR(xdr.Operation.toXDR(op, "hex"), "hex"),
+      ),
       "createPassiveSellOffer",
     );
 
@@ -70,7 +73,9 @@ describe("Operation.createPassiveSellOffer()", () => {
       price,
     });
     const obj = expectOperationType(
-      Operation.fromXDRObject(xdr.Operation.fromXDR(op.toXDR("hex"), "hex")),
+      Operation.fromXDRObject(
+        xdr.Operation.fromXDR(xdr.Operation.toXDR(op, "hex"), "hex"),
+      ),
       "createPassiveSellOffer",
     );
 
@@ -125,7 +130,9 @@ describe("Operation.createPassiveSellOffer()", () => {
       source,
     });
     const obj = expectOperationType(
-      Operation.fromXDRObject(xdr.Operation.fromXDR(op.toXDR("hex"), "hex")),
+      Operation.fromXDRObject(
+        xdr.Operation.fromXDR(xdr.Operation.toXDR(op, "hex"), "hex"),
+      ),
       "createPassiveSellOffer",
     );
 
@@ -139,8 +146,8 @@ describe("Operation.createPassiveSellOffer()", () => {
       amount,
       price: "3.07",
     });
-    const hex = op.toXDR("hex");
+    const hex = xdr.Operation.toXDR(op, "hex");
     const roundtripped = xdr.Operation.fromXDR(hex, "hex");
-    expect(roundtripped.body().switch().name).toBe("createPassiveSellOffer");
+    expect(roundtripped.body.type).toBe("createPassiveSellOffer");
   });
 });

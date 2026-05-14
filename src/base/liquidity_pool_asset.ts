@@ -1,4 +1,7 @@
-import xdr from "./xdr.js";
+import {
+  ChangeTrustAsset,
+  LiquidityPoolParameters as XdrLiquidityPoolParameters,
+} from "./generated/index.js";
 import { Asset } from "./asset.js";
 import {
   LiquidityPoolFeeV18,
@@ -47,44 +50,39 @@ export class LiquidityPoolAsset {
    *
    * @param ctAssetXdr - The asset XDR object.
    */
-  static fromOperation(ctAssetXdr: xdr.ChangeTrustAsset): LiquidityPoolAsset {
-    const assetType = ctAssetXdr.switch();
+  static fromOperation(ctAssetXdr: ChangeTrustAsset): LiquidityPoolAsset {
+    const assetType = ctAssetXdr.type;
 
-    if (assetType === xdr.AssetType.assetTypePoolShare()) {
-      const liquidityPoolParameters = ctAssetXdr
-        .liquidityPool()
-        .constantProduct();
-
+    if (assetType === "assetTypePoolShare") {
+      const liquidityPoolParameters = ctAssetXdr.liquidityPool.constantProduct;
       return new this(
-        Asset.fromOperation(liquidityPoolParameters.assetA()),
-        Asset.fromOperation(liquidityPoolParameters.assetB()),
-        liquidityPoolParameters.fee(),
+        Asset.fromOperation(liquidityPoolParameters.assetA),
+        Asset.fromOperation(liquidityPoolParameters.assetB),
+        liquidityPoolParameters.fee,
       );
     }
 
-    throw new Error(`Invalid asset type: ${assetType.name}`);
+    throw new Error(`Invalid asset type: ${assetType}`);
   }
 
   /**
-   * Returns the `xdr.ChangeTrustAsset` object for this liquidity pool asset.
+   * Returns the `ChangeTrustAsset` object for this liquidity pool asset.
    *
-   * Note: To convert from an {@link Asset `Asset`} to `xdr.ChangeTrustAsset`
+   * Note: To convert from an {@link Asset `Asset`} to `ChangeTrustAsset`
    * please refer to the
    * {@link Asset.toChangeTrustXDRObject `Asset.toChangeTrustXDRObject`} method.
    */
-  toXDRObject(): xdr.ChangeTrustAsset {
-    const lpConstantProductParamsXdr =
-      new xdr.LiquidityPoolConstantProductParameters({
-        assetA: this.assetA.toXDRObject(),
-        assetB: this.assetB.toXDRObject(),
-        fee: this.fee,
-      });
-    const lpParamsXdr =
-      xdr.LiquidityPoolParameters.liquidityPoolConstantProduct(
-        lpConstantProductParamsXdr,
-      );
+  toXDRObject(): ChangeTrustAsset {
+    const lpConstantProductParamsXdr = {
+      assetA: this.assetA.toWireXDRObject(),
+      assetB: this.assetB.toWireXDRObject(),
+      fee: this.fee,
+    };
+    const lpParamsXdr = XdrLiquidityPoolParameters.liquidityPoolConstantProduct(
+      lpConstantProductParamsXdr,
+    );
 
-    return xdr.ChangeTrustAsset.assetTypePoolShare(lpParamsXdr);
+    return ChangeTrustAsset.assetTypePoolShare(lpParamsXdr);
   }
 
   /**

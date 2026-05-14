@@ -1,5 +1,5 @@
 import { OperationAttributes } from "../operations/types.js";
-import xdr from "../xdr.js";
+import { Int64, Price } from "../generated/index.js";
 import { best_r } from "./continued_fraction.js";
 import { decodeAddressToMuxedAccount } from "./decode_encode_muxed_account.js";
 import type { BigNumber } from "./bignumber.js";
@@ -69,9 +69,9 @@ export function checkUnsignedIntValue(
  *
  * @param value - the amount as a string
  */
-export function toXDRAmount(value: string): xdr.Int64 {
+export function toXDRAmount(value: string): Int64 {
   const amount = new CustomBigNumber(value).times(ONE);
-  return xdr.Int64.fromString(amount.toString());
+  return BigInt(amount.toString());
 }
 
 /**
@@ -79,7 +79,7 @@ export function toXDRAmount(value: string): xdr.Int64 {
  *
  * @param value - the XDR amount
  */
-export function fromXDRAmount(value: xdr.Int64): string {
+export function fromXDRAmount(value: Int64): string {
   return new CustomBigNumber(value.toString()).div(ONE).toFixed(7);
 }
 
@@ -88,9 +88,9 @@ export function fromXDRAmount(value: xdr.Int64): string {
  *
  * @param price - the XDR price object
  */
-export function fromXDRPrice(price: xdr.Price): string {
-  const n = new CustomBigNumber(price.n());
-  return n.div(new CustomBigNumber(price.d())).toString();
+export function fromXDRPrice(price: Price): string {
+  const n = new CustomBigNumber(price.n);
+  return n.div(new CustomBigNumber(price.d)).toString();
 }
 
 /**
@@ -100,24 +100,24 @@ export function fromXDRPrice(price: xdr.Price): string {
  */
 export function toXDRPrice(
   price: BigNumber | number | string | { n: number; d: number },
-): xdr.Price {
-  let xdrObject: xdr.Price;
+): Price {
+  let xdrObject: Price;
 
   if (typeof price === "object" && "n" in price && "d" in price) {
-    xdrObject = new xdr.Price(price);
+    xdrObject = price;
   } else {
     const priceBN = new CustomBigNumber(price);
     if (!priceBN.gt(0) || !priceBN.isFinite()) {
       throw new Error("price must be positive");
     }
     const approx = best_r(price);
-    xdrObject = new xdr.Price({
+    xdrObject = {
       n: parseInt(String(approx[0]), 10),
       d: parseInt(String(approx[1]), 10),
-    });
+    };
   }
 
-  if (xdrObject.n() < 0 || xdrObject.d() <= 0) {
+  if (xdrObject.n < 0 || xdrObject.d <= 0) {
     throw new Error("price must be positive");
   }
 

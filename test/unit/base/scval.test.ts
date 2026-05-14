@@ -1,12 +1,11 @@
 import { describe, it, expect } from "vitest";
 
 import {
-  ScInt,
   Address,
+  expectUnionArm,
   Keypair,
-  XdrLargeInt,
   scValToBigInt,
-} from "../../../src/base/index.js";
+} from "../../../src/index.js";
 import { Contract } from "../../../src/base/contract.js";
 import xdr from "../../../src/base/xdr.js";
 import {
@@ -23,14 +22,14 @@ describe("parsing and building ScVals - from scval_test.js", () => {
     void: null,
     u32: xdr.ScVal.scvU32(1),
     i32: xdr.ScVal.scvI32(1),
-    u64: 1n,
-    i64: -1n,
-    timepoint: new ScInt(1443571200n).toTimepoint(),
-    duration: new ScInt(1000n).toDuration(),
-    u128: new ScInt(1).toU128(),
-    i128: new ScInt(1).toI128(),
-    u256: new ScInt(1).toU256(),
-    i256: new ScInt(1).toI256(),
+    u64: xdr.ScVal.scvU64(1n),
+    i64: xdr.ScVal.scvI64(-1n),
+    timepoint: xdr.ScVal.scvTimepoint(1443571200n),
+    duration: xdr.ScVal.scvDuration(1000n),
+    u128: xdr.ScVal.scvU128(1n),
+    i128: xdr.ScVal.scvI128(1n),
+    u256: xdr.ScVal.scvU256(1n),
+    i256: xdr.ScVal.scvI256(1n),
     map: {
       arbitrary: 1n,
       nested: "values",
@@ -39,37 +38,37 @@ describe("parsing and building ScVals - from scval_test.js", () => {
     vec: ["same", "type", "list"],
   };
 
-  const targetScv = xdr.ScVal.scvMap(
+  const targetScv: xdr.ScVal = xdr.ScVal.scvMap(
     (
       [
         ["bool", xdr.ScVal.scvBool(true)],
-        ["duration", new ScInt(1000n, { type: "duration" }).toScVal()],
-        ["i128", new ScInt(1, { type: "i128" }).toScVal()],
-        ["i256", new ScInt(1, { type: "i256" }).toScVal()],
+        ["duration", xdr.ScVal.scvDuration(1000n)],
+        ["i128", xdr.ScVal.scvI128(1n)],
+        ["i256", xdr.ScVal.scvI256(1n)],
         ["i32", xdr.ScVal.scvI32(1)],
-        ["i64", xdr.ScVal.scvI64(new xdr.Int64(-1))],
+        ["i64", xdr.ScVal.scvI64(BigInt(-1))],
         [
           "map",
           xdr.ScVal.scvMap([
-            new xdr.ScMapEntry({
+            {
               key: xdr.ScVal.scvString("arbitrary"),
-              val: xdr.ScVal.scvU64(new xdr.Uint64(1)),
-            }),
-            new xdr.ScMapEntry({
+              val: xdr.ScVal.scvU64(BigInt(1)),
+            },
+            {
               key: xdr.ScVal.scvString("etc"),
               val: xdr.ScVal.scvBool(false),
-            }),
-            new xdr.ScMapEntry({
+            },
+            {
               key: xdr.ScVal.scvString("nested"),
               val: xdr.ScVal.scvString("values"),
-            }),
+            },
           ]),
         ],
-        ["timepoint", new ScInt(1443571200n, { type: "timepoint" }).toScVal()],
-        ["u128", new ScInt(1, { type: "u128" }).toScVal()],
-        ["u256", new ScInt(1, { type: "u256" }).toScVal()],
+        ["timepoint", xdr.ScVal.scvTimepoint(1443571200n)],
+        ["u128", xdr.ScVal.scvU128(1n)],
+        ["u256", xdr.ScVal.scvU256(1n)],
         ["u32", xdr.ScVal.scvU32(1)],
-        ["u64", xdr.ScVal.scvU64(new xdr.Uint64(1))],
+        ["u64", xdr.ScVal.scvU64(BigInt(1))],
         [
           "vec",
 
@@ -78,32 +77,38 @@ describe("parsing and building ScVals - from scval_test.js", () => {
         ["void", xdr.ScVal.scvVoid()],
       ] as const
     ).map(([type, scv]) => {
-      return new xdr.ScMapEntry({
+      return {
         key: xdr.ScVal.scvString(type),
         val: scv,
-      });
+      };
     }),
   );
 
   it("builds an ScVal from all intended native types", () => {
     const scv = nativeToScVal(gigaMap);
-
+    if (scv.type !== "scvMap") {
+      expect.fail(`Expected scvMap, got ${scv.type}`);
+    }
+    if (targetScv.type !== "scvMap") {
+      expect.fail(`Expected scvMap, got ${targetScv.type}`);
+    }
+    if (!scv.map || !targetScv.map) {
+      expect.fail("Expected scvMap to have a map property");
+    }
     // test case expectation sanity check
-    expect((targetScv.value() as any[]).length).toBe(
-      Object.keys(gigaMap).length,
-    );
-    expect(scv.switch().name).toBe("scvMap");
-    expect((scv.value() as any[]).length).toBe(
-      (targetScv.value() as any[]).length,
-    );
+    expect(targetScv.map.length).toBe(Object.keys(gigaMap).length);
+    expect(scv.type).toBe("scvMap");
+    expect(scv.map.length).toBe(targetScv.map.length);
 
     // iterate for granular errors on failures
-    (targetScv.value() as any[]).forEach((entry: any, idx: number) => {
-      const actual = (scv.value() as any[])[idx];
+    targetScv.map.forEach((entry, idx: number) => {
+      const actual = scv.map![idx];
       expect(actual).toEqual(entry);
     });
 
-    expect(scv.toXDR("base64")).toEqual(targetScv.toXDR("base64"));
+    expect(xdr.ScVal.toXDR(scv, "base64")).toEqual(
+      xdr.ScVal.toXDR(targetScv, "base64"),
+    );
   });
 
   it("converts ScVal to intended native types", () => {
@@ -117,14 +122,14 @@ describe("parsing and building ScVals - from scval_test.js", () => {
         [xdr.ScVal.scvBool(false), false],
         [xdr.ScVal.scvU32(1), 1],
         [xdr.ScVal.scvI32(1), 1],
-        [new ScInt(11).toU64(), 11n],
-        [new ScInt(11).toI64(), 11n],
-        [new ScInt(22).toU128(), 22n],
-        [new ScInt(22).toI128(), 22n],
-        [new ScInt(33).toU256(), 33n],
-        [new ScInt(33).toI256(), 33n],
-        [xdr.ScVal.scvTimepoint(new xdr.Uint64(44n)), 44n],
-        [xdr.ScVal.scvDuration(new xdr.Uint64(55n)), 55n],
+        [xdr.ScVal.scvU64(11n), 11n],
+        [xdr.ScVal.scvI64(11n), 11n],
+        [xdr.ScVal.scvU128(22n), 22n],
+        [xdr.ScVal.scvI128(22n), 22n],
+        [xdr.ScVal.scvU256(33n), 33n],
+        [xdr.ScVal.scvI256(33n), 33n],
+        [xdr.ScVal.scvTimepoint(44n), 44n],
+        [xdr.ScVal.scvDuration(55n), 55n],
         [
           xdr.ScVal.scvBytes(Buffer.alloc(32, 123)),
           Buffer.from("{".repeat(32)),
@@ -135,8 +140,8 @@ describe("parsing and building ScVals - from scval_test.js", () => {
         ],
         [xdr.ScVal.scvString("hello there!"), "hello there!"],
         [xdr.ScVal.scvSymbol("hello"), "hello"],
-        [xdr.ScVal.scvString(Buffer.from("hello")), "hello"],
-        [xdr.ScVal.scvSymbol(Buffer.from("hello")), "hello"],
+        [xdr.ScVal.scvString("hello"), "hello"],
+        [xdr.ScVal.scvSymbol("hello"), "hello"],
         [
           new Address(kp.publicKey()).toScVal(),
           (actual: any) => actual.toString() === kp.publicKey(),
@@ -148,14 +153,15 @@ describe("parsing and building ScVals - from scval_test.js", () => {
         [
           xdr.ScVal.scvMap(
             [
-              [new ScInt(0).toI256(), xdr.ScVal.scvBool(true)],
+              [xdr.ScVal.scvI256(0n), xdr.ScVal.scvBool(true)],
               [xdr.ScVal.scvBool(false), xdr.ScVal.scvString("second")],
               [
                 xdr.ScVal.scvU32(2),
-
                 xdr.ScVal.scvVec(inputVec.map(xdr.ScVal.scvString)),
               ],
-            ].map(([key, val]: any) => new xdr.ScMapEntry({ key, val })),
+            ].map(([key, val]) => {
+              return { key, val };
+            }),
           ),
           {
             0: true,
@@ -165,7 +171,7 @@ describe("parsing and building ScVals - from scval_test.js", () => {
         ],
       ] as const
     ).forEach(([scv, expected]) => {
-      expect(() => scv.toXDR()).not.toThrow();
+      expect(() => xdr.ScVal.toXDR(scv)).not.toThrow();
 
       const actual = scValToNative(scv);
 
@@ -196,15 +202,15 @@ describe("parsing and building ScVals - from scval_test.js", () => {
       ] as const
     ).forEach(([input, typeSpec, outType]) => {
       const scv = nativeToScVal(input, { type: typeSpec });
-      expect(scv.switch().name).toBe(outType);
+      expect(scv.type).toBe(outType);
     });
 
     let scv;
 
     scv = nativeToScVal(["a", "b", "c"], { type: "symbol" });
-    expect(scv.switch().name).toBe("scvVec");
-    (scv.value() as any[]).forEach((v: any) => {
-      expect(v.switch().name).toBe("scvSymbol");
+    const vec = expectDefined(expectUnionArm(scv, "scvVec").vec);
+    vec.forEach((v: any) => {
+      expect(v.type).toBe("scvSymbol");
     });
 
     scv = nativeToScVal(
@@ -219,32 +225,38 @@ describe("parsing and building ScVals - from scval_test.js", () => {
         },
       },
     );
-    let e;
-    expect(scv.switch().name).toBe("scvMap");
+    let e: xdr.ScMapEntry;
+    const map = expectDefined(expectUnionArm(scv, "scvMap").map);
 
-    e = (scv.value() as any[])[0];
-    expect(e.key().switch().name).toBe("scvSymbol");
-    expect(e.val().switch().name).toBe("scvString");
+    e = map[0];
+    expectUnionArm(e.key, "scvSymbol");
+    expectUnionArm(e.val, "scvString");
 
-    e = (scv.value() as any[])[1];
-    expect(e.key().switch().name).toBe("scvString");
-    expect(e.val().switch().name).toBe("scvVec");
-    expect(e.val().value()[0].switch().name).toBe("scvI32");
+    e = map[1];
+    expectUnionArm(e.key, "scvString");
+    const innerVec = expectDefined(expectUnionArm(e.val, "scvVec").vec);
+    expectUnionArm(innerVec[0], "scvI32");
   });
 
   it("doesnt throw on arrays with mixed types", () => {
-    expect(nativeToScVal([1, "a", false]).switch().name).toBe("scvVec");
+    expect(nativeToScVal([1, "a", false]).type).toBe("scvVec");
   });
 
   it("allows type specifications across an array", () => {
     const scv = nativeToScVal([1, "a", false, "b"], {
       type: ["i128", "symbol"],
     });
-    expect(scv.switch().name).toBe("scvVec");
-    expect((scv.value() as any[]).length).toBe(4);
+    expect(scv.type).toBe("scvVec");
+    if (scv.type !== "scvVec") {
+      expect.fail(`Expected scvVec, got ${scv.type}`);
+    }
+    if (!scv.vec) {
+      expect.fail("Expected vec to be defined");
+    }
+    expect(scv.vec.length).toBe(4);
     ["scvI128", "scvSymbol", "scvBool", "scvString"].forEach(
       (expectedType, idx) => {
-        expect((scv.value() as any[])[idx].switch().name).toBe(expectedType);
+        expect(scv.vec![idx].type).toBe(expectedType);
       },
     );
   });
@@ -252,10 +264,14 @@ describe("parsing and building ScVals - from scval_test.js", () => {
   it("lets strings be small integer ScVals", () => {
     (["i32", "u32"] as const).forEach((type) => {
       const scv = nativeToScVal("12345", { type });
-      expect(scv.switch()).toEqual(
-        type === "u32" ? xdr.ScValType.scvU32() : xdr.ScValType.scvI32(),
-      );
-      expect(scv.value()).toBe(12345);
+      expect(scv.type).toEqual(type === "u32" ? "scvU32" : "scvI32");
+      if (scv.type === "scvU32") {
+        expect(scv.u32).toBe(12345);
+      } else if (scv.type === "scvI32") {
+        expect(scv.i32).toBe(12345);
+      } else {
+        expect.fail(`Unexpected scv type: ${scv.type}`);
+      }
     });
   });
 
@@ -269,16 +285,21 @@ describe("parsing and building ScVals - from scval_test.js", () => {
       const scv = nativeToScVal(addr, { type: "address" });
       const equiv = new Address(addr).toScVal();
 
-      expect(scv.switch().name).toBe("scvAddress");
+      expect(scv.type).toBe("scvAddress");
       expect(scv).toEqual(equiv);
     });
   });
 
   it("parses errors", () => {
     const userErr = xdr.ScVal.scvError(xdr.ScError.sceContract(1234));
-    const systemErr = xdr.ScVal.scvError(
-      xdr.ScError.sceWasmVm(xdr.ScErrorCode.scecInvalidInput()),
-    );
+    const wasmError: xdr.ScError = {
+      type: "sceWasmVm",
+      code: "scecInvalidInput",
+    };
+    const systemErr: xdr.ScVal = {
+      type: "scvError",
+      error: wasmError,
+    };
 
     const native = scValToNative(xdr.ScVal.scvVec([userErr, systemErr]));
 
@@ -286,8 +307,8 @@ describe("parsing and building ScVals - from scval_test.js", () => {
       { type: "contract", code: 1234 },
       {
         type: "system",
-        code: systemErr.error().code().value,
-        value: systemErr.error().code().name,
+        code: xdr.ScError.toXDRObject(systemErr.error).type,
+        value: wasmError.code,
       },
     ]);
   });
@@ -303,61 +324,43 @@ describe("parsing and building ScVals - from scval_test.js", () => {
         },
       },
     );
-    const sampleValue = sample.value() as any[];
+
+    if (sample.type !== "scvMap") {
+      expect.fail(`Expected scvMap, got ${sample.type}`);
+    }
+
+    const sampleValue = sample.map;
+    if (!sampleValue) {
+      expect.fail("Expected scvMap to have a map property");
+    }
 
     ["a", "b", "c"].forEach((val, idx) => {
-      expect(sampleValue[idx].key().value()).toBe(val);
+      const key = expectUnionArm(sampleValue[idx].key, "scvSymbol").sym;
+      expect(key).toBe(val);
     });
 
     // nativeToScVal will sort, so we need to "unsort" to make sure it works.
     // We'll do this by swapping 0 (a) and 2 (c).
     const tmp = sampleValue[0];
-    sampleValue[0] = sampleValue[2];
-    sampleValue[2] = tmp;
+    (sampleValue as any)[0] = sampleValue[2];
+    (sampleValue as any)[2] = tmp;
 
     ["c", "b", "a"].forEach((val, idx) => {
-      expect(sampleValue[idx].key().value()).toBe(val);
+      const key = expectUnionArm(sampleValue[idx].key, "scvSymbol").sym;
+      expect(key).toBe(val);
     });
 
-    const sorted = xdr.scvSortedMap(sampleValue as xdr.ScMapEntry[]);
-    expect(sorted.switch().name).toBe("scvMap");
+    const sorted = scvSortedMap(sampleValue as xdr.ScMapEntry[]);
+    expect(sorted.type).toBe("scvMap");
+    if (sorted.type !== "scvMap") {
+      expect.fail(`Expected scvMap, got ${sorted.type}`);
+    }
+    if (!sorted.map) {
+      expect.fail("Expected scvMap to have a map property");
+    }
     ["a", "b", "c"].forEach((val, idx) => {
-      expect((sorted.value() as any[])[idx].key().value()).toBe(val);
-    });
-  });
-
-  it("can sort number-like maps", () => {
-    const sample = nativeToScVal(
-      { 1: "a", 2: "b", 3: "c" },
-      {
-        type: {
-          1: ["i64", "symbol"],
-          2: ["i64", "symbol"],
-          3: ["i64", "symbol"],
-        },
-      },
-    );
-    expect((sample.value() as any[])[0].key().switch().name).toBe("scvI64");
-
-    [1n, 2n, 3n].forEach((val, idx) => {
-      const underlyingKey = (sample.value() as any[])[idx].key().value();
-      expect(underlyingKey.toBigInt()).toBe(val);
-    });
-
-    // nativeToScVal will sort, so we need to "unsort" to make sure it works.
-    // We'll do this by swapping 0th (1n) and 2nd (3n).
-    const tmp = (sample.value() as any[])[0];
-    (sample.value() as any[])[0] = (sample.value() as any[])[2];
-    (sample.value() as any[])[2] = tmp;
-
-    [3n, 2n, 1n].forEach((val, idx) => {
-      expect((sample.value() as any[])[idx].key().value().toBigInt()).toBe(val);
-    });
-
-    const sorted = xdr.scvSortedMap(sample.value() as xdr.ScMapEntry[]);
-    expect(sorted.switch().name).toBe("scvMap");
-    [1n, 2n, 3n].forEach((val, idx) => {
-      expect((sorted.value() as any[])[idx].key().value().toBigInt()).toBe(val);
+      const key = expectUnionArm(sorted.map![idx].key, "scvSymbol").sym;
+      expect(key).toBe(val);
     });
   });
 });
@@ -368,33 +371,34 @@ describe("parsing and building ScVals - from scval_test.js", () => {
 describe("nativeToScVal", () => {
   it("converts number to u32", () => {
     const scv = nativeToScVal(42, { type: "u32" });
-    expect(scv.switch().name).toBe("scvU32");
-    expect(scv.value()).toBe(42);
+    const u32 = expectUnionArm(scv, "scvU32").u32;
+
+    expect(u32).toBe(42);
   });
 
   it("converts number to i32", () => {
     const scv = nativeToScVal(-5, { type: "i32" });
-    expect(scv.switch().name).toBe("scvI32");
-    expect(scv.value()).toBe(-5);
+    const i32 = expectUnionArm(scv, "scvI32").i32;
+    expect(i32).toBe(-5);
   });
 
   it("converts number to i32 with zero", () => {
     const scv = nativeToScVal(0, { type: "i32" });
-    expect(scv.switch().name).toBe("scvI32");
-    expect(scv.value()).toBe(0);
+    const i32 = expectUnionArm(scv, "scvI32").i32;
+    expect(i32).toBe(0);
   });
 
   it("converts number to u32 with zero", () => {
     const scv = nativeToScVal(0, { type: "u32" });
-    expect(scv.switch().name).toBe("scvU32");
-    expect(scv.value()).toBe(0);
+    const u32 = expectUnionArm(scv, "scvU32").u32;
+    expect(u32).toBe(0);
   });
 
   it("falls through to ScInt for large int types", () => {
     (["i64", "u64", "i128", "u128", "i256", "u256"] as const).forEach(
       (type) => {
         const scv = nativeToScVal(999, { type });
-        expect(XdrLargeInt.getType(scv.switch().name)).toBe(type);
+        expect(scv.type).toBe("scv" + type.toUpperCase());
         expect(scValToBigInt(scv)).toBe(999n);
       },
     );
@@ -402,30 +406,31 @@ describe("nativeToScVal", () => {
 
   it("falls through to ScInt for timepoint and duration", () => {
     const tp = nativeToScVal(1000, { type: "timepoint" });
-    expect(tp.switch().name).toBe("scvTimepoint");
+    expect(tp.type).toBe("scvTimepoint");
     expect(scValToNative(tp)).toBe(1000n);
 
     const dur = nativeToScVal(500, { type: "duration" });
-    expect(dur.switch().name).toBe("scvDuration");
+    expect(dur.type).toBe("scvDuration");
     expect(scValToNative(dur)).toBe(500n);
   });
 
   it("auto-selects type when no hint is given", () => {
     const scv = nativeToScVal(42);
     // Without a hint, ScInt picks the smallest fitting type
+
     expect(scValToBigInt(scv)).toBe(42n);
   });
 
   it("converts bigint to u32 (truncates to Number)", () => {
     const scv = nativeToScVal(100n, { type: "u32" });
-    expect(scv.switch().name).toBe("scvU32");
-    expect(scv.value()).toBe(100);
+    const u32 = expectUnionArm(scv, "scvU32").u32;
+    expect(u32).toBe(100);
   });
 
   it("converts bigint to i32 (truncates to Number)", () => {
     const scv = nativeToScVal(-50n, { type: "i32" });
-    expect(scv.switch().name).toBe("scvI32");
-    expect(scv.value()).toBe(-50);
+    const i32 = expectUnionArm(scv, "scvI32").i32;
+    expect(i32).toBe(-50);
   });
 
   it("converts bigint without type hint", () => {
@@ -450,23 +455,23 @@ describe("nativeToScVal", () => {
 describe("nativeToScVal", () => {
   it("defaults to scvString when no type is given", () => {
     const scv = nativeToScVal("hello");
-    expect(scv.switch().name).toBe("scvString");
+    expect(scv.type).toBe("scvString");
   });
 
   it("converts to scvString explicitly", () => {
     const scv = nativeToScVal("world", { type: "string" });
-    expect(scv.switch().name).toBe("scvString");
+    expect(scv.type).toBe("scvString");
   });
 
   it("converts to scvSymbol", () => {
     const scv = nativeToScVal("mySymbol", { type: "symbol" });
-    expect(scv.switch().name).toBe("scvSymbol");
+    expect(scv.type).toBe("scvSymbol");
   });
 
   it("converts to scvAddress from public key string", () => {
     const kp = Keypair.random();
     const scv = nativeToScVal(kp.publicKey(), { type: "address" });
-    expect(scv.switch().name).toBe("scvAddress");
+    expect(scv.type).toBe("scvAddress");
   });
 
   it("converts to scvAddress from contract id string", () => {
@@ -474,26 +479,26 @@ describe("nativeToScVal", () => {
       "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM",
       { type: "address" },
     );
-    expect(scv.switch().name).toBe("scvAddress");
+    expect(scv.type).toBe("scvAddress");
   });
 
   it("converts numeric string to u32", () => {
     const scv = nativeToScVal("42", { type: "u32" });
-    expect(scv.switch().name).toBe("scvU32");
-    expect(scv.value()).toBe(42);
+    const u32 = expectUnionArm(scv, "scvU32").u32;
+    expect(u32).toBe(42);
   });
 
   it("converts numeric string to i32", () => {
     const scv = nativeToScVal("-10", { type: "i32" });
-    expect(scv.switch().name).toBe("scvI32");
-    expect(scv.value()).toBe(-10);
+    const i32 = expectUnionArm(scv, "scvI32").i32;
+    expect(i32).toBe(-10);
   });
 
   it("converts numeric string to large int types", () => {
     (["i64", "u64", "i128", "u128", "i256", "u256"] as const).forEach(
       (type) => {
         const scv = nativeToScVal("99999", { type });
-        expect(XdrLargeInt.getType(scv.switch().name)).toBe(type);
+        expect(scv.type).toBe("scv" + type.toUpperCase());
         expect(scValToBigInt(scv)).toBe(99999n);
       },
     );
@@ -501,12 +506,12 @@ describe("nativeToScVal", () => {
 
   it("converts numeric string to timepoint", () => {
     const scv = nativeToScVal("1000", { type: "timepoint" });
-    expect(scv.switch().name).toBe("scvTimepoint");
+    expect(scv.type).toBe("scvTimepoint");
   });
 
   it("converts numeric string to duration", () => {
     const scv = nativeToScVal("500", { type: "duration" });
-    expect(scv.switch().name).toBe("scvDuration");
+    expect(scv.type).toBe("scvDuration");
   });
 
   it("throws on non-numeric string with integer type hint", () => {
@@ -521,12 +526,12 @@ describe("nativeToScVal", () => {
 
   it("handles empty string", () => {
     const scv = nativeToScVal("");
-    expect(scv.switch().name).toBe("scvString");
+    expect(scv.type).toBe("scvString");
   });
 
   it("handles empty string as symbol", () => {
     const scv = nativeToScVal("", { type: "symbol" });
-    expect(scv.switch().name).toBe("scvSymbol");
+    expect(scv.type).toBe("scvSymbol");
   });
 });
 
@@ -536,22 +541,22 @@ describe("nativeToScVal", () => {
 describe("nativeToScVal", () => {
   it("defaults to scvBytes when no type is given", () => {
     const scv = nativeToScVal(new Uint8Array([1, 2, 3]));
-    expect(scv.switch().name).toBe("scvBytes");
+    expect(scv.type).toBe("scvBytes");
   });
 
   it("converts to scvBytes explicitly", () => {
     const scv = nativeToScVal(Buffer.from("abc"), { type: "bytes" });
-    expect(scv.switch().name).toBe("scvBytes");
+    expect(scv.type).toBe("scvBytes");
   });
 
   it("converts to scvSymbol", () => {
     const scv = nativeToScVal(Buffer.from("abc"), { type: "symbol" });
-    expect(scv.switch().name).toBe("scvSymbol");
+    expect(scv.type).toBe("scvSymbol");
   });
 
   it("converts to scvString", () => {
     const scv = nativeToScVal(Buffer.from("abc"), { type: "string" });
-    expect(scv.switch().name).toBe("scvString");
+    expect(scv.type).toBe("scvString");
   });
 
   it("throws on invalid type hint", () => {
@@ -562,15 +567,16 @@ describe("nativeToScVal", () => {
 
   it("handles empty Uint8Array", () => {
     const scv = nativeToScVal(new Uint8Array(0));
-    expect(scv.switch().name).toBe("scvBytes");
+    expect(scv.type).toBe("scvBytes");
   });
 
   it("makes a copy of the input buffer", () => {
     const original = Buffer.from([1, 2, 3]);
     const scv = nativeToScVal(original, { type: "bytes" });
     // Mutate original — the ScVal should be unaffected
+    const scvBytes = expectUnionArm(scv, "scvBytes").bytes;
     original[0] = 99;
-    expect((scv.value() as Buffer)[0]).toBe(1);
+    expect(scvBytes[0]).toBe(1);
   });
 });
 
@@ -582,7 +588,7 @@ describe("nativeToScVal", () => {
     const kp = Keypair.random();
     const addr = new Address(kp.publicKey());
     const scv = nativeToScVal(addr, { type: "address" });
-    expect(scv.switch().name).toBe("scvAddress");
+    expect(scv.type).toBe("scvAddress");
   });
 
   it("converts Contract instance", () => {
@@ -590,29 +596,31 @@ describe("nativeToScVal", () => {
       "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM",
     );
     const scv = nativeToScVal(contract, { type: "address" });
-    expect(scv.switch().name).toBe("scvAddress");
+    expect(scv.type).toBe("scvAddress");
   });
 
   it("converts Keypair instance", () => {
     const kp = Keypair.random();
     const scv = nativeToScVal(kp, { type: "address" });
-    expect(scv.switch().name).toBe("scvAddress");
+    expect(scv.type).toBe("scvAddress");
     // Verify it resolves to the same address as the public key
     const equiv = new Address(kp.publicKey()).toScVal();
-    expect(scv.toXDR("base64")).toBe(equiv.toXDR("base64"));
+    expect(xdr.ScVal.toXDR(scv, "base64")).toBe(
+      xdr.ScVal.toXDR(equiv, "base64"),
+    );
   });
 
   it("converts string (public key)", () => {
     const kp = Keypair.random();
     const scv = nativeToScVal(kp.publicKey(), { type: "address" });
-    expect(scv.switch().name).toBe("scvAddress");
+    expect(scv.type).toBe("scvAddress");
   });
 
   it("converts string (contract id)", () => {
     const contractId =
       "CA3D5KRYM6CB7OWQ6TWYRR3Z4T7GNZLKERYNZGGA5SOAOPIFY6YQGAXE";
     const scv = nativeToScVal(contractId, { type: "address" });
-    expect(scv.switch().name).toBe("scvAddress");
+    expect(scv.type).toBe("scvAddress");
   });
 
   it("throws on invalid address string", () => {
@@ -628,25 +636,26 @@ describe("nativeToScVal", () => {
 describe("nativeToScVal", () => {
   describe("null / undefined / void", () => {
     it("converts null to scvVoid", () => {
-      expect(nativeToScVal(null).switch().name).toBe("scvVoid");
+      expect(nativeToScVal(null).type).toBe("scvVoid");
     });
 
     it("converts undefined to scvVoid", () => {
-      expect(nativeToScVal(undefined).switch().name).toBe("scvVoid");
+      expect(nativeToScVal(undefined).type).toBe("scvVoid");
     });
   });
 
   describe("booleans", () => {
     it("converts true to scvBool", () => {
       const scv = nativeToScVal(true);
-      expect(scv.switch().name).toBe("scvBool");
-      expect(scv.value()).toBe(true);
+
+      const bool = expectUnionArm(scv, "scvBool").b;
+      expect(bool).toBe(true);
     });
 
     it("converts false to scvBool", () => {
       const scv = nativeToScVal(false);
-      expect(scv.switch().name).toBe("scvBool");
-      expect(scv.value()).toBe(false);
+      const bool = expectUnionArm(scv, "scvBool").b;
+      expect(bool).toBe(false);
     });
   });
 
@@ -668,36 +677,36 @@ describe("nativeToScVal", () => {
 
     it("converts number with u32 hint", () => {
       const scv = nativeToScVal(42, { type: "u32" });
-      expect(scv.switch().name).toBe("scvU32");
-      expect(scv.value()).toBe(42);
+      const u32 = expectUnionArm(scv, "scvU32").u32;
+      expect(u32).toBe(42);
     });
 
     it("converts number with i32 hint", () => {
       const scv = nativeToScVal(-5, { type: "i32" });
-      expect(scv.switch().name).toBe("scvI32");
-      expect(scv.value()).toBe(-5);
+      const i32 = expectUnionArm(scv, "scvI32").i32;
+      expect(i32).toBe(-5);
     });
 
     it("converts number with i128 hint", () => {
       const scv = nativeToScVal(999, { type: "i128" });
-      expect(scv.switch().name).toBe("scvI128");
+      expect(scv.type).toBe("scvI128");
       expect(scValToBigInt(scv)).toBe(999n);
     });
 
     it("converts number with u256 hint", () => {
       const scv = nativeToScVal(1, { type: "u256" });
-      expect(scv.switch().name).toBe("scvU256");
+      expect(scv.type).toBe("scvU256");
       expect(scValToBigInt(scv)).toBe(1n);
     });
 
     it("converts number with timepoint hint", () => {
       const scv = nativeToScVal(1443571200, { type: "timepoint" });
-      expect(scv.switch().name).toBe("scvTimepoint");
+      expect(scv.type).toBe("scvTimepoint");
     });
 
     it("converts number with duration hint", () => {
       const scv = nativeToScVal(3600, { type: "duration" });
-      expect(scv.switch().name).toBe("scvDuration");
+      expect(scv.type).toBe("scvDuration");
     });
   });
 
@@ -731,7 +740,7 @@ describe("nativeToScVal", () => {
 
     it("converts bigint with explicit i128 hint", () => {
       const scv = nativeToScVal(42n, { type: "i128" });
-      expect(scv.switch().name).toBe("scvI128");
+      expect(scv.type).toBe("scvI128");
       expect(scValToBigInt(scv)).toBe(42n);
     });
   });
@@ -739,30 +748,30 @@ describe("nativeToScVal", () => {
   describe("strings", () => {
     it("converts string to scvString by default", () => {
       const scv = nativeToScVal("hello");
-      expect(scv.switch().name).toBe("scvString");
+      expect(scv.type).toBe("scvString");
     });
 
     it("converts string to scvSymbol", () => {
       const scv = nativeToScVal("hello", { type: "symbol" });
-      expect(scv.switch().name).toBe("scvSymbol");
+      expect(scv.type).toBe("scvSymbol");
     });
 
     it("converts string to address", () => {
       const kp = Keypair.random();
       const scv = nativeToScVal(kp.publicKey(), { type: "address" });
-      expect(scv.switch().name).toBe("scvAddress");
+      expect(scv.type).toBe("scvAddress");
     });
 
     it("converts numeric string to u32", () => {
       const scv = nativeToScVal("42", { type: "u32" });
-      expect(scv.switch().name).toBe("scvU32");
-      expect(scv.value()).toBe(42);
+      const u32 = expectUnionArm(scv, "scvU32").u32;
+      expect(u32).toBe(42);
     });
 
     it("converts numeric string to i32", () => {
       const scv = nativeToScVal("-7", { type: "i32" });
-      expect(scv.switch().name).toBe("scvI32");
-      expect(scv.value()).toBe(-7);
+      const i32 = expectUnionArm(scv, "scvI32").i32;
+      expect(i32).toBe(-7);
     });
 
     it("converts numeric string to i64", () => {
@@ -786,34 +795,34 @@ describe("nativeToScVal", () => {
 
     it("handles empty string", () => {
       const scv = nativeToScVal("");
-      expect(scv.switch().name).toBe("scvString");
+      expect(scv.type).toBe("scvString");
     });
   });
 
   describe("Uint8Array / Buffer", () => {
     it("converts Uint8Array to scvBytes by default", () => {
       const scv = nativeToScVal(new Uint8Array([1, 2, 3]));
-      expect(scv.switch().name).toBe("scvBytes");
+      expect(scv.type).toBe("scvBytes");
     });
 
     it("converts Buffer to scvBytes by default", () => {
       const scv = nativeToScVal(Buffer.from("hello"));
-      expect(scv.switch().name).toBe("scvBytes");
+      expect(scv.type).toBe("scvBytes");
     });
 
     it("converts Buffer to scvString with hint", () => {
       const scv = nativeToScVal(Buffer.from("hello"), { type: "string" });
-      expect(scv.switch().name).toBe("scvString");
+      expect(scv.type).toBe("scvString");
     });
 
     it("converts Buffer to scvSymbol with hint", () => {
       const scv = nativeToScVal(Buffer.from("hello"), { type: "symbol" });
-      expect(scv.switch().name).toBe("scvSymbol");
+      expect(scv.type).toBe("scvSymbol");
     });
 
     it("handles empty Uint8Array", () => {
       const scv = nativeToScVal(new Uint8Array(0));
-      expect(scv.switch().name).toBe("scvBytes");
+      expect(scv.type).toBe("scvBytes");
     });
   });
 
@@ -843,7 +852,7 @@ describe("nativeToScVal", () => {
       const kp = Keypair.random();
       const addr = new Address(kp.publicKey());
       const scv = nativeToScVal(addr);
-      expect(scv.switch().name).toBe("scvAddress");
+      expect(scv.type).toBe("scvAddress");
     });
 
     it("converts Contract instance", () => {
@@ -851,45 +860,48 @@ describe("nativeToScVal", () => {
         "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM",
       );
       const scv = nativeToScVal(contract);
-      expect(scv.switch().name).toBe("scvAddress");
+      expect(scv.type).toBe("scvAddress");
     });
 
     it("converts Keypair instance", () => {
       const kp = Keypair.random();
       const scv = nativeToScVal(kp);
-      expect(scv.switch().name).toBe("scvAddress");
+      expect(scv.type).toBe("scvAddress");
       // Should resolve to the same address
       const addr = new Address(kp.publicKey()).toScVal();
-      expect(scv.toXDR("base64")).toBe(addr.toXDR("base64"));
+      expect(xdr.ScVal.toXDR(scv, "base64")).toBe(
+        xdr.ScVal.toXDR(addr, "base64"),
+      );
     });
   });
 
   describe("arrays", () => {
     it("converts an array of numbers to scvVec", () => {
       const scv = nativeToScVal([1, 2, 3]);
-      expect(scv.switch().name).toBe("scvVec");
-      expect((scv.value() as any[]).length).toBe(3);
+      const vec = expectDefined(expectUnionArm(scv, "scvVec").vec);
+      expect(vec.length).toBe(3);
     });
 
     it("converts an array of strings to scvVec", () => {
       const scv = nativeToScVal(["a", "b", "c"]);
-      expect(scv.switch().name).toBe("scvVec");
-      (scv.value() as any[]).forEach((v: any) => {
-        expect(v.switch().name).toBe("scvString");
+      const vec = expectDefined(expectUnionArm(scv, "scvVec").vec);
+      expect(vec.length).toBe(3);
+      vec.forEach((v: any) => {
+        expectUnionArm(v, "scvString");
       });
     });
 
     it("converts empty array to scvVec", () => {
       const scv = nativeToScVal([]);
-      expect(scv.switch().name).toBe("scvVec");
-      expect((scv.value() as any[]).length).toBe(0);
+      const vec = expectDefined(expectUnionArm(scv, "scvVec").vec);
+      expect(vec.length).toBe(0);
     });
 
     it("applies uniform type hint to all elements", () => {
       const scv = nativeToScVal([1, 2, 3], { type: "i128" });
-      expect(scv.switch().name).toBe("scvVec");
-      (scv.value() as any[]).forEach((v: any) => {
-        expect(v.switch().name).toBe("scvI128");
+      const vec = expectDefined(expectUnionArm(scv, "scvVec").vec);
+      vec.forEach((v: any) => {
+        expectUnionArm(v, "scvI128");
       });
     });
 
@@ -897,11 +909,10 @@ describe("nativeToScVal", () => {
       const scv = nativeToScVal([1, "a", 3], {
         type: ["i128", "symbol", "u32"],
       });
-      expect(scv.switch().name).toBe("scvVec");
-      const vec = scv.value() as any[];
-      expect(vec[0].switch().name).toBe("scvI128");
-      expect(vec[1].switch().name).toBe("scvSymbol");
-      expect(vec[2].switch().name).toBe("scvU32");
+      const vec = expectDefined(expectUnionArm(scv, "scvVec").vec);
+      expectUnionArm(vec[0], "scvI128");
+      expectUnionArm(vec[1], "scvSymbol");
+      expectUnionArm(vec[2], "scvU32");
     });
 
     it("falls back to default type for extra array elements beyond type hints", () => {
@@ -909,13 +920,13 @@ describe("nativeToScVal", () => {
       const scv = nativeToScVal([1, "a", false, "b"], {
         type: ["i128", "symbol"],
       });
-      const vec = scv.value() as any[];
+      const vec = expectDefined(expectUnionArm(scv, "scvVec").vec);
       expect(vec.length).toBe(4);
-      expect(vec[0].switch().name).toBe("scvI128");
-      expect(vec[1].switch().name).toBe("scvSymbol");
+      expectUnionArm(vec[0], "scvI128");
+      expectUnionArm(vec[1], "scvSymbol");
       // Elements beyond the type array fall back to default conversion
-      expect(vec[2].switch().name).toBe("scvBool");
-      expect(vec[3].switch().name).toBe("scvString");
+      expectUnionArm(vec[2], "scvBool");
+      expectUnionArm(vec[3], "scvString");
     });
 
     it("handles nested arrays", () => {
@@ -923,27 +934,26 @@ describe("nativeToScVal", () => {
         [1, 2],
         [3, 4],
       ]);
-      expect(scv.switch().name).toBe("scvVec");
-      const outer = scv.value() as any[];
+      const outer = expectDefined(expectUnionArm(scv, "scvVec").vec);
       expect(outer.length).toBe(2);
-      expect(outer[0].switch().name).toBe("scvVec");
-      expect(outer[1].switch().name).toBe("scvVec");
+      expectUnionArm(outer[0], "scvVec");
+      expectUnionArm(outer[1], "scvVec");
     });
 
     it("handles mixed-type arrays", () => {
       const scv = nativeToScVal([1, "a", false, null]);
-      expect(scv.switch().name).toBe("scvVec");
-      const vec = scv.value() as any[];
+      const vec = expectDefined(expectUnionArm(scv, "scvVec").vec);
       expect(vec.length).toBe(4);
       // number, string, bool, void
-      expect(vec[2].switch().name).toBe("scvBool");
-      expect(vec[3].switch().name).toBe("scvVoid");
+      expectUnionArm(vec[2], "scvBool");
+      expectUnionArm(vec[3], "scvVoid");
     });
 
     it("handles array containing xdr.ScVal (passthrough)", () => {
       const inner = xdr.ScVal.scvU32(999);
       const scv = nativeToScVal([inner, 1, "hello"]);
-      const vec = scv.value() as any[];
+      const vec = expectDefined(expectUnionArm(scv, "scvVec").vec);
+
       expect(vec[0]).toBe(inner);
     });
   });
@@ -951,15 +961,16 @@ describe("nativeToScVal", () => {
   describe("plain objects (maps)", () => {
     it("converts a simple object to scvMap", () => {
       const scv = nativeToScVal({ foo: 1, bar: "hello" });
-      expect(scv.switch().name).toBe("scvMap");
+      expect(scv.type).toBe("scvMap");
     });
 
     it("sorts keys alphabetically", () => {
       const scv = nativeToScVal({ z: 1, a: 2, m: 3 });
-      const entries = scv.value() as any[];
-      expect(entries[0].key().value()).toBe("a");
-      expect(entries[1].key().value()).toBe("m");
-      expect(entries[2].key().value()).toBe("z");
+      const entries = expectDefined(expectUnionArm(scv, "scvMap").map);
+
+      expect(expectUnionArm(entries[0].key, "scvString").str).toBe("a");
+      expect(expectUnionArm(entries[1].key, "scvString").str).toBe("m");
+      expect(expectUnionArm(entries[2].key, "scvString").str).toBe("z");
     });
 
     it("sorts mixed-case keys by codepoint order, not locale order", () => {
@@ -967,23 +978,22 @@ describe("nativeToScVal", () => {
       // localeCompare would give: _key, admin, Balance (case-insensitive)
       // Correct byte order: Balance, _key, admin
       const scv = nativeToScVal({ admin: 1, _key: 2, Balance: 3 });
-      const entries = scv.value() as any[];
-      expect(entries[0].key().value()).toBe("Balance");
-      expect(entries[1].key().value()).toBe("_key");
-      expect(entries[2].key().value()).toBe("admin");
+      const entries = expectDefined(expectUnionArm(scv, "scvMap").map);
+      expect(expectUnionArm(entries[0].key, "scvString").str).toBe("Balance");
+      expect(expectUnionArm(entries[1].key, "scvString").str).toBe("_key");
+      expect(expectUnionArm(entries[2].key, "scvString").str).toBe("admin");
     });
 
     it("handles empty object", () => {
       const scv = nativeToScVal({});
-      expect(scv.switch().name).toBe("scvMap");
-      expect((scv.value() as any[]).length).toBe(0);
+      const map = expectDefined(expectUnionArm(scv, "scvMap").map);
+      expect(map.length).toBe(0);
     });
 
     it("handles nested objects", () => {
       const scv = nativeToScVal({ outer: { inner: true } });
-      expect(scv.switch().name).toBe("scvMap");
-      const entries = scv.value() as any[];
-      expect(entries[0].val().switch().name).toBe("scvMap");
+      const entries = expectDefined(expectUnionArm(scv, "scvMap").map);
+      expect(expectUnionArm(entries[0].val, "scvMap").map).toBeDefined();
     });
 
     it("applies per-key type hints for keys and values", () => {
@@ -996,12 +1006,12 @@ describe("nativeToScVal", () => {
           },
         },
       );
-      const entries = scv.value() as any[];
+      const entries = expectDefined(expectUnionArm(scv, "scvMap").map);
       // Sorted: hello, world
-      expect(entries[0].key().switch().name).toBe("scvSymbol");
-      expect(entries[0].val().switch().name).toBe("scvU32");
-      expect(entries[1].key().switch().name).toBe("scvSymbol");
-      expect(entries[1].val().switch().name).toBe("scvSymbol");
+      expect(expectUnionArm(entries[0].key, "scvSymbol").sym).toBe("hello");
+      expect(expectUnionArm(entries[0].val, "scvU32").u32).toBe(42);
+      expect(expectUnionArm(entries[1].key, "scvSymbol").sym).toBe("world");
+      expect(expectUnionArm(entries[1].val, "scvSymbol").sym).toBe("test");
     });
 
     it("uses default types for keys without hints", () => {
@@ -1013,13 +1023,13 @@ describe("nativeToScVal", () => {
           },
         },
       );
-      const entries = scv.value() as any[];
+      const entries = expectDefined(expectUnionArm(scv, "scvMap").map);
       // "hinted" comes first alphabetically
-      expect(entries[0].key().switch().name).toBe("scvSymbol");
-      expect(entries[0].val().switch().name).toBe("scvI32");
+      expect(expectUnionArm(entries[0].key, "scvSymbol").sym).toBe("hinted");
+      expect(expectUnionArm(entries[0].val, "scvI32").i32).toBe(42);
       // "unhinted" falls back to default
-      expect(entries[1].key().switch().name).toBe("scvString");
-      expect(entries[1].val().switch().name).toBe("scvString");
+      expect(expectUnionArm(entries[1].key, "scvString").str).toBe("unhinted");
+      expect(expectUnionArm(entries[1].val, "scvString").str).toBe("default");
     });
 
     it("uses null in type hint pair for default", () => {
@@ -1031,10 +1041,10 @@ describe("nativeToScVal", () => {
           },
         },
       );
-      const entries = scv.value() as any[];
+      const entries = expectDefined(expectUnionArm(scv, "scvMap").map);
       // null key hint => default (string)
-      expect(entries[0].key().switch().name).toBe("scvString");
-      expect(entries[0].val().switch().name).toBe("scvSymbol");
+      expect(expectUnionArm(entries[0].key, "scvString").str).toBe("key");
+      expect(expectUnionArm(entries[0].val, "scvSymbol").sym).toBe("val");
     });
 
     it("handles object with nested arrays", () => {
@@ -1042,24 +1052,24 @@ describe("nativeToScVal", () => {
         items: [1, 2, 3],
         label: "test",
       });
-      const entries = scv.value() as any[];
+      const entries = expectDefined(expectUnionArm(scv, "scvMap").map);
       // sorted: items, label
-      expect(entries[0].key().value()).toBe("items");
-      expect(entries[0].val().switch().name).toBe("scvVec");
-      expect(entries[1].key().value()).toBe("label");
-      expect(entries[1].val().switch().name).toBe("scvString");
+      expect(expectUnionArm(entries[0].key, "scvString").str).toBe("items");
+      expect(expectUnionArm(entries[0].val, "scvVec").vec).toBeDefined();
+      expect(expectUnionArm(entries[1].key, "scvString").str).toBe("label");
+      expect(expectUnionArm(entries[1].val, "scvString").str).toBe("test");
     });
 
     it("handles object with null values", () => {
       const scv = nativeToScVal({ key: null });
-      const entries = scv.value() as any[];
-      expect(entries[0].val().switch().name).toBe("scvVoid");
+      const entries = expectDefined(expectUnionArm(scv, "scvMap").map);
+      expect(expectUnionArm(entries[0].val, "scvVoid")).toBeDefined();
     });
 
     it("handles object with boolean values", () => {
       const scv = nativeToScVal({ flag: true });
-      const entries = scv.value() as any[];
-      expect(entries[0].val().switch().name).toBe("scvBool");
+      const entries = expectDefined(expectUnionArm(scv, "scvMap").map);
+      expect(expectUnionArm(entries[0].val, "scvBool").b).toBe(true);
     });
   });
 
@@ -1135,64 +1145,64 @@ describe("scValToNative", () => {
 
   describe("large integers", () => {
     it("converts scvU64 to bigint", () => {
-      const scv = new ScInt(100).toU64();
+      const scv = xdr.ScVal.scvU64(100n);
       expect(scValToNative(scv)).toBe(100n);
     });
 
     it("converts scvI64 to bigint", () => {
-      const scv = new ScInt(-100).toI64();
+      const scv = xdr.ScVal.scvI64(-100n);
       expect(scValToNative(scv)).toBe(-100n);
     });
 
     it("converts scvU128 to bigint", () => {
-      const scv = new ScInt(1000).toU128();
+      const scv = xdr.ScVal.scvU128(1000n);
       expect(scValToNative(scv)).toBe(1000n);
     });
 
     it("converts scvI128 to bigint", () => {
-      const scv = new ScInt(-1000).toI128();
+      const scv = xdr.ScVal.scvI128(-1000n);
       expect(scValToNative(scv)).toBe(-1000n);
     });
 
     it("converts scvU256 to bigint", () => {
-      const scv = new ScInt(1).toU256();
+      const scv = xdr.ScVal.scvU256(1n);
       expect(scValToNative(scv)).toBe(1n);
     });
 
     it("converts scvI256 to bigint", () => {
-      const scv = new ScInt(-1).toI256();
+      const scv = xdr.ScVal.scvI256(-1n);
       expect(scValToNative(scv)).toBe(-1n);
     });
 
     it("converts zero u64 to 0n", () => {
-      const scv = new ScInt(0).toU64();
+      const scv = xdr.ScVal.scvU64(0n);
       expect(scValToNative(scv)).toBe(0n);
     });
 
     it("converts zero i64 to 0n", () => {
-      const scv = new ScInt(0).toI64();
+      const scv = xdr.ScVal.scvI64(0n);
       expect(scValToNative(scv)).toBe(0n);
     });
   });
 
   describe("timepoint and duration", () => {
     it("converts scvTimepoint to bigint", () => {
-      const scv = xdr.ScVal.scvTimepoint(new xdr.Uint64(1443571200n));
+      const scv = xdr.ScVal.scvTimepoint(1443571200n);
       expect(scValToNative(scv)).toBe(1443571200n);
     });
 
     it("converts scvDuration to bigint", () => {
-      const scv = xdr.ScVal.scvDuration(new xdr.Uint64(3600n));
+      const scv = xdr.ScVal.scvDuration(3600n);
       expect(scValToNative(scv)).toBe(3600n);
     });
 
     it("converts zero timepoint", () => {
-      const scv = xdr.ScVal.scvTimepoint(new xdr.Uint64(0n));
+      const scv = xdr.ScVal.scvTimepoint(0n);
       expect(scValToNative(scv)).toBe(0n);
     });
 
     it("converts zero duration", () => {
-      const scv = xdr.ScVal.scvDuration(new xdr.Uint64(0n));
+      const scv = xdr.ScVal.scvDuration(0n);
       expect(scValToNative(scv)).toBe(0n);
     });
   });
@@ -1207,15 +1217,19 @@ describe("scValToNative", () => {
     });
 
     it("converts scvString from Buffer to string", () => {
-      expect(scValToNative(xdr.ScVal.scvString(Buffer.from("hello")))).toBe(
-        "hello",
-      );
+      expect(
+        scValToNative(
+          xdr.ScVal.scvString(Buffer.from("hello").toString("ascii")),
+        ),
+      ).toBe("hello");
     });
 
     it("converts scvSymbol from Buffer to string", () => {
-      expect(scValToNative(xdr.ScVal.scvSymbol(Buffer.from("sym")))).toBe(
-        "sym",
-      );
+      expect(
+        scValToNative(
+          xdr.ScVal.scvSymbol(Buffer.from("sym").toString("ascii")),
+        ),
+      ).toBe("sym");
     });
 
     it("converts empty scvString", () => {
@@ -1295,14 +1309,14 @@ describe("scValToNative", () => {
   describe("maps", () => {
     it("converts scvMap to object", () => {
       const scv = xdr.ScVal.scvMap([
-        new xdr.ScMapEntry({
+        {
           key: xdr.ScVal.scvString("a"),
           val: xdr.ScVal.scvU32(1),
-        }),
-        new xdr.ScMapEntry({
+        },
+        {
           key: xdr.ScVal.scvString("b"),
           val: xdr.ScVal.scvBool(true),
-        }),
+        },
       ]);
       expect(scValToNative(scv)).toEqual({ a: 1, b: true });
     });
@@ -1314,45 +1328,44 @@ describe("scValToNative", () => {
 
     it("converts scvMap with non-string keys (coerced)", () => {
       const scv = xdr.ScVal.scvMap([
-        new xdr.ScMapEntry({
+        {
           key: xdr.ScVal.scvU32(1),
           val: xdr.ScVal.scvString("one"),
-        }),
-        new xdr.ScMapEntry({
+        },
+        {
           key: xdr.ScVal.scvBool(false),
           val: xdr.ScVal.scvString("nope"),
-        }),
+        },
       ]);
       const result = scValToNative(scv);
-      expect(result["1"]).toBe("one");
-      expect(result["false"]).toBe("nope");
+      expect(result).toEqual({ "1": "one", false: "nope" });
     });
 
     it("converts nested scvMap", () => {
       const inner = xdr.ScVal.scvMap([
-        new xdr.ScMapEntry({
+        {
           key: xdr.ScVal.scvString("x"),
           val: xdr.ScVal.scvU32(99),
-        }),
+        },
       ]);
       const outer = xdr.ScVal.scvMap([
-        new xdr.ScMapEntry({
+        {
           key: xdr.ScVal.scvString("nested"),
           val: inner,
-        }),
+        },
       ]);
       expect(scValToNative(outer)).toEqual({ nested: { x: 99 } });
     });
 
     it("converts scvMap with vec values", () => {
       const scv = xdr.ScVal.scvMap([
-        new xdr.ScMapEntry({
+        {
           key: xdr.ScVal.scvString("list"),
           val: xdr.ScVal.scvVec([
             xdr.ScVal.scvString("a"),
             xdr.ScVal.scvString("b"),
           ]),
-        }),
+        },
       ]);
       expect(scValToNative(scv)).toEqual({ list: ["a", "b"] });
     });
@@ -1370,9 +1383,7 @@ describe("scValToNative", () => {
     });
 
     it("converts system error", () => {
-      const scv = xdr.ScVal.scvError(
-        xdr.ScError.sceWasmVm(xdr.ScErrorCode.scecInvalidInput()),
-      );
+      const scv = xdr.ScVal.scvError(xdr.ScError.sceWasmVm("scecInvalidInput"));
       const result = scValToNative(scv);
       expect(result.type).toBe("system");
       expect(typeof result.code).toBe("number");
@@ -1380,10 +1391,10 @@ describe("scValToNative", () => {
     });
 
     it("converts various system error codes", () => {
-      const codes = [
-        xdr.ScErrorCode.scecArithDomain(),
-        xdr.ScErrorCode.scecInvalidInput(),
-        xdr.ScErrorCode.scecInternalError(),
+      const codes: xdr.ScErrorCode[] = [
+        "scecArithDomain",
+        "scecInvalidInput",
+        "scecInternalError",
       ];
       for (const code of codes) {
         const scv = xdr.ScVal.scvError(xdr.ScError.sceWasmVm(code));
@@ -1400,94 +1411,94 @@ describe("scValToNative", () => {
 describe("scvSortedMap", () => {
   it("sorts string-keyed entries", () => {
     const entries = [
-      new xdr.ScMapEntry({
+      {
         key: xdr.ScVal.scvString("c"),
         val: xdr.ScVal.scvU32(3),
-      }),
-      new xdr.ScMapEntry({
+      },
+      {
         key: xdr.ScVal.scvString("a"),
         val: xdr.ScVal.scvU32(1),
-      }),
-      new xdr.ScMapEntry({
+      },
+      {
         key: xdr.ScVal.scvString("b"),
         val: xdr.ScVal.scvU32(2),
-      }),
+      },
     ];
     const sorted = scvSortedMap(entries);
-    const result = sorted.value() as any[];
-    expect(result[0].key().value()).toBe("a");
-    expect(result[1].key().value()).toBe("b");
-    expect(result[2].key().value()).toBe("c");
+    const map = expectDefined(expectUnionArm(sorted, "scvMap").map);
+    expect(expectUnionArm(map[0].key, "scvString").str).toBe("a");
+    expect(expectUnionArm(map[1].key, "scvString").str).toBe("b");
+    expect(expectUnionArm(map[2].key, "scvString").str).toBe("c");
   });
 
   it("sorts symbol-keyed entries", () => {
     const entries = [
-      new xdr.ScMapEntry({
+      {
         key: xdr.ScVal.scvSymbol("z"),
         val: xdr.ScVal.scvU32(1),
-      }),
-      new xdr.ScMapEntry({
+      },
+      {
         key: xdr.ScVal.scvSymbol("a"),
         val: xdr.ScVal.scvU32(2),
-      }),
+      },
     ];
     const sorted = scvSortedMap(entries);
-    const result = sorted.value() as any[];
-    expect(scValToNative(result[0].key())).toBe("a");
-    expect(scValToNative(result[1].key())).toBe("z");
+    const map = expectDefined(expectUnionArm(sorted, "scvMap").map);
+    expect(scValToNative(map[0].key)).toBe("a");
+    expect(scValToNative(map[1].key)).toBe("z");
   });
 
   it("sorts numeric-keyed entries", () => {
     const entries = [
-      new xdr.ScMapEntry({
-        key: new ScInt(3).toI64(),
+      {
+        key: xdr.ScVal.scvI64(3n),
         val: xdr.ScVal.scvString("c"),
-      }),
-      new xdr.ScMapEntry({
-        key: new ScInt(1).toI64(),
+      },
+      {
+        key: xdr.ScVal.scvI64(1n),
         val: xdr.ScVal.scvString("a"),
-      }),
-      new xdr.ScMapEntry({
-        key: new ScInt(2).toI64(),
+      },
+      {
+        key: xdr.ScVal.scvI64(2n),
         val: xdr.ScVal.scvString("b"),
-      }),
+      },
     ];
     const sorted = scvSortedMap(entries);
-    const result = sorted.value() as any[];
-    expect(result[0].key().value().toBigInt()).toBe(1n);
-    expect(result[1].key().value().toBigInt()).toBe(2n);
-    expect(result[2].key().value().toBigInt()).toBe(3n);
+    const map = expectDefined(expectUnionArm(sorted, "scvMap").map);
+    expect(expectUnionArm(map[0].key, "scvI64").i64).toBe(1n);
+    expect(expectUnionArm(map[1].key, "scvI64").i64).toBe(2n);
+    expect(expectUnionArm(map[2].key, "scvI64").i64).toBe(3n);
   });
 
   it("handles empty array", () => {
     const sorted = scvSortedMap([]);
-    expect(sorted.switch().name).toBe("scvMap");
-    expect((sorted.value() as any[]).length).toBe(0);
+    const map = expectDefined(expectUnionArm(sorted, "scvMap").map);
+    expect(map.length).toBe(0);
   });
 
   it("handles single entry", () => {
     const entries = [
-      new xdr.ScMapEntry({
+      {
         key: xdr.ScVal.scvString("only"),
         val: xdr.ScVal.scvU32(1),
-      }),
+      },
     ];
     const sorted = scvSortedMap(entries);
-    const result = sorted.value() as any[];
-    expect(result.length).toBe(1);
-    expect(result[0].key().value()).toBe("only");
+    const map = expectDefined(expectUnionArm(sorted, "scvMap").map);
+    expect(map.length).toBe(1);
+    expect(expectUnionArm(map[0].key, "scvString").str).toBe("only");
   });
 
   it("does not mutate the input array", () => {
     const entries = [
-      new xdr.ScMapEntry({
+      {
         key: xdr.ScVal.scvString("b"),
         val: xdr.ScVal.scvU32(2),
-      }),
-      new xdr.ScMapEntry({
+      },
+      {
         key: xdr.ScVal.scvString("a"),
         val: xdr.ScVal.scvU32(1),
-      }),
+      },
     ];
     const copy = [...entries];
     scvSortedMap(entries);
@@ -1497,85 +1508,81 @@ describe("scvSortedMap", () => {
     const secondCopy = expectDefined(copy[1]);
 
     // Original array should be unchanged
-    expect(scValToNative(firstEntry.key())).toBe(
-      scValToNative(firstCopy.key()),
-    );
-    expect(scValToNative(secondEntry.key())).toBe(
-      scValToNative(secondCopy.key()),
-    );
+    expect(scValToNative(firstEntry.key)).toBe(scValToNative(firstCopy.key));
+    expect(scValToNative(secondEntry.key)).toBe(scValToNative(secondCopy.key));
   });
 
-  it("is available as xdr.scvSortedMap (monkey-patch)", () => {
+  it("is available as scvSortedMap (monkey-patch)", () => {
     const entries = [
-      new xdr.ScMapEntry({
+      {
         key: xdr.ScVal.scvString("b"),
         val: xdr.ScVal.scvU32(2),
-      }),
-      new xdr.ScMapEntry({
+      },
+      {
         key: xdr.ScVal.scvString("a"),
         val: xdr.ScVal.scvU32(1),
-      }),
+      },
     ];
-    const sorted = xdr.scvSortedMap(entries);
-    expect(sorted.switch().name).toBe("scvMap");
-    expect((sorted.value() as any[])[0].key().value()).toBe("a");
+    const sorted = scvSortedMap(entries);
+    const map = expectDefined(expectUnionArm(sorted, "scvMap").map);
+    expect(expectUnionArm(map[0].key, "scvString").str).toBe("a");
   });
 
   it("sorts u32-keyed entries numerically", () => {
     const entries = [
-      new xdr.ScMapEntry({
+      {
         key: xdr.ScVal.scvU32(10),
         val: xdr.ScVal.scvBool(true),
-      }),
-      new xdr.ScMapEntry({
+      },
+      {
         key: xdr.ScVal.scvU32(2),
         val: xdr.ScVal.scvBool(true),
-      }),
-      new xdr.ScMapEntry({
+      },
+      {
         key: xdr.ScVal.scvU32(100),
         val: xdr.ScVal.scvBool(true),
-      }),
+      },
     ];
     const sorted = scvSortedMap(entries);
-    const result = sorted.value() as any[];
-    expect(scValToNative(result[0].key())).toBe(2);
-    expect(scValToNative(result[1].key())).toBe(10);
-    expect(scValToNative(result[2].key())).toBe(100);
+    const map = expectDefined(expectUnionArm(sorted, "scvMap").map);
+    expect(scValToNative(map[0].key)).toBe(2);
+    expect(scValToNative(map[1].key)).toBe(10);
+    expect(scValToNative(map[2].key)).toBe(100);
   });
 
   it("sorts bool-keyed entries via JSON.stringify fallback", () => {
     const entries = [
-      new xdr.ScMapEntry({
+      {
         key: xdr.ScVal.scvBool(true),
         val: xdr.ScVal.scvU32(1),
-      }),
-      new xdr.ScMapEntry({
+      },
+      {
         key: xdr.ScVal.scvBool(false),
         val: xdr.ScVal.scvU32(2),
-      }),
+      },
     ];
     const sorted = scvSortedMap(entries);
-    const result = sorted.value() as any[];
+    const map = expectDefined(expectUnionArm(sorted, "scvMap").map);
     // "false" < "true" lexicographically
-    expect(scValToNative(result[0].key())).toBe(false);
-    expect(scValToNative(result[1].key())).toBe(true);
+    expect(scValToNative(map[0].key)).toBe(false);
+    expect(scValToNative(map[1].key)).toBe(true);
   });
 
   it("handles already-sorted entries", () => {
     const entries = [
-      new xdr.ScMapEntry({
+      {
         key: xdr.ScVal.scvString("a"),
         val: xdr.ScVal.scvU32(1),
-      }),
-      new xdr.ScMapEntry({
+      },
+      {
         key: xdr.ScVal.scvString("b"),
         val: xdr.ScVal.scvU32(2),
-      }),
+      },
     ];
     const sorted = scvSortedMap(entries);
-    const result = sorted.value() as any[];
-    expect(result[0].key().value()).toBe("a");
-    expect(result[1].key().value()).toBe("b");
+    const map = expectDefined(expectUnionArm(sorted, "scvMap").map);
+    expect(expectUnionArm(map[0].key, "scvString").str).toBe("a");
+    expect(expectUnionArm(map[1].key, "scvString").str).toBe("b");
   });
 
   it("sorts mixed-case string keys by codepoint order, not locale order", () => {
@@ -1583,24 +1590,24 @@ describe("scvSortedMap", () => {
     // localeCompare would sort case-insensitively: _admin, Admin, balance
     // Correct byte order: Admin, _admin, balance
     const entries = [
-      new xdr.ScMapEntry({
+      {
         key: xdr.ScVal.scvSymbol("balance"),
         val: xdr.ScVal.scvU32(3),
-      }),
-      new xdr.ScMapEntry({
+      },
+      {
         key: xdr.ScVal.scvSymbol("Admin"),
         val: xdr.ScVal.scvU32(1),
-      }),
-      new xdr.ScMapEntry({
+      },
+      {
         key: xdr.ScVal.scvSymbol("_admin"),
         val: xdr.ScVal.scvU32(2),
-      }),
+      },
     ];
     const sorted = scvSortedMap(entries);
-    const result = sorted.value() as any[];
-    expect(result[0].key().value()).toBe("Admin");
-    expect(result[1].key().value()).toBe("_admin");
-    expect(result[2].key().value()).toBe("balance");
+    const map = expectDefined(expectUnionArm(sorted, "scvMap").map);
+    expect(expectUnionArm(map[0].key, "scvSymbol").sym).toBe("Admin");
+    expect(expectUnionArm(map[1].key, "scvSymbol").sym).toBe("_admin");
+    expect(expectUnionArm(map[2].key, "scvSymbol").sym).toBe("balance");
   });
 });
 
@@ -1762,37 +1769,62 @@ describe("edge cases and stress tests", () => {
   it("preserves ScVal passthrough inside arrays", () => {
     const inner = xdr.ScVal.scvU32(99);
     const scv = nativeToScVal([inner]);
-    expect((scv.value() as any[])[0]).toBe(inner);
+    if (scv.type !== "scvVec") {
+      expect.fail("Expected scvVec type");
+    }
+    if (!scv.vec) {
+      expect.fail("Expected scvVec to have a vec property");
+    }
+    const vec = scv.vec;
+    expect(vec[0]).toBe(inner);
   });
 
   it("preserves ScVal passthrough inside object values", () => {
     const inner = xdr.ScVal.scvBool(true);
     const scv = nativeToScVal({ key: inner });
-    const entries = scv.value() as any[];
-    expect(entries[0].val()).toBe(inner);
+    if (scv.type !== "scvMap") {
+      expect.fail("Expected scvMap type");
+    }
+    if (!scv.map) {
+      expect.fail("Expected scvMap to have a map property");
+    }
+    const entries = scv.map;
+    expect(entries[0].val).toBe(inner);
   });
 
   it("handles u32 max boundary", () => {
     const scv = nativeToScVal(4294967295, { type: "u32" });
-    expect(scv.value()).toBe(4294967295);
+    if (scv.type !== "scvU32") {
+      expect.fail("Expected scvU32 type");
+    }
+    expect(scv.u32).toBe(4294967295);
     expect(scValToNative(scv)).toBe(4294967295);
   });
 
   it("handles i32 min boundary", () => {
     const scv = nativeToScVal(-2147483648, { type: "i32" });
-    expect(scv.value()).toBe(-2147483648);
+    if (scv.type !== "scvI32") {
+      expect.fail("Expected scvI32 type");
+    }
+    expect(scv.i32).toBe(-2147483648);
     expect(scValToNative(scv)).toBe(-2147483648);
   });
 
   it("handles i32 max boundary", () => {
     const scv = nativeToScVal(2147483647, { type: "i32" });
-    expect(scv.value()).toBe(2147483647);
+    if (scv.type !== "scvI32") {
+      expect.fail("Expected scvI32 type");
+    }
+    expect(scv.i32).toBe(2147483647);
     expect(scValToNative(scv)).toBe(2147483647);
   });
 
   it("handles u32 zero", () => {
     const scv = nativeToScVal(0, { type: "u32" });
-    expect(scv.value()).toBe(0);
+    if (scv.type !== "scvU32") {
+      expect.fail("Expected scvU32 type");
+    }
+    expect(scv.u32).toBe(0);
     expect(scValToNative(scv)).toBe(0);
   });
 
@@ -1803,26 +1835,33 @@ describe("edge cases and stress tests", () => {
 
   it("handles opts with empty type hints object for maps", () => {
     const scv = nativeToScVal({ a: 1 }, { type: {} });
-    expect(scv.switch().name).toBe("scvMap");
-    const entries = scv.value() as any[];
+    expect(scv.type).toBe("scvMap");
+    if (scv.type !== "scvMap") {
+      expect.fail("Expected scvMap type");
+    }
+    if (!scv.map) {
+      expect.fail("Expected scvMap to have a map property");
+    }
+    const entries = scv.map;
     // No hints -> default string key, default u64 value
-    expect(entries[0].key().switch().name).toBe("scvString");
+    expect(entries[0].key.type).toBe("scvString");
   });
 
   it("handles boolean-key maps coerced to string keys in output", () => {
     const scv = xdr.ScVal.scvMap([
-      new xdr.ScMapEntry({
+      {
         key: xdr.ScVal.scvBool(true),
         val: xdr.ScVal.scvString("yes"),
-      }),
-      new xdr.ScMapEntry({
+      },
+      {
         key: xdr.ScVal.scvBool(false),
         val: xdr.ScVal.scvString("no"),
-      }),
+      },
     ]);
     const result = scValToNative(scv);
-    expect(result["true"]).toBe("yes");
-    expect(result["false"]).toBe("no");
+
+    expect(result.true).toBe("yes");
+    expect(result.false).toBe("no");
   });
 
   it("handles object with many keys (50)", () => {
@@ -1831,10 +1870,16 @@ describe("edge cases and stress tests", () => {
       obj[`key${String(i).padStart(3, "0")}`] = i;
     }
     const scv = nativeToScVal(obj);
-    const entries = scv.value() as any[];
+    if (scv.type !== "scvMap") {
+      expect.fail("Expected scvMap type");
+    }
+    if (!scv.map) {
+      expect.fail("Expected scvMap to have a map property");
+    }
+    const entries = scv.map;
     expect(entries.length).toBe(50);
     // Verify keys are sorted
-    const keys = entries.map((e: any) => scValToNative(e.key()));
+    const keys = entries.map((e) => scValToNative(e.key));
     const sorted = [...keys].sort();
     expect(keys).toEqual(sorted);
   });
@@ -1860,7 +1905,7 @@ describe("edge cases and stress tests", () => {
     const large = new Uint8Array(10000);
     large.fill(42);
     const scv = nativeToScVal(large);
-    expect(scv.switch().name).toBe("scvBytes");
+    expect(scv.type).toBe("scvBytes");
     const result = scValToNative(scv) as Uint8Array;
     expect(result.length).toBe(10000);
     expect(result[0]).toBe(42);
@@ -1873,11 +1918,17 @@ describe("edge cases and stress tests", () => {
       null,
       { key: "val" },
     ]);
-    expect(scv.switch().name).toBe("scvVec");
-    const vec = scv.value() as any[];
-    expect(vec[0].switch().name).toBe("scvAddress");
-    expect(vec[1].switch().name).toBe("scvVoid");
-    expect(vec[2].switch().name).toBe("scvMap");
+    expect(scv.type).toBe("scvVec");
+    if (scv.type !== "scvVec") {
+      expect.fail("Expected scvVec type");
+    }
+    if (!scv.vec) {
+      expect.fail("Expected scvVec to have a vec property");
+    }
+    const vec = scv.vec;
+    expect(vec[0].type).toBe("scvAddress");
+    expect(vec[1].type).toBe("scvVoid");
+    expect(vec[2].type).toBe("scvMap");
   });
 
   it("handles gigaMap round-trip", () => {
@@ -1886,22 +1937,22 @@ describe("edge cases and stress tests", () => {
       void: null,
       u32: xdr.ScVal.scvU32(1),
       i32: xdr.ScVal.scvI32(1),
-      u64: 1n,
-      i64: -1n,
-      u128: new ScInt(1).toU128(),
-      i128: new ScInt(1).toI128(),
-      u256: new ScInt(1).toU256(),
-      i256: new ScInt(1).toI256(),
+      u64: xdr.ScVal.scvU64(1n),
+      i64: xdr.ScVal.scvI64(-1n),
+      u128: xdr.ScVal.scvU128(1n),
+      i128: xdr.ScVal.scvI128(1n),
+      u256: xdr.ScVal.scvU256(1n),
+      i256: xdr.ScVal.scvI256(1n),
       map: {
-        arbitrary: 1n,
-        nested: "values",
-        etc: false,
+        arbitrary: xdr.ScVal.scvU64(1n),
+        nested: xdr.ScVal.scvString("values"),
+        etc: xdr.ScVal.scvBool(false),
       },
       vec: ["same", "type", "list"],
     };
 
     const scv = nativeToScVal(gigaMap);
-    expect(scv.switch().name).toBe("scvMap");
+    expect(scv.type).toBe("scvMap");
 
     const result = scValToNative(scv);
     expect(result.bool).toBe(true);
@@ -1918,7 +1969,7 @@ describe("edge cases and stress tests", () => {
 
   it("correctly handles XDR serialization round-trip", () => {
     const scv = nativeToScVal({ key: [1, 2, 3] });
-    const base64 = scv.toXDR("base64");
+    const base64 = xdr.ScVal.toXDR(scv, "base64");
     const decoded = xdr.ScVal.fromXDR(base64, "base64");
     expect(scValToNative(decoded)).toEqual(scValToNative(scv));
   });
@@ -1939,9 +1990,10 @@ describe("edge cases and stress tests", () => {
   it("handles nativeToScVal with all input types producing same result", () => {
     const kp = Keypair.random();
     const addr = new Address(kp.publicKey());
-    const fromAddr = nativeToScVal(addr).toXDR("base64");
-    const fromKp = nativeToScVal(kp).toXDR("base64");
-    const fromStr = nativeToScVal(kp.publicKey(), { type: "address" }).toXDR(
+    const fromAddr = xdr.ScVal.toXDR(nativeToScVal(addr), "base64");
+    const fromKp = xdr.ScVal.toXDR(nativeToScVal(kp), "base64");
+    const fromStr = xdr.ScVal.toXDR(
+      nativeToScVal(kp.publicKey(), { type: "address" }),
       "base64",
     );
     expect(fromAddr).toBe(fromKp);
@@ -1951,30 +2003,37 @@ describe("edge cases and stress tests", () => {
   it("scvSortedMap sorts entries with equal numeric keys stably", () => {
     // Two entries with the same key value
     const entries = [
-      new xdr.ScMapEntry({
+      {
         key: xdr.ScVal.scvU32(1),
         val: xdr.ScVal.scvString("first"),
-      }),
-      new xdr.ScMapEntry({
+      },
+      {
         key: xdr.ScVal.scvU32(1),
         val: xdr.ScVal.scvString("second"),
-      }),
+      },
     ];
     // Should not throw
     const sorted = scvSortedMap(entries);
-    expect((sorted.value() as any[]).length).toBe(2);
+    const map = expectDefined(expectUnionArm(sorted, "scvMap").map);
+    expect(map.length).toBe(2);
   });
 
   it("handles parseInt edge case: string '0' to u32", () => {
     const scv = nativeToScVal("0", { type: "u32" });
-    expect(scv.switch().name).toBe("scvU32");
-    expect(scv.value()).toBe(0);
+    expect(scv.type).toBe("scvU32");
+    if (scv.type !== "scvU32") {
+      expect.fail("Expected scvU32 type");
+    }
+    expect(scv.u32).toBe(0);
   });
 
   it("handles parseInt edge case: string '0' to i32", () => {
     const scv = nativeToScVal("0", { type: "i32" });
-    expect(scv.switch().name).toBe("scvI32");
-    expect(scv.value()).toBe(0);
+    expect(scv.type).toBe("scvI32");
+    if (scv.type !== "scvI32") {
+      expect.fail("Expected scvI32 type");
+    }
+    expect(scv.i32).toBe(0);
   });
 
   it("rejects string with trailing non-numeric characters for u32", () => {
@@ -1988,8 +2047,11 @@ describe("edge cases and stress tests", () => {
   it("correctly parses hex-prefix string for u32", () => {
     // BigInt("0x10") = 16n — hex is parsed correctly, unlike parseInt which returned 0
     const scv = nativeToScVal("0x10", { type: "u32" });
-    expect(scv.switch().name).toBe("scvU32");
-    expect(scv.value()).toBe(16);
+    expect(scv.type).toBe("scvU32");
+    if (scv.type !== "scvU32") {
+      throw new Error("Unexpected type");
+    }
+    expect(scv.u32).toBe(16);
   });
 
   it("rejects pure non-numeric string for u32", () => {
@@ -2002,7 +2064,7 @@ describe("edge cases and stress tests", () => {
 
   it("nativeToScVal with no type hint auto-selects appropriate type", () => {
     // Positive -> unsigned
-    expect(nativeToScVal(0).switch().name).not.toBe("scvI64");
+    expect(nativeToScVal(0).type).not.toBe("scvI64");
     // Negative -> signed
     const neg = nativeToScVal(-1);
     expect(scValToBigInt(neg)).toBe(-1n);
@@ -2010,7 +2072,7 @@ describe("edge cases and stress tests", () => {
 
   it("auto-invokes function values and converts the result", () => {
     const scv = nativeToScVal(() => 42);
-    expect(scv.switch().name).toBe("scvU64");
+    expect(scv.type).toBe("scvU64");
     expect(scValToNative(scv)).toBe(42n);
   });
 

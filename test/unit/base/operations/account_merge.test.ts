@@ -12,7 +12,7 @@ describe("Operation.accountMerge()", () => {
 
   it("creates an accountMergeOp", () => {
     const op = Operation.accountMerge({ destination: base });
-    const xdrHex = op.toXDR("hex");
+    const xdrHex = xdr.Operation.toXDR(op, "hex");
     const operation = xdr.Operation.fromXDR(xdrHex, "hex");
     const obj = expectOperationType(
       Operation.fromXDRObject(operation),
@@ -27,7 +27,7 @@ describe("Operation.accountMerge()", () => {
     const source = encodeMuxedAccountToAddress(encodeMuxedAccount(base, "2"));
 
     const op = Operation.accountMerge({ destination: dest, source });
-    const xdrHex = op.toXDR("hex");
+    const xdrHex = xdr.Operation.toXDR(op, "hex");
     const operation = xdr.Operation.fromXDR(xdrHex, "hex");
     const obj = expectOperationType(
       Operation.fromXDRObject(operation),
@@ -40,7 +40,7 @@ describe("Operation.accountMerge()", () => {
 
   it("supports non-muxed accounts for both destination and source", () => {
     const op = Operation.accountMerge({ destination: base, source: base });
-    const xdrHex = op.toXDR("hex");
+    const xdrHex = xdr.Operation.toXDR(op, "hex");
     const operation = xdr.Operation.fromXDR(xdrHex, "hex");
     const obj = expectOperationType(
       Operation.fromXDRObject(operation),
@@ -65,8 +65,8 @@ describe("Operation.accountMerge()", () => {
 
   it("roundtrips through XDR hex encoding", () => {
     const op = Operation.accountMerge({ destination: base });
-    const hex = op.toXDR("hex");
+    const hex = xdr.Operation.toXDR(op, "hex");
     const roundtripped = xdr.Operation.fromXDR(hex, "hex");
-    expect(roundtripped.body().switch().name).toBe("accountMerge");
+    expect(roundtripped.body.type).toBe("accountMerge");
   });
 });

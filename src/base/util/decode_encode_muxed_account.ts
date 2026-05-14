@@ -1,8 +1,8 @@
-import xdr from "../xdr.js";
+import { MuxedAccount, Uint64 } from "../generated/index.js";
 import { StrKey } from "../strkey.js";
 
 /**
- * Converts a Stellar address (in G... or M... form) to an `xdr.MuxedAccount`
+ * Converts a Stellar address (in G... or M... form) to an `MuxedAccount`
  * structure, using the ed25519 representation when possible.
  *
  * This supports full muxed accounts, where an `M...` address will resolve to
@@ -10,18 +10,16 @@ import { StrKey } from "../strkey.js";
  *
  * @param address - G... or M... address to encode into XDR
  */
-export function decodeAddressToMuxedAccount(address: string): xdr.MuxedAccount {
+export function decodeAddressToMuxedAccount(address: string): MuxedAccount {
   if (StrKey.isValidMed25519PublicKey(address)) {
     return _decodeAddressFullyToMuxedAccount(address);
   }
 
-  return xdr.MuxedAccount.keyTypeEd25519(
-    StrKey.decodeEd25519PublicKey(address),
-  );
+  return MuxedAccount.keyTypeEd25519(StrKey.decodeEd25519PublicKey(address));
 }
 
 /**
- * Converts an xdr.MuxedAccount to its StrKey representation.
+ * Converts an MuxedAccount to its StrKey representation.
  *
  * Returns the "M..." string representation if there is a muxing ID within
  * the object, or the "G..." representation otherwise.
@@ -31,16 +29,13 @@ export function decodeAddressToMuxedAccount(address: string): xdr.MuxedAccount {
  * @see https://stellar.org/protocol/sep-23
  */
 export function encodeMuxedAccountToAddress(
-  muxedAccount: xdr.MuxedAccount,
+  muxedAccount: MuxedAccount,
 ): string {
-  if (
-    muxedAccount.switch().value ===
-    xdr.CryptoKeyType.keyTypeMuxedEd25519().value
-  ) {
+  if (muxedAccount.type === "keyTypeMuxedEd25519") {
     return _encodeMuxedAccountFullyToAddress(muxedAccount);
   }
 
-  return StrKey.encodeEd25519PublicKey(muxedAccount.ed25519());
+  return StrKey.encodeEd25519PublicKey(Buffer.from(muxedAccount.ed25519));
 }
 
 /**
@@ -49,22 +44,17 @@ export function encodeMuxedAccountToAddress(
  * @param address - a Stellar G... address
  * @param id - a Uint64 ID represented as a string
  */
-export function encodeMuxedAccount(
-  address: string,
-  id: string,
-): xdr.MuxedAccount {
+export function encodeMuxedAccount(address: string, id: string): MuxedAccount {
   if (!StrKey.isValidEd25519PublicKey(address)) {
     throw new Error("address should be a Stellar account ID (G...)");
   }
   if (typeof id !== "string") {
     throw new Error("id should be a string representing a number (uint64)");
   }
-  return xdr.MuxedAccount.keyTypeMuxedEd25519(
-    new xdr.MuxedAccountMed25519({
-      id: xdr.Uint64.fromString(id),
-      ed25519: StrKey.decodeEd25519PublicKey(address),
-    }),
-  );
+  return MuxedAccount.keyTypeMuxedEd25519({
+    id: BigInt(id),
+    ed25519: StrKey.decodeEd25519PublicKey(address),
+  });
 }
 
 /**
@@ -81,11 +71,16 @@ export function extractBaseAddress(address: string): string {
   }
 
   const muxedAccount = decodeAddressToMuxedAccount(address);
-  return StrKey.encodeEd25519PublicKey(muxedAccount.med25519().ed25519());
+  if (muxedAccount.type !== "keyTypeMuxedEd25519") {
+    return StrKey.encodeEd25519PublicKey(Buffer.from(muxedAccount.ed25519));
+  }
+  return StrKey.encodeEd25519PublicKey(
+    Buffer.from(muxedAccount.med25519.ed25519),
+  );
 }
 
 // Decodes an "M..." account ID into its MuxedAccount object representation.
-function _decodeAddressFullyToMuxedAccount(address: string): xdr.MuxedAccount {
+function _decodeAddressFullyToMuxedAccount(address: string): MuxedAccount {
   const rawBytes = StrKey.decodeMed25519PublicKey(address);
 
   // Decoding M... addresses cannot be done through a simple
@@ -101,24 +96,23 @@ function _decodeAddressFullyToMuxedAccount(address: string): xdr.MuxedAccount {
   //
   // Refer to https://github.com/stellar/go/blob/master/xdr/muxed_account.go#L26
   // for the Golang implementation of the M... parsing.
-  return xdr.MuxedAccount.keyTypeMuxedEd25519(
-    new xdr.MuxedAccountMed25519({
-      id: xdr.Uint64.fromXDR(rawBytes.subarray(-8)),
-      ed25519: rawBytes.subarray(0, -8),
-    }),
-  );
+  return MuxedAccount.keyTypeMuxedEd25519({
+    id: Uint64.fromXDR(rawBytes.subarray(-8), "raw"),
+    ed25519: rawBytes.subarray(0, -8),
+  });
 }
 
-// Converts an xdr.MuxedAccount into its *true* "M..." string representation.
-function _encodeMuxedAccountFullyToAddress(
-  muxedAccount: xdr.MuxedAccount,
-): string {
-  if (muxedAccount.switch() === xdr.CryptoKeyType.keyTypeEd25519()) {
+// Converts an MuxedAccount into its *true* "M..." string representation.
+function _encodeMuxedAccountFullyToAddress(muxedAccount: MuxedAccount): string {
+  if (muxedAccount.type === "keyTypeEd25519") {
     return encodeMuxedAccountToAddress(muxedAccount);
   }
 
-  const muxed = muxedAccount.med25519();
+  const muxed = muxedAccount.med25519;
   return StrKey.encodeMed25519PublicKey(
-    Buffer.concat([muxed.ed25519(), muxed.id().toXDR("raw")]),
+    Buffer.concat([
+      Buffer.from(muxed.ed25519),
+      Buffer.from(Uint64.toXDR(muxed.id, "raw")),
+    ]),
   );
 }

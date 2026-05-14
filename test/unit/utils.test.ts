@@ -3,7 +3,7 @@ import { uint8ArrayToBase64 } from "uint8array-extras";
 import * as StellarSdk from "../../src/index.js";
 import type { TransactionBuilderOptions } from "../../src/base/transaction_builder.js";
 
-const { WebAuth } = StellarSdk;
+const { WebAuth, xdr } = StellarSdk;
 
 function newClientSigner(key: string, weight: number) {
   return { key, weight, type: "ed25519_public_key" };
@@ -414,7 +414,10 @@ describe("Utils", () => {
         .build();
 
       transaction.sign(serverKP);
-      const challenge = transaction.toEnvelope().toXDR("base64").toString();
+      const challenge = xdr.TransactionEnvelope.toXDR(
+        transaction.toEnvelope(),
+        "base64",
+      ).toString();
 
       expect(() =>
         WebAuth.readChallengeTx(
@@ -447,7 +450,10 @@ describe("Utils", () => {
         .setTimeout(30)
         .build();
 
-      const challenge = transaction.toEnvelope().toXDR("base64").toString();
+      const challenge = xdr.TransactionEnvelope.toXDR(
+        transaction.toEnvelope(),
+        "base64",
+      ).toString();
 
       expect(() =>
         WebAuth.readChallengeTx(
@@ -475,7 +481,10 @@ describe("Utils", () => {
         .setTimeout(30)
         .build();
 
-      const challenge = transaction.toEnvelope().toXDR("base64").toString();
+      const challenge = xdr.TransactionEnvelope.toXDR(
+        transaction.toEnvelope(),
+        "base64",
+      ).toString();
 
       expect(() =>
         WebAuth.readChallengeTx(
@@ -532,7 +541,10 @@ describe("Utils", () => {
         .build();
 
       transaction.sign(keypair);
-      const challenge = transaction.toEnvelope().toXDR("base64").toString();
+      const challenge = xdr.TransactionEnvelope.toXDR(
+        transaction.toEnvelope(),
+        "base64",
+      ).toString();
 
       expect(() =>
         WebAuth.readChallengeTx(
@@ -568,7 +580,10 @@ describe("Utils", () => {
         .build();
 
       transaction.sign(keypair);
-      const challenge = transaction.toEnvelope().toXDR("base64").toString();
+      const challenge = xdr.TransactionEnvelope.toXDR(
+        transaction.toEnvelope(),
+        "base64",
+      ).toString();
 
       expect(() =>
         WebAuth.readChallengeTx(
@@ -602,7 +617,10 @@ describe("Utils", () => {
         .build();
 
       transaction.sign(keypair);
-      const challenge = transaction.toEnvelope().toXDR("base64").toString();
+      const challenge = xdr.TransactionEnvelope.toXDR(
+        transaction.toEnvelope(),
+        "base64",
+      ).toString();
 
       expect(() =>
         WebAuth.readChallengeTx(
@@ -651,7 +669,10 @@ describe("Utils", () => {
         .build();
 
       transaction.sign(serverKeypair);
-      const challenge = transaction.toEnvelope().toXDR("base64").toString();
+      const challenge = xdr.TransactionEnvelope.toXDR(
+        transaction.toEnvelope(),
+        "base64",
+      ).toString();
 
       transaction = new StellarSdk.Transaction(
         challenge,
@@ -659,10 +680,10 @@ describe("Utils", () => {
       );
       transaction.sign(clientKeypair);
 
-      const signedChallenge = transaction
-        .toEnvelope()
-        .toXDR("base64")
-        .toString();
+      const signedChallenge = xdr.TransactionEnvelope.toXDR(
+        transaction.toEnvelope(),
+        "base64",
+      ).toString();
 
       expect(() =>
         WebAuth.readChallengeTx(
@@ -697,7 +718,10 @@ describe("Utils", () => {
         .build();
 
       transaction.sign(keypair);
-      const challenge = transaction.toEnvelope().toXDR("base64").toString();
+      const challenge = xdr.TransactionEnvelope.toXDR(
+        transaction.toEnvelope(),
+        "base64",
+      ).toString();
 
       expect(() =>
         WebAuth.readChallengeTx(
@@ -736,10 +760,10 @@ describe("Utils", () => {
       );
       transaction.sign(clientKeypair);
 
-      const signedChallenge = transaction
-        .toEnvelope()
-        .toXDR("base64")
-        .toString();
+      const signedChallenge = xdr.TransactionEnvelope.toXDR(
+        transaction.toEnvelope(),
+        "base64",
+      ).toString();
 
       expect(() =>
         WebAuth.readChallengeTx(
@@ -796,7 +820,10 @@ describe("Utils", () => {
         .build();
 
       transaction.sign(serverKP);
-      const challenge = transaction.toEnvelope().toXDR("base64").toString();
+      const challenge = xdr.TransactionEnvelope.toXDR(
+        transaction.toEnvelope(),
+        "base64",
+      ).toString();
 
       const transactionRoundTripped = new StellarSdk.Transaction(
         challenge,
@@ -840,7 +867,10 @@ describe("Utils", () => {
         .build();
 
       transaction.sign(serverKP);
-      const challenge = transaction.toEnvelope().toXDR("base64").toString();
+      const challenge = xdr.TransactionEnvelope.toXDR(
+        transaction.toEnvelope(),
+        "base64",
+      ).toString();
 
       const transactionRoundTripped = new StellarSdk.Transaction(
         challenge,
@@ -884,7 +914,10 @@ describe("Utils", () => {
         .build();
 
       transaction.sign(serverKP);
-      const challenge = transaction.toEnvelope().toXDR("base64").toString();
+      const challenge = xdr.TransactionEnvelope.toXDR(
+        transaction.toEnvelope(),
+        "base64",
+      ).toString();
 
       expect(() =>
         WebAuth.readChallengeTx(
@@ -922,7 +955,10 @@ describe("Utils", () => {
         .build();
 
       transaction.sign(serverKP);
-      const challenge = transaction.toEnvelope().toXDR("base64").toString();
+      const challenge = xdr.TransactionEnvelope.toXDR(
+        transaction.toEnvelope(),
+        "base64",
+      ).toString();
 
       expect(() =>
         WebAuth.readChallengeTx(
@@ -967,7 +1003,10 @@ describe("Utils", () => {
         .build();
 
       transaction.sign(serverKP);
-      const challenge = transaction.toEnvelope().toXDR("base64").toString();
+      const challenge = xdr.TransactionEnvelope.toXDR(
+        transaction.toEnvelope(),
+        "base64",
+      ).toString();
 
       const transactionRoundTripped = new StellarSdk.Transaction(
         challenge,
@@ -1018,7 +1057,10 @@ describe("Utils", () => {
         .build();
 
       transaction.sign(serverKP);
-      const challenge = transaction.toEnvelope().toXDR("base64").toString();
+      const challenge = xdr.TransactionEnvelope.toXDR(
+        transaction.toEnvelope(),
+        "base64",
+      ).toString();
 
       expect(() =>
         WebAuth.readChallengeTx(
@@ -1062,7 +1104,10 @@ describe("Utils", () => {
         .build();
 
       transaction.sign(serverKP);
-      const challenge = transaction.toEnvelope().toXDR("base64").toString();
+      const challenge = xdr.TransactionEnvelope.toXDR(
+        transaction.toEnvelope(),
+        "base64",
+      ).toString();
 
       expect(() =>
         WebAuth.readChallengeTx(
@@ -1107,7 +1152,10 @@ describe("Utils", () => {
         .build();
 
       transaction.sign(serverKP);
-      const challenge = transaction.toEnvelope().toXDR("base64").toString();
+      const challenge = xdr.TransactionEnvelope.toXDR(
+        transaction.toEnvelope(),
+        "base64",
+      ).toString();
 
       expect(() =>
         WebAuth.readChallengeTx(
@@ -1152,7 +1200,10 @@ describe("Utils", () => {
         .build();
 
       transaction.sign(serverKP);
-      const challenge = transaction.toEnvelope().toXDR("base64").toString();
+      const challenge = xdr.TransactionEnvelope.toXDR(
+        transaction.toEnvelope(),
+        "base64",
+      ).toString();
 
       expect(() =>
         WebAuth.readChallengeTx(
@@ -1190,7 +1241,10 @@ describe("Utils", () => {
         .build();
 
       transaction.sign(serverKP);
-      const challenge = transaction.toEnvelope().toXDR("base64").toString();
+      const challenge = xdr.TransactionEnvelope.toXDR(
+        transaction.toEnvelope(),
+        "base64",
+      ).toString();
 
       const transactionRoundTripped = new StellarSdk.Transaction(
         challenge,
@@ -1241,7 +1295,10 @@ describe("Utils", () => {
         .build();
 
       transaction.sign(serverKP);
-      const challenge = transaction.toEnvelope().toXDR("base64").toString();
+      const challenge = xdr.TransactionEnvelope.toXDR(
+        transaction.toEnvelope(),
+        "base64",
+      ).toString();
 
       const transactionRoundTripped = new StellarSdk.Transaction(
         challenge,
@@ -1292,7 +1349,10 @@ describe("Utils", () => {
         .build();
 
       transaction.sign(serverKP);
-      const challenge = transaction.toEnvelope().toXDR("base64").toString();
+      const challenge = xdr.TransactionEnvelope.toXDR(
+        transaction.toEnvelope(),
+        "base64",
+      ).toString();
 
       const transactionRoundTripped = new StellarSdk.Transaction(
         challenge,
@@ -1345,7 +1405,10 @@ describe("Utils", () => {
         .build();
 
       transaction.sign(serverKP);
-      const challenge = transaction.toEnvelope().toXDR("base64").toString();
+      const challenge = xdr.TransactionEnvelope.toXDR(
+        transaction.toEnvelope(),
+        "base64",
+      ).toString();
 
       WebAuth.readChallengeTx(
         challenge,
@@ -1407,7 +1470,10 @@ describe("Utils", () => {
 
       transaction.sign(clientKP1);
 
-      const challenge = transaction.toEnvelope().toXDR("base64").toString();
+      const challenge = xdr.TransactionEnvelope.toXDR(
+        transaction.toEnvelope(),
+        "base64",
+      ).toString();
 
       expect(() =>
         WebAuth.verifyChallengeTxThreshold(
@@ -1443,10 +1509,10 @@ describe("Utils", () => {
         StellarSdk.Networks.TESTNET,
       );
       transaction.sign(clientKP1);
-      const signedChallenge = transaction
-        .toEnvelope()
-        .toXDR("base64")
-        .toString();
+      const signedChallenge = xdr.TransactionEnvelope.toXDR(
+        transaction.toEnvelope(),
+        "base64",
+      ).toString();
 
       const threshold = 1;
       const signerSummary = [newClientSigner(clientKP1.publicKey(), 1)];
@@ -1481,10 +1547,10 @@ describe("Utils", () => {
         StellarSdk.Networks.TESTNET,
       );
       transaction.sign(clientKP1, clientKP2);
-      const signedChallenge = transaction
-        .toEnvelope()
-        .toXDR("base64")
-        .toString();
+      const signedChallenge = xdr.TransactionEnvelope.toXDR(
+        transaction.toEnvelope(),
+        "base64",
+      ).toString();
 
       const threshold = 3;
       const signerSummary = [
@@ -1522,10 +1588,10 @@ describe("Utils", () => {
         StellarSdk.Networks.TESTNET,
       );
       transaction.sign(clientKP1, clientKP2);
-      const signedChallenge = transaction
-        .toEnvelope()
-        .toXDR("base64")
-        .toString();
+      const signedChallenge = xdr.TransactionEnvelope.toXDR(
+        transaction.toEnvelope(),
+        "base64",
+      ).toString();
 
       const threshold = 3;
       const signerSummary = [
@@ -1570,10 +1636,10 @@ describe("Utils", () => {
         StellarSdk.Networks.TESTNET,
       );
       transaction.sign(clientKP1, clientKP2);
-      const signedChallenge = transaction
-        .toEnvelope()
-        .toXDR("base64")
-        .toString();
+      const signedChallenge = xdr.TransactionEnvelope.toXDR(
+        transaction.toEnvelope(),
+        "base64",
+      ).toString();
 
       const threshold = 3;
       const signerSummary = [
@@ -1615,10 +1681,10 @@ describe("Utils", () => {
         StellarSdk.Networks.TESTNET,
       );
       transaction.sign(clientKP1, clientKP2);
-      const signedChallenge = transaction
-        .toEnvelope()
-        .toXDR("base64")
-        .toString();
+      const signedChallenge = xdr.TransactionEnvelope.toXDR(
+        transaction.toEnvelope(),
+        "base64",
+      ).toString();
 
       const threshold = 10;
       const signerSummary = [
@@ -1661,10 +1727,10 @@ describe("Utils", () => {
         StellarSdk.Networks.TESTNET,
       );
       transaction.sign(clientKP1, clientKP2, clientKP3);
-      const signedChallenge = transaction
-        .toEnvelope()
-        .toXDR("base64")
-        .toString();
+      const signedChallenge = xdr.TransactionEnvelope.toXDR(
+        transaction.toEnvelope(),
+        "base64",
+      ).toString();
 
       const threshold = 10;
       const signerSummary = [
@@ -1706,10 +1772,10 @@ describe("Utils", () => {
         StellarSdk.Networks.TESTNET,
       );
       transaction.sign(clientKP1, clientKP2, clientKP3);
-      const signedChallenge = transaction
-        .toEnvelope()
-        .toXDR("base64")
-        .toString();
+      const signedChallenge = xdr.TransactionEnvelope.toXDR(
+        transaction.toEnvelope(),
+        "base64",
+      ).toString();
 
       const threshold = 10;
 
@@ -1783,10 +1849,10 @@ describe("Utils", () => {
       );
       transaction.sign(clientKP1);
 
-      const signedChallenge = transaction
-        .toEnvelope()
-        .toXDR("base64")
-        .toString();
+      const signedChallenge = xdr.TransactionEnvelope.toXDR(
+        transaction.toEnvelope(),
+        "base64",
+      ).toString();
 
       expect(
         WebAuth.verifyChallengeTxSigners(
@@ -1811,10 +1877,10 @@ describe("Utils", () => {
 
       transaction.sign(StellarSdk.Keypair.random()); // Signing with another key pair instead of the server's
 
-      const invalidsServerSignedChallenge = transaction
-        .toEnvelope()
-        .toXDR("base64")
-        .toString();
+      const invalidsServerSignedChallenge = xdr.TransactionEnvelope.toXDR(
+        transaction.toEnvelope(),
+        "base64",
+      ).toString();
 
       expect(() =>
         WebAuth.verifyChallengeTxSigners(
@@ -1880,10 +1946,10 @@ describe("Utils", () => {
         StellarSdk.Keypair.random(),
         StellarSdk.Keypair.random(),
       );
-      const signedChallenge = transaction
-        .toEnvelope()
-        .toXDR("base64")
-        .toString();
+      const signedChallenge = xdr.TransactionEnvelope.toXDR(
+        transaction.toEnvelope(),
+        "base64",
+      ).toString();
 
       expect(() =>
         WebAuth.verifyChallengeTxSigners(
@@ -1921,10 +1987,10 @@ describe("Utils", () => {
       transaction.sign(...clientSigners);
       const clientSignersPubKey = clientSigners.map((kp) => kp.publicKey());
 
-      const signedChallenge = transaction
-        .toEnvelope()
-        .toXDR("base64")
-        .toString();
+      const signedChallenge = xdr.TransactionEnvelope.toXDR(
+        transaction.toEnvelope(),
+        "base64",
+      ).toString();
 
       expect(
         WebAuth.verifyChallengeTxSigners(
@@ -1958,10 +2024,10 @@ describe("Utils", () => {
       transaction.sign(...clientSigners.reverse());
       const clientSignersPubKey = clientSigners.map((kp) => kp.publicKey());
 
-      const signedChallenge = transaction
-        .toEnvelope()
-        .toXDR("base64")
-        .toString();
+      const signedChallenge = xdr.TransactionEnvelope.toXDR(
+        transaction.toEnvelope(),
+        "base64",
+      ).toString();
 
       expect(
         WebAuth.verifyChallengeTxSigners(
@@ -1993,10 +2059,10 @@ describe("Utils", () => {
       );
       transaction.sign(clientKP2);
 
-      const signedChallenge = transaction
-        .toEnvelope()
-        .toXDR("base64")
-        .toString();
+      const signedChallenge = xdr.TransactionEnvelope.toXDR(
+        transaction.toEnvelope(),
+        "base64",
+      ).toString();
 
       expect(
         WebAuth.verifyChallengeTxSigners(
@@ -2028,10 +2094,10 @@ describe("Utils", () => {
       );
       transaction.sign(clientKP2);
 
-      const signedChallenge = transaction
-        .toEnvelope()
-        .toXDR("base64")
-        .toString();
+      const signedChallenge = xdr.TransactionEnvelope.toXDR(
+        transaction.toEnvelope(),
+        "base64",
+      ).toString();
 
       expect(
         WebAuth.verifyChallengeTxSigners(
@@ -2063,10 +2129,10 @@ describe("Utils", () => {
       );
       transaction.sign(serverKP);
 
-      const signedChallenge = transaction
-        .toEnvelope()
-        .toXDR("base64")
-        .toString();
+      const signedChallenge = xdr.TransactionEnvelope.toXDR(
+        transaction.toEnvelope(),
+        "base64",
+      ).toString();
 
       expect(() =>
         WebAuth.verifyChallengeTxSigners(
@@ -2102,10 +2168,10 @@ describe("Utils", () => {
       );
       transaction.sign(clientKP2);
 
-      const signedChallenge = transaction
-        .toEnvelope()
-        .toXDR("base64")
-        .toString();
+      const signedChallenge = xdr.TransactionEnvelope.toXDR(
+        transaction.toEnvelope(),
+        "base64",
+      ).toString();
 
       expect(
         WebAuth.verifyChallengeTxSigners(
@@ -2143,10 +2209,10 @@ describe("Utils", () => {
       );
       transaction.sign(clientKP2);
 
-      const signedChallenge = transaction
-        .toEnvelope()
-        .toXDR("base64")
-        .toString();
+      const signedChallenge = xdr.TransactionEnvelope.toXDR(
+        transaction.toEnvelope(),
+        "base64",
+      ).toString();
 
       expect(
         WebAuth.verifyChallengeTxSigners(
@@ -2177,10 +2243,10 @@ describe("Utils", () => {
         StellarSdk.Networks.TESTNET,
       );
       transaction.sign(clientKP1);
-      const signedChallenge = transaction
-        .toEnvelope()
-        .toXDR("base64")
-        .toString();
+      const signedChallenge = xdr.TransactionEnvelope.toXDR(
+        transaction.toEnvelope(),
+        "base64",
+      ).toString();
 
       expect(() =>
         WebAuth.verifyChallengeTxSigners(
@@ -2216,10 +2282,10 @@ describe("Utils", () => {
       );
       transaction.sign(clientKP2, clientKP2);
 
-      const signedChallenge = transaction
-        .toEnvelope()
-        .toXDR("base64")
-        .toString();
+      const signedChallenge = xdr.TransactionEnvelope.toXDR(
+        transaction.toEnvelope(),
+        "base64",
+      ).toString();
 
       expect(() =>
         WebAuth.verifyChallengeTxSigners(
@@ -2255,10 +2321,10 @@ describe("Utils", () => {
       );
       transaction.sign(clientKP2, clientKP2);
 
-      const signedChallenge = transaction
-        .toEnvelope()
-        .toXDR("base64")
-        .toString();
+      const signedChallenge = xdr.TransactionEnvelope.toXDR(
+        transaction.toEnvelope(),
+        "base64",
+      ).toString();
 
       expect(() =>
         WebAuth.verifyChallengeTxSigners(
@@ -2286,7 +2352,10 @@ describe("Utils", () => {
         .build();
 
       transaction.sign(serverKP);
-      const challenge = transaction.toEnvelope().toXDR("base64").toString();
+      const challenge = xdr.TransactionEnvelope.toXDR(
+        transaction.toEnvelope(),
+        "base64",
+      ).toString();
 
       const clientSigners = [clientKP1.publicKey(), clientKP2.publicKey()];
 
@@ -2324,10 +2393,10 @@ describe("Utils", () => {
       );
       transaction.sign(clientKP1);
 
-      const signedChallenge = transaction
-        .toEnvelope()
-        .toXDR("base64")
-        .toString();
+      const signedChallenge = xdr.TransactionEnvelope.toXDR(
+        transaction.toEnvelope(),
+        "base64",
+      ).toString();
 
       expect(() =>
         WebAuth.verifyChallengeTxSigners(
@@ -2371,10 +2440,10 @@ describe("Utils", () => {
       transaction.sign(clientKP);
       transaction.sign(clientSigningKey);
 
-      const signedChallenge = transaction
-        .toEnvelope()
-        .toXDR("base64")
-        .toString();
+      const signedChallenge = xdr.TransactionEnvelope.toXDR(
+        transaction.toEnvelope(),
+        "base64",
+      ).toString();
 
       const signersFound = WebAuth.verifyChallengeTxSigners(
         signedChallenge,
@@ -2414,10 +2483,10 @@ describe("Utils", () => {
       // Only sign with clientSigningKey, NOT clientKP (no actual client signer)
       transaction.sign(clientSigningKey);
 
-      const signedChallenge = transaction
-        .toEnvelope()
-        .toXDR("base64")
-        .toString();
+      const signedChallenge = xdr.TransactionEnvelope.toXDR(
+        transaction.toEnvelope(),
+        "base64",
+      ).toString();
 
       expect(() =>
         WebAuth.verifyChallengeTxSigners(
@@ -2460,10 +2529,10 @@ describe("Utils", () => {
 
       transaction.sign(clientKP);
 
-      const signedChallenge = transaction
-        .toEnvelope()
-        .toXDR("base64")
-        .toString();
+      const signedChallenge = xdr.TransactionEnvelope.toXDR(
+        transaction.toEnvelope(),
+        "base64",
+      ).toString();
 
       expect(() =>
         WebAuth.verifyChallengeTxSigners(
@@ -2524,10 +2593,10 @@ describe("Utils", () => {
       transaction.sign(clientKP);
       transaction.sign(clientSigningKeypair);
 
-      const signedChallenge = transaction
-        .toEnvelope()
-        .toXDR("base64")
-        .toString();
+      const signedChallenge = xdr.TransactionEnvelope.toXDR(
+        transaction.toEnvelope(),
+        "base64",
+      ).toString();
 
       expect(() =>
         WebAuth.verifyChallengeTxSigners(

@@ -1,4 +1,17 @@
-import xdr from "./xdr.js";
+import {
+  ClaimableBalanceId,
+  EnvelopeType,
+  HashIdPreimage,
+  Memo as XdrMemo,
+  PreconditionType,
+  PublicKey,
+  SignerKey,
+  Transaction as XdrTransaction,
+  TransactionEnvelope,
+  TransactionSignaturePayload,
+  TransactionSignaturePayloadTaggedTransaction,
+  TransactionV0,
+} from "./generated/index.js";
 import { hash } from "./hashing.js";
 
 import { StrKey } from "./strkey.js";
@@ -23,11 +36,11 @@ import { OperationRecord } from "./operations/types.js";
  *
  */
 export class Transaction extends TransactionBase<
-  xdr.Transaction | xdr.TransactionV0
+  XdrTransaction | TransactionV0
 > {
-  private _envelopeType: xdr.EnvelopeType;
+  private _envelopeType: EnvelopeType;
   private _source: string = "";
-  private _memo: xdr.Memo;
+  private _memo: XdrMemo;
   private _sequence: string;
   private _operations: OperationRecord[];
   private _timeBounds?: { minTime: string; maxTime: string };
@@ -35,7 +48,7 @@ export class Transaction extends TransactionBase<
   private _minAccountSequence?: string;
   private _minAccountSequenceAge?: bigint;
   private _minAccountSequenceLedgerGap?: number;
-  private _extraSigners?: xdr.SignerKey[];
+  private _extraSigners?: SignerKey[];
 
   /**
    * @param envelope - transaction envelope object or base64 encoded string
@@ -43,48 +56,47 @@ export class Transaction extends TransactionBase<
    *     (e.g. "Public Global Stellar Network ; September 2015")
    */
   constructor(
-    envelope: xdr.TransactionEnvelope | string,
+    envelope: TransactionEnvelope | string,
     networkPassphrase: string,
   ) {
     if (typeof envelope === "string") {
       const buffer = Buffer.from(envelope, "base64");
-      envelope = xdr.TransactionEnvelope.fromXDR(buffer);
+      envelope = TransactionEnvelope.fromXDR(buffer);
     }
 
-    const envelopeType = envelope.switch();
+    const envelopeType = envelope.type;
     if (
       !(
-        envelopeType === xdr.EnvelopeType.envelopeTypeTxV0() ||
-        envelopeType === xdr.EnvelopeType.envelopeTypeTx()
+        envelopeType === EnvelopeType.envelopeTypeTxV0 ||
+        envelopeType === EnvelopeType.envelopeTypeTx
       )
     ) {
       throw new Error(
-        `Invalid TransactionEnvelope: expected an envelopeTypeTxV0 or envelopeTypeTx but received an ${envelopeType.name}.`,
+        `Invalid TransactionEnvelope: expected an envelopeTypeTxV0 or envelopeTypeTx but received an ${envelopeType}.`,
       );
     }
 
-    const txEnvelope = envelope.value() as
-      | xdr.TransactionV0Envelope
-      | xdr.TransactionV1Envelope;
-    const tx = txEnvelope.tx();
-    const fee = tx.fee().toString();
-    const signatures = (txEnvelope.signatures() || []).slice();
+    const txEnvelope =
+      envelope.type === "envelopeTypeTxV0" ? envelope.v0 : envelope.v1;
+    const tx = txEnvelope.tx;
+    const fee = tx.fee.toString();
+    const signatures = (txEnvelope.signatures || []).slice();
 
     super(tx, signatures, fee, networkPassphrase);
 
     this._envelopeType = envelopeType;
-    this._memo = tx.memo();
-    this._sequence = tx.seqNum().toString();
+    this._memo = tx.memo;
+    this._sequence = tx.seqNum.toString();
 
     switch (this._envelopeType) {
-      case xdr.EnvelopeType.envelopeTypeTxV0():
+      case EnvelopeType.envelopeTypeTxV0:
         this._source = StrKey.encodeEd25519PublicKey(
-          (tx as xdr.TransactionV0).sourceAccountEd25519(),
+          Buffer.from((tx as TransactionV0).sourceAccountEd25519),
         );
         break;
       default:
         this._source = encodeMuxedAccountToAddress(
-          (tx as xdr.Transaction).sourceAccount(),
+          (tx as XdrTransaction).sourceAccount,
         );
         break;
     }
@@ -92,25 +104,27 @@ export class Transaction extends TransactionBase<
     let cond = null;
     let timeBounds = null;
     switch (this._envelopeType) {
-      case xdr.EnvelopeType.envelopeTypeTxV0():
-        timeBounds = (tx as xdr.TransactionV0).timeBounds();
+      case EnvelopeType.envelopeTypeTxV0:
+        timeBounds = (tx as TransactionV0).timeBounds;
         break;
 
-      case xdr.EnvelopeType.envelopeTypeTx():
-        switch ((tx as xdr.Transaction).cond().switch()) {
-          case xdr.PreconditionType.precondTime():
-            timeBounds = (tx as xdr.Transaction).cond().timeBounds();
+      case EnvelopeType.envelopeTypeTx: {
+        const preconditions = (tx as XdrTransaction).cond;
+        switch (preconditions.type) {
+          case PreconditionType.precondTime:
+            timeBounds = preconditions.timeBounds;
             break;
 
-          case xdr.PreconditionType.precondV2():
-            cond = (tx as xdr.Transaction).cond().v2();
-            timeBounds = cond.timeBounds();
+          case PreconditionType.precondV2:
+            cond = preconditions.v2;
+            timeBounds = cond.timeBounds;
             break;
 
           default:
             break;
         }
         break;
+      }
 
       default:
         break;
@@ -118,31 +132,31 @@ export class Transaction extends TransactionBase<
 
     if (timeBounds) {
       this._timeBounds = {
-        minTime: timeBounds.minTime().toString(),
-        maxTime: timeBounds.maxTime().toString(),
+        minTime: timeBounds.minTime.toString(),
+        maxTime: timeBounds.maxTime.toString(),
       };
     }
 
     if (cond) {
-      const ledgerBounds = cond.ledgerBounds();
+      const ledgerBounds = cond.ledgerBounds;
       if (ledgerBounds) {
         this._ledgerBounds = {
-          minLedger: ledgerBounds.minLedger(),
-          maxLedger: ledgerBounds.maxLedger(),
+          minLedger: ledgerBounds.minLedger,
+          maxLedger: ledgerBounds.maxLedger,
         };
       }
 
-      const minSeq = cond.minSeqNum();
+      const minSeq = cond.minSeqNum;
       if (minSeq) {
         this._minAccountSequence = minSeq.toString();
       }
 
-      this._minAccountSequenceAge = cond.minSeqAge().toBigInt();
-      this._minAccountSequenceLedgerGap = cond.minSeqLedgerGap();
-      this._extraSigners = cond.extraSigners();
+      this._minAccountSequenceAge = cond.minSeqAge;
+      this._minAccountSequenceLedgerGap = cond.minSeqLedgerGap;
+      this._extraSigners = cond.extraSigners.slice();
     }
 
-    const operations = tx.operations() || [];
+    const operations = tx.operations || [];
     this._operations = operations.map((op) => Operation.fromXDRObject(op));
   }
 
@@ -248,59 +262,59 @@ export class Transaction extends TransactionBase<
 
     // Backwards Compatibility: Use ENVELOPE_TYPE_TX to sign ENVELOPE_TYPE_TX_V0
     // we need a Transaction to generate the signature base
-    if (this._envelopeType === xdr.EnvelopeType.envelopeTypeTxV0()) {
-      tx = xdr.Transaction.fromXDR(
+    if (this._envelopeType === EnvelopeType.envelopeTypeTxV0) {
+      tx = XdrTransaction.fromXDR(
         Buffer.concat([
           // TransactionV0 is a transaction with the AccountID discriminant
           // stripped off, we need to put it back to build a valid transaction
           // which we can use to build a TransactionSignaturePayloadTaggedTransaction
           Buffer.alloc(4), // AccountID discriminant: publicKeyTypeEd25519 = 0
-          tx.toXDR(),
+          TransactionV0.toXDR(tx as TransactionV0, "raw"),
         ]),
       );
     }
 
     const taggedTransaction =
-      xdr.TransactionSignaturePayloadTaggedTransaction.envelopeTypeTx(
-        tx as xdr.Transaction,
+      TransactionSignaturePayloadTaggedTransaction.envelopeTypeTx(
+        tx as XdrTransaction,
       );
 
-    const txSignature = new xdr.TransactionSignaturePayload({
-      networkId: xdr.Hash.fromXDR(hash(this.networkPassphrase)),
+    const txSignature = {
+      networkId: hash(this.networkPassphrase),
       taggedTransaction,
-    });
+    };
 
-    return txSignature.toXDR();
+    return Buffer.from(TransactionSignaturePayload.toXDR(txSignature, "raw"));
   }
 
   /**
-   * To envelope returns a xdr.TransactionEnvelope which can be submitted to the network.
+   * To envelope returns a TransactionEnvelope which can be submitted to the network.
    */
-  override toEnvelope(): xdr.TransactionEnvelope {
-    const rawTx = this.tx.toXDR();
+  override toEnvelope(): TransactionEnvelope {
+    const currentTx = this.tx;
     const signatures = this.signatures.slice(); // make a copy of the signatures
 
     let envelope;
     switch (this._envelopeType) {
-      case xdr.EnvelopeType.envelopeTypeTxV0():
-        envelope = xdr.TransactionEnvelope.envelopeTypeTxV0(
-          new xdr.TransactionV0Envelope({
-            tx: xdr.TransactionV0.fromXDR(rawTx), // make a copy of tx
-            signatures,
-          }),
-        );
+      case EnvelopeType.envelopeTypeTxV0:
+        envelope = TransactionEnvelope.envelopeTypeTxV0({
+          tx: TransactionV0.fromXDR(
+            TransactionV0.toXDR(currentTx as TransactionV0, "raw"),
+          ), // make a copy of tx
+          signatures,
+        });
         break;
-      case xdr.EnvelopeType.envelopeTypeTx():
-        envelope = xdr.TransactionEnvelope.envelopeTypeTx(
-          new xdr.TransactionV1Envelope({
-            tx: xdr.Transaction.fromXDR(rawTx), // make a copy of tx
-            signatures,
-          }),
-        );
+      case EnvelopeType.envelopeTypeTx:
+        envelope = TransactionEnvelope.envelopeTypeTx({
+          tx: XdrTransaction.fromXDR(
+            XdrTransaction.toXDR(currentTx as XdrTransaction, "raw"),
+          ), // make a copy of tx
+          signatures,
+        });
         break;
       default:
         throw new Error(
-          `Invalid TransactionEnvelope: expected an envelopeTypeTxV0 or envelopeTypeTx but received an ${this._envelopeType.name}.`,
+          `Invalid TransactionEnvelope: expected an envelopeTypeTxV0 or envelopeTypeTx but received an ${this._envelopeType}.`,
         );
     }
 
@@ -348,16 +362,16 @@ export class Transaction extends TransactionBase<
     const account = StrKey.decodeEd25519PublicKey(
       extractBaseAddress(this.source),
     );
-    const operationId = xdr.HashIdPreimage.envelopeTypeOpId(
-      new xdr.HashIdPreimageOperationId({
-        sourceAccount: xdr.PublicKey.publicKeyTypeEd25519(account),
-        seqNum: xdr.Int64.fromString(this.sequence),
-        opNum: opIndex,
-      }),
-    );
+    const operationId = HashIdPreimage.envelopeTypeOpId({
+      sourceAccount: PublicKey.publicKeyTypeEd25519(account),
+      seqNum: BigInt(this.sequence),
+      opNum: opIndex,
+    });
 
-    const opIdHash = hash(operationId.toXDR("raw"));
-    const balanceId = xdr.ClaimableBalanceId.claimableBalanceIdTypeV0(opIdHash);
-    return balanceId.toXDR("hex");
+    const opIdHash = hash(
+      Buffer.from(HashIdPreimage.toXDR(operationId, "raw")),
+    );
+    const balanceId = ClaimableBalanceId.claimableBalanceIdTypeV0(opIdHash);
+    return ClaimableBalanceId.toXDR(balanceId, "hex");
   }
 }

@@ -35,20 +35,23 @@ describe("Operation.pathPaymentStrictSend()", () => {
       destMin,
       path,
     });
-    const xdrHex = op.toXDR("hex");
+    const xdrHex = xdr.Operation.toXDR(op, "hex");
     const operation = xdr.Operation.fromXDR(xdrHex, "hex");
     const obj = expectOperationType(
       Operation.fromXDRObject(operation),
       "pathPaymentStrictSend",
     );
-    const body = operation.body().value() as xdr.PathPaymentStrictSendOp;
+    if (operation.body.type !== xdr.OperationType.pathPaymentStrictSend) {
+      expect.fail("Expected pathPaymentStrictSend operation");
+    }
+    const body = operation.body.pathPaymentStrictSendOp;
 
     expect(obj.sendAsset.equals(sendAsset)).toBe(true);
-    expect(body.sendAmount().toString()).toBe("30070000");
+    expect(body.sendAmount.toString()).toBe("30070000");
     expect(obj.sendAmount).toBe(sendAmount);
     expect(obj.destination).toBe(destination);
     expect(obj.destAsset.equals(destAsset)).toBe(true);
-    expect(body.destMin().toString()).toBe("31415000");
+    expect(body.destMin.toString()).toBe("31415000");
     expect(obj.destMin).toBe(destMin);
 
     const path0 = expectDefined(obj.path[0]);
@@ -88,8 +91,8 @@ describe("Operation.pathPaymentStrictSend()", () => {
     });
 
     expect(() => {
-      xdr.Operation.fromXDR(packed.toXDR("raw"), "raw");
-      xdr.Operation.fromXDR(packed.toXDR("hex"), "hex");
+      xdr.Operation.fromXDR(xdr.Operation.toXDR(packed, "raw"), "raw");
+      xdr.Operation.fromXDR(xdr.Operation.toXDR(packed, "hex"), "hex");
     }).not.toThrow();
 
     const unpacked = expectOperationType(
@@ -184,7 +187,7 @@ describe("Operation.pathPaymentStrictSend()", () => {
       destAsset,
       destMin,
     });
-    const xdrHex = op.toXDR("hex");
+    const xdrHex = xdr.Operation.toXDR(op, "hex");
     const operation = xdr.Operation.fromXDR(xdrHex, "hex");
     const obj = expectOperationType(
       Operation.fromXDRObject(operation),
@@ -202,8 +205,8 @@ describe("Operation.pathPaymentStrictSend()", () => {
       destMin,
       path,
     });
-    const hex = op.toXDR("hex");
+    const hex = xdr.Operation.toXDR(op, "hex");
     const roundtripped = xdr.Operation.fromXDR(hex, "hex");
-    expect(roundtripped.body().switch().name).toBe("pathPaymentStrictSend");
+    expect(roundtripped.body.type).toBe("pathPaymentStrictSend");
   });
 });

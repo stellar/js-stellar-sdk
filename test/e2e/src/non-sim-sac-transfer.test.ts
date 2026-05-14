@@ -31,10 +31,7 @@ async function submitTx(
   builder.addOperation(op);
 
   const tx = builder.build();
-  if (
-    op.body().switch().name === "changeTrust" ||
-    op.body().switch().name === "payment"
-  ) {
+  if (op.body.type === "changeTrust" || op.body.type === "payment") {
     // Classic operations can not be simulated, so we send them directly without simulation to ensure the test setup is complete.
     tx.sign(sourceKeypair);
     const classicResp = await server.sendTransaction(tx);

@@ -1,11 +1,7 @@
 import BigNumber from "../util/bignumber.js";
 import { setSourceAccount } from "../util/operations.js";
-import xdr from "../xdr.js";
-import {
-  BumpSequenceResult,
-  BumpSequenceOpts,
-  OperationAttributes,
-} from "./types.js";
+import { Int64, Operation, OperationBody } from "../generated/index.js";
+import { BumpSequenceOpts, OperationAttributes } from "./types.js";
 
 /**
  * This operation bumps sequence number.
@@ -13,9 +9,7 @@ import {
  * @param opts.bumpTo - Sequence number to bump to.
  * @param opts.source - The optional source account.
  */
-export function bumpSequence(
-  opts: BumpSequenceOpts,
-): xdr.Operation<BumpSequenceResult> {
+export function bumpSequence(opts: BumpSequenceOpts): Operation {
   if (typeof opts.bumpTo !== "string") {
     throw new Error("bumpTo must be a string");
   }
@@ -26,16 +20,16 @@ export function bumpSequence(
     throw new Error("bumpTo must be a stringified number");
   }
 
-  const bumpTo: xdr.Int64 = xdr.Int64.fromString(opts.bumpTo);
+  const bumpTo: Int64 = BigInt(opts.bumpTo);
 
-  const bumpSequenceOp = new xdr.BumpSequenceOp({ bumpTo });
+  const bumpSequenceOp = { bumpTo };
 
   const opAttributes: OperationAttributes = {
     sourceAccount: null,
-    body: xdr.OperationBody.bumpSequence(bumpSequenceOp),
+    body: OperationBody.bumpSequence(bumpSequenceOp),
   };
 
   setSourceAccount(opAttributes, opts);
 
-  return new xdr.Operation(opAttributes);
+  return opAttributes;
 }

@@ -20,7 +20,7 @@ describe("Operation.payment()", () => {
       "GDGU5OAPHNPU5UCLE5RDJHG7PXZFQYWKCFOEXSXNMR6KRQRI5T6XXCD7",
     );
     const op = Operation.payment({ destination, asset, amount });
-    const xdrHex = op.toXDR("hex");
+    const xdrHex = xdr.Operation.toXDR(op, "hex");
     const operation = xdr.Operation.fromXDR(xdrHex, "hex");
     const obj = expectOperationType(
       Operation.fromXDRObject(operation),
@@ -33,7 +33,7 @@ describe("Operation.payment()", () => {
     const amount = "200.0000000";
     const asset = Asset.native();
     const op = Operation.payment({ destination, asset, amount });
-    const xdrHex = op.toXDR("hex");
+    const xdrHex = xdr.Operation.toXDR(op, "hex");
     const operation = xdr.Operation.fromXDR(xdrHex, "hex");
     const obj = expectOperationType(
       Operation.fromXDRObject(operation),
@@ -58,7 +58,7 @@ describe("Operation.payment()", () => {
       source: muxedSource,
     });
 
-    const packed = xdr.Operation.fromXDR(op.toXDR("hex"), "hex");
+    const packed = xdr.Operation.fromXDR(xdr.Operation.toXDR(op, "hex"), "hex");
     const unpacked = expectOperationType(
       Operation.fromXDRObject(packed),
       "payment",
@@ -75,7 +75,7 @@ describe("Operation.payment()", () => {
       source: base,
     });
 
-    const packed = xdr.Operation.fromXDR(op.toXDR("hex"), "hex");
+    const packed = xdr.Operation.fromXDR(xdr.Operation.toXDR(op, "hex"), "hex");
     const unpacked = expectOperationType(
       Operation.fromXDRObject(packed),
       "payment",
@@ -96,7 +96,7 @@ describe("Operation.payment()", () => {
       source: base,
     });
 
-    const packed = xdr.Operation.fromXDR(op.toXDR("hex"), "hex");
+    const packed = xdr.Operation.fromXDR(xdr.Operation.toXDR(op, "hex"), "hex");
     const unpacked = expectOperationType(
       Operation.fromXDRObject(packed),
       "payment",
@@ -149,8 +149,8 @@ describe("Operation.payment()", () => {
       asset: Asset.native(),
       amount: "50.0000000",
     });
-    const hex = op.toXDR("hex");
+    const hex = xdr.Operation.toXDR(op, "hex");
     const roundtripped = xdr.Operation.fromXDR(hex, "hex");
-    expect(roundtripped.body().switch().name).toBe("payment");
+    expect(roundtripped.body.type).toBe("payment");
   });
 });

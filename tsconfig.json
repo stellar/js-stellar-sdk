@@ -12,7 +12,8 @@
     "outDir": "lib/esm",
     "target": "es2022",
     "types": ["node", "base32.js", "stellar__js-xdr"],
-    "typeRoots": ["types", "node_modules/@types"]
+    "typeRoots": ["types", "node_modules/@types"],
+    "importHelpers": false
   },
   "include": ["src"],
   "exclude": [

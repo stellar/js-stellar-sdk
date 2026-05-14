@@ -1,14 +1,14 @@
 import { describe, it, beforeEach, afterEach, expect, vi } from "vitest";
 import * as StellarSdk from "../../../../src/index.js";
 
-import { serverUrl } from "../../../constants";
+import { serverUrl } from "../../../constants.js";
 
 const { Account, Keypair, xdr } = StellarSdk;
 
 const { Server } = StellarSdk.rpc;
 
 describe("Server#getAccount", () => {
-  let server: any;
+  let server: rpc.Server;
   let mockPost: any;
 
   beforeEach(() => {
@@ -22,7 +22,7 @@ describe("Server#getAccount", () => {
 
   const address = "GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI";
   const accountId = Keypair.fromPublicKey(address).xdrPublicKey();
-  const key = xdr.LedgerKey.account(new xdr.LedgerKeyAccount({ accountId }));
+  const key = xdr.LedgerKey.account({ accountId: accountId });
   const accountEntry =
     "AAAAAAAAAABzdv3ojkzWHMD7KUoXhrPx0GH18vHKV0ZfqpMiEblG1g3gtpoE608YAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAADAAAAAAAAAAQAAAAAY9D8iA";
 
@@ -33,7 +33,7 @@ describe("Server#getAccount", () => {
           latestLedger: 0,
           entries: [
             {
-              key: key.toXDR("base64"),
+              key: xdr.LedgerKey.toXDR(key, "base64"),
               xdr: accountEntry,
             },
           ],
@@ -51,7 +51,7 @@ describe("Server#getAccount", () => {
       jsonrpc: "2.0",
       id: 1,
       method: "getLedgerEntries",
-      params: { keys: [key.toXDR("base64")] },
+      params: { keys: [xdr.LedgerKey.toXDR(key, "base64")] },
     });
     expect(mockPost).toHaveBeenCalledTimes(1);
   });
@@ -75,7 +75,7 @@ describe("Server#getAccount", () => {
       jsonrpc: "2.0",
       id: 1,
       method: "getLedgerEntries",
-      params: { keys: [key.toXDR("base64")] },
+      params: { keys: [xdr.LedgerKey.toXDR(key, "base64")] },
     });
     expect(mockPost).toHaveBeenCalledTimes(1);
   });

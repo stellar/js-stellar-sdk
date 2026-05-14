@@ -12,6 +12,7 @@ import {
   Transaction,
   Networks,
 } from "../base/index.js";
+import { TransactionEnvelope } from "../base/generated/index.js";
 import { InvalidChallengeError } from "./errors.js";
 import { gatherTxSigners, verifyTxSignedBy } from "./utils.js";
 import { Utils } from "../utils.js";
@@ -127,7 +128,7 @@ export function buildChallengeTx(
   const transaction = builder.build();
   transaction.sign(serverKeypair);
 
-  return transaction.toEnvelope().toXDR("base64").toString();
+  return TransactionEnvelope.toXDR(transaction.toEnvelope(), "base64");
 }
 
 /**

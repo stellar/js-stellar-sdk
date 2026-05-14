@@ -1,6 +1,7 @@
 // NOTE: key and signature constants were generated using rbnacl
 import { describe, it, expect } from "vitest";
 import { generate, sign, verify } from "../../../src/base/signing.js";
+import { isUint8Array, uint8ArrayToHex } from "uint8array-extras";
 
 const seed = Buffer.from(
   "1123740522f11bfef6b3671f51e159ccf589ccf8965262dd5f97d1721d383dd4",
@@ -15,12 +16,12 @@ const secretKey = seed;
 describe("generate", () => {
   it("generates the correct public key from a known seed", () => {
     const generatedKey = generate(seed);
-    expect(generatedKey.toString("hex")).toEqual(publicKey.toString("hex"));
+    expect(generatedKey).toEqual(publicKey);
   });
 
   it("returns a Buffer", () => {
     const generatedKey = generate(seed);
-    expect(Buffer.isBuffer(generatedKey)).toBe(true);
+    expect(isUint8Array(generatedKey)).toBe(true);
   });
 });
 
@@ -30,7 +31,7 @@ describe("sign", () => {
 
   it("signs data correctly", () => {
     const data = Buffer.from("hello world", "utf8");
-    const actualSig = sign(data, secretKey).toString("hex");
+    const actualSig = uint8ArrayToHex(sign(data, secretKey));
     expect(actualSig).toEqual(expectedSig);
   });
 
@@ -38,7 +39,7 @@ describe("sign", () => {
     const data = Buffer.from([
       104, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100,
     ]);
-    const actualSig = sign(data, secretKey).toString("hex");
+    const actualSig = uint8ArrayToHex(sign(data, secretKey));
     expect(actualSig).toEqual(expectedSig);
   });
 });
