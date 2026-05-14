@@ -1,17 +1,14 @@
 import { describe, it, beforeEach, afterEach, expect, vi } from "vitest";
-import * as StellarSdk from "../../../../src/index.js";
-
-const { Server } = StellarSdk.rpc;
-const { xdr } = StellarSdk;
+import { xdr, rpc } from "../../../../src/index.js";
 
 const serverUrl = "https://soroban-testnet.stellar.org";
 
 describe("Server#getLedgers", () => {
-  let server: any;
+  let server: rpc.Server;
   let axiosMock: any;
 
   beforeEach(() => {
-    server = new Server(serverUrl);
+    server = new rpc.Server(serverUrl);
     axiosMock = vi.spyOn(server.httpClient, "post");
   });
 
@@ -154,8 +151,8 @@ describe("Server#getLedgers", () => {
     expect(typeof ledger.sequence).toBe("number");
     expect(typeof ledger.hash).toBe("string");
     expect(typeof ledger.ledgerCloseTime).toBe("string");
-    expect(ledger.headerXdr).toBeInstanceOf(xdr.LedgerHeaderHistoryEntry);
-    expect(ledger.metadataXdr).toBeInstanceOf(xdr.LedgerCloseMeta);
+    expect(xdr.LedgerHeaderHistoryEntry.isValid(ledger.headerXdr)).toBe(true);
+    expect(xdr.LedgerCloseMeta.isValid(ledger.metadataXdr)).toBe(true);
   });
 
   it("throws error when ledger is missing required XDR fields", async () => {

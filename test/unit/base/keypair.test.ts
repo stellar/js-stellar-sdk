@@ -151,8 +151,7 @@ describe("Keypair.xdrMuxedAccount", () => {
       "GAXDYNIBA5E4DXR5TJN522RRYESFQ5UNUXHIPTFGVLLD5O5K552DF5ZH",
     );
     const muxed = kp.xdrMuxedAccount();
-    expect(muxed).toBeInstanceOf(xdr.MuxedAccount);
-    expect(muxed.switch()).toEqual(xdr.CryptoKeyType.keyTypeEd25519());
+    expect(muxed.type).toEqual("keyTypeEd25519");
   });
 });
 
@@ -185,23 +184,27 @@ describe("Keypair.sign*Decorated", () => {
       const sig = kp.sign(data as unknown as Buffer);
 
       it(`signedPayloads#${data.length}`, () => {
-        const expectedXdr = new xdr.DecoratedSignature({
+        const expectedXdr = {
           hint: testCase.payload,
           signature: sig,
-        });
+        };
 
         const decoSig = kp.signPayloadDecorated(data as unknown as Buffer);
-        expect(decoSig.toXDR("hex")).toEqual(expectedXdr.toXDR("hex"));
+        expect(xdr.DecoratedSignature.toXDR(decoSig, "hex")).toEqual(
+          xdr.DecoratedSignature.toXDR(expectedXdr, "hex"),
+        );
       });
 
       it(`regular#${data.length}`, () => {
-        const expectedXdr = new xdr.DecoratedSignature({
+        const expectedXdr = {
           hint: testCase.regular,
           signature: sig,
-        });
+        };
 
         const decoSig = kp.signDecorated(data as unknown as Buffer);
-        expect(decoSig.toXDR("hex")).toEqual(expectedXdr.toXDR("hex"));
+        expect(xdr.DecoratedSignature.toXDR(decoSig, "hex")).toEqual(
+          xdr.DecoratedSignature.toXDR(expectedXdr, "hex"),
+        );
       });
     });
   });
@@ -314,8 +317,7 @@ describe("Keypair.xdrMuxedAccount with id", () => {
       "GAXDYNIBA5E4DXR5TJN522RRYESFQ5UNUXHIPTFGVLLD5O5K552DF5ZH",
     );
     const muxed = kp.xdrMuxedAccount("12345");
-    expect(muxed).toBeInstanceOf(xdr.MuxedAccount);
-    expect(muxed.switch()).toEqual(xdr.CryptoKeyType.keyTypeMuxedEd25519());
+    expect(muxed.type).toEqual("keyTypeMuxedEd25519");
   });
 
   it("throws TypeError when id is not a string", () => {
@@ -334,10 +336,7 @@ describe("Keypair.xdrAccountId", () => {
       "GAXDYNIBA5E4DXR5TJN522RRYESFQ5UNUXHIPTFGVLLD5O5K552DF5ZH",
     );
     const accountId = kp.xdrAccountId();
-    expect(accountId).toBeInstanceOf(xdr.PublicKey);
-    expect(accountId.switch()).toEqual(
-      xdr.PublicKeyType.publicKeyTypeEd25519(),
-    );
+    expect(accountId.type).toEqual("publicKeyTypeEd25519");
   });
 });
 
@@ -347,8 +346,7 @@ describe("Keypair.xdrPublicKey", () => {
       "GAXDYNIBA5E4DXR5TJN522RRYESFQ5UNUXHIPTFGVLLD5O5K552DF5ZH",
     );
     const pubKey = kp.xdrPublicKey();
-    expect(pubKey).toBeInstanceOf(xdr.PublicKey);
-    expect(pubKey.switch()).toEqual(xdr.PublicKeyType.publicKeyTypeEd25519());
+    expect(pubKey.type).toEqual("publicKeyTypeEd25519");
   });
 });
 
@@ -362,7 +360,9 @@ describe("Keypair.signatureHint", () => {
     expect(hint.length).toBe(4);
 
     // Verify hint matches the last 4 bytes of the XDR account ID
-    const accountIdXdr = kp.xdrAccountId().toXDR();
-    expect(hint).toEqual(accountIdXdr.subarray(accountIdXdr.length - 4));
+    const accountIdXdr = xdr.PublicKey.toXDR(kp.xdrAccountId());
+    expect(Uint8Array.from(hint)).toEqual(
+      accountIdXdr.subarray(accountIdXdr.length - 4),
+    );
   });
 });

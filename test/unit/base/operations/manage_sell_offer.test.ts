@@ -24,7 +24,7 @@ describe("Operation.manageSellOffer()", () => {
       offerId: "1",
     };
     const op = Operation.manageSellOffer(opts);
-    const xdrHex = op.toXDR("hex");
+    const xdrHex = xdr.Operation.toXDR(op, "hex");
     const operation = xdr.Operation.fromXDR(xdrHex, "hex");
     const obj = expectOperationType(
       Operation.fromXDRObject(operation),
@@ -33,8 +33,13 @@ describe("Operation.manageSellOffer()", () => {
 
     expect(obj.selling.equals(selling)).toBe(true);
     expect(obj.buying.equals(buying)).toBe(true);
+    if (operation.body.type !== xdr.OperationType.manageSellOffer) {
+      expect.fail("Expected manageSellOffer operation");
+    }
     expect(
-      (operation.body().value() as xdr.ManageSellOfferOp).amount().toString(),
+      (
+        operation.body.manageSellOfferOp as xdr.ManageSellOfferOp
+      ).amount.toString(),
     ).toBe("31234560");
     expect(obj.amount).toBe(opts.amount);
     expect(obj.price).toBe(opts.price);
@@ -51,7 +56,9 @@ describe("Operation.manageSellOffer()", () => {
     };
     const op = Operation.manageSellOffer(opts);
     const obj = expectOperationType(
-      Operation.fromXDRObject(xdr.Operation.fromXDR(op.toXDR("hex"), "hex")),
+      Operation.fromXDRObject(
+        xdr.Operation.fromXDR(xdr.Operation.toXDR(op, "hex"), "hex"),
+      ),
       "manageSellOffer",
     );
     expect(obj.price).toBe(new BigNumber(11).div(10).toString());
@@ -79,7 +86,9 @@ describe("Operation.manageSellOffer()", () => {
     };
     const op = Operation.manageSellOffer(opts);
     const obj = expectOperationType(
-      Operation.fromXDRObject(xdr.Operation.fromXDR(op.toXDR("hex"), "hex")),
+      Operation.fromXDRObject(
+        xdr.Operation.fromXDR(xdr.Operation.toXDR(op, "hex"), "hex"),
+      ),
       "manageSellOffer",
     );
     expect(obj.price).toBe((3.07).toString());
@@ -95,7 +104,9 @@ describe("Operation.manageSellOffer()", () => {
     };
     const op = Operation.manageSellOffer(opts);
     const obj = expectOperationType(
-      Operation.fromXDRObject(xdr.Operation.fromXDR(op.toXDR("hex"), "hex")),
+      Operation.fromXDRObject(
+        xdr.Operation.fromXDR(xdr.Operation.toXDR(op, "hex"), "hex"),
+      ),
       "manageSellOffer",
     );
     expect(obj.price).toBe("1.25");
@@ -109,7 +120,10 @@ describe("Operation.manageSellOffer()", () => {
       price: "3.141592",
     };
     const op = Operation.manageSellOffer(opts);
-    const operation = xdr.Operation.fromXDR(op.toXDR("hex"), "hex");
+    const operation = xdr.Operation.fromXDR(
+      xdr.Operation.toXDR(op, "hex"),
+      "hex",
+    );
     const obj = expectOperationType(
       Operation.fromXDRObject(operation),
       "manageSellOffer",
@@ -117,8 +131,13 @@ describe("Operation.manageSellOffer()", () => {
 
     expect(obj.selling.equals(selling)).toBe(true);
     expect(obj.buying.equals(buying)).toBe(true);
+    if (operation.body.type !== xdr.OperationType.manageSellOffer) {
+      expect.fail("Expected manageSellOffer operation");
+    }
     expect(
-      (operation.body().value() as xdr.ManageSellOfferOp).amount().toString(),
+      (
+        operation.body.manageSellOfferOp as xdr.ManageSellOfferOp
+      ).amount.toString(),
     ).toBe("10000000000");
     expect(obj.amount).toBe(opts.amount);
     expect(obj.price).toBe(opts.price);
@@ -134,7 +153,10 @@ describe("Operation.manageSellOffer()", () => {
       offerId: "1",
     };
     const op = Operation.manageSellOffer(opts);
-    const operation = xdr.Operation.fromXDR(op.toXDR("hex"), "hex");
+    const operation = xdr.Operation.fromXDR(
+      xdr.Operation.toXDR(op, "hex"),
+      "hex",
+    );
     const obj = expectOperationType(
       Operation.fromXDRObject(operation),
       "manageSellOffer",
@@ -142,8 +164,13 @@ describe("Operation.manageSellOffer()", () => {
 
     expect(obj.selling.equals(selling)).toBe(true);
     expect(obj.buying.equals(buying)).toBe(true);
+    if (operation.body.type !== xdr.OperationType.manageSellOffer) {
+      expect.fail("Expected manageSellOffer operation");
+    }
     expect(
-      (operation.body().value() as xdr.ManageSellOfferOp).amount().toString(),
+      (
+        operation.body.manageSellOfferOp as xdr.ManageSellOfferOp
+      ).amount.toString(),
     ).toBe("0");
     expect(obj.amount).toBe(opts.amount);
     expect(obj.price).toBe(opts.price);
@@ -207,7 +234,9 @@ describe("Operation.manageSellOffer()", () => {
       source,
     });
     const obj = expectOperationType(
-      Operation.fromXDRObject(xdr.Operation.fromXDR(op.toXDR("hex"), "hex")),
+      Operation.fromXDRObject(
+        xdr.Operation.fromXDR(xdr.Operation.toXDR(op, "hex"), "hex"),
+      ),
       "manageSellOffer",
     );
 
@@ -222,8 +251,8 @@ describe("Operation.manageSellOffer()", () => {
       price: "8.141592",
       offerId: "1",
     });
-    const hex = op.toXDR("hex");
+    const hex = xdr.Operation.toXDR(op, "hex");
     const roundtripped = xdr.Operation.fromXDR(hex, "hex");
-    expect(roundtripped.body().switch().name).toBe("manageSellOffer");
+    expect(roundtripped.body.type).toBe("manageSellOffer");
   });
 });

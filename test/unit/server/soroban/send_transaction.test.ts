@@ -1,42 +1,50 @@
 import { describe, it, beforeEach, afterEach, expect, vi } from "vitest";
-import * as StellarSdk from "../../../../src/index.js";
+import {
+  Account,
+  Asset,
+  Keypair,
+  Networks,
+  Operation,
+  rpc,
+  TimeoutInfinite,
+  Transaction,
+  TransactionBuilder,
+  xdr,
+} from "../../../../src/index.js";
 
-import { serverUrl } from "../../../constants";
-
-const { xdr } = StellarSdk;
-const { Server } = StellarSdk.rpc;
+import { serverUrl } from "../../../constants.js";
 
 describe("Server#sendTransaction", () => {
-  let server: any;
+  let server: rpc.Server;
   let mockPost: any;
-  let transaction: any;
+  let transaction: Transaction;
   let hash: string;
   let blob: string;
 
-  const keypair = StellarSdk.Keypair.random();
-  const account = new StellarSdk.Account(keypair.publicKey(), "56199647068161");
+  const keypair = Keypair.random();
+  const account = new Account(keypair.publicKey(), "56199647068161");
 
   beforeEach(() => {
-    server = new Server(serverUrl);
+    server = new rpc.Server(serverUrl);
     mockPost = vi.spyOn(server.httpClient, "post");
-    transaction = new StellarSdk.TransactionBuilder(account, {
+    transaction = new TransactionBuilder(account, {
       fee: "100",
-      networkPassphrase: StellarSdk.Networks.TESTNET,
+      networkPassphrase: Networks.TESTNET,
     })
       .addOperation(
-        StellarSdk.Operation.payment({
+        Operation.payment({
           destination:
             "GASOCNHNNLYFNMDJYQ3XFMI7BYHIOCFW3GJEOWRPEGK2TDPGTG2E5EDW",
-          asset: StellarSdk.Asset.native(),
+          asset: Asset.native(),
           amount: "100.50",
         }),
       )
-      .setTimeout(StellarSdk.TimeoutInfinite)
+      .setTimeout(TimeoutInfinite)
       .build();
     transaction.sign(keypair);
 
     hash = transaction.hash().toString("hex");
-    blob = transaction.toEnvelope().toXDR().toString("base64");
+    blob = xdr.TransactionEnvelope.toXDR(transaction.toEnvelope(), "base64");
   });
 
   afterEach(() => {
@@ -50,11 +58,14 @@ describe("Server#sendTransaction", () => {
     mockPost.mockResolvedValue(mockResponse);
 
     const r = await server.sendTransaction(transaction);
+    if (r.status !== "PENDING") {
+      expect.fail(`Expected transaction status to be PENDING, got ${r.status}`);
+    }
     expect(r.status).toEqual("PENDING");
     expect(r.errorResult).toBeUndefined();
-    expect(r.errorResultXdr).toBeUndefined();
+    expect((r as any).errorResultXdr).toBeUndefined();
     expect(r.diagnosticEvents).toBeUndefined();
-    expect(r.diagnosticEventsXdr).toBeUndefined();
+    expect((r as any).diagnosticEventsXdr).toBeUndefined();
     expect(mockPost).toHaveBeenCalledWith(serverUrl, {
       jsonrpc: "2.0",
       id: 1,
@@ -65,11 +76,11 @@ describe("Server#sendTransaction", () => {
   });
 
   it("encodes the error result", async () => {
-    const txResult = new xdr.TransactionResult({
-      feeCharged: new xdr.Int64(1),
+    const txResult: xdr.TransactionResult = {
+      feeCharged: BigInt(1),
       result: xdr.TransactionResultResult.txSorobanInvalid(),
-      ext: new (xdr.TransactionResultExt as any)(0),
-    });
+      ext: { type: "case0" },
+    };
 
     const mockResponse = {
       data: {
@@ -77,22 +88,40 @@ describe("Server#sendTransaction", () => {
         result: {
           id: hash,
           status: "ERROR",
-          errorResultXdr: txResult.toXDR("base64"),
+          errorResultXdr: xdr.TransactionResult.toXDR(txResult, "base64"),
           diagnosticEventsXdr: [
             "AAAAAQAAAAAAAAAAAAAAAgAAAAAAAAADAAAADwAAAAdmbl9jYWxsAAAAAA0AAAAgr/p6gt6h8MrmSw+WNJnu3+sCP9dHXx7jR8IH0sG6Cy0AAAAPAAAABWhlbGxvAAAAAAAADwAAAAVBbG9oYQAAAA==",
           ],
         },
       },
     };
+
     mockPost.mockResolvedValue(mockResponse);
 
     const r = await server.sendTransaction(transaction);
-    expect(r.errorResult).toBeInstanceOf(xdr.TransactionResult);
+
+    if (r.status !== "ERROR") {
+      expect.fail(`Expected transaction status to be ERROR, got ${r.status}`);
+    }
+    expect(r.errorResult).toBeDefined();
+
     expect(r.errorResult).toEqual(txResult);
-    expect(r.errorResultXdr).toBeUndefined();
-    expect(r.diagnosticEventsXdr).toBeUndefined();
+
+    expect(r.errorResult).toEqual(txResult);
+    expect((r as any).errorResultXdr).toBeUndefined();
+    expect((r as any).diagnosticEventsXdr).toBeUndefined();
     expect(r.diagnosticEvents).toHaveLength(1);
-    expect(r.diagnosticEvents[0]).toBeInstanceOf(xdr.DiagnosticEvent);
+    if (!r.diagnosticEvents || !r.diagnosticEvents[0]) {
+      expect.fail("Expected diagnostic event to be present");
+    }
+
+    // This is copy-pasted from the mock response above, but we want to be sure the correct decoding is happening
+    expect(r.diagnosticEvents[0]).toEqual(
+      xdr.DiagnosticEvent.fromXDR(
+        "AAAAAQAAAAAAAAAAAAAAAgAAAAAAAAADAAAADwAAAAdmbl9jYWxsAAAAAA0AAAAgr/p6gt6h8MrmSw+WNJnu3+sCP9dHXx7jR8IH0sG6Cy0AAAAPAAAABWhlbGxvAAAAAAAADwAAAAVBbG9oYQAAAA==",
+        "base64",
+      ),
+    );
     expect(mockPost).toHaveBeenCalledWith(serverUrl, {
       jsonrpc: "2.0",
       id: 1,

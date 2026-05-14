@@ -15,12 +15,16 @@ describe("Operation.liquidityPoolWithdraw()", () => {
       minAmountB: "20.0000000",
     };
     const op = Operation.liquidityPoolWithdraw(opts);
-    const xdrHex = op.toXDR("hex");
+    const xdrHex = xdr.Operation.toXDR(op, "hex");
     const xdrObj = xdr.Operation.fromXDR(Buffer.from(xdrHex, "hex"));
-    expect(xdrObj.body().switch().name).toBe("liquidityPoolWithdraw");
-    expect(xdrObj.body().value().amount().toString()).toBe("50000000");
-    expect(xdrObj.body().value().minAmountA().toString()).toBe("100000000");
-    expect(xdrObj.body().value().minAmountB().toString()).toBe("200000000");
+
+    if (xdrObj.body.type !== xdr.OperationType.liquidityPoolWithdraw) {
+      expect.fail("Expected liquidityPoolWithdraw operation");
+    }
+    const body = xdrObj.body.liquidityPoolWithdrawOp;
+    expect(body.amount.toString()).toBe("50000000");
+    expect(body.minAmountA.toString()).toBe("100000000");
+    expect(body.minAmountB.toString()).toBe("200000000");
 
     const operation = expectOperationType(
       Operation.fromXDRObject(xdrObj),
@@ -42,7 +46,7 @@ describe("Operation.liquidityPoolWithdraw()", () => {
       source,
     };
     const op = Operation.liquidityPoolWithdraw(opts);
-    const xdrHex = op.toXDR("hex");
+    const xdrHex = xdr.Operation.toXDR(op, "hex");
     const xdrObj = xdr.Operation.fromXDR(Buffer.from(xdrHex, "hex"));
     const operation = expectOperationType(
       Operation.fromXDRObject(xdrObj),
@@ -59,7 +63,7 @@ describe("Operation.liquidityPoolWithdraw()", () => {
       minAmountB: "20.0000000",
     };
     const op = Operation.liquidityPoolWithdraw(opts);
-    const xdrHex = op.toXDR("hex");
+    const xdrHex = xdr.Operation.toXDR(op, "hex");
     const xdrObj = xdr.Operation.fromXDR(Buffer.from(xdrHex, "hex"));
     const operation = expectOperationType(
       Operation.fromXDRObject(xdrObj),
@@ -76,7 +80,7 @@ describe("Operation.liquidityPoolWithdraw()", () => {
       minAmountB: "0",
     };
     const op = Operation.liquidityPoolWithdraw(opts);
-    const xdrHex = op.toXDR("hex");
+    const xdrHex = xdr.Operation.toXDR(op, "hex");
     const xdrObj = xdr.Operation.fromXDR(Buffer.from(xdrHex, "hex"));
     const operation = expectOperationType(
       Operation.fromXDRObject(xdrObj),
@@ -178,8 +182,8 @@ describe("Operation.liquidityPoolWithdraw()", () => {
       minAmountA: "10.0000000",
       minAmountB: "20.0000000",
     });
-    const hex = op.toXDR("hex");
+    const hex = xdr.Operation.toXDR(op, "hex");
     const roundtripped = xdr.Operation.fromXDR(hex, "hex");
-    expect(roundtripped.body().switch().name).toBe("liquidityPoolWithdraw");
+    expect(roundtripped.body.type).toBe("liquidityPoolWithdraw");
   });
 });

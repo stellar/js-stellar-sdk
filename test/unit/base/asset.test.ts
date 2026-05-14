@@ -74,106 +74,137 @@ describe("Asset", () => {
       const nativeXdr = Buffer.from([0, 0, 0, 0]).toString();
 
       let assetXdr = asset.toXDRObject();
-      expect(assetXdr).toBeInstanceOf(xdr.Asset);
-      expect(assetXdr.toXDR().toString()).toBe(nativeXdr);
+      expect(Buffer.from(xdr.Asset.toXDR(assetXdr)).toString()).toBe(nativeXdr);
 
       let changeTrustXdr = asset.toChangeTrustXDRObject();
-      expect(changeTrustXdr).toBeInstanceOf(xdr.ChangeTrustAsset);
-      expect(changeTrustXdr.toXDR().toString()).toBe(nativeXdr);
+      expect(
+        Buffer.from(xdr.ChangeTrustAsset.toXDR(changeTrustXdr)).toString(),
+      ).toBe(nativeXdr);
 
       let trustLineXdr = asset.toTrustLineXDRObject();
-      expect(trustLineXdr).toBeInstanceOf(xdr.TrustLineAsset);
-      expect(trustLineXdr.toXDR().toString()).toBe(nativeXdr);
+      expect(
+        Buffer.from(xdr.TrustLineAsset.toXDR(trustLineXdr)).toString(),
+      ).toBe(nativeXdr);
     });
 
     it("parses a 3-alphanum asset object", () => {
       const asset = new Asset("USD", ISSUER);
 
       let assetXdr = asset.toXDRObject();
-      expect(assetXdr).toBeInstanceOf(xdr.Asset);
-      expect(() => assetXdr.toXDR("hex")).not.toThrow();
-      expect(assetXdr.switch().name).toBe("assetTypeCreditAlphanum4");
-      expect(assetXdr.alphaNum4().assetCode()).toBe("USD\0");
+      expect(() => xdr.Asset.toXDR(assetXdr, "hex")).not.toThrow();
+      if (assetXdr.type !== "assetTypeCreditAlphanum4") {
+        throw new Error("Expected assetTypeCreditAlphanum4");
+      }
+
+      expect(assetXdr.alphaNum4.assetCode).toBe("USD\0");
 
       let changeTrustXdr = asset.toChangeTrustXDRObject();
-      expect(changeTrustXdr).toBeInstanceOf(xdr.ChangeTrustAsset);
-      expect(() => changeTrustXdr.toXDR("hex")).not.toThrow();
-      expect(changeTrustXdr.switch().name).toBe("assetTypeCreditAlphanum4");
-      expect(changeTrustXdr.alphaNum4().assetCode()).toBe("USD\0");
+      expect(() =>
+        xdr.ChangeTrustAsset.toXDR(changeTrustXdr, "hex"),
+      ).not.toThrow();
+      expect(changeTrustXdr.type).toBe("assetTypeCreditAlphanum4");
+      if (changeTrustXdr.type !== "assetTypeCreditAlphanum4") {
+        throw new Error("Expected assetTypeCreditAlphanum4");
+      }
+      expect(changeTrustXdr.alphaNum4.assetCode).toBe("USD\0");
 
       let trustLineXdr = asset.toTrustLineXDRObject();
-      expect(trustLineXdr).toBeInstanceOf(xdr.TrustLineAsset);
-      expect(() => trustLineXdr.toXDR("hex")).not.toThrow();
-      expect(trustLineXdr.switch().name).toBe("assetTypeCreditAlphanum4");
-      expect(trustLineXdr.alphaNum4().assetCode()).toBe("USD\0");
+      expect(() => xdr.TrustLineAsset.toXDR(trustLineXdr, "hex")).not.toThrow();
+      expect(trustLineXdr.type).toBe("assetTypeCreditAlphanum4");
+      if (trustLineXdr.type !== "assetTypeCreditAlphanum4") {
+        throw new Error("Expected assetTypeCreditAlphanum4");
+      }
+      expect(trustLineXdr.alphaNum4.assetCode).toBe("USD\0");
     });
 
     it("parses a 4-alphanum asset object", () => {
       const asset = new Asset("BART", ISSUER);
 
       let assetXdr = asset.toXDRObject();
-      expect(assetXdr).toBeInstanceOf(xdr.Asset);
-      expect(() => assetXdr.toXDR("hex")).not.toThrow();
-      expect(assetXdr.switch().name).toBe("assetTypeCreditAlphanum4");
-      expect(assetXdr.alphaNum4().assetCode()).toBe("BART");
+      expect(() => xdr.Asset.toXDR(assetXdr, "hex")).not.toThrow();
+      if (assetXdr.type !== "assetTypeCreditAlphanum4") {
+        throw new Error("Expected assetTypeCreditAlphanum4");
+      }
+      expect(assetXdr.type).toBe("assetTypeCreditAlphanum4");
+      expect(assetXdr.alphaNum4.assetCode).toBe("BART");
 
       let changeTrustXdr = asset.toChangeTrustXDRObject();
-      expect(changeTrustXdr).toBeInstanceOf(xdr.ChangeTrustAsset);
-      expect(() => changeTrustXdr.toXDR("hex")).not.toThrow();
-      expect(changeTrustXdr.switch().name).toBe("assetTypeCreditAlphanum4");
-      expect(changeTrustXdr.alphaNum4().assetCode()).toBe("BART");
+      expect(() =>
+        xdr.ChangeTrustAsset.toXDR(changeTrustXdr, "hex"),
+      ).not.toThrow();
+      if (changeTrustXdr.type !== "assetTypeCreditAlphanum4") {
+        throw new Error("Expected assetTypeCreditAlphanum4");
+      }
+      expect(changeTrustXdr.type).toBe("assetTypeCreditAlphanum4");
+      expect(changeTrustXdr.alphaNum4.assetCode).toBe("BART");
 
       let trustLineXdr = asset.toTrustLineXDRObject();
-      expect(trustLineXdr).toBeInstanceOf(xdr.TrustLineAsset);
-      expect(() => trustLineXdr.toXDR("hex")).not.toThrow();
-      expect(trustLineXdr.switch().name).toBe("assetTypeCreditAlphanum4");
-      expect(trustLineXdr.alphaNum4().assetCode()).toBe("BART");
+      expect(() => xdr.TrustLineAsset.toXDR(trustLineXdr, "hex")).not.toThrow();
+      if (trustLineXdr.type !== "assetTypeCreditAlphanum4") {
+        throw new Error("Expected assetTypeCreditAlphanum4");
+      }
+      expect(trustLineXdr.type).toBe("assetTypeCreditAlphanum4");
+      expect(trustLineXdr.alphaNum4.assetCode).toBe("BART");
     });
 
     it("parses a 5-alphanum asset object", () => {
       const asset = new Asset("12345", ISSUER);
 
       let assetXdr = asset.toXDRObject();
-      expect(assetXdr).toBeInstanceOf(xdr.Asset);
-      expect(() => assetXdr.toXDR("hex")).not.toThrow();
-      expect(assetXdr.switch().name).toBe("assetTypeCreditAlphanum12");
-      expect(assetXdr.alphaNum12().assetCode()).toBe("12345\0\0\0\0\0\0\0");
+      expect(() => xdr.Asset.toXDR(assetXdr, "hex")).not.toThrow();
+      if (assetXdr.type !== "assetTypeCreditAlphanum12") {
+        throw new Error("Expected assetTypeCreditAlphanum12");
+      }
+      expect(assetXdr.type).toBe("assetTypeCreditAlphanum12");
+      expect(assetXdr.alphaNum12.assetCode).toBe("12345\0\0\0\0\0\0\0");
 
       let changeTrustXdr = asset.toChangeTrustXDRObject();
-      expect(changeTrustXdr).toBeInstanceOf(xdr.ChangeTrustAsset);
-      expect(() => changeTrustXdr.toXDR("hex")).not.toThrow();
-      expect(changeTrustXdr.switch().name).toBe("assetTypeCreditAlphanum12");
-      expect(changeTrustXdr.alphaNum12().assetCode()).toBe(
-        "12345\0\0\0\0\0\0\0",
-      );
+      expect(() =>
+        xdr.ChangeTrustAsset.toXDR(changeTrustXdr, "hex"),
+      ).not.toThrow();
+      if (changeTrustXdr.type !== "assetTypeCreditAlphanum12") {
+        throw new Error("Expected assetTypeCreditAlphanum12");
+      }
+      expect(changeTrustXdr.type).toBe("assetTypeCreditAlphanum12");
+      expect(changeTrustXdr.alphaNum12.assetCode).toBe("12345\0\0\0\0\0\0\0");
 
       let trustLineXdr = asset.toTrustLineXDRObject();
-      expect(trustLineXdr).toBeInstanceOf(xdr.TrustLineAsset);
-      expect(() => trustLineXdr.toXDR("hex")).not.toThrow();
-      expect(trustLineXdr.switch().name).toBe("assetTypeCreditAlphanum12");
-      expect(trustLineXdr.alphaNum12().assetCode()).toBe("12345\0\0\0\0\0\0\0");
+      expect(() => xdr.TrustLineAsset.toXDR(trustLineXdr, "hex")).not.toThrow();
+      if (trustLineXdr.type !== "assetTypeCreditAlphanum12") {
+        throw new Error("Expected assetTypeCreditAlphanum12");
+      }
+      expect(trustLineXdr.type).toBe("assetTypeCreditAlphanum12");
+      expect(trustLineXdr.alphaNum12.assetCode).toBe("12345\0\0\0\0\0\0\0");
     });
 
     it("parses a 12-alphanum asset object", () => {
       const asset = new Asset("123456789012", ISSUER);
 
       let assetXdr = asset.toXDRObject();
-      expect(assetXdr).toBeInstanceOf(xdr.Asset);
-      expect(() => assetXdr.toXDR("hex")).not.toThrow();
-      expect(assetXdr.switch().name).toBe("assetTypeCreditAlphanum12");
-      expect(assetXdr.alphaNum12().assetCode()).toBe("123456789012");
+      expect(() => xdr.Asset.toXDR(assetXdr, "hex")).not.toThrow();
+      if (assetXdr.type !== "assetTypeCreditAlphanum12") {
+        throw new Error("Expected assetTypeCreditAlphanum12");
+      }
+      expect(assetXdr.type).toBe("assetTypeCreditAlphanum12");
+      expect(assetXdr.alphaNum12.assetCode).toBe("123456789012");
 
       let changeTrustXdr = asset.toChangeTrustXDRObject();
-      expect(changeTrustXdr).toBeInstanceOf(xdr.ChangeTrustAsset);
-      expect(() => changeTrustXdr.toXDR("hex")).not.toThrow();
-      expect(changeTrustXdr.switch().name).toBe("assetTypeCreditAlphanum12");
-      expect(changeTrustXdr.alphaNum12().assetCode()).toBe("123456789012");
+      expect(() =>
+        xdr.ChangeTrustAsset.toXDR(changeTrustXdr, "hex"),
+      ).not.toThrow();
+      if (changeTrustXdr.type !== "assetTypeCreditAlphanum12") {
+        throw new Error("Expected assetTypeCreditAlphanum12");
+      }
+      expect(changeTrustXdr.type).toBe("assetTypeCreditAlphanum12");
+      expect(changeTrustXdr.alphaNum12.assetCode).toBe("123456789012");
 
       let trustLineXdr = asset.toTrustLineXDRObject();
-      expect(trustLineXdr).toBeInstanceOf(xdr.TrustLineAsset);
-      expect(() => trustLineXdr.toXDR("hex")).not.toThrow();
-      expect(trustLineXdr.switch().name).toBe("assetTypeCreditAlphanum12");
-      expect(trustLineXdr.alphaNum12().assetCode()).toBe("123456789012");
+      expect(() => xdr.TrustLineAsset.toXDR(trustLineXdr, "hex")).not.toThrow();
+      if (trustLineXdr.type !== "assetTypeCreditAlphanum12") {
+        throw new Error("Expected assetTypeCreditAlphanum12");
+      }
+      expect(trustLineXdr.type).toBe("assetTypeCreditAlphanum12");
+      expect(trustLineXdr.alphaNum12.assetCode).toBe("123456789012");
     });
   });
 
@@ -188,10 +219,10 @@ describe("Asset", () => {
 
     it("parses a 4-alphanum asset XDR", () => {
       const assetCode = "KHL";
-      const assetType = new xdr.AlphaNum4({
+      const assetType: xdr.AlphaNum4 = {
         assetCode: assetCode + "\0",
         issuer: Keypair.fromPublicKey(ISSUER).xdrAccountId(),
-      });
+      };
       const assetXdr = xdr.Asset.assetTypeCreditAlphanum4(assetType);
 
       const asset = Asset.fromOperation(assetXdr);
@@ -203,10 +234,10 @@ describe("Asset", () => {
 
     it("parses a 12-alphanum asset XDR", () => {
       const assetCode = "KHLTOKEN";
-      const assetType = new xdr.AlphaNum12({
+      const assetType: xdr.AlphaNum12 = {
         assetCode: assetCode + "\0\0\0\0",
         issuer: Keypair.fromPublicKey(ISSUER).xdrAccountId(),
-      });
+      };
       const assetXdr = xdr.Asset.assetTypeCreditAlphanum12(assetType);
 
       const asset = Asset.fromOperation(assetXdr);
@@ -381,20 +412,18 @@ describe("Asset", () => {
 
   describe("getRawAssetType()", () => {
     it("returns assetTypeNative for native", () => {
-      expect(Asset.native().getRawAssetType()).toEqual(
-        xdr.AssetType.assetTypeNative(),
-      );
+      expect(Asset.native().getRawAssetType()).toEqual("assetTypeNative");
     });
 
     it("returns assetTypeCreditAlphanum4 for short codes", () => {
       expect(new Asset("USD", ISSUER).getRawAssetType()).toEqual(
-        xdr.AssetType.assetTypeCreditAlphanum4(),
+        "assetTypeCreditAlphanum4",
       );
     });
 
     it("returns assetTypeCreditAlphanum12 for long codes", () => {
       expect(new Asset("LONGASSET", ISSUER).getRawAssetType()).toEqual(
-        xdr.AssetType.assetTypeCreditAlphanum12(),
+        "assetTypeCreditAlphanum12",
       );
     });
   });

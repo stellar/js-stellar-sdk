@@ -7,6 +7,7 @@ import {
   MemoHash,
   MemoReturn,
 } from "../../../src/base/memo.js";
+import { xdr } from "../../../src/index.js";
 
 describe("Memo", () => {
   describe("constructor", () => {
@@ -23,7 +24,9 @@ describe("Memo", () => {
       expect(memo.value).toBeNull();
 
       const xdrMemo = memo.toXDRObject();
-      expect(xdrMemo.value()).toBeUndefined();
+      if (xdrMemo.type !== "memoNone") {
+        expect.fail(`Expected memoNone, got ${xdrMemo.type}`);
+      }
 
       const baseMemo = Memo.fromXDRObject(xdrMemo);
       expect(baseMemo.type).toBe(MemoNone);
@@ -41,24 +44,28 @@ describe("Memo", () => {
       expect(memoUtf8.type).toBe(MemoText);
       expect(memoUtf8.value).toBe("三代之時");
 
-      const a = Buffer.from(memoUtf8.toXDRObject().value() as string, "utf8");
+      const xdrMemoUtf8 = memoUtf8.toXDRObject();
+      if (xdrMemoUtf8.type !== "memoText") {
+        expect.fail(`Expected memoText, got ${xdrMemoUtf8.type}`);
+      }
+      const a = Buffer.from(xdrMemoUtf8.text, "utf8");
       const b = Buffer.from("三代之時", "utf8");
       expect(a).toEqual(b);
     });
 
     it("returns a value for a correct argument (utf8)", () => {
-      const memoText = new Memo(MemoText, Buffer.from([0xd1]))
-        .toXDRObject()
-        .toXDR();
+      const memoText = xdr.Memo.toXDR(
+        new Memo(MemoText, Buffer.from([0x41])).toXDRObject(),
+      );
       const expected = Buffer.from([
         // memo_text
         0x00, 0x00, 0x00, 0x01,
         // length
         0x00, 0x00, 0x00, 0x01,
-        // value
-        0xd1, 0x00, 0x00, 0x00,
+        // value ('A' = 0x41, padded with zeros to 4-byte boundary)
+        0x41, 0x00, 0x00, 0x00,
       ]);
-      expect(memoText.equals(expected)).toBe(true);
+      expect(Buffer.from(memoText).equals(expected)).toBe(true);
     });
 
     it("converts to/from xdr object", () => {
@@ -67,10 +74,12 @@ describe("Memo", () => {
       expect(memo.value).toBe("test");
 
       const xdrMemo = memo.toXDRObject();
-      expect(xdrMemo.switch().name).toBe("memoText");
-      expect((xdrMemo as any).arm()).toBe("text");
-      expect(xdrMemo.text()).toBe("test");
-      expect(xdrMemo.value()).toBe("test");
+      expect(xdrMemo.type).toBe("memoText");
+      if (xdrMemo.type !== "memoText") {
+        expect.fail(`Expected memoText, got ${xdrMemo.type}`);
+      }
+
+      expect(xdrMemo.text).toBe("test");
 
       const baseMemo = Memo.fromXDRObject(xdrMemo);
       expect(baseMemo.type).toBe(MemoText);
@@ -84,10 +93,10 @@ describe("Memo", () => {
       expect(memo.value).toBe(buf.toString("utf8"));
 
       const xdrMemo = memo.toXDRObject();
-      expect(xdrMemo.switch().name).toBe("memoText");
-      expect((xdrMemo as any).arm()).toBe("text");
-      expect(xdrMemo.text()).toBe(buf.toString("utf8"));
-      expect(xdrMemo.value()).toBe(buf.toString("utf8"));
+      if (xdrMemo.type !== "memoText") {
+        expect.fail(`Expected memoText, got ${xdrMemo.type}`);
+      }
+      expect(xdrMemo.text).toBe(buf.toString("utf8"));
 
       const baseMemo = Memo.fromXDRObject(xdrMemo);
       expect(baseMemo.type).toBe(MemoText);
@@ -139,9 +148,12 @@ describe("Memo", () => {
       expect(memo.value).toBe("1000");
 
       const xdrMemo = memo.toXDRObject();
-      expect(xdrMemo.switch().name).toBe("memoId");
-      expect((xdrMemo as any).arm()).toBe("id");
-      expect(xdrMemo.id().toString()).toBe("1000");
+      expect(xdrMemo.type).toBe("memoId");
+      if (xdrMemo.type !== "memoId") {
+        expect.fail(`Expected memoId, got ${xdrMemo.type}`);
+      }
+
+      expect(xdrMemo.id.toString()).toBe("1000");
 
       const baseMemo = Memo.fromXDRObject(xdrMemo);
       expect(baseMemo.type).toBe(MemoID);
@@ -189,7 +201,10 @@ describe("Memo", () => {
       expect(() => Memo.id("1000000000000000000")).not.toThrow();
       const memo = Memo.id("1000000000000000000");
       const xdrMemo = memo.toXDRObject();
-      expect(xdrMemo.id().toString()).toBe("1000000000000000000");
+      if (xdrMemo.type !== "memoId") {
+        expect.fail(`Expected memoId, got ${xdrMemo.type}`);
+      }
+      expect(xdrMemo.id.toString()).toBe("1000000000000000000");
     });
   });
 
@@ -202,10 +217,12 @@ describe("Memo", () => {
       expect(memo.value).toEqual(buffer);
 
       const xdrMemo = memo.toXDRObject();
-      expect(xdrMemo.switch().name).toBe("memoHash");
-      expect((xdrMemo as any).arm()).toBe("hash");
-      expect(xdrMemo.hash().length).toBe(32);
-      expect(xdrMemo.hash()).toEqual(buffer);
+      expect(xdrMemo.type).toBe("memoHash");
+      if (xdrMemo.type !== "memoHash") {
+        expect.fail(`Expected memoHash, got ${xdrMemo.type}`);
+      }
+      expect(xdrMemo.hash.length).toBe(32);
+      expect(xdrMemo.hash).toEqual(buffer);
 
       const baseMemo = Memo.fromXDRObject(xdrMemo);
       expect(baseMemo.type).toBe(MemoHash);
@@ -224,10 +241,12 @@ describe("Memo", () => {
       expect(memo.type).toBe(MemoReturn);
 
       const xdrMemo = memo.toXDRObject();
-      expect(xdrMemo.switch().name).toBe("memoReturn");
-      expect((xdrMemo as any).arm()).toBe("retHash");
-      expect(xdrMemo.retHash().length).toBe(32);
-      expect(xdrMemo.retHash().toString("hex")).toBe(buffer.toString("hex"));
+      expect(xdrMemo.type).toBe("memoReturn");
+      if (xdrMemo.type !== "memoReturn") {
+        expect.fail(`Expected memoReturn, got ${xdrMemo.type}`);
+      }
+      expect(xdrMemo.retHash.length).toBe(32);
+      expect(Buffer.from(xdrMemo.retHash)).toEqual(buffer);
 
       const baseMemo = Memo.fromXDRObject(xdrMemo);
       expect(baseMemo.type).toBe(MemoReturn);

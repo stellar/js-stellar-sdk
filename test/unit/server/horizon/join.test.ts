@@ -4,7 +4,7 @@ import * as StellarSdk from "../../../../src/index.js";
 const { Horizon } = StellarSdk;
 
 describe("Server - CallBuilder#join", () => {
-  let server: any;
+  let server: rpc.Server;
   let mockGet: any;
 
   beforeEach(() => {

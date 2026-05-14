@@ -17,13 +17,16 @@ const source = "GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGSNFHEYVXM3XOJMDS674JZ";
 describe("Operation.revokeAccountSponsorship()", () => {
   it("creates a revokeAccountSponsorshipOp", () => {
     const op = Operation.revokeAccountSponsorship({ account });
-    const operation = xdr.Operation.fromXDR(op.toXDR("hex"), "hex");
+    const operation = xdr.Operation.fromXDR(
+      xdr.Operation.toXDR(op, "hex"),
+      "hex",
+    );
     const obj = expectOperationType(
       Operation.fromXDRObject(operation),
       "revokeAccountSponsorship",
     );
 
-    expect(operation.body().switch().name).toBe("revokeSponsorship");
+    expect(operation.body.type).toBe("revokeSponsorship");
     expect(obj.account).toBe(account);
   });
 
@@ -41,7 +44,9 @@ describe("Operation.revokeAccountSponsorship()", () => {
   it("preserves an optional source account", () => {
     const op = Operation.revokeAccountSponsorship({ account, source });
     const obj = expectOperationType(
-      Operation.fromXDRObject(xdr.Operation.fromXDR(op.toXDR("hex"), "hex")),
+      Operation.fromXDRObject(
+        xdr.Operation.fromXDR(xdr.Operation.toXDR(op, "hex"), "hex"),
+      ),
       "revokeAccountSponsorship",
     );
     expect(obj.source).toBe(source);
@@ -49,9 +54,9 @@ describe("Operation.revokeAccountSponsorship()", () => {
 
   it("roundtrips through XDR hex encoding", () => {
     const op = Operation.revokeAccountSponsorship({ account });
-    const hex = op.toXDR("hex");
+    const hex = xdr.Operation.toXDR(op, "hex");
     const roundtripped = xdr.Operation.fromXDR(hex, "hex");
-    expect(roundtripped.body().switch().name).toBe("revokeSponsorship");
+    expect(roundtripped.body.type).toBe("revokeSponsorship");
   });
 });
 
@@ -62,13 +67,16 @@ describe("Operation.revokeTrustlineSponsorship()", () => {
       "GDGU5OAPHNPU5UCLE5RDJHG7PXZFQYWKCFOEXSXNMR6KRQRI5T6XXCD7",
     );
     const op = Operation.revokeTrustlineSponsorship({ account, asset });
-    const operation = xdr.Operation.fromXDR(op.toXDR("hex"), "hex");
+    const operation = xdr.Operation.fromXDR(
+      xdr.Operation.toXDR(op, "hex"),
+      "hex",
+    );
     expectOperationType(
       Operation.fromXDRObject(operation),
       "revokeTrustlineSponsorship",
     );
 
-    expect(operation.body().switch().name).toBe("revokeSponsorship");
+    expect(operation.body.type).toBe("revokeSponsorship");
   });
 
   it("creates a revokeTrustlineSponsorshipOp with a LiquidityPoolId", () => {
@@ -76,13 +84,16 @@ describe("Operation.revokeTrustlineSponsorship()", () => {
       "dd7b1ab831c273310ddbec6f97870aa83c2fbd78ce22aded37ecbf4f3380fac7",
     );
     const op = Operation.revokeTrustlineSponsorship({ account, asset });
-    const operation = xdr.Operation.fromXDR(op.toXDR("hex"), "hex");
+    const operation = xdr.Operation.fromXDR(
+      xdr.Operation.toXDR(op, "hex"),
+      "hex",
+    );
     expectOperationType(
       Operation.fromXDRObject(operation),
       "revokeTrustlineSponsorship",
     );
 
-    expect(operation.body().switch().name).toBe("revokeSponsorship");
+    expect(operation.body.type).toBe("revokeSponsorship");
   });
 
   it("fails with an invalid account", () => {
@@ -115,7 +126,9 @@ describe("Operation.revokeTrustlineSponsorship()", () => {
       source,
     });
     const obj = expectOperationType(
-      Operation.fromXDRObject(xdr.Operation.fromXDR(op.toXDR("hex"), "hex")),
+      Operation.fromXDRObject(
+        xdr.Operation.fromXDR(xdr.Operation.toXDR(op, "hex"), "hex"),
+      ),
       "revokeTrustlineSponsorship",
     );
     expect(obj.source).toBe(source);
@@ -127,9 +140,9 @@ describe("Operation.revokeTrustlineSponsorship()", () => {
       "GDGU5OAPHNPU5UCLE5RDJHG7PXZFQYWKCFOEXSXNMR6KRQRI5T6XXCD7",
     );
     const op = Operation.revokeTrustlineSponsorship({ account, asset });
-    const hex = op.toXDR("hex");
+    const hex = xdr.Operation.toXDR(op, "hex");
     const roundtripped = xdr.Operation.fromXDR(hex, "hex");
-    expect(roundtripped.body().switch().name).toBe("revokeSponsorship");
+    expect(roundtripped.body.type).toBe("revokeSponsorship");
   });
 });
 
@@ -138,13 +151,16 @@ describe("Operation.revokeOfferSponsorship()", () => {
     const seller = account;
     const offerId = "1234";
     const op = Operation.revokeOfferSponsorship({ seller, offerId });
-    const operation = xdr.Operation.fromXDR(op.toXDR("hex"), "hex");
+    const operation = xdr.Operation.fromXDR(
+      xdr.Operation.toXDR(op, "hex"),
+      "hex",
+    );
     const obj = expectOperationType(
       Operation.fromXDRObject(operation),
       "revokeOfferSponsorship",
     );
 
-    expect(operation.body().switch().name).toBe("revokeSponsorship");
+    expect(operation.body.type).toBe("revokeSponsorship");
     expect(obj.seller).toBe(seller);
     expect(obj.offerId).toBe(offerId);
   });
@@ -174,7 +190,9 @@ describe("Operation.revokeOfferSponsorship()", () => {
       source,
     });
     const obj = expectOperationType(
-      Operation.fromXDRObject(xdr.Operation.fromXDR(op.toXDR("hex"), "hex")),
+      Operation.fromXDRObject(
+        xdr.Operation.fromXDR(xdr.Operation.toXDR(op, "hex"), "hex"),
+      ),
       "revokeOfferSponsorship",
     );
     expect(obj.source).toBe(source);
@@ -185,9 +203,9 @@ describe("Operation.revokeOfferSponsorship()", () => {
       seller: account,
       offerId: "1234",
     });
-    const hex = op.toXDR("hex");
+    const hex = xdr.Operation.toXDR(op, "hex");
     const roundtripped = xdr.Operation.fromXDR(hex, "hex");
-    expect(roundtripped.body().switch().name).toBe("revokeSponsorship");
+    expect(roundtripped.body.type).toBe("revokeSponsorship");
   });
 });
 
@@ -195,13 +213,16 @@ describe("Operation.revokeDataSponsorship()", () => {
   it("creates a revokeDataSponsorshipOp", () => {
     const name = "foo";
     const op = Operation.revokeDataSponsorship({ account, name });
-    const operation = xdr.Operation.fromXDR(op.toXDR("hex"), "hex");
+    const operation = xdr.Operation.fromXDR(
+      xdr.Operation.toXDR(op, "hex"),
+      "hex",
+    );
     const obj = expectOperationType(
       Operation.fromXDRObject(operation),
       "revokeDataSponsorship",
     );
 
-    expect(operation.body().switch().name).toBe("revokeSponsorship");
+    expect(operation.body.type).toBe("revokeSponsorship");
     expect(obj.account).toBe(account);
     expect(obj.name).toBe(name);
   });
@@ -237,7 +258,9 @@ describe("Operation.revokeDataSponsorship()", () => {
       source,
     });
     const obj = expectOperationType(
-      Operation.fromXDRObject(xdr.Operation.fromXDR(op.toXDR("hex"), "hex")),
+      Operation.fromXDRObject(
+        xdr.Operation.fromXDR(xdr.Operation.toXDR(op, "hex"), "hex"),
+      ),
       "revokeDataSponsorship",
     );
     expect(obj.source).toBe(source);
@@ -245,9 +268,9 @@ describe("Operation.revokeDataSponsorship()", () => {
 
   it("roundtrips through XDR hex encoding", () => {
     const op = Operation.revokeDataSponsorship({ account, name: "foo" });
-    const hex = op.toXDR("hex");
+    const hex = xdr.Operation.toXDR(op, "hex");
     const roundtripped = xdr.Operation.fromXDR(hex, "hex");
-    expect(roundtripped.body().switch().name).toBe("revokeSponsorship");
+    expect(roundtripped.body.type).toBe("revokeSponsorship");
   });
 });
 
@@ -257,13 +280,16 @@ describe("Operation.revokeClaimableBalanceSponsorship()", () => {
 
   it("creates a revokeClaimableBalanceSponsorshipOp", () => {
     const op = Operation.revokeClaimableBalanceSponsorship({ balanceId });
-    const operation = xdr.Operation.fromXDR(op.toXDR("hex"), "hex");
+    const operation = xdr.Operation.fromXDR(
+      xdr.Operation.toXDR(op, "hex"),
+      "hex",
+    );
     const obj = expectOperationType(
       Operation.fromXDRObject(operation),
       "revokeClaimableBalanceSponsorship",
     );
 
-    expect(operation.body().switch().name).toBe("revokeSponsorship");
+    expect(operation.body.type).toBe("revokeSponsorship");
     expect(obj.balanceId).toBe(balanceId);
   });
 
@@ -280,7 +306,9 @@ describe("Operation.revokeClaimableBalanceSponsorship()", () => {
       source,
     });
     const obj = expectOperationType(
-      Operation.fromXDRObject(xdr.Operation.fromXDR(op.toXDR("hex"), "hex")),
+      Operation.fromXDRObject(
+        xdr.Operation.fromXDR(xdr.Operation.toXDR(op, "hex"), "hex"),
+      ),
       "revokeClaimableBalanceSponsorship",
     );
     expect(obj.source).toBe(source);
@@ -288,9 +316,9 @@ describe("Operation.revokeClaimableBalanceSponsorship()", () => {
 
   it("roundtrips through XDR hex encoding", () => {
     const op = Operation.revokeClaimableBalanceSponsorship({ balanceId });
-    const hex = op.toXDR("hex");
+    const hex = xdr.Operation.toXDR(op, "hex");
     const roundtripped = xdr.Operation.fromXDR(hex, "hex");
-    expect(roundtripped.body().switch().name).toBe("revokeSponsorship");
+    expect(roundtripped.body.type).toBe("revokeSponsorship");
   });
 });
 
@@ -300,13 +328,16 @@ describe("Operation.revokeLiquidityPoolSponsorship()", () => {
 
   it("creates a revokeLiquidityPoolSponsorshipOp", () => {
     const op = Operation.revokeLiquidityPoolSponsorship({ liquidityPoolId });
-    const operation = xdr.Operation.fromXDR(op.toXDR("hex"), "hex");
+    const operation = xdr.Operation.fromXDR(
+      xdr.Operation.toXDR(op, "hex"),
+      "hex",
+    );
     const obj = expectOperationType(
       Operation.fromXDRObject(operation),
       "revokeLiquidityPoolSponsorship",
     );
 
-    expect(operation.body().switch().name).toBe("revokeSponsorship");
+    expect(operation.body.type).toBe("revokeSponsorship");
     expect(obj.liquidityPoolId).toBe(liquidityPoolId);
   });
 
@@ -323,7 +354,9 @@ describe("Operation.revokeLiquidityPoolSponsorship()", () => {
       source,
     });
     const obj = expectOperationType(
-      Operation.fromXDRObject(xdr.Operation.fromXDR(op.toXDR("hex"), "hex")),
+      Operation.fromXDRObject(
+        xdr.Operation.fromXDR(xdr.Operation.toXDR(op, "hex"), "hex"),
+      ),
       "revokeLiquidityPoolSponsorship",
     );
     expect(obj.source).toBe(source);
@@ -331,9 +364,9 @@ describe("Operation.revokeLiquidityPoolSponsorship()", () => {
 
   it("roundtrips through XDR hex encoding", () => {
     const op = Operation.revokeLiquidityPoolSponsorship({ liquidityPoolId });
-    const hex = op.toXDR("hex");
+    const hex = xdr.Operation.toXDR(op, "hex");
     const roundtripped = xdr.Operation.fromXDR(hex, "hex");
-    expect(roundtripped.body().switch().name).toBe("revokeSponsorship");
+    expect(roundtripped.body.type).toBe("revokeSponsorship");
   });
 });
 
@@ -341,7 +374,10 @@ describe("Operation.revokeSignerSponsorship()", () => {
   it("creates a revokeSignerSponsorshipOp with an ed25519PublicKey signer", () => {
     const signer = { ed25519PublicKey: account };
     const op = Operation.revokeSignerSponsorship({ account, signer });
-    const operation = xdr.Operation.fromXDR(op.toXDR("hex"), "hex");
+    const operation = xdr.Operation.fromXDR(
+      xdr.Operation.toXDR(op, "hex"),
+      "hex",
+    );
     const obj = expectOperationType(
       Operation.fromXDRObject(operation),
       "revokeSignerSponsorship",
@@ -351,7 +387,7 @@ describe("Operation.revokeSignerSponsorship()", () => {
       "ed25519PublicKey",
     );
 
-    expect(operation.body().switch().name).toBe("revokeSponsorship");
+    expect(operation.body.type).toBe("revokeSponsorship");
     expect(obj.account).toBe(account);
     expect(decodedSigner.ed25519PublicKey).toBe(signer.ed25519PublicKey);
   });
@@ -360,7 +396,9 @@ describe("Operation.revokeSignerSponsorship()", () => {
     const signer = { preAuthTx: hash(Buffer.from("Tx hash")).toString("hex") };
     const op = Operation.revokeSignerSponsorship({ account, signer });
     const obj = expectOperationType(
-      Operation.fromXDRObject(xdr.Operation.fromXDR(op.toXDR("hex"), "hex")),
+      Operation.fromXDRObject(
+        xdr.Operation.fromXDR(xdr.Operation.toXDR(op, "hex"), "hex"),
+      ),
       "revokeSignerSponsorship",
     );
     const decodedSigner = expectObjectWithProperty(obj.signer, "preAuthTx");
@@ -374,7 +412,9 @@ describe("Operation.revokeSignerSponsorship()", () => {
     };
     const op = Operation.revokeSignerSponsorship({ account, signer });
     const obj = expectOperationType(
-      Operation.fromXDRObject(xdr.Operation.fromXDR(op.toXDR("hex"), "hex")),
+      Operation.fromXDRObject(
+        xdr.Operation.fromXDR(xdr.Operation.toXDR(op, "hex"), "hex"),
+      ),
       "revokeSignerSponsorship",
     );
     const decodedSigner = expectObjectWithProperty(obj.signer, "sha256Hash");
@@ -417,7 +457,9 @@ describe("Operation.revokeSignerSponsorship()", () => {
       source,
     });
     const obj = expectOperationType(
-      Operation.fromXDRObject(xdr.Operation.fromXDR(op.toXDR("hex"), "hex")),
+      Operation.fromXDRObject(
+        xdr.Operation.fromXDR(xdr.Operation.toXDR(op, "hex"), "hex"),
+      ),
       "revokeSignerSponsorship",
     );
     expect(obj.source).toBe(source);
@@ -426,30 +468,30 @@ describe("Operation.revokeSignerSponsorship()", () => {
   it("roundtrips through XDR hex encoding", () => {
     const signer = { ed25519PublicKey: account };
     const op = Operation.revokeSignerSponsorship({ account, signer });
-    const hex = op.toXDR("hex");
+    const hex = xdr.Operation.toXDR(op, "hex");
     const roundtripped = xdr.Operation.fromXDR(hex, "hex");
-    expect(roundtripped.body().switch().name).toBe("revokeSponsorship");
+    expect(roundtripped.body.type).toBe("revokeSponsorship");
   });
 
   it("deserializes a revokeSignerSponsorship with an ed25519SignedPayload signer", () => {
     // Build the XDR operation manually to test the deserialization path
     const kp = Keypair.random();
     const payload = Buffer.alloc(10, 0xab);
-    const signedPayload = new xdr.SignerKeyEd25519SignedPayload({
+    const signedPayload = {
       ed25519: kp.rawPublicKey(),
       payload,
-    });
+    };
     const signerKey =
       xdr.SignerKey.signerKeyTypeEd25519SignedPayload(signedPayload);
 
-    const revokeSigner = new xdr.RevokeSponsorshipOpSigner({
+    const revokeSigner = {
       accountId: kp.xdrAccountId(),
       signerKey,
-    });
+    };
     const revokeOp =
       xdr.RevokeSponsorshipOp.revokeSponsorshipSigner(revokeSigner);
     const opBody = xdr.OperationBody.revokeSponsorship(revokeOp);
-    const xdrOp = new xdr.Operation({ sourceAccount: null, body: opBody });
+    const xdrOp = { sourceAccount: null, body: opBody };
 
     const obj = expectOperationType(
       Operation.fromXDRObject(xdrOp),
@@ -470,15 +512,20 @@ describe("Operation.revokeSignerSponsorship()", () => {
     // Build a valid signed payload StrKey from a keypair + payload
     const kp = Keypair.random();
     const payload = Buffer.alloc(10, 0xab);
-    const signedPayloadXdr = new xdr.SignerKeyEd25519SignedPayload({
+    const signedPayloadXdr: xdr.SignerKeyEd25519SignedPayload = {
       ed25519: kp.rawPublicKey(),
       payload,
-    });
-    const encodedPayload = StrKey.encodeSignedPayload(signedPayloadXdr.toXDR());
+    };
+    const encodedPayload = StrKey.encodeSignedPayload(
+      Buffer.from(xdr.SignerKeyEd25519SignedPayload.toXDR(signedPayloadXdr)),
+    );
 
     const signer = { ed25519SignedPayload: encodedPayload };
     const op = Operation.revokeSignerSponsorship({ account, signer });
-    const operation = xdr.Operation.fromXDR(op.toXDR("hex"), "hex");
+    const operation = xdr.Operation.fromXDR(
+      xdr.Operation.toXDR(op, "hex"),
+      "hex",
+    );
     const obj = expectOperationType(
       Operation.fromXDRObject(operation),
       "revokeSignerSponsorship",
@@ -488,7 +535,7 @@ describe("Operation.revokeSignerSponsorship()", () => {
       "ed25519SignedPayload",
     );
 
-    expect(operation.body().switch().name).toBe("revokeSponsorship");
+    expect(operation.body.type).toBe("revokeSponsorship");
     expect(obj.account).toBe(account);
     expect(decodedSigner.ed25519SignedPayload).toBe(encodedPayload);
   });

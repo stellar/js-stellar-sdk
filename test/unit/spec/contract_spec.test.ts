@@ -187,88 +187,82 @@ function replaceBigIntWithStrings(obj: any): any {
   return obj;
 }
 
-export const GIGA_MAP = xdr.ScSpecEntry.scSpecEntryUdtStructV0(
-  new xdr.ScSpecUdtStructV0({
-    doc: "This is a kitchen sink of all the types",
-    lib: "",
-    name: "GigaMap",
-    fields: [
-      new xdr.ScSpecUdtStructFieldV0({
-        doc: "",
-        name: "bool",
-        type: xdr.ScSpecTypeDef.scSpecTypeBool(),
-      }),
-      new xdr.ScSpecUdtStructFieldV0({
-        doc: "",
-        name: "i128",
-        type: xdr.ScSpecTypeDef.scSpecTypeI128(),
-      }),
-      new xdr.ScSpecUdtStructFieldV0({
-        doc: "",
-        name: "u128",
-        type: xdr.ScSpecTypeDef.scSpecTypeU128(),
-      }),
-      new xdr.ScSpecUdtStructFieldV0({
-        doc: "",
-        name: "i256",
-        type: xdr.ScSpecTypeDef.scSpecTypeI256(),
-      }),
-      new xdr.ScSpecUdtStructFieldV0({
-        doc: "",
-        name: "u256",
-        type: xdr.ScSpecTypeDef.scSpecTypeU256(),
-      }),
-      new xdr.ScSpecUdtStructFieldV0({
-        doc: "",
-        name: "i32",
-        type: xdr.ScSpecTypeDef.scSpecTypeI32(),
-      }),
-      new xdr.ScSpecUdtStructFieldV0({
-        doc: "",
-        name: "u32",
-        type: xdr.ScSpecTypeDef.scSpecTypeU32(),
-      }),
-      new xdr.ScSpecUdtStructFieldV0({
-        doc: "",
-        name: "i64",
-        type: xdr.ScSpecTypeDef.scSpecTypeI64(),
-      }),
-      new xdr.ScSpecUdtStructFieldV0({
-        doc: "",
-        name: "u64",
-        type: xdr.ScSpecTypeDef.scSpecTypeU64(),
-      }),
-      new xdr.ScSpecUdtStructFieldV0({
-        doc: "",
-        name: "symbol",
-        type: xdr.ScSpecTypeDef.scSpecTypeSymbol(),
-      }),
-      new xdr.ScSpecUdtStructFieldV0({
-        doc: "",
-        name: "string",
-        type: xdr.ScSpecTypeDef.scSpecTypeString(),
-      }),
-    ],
-  }),
-);
-const GIGA_MAP_TYPE = xdr.ScSpecTypeDef.scSpecTypeUdt(
-  new xdr.ScSpecTypeUdt({ name: "GigaMap" }),
-);
+export const GIGA_MAP = xdr.ScSpecEntry.scSpecEntryUdtStructV0({
+  doc: "This is a kitchen sink of all the types",
+  lib: "",
+  name: "GigaMap",
+  fields: [
+    {
+      doc: "",
+      name: "bool",
+      type: xdr.ScSpecTypeDef.scSpecTypeBool(),
+    },
+    {
+      doc: "",
+      name: "i128",
+      type: xdr.ScSpecTypeDef.scSpecTypeI128(),
+    },
+    {
+      doc: "",
+      name: "u128",
+      type: xdr.ScSpecTypeDef.scSpecTypeU128(),
+    },
+    {
+      doc: "",
+      name: "i256",
+      type: xdr.ScSpecTypeDef.scSpecTypeI256(),
+    },
+    {
+      doc: "",
+      name: "u256",
+      type: xdr.ScSpecTypeDef.scSpecTypeU256(),
+    },
+    {
+      doc: "",
+      name: "i32",
+      type: xdr.ScSpecTypeDef.scSpecTypeI32(),
+    },
+    {
+      doc: "",
+      name: "u32",
+      type: xdr.ScSpecTypeDef.scSpecTypeU32(),
+    },
+    {
+      doc: "",
+      name: "i64",
+      type: xdr.ScSpecTypeDef.scSpecTypeI64(),
+    },
+    {
+      doc: "",
+      name: "u64",
+      type: xdr.ScSpecTypeDef.scSpecTypeU64(),
+    },
+    {
+      doc: "",
+      name: "symbol",
+      type: xdr.ScSpecTypeDef.scSpecTypeSymbol(),
+    },
+    {
+      doc: "",
+      name: "string",
+      type: xdr.ScSpecTypeDef.scSpecTypeString(),
+    },
+  ],
+});
+const GIGA_MAP_TYPE = xdr.ScSpecTypeDef.scSpecTypeUdt({ name: "GigaMap" });
 
-const func = xdr.ScSpecEntry.scSpecEntryFunctionV0(
-  new xdr.ScSpecFunctionV0({
-    doc: "Kitchen Sink",
-    name: "giga_map",
-    inputs: [
-      new xdr.ScSpecFunctionInputV0({
-        doc: "",
-        name: "giga_map",
-        type: GIGA_MAP_TYPE,
-      }),
-    ],
-    outputs: [GIGA_MAP_TYPE],
-  }),
-);
+const func = xdr.ScSpecEntry.scSpecEntryFunctionV0({
+  doc: "Kitchen Sink",
+  name: "giga_map",
+  inputs: [
+    {
+      doc: "",
+      name: "giga_map",
+      type: GIGA_MAP_TYPE,
+    },
+  ],
+  outputs: [GIGA_MAP_TYPE],
+});
 
 beforeAll(() => {
   SPEC = new contract.Spec(spec);
@@ -294,14 +288,14 @@ describe("Spec constructor", () => {
 
 describe("Can round trip custom types", () => {
   function getResultType(funcName: string): xdr.ScSpecTypeDef {
-    const fn = SPEC.findEntry(funcName).value();
-    if (!(fn instanceof xdr.ScSpecFunctionV0)) {
+    const entry = SPEC.findEntry(funcName);
+    if (entry.type !== "scSpecEntryFunctionV0") {
       throw new Error("Not a function");
     }
-    if (fn.outputs().length === 0) {
+    if (entry.functionV0.outputs.length === 0) {
       return xdr.ScSpecTypeDef.scSpecTypeVoid();
     }
-    const output = fn.outputs()[0];
+    const output = entry.functionV0.outputs[0];
     if (!output) {
       throw new Error("No output type found");
     }
@@ -357,7 +351,7 @@ describe("Can round trip custom types", () => {
 
   describe("Json Schema", () => {
     SPEC = new contract.Spec(spec);
-    const names = SPEC.funcs().map((f) => f.name().toString());
+    const names = SPEC.funcs().map((f) => f.name.toString());
     const banned = ["strukt_hel", "not", "woid", "val", "multi_args"];
     names
       .filter((name) => !name.includes("fail"))
@@ -542,7 +536,7 @@ describe("Can round trip custom types", () => {
   it("u256", () => {
     roundtrip("u256", 1n);
     expect(() => roundtrip("u256", -1n)).toThrow(
-      /expected a positive value, got: -1/i,
+      /Value -1 is out of range for U256/i,
     );
   });
 

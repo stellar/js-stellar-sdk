@@ -4,7 +4,7 @@ import * as StellarSdk from "../../src/index.js";
 
 const { Horizon } = StellarSdk;
 describe("server.js async transaction submission tests", () => {
-  let server: any;
+  let server: rpc.Server;
   let mockPost: any;
   let transaction: any;
   let blob: string;
@@ -32,7 +32,10 @@ describe("server.js async transaction submission tests", () => {
     transaction.sign(keypair);
 
     blob = encodeURIComponent(
-      transaction.toEnvelope().toXDR().toString("base64"),
+      StellarSdk.xdr.TransactionEnvelope.toXDR(
+        transaction.toEnvelope(),
+        "base64",
+      ),
     );
   });
 

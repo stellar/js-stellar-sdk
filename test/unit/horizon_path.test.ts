@@ -15,7 +15,7 @@ SERVER_URLS.forEach((serverUrl) => {
   describe(`with server URL: ${serverUrl}`, () => {
     let mockGet: any;
     let mockPost: any;
-    let server: any;
+    let server: rpc.Server;
     beforeEach(() => {
       server = new Horizon.Server(serverUrl);
       mockGet = vi.spyOn(server.httpClient, "get");
@@ -163,7 +163,10 @@ SERVER_URLS.forEach((serverUrl) => {
         .build();
       fakeTransaction.sign(keypair);
       const tx = encodeURIComponent(
-        fakeTransaction.toEnvelope().toXDR().toString("base64"),
+        StellarSdk.xdr.TransactionEnvelope.toXDR(
+          fakeTransaction.toEnvelope(),
+          "base64",
+        ),
       );
 
       const testResult = prepareAxiosMock("post", "post", `tx=${tx}`);

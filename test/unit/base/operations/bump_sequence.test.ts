@@ -7,7 +7,7 @@ describe("Operation.bumpSequence()", () => {
   it("creates a bumpSequence operation", () => {
     const opts = { bumpTo: "77833036561510299" };
     const op = Operation.bumpSequence(opts);
-    const xdrHex = op.toXDR("hex");
+    const xdrHex = xdr.Operation.toXDR(op, "hex");
     const operation = xdr.Operation.fromXDR(xdrHex, "hex");
     const obj = expectOperationType(
       Operation.fromXDRObject(operation),
@@ -34,7 +34,9 @@ describe("Operation.bumpSequence()", () => {
     const source = "GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGSNFHEYVXM3XOJMDS674JZ";
     const op = Operation.bumpSequence({ bumpTo: "100", source });
     const obj = expectOperationType(
-      Operation.fromXDRObject(xdr.Operation.fromXDR(op.toXDR("hex"), "hex")),
+      Operation.fromXDRObject(
+        xdr.Operation.fromXDR(xdr.Operation.toXDR(op, "hex"), "hex"),
+      ),
       "bumpSequence",
     );
 
@@ -43,8 +45,8 @@ describe("Operation.bumpSequence()", () => {
 
   it("roundtrips through XDR hex encoding", () => {
     const op = Operation.bumpSequence({ bumpTo: "77833036561510299" });
-    const hex = op.toXDR("hex");
+    const hex = xdr.Operation.toXDR(op, "hex");
     const roundtripped = xdr.Operation.fromXDR(hex, "hex");
-    expect(roundtripped.body().switch().name).toBe("bumpSequence");
+    expect(roundtripped.body.type).toBe("bumpSequence");
   });
 });

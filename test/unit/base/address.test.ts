@@ -92,21 +92,18 @@ describe("Address", () => {
       });
 
       it("parses muxed-account addresses", () => {
-        const sc = xdr.ScAddress.scAddressTypeMuxedAccount(
-          new xdr.MuxedEd25519Account({
-            id: new xdr.Uint64(MUXED_ADDRESS_ID),
-            ed25519: StrKey.decodeEd25519PublicKey(MUXED_ADDRESS_BASE),
-          }),
-        );
+        const sc = xdr.ScAddress.scAddressTypeMuxedAccount({
+          id: BigInt(MUXED_ADDRESS_ID),
+          ed25519: StrKey.decodeEd25519PublicKey(MUXED_ADDRESS_BASE),
+        });
         const m = Address.fromScAddress(sc);
         expect(m.toString()).toBe(MUXED_ADDRESS);
       });
 
       it("parses claimable-balance addresses", () => {
         const sc = xdr.ScAddress.scAddressTypeClaimableBalance(
-          new (xdr.ClaimableBalanceId as any)(
-            "claimableBalanceIdTypeV0",
-            Buffer.alloc(32),
+          xdr.ClaimableBalanceId.claimableBalanceIdTypeV0(
+            Buffer.alloc(32) as unknown as xdr.Hash,
           ),
         );
         const cb = Address.fromScAddress(sc);
@@ -158,12 +155,10 @@ describe("Address", () => {
 
       it("parses muxed-account ScVals", () => {
         const scVal = xdr.ScVal.scvAddress(
-          xdr.ScAddress.scAddressTypeMuxedAccount(
-            new xdr.MuxedEd25519Account({
-              id: new xdr.Uint64(MUXED_ADDRESS_ID),
-              ed25519: StrKey.decodeEd25519PublicKey(MUXED_ADDRESS_BASE),
-            }),
-          ),
+          xdr.ScAddress.scAddressTypeMuxedAccount({
+            id: BigInt(MUXED_ADDRESS_ID),
+            ed25519: StrKey.decodeEd25519PublicKey(MUXED_ADDRESS_BASE),
+          }),
         );
         const m = Address.fromScVal(scVal);
         expect(m.toString()).toBe(MUXED_ADDRESS);
@@ -172,9 +167,8 @@ describe("Address", () => {
       it("parses claimable-balance ScVals", () => {
         const scVal = xdr.ScVal.scvAddress(
           xdr.ScAddress.scAddressTypeClaimableBalance(
-            new (xdr.ClaimableBalanceId as any)(
-              "claimableBalanceIdTypeV0",
-              Buffer.alloc(32),
+            xdr.ClaimableBalanceId.claimableBalanceIdTypeV0(
+              Buffer.alloc(32) as unknown as xdr.Hash,
             ),
           ),
         );
@@ -198,82 +192,90 @@ describe("Address", () => {
     it("converts accounts", () => {
       const a = new Address(ACCOUNT);
       const s = a.toScAddress();
-      expect(s.switch()).toBe(xdr.ScAddressType.scAddressTypeAccount());
-      expect(xdr.ScAddress.fromXDR(s.toXDR())).toEqual(s);
+      expect(s.type).toBe("scAddressTypeAccount");
+      expect(xdr.ScAddress.fromXDR(xdr.ScAddress.toXDR(s))).toEqual(s);
     });
 
     it("converts contracts", () => {
       const c = new Address(CONTRACT);
       const s = c.toScAddress();
-      expect(s.switch()).toBe(xdr.ScAddressType.scAddressTypeContract());
-      expect(xdr.ScAddress.fromXDR(s.toXDR())).toEqual(s);
+      expect(s.type).toBe("scAddressTypeContract");
+      expect(xdr.ScAddress.fromXDR(xdr.ScAddress.toXDR(s))).toEqual(s);
     });
 
     it("converts muxed accounts", () => {
       const m = new Address(MUXED_ADDRESS);
       const s = m.toScAddress();
-      expect(s).toBeInstanceOf(xdr.ScAddress);
-      expect(s.switch()).toBe(xdr.ScAddressType.scAddressTypeMuxedAccount());
-      expect(s.muxedAccount().ed25519()).toEqual(
+      expect(s.type).toBe("scAddressTypeMuxedAccount");
+      if (s.type !== "scAddressTypeMuxedAccount") {
+        throw new Error("Expected scAddressTypeMuxedAccount");
+      }
+      expect(Buffer.from(s.muxedAccount.ed25519)).toEqual(
         StrKey.decodeEd25519PublicKey(MUXED_ADDRESS_BASE),
       );
-      expect(s.muxedAccount().id().toString()).toBe(MUXED_ADDRESS_ID);
-      expect(xdr.ScAddress.fromXDR(s.toXDR())).toEqual(s);
+      expect(s.muxedAccount.id.toString()).toBe(MUXED_ADDRESS_ID);
+      expect(xdr.ScAddress.fromXDR(xdr.ScAddress.toXDR(s))).toEqual(s);
     });
 
     it("converts claimable balances", () => {
       const cb = new Address(CLAIMABLE_BALANCE_ZERO);
       const s = cb.toScAddress();
-      expect(s.switch()).toBe(
-        xdr.ScAddressType.scAddressTypeClaimableBalance(),
-      );
-      expect(xdr.ScAddress.fromXDR(s.toXDR())).toEqual(s);
+      expect(s.type).toBe("scAddressTypeClaimableBalance");
+      expect(xdr.ScAddress.fromXDR(xdr.ScAddress.toXDR(s))).toEqual(s);
     });
 
     it("converts liquidity pools", () => {
       const lp = new Address(LIQUIDITY_POOL_ZERO);
       const s = lp.toScAddress();
-      expect(s.switch()).toBe(xdr.ScAddressType.scAddressTypeLiquidityPool());
-      expect(xdr.ScAddress.fromXDR(s.toXDR())).toEqual(s);
+      expect(s.type).toBe("scAddressTypeLiquidityPool");
+      expect(xdr.ScAddress.fromXDR(xdr.ScAddress.toXDR(s))).toEqual(s);
     });
   });
 
   describe(".toScVal", () => {
     it("wraps account ScAddress types", () => {
       const a = new Address(ACCOUNT);
-      expect(a.toScVal().address().switch()).toBe(
-        xdr.ScAddressType.scAddressTypeAccount(),
-      );
+      const val = a.toScVal();
+      if (val.type !== "scvAddress") {
+        throw new Error("Expected ScVal of type scvAddress");
+      }
+      expect(val.address.type).toBe("scAddressTypeAccount");
     });
 
     it("wraps contract ScAddress types", () => {
       const c = new Address(CONTRACT);
-      expect(c.toScVal().address().switch()).toBe(
-        xdr.ScAddressType.scAddressTypeContract(),
-      );
+      const val = c.toScVal();
+      if (val.type !== "scvAddress") {
+        throw new Error("Expected ScVal of type scvAddress");
+      }
+      expect(val.address.type).toBe("scAddressTypeContract");
     });
 
     it("wraps muxed-account ScAddress types", () => {
       const m = new Address(MUXED_ADDRESS);
-      expect(m.toScVal().address().switch()).toBe(
-        xdr.ScAddressType.scAddressTypeMuxedAccount(),
-      );
+      const val = m.toScVal();
+      if (val.type !== "scvAddress") {
+        throw new Error("Expected ScVal of type scvAddress");
+      }
+      expect(val.address.type).toBe("scAddressTypeMuxedAccount");
     });
 
     it("wraps liquidity-pool ScAddress types", () => {
       const lp = new Address(LIQUIDITY_POOL_ZERO);
-      expect(lp.toScVal().address().switch()).toBe(
-        xdr.ScAddressType.scAddressTypeLiquidityPool(),
-      );
+      const val = lp.toScVal();
+      if (val.type !== "scvAddress") {
+        throw new Error("Expected ScVal of type scvAddress");
+      }
+      expect(val.address.type).toBe("scAddressTypeLiquidityPool");
     });
 
     it("wraps claimable-balance ScAddress types", () => {
       const cb = new Address(CLAIMABLE_BALANCE_ZERO);
       const val = cb.toScVal();
-      expect(val).toBeInstanceOf(xdr.ScVal);
-      expect(val.address().switch()).toBe(
-        xdr.ScAddressType.scAddressTypeClaimableBalance(),
-      );
+      if (val.type !== "scvAddress") {
+        throw new Error("Expected ScVal of type scvAddress");
+      }
+      expect(val.address.type).toBe("scAddressTypeClaimableBalance");
     });
   });
 

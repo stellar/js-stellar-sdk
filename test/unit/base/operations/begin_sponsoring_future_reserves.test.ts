@@ -9,11 +9,9 @@ describe("Operation.beginSponsoringFutureReserves()", () => {
 
   it("creates a beginSponsoringFutureReservesOp", () => {
     const op = Operation.beginSponsoringFutureReserves({ sponsoredId });
-    const xdrHex = op.toXDR("hex");
+    const xdrHex = xdr.Operation.toXDR(op, "hex");
     const operation = xdr.Operation.fromXDR(xdrHex, "hex");
-    expect(operation.body().switch().name).toBe(
-      "beginSponsoringFutureReserves",
-    );
+    expect(operation.body.type).toBe("beginSponsoringFutureReserves");
     const obj = expectOperationType(
       Operation.fromXDRObject(operation),
       "beginSponsoringFutureReserves",
@@ -27,7 +25,7 @@ describe("Operation.beginSponsoringFutureReserves()", () => {
       sponsoredId,
       source,
     });
-    const xdrHex = op.toXDR("hex");
+    const xdrHex = xdr.Operation.toXDR(op, "hex");
     const operation = xdr.Operation.fromXDR(xdrHex, "hex");
     const obj = expectOperationType(
       Operation.fromXDRObject(operation),
@@ -60,10 +58,8 @@ describe("Operation.beginSponsoringFutureReserves()", () => {
 
   it("roundtrips through XDR hex encoding", () => {
     const op = Operation.beginSponsoringFutureReserves({ sponsoredId });
-    const hex = op.toXDR("hex");
+    const hex = xdr.Operation.toXDR(op, "hex");
     const roundtripped = xdr.Operation.fromXDR(hex, "hex");
-    expect(roundtripped.body().switch().name).toBe(
-      "beginSponsoringFutureReserves",
-    );
+    expect(roundtripped.body.type).toBe("beginSponsoringFutureReserves");
   });
 });

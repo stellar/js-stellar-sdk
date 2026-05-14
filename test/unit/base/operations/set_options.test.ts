@@ -45,8 +45,8 @@ describe("Operation.setOptions()", () => {
       homeDomain: "www.example.com",
     };
     const op = Operation.setOptions(opts);
-    const xdrHex = op.toXDR("hex");
-    const operation = xdr.Operation.fromXDR(Buffer.from(xdrHex, "hex"));
+    const xdrHex = xdr.Operation.toXDR(op, "hex");
+    const operation = xdr.Operation.fromXDR(xdrHex, "hex");
     const obj = expectOperationType(
       Operation.fromXDRObject(operation),
       "setOptions",
@@ -76,7 +76,7 @@ describe("Operation.setOptions()", () => {
         weight: 10,
       },
     });
-    const xdrHex = op.toXDR("hex");
+    const xdrHex = xdr.Operation.toXDR(op, "hex");
     const operation = xdr.Operation.fromXDR(Buffer.from(xdrHex, "hex"));
     const obj = expectOperationType(
       Operation.fromXDRObject(operation),
@@ -103,7 +103,7 @@ describe("Operation.setOptions()", () => {
         weight: 10,
       },
     });
-    const xdrHex = op.toXDR("hex");
+    const xdrHex = xdr.Operation.toXDR(op, "hex");
     const operation = xdr.Operation.fromXDR(Buffer.from(xdrHex, "hex"));
     const obj = expectOperationType(
       Operation.fromXDRObject(operation),
@@ -126,7 +126,7 @@ describe("Operation.setOptions()", () => {
         weight: 10,
       },
     });
-    const xdrHex = op.toXDR("hex");
+    const xdrHex = xdr.Operation.toXDR(op, "hex");
     const operation = xdr.Operation.fromXDR(Buffer.from(xdrHex, "hex"));
     const obj = expectOperationType(
       Operation.fromXDRObject(operation),
@@ -153,7 +153,7 @@ describe("Operation.setOptions()", () => {
         weight: 10,
       },
     });
-    const xdrHex = op.toXDR("hex");
+    const xdrHex = xdr.Operation.toXDR(op, "hex");
     const operation = xdr.Operation.fromXDR(Buffer.from(xdrHex, "hex"));
     const obj = expectOperationType(
       Operation.fromXDRObject(operation),
@@ -170,10 +170,10 @@ describe("Operation.setOptions()", () => {
 
   it("creates a setOptionsOp with signed payload signer", () => {
     const pubkey = "GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGSNFHEYVXM3XOJMDS674JZ";
-    const signedPayload = new xdr.SignerKeyEd25519SignedPayload({
+    const signedPayload = {
       ed25519: StrKey.decodeEd25519PublicKey(pubkey),
       payload: Buffer.from("test"),
-    });
+    };
     const xdrSignerKey =
       xdr.SignerKey.signerKeyTypeEd25519SignedPayload(signedPayload);
     const payloadKey = SignerKey.encodeSignerKey(xdrSignerKey);
@@ -184,7 +184,7 @@ describe("Operation.setOptions()", () => {
         weight: 10,
       },
     });
-    const xdrHex = op.toXDR("hex");
+    const xdrHex = xdr.Operation.toXDR(op, "hex");
     const operation = xdr.Operation.fromXDR(Buffer.from(xdrHex, "hex"));
     const obj = expectOperationType(
       Operation.fromXDRObject(operation),
@@ -230,7 +230,7 @@ describe("Operation.setOptions()", () => {
 
   it("creates a setOptionsOp with string setFlags", () => {
     const op = Operation.setOptions({ setFlags: 4 });
-    const xdrHex = op.toXDR("hex");
+    const xdrHex = xdr.Operation.toXDR(op, "hex");
     const operation = xdr.Operation.fromXDR(Buffer.from(xdrHex, "hex"));
     const obj = expectOperationType(
       Operation.fromXDRObject(operation),
@@ -242,7 +242,7 @@ describe("Operation.setOptions()", () => {
 
   it("creates a setOptionsOp with string clearFlags", () => {
     const op = Operation.setOptions({ clearFlags: 4 });
-    const xdrHex = op.toXDR("hex");
+    const xdrHex = xdr.Operation.toXDR(op, "hex");
     const operation = xdr.Operation.fromXDR(Buffer.from(xdrHex, "hex"));
     const obj = expectOperationType(
       Operation.fromXDRObject(operation),
@@ -254,13 +254,28 @@ describe("Operation.setOptions()", () => {
 
   it("creates a setOptionsOp with no options (empty object)", () => {
     const op = Operation.setOptions({});
-    expect(op).toBeInstanceOf(xdr.Operation);
+    expect(op).toHaveProperty("body");
+    expect(op.body).toHaveProperty("type", "setOptions");
+    if (op.body.type !== "setOptions") {
+      expect.fail("Expected operation body type to be setOptions");
+    }
+    expect(op.body.setOptionsOp).toEqual({
+      inflationDest: null,
+      clearFlags: null,
+      setFlags: null,
+      masterWeight: null,
+      lowThreshold: null,
+      medThreshold: null,
+      highThreshold: null,
+      homeDomain: null,
+      signer: null,
+    });
   });
 
   it("creates a setOptionsOp with source account", () => {
     const source = "GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGSNFHEYVXM3XOJMDS674JZ";
     const op = Operation.setOptions({ source });
-    const xdrHex = op.toXDR("hex");
+    const xdrHex = xdr.Operation.toXDR(op, "hex");
     const operation = xdr.Operation.fromXDR(Buffer.from(xdrHex, "hex"));
     const obj = Operation.fromXDRObject(operation);
     expect(obj.source).toBe(source);
@@ -353,8 +368,8 @@ describe("Operation.setOptions()", () => {
     const op = Operation.setOptions({
       inflationDest: "GDGU5OAPHNPU5UCLE5RDJHG7PXZFQYWKCFOEXSXNMR6KRQRI5T6XXCD7",
     });
-    const hex = op.toXDR("hex");
+    const hex = xdr.Operation.toXDR(op, "hex");
     const roundtripped = xdr.Operation.fromXDR(hex, "hex");
-    expect(roundtripped.body().switch().name).toBe("setOptions");
+    expect(roundtripped.body.type).toBe("setOptions");
   });
 });

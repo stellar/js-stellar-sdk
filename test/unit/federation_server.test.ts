@@ -8,7 +8,7 @@ import { httpClient } from "../../src/http-client/index.js";
 const { Server, FEDERATION_RESPONSE_MAX_SIZE } = StellarSdk.Federation;
 
 describe("federation-server.js tests", () => {
-  let server: any;
+  let server: rpc.Server;
   let mockHttpClient: any;
 
   beforeEach(() => {

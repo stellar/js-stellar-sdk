@@ -10,16 +10,19 @@ describe("Operation.createAccount()", () => {
   it("creates a createAccountOp", () => {
     const startingBalance = "1000.0000000";
     const op = Operation.createAccount({ destination, startingBalance });
-    const xdrHex = op.toXDR("hex");
+    const xdrHex = xdr.Operation.toXDR(op, "hex");
     const operation = xdr.Operation.fromXDR(Buffer.from(xdrHex, "hex"));
     const obj = expectOperationType(
       Operation.fromXDRObject(operation),
       "createAccount",
     );
     expect(obj.destination).toBe(destination);
-    expect(
-      operation.body().createAccountOp().startingBalance().toString(),
-    ).toBe("10000000000");
+    if (operation.body.type !== xdr.OperationType.createAccount) {
+      expect.fail("Expected createAccount operation");
+    }
+    expect(operation.body.createAccountOp.startingBalance.toString()).toBe(
+      "10000000000",
+    );
     expect(obj.startingBalance).toBe(startingBalance);
   });
 
@@ -39,7 +42,7 @@ describe("Operation.createAccount()", () => {
       startingBalance: "100",
       source,
     });
-    const xdrHex = op.toXDR("hex");
+    const xdrHex = xdr.Operation.toXDR(op, "hex");
     const operation = xdr.Operation.fromXDR(Buffer.from(xdrHex, "hex"));
     const obj = expectOperationType(
       Operation.fromXDRObject(operation),
@@ -86,8 +89,8 @@ describe("Operation.createAccount()", () => {
       destination,
       startingBalance: "50.0000000",
     });
-    const hex = op.toXDR("hex");
+    const hex = xdr.Operation.toXDR(op, "hex");
     const roundtripped = xdr.Operation.fromXDR(hex, "hex");
-    expect(roundtripped.body().switch().name).toBe("createAccount");
+    expect(roundtripped.body.type).toBe("createAccount");
   });
 });

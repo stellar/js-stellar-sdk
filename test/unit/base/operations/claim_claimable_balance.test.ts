@@ -9,7 +9,7 @@ const balanceId =
 describe("Operation.claimClaimableBalance()", () => {
   it("creates a claimClaimableBalanceOp", () => {
     const op = Operation.claimClaimableBalance({ balanceId });
-    const xdrHex = op.toXDR("hex");
+    const xdrHex = xdr.Operation.toXDR(op, "hex");
     const operation = xdr.Operation.fromXDR(xdrHex, "hex");
     const obj = expectOperationType(
       Operation.fromXDRObject(operation),
@@ -36,7 +36,9 @@ describe("Operation.claimClaimableBalance()", () => {
     const source = "GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGSNFHEYVXM3XOJMDS674JZ";
     const op = Operation.claimClaimableBalance({ balanceId, source });
     const obj = expectOperationType(
-      Operation.fromXDRObject(xdr.Operation.fromXDR(op.toXDR("hex"), "hex")),
+      Operation.fromXDRObject(
+        xdr.Operation.fromXDR(xdr.Operation.toXDR(op, "hex"), "hex"),
+      ),
       "claimClaimableBalance",
     );
 
@@ -45,8 +47,8 @@ describe("Operation.claimClaimableBalance()", () => {
 
   it("roundtrips through XDR hex encoding", () => {
     const op = Operation.claimClaimableBalance({ balanceId });
-    const hex = op.toXDR("hex");
+    const hex = xdr.Operation.toXDR(op, "hex");
     const roundtripped = xdr.Operation.fromXDR(hex, "hex");
-    expect(roundtripped.body().switch().name).toBe("claimClaimableBalance");
+    expect(roundtripped.body.type).toBe("claimClaimableBalance");
   });
 });

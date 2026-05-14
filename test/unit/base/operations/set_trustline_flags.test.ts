@@ -18,13 +18,16 @@ describe("Operation.setTrustLineFlags()", () => {
         clawbackEnabled: false,
       },
     });
-    const opBody = op.body().setTrustLineFlagsOp();
+    if (op.body.type !== xdr.OperationType.setTrustLineFlags) {
+      expect.fail("Expected setTrustLineFlags operation");
+    }
+    const opBody = op.body.setTrustLineFlagsOp;
     // authorized (1) | clawbackEnabled (4) = 5
-    expect(opBody.clearFlags()).toBe(1 | 4);
+    expect(opBody.clearFlags).toBe(1 | 4);
     // authorizedToMaintainLiabilities (2)
-    expect(opBody.setFlags()).toBe(2);
+    expect(opBody.setFlags).toBe(2);
 
-    const xdrHex = op.toXDR("hex");
+    const xdrHex = xdr.Operation.toXDR(op, "hex");
     const operation = xdr.Operation.fromXDR(Buffer.from(xdrHex, "hex"));
     const obj = expectOperationType(
       Operation.fromXDRObject(operation),
@@ -45,10 +48,13 @@ describe("Operation.setTrustLineFlags()", () => {
         authorized: true,
       },
     });
-    const opBody = op.body().setTrustLineFlagsOp();
-    expect(opBody.setFlags()).toBe(1);
+    if (op.body.type !== xdr.OperationType.setTrustLineFlags) {
+      expect.fail("Expected setTrustLineFlags operation");
+    }
+    const opBody = op.body.setTrustLineFlagsOp;
+    expect(opBody.setFlags).toBe(1);
 
-    const xdrHex = op.toXDR("hex");
+    const xdrHex = xdr.Operation.toXDR(op, "hex");
     const operation = xdr.Operation.fromXDR(Buffer.from(xdrHex, "hex"));
     const obj = expectOperationType(
       Operation.fromXDRObject(operation),
@@ -69,7 +75,7 @@ describe("Operation.setTrustLineFlags()", () => {
       flags: { authorized: true },
       source,
     });
-    const xdrHex = op.toXDR("hex");
+    const xdrHex = xdr.Operation.toXDR(op, "hex");
     const operation = xdr.Operation.fromXDR(Buffer.from(xdrHex, "hex"));
     const obj = expectOperationType(
       Operation.fromXDRObject(operation),
@@ -175,8 +181,8 @@ describe("Operation.setTrustLineFlags()", () => {
       asset,
       flags: { authorized: true },
     });
-    const hex = op.toXDR("hex");
+    const hex = xdr.Operation.toXDR(op, "hex");
     const roundtripped = xdr.Operation.fromXDR(hex, "hex");
-    expect(roundtripped.body().switch().name).toBe("setTrustLineFlags");
+    expect(roundtripped.body.type).toBe("setTrustLineFlags");
   });
 });

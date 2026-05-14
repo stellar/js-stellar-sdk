@@ -1,13 +1,13 @@
 import { describe, it, beforeEach, afterEach, expect, vi } from "vitest";
 import * as StellarSdk from "../../../../src/index.js";
 
-import { serverUrl } from "../../../constants";
+import { serverUrl } from "../../../constants.js";
 
 const { Server } = StellarSdk.rpc;
 const { xdr } = StellarSdk;
 
 describe("Server#getLatestLedger", () => {
-  let server: any;
+  let server: rpc.Server;
   let mockPost: any;
 
   beforeEach(() => {

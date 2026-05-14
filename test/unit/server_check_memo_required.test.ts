@@ -140,7 +140,7 @@ function mockAccountRequest(
 }
 
 describe("server.js check-memo-required", () => {
-  let server: any;
+  let server: rpc.Server;
   let mockGet: any;
 
   beforeEach(() => {
