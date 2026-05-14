@@ -487,7 +487,7 @@ export function scValToNative(scv: ScVal): any {
     case "scvI32":
       return scv.i32;
     case "scvBytes":
-      return scv.bytes;
+      return Buffer.from(scv.bytes);
 
     // Symbols are limited to [a-zA-Z0-9_]+, so we can safely make ascii strings
     //
@@ -521,7 +521,7 @@ export function scValToNative(scv: ScVal): any {
         try {
           return new TextDecoder().decode(v);
         } catch {
-          return new Uint8Array((v as ArrayBufferView).buffer); // copy of bytes
+          return Buffer.from((v as ArrayBufferView).buffer); // copy of bytes
         }
       }
       return v; // string already

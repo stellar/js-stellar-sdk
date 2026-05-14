@@ -1132,7 +1132,7 @@ export class Spec {
         validateScSpecType(typeDef.type, ScSpecType.scSpecTypeI32);
         return scv.i32 as unknown as T;
       case ScValType.scvBytes:
-        return scv.bytes as T;
+        return Buffer.from(scv.bytes) as unknown as T;
 
       case ScValType.scvString:
         if (typeDef.type !== ScSpecType.scSpecTypeString) {
