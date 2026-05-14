@@ -42,12 +42,12 @@ function renderHtaccess(): string {
 # hosts the same behaviors must be expressed in their native formats.
 #
 # DOCUMENT_ROOT caveat: the markdown-negotiation file checks below assume
-# the site is deployed at the apex of an Apache vhost (current setup on
-# stellar-sdk.quietbits.com). If you ever upload dist/site/ into a non-
-# root subdirectory of an Apache host, %{DOCUMENT_ROOT}/1.md will look
-# in the wrong place and the rewrite will silently no-op (Apache will
-# serve the original HTML). Adjust by prepending the subdirectory or
-# switching to %{REQUEST_FILENAME}-based checks.
+# the site is deployed at the apex of an Apache vhost. If you ever upload
+# dist/site/ into a non-root subdirectory of an Apache host,
+# %{DOCUMENT_ROOT}/$1.md will look in the wrong place and the rewrite
+# will silently no-op (Apache will serve the original HTML). Adjust by
+# prepending the subdirectory or switching to %{REQUEST_FILENAME}-based
+# checks.
 
 <IfModule mod_headers.c>
   # Apache: Link response header for agent discovery (RFC 8288).
