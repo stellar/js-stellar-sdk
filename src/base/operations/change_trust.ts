@@ -1,11 +1,13 @@
-import xdr from "../xdr.js";
+import {
+  ChangeTrustAsset,
+  ChangeTrustOp,
+  Int64,
+  Operation,
+  OperationBody,
+} from "../generated/index.js";
 import { Asset } from "../asset.js";
 import { LiquidityPoolAsset } from "../liquidity_pool_asset.js";
-import {
-  ChangeTrustResult,
-  ChangeTrustOpts,
-  OperationAttributes,
-} from "./types.js";
+import { ChangeTrustOpts, OperationAttributes } from "./types.js";
 import {
   constructAmountRequirementsError,
   isValidAmount,
@@ -25,18 +27,16 @@ const MAX_INT64 = "9223372036854775807";
  *                     If the limit is set to "0" it deletes the trustline.
  * @param opts.source - The source account (defaults to transaction source).
  */
-export function changeTrust(
-  opts: ChangeTrustOpts,
-): xdr.Operation<ChangeTrustResult> {
+export function changeTrust(opts: ChangeTrustOpts): Operation {
   // Accept `line` as an alias for `asset` so that the output of
   // fromXDRObject (which uses `line`) can round-trip back through here.
   const asset =
     opts.asset ??
     (opts as unknown as { line?: Asset | LiquidityPoolAsset }).line;
-  let line: xdr.ChangeTrustAsset;
+  let line: ChangeTrustAsset;
 
   if (asset instanceof Asset) {
-    line = asset.toChangeTrustXDRObject();
+    line = asset.toWireChangeTrustXDRObject();
   } else if (asset instanceof LiquidityPoolAsset) {
     line = asset.toXDRObject();
   } else {
@@ -47,18 +47,16 @@ export function changeTrust(
     throw new TypeError(constructAmountRequirementsError("limit"));
   }
 
-  const limit: xdr.Int64 = opts.limit
-    ? toXDRAmount(opts.limit)
-    : xdr.Int64.fromString(MAX_INT64);
+  const limit: Int64 = opts.limit ? toXDRAmount(opts.limit) : BigInt(MAX_INT64);
 
-  const changeTrustOp = new xdr.ChangeTrustOp({ line, limit });
+  const changeTrustOp: ChangeTrustOp = { line, limit };
 
   const opAttributes: OperationAttributes = {
     sourceAccount: null,
-    body: xdr.OperationBody.changeTrust(changeTrustOp),
+    body: OperationBody.changeTrust(changeTrustOp),
   };
 
   setSourceAccount(opAttributes, opts);
 
-  return new xdr.Operation(opAttributes);
+  return opAttributes;
 }

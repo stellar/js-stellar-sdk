@@ -1,4 +1,5 @@
-import { Operation, xdr, Address } from "../base/index.js";
+import { Operation, Address } from "../base/index.js";
+import { ScVal } from "../base/generated/index.js";
 import { Spec } from "./spec.js";
 import { Server } from "../rpc/index.js";
 import { AssembledTransaction } from "./assembled_transaction.js";
@@ -105,7 +106,7 @@ export class Client {
     }
 
     this.spec.funcs().forEach((xdrFn) => {
-      const method = xdrFn.name().toString();
+      const method = xdrFn.name;
       if (method === CONSTRUCTOR_FUNC) {
         return;
       }
@@ -121,17 +122,17 @@ export class Client {
           errorTypes: spec.errorCases().reduce(
             (acc, curr) => ({
               ...acc,
-              [curr.value()]: { message: curr.doc().toString() },
+              [curr.value]: { message: curr.doc },
             }),
             {} as Pick<ClientOptions, "errorTypes">,
           ),
-          parseResultXdr: (result: xdr.ScVal) =>
+          parseResultXdr: (result: ScVal) =>
             spec.funcResToNative(method, result),
         });
 
       // @ts-ignore error TS7053: Element implicitly has an 'any' type
       this[sanitizeIdentifier(method)] =
-        spec.getFunc(method).inputs().length === 0
+        spec.getFunc(method).inputs.length === 0
           ? (opts?: MethodOptions) => assembleTransaction(undefined, opts)
           : assembleTransaction;
     });
@@ -206,7 +207,7 @@ export class Client {
       {
         ...this.options,
         method,
-        parseResultXdr: (result: xdr.ScVal) =>
+        parseResultXdr: (result: ScVal) =>
           this.spec.funcResToNative(method, result),
       },
       tx,

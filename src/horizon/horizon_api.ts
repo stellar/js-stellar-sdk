@@ -10,6 +10,36 @@ export namespace HorizonApi {
     _links: { [key in T | "self"]: ResponseLink };
   }
 
+  export interface OfferResultClaimed {
+    sellerId: string;
+    offerId: string;
+    assetSold: { type: string; assetCode?: string; issuer?: string };
+    amountSold: string;
+    assetBought: { type: string; assetCode?: string; issuer?: string };
+    amountBought: string;
+  }
+
+  export interface OfferResultCurrentOffer {
+    offerId: string;
+    selling: { type: string; assetCode?: string; issuer?: string };
+    buying: { type: string; assetCode?: string; issuer?: string };
+    amount: string;
+    price: { n: number; d: number };
+  }
+
+  export interface OfferResult {
+    offersClaimed: OfferResultClaimed[];
+    effect: string;
+    operationIndex: number;
+    currentOffer?: OfferResultCurrentOffer;
+    amountBought: string;
+    amountSold: string;
+    isFullyOpen: boolean;
+    wasPartiallyFilled: boolean;
+    wasImmediatelyFilled: boolean;
+    wasImmediatelyDeleted: boolean;
+  }
+
   export interface SubmitTransactionResponse {
     hash: string;
     ledger: number;
@@ -18,6 +48,7 @@ export namespace HorizonApi {
     result_xdr: string;
     result_meta_xdr: string;
     paging_token: string;
+    offerResults?: OfferResult[];
   }
 
   export interface SubmitAsyncTransactionResponse {

@@ -73,13 +73,18 @@ export function assembleTransaction(
     classicFeeNum = BigInt(0);
   }
 
-  const rawSorobanData = raw.toEnvelope().v1().tx().ext().value();
+  const rawEnvelope = raw.toEnvelope();
+  const rawSorobanData =
+    rawEnvelope.type === "envelopeTypeTx" &&
+    rawEnvelope.v1.tx.ext.type === "sorobanData"
+      ? rawEnvelope.v1.tx.ext.sorobanData
+      : null;
 
   // If the incoming raw transaction already has Soroban data,
   // we need to be careful to handle the fee to prevent double-counting,
   if (rawSorobanData) {
-    if (classicFeeNum - rawSorobanData.resourceFee().toBigInt() > BigInt(0)) {
-      classicFeeNum -= rawSorobanData.resourceFee().toBigInt();
+    if (classicFeeNum - rawSorobanData.resourceFee > BigInt(0)) {
+      classicFeeNum -= rawSorobanData.resourceFee;
     }
   }
 

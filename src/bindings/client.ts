@@ -1,4 +1,4 @@
-import { xdr } from "../base/index.js";
+import { ScSpecEntry, ScSpecFunctionV0 } from "../base/generated/index.js";
 import { Spec } from "../contract/index.js";
 import {
   parseTypeFromTypeDef,
@@ -34,19 +34,19 @@ export class ClientGenerator {
     // Generate interface methods
     const interfaceMethods = this.spec
       .funcs()
-      .filter((func) => func.name().toString() !== "__constructor")
+      .filter((func) => func.name !== "__constructor")
       .map((func) => this.generateInterfaceMethod(func))
       .join("\n");
 
     const imports = this.generateImports();
 
     const specEntries = this.spec.entries.map(
-      (entry) => `"${entry.toXDR("base64")}"`,
+      (entry) => `"${ScSpecEntry.toXDR(entry, "base64")}"`,
     );
 
     const fromJSON = this.spec
       .funcs()
-      .filter((func) => func.name().toString() !== "__constructor")
+      .filter((func) => func.name !== "__constructor")
       .map((func) => this.generateFromJSONMethod(func))
       .join(",");
 
@@ -74,9 +74,9 @@ export class Client extends ContractClient {
   private generateImports(): string {
     const imports = generateTypeImports(
       this.spec.funcs().flatMap((func) => {
-        const inputs = func.inputs();
-        const outputs = func.outputs();
-        const defs = inputs.map((input) => input.type()).concat(outputs);
+        const inputs = func.inputs;
+        const outputs = func.outputs;
+        const defs = inputs.map((input) => input.type).concat(outputs);
         return defs;
       }),
     );
@@ -96,28 +96,24 @@ export class Client extends ContractClient {
   /**
    * Generate interface method signature
    */
-  private generateInterfaceMethod(func: xdr.ScSpecFunctionV0): string {
-    const name = sanitizeIdentifier(func.name().toString());
-    const inputs = func.inputs().map((input: any) => ({
-      name: sanitizeIdentifier(input.name().toString()),
-      type: parseTypeFromTypeDef(input.type(), true),
+  private generateInterfaceMethod(func: ScSpecFunctionV0): string {
+    const name = sanitizeIdentifier(func.name);
+    const inputs = func.inputs.map((input) => ({
+      name: sanitizeIdentifier(input.name),
+      type: parseTypeFromTypeDef(input.type, true),
     }));
     const outputType =
-      func.outputs().length > 0
-        ? parseTypeFromTypeDef(func.outputs()[0])
-        : "void";
-    const docs = formatJSDocComment(func.doc().toString(), 2);
+      func.outputs.length > 0 ? parseTypeFromTypeDef(func.outputs[0]) : "void";
+    const docs = formatJSDocComment(func.doc, 2);
     const params = this.formatMethodParameters(inputs);
 
     return `${docs}  ${name}(${params}): Promise<AssembledTransaction<${outputType}>>;`;
   }
 
-  private generateFromJSONMethod(func: xdr.ScSpecFunctionV0): string {
-    const name = sanitizeIdentifier(func.name().toString());
+  private generateFromJSONMethod(func: ScSpecFunctionV0): string {
+    const name = sanitizeIdentifier(func.name);
     const outputType =
-      func.outputs().length > 0
-        ? parseTypeFromTypeDef(func.outputs()[0])
-        : "void";
+      func.outputs.length > 0 ? parseTypeFromTypeDef(func.outputs[0]) : "void";
 
     return `  ${name} : this.txFromJSON<${outputType}>`;
   }
@@ -125,7 +121,7 @@ export class Client extends ContractClient {
    * Generate deploy method
    */
   private generateDeployMethod(
-    constructorFunc: xdr.ScSpecFunctionV0 | undefined,
+    constructorFunc: ScSpecFunctionV0 | undefined,
   ): string {
     // If no constructor, generate deploy with no params
     if (!constructorFunc) {
@@ -134,9 +130,9 @@ export class Client extends ContractClient {
     return ContractClient.deploy(null, options);
   }`;
     }
-    const inputs = constructorFunc.inputs().map((input) => ({
-      name: sanitizeIdentifier(input.name().toString()),
-      type: parseTypeFromTypeDef(input.type(), true),
+    const inputs = constructorFunc.inputs.map((input) => ({
+      name: sanitizeIdentifier(input.name),
+      type: parseTypeFromTypeDef(input.type, true),
     }));
 
     const params = this.formatConstructorParameters(inputs);

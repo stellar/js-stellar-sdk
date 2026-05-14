@@ -1,4 +1,10 @@
-import xdr from "../xdr.js";
+import {
+  ContractExecutable,
+  ContractIdPreimage,
+  HostFunction,
+  Operation,
+  OperationBody,
+} from "../generated/index.js";
 
 import { Keypair } from "../keypair.js";
 import { Address } from "../address.js";
@@ -8,7 +14,6 @@ import {
   CreateStellarAssetContractOpts,
   InvokeContractFunctionOpts,
   InvokeHostFunctionOpts,
-  InvokeHostFunctionResult,
   OperationAttributes,
   UploadContractWasmOpts,
 } from "./types.js";
@@ -30,56 +35,48 @@ import { setSourceAccount } from "../util/operations.js";
  * @see Operation.uploadContractWasm
  * @see Contract.call
  */
-export function invokeHostFunction(
-  opts: InvokeHostFunctionOpts,
-): xdr.Operation<InvokeHostFunctionResult> {
+export function invokeHostFunction(opts: InvokeHostFunctionOpts): Operation {
   if (!opts.func) {
     throw new TypeError(
       `host function invocation ('func') required (got ${JSON.stringify(opts)})`,
     );
   }
 
-  if (
-    opts.func.switch().value ===
-    xdr.HostFunctionType.hostFunctionTypeInvokeContract().value
-  ) {
+  if (opts.func.type === "hostFunctionTypeInvokeContract") {
     // Ensure that there are no claimable balance or liquidity pool IDs in the
     // invocation because those are not allowed.
-    opts.func
-      .invokeContract()
-      .args()
-      .forEach((arg) => {
-        let scv: Address;
-        try {
-          scv = Address.fromScVal(arg);
-        } catch {
-          // swallow non-Address errors
-          return;
-        }
+    opts.func.invokeContract.args.forEach((arg) => {
+      let scv: Address;
+      try {
+        scv = Address.fromScVal(arg);
+      } catch {
+        // swallow non-Address errors
+        return;
+      }
 
-        switch (scv.type) {
-          case "claimableBalance":
-          case "liquidityPool":
-            throw new TypeError(
-              `claimable balances and liquidity pools cannot be arguments to invokeHostFunction`,
-            );
-          default:
-        }
-      });
+      switch (scv.type) {
+        case "claimableBalance":
+        case "liquidityPool":
+          throw new TypeError(
+            `claimable balances and liquidity pools cannot be arguments to invokeHostFunction`,
+          );
+        default:
+      }
+    });
   }
 
-  const invokeHostFunctionOp = new xdr.InvokeHostFunctionOp({
+  const invokeHostFunctionOp = {
     hostFunction: opts.func,
     auth: opts.auth || [],
-  });
+  };
 
   const opAttributes: OperationAttributes = {
     sourceAccount: null,
-    body: xdr.OperationBody.invokeHostFunction(invokeHostFunctionOp),
+    body: OperationBody.invokeHostFunction(invokeHostFunctionOp),
   };
   setSourceAccount(opAttributes, opts);
 
-  return new xdr.Operation(opAttributes);
+  return opAttributes;
 }
 
 /**
@@ -99,7 +96,7 @@ export function invokeHostFunction(
  */
 export function invokeContractFunction(
   opts: InvokeContractFunctionOpts,
-): xdr.Operation<InvokeHostFunctionResult> {
+): Operation {
   const c = new Address(opts.contract);
 
   if (c.type !== "contract") {
@@ -109,13 +106,11 @@ export function invokeContractFunction(
   }
 
   return invokeHostFunction({
-    func: xdr.HostFunction.hostFunctionTypeInvokeContract(
-      new xdr.InvokeContractArgs({
-        contractAddress: c.toScAddress(),
-        functionName: opts.function,
-        args: opts.args,
-      }),
-    ),
+    func: HostFunction.hostFunctionTypeInvokeContract({
+      contractAddress: c.toScAddress(),
+      functionName: opts.function,
+      args: opts.args,
+    }),
     ...(opts.source !== undefined && { source: opts.source }),
     ...(opts.auth !== undefined && { auth: opts.auth }),
   });
@@ -138,7 +133,7 @@ export function invokeContractFunction(
  */
 export function createCustomContract(
   opts: CreateCustomContractOpts,
-): xdr.Operation<InvokeHostFunctionResult> {
+): Operation {
   const salt = Buffer.from(opts.salt || getSalty());
 
   if (!opts.wasmHash || opts.wasmHash.length !== 32) {
@@ -154,21 +149,16 @@ export function createCustomContract(
   }
 
   return invokeHostFunction({
-    func: xdr.HostFunction.hostFunctionTypeCreateContractV2(
-      new xdr.CreateContractArgsV2({
-        executable: xdr.ContractExecutable.contractExecutableWasm(
-          Buffer.from(opts.wasmHash),
-        ),
-        contractIdPreimage:
-          xdr.ContractIdPreimage.contractIdPreimageFromAddress(
-            new xdr.ContractIdPreimageFromAddress({
-              address: opts.address.toScAddress(),
-              salt,
-            }),
-          ),
-        constructorArgs: opts.constructorArgs ?? [],
+    func: HostFunction.hostFunctionTypeCreateContractV2({
+      executable: ContractExecutable.contractExecutableWasm(
+        Buffer.from(opts.wasmHash),
+      ),
+      contractIdPreimage: ContractIdPreimage.contractIdPreimageFromAddress({
+        address: opts.address.toScAddress(),
+        salt,
       }),
-    ),
+      constructorArgs: opts.constructorArgs ?? [],
+    }),
     ...(opts.source !== undefined && { source: opts.source }),
     ...(opts.auth !== undefined && { auth: opts.auth }),
   });
@@ -190,7 +180,7 @@ export function createCustomContract(
  */
 export function createStellarAssetContract(
   opts: CreateStellarAssetContractOpts,
-): xdr.Operation<InvokeHostFunctionResult> {
+): Operation {
   let asset = opts.asset;
 
   if (typeof asset === "string") {
@@ -211,14 +201,12 @@ export function createStellarAssetContract(
   }
 
   return invokeHostFunction({
-    func: xdr.HostFunction.hostFunctionTypeCreateContract(
-      new xdr.CreateContractArgs({
-        executable: xdr.ContractExecutable.contractExecutableStellarAsset(),
-        contractIdPreimage: xdr.ContractIdPreimage.contractIdPreimageFromAsset(
-          asset.toXDRObject(),
-        ),
-      }),
-    ),
+    func: HostFunction.hostFunctionTypeCreateContract({
+      executable: ContractExecutable.contractExecutableStellarAsset(),
+      contractIdPreimage: ContractIdPreimage.contractIdPreimageFromAsset(
+        asset.toWireXDRObject(),
+      ),
+    }),
     auth: opts.auth || [],
     ...(opts.source !== undefined && { source: opts.source }),
   });
@@ -235,11 +223,9 @@ export function createStellarAssetContract(
  *
  * @see https://soroban.stellar.org/docs/fundamentals-and-concepts/invoking-contracts-with-transactions#function
  */
-export function uploadContractWasm(
-  opts: UploadContractWasmOpts,
-): xdr.Operation<InvokeHostFunctionResult> {
+export function uploadContractWasm(opts: UploadContractWasmOpts): Operation {
   return invokeHostFunction({
-    func: xdr.HostFunction.hostFunctionTypeUploadContractWasm(
+    func: HostFunction.hostFunctionTypeUploadContractWasm(
       Buffer.from(opts.wasm), // coalesce so we can drop `Buffer` someday
     ),
     auth: opts.auth || [],
@@ -249,5 +235,5 @@ export function uploadContractWasm(
 
 /* Returns a random 256-bit "salt" value. */
 function getSalty(): Buffer {
-  return Keypair.random().xdrPublicKey().value(); // ed25519 is 256 bits, too
+  return Buffer.from(Keypair.random().xdrPublicKey().ed25519); // ed25519 is 256 bits, too
 }

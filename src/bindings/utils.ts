@@ -1,4 +1,8 @@
-import { xdr } from "../base/index.js";
+import {
+  ScSpecType,
+  ScSpecTypeDef,
+  ScSpecUdtStructV0,
+} from "../base/generated/index.js";
 export function isNameReserved(name: string): boolean {
   const reservedNames = [
     // Keywords
@@ -99,39 +103,39 @@ export function escapeStringLiteral(str: string): string {
  * Generate TypeScript type from XDR type definition
  */
 export function parseTypeFromTypeDef(
-  typeDef: xdr.ScSpecTypeDef,
+  typeDef: ScSpecTypeDef,
   isFunctionInput = false,
 ): string {
-  switch (typeDef.switch()) {
-    case xdr.ScSpecType.scSpecTypeVal():
+  switch (typeDef.type) {
+    case ScSpecType.scSpecTypeVal:
       return "any";
-    case xdr.ScSpecType.scSpecTypeBool():
+    case ScSpecType.scSpecTypeBool:
       return "boolean";
-    case xdr.ScSpecType.scSpecTypeVoid():
+    case ScSpecType.scSpecTypeVoid:
       return "null";
-    case xdr.ScSpecType.scSpecTypeError():
+    case ScSpecType.scSpecTypeError:
       return "Error";
-    case xdr.ScSpecType.scSpecTypeU32():
-    case xdr.ScSpecType.scSpecTypeI32():
+    case ScSpecType.scSpecTypeU32:
+    case ScSpecType.scSpecTypeI32:
       return "number";
-    case xdr.ScSpecType.scSpecTypeU64():
-    case xdr.ScSpecType.scSpecTypeI64():
-    case xdr.ScSpecType.scSpecTypeTimepoint():
-    case xdr.ScSpecType.scSpecTypeDuration():
-    case xdr.ScSpecType.scSpecTypeU128():
-    case xdr.ScSpecType.scSpecTypeI128():
-    case xdr.ScSpecType.scSpecTypeU256():
-    case xdr.ScSpecType.scSpecTypeI256():
+    case ScSpecType.scSpecTypeU64:
+    case ScSpecType.scSpecTypeI64:
+    case ScSpecType.scSpecTypeTimepoint:
+    case ScSpecType.scSpecTypeDuration:
+    case ScSpecType.scSpecTypeU128:
+    case ScSpecType.scSpecTypeI128:
+    case ScSpecType.scSpecTypeU256:
+    case ScSpecType.scSpecTypeI256:
       return "bigint";
-    case xdr.ScSpecType.scSpecTypeBytes():
-    case xdr.ScSpecType.scSpecTypeBytesN():
+    case ScSpecType.scSpecTypeBytes:
+    case ScSpecType.scSpecTypeBytesN:
       return "Buffer";
-    case xdr.ScSpecType.scSpecTypeString():
+    case ScSpecType.scSpecTypeString:
       return "string";
-    case xdr.ScSpecType.scSpecTypeSymbol():
+    case ScSpecType.scSpecTypeSymbol:
       return "string";
-    case xdr.ScSpecType.scSpecTypeAddress():
-    case xdr.ScSpecType.scSpecTypeMuxedAddress(): {
+    case ScSpecType.scSpecTypeAddress:
+    case ScSpecType.scSpecTypeMuxedAddress: {
       // function inputs can accept either string or Address
       if (isFunctionInput) {
         return "string | Address";
@@ -139,61 +143,55 @@ export function parseTypeFromTypeDef(
       // Otherwise for backward compatibility use string
       return "string";
     }
-    case xdr.ScSpecType.scSpecTypeVec(): {
+    case ScSpecType.scSpecTypeVec: {
       const vecType = parseTypeFromTypeDef(
-        typeDef.vec().elementType(),
+        typeDef.vec.elementType,
         isFunctionInput,
       );
       return `Array<${vecType}>`;
     }
-    case xdr.ScSpecType.scSpecTypeMap(): {
+    case ScSpecType.scSpecTypeMap: {
       const keyType = parseTypeFromTypeDef(
-        typeDef.map().keyType(),
+        typeDef.map.keyType,
         isFunctionInput,
       );
       const valueType = parseTypeFromTypeDef(
-        typeDef.map().valueType(),
+        typeDef.map.valueType,
         isFunctionInput,
       );
       return `Map<${keyType}, ${valueType}>`;
     }
-    case xdr.ScSpecType.scSpecTypeTuple(): {
-      const tupleTypes = typeDef
-        .tuple()
-        .valueTypes()
-        .map((t: xdr.ScSpecTypeDef) =>
-          parseTypeFromTypeDef(t, isFunctionInput),
-        );
+    case ScSpecType.scSpecTypeTuple: {
+      const tupleTypes = typeDef.tuple.valueTypes.map((t) =>
+        parseTypeFromTypeDef(t, isFunctionInput),
+      );
       return `[${tupleTypes.join(", ")}]`;
     }
-    case xdr.ScSpecType.scSpecTypeOption(): {
+    case ScSpecType.scSpecTypeOption: {
       // Handle nested options
-      while (
-        typeDef.option().valueType().switch() ===
-        xdr.ScSpecType.scSpecTypeOption()
-      ) {
-        typeDef = typeDef.option().valueType();
+      while (typeDef.option.valueType.type === ScSpecType.scSpecTypeOption) {
+        typeDef = typeDef.option.valueType;
       }
       const optionType = parseTypeFromTypeDef(
-        typeDef.option().valueType(),
+        typeDef.option.valueType,
         isFunctionInput,
       );
 
       return `${optionType} | null`;
     }
-    case xdr.ScSpecType.scSpecTypeResult(): {
+    case ScSpecType.scSpecTypeResult: {
       const okType = parseTypeFromTypeDef(
-        typeDef.result().okType(),
+        typeDef.result.okType,
         isFunctionInput,
       );
       const errorType = parseTypeFromTypeDef(
-        typeDef.result().errorType(),
+        typeDef.result.errorType,
         isFunctionInput,
       );
       return `Result<${okType}, ${errorType}>`;
     }
-    case xdr.ScSpecType.scSpecTypeUdt(): {
-      const udtName = sanitizeIdentifier(typeDef.udt().name().toString());
+    case ScSpecType.scSpecTypeUdt: {
+      const udtName = sanitizeIdentifier(typeDef.udt.name);
       return udtName;
     }
     default:
@@ -218,22 +216,22 @@ export interface BindingImports {
 /**
  * Extract nested type definitions from container types
  */
-function extractNestedTypes(typeDef: xdr.ScSpecTypeDef): xdr.ScSpecTypeDef[] {
-  switch (typeDef.switch()) {
-    case xdr.ScSpecType.scSpecTypeVec():
-      return [typeDef.vec().elementType()];
+function extractNestedTypes(typeDef: ScSpecTypeDef): ScSpecTypeDef[] {
+  switch (typeDef.type) {
+    case ScSpecType.scSpecTypeVec:
+      return [typeDef.vec.elementType];
 
-    case xdr.ScSpecType.scSpecTypeMap():
-      return [typeDef.map().keyType(), typeDef.map().valueType()];
+    case ScSpecType.scSpecTypeMap:
+      return [typeDef.map.keyType, typeDef.map.valueType];
 
-    case xdr.ScSpecType.scSpecTypeTuple():
-      return typeDef.tuple().valueTypes();
+    case ScSpecType.scSpecTypeTuple:
+      return typeDef.tuple.valueTypes.slice();
 
-    case xdr.ScSpecType.scSpecTypeOption():
-      return [typeDef.option().valueType()];
+    case ScSpecType.scSpecTypeOption:
+      return [typeDef.option.valueType];
 
-    case xdr.ScSpecType.scSpecTypeResult():
-      return [typeDef.result().okType(), typeDef.result().errorType()];
+    case ScSpecType.scSpecTypeResult:
+      return [typeDef.result.okType, typeDef.result.errorType];
 
     default:
       return [];
@@ -244,54 +242,50 @@ function extractNestedTypes(typeDef: xdr.ScSpecTypeDef): xdr.ScSpecTypeDef[] {
  * Visitor to collect imports from a single type definition
  */
 function visitTypeDef(
-  typeDef: xdr.ScSpecTypeDef,
+  typeDef: ScSpecTypeDef,
   accumulator: BindingImports,
 ): void {
-  const typeSwitch = typeDef.switch();
-
   // Handle leaf types (no nested types)
-  switch (typeSwitch) {
-    case xdr.ScSpecType.scSpecTypeUdt():
-      accumulator.typeFileImports.add(
-        sanitizeIdentifier(typeDef.udt().name().toString()),
-      );
+  switch (typeDef.type) {
+    case ScSpecType.scSpecTypeUdt:
+      accumulator.typeFileImports.add(sanitizeIdentifier(typeDef.udt.name));
       return;
 
-    case xdr.ScSpecType.scSpecTypeAddress():
-    case xdr.ScSpecType.scSpecTypeMuxedAddress():
+    case ScSpecType.scSpecTypeAddress:
+    case ScSpecType.scSpecTypeMuxedAddress:
       accumulator.stellarImports.add("Address");
       return;
 
-    case xdr.ScSpecType.scSpecTypeBytes():
-    case xdr.ScSpecType.scSpecTypeBytesN():
+    case ScSpecType.scSpecTypeBytes:
+    case ScSpecType.scSpecTypeBytesN:
       accumulator.needsBufferImport = true;
       return;
 
-    case xdr.ScSpecType.scSpecTypeVal():
+    case ScSpecType.scSpecTypeVal:
       accumulator.stellarImports.add("xdr");
       return;
 
-    case xdr.ScSpecType.scSpecTypeResult():
+    case ScSpecType.scSpecTypeResult:
       accumulator.stellarContractImports.add("Result");
       // Fall through to handle nested types
       break;
 
     // Primitive types that need no imports
-    case xdr.ScSpecType.scSpecTypeBool():
-    case xdr.ScSpecType.scSpecTypeVoid():
-    case xdr.ScSpecType.scSpecTypeError():
-    case xdr.ScSpecType.scSpecTypeU32():
-    case xdr.ScSpecType.scSpecTypeI32():
-    case xdr.ScSpecType.scSpecTypeU64():
-    case xdr.ScSpecType.scSpecTypeI64():
-    case xdr.ScSpecType.scSpecTypeTimepoint():
-    case xdr.ScSpecType.scSpecTypeDuration():
-    case xdr.ScSpecType.scSpecTypeU128():
-    case xdr.ScSpecType.scSpecTypeI128():
-    case xdr.ScSpecType.scSpecTypeU256():
-    case xdr.ScSpecType.scSpecTypeI256():
-    case xdr.ScSpecType.scSpecTypeString():
-    case xdr.ScSpecType.scSpecTypeSymbol():
+    case ScSpecType.scSpecTypeBool:
+    case ScSpecType.scSpecTypeVoid:
+    case ScSpecType.scSpecTypeError:
+    case ScSpecType.scSpecTypeU32:
+    case ScSpecType.scSpecTypeI32:
+    case ScSpecType.scSpecTypeU64:
+    case ScSpecType.scSpecTypeI64:
+    case ScSpecType.scSpecTypeTimepoint:
+    case ScSpecType.scSpecTypeDuration:
+    case ScSpecType.scSpecTypeU128:
+    case ScSpecType.scSpecTypeI128:
+    case ScSpecType.scSpecTypeU256:
+    case ScSpecType.scSpecTypeI256:
+    case ScSpecType.scSpecTypeString:
+    case ScSpecType.scSpecTypeSymbol:
       return;
   }
 
@@ -303,9 +297,7 @@ function visitTypeDef(
 /**
  * Generate imports needed for a list of type definitions
  */
-export function generateTypeImports(
-  typeDefs: xdr.ScSpecTypeDef[],
-): BindingImports {
+export function generateTypeImports(typeDefs: ScSpecTypeDef[]): BindingImports {
   const imports: BindingImports = {
     typeFileImports: new Set<string>(),
     stellarContractImports: new Set<string>(),
@@ -415,10 +407,8 @@ export function formatJSDocComment(comment: string, indentLevel = 0): string {
   return `${indent}/**\n${lines.join("\n")}\n${indent} */\n`;
 }
 
-export function isTupleStruct(udtStruct: xdr.ScSpecUdtStructV0): boolean {
-  const fields = udtStruct.fields();
+export function isTupleStruct(udtStruct: ScSpecUdtStructV0): boolean {
+  const fields = udtStruct.fields;
   // A tuple struct has unnamed fields
-  return fields.every(
-    (field, index) => field.name().toString().trim() === index.toString(),
-  );
+  return fields.every((field, index) => field.name.trim() === index.toString());
 }

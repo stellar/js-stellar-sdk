@@ -1,21 +1,28 @@
-import xdr from "./xdr.js";
+import {
+  DecoratedSignature,
+  FeeBumpTransaction,
+  Transaction,
+  TransactionEnvelope,
+  TransactionV0,
+} from "./generated/index.js";
 import { hash } from "./hashing.js";
 import { Keypair } from "./keypair.js";
+import { uint8ArrayToBase64 } from "uint8array-extras";
 
 /**
  * @ignore
  */
 export class TransactionBase<
-  TTx extends xdr.FeeBumpTransaction | xdr.Transaction | xdr.TransactionV0,
+  TTx extends FeeBumpTransaction | Transaction | TransactionV0,
 > {
   private _tx: TTx;
-  private _signatures: xdr.DecoratedSignature[];
+  private _signatures: DecoratedSignature[];
   private _fee: string;
   private _networkPassphrase: string;
 
   constructor(
     tx: TTx,
-    signatures: xdr.DecoratedSignature[],
+    signatures: DecoratedSignature[],
     fee: string,
     networkPassphrase: string,
   ) {
@@ -32,11 +39,11 @@ export class TransactionBase<
   }
 
   /** The list of signatures for this transaction. */
-  get signatures(): xdr.DecoratedSignature[] {
+  get signatures(): DecoratedSignature[] {
     return this._signatures;
   }
 
-  set signatures(_value: xdr.DecoratedSignature[]) {
+  set signatures(_value: DecoratedSignature[]) {
     throw new Error("Transaction is immutable");
   }
 
@@ -49,23 +56,17 @@ export class TransactionBase<
    * @throws {Error} if the internal transaction is not a recognized XDR type
    */
   get tx(): TTx {
-    const buf = this._tx.toXDR();
-
-    // Making sure we have the right type here, since the base class doesn't
-    // know which transaction type it is.
-    if (this._tx instanceof xdr.Transaction) {
-      return xdr.Transaction.fromXDR(buf) as TTx;
+    if ("feeSource" in this._tx) {
+      return FeeBumpTransaction.fromXDR(
+        FeeBumpTransaction.toXDR(this._tx, "raw"),
+      ) as TTx;
     }
 
-    if (this._tx instanceof xdr.TransactionV0) {
-      return xdr.TransactionV0.fromXDR(buf) as TTx;
+    if ("sourceAccountEd25519" in this._tx) {
+      return TransactionV0.fromXDR(TransactionV0.toXDR(this._tx, "raw")) as TTx;
     }
 
-    if (this._tx instanceof xdr.FeeBumpTransaction) {
-      return xdr.FeeBumpTransaction.fromXDR(buf) as TTx;
-    }
-
-    throw new Error("Unknown transaction type");
+    return Transaction.fromXDR(Transaction.toXDR(this._tx, "raw")) as TTx;
   }
 
   set tx(_value: TTx) {
@@ -127,7 +128,7 @@ export class TransactionBase<
    * @param keypair - Keypair of signer
    */
   getKeypairSignature(keypair: Keypair): string {
-    return keypair.sign(this.hash()).toString("base64");
+    return uint8ArrayToBase64(keypair.sign(this.hash()));
   }
 
   /**
@@ -177,12 +178,10 @@ export class TransactionBase<
       throw new Error("Invalid signature");
     }
 
-    this.signatures.push(
-      new xdr.DecoratedSignature({
-        hint,
-        signature: signatureBuffer,
-      }),
-    );
+    this.signatures.push({
+      hint,
+      signature: signatureBuffer,
+    });
   }
 
   /**
@@ -193,7 +192,7 @@ export class TransactionBase<
    * @see Keypair.signDecorated
    * @see Keypair.signPayloadDecorated
    */
-  addDecoratedSignature(signature: xdr.DecoratedSignature): void {
+  addDecoratedSignature(signature: DecoratedSignature): void {
     this.signatures.push(signature);
   }
 
@@ -213,7 +212,7 @@ export class TransactionBase<
     const signature = preimage;
     const hashX = hash(preimage);
     const hint = hashX.subarray(hashX.length - 4);
-    this.signatures.push(new xdr.DecoratedSignature({ hint, signature }));
+    this.signatures.push({ hint, signature });
   }
 
   /**
@@ -229,7 +228,7 @@ export class TransactionBase<
   }
 
   /** Returns the XDR transaction envelope, to be overridden by subclasses. */
-  toEnvelope(): xdr.TransactionEnvelope {
+  toEnvelope(): TransactionEnvelope {
     throw new Error("Implement in subclass");
   }
 
@@ -237,6 +236,6 @@ export class TransactionBase<
    * Returns the transaction envelope as a base64-encoded XDR string.
    */
   toXDR(): string {
-    return this.toEnvelope().toXDR().toString("base64");
+    return TransactionEnvelope.toXDR(this.toEnvelope(), "base64");
   }
 }

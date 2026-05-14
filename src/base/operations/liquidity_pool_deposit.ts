@@ -5,12 +5,14 @@ import {
   toXDRPrice,
   setSourceAccount,
 } from "../util/operations.js";
-import xdr from "../xdr.js";
 import {
-  LiquidityPoolDepositResult,
-  LiquidityPoolDepositOpts,
-  OperationAttributes,
-} from "./types.js";
+  Int64,
+  Operation,
+  OperationBody,
+  PoolId,
+  Price,
+} from "../generated/index.js";
+import { LiquidityPoolDepositOpts, OperationAttributes } from "./types.js";
 
 /**
  * Creates a liquidity pool deposit operation.
@@ -31,54 +33,54 @@ import {
  */
 export function liquidityPoolDeposit(
   opts: LiquidityPoolDepositOpts = {} as LiquidityPoolDepositOpts,
-): xdr.Operation<LiquidityPoolDepositResult> {
+): Operation {
   const { liquidityPoolId, maxAmountA, maxAmountB, minPrice, maxPrice } = opts;
 
   if (!liquidityPoolId) {
     throw new TypeError("liquidityPoolId argument is required");
   }
 
-  // xdr.PoolId is typed only as a type alias (Hash = Opaque[]), not a runtime class.
+  // PoolId is typed only as a type alias (Hash = Opaque[]), not a runtime class.
   // Buffer.from produces the correct runtime value; cast to satisfy the type checker.
   const liquidityPoolIdXdr = Buffer.from(
     liquidityPoolId,
     "hex",
-  ) as unknown as xdr.PoolId;
+  ) as unknown as PoolId;
 
   if (!isValidAmount(maxAmountA, true)) {
     throw new TypeError(constructAmountRequirementsError("maxAmountA"));
   }
-  const maxAmountAXdr: xdr.Int64 = toXDRAmount(maxAmountA);
+  const maxAmountAXdr: Int64 = toXDRAmount(maxAmountA);
 
   if (!isValidAmount(maxAmountB, true)) {
     throw new TypeError(constructAmountRequirementsError("maxAmountB"));
   }
-  const maxAmountBXdr: xdr.Int64 = toXDRAmount(maxAmountB);
+  const maxAmountBXdr: Int64 = toXDRAmount(maxAmountB);
 
   if (minPrice === undefined) {
     throw new TypeError("minPrice argument is required");
   }
-  const minPriceXdr: xdr.Price = toXDRPrice(minPrice);
+  const minPriceXdr: Price = toXDRPrice(minPrice);
 
   if (maxPrice === undefined) {
     throw new TypeError("maxPrice argument is required");
   }
-  const maxPriceXdr: xdr.Price = toXDRPrice(maxPrice);
+  const maxPriceXdr: Price = toXDRPrice(maxPrice);
 
-  const liquidityPoolDepositOp = new xdr.LiquidityPoolDepositOp({
+  const liquidityPoolDepositOp = {
     liquidityPoolId: liquidityPoolIdXdr,
     maxAmountA: maxAmountAXdr,
     maxAmountB: maxAmountBXdr,
     minPrice: minPriceXdr,
     maxPrice: maxPriceXdr,
-  });
+  };
 
   const opAttributes: OperationAttributes = {
     sourceAccount: null,
-    body: xdr.OperationBody.liquidityPoolDeposit(liquidityPoolDepositOp),
+    body: OperationBody.liquidityPoolDeposit(liquidityPoolDepositOp),
   };
 
   setSourceAccount(opAttributes, opts);
 
-  return new xdr.Operation(opAttributes);
+  return opAttributes;
 }

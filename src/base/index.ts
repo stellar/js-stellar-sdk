@@ -1,13 +1,12 @@
 export { UnsignedHyper, Hyper } from "@stellar/js-xdr";
 
-import xdr from "./xdr.js";
 import cereal from "./jsxdr.js";
 
 //
 // Global exports
 //
 
-export { xdr };
+export { default as xdr, xdrSchema } from "./xdr.js";
 export { cereal };
 
 export { hash } from "./hashing.js";

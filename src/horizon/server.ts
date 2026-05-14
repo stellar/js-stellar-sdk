@@ -7,8 +7,12 @@ import {
   FeeBumpTransaction,
   StrKey,
   Transaction,
-  xdr,
 } from "../base/index.js";
+import {
+  OperationResult,
+  TransactionEnvelope,
+  TransactionResult,
+} from "../base/generated/index.js";
 
 import type { TransactionBuilder } from "../base/index.js";
 import { CallBuilder } from "./call_builder.js";
@@ -336,7 +340,7 @@ export class HorizonServer {
     }
 
     const tx = encodeURIComponent(
-      transaction.toEnvelope().toXDR().toString("base64"),
+      TransactionEnvelope.toXDR(transaction.toEnvelope(), "base64"),
     );
     const url = new URL(this.serverURL);
     url.pathname = url.pathname
@@ -355,24 +359,42 @@ export class HorizonServer {
           return response.data;
         }
 
-        const responseXDR = xdr.TransactionResult.fromXDR(
+        const responseXDR = TransactionResult.fromXDR(
           response.data.result_xdr,
           "base64",
         );
 
         // TODO: fix stellar-base types.
-        const results = (responseXDR as any).result().value();
-
+        let results: readonly OperationResult[] | undefined;
+        switch (responseXDR.result.type) {
+          case "txSuccess":
+            results = responseXDR.result.results;
+            break;
+        }
         let offerResults;
         let hasManageOffer;
 
-        if (results.length) {
+        if (results && results.length) {
           offerResults = results
-            // TODO: fix stellar-base types.
-            .map((result: any, i: number) => {
+            .map((result, i: number) => {
+              if (result.type !== "opInner") {
+                return null;
+              }
               if (
-                result.value().switch().name !== "manageBuyOffer" &&
-                result.value().switch().name !== "manageSellOffer"
+                result.tr.type !== "manageBuyOffer" &&
+                result.tr.type !== "manageSellOffer"
+              ) {
+                return null;
+              }
+
+              const offerResult =
+                result.tr.type === "manageBuyOffer"
+                  ? result.tr.manageBuyOfferResult
+                  : result.tr.manageSellOfferResult;
+
+              if (
+                offerResult.type !== "manageBuyOfferSuccess" &&
+                offerResult.type !== "manageSellOfferSuccess"
               ) {
                 return null;
               }
@@ -382,26 +404,41 @@ export class HorizonServer {
               let amountBought = new CustomBigNumber(0);
               let amountSold = new CustomBigNumber(0);
 
-              const offerSuccess = result.value().value().success();
+              const offerSuccess = offerResult.success;
+              const offersClaimed = offerSuccess.offersClaimed.map(
+                (offerClaimedAtom) => {
+                  let sellerId: string;
+                  let offerId: bigint;
+                  let claimedAmountBought: bigint;
+                  let claimedAmountSold: bigint;
+                  let assetSoldXDR;
+                  let assetBoughtXDR;
 
-              const offersClaimed = offerSuccess
-                .offersClaimed()
-                // TODO: fix stellar-base types.
-                .map((offerClaimedAtom: any) => {
-                  const offerClaimed = offerClaimedAtom.value();
-
-                  let sellerId: string = "";
-                  switch (offerClaimedAtom.switch()) {
-                    case xdr.ClaimAtomType.claimAtomTypeV0():
+                  switch (offerClaimedAtom.type) {
+                    case "claimAtomTypeV0": {
+                      const v0 = offerClaimedAtom.v0;
                       sellerId = StrKey.encodeEd25519PublicKey(
-                        offerClaimed.sellerEd25519(),
+                        Buffer.from(v0.sellerEd25519),
                       );
+                      offerId = v0.offerId;
+                      claimedAmountBought = v0.amountBought;
+                      claimedAmountSold = v0.amountSold;
+                      assetSoldXDR = v0.assetSold;
+                      assetBoughtXDR = v0.assetBought;
                       break;
-                    case xdr.ClaimAtomType.claimAtomTypeOrderBook():
+                    }
+                    case "claimAtomTypeOrderBook": {
+                      const orderBook = offerClaimedAtom.orderBook;
                       sellerId = StrKey.encodeEd25519PublicKey(
-                        offerClaimed.sellerId().ed25519(),
+                        Buffer.from(orderBook.sellerId.ed25519),
                       );
+                      offerId = orderBook.offerId;
+                      claimedAmountBought = orderBook.amountBought;
+                      claimedAmountSold = orderBook.amountSold;
+                      assetSoldXDR = orderBook.assetSold;
+                      assetBoughtXDR = orderBook.assetBought;
                       break;
+                    }
                     // It shouldn't be possible for a claimed offer to have type
                     // claimAtomTypeLiquidityPool:
                     //
@@ -410,17 +447,15 @@ export class HorizonServer {
                     // However, you can never be too careful.
                     default:
                       throw new Error(
-                        `Invalid offer result type: ${offerClaimedAtom.switch()}`,
+                        `Invalid offer result type: ${(offerClaimedAtom as { type: string }).type}`,
                       );
                   }
 
                   const claimedOfferAmountBought = new CustomBigNumber(
-                    // amountBought is a js-xdr hyper
-                    offerClaimed.amountBought().toString(),
+                    claimedAmountBought.toString(),
                   );
                   const claimedOfferAmountSold = new CustomBigNumber(
-                    // amountBought is a js-xdr hyper
-                    offerClaimed.amountSold().toString(),
+                    claimedAmountSold.toString(),
                   );
 
                   // This is an offer that was filled by the one just submitted.
@@ -431,10 +466,8 @@ export class HorizonServer {
                   amountBought = amountBought.plus(claimedOfferAmountSold);
                   amountSold = amountSold.plus(claimedOfferAmountBought);
 
-                  const sold = Asset.fromOperation(offerClaimed.assetSold());
-                  const bought = Asset.fromOperation(
-                    offerClaimed.assetBought(),
-                  );
+                  const sold = Asset.fromOperation(assetSoldXDR);
+                  const bought = Asset.fromOperation(assetBoughtXDR);
 
                   const assetSold = {
                     type: sold.getAssetType(),
@@ -450,36 +483,39 @@ export class HorizonServer {
 
                   return {
                     sellerId,
-                    offerId: offerClaimed.offerId().toString(),
+                    offerId: offerId.toString(),
                     assetSold,
                     amountSold: getAmountInLumens(claimedOfferAmountSold),
                     assetBought,
                     amountBought: getAmountInLumens(claimedOfferAmountBought),
                   };
-                });
+                },
+              );
 
-              const effect = offerSuccess.offer().switch().name;
+              const effect = offerSuccess.offer.type;
 
               let currentOffer;
 
               if (
-                typeof offerSuccess.offer().value === "function" &&
-                offerSuccess.offer().value()
+                offerSuccess.offer.type === "manageOfferCreated" ||
+                offerSuccess.offer.type === "manageOfferUpdated"
               ) {
-                const offerXDR = offerSuccess.offer().value();
+                const offerXDR = offerSuccess.offer.offer;
 
                 currentOffer = {
-                  offerId: offerXDR.offerId().toString(),
+                  offerId: offerXDR.offerId.toString(),
                   selling: {},
                   buying: {},
-                  amount: getAmountInLumens(offerXDR.amount().toString()),
+                  amount: getAmountInLumens(
+                    new CustomBigNumber(offerXDR.amount.toString()),
+                  ),
                   price: {
-                    n: offerXDR.price().n(),
-                    d: offerXDR.price().d(),
+                    n: offerXDR.price.n,
+                    d: offerXDR.price.d,
                   },
                 };
 
-                const selling = Asset.fromOperation(offerXDR.selling());
+                const selling = Asset.fromOperation(offerXDR.selling);
 
                 currentOffer.selling = {
                   type: selling.getAssetType(),
@@ -487,7 +523,7 @@ export class HorizonServer {
                   issuer: selling.getIssuer(),
                 };
 
-                const buying = Asset.fromOperation(offerXDR.buying());
+                const buying = Asset.fromOperation(offerXDR.buying);
 
                 currentOffer.buying = {
                   type: buying.getAssetType(),
@@ -516,8 +552,7 @@ export class HorizonServer {
                   !offersClaimed.length && effect === "manageOfferDeleted",
               };
             })
-            // TODO: fix stellar-base types.
-            .filter((result: any) => !!result);
+            .filter((result) => !!result);
         }
 
         return {
@@ -567,7 +602,7 @@ export class HorizonServer {
     }
 
     const tx = encodeURIComponent(
-      transaction.toEnvelope().toXDR().toString("base64"),
+      TransactionEnvelope.toXDR(transaction.toEnvelope(), "base64"),
     );
     const url = new URL(this.serverURL);
     url.pathname = url.pathname

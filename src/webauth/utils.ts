@@ -54,11 +54,11 @@ export function gatherTxSigners(
     for (let i = 0; i < txSignatures.length; i++) {
       const decSig = txSignatures[i];
 
-      if (!decSig.hint().equals(keypair.signatureHint())) {
+      if (!Buffer.from(decSig.hint).equals(keypair.signatureHint())) {
         continue;
       }
 
-      if (keypair.verify(hashedSignatureBase, decSig.signature())) {
+      if (keypair.verify(hashedSignatureBase, Buffer.from(decSig.signature))) {
         signersFound.add(signer);
         txSignatures.splice(i, 1);
         break;

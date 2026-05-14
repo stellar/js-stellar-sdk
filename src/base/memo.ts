@@ -1,7 +1,6 @@
-import { UnsignedHyper } from "@stellar/js-xdr";
 import CustomBigNumber from "./util/bignumber.js";
 import type { BigNumber } from "./util/bignumber.js";
-import xdr from "./xdr.js";
+import { Memo as XdrMemo } from "./generated/index.js";
 
 /**
  * Type of {@link Memo}.
@@ -44,7 +43,7 @@ export type MemoType =
   | MemoTypeReturn
   | MemoTypeText;
 
-export type MemoValue = Buffer | string | null;
+export type MemoValue = Buffer | string | null | Uint8Array;
 
 type MemoValueMap = {
   [MemoNone]: null;
@@ -190,14 +189,12 @@ export class Memo<T extends MemoType = MemoType> {
       if (Buffer.byteLength(value, "utf8") > 28) {
         throw new Error("Expects string, array or buffer, max 28 bytes");
       }
-    } else if (Buffer.isBuffer(value)) {
+    } else if (Buffer.isBuffer(value) || value instanceof Uint8Array) {
       if (value.length > 28) {
         throw new Error("Expects string, array or buffer, max 28 bytes");
       }
     } else {
-      if (!(xdr.Memo as any).armTypeForArm("text").isValid(value)) {
-        throw new Error("Expects string, array or buffer, max 28 bytes");
-      }
+      throw new Error("Expects string, array or buffer, max 28 bytes");
     }
   }
 
@@ -273,22 +270,23 @@ export class Memo<T extends MemoType = MemoType> {
   /**
    * Returns XDR memo object.
    */
-  toXDRObject(): xdr.Memo {
+  toXDRObject(): XdrMemo {
     switch (this._type) {
       case MemoNone:
-        return xdr.Memo.memoNone();
+        return XdrMemo.memoNone();
       case MemoID:
-        return xdr.Memo.memoId(
-          xdr.Uint64.fromString(
-            UnsignedHyper.fromString(this._value as string).toString(),
-          ),
-        );
-      case MemoText:
-        return xdr.Memo.memoText(this._value as string);
+        return XdrMemo.memoId(BigInt(this._value as string));
+      case MemoText: {
+        const text =
+          typeof this._value === "string"
+            ? this._value
+            : Buffer.from(this._value as Uint8Array).toString("utf8");
+        return XdrMemo.memoText(text);
+      }
       case MemoHash:
-        return xdr.Memo.memoHash(this._value as Buffer);
+        return XdrMemo.memoHash(this._value as Buffer);
       case MemoReturn:
-        return xdr.Memo.memoReturn(this._value as Buffer);
+        return XdrMemo.memoReturn(this._value as Buffer);
       default:
         throw new Error("Invalid memo type");
     }
@@ -299,24 +297,20 @@ export class Memo<T extends MemoType = MemoType> {
    *
    * @param object - XDR memo object
    */
-  static fromXDRObject(object: xdr.Memo): Memo {
-    switch (object.switch()) {
-      case xdr.MemoType.memoId():
-        return Memo.id(object.id().toString());
-      case xdr.MemoType.memoText():
-        return Memo.text(object.value() as string);
-      case xdr.MemoType.memoHash():
-        return Memo.hash(object.hash());
-      case xdr.MemoType.memoReturn():
-        return Memo.return(object.retHash());
+  static fromXDRObject(object: XdrMemo): Memo {
+    switch (object.type) {
+      case "memoId":
+        return Memo.id(object.id.toString());
+      case "memoText":
+        return Memo.text(object.text);
+      case "memoHash":
+        return Memo.hash(Buffer.from(object.hash));
+      case "memoReturn":
+        return Memo.return(Buffer.from(object.retHash));
+      case "memoNone":
+        return Memo.none();
       default:
-        break;
+        throw new Error("Unknown type");
     }
-
-    if (typeof object.value() === "undefined") {
-      return Memo.none();
-    }
-
-    throw new Error("Unknown type");
   }
 }

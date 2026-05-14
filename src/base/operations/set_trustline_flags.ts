@@ -1,8 +1,7 @@
-import xdr from "../xdr.js";
+import { Operation, OperationBody } from "../generated/index.js";
 import { Keypair } from "../keypair.js";
 import {
   SetTrustLineFlagsOpts,
-  SetTrustLineFlagsResult,
   TrustLineFlagMap,
   OperationAttributes,
 } from "./types.js";
@@ -16,7 +15,7 @@ import { setSourceAccount } from "../util/operations.js";
  *
  * Note that you can only **clear** the clawbackEnabled flag set; it must be set
  * account-wide via operations.SetOptions (setting
- * xdr.AccountFlags.clawbackEnabled).
+ * AccountFlags.clawbackEnabled).
  *
  *
  * @param opts - Options object
@@ -36,18 +35,15 @@ import { setSourceAccount } from "../util/operations.js";
  * @see https://github.com/stellar/stellar-protocol/blob/master/core/cap-0035.md#set-trustline-flags-operation
  * @see https://developers.stellar.org/docs/start/list-of-operations/#set-options
  */
-export function setTrustLineFlags(
-  opts: SetTrustLineFlagsOpts,
-): xdr.Operation<SetTrustLineFlagsResult> {
+export function setTrustLineFlags(opts: SetTrustLineFlagsOpts): Operation {
   if (typeof opts.flags !== "object" || Object.keys(opts.flags).length === 0) {
     throw new Error("opts.flags must be a map of boolean flags to modify");
   }
 
-  const mapping: Record<string, { value: number }> = {
-    authorized: xdr.TrustLineFlags.authorizedFlag(),
-    authorizedToMaintainLiabilities:
-      xdr.TrustLineFlags.authorizedToMaintainLiabilitiesFlag(),
-    clawbackEnabled: xdr.TrustLineFlags.trustlineClawbackEnabledFlag(),
+  const mapping: Record<string, number> = {
+    authorized: 1,
+    authorizedToMaintainLiabilities: 2,
+    clawbackEnabled: 4,
   };
 
   /* eslint no-bitwise: "off" */
@@ -72,27 +68,25 @@ export function setTrustLineFlags(
     }
 
     if (flagValue === true) {
-      setFlag |= bit.value;
+      setFlag |= bit;
     } else if (flagValue === false) {
-      clearFlag |= bit.value;
+      clearFlag |= bit;
     }
   });
 
   const trustor = Keypair.fromPublicKey(opts.trustor).xdrAccountId();
-  const asset = opts.asset.toXDRObject();
+  const asset = opts.asset.toWireXDRObject();
 
   const opAttributes: OperationAttributes = {
     sourceAccount: null,
-    body: xdr.OperationBody.setTrustLineFlags(
-      new xdr.SetTrustLineFlagsOp({
-        trustor,
-        asset,
-        clearFlags: clearFlag,
-        setFlags: setFlag,
-      }),
-    ),
+    body: OperationBody.setTrustLineFlags({
+      trustor,
+      asset,
+      clearFlags: clearFlag,
+      setFlags: setFlag,
+    }),
   };
   setSourceAccount(opAttributes, opts);
 
-  return new xdr.Operation(opAttributes);
+  return opAttributes;
 }

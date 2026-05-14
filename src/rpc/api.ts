@@ -1,4 +1,20 @@
-import { Contract, SorobanDataBuilder, xdr } from "../base/index.js";
+import { Contract, SorobanDataBuilder } from "../base/index.js";
+import {
+  ContractEvent,
+  DiagnosticEvent,
+  LedgerCloseMeta,
+  LedgerEntry,
+  LedgerEntryData,
+  LedgerHeader,
+  LedgerHeaderHistoryEntry,
+  LedgerKey,
+  ScVal,
+  SorobanAuthorizationEntry,
+  TransactionEnvelope,
+  TransactionEvent,
+  TransactionMeta,
+  TransactionResult,
+} from "../base/generated/index.js";
 
 /* tslint:disable-next-line:no-namespace */
 export namespace Api {
@@ -11,16 +27,16 @@ export namespace Api {
 
   export interface LedgerEntryResult {
     lastModifiedLedgerSeq?: number;
-    key: xdr.LedgerKey;
-    val: xdr.LedgerEntryData;
+    key: LedgerKey;
+    val: LedgerEntryData;
     liveUntilLedgerSeq?: number;
   }
 
   export interface RawLedgerEntryResult {
     lastModifiedLedgerSeq?: number;
-    /** a base-64 encoded {@link xdr.LedgerKey} instance */
+    /** a base-64 encoded {@link LedgerKey} instance */
     key: string;
-    /** a base-64 encoded {@link xdr.LedgerEntryData} instance */
+    /** a base-64 encoded {@link LedgerEntryData} instance */
     xdr: string;
     /**
      * optional, a future ledger number upon which this entry will expire
@@ -54,8 +70,8 @@ export namespace Api {
     sequence: number;
     protocolVersion: string;
     closeTime: string;
-    headerXdr: xdr.LedgerHeader;
-    metadataXdr: xdr.LedgerCloseMeta;
+    headerXdr: LedgerHeader;
+    metadataXdr: LedgerCloseMeta;
   }
 
   export interface RawGetLatestLedgerResponse {
@@ -63,9 +79,9 @@ export namespace Api {
     sequence: number;
     protocolVersion: string;
     closeTime: string;
-    /** a base-64 encoded {@link xdr.LedgerHeader} instance */
+    /** a base-64 encoded {@link LedgerHeader} instance */
     headerXdr: string;
-    /** a base-64 encoded {@link xdr.LedgerCloseMeta} instance */
+    /** a base-64 encoded {@link LedgerCloseMeta} instance */
     metadataXdr: string;
   }
 
@@ -101,10 +117,10 @@ export namespace Api {
     createdAt: number;
     applicationOrder: number;
     feeBump: boolean;
-    envelopeXdr: xdr.TransactionEnvelope;
-    resultXdr: xdr.TransactionResult;
-    resultMetaXdr: xdr.TransactionMeta;
-    diagnosticEventsXdr?: xdr.DiagnosticEvent[];
+    envelopeXdr: TransactionEnvelope;
+    resultXdr: TransactionResult;
+    resultMetaXdr: TransactionMeta;
+    diagnosticEventsXdr?: DiagnosticEvent[];
     events: TransactionEvents;
   }
 
@@ -115,12 +131,12 @@ export namespace Api {
     createdAt: number;
     applicationOrder: number;
     feeBump: boolean;
-    envelopeXdr: xdr.TransactionEnvelope;
-    resultXdr: xdr.TransactionResult;
-    resultMetaXdr: xdr.TransactionMeta;
-    diagnosticEventsXdr?: xdr.DiagnosticEvent[];
+    envelopeXdr: TransactionEnvelope;
+    resultXdr: TransactionResult;
+    resultMetaXdr: TransactionMeta;
+    diagnosticEventsXdr?: DiagnosticEvent[];
 
-    returnValue?: xdr.ScVal; // present iff resultMeta is a v3|v4
+    returnValue?: ScVal; // present iff resultMeta is a v3|v4
     events: TransactionEvents;
   }
 
@@ -184,8 +200,8 @@ export namespace Api {
   }
 
   export interface TransactionEvents {
-    transactionEventsXdr: xdr.TransactionEvent[];
-    contractEventsXdr: xdr.ContractEvent[][];
+    transactionEventsXdr: TransactionEvent[];
+    contractEventsXdr: ContractEvent[][];
   }
 
   export interface TransactionInfo {
@@ -196,11 +212,11 @@ export namespace Api {
     feeBump: boolean;
     txHash: string;
 
-    envelopeXdr: xdr.TransactionEnvelope;
-    resultXdr: xdr.TransactionResult;
-    resultMetaXdr: xdr.TransactionMeta;
-    returnValue?: xdr.ScVal;
-    diagnosticEventsXdr?: xdr.DiagnosticEvent[];
+    envelopeXdr: TransactionEnvelope;
+    resultXdr: TransactionResult;
+    resultMetaXdr: TransactionMeta;
+    returnValue?: ScVal;
+    diagnosticEventsXdr?: DiagnosticEvent[];
 
     events: TransactionEvents;
   }
@@ -297,8 +313,8 @@ export namespace Api {
 
   export interface EventResponse extends BaseEventResponse {
     contractId?: Contract;
-    topic: xdr.ScVal[];
-    value: xdr.ScVal;
+    topic: ScVal[];
+    value: ScVal;
   }
 
   export interface RawGetEventsResponse extends RetentionState {
@@ -327,17 +343,17 @@ export namespace Api {
     type: number;
     /** This is LedgerKey in base64 */
     key: string;
-    /** This is xdr.LedgerEntry in base64 */
+    /** This is LedgerEntry in base64 */
     before: string | null;
-    /** This is xdr.LedgerEntry in base64 */
+    /** This is LedgerEntry in base64 */
     after: string | null;
   }
 
   export interface LedgerEntryChange {
     type: number;
-    key: xdr.LedgerKey;
-    before: xdr.LedgerEntry | null;
-    after: xdr.LedgerEntry | null;
+    key: LedgerKey;
+    before: LedgerEntry | null;
+    after: LedgerEntry | null;
   }
 
   export type SendTransactionStatus =
@@ -347,13 +363,13 @@ export namespace Api {
     | "ERROR";
 
   export interface SendTransactionResponse extends BaseSendTransactionResponse {
-    errorResult?: xdr.TransactionResult;
-    diagnosticEvents?: xdr.DiagnosticEvent[];
+    errorResult?: TransactionResult;
+    diagnosticEvents?: DiagnosticEvent[];
   }
 
   export interface RawSendTransactionResponse extends BaseSendTransactionResponse {
     /**
-     * This is a base64-encoded instance of {@link xdr.TransactionResult}, set
+     * This is a base64-encoded instance of {@link TransactionResult}, set
      * only when `status` is `"ERROR"`.
      *
      * It contains details on why the network rejected the transaction.
@@ -361,7 +377,7 @@ export namespace Api {
     errorResultXdr?: string;
     /**
      * This is a base64-encoded instance of an array of
-     * {@link xdr.DiagnosticEvent}s, set only when `status` is `"ERROR"` and
+     * {@link DiagnosticEvent}s, set only when `status` is `"ERROR"` and
      * diagnostic events are enabled on the server.
      */
     diagnosticEventsXdr?: string[];
@@ -375,8 +391,8 @@ export namespace Api {
   }
 
   export interface SimulateHostFunctionResult {
-    auth: xdr.SorobanAuthorizationEntry[];
-    retval: xdr.ScVal;
+    auth: SorobanAuthorizationEntry[];
+    retval: ScVal;
   }
 
   export type SimulationAuthMode =
@@ -413,7 +429,7 @@ export namespace Api {
      *   - you didn't simulate an invocation or
      *   - there were no events
      */
-    events: xdr.DiagnosticEvent[];
+    events: DiagnosticEvent[];
 
     /** a private field to mark the schema as parsed */
     _parsed: boolean;
@@ -434,7 +450,7 @@ export namespace Api {
   /** Includes details about why the simulation failed */
   export interface SimulateTransactionErrorResponse extends BaseSimulateTransactionResponse {
     error: string;
-    events: xdr.DiagnosticEvent[];
+    events: DiagnosticEvent[];
   }
 
   export interface SimulateTransactionRestoreResponse extends SimulateTransactionSuccessResponse {
@@ -514,9 +530,9 @@ export namespace Api {
     id: string;
     latestLedger: number;
     error?: string;
-    /** This is an xdr.SorobanTransactionData in base64 */
+    /** This is an SorobanTransactionData in base64 */
     transactionData?: string;
-    /** These are xdr.DiagnosticEvents in base64 */
+    /** These are DiagnosticEvents in base64 */
     events?: string[];
     minResourceFee?: string;
     /**
@@ -669,17 +685,17 @@ export namespace Api {
     hash: string;
     sequence: number;
     ledgerCloseTime: string;
-    headerXdr: xdr.LedgerHeaderHistoryEntry;
-    metadataXdr: xdr.LedgerCloseMeta;
+    headerXdr: LedgerHeaderHistoryEntry;
+    metadataXdr: LedgerCloseMeta;
   }
 
   export interface RawLedgerResponse {
     hash: string;
     sequence: number;
     ledgerCloseTime: string;
-    /** a base-64 encoded {@link xdr.LedgerHeaderHistoryEntry} instance */
+    /** a base-64 encoded {@link LedgerHeaderHistoryEntry} instance */
     headerXdr: string;
-    /** a base-64 encoded {@link xdr.LedgerCloseMeta} instance */
+    /** a base-64 encoded {@link LedgerCloseMeta} instance */
     metadataXdr: string;
   }
 }

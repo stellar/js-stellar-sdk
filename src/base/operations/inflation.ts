@@ -1,23 +1,17 @@
 import { setSourceAccount } from "../util/operations.js";
-import xdr from "../xdr.js";
-import {
-  InflationOpts,
-  InflationResult,
-  OperationAttributes,
-} from "./types.js";
+import { Operation, OperationBody } from "../generated/index.js";
+import { InflationOpts, OperationAttributes } from "./types.js";
 
 /**
  * This operation generates the inflation.
  * @param opts - Options object
  * @param opts.source - The optional source account.
  */
-export function inflation(
-  opts: InflationOpts = {},
-): xdr.Operation<InflationResult> {
+export function inflation(opts: InflationOpts = {}): Operation {
   const opAttributes: OperationAttributes = {
     sourceAccount: null,
-    body: xdr.OperationBody.inflation(),
+    body: OperationBody.inflation(),
   };
   setSourceAccount(opAttributes, opts);
-  return new xdr.Operation(opAttributes);
+  return opAttributes;
 }

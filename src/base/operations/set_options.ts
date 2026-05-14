@@ -1,12 +1,14 @@
-import xdr from "../xdr.js";
+import {
+  AccountId,
+  Operation,
+  OperationBody,
+  Signer,
+  SignerKey,
+  SignerKeyEd25519SignedPayload,
+} from "../generated/index.js";
 import { Keypair } from "../keypair.js";
 import { StrKey } from "../strkey.js";
-import {
-  SetOptionsOpts,
-  SetOptionsResult,
-  OperationAttributes,
-  SignerOpts,
-} from "./types.js";
+import { SetOptionsOpts, OperationAttributes, SignerOpts } from "./types.js";
 import { checkUnsignedIntValue, setSourceAccount } from "../util/operations.js";
 
 function weightCheckFunction(value: number, name: string): boolean {
@@ -49,8 +51,8 @@ function weightCheckFunction(value: number, name: string): boolean {
  */
 export function setOptions<T extends SignerOpts = never>(
   opts: SetOptionsOpts<T>,
-): xdr.Operation<SetOptionsResult<T>> {
-  let inflationDest: xdr.AccountId | null = null;
+): Operation {
+  let inflationDest: AccountId | null = null;
 
   if (opts.inflationDest) {
     if (!StrKey.isValidEd25519PublicKey(opts.inflationDest)) {
@@ -92,7 +94,7 @@ export function setOptions<T extends SignerOpts = never>(
   }
   const homeDomain = opts.homeDomain;
 
-  let signer: xdr.Signer | null = null;
+  let signer: Signer | null = null;
 
   if (opts.signer) {
     const weight = checkUnsignedIntValue(
@@ -100,7 +102,7 @@ export function setOptions<T extends SignerOpts = never>(
       opts.signer.weight,
       weightCheckFunction,
     );
-    let key: xdr.SignerKey | undefined;
+    let key: SignerKey | undefined;
 
     let setValues = 0;
 
@@ -112,7 +114,7 @@ export function setOptions<T extends SignerOpts = never>(
         opts.signer.ed25519PublicKey,
       );
 
-      key = xdr.SignerKey.signerKeyTypeEd25519(rawKey);
+      key = SignerKey.signerKeyTypeEd25519(rawKey);
       setValues += 1;
     }
 
@@ -128,7 +130,7 @@ export function setOptions<T extends SignerOpts = never>(
         throw new Error("signer.preAuthTx must be 32 bytes Buffer.");
       }
 
-      key = xdr.SignerKey.signerKeyTypePreAuthTx(preAuthTx);
+      key = SignerKey.signerKeyTypePreAuthTx(preAuthTx);
       setValues += 1;
     }
 
@@ -144,7 +146,7 @@ export function setOptions<T extends SignerOpts = never>(
         throw new Error("signer.sha256Hash must be 32 bytes Buffer.");
       }
 
-      key = xdr.SignerKey.signerKeyTypeHashX(sha256Hash);
+      key = SignerKey.signerKeyTypeHashX(sha256Hash);
       setValues += 1;
     }
 
@@ -155,10 +157,9 @@ export function setOptions<T extends SignerOpts = never>(
       const rawKey = StrKey.decodeSignedPayload(
         opts.signer.ed25519SignedPayload,
       );
-      const signedPayloadXdr =
-        xdr.SignerKeyEd25519SignedPayload.fromXDR(rawKey);
+      const signedPayloadXdr = SignerKeyEd25519SignedPayload.fromXDR(rawKey);
 
-      key = xdr.SignerKey.signerKeyTypeEd25519SignedPayload(signedPayloadXdr);
+      key = SignerKey.signerKeyTypeEd25519SignedPayload(signedPayloadXdr);
       setValues += 1;
     }
 
@@ -173,10 +174,10 @@ export function setOptions<T extends SignerOpts = never>(
     if (key === undefined) {
       throw new Error("signer key is required.");
     }
-    signer = new xdr.Signer({ key: key, weight: weight });
+    signer = { key: key, weight: weight };
   }
 
-  const setOptionsOp = new xdr.SetOptionsOp({
+  const setOptionsOp = {
     inflationDest,
     clearFlags,
     setFlags,
@@ -184,15 +185,15 @@ export function setOptions<T extends SignerOpts = never>(
     lowThreshold,
     medThreshold,
     highThreshold,
-    homeDomain: homeDomain as string | null,
+    homeDomain: homeDomain ?? null,
     signer,
-  });
+  };
 
   const opAttributes: OperationAttributes = {
     sourceAccount: null,
-    body: xdr.OperationBody.setOptions(setOptionsOp),
+    body: OperationBody.setOptions(setOptionsOp),
   };
   setSourceAccount(opAttributes, opts);
 
-  return new xdr.Operation(opAttributes);
+  return opAttributes;
 }

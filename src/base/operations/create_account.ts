@@ -1,11 +1,7 @@
-import xdr from "../xdr.js";
+import { Operation, OperationBody } from "../generated/index.js";
 import { Keypair } from "../keypair.js";
 import { StrKey } from "../strkey.js";
-import {
-  CreateAccountResult,
-  CreateAccountOpts,
-  OperationAttributes,
-} from "./types.js";
+import { CreateAccountOpts, OperationAttributes } from "./types.js";
 import {
   constructAmountRequirementsError,
   isValidAmount,
@@ -22,9 +18,7 @@ import {
  *     than the {@link https://developers.stellar.org/docs/glossary/fees/ | reserve balance amount}.
  * @param opts.source - The source account for the payment. Defaults to the transaction's source account.
  */
-export function createAccount(
-  opts: CreateAccountOpts,
-): xdr.Operation<CreateAccountResult> {
+export function createAccount(opts: CreateAccountOpts): Operation {
   if (!StrKey.isValidEd25519PublicKey(opts.destination)) {
     throw new Error("destination is invalid");
   }
@@ -32,16 +26,16 @@ export function createAccount(
     throw new TypeError(constructAmountRequirementsError("startingBalance"));
   }
 
-  const createAccountOp = new xdr.CreateAccountOp({
+  const createAccountOp = {
     destination: Keypair.fromPublicKey(opts.destination).xdrAccountId(),
     startingBalance: toXDRAmount(opts.startingBalance),
-  });
+  };
 
   const opAttributes: OperationAttributes = {
     sourceAccount: null,
-    body: xdr.OperationBody.createAccount(createAccountOp),
+    body: OperationBody.createAccount(createAccountOp),
   };
   setSourceAccount(opAttributes, opts);
 
-  return new xdr.Operation(opAttributes);
+  return opAttributes;
 }

@@ -4,7 +4,12 @@ import { sign, verify, generate } from "./signing.js";
 import { StrKey } from "./strkey.js";
 import { hash } from "./hashing.js";
 
-import xdr from "./xdr.js";
+import {
+  AccountId,
+  DecoratedSignature,
+  MuxedAccount,
+  PublicKey,
+} from "./generated/index.js";
 
 ed.hashes.sha512 = sha512;
 /**
@@ -129,18 +134,18 @@ export class Keypair {
     return this.fromRawEd25519Seed(Buffer.from(secretKey));
   }
 
-  /** Returns this public key as an xdr.AccountId. */
-  xdrAccountId(): xdr.AccountId {
-    return xdr.PublicKey.publicKeyTypeEd25519(this._publicKey);
+  /** Returns this public key as an AccountId. */
+  xdrAccountId(): AccountId {
+    return PublicKey.publicKeyTypeEd25519(this._publicKey);
   }
 
-  /** Returns this public key as an xdr.PublicKey. */
-  xdrPublicKey(): xdr.PublicKey {
-    return xdr.PublicKey.publicKeyTypeEd25519(this._publicKey);
+  /** Returns this public key as an PublicKey. */
+  xdrPublicKey(): PublicKey {
+    return PublicKey.publicKeyTypeEd25519(this._publicKey);
   }
 
   /**
-   * Creates a {@link xdr.MuxedAccount} object from the public key.
+   * Creates a {@link MuxedAccount} object from the public key.
    *
    * You will get a different type of muxed account depending on whether or not
    * you pass an ID.
@@ -148,21 +153,19 @@ export class Keypair {
    * @param [id] - stringified integer indicating the underlying muxed
    *     ID of the new account object
    */
-  xdrMuxedAccount(id?: string): xdr.MuxedAccount {
+  xdrMuxedAccount(id?: string): MuxedAccount {
     if (typeof id !== "undefined") {
       if (typeof id !== "string") {
         throw new TypeError(`expected string for ID, got ${typeof id}`);
       }
 
-      return xdr.MuxedAccount.keyTypeMuxedEd25519(
-        new xdr.MuxedAccountMed25519({
-          id: xdr.Uint64.fromString(id),
-          ed25519: this._publicKey,
-        }),
-      );
+      return MuxedAccount.keyTypeMuxedEd25519({
+        id: BigInt(id),
+        ed25519: this._publicKey,
+      });
     }
 
-    return xdr.MuxedAccount.keyTypeEd25519(this._publicKey);
+    return MuxedAccount.keyTypeEd25519(this._publicKey);
   }
 
   /**
@@ -177,7 +180,7 @@ export class Keypair {
    * The hint is the last 4 bytes of the account ID XDR representation.
    */
   signatureHint(): Buffer {
-    const a = this.xdrAccountId().toXDR();
+    const a = Buffer.from(PublicKey.toXDR(this.xdrAccountId(), "raw"));
 
     return a.subarray(a.length - 4);
   }
@@ -264,11 +267,11 @@ export class Keypair {
    *
    * @see TransactionBase.addDecoratedSignature
    */
-  signDecorated(data: Buffer): xdr.DecoratedSignature {
+  signDecorated(data: Buffer): DecoratedSignature {
     const signature = this.sign(data);
     const hint = this.signatureHint();
 
-    return new xdr.DecoratedSignature({ hint, signature });
+    return { hint, signature };
   }
 
   /**
@@ -282,7 +285,7 @@ export class Keypair {
    * @see https://github.com/stellar/stellar-protocol/blob/master/core/cap-0040.md#signature-hint
    * @see TransactionBase.addDecoratedSignature
    */
-  signPayloadDecorated(data: Buffer): xdr.DecoratedSignature {
+  signPayloadDecorated(data: Buffer): DecoratedSignature {
     // Ensure data is a Buffer to support array-like inputs
     const dataBuffer = Buffer.isBuffer(data) ? data : Buffer.from(data);
 
@@ -300,9 +303,9 @@ export class Keypair {
       hint[i] = (hint[i] as number) ^ (keyHint[i] as number);
     }
 
-    return new xdr.DecoratedSignature({
+    return {
       hint,
       signature,
-    });
+    };
   }
 }

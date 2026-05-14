@@ -1,10 +1,6 @@
 import { setSourceAccount } from "../util/operations.js";
-import xdr from "../xdr.js";
-import {
-  ExtendFootprintTTLResult,
-  ExtendFootprintTtlOpts,
-  OperationAttributes,
-} from "./types.js";
+import { ExtensionPoint, Operation, OperationBody } from "../generated/index.js";
+import { ExtendFootprintTtlOpts, OperationAttributes } from "./types.js";
 
 /**
  * Builds an operation to bump the time-to-live (TTL) of the ledger keys. The
@@ -22,8 +18,8 @@ import {
  *
  * The footprint has to be specified in the transaction. See
  * {@link TransactionBuilder}'s `opts.sorobanData` parameter, which is a
- * {@link xdr.SorobanTransactionData} instance that contains fee data & resource
- * usage as part of {@link xdr.SorobanResources}.
+ * {@link SorobanTransactionData} instance that contains fee data & resource
+ * usage as part of {@link SorobanResources}.
  *
  *
  * @param opts - object holding operation parameters
@@ -31,23 +27,21 @@ import {
  *    the read-only footprint will have
  * @param opts.source - an optional source account
  */
-export function extendFootprintTtl(
-  opts: ExtendFootprintTtlOpts,
-): xdr.Operation<ExtendFootprintTTLResult> {
+export function extendFootprintTtl(opts: ExtendFootprintTtlOpts): Operation {
   if ((opts.extendTo ?? -1) <= 0) {
     throw new RangeError("extendTo has to be positive");
   }
 
-  const extendFootprintOp = new xdr.ExtendFootprintTtlOp({
-    ext: new xdr.ExtensionPoint(0),
+  const extendFootprintOp = {
+    ext: ExtensionPoint.case0(),
     extendTo: opts.extendTo,
-  });
+  };
 
   const opAttributes: OperationAttributes = {
     sourceAccount: null,
-    body: xdr.OperationBody.extendFootprintTtl(extendFootprintOp),
+    body: OperationBody.extendFootprintTtl(extendFootprintOp),
   };
   setSourceAccount(opAttributes, opts);
 
-  return new xdr.Operation(opAttributes);
+  return opAttributes;
 }

@@ -1,6 +1,6 @@
 import { StrKey } from "./strkey.js";
 import { scValToNative } from "./scval.js";
-import type { xdr } from "./index.js";
+import { ContractEvent, DiagnosticEvent, ScVal } from "./generated/index.js";
 
 interface SorobanEvent {
   type: "contract" | "diagnostic" | "system";
@@ -11,24 +11,19 @@ interface SorobanEvent {
   data: any;
 }
 
-function extractEvent(event: xdr.ContractEvent): SorobanEvent {
-  const contractId =
-    typeof event.contractId === "function" ? event.contractId() : null;
+function extractEvent(event: ContractEvent): SorobanEvent {
+  const contractId = event.contractId;
+  const body = event.body.v0;
 
   return {
     ...(contractId !== null &&
       contractId !== undefined && {
-        contractId: StrKey.encodeContract(contractId as unknown as Buffer),
+        contractId: StrKey.encodeContract(Buffer.from(contractId)),
       }),
-    type: event.type().name,
-    topics: event
-      .body()
-      .value()
-      .topics()
+    type: event.type,
+    topics: body.topics.map((t: ScVal) => scValToNative(t)),
 
-      .map((t: xdr.ScVal) => scValToNative(t)),
-
-    data: scValToNative(event.body().value().data()),
+    data: scValToNative(body.data),
   };
 }
 
@@ -46,13 +41,13 @@ function extractEvent(event: xdr.ContractEvent): SorobanEvent {
  *    friendly format
  */
 export function humanizeEvents(
-  events: xdr.ContractEvent[] | xdr.DiagnosticEvent[],
+  events: ContractEvent[] | DiagnosticEvent[],
 ): SorobanEvent[] {
   return events.map((e) => {
-    // A pseudo-instanceof check for xdr.DiagnosticEvent more reliable
+    // A pseudo-instanceof check for DiagnosticEvent more reliable
     // in mixed SDK environments:
     if ("inSuccessfulContractCall" in e) {
-      return extractEvent(e.event());
+      return extractEvent(e.event);
     }
 
     return extractEvent(e);

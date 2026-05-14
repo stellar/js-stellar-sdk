@@ -3,7 +3,14 @@ import { LiquidityPoolAsset } from "./liquidity_pool_asset.js";
 import { Claimant } from "./claimant.js";
 import { StrKey } from "./strkey.js";
 import { LiquidityPoolId } from "./liquidity_pool_id.js";
-import xdr from "./xdr.js";
+import {
+  AccountId,
+  ClaimableBalanceId,
+  Claimant as XdrClaimant,
+  Operation as XdrOperation,
+  SignerKey,
+  SignerKeyEd25519SignedPayload,
+} from "./generated/index.js";
 
 import { trimEnd } from "./util/util.js";
 import { encodeMuxedAccountToAddress } from "./util/decode_encode_muxed_account.js";
@@ -137,168 +144,203 @@ export class Operation {
    */
 
   static fromXDRObject<T extends OperationRecord = OperationRecord>(
-    operation: xdr.Operation<T>,
+    operation: XdrOperation,
   ): T {
     const result: Record<string, unknown> = {};
-    const sourceAccount = operation.sourceAccount();
+    const sourceAccount = operation.sourceAccount;
 
     if (sourceAccount) {
       result.source = encodeMuxedAccountToAddress(sourceAccount);
     }
 
-    const attrs: any = operation.body().value();
-    const operationName: string = operation.body().switch().name;
+    const body = operation.body;
+    const operationName: string = body.type;
 
-    switch (operationName) {
+    switch (body.type) {
       case "createAccount": {
         result.type = "createAccount";
-        result.destination = accountIdtoAddress(attrs.destination());
-        result.startingBalance = fromXDRAmount(attrs.startingBalance());
+        result.destination = accountIdtoAddress(
+          body.createAccountOp.destination,
+        );
+        result.startingBalance = fromXDRAmount(
+          body.createAccountOp.startingBalance,
+        );
         break;
       }
       case "payment": {
         result.type = "payment";
-        result.destination = encodeMuxedAccountToAddress(attrs.destination());
-        result.asset = Asset.fromOperation(attrs.asset());
-        result.amount = fromXDRAmount(attrs.amount());
+        result.destination = encodeMuxedAccountToAddress(
+          body.paymentOp.destination,
+        );
+        result.asset = Asset.fromOperation(body.paymentOp.asset);
+        result.amount = fromXDRAmount(body.paymentOp.amount);
         break;
       }
       case "pathPaymentStrictReceive": {
         result.type = "pathPaymentStrictReceive";
-        result.sendAsset = Asset.fromOperation(attrs.sendAsset());
-        result.sendMax = fromXDRAmount(attrs.sendMax());
-        result.destination = encodeMuxedAccountToAddress(attrs.destination());
-        result.destAsset = Asset.fromOperation(attrs.destAsset());
-        result.destAmount = fromXDRAmount(attrs.destAmount());
+        result.sendAsset = Asset.fromOperation(
+          body.pathPaymentStrictReceiveOp.sendAsset,
+        );
+        result.sendMax = fromXDRAmount(body.pathPaymentStrictReceiveOp.sendMax);
+        result.destination = encodeMuxedAccountToAddress(
+          body.pathPaymentStrictReceiveOp.destination,
+        );
+        result.destAsset = Asset.fromOperation(
+          body.pathPaymentStrictReceiveOp.destAsset,
+        );
+        result.destAmount = fromXDRAmount(
+          body.pathPaymentStrictReceiveOp.destAmount,
+        );
         result.path = [];
 
-        const path = attrs.path();
+        const path = body.pathPaymentStrictReceiveOp.path;
 
-        Object.keys(path).forEach((pathKey) => {
-          (result.path as Asset[]).push(Asset.fromOperation(path[pathKey]));
+        path.forEach((pathKey) => {
+          (result.path as Asset[]).push(Asset.fromOperation(pathKey));
         });
         break;
       }
       case "pathPaymentStrictSend": {
         result.type = "pathPaymentStrictSend";
-        result.sendAsset = Asset.fromOperation(attrs.sendAsset());
-        result.sendAmount = fromXDRAmount(attrs.sendAmount());
-        result.destination = encodeMuxedAccountToAddress(attrs.destination());
-        result.destAsset = Asset.fromOperation(attrs.destAsset());
-        result.destMin = fromXDRAmount(attrs.destMin());
+        result.sendAsset = Asset.fromOperation(
+          body.pathPaymentStrictSendOp.sendAsset,
+        );
+        result.sendAmount = fromXDRAmount(
+          body.pathPaymentStrictSendOp.sendAmount,
+        );
+        result.destination = encodeMuxedAccountToAddress(
+          body.pathPaymentStrictSendOp.destination,
+        );
+        result.destAsset = Asset.fromOperation(
+          body.pathPaymentStrictSendOp.destAsset,
+        );
+        result.destMin = fromXDRAmount(body.pathPaymentStrictSendOp.destMin);
         result.path = [];
 
-        const path = attrs.path();
+        const path = body.pathPaymentStrictSendOp.path;
 
-        Object.keys(path).forEach((pathKey) => {
-          (result.path as Asset[]).push(Asset.fromOperation(path[pathKey]));
+        path.forEach((pathKey) => {
+          (result.path as Asset[]).push(Asset.fromOperation(pathKey));
         });
         break;
       }
       case "changeTrust": {
         result.type = "changeTrust";
 
-        switch (attrs.line().switch()) {
-          case xdr.AssetType.assetTypePoolShare():
-            result.line = LiquidityPoolAsset.fromOperation(attrs.line());
+        switch (body.changeTrustOp.line.type) {
+          case "assetTypePoolShare":
+            result.line = LiquidityPoolAsset.fromOperation(
+              body.changeTrustOp.line,
+            );
             break;
           default:
-            result.line = Asset.fromOperation(attrs.line());
+            result.line = Asset.fromOperation(body.changeTrustOp.line);
             break;
         }
 
-        result.limit = fromXDRAmount(attrs.limit());
+        result.limit = fromXDRAmount(body.changeTrustOp.limit);
         break;
       }
       case "allowTrust": {
         result.type = "allowTrust";
-        result.trustor = accountIdtoAddress(attrs.trustor());
-        result.assetCode = attrs.asset().value().toString();
+        result.trustor = accountIdtoAddress(body.allowTrustOp.trustor);
+        result.assetCode =
+          "assetCode4" in body.allowTrustOp.asset
+            ? Buffer.from(body.allowTrustOp.asset.assetCode4).toString()
+            : Buffer.from(body.allowTrustOp.asset.assetCode12).toString();
         result.assetCode = trimEnd(result.assetCode as string, "\0");
-        result.authorize = attrs.authorize();
+        result.authorize = body.allowTrustOp.authorize;
         break;
       }
       case "setOptions": {
         result.type = "setOptions";
 
-        if (attrs.inflationDest()) {
-          result.inflationDest = accountIdtoAddress(attrs.inflationDest());
+        if (body.setOptionsOp.inflationDest) {
+          result.inflationDest = accountIdtoAddress(
+            body.setOptionsOp.inflationDest,
+          );
         }
 
-        result.clearFlags = attrs.clearFlags();
-        result.setFlags = attrs.setFlags();
-        result.masterWeight = attrs.masterWeight();
-        result.lowThreshold = attrs.lowThreshold();
-        result.medThreshold = attrs.medThreshold();
-        result.highThreshold = attrs.highThreshold();
+        result.clearFlags = body.setOptionsOp.clearFlags;
+        result.setFlags = body.setOptionsOp.setFlags;
+        result.masterWeight = body.setOptionsOp.masterWeight;
+        result.lowThreshold = body.setOptionsOp.lowThreshold;
+        result.medThreshold = body.setOptionsOp.medThreshold;
+        result.highThreshold = body.setOptionsOp.highThreshold;
         // home_domain is checked by iscntrl in stellar-core
-        result.homeDomain =
-          attrs.homeDomain() !== undefined
-            ? attrs.homeDomain().toString("ascii")
-            : undefined;
+        result.homeDomain = body.setOptionsOp.homeDomain ?? undefined;
 
-        if (attrs.signer()) {
+        if (body.setOptionsOp.signer) {
           const signer: Record<string, unknown> = {};
-          const arm = attrs.signer().key().arm();
+          const signerKey = body.setOptionsOp.signer.key;
+          const arm = signerKey.type;
 
-          if (arm === "ed25519") {
-            signer.ed25519PublicKey = accountIdtoAddress(attrs.signer().key());
-          } else if (arm === "preAuthTx") {
-            signer.preAuthTx = attrs.signer().key().preAuthTx();
-          } else if (arm === "hashX") {
-            signer.sha256Hash = attrs.signer().key().hashX();
-          } else if (arm === "ed25519SignedPayload") {
-            const signedPayload = attrs.signer().key().ed25519SignedPayload();
+          if (arm === "signerKeyTypeEd25519") {
+            signer.ed25519PublicKey = StrKey.encodeEd25519PublicKey(
+              Buffer.from(signerKey.ed25519),
+            );
+          } else if (arm === "signerKeyTypePreAuthTx") {
+            signer.preAuthTx = signerKey.preAuthTx;
+          } else if (arm === "signerKeyTypeHashX") {
+            signer.sha256Hash = signerKey.hashX;
+          } else if (arm === "signerKeyTypeEd25519SignedPayload") {
+            const signedPayload = signerKey.ed25519SignedPayload;
             signer.ed25519SignedPayload = StrKey.encodeSignedPayload(
-              signedPayload.toXDR(),
+              Buffer.from(
+                SignerKeyEd25519SignedPayload.toXDR(signedPayload, "raw"),
+              ),
             );
           }
 
-          signer.weight = attrs.signer().weight();
+          signer.weight = body.setOptionsOp.signer.weight;
           result.signer = signer;
         }
         break;
       }
       // the next case intentionally falls through!
-      case "manageOffer":
+
       case "manageSellOffer": {
         result.type = "manageSellOffer";
-        result.selling = Asset.fromOperation(attrs.selling());
-        result.buying = Asset.fromOperation(attrs.buying());
-        result.amount = fromXDRAmount(attrs.amount());
-        result.price = fromXDRPrice(attrs.price());
-        result.offerId = attrs.offerId().toString();
+        result.selling = Asset.fromOperation(body.manageSellOfferOp.selling);
+        result.buying = Asset.fromOperation(body.manageSellOfferOp.buying);
+        result.amount = fromXDRAmount(body.manageSellOfferOp.amount);
+        result.price = fromXDRPrice(body.manageSellOfferOp.price);
+        result.offerId = body.manageSellOfferOp.offerId.toString();
         break;
       }
       case "manageBuyOffer": {
         result.type = "manageBuyOffer";
-        result.selling = Asset.fromOperation(attrs.selling());
-        result.buying = Asset.fromOperation(attrs.buying());
-        result.buyAmount = fromXDRAmount(attrs.buyAmount());
-        result.price = fromXDRPrice(attrs.price());
-        result.offerId = attrs.offerId().toString();
+        result.selling = Asset.fromOperation(body.manageBuyOfferOp.selling);
+        result.buying = Asset.fromOperation(body.manageBuyOfferOp.buying);
+        result.buyAmount = fromXDRAmount(body.manageBuyOfferOp.buyAmount);
+        result.price = fromXDRPrice(body.manageBuyOfferOp.price);
+        result.offerId = body.manageBuyOfferOp.offerId.toString();
         break;
       }
       // the next case intentionally falls through!
-      case "createPassiveOffer":
+
       case "createPassiveSellOffer": {
         result.type = "createPassiveSellOffer";
-        result.selling = Asset.fromOperation(attrs.selling());
-        result.buying = Asset.fromOperation(attrs.buying());
-        result.amount = fromXDRAmount(attrs.amount());
-        result.price = fromXDRPrice(attrs.price());
+        result.selling = Asset.fromOperation(
+          body.createPassiveSellOfferOp.selling,
+        );
+        result.buying = Asset.fromOperation(
+          body.createPassiveSellOfferOp.buying,
+        );
+        result.amount = fromXDRAmount(body.createPassiveSellOfferOp.amount);
+        result.price = fromXDRPrice(body.createPassiveSellOfferOp.price);
         break;
       }
       case "accountMerge": {
         result.type = "accountMerge";
-        result.destination = encodeMuxedAccountToAddress(attrs);
+        result.destination = encodeMuxedAccountToAddress(body.destination);
         break;
       }
       case "manageData": {
         result.type = "manageData";
         // manage_data.name is checked by iscntrl in stellar-core
-        result.name = attrs.dataName().toString("ascii");
-        result.value = attrs.dataValue();
+        result.name = body.manageDataOp.dataName;
+        result.value = body.manageDataOp.dataValue;
         break;
       }
       case "inflation": {
@@ -307,28 +349,35 @@ export class Operation {
       }
       case "bumpSequence": {
         result.type = "bumpSequence";
-        result.bumpTo = attrs.bumpTo().toString();
+        result.bumpTo = body.bumpSequenceOp.bumpTo.toString();
         break;
       }
       case "createClaimableBalance": {
         result.type = "createClaimableBalance";
-        result.asset = Asset.fromOperation(attrs.asset());
-        result.amount = fromXDRAmount(attrs.amount());
+        result.asset = Asset.fromOperation(body.createClaimableBalanceOp.asset);
+        result.amount = fromXDRAmount(body.createClaimableBalanceOp.amount);
         result.claimants = [];
 
-        attrs.claimants().forEach((claimant: xdr.Claimant) => {
-          (result.claimants as Claimant[]).push(Claimant.fromXDR(claimant));
-        });
+        body.createClaimableBalanceOp.claimants.forEach(
+          (claimant: XdrClaimant) => {
+            (result.claimants as Claimant[]).push(Claimant.fromXDR(claimant));
+          },
+        );
         break;
       }
       case "claimClaimableBalance": {
         result.type = "claimClaimableBalance";
-        result.balanceId = attrs.toXDR("hex");
+        result.balanceId = ClaimableBalanceId.toXDR(
+          body.claimClaimableBalanceOp.balanceId,
+          "hex",
+        );
         break;
       }
       case "beginSponsoringFutureReserves": {
         result.type = "beginSponsoringFutureReserves";
-        result.sponsoredId = accountIdtoAddress(attrs.sponsoredId());
+        result.sponsoredId = accountIdtoAddress(
+          body.beginSponsoringFutureReservesOp.sponsoredId,
+        );
         break;
       }
       case "endSponsoringFutureReserves": {
@@ -336,40 +385,42 @@ export class Operation {
         break;
       }
       case "revokeSponsorship": {
-        extractRevokeSponshipDetails(attrs, result);
+        extractRevokeSponshipDetails(body.revokeSponsorshipOp, result);
         break;
       }
       case "clawback": {
         result.type = "clawback";
-        result.amount = fromXDRAmount(attrs.amount());
-        result.from = encodeMuxedAccountToAddress(attrs.from());
-        result.asset = Asset.fromOperation(attrs.asset());
+        result.amount = fromXDRAmount(body.clawbackOp.amount);
+        result.from = encodeMuxedAccountToAddress(body.clawbackOp.from);
+        result.asset = Asset.fromOperation(body.clawbackOp.asset);
         break;
       }
       case "clawbackClaimableBalance": {
         result.type = "clawbackClaimableBalance";
-        result.balanceId = attrs.toXDR("hex");
+        result.balanceId = ClaimableBalanceId.toXDR(
+          body.clawbackClaimableBalanceOp.balanceId,
+          "hex",
+        );
         break;
       }
       case "setTrustLineFlags": {
         result.type = "setTrustLineFlags";
-        result.asset = Asset.fromOperation(attrs.asset());
-        result.trustor = accountIdtoAddress(attrs.trustor());
+        result.asset = Asset.fromOperation(body.setTrustLineFlagsOp.asset);
+        result.trustor = accountIdtoAddress(body.setTrustLineFlagsOp.trustor);
 
         // Convert from the integer-bitwised flag into a sensible object that
         // indicates true/false for each flag that's on/off.
-        const clears = attrs.clearFlags();
-        const sets = attrs.setFlags();
+        const clears = body.setTrustLineFlagsOp.clearFlags;
+        const sets = body.setTrustLineFlagsOp.setFlags;
 
-        const mapping: Record<string, xdr.TrustLineFlags> = {
-          authorized: xdr.TrustLineFlags.authorizedFlag(),
-          authorizedToMaintainLiabilities:
-            xdr.TrustLineFlags.authorizedToMaintainLiabilitiesFlag(),
-          clawbackEnabled: xdr.TrustLineFlags.trustlineClawbackEnabledFlag(),
+        const mapping: Record<string, number> = {
+          authorized: 1,
+          authorizedToMaintainLiabilities: 2,
+          clawbackEnabled: 4,
         };
 
         const getFlagValue = (key: string) => {
-          const bit = mapping[key]?.value ?? 0;
+          const bit = mapping[key] ?? 0;
 
           if (sets & bit) {
             return true;
@@ -394,30 +445,42 @@ export class Operation {
       }
       case "liquidityPoolDeposit": {
         result.type = "liquidityPoolDeposit";
-        result.liquidityPoolId = attrs.liquidityPoolId().toString("hex");
-        result.maxAmountA = fromXDRAmount(attrs.maxAmountA());
-        result.maxAmountB = fromXDRAmount(attrs.maxAmountB());
-        result.minPrice = fromXDRPrice(attrs.minPrice());
-        result.maxPrice = fromXDRPrice(attrs.maxPrice());
+        result.liquidityPoolId = Buffer.from(
+          body.liquidityPoolDepositOp.liquidityPoolId,
+        ).toString("hex");
+        result.maxAmountA = fromXDRAmount(
+          body.liquidityPoolDepositOp.maxAmountA,
+        );
+        result.maxAmountB = fromXDRAmount(
+          body.liquidityPoolDepositOp.maxAmountB,
+        );
+        result.minPrice = fromXDRPrice(body.liquidityPoolDepositOp.minPrice);
+        result.maxPrice = fromXDRPrice(body.liquidityPoolDepositOp.maxPrice);
         break;
       }
       case "liquidityPoolWithdraw": {
         result.type = "liquidityPoolWithdraw";
-        result.liquidityPoolId = attrs.liquidityPoolId().toString("hex");
-        result.amount = fromXDRAmount(attrs.amount());
-        result.minAmountA = fromXDRAmount(attrs.minAmountA());
-        result.minAmountB = fromXDRAmount(attrs.minAmountB());
+        result.liquidityPoolId = Buffer.from(
+          body.liquidityPoolWithdrawOp.liquidityPoolId,
+        ).toString("hex");
+        result.amount = fromXDRAmount(body.liquidityPoolWithdrawOp.amount);
+        result.minAmountA = fromXDRAmount(
+          body.liquidityPoolWithdrawOp.minAmountA,
+        );
+        result.minAmountB = fromXDRAmount(
+          body.liquidityPoolWithdrawOp.minAmountB,
+        );
         break;
       }
       case "invokeHostFunction": {
         result.type = "invokeHostFunction";
-        result.func = attrs.hostFunction();
-        result.auth = attrs.auth() ?? [];
+        result.func = body.invokeHostFunctionOp.hostFunction;
+        result.auth = body.invokeHostFunctionOp.auth ?? [];
         break;
       }
       case "extendFootprintTtl": {
         result.type = "extendFootprintTtl";
-        result.extendTo = attrs.extendTo();
+        result.extendTo = body.extendFootprintTTLOp.extendTo;
         break;
       }
       case "restoreFootprint": {
@@ -468,7 +531,7 @@ export class Operation {
   static extendFootprintTtl = ops.extendFootprintTtl;
   static restoreFootprint = ops.restoreFootprint;
 
-  // These are not `xdr.Operation`s directly, but proxies for common
+  // These are not `XdrOperation`s directly, but proxies for common
   // versions of `Operation.invokeHostFunction`
   static createStellarAssetContract = ops.createStellarAssetContract;
   static invokeContractFunction = ops.invokeContractFunction;
@@ -480,24 +543,22 @@ function extractRevokeSponshipDetails(
   attrs: any,
   result: Record<string, unknown>,
 ) {
-  switch (attrs.switch().name) {
+  switch (attrs.type) {
     case "revokeSponsorshipLedgerEntry": {
-      const ledgerKey = attrs.ledgerKey();
+      const ledgerKey = attrs.ledgerKey;
 
-      switch (ledgerKey.switch().name) {
-        case xdr.LedgerEntryType.account().name: {
+      switch (ledgerKey.type) {
+        case "account": {
           result.type = "revokeAccountSponsorship";
-          result.account = accountIdtoAddress(ledgerKey.account().accountId());
+          result.account = accountIdtoAddress(ledgerKey.account.accountId);
           break;
         }
-        case xdr.LedgerEntryType.trustline().name: {
+        case "trustline": {
           result.type = "revokeTrustlineSponsorship";
-          result.account = accountIdtoAddress(
-            ledgerKey.trustLine().accountId(),
-          );
-          const xdrAsset = ledgerKey.trustLine().asset();
-          switch (xdrAsset.switch()) {
-            case xdr.AssetType.assetTypePoolShare():
+          result.account = accountIdtoAddress(ledgerKey.trustLine.accountId);
+          const xdrAsset = ledgerKey.trustLine.asset;
+          switch (xdrAsset.type) {
+            case "assetTypePoolShare":
               result.asset = LiquidityPoolId.fromOperation(xdrAsset);
               break;
             default:
@@ -506,90 +567,89 @@ function extractRevokeSponshipDetails(
           }
           break;
         }
-        case xdr.LedgerEntryType.offer().name: {
+        case "offer": {
           result.type = "revokeOfferSponsorship";
-          result.seller = accountIdtoAddress(ledgerKey.offer().sellerId());
-          result.offerId = ledgerKey.offer().offerId().toString();
+          result.seller = accountIdtoAddress(ledgerKey.offer.sellerId);
+          result.offerId = ledgerKey.offer.offerId.toString();
           break;
         }
-        case xdr.LedgerEntryType.data().name: {
+        case "data": {
           result.type = "revokeDataSponsorship";
-          result.account = accountIdtoAddress(ledgerKey.data().accountId());
-          result.name = ledgerKey.data().dataName().toString("ascii");
+          result.account = accountIdtoAddress(ledgerKey.data.accountId);
+          result.name = ledgerKey.data.dataName;
           break;
         }
-        case xdr.LedgerEntryType.claimableBalance().name: {
+        case "claimableBalance": {
           result.type = "revokeClaimableBalanceSponsorship";
-          result.balanceId = ledgerKey
-            .claimableBalance()
-            .balanceId()
-            .toXDR("hex");
+          result.balanceId = ClaimableBalanceId.toXDR(
+            ledgerKey.claimableBalance.balanceId,
+            "hex",
+          );
           break;
         }
-        case xdr.LedgerEntryType.liquidityPool().name: {
+        case "liquidityPool": {
           result.type = "revokeLiquidityPoolSponsorship";
-          result.liquidityPoolId = ledgerKey
-            .liquidityPool()
-            .liquidityPoolId()
-            .toString("hex");
+          result.liquidityPoolId = Buffer.from(
+            ledgerKey.liquidityPool.liquidityPoolId,
+          ).toString("hex");
           break;
         }
         default: {
-          throw new Error(`Unknown ledgerKey: ${attrs.switch().name}`);
+          throw new Error(`Unknown ledgerKey: ${ledgerKey.type}`);
         }
       }
       break;
     }
     case "revokeSponsorshipSigner": {
       result.type = "revokeSignerSponsorship";
-      result.account = accountIdtoAddress(attrs.signer().accountId());
-      result.signer = convertXDRSignerKeyToObject(attrs.signer().signerKey());
+      result.account = accountIdtoAddress(attrs.signer.accountId);
+      result.signer = convertXDRSignerKeyToObject(attrs.signer.signerKey);
       break;
     }
     default: {
-      throw new Error(`Unknown revokeSponsorship: ${attrs.switch().name}`);
+      throw new Error(`Unknown revokeSponsorship: ${attrs.type}`);
     }
   }
 }
 
 function convertXDRSignerKeyToObject(
-  signerKey: xdr.SignerKey,
+  signerKey: SignerKey,
 ): Record<string, unknown> {
   const attrs: Record<string, unknown> = {};
 
-  switch (signerKey.switch().name) {
-    case xdr.SignerKeyType.signerKeyTypeEd25519().name: {
+  switch (signerKey.type) {
+    case "signerKeyTypeEd25519": {
       attrs.ed25519PublicKey = StrKey.encodeEd25519PublicKey(
-        signerKey.ed25519(),
+        Buffer.from(signerKey.ed25519),
       );
       break;
     }
-    case xdr.SignerKeyType.signerKeyTypePreAuthTx().name: {
-      attrs.preAuthTx = signerKey.preAuthTx().toString("hex");
+    case "signerKeyTypePreAuthTx": {
+      attrs.preAuthTx = Buffer.from(signerKey.preAuthTx).toString("hex");
       break;
     }
-    case xdr.SignerKeyType.signerKeyTypeHashX().name: {
-      attrs.sha256Hash = signerKey.hashX().toString("hex");
+    case "signerKeyTypeHashX": {
+      attrs.sha256Hash = Buffer.from(signerKey.hashX).toString("hex");
       break;
     }
-    case xdr.SignerKeyType.signerKeyTypeEd25519SignedPayload().name: {
-      const signedPayload = signerKey.ed25519SignedPayload();
+    case "signerKeyTypeEd25519SignedPayload": {
+      const signedPayload = signerKey.ed25519SignedPayload;
 
       attrs.ed25519SignedPayload = StrKey.encodeSignedPayload(
-        signedPayload.toXDR(),
+        Buffer.from(SignerKeyEd25519SignedPayload.toXDR(signedPayload, "raw")),
       );
       break;
     }
     default: {
-      throw new Error(`Unknown signerKey: ${signerKey.switch().name}`);
+      throw new Error("Unknown signerKey");
     }
   }
 
   return attrs;
 }
 
-function accountIdtoAddress(accountId: xdr.AccountId): string {
-  return StrKey.encodeEd25519PublicKey(accountId.ed25519());
+function accountIdtoAddress(accountId: AccountId): string {
+  return StrKey.encodeEd25519PublicKey(Buffer.from(accountId.ed25519));
 }
 
 // Namespace merged with the Operation class to expose operation result types as

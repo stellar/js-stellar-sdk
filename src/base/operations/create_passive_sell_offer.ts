@@ -5,12 +5,14 @@ import {
   toXDRAmount,
   toXDRPrice,
 } from "../util/operations.js";
-import xdr from "../xdr.js";
 import {
-  CreatePassiveSellOfferResult,
-  CreatePassiveSellOfferOpts,
-  OperationAttributes,
-} from "./types.js";
+  Asset,
+  Int64,
+  Operation,
+  OperationBody,
+  Price,
+} from "../generated/index.js";
+import { CreatePassiveSellOfferOpts, OperationAttributes } from "./types.js";
 
 /**
  * A "create passive offer" operation creates an offer that won't consume a
@@ -29,35 +31,35 @@ import {
  */
 export function createPassiveSellOffer(
   opts: CreatePassiveSellOfferOpts,
-): xdr.Operation<CreatePassiveSellOfferResult> {
-  const selling: xdr.Asset = opts.selling.toXDRObject();
-  const buying: xdr.Asset = opts.buying.toXDRObject();
+): Operation {
+  const selling: Asset = opts.selling.toWireXDRObject();
+  const buying: Asset = opts.buying.toWireXDRObject();
 
   if (!isValidAmount(opts.amount)) {
     throw new TypeError(constructAmountRequirementsError("amount"));
   }
 
-  const amount: xdr.Int64 = toXDRAmount(opts.amount);
+  const amount: Int64 = toXDRAmount(opts.amount);
 
   if (opts.price === undefined) {
     throw new TypeError("price argument is required");
   }
 
-  const price: xdr.Price = toXDRPrice(opts.price);
+  const price: Price = toXDRPrice(opts.price);
 
-  const createPassiveSellOfferOp = new xdr.CreatePassiveSellOfferOp({
+  const createPassiveSellOfferOp = {
     selling,
     buying,
     amount,
     price,
-  });
+  };
 
   const opAttributes: OperationAttributes = {
     sourceAccount: null,
-    body: xdr.OperationBody.createPassiveSellOffer(createPassiveSellOfferOp),
+    body: OperationBody.createPassiveSellOffer(createPassiveSellOfferOp),
   };
 
   setSourceAccount(opAttributes, opts);
 
-  return new xdr.Operation(opAttributes);
+  return opAttributes;
 }
