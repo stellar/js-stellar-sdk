@@ -20,17 +20,17 @@ import { setSourceAccount } from "../util/operations.js";
  *
  *
  * @param opts - Options object
- * @param opts.trustor - the account whose trustline this is
- * @param opts.asset - the asset on the trustline
- * @param opts.flags - the set of flags to modify
- * @param opts.flags.authorized - authorize account to perform
+ *   - `trustor`: the account whose trustline this is
+ *   - `asset`: the asset on the trustline
+ *   - `flags`: the set of flags to modify
+ *   - `flags.authorized`: authorize account to perform
  *     transactions with its credit
- * @param opts.flags.authorizedToMaintainLiabilities - authorize
+ *   - `flags.authorizedToMaintainLiabilities`: authorize
  *     account to maintain and reduce liabilities for its credit
- * @param opts.flags.clawbackEnabled - stop claimable balances on
+ *   - `flags.clawbackEnabled`: stop claimable balances on
  *     this trustlines from having clawbacks enabled (this flag can only be set
  *     to false!)
- * @param opts.source - The source account for the operation.
+ *   - `source`: The source account for the operation.
  *                                 Defaults to the transaction's source account.
  *
  * @see https://github.com/stellar/stellar-protocol/blob/master/core/cap-0035.md#set-trustline-flags-operation

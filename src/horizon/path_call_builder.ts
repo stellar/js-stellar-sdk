@@ -18,19 +18,17 @@ import type { HttpClient } from "../http-client/index.js";
  * payment paths from those source assets to the desired destination asset. The search's amount parameter will be
  * used to determine if there a given path can satisfy a payment of the desired amount.
  *
- * Do not create this object directly, use {@link Horizon.Server#paths}.
+ * Do not create this object directly, use {@link Horizon.Server.paths}.
  *
- * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/aggregations/paths|Find Payment Paths}
+ * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/aggregations/paths | Find Payment Paths}
  *
- * @augments CallBuilder
- * @private
- * @class
+ * @internal
  *
- * @param {string} serverUrl Horizon server URL.
- * @param {string} source The sender's account ID. Any returned path must use a source that the sender can hold.
- * @param {string} destination The destination account ID that any returned path should use.
- * @param {Asset} destinationAsset The destination asset.
- * @param {string} destinationAmount The amount, denominated in the destination asset, that any returned path should be able to satisfy.
+ * @param serverUrl - Horizon server URL.
+ * @param source - The sender's account ID. Any returned path must use a source that the sender can hold.
+ * @param destination - The destination account ID that any returned path should use.
+ * @param destinationAsset - The destination asset.
+ * @param destinationAmount - The amount, denominated in the destination asset, that any returned path should be able to satisfy.
  */
 export class PathCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.PaymentPathRecord>

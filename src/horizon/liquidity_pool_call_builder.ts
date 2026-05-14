@@ -7,12 +7,10 @@ import type { HttpClient } from "../http-client/index.js";
 /**
  * Creates a new {@link LiquidityPoolCallBuilder} pointed to server defined by serverUrl.
  *
- * Do not create this object directly, use {@link Horizon.Server#liquidityPools}.
+ * Do not create this object directly, use {@link Horizon.Server.liquidityPools}.
  *
- * @augments CallBuilder
- * @private
- * @class
- * @param {string} serverUrl Horizon server URL.
+ * @internal
+ * @param serverUrl - Horizon server URL.
  */
 export class LiquidityPoolCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.LiquidityPoolRecord>
@@ -26,7 +24,7 @@ export class LiquidityPoolCallBuilder extends CallBuilder<
    * Filters out pools whose reserves don't exactly match these assets.
    *
    * @see Asset
-   * @returns {LiquidityPoolCallBuilder} current LiquidityPoolCallBuilder instance
+   * @returns current LiquidityPoolCallBuilder instance
    */
   public forAssets(...assets: Asset[]): this {
     const assetList: string = assets
@@ -39,8 +37,8 @@ export class LiquidityPoolCallBuilder extends CallBuilder<
   /**
    * Retrieves all pools an account is participating in.
    *
-   * @param {string} id   the participant account to filter by
-   * @returns {LiquidityPoolCallBuilder} current LiquidityPoolCallBuilder instance
+   * @param id - the participant account to filter by
+   * @returns current LiquidityPoolCallBuilder instance
    */
   public forAccount(id: string): this {
     this.url.searchParams.set("account", id);
@@ -50,8 +48,8 @@ export class LiquidityPoolCallBuilder extends CallBuilder<
   /**
    * Retrieves a specific liquidity pool by ID.
    *
-   * @param {string} id   the hash/ID of the liquidity pool
-   * @returns {CallBuilder} a new CallBuilder instance for the /liquidity_pools/:id endpoint
+   * @param id - the hash/ID of the liquidity pool
+   * @returns a new CallBuilder instance for the /liquidity_pools/:id endpoint
    */
   public liquidityPoolId(
     id: string,

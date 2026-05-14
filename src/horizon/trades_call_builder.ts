@@ -6,15 +6,13 @@ import type { HttpClient } from "../http-client/index.js";
 /**
  * Creates a new {@link TradesCallBuilder} pointed to server defined by serverUrl.
  *
- * Do not create this object directly, use {@link Horizon.Server#trades}.
+ * Do not create this object directly, use {@link Horizon.Server.trades}.
  *
- * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/resources/trades|Trades}
+ * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/resources/trades | Trades}
  *
- * @augments CallBuilder
- * @private
- * @class
+ * @internal
  *
- * @param {string} serverUrl serverUrl Horizon server URL.
+ * @param serverUrl - serverUrl Horizon server URL.
  */
 export class TradesCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.TradeRecord>
@@ -26,9 +24,9 @@ export class TradesCallBuilder extends CallBuilder<
 
   /**
    * Filter trades for a specific asset pair (orderbook)
-   * @param {Asset} base asset
-   * @param {Asset} counter asset
-   * @returns {TradesCallBuilder} current TradesCallBuilder instance
+   * @param base - asset
+   * @param counter - asset
+   * @returns current TradesCallBuilder instance
    */
   public forAssetPair(base: Asset, counter: Asset): this {
     const baseIssuer = base.getIssuer();
@@ -52,8 +50,8 @@ export class TradesCallBuilder extends CallBuilder<
 
   /**
    * Filter trades for a specific offer
-   * @param {string} offerId ID of the offer
-   * @returns {TradesCallBuilder} current TradesCallBuilder instance
+   * @param offerId - ID of the offer
+   * @returns current TradesCallBuilder instance
    */
   public forOffer(offerId: string): this {
     this.url.searchParams.set("offer_id", offerId);
@@ -62,8 +60,8 @@ export class TradesCallBuilder extends CallBuilder<
 
   /**
    * Filter trades by a specific type.
-   * @param {ServerApi.TradeType} tradeType the trade type to filter by.
-   * @returns {TradesCallBuilder} current TradesCallBuilder instance.
+   * @param tradeType - the trade type to filter by.
+   * @returns current TradesCallBuilder instance.
    */
   public forType(tradeType: ServerApi.TradeType): this {
     this.url.searchParams.set("trade_type", tradeType);
@@ -72,9 +70,9 @@ export class TradesCallBuilder extends CallBuilder<
 
   /**
    * Filter trades for a specific account
-   * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/resources/get-trades-by-account-id|Trades for Account}
-   * @param {string} accountId For example: `GBYTR4MC5JAX4ALGUBJD7EIKZVM7CUGWKXIUJMRSMK573XH2O7VAK3SR`
-   * @returns {TradesCallBuilder} current TradesCallBuilder instance
+   * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/resources/get-trades-by-account-id | Trades for Account}
+   * @param accountId - For example: `GBYTR4MC5JAX4ALGUBJD7EIKZVM7CUGWKXIUJMRSMK573XH2O7VAK3SR`
+   * @returns current TradesCallBuilder instance
    */
   public forAccount(accountId: string): this {
     return this.forEndpoint("accounts", accountId);
@@ -82,9 +80,9 @@ export class TradesCallBuilder extends CallBuilder<
 
   /**
    * Filter trades for a specific liquidity pool
-   * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/resources/retrieve-related-trades|Trades for Liquidity Pool}
-   * @param {string} liquidityPoolId For example: `3b476aff8a406a6ec3b61d5c038009cef85f2ddfaf616822dc4fec92845149b4`
-   * @returns {TradesCallBuilder} current TradesCallBuilder instance
+   * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/resources/retrieve-related-trades | Trades for Liquidity Pool}
+   * @param liquidityPoolId - For example: `3b476aff8a406a6ec3b61d5c038009cef85f2ddfaf616822dc4fec92845149b4`
+   * @returns current TradesCallBuilder instance
    */
   public forLiquidityPool(liquidityPoolId: string): this {
     return this.forEndpoint("liquidity_pools", liquidityPoolId);

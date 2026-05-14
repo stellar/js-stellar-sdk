@@ -1,0 +1,27 @@
+/* Collapse Starlight's first content panel when it contains only our skip-link
+   anchor — i.e. on normal pages where PageTitle.astro emits nothing else.
+   When DraftContentNotice or FallbackContentNotice render, #_top is no longer
+   :only-child, so the selector doesn't match and the panel keeps its normal
+   padding for those notices. */
+main > .content-panel:has(> .sl-container > #_top:only-child) {
+  padding: 0;
+}
+
+/* ContentPanel.astro adds a hairline border between sibling panels. Suppress
+   it above the body content when the preceding panel was collapsed above. */
+main > .content-panel:has(> .sl-container > #_top:only-child) + .content-panel {
+  border-top: none;
+}
+
+/* Homepage badge row (npm version, downloads, CI status, DeepWiki, etc.).
+   Source lives in README.md, synced into docs/index.md by build-llms.ts. */
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  margin-block: 1rem;
+}
+.badges img {
+  vertical-align: middle;
+}

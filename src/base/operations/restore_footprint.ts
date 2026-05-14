@@ -15,14 +15,13 @@ import {
  *
  * It takes no parameters because the relevant footprint is derived from the
  * transaction itself. See {@link TransactionBuilder}'s `opts.sorobanData`
- * parameter (or {@link TransactionBuilder.setSorobanData} /
- * {@link TransactionBuilder.setLedgerKeys}), which is a
+ * parameter (or {@link TransactionBuilder.setSorobanData}), which is a
  * {@link xdr.SorobanTransactionData} instance that contains fee data & resource
  * usage as part of {@link xdr.SorobanTransactionData}.
  *
  *
  * @param opts - an optional set of parameters
- * @param opts.source - an optional source account
+ *   - `source`: an optional source account
  */
 export function restoreFootprint(
   opts: RestoreFootprintOpts = {},

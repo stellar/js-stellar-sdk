@@ -22,18 +22,16 @@ import type { HttpClient } from "../http-client/index.js";
  * If a list of assets is passed as the source, horizon will find any payment
  * paths from those source assets to the desired destination asset.
  *
- * Do not create this object directly, use {@link Horizon.Server#strictReceivePaths}.
+ * Do not create this object directly, use {@link Horizon.Server.strictReceivePaths}.
  *
- * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/aggregations/paths|Find Payment Paths}
+ * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/aggregations/paths | Find Payment Paths}
  *
- * @augments CallBuilder
- * @private
- * @class
+ * @internal
  *
- * @param {string} serverUrl Horizon server URL.
- * @param {string|Asset[]} source The sender's account ID or a list of Assets. Any returned path must use a source that the sender can hold.
- * @param {Asset} destinationAsset The destination asset.
- * @param {string} destinationAmount The amount, denominated in the destination asset, that any returned path should be able to satisfy.
+ * @param serverUrl - Horizon server URL.
+ * @param source - The sender's account ID or a list of Assets. Any returned path must use a source that the sender can hold.
+ * @param destinationAsset - The destination asset.
+ * @param destinationAmount - The amount, denominated in the destination asset, that any returned path should be able to satisfy.
  */
 export class StrictReceivePathCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.PaymentPathRecord>

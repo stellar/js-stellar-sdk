@@ -5,12 +5,10 @@ import type { HttpClient } from "../http-client/index.js";
 /**
  * Creates a new {@link AssetsCallBuilder} pointed to server defined by serverUrl.
  *
- * Do not create this object directly, use {@link Horizon.Server#assets}.
+ * Do not create this object directly, use {@link Horizon.Server.assets}.
  *
- * @class
- * @augments CallBuilder
- * @private
- * @param {string} serverUrl Horizon server URL.
+ * @internal
+ * @param serverUrl - Horizon server URL.
  */
 export class AssetsCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.AssetRecord>
@@ -22,8 +20,8 @@ export class AssetsCallBuilder extends CallBuilder<
 
   /**
    * This endpoint filters all assets by the asset code.
-   * @param {string} value For example: `USD`
-   * @returns {AssetsCallBuilder} current AssetCallBuilder instance
+   * @param value - For example: `USD`
+   * @returns current AssetCallBuilder instance
    */
   public forCode(value: string): AssetsCallBuilder {
     this.url.searchParams.set("asset_code", value);
@@ -32,8 +30,8 @@ export class AssetsCallBuilder extends CallBuilder<
 
   /**
    * This endpoint filters all assets by the asset issuer.
-   * @param {string} value For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
-   * @returns {AssetsCallBuilder} current AssetCallBuilder instance
+   * @param value - For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
+   * @returns current AssetCallBuilder instance
    */
   public forIssuer(value: string): AssetsCallBuilder {
     this.url.searchParams.set("asset_issuer", value);

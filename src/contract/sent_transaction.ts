@@ -21,11 +21,9 @@ import type { AssembledTransaction } from "./assembled_transaction.js";
  *    `getTransactionResponseAll` and the most recent attempt in
  *    `getTransactionResponse`.
  *
- * @memberof module:contract
- * @class
  *
- * @param {Function} signTransaction More info in {@link MethodOptions}
- * @param {module:contract.AssembledTransaction} assembled {@link AssembledTransaction} from which this SentTransaction was initialized
+ * @param signTransaction - More info in {@link MethodOptions}
+ * @param assembled - {@link AssembledTransaction} from which this SentTransaction was initialized
  */
 export class SentTransaction<T> {
   public server: Server;

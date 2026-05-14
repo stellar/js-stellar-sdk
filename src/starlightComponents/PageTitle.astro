@@ -1,0 +1,7 @@
+---
+// Replaces Starlight's <h1>. Each markdown file owns its visible H1 in the
+// body, so the frontmatter title would otherwise produce a duplicate. Keep
+// the #_top anchor here so SkipLink.astro's "skip to content" link still
+// has a focus target.
+---
+<div id="_top" tabindex="-1" />

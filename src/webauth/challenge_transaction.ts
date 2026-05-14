@@ -21,33 +21,34 @@ import { uint8ArrayToBase64 } from "uint8array-extras";
 /**
  * Returns a valid {@link https://stellar.org/protocol/sep-10 | SEP-10}
  * challenge transaction which you can use for Stellar Web Authentication.
- * @param serverKeypair Keypair for server's signing account.
- * @param clientAccountID The stellar account (G...) or muxed account
+ * @param serverKeypair - Keypair for server's signing account.
+ * @param clientAccountID - The stellar account (G...) or muxed account
  *    (M...) that the wallet wishes to authenticate with the server.
- * @param homeDomain The fully qualified domain name of the service
+ * @param homeDomain - The fully qualified domain name of the service
  *    requiring authentication
- * @param timeout Challenge duration (default to 5 minutes).
- * @param networkPassphrase The network passphrase. If you pass this
+ * @param timeout - Challenge duration (default to 5 minutes).
+ * @param networkPassphrase - The network passphrase. If you pass this
  *    argument then timeout is required.
- * @param webAuthDomain The fully qualified domain name of the service
+ * @param webAuthDomain - The fully qualified domain name of the service
  *    issuing the challenge.
- * @param memo The memo to attach to the challenge transaction. The
+ * @param memo - The memo to attach to the challenge transaction. The
  *    memo must be of type `id`. If the `clientaccountID` is a muxed account,
  *    memos cannot be used.
- * @param clientDomain The fully qualified domain of the client
+ * @param clientDomain - The fully qualified domain of the client
  *    requesting the challenge. Only necessary when the 'client_domain'
  *    parameter is passed.
- * @param clientSigningKey The public key assigned to the SIGNING_KEY
+ * @param clientSigningKey - The public key assigned to the SIGNING_KEY
  *    attribute specified on the stellar.toml hosted on the client domain. Only
  *    necessary when the 'client_domain' parameter is passed.
  * @returns A base64 encoded string of the raw TransactionEnvelope xdr
  *    struct for the transaction.
- * @throws {Error} Will throw if `clientAccountID is a muxed account, and `memo`
+ * @throws Will throw if `clientAccountID` is a muxed account, and `memo`
  *    is present.
- * @throws {Error} Will throw if `clientDomain` is provided, but
+ * @throws Will throw if `clientDomain` is provided, but
  *    `clientSigningKey` is missing
  * @see {@link https://stellar.org/protocol/sep-10 | SEP-10: Stellar Web Auth}
  * @example
+ * ```ts
  * import { Keypair, Networks, WebAuth } from 'stellar-sdk'
  *
  * let serverKeyPair = Keypair.fromSecret("server-secret")
@@ -57,6 +58,7 @@ import { uint8ArrayToBase64 } from "uint8array-extras";
  *    "stellar.org",
  *    300,
  *    Networks.TESTNET);
+ * ```
  */
 export function buildChallengeTx(
   serverKeypair: Keypair,
@@ -140,16 +142,16 @@ export function buildChallengeTx(
  * any signatures other than the server's on the transaction are valid. Use one
  * of the following functions to completely verify the transaction:
  *
- * - {@link module:WebAuth~verifyChallengeTxThreshold}
- * - {@link module:WebAuth~verifyChallengeTxSigners}
- * @param challengeTx SEP0010 challenge transaction in base64.
- * @param serverAccountID The server's stellar account (public key).
- * @param networkPassphrase The network passphrase, e.g.: 'Test SDF
+ * - {@link WebAuth.verifyChallengeTxThreshold}
+ * - {@link WebAuth.verifyChallengeTxSigners}
+ * @param challengeTx - SEP0010 challenge transaction in base64.
+ * @param serverAccountID - The server's stellar account (public key).
+ * @param networkPassphrase - The network passphrase, e.g.: 'Test SDF
  *    Network ; September 2015' (see {@link Networks})
- * @param homeDomains The home domain that is expected
+ * @param homeDomains - The home domain that is expected
  *    to be included in the first Manage Data operation's string key. If an
  *    array is provided, one of the domain names in the array must match.
- * @param webAuthDomain The home domain that is expected to be included
+ * @param webAuthDomain - The home domain that is expected to be included
  *    as the value of the Manage Data operation with the 'web_auth_domain' key.
  *    If no such operation is included, this parameter is not used.
  * @returns The actual transaction and the
@@ -358,26 +360,27 @@ export function readChallengeTx(
  *
  * Errors will be raised if:
  * - The transaction is invalid according to
- * {@link module:WebAuth~readChallengeTx}.
+ * {@link WebAuth.readChallengeTx}.
  * - No client signatures are found on the transaction.
  * - One or more signatures in the transaction are not identifiable as the
  * server account or one of the signers provided in the arguments.
- * @param challengeTx SEP0010 challenge transaction in base64.
- * @param serverAccountID The server's stellar account (public key).
- * @param networkPassphrase The network passphrase, e.g.: 'Test SDF
+ * @param challengeTx - SEP0010 challenge transaction in base64.
+ * @param serverAccountID - The server's stellar account (public key).
+ * @param networkPassphrase - The network passphrase, e.g.: 'Test SDF
  *    Network ; September 2015' (see {@link Networks}).
- * @param signers The signers public keys. This list should
+ * @param signers - The signers public keys. This list should
  *    contain the public keys for all signers that have signed the transaction.
- * @param homeDomains The home domain(s) that should
+ * @param homeDomains - The home domain(s) that should
  *    be included in the first Manage Data operation's string key. Required in
  *    readChallengeTx().
- * @param webAuthDomain The home domain that is expected to be included
+ * @param webAuthDomain - The home domain that is expected to be included
  *    as the value of the Manage Data operation with the 'web_auth_domain' key,
  *    if present. Used in readChallengeTx().
  * @returns The list of signers public keys that have signed
  *    the transaction, excluding the server account ID.
- * @see {@link https://stellar.org/protocol/sep-10|SEP-10: Stellar Web Auth}
+ * @see {@link https://stellar.org/protocol/sep-10 | SEP-10: Stellar Web Auth}
  * @example
+ * ```ts
  * import { Networks, TransactionBuilder, WebAuth }  from 'stellar-sdk';
  *
  * const serverKP = Keypair.random();
@@ -411,6 +414,7 @@ export function readChallengeTx(
  *    threshold,
  *    [clientKP1.publicKey(), clientKP2.publicKey()]
  * );
+ * ```
  */
 export function verifyChallengeTxSigners(
   challengeTx: string,
@@ -561,34 +565,35 @@ export function verifyChallengeTxSigners(
  *
  * Errors will be raised if:
  * - The transaction is invalid according to
- * {@link module:WebAuth~readChallengeTx}.
+ * {@link WebAuth.readChallengeTx}.
  * - No client signatures are found on the transaction.
  * - One or more signatures in the transaction are not identifiable as the
  * server account or one of the signers provided in the arguments.
  * - The signatures are all valid but do not meet the threshold.
- * @param challengeTx SEP0010 challenge transaction in base64.
- * @param serverAccountID The server's stellar account (public key).
- * @param networkPassphrase The network passphrase, e.g.: 'Test SDF
+ * @param challengeTx - SEP0010 challenge transaction in base64.
+ * @param serverAccountID - The server's stellar account (public key).
+ * @param networkPassphrase - The network passphrase, e.g.: 'Test SDF
  *    Network ; September 2015' (see {@link Networks}).
- * @param threshold The required signatures threshold for verifying
+ * @param threshold - The required signatures threshold for verifying
  *    this transaction.
- * @param signerSummary a map of all
+ * @param signerSummary - a map of all
  *    authorized signers to their weights. It's used to validate if the
  *    transaction signatures have met the given threshold.
- * @param homeDomains The home domain(s) that should
+ * @param homeDomains - The home domain(s) that should
  *    be included in the first Manage Data operation's string key. Required in
- *    verifyChallengeTxSigners() => readChallengeTx().
- * @param webAuthDomain The home domain that is expected to be included
+ *    `verifyChallengeTxSigners() => readChallengeTx()`.
+ * @param webAuthDomain - The home domain that is expected to be included
  *    as the value of the Manage Data operation with the 'web_auth_domain' key,
- *    if present. Used in verifyChallengeTxSigners() => readChallengeTx().
+ *    if present. Used in `verifyChallengeTxSigners() => readChallengeTx()`.
  * @returns The list of signers public keys that have signed
  *    the transaction, excluding the server account ID, given that the threshold
  *    was met.
- * @throws {module:WebAuth.InvalidChallengeError} Will throw if the collective
+ * @throws Will throw if the collective
  *    weight of the transaction's signers does not meet the necessary threshold
  *    to verify this transaction.
  * @see {@link https://stellar.org/protocol/sep-10 | SEP-10: Stellar Web Auth}
  * @example
+ * ```ts
  * import { Networks, TransactionBuilder, WebAuth } from 'stellar-sdk';
  *
  * const serverKP = Keypair.random();
@@ -635,6 +640,7 @@ export function verifyChallengeTxSigners(
  *    threshold,
  *    signerSummary
  * );
+ * ```
  */
 export function verifyChallengeTxThreshold(
   challengeTx: string,

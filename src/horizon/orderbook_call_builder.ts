@@ -6,16 +6,14 @@ import type { HttpClient } from "../http-client/index.js";
 /**
  * Creates a new {@link OrderbookCallBuilder} pointed to server defined by serverUrl.
  *
- * Do not create this object directly, use {@link Horizon.Server#orderbook}.
+ * Do not create this object directly, use {@link Horizon.Server.orderbook}.
  *
- * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/aggregations/order-books|Orderbook Details}
+ * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/aggregations/order-books | Orderbook Details}
  *
- * @augments CallBuilder
- * @private
- * @class
- * @param {string} serverUrl serverUrl Horizon server URL.
- * @param {Asset} selling Asset being sold
- * @param {Asset} buying Asset being bought
+ * @internal
+ * @param serverUrl - serverUrl Horizon server URL.
+ * @param selling - Asset being sold
+ * @param buying - Asset being bought
  */
 export class OrderbookCallBuilder extends CallBuilder<ServerApi.OrderbookRecord> {
   constructor(

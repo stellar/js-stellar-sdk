@@ -17,12 +17,13 @@ import {
  *
  *
  * @param opts - Options object
- * @param opts.asset - The asset for the claimable balance.
- * @param opts.amount - Amount.
- * @param opts.claimants - An array of Claimants
- * @param opts.source - The source account for the operation. Defaults to the transaction's source account.
+ *   - `asset`: The asset for the claimable balance.
+ *   - `amount`: Amount.
+ *   - `claimants`: An array of Claimants
+ *   - `source`: The source account for the operation. Defaults to the transaction's source account.
  *
  * @example
+ * ```ts
  * const asset = new Asset(
  *   'USD',
  *   'GDGU5OAPHNPU5UCLE5RDJHG7PXZFQYWKCFOEXSXNMR6KRQRI5T6XXCD7'
@@ -40,6 +41,7 @@ import {
  *   amount,
  *   claimants
  * });
+ * ```
  */
 export function createClaimableBalance(
   opts: CreateClaimableBalanceOpts,

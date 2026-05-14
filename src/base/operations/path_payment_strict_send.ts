@@ -23,13 +23,13 @@ import {
  * @see https://developers.stellar.org/docs/start/list-of-operations/#path-payment-strict-send
  *
  * @param opts - Options object
- * @param opts.sendAsset - asset to pay with
- * @param opts.sendAmount - amount of sendAsset to send (excluding fees)
- * @param opts.destination - destination account to send to
- * @param opts.destAsset - asset the destination will receive
- * @param opts.destMin - minimum amount of destAsset to be received
- * @param opts.path - array of Asset objects to use as the path
- * @param opts.source - The source account for the payment. Defaults to the transaction's source account.
+ *   - `sendAsset`: asset to pay with
+ *   - `sendAmount`: amount of sendAsset to send (excluding fees)
+ *   - `destination`: destination account to send to
+ *   - `destAsset`: asset the destination will receive
+ *   - `destMin`: minimum amount of destAsset to be received
+ *   - `path`: array of Asset objects to use as the path
+ *   - `source`: The source account for the payment. Defaults to the transaction's source account.
  */
 export function pathPaymentStrictSend(
   opts: PathPaymentStrictSendOpts,
