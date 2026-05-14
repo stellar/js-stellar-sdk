@@ -1,5 +1,9 @@
 import { setSourceAccount } from "../util/operations.js";
-import { ExtensionPoint, Operation, OperationBody } from "../generated/index.js";
+import {
+  ExtensionPoint,
+  Operation,
+  OperationBody,
+} from "../generated/index.js";
 import { OperationAttributes, RestoreFootprintOpts } from "./types.js";
 
 /**
