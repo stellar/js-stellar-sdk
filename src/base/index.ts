@@ -61,6 +61,7 @@ export {
   extractBaseAddress,
   encodeMuxedAccount,
 } from "./util/decode_encode_muxed_account.js";
+export { expectUnionArm, tryArm, isArm } from "./util/narrow.js";
 
 //
 // Soroban

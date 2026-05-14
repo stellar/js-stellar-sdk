@@ -1,10 +1,14 @@
 import { describe, it, expect } from "vitest";
 
-import { Address, Keypair, scValToBigInt } from "../../../src/index.js";
+import {
+  Address,
+  expectUnionArm,
+  Keypair,
+  scValToBigInt,
+} from "../../../src/index.js";
 import { Contract } from "../../../src/base/contract.js";
 import xdr from "../../../src/base/xdr.js";
 import {
-  expectScVal,
   nativeToScVal,
   scValToNative,
   scvSortedMap,
@@ -204,7 +208,7 @@ describe("parsing and building ScVals - from scval_test.js", () => {
     let scv;
 
     scv = nativeToScVal(["a", "b", "c"], { type: "symbol" });
-    const vec = expectDefined(expectScVal(scv, "scvVec").vec);
+    const vec = expectDefined(expectUnionArm(scv, "scvVec").vec);
     vec.forEach((v: any) => {
       expect(v.type).toBe("scvSymbol");
     });
@@ -222,16 +226,16 @@ describe("parsing and building ScVals - from scval_test.js", () => {
       },
     );
     let e: xdr.ScMapEntry;
-    const map = expectDefined(expectScVal(scv, "scvMap").map);
+    const map = expectDefined(expectUnionArm(scv, "scvMap").map);
 
     e = map[0];
-    expectScVal(e.key, "scvSymbol");
-    expectScVal(e.val, "scvString");
+    expectUnionArm(e.key, "scvSymbol");
+    expectUnionArm(e.val, "scvString");
 
     e = map[1];
-    expectScVal(e.key, "scvString");
-    const innerVec = expectDefined(expectScVal(e.val, "scvVec").vec);
-    expectScVal(innerVec[0], "scvI32");
+    expectUnionArm(e.key, "scvString");
+    const innerVec = expectDefined(expectUnionArm(e.val, "scvVec").vec);
+    expectUnionArm(innerVec[0], "scvI32");
   });
 
   it("doesnt throw on arrays with mixed types", () => {
@@ -331,7 +335,7 @@ describe("parsing and building ScVals - from scval_test.js", () => {
     }
 
     ["a", "b", "c"].forEach((val, idx) => {
-      const key = expectScVal(sampleValue[idx].key, "scvSymbol").sym;
+      const key = expectUnionArm(sampleValue[idx].key, "scvSymbol").sym;
       expect(key).toBe(val);
     });
 
@@ -342,7 +346,7 @@ describe("parsing and building ScVals - from scval_test.js", () => {
     (sampleValue as any)[2] = tmp;
 
     ["c", "b", "a"].forEach((val, idx) => {
-      const key = expectScVal(sampleValue[idx].key, "scvSymbol").sym;
+      const key = expectUnionArm(sampleValue[idx].key, "scvSymbol").sym;
       expect(key).toBe(val);
     });
 
@@ -355,7 +359,7 @@ describe("parsing and building ScVals - from scval_test.js", () => {
       expect.fail("Expected scvMap to have a map property");
     }
     ["a", "b", "c"].forEach((val, idx) => {
-      const key = expectScVal(sorted.map![idx].key, "scvSymbol").sym;
+      const key = expectUnionArm(sorted.map![idx].key, "scvSymbol").sym;
       expect(key).toBe(val);
     });
   });
@@ -367,26 +371,26 @@ describe("parsing and building ScVals - from scval_test.js", () => {
 describe("nativeToScVal", () => {
   it("converts number to u32", () => {
     const scv = nativeToScVal(42, { type: "u32" });
-    const u32 = expectScVal(scv, "scvU32").u32;
+    const u32 = expectUnionArm(scv, "scvU32").u32;
 
     expect(u32).toBe(42);
   });
 
   it("converts number to i32", () => {
     const scv = nativeToScVal(-5, { type: "i32" });
-    const i32 = expectScVal(scv, "scvI32").i32;
+    const i32 = expectUnionArm(scv, "scvI32").i32;
     expect(i32).toBe(-5);
   });
 
   it("converts number to i32 with zero", () => {
     const scv = nativeToScVal(0, { type: "i32" });
-    const i32 = expectScVal(scv, "scvI32").i32;
+    const i32 = expectUnionArm(scv, "scvI32").i32;
     expect(i32).toBe(0);
   });
 
   it("converts number to u32 with zero", () => {
     const scv = nativeToScVal(0, { type: "u32" });
-    const u32 = expectScVal(scv, "scvU32").u32;
+    const u32 = expectUnionArm(scv, "scvU32").u32;
     expect(u32).toBe(0);
   });
 
@@ -419,13 +423,13 @@ describe("nativeToScVal", () => {
 
   it("converts bigint to u32 (truncates to Number)", () => {
     const scv = nativeToScVal(100n, { type: "u32" });
-    const u32 = expectScVal(scv, "scvU32").u32;
+    const u32 = expectUnionArm(scv, "scvU32").u32;
     expect(u32).toBe(100);
   });
 
   it("converts bigint to i32 (truncates to Number)", () => {
     const scv = nativeToScVal(-50n, { type: "i32" });
-    const i32 = expectScVal(scv, "scvI32").i32;
+    const i32 = expectUnionArm(scv, "scvI32").i32;
     expect(i32).toBe(-50);
   });
 
@@ -480,13 +484,13 @@ describe("nativeToScVal", () => {
 
   it("converts numeric string to u32", () => {
     const scv = nativeToScVal("42", { type: "u32" });
-    const u32 = expectScVal(scv, "scvU32").u32;
+    const u32 = expectUnionArm(scv, "scvU32").u32;
     expect(u32).toBe(42);
   });
 
   it("converts numeric string to i32", () => {
     const scv = nativeToScVal("-10", { type: "i32" });
-    const i32 = expectScVal(scv, "scvI32").i32;
+    const i32 = expectUnionArm(scv, "scvI32").i32;
     expect(i32).toBe(-10);
   });
 
@@ -570,7 +574,7 @@ describe("nativeToScVal", () => {
     const original = Buffer.from([1, 2, 3]);
     const scv = nativeToScVal(original, { type: "bytes" });
     // Mutate original — the ScVal should be unaffected
-    const scvBytes = expectScVal(scv, "scvBytes").bytes;
+    const scvBytes = expectUnionArm(scv, "scvBytes").bytes;
     original[0] = 99;
     expect(scvBytes[0]).toBe(1);
   });
@@ -644,13 +648,13 @@ describe("nativeToScVal", () => {
     it("converts true to scvBool", () => {
       const scv = nativeToScVal(true);
 
-      const bool = expectScVal(scv, "scvBool").b;
+      const bool = expectUnionArm(scv, "scvBool").b;
       expect(bool).toBe(true);
     });
 
     it("converts false to scvBool", () => {
       const scv = nativeToScVal(false);
-      const bool = expectScVal(scv, "scvBool").b;
+      const bool = expectUnionArm(scv, "scvBool").b;
       expect(bool).toBe(false);
     });
   });
@@ -673,13 +677,13 @@ describe("nativeToScVal", () => {
 
     it("converts number with u32 hint", () => {
       const scv = nativeToScVal(42, { type: "u32" });
-      const u32 = expectScVal(scv, "scvU32").u32;
+      const u32 = expectUnionArm(scv, "scvU32").u32;
       expect(u32).toBe(42);
     });
 
     it("converts number with i32 hint", () => {
       const scv = nativeToScVal(-5, { type: "i32" });
-      const i32 = expectScVal(scv, "scvI32").i32;
+      const i32 = expectUnionArm(scv, "scvI32").i32;
       expect(i32).toBe(-5);
     });
 
@@ -760,13 +764,13 @@ describe("nativeToScVal", () => {
 
     it("converts numeric string to u32", () => {
       const scv = nativeToScVal("42", { type: "u32" });
-      const u32 = expectScVal(scv, "scvU32").u32;
+      const u32 = expectUnionArm(scv, "scvU32").u32;
       expect(u32).toBe(42);
     });
 
     it("converts numeric string to i32", () => {
       const scv = nativeToScVal("-7", { type: "i32" });
-      const i32 = expectScVal(scv, "scvI32").i32;
+      const i32 = expectUnionArm(scv, "scvI32").i32;
       expect(i32).toBe(-7);
     });
 
@@ -874,30 +878,30 @@ describe("nativeToScVal", () => {
   describe("arrays", () => {
     it("converts an array of numbers to scvVec", () => {
       const scv = nativeToScVal([1, 2, 3]);
-      const vec = expectDefined(expectScVal(scv, "scvVec").vec);
+      const vec = expectDefined(expectUnionArm(scv, "scvVec").vec);
       expect(vec.length).toBe(3);
     });
 
     it("converts an array of strings to scvVec", () => {
       const scv = nativeToScVal(["a", "b", "c"]);
-      const vec = expectDefined(expectScVal(scv, "scvVec").vec);
+      const vec = expectDefined(expectUnionArm(scv, "scvVec").vec);
       expect(vec.length).toBe(3);
       vec.forEach((v: any) => {
-        expectScVal(v, "scvString");
+        expectUnionArm(v, "scvString");
       });
     });
 
     it("converts empty array to scvVec", () => {
       const scv = nativeToScVal([]);
-      const vec = expectDefined(expectScVal(scv, "scvVec").vec);
+      const vec = expectDefined(expectUnionArm(scv, "scvVec").vec);
       expect(vec.length).toBe(0);
     });
 
     it("applies uniform type hint to all elements", () => {
       const scv = nativeToScVal([1, 2, 3], { type: "i128" });
-      const vec = expectDefined(expectScVal(scv, "scvVec").vec);
+      const vec = expectDefined(expectUnionArm(scv, "scvVec").vec);
       vec.forEach((v: any) => {
-        expectScVal(v, "scvI128");
+        expectUnionArm(v, "scvI128");
       });
     });
 
@@ -905,10 +909,10 @@ describe("nativeToScVal", () => {
       const scv = nativeToScVal([1, "a", 3], {
         type: ["i128", "symbol", "u32"],
       });
-      const vec = expectDefined(expectScVal(scv, "scvVec").vec);
-      expectScVal(vec[0], "scvI128");
-      expectScVal(vec[1], "scvSymbol");
-      expectScVal(vec[2], "scvU32");
+      const vec = expectDefined(expectUnionArm(scv, "scvVec").vec);
+      expectUnionArm(vec[0], "scvI128");
+      expectUnionArm(vec[1], "scvSymbol");
+      expectUnionArm(vec[2], "scvU32");
     });
 
     it("falls back to default type for extra array elements beyond type hints", () => {
@@ -916,13 +920,13 @@ describe("nativeToScVal", () => {
       const scv = nativeToScVal([1, "a", false, "b"], {
         type: ["i128", "symbol"],
       });
-      const vec = expectDefined(expectScVal(scv, "scvVec").vec);
+      const vec = expectDefined(expectUnionArm(scv, "scvVec").vec);
       expect(vec.length).toBe(4);
-      expectScVal(vec[0], "scvI128");
-      expectScVal(vec[1], "scvSymbol");
+      expectUnionArm(vec[0], "scvI128");
+      expectUnionArm(vec[1], "scvSymbol");
       // Elements beyond the type array fall back to default conversion
-      expectScVal(vec[2], "scvBool");
-      expectScVal(vec[3], "scvString");
+      expectUnionArm(vec[2], "scvBool");
+      expectUnionArm(vec[3], "scvString");
     });
 
     it("handles nested arrays", () => {
@@ -930,25 +934,25 @@ describe("nativeToScVal", () => {
         [1, 2],
         [3, 4],
       ]);
-      const outer = expectDefined(expectScVal(scv, "scvVec").vec);
+      const outer = expectDefined(expectUnionArm(scv, "scvVec").vec);
       expect(outer.length).toBe(2);
-      expectScVal(outer[0], "scvVec");
-      expectScVal(outer[1], "scvVec");
+      expectUnionArm(outer[0], "scvVec");
+      expectUnionArm(outer[1], "scvVec");
     });
 
     it("handles mixed-type arrays", () => {
       const scv = nativeToScVal([1, "a", false, null]);
-      const vec = expectDefined(expectScVal(scv, "scvVec").vec);
+      const vec = expectDefined(expectUnionArm(scv, "scvVec").vec);
       expect(vec.length).toBe(4);
       // number, string, bool, void
-      expectScVal(vec[2], "scvBool");
-      expectScVal(vec[3], "scvVoid");
+      expectUnionArm(vec[2], "scvBool");
+      expectUnionArm(vec[3], "scvVoid");
     });
 
     it("handles array containing xdr.ScVal (passthrough)", () => {
       const inner = xdr.ScVal.scvU32(999);
       const scv = nativeToScVal([inner, 1, "hello"]);
-      const vec = expectDefined(expectScVal(scv, "scvVec").vec);
+      const vec = expectDefined(expectUnionArm(scv, "scvVec").vec);
 
       expect(vec[0]).toBe(inner);
     });
@@ -962,11 +966,11 @@ describe("nativeToScVal", () => {
 
     it("sorts keys alphabetically", () => {
       const scv = nativeToScVal({ z: 1, a: 2, m: 3 });
-      const entries = expectDefined(expectScVal(scv, "scvMap").map);
+      const entries = expectDefined(expectUnionArm(scv, "scvMap").map);
 
-      expect(expectScVal(entries[0].key, "scvString").str).toBe("a");
-      expect(expectScVal(entries[1].key, "scvString").str).toBe("m");
-      expect(expectScVal(entries[2].key, "scvString").str).toBe("z");
+      expect(expectUnionArm(entries[0].key, "scvString").str).toBe("a");
+      expect(expectUnionArm(entries[1].key, "scvString").str).toBe("m");
+      expect(expectUnionArm(entries[2].key, "scvString").str).toBe("z");
     });
 
     it("sorts mixed-case keys by codepoint order, not locale order", () => {
@@ -974,22 +978,22 @@ describe("nativeToScVal", () => {
       // localeCompare would give: _key, admin, Balance (case-insensitive)
       // Correct byte order: Balance, _key, admin
       const scv = nativeToScVal({ admin: 1, _key: 2, Balance: 3 });
-      const entries = expectDefined(expectScVal(scv, "scvMap").map);
-      expect(expectScVal(entries[0].key, "scvString").str).toBe("Balance");
-      expect(expectScVal(entries[1].key, "scvString").str).toBe("_key");
-      expect(expectScVal(entries[2].key, "scvString").str).toBe("admin");
+      const entries = expectDefined(expectUnionArm(scv, "scvMap").map);
+      expect(expectUnionArm(entries[0].key, "scvString").str).toBe("Balance");
+      expect(expectUnionArm(entries[1].key, "scvString").str).toBe("_key");
+      expect(expectUnionArm(entries[2].key, "scvString").str).toBe("admin");
     });
 
     it("handles empty object", () => {
       const scv = nativeToScVal({});
-      const map = expectDefined(expectScVal(scv, "scvMap").map);
+      const map = expectDefined(expectUnionArm(scv, "scvMap").map);
       expect(map.length).toBe(0);
     });
 
     it("handles nested objects", () => {
       const scv = nativeToScVal({ outer: { inner: true } });
-      const entries = expectDefined(expectScVal(scv, "scvMap").map);
-      expect(expectScVal(entries[0].val, "scvMap").map).toBeDefined();
+      const entries = expectDefined(expectUnionArm(scv, "scvMap").map);
+      expect(expectUnionArm(entries[0].val, "scvMap").map).toBeDefined();
     });
 
     it("applies per-key type hints for keys and values", () => {
@@ -1002,12 +1006,12 @@ describe("nativeToScVal", () => {
           },
         },
       );
-      const entries = expectDefined(expectScVal(scv, "scvMap").map);
+      const entries = expectDefined(expectUnionArm(scv, "scvMap").map);
       // Sorted: hello, world
-      expect(expectScVal(entries[0].key, "scvSymbol").sym).toBe("hello");
-      expect(expectScVal(entries[0].val, "scvU32").u32).toBe(42);
-      expect(expectScVal(entries[1].key, "scvSymbol").sym).toBe("world");
-      expect(expectScVal(entries[1].val, "scvSymbol").sym).toBe("test");
+      expect(expectUnionArm(entries[0].key, "scvSymbol").sym).toBe("hello");
+      expect(expectUnionArm(entries[0].val, "scvU32").u32).toBe(42);
+      expect(expectUnionArm(entries[1].key, "scvSymbol").sym).toBe("world");
+      expect(expectUnionArm(entries[1].val, "scvSymbol").sym).toBe("test");
     });
 
     it("uses default types for keys without hints", () => {
@@ -1019,13 +1023,13 @@ describe("nativeToScVal", () => {
           },
         },
       );
-      const entries = expectDefined(expectScVal(scv, "scvMap").map);
+      const entries = expectDefined(expectUnionArm(scv, "scvMap").map);
       // "hinted" comes first alphabetically
-      expect(expectScVal(entries[0].key, "scvSymbol").sym).toBe("hinted");
-      expect(expectScVal(entries[0].val, "scvI32").i32).toBe(42);
+      expect(expectUnionArm(entries[0].key, "scvSymbol").sym).toBe("hinted");
+      expect(expectUnionArm(entries[0].val, "scvI32").i32).toBe(42);
       // "unhinted" falls back to default
-      expect(expectScVal(entries[1].key, "scvString").str).toBe("unhinted");
-      expect(expectScVal(entries[1].val, "scvString").str).toBe("default");
+      expect(expectUnionArm(entries[1].key, "scvString").str).toBe("unhinted");
+      expect(expectUnionArm(entries[1].val, "scvString").str).toBe("default");
     });
 
     it("uses null in type hint pair for default", () => {
@@ -1037,10 +1041,10 @@ describe("nativeToScVal", () => {
           },
         },
       );
-      const entries = expectDefined(expectScVal(scv, "scvMap").map);
+      const entries = expectDefined(expectUnionArm(scv, "scvMap").map);
       // null key hint => default (string)
-      expect(expectScVal(entries[0].key, "scvString").str).toBe("key");
-      expect(expectScVal(entries[0].val, "scvSymbol").sym).toBe("val");
+      expect(expectUnionArm(entries[0].key, "scvString").str).toBe("key");
+      expect(expectUnionArm(entries[0].val, "scvSymbol").sym).toBe("val");
     });
 
     it("handles object with nested arrays", () => {
@@ -1048,24 +1052,24 @@ describe("nativeToScVal", () => {
         items: [1, 2, 3],
         label: "test",
       });
-      const entries = expectDefined(expectScVal(scv, "scvMap").map);
+      const entries = expectDefined(expectUnionArm(scv, "scvMap").map);
       // sorted: items, label
-      expect(expectScVal(entries[0].key, "scvString").str).toBe("items");
-      expect(expectScVal(entries[0].val, "scvVec").vec).toBeDefined();
-      expect(expectScVal(entries[1].key, "scvString").str).toBe("label");
-      expect(expectScVal(entries[1].val, "scvString").str).toBe("test");
+      expect(expectUnionArm(entries[0].key, "scvString").str).toBe("items");
+      expect(expectUnionArm(entries[0].val, "scvVec").vec).toBeDefined();
+      expect(expectUnionArm(entries[1].key, "scvString").str).toBe("label");
+      expect(expectUnionArm(entries[1].val, "scvString").str).toBe("test");
     });
 
     it("handles object with null values", () => {
       const scv = nativeToScVal({ key: null });
-      const entries = expectDefined(expectScVal(scv, "scvMap").map);
-      expect(expectScVal(entries[0].val, "scvVoid")).toBeDefined();
+      const entries = expectDefined(expectUnionArm(scv, "scvMap").map);
+      expect(expectUnionArm(entries[0].val, "scvVoid")).toBeDefined();
     });
 
     it("handles object with boolean values", () => {
       const scv = nativeToScVal({ flag: true });
-      const entries = expectDefined(expectScVal(scv, "scvMap").map);
-      expect(expectScVal(entries[0].val, "scvBool").b).toBe(true);
+      const entries = expectDefined(expectUnionArm(scv, "scvMap").map);
+      expect(expectUnionArm(entries[0].val, "scvBool").b).toBe(true);
     });
   });
 
@@ -1421,10 +1425,10 @@ describe("scvSortedMap", () => {
       },
     ];
     const sorted = scvSortedMap(entries);
-    const map = expectDefined(expectScVal(sorted, "scvMap").map);
-    expect(expectScVal(map[0].key, "scvString").str).toBe("a");
-    expect(expectScVal(map[1].key, "scvString").str).toBe("b");
-    expect(expectScVal(map[2].key, "scvString").str).toBe("c");
+    const map = expectDefined(expectUnionArm(sorted, "scvMap").map);
+    expect(expectUnionArm(map[0].key, "scvString").str).toBe("a");
+    expect(expectUnionArm(map[1].key, "scvString").str).toBe("b");
+    expect(expectUnionArm(map[2].key, "scvString").str).toBe("c");
   });
 
   it("sorts symbol-keyed entries", () => {
@@ -1439,7 +1443,7 @@ describe("scvSortedMap", () => {
       },
     ];
     const sorted = scvSortedMap(entries);
-    const map = expectDefined(expectScVal(sorted, "scvMap").map);
+    const map = expectDefined(expectUnionArm(sorted, "scvMap").map);
     expect(scValToNative(map[0].key)).toBe("a");
     expect(scValToNative(map[1].key)).toBe("z");
   });
@@ -1460,15 +1464,15 @@ describe("scvSortedMap", () => {
       },
     ];
     const sorted = scvSortedMap(entries);
-    const map = expectDefined(expectScVal(sorted, "scvMap").map);
-    expect(expectScVal(map[0].key, "scvI64").i64).toBe(1n);
-    expect(expectScVal(map[1].key, "scvI64").i64).toBe(2n);
-    expect(expectScVal(map[2].key, "scvI64").i64).toBe(3n);
+    const map = expectDefined(expectUnionArm(sorted, "scvMap").map);
+    expect(expectUnionArm(map[0].key, "scvI64").i64).toBe(1n);
+    expect(expectUnionArm(map[1].key, "scvI64").i64).toBe(2n);
+    expect(expectUnionArm(map[2].key, "scvI64").i64).toBe(3n);
   });
 
   it("handles empty array", () => {
     const sorted = scvSortedMap([]);
-    const map = expectDefined(expectScVal(sorted, "scvMap").map);
+    const map = expectDefined(expectUnionArm(sorted, "scvMap").map);
     expect(map.length).toBe(0);
   });
 
@@ -1480,9 +1484,9 @@ describe("scvSortedMap", () => {
       },
     ];
     const sorted = scvSortedMap(entries);
-    const map = expectDefined(expectScVal(sorted, "scvMap").map);
+    const map = expectDefined(expectUnionArm(sorted, "scvMap").map);
     expect(map.length).toBe(1);
-    expect(expectScVal(map[0].key, "scvString").str).toBe("only");
+    expect(expectUnionArm(map[0].key, "scvString").str).toBe("only");
   });
 
   it("does not mutate the input array", () => {
@@ -1520,8 +1524,8 @@ describe("scvSortedMap", () => {
       },
     ];
     const sorted = scvSortedMap(entries);
-    const map = expectDefined(expectScVal(sorted, "scvMap").map);
-    expect(expectScVal(map[0].key, "scvString").str).toBe("a");
+    const map = expectDefined(expectUnionArm(sorted, "scvMap").map);
+    expect(expectUnionArm(map[0].key, "scvString").str).toBe("a");
   });
 
   it("sorts u32-keyed entries numerically", () => {
@@ -1540,7 +1544,7 @@ describe("scvSortedMap", () => {
       },
     ];
     const sorted = scvSortedMap(entries);
-    const map = expectDefined(expectScVal(sorted, "scvMap").map);
+    const map = expectDefined(expectUnionArm(sorted, "scvMap").map);
     expect(scValToNative(map[0].key)).toBe(2);
     expect(scValToNative(map[1].key)).toBe(10);
     expect(scValToNative(map[2].key)).toBe(100);
@@ -1558,7 +1562,7 @@ describe("scvSortedMap", () => {
       },
     ];
     const sorted = scvSortedMap(entries);
-    const map = expectDefined(expectScVal(sorted, "scvMap").map);
+    const map = expectDefined(expectUnionArm(sorted, "scvMap").map);
     // "false" < "true" lexicographically
     expect(scValToNative(map[0].key)).toBe(false);
     expect(scValToNative(map[1].key)).toBe(true);
@@ -1576,9 +1580,9 @@ describe("scvSortedMap", () => {
       },
     ];
     const sorted = scvSortedMap(entries);
-    const map = expectDefined(expectScVal(sorted, "scvMap").map);
-    expect(expectScVal(map[0].key, "scvString").str).toBe("a");
-    expect(expectScVal(map[1].key, "scvString").str).toBe("b");
+    const map = expectDefined(expectUnionArm(sorted, "scvMap").map);
+    expect(expectUnionArm(map[0].key, "scvString").str).toBe("a");
+    expect(expectUnionArm(map[1].key, "scvString").str).toBe("b");
   });
 
   it("sorts mixed-case string keys by codepoint order, not locale order", () => {
@@ -1600,10 +1604,10 @@ describe("scvSortedMap", () => {
       },
     ];
     const sorted = scvSortedMap(entries);
-    const map = expectDefined(expectScVal(sorted, "scvMap").map);
-    expect(expectScVal(map[0].key, "scvSymbol").sym).toBe("Admin");
-    expect(expectScVal(map[1].key, "scvSymbol").sym).toBe("_admin");
-    expect(expectScVal(map[2].key, "scvSymbol").sym).toBe("balance");
+    const map = expectDefined(expectUnionArm(sorted, "scvMap").map);
+    expect(expectUnionArm(map[0].key, "scvSymbol").sym).toBe("Admin");
+    expect(expectUnionArm(map[1].key, "scvSymbol").sym).toBe("_admin");
+    expect(expectUnionArm(map[2].key, "scvSymbol").sym).toBe("balance");
   });
 });
 
@@ -2010,7 +2014,7 @@ describe("edge cases and stress tests", () => {
     ];
     // Should not throw
     const sorted = scvSortedMap(entries);
-    const map = expectDefined(expectScVal(sorted, "scvMap").map);
+    const map = expectDefined(expectUnionArm(sorted, "scvMap").map);
     expect(map.length).toBe(2);
   });
 

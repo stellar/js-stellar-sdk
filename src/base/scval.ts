@@ -35,27 +35,6 @@ function isScVal(value: unknown): value is ScVal {
 }
 
 /**
- * Narrows an {@link ScVal} to a specific union arm, throwing if it isn't.
- *
- * Lets callers skip the boilerplate `if (scv.type !== "scvU32") throw ...`
- * pattern when they already know which arm the value should be in. Returns the
- * same value, narrowed: TypeScript will see the named-arm payload field after
- * the call.
- *
- * @example
- * const u32 = expectScVal(scv, "scvU32").u32; // typed as `number`
- */
-export function expectScVal<T extends ScVal["type"]>(
-  value: ScVal,
-  tag: T,
-): Extract<ScVal, { type: T }> {
-  if (value.type !== tag) {
-    throw new TypeError(`Expected ScVal of type ${tag}, got ${value.type}`);
-  }
-  return value as Extract<ScVal, { type: T }>;
-}
-
-/**
  * Attempts to convert native types into smart contract values
  * ({@link ScVal}).
  *
