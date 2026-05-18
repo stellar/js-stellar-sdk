@@ -15,7 +15,7 @@ import type { ScIntType } from "./numbers/index.js";
 type ScValIntType = ScIntType | "i32" | "u32";
 type ScValStringType = ScValIntType | "address" | "string" | "symbol";
 type ScValBytesType = "bytes" | "string" | "symbol";
-type ScValType = ScValBytesType | ScValIntType | ScValStringType;
+type ScValType = ScValBytesType | ScValIntType | ScValStringType | "bool";
 
 type ScValMapTypeSpec = Record<
   string,

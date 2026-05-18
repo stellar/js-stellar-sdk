@@ -1,9 +1,10 @@
 import { describe, it, beforeEach, afterEach, expect, vi } from "vitest";
 import * as StellarSdk from "../../../../src/index.js";
 
-import { serverUrl } from "../../../constants";
+import { serverUrl } from "../../../constants.js";
 
-const { Address, Asset, Keypair, Networks, xdr, nativeToScVal, rpc } = StellarSdk;
+const { Address, Asset, Keypair, Networks, xdr, nativeToScVal, rpc } =
+  StellarSdk;
 const { Server } = rpc;
 
 describe("Server#getSACBalance|getAssetBalance", () => {
@@ -34,8 +35,8 @@ describe("Server#getSACBalance|getAssetBalance", () => {
     {
       type: {
         amount: ["symbol", "i128"],
-        clawback: ["symbol", "boolean"],
-        authorized: ["symbol", "boolean"],
+        clawback: ["symbol", "bool"],
+        authorized: ["symbol", "bool"],
       },
     },
   );
