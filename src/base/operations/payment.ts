@@ -1,11 +1,16 @@
-import xdr from "../xdr.js";
+import {
+  MuxedAccount,
+  Operation,
+  OperationBody,
+  PaymentOp,
+} from "../../xdr/index.js";
 import { decodeAddressToMuxedAccount } from "../util/decode_encode_muxed_account.js";
-import { OperationAttributes, PaymentOpts, PaymentResult } from "./types.js";
+import { OperationAttributes, PaymentOpts } from "./types.js";
 import {
   constructAmountRequirementsError,
   isValidAmount,
   setSourceAccount,
-  toXDRAmount,
+  toXdrAmount,
 } from "../util/operations.js";
 
 /**
@@ -20,7 +25,7 @@ import {
  * @param opts.source - The source account for the payment.
  *     Defaults to the transaction's source account.
  */
-export function payment(opts: PaymentOpts): xdr.Operation<PaymentResult> {
+export function payment(opts: PaymentOpts): Operation {
   if (!opts.asset) {
     throw new Error("Must provide an asset for a payment operation");
   }
@@ -28,24 +33,24 @@ export function payment(opts: PaymentOpts): xdr.Operation<PaymentResult> {
     throw new TypeError(constructAmountRequirementsError("amount"));
   }
 
-  let destination: xdr.MuxedAccount;
+  let destination: MuxedAccount;
   try {
     destination = decodeAddressToMuxedAccount(opts.destination);
   } catch {
     throw new Error("destination is invalid");
   }
 
-  const paymentOp = new xdr.PaymentOp({
+  const paymentOp = new PaymentOp({
     destination,
-    asset: opts.asset.toXDRObject(),
-    amount: toXDRAmount(opts.amount),
+    asset: opts.asset.toXdrObject(),
+    amount: toXdrAmount(opts.amount),
   });
 
   const opAttributes: OperationAttributes = {
     sourceAccount: null,
-    body: xdr.OperationBody.payment(paymentOp),
+    body: OperationBody.payment(paymentOp),
   };
   setSourceAccount(opAttributes, opts);
 
-  return new xdr.Operation(opAttributes);
+  return new Operation(opAttributes);
 }

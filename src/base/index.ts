@@ -1,13 +1,20 @@
 export { UnsignedHyper, Hyper } from "@stellar/js-xdr";
 
-import xdr from "./xdr.js";
+// Build the `xdr` namespace once from the class-XDR layer and re-export it.
+// We *don't* `export *` from the XDR module — that would leak every XDR
+// type (Memo, Asset, Operation, …) as top-level named exports and collide
+// with the SDK wrapper classes exported below. Consumers reach XDR types
+// through `xdr.X` exclusively (matching the legacy SDK surface).
+import * as xdr from "../xdr/index.js";
+export { xdr };
+
 import cereal from "./jsxdr.js";
 
 //
 // Global exports
 //
 
-export { xdr };
+// export { xdr };
 export { cereal };
 
 export { hash } from "./hashing.js";

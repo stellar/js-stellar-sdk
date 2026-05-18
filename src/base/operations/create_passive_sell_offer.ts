@@ -2,15 +2,18 @@ import {
   constructAmountRequirementsError,
   isValidAmount,
   setSourceAccount,
-  toXDRAmount,
-  toXDRPrice,
+  toXdrAmount,
+  toXdrPrice,
 } from "../util/operations.js";
-import xdr from "../xdr.js";
 import {
-  CreatePassiveSellOfferResult,
-  CreatePassiveSellOfferOpts,
-  OperationAttributes,
-} from "./types.js";
+  Asset,
+  CreatePassiveSellOfferOp,
+  Int64,
+  Operation,
+  OperationBody,
+  Price,
+} from "../../xdr/index.js";
+import { CreatePassiveSellOfferOpts, OperationAttributes } from "./types.js";
 
 /**
  * A "create passive offer" operation creates an offer that won't consume a
@@ -29,23 +32,23 @@ import {
  */
 export function createPassiveSellOffer(
   opts: CreatePassiveSellOfferOpts,
-): xdr.Operation<CreatePassiveSellOfferResult> {
-  const selling: xdr.Asset = opts.selling.toXDRObject();
-  const buying: xdr.Asset = opts.buying.toXDRObject();
+): Operation {
+  const selling: Asset = opts.selling.toXdrObject();
+  const buying: Asset = opts.buying.toXdrObject();
 
   if (!isValidAmount(opts.amount)) {
     throw new TypeError(constructAmountRequirementsError("amount"));
   }
 
-  const amount: xdr.Int64 = toXDRAmount(opts.amount);
+  const amount: Int64 = toXdrAmount(opts.amount);
 
   if (opts.price === undefined) {
     throw new TypeError("price argument is required");
   }
 
-  const price: xdr.Price = toXDRPrice(opts.price);
+  const price: Price = toXdrPrice(opts.price);
 
-  const createPassiveSellOfferOp = new xdr.CreatePassiveSellOfferOp({
+  const createPassiveSellOfferOp = new CreatePassiveSellOfferOp({
     selling,
     buying,
     amount,
@@ -54,10 +57,10 @@ export function createPassiveSellOffer(
 
   const opAttributes: OperationAttributes = {
     sourceAccount: null,
-    body: xdr.OperationBody.createPassiveSellOffer(createPassiveSellOfferOp),
+    body: OperationBody.createPassiveSellOffer(createPassiveSellOfferOp),
   };
 
   setSourceAccount(opAttributes, opts);
 
-  return new xdr.Operation(opAttributes);
+  return new Operation(opAttributes);
 }

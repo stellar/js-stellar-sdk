@@ -1,16 +1,19 @@
 import {
   isValidAmount,
   constructAmountRequirementsError,
-  toXDRAmount,
+  toXdrAmount,
   setSourceAccount,
-  toXDRPrice,
+  toXdrPrice,
 } from "../util/operations.js";
-import xdr from "../xdr.js";
 import {
-  ManageBuyOfferResult,
-  ManageBuyOfferOpts,
-  OperationAttributes,
-} from "./types.js";
+  Asset,
+  Int64,
+  ManageBuyOfferOp,
+  Operation,
+  OperationBody,
+  Price,
+} from "../../xdr/index.js";
+import { ManageBuyOfferOpts, OperationAttributes } from "./types.js";
 
 /**
  * Returns a XDR ManageBuyOfferOp. A "manage buy offer" operation creates, updates, or
@@ -26,41 +29,39 @@ import {
  * @param opts.source - The source account (defaults to transaction source).
  * @throws {Error} when the best rational approximation of `price` cannot be found.
  */
-export function manageBuyOffer(
-  opts: ManageBuyOfferOpts,
-): xdr.Operation<ManageBuyOfferResult> {
-  const selling: xdr.Asset = opts.selling.toXDRObject();
-  const buying: xdr.Asset = opts.buying.toXDRObject();
+export function manageBuyOffer(opts: ManageBuyOfferOpts): Operation {
+  const selling: Asset = opts.selling.toXdrObject();
+  const buying: Asset = opts.buying.toXdrObject();
 
   if (!isValidAmount(opts.buyAmount, true)) {
     throw new TypeError(constructAmountRequirementsError("buyAmount"));
   }
 
-  const buyAmount: xdr.Int64 = toXDRAmount(opts.buyAmount);
+  const buyAmount: Int64 = toXdrAmount(opts.buyAmount);
 
   if (opts.price === undefined) {
     throw new TypeError("price argument is required");
   }
 
-  const price: xdr.Price = toXDRPrice(opts.price);
+  const price: Price = toXdrPrice(opts.price);
 
   const offerIdStr = opts.offerId !== undefined ? opts.offerId.toString() : "0";
-  const offerId: xdr.Int64 = xdr.Int64.fromString(offerIdStr);
+  const offerId: Int64 = Int64.fromString(offerIdStr);
 
-  const manageBuyOfferOp = new xdr.ManageBuyOfferOp({
+  const manageBuyOfferOp = new ManageBuyOfferOp({
     selling,
     buying,
     buyAmount,
     price,
-    offerId,
+    offerId: offerId,
   });
 
   const opAttributes: OperationAttributes = {
     sourceAccount: null,
-    body: xdr.OperationBody.manageBuyOffer(manageBuyOfferOp),
+    body: OperationBody.manageBuyOffer(manageBuyOfferOp),
   };
 
   setSourceAccount(opAttributes, opts);
 
-  return new xdr.Operation(opAttributes);
+  return new Operation(opAttributes);
 }
