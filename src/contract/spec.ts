@@ -480,12 +480,12 @@ function unionToJsonSchema(udt: ScSpecUdtUnionV0): any {
 
 /**
  * Provides a ContractSpec class which can contains the XDR types defined by the contract.
- * This allows the class to be used to convert between native and raw `xdr.ScVal`s.
+ * This allows the class to be used to convert between native and raw `ScVal`s.
  *
  * Constructs a new ContractSpec from an array of XDR spec entries.
  *
  * @memberof module:contract
- * @param {xdr.ScSpecEntry[] | string[]} entries the XDR spec entries
+ * @param {ScSpecEntry[] | string[]} entries the XDR spec entries
  * @throws {Error} if entries is invalid
  *
  * @example
@@ -527,11 +527,11 @@ export class Spec {
 
   /**
    * Generates a Spec instance from contract specs in any of the following forms:
-   * - An XDR encoded stream of xdr.ScSpecEntry entries, the format of the spec
+   * - An XDR encoded stream of ScSpecEntry entries, the format of the spec
    *   stored inside Wasm files.
-   * - A base64 XDR encoded stream of xdr.ScSpecEntry entries.
-   * - An array of xdr.ScSpecEntry.
-   * - An array of base64 XDR encoded xdr.ScSpecEntry.
+   * - A base64 XDR encoded stream of ScSpecEntry entries.
+   * - An array of ScSpecEntry.
+   * - An array of base64 XDR encoded ScSpecEntry.
    *
    * @returns {Promise<module:contract.Client>} A Promise that resolves to a Client instance.
    * @throws {Error} If the contract spec cannot be obtained from the provided wasm binary.
@@ -558,7 +558,7 @@ export class Spec {
 
   /**
    * Gets the XDR functions from the spec.
-   * @returns {xdr.ScSpecFunctionV0[]} all contract functions
+   * @returns {ScSpecFunctionV0[]} all contract functions
    */
   funcs(): ScSpecFunctionV0[] {
     return this.entries
@@ -570,7 +570,7 @@ export class Spec {
    * Gets the XDR function spec for the given function name.
    *
    * @param {string} name the name of the function
-   * @returns {xdr.ScSpecFunctionV0} the function spec
+   * @returns {ScSpecFunctionV0} the function spec
    *
    * @throws {Error} if no function with the given name exists
    */
@@ -587,7 +587,7 @@ export class Spec {
    *
    * @param {string} name the name of the function
    * @param {object} args the arguments object
-   * @returns {xdr.ScVal[]} the converted arguments
+   * @returns {ScVal[]} the converted arguments
    *
    * @throws {Error} if argument is missing or incorrect type
    *
@@ -609,7 +609,7 @@ export class Spec {
    * Converts the result ScVal of a function call to a native JS value.
    *
    * @param {string} name the name of the function
-   * @param {xdr.ScVal | string} val_or_base64 the result ScVal or base64 encoded string
+   * @param {ScVal | string} val_or_base64 the result ScVal or base64 encoded string
    * @returns {any} the converted native value
    *
    * @throws {Error} if return type mismatch or invalid input
@@ -650,7 +650,7 @@ export class Spec {
    * Finds the XDR spec entry for the given name.
    *
    * @param {string} name the name to find
-   * @returns {xdr.ScSpecEntry} the entry
+   * @returns {ScSpecEntry} the entry
    *
    * @throws {Error} if no entry with the given name exists
    */
@@ -674,8 +674,8 @@ export class Spec {
    * Converts a native JS value to an ScVal based on the given type.
    *
    * @param {any} val the native JS value
-   * @param {xdr.ScSpecTypeDef} [ty] the expected type
-   * @returns {xdr.ScVal} the converted ScVal
+   * @param {ScSpecTypeDef} [ty] the expected type
+   * @returns {ScVal} the converted ScVal
    *
    * @throws {Error} if value cannot be converted to the given type
    */
@@ -973,7 +973,7 @@ export class Spec {
    * Converts an base64 encoded ScVal back to a native JS value based on the given type.
    *
    * @param {string} scv the base64 encoded ScVal
-   * @param {xdr.ScSpecTypeDef} typeDef the expected type
+   * @param {ScSpecTypeDef} typeDef the expected type
    * @returns {any} the converted native JS value
    *
    * @throws {Error} if ScVal cannot be converted to the given type
@@ -985,8 +985,8 @@ export class Spec {
   /**
    * Converts an ScVal back to a native JS value based on the given type.
    *
-   * @param {xdr.ScVal} scv the ScVal
-   * @param {xdr.ScSpecTypeDef} typeDef the expected type
+   * @param {ScVal} scv the ScVal
+   * @param {ScSpecTypeDef} typeDef the expected type
    * @returns {any} the converted native JS value
    *
    * @throws {Error} if ScVal cannot be converted to the given type

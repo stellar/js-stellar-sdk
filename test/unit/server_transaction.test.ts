@@ -45,9 +45,7 @@ describe("server.js transaction tests", () => {
       .build();
     transaction.sign(keypair);
 
-    blob = encodeURIComponent(
-      transaction.toEnvelope().toXdr("base64"),
-    );
+    blob = encodeURIComponent(transaction.toEnvelope().toXdr("base64"));
   });
 
   afterEach(() => {
@@ -352,9 +350,7 @@ describe("server.js transaction tests", () => {
       Networks.TESTNET,
     );
 
-    blob = encodeURIComponent(
-      feeBumpTx.toEnvelope().toXdr("base64"),
-    );
+    blob = encodeURIComponent(feeBumpTx.toEnvelope().toXdr("base64"));
 
     mockPost.mockImplementation((url: string, data: string) => {
       if (

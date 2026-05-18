@@ -118,7 +118,10 @@ describe("assembleTransaction", () => {
 
       const v1 = expectVariant(result.toEnvelope(), "envelopeTypeTx").v1;
       const opBody = v1.tx.operations[0]!.body;
-      const invokeOp = expectVariant(opBody, "invokeHostFunction").invokeHostFunctionOp;
+      const invokeOp = expectVariant(
+        opBody,
+        "invokeHostFunction",
+      ).invokeHostFunctionOp;
       const fn = expectVariant(
         invokeOp.auth[0]!.rootInvocation.function,
         "sorobanAuthorizedFunctionTypeContractFn",
@@ -129,7 +132,10 @@ describe("assembleTransaction", () => {
         invokeOp.auth[0]!.credentials,
         "sorobanCredentialsAddress",
       ).address;
-      const accountKey = expectVariant(credAddr.address, "scAddressTypeAccount").accountId;
+      const accountKey = expectVariant(
+        credAddr.address,
+        "scAddressTypeAccount",
+      ).accountId;
       expect(StrKey.encodeEd25519PublicKey(Buffer.from(accountKey.value))).toBe(
         "GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI",
       );

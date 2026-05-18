@@ -42,9 +42,7 @@ describe("server.js async transaction submission tests", () => {
       .build();
     transaction.sign(keypair);
 
-    blob = encodeURIComponent(
-      transaction.toEnvelope().toXdr("base64"),
-    );
+    blob = encodeURIComponent(transaction.toEnvelope().toXdr("base64"));
   });
 
   afterEach(() => {

@@ -231,8 +231,7 @@ describe("Memo", () => {
 
       const xdrMemo = memo.toXdrObject();
       expect(xdrMemo.type).toBe("memoReturn");
-      if (xdrMemo.type !== "memoReturn")
-        throw new Error("expected memoReturn");
+      if (xdrMemo.type !== "memoReturn") throw new Error("expected memoReturn");
       const retHashBytes = xdrMemo.retHash.toBytes();
       expect(retHashBytes.length).toBe(32);
       expect(Buffer.from(retHashBytes).toString("hex")).toBe(

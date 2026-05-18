@@ -83,6 +83,7 @@ export class AccountEntry extends XdrValue {
     signers: array(Signer.schema, UNBOUNDED_MAX_LENGTH),
     ext: AccountEntryExt.schema,
   });
+
   constructor(input: {
     accountId: PublicKey;
     balance: bigint;

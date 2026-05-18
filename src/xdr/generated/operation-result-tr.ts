@@ -712,9 +712,6 @@ abstract class OperationResultTrBase extends XdrValue {
   abstract toXdrObject(): OperationResultTrWire;
 }
 
-/**
- * {@inheritdoc OperationResultTrBase}
- */
 export class OperationResultTrCreateAccount extends OperationResultTrBase {
   readonly type = "createAccount" as const;
   readonly createAccountResult: CreateAccountResult;

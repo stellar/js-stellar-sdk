@@ -34,9 +34,9 @@ export namespace Api {
 
   export interface RawLedgerEntryResult {
     lastModifiedLedgerSeq?: number;
-    /** a base-64 encoded {@link xdr.LedgerKey} instance */
+    /** a base-64 encoded {@link LedgerKey} instance */
     key: string;
-    /** a base-64 encoded {@link xdr.LedgerEntryData} instance */
+    /** a base-64 encoded {@link LedgerEntryData} instance */
     xdr: string;
     /**
      * optional, a future ledger number upon which this entry will expire
@@ -79,9 +79,9 @@ export namespace Api {
     sequence: number;
     protocolVersion: string;
     closeTime: string;
-    /** a base-64 encoded {@link xdr.LedgerHeader} instance */
+    /** a base-64 encoded {@link LedgerHeader} instance */
     headerXdr: string;
-    /** a base-64 encoded {@link xdr.LedgerCloseMeta} instance */
+    /** a base-64 encoded {@link LedgerCloseMeta} instance */
     metadataXdr: string;
   }
 
@@ -343,9 +343,9 @@ export namespace Api {
     type: number;
     /** This is LedgerKey in base64 */
     key: string;
-    /** This is xdr.LedgerEntry in base64 */
+    /** This is LedgerEntry in base64 */
     before: string | null;
-    /** This is xdr.LedgerEntry in base64 */
+    /** This is LedgerEntry in base64 */
     after: string | null;
   }
 
@@ -369,7 +369,7 @@ export namespace Api {
 
   export interface RawSendTransactionResponse extends BaseSendTransactionResponse {
     /**
-     * This is a base64-encoded instance of {@link xdr.TransactionResult}, set
+     * This is a base64-encoded instance of {@link TransactionResult}, set
      * only when `status` is `"ERROR"`.
      *
      * It contains details on why the network rejected the transaction.
@@ -377,7 +377,7 @@ export namespace Api {
     errorResultXdr?: string;
     /**
      * This is a base64-encoded instance of an array of
-     * {@link xdr.DiagnosticEvent}s, set only when `status` is `"ERROR"` and
+     * {@link DiagnosticEvent}s, set only when `status` is `"ERROR"` and
      * diagnostic events are enabled on the server.
      */
     diagnosticEventsXdr?: string[];
@@ -530,9 +530,9 @@ export namespace Api {
     id: string;
     latestLedger: number;
     error?: string;
-    /** This is an xdr.SorobanTransactionData in base64 */
+    /** This is an SorobanTransactionData in base64 */
     transactionData?: string;
-    /** These are xdr.DiagnosticEvents in base64 */
+    /** These are DiagnosticEvents in base64 */
     events?: string[];
     minResourceFee?: string;
     /**
@@ -693,9 +693,9 @@ export namespace Api {
     hash: string;
     sequence: number;
     ledgerCloseTime: string;
-    /** a base-64 encoded {@link xdr.LedgerHeaderHistoryEntry} instance */
+    /** a base-64 encoded {@link LedgerHeaderHistoryEntry} instance */
     headerXdr: string;
-    /** a base-64 encoded {@link xdr.LedgerCloseMeta} instance */
+    /** a base-64 encoded {@link LedgerCloseMeta} instance */
     metadataXdr: string;
   }
 }
