@@ -3,8 +3,8 @@ import * as StellarSdk from "../../../../src/index.js";
 
 import { serverUrl } from "../../../constants";
 
-const { Address, Keypair, xdr, nativeToScVal } = StellarSdk;
-const { Server } = StellarSdk.rpc;
+const { Address, Asset, Keypair, Networks, xdr, nativeToScVal, rpc } = StellarSdk;
+const { Server } = rpc;
 
 describe("Server#getSACBalance|getAssetBalance", () => {
   let server: any;
@@ -19,10 +19,10 @@ describe("Server#getSACBalance|getAssetBalance", () => {
     vi.clearAllMocks();
   });
 
-  const token = StellarSdk.Asset.native();
+  const token = Asset.native();
   const contract = "CCJZ5DGASBWQXR5MPFCJXMBI333XE5U3FSJTNQU7RIKE3P5GN2K2WYD5";
   const contractAddress = new Address(
-    token.contractId(StellarSdk.Networks.TESTNET),
+    token.contractId(Networks.TESTNET),
   ).toScAddress();
 
   const val = nativeToScVal(
@@ -48,9 +48,9 @@ describe("Server#getSACBalance|getAssetBalance", () => {
 
     const entry = xdr.LedgerEntryData.contractData(
       new xdr.ContractDataEntry({
-        ext: new (xdr.ExtensionPoint as any)(0),
+        ext: xdr.ExtensionPoint.v0(),
         contract: contractAddress,
-        durability: xdr.ContractDataDurability.persistent(),
+        durability: xdr.ContractDataDurability.persistent,
         key,
         val,
       }),
@@ -58,9 +58,9 @@ describe("Server#getSACBalance|getAssetBalance", () => {
 
     const ledgerKey = xdr.LedgerKey.contractData(
       new xdr.LedgerKeyContractData({
-        contract: entry.contractData().contract(),
-        durability: entry.contractData().durability(),
-        key: entry.contractData().key(),
+        contract: entry.contractData.contract,
+        durability: entry.contractData.durability,
+        key: entry.contractData.key,
       }),
     );
 
@@ -75,8 +75,8 @@ describe("Server#getSACBalance|getAssetBalance", () => {
         {
           lastModifiedLedgerSeq: 1,
           liveUntilLedgerSeq: 1000,
-          key: ledgerKey.toXDR("base64"),
-          xdr: entry.toXDR("base64"),
+          key: ledgerKey.toXdr("base64"),
+          xdr: entry.toXdr("base64"),
         },
       ],
     };
@@ -95,7 +95,7 @@ describe("Server#getSACBalance|getAssetBalance", () => {
     const response = await server.getSACBalance(
       contract,
       token,
-      StellarSdk.Networks.TESTNET,
+      Networks.TESTNET,
     );
     expect(response.latestLedger).toBe(1000);
     expect(response.balanceEntry).toBeDefined();
@@ -106,14 +106,14 @@ describe("Server#getSACBalance|getAssetBalance", () => {
       jsonrpc: "2.0",
       id: 1,
       method: "getLedgerEntries",
-      params: { keys: [ledgerKey.toXDR("base64")] },
+      params: { keys: [ledgerKey.toXdr("base64")] },
     });
     expect(mockPost).toHaveBeenCalledTimes(1);
 
     const assetResponse = await server.getAssetBalance(
       contract,
       token,
-      StellarSdk.Networks.TESTNET,
+      Networks.TESTNET,
     );
     expect(assetResponse).to.deep.equal(response);
     expect(mockPost).toHaveBeenCalledTimes(2);
@@ -127,8 +127,8 @@ describe("Server#getSACBalance|getAssetBalance", () => {
         {
           lastModifiedLedgerSeq: 1,
           liveUntilLedgerSeq: 1000,
-          key: ledgerKey.toXDR("base64"),
-          xdr: entry.toXDR("base64"),
+          key: ledgerKey.toXdr("base64"),
+          xdr: entry.toXdr("base64"),
         },
       ],
     };
@@ -136,7 +136,7 @@ describe("Server#getSACBalance|getAssetBalance", () => {
     const networkResponse = {
       data: {
         result: {
-          passphrase: StellarSdk.Networks.TESTNET,
+          passphrase: Networks.TESTNET,
         },
       },
     };

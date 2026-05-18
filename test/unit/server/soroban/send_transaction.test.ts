@@ -3,8 +3,18 @@ import * as StellarSdk from "../../../../src/index.js";
 
 import { serverUrl } from "../../../constants";
 
-const { xdr } = StellarSdk;
-const { Server } = StellarSdk.rpc;
+const {
+  Account,
+  Asset,
+  Keypair,
+  Networks,
+  Operation,
+  TransactionBuilder,
+  TimeoutInfinite,
+  xdr,
+  rpc,
+} = StellarSdk;
+const { Server } = rpc;
 
 describe("Server#sendTransaction", () => {
   let server: any;
@@ -13,30 +23,30 @@ describe("Server#sendTransaction", () => {
   let hash: string;
   let blob: string;
 
-  const keypair = StellarSdk.Keypair.random();
-  const account = new StellarSdk.Account(keypair.publicKey(), "56199647068161");
+  const keypair = Keypair.random();
+  const account = new Account(keypair.publicKey(), "56199647068161");
 
   beforeEach(() => {
     server = new Server(serverUrl);
     mockPost = vi.spyOn(server.httpClient, "post");
-    transaction = new StellarSdk.TransactionBuilder(account, {
+    transaction = new TransactionBuilder(account, {
       fee: "100",
-      networkPassphrase: StellarSdk.Networks.TESTNET,
+      networkPassphrase: Networks.TESTNET,
     })
       .addOperation(
-        StellarSdk.Operation.payment({
+        Operation.payment({
           destination:
             "GASOCNHNNLYFNMDJYQ3XFMI7BYHIOCFW3GJEOWRPEGK2TDPGTG2E5EDW",
-          asset: StellarSdk.Asset.native(),
+          asset: Asset.native(),
           amount: "100.50",
         }),
       )
-      .setTimeout(StellarSdk.TimeoutInfinite)
+      .setTimeout(TimeoutInfinite)
       .build();
     transaction.sign(keypair);
 
     hash = transaction.hash().toString("hex");
-    blob = transaction.toEnvelope().toXDR().toString("base64");
+    blob = transaction.toEnvelope().toXdr("base64");
   });
 
   afterEach(() => {
@@ -66,9 +76,9 @@ describe("Server#sendTransaction", () => {
 
   it("encodes the error result", async () => {
     const txResult = new xdr.TransactionResult({
-      feeCharged: new xdr.Int64(1),
+      feeCharged: 1n,
       result: xdr.TransactionResultResult.txSorobanInvalid(),
-      ext: new (xdr.TransactionResultExt as any)(0),
+      ext: xdr.TransactionResultExt.v0(),
     });
 
     const mockResponse = {
@@ -77,7 +87,7 @@ describe("Server#sendTransaction", () => {
         result: {
           id: hash,
           status: "ERROR",
-          errorResultXdr: txResult.toXDR("base64"),
+          errorResultXdr: txResult.toXdr("base64"),
           diagnosticEventsXdr: [
             "AAAAAQAAAAAAAAAAAAAAAgAAAAAAAAADAAAADwAAAAdmbl9jYWxsAAAAAA0AAAAgr/p6gt6h8MrmSw+WNJnu3+sCP9dHXx7jR8IH0sG6Cy0AAAAPAAAABWhlbGxvAAAAAAAADwAAAAVBbG9oYQAAAA==",
           ],

@@ -9,7 +9,7 @@ import {
   generateFundedKeypair,
   installContract,
 } from "./util.js";
-import { Address, contract } from "../../../lib/esm/index.js";
+import { Address, contract } from "../../../src/index.js";
 
 const CLI_PATH = path.resolve(__dirname, "../../../bin/stellar-js");
 

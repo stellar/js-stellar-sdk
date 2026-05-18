@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { Operation } from "../../../../src/base/operation.js";
 import { Asset } from "../../../../src/base/asset.js";
-import xdr from "../../../../src/base/xdr.js";
+import * as xdr from "../../../../src/xdr/index.js";
 import {
   encodeMuxedAccountToAddress,
   encodeMuxedAccount,
@@ -15,10 +15,10 @@ describe("Operation.clawback()", () => {
 
   it("creates a clawback operation", () => {
     const op = Operation.clawback({ from: account, amount, asset });
-    const xdrHex = op.toXDR("hex");
-    const operation = xdr.Operation.fromXDR(Buffer.from(xdrHex, "hex"));
+    const xdrHex = op.toXdr("hex");
+    const operation = xdr.Operation.fromXdr(Buffer.from(xdrHex, "hex"));
     const obj = expectOperationType(
-      Operation.fromXDRObject(operation),
+      Operation.fromXdrObject(operation),
       "clawback",
     );
     expect(obj.asset.equals(asset)).toBe(true);
@@ -31,9 +31,9 @@ describe("Operation.clawback()", () => {
       encodeMuxedAccount(account, "1"),
     );
     const op = Operation.clawback({ from: muxedFrom, amount, asset });
-    const xdrHex = op.toXDR("hex");
-    const operation = xdr.Operation.fromXDR(xdrHex, "hex");
-    expectOperationType(Operation.fromXDRObject(operation), "clawback");
+    const xdrHex = op.toXdr("hex");
+    const operation = xdr.Operation.fromXdr(xdrHex, "hex");
+    expectOperationType(Operation.fromXdrObject(operation), "clawback");
   });
 
   it("supports a source account", () => {
@@ -43,10 +43,10 @@ describe("Operation.clawback()", () => {
       asset,
       source: account,
     });
-    const xdrHex = op.toXDR("hex");
-    const operation = xdr.Operation.fromXDR(xdrHex, "hex");
+    const xdrHex = op.toXdr("hex");
+    const operation = xdr.Operation.fromXdr(xdrHex, "hex");
     const obj = expectOperationType(
-      Operation.fromXDRObject(operation),
+      Operation.fromXdrObject(operation),
       "clawback",
     );
     expect(obj.source).toBe(account);
@@ -90,8 +90,8 @@ describe("Operation.clawback()", () => {
 
   it("roundtrips through XDR hex encoding", () => {
     const op = Operation.clawback({ from: account, amount, asset });
-    const hex = op.toXDR("hex");
-    const roundtripped = xdr.Operation.fromXDR(hex, "hex");
-    expect(roundtripped.body().switch().name).toBe("clawback");
+    const hex = op.toXdr("hex");
+    const roundtripped = xdr.Operation.fromXdr(hex, "hex");
+    expect(roundtripped.body.type).toBe("clawback");
   });
 });

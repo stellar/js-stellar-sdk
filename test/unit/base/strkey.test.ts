@@ -5,7 +5,7 @@ import {
   encodeMuxedAccountToAddress,
   extractBaseAddress,
 } from "../../../src/base/util/decode_encode_muxed_account.js";
-import xdr from "../../../src/base/xdr.js";
+import * as xdr from "../../../src/xdr/index.js";
 
 const PUBKEY = "GA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJVSGZ";
 const MPUBKEY =
@@ -248,11 +248,11 @@ describe("StrKey", () => {
     it("lets G... accounts pass through (unmuxed)", () => {
       const decoded = decodeAddressToMuxedAccount(PUBKEY);
 
-      expect(xdr.MuxedAccount.isValid(decoded)).toBe(true);
-      expect(decoded.switch()).toEqual(xdr.CryptoKeyType.keyTypeEd25519());
-      expect(
-        decoded.ed25519().equals(StrKey.decodeEd25519PublicKey(PUBKEY)),
-      ).toBe(true);
+      expect(decoded).toBeInstanceOf(xdr.MuxedAccount);
+      expect(decoded.type).toBe("keyTypeEd25519");
+      expect(Array.from((decoded as xdr.MuxedAccountEd25519).ed25519)).toEqual(
+        Array.from(StrKey.decodeEd25519PublicKey(PUBKEY)),
+      );
       expect(encodeMuxedAccountToAddress(decoded)).toBe(PUBKEY);
     });
 
@@ -262,9 +262,9 @@ describe("StrKey", () => {
     });
 
     it("encodes & decodes unmuxed keys", () => {
-      expect(xdr.MuxedAccount.isValid(unmuxed)).toBe(true);
-      expect(unmuxed.switch()).toEqual(xdr.CryptoKeyType.keyTypeEd25519());
-      expect(unmuxed.ed25519().equals(rawPubkey)).toBe(true);
+      expect(unmuxed).toBeInstanceOf(xdr.MuxedAccount);
+      expect(unmuxed.type).toBe("keyTypeEd25519");
+      expect(Array.from(unmuxed.ed25519)).toEqual(Array.from(rawPubkey));
 
       const pubkey = encodeMuxedAccountToAddress(unmuxed);
       expect(pubkey).toBe(PUBKEY);
@@ -296,13 +296,14 @@ describe("StrKey", () => {
     for (const testCase of cases) {
       it(`encodes & decodes muxed key w/ ID=${testCase.id}`, () => {
         const muxed = decodeAddressToMuxedAccount(testCase.strkey);
-        expect(xdr.MuxedAccount.isValid(muxed)).toBe(true);
-        expect(muxed.switch()).toEqual(xdr.CryptoKeyType.keyTypeMuxedEd25519());
+        expect(muxed).toBeInstanceOf(xdr.MuxedAccount);
+        expect(muxed.type).toBe("keyTypeMuxedEd25519");
 
-        const innerMux = muxed.med25519();
-        const id = xdr.Uint64.fromString(testCase.id);
-        expect(innerMux.ed25519().equals(unmuxed.ed25519())).toBe(true);
-        expect(innerMux.id()).toEqual(id);
+        const innerMux = (muxed as xdr.MuxedAccountMuxedEd25519).med25519;
+        expect(Array.from(innerMux.ed25519)).toEqual(
+          Array.from(unmuxed.ed25519),
+        );
+        expect(innerMux.id).toEqual(BigInt(testCase.id));
 
         const mpubkey = encodeMuxedAccountToAddress(muxed);
         expect(mpubkey).toBe(testCase.strkey);
@@ -332,52 +333,53 @@ describe("StrKey", () => {
     for (const testCase of happyPaths) {
       it(testCase.desc, () => {
         const signedPayloadBuf = StrKey.decodeSignedPayload(testCase.strkey);
-        const signedPayload = xdr.SignerKeyEd25519SignedPayload.fromXDR(
+        const signedPayload = xdr.SignerKeyEd25519SignedPayload.fromXdr(
           signedPayloadBuf,
           "raw",
         );
 
-        const signer = StrKey.encodeEd25519PublicKey(signedPayload.ed25519());
+        const signer = StrKey.encodeEd25519PublicKey(signedPayload.ed25519);
         expect(signer).toBe(testCase.ed25519);
 
-        const payload = signedPayload.payload().toString("hex");
+        const payload = Buffer.from(signedPayload.payload).toString("hex");
         expect(payload).toBe(testCase.payload);
 
-        const str = StrKey.encodeSignedPayload(signedPayload.toXDR("raw"));
+        const str = StrKey.encodeSignedPayload(signedPayload.toXdr("raw"));
         expect(str).toBe(testCase.strkey);
       });
     }
 
     describe("payload bounds", () => {
-      const signedPayload = new xdr.SignerKeyEd25519SignedPayload({
-        ed25519: StrKey.decodeEd25519PublicKey(PUBKEY),
-        payload: Buffer.alloc(0),
-      });
+      const makeSignedPayload = (
+        payload: Buffer,
+      ): xdr.SignerKeyEd25519SignedPayload =>
+        new xdr.SignerKeyEd25519SignedPayload({
+          ed25519: StrKey.decodeEd25519PublicKey(PUBKEY),
+          payload,
+        });
 
       const isValid = (value: xdr.SignerKeyEd25519SignedPayload): boolean => {
         return StrKey.isValidSignedPayload(
-          StrKey.encodeSignedPayload(value.toXDR("raw")),
+          StrKey.encodeSignedPayload(value.toXdr("raw")),
         );
       };
 
       it("invalid with no payload", () => {
-        signedPayload.payload(Buffer.alloc(0));
-        expect(isValid(signedPayload)).toBe(false);
+        expect(isValid(makeSignedPayload(Buffer.alloc(0)))).toBe(false);
       });
 
       it("valid with 1-byte payload", () => {
-        signedPayload.payload(Buffer.alloc(1));
-        expect(isValid(signedPayload)).toBe(true);
+        expect(isValid(makeSignedPayload(Buffer.alloc(1)))).toBe(true);
       });
 
       it("throws with 65-byte payload", () => {
-        signedPayload.payload(Buffer.alloc(65));
-        expect(() => isValid(signedPayload)).toThrow(/XDR Write Error/);
+        expect(() => isValid(makeSignedPayload(Buffer.alloc(65)))).toThrow(
+          /XDR Write Error|exceeds max length|length/i,
+        );
       });
 
       it("valid with 64-byte payload (max)", () => {
-        signedPayload.payload(Buffer.alloc(64));
-        expect(isValid(signedPayload)).toBe(true);
+        expect(isValid(makeSignedPayload(Buffer.alloc(64)))).toBe(true);
       });
     });
   });

@@ -1,13 +1,14 @@
 import { describe, it, expect } from "vitest";
 import { Operation } from "../../../../src/base/operation.js";
 import { Asset } from "../../../../src/base/asset.js";
-import xdr from "../../../../src/base/xdr.js";
+import * as xdr from "../../../../src/xdr/index.js";
 import {
   encodeMuxedAccountToAddress,
   encodeMuxedAccount,
 } from "../../../../src/base/util/decode_encode_muxed_account.js";
 import { expectDefined } from "../support/expect_defined.js";
 import { expectOperationType } from "../support/operation.js";
+import { expectVariant } from "../support/xdr.js";
 
 describe("Operation.pathPaymentStrictReceive()", () => {
   const destination =
@@ -43,26 +44,22 @@ describe("Operation.pathPaymentStrictReceive()", () => {
       destAmount,
       path,
     });
-    const xdrHex = op.toXDR("hex");
-    const operation = xdr.Operation.fromXDR(Buffer.from(xdrHex, "hex"));
+    const xdrHex = op.toXdr("hex");
+    const operation = xdr.Operation.fromXdr(Buffer.from(xdrHex, "hex"));
     const obj = expectOperationType(
-      Operation.fromXDRObject(operation),
+      Operation.fromXdrObject(operation),
       "pathPaymentStrictReceive",
     );
     expect(obj.sendAsset.equals(sendAsset)).toBe(true);
-    expect(
-      (operation.body().value() as xdr.PathPaymentStrictReceiveOp)
-        .sendMax()
-        .toString(),
-    ).toBe("30070000");
+    const body = expectVariant(
+      operation.body,
+      "pathPaymentStrictReceive",
+    ).pathPaymentStrictReceiveOp;
+    expect(body.sendMax.toString()).toBe("30070000");
     expect(obj.sendMax).toBe(sendMax);
     expect(obj.destination).toBe(destination);
     expect(obj.destAsset.equals(destAsset)).toBe(true);
-    expect(
-      (operation.body().value() as xdr.PathPaymentStrictReceiveOp)
-        .destAmount()
-        .toString(),
-    ).toBe("31415000");
+    expect(body.destAmount.toString()).toBe("31415000");
     expect(obj.destAmount).toBe(destAmount);
     expect(expectDefined(obj.path[0]).getCode()).toBe("USD");
     expect(expectDefined(obj.path[0]).getIssuer()).toBe(
@@ -82,10 +79,10 @@ describe("Operation.pathPaymentStrictReceive()", () => {
       destAsset,
       destAmount: "5.0000000",
     });
-    const xdrHex = op.toXDR("hex");
-    const operation = xdr.Operation.fromXDR(xdrHex, "hex");
+    const xdrHex = op.toXdr("hex");
+    const operation = xdr.Operation.fromXdr(xdrHex, "hex");
     const obj = expectOperationType(
-      Operation.fromXDRObject(operation),
+      Operation.fromXdrObject(operation),
       "pathPaymentStrictReceive",
     );
     expect(obj.path).toHaveLength(0);
@@ -109,9 +106,9 @@ describe("Operation.pathPaymentStrictReceive()", () => {
       source: muxedSource,
     });
 
-    const packed = xdr.Operation.fromXDR(op.toXDR("hex"), "hex");
+    const packed = xdr.Operation.fromXdr(op.toXdr("hex"), "hex");
     const unpacked = expectOperationType(
-      Operation.fromXDRObject(packed),
+      Operation.fromXdrObject(packed),
       "pathPaymentStrictReceive",
     );
     expect(unpacked.source).toBe(muxedSource);
@@ -189,8 +186,8 @@ describe("Operation.pathPaymentStrictReceive()", () => {
       destAmount: "3.1415000",
       path,
     });
-    const hex = op.toXDR("hex");
-    const roundtripped = xdr.Operation.fromXDR(hex, "hex");
-    expect(roundtripped.body().switch().name).toBe("pathPaymentStrictReceive");
+    const hex = op.toXdr("hex");
+    const roundtripped = xdr.Operation.fromXdr(hex, "hex");
+    expect(roundtripped.body.type).toBe("pathPaymentStrictReceive");
   });
 });

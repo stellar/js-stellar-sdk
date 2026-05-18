@@ -2,38 +2,32 @@ import { describe, it, expect } from "vitest";
 import { humanizeEvents } from "../../../src/base/events.js";
 import { nativeToScVal, scValToNative } from "../../../src/base/scval.js";
 import { StrKey } from "../../../src/base/strkey.js";
-import xdr from "../../../src/base/xdr.js";
+import * as xdr from "../../../src/xdr/index.js";
 
 describe("humanizing raw events", () => {
   const contractId = "CA3D5KRYM6CB7OWQ6TWYRR3Z4T7GNZLKERYNZGGA5SOAOPIFY6YQGAXE";
-  const topics1 = nativeToScVal([1, 2, 3]).value() as xdr.ScVal[];
+  const topics1 = nativeToScVal([1, 2, 3]).value as xdr.ScVal[];
   const data1 = nativeToScVal({ hello: "world" });
 
-  // workaround for xdr.ContractEventBody.0(...) being invalid
-  const cloneAndSet = (newBody: {
+  const makeBody = (newBody: {
     topics: xdr.ScVal[];
     data: xdr.ScVal;
-  }): xdr.ContractEventBody => {
-    const clone = new xdr.ContractEventBody(
-      0,
+  }): xdr.ContractEventBody =>
+    xdr.ContractEventBody.v0(
       new xdr.ContractEventV0({
-        topics: [],
-        data: xdr.ScVal.scvVoid(),
+        topics: newBody.topics,
+        data: newBody.data,
       }),
     );
-    clone.v0().topics(newBody.topics);
-    clone.v0().data(newBody.data);
-    return clone;
-  };
 
   const events = [
     new xdr.DiagnosticEvent({
       inSuccessfulContractCall: true,
       event: new xdr.ContractEvent({
-        ext: new xdr.ExtensionPoint(0),
-        contractId: StrKey.decodeContract(contractId) as unknown as xdr.Hash,
-        type: xdr.ContractEventType.contract(),
-        body: cloneAndSet({
+        ext: xdr.ExtensionPoint.v0(),
+        contractId: new xdr.Hash(StrKey.decodeContract(contractId)),
+        type: xdr.ContractEventType.contract,
+        body: makeBody({
           topics: topics1,
           data: data1,
         }),
@@ -42,10 +36,10 @@ describe("humanizing raw events", () => {
     new xdr.DiagnosticEvent({
       inSuccessfulContractCall: true,
       event: new xdr.ContractEvent({
-        ext: new xdr.ExtensionPoint(0),
+        ext: xdr.ExtensionPoint.v0(),
         contractId: null,
-        type: xdr.ContractEventType.contract(),
-        body: cloneAndSet({
+        type: xdr.ContractEventType.contract,
+        body: makeBody({
           topics: topics1,
           data: data1,
         }),
@@ -55,7 +49,7 @@ describe("humanizing raw events", () => {
 
   it("built valid events for testing", () => {
     // sanity check: valid xdr
-    events.map((e) => e.toXDR());
+    events.map((e) => e.toXdr());
   });
 
   it("makes diagnostic events human-readable", () => {
@@ -78,19 +72,19 @@ describe("humanizing raw events", () => {
   it("makes contract events human-readable", () => {
     const contractEvents = [
       new xdr.ContractEvent({
-        ext: new xdr.ExtensionPoint(0),
-        contractId: StrKey.decodeContract(contractId) as unknown as xdr.Hash,
-        type: xdr.ContractEventType.contract(),
-        body: cloneAndSet({
+        ext: xdr.ExtensionPoint.v0(),
+        contractId: new xdr.Hash(StrKey.decodeContract(contractId)),
+        type: xdr.ContractEventType.contract,
+        body: makeBody({
           topics: topics1,
           data: data1,
         }),
       }),
       new xdr.ContractEvent({
-        ext: new xdr.ExtensionPoint(0),
+        ext: xdr.ExtensionPoint.v0(),
         contractId: null,
-        type: xdr.ContractEventType.contract(),
-        body: cloneAndSet({
+        type: xdr.ContractEventType.contract,
+        body: makeBody({
           topics: topics1,
           data: data1,
         }),
@@ -116,10 +110,10 @@ describe("humanizing raw events", () => {
   it("handles system event type", () => {
     const systemEvents = [
       new xdr.ContractEvent({
-        ext: new xdr.ExtensionPoint(0),
+        ext: xdr.ExtensionPoint.v0(),
         contractId: null,
-        type: xdr.ContractEventType.system(),
-        body: cloneAndSet({
+        type: xdr.ContractEventType.system,
+        body: makeBody({
           topics: topics1,
           data: data1,
         }),

@@ -1,5 +1,5 @@
 import { expect, beforeAll, describe, it } from "vitest";
-import { Address, contract } from "../../../lib/esm/index.js";
+import { Address, contract } from "../../../src/index.js";
 import { clientFor } from "./util.js";
 
 let context: {

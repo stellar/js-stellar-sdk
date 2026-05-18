@@ -1,5 +1,5 @@
 import { expect, describe, it, beforeAll } from "vitest";
-import { contract, rpc } from "../../../lib/esm/index.js";
+import { contract, rpc } from "../../../src/index.js";
 import { clientFor, generateFundedKeypair } from "./util.js";
 
 const amountAToSwap = 2n;
@@ -117,7 +117,7 @@ describe("Swap Contract Tests", () => {
     expect(needsNonInvokerSigningBy.indexOf(context.bob.publicKey())).toBe(1);
 
     // root serializes & sends to alice
-    const xdrFromRoot = tx.toXDR();
+    const xdrFromRoot = tx.toXdr();
     const { client: clientAlice } = await clientFor("swap", {
       keypair: context.alice,
       contractId: context.swapId,
@@ -126,7 +126,7 @@ describe("Swap Contract Tests", () => {
     await txAlice.signAuthEntries();
 
     // alice serializes & sends to bob
-    const xdrFromAlice = txAlice.toXDR();
+    const xdrFromAlice = txAlice.toXdr();
     const { client: clientBob } = await clientFor("swap", {
       keypair: context.bob,
       contractId: context.swapId,
@@ -135,7 +135,7 @@ describe("Swap Contract Tests", () => {
     await txBob.signAuthEntries();
 
     // bob serializes & sends back to root
-    const xdrFromBob = txBob.toXDR();
+    const xdrFromBob = txBob.toXdr();
     const { client: clientRoot } = await clientFor("swap", {
       keypair: context.root,
       contractId: context.swapId,

@@ -16,7 +16,7 @@ describe("BindingGenerator", () => {
         outputs: [],
       }),
     );
-    return new contract.Spec([funcSpec.toXDR("base64")]);
+    return new contract.Spec([funcSpec.toXdr("base64")]);
   };
 
   // Helper to create a function spec entry
@@ -102,7 +102,7 @@ describe("BindingGenerator", () => {
       const structSpec = createStructSpec("MyStruct", [
         { name: "value", type: xdr.ScSpecTypeDef.scSpecTypeU32() },
       ]);
-      const spec = new contract.Spec([structSpec.toXDR("base64")]);
+      const spec = new contract.Spec([structSpec.toXdr("base64")]);
       const generator = BindingGenerator.fromSpec(spec);
       const result = generator.generate(defaultOptions);
       expect(result.index).toContain('export * from "./types.js"');
@@ -114,7 +114,7 @@ describe("BindingGenerator", () => {
         [],
         [xdr.ScSpecTypeDef.scSpecTypeString()],
       );
-      const spec = new contract.Spec([funcSpec.toXDR("base64")]);
+      const spec = new contract.Spec([funcSpec.toXdr("base64")]);
       const generator = BindingGenerator.fromSpec(spec);
       const result = generator.generate(defaultOptions);
       expect(result.index).not.toContain('export * from "./types.js"');
@@ -129,7 +129,7 @@ describe("BindingGenerator", () => {
         [xdr.ScSpecTypeDef.scSpecTypeU32()],
         "Get the current value",
       );
-      const spec = new contract.Spec([funcSpec.toXDR("base64")]);
+      const spec = new contract.Spec([funcSpec.toXdr("base64")]);
       const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
 
       expect(result.client).toContain("get_value(");
@@ -143,7 +143,7 @@ describe("BindingGenerator", () => {
         [{ name: "value", type: xdr.ScSpecTypeDef.scSpecTypeU32() }],
         [],
       );
-      const spec = new contract.Spec([funcSpec.toXDR("base64")]);
+      const spec = new contract.Spec([funcSpec.toXdr("base64")]);
       const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
 
       expect(result.client).toContain("set_value(");
@@ -156,7 +156,7 @@ describe("BindingGenerator", () => {
         { name: "to", type: xdr.ScSpecTypeDef.scSpecTypeAddress() },
         { name: "amount", type: xdr.ScSpecTypeDef.scSpecTypeI128() },
       ]);
-      const spec = new contract.Spec([funcSpec.toXDR("base64")]);
+      const spec = new contract.Spec([funcSpec.toXdr("base64")]);
       const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
 
       expect(result.client).toContain("transfer(");
@@ -334,7 +334,7 @@ describe("BindingGenerator", () => {
             const funcSpec = createFunctionSpec("test_fn", [
               { name: "input", type },
             ]);
-            const spec = new contract.Spec([funcSpec.toXDR("base64")]);
+            const spec = new contract.Spec([funcSpec.toXdr("base64")]);
             const result =
               BindingGenerator.fromSpec(spec).generate(defaultOptions);
             expect(result.client).toContain(`input: ${expectedInput}`);
@@ -342,7 +342,7 @@ describe("BindingGenerator", () => {
 
           it(`maps ${name} output to ${expectedOutput}`, () => {
             const funcSpec = createFunctionSpec("test_fn", [], [type]);
-            const spec = new contract.Spec([funcSpec.toXDR("base64")]);
+            const spec = new contract.Spec([funcSpec.toXdr("base64")]);
             const result =
               BindingGenerator.fromSpec(spec).generate(defaultOptions);
             expect(result.client).toContain(
@@ -358,7 +358,7 @@ describe("BindingGenerator", () => {
           [],
           [xdr.ScSpecTypeDef.scSpecTypeVoid()],
         );
-        const spec = new contract.Spec([funcSpec.toXDR("base64")]);
+        const spec = new contract.Spec([funcSpec.toXdr("base64")]);
         const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
         expect(result.client).toContain("Promise<AssembledTransaction<null>>");
       });
@@ -377,8 +377,8 @@ describe("BindingGenerator", () => {
             [udtType],
           );
           const spec = new contract.Spec([
-            structSpec.toXDR("base64"),
-            funcSpec.toXDR("base64"),
+            structSpec.toXdr("base64"),
+            funcSpec.toXdr("base64"),
           ]);
           const result =
             BindingGenerator.fromSpec(spec).generate(defaultOptions);
@@ -409,8 +409,8 @@ describe("BindingGenerator", () => {
             [udtType],
           );
           const spec = new contract.Spec([
-            enumSpec.toXDR("base64"),
-            funcSpec.toXDR("base64"),
+            enumSpec.toXdr("base64"),
+            funcSpec.toXdr("base64"),
           ]);
           const result =
             BindingGenerator.fromSpec(spec).generate(defaultOptions);
@@ -442,8 +442,8 @@ describe("BindingGenerator", () => {
             [udtType],
           );
           const spec = new contract.Spec([
-            unionSpec.toXDR("base64"),
-            funcSpec.toXDR("base64"),
+            unionSpec.toXdr("base64"),
+            funcSpec.toXdr("base64"),
           ]);
           const result =
             BindingGenerator.fromSpec(spec).generate(defaultOptions);
@@ -470,7 +470,7 @@ describe("BindingGenerator", () => {
         { name: "admin", type: xdr.ScSpecTypeDef.scSpecTypeAddress() },
         { name: "initial_value", type: xdr.ScSpecTypeDef.scSpecTypeU32() },
       ]);
-      const spec = new contract.Spec([constructorSpec.toXDR("base64")]);
+      const spec = new contract.Spec([constructorSpec.toXdr("base64")]);
       const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
 
       expect(result.client).toContain("static deploy<T = Client>");
@@ -487,7 +487,7 @@ describe("BindingGenerator", () => {
         [],
         [xdr.ScSpecTypeDef.scSpecTypeBool()],
       );
-      const spec = new contract.Spec([funcSpec.toXDR("base64")]);
+      const spec = new contract.Spec([funcSpec.toXdr("base64")]);
       const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
 
       expect(result.client).toContain("public readonly fromJSON = {");
@@ -502,8 +502,8 @@ describe("BindingGenerator", () => {
         [xdr.ScSpecTypeDef.scSpecTypeString()],
       );
       const spec = new contract.Spec([
-        constructorSpec.toXDR("base64"),
-        funcSpec.toXDR("base64"),
+        constructorSpec.toXdr("base64"),
+        funcSpec.toXdr("base64"),
       ]);
       const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
 
@@ -529,7 +529,7 @@ describe("BindingGenerator", () => {
         [],
         [xdr.ScSpecTypeDef.scSpecTypeAddress()],
       );
-      const spec = new contract.Spec([funcSpec.toXDR("base64")]);
+      const spec = new contract.Spec([funcSpec.toXdr("base64")]);
       const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
 
       expect(result.client).toContain("Address");
@@ -549,7 +549,7 @@ describe("BindingGenerator", () => {
           ),
         ],
       );
-      const spec = new contract.Spec([funcSpec.toXDR("base64")]);
+      const spec = new contract.Spec([funcSpec.toXdr("base64")]);
       const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
 
       expect(result.client).toContain("Result");
@@ -561,7 +561,7 @@ describe("BindingGenerator", () => {
         [],
         [xdr.ScSpecTypeDef.scSpecTypeBytes()],
       );
-      const spec = new contract.Spec([funcSpec.toXDR("base64")]);
+      const spec = new contract.Spec([funcSpec.toXdr("base64")]);
       const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
 
       expect(result.client).toContain("Buffer");
@@ -582,8 +582,8 @@ describe("BindingGenerator", () => {
         ],
       );
       const spec = new contract.Spec([
-        structSpec.toXDR("base64"),
-        funcSpec.toXDR("base64"),
+        structSpec.toXdr("base64"),
+        funcSpec.toXdr("base64"),
       ]);
       const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
 
@@ -599,7 +599,7 @@ describe("BindingGenerator", () => {
         [],
         [xdr.ScSpecTypeDef.scSpecTypeU32()],
       );
-      const spec = new contract.Spec([funcSpec.toXDR("base64")]);
+      const spec = new contract.Spec([funcSpec.toXdr("base64")]);
       const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
 
       expect(result.client).toContain("class_(");
@@ -611,7 +611,7 @@ describe("BindingGenerator", () => {
         [],
         [xdr.ScSpecTypeDef.scSpecTypeU32()],
       );
-      const spec = new contract.Spec([funcSpec.toXDR("base64")]);
+      const spec = new contract.Spec([funcSpec.toXdr("base64")]);
       const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
 
       expect(result.client).toContain("_123method(");
@@ -621,7 +621,7 @@ describe("BindingGenerator", () => {
       const structSpec = createStructSpec("class", [
         { name: "value", type: xdr.ScSpecTypeDef.scSpecTypeU32() },
       ]);
-      const spec = new contract.Spec([structSpec.toXDR("base64")]);
+      const spec = new contract.Spec([structSpec.toXdr("base64")]);
       const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
 
       expect(result.types).toContain("export interface class_");
@@ -636,7 +636,7 @@ describe("BindingGenerator", () => {
         [xdr.ScSpecTypeDef.scSpecTypeU32()],
         "This doc has */ which would break JSDoc",
       );
-      const spec = new contract.Spec([funcSpec.toXDR("base64")]);
+      const spec = new contract.Spec([funcSpec.toXdr("base64")]);
       const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
 
       // Should escape */ to prevent breaking the JSDoc block
@@ -651,7 +651,7 @@ describe("BindingGenerator", () => {
         [xdr.ScSpecTypeDef.scSpecTypeU32()],
         "Contact user@stellar.org for help",
       );
-      const spec = new contract.Spec([funcSpec.toXDR("base64")]);
+      const spec = new contract.Spec([funcSpec.toXdr("base64")]);
       const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
 
       // Should escape @ in email addresses (but not if it matches a JSDoc tag like @example)
@@ -665,7 +665,7 @@ describe("BindingGenerator", () => {
         [xdr.ScSpecTypeDef.scSpecTypeU32()],
         "@deprecated Use new_method instead\n@see new_method",
       );
-      const spec = new contract.Spec([funcSpec.toXDR("base64")]);
+      const spec = new contract.Spec([funcSpec.toXdr("base64")]);
       const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
 
       // Valid JSDoc tags should not be escaped
@@ -688,7 +688,7 @@ describe("BindingGenerator", () => {
           ],
         }),
       );
-      const spec = new contract.Spec([structSpec.toXDR("base64")]);
+      const spec = new contract.Spec([structSpec.toXdr("base64")]);
       const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
 
       expect(result.types).toContain("* /");
@@ -709,7 +709,7 @@ describe("BindingGenerator", () => {
           ],
         }),
       );
-      const spec = new contract.Spec([structSpec.toXDR("base64")]);
+      const spec = new contract.Spec([structSpec.toXdr("base64")]);
       const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
 
       expect(result.types).toContain("* /");
@@ -731,7 +731,7 @@ describe("BindingGenerator", () => {
           ],
         }),
       );
-      const spec = new contract.Spec([enumSpec.toXDR("base64")]);
+      const spec = new contract.Spec([enumSpec.toXdr("base64")]);
       const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
 
       expect(result.types).toContain("* /");
@@ -746,7 +746,7 @@ describe("BindingGenerator", () => {
           { name: "name", type: xdr.ScSpecTypeDef.scSpecTypeString() },
           { name: "active", type: xdr.ScSpecTypeDef.scSpecTypeBool() },
         ]);
-        const spec = new contract.Spec([structSpec.toXDR("base64")]);
+        const spec = new contract.Spec([structSpec.toXdr("base64")]);
         const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
 
         expect(result.types).toContain("export interface User");
@@ -768,8 +768,8 @@ describe("BindingGenerator", () => {
           },
         ]);
         const spec = new contract.Spec([
-          innerStruct.toXDR("base64"),
-          outerStruct.toXDR("base64"),
+          innerStruct.toXdr("base64"),
+          outerStruct.toXdr("base64"),
         ]);
         const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
 
@@ -798,7 +798,7 @@ describe("BindingGenerator", () => {
             ),
           },
         ]);
-        const spec = new contract.Spec([structSpec.toXDR("base64")]);
+        const spec = new contract.Spec([structSpec.toXdr("base64")]);
         const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
 
         expect(result.types).toContain(
@@ -825,7 +825,7 @@ describe("BindingGenerator", () => {
             ),
           },
         ]);
-        const spec = new contract.Spec([structSpec.toXDR("base64")]);
+        const spec = new contract.Spec([structSpec.toXdr("base64")]);
         const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
 
         expect(result.types).toContain("export type TupleStruct");
@@ -861,7 +861,7 @@ describe("BindingGenerator", () => {
             ],
           }),
         );
-        const spec = new contract.Spec([enumSpec.toXDR("base64")]);
+        const spec = new contract.Spec([enumSpec.toXdr("base64")]);
         const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
 
         expect(result.types).toContain("export enum Status");
@@ -888,7 +888,7 @@ describe("BindingGenerator", () => {
             ],
           }),
         );
-        const spec = new contract.Spec([unionSpec.toXDR("base64")]);
+        const spec = new contract.Spec([unionSpec.toXdr("base64")]);
         const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
 
         expect(result.types).toContain("export type MyResult");
@@ -916,7 +916,7 @@ describe("BindingGenerator", () => {
             ],
           }),
         );
-        const spec = new contract.Spec([unionSpec.toXDR("base64")]);
+        const spec = new contract.Spec([unionSpec.toXdr("base64")]);
         const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
 
         expect(result.types).toContain("export type MyOption");
@@ -948,7 +948,7 @@ describe("BindingGenerator", () => {
             ],
           }),
         );
-        const spec = new contract.Spec([errorSpec.toXDR("base64")]);
+        const spec = new contract.Spec([errorSpec.toXdr("base64")]);
         const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
 
         expect(result.types).toContain("export const ContractError");
@@ -964,7 +964,7 @@ describe("BindingGenerator", () => {
         const structSpec = createStructSpec("MyStruct", [
           { name: "addr", type: xdr.ScSpecTypeDef.scSpecTypeAddress() },
         ]);
-        const spec = new contract.Spec([structSpec.toXDR("base64")]);
+        const spec = new contract.Spec([structSpec.toXdr("base64")]);
         const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
 
         expect(result.types).toContain("Address");
@@ -983,7 +983,7 @@ describe("BindingGenerator", () => {
             ),
           },
         ]);
-        const spec = new contract.Spec([structSpec.toXDR("base64")]);
+        const spec = new contract.Spec([structSpec.toXdr("base64")]);
         const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
 
         expect(result.types).toContain("Result");
@@ -1040,7 +1040,7 @@ describe("BindingGenerator", () => {
           ],
         }),
       );
-      const spec = new contract.Spec([errorSpec.toXDR("base64")]);
+      const spec = new contract.Spec([errorSpec.toXdr("base64")]);
       const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
 
       expect(result.types).toContain("export const Errors");
@@ -1055,7 +1055,7 @@ describe("BindingGenerator", () => {
           type: xdr.ScSpecTypeDef.scSpecTypeU32(),
         },
       ]);
-      const spec = new contract.Spec([structSpec.toXDR("base64")]);
+      const spec = new contract.Spec([structSpec.toXdr("base64")]);
       const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
 
       // Special characters should be replaced with underscores
@@ -1079,7 +1079,7 @@ describe("BindingGenerator", () => {
           ],
         }),
       );
-      const spec = new contract.Spec([unionSpec.toXDR("base64")]);
+      const spec = new contract.Spec([unionSpec.toXdr("base64")]);
       const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
 
       expect(result.types).toContain('case\\"with\\"quotes');
@@ -1101,7 +1101,7 @@ describe("BindingGenerator", () => {
           ],
         }),
       );
-      const spec = new contract.Spec([enumSpec.toXDR("base64")]);
+      const spec = new contract.Spec([enumSpec.toXdr("base64")]);
       const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
 
       expect(result.types).toContain("Case___0__extra = 0");
@@ -1123,7 +1123,7 @@ describe("BindingGenerator", () => {
           ],
         }),
       );
-      const spec = new contract.Spec([errorSpec.toXDR("base64")]);
+      const spec = new contract.Spec([errorSpec.toXdr("base64")]);
       const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
 
       expect(result.types).toContain("\\u2028");
@@ -1148,7 +1148,7 @@ describe("BindingGenerator", () => {
           ],
         }),
       );
-      const spec = new contract.Spec([errorSpec.toXDR("base64")]);
+      const spec = new contract.Spec([errorSpec.toXdr("base64")]);
       const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
 
       // Backslashes should be double-escaped
@@ -1162,7 +1162,7 @@ describe("BindingGenerator", () => {
           type: xdr.ScSpecTypeDef.scSpecTypeU32(),
         },
       ]);
-      const spec = new contract.Spec([structSpec.toXDR("base64")]);
+      const spec = new contract.Spec([structSpec.toXdr("base64")]);
       const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
 
       expect(result.types).toContain("_unnamed: number");
@@ -1218,7 +1218,7 @@ describe("BindingGenerator", () => {
         createFunctionSpec("name", [], [xdr.ScSpecTypeDef.scSpecTypeString()]),
       ];
 
-      const spec = new contract.Spec(specs.map((s) => s.toXDR("base64")));
+      const spec = new contract.Spec(specs.map((s) => s.toXdr("base64")));
       const result = BindingGenerator.fromSpec(spec).generate({
         contractName: "my-token",
       });

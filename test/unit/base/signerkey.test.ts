@@ -1,37 +1,37 @@
 import { describe, expect, it } from "vitest";
 import { SignerKey } from "../../../src/base/signerkey.js";
-import xdr from "../../../src/base/xdr.js";
+import * as xdr from "../../../src/xdr/index.js";
 
 describe("SignerKey", () => {
   describe("encode/decode roundtrip", () => {
     const testCases = [
       {
         strkey: "GA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJVSGZ",
-        type: xdr.SignerKeyType.signerKeyTypeEd25519(),
+        type: "signerKeyTypeEd25519",
       },
       {
         strkey: "TBU2RRGLXH3E5CQHTD3ODLDF2BWDCYUSSBLLZ5GNW7JXHDIYKXZWHXL7",
-        type: xdr.SignerKeyType.signerKeyTypePreAuthTx(),
+        type: "signerKeyTypePreAuthTx",
       },
       {
         strkey: "XBU2RRGLXH3E5CQHTD3ODLDF2BWDCYUSSBLLZ5GNW7JXHDIYKXZWGTOG",
-        type: xdr.SignerKeyType.signerKeyTypeHashX(),
+        type: "signerKeyTypeHashX",
       },
       {
         strkey:
           "PA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJUAAAAAQACAQDAQCQMBYIBEFAWDANBYHRAEISCMKBKFQXDAMRUGY4DUPB6IBZGM",
-        type: xdr.SignerKeyType.signerKeyTypeEd25519SignedPayload(),
+        type: "signerKeyTypeEd25519SignedPayload",
       },
     ] as const;
 
     for (const testCase of testCases) {
       it(`works for ${testCase.strkey.slice(0, 5)}...`, () => {
         const signerKey = SignerKey.decodeAddress(testCase.strkey);
-        expect(signerKey.switch()).toEqual(testCase.type);
+        expect(signerKey.type).toBe(testCase.type);
 
-        const rawXdr = signerKey.toXDR("raw");
-        const rawSignerKey = xdr.SignerKey.fromXDR(rawXdr, "raw");
-        expect(rawSignerKey).toEqual(signerKey);
+        const rawXdr = signerKey.toXdr("raw");
+        const rawSignerKey = xdr.SignerKey.fromXdr(rawXdr);
+        expect(rawSignerKey.equals(signerKey)).toBe(true);
 
         const address = SignerKey.encodeSignerKey(signerKey);
         expect(address).toBe(testCase.strkey);

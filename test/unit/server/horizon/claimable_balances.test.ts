@@ -1,7 +1,7 @@
 import { describe, it, beforeEach, afterEach, expect, vi } from "vitest";
 import * as StellarSdk from "../../../../src/index.js";
 
-const { Horizon } = StellarSdk;
+const { Horizon, Config, Asset } = StellarSdk;
 
 describe("ClaimableBalanceCallBuilder", () => {
   let server: any;
@@ -10,7 +10,7 @@ describe("ClaimableBalanceCallBuilder", () => {
   beforeEach(() => {
     server = new Horizon.Server("https://horizon-live.stellar.org:1337");
     mockGet = vi.spyOn(server.httpClient, "get");
-    StellarSdk.Config.setDefault();
+    Config.setDefault();
   });
 
   afterEach(() => {
@@ -167,7 +167,7 @@ describe("ClaimableBalanceCallBuilder", () => {
     const response = await server
       .claimableBalances()
       .asset(
-        new StellarSdk.Asset(
+        new Asset(
           "USD",
           "GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD",
         ),

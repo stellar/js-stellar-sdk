@@ -1,8 +1,9 @@
 import { describe, it, expect } from "vitest";
 import { Operation } from "../../../../src/base/operation.js";
 import { Asset } from "../../../../src/base/asset.js";
-import xdr from "../../../../src/base/xdr.js";
+import * as xdr from "../../../../src/xdr/index.js";
 import { expectOperationType } from "../support/operation.js";
+import { expectVariant } from "../support/xdr.js";
 
 describe("Operation.setTrustLineFlags()", () => {
   const account = "GDGU5OAPHNPU5UCLE5RDJHG7PXZFQYWKCFOEXSXNMR6KRQRI5T6XXCD7";
@@ -18,16 +19,19 @@ describe("Operation.setTrustLineFlags()", () => {
         clawbackEnabled: false,
       },
     });
-    const opBody = op.body().setTrustLineFlagsOp();
+    const opBody = expectVariant(
+      op.body,
+      "setTrustLineFlags",
+    ).setTrustLineFlagsOp;
     // authorized (1) | clawbackEnabled (4) = 5
-    expect(opBody.clearFlags()).toBe(1 | 4);
+    expect(opBody.clearFlags).toBe(1 | 4);
     // authorizedToMaintainLiabilities (2)
-    expect(opBody.setFlags()).toBe(2);
+    expect(opBody.setFlags).toBe(2);
 
-    const xdrHex = op.toXDR("hex");
-    const operation = xdr.Operation.fromXDR(Buffer.from(xdrHex, "hex"));
+    const xdrHex = op.toXdr("hex");
+    const operation = xdr.Operation.fromXdr(Buffer.from(xdrHex, "hex"));
     const obj = expectOperationType(
-      Operation.fromXDRObject(operation),
+      Operation.fromXdrObject(operation),
       "setTrustLineFlags",
     );
     expect(obj.asset.equals(asset)).toBe(true);
@@ -45,13 +49,16 @@ describe("Operation.setTrustLineFlags()", () => {
         authorized: true,
       },
     });
-    const opBody = op.body().setTrustLineFlagsOp();
-    expect(opBody.setFlags()).toBe(1);
+    const opBody = expectVariant(
+      op.body,
+      "setTrustLineFlags",
+    ).setTrustLineFlagsOp;
+    expect(opBody.setFlags).toBe(1);
 
-    const xdrHex = op.toXDR("hex");
-    const operation = xdr.Operation.fromXDR(Buffer.from(xdrHex, "hex"));
+    const xdrHex = op.toXdr("hex");
+    const operation = xdr.Operation.fromXdr(Buffer.from(xdrHex, "hex"));
     const obj = expectOperationType(
-      Operation.fromXDRObject(operation),
+      Operation.fromXdrObject(operation),
       "setTrustLineFlags",
     );
     expect(obj.asset.equals(asset)).toBe(true);
@@ -69,10 +76,10 @@ describe("Operation.setTrustLineFlags()", () => {
       flags: { authorized: true },
       source,
     });
-    const xdrHex = op.toXDR("hex");
-    const operation = xdr.Operation.fromXDR(Buffer.from(xdrHex, "hex"));
+    const xdrHex = op.toXdr("hex");
+    const operation = xdr.Operation.fromXdr(Buffer.from(xdrHex, "hex"));
     const obj = expectOperationType(
-      Operation.fromXDRObject(operation),
+      Operation.fromXdrObject(operation),
       "setTrustLineFlags",
     );
     expect(obj.source).toBe(source);
@@ -175,8 +182,8 @@ describe("Operation.setTrustLineFlags()", () => {
       asset,
       flags: { authorized: true },
     });
-    const hex = op.toXDR("hex");
-    const roundtripped = xdr.Operation.fromXDR(hex, "hex");
-    expect(roundtripped.body().switch().name).toBe("setTrustLineFlags");
+    const hex = op.toXdr("hex");
+    const roundtripped = xdr.Operation.fromXdr(hex, "hex");
+    expect(roundtripped.body.type).toBe("setTrustLineFlags");
   });
 });

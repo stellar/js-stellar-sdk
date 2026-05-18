@@ -22,7 +22,8 @@ import { expectDefined } from "./support/expect_defined.js";
 import { nativeToScVal } from "../../../src/base/scval.js";
 import { SignerKey } from "../../../src/base/signerkey.js";
 import { encodeMuxedAccountToAddress } from "../../../src/base/util/decode_encode_muxed_account.js";
-import xdr from "../../../src/base/xdr.js";
+import * as xdr from "../../../src/xdr/index.js";
+import { expectVariant } from "./support/xdr.js";
 
 describe("TransactionBuilder", () => {
   describe("constructs a native payment transaction with one operation", () => {
@@ -122,9 +123,12 @@ describe("TransactionBuilder", () => {
         .setTimeout(TimeoutInfinite)
         .build();
 
-      expect(transaction.toEnvelope().v1().tx().ext().sorobanData()).toEqual(
-        sorobanTransactionData,
-      );
+      expect(
+        expectVariant(
+          expectVariant(transaction.toEnvelope(), "envelopeTypeTx").v1.tx.ext,
+          "sorobanData",
+        ).sorobanData,
+      ).toEqual(sorobanTransactionData);
     });
     it("should set the soroban data from xdr string", () => {
       const transaction = new TransactionBuilder(source, { fee: "100" })
@@ -141,13 +145,16 @@ describe("TransactionBuilder", () => {
             auth: [],
           }),
         )
-        .setSorobanData(sorobanTransactionData.toXDR("base64"))
+        .setSorobanData(sorobanTransactionData.toXdr("base64"))
         .setTimeout(TimeoutInfinite)
         .build();
 
-      expect(transaction.toEnvelope().v1().tx().ext().sorobanData()).toEqual(
-        sorobanTransactionData,
-      );
+      expect(
+        expectVariant(
+          expectVariant(transaction.toEnvelope(), "envelopeTypeTx").v1.tx.ext,
+          "sorobanData",
+        ).sorobanData,
+      ).toEqual(sorobanTransactionData);
     });
 
     it("should set the transaction Ext to default when soroban data present", () => {
@@ -168,7 +175,10 @@ describe("TransactionBuilder", () => {
         .setTimeout(TimeoutInfinite)
         .build();
 
-      expect(transaction.toEnvelope().v1().tx().ext().switch()).toBe(0);
+      expect(
+        expectVariant(transaction.toEnvelope(), "envelopeTypeTx").v1.tx.ext
+          .type,
+      ).toBe("v0");
     });
 
     it("should calculate fee bumps correctly with soroban data", () => {
@@ -197,8 +207,11 @@ describe("TransactionBuilder", () => {
         .build(); // Building includes resource fee in the total fee
 
       expect(
-        transaction.toEnvelope().v1().tx().ext().sorobanData().toXDR("base64"),
-      ).toEqual(sorobanTransactionData.toXDR("base64"));
+        expectVariant(
+          expectVariant(transaction.toEnvelope(), "envelopeTypeTx").v1.tx.ext,
+          "sorobanData",
+        ).sorobanData.toXdr("base64"),
+      ).toEqual(sorobanTransactionData.toXdr("base64"));
 
       let feeBump = TransactionBuilder.buildFeeBumpTransaction(
         Keypair.random(),
@@ -281,7 +294,7 @@ describe("TransactionBuilder", () => {
         new xdr.LedgerKeyContractData({
           contract: contractAddressFromId(contractId),
           key: xdr.ScVal.scvLedgerKeyContractInstance(),
-          durability: xdr.ContractDataDurability.persistent(),
+          durability: xdr.ContractDataDurability.persistent,
         }),
       );
     }
@@ -298,7 +311,7 @@ describe("TransactionBuilder", () => {
       return xdr.LedgerKey.trustline(
         new xdr.LedgerKeyTrustLine({
           accountId: Keypair.fromPublicKey(accountId).xdrPublicKey(),
-          asset: asset.toTrustLineXDRObject(),
+          asset: asset.toTrustLineXdrObject(),
         }),
       );
     }
@@ -318,46 +331,45 @@ describe("TransactionBuilder", () => {
         const auth = auths[0];
 
         // credentials: must be source-account (no explicit signature required)
-        expect(auth.credentials().switch()).toEqual(
-          xdr.SorobanCredentialsType.sorobanCredentialsSourceAccount(),
-        );
+        expect(auth.credentials.type).toBe("sorobanCredentialsSourceAccount");
 
-        const rootInvoc = auth.rootInvocation();
+        const rootInvoc = auth.rootInvocation;
 
         // function type: contract function
-        expect(rootInvoc.function().switch()).toEqual(
-          xdr.SorobanAuthorizedFunctionType.sorobanAuthorizedFunctionTypeContractFn(),
+        expect(rootInvoc.function.type).toBe(
+          "sorobanAuthorizedFunctionTypeContractFn",
         );
 
         // contract address matches the asset's SAC contract
         const contractId = asset.contractId(networkPassphrase);
-        const contractFn = rootInvoc.function().contractFn();
-        expect(contractFn.contractAddress().toXDR("base64")).toBe(
-          Address.fromString(contractId).toScAddress().toXDR("base64"),
+        const contractFn = expectVariant(
+          rootInvoc.function,
+          "sorobanAuthorizedFunctionTypeContractFn",
+        ).contractFn;
+        expect(contractFn.contractAddress.toXdr("base64")).toBe(
+          Address.fromString(contractId).toScAddress().toXdr("base64"),
         );
 
         // function name is 'transfer'
-        expect(Buffer.from(contractFn.functionName()).toString("utf8")).toBe(
-          "transfer",
-        );
+        expect(contractFn.functionName).toBe("transfer");
 
         // args: [source address, destination address, amount as i128]
-        const args = contractFn.args();
+        const args = contractFn.args;
         expect(args).toHaveLength(3);
-        expect(args[0].toXDR("base64")).toBe(
-          nativeToScVal(SOURCE_ACCOUNT, { type: "address" }).toXDR("base64"),
+        expect(args[0].toXdr("base64")).toBe(
+          nativeToScVal(SOURCE_ACCOUNT, { type: "address" }).toXdr("base64"),
         );
-        expect(args[1].toXDR("base64")).toBe(
+        expect(args[1].toXdr("base64")).toBe(
           nativeToScVal(DESTINATION_ACCOUNT, {
             type: "address",
-          }).toXDR("base64"),
+          }).toXdr("base64"),
         );
-        expect(args[2].toXDR("base64")).toBe(
-          nativeToScVal("10", { type: "i128" }).toXDR("base64"),
+        expect(args[2].toXdr("base64")).toBe(
+          nativeToScVal("10", { type: "i128" }).toXdr("base64"),
         );
 
         // no sub-invocations
-        expect(rootInvoc.subInvocations()).toHaveLength(0);
+        expect(rootInvoc.subInvocations).toHaveLength(0);
       });
     });
 
@@ -373,10 +385,15 @@ describe("TransactionBuilder", () => {
       it("destination contract: writes balance contractData and source account", () => {
         const tx = buildSacTx(DESTINATION_CONTRACT, asset);
 
-        expect(tx.toEnvelope().v1().tx().ext().switch()).toBe(1);
+        expect(
+          expectVariant(tx.toEnvelope(), "envelopeTypeTx").v1.tx.ext.type,
+        ).toBe("sorobanData");
 
-        const sorobanData = tx.toEnvelope().v1().tx().ext().sorobanData();
-        const footprint = sorobanData.resources().footprint();
+        const sorobanData = expectVariant(
+          expectVariant(tx.toEnvelope(), "envelopeTypeTx").v1.tx.ext,
+          "sorobanData",
+        ).sorobanData;
+        const footprint = sorobanData.resources.footprint;
 
         const expectedReadOnly = [ledgerKeyContractInstance(contractId)];
         const expectedReadWrite = [
@@ -389,36 +406,39 @@ describe("TransactionBuilder", () => {
                   type: "address",
                 }),
               ]),
-              durability: xdr.ContractDataDurability.persistent(),
+              durability: xdr.ContractDataDurability.persistent,
             }),
           ),
           ledgerKeyAccount(SOURCE_ACCOUNT),
         ];
 
-        expect(footprint.readOnly().map((k) => k.toXDR("base64"))).toEqual(
-          expectedReadOnly.map((k) => k.toXDR("base64")),
+        expect(footprint.readOnly.map((k) => k.toXdr("base64"))).toEqual(
+          expectedReadOnly.map((k) => k.toXdr("base64")),
         );
-        expect(footprint.readWrite().map((k) => k.toXDR("base64"))).toEqual(
-          expectedReadWrite.map((k) => k.toXDR("base64")),
+        expect(footprint.readWrite.map((k) => k.toXdr("base64"))).toEqual(
+          expectedReadWrite.map((k) => k.toXdr("base64")),
         );
       });
 
       it("destination account: writes destination and source accounts", () => {
         const tx = buildSacTx(DESTINATION_ACCOUNT, asset);
 
-        const sorobanData = tx.toEnvelope().v1().tx().ext().sorobanData();
-        const footprint = sorobanData.resources().footprint();
+        const sorobanData = expectVariant(
+          expectVariant(tx.toEnvelope(), "envelopeTypeTx").v1.tx.ext,
+          "sorobanData",
+        ).sorobanData;
+        const footprint = sorobanData.resources.footprint;
 
         const expectedReadOnly = [ledgerKeyContractInstance(contractId)];
         const expectedReadWrite = [
           ledgerKeyAccount(DESTINATION_ACCOUNT),
           ledgerKeyAccount(SOURCE_ACCOUNT),
         ];
-        expect(footprint.readOnly().map((k) => k.toXDR("base64"))).toEqual(
-          expectedReadOnly.map((k) => k.toXDR("base64")),
+        expect(footprint.readOnly.map((k) => k.toXdr("base64"))).toEqual(
+          expectedReadOnly.map((k) => k.toXdr("base64")),
         );
-        expect(footprint.readWrite().map((k) => k.toXDR("base64"))).toEqual(
-          expectedReadWrite.map((k) => k.toXDR("base64")),
+        expect(footprint.readWrite.map((k) => k.toXdr("base64"))).toEqual(
+          expectedReadWrite.map((k) => k.toXdr("base64")),
         );
       });
     });
@@ -435,27 +455,33 @@ describe("TransactionBuilder", () => {
       it("destination account: writes destination and source trustlines", () => {
         const tx = buildSacTx(DESTINATION_ACCOUNT, asset);
 
-        const sorobanData = tx.toEnvelope().v1().tx().ext().sorobanData();
-        const footprint = sorobanData.resources().footprint();
+        const sorobanData = expectVariant(
+          expectVariant(tx.toEnvelope(), "envelopeTypeTx").v1.tx.ext,
+          "sorobanData",
+        ).sorobanData;
+        const footprint = sorobanData.resources.footprint;
 
         const expectedReadOnly = [ledgerKeyContractInstance(contractId)];
         const expectedReadWrite = [
           ledgerKeyTrustline(DESTINATION_ACCOUNT, asset),
           ledgerKeyTrustline(SOURCE_ACCOUNT, asset),
         ];
-        expect(footprint.readOnly().map((k) => k.toXDR("base64"))).toEqual(
-          expectedReadOnly.map((k) => k.toXDR("base64")),
+        expect(footprint.readOnly.map((k) => k.toXdr("base64"))).toEqual(
+          expectedReadOnly.map((k) => k.toXdr("base64")),
         );
-        expect(footprint.readWrite().map((k) => k.toXDR("base64"))).toEqual(
-          expectedReadWrite.map((k) => k.toXDR("base64")),
+        expect(footprint.readWrite.map((k) => k.toXdr("base64"))).toEqual(
+          expectedReadWrite.map((k) => k.toXdr("base64")),
         );
       });
 
       it("destination contract: reads issuer account and writes source trustline", () => {
         const tx = buildSacTx(DESTINATION_CONTRACT, asset);
 
-        const sorobanData = tx.toEnvelope().v1().tx().ext().sorobanData();
-        const footprint = sorobanData.resources().footprint();
+        const sorobanData = expectVariant(
+          expectVariant(tx.toEnvelope(), "envelopeTypeTx").v1.tx.ext,
+          "sorobanData",
+        ).sorobanData;
+        const footprint = sorobanData.resources.footprint;
 
         const expectedReadOnly = [
           ledgerKeyContractInstance(contractId),
@@ -471,33 +497,36 @@ describe("TransactionBuilder", () => {
                   type: "address",
                 }),
               ]),
-              durability: xdr.ContractDataDurability.persistent(),
+              durability: xdr.ContractDataDurability.persistent,
             }),
           ),
           ledgerKeyTrustline(SOURCE_ACCOUNT, asset),
         ];
-        expect(footprint.readOnly().map((k) => k.toXDR("base64"))).toEqual(
-          expectedReadOnly.map((k) => k.toXDR("base64")),
+        expect(footprint.readOnly.map((k) => k.toXdr("base64"))).toEqual(
+          expectedReadOnly.map((k) => k.toXdr("base64")),
         );
-        expect(footprint.readWrite().map((k) => k.toXDR("base64"))).toEqual(
-          expectedReadWrite.map((k) => k.toXDR("base64")),
+        expect(footprint.readWrite.map((k) => k.toXdr("base64"))).toEqual(
+          expectedReadWrite.map((k) => k.toXdr("base64")),
         );
       });
 
       it("destination is issuer: omits destination trustline", () => {
         const tx = buildSacTx(ISSUER_ACCOUNT, asset);
 
-        const sorobanData = tx.toEnvelope().v1().tx().ext().sorobanData();
-        const footprint = sorobanData.resources().footprint();
+        const sorobanData = expectVariant(
+          expectVariant(tx.toEnvelope(), "envelopeTypeTx").v1.tx.ext,
+          "sorobanData",
+        ).sorobanData;
+        const footprint = sorobanData.resources.footprint;
 
         const expectedReadOnly = [ledgerKeyContractInstance(contractId)];
         const expectedReadWrite = [ledgerKeyTrustline(SOURCE_ACCOUNT, asset)];
 
-        expect(footprint.readOnly().map((k) => k.toXDR("base64"))).toEqual(
-          expectedReadOnly.map((k) => k.toXDR("base64")),
+        expect(footprint.readOnly.map((k) => k.toXdr("base64"))).toEqual(
+          expectedReadOnly.map((k) => k.toXdr("base64")),
         );
-        expect(footprint.readWrite().map((k) => k.toXDR("base64"))).toEqual(
-          expectedReadWrite.map((k) => k.toXDR("base64")),
+        expect(footprint.readWrite.map((k) => k.toXdr("base64"))).toEqual(
+          expectedReadWrite.map((k) => k.toXdr("base64")),
         );
       });
 
@@ -505,19 +534,22 @@ describe("TransactionBuilder", () => {
         source = new Account(ISSUER_ACCOUNT, "0");
         const tx = buildSacTx(DESTINATION_ACCOUNT, asset);
 
-        const sorobanData = tx.toEnvelope().v1().tx().ext().sorobanData();
-        const footprint = sorobanData.resources().footprint();
+        const sorobanData = expectVariant(
+          expectVariant(tx.toEnvelope(), "envelopeTypeTx").v1.tx.ext,
+          "sorobanData",
+        ).sorobanData;
+        const footprint = sorobanData.resources.footprint;
 
         const expectedReadOnly = [ledgerKeyContractInstance(contractId)];
         const expectedReadWrite = [
           ledgerKeyTrustline(DESTINATION_ACCOUNT, asset),
         ];
 
-        expect(footprint.readOnly().map((k) => k.toXDR("base64"))).toEqual(
-          expectedReadOnly.map((k) => k.toXDR("base64")),
+        expect(footprint.readOnly.map((k) => k.toXdr("base64"))).toEqual(
+          expectedReadOnly.map((k) => k.toXdr("base64")),
         );
-        expect(footprint.readWrite().map((k) => k.toXDR("base64"))).toEqual(
-          expectedReadWrite.map((k) => k.toXDR("base64")),
+        expect(footprint.readWrite.map((k) => k.toXdr("base64"))).toEqual(
+          expectedReadWrite.map((k) => k.toXdr("base64")),
         );
       });
     });
@@ -1299,31 +1331,36 @@ describe("TransactionBuilder", () => {
 
       const innerTxEnvelope = innerTx.toEnvelope();
 
-      expect((innerTxEnvelope as any).arm()).toBe("v1");
-      expect(innerTxEnvelope.v1().signatures()).toHaveLength(1);
+      expect(innerTxEnvelope.type).toBe("envelopeTypeTx");
+      const v1Env = expectVariant(innerTxEnvelope, "envelopeTypeTx").v1;
+      expect(v1Env.signatures).toHaveLength(1);
 
-      const v1Tx = innerTxEnvelope.v1().tx();
+      const v1Tx = v1Env.tx;
+      const ed25519Bytes = expectVariant(
+        v1Tx.sourceAccount,
+        "keyTypeEd25519",
+      ).ed25519;
       const sourceAccountEd25519 = Keypair.fromPublicKey(
-        StrKey.encodeEd25519PublicKey(v1Tx.sourceAccount().ed25519()),
-      )
-        .xdrAccountId()
-        .value();
+        StrKey.encodeEd25519PublicKey(Buffer.from(ed25519Bytes)),
+      ).xdrAccountId().value;
       const v0Tx = new xdr.TransactionV0({
         sourceAccountEd25519: sourceAccountEd25519,
-        fee: v1Tx.fee(),
-        seqNum: v1Tx.seqNum(),
-        timeBounds: v1Tx.cond().timeBounds(),
-        memo: v1Tx.memo(),
-        operations: v1Tx.operations(),
-        ext: new xdr.TransactionV0Ext(0),
+        fee: Number(v1Tx.fee),
+        seqNum: v1Tx.seqNum,
+        timeBounds: expectVariant(v1Tx.cond, "precondTime").timeBounds,
+        memo: v1Tx.memo,
+        operations: v1Tx.operations,
+        ext: xdr.TransactionV0Ext.v0(),
       });
       const innerV0TxEnvelope = xdr.TransactionEnvelope.envelopeTypeTxV0(
         new xdr.TransactionV0Envelope({
           tx: v0Tx,
-          signatures: innerTxEnvelope.v1().signatures(),
+          signatures: v1Env.signatures,
         }),
       );
-      expect(innerV0TxEnvelope.v0().signatures()).toHaveLength(1);
+      expect(
+        expectVariant(innerV0TxEnvelope, "envelopeTypeTxV0").v0.signatures,
+      ).toHaveLength(1);
 
       const feeBumpV0Tx = TransactionBuilder.buildFeeBumpTransaction(
         feeSource,
@@ -1332,42 +1369,42 @@ describe("TransactionBuilder", () => {
         networkPassphrase,
       );
 
-      expect(feeBumpTx.toXDR()).toBe(feeBumpV0Tx.toXDR());
+      expect(feeBumpTx.toXdr()).toBe(feeBumpV0Tx.toXdr());
     });
   });
 
-  describe(".fromXDR", () => {
+  describe(".fromXdr", () => {
     it("builds a fee bump transaction", () => {
       const xdrStr =
         "AAAABQAAAADgSJG2GOUMy/H9lHyjYZOwyuyytH8y0wWaoc596L+bEgAAAAAAAADIAAAAAgAAAABzdv3ojkzWHMD7KUoXhrPx0GH18vHKV0ZfqpMiEblG1gAAAGQAAAAAAAAACAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAA9IYXBweSBiaXJ0aGRheSEAAAAAAQAAAAAAAAABAAAAAOBIkbYY5QzL8f2UfKNhk7DK7LK0fzLTBZqhzn3ov5sSAAAAAAAAAASoF8gAAAAAAAAAAAERuUbWAAAAQK933Dnt1pxXlsf1B5CYn81PLxeYsx+MiV9EGbMdUfEcdDWUySyIkdzJefjpR5ejdXVp/KXosGmNUQ+DrIBlzg0AAAAAAAAAAei/mxIAAABAijIIQpL6KlFefiL4FP8UWQktWEz4wFgGNSaXe7mZdVMuiREntehi1b7MRqZ1h+W+Y0y+Z2HtMunsilT2yS5mAA==";
-      let tx = TransactionBuilder.fromXDR(xdrStr, Networks.TESTNET);
+      let tx = TransactionBuilder.fromXdr(xdrStr, Networks.TESTNET);
 
       expect(tx).toBeInstanceOf(FeeBumpTransaction);
-      expect(tx.toXDR()).toBe(xdrStr);
+      expect(tx.toXdr()).toBe(xdrStr);
 
-      tx = TransactionBuilder.fromXDR(
+      tx = TransactionBuilder.fromXdr(
         tx.toEnvelope(), // xdr object
         Networks.TESTNET,
       );
 
       expect(tx).toBeInstanceOf(FeeBumpTransaction);
-      expect(tx.toXDR()).toBe(xdrStr);
+      expect(tx.toXdr()).toBe(xdrStr);
     });
     it("builds a transaction", () => {
       const xdrStr =
         "AAAAAAW8Dk9idFR5Le+xi0/h/tU47bgC1YWjtPH1vIVO3BklAAAAZACoKlYAAAABAAAAAAAAAAEAAAALdmlhIGtleWJhc2UAAAAAAQAAAAAAAAAIAAAAAN7aGcXNPO36J1I8MR8S4QFhO79T5JGG2ZeS5Ka1m4mJAAAAAAAAAAFO3BklAAAAQP0ccCoeHdm3S7bOhMjXRMn3EbmETJ9glxpKUZjPSPIxpqZ7EkyTgl3FruieqpZd9LYOzdJrNik1GNBLhgTh/AU=";
-      let tx = TransactionBuilder.fromXDR(xdrStr, Networks.TESTNET);
+      let tx = TransactionBuilder.fromXdr(xdrStr, Networks.TESTNET);
 
       expect(tx).toBeInstanceOf(Transaction);
-      expect(tx.toXDR()).toBe(xdrStr);
+      expect(tx.toXdr()).toBe(xdrStr);
 
-      tx = TransactionBuilder.fromXDR(
+      tx = TransactionBuilder.fromXdr(
         tx.toEnvelope(), // xdr object
         Networks.TESTNET,
       );
 
       expect(tx).toBeInstanceOf(Transaction);
-      expect(tx.toXDR()).toBe(xdrStr);
+      expect(tx.toXdr()).toBe(xdrStr);
     });
   });
 
@@ -1387,7 +1424,7 @@ describe("TransactionBuilder", () => {
     const PUBKEY_SRC = StrKey.decodeEd25519PublicKey(
       source.baseAccount().accountId(),
     );
-    const MUXED_SRC_ID = xdr.Uint64.fromString(source.id());
+    const MUXED_SRC_ID = BigInt(source.id());
     const networkPassphrase = "Standalone Network ; February 2017";
     const signer = Keypair.master(Networks.TESTNET);
 
@@ -1420,28 +1457,29 @@ describe("TransactionBuilder", () => {
       tx.sign(signer);
 
       const envelope = tx.toEnvelope();
-      const xdrTx = (envelope.value() as any).tx();
+      const xdrTx = expectVariant(envelope, "envelopeTypeTx").v1.tx;
 
-      const rawMuxedSourceAccount = xdrTx.sourceAccount();
+      const rawMuxedSourceAccount = xdrTx.sourceAccount;
 
-      expect(rawMuxedSourceAccount.switch()).toBe(
-        xdr.CryptoKeyType.keyTypeMuxedEd25519(),
-      );
+      expect(rawMuxedSourceAccount.type).toBe("keyTypeMuxedEd25519");
 
-      const innerMux = rawMuxedSourceAccount.med25519();
+      const innerMux = expectVariant(
+        rawMuxedSourceAccount,
+        "keyTypeMuxedEd25519",
+      ).med25519;
 
-      expect(innerMux.ed25519()).toEqual(PUBKEY_SRC);
+      expect(Array.from(innerMux.ed25519)).toEqual(Array.from(PUBKEY_SRC));
       expect(encodeMuxedAccountToAddress(rawMuxedSourceAccount)).toBe(
         source.accountId(),
       );
-      expect(innerMux.id()).toEqual(MUXED_SRC_ID);
+      expect(innerMux.id).toEqual(MUXED_SRC_ID);
 
       expect(source.sequenceNumber()).toBe("1235");
       expect(source.baseAccount().sequenceNumber()).toBe("1235");
 
       // it should decode muxed properties by default
-      const decodedTx = TransactionBuilder.fromXDR(
-        (tx as any).toXDR("base64"),
+      const decodedTx = TransactionBuilder.fromXdr(
+        (tx as any).toXdr("base64"),
         networkPassphrase,
       ) as Transaction;
       expect(decodedTx.source).toBe(source.accountId());
@@ -1464,7 +1502,7 @@ describe("TransactionBuilder", () => {
 
     it("does not regress js-stellar-sdk#646", () => {
       expect(() => {
-        TransactionBuilder.fromXDR(
+        TransactionBuilder.fromXdr(
           "AAAAAgAAAABg/GhKJU5ut52ih6Klx0ymGvsac1FPJig1CHYqyesIHQAAJxACBmMCAAAADgAAAAAAAAABAAAAATMAAAAAAAABAAAAAQAAAABg/GhKJU5ut52ih6Klx0ymGvsac1FPJig1CHYqyesIHQAAAAAAAAAAqdkSiA5dzNXstOtkPkHd6dAMPMA+MSXwK8OlrAGCKasAAAAAAcnDgAAAAAAAAAAByesIHQAAAEAuLrTfW6D+HYlUD9y+JolF1qrb40hIRATzsQaQjchKJuhOZJjLO0d7oaTD3JZ4UL4vVKtV7TvV17rQgCQnuz8F",
           "Public Global Stellar Network ; September 2015",
         );
@@ -1503,23 +1541,24 @@ describe("TransactionBuilder", () => {
 
       expect(feeTx).toBeInstanceOf(FeeBumpTransaction);
       const envelope = feeTx.toEnvelope();
-      const xdrTx = (envelope.value() as any).tx();
+      const xdrTx = expectVariant(envelope, "envelopeTypeTxFeeBump").feeBump.tx;
 
-      const rawFeeSource = xdrTx.feeSource();
+      const rawFeeSource = xdrTx.feeSource;
 
-      expect(rawFeeSource.switch()).toBe(
-        xdr.CryptoKeyType.keyTypeMuxedEd25519(),
-      );
+      expect(rawFeeSource.type).toBe("keyTypeMuxedEd25519");
 
-      const innerMux = rawFeeSource.med25519();
-      expect(innerMux.ed25519()).toEqual(PUBKEY_SRC);
+      const innerMux = expectVariant(
+        rawFeeSource,
+        "keyTypeMuxedEd25519",
+      ).med25519;
+      expect(Array.from(innerMux.ed25519)).toEqual(Array.from(PUBKEY_SRC));
       expect(encodeMuxedAccountToAddress(rawFeeSource)).toBe(
         source.accountId(),
       );
-      expect(innerMux.id()).toEqual(MUXED_SRC_ID);
+      expect(innerMux.id).toEqual(MUXED_SRC_ID);
 
-      const decodedTx = TransactionBuilder.fromXDR(
-        (feeTx as any).toXDR("base64"),
+      const decodedTx = TransactionBuilder.fromXdr(
+        (feeTx as any).toXdr("base64"),
         networkPassphrase,
       ) as FeeBumpTransaction;
       expect(decodedTx.feeSource).toBe(source.accountId());
@@ -1565,8 +1604,9 @@ describe("TransactionBuilder", () => {
       const tx = builder.build();
       let cloneTx = TransactionBuilder.cloneFrom(tx).build();
 
-      // Vitest toEqual doesn't support custom messages inline
-      expect(cloneTx).toEqual(tx);
+      // Compare via XDR bytes — Buffer vs Uint8Array would otherwise break
+      // structural deep-equal even though the wire bytes are identical.
+      expect(cloneTx.toXdr()).toEqual(tx.toXdr());
 
       cloneTx = TransactionBuilder.cloneFrom(tx, {
         fee: "10000",
@@ -1664,9 +1704,9 @@ describe("TransactionBuilder.cloneFrom", () => {
   it("handles a total fee not evenly divisible by the operation count", () => {
     // TransactionBuilder always produces total fees divisible by op count,
     // but arbitrary network transactions can have any fee. Simulate one by
-    // patching the XDR fee field directly to 1000 across 3 ops.
-    // Previously: 1000/3 = 333.333..., scaled back up to 999.999... which
-    // crashed with "XDR Write Error: invalid u32 value".
+    // constructing the envelope directly with fee 1000 across 3 ops. Fields
+    // are readonly in the new XDR layer, so we build the envelope fresh
+    // rather than mutating it post-build.
     const builtTx = new TransactionBuilder(source, {
       fee: "100",
       timebounds: { minTime: 0, maxTime: 0 },
@@ -1677,9 +1717,23 @@ describe("TransactionBuilder.cloneFrom", () => {
       .addOperation(op)
       .build();
 
-    const envelope = builtTx.toEnvelope();
-    envelope.v1().tx().fee(1000); // 1000 is not divisible by 3
-    const tx = new Transaction(envelope, networkPassphrase);
+    const baseV1 = expectVariant(builtTx.toEnvelope(), "envelopeTypeTx").v1;
+    const baseTxObj = baseV1.tx;
+    const customFeeEnvelope = xdr.TransactionEnvelope.envelopeTypeTx(
+      new xdr.TransactionV1Envelope({
+        tx: new xdr.Transaction({
+          sourceAccount: baseTxObj.sourceAccount,
+          fee: 1000, // not divisible by 3
+          seqNum: baseTxObj.seqNum,
+          cond: baseTxObj.cond,
+          memo: baseTxObj.memo,
+          operations: baseTxObj.operations,
+          ext: baseTxObj.ext,
+        }),
+        signatures: baseV1.signatures,
+      }),
+    );
+    const tx = new Transaction(customFeeEnvelope, networkPassphrase);
 
     let cloneTx: Transaction;
     expect(() => {
