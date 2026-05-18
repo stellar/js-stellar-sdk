@@ -23,13 +23,13 @@ export const basicNodeSigner = (
 } => ({
   // eslint-disable-next-line @typescript-eslint/require-await
   signTransaction: async (xdr, opts) => {
-    const t = TransactionBuilder.fromXDR(
+    const t = TransactionBuilder.fromXdr(
       xdr,
       opts?.networkPassphrase || networkPassphrase,
     );
     t.sign(keypair);
     return {
-      signedTxXdr: t.toXDR(),
+      signedTxXdr: t.toXdr(),
       signerAddress: keypair.publicKey(),
     };
   },

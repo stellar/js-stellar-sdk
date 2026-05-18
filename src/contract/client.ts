@@ -1,9 +1,10 @@
-import { Operation, xdr, Address } from "../base/index.js";
+import { Operation, Address } from "../base/index.js";
 import { Spec } from "./spec.js";
 import { Server } from "../rpc/index.js";
 import { AssembledTransaction } from "./assembled_transaction.js";
 import type { ClientOptions, MethodOptions } from "./types.js";
 import { sanitizeIdentifier } from "../bindings/utils.js";
+import { ScVal } from "../xdr/index.js";
 
 const CONSTRUCTOR_FUNC = "__constructor";
 
@@ -105,7 +106,7 @@ export class Client {
     }
 
     this.spec.funcs().forEach((xdrFn) => {
-      const method = xdrFn.name().toString();
+      const method = xdrFn.name.toString();
       if (method === CONSTRUCTOR_FUNC) {
         return;
       }
@@ -121,17 +122,17 @@ export class Client {
           errorTypes: spec.errorCases().reduce(
             (acc, curr) => ({
               ...acc,
-              [curr.value()]: { message: curr.doc().toString() },
+              [curr.value]: { message: curr.doc.toString() },
             }),
             {} as Pick<ClientOptions, "errorTypes">,
           ),
-          parseResultXdr: (result: xdr.ScVal) =>
+          parseResultXdr: (result: ScVal) =>
             spec.funcResToNative(method, result),
         });
 
       // @ts-ignore error TS7053: Element implicitly has an 'any' type
       this[sanitizeIdentifier(method)] =
-        spec.getFunc(method).inputs().length === 0
+        spec.getFunc(method).inputs.length === 0
           ? (opts?: MethodOptions) => assembleTransaction(undefined, opts)
           : assembleTransaction;
     });
@@ -206,7 +207,7 @@ export class Client {
       {
         ...this.options,
         method,
-        parseResultXdr: (result: xdr.ScVal) =>
+        parseResultXdr: (result: ScVal) =>
           this.spec.funcResToNative(method, result),
       },
       tx,
@@ -214,5 +215,5 @@ export class Client {
   };
 
   txFromXDR = <T>(xdrBase64: string): AssembledTransaction<T> =>
-    AssembledTransaction.fromXDR(this.options, xdrBase64, this.spec);
+    AssembledTransaction.fromXdr(this.options, xdrBase64, this.spec);
 }

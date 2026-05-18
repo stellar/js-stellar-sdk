@@ -127,7 +127,7 @@ export function buildChallengeTx(
   const transaction = builder.build();
   transaction.sign(serverKeypair);
 
-  return transaction.toEnvelope().toXDR("base64").toString();
+  return transaction.toEnvelope().toXdr("base64").toString();
 }
 
 /**
@@ -396,11 +396,11 @@ export function readChallengeTx(
  * // clock.tick(200);  // Simulates a 200 ms delay when communicating from server to client
  *
  * // Transaction gathered from a challenge, possibly from the client side
- * const transaction = TransactionBuilder.fromXDR(challenge, Networks.TESTNET);
+ * const transaction = TransactionBuilder.fromXdr(challenge, Networks.TESTNET);
  * transaction.sign(clientKP1, clientKP2);
  * const signedChallenge = transaction
  *         .toEnvelope()
- *         .toXDR("base64")
+ *         .toXdr("base64")
  *         .toString();
  *
  * // The result below should be equal to [clientKP1.publicKey(), clientKP2.publicKey()]
@@ -607,11 +607,11 @@ export function verifyChallengeTxSigners(
  * // clock.tick(200);  // Simulates a 200 ms delay when communicating from server to client
  *
  * // Transaction gathered from a challenge, possibly from the client side
- * const transaction = TransactionBuilder.fromXDR(challenge, Networks.TESTNET);
+ * const transaction = TransactionBuilder.fromXdr(challenge, Networks.TESTNET);
  * transaction.sign(clientKP1, clientKP2);
  * const signedChallenge = transaction
  *         .toEnvelope()
- *         .toXDR("base64")
+ *         .toXdr("base64")
  *         .toString();
  *
  * // Defining the threshold and signerSummary

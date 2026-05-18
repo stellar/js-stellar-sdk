@@ -4,6 +4,7 @@ import {
   Transaction,
   TransactionBuilder,
 } from "../base/index.js";
+import { SorobanTransactionData } from "../xdr/index.js";
 
 import { Api } from "./api.js";
 import { parseRawSimulation } from "./parsers.js";
@@ -73,13 +74,20 @@ export function assembleTransaction(
     classicFeeNum = BigInt(0);
   }
 
-  const rawSorobanData = raw.toEnvelope().v1().tx().ext().value();
+  const envelope = raw.toEnvelope();
+  let rawSorobanData: SorobanTransactionData | undefined;
+  if (envelope.type === "envelopeTypeTx") {
+    const ext = envelope.value.tx.ext;
+    if (ext.type === "sorobanData") {
+      rawSorobanData = ext.value;
+    }
+  }
 
   // If the incoming raw transaction already has Soroban data,
   // we need to be careful to handle the fee to prevent double-counting,
   if (rawSorobanData) {
-    if (classicFeeNum - rawSorobanData.resourceFee().toBigInt() > BigInt(0)) {
-      classicFeeNum -= rawSorobanData.resourceFee().toBigInt();
+    if (classicFeeNum - rawSorobanData.resourceFee > BigInt(0)) {
+      classicFeeNum -= rawSorobanData.resourceFee;
     }
   }
 

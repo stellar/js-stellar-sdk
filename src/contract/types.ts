@@ -1,9 +1,10 @@
 /* disable PascalCase naming convention, to avoid breaking change */
 /* eslint-disable @typescript-eslint/naming-convention */
-import { Transaction, xdr } from "../base/index.js";
+import { Transaction } from "../base/index.js";
 import type { SentTransaction } from "./sent_transaction.js";
 import type { Client } from "./client.js";
 import { Server } from "../rpc/index.js";
+import { ScVal } from "../xdr/index.js";
 
 export type XDR_BASE64 = string;
 /**
@@ -275,7 +276,7 @@ export type AssembledTransactionOptions<T = string> = MethodOptions &
   ClientOptions & {
     method: string;
     args?: any[];
-    parseResultXdr: (xdr: xdr.ScVal) => T;
+    parseResultXdr: (xdr: ScVal) => T;
 
     /**
      * The address of the account that should sign the transaction. Useful when
