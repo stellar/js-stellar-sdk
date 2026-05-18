@@ -1,10 +1,9 @@
-import xdr from "../xdr.js";
+import { ScVal } from "../../xdr/index.js";
 import { XdrLargeInt, type ScIntType } from "./xdr_large_int.js";
 
-export { Uint128 } from "./uint128.js";
-export { Uint256 } from "./uint256.js";
-export { Int128 } from "./int128.js";
-export { Int256 } from "./int256.js";
+// Re-export the new-layer DX wide-int wrappers under their familiar names.
+// These replace the legacy `LargeInt`-based classes that used to live here.
+export { Uint128, Int128, Uint256, Int256 } from "../../xdr/index.js";
 export { ScInt } from "./sc_int.js";
 export { XdrLargeInt };
 export type { ScIntType };
@@ -26,10 +25,10 @@ export type { ScIntType };
  *
  * @throws {TypeError} if the `scv` input value doesn't represent an integer
  */
-export function scValToBigInt(scv: xdr.ScVal): bigint {
-  const switchName = scv.switch().name;
+export function scValToBigInt(scv: ScVal): bigint {
+  const switchName = scv.type;
   const scIntType = XdrLargeInt.getType(switchName);
-  const value = scv.value();
+  const value = "value" in scv ? scv.value : null;
 
   if (value === null) {
     throw TypeError(`unexpected null value for ${switchName}`);
@@ -47,21 +46,16 @@ export function scValToBigInt(scv: xdr.ScVal): bigint {
       if (scIntType === undefined) {
         throw TypeError(`invalid integer type for ${switchName}`);
       }
-      return new XdrLargeInt(
-        scIntType,
-        value as xdr.Int64 | xdr.Uint64,
-      ).toBigInt();
+      return new XdrLargeInt(scIntType, value as bigint).toBigInt();
 
     case "scvU128":
     case "scvI128": {
       if (scIntType === undefined) {
         throw TypeError(`invalid integer type for ${switchName}`);
       }
-      const int128Value = value as xdr.Int128Parts | xdr.UInt128Parts;
-      return new XdrLargeInt(scIntType, [
-        int128Value.lo(),
-        int128Value.hi(),
-      ]).toBigInt();
+      const parts = value as { hi: bigint; lo: bigint };
+      // XdrLargeInt arrays are big-endian (parts[0] = most significant).
+      return new XdrLargeInt(scIntType, [parts.hi, parts.lo]).toBigInt();
     }
 
     case "scvU256":
@@ -69,12 +63,18 @@ export function scValToBigInt(scv: xdr.ScVal): bigint {
       if (scIntType === undefined) {
         throw TypeError(`invalid integer type for ${switchName}`);
       }
-      const int256Value = value as xdr.Int256Parts | xdr.UInt256Parts;
+      const parts = value as {
+        hiHi: bigint;
+        hiLo: bigint;
+        loHi: bigint;
+        loLo: bigint;
+      };
+      // Big-endian: hiHi (most significant) first, loLo (least significant) last.
       return new XdrLargeInt(scIntType, [
-        int256Value.loLo(),
-        int256Value.loHi(),
-        int256Value.hiLo(),
-        int256Value.hiHi(),
+        parts.hiHi,
+        parts.hiLo,
+        parts.loHi,
+        parts.loLo,
       ]).toBigInt();
     }
 

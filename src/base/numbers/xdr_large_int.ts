@@ -1,11 +1,10 @@
-import { Hyper, LargeInt, UnsignedHyper } from "@stellar/js-xdr";
-
-import { Uint128 } from "./uint128.js";
-import { Uint256 } from "./uint256.js";
-import { Int128 } from "./int128.js";
-import { Int256 } from "./int256.js";
-
-import xdr from "../xdr.js";
+import {
+  Int128Parts,
+  Int256Parts,
+  ScVal,
+  Uint128Parts,
+  Uint256Parts,
+} from "../../xdr/index.js";
 
 type BigIntLike = { toBigInt(): bigint };
 type XdrLargeIntValues =
@@ -25,6 +24,28 @@ export type ScIntType =
   | "u128"
   | "u256";
 
+const SIZE: Readonly<Record<ScIntType, 64 | 128 | 256>> = {
+  i64: 64,
+  u64: 64,
+  timepoint: 64,
+  duration: 64,
+  i128: 128,
+  u128: 128,
+  i256: 256,
+  u256: 256,
+};
+
+const SIGNED: Readonly<Record<ScIntType, boolean>> = {
+  i64: true,
+  i128: true,
+  i256: true,
+  u64: false,
+  u128: false,
+  u256: false,
+  timepoint: false,
+  duration: false,
+};
+
 /**
  * A wrapper class to represent large XDR-encodable integers.
  *
@@ -33,65 +54,68 @@ export type ScIntType =
  * of the input value(s) you provide.
  */
 export class XdrLargeInt {
-  int: LargeInt;
-  type: ScIntType;
+  /** The underlying bigint value (always exact, untruncated). */
+  readonly value: bigint;
+  readonly type: ScIntType;
 
   /**
    * @param type - specifies a data type to use to represent the integer, one
    *    of: 'i64', 'u64', 'i128', 'u128', 'i256', 'u256', 'timepoint', and 'duration'
    *    (see {@link XdrLargeInt.isType})
-   * @param values - a list of integer-like values interpreted in big-endian order
+   * @param values - a list of integer-like values interpreted as 64-bit slices
+   *    in **big-endian** order (i.e. earlier elements are higher bits). Most
+   *    callers pass a single bigint/number/string. Multi-element arrays are
+   *    accepted for legacy compatibility — they're combined as
+   *    `(v[0] << 64*(n-1)) | (v[1] << 64*(n-2)) | …`.
    */
   constructor(type: ScIntType, values: XdrLargeIntValues) {
-    if (!(values instanceof Array)) {
-      values = [values];
+    if (!XdrLargeInt.isType(type)) {
+      throw new TypeError(`invalid type: ${type as string}`);
     }
 
-    // normalize values to one type
-    const normalizedValues: bigint[] = values.map((i) => {
-      // micro-optimization to no-op on the likeliest input value:
-      if (typeof i === "bigint") {
-        return i;
-      }
-      if (
-        typeof i === "object" &&
-        i !== null &&
-        "toBigInt" in i &&
-        typeof i.toBigInt === "function"
-      ) {
-        return i.toBigInt();
-      }
-      return BigInt(i as number | string);
-    });
+    const parts: bigint[] = (Array.isArray(values) ? values : [values]).map(
+      (i) => {
+        if (typeof i === "bigint") return i;
+        if (
+          typeof i === "object" &&
+          i !== null &&
+          "toBigInt" in i &&
+          typeof (i as BigIntLike).toBigInt === "function"
+        ) {
+          return (i as BigIntLike).toBigInt();
+        }
+        return BigInt(i as number | string);
+      },
+    );
 
-    // Note: API difference in XDR constructors:
-    // - Hyper/UnsignedHyper accept an array parameter
-    // - Int128/Uint128/Int256/Uint256 accept rest parameters (require spread operator)
-    switch (type) {
-      case "i64":
-        this.int = new Hyper(normalizedValues);
-        break;
-      case "i128":
-        this.int = new Int128(...normalizedValues);
-        break;
-      case "i256":
-        this.int = new Int256(...normalizedValues);
-        break;
-      case "u64":
-      case "timepoint":
-      case "duration":
-        this.int = new UnsignedHyper(normalizedValues);
-        break;
-      case "u128":
-        this.int = new Uint128(...normalizedValues);
-        break;
-      case "u256":
-        this.int = new Uint256(...normalizedValues);
-        break;
-      default:
-        throw TypeError(`invalid type: ${type as string}`);
+    // Combine slices into a single bigint. Slice width is derived from the
+    // total width and the number of parts (matching legacy `LargeInt`):
+    //   - 1 part:           pass through (no shifting)
+    //   - N>1 parts:        sliceBits = SIZE[type] / N, with parts in
+    //                       big-endian order (parts[0] is most significant)
+    //                       to match the legacy `LargeInt(...args)` contract.
+    // The most-significant slice is sign-extended for signed types.
+    const value = combineParts(parts, SIZE[type], SIGNED[type]);
+
+    // Range-check the final value against the declared type width. The legacy
+    // `LargeInt`-backed implementation enforced this at construction time and
+    // several callers (notably `nativeToScVal` via `ScInt`) depend on it.
+    if (parts.length === 1) {
+      const bits = SIZE[type];
+      if (SIGNED[type]) {
+        if (BigInt.asIntN(bits, value) !== value) {
+          throw new RangeError(
+            `value too large for ${bits}-bit ${type}: ${value}`,
+          );
+        }
+      } else if (value < 0n || BigInt.asUintN(bits, value) !== value) {
+        throw new RangeError(
+          `value too large for ${bits}-bit ${type}: ${value}`,
+        );
+      }
     }
 
+    this.value = value;
     this.type = type;
   }
 
@@ -101,20 +125,19 @@ export class XdrLargeInt {
    * @throws {RangeError} if the value can't fit into a Number
    */
   toNumber(): number {
-    const bi = this.int.toBigInt();
+    const bi = this.value;
     if (bi > Number.MAX_SAFE_INTEGER || bi < Number.MIN_SAFE_INTEGER) {
       throw RangeError(
         `value ${bi} not in range for Number ` +
           `[${Number.MAX_SAFE_INTEGER}, ${Number.MIN_SAFE_INTEGER}]`,
       );
     }
-
     return Number(bi);
   }
 
   /** Converts to a native BigInt. */
   toBigInt(): bigint {
-    return this.int.toBigInt();
+    return this.value;
   }
 
   /**
@@ -122,38 +145,31 @@ export class XdrLargeInt {
    *
    * @throws {RangeError} if the value cannot fit in 64 bits
    */
-  toI64(): xdr.ScVal {
+  toI64(): ScVal {
     this._sizeCheck(64);
-    const v = this.toBigInt();
+    const v = this.value;
     if (BigInt.asIntN(64, v) !== v) {
       throw RangeError(`value too large for i64: ${v}`);
     }
-
-    return xdr.ScVal.scvI64(new xdr.Int64(v));
+    return ScVal.scvI64(v);
   }
 
   /** The integer encoded with `ScValType = U64` */
-  toU64(): xdr.ScVal {
+  toU64(): ScVal {
     this._sizeCheck(64);
-    return xdr.ScVal.scvU64(
-      new xdr.Uint64(BigInt.asUintN(64, this.toBigInt())), // reiterpret as unsigned
-    );
+    return ScVal.scvU64(BigInt.asUintN(64, this.value));
   }
 
   /** The integer encoded with `ScValType = Timepoint` */
-  toTimepoint(): xdr.ScVal {
+  toTimepoint(): ScVal {
     this._sizeCheck(64);
-    return xdr.ScVal.scvTimepoint(
-      new xdr.Uint64(BigInt.asUintN(64, this.toBigInt())), // reiterpret as unsigned
-    );
+    return ScVal.scvTimepoint(BigInt.asUintN(64, this.value));
   }
 
   /** The integer encoded with `ScValType = Duration` */
-  toDuration(): xdr.ScVal {
+  toDuration(): ScVal {
     this._sizeCheck(64);
-    return xdr.ScVal.scvDuration(
-      new xdr.Uint64(BigInt.asUintN(64, this.toBigInt())), // reiterpret as unsigned
-    );
+    return ScVal.scvDuration(BigInt.asUintN(64, this.value));
   }
 
   /**
@@ -161,20 +177,16 @@ export class XdrLargeInt {
    *
    * @throws {RangeError} if the value cannot fit in 128 bits
    */
-  toI128(): xdr.ScVal {
+  toI128(): ScVal {
     this._sizeCheck(128);
-
-    const v = this.int.toBigInt();
+    const v = this.value;
     if (BigInt.asIntN(128, v) !== v) {
       throw RangeError(`value too large for i128: ${v}`);
     }
-    const hi64 = BigInt.asIntN(64, v >> 64n); // encode top 64 w/ sign bit
-    const lo64 = BigInt.asUintN(64, v); // grab btm 64, encode sign
-
-    return xdr.ScVal.scvI128(
-      new xdr.Int128Parts({
-        hi: new xdr.Int64(hi64),
-        lo: new xdr.Uint64(lo64),
+    return ScVal.scvI128(
+      new Int128Parts({
+        hi: BigInt.asIntN(64, v >> 64n),
+        lo: BigInt.asUintN(64, v),
       }),
     );
   }
@@ -184,14 +196,13 @@ export class XdrLargeInt {
    *
    * @throws {RangeError} if the value cannot fit in 128 bits
    */
-  toU128(): xdr.ScVal {
+  toU128(): ScVal {
     this._sizeCheck(128);
-    const v = this.int.toBigInt();
-
-    return xdr.ScVal.scvU128(
-      new xdr.UInt128Parts({
-        hi: new xdr.Uint64(BigInt.asUintN(64, v >> 64n)),
-        lo: new xdr.Uint64(BigInt.asUintN(64, v)),
+    const v = this.value;
+    return ScVal.scvU128(
+      new Uint128Parts({
+        hi: BigInt.asUintN(64, v >> 64n),
+        lo: BigInt.asUintN(64, v),
       }),
     );
   }
@@ -201,22 +212,17 @@ export class XdrLargeInt {
    *
    * @throws {RangeError} if the value cannot fit in a signed 256-bit integer
    */
-  toI256(): xdr.ScVal {
-    const v = this.int.toBigInt();
+  toI256(): ScVal {
+    const v = this.value;
     if (BigInt.asIntN(256, v) !== v) {
       throw RangeError(`value too large for i256: ${v}`);
     }
-    const hiHi64 = BigInt.asIntN(64, v >> 192n); // keep sign bit
-    const hiLo64 = BigInt.asUintN(64, v >> 128n);
-    const loHi64 = BigInt.asUintN(64, v >> 64n);
-    const loLo64 = BigInt.asUintN(64, v);
-
-    return xdr.ScVal.scvI256(
-      new xdr.Int256Parts({
-        hiHi: new xdr.Int64(hiHi64),
-        hiLo: new xdr.Uint64(hiLo64),
-        loHi: new xdr.Uint64(loHi64),
-        loLo: new xdr.Uint64(loLo64),
+    return ScVal.scvI256(
+      new Int256Parts({
+        hiHi: BigInt.asIntN(64, v >> 192n),
+        hiLo: BigInt.asUintN(64, v >> 128n),
+        loHi: BigInt.asUintN(64, v >> 64n),
+        loLo: BigInt.asUintN(64, v),
       }),
     );
   }
@@ -226,25 +232,20 @@ export class XdrLargeInt {
    *
    * Note: No size check needed - U256 is the largest unsigned type.
    */
-  toU256(): xdr.ScVal {
-    const v = this.int.toBigInt();
-    const hiHi64 = BigInt.asUintN(64, v >> 192n); // encode sign bit
-    const hiLo64 = BigInt.asUintN(64, v >> 128n);
-    const loHi64 = BigInt.asUintN(64, v >> 64n);
-    const loLo64 = BigInt.asUintN(64, v);
-
-    return xdr.ScVal.scvU256(
-      new xdr.UInt256Parts({
-        hiHi: new xdr.Uint64(hiHi64),
-        hiLo: new xdr.Uint64(hiLo64),
-        loHi: new xdr.Uint64(loHi64),
-        loLo: new xdr.Uint64(loLo64),
+  toU256(): ScVal {
+    const v = this.value;
+    return ScVal.scvU256(
+      new Uint256Parts({
+        hiHi: BigInt.asUintN(64, v >> 192n),
+        hiLo: BigInt.asUintN(64, v >> 128n),
+        loHi: BigInt.asUintN(64, v >> 64n),
+        loLo: BigInt.asUintN(64, v),
       }),
     );
   }
 
   /** The smallest interpretation of the stored value */
-  toScVal(): xdr.ScVal {
+  toScVal(): ScVal {
     switch (this.type) {
       case "i64":
         return this.toI64();
@@ -263,33 +264,30 @@ export class XdrLargeInt {
       case "duration":
         return this.toDuration();
       default:
-        // This should be unreachable if the compiler enforces valid types
-        // This serves as a runtime check if the type is somehow invalid
-        // (e.g. from user input or a future extension)
         throw TypeError(`invalid type: ${this.type as string}`);
     }
   }
 
   /** Returns the primitive value of this integer. */
-  valueOf(): unknown {
-    return this.int.valueOf();
+  valueOf(): bigint {
+    return this.value;
   }
 
   /** Returns the string representation of this integer. */
   toString(): string {
-    return this.int.toString();
+    return this.value.toString();
   }
 
   /** Returns a JSON-friendly representation with `value` and `type` fields. */
-  toJSON(): { value: string; type: string } {
+  toJson(): { value: string; type: string } {
     return {
-      value: this.toBigInt().toString(),
+      value: this.value.toString(),
       type: this.type,
     };
   }
 
   private _sizeCheck(bits: number): void {
-    if (this.int.size > bits) {
+    if (SIZE[this.type] > bits) {
       throw RangeError(`value too large for ${bits} bits (${this.type})`);
     }
   }
@@ -324,7 +322,41 @@ export class XdrLargeInt {
     if (this.isType(type)) {
       return type;
     }
-
     return undefined;
   }
+}
+
+/**
+ * Combine an array of slices into a single bigint. Slice width is
+ * `totalBits / parts.length` (matching the legacy `LargeInt(...args)` behavior
+ * — `Int128(lo, hi)` used 64-bit slices, `Int128(a, b, c, d)` used 32-bit
+ * slices). Parts are interpreted in **big-endian** order: parts[0] is the
+ * most-significant slice, parts[n-1] the least. For signed types the
+ * most-significant slice is sign-extended (two's complement).
+ *
+ * Single-element input is passed through unchanged so callers that supply a
+ * whole bigint (the common case) work as expected.
+ */
+function combineParts(
+  parts: bigint[],
+  totalBits: 64 | 128 | 256,
+  signed: boolean,
+): bigint {
+  if (parts.length === 0) return 0n;
+  if (parts.length === 1) return parts[0];
+
+  if (totalBits % parts.length !== 0) {
+    throw new TypeError(
+      `${parts.length} slices do not evenly divide ${totalBits} bits`,
+    );
+  }
+  const sliceBits = totalBits / parts.length;
+  const width = BigInt(sliceBits);
+  const mask = (1n << width) - 1n;
+  const top = parts[0];
+  let value = signed ? BigInt.asIntN(sliceBits, top) : top & mask;
+  for (let i = 1; i < parts.length; i++) {
+    value = (value << width) | (parts[i] & mask);
+  }
+  return value;
 }
