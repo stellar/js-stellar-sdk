@@ -1,6 +1,9 @@
 import { describe, it, expect } from "vitest";
+import { Buffer } from "buffer";
 import { uint8ArrayToBase64, stringToUint8Array } from "uint8array-extras";
-import * as legacyXdr from "../../../../src/xdr/index.js";
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+import legacyTypes from "../../../fixtures/legacy-xdr/curr_generated.js";
+const legacyXdr = legacyTypes as any;
 
 import {
   AssetType,
@@ -149,9 +152,9 @@ describe("Asset (union with void + payload arms)", () => {
   });
 
   it("produces byte-compatible XDR with legacy @stellar/js-xdr", () => {
-    const legacyDecoded = legacyXdr.Asset.fromXdr(Buffer.from(usd.toXdr()));
-    expect(legacyDecoded.type).toBe("assetTypeCreditAlphanum4");
-    const reencoded = new Uint8Array(legacyDecoded.toXdr());
+    const legacyDecoded = legacyXdr.Asset.fromXDR(Buffer.from(usd.toXdr()));
+    expect(legacyDecoded.switch().name).toBe("assetTypeCreditAlphanum4");
+    const reencoded = new Uint8Array(legacyDecoded.toXDR());
     expect(uint8ArrayToBase64(reencoded)).toBe(uint8ArrayToBase64(usd.toXdr()));
   });
 });
