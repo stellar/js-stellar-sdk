@@ -1,0 +1,17 @@
+export const Contract_Cost_Count_Limit = 1024;
+export const Sc_Spec_Doc_Limit = 1024;
+export const Scsymbol_Limit = 32;
+export const Mask_Account_Flags = 7;
+export const Mask_Account_Flags_V17 = 15;
+export const Max_Signers = 20;
+export const Mask_Trustline_Flags = 1;
+export const Mask_Trustline_Flags_V13 = 3;
+export const Mask_Trustline_Flags_V17 = 7;
+export const Mask_Offerentry_Flags = 1;
+export const Mask_Claimable_Balance_Flags = 1;
+export const Mask_Ledger_Header_Flags = 7;
+export const Auth_Msg_Flag_Flow_Control_Bytes_Requested = 200;
+export const Tx_Advert_Vector_Max_Size = 1000;
+export const Tx_Demand_Vector_Max_Size = 1000;
+export const Max_Ops_Per_Tx = 100;
+export const Liquidity_Pool_Fee_V18 = 30;
