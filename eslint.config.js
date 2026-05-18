@@ -40,6 +40,10 @@ const typescriptConfig = [
         { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
       ],
       "no-fallthrough": "off",
+      "@typescript-eslint/no-use-before-define": [
+        "error",
+        { functions: false },
+      ],
     },
   },
 ];
@@ -118,13 +122,25 @@ const baseSdkConfig = [
     files: ["src/base/**/*.ts"],
     rules: {
       "@typescript-eslint/no-redeclare": "off",
-      "@typescript-eslint/no-use-before-define": ["error", { functions: false }],
+      "@typescript-eslint/no-use-before-define": [
+        "error",
+        { functions: false },
+      ],
       "@typescript-eslint/naming-convention": "off",
       "jsdoc/no-undefined-types": "off",
     },
   },
 ];
-
+const xdrGenConfig = [
+  {
+    name: "src/xdr",
+    files: ["src/xdr/**/*.ts"],
+    rules: {
+      "@typescript-eslint/no-redeclare": "off",
+      "@typescript-eslint/naming-convention": "off",
+    },
+  },
+];
 const importConfig = [
   {
     name: "import/plugin/config",
@@ -140,6 +156,7 @@ ignoreFiles.ignores.push(
     "rollup.config.mjs",
     "config/**/*",
     "src/base/generated/**",
+    "tools/**",
   ],
 );
 export default [
@@ -151,6 +168,8 @@ export default [
   ...javascriptConfig,
   // TypeScript Config
   ...typescriptConfig,
+  // XDR Gen Config (must come after baseSdkConfig to allow overrides)
+  ...xdrGenConfig,
   // JSDoc Config
   ...jsDocConfig,
   // Test Config
