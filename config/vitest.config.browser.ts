@@ -39,8 +39,8 @@ export default defineConfig({
     exclude: [
       "test/unit/call_builders.test.ts",
       "test/unit/server/horizon/server.test.ts",
-      "test/unit/base/xdr/corpus_round_trip.test.ts",
-      "test/unit/base/xdr/schema_exhaustive.test.ts",
+      "test/unit/xdr/corpus_round_trip.test.ts",
+      "test/unit/xdr/schema_exhaustive.test.ts",
     ],
     // Setup files to load the browser bundle
     setupFiles: [resolve(__dirname, "../test/setup-browser.ts")],
