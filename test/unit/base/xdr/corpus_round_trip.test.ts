@@ -30,6 +30,7 @@ import {
   TransactionEnvelope,
   TransactionResult,
   TransactionMeta,
+  OperationMeta,
   LedgerHeader,
 } from "../../../../src/xdr/index.js";
 
@@ -127,12 +128,29 @@ describe("corpus round-trip: TransactionEnvelope (mainnet)", () => {
     });
 
     it(`result_meta ${r.hash.slice(0, 12)}… round-trips`, () => {
-      assertRoundTrip(
-        `result_meta ${r.hash}`,
-        r.result_meta_xdr,
-        TransactionMeta,
-        legacy.TransactionMeta,
-      );
+      // Horizon's `result_meta_xdr` field is `TransactionMeta` for regular
+      // transactions, but for fee-bump (envelopeTypeTxFeeBump, v=5) it
+      // carries only the outer-tx fee-processing changes — wire-equivalent
+      // to a bare `LedgerEntryChanges` / `OperationMeta`. The inner-tx meta
+      // lives on the inner tx's separate record. Detect and dispatch.
+      const envBytes = Buffer.from(r.envelope_xdr, "base64");
+      const envDiscriminator = envBytes.readUInt32BE(0);
+      const isFeeBump = envDiscriminator === 5; // envelopeTypeTxFeeBump
+      if (isFeeBump) {
+        assertRoundTrip(
+          `result_meta ${r.hash} (fee-bump outer changes)`,
+          r.result_meta_xdr,
+          OperationMeta,
+          legacy.OperationMeta,
+        );
+      } else {
+        assertRoundTrip(
+          `result_meta ${r.hash}`,
+          r.result_meta_xdr,
+          TransactionMeta,
+          legacy.TransactionMeta,
+        );
+      }
     });
   }
 });

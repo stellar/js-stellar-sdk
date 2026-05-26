@@ -14,11 +14,16 @@
 // We pull from a few endpoints to hit a broad surface:
 //   - /transactions          → TransactionEnvelope (covers ops, memos, signers)
 //   - /ledgers/{seq}          → LedgerHeader (covers nested ledger entry types)
-//   - /transactions/{hash}/operations → Operation (per-op coverage)
-//   - /effects                → various ledger-level types
 //
 // We don't decode the bytes here — just snapshot the on-wire form. The
 // test does the decode/re-encode validation.
+//
+// Coverage note: at any given moment mainnet traffic skews heavily toward
+// one envelope kind (often fee-bump). For best coverage when refreshing,
+// either sample a larger range, or hand-pick a mix of `envelopeTypeTx`,
+// `envelopeTypeTxV0`, and `envelopeTypeTxFeeBump` records by querying
+// historical ranges that included Soroban contract calls, classic
+// payments, and fee-bumped batches.
 import { writeFileSync, mkdirSync } from "node:fs";
 import { resolve } from "node:path";
 
