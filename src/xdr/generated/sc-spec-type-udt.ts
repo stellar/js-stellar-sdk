@@ -1,10 +1,10 @@
 import { struct } from "../types/struct.js";
-import { string as string_ } from "../types/string.js";
 import type { XdrType } from "../core/xdr-type.js";
 import { XdrValue } from "../values/xdr-value.js";
+import { XdrString, xdrString } from "../values/xdr-string.js";
 
 export interface ScSpecTypeUdtWire {
-  name: string;
+  name: XdrString;
 }
 
 /**
@@ -16,18 +16,16 @@ export interface ScSpecTypeUdtWire {
  * ```
  */
 export class ScSpecTypeUdt extends XdrValue {
-  readonly name: string;
+  readonly name: XdrString;
 
   static readonly schema: XdrType<ScSpecTypeUdtWire> = struct("ScSpecTypeUdt", {
-    name: string_(60),
+    name: xdrString(60),
   });
 
-  constructor(input: { name: Uint8Array | string }) {
+  constructor(input: { name: XdrString | string | Uint8Array }) {
     super();
     this.name =
-      input.name instanceof Uint8Array
-        ? new TextDecoder("latin1").decode(input.name)
-        : input.name;
+      input.name instanceof XdrString ? input.name : new XdrString(input.name);
   }
 
   toXdrObject(): ScSpecTypeUdtWire {

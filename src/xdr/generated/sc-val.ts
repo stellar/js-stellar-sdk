@@ -13,9 +13,9 @@ import { uint32 } from "../types/uint32.js";
 import { int32 } from "../types/int32.js";
 import { uint64 } from "../types/uint64.js";
 import { int64 } from "../types/int64.js";
-import { string as string_ } from "../types/string.js";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "../core/xdr-type.js";
 import { XdrValue } from "../values/xdr-value.js";
+import { XdrString, xdrString } from "../values/xdr-string.js";
 import {
   ContractExecutable,
   type ContractExecutableWire,
@@ -147,8 +147,8 @@ export type ScValWire =
   | { type: 11; u256: Uint256PartsWire }
   | { type: 12; i256: Int256PartsWire }
   | { type: 13; bytes: ScBytesWire }
-  | { type: 14; str: string }
-  | { type: 15; sym: string }
+  | { type: 14; str: XdrString }
+  | { type: 15; sym: XdrString }
   | { type: 16; vec: ScValWire[] | null }
   | { type: 17; map: ScMapEntryWire[] | null }
   | { type: 18; address: ScAddressWire }
@@ -264,8 +264,8 @@ abstract class ScValBase extends XdrValue {
       case_("scvU256", 11, field("u256", Uint256Parts.schema)),
       case_("scvI256", 12, field("i256", Int256Parts.schema)),
       case_("scvBytes", 13, field("bytes", ScBytes.schema)),
-      case_("scvString", 14, field("str", string_(UNBOUNDED_MAX_LENGTH))),
-      case_("scvSymbol", 15, field("sym", string_(32))),
+      case_("scvString", 14, field("str", xdrString(UNBOUNDED_MAX_LENGTH))),
+      case_("scvSymbol", 15, field("sym", xdrString(32))),
       case_(
         "scvVec",
         16,
@@ -362,11 +362,11 @@ abstract class ScValBase extends XdrValue {
     return new ScValBytes(bytes);
   }
 
-  static scvString(str: Uint8Array | string): ScValString {
+  static scvString(str: XdrString | string | Uint8Array): ScValString {
     return new ScValString(str);
   }
 
-  static scvSymbol(sym: Uint8Array | string): ScValSymbol {
+  static scvSymbol(sym: XdrString | string | Uint8Array): ScValSymbol {
     return new ScValSymbol(sym);
   }
 
@@ -702,16 +702,15 @@ export class ScValBytes extends ScValBase {
 
 export class ScValString extends ScValBase {
   readonly type = "scvString" as const;
-  readonly str: string;
+  readonly str: XdrString;
 
-  constructor(str: Uint8Array | string) {
+  constructor(str: XdrString | string | Uint8Array) {
     super();
-    this.str =
-      str instanceof Uint8Array ? new TextDecoder("latin1").decode(str) : str;
+    this.str = str instanceof XdrString ? str : new XdrString(str);
   }
 
   get value(): string {
-    return this.str;
+    return this.str.toString();
   }
 
   toXdrObject(): Extract<ScValWire, { type: 14 }> {
@@ -721,16 +720,15 @@ export class ScValString extends ScValBase {
 
 export class ScValSymbol extends ScValBase {
   readonly type = "scvSymbol" as const;
-  readonly sym: string;
+  readonly sym: XdrString;
 
-  constructor(sym: Uint8Array | string) {
+  constructor(sym: XdrString | string | Uint8Array) {
     super();
-    this.sym =
-      sym instanceof Uint8Array ? new TextDecoder("latin1").decode(sym) : sym;
+    this.sym = sym instanceof XdrString ? sym : new XdrString(sym);
   }
 
   get value(): string {
-    return this.sym;
+    return this.sym.toString();
   }
 
   toXdrObject(): Extract<ScValWire, { type: 15 }> {

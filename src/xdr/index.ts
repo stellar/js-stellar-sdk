@@ -27,6 +27,7 @@ export {
 } from "./values/xdr-value.js";
 export { BytesValue, type BytesEncoding } from "./values/bytes-value.js";
 export { EnumValue } from "./values/enum-value.js";
+export { XdrString, xdrString } from "./values/xdr-string.js";
 export {
   BigIntValue,
   bigIntTo128Parts,

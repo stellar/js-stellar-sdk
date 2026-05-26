@@ -1,9 +1,9 @@
 import { struct } from "../types/struct.js";
 import { option } from "../types/option.js";
 import { uint32 } from "../types/uint32.js";
-import { string as string_ } from "../types/string.js";
 import type { XdrType } from "../core/xdr-type.js";
 import { XdrValue } from "../values/xdr-value.js";
+import { XdrString, xdrString } from "../values/xdr-string.js";
 import { PublicKey, type PublicKeyWire } from "./public-key.js";
 import { Signer, type SignerWire } from "./signer.js";
 
@@ -15,7 +15,7 @@ export interface SetOptionsOpWire {
   lowThreshold: number | null;
   medThreshold: number | null;
   highThreshold: number | null;
-  homeDomain: string | null;
+  homeDomain: XdrString | null;
   signer: SignerWire | null;
 }
 
@@ -50,7 +50,7 @@ export class SetOptionsOp extends XdrValue {
   readonly lowThreshold: number | null;
   readonly medThreshold: number | null;
   readonly highThreshold: number | null;
-  readonly homeDomain: string | null;
+  readonly homeDomain: XdrString | null;
   readonly signer: Signer | null;
 
   static readonly schema: XdrType<SetOptionsOpWire> = struct("SetOptionsOp", {
@@ -61,7 +61,7 @@ export class SetOptionsOp extends XdrValue {
     lowThreshold: option(uint32()),
     medThreshold: option(uint32()),
     highThreshold: option(uint32()),
-    homeDomain: option(string_(32)),
+    homeDomain: option(xdrString(32)),
     signer: option(Signer.schema),
   });
 
@@ -73,7 +73,7 @@ export class SetOptionsOp extends XdrValue {
     lowThreshold: number | null;
     medThreshold: number | null;
     highThreshold: number | null;
-    homeDomain: Uint8Array | string | null;
+    homeDomain: XdrString | string | Uint8Array | null;
     signer: Signer | null;
   }) {
     super();
@@ -87,9 +87,9 @@ export class SetOptionsOp extends XdrValue {
     this.homeDomain =
       input.homeDomain === null
         ? null
-        : input.homeDomain instanceof Uint8Array
-          ? new TextDecoder("latin1").decode(input.homeDomain)
-          : input.homeDomain;
+        : input.homeDomain instanceof XdrString
+          ? input.homeDomain
+          : new XdrString(input.homeDomain);
     this.signer = input.signer;
   }
 

@@ -417,7 +417,7 @@ export class AssembledTransaction<T> {
 
     try {
       contractAddress = invokeContractArgs.contractAddress;
-      functionName = invokeContractArgs.functionName;
+      functionName = invokeContractArgs.functionName.toString();
     } catch {
       throw new Error(
         "Could not extract contract address or method name from the transaction envelope.",
@@ -463,7 +463,7 @@ export class AssembledTransaction<T> {
       options.contractId,
     );
 
-    const xdrMethod = invokeContractArgs.functionName;
+    const xdrMethod = invokeContractArgs.functionName.toString();
 
     if (xdrMethod !== options.method) {
       throw new Error(
@@ -518,7 +518,7 @@ export class AssembledTransaction<T> {
       options.contractId,
     );
 
-    const method = invokeContractArgs.functionName;
+    const method = invokeContractArgs.functionName.toString();
     const txn = new AssembledTransaction({
       ...options,
       method,

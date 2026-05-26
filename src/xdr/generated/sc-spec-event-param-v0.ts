@@ -1,7 +1,7 @@
 import { struct } from "../types/struct.js";
-import { string as string_ } from "../types/string.js";
 import type { XdrType } from "../core/xdr-type.js";
 import { XdrValue } from "../values/xdr-value.js";
+import { XdrString, xdrString } from "../values/xdr-string.js";
 import { ScSpecTypeDef, type ScSpecTypeDefWire } from "./sc-spec-type-def.js";
 import {
   ScSpecEventParamLocationV0,
@@ -9,8 +9,8 @@ import {
 } from "./sc-spec-event-param-location-v0.js";
 
 export interface ScSpecEventParamV0Wire {
-  doc: string;
-  name: string;
+  doc: XdrString;
+  name: XdrString;
   type: ScSpecTypeDefWire;
   location: ScSpecEventParamLocationV0Wire;
 }
@@ -27,36 +27,32 @@ export interface ScSpecEventParamV0Wire {
  * ```
  */
 export class ScSpecEventParamV0 extends XdrValue {
-  readonly doc: string;
-  readonly name: string;
+  readonly doc: XdrString;
+  readonly name: XdrString;
   readonly type: ScSpecTypeDef;
   readonly location: ScSpecEventParamLocationV0;
 
   static readonly schema: XdrType<ScSpecEventParamV0Wire> = struct(
     "ScSpecEventParamV0",
     {
-      doc: string_(1024),
-      name: string_(30),
+      doc: xdrString(1024),
+      name: xdrString(30),
       type: ScSpecTypeDef.schema,
       location: ScSpecEventParamLocationV0.schema,
     },
   );
 
   constructor(input: {
-    doc: Uint8Array | string;
-    name: Uint8Array | string;
+    doc: XdrString | string | Uint8Array;
+    name: XdrString | string | Uint8Array;
     type: ScSpecTypeDef;
     location: ScSpecEventParamLocationV0;
   }) {
     super();
     this.doc =
-      input.doc instanceof Uint8Array
-        ? new TextDecoder("latin1").decode(input.doc)
-        : input.doc;
+      input.doc instanceof XdrString ? input.doc : new XdrString(input.doc);
     this.name =
-      input.name instanceof Uint8Array
-        ? new TextDecoder("latin1").decode(input.name)
-        : input.name;
+      input.name instanceof XdrString ? input.name : new XdrString(input.name);
     this.type = input.type;
     this.location = input.location;
   }

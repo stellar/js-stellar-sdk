@@ -44,7 +44,7 @@ export type MemoType =
   | MemoTypeReturn
   | MemoTypeText;
 
-export type MemoValue = Buffer | string | null;
+export type MemoValue = Buffer | string | null | Uint8Array;
 
 type MemoValueMap = {
   [MemoNone]: null;
@@ -235,10 +235,11 @@ export class Memo<T extends MemoType = MemoType> {
   /**
    * Creates and returns a `MemoText` memo.
    *
-   * @param text - memo text
+   * @param text - memo text. A JS string is UTF-8 encoded on the wire;
+   *   pass a `Buffer`/`Uint8Array` for byte-exact content.
    */
-  static text(text: string): Memo<MemoTypeText> {
-    return new Memo(MemoText, text);
+  static text(text: string | Buffer | Uint8Array): Memo<MemoTypeText> {
+    return new Memo(MemoText, text as MemoValue);
   }
 
   /**
@@ -305,7 +306,7 @@ export class Memo<T extends MemoType = MemoType> {
       case "memoId":
         return Memo.id(object.value.toString());
       case "memoText":
-        return Memo.text(object.value as string);
+        return Memo.text(Buffer.from(object.text.bytes));
       case "memoHash":
         return Memo.hash(Buffer.from(object.value.toBytes()));
       case "memoReturn":

@@ -425,34 +425,13 @@ export function scValToNative(scv: ScVal): any {
     // Note that we assume a utf8 encoding (ascii-compatible). For other
     // encodings, you should probably use bytes anyway. If it cannot be decoded,
     // the raw bytes are returned.
-    case "scvSymbol": {
-      const v = scv.value;
-      if (
-        Buffer.isBuffer(v) ||
-        (ArrayBuffer.isView(v) && typeof v !== "string")
-      ) {
-        try {
-          return new TextDecoder().decode(v);
-        } catch {
-          return new Uint8Array((v as ArrayBufferView).buffer); // copy of bytes
-        }
-      }
-      return v; // string already
-    }
-    case "scvString": {
-      const v = scv.value;
-      if (
-        Buffer.isBuffer(v) ||
-        (ArrayBuffer.isView(v) && typeof v !== "string")
-      ) {
-        try {
-          return new TextDecoder().decode(v);
-        } catch {
-          return new Uint8Array((v as ArrayBufferView).buffer); // copy of bytes
-        }
-      }
-      return v; // string already
-    }
+    case "scvSymbol":
+      // Reach the raw XdrString wrapper (the `.value` getter would do a
+      // strict UTF-8 decode that throws on invalid bytes; we want a best-
+      // effort decode that falls back to raw bytes for binary content).
+      return scv.sym.asStringOrBytes();
+    case "scvString":
+      return scv.str.asStringOrBytes();
 
     // these can be converted to bigint
     case "scvTimepoint":

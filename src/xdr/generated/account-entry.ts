@@ -2,10 +2,10 @@ import { struct } from "../types/struct.js";
 import { int64 } from "../types/int64.js";
 import { uint32 } from "../types/uint32.js";
 import { option } from "../types/option.js";
-import { string as string_ } from "../types/string.js";
 import { array } from "../types/array.js";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "../core/xdr-type.js";
 import { XdrValue } from "../values/xdr-value.js";
+import { XdrString, xdrString } from "../values/xdr-string.js";
 import { PublicKey, type PublicKeyWire } from "./public-key.js";
 import { Thresholds, type ThresholdsWire } from "./thresholds.js";
 import { Signer, type SignerWire } from "./signer.js";
@@ -21,7 +21,7 @@ export interface AccountEntryWire {
   numSubEntries: number;
   inflationDest: PublicKeyWire | null;
   flags: number;
-  homeDomain: string;
+  homeDomain: XdrString;
   thresholds: ThresholdsWire;
   signers: SignerWire[];
   ext: AccountEntryExtWire;
@@ -66,7 +66,7 @@ export class AccountEntry extends XdrValue {
   readonly numSubEntries: number;
   readonly inflationDest: PublicKey | null;
   readonly flags: number;
-  readonly homeDomain: string;
+  readonly homeDomain: XdrString;
   readonly thresholds: Thresholds;
   readonly signers: Signer[];
   readonly ext: AccountEntryExt;
@@ -78,7 +78,7 @@ export class AccountEntry extends XdrValue {
     numSubEntries: uint32(),
     inflationDest: option(PublicKey.schema),
     flags: uint32(),
-    homeDomain: string_(32),
+    homeDomain: xdrString(32),
     thresholds: Thresholds.schema,
     signers: array(Signer.schema, UNBOUNDED_MAX_LENGTH),
     ext: AccountEntryExt.schema,
@@ -91,7 +91,7 @@ export class AccountEntry extends XdrValue {
     numSubEntries: number;
     inflationDest: PublicKey | null;
     flags: number;
-    homeDomain: Uint8Array | string;
+    homeDomain: XdrString | string | Uint8Array;
     thresholds: Thresholds | Uint8Array | string;
     signers: Signer[];
     ext: AccountEntryExt;
@@ -104,9 +104,9 @@ export class AccountEntry extends XdrValue {
     this.inflationDest = input.inflationDest;
     this.flags = input.flags;
     this.homeDomain =
-      input.homeDomain instanceof Uint8Array
-        ? new TextDecoder("latin1").decode(input.homeDomain)
-        : input.homeDomain;
+      input.homeDomain instanceof XdrString
+        ? input.homeDomain
+        : new XdrString(input.homeDomain);
     this.thresholds =
       input.thresholds instanceof Thresholds
         ? input.thresholds

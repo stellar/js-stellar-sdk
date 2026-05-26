@@ -351,7 +351,7 @@ describe("TransactionBuilder", () => {
         );
 
         // function name is 'transfer'
-        expect(contractFn.functionName).toBe("transfer");
+        expect(contractFn.functionName.toString()).toBe("transfer");
 
         // args: [source address, destination address, amount as i128]
         const args = contractFn.args;

@@ -17,6 +17,7 @@ import { Buffer } from "buffer";
 import { XdrError } from "../core/error.js";
 import type { XdrType } from "../core/xdr-type.js";
 import type { JsonValue } from "./xdr-value.js";
+import { XdrString } from "./xdr-string.js";
 import {
   bigIntTo128Parts,
   bigIntTo256Parts,
@@ -99,7 +100,7 @@ export function walkToJson(wire: unknown, schema: XdrType<unknown>): JsonValue {
     case "uint64":
       return (wire as bigint).toString();
     case "string":
-      return wire as string;
+      return (wire as XdrString).toJson();
     case "opaque":
       return uint8ArrayToHex(wire as Uint8Array);
     case "varOpaque":
@@ -189,7 +190,7 @@ export function walkFromJson(
       return BigInt(json as string);
     case "string":
       assertJsonType(json, "string", schema);
-      return json;
+      return XdrString.fromJson(json as string);
     case "opaque":
       assertJsonType(json, "string", schema);
       return hexToUint8Array(json as string);

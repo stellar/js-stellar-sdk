@@ -1,10 +1,10 @@
 import { struct } from "../types/struct.js";
 import { uint32 } from "../types/uint32.js";
-import { string as string_ } from "../types/string.js";
 import { int32 } from "../types/int32.js";
 import { opaque } from "../types/opaque.js";
 import type { XdrType } from "../core/xdr-type.js";
 import { XdrValue } from "../values/xdr-value.js";
+import { XdrString, xdrString } from "../values/xdr-string.js";
 import { Hash, type HashWire } from "./hash.js";
 import { PublicKey, type PublicKeyWire } from "./public-key.js";
 import { AuthCert, type AuthCertWire } from "./auth-cert.js";
@@ -14,7 +14,7 @@ export interface HelloWire {
   overlayVersion: number;
   overlayMinVersion: number;
   networkId: HashWire;
-  versionStr: string;
+  versionStr: XdrString;
   listeningPort: number;
   peerId: PublicKeyWire;
   cert: AuthCertWire;
@@ -42,7 +42,7 @@ export class Hello extends XdrValue {
   readonly overlayVersion: number;
   readonly overlayMinVersion: number;
   readonly networkId: Hash;
-  readonly versionStr: string;
+  readonly versionStr: XdrString;
   readonly listeningPort: number;
   readonly peerId: PublicKey;
   readonly cert: AuthCert;
@@ -53,7 +53,7 @@ export class Hello extends XdrValue {
     overlayVersion: uint32(),
     overlayMinVersion: uint32(),
     networkId: Hash.schema,
-    versionStr: string_(100),
+    versionStr: xdrString(100),
     listeningPort: int32(),
     peerId: PublicKey.schema,
     cert: AuthCert.schema,
@@ -65,7 +65,7 @@ export class Hello extends XdrValue {
     overlayVersion: number;
     overlayMinVersion: number;
     networkId: Hash | Uint8Array | string;
-    versionStr: Uint8Array | string;
+    versionStr: XdrString | string | Uint8Array;
     listeningPort: number;
     peerId: PublicKey;
     cert: AuthCert;
@@ -80,9 +80,9 @@ export class Hello extends XdrValue {
         ? input.networkId
         : new Hash(input.networkId);
     this.versionStr =
-      input.versionStr instanceof Uint8Array
-        ? new TextDecoder("latin1").decode(input.versionStr)
-        : input.versionStr;
+      input.versionStr instanceof XdrString
+        ? input.versionStr
+        : new XdrString(input.versionStr);
     this.listeningPort = input.listeningPort;
     this.peerId = input.peerId;
     this.cert = input.cert;

@@ -233,7 +233,7 @@ export class Operation {
         result.highThreshold = attrs.highThreshold ?? undefined;
         // home_domain is checked by iscntrl in stellar-core
         result.homeDomain =
-          attrs.homeDomain === null ? undefined : attrs.homeDomain;
+          attrs.homeDomain === null ? undefined : attrs.homeDomain.toString();
 
         if (attrs.signer) {
           const signer: Record<string, unknown> = {};
@@ -301,7 +301,7 @@ export class Operation {
       case "manageData": {
         result.type = "manageData";
         // manage_data.name is checked by iscntrl in stellar-core
-        result.name = attrs.dataName;
+        result.name = attrs.dataName.toString();
         result.value =
           attrs.dataValue === null
             ? undefined
@@ -524,7 +524,7 @@ function extractRevokeSponshipDetails(
         case "data": {
           result.type = "revokeDataSponsorship";
           result.account = accountIdtoAddress(ledgerKey.data.accountId);
-          result.name = ledgerKey.data.dataName;
+          result.name = ledgerKey.data.dataName.toString();
           break;
         }
         case "claimableBalance": {

@@ -175,7 +175,7 @@ describe("Contract", () => {
       const op = contract.call("myMethod");
       const args = getInvokeContractArgs(op);
 
-      expect(args.functionName).toBe("myMethod");
+      expect(args.functionName.toString()).toBe("myMethod");
     });
 
     it("passes all params as args", () => {

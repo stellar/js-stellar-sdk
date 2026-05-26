@@ -360,7 +360,9 @@ describe("Can round trip custom types", () => {
 
   describe("Json Schema", () => {
     SPEC = new contract.Spec(spec);
-    const names = SPEC.funcs().map((f) => f.name);
+    // Function names are XDR `string<32>` (XdrString wrapper); decode for
+    // use as JS `it()` labels and downstream string comparisons.
+    const names = SPEC.funcs().map((f) => f.name.toString());
     const banned = ["strukt_hel", "not", "woid", "val", "multi_args"];
     names
       .filter((name) => !name.includes("fail"))

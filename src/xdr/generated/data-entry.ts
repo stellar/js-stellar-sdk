@@ -1,14 +1,14 @@
 import { struct } from "../types/struct.js";
-import { string as string_ } from "../types/string.js";
 import type { XdrType } from "../core/xdr-type.js";
 import { XdrValue } from "../values/xdr-value.js";
+import { XdrString, xdrString } from "../values/xdr-string.js";
 import { PublicKey, type PublicKeyWire } from "./public-key.js";
 import { DataValue, type DataValueWire } from "./data-value.js";
 import { DataEntryExt, type DataEntryExtWire } from "./data-entry-ext.js";
 
 export interface DataEntryWire {
   accountId: PublicKeyWire;
-  dataName: string;
+  dataName: XdrString;
   dataValue: DataValueWire;
   ext: DataEntryExtWire;
 }
@@ -33,29 +33,29 @@ export interface DataEntryWire {
  */
 export class DataEntry extends XdrValue {
   readonly accountId: PublicKey;
-  readonly dataName: string;
+  readonly dataName: XdrString;
   readonly dataValue: DataValue;
   readonly ext: DataEntryExt;
 
   static readonly schema: XdrType<DataEntryWire> = struct("DataEntry", {
     accountId: PublicKey.schema,
-    dataName: string_(64),
+    dataName: xdrString(64),
     dataValue: DataValue.schema,
     ext: DataEntryExt.schema,
   });
 
   constructor(input: {
     accountId: PublicKey;
-    dataName: Uint8Array | string;
+    dataName: XdrString | string | Uint8Array;
     dataValue: DataValue | Uint8Array | string;
     ext: DataEntryExt;
   }) {
     super();
     this.accountId = input.accountId;
     this.dataName =
-      input.dataName instanceof Uint8Array
-        ? new TextDecoder("latin1").decode(input.dataName)
-        : input.dataName;
+      input.dataName instanceof XdrString
+        ? input.dataName
+        : new XdrString(input.dataName);
     this.dataValue =
       input.dataValue instanceof DataValue
         ? input.dataValue

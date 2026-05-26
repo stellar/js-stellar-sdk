@@ -126,7 +126,7 @@ describe("assembleTransaction", () => {
         invokeOp.auth[0]!.rootInvocation.function,
         "sorobanAuthorizedFunctionTypeContractFn",
       ).contractFn;
-      expect(fn.functionName).toBe("fn");
+      expect(fn.functionName.toString()).toBe("fn");
 
       const credAddr = expectVariant(
         invokeOp.auth[0]!.credentials,

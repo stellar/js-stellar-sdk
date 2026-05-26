@@ -1,12 +1,12 @@
 import { struct } from "../types/struct.js";
-import { string as string_ } from "../types/string.js";
 import type { XdrType } from "../core/xdr-type.js";
 import { XdrValue } from "../values/xdr-value.js";
+import { XdrString, xdrString } from "../values/xdr-string.js";
 import { ErrorCode, type ErrorCodeWire } from "./error-code.js";
 
 export interface ErrorWire {
   code: ErrorCodeWire;
-  msg: string;
+  msg: XdrString;
 }
 
 /**
@@ -20,20 +20,21 @@ export interface ErrorWire {
  */
 export class Error extends XdrValue {
   readonly code: ErrorCode;
-  readonly msg: string;
+  readonly msg: XdrString;
 
   static readonly schema: XdrType<ErrorWire> = struct("Error", {
     code: ErrorCode.schema,
-    msg: string_(100),
+    msg: xdrString(100),
   });
 
-  constructor(input: { code: ErrorCode; msg: Uint8Array | string }) {
+  constructor(input: {
+    code: ErrorCode;
+    msg: XdrString | string | Uint8Array;
+  }) {
     super();
     this.code = input.code;
     this.msg =
-      input.msg instanceof Uint8Array
-        ? new TextDecoder("latin1").decode(input.msg)
-        : input.msg;
+      input.msg instanceof XdrString ? input.msg : new XdrString(input.msg);
   }
 
   toXdrObject(): ErrorWire {

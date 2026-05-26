@@ -199,15 +199,14 @@ describe("Operation", () => {
         expect(ctorArgs[1]).toEqual(constructorArgs[1]);
         expect(expectDefined(decodedOp.auth)).toHaveLength(0);
 
-        // note: we used a string initially but once the operation is
-        // encoded/decoded it will be a Buffer internally, so we need to
-        // compare that way instead.
+        // `.str` is the raw XdrString wrapper — compare via equals (or
+        // .asString() for textual equality).
         const decodedStr = expectVariant(ctorArgs[0], "scvString").str;
         const originalStr = expectVariant(constructorArgs[0], "scvString").str;
 
         expect(decodedStr).toBeDefined();
         expect(originalStr).toBeDefined();
-        expect(decodedStr?.toString()).toBe(originalStr);
+        expect(decodedStr.equals(originalStr)).toBe(true);
       });
 
       it("prevents invocation with liquidity pool args", () => {

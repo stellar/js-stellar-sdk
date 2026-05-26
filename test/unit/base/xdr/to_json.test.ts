@@ -140,6 +140,100 @@ describe("walker — enums", () => {
   });
 });
 
+describe("walker — string<N> SEP-0051 byte escapes", () => {
+  // Memo.memoText is our cheapest carrier of an XDR `string<N>` field.
+  // For each case we go through `toJson` and back via `fromJson`, then
+  // confirm the wire bytes match end-to-end.
+
+  it("pure printable ASCII is emitted unchanged", () => {
+    const m = Memo.memoText("hello world");
+    expect(m.toJson()).toEqual({ text: "hello world" });
+  });
+
+  it("literal backslash is escaped as \\\\", () => {
+    const m = Memo.memoText("a\\b");
+    expect(m.toJson()).toEqual({ text: "a\\\\b" });
+    // Round-trip: the JSON back through fromJson must yield the same wire bytes.
+    const round = Memo.fromJson(m.toJson());
+    expect(round.toXdr()).toEqual(m.toXdr());
+  });
+
+  it("SEP-0051 special-case escapes (\\0, \\t, \\n, \\r) are used", () => {
+    const m = Memo.memoText(
+      new Uint8Array([0x00, 0x09, 0x0a, 0x0d, 0x1f, 0x41]),
+    );
+    // 0x00 → \0, 0x09 → \t, 0x0a → \n, 0x0d → \r, 0x1F → \xNN, 'A' → 'A'
+    expect(m.toJson()).toEqual({ text: "\\0\\t\\n\\r\\x1fA" });
+    const round = Memo.fromJson(m.toJson());
+    expect(round.toXdr()).toEqual(m.toXdr());
+  });
+
+  it("latin1-range bytes (0x80..0xFF) become \\xNN per byte", () => {
+    // 0xD1 is invalid UTF-8 → wire layer falls back to latin1 →
+    // JS string has char with code point 0xD1.
+    const m = Memo.memoText(new Uint8Array([0xd1, 0xff, 0x41]));
+    expect(m.toJson()).toEqual({ text: "\\xd1\\xffA" });
+    const round = Memo.fromJson(m.toJson());
+    expect(round.toXdr()).toEqual(m.toXdr());
+  });
+
+  it("JS string input is UTF-8 encoded by XdrString", () => {
+    // "café" → UTF-8 bytes [0x63, 0x61, 0x66, 0xC3, 0xA9] → JSON
+    // "caf\xc3\xa9" (4 ASCII chars + two \xNN escapes for the 'é' UTF-8 pair).
+    // The latin1 quirk is gone — `XdrString(string)` always UTF-8 encodes.
+    const m = Memo.memoText("café");
+    expect(m.toJson()).toEqual({ text: "caf\\xc3\\xa9" });
+    const round = Memo.fromJson(m.toJson());
+    expect(round.toXdr()).toEqual(m.toXdr());
+  });
+
+  it("CJK chars (code points > 0xFF) UTF-8-encode then byte-escape", () => {
+    // "三" has code point U+4E09, can't fit in a byte → UTF-8 path
+    // → bytes [0xE4, 0xB8, 0x89] → three \xNN escapes.
+    const m = Memo.memoText("三");
+    expect(m.toJson()).toEqual({ text: "\\xe4\\xb8\\x89" });
+    const round = Memo.fromJson(m.toJson());
+    expect(round.toXdr()).toEqual(m.toXdr());
+  });
+
+  it("mixed printable + control + latin1 escapes correctly", () => {
+    const m = Memo.memoText(
+      new Uint8Array([0x48, 0x69, 0x09, 0xd1, 0x5c, 0x21]),
+    );
+    // 'H' 'i' '\t' 0xD1 '\\' '!'  → SEP-0051: "Hi\\t\\xd1\\\\!"
+    expect(m.toJson()).toEqual({ text: "Hi\\t\\xd1\\\\!" });
+    const round = Memo.fromJson(m.toJson());
+    expect(round.toXdr()).toEqual(m.toXdr());
+  });
+
+  it("uppercase \\X escapes are accepted on fromJson (case-insensitive)", () => {
+    const round = Memo.fromJson({ text: "\\X41\\xff" });
+    // 'A' (0x41), 0xFF — wire bytes are [0x41, 0xFF].
+    const direct = Memo.memoText(new Uint8Array([0x41, 0xff]));
+    expect(round.toXdr()).toEqual(direct.toXdr());
+  });
+
+  it("malformed \\x escape on fromJson throws clearly", () => {
+    expect(() => Memo.fromJson({ text: "\\xZZ" })).toThrow(
+      /invalid \\x escape/,
+    );
+  });
+
+  it("truncated \\x escape on fromJson throws", () => {
+    expect(() => Memo.fromJson({ text: "\\x4" })).toThrow(
+      /truncated \\x escape/,
+    );
+  });
+
+  it("unknown backslash escape on fromJson throws", () => {
+    // \a is not in SEP-0051's escape table — only \0, \t, \n, \r, \\, \xNN.
+    expect(() => Memo.fromJson({ text: "a\\ab" })).toThrow(
+      /unsupported escape/,
+    );
+  });
+
+});
+
 describe("walker — structs (composite)", () => {
   it("AlphaNum4 emits {assetCode: hex, issuer: strkey}", () => {
     const an4 = new AlphaNum4({

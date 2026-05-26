@@ -4,16 +4,16 @@
 // initialized.
 import { case as case_, field, union } from "../types/union.js";
 import { void as voidType } from "../types/void.js";
-import { string as string_ } from "../types/string.js";
 import { uint64 } from "../types/uint64.js";
 import type { XdrType } from "../core/xdr-type.js";
 import { XdrValue } from "../values/xdr-value.js";
+import { XdrString, xdrString } from "../values/xdr-string.js";
 import { MemoType } from "./memo-type.js";
 import { Hash, type HashWire } from "./hash.js";
 
 export type MemoWire =
   | { type: 0 }
-  | { type: 1; text: string }
+  | { type: 1; text: XdrString }
   | { type: 2; id: bigint }
   | { type: 3; hash: HashWire }
   | { type: 4; retHash: HashWire };
@@ -49,7 +49,7 @@ abstract class MemoBase extends XdrValue {
     switchOn: MemoType.schema,
     cases: [
       case_("memoNone", 0, voidType()),
-      case_("memoText", 1, field("text", string_(28))),
+      case_("memoText", 1, field("text", xdrString(28))),
       case_("memoId", 2, field("id", uint64())),
       case_("memoHash", 3, field("hash", Hash.schema)),
       case_("memoReturn", 4, field("retHash", Hash.schema)),
@@ -60,7 +60,7 @@ abstract class MemoBase extends XdrValue {
     return new MemoNone();
   }
 
-  static memoText(text: Uint8Array | string): MemoText {
+  static memoText(text: XdrString | string | Uint8Array): MemoText {
     return new MemoText(text);
   }
 
@@ -104,18 +104,15 @@ export class MemoNone extends MemoBase {
 
 export class MemoText extends MemoBase {
   readonly type = "memoText" as const;
-  readonly text: string;
+  readonly text: XdrString;
 
-  constructor(text: Uint8Array | string) {
+  constructor(text: XdrString | string | Uint8Array) {
     super();
-    this.text =
-      text instanceof Uint8Array
-        ? new TextDecoder("latin1").decode(text)
-        : text;
+    this.text = text instanceof XdrString ? text : new XdrString(text);
   }
 
   get value(): string {
-    return this.text;
+    return this.text.toString();
   }
 
   toXdrObject(): Extract<MemoWire, { type: 1 }> {

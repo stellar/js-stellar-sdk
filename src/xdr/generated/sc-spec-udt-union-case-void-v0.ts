@@ -1,11 +1,11 @@
 import { struct } from "../types/struct.js";
-import { string as string_ } from "../types/string.js";
 import type { XdrType } from "../core/xdr-type.js";
 import { XdrValue } from "../values/xdr-value.js";
+import { XdrString, xdrString } from "../values/xdr-string.js";
 
 export interface ScSpecUdtUnionCaseVoidV0Wire {
-  doc: string;
-  name: string;
+  doc: XdrString;
+  name: XdrString;
 }
 
 /**
@@ -18,27 +18,26 @@ export interface ScSpecUdtUnionCaseVoidV0Wire {
  * ```
  */
 export class ScSpecUdtUnionCaseVoidV0 extends XdrValue {
-  readonly doc: string;
-  readonly name: string;
+  readonly doc: XdrString;
+  readonly name: XdrString;
 
   static readonly schema: XdrType<ScSpecUdtUnionCaseVoidV0Wire> = struct(
     "ScSpecUdtUnionCaseVoidV0",
     {
-      doc: string_(1024),
-      name: string_(60),
+      doc: xdrString(1024),
+      name: xdrString(60),
     },
   );
 
-  constructor(input: { doc: Uint8Array | string; name: Uint8Array | string }) {
+  constructor(input: {
+    doc: XdrString | string | Uint8Array;
+    name: XdrString | string | Uint8Array;
+  }) {
     super();
     this.doc =
-      input.doc instanceof Uint8Array
-        ? new TextDecoder("latin1").decode(input.doc)
-        : input.doc;
+      input.doc instanceof XdrString ? input.doc : new XdrString(input.doc);
     this.name =
-      input.name instanceof Uint8Array
-        ? new TextDecoder("latin1").decode(input.name)
-        : input.name;
+      input.name instanceof XdrString ? input.name : new XdrString(input.name);
   }
 
   toXdrObject(): ScSpecUdtUnionCaseVoidV0Wire {

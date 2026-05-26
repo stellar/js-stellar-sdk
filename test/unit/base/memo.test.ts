@@ -45,7 +45,8 @@ describe("Memo", () => {
       if (xdrMemoUtf8.type !== "memoText") {
         throw new Error("expected memoText");
       }
-      const a = Buffer.from(xdrMemoUtf8.text, "utf8");
+      // `text` is an XdrString wrapper — compare the raw bytes.
+      const a = Buffer.from(xdrMemoUtf8.text.bytes);
       const b = Buffer.from("三代之時", "utf8");
       expect(a).toEqual(b);
     });
@@ -73,12 +74,15 @@ describe("Memo", () => {
       const xdrMemo = memo.toXdrObject();
       expect(xdrMemo.type).toBe("memoText");
       if (xdrMemo.type !== "memoText") throw new Error("expected memoText");
-      expect(xdrMemo.text).toBe("test");
+      // Arm field `.text` is XdrString (call `.toString()` to decode);
+      // `.value` getter is the already-decoded string.
+      expect(xdrMemo.text.toString()).toBe("test");
       expect(xdrMemo.value).toBe("test");
 
       const baseMemo = Memo.fromXdrObject(xdrMemo);
       expect(baseMemo.type).toBe(MemoText);
-      expect(baseMemo.value).toBe("test");
+      // Memo wrapper surfaces the wire bytes as a Buffer.
+      expect((baseMemo.value as Buffer).toString("utf8")).toBe("test");
     });
 
     it("converts to/from xdr object (buffer)", () => {
@@ -90,12 +94,14 @@ describe("Memo", () => {
       const xdrMemo = memo.toXdrObject();
       expect(xdrMemo.type).toBe("memoText");
       if (xdrMemo.type !== "memoText") throw new Error("expected memoText");
-      expect(xdrMemo.text).toBe(buf.toString("utf8"));
+      expect(xdrMemo.text.toString()).toBe(buf.toString("utf8"));
       expect(xdrMemo.value).toBe(buf.toString("utf8"));
 
       const baseMemo = Memo.fromXdrObject(xdrMemo);
       expect(baseMemo.type).toBe(MemoText);
-      expect(baseMemo.value).toBe(buf.toString("utf8"));
+      expect((baseMemo.value as Buffer).toString("utf8")).toBe(
+        buf.toString("utf8"),
+      );
     });
 
     it("throws an error when invalid argument was passed", () => {

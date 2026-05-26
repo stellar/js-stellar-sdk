@@ -1,8 +1,8 @@
 import { struct } from "../types/struct.js";
-import { string as string_ } from "../types/string.js";
 import { array } from "../types/array.js";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "../core/xdr-type.js";
 import { XdrValue } from "../values/xdr-value.js";
+import { XdrString, xdrString } from "../values/xdr-string.js";
 import {
   ScSpecFunctionInputV0,
   type ScSpecFunctionInputV0Wire,
@@ -10,8 +10,8 @@ import {
 import { ScSpecTypeDef, type ScSpecTypeDefWire } from "./sc-spec-type-def.js";
 
 export interface ScSpecFunctionV0Wire {
-  doc: string;
-  name: string;
+  doc: XdrString;
+  name: XdrString;
   inputs: ScSpecFunctionInputV0Wire[];
   outputs: ScSpecTypeDefWire[];
 }
@@ -28,36 +28,32 @@ export interface ScSpecFunctionV0Wire {
  * ```
  */
 export class ScSpecFunctionV0 extends XdrValue {
-  readonly doc: string;
-  readonly name: string;
+  readonly doc: XdrString;
+  readonly name: XdrString;
   readonly inputs: ScSpecFunctionInputV0[];
   readonly outputs: ScSpecTypeDef[];
 
   static readonly schema: XdrType<ScSpecFunctionV0Wire> = struct(
     "ScSpecFunctionV0",
     {
-      doc: string_(1024),
-      name: string_(32),
+      doc: xdrString(1024),
+      name: xdrString(32),
       inputs: array(ScSpecFunctionInputV0.schema, UNBOUNDED_MAX_LENGTH),
       outputs: array(ScSpecTypeDef.schema, UNBOUNDED_MAX_LENGTH),
     },
   );
 
   constructor(input: {
-    doc: Uint8Array | string;
-    name: Uint8Array | string;
+    doc: XdrString | string | Uint8Array;
+    name: XdrString | string | Uint8Array;
     inputs: ScSpecFunctionInputV0[];
     outputs: ScSpecTypeDef[];
   }) {
     super();
     this.doc =
-      input.doc instanceof Uint8Array
-        ? new TextDecoder("latin1").decode(input.doc)
-        : input.doc;
+      input.doc instanceof XdrString ? input.doc : new XdrString(input.doc);
     this.name =
-      input.name instanceof Uint8Array
-        ? new TextDecoder("latin1").decode(input.name)
-        : input.name;
+      input.name instanceof XdrString ? input.name : new XdrString(input.name);
     this.inputs = input.inputs;
     this.outputs = input.outputs;
   }

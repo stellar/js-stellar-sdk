@@ -1,13 +1,13 @@
 import { struct } from "../types/struct.js";
-import { string as string_ } from "../types/string.js";
 import { uint64 } from "../types/uint64.js";
 import type { XdrType } from "../core/xdr-type.js";
 import { XdrValue } from "../values/xdr-value.js";
+import { XdrString, xdrString } from "../values/xdr-string.js";
 import { PublicKey, type PublicKeyWire } from "./public-key.js";
 
 export interface PeerStatsWire {
   id: PublicKeyWire;
-  versionStr: string;
+  versionStr: XdrString;
   messagesRead: bigint;
   messagesWritten: bigint;
   bytesRead: bigint;
@@ -49,7 +49,7 @@ export interface PeerStatsWire {
  */
 export class PeerStats extends XdrValue {
   readonly id: PublicKey;
-  readonly versionStr: string;
+  readonly versionStr: XdrString;
   readonly messagesRead: bigint;
   readonly messagesWritten: bigint;
   readonly bytesRead: bigint;
@@ -66,7 +66,7 @@ export class PeerStats extends XdrValue {
 
   static readonly schema: XdrType<PeerStatsWire> = struct("PeerStats", {
     id: PublicKey.schema,
-    versionStr: string_(100),
+    versionStr: xdrString(100),
     messagesRead: uint64(),
     messagesWritten: uint64(),
     bytesRead: uint64(),
@@ -84,7 +84,7 @@ export class PeerStats extends XdrValue {
 
   constructor(input: {
     id: PublicKey;
-    versionStr: Uint8Array | string;
+    versionStr: XdrString | string | Uint8Array;
     messagesRead: bigint;
     messagesWritten: bigint;
     bytesRead: bigint;
@@ -102,9 +102,9 @@ export class PeerStats extends XdrValue {
     super();
     this.id = input.id;
     this.versionStr =
-      input.versionStr instanceof Uint8Array
-        ? new TextDecoder("latin1").decode(input.versionStr)
-        : input.versionStr;
+      input.versionStr instanceof XdrString
+        ? input.versionStr
+        : new XdrString(input.versionStr);
     this.messagesRead = input.messagesRead;
     this.messagesWritten = input.messagesWritten;
     this.bytesRead = input.bytesRead;

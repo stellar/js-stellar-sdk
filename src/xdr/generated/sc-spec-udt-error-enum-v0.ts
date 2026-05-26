@@ -1,17 +1,17 @@
 import { struct } from "../types/struct.js";
-import { string as string_ } from "../types/string.js";
 import { array } from "../types/array.js";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "../core/xdr-type.js";
 import { XdrValue } from "../values/xdr-value.js";
+import { XdrString, xdrString } from "../values/xdr-string.js";
 import {
   ScSpecUdtErrorEnumCaseV0,
   type ScSpecUdtErrorEnumCaseV0Wire,
 } from "./sc-spec-udt-error-enum-case-v0.js";
 
 export interface ScSpecUdtErrorEnumV0Wire {
-  doc: string;
-  lib: string;
-  name: string;
+  doc: XdrString;
+  lib: XdrString;
+  name: XdrString;
   cases: ScSpecUdtErrorEnumCaseV0Wire[];
 }
 
@@ -27,40 +27,34 @@ export interface ScSpecUdtErrorEnumV0Wire {
  * ```
  */
 export class ScSpecUdtErrorEnumV0 extends XdrValue {
-  readonly doc: string;
-  readonly lib: string;
-  readonly name: string;
+  readonly doc: XdrString;
+  readonly lib: XdrString;
+  readonly name: XdrString;
   readonly cases: ScSpecUdtErrorEnumCaseV0[];
 
   static readonly schema: XdrType<ScSpecUdtErrorEnumV0Wire> = struct(
     "ScSpecUdtErrorEnumV0",
     {
-      doc: string_(1024),
-      lib: string_(80),
-      name: string_(60),
+      doc: xdrString(1024),
+      lib: xdrString(80),
+      name: xdrString(60),
       cases: array(ScSpecUdtErrorEnumCaseV0.schema, UNBOUNDED_MAX_LENGTH),
     },
   );
 
   constructor(input: {
-    doc: Uint8Array | string;
-    lib: Uint8Array | string;
-    name: Uint8Array | string;
+    doc: XdrString | string | Uint8Array;
+    lib: XdrString | string | Uint8Array;
+    name: XdrString | string | Uint8Array;
     cases: ScSpecUdtErrorEnumCaseV0[];
   }) {
     super();
     this.doc =
-      input.doc instanceof Uint8Array
-        ? new TextDecoder("latin1").decode(input.doc)
-        : input.doc;
+      input.doc instanceof XdrString ? input.doc : new XdrString(input.doc);
     this.lib =
-      input.lib instanceof Uint8Array
-        ? new TextDecoder("latin1").decode(input.lib)
-        : input.lib;
+      input.lib instanceof XdrString ? input.lib : new XdrString(input.lib);
     this.name =
-      input.name instanceof Uint8Array
-        ? new TextDecoder("latin1").decode(input.name)
-        : input.name;
+      input.name instanceof XdrString ? input.name : new XdrString(input.name);
     this.cases = input.cases;
   }
 

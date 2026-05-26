@@ -1,17 +1,17 @@
 import { struct } from "../types/struct.js";
-import { string as string_ } from "../types/string.js";
 import { array } from "../types/array.js";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "../core/xdr-type.js";
 import { XdrValue } from "../values/xdr-value.js";
+import { XdrString, xdrString } from "../values/xdr-string.js";
 import {
   ScSpecUdtStructFieldV0,
   type ScSpecUdtStructFieldV0Wire,
 } from "./sc-spec-udt-struct-field-v0.js";
 
 export interface ScSpecUdtStructV0Wire {
-  doc: string;
-  lib: string;
-  name: string;
+  doc: XdrString;
+  lib: XdrString;
+  name: XdrString;
   fields: ScSpecUdtStructFieldV0Wire[];
 }
 
@@ -27,40 +27,34 @@ export interface ScSpecUdtStructV0Wire {
  * ```
  */
 export class ScSpecUdtStructV0 extends XdrValue {
-  readonly doc: string;
-  readonly lib: string;
-  readonly name: string;
+  readonly doc: XdrString;
+  readonly lib: XdrString;
+  readonly name: XdrString;
   readonly fields: ScSpecUdtStructFieldV0[];
 
   static readonly schema: XdrType<ScSpecUdtStructV0Wire> = struct(
     "ScSpecUdtStructV0",
     {
-      doc: string_(1024),
-      lib: string_(80),
-      name: string_(60),
+      doc: xdrString(1024),
+      lib: xdrString(80),
+      name: xdrString(60),
       fields: array(ScSpecUdtStructFieldV0.schema, UNBOUNDED_MAX_LENGTH),
     },
   );
 
   constructor(input: {
-    doc: Uint8Array | string;
-    lib: Uint8Array | string;
-    name: Uint8Array | string;
+    doc: XdrString | string | Uint8Array;
+    lib: XdrString | string | Uint8Array;
+    name: XdrString | string | Uint8Array;
     fields: ScSpecUdtStructFieldV0[];
   }) {
     super();
     this.doc =
-      input.doc instanceof Uint8Array
-        ? new TextDecoder("latin1").decode(input.doc)
-        : input.doc;
+      input.doc instanceof XdrString ? input.doc : new XdrString(input.doc);
     this.lib =
-      input.lib instanceof Uint8Array
-        ? new TextDecoder("latin1").decode(input.lib)
-        : input.lib;
+      input.lib instanceof XdrString ? input.lib : new XdrString(input.lib);
     this.name =
-      input.name instanceof Uint8Array
-        ? new TextDecoder("latin1").decode(input.name)
-        : input.name;
+      input.name instanceof XdrString ? input.name : new XdrString(input.name);
     this.fields = input.fields;
   }
 

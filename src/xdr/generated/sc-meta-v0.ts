@@ -1,11 +1,11 @@
 import { struct } from "../types/struct.js";
-import { string as string_ } from "../types/string.js";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "../core/xdr-type.js";
 import { XdrValue } from "../values/xdr-value.js";
+import { XdrString, xdrString } from "../values/xdr-string.js";
 
 export interface ScMetaV0Wire {
-  key: string;
-  val: string;
+  key: XdrString;
+  val: XdrString;
 }
 
 /**
@@ -18,24 +18,23 @@ export interface ScMetaV0Wire {
  * ```
  */
 export class ScMetaV0 extends XdrValue {
-  readonly key: string;
-  readonly val: string;
+  readonly key: XdrString;
+  readonly val: XdrString;
 
   static readonly schema: XdrType<ScMetaV0Wire> = struct("ScMetaV0", {
-    key: string_(UNBOUNDED_MAX_LENGTH),
-    val: string_(UNBOUNDED_MAX_LENGTH),
+    key: xdrString(UNBOUNDED_MAX_LENGTH),
+    val: xdrString(UNBOUNDED_MAX_LENGTH),
   });
 
-  constructor(input: { key: Uint8Array | string; val: Uint8Array | string }) {
+  constructor(input: {
+    key: XdrString | string | Uint8Array;
+    val: XdrString | string | Uint8Array;
+  }) {
     super();
     this.key =
-      input.key instanceof Uint8Array
-        ? new TextDecoder("latin1").decode(input.key)
-        : input.key;
+      input.key instanceof XdrString ? input.key : new XdrString(input.key);
     this.val =
-      input.val instanceof Uint8Array
-        ? new TextDecoder("latin1").decode(input.val)
-        : input.val;
+      input.val instanceof XdrString ? input.val : new XdrString(input.val);
   }
 
   toXdrObject(): ScMetaV0Wire {

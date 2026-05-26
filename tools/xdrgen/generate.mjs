@@ -278,10 +278,10 @@ function schemaExpr(t, ctx) {
       ctx.builders.add("bool");
       return "bool()";
     case "string":
-      ctx.builders.add("string_");
-      if (t.max_size != null) return `string_(${t.max_size})`;
+      ctx.valueImports.add("xdrString");
+      if (t.max_size != null) return `xdrString(${t.max_size})`;
       ctx.coreImports.add("UNBOUNDED_MAX_LENGTH");
-      return `string_(UNBOUNDED_MAX_LENGTH)`;
+      return `xdrString(UNBOUNDED_MAX_LENGTH)`;
     case "opaque_fixed":
       ctx.builders.add("opaque");
       return `opaque(${t.size})`;
@@ -338,7 +338,9 @@ function refSchemaExpr(name, ctx) {
 
 /**
  * The TS type a consumer holds — e.g., `AlphaNum4`, `Uint8Array`, `number`,
- * `bigint`, `boolean`, `string`, `Int128Parts[]`, `PublicKey | null`.
+ * `bigint`, `XdrString`, `Int128Parts[]`, `PublicKey | null`. Note: XDR
+ * `string<N>` surfaces as `XdrString` (a wrapper class — see
+ * `src/xdr/values/xdr-string.ts`), while `opaque` surfaces as `Uint8Array`.
  */
 function tsTypeExpr(t, ctx) {
   switch (t.kind) {
@@ -351,7 +353,8 @@ function tsTypeExpr(t, ctx) {
     case "bool":
       return "boolean";
     case "string":
-      return "string";
+      ctx.valueImports.add("XdrString");
+      return "XdrString";
     case "opaque_fixed":
     case "opaque_var":
       return "Uint8Array";
@@ -482,7 +485,7 @@ function renderImports(ctx, opts = {}) {
   if (ctx.needsXdrError) {
     lines.push(`import { XdrError } from "../core/error.js";`);
   }
-  // Value imports (XdrValue, BytesValue, EnumValue, enumLookup, JsonValue)
+  // Value imports (XdrValue, BytesValue, EnumValue, enumLookup, JsonValue, XdrString)
   if (ctx.valueImports.size > 0) {
     const valueByPath = new Map();
     for (const v of ctx.valueImports) {
@@ -490,6 +493,8 @@ function renderImports(ctx, opts = {}) {
       if (v === "BytesValue") path = "../values/bytes-value.js";
       else if (v === "EnumValue" || v === "enumLookup")
         path = "../values/enum-value.js";
+      else if (v === "XdrString" || v === "xdrString")
+        path = "../values/xdr-string.js";
       else path = "../values/xdr-value.js"; // XdrValue, type JsonValue
       if (!valueByPath.has(path)) valueByPath.set(path, new Set());
       valueByPath.get(path).add(v);
@@ -611,7 +616,10 @@ function bodyOfStruct(rawDef, ctx) {
   // a TS-side concern.
   const def = {
     ...rawDef,
-    fields: rawDef.fields.map((f) => ({ ...f, name: normalizeFieldName(f.name) })),
+    fields: rawDef.fields.map((f) => ({
+      ...f,
+      name: normalizeFieldName(f.name),
+    })),
   };
   ctx.currentType = def.name;
   ctx.builders.add("struct");
@@ -643,9 +651,7 @@ function bodyOfStruct(rawDef, ctx) {
     .map((f) => `    ${f.name}: ${ctorInputType(f.type, ctx)};`)
     .join("\n");
 
-  const ctorAssignments = def.fields
-    .map((f) => ctorAssignment(f))
-    .join("\n");
+  const ctorAssignments = def.fields.map((f) => ctorAssignment(f)).join("\n");
 
   // toXdrObject
   const toWireEntries = def.fields
@@ -691,14 +697,17 @@ ${fromWireArgs}
 function emitStruct(rawDef) {
   const ctx = newCtx();
   const body = bodyOfStruct(rawDef, ctx);
-  const imports = renderImports(ctx, { sameFileMembers: new Set([rawDef.name]) });
+  const imports = renderImports(ctx, {
+    sameFileMembers: new Set([rawDef.name]),
+  });
   return `${imports}\n\n${body}`;
 }
 
 function ctorInputType(t, ctx) {
   // For typedef opaque types that emit a wrapper class (Hash, AssetCode4, …),
   // accept Type | Uint8Array | string. Inline-typedef refs (uint256 → Uint8Array)
-  // and other types use their plain TS type.
+  // and other types use their plain TS type — except `string<N>` accepts
+  // `Uint8Array | string` (the string is UTF-8 encoded at the wire layer).
   if (t.kind === "ref" && emitsClass(t.name)) {
     const def = registry.get(t.name);
     if (def && def.kind === "typedef" && !isReExport(def)) {
@@ -709,23 +718,82 @@ function ctorInputType(t, ctx) {
       }
     }
   }
+  // Inline `string<N>` (either directly or via inline typedef like SCString)
+  // — accept any of the three forms the `XdrString` constructor takes.
+  if (isInlineStringTypedef(t)) {
+    ctx.valueImports.add("XdrString");
+    return "XdrString | string | Uint8Array";
+  }
+  // Wrap optional/array around the wider inner input type so e.g.
+  // `string<32>?` becomes `Uint8Array | string | null`.
+  if (t.kind === "optional") {
+    return `${ctorInputType(t.element, ctx)} | null`;
+  }
+  if (t.kind === "var_array" || t.kind === "array") {
+    const inner = ctorInputType(t.element, ctx);
+    return inner.includes("|") ? `(${inner})[]` : `${inner}[]`;
+  }
   return tsTypeExpr(t, ctx);
 }
 
+/** True iff this type node resolves to an inline `string<N>` (either
+ *  directly or via an inline `typedef ... string<N>` like SCSymbol / SCString). */
+function isInlineStringTypedef(t) {
+  if (t.kind === "string") return true;
+  if (t.kind === "ref") {
+    const def = registry.get(t.name);
+    if (def && def.kind === "typedef" && isInlineTypedef(def)) {
+      return isInlineStringTypedef(def.type);
+    }
+  }
+  return false;
+}
+
 function ctorAssignment(field) {
-  if (field.type.kind === "ref" && emitsClass(field.type.name)) {
-    const def = registry.get(field.type.name);
+  return armAssignmentExpr(field.type, field.name, /* fromInput */ true);
+}
+
+/** Narrow a constructor parameter (ctorInputType) to the stored field type.
+ *  Used by both struct fields and union variant constructors.
+ *
+ *  `propName` is the local name (variant ctor uses bare name, struct ctor
+ *  uses `input.<name>`). Set `fromInput` true for struct fields. */
+function armAssignmentExpr(t, propName, fromInput = false) {
+  const lhs = `    this.${propName}`;
+  const rhs = fromInput ? `input.${propName}` : propName;
+  const conv = inputToFieldConversion(t, rhs);
+  return conv === rhs ? `${lhs} = ${rhs};` : `${lhs} = ${conv};`;
+}
+
+/** Recursive: produce an expression that converts a ctorInputType value to
+ *  its stored field type. Handles ref-to-class, inline strings, optional
+ *  and array nesting. Returns `expr` unchanged when no narrowing is needed. */
+function inputToFieldConversion(t, expr) {
+  if (t.kind === "ref" && emitsClass(t.name)) {
+    const def = registry.get(t.name);
     if (def && def.kind === "typedef" && !isReExport(def)) {
       const ek = def.type.kind;
       if (ek === "opaque_fixed" || ek === "opaque_var") {
-        return `    this.${field.name} =
-      input.${field.name} instanceof ${field.type.name}
-        ? input.${field.name}
-        : new ${field.type.name}(input.${field.name});`;
+        return `${expr} instanceof ${t.name} ? ${expr} : new ${t.name}(${expr})`;
       }
     }
   }
-  return `    this.${field.name} = input.${field.name};`;
+  if (isInlineStringTypedef(t)) {
+    // Constructor accepts `XdrString | string | Uint8Array`; stored field
+    // is `XdrString`. Wrap non-XdrString inputs.
+    return `${expr} instanceof XdrString ? ${expr} : new XdrString(${expr})`;
+  }
+  if (t.kind === "optional") {
+    const inner = inputToFieldConversion(t.element, expr);
+    if (inner === expr) return expr;
+    return `${expr} === null ? null : (${inner})`;
+  }
+  if (t.kind === "var_array" || t.kind === "array") {
+    const inner = inputToFieldConversion(t.element, "v");
+    if (inner === "v") return expr;
+    return `${expr}.map((v) => ${inner})`;
+  }
+  return expr;
 }
 
 /** How to convert a field value to its wire representation. */
@@ -870,7 +938,8 @@ function wireTypeExpr(t, ctx) {
     case "bool":
       return "boolean";
     case "string":
-      return "string";
+      ctx.valueImports.add("XdrString");
+      return "XdrString";
     case "opaque_fixed":
     case "opaque_var":
       return "Uint8Array";
@@ -1248,7 +1317,7 @@ function bodyOfUnion(rawDef, ctx) {
   }`;
       }
       const paramName = a.armName;
-      const paramType = tsTypeExpr(a.armType, ctx);
+      const paramType = ctorInputType(a.armType, ctx);
       return `  static ${a.discCamel}(${paramName}: ${paramType}): ${a.variantCls} {
     return new ${a.variantCls}(${paramName});
   }`;
@@ -1283,20 +1352,32 @@ function bodyOfUnion(rawDef, ctx) {
       const valueType = instanceTypeOfArm(a.armType, ctx);
       const armField = a.armName;
       const toWireValue = instanceToWire(a.armType, `this.${armField}`, ctx);
+      const ctorParamType = ctorInputType(a.armType, ctx);
+      // Constructor accepts the wider ctorInputType (e.g. `Hash | Uint8Array
+      // | string`, or `Uint8Array | string` for string<N>); the stored field
+      // is the narrower instance type. Normalize at assignment.
+      const armAssignment = armAssignmentExpr(a.armType, armField);
       // Primary field is named after the XDR arm (e.g. `fromAddress`,
       // `ed25519`, `paymentOp`). `value` is preserved as a thin getter so
-      // existing consumer code keeps working during migration.
-      const valueAlias =
-        armField === "value"
-          ? ""
-          : `\n  get value(): ${valueType} {\n    return this.${armField};\n  }\n`;
+      // existing consumer code keeps working during migration. For inline
+      // `string<N>` arms the getter UTF-8-decodes the `XdrString` to a JS
+      // string — `.value` reads as "give me the payload as a string" while
+      // the arm-named field exposes the raw `XdrString` wrapper.
+      let valueAlias;
+      if (armField === "value") {
+        valueAlias = "";
+      } else if (isInlineStringTypedef(a.armType)) {
+        valueAlias = `\n  get value(): string {\n    return this.${armField}.toString();\n  }\n`;
+      } else {
+        valueAlias = `\n  get value(): ${valueType} {\n    return this.${armField};\n  }\n`;
+      }
       return `export class ${a.variantCls} extends ${baseName} {
   readonly type = "${a.discCamel}" as const;
   readonly ${armField}: ${valueType};
 
-  constructor(${armField}: ${valueType}) {
+  constructor(${armField}: ${ctorParamType}) {
     super();
-    this.${armField} = ${armField};
+${armAssignment}
   }
 ${valueAlias}
   toXdrObject(): ${wireType} {
@@ -1365,7 +1446,9 @@ const UNION_ESLINT_HEADER = `/* eslint-disable @typescript-eslint/no-use-before-
 function emitUnion(rawDef) {
   const ctx = newCtx();
   const body = bodyOfUnion(rawDef, ctx);
-  const imports = renderImports(ctx, { sameFileMembers: new Set([rawDef.name]) });
+  const imports = renderImports(ctx, {
+    sameFileMembers: new Set([rawDef.name]),
+  });
   return `${UNION_ESLINT_HEADER}\n${imports}\n\n${body}`;
 }
 

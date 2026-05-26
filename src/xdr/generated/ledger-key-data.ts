@@ -1,12 +1,12 @@
 import { struct } from "../types/struct.js";
-import { string as string_ } from "../types/string.js";
 import type { XdrType } from "../core/xdr-type.js";
 import { XdrValue } from "../values/xdr-value.js";
+import { XdrString, xdrString } from "../values/xdr-string.js";
 import { PublicKey, type PublicKeyWire } from "./public-key.js";
 
 export interface LedgerKeyDataWire {
   accountId: PublicKeyWire;
-  dataName: string;
+  dataName: XdrString;
 }
 
 /**
@@ -20,20 +20,23 @@ export interface LedgerKeyDataWire {
  */
 export class LedgerKeyData extends XdrValue {
   readonly accountId: PublicKey;
-  readonly dataName: string;
+  readonly dataName: XdrString;
 
   static readonly schema: XdrType<LedgerKeyDataWire> = struct("LedgerKeyData", {
     accountId: PublicKey.schema,
-    dataName: string_(64),
+    dataName: xdrString(64),
   });
 
-  constructor(input: { accountId: PublicKey; dataName: Uint8Array | string }) {
+  constructor(input: {
+    accountId: PublicKey;
+    dataName: XdrString | string | Uint8Array;
+  }) {
     super();
     this.accountId = input.accountId;
     this.dataName =
-      input.dataName instanceof Uint8Array
-        ? new TextDecoder("latin1").decode(input.dataName)
-        : input.dataName;
+      input.dataName instanceof XdrString
+        ? input.dataName
+        : new XdrString(input.dataName);
   }
 
   toXdrObject(): LedgerKeyDataWire {

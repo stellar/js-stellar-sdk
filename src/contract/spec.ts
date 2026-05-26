@@ -28,6 +28,7 @@ import {
   ScVal,
   Uint32,
   Uint64,
+  XdrString,
 } from "../xdr/index.js";
 
 export interface Union<T> {
@@ -349,7 +350,7 @@ function isRequired(typeDef: ScSpecTypeDef): boolean {
   return typeDef.type !== "scSpecTypeOption";
 }
 
-function argsAndRequired(input: { type: ScSpecTypeDef; name: string }[]): {
+function argsAndRequired(input: { type: ScSpecTypeDef; name: XdrString }[]): {
   properties: object;
   required?: string[];
 } {
@@ -660,9 +661,7 @@ export class Spec {
         return e.value.name.toString() === name;
       }
       // For UDT entries (struct/union/enum/errorEnum/eventV0), value has .name
-      return (
-        (e.value as { name: string | Uint8Array }).name.toString() === name
-      );
+      return (e.value as { name: XdrString }).name.toString() === name;
     });
     if (!entry) {
       throw new Error(`no such entry: ${name}`);
