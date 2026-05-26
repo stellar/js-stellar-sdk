@@ -23,7 +23,7 @@ import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-import legacyTypes from "../../../fixtures/legacy-xdr/curr_generated.js";
+import legacyTypes from "../../fixtures/legacy-xdr/curr_generated.js";
 const legacy = legacyTypes as any;
 
 import {
@@ -32,7 +32,7 @@ import {
   TransactionMeta,
   OperationMeta,
   LedgerHeader,
-} from "../../../../src/xdr/index.js";
+} from "../../../src/xdr/index.js";
 
 const CORPUS_DIR = resolve(
   fileURLToPath(new URL(".", import.meta.url)),
@@ -82,7 +82,9 @@ function assertRoundTrip(
   try {
     newDecoded = newCtor.fromXdr(new Uint8Array(inputBytes));
   } catch (err) {
-    throw new Error(`${name}: new SDK fromXdr threw — ${(err as Error).message}`);
+    throw new Error(
+      `${name}: new SDK fromXdr threw — ${(err as Error).message}`,
+    );
   }
   const newReencoded = asHex(newDecoded.toXdr());
   expect(newReencoded, `${name}: new SDK lossy round-trip`).toBe(inputHex);

@@ -32,7 +32,7 @@ import {
   ClaimableBalanceId,
   PoolId,
   SorobanTransactionMetaExt,
-} from "../../../../src/xdr/index.js";
+} from "../../../src/xdr/index.js";
 
 const ED = new Uint8Array(32);
 for (let i = 0; i < 32; i += 1) ED[i] = i + 1;

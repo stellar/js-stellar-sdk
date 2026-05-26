@@ -15,7 +15,7 @@ import { Buffer } from "buffer";
 import { stringToUint8Array } from "uint8array-extras";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-import legacyTypes from "../../../fixtures/legacy-xdr/curr_generated.js";
+import legacyTypes from "../../fixtures/legacy-xdr/curr_generated.js";
 const legacy = legacyTypes as any;
 
 import {
@@ -35,7 +35,7 @@ import {
   OperationBody,
   PaymentOp,
   ContractId,
-} from "../../../../src/xdr/index.js";
+} from "../../../src/xdr/index.js";
 
 const ED = new Uint8Array(32);
 for (let i = 0; i < 32; i += 1) ED[i] = i + 1;
@@ -134,10 +134,7 @@ describe("legacy byte-equality: MuxedAccount", () => {
 
 describe("legacy byte-equality: ScVal (cyclic / lazy schema)", () => {
   it("scvU32", () => {
-    expectBytesEqual(
-      ScVal.scvU32(42).toXdr(),
-      legacy.ScVal.scvU32(42).toXDR(),
-    );
+    expectBytesEqual(ScVal.scvU32(42).toXdr(), legacy.ScVal.scvU32(42).toXDR());
   });
 
   it("scvBool", () => {
@@ -164,9 +161,7 @@ describe("legacy byte-equality: ScVal (cyclic / lazy schema)", () => {
 
   it("scvI128 (wide-int parts struct)", () => {
     expectBytesEqual(
-      ScVal.scvI128(
-        new Int128Parts({ hi: -1n, lo: (1n << 64n) - 5n }),
-      ).toXdr(),
+      ScVal.scvI128(new Int128Parts({ hi: -1n, lo: (1n << 64n) - 5n })).toXdr(),
       legacy.ScVal.scvI128(
         new legacy.Int128Parts({
           hi: legacy.Int64.fromString("-1"),

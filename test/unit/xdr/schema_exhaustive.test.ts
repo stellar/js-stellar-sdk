@@ -20,11 +20,11 @@
 import { describe, it, expect } from "vitest";
 import { Buffer } from "buffer";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-import legacyTypes from "../../../fixtures/legacy-xdr/curr_generated.js";
+import legacyTypes from "../../fixtures/legacy-xdr/curr_generated.js";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-import * as classXdr from "../../../../src/xdr/index.js";
-import type { XdrType } from "../../../../src/xdr/core/xdr-type.js";
-import { XdrString } from "../../../../src/xdr/index.js";
+import * as classXdr from "../../../src/xdr/index.js";
+import type { XdrType } from "../../../src/xdr/core/xdr-type.js";
+import { XdrString } from "../../../src/xdr/index.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const legacy = legacyTypes as any;
