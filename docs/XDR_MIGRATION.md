@@ -13,20 +13,29 @@ code.
 ## 1. Method-name changes (XDR/JSON acronyms → PascalCase)
 
 The all-caps acronyms in method names normalize to single-initial-cap form.
-This is the one rename that **does** affect application code.
+This affects application code that called the renamed methods directly.
+
+**True renames** — the legacy method existed with the all-caps name:
 
 | Before              | After             |
 | ------------------- | ----------------- |
 | `value.toXDR()`     | `value.toXdr()`   |
 | `Class.fromXDR(…)`  | `Class.fromXdr(…)`|
-| `value.toXDRObject()` | `value.toXdrObject()` |
-| `Class.fromXDRObject(…)` | `Class.fromXdrObject(…)` |
-| `Class.fromJSON(json)` | `Class.fromJson(json)` |
 | `asset.toChangeTrustXDRObject()` | `asset.toChangeTrustXdrObject()` |
 | `asset.toTrustLineXDRObject()` | `asset.toTrustLineXdrObject()` |
 
-`toJSON()` is **kept as-is** — it's a JavaScript standard called automatically
-by `JSON.stringify()`, and renaming it would break that integration.
+**Net-new methods** — these didn't exist in the legacy SDK at all (no
+rename to do; they're brand-new capabilities):
+
+| Method                                 | Description |
+| -------------------------------------- | ----------- |
+| `value.toXdrObject()` / `Class.fromXdrObject(wire)` | Bridges instance ↔ wire-shape object. Legacy types directly held their wire shape, so this distinction wasn't meaningful. |
+| `value.toJson()` / `Class.fromJson(json)` | SEP-0051-compliant JSON serialization. See § 13. |
+
+`toJSON()` (capital JSON) is **kept as-is** — it's a JavaScript standard
+called automatically by `JSON.stringify()`, and renaming it would break
+that integration. The new SDK's `toJson()` (lowercase) is the SEP-0051
+serializer; the two are intentionally separate methods.
 
 > **Note on type/field names.** The PascalCase-with-collapsed-acronyms rule
 > (`AccountId`, `ScVal`, `Uint128Parts`, `TtlEntry`, `HashIdPreimage`,
@@ -412,13 +421,14 @@ new xdr.Int64(v)             →   BigInt(v)  or  v + "n" literal
 new xdr.Uint64(v)            →   BigInt(v)
 new xdr.Int32(v)             →   Number(v)
 
-// ============== METHODS ==============
+// ============== METHODS (renames) ==============
 .toXDR()                     →   .toXdr()
 .toXDR().toString("base64")  →   .toXdr("base64")
 .fromXDR(buf, "base64")      →   .fromXdr(buf, "base64")
-.toXDRObject()               →   .toXdrObject()
-.fromXDRObject(wire)         →   .fromXdrObject(wire)
-.fromJSON(json)              →   .fromJson(json)
+
+// ============== METHODS (new — no legacy equivalent) ==============
+                                 .toXdrObject() / .fromXdrObject(wire)
+                                 .toJson()      / .fromJson(json)
 
 // ============== BYTES ==============
 contractExecutableWasm(buf)  →   contractExecutableWasm(new xdr.Hash(buf))
