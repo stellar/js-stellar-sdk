@@ -113,7 +113,7 @@ A test helper for narrowing a union to a specific variant lives at
 application code too):
 
 ```ts
-import { expectVariant } from "@stellar/stellar-base/.../xdr.js";
+import { expectVariant } from "@stellar/stellar-sdk/.../xdr.js";
 
 const v1 = expectVariant(tx.toEnvelope(), "envelopeTypeTx").v1;
 const cond = expectVariant(v1.tx.cond, "precondV2").v2;
@@ -201,7 +201,7 @@ pattern), use `XdrLargeInt` directly. It accepts slices in **big-endian**
 order (parts[0] is most significant):
 
 ```ts
-import { XdrLargeInt } from "@stellar/stellar-base";
+import { XdrLargeInt } from "@stellar/stellar-sdk";
 
 new XdrLargeInt("i128", [i128.hi, i128.lo]).toBigInt();
 new XdrLargeInt("u256", [hiHi, hiLo, loHi, loLo]).toBigInt();
@@ -217,10 +217,13 @@ behavior). `new XdrLargeInt("u64", 1n << 64n)` throws a `RangeError`.
 
 ## 6. Bytes: `Uint8Array` everywhere
 
-Every fixed-length and variable-length byte field is a `Uint8Array`. The
-SDK used to surface `Buffer` in many places — now it's `Uint8Array`. `Buffer`
-**is** a `Uint8Array` subclass so most code that just reads bytes (indexing,
-`.length`) keeps working. The differences appear when:
+Every fixed-length and variable-length **byte** field (`opaque[N]`,
+`opaque<N>`, `Hash`, `Signature`, `ScBytes`, …) is a `Uint8Array`. The
+SDK used to surface `Buffer` in many places — now it's `Uint8Array`.
+`Buffer` **is** a `Uint8Array` subclass so most code that just reads bytes
+(indexing, `.length`) keeps working. The differences appear when:
+
+(**Note:** XDR *string* fields are a separate story — see § 12.)
 
 - **You compare values with `toEqual` / deep equality.** `Buffer` vs
   `Uint8Array` containing identical bytes are *not* deep-equal under vitest /
@@ -228,7 +231,7 @@ SDK used to surface `Buffer` in many places — now it's `Uint8Array`. `Buffer`
   `.toXdr("base64")`.
 - **You call Buffer-only methods** (e.g. `.toString("hex")`). Wrap at the
   boundary: `Buffer.from(uint8array).toString("hex")`.
-- **You construct an XDR class that wants `Hash` or `SCBytes`.** Wrap raw
+- **You construct an XDR class that wants `Hash` or `ScBytes`.** Wrap raw
   bytes in the field type:
 
 ```ts
@@ -242,6 +245,32 @@ xdr.ContractExecutable.contractExecutableWasm(new xdr.Hash(Buffer.alloc(32)));
 xdr.LedgerKeyContractCode({ hash: new xdr.Hash(someBuffer) });
 xdr.ScVal.scvBytes(new xdr.ScBytes(Buffer.from([1, 2, 3])));
 ```
+
+Byte-class constructors also accept hex strings as a convenience —
+`new xdr.Hash("aabbcc…")` works the same as passing 32 bytes.
+
+### 6.1 Typedef-opaque aliases became distinct classes
+
+`PoolId`, `ContractId`, and similar typedef-aliases-of-`Hash` used to be
+plain re-exports (`export const PoolId = Hash`). They now emit as their
+own `BytesValue<"PoolId">` / `BytesValue<"ContractId">` subclasses with
+distinct named schemas. Byte semantics are identical, but class identity
+isn't.
+
+```ts
+// Before — PoolId === Hash at runtime
+new xdr.Hash(bytes) instanceof xdr.Hash;     // true
+xdr.ScAddress.scAddressTypeContract(new xdr.Hash(bytes));  // worked
+
+// After
+new xdr.PoolId(bytes) instanceof xdr.Hash;   // false — distinct class
+xdr.ScAddress.scAddressTypeContract(new xdr.ContractId(bytes));  // required
+xdr.ScAddress.scAddressTypeLiquidityPool(new xdr.PoolId(bytes));
+```
+
+The motivation is JSON output (§ 13): the walker dispatches encoding
+overrides on `schema.name`, so `PoolId` can render as an `L`-strkey and
+`ContractId` as a `C`-strkey, while a plain `Hash` stays hex.
 
 ---
 
@@ -309,12 +338,12 @@ Two import styles work, both pulling from the same canonical layer:
 
 ```ts
 // Default namespace — best for hand-typed code
-import xdr from "@stellar/stellar-base";
+import xdr from "@stellar/stellar-sdk";
 xdr.Asset.assetTypeNative();
 xdr.ScVal.scvU32(42);
 
 // Named imports — best for migrated code where you want types directly
-import { Asset, ScVal, AccountId } from "@stellar/stellar-base";
+import { Asset, ScVal, AccountId } from "@stellar/stellar-sdk";
 Asset.assetTypeNative();
 ```
 
@@ -330,7 +359,7 @@ import type {
   SCAddressMuxedAccount,
   TransactionEnvelopeTx,
   ScSpecEntryUdtUnionV0,
-} from "@stellar/stellar-base";
+} from "@stellar/stellar-sdk";
 
 const v1 = (env as TransactionEnvelopeTx).v1;
 ```
@@ -394,6 +423,18 @@ new xdr.Int32(v)             →   Number(v)
 // ============== BYTES ==============
 contractExecutableWasm(buf)  →   contractExecutableWasm(new xdr.Hash(buf))
 scvBytes(buf)                →   scvBytes(new xdr.ScBytes(buf))
+new xdr.Hash(buf)            →   (still works; also accepts hex strings)
+new xdr.Hash(bytes) for PoolId/ContractId  →  use new xdr.PoolId(bytes) /
+                                              new xdr.ContractId(bytes)
+
+// ============== STRINGS ==============
+memo.text                    →   memo.text.toString() or memo.text.bytes
+memo.value (memoText)        →   (Buffer; was string) — call .toString("utf8")
+scvString.str (was string)   →   scvString.str.bytes (or scvString.value: string)
+
+// ============== JSON (new) ==============
+                                 value.toJson()           // SEP-0051 encode
+                                 Type.fromJson(json)      // SEP-0051 decode
 
 // ============== WIDE INTS ==============
 new Int128(lo, hi)           →   new XdrLargeInt("i128", [hi, lo])
@@ -425,6 +466,185 @@ expect(actual.toXdr("base64")).toBe(expected.toXdr("base64"));
 const normalized = xdr.LedgerKey.fromXdr(legacyKey.toXdr());
 
 // Variant types for casts
-import type { SCValAddress } from "@stellar/stellar-base";
+import type { SCValAddress } from "@stellar/stellar-sdk";
 const addr = (scv as SCValAddress).address;
 ```
+
+---
+
+## 12. Strings: the `XdrString` wrapper
+
+XDR `string<N>` fields no longer surface as JavaScript `string`. They're
+wrapped in a new `XdrString` class. The reason: a JS `string` can't be both
+byte-faithful and text-friendly (it's UTF-16 internally with no clean
+representation for arbitrary byte sequences), and Stellar's wire format
+puts arbitrary bytes in some `string<N>` fields — notably `MemoText`, where
+real envelopes on mainnet carry binary tokens, signatures, and other non-
+UTF-8 content. `XdrString` stores the wire bytes as the canonical
+representation and lets the caller choose decoding semantics explicitly.
+
+**Affects** any field declared as `string<N>` in the XDR — including
+`MemoText.text`, `ScValString.str`, `ScValSymbol.sym`,
+`SetOptionsOp.homeDomain`, `ManageDataOp.dataName`,
+`InvokeContractArgs.functionName`, every `ScSpec*.name`, and similar.
+
+### Construction
+
+`XdrString` and the union/struct constructors that wrap it accept three
+input shapes:
+
+```ts
+import { XdrString } from "@stellar/stellar-sdk";
+
+new XdrString("hello");                          // string → UTF-8 encoded
+new XdrString(new Uint8Array([0xd1, 0xff]));     // bytes → byte-exact
+new XdrString(otherXdrString);                   // copy
+
+// Generated factories accept the same union shape:
+xdr.Memo.memoText("hello");                       // string
+xdr.Memo.memoText(new Uint8Array([0xd1, 0xff]));  // bytes
+xdr.ScVal.scvSymbol("transfer");                  // string
+```
+
+### Reading values
+
+Pick the access pattern that matches what you want:
+
+```ts
+const text: XdrString = (memo as MemoText).text;
+
+text.bytes;                // Uint8Array — canonical wire form
+text.toString();            // "hello" — UTF-8 decode; U+FFFD on invalid
+text.toStringStrict();      // "hello" — throws on invalid UTF-8
+text.asStringOrBytes();     // string | Uint8Array — best-effort decode
+text.toJson();              // SEP-0051 escape form (see § 13)
+text.length;                // byte length
+text.equals(other);         // byte-equal comparison
+```
+
+**`.toString()` is the default JS string coercion**, so `${memo.text}` works
+naturally for ASCII / UTF-8 content. It will *not* throw on binary bytes —
+invalid sequences become U+FFFD. If you want a hard failure on malformed
+UTF-8, use `.toStringStrict()`.
+
+### The `.value` getter on union arms
+
+For union arms whose payload is `string<N>` (e.g. `ScValString`,
+`ScValSymbol`, `MemoText`), the `.value` getter returns the *decoded JS
+string* — not the `XdrString`. The arm-named field exposes the raw wrapper:
+
+```ts
+const scv = xdr.ScVal.scvString("hi");
+
+scv.value;       // "hi" — decoded string (was previously `string`-typed; unchanged)
+scv.str;         // XdrString { bytes: Uint8Array(2) [0x68, 0x69] }
+scv.str.bytes;   // Uint8Array
+```
+
+This split keeps the `.value` shortcut convenient for the 99% case while
+still letting binary callers reach the raw bytes through the arm field.
+
+### Round-trip caveat: `Memo.fromXdrObject`
+
+The SDK-level `Memo` class (in `src/base/memo.ts`) now surfaces decoded
+`MemoText` content as a `Buffer`, not a `string` — because the underlying
+bytes might not be valid UTF-8:
+
+```ts
+const memo = xdr.Memo.memoText("hi").toXdr();
+const back = Memo.fromXdr(memo);
+back.value;          // Buffer "hi" (was: string "hi")
+back.value.toString("utf8");   // "hi" — explicit decode at the boundary
+```
+
+If you previously did `someMemo.value === "expected-string"`, switch to
+`someMemo.value?.toString("utf8") === "expected-string"`.
+
+---
+
+## 13. SEP-0051 JSON output: `toJson()` / `fromJson()`
+
+Every generated XDR class has SEP-0051-compliant JSON serialization
+built in. New in this release; no legacy equivalent.
+
+```ts
+// Encode any XDR value to JSON
+xdr.Asset.assetTypeNative().toJson();
+//   → "native"
+
+xdr.ScVal.scvI128(new xdr.Int128Parts({ hi: 0n, lo: 12345n })).toJson();
+//   → { i128: "12345" }
+
+xdr.ScAddress.scAddressTypeAccount(pubkey).toJson();
+//   → "GAAQEAYEAUDAOCAJBIFQYDIO…"   (StrKey)
+
+// Round-trip
+const json = original.toJson();
+const recovered = xdr.Asset.fromJson(json);
+recovered.toXdr();           // byte-identical to original.toXdr()
+```
+
+### Shape conventions
+
+- **Unions, void arm:** snake_case case-name string. `Memo.memoNone()` →
+  `"none"`. `Asset.assetTypeNative()` → `"native"`.
+- **Unions, non-void arm:** single-key object. `Asset.assetTypeCreditAlphanum4(...)`
+  → `{ credit_alphanum4: {...payload...} }`.
+- **Unions switched on an integer (not an enum):** discriminant retained
+  as `v<N>`. `SorobanTransactionMetaExt.v0()` → `"v0"`.
+- **Structs:** object with snake_case keys. `AlphaNum4` → `{ asset_code:
+  "USD", issuer: "GAAQ…" }`.
+- **Enums:** snake_case member name with the common prefix stripped.
+  `AssetType.assetTypeCreditAlphanum4` → `"credit_alphanum4"`.
+- **`int32` / `uint32`:** JSON number.
+- **`int64` / `uint64`:** decimal string (to avoid JS precision loss).
+- **`bool`:** JSON boolean.
+- **`opaque[N]` / `opaque<N>`:** lowercase hex string.
+- **`string<N>`:** SEP-0051 escape form — printable ASCII pass-through,
+  `\0` `\t` `\n` `\r` `\\` for the common control bytes, `\xNN` for
+  everything else. Reversible.
+- **Optional `T?`:** JSON `null` when unset, typed value when set.
+
+### Stellar-specific JSON forms (overrides)
+
+Several types have spec-mandated JSON forms that the walker dispatches on
+the schema name:
+
+| Type                      | JSON form |
+| ------------------------- | --------- |
+| `PublicKey`, `AccountId`, `NodeId` | `G`-strkey |
+| `MuxedAccount` (muxed arm), `MuxedEd25519Account` | `M`-strkey |
+| `ContractId`, `ScAddress` (contract arm) | `C`-strkey |
+| `PoolId`, `ScAddress` (liquidity_pool arm) | `L`-strkey |
+| `ClaimableBalanceId`, `ScAddress` (claimable_balance arm) | `B`-strkey |
+| `SignerKey` `preAuthTx` / `hashX` / `ed25519SignedPayload` | `T`/`X`/`P`-strkey |
+| `Int128Parts`, `Uint128Parts`, `Int256Parts`, `Uint256Parts` | decimal string |
+| `AssetCode4` | trimmed text (trailing zero bytes removed) |
+| `AssetCode12` | trimmed text, minimum 5 bytes (so it's distinguishable from `AssetCode4`) |
+
+### `fromJson` accepts both canonical and forgiving inputs
+
+`fromJson` is lenient on input shape — accepts either the SEP-0051 form
+(snake_case keys) or the raw wire field names (camelCase keys), so
+internally-produced JSON round-trips even if a caller hands you the older
+shape.
+
+```ts
+// Both work:
+xdr.AlphaNum4.fromJson({ asset_code: "USD", issuer: "GAAQ…" });  // canonical
+xdr.AlphaNum4.fromJson({ assetCode: "USD", issuer: "GAAQ…" });   // legacy
+```
+
+### Method names
+
+- `value.toJson()` — JSON-encode. Returns the parsed JSON value (object,
+  array, string, number, boolean, or `null`). Use `JSON.stringify(...)` if
+  you want a string.
+- `Type.fromJson(json)` — JSON-decode. Accepts the same shape `toJson`
+  produces; throws on malformed structure.
+- `value.toJSON()` (capital JSON) is the JavaScript-standard hook called by
+  `JSON.stringify`; it's separate from `toJson()` and *not* SEP-0051. We
+  haven't wired it; if you need SEP-0051 via `JSON.stringify`, call
+  `.toJson()` explicitly.
+
+---
