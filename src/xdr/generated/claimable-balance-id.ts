@@ -32,7 +32,9 @@ abstract class ClaimableBalanceIdBase extends XdrValue {
     },
   );
 
-  static claimableBalanceIdTypeV0(v0: Hash): ClaimableBalanceIdV0 {
+  static claimableBalanceIdTypeV0(
+    v0: Hash | Uint8Array | string,
+  ): ClaimableBalanceIdV0 {
     return new ClaimableBalanceIdV0(v0);
   }
 
@@ -50,9 +52,9 @@ export class ClaimableBalanceIdV0 extends ClaimableBalanceIdBase {
   readonly type = "claimableBalanceIdTypeV0" as const;
   readonly v0: Hash;
 
-  constructor(v0: Hash) {
+  constructor(v0: Hash | Uint8Array | string) {
     super();
-    this.v0 = v0;
+    this.v0 = v0 instanceof Hash ? v0 : new Hash(v0);
   }
 
   get value(): Hash {

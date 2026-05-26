@@ -22,9 +22,12 @@ export class ScSpecTypeUdt extends XdrValue {
     name: string_(60),
   });
 
-  constructor(input: { name: string }) {
+  constructor(input: { name: Uint8Array | string }) {
     super();
-    this.name = input.name;
+    this.name =
+      input.name instanceof Uint8Array
+        ? new TextDecoder("latin1").decode(input.name)
+        : input.name;
   }
 
   toXdrObject(): ScSpecTypeUdtWire {

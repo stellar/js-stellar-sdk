@@ -29,10 +29,17 @@ export class FreezeBypassTxsDelta extends XdrValue {
     },
   );
 
-  constructor(input: { addTxs: Hash[]; removeTxs: Hash[] }) {
+  constructor(input: {
+    addTxs: (Hash | Uint8Array | string)[];
+    removeTxs: (Hash | Uint8Array | string)[];
+  }) {
     super();
-    this.addTxs = input.addTxs;
-    this.removeTxs = input.removeTxs;
+    this.addTxs = input.addTxs.map((v) =>
+      v instanceof Hash ? v : new Hash(v),
+    );
+    this.removeTxs = input.removeTxs.map((v) =>
+      v instanceof Hash ? v : new Hash(v),
+    );
   }
 
   toXdrObject(): FreezeBypassTxsDeltaWire {

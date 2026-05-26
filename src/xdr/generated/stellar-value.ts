@@ -59,7 +59,7 @@ export class StellarValue extends XdrValue {
   constructor(input: {
     txSetHash: Hash | Uint8Array | string;
     closeTime: bigint;
-    upgrades: UpgradeType[];
+    upgrades: (UpgradeType | Uint8Array | string)[];
     ext: StellarValueExt;
   }) {
     super();
@@ -68,7 +68,9 @@ export class StellarValue extends XdrValue {
         ? input.txSetHash
         : new Hash(input.txSetHash);
     this.closeTime = input.closeTime;
-    this.upgrades = input.upgrades;
+    this.upgrades = input.upgrades.map((v) =>
+      v instanceof UpgradeType ? v : new UpgradeType(v),
+    );
     this.ext = input.ext;
   }
 

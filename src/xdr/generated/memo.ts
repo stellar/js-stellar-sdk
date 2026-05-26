@@ -60,7 +60,7 @@ abstract class MemoBase extends XdrValue {
     return new MemoNone();
   }
 
-  static memoText(text: string): MemoText {
+  static memoText(text: Uint8Array | string): MemoText {
     return new MemoText(text);
   }
 
@@ -68,11 +68,11 @@ abstract class MemoBase extends XdrValue {
     return new MemoId(id);
   }
 
-  static memoHash(hash: Hash): MemoHash {
+  static memoHash(hash: Hash | Uint8Array | string): MemoHash {
     return new MemoHash(hash);
   }
 
-  static memoReturn(retHash: Hash): MemoReturn {
+  static memoReturn(retHash: Hash | Uint8Array | string): MemoReturn {
     return new MemoReturn(retHash);
   }
 
@@ -106,9 +106,12 @@ export class MemoText extends MemoBase {
   readonly type = "memoText" as const;
   readonly text: string;
 
-  constructor(text: string) {
+  constructor(text: Uint8Array | string) {
     super();
-    this.text = text;
+    this.text =
+      text instanceof Uint8Array
+        ? new TextDecoder("latin1").decode(text)
+        : text;
   }
 
   get value(): string {
@@ -142,9 +145,9 @@ export class MemoHash extends MemoBase {
   readonly type = "memoHash" as const;
   readonly hash: Hash;
 
-  constructor(hash: Hash) {
+  constructor(hash: Hash | Uint8Array | string) {
     super();
-    this.hash = hash;
+    this.hash = hash instanceof Hash ? hash : new Hash(hash);
   }
 
   get value(): Hash {
@@ -160,9 +163,9 @@ export class MemoReturn extends MemoBase {
   readonly type = "memoReturn" as const;
   readonly retHash: Hash;
 
-  constructor(retHash: Hash) {
+  constructor(retHash: Hash | Uint8Array | string) {
     super();
-    this.retHash = retHash;
+    this.retHash = retHash instanceof Hash ? retHash : new Hash(retHash);
   }
 
   get value(): Hash {

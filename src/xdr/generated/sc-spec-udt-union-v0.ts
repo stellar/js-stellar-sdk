@@ -43,15 +43,24 @@ export class ScSpecUdtUnionV0 extends XdrValue {
   );
 
   constructor(input: {
-    doc: string;
-    lib: string;
-    name: string;
+    doc: Uint8Array | string;
+    lib: Uint8Array | string;
+    name: Uint8Array | string;
     cases: ScSpecUdtUnionCaseV0[];
   }) {
     super();
-    this.doc = input.doc;
-    this.lib = input.lib;
-    this.name = input.name;
+    this.doc =
+      input.doc instanceof Uint8Array
+        ? new TextDecoder("latin1").decode(input.doc)
+        : input.doc;
+    this.lib =
+      input.lib instanceof Uint8Array
+        ? new TextDecoder("latin1").decode(input.lib)
+        : input.lib;
+    this.name =
+      input.name instanceof Uint8Array
+        ? new TextDecoder("latin1").decode(input.name)
+        : input.name;
     this.cases = input.cases;
   }
 

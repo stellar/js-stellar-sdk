@@ -122,7 +122,7 @@ export class LedgerHeader extends XdrValue {
     baseFee: number;
     baseReserve: number;
     maxTxSetSize: number;
-    skipList: Hash[];
+    skipList: (Hash | Uint8Array | string)[];
     ext: LedgerHeaderExt;
   }) {
     super();
@@ -148,7 +148,9 @@ export class LedgerHeader extends XdrValue {
     this.baseFee = input.baseFee;
     this.baseReserve = input.baseReserve;
     this.maxTxSetSize = input.maxTxSetSize;
-    this.skipList = input.skipList;
+    this.skipList = input.skipList.map((v) =>
+      v instanceof Hash ? v : new Hash(v),
+    );
     this.ext = input.ext;
   }
 

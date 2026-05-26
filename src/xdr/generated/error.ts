@@ -27,10 +27,13 @@ export class Error extends XdrValue {
     msg: string_(100),
   });
 
-  constructor(input: { code: ErrorCode; msg: string }) {
+  constructor(input: { code: ErrorCode; msg: Uint8Array | string }) {
     super();
     this.code = input.code;
-    this.msg = input.msg;
+    this.msg =
+      input.msg instanceof Uint8Array
+        ? new TextDecoder("latin1").decode(input.msg)
+        : input.msg;
   }
 
   toXdrObject(): ErrorWire {

@@ -43,14 +43,20 @@ export class ScSpecEventParamV0 extends XdrValue {
   );
 
   constructor(input: {
-    doc: string;
-    name: string;
+    doc: Uint8Array | string;
+    name: Uint8Array | string;
     type: ScSpecTypeDef;
     location: ScSpecEventParamLocationV0;
   }) {
     super();
-    this.doc = input.doc;
-    this.name = input.name;
+    this.doc =
+      input.doc instanceof Uint8Array
+        ? new TextDecoder("latin1").decode(input.doc)
+        : input.doc;
+    this.name =
+      input.name instanceof Uint8Array
+        ? new TextDecoder("latin1").decode(input.name)
+        : input.name;
     this.type = input.type;
     this.location = input.location;
   }

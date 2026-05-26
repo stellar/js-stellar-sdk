@@ -33,12 +33,16 @@ export class FrozenLedgerKeysDelta extends XdrValue {
   );
 
   constructor(input: {
-    keysToFreeze: EncodedLedgerKey[];
-    keysToUnfreeze: EncodedLedgerKey[];
+    keysToFreeze: (EncodedLedgerKey | Uint8Array | string)[];
+    keysToUnfreeze: (EncodedLedgerKey | Uint8Array | string)[];
   }) {
     super();
-    this.keysToFreeze = input.keysToFreeze;
-    this.keysToUnfreeze = input.keysToUnfreeze;
+    this.keysToFreeze = input.keysToFreeze.map((v) =>
+      v instanceof EncodedLedgerKey ? v : new EncodedLedgerKey(v),
+    );
+    this.keysToUnfreeze = input.keysToUnfreeze.map((v) =>
+      v instanceof EncodedLedgerKey ? v : new EncodedLedgerKey(v),
+    );
   }
 
   toXdrObject(): FrozenLedgerKeysDeltaWire {

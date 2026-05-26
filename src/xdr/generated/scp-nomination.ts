@@ -34,16 +34,20 @@ export class ScpNomination extends XdrValue {
 
   constructor(input: {
     quorumSetHash: Hash | Uint8Array | string;
-    votes: Value[];
-    accepted: Value[];
+    votes: (Value | Uint8Array | string)[];
+    accepted: (Value | Uint8Array | string)[];
   }) {
     super();
     this.quorumSetHash =
       input.quorumSetHash instanceof Hash
         ? input.quorumSetHash
         : new Hash(input.quorumSetHash);
-    this.votes = input.votes;
-    this.accepted = input.accepted;
+    this.votes = input.votes.map((v) =>
+      v instanceof Value ? v : new Value(v),
+    );
+    this.accepted = input.accepted.map((v) =>
+      v instanceof Value ? v : new Value(v),
+    );
   }
 
   toXdrObject(): ScpNominationWire {

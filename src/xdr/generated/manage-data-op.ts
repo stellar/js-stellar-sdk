@@ -28,10 +28,21 @@ export class ManageDataOp extends XdrValue {
     dataValue: option(DataValue.schema),
   });
 
-  constructor(input: { dataName: string; dataValue: DataValue | null }) {
+  constructor(input: {
+    dataName: Uint8Array | string;
+    dataValue: DataValue | Uint8Array | string | null;
+  }) {
     super();
-    this.dataName = input.dataName;
-    this.dataValue = input.dataValue;
+    this.dataName =
+      input.dataName instanceof Uint8Array
+        ? new TextDecoder("latin1").decode(input.dataName)
+        : input.dataName;
+    this.dataValue =
+      input.dataValue === null
+        ? null
+        : input.dataValue instanceof DataValue
+          ? input.dataValue
+          : new DataValue(input.dataValue);
   }
 
   toXdrObject(): ManageDataOpWire {

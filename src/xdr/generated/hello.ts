@@ -65,7 +65,7 @@ export class Hello extends XdrValue {
     overlayVersion: number;
     overlayMinVersion: number;
     networkId: Hash | Uint8Array | string;
-    versionStr: string;
+    versionStr: Uint8Array | string;
     listeningPort: number;
     peerId: PublicKey;
     cert: AuthCert;
@@ -79,7 +79,10 @@ export class Hello extends XdrValue {
       input.networkId instanceof Hash
         ? input.networkId
         : new Hash(input.networkId);
-    this.versionStr = input.versionStr;
+    this.versionStr =
+      input.versionStr instanceof Uint8Array
+        ? new TextDecoder("latin1").decode(input.versionStr)
+        : input.versionStr;
     this.listeningPort = input.listeningPort;
     this.peerId = input.peerId;
     this.cert = input.cert;

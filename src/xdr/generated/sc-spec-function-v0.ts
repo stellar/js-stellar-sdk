@@ -44,14 +44,20 @@ export class ScSpecFunctionV0 extends XdrValue {
   );
 
   constructor(input: {
-    doc: string;
-    name: string;
+    doc: Uint8Array | string;
+    name: Uint8Array | string;
     inputs: ScSpecFunctionInputV0[];
     outputs: ScSpecTypeDef[];
   }) {
     super();
-    this.doc = input.doc;
-    this.name = input.name;
+    this.doc =
+      input.doc instanceof Uint8Array
+        ? new TextDecoder("latin1").decode(input.doc)
+        : input.doc;
+    this.name =
+      input.name instanceof Uint8Array
+        ? new TextDecoder("latin1").decode(input.name)
+        : input.name;
     this.inputs = input.inputs;
     this.outputs = input.outputs;
   }

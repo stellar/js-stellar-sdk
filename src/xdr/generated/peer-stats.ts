@@ -84,7 +84,7 @@ export class PeerStats extends XdrValue {
 
   constructor(input: {
     id: PublicKey;
-    versionStr: string;
+    versionStr: Uint8Array | string;
     messagesRead: bigint;
     messagesWritten: bigint;
     bytesRead: bigint;
@@ -101,7 +101,10 @@ export class PeerStats extends XdrValue {
   }) {
     super();
     this.id = input.id;
-    this.versionStr = input.versionStr;
+    this.versionStr =
+      input.versionStr instanceof Uint8Array
+        ? new TextDecoder("latin1").decode(input.versionStr)
+        : input.versionStr;
     this.messagesRead = input.messagesRead;
     this.messagesWritten = input.messagesWritten;
     this.bytesRead = input.bytesRead;

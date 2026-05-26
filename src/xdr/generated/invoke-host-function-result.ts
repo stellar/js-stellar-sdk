@@ -60,7 +60,7 @@ abstract class InvokeHostFunctionResultBase extends XdrValue {
   );
 
   static invokeHostFunctionSuccess(
-    success: Hash,
+    success: Hash | Uint8Array | string,
   ): InvokeHostFunctionResultSuccess {
     return new InvokeHostFunctionResultSuccess(success);
   }
@@ -113,9 +113,9 @@ export class InvokeHostFunctionResultSuccess extends InvokeHostFunctionResultBas
   readonly type = "invokeHostFunctionSuccess" as const;
   readonly success: Hash;
 
-  constructor(success: Hash) {
+  constructor(success: Hash | Uint8Array | string) {
     super();
-    this.success = success;
+    this.success = success instanceof Hash ? success : new Hash(success);
   }
 
   get value(): Hash {

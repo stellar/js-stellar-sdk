@@ -46,13 +46,16 @@ export class DataEntry extends XdrValue {
 
   constructor(input: {
     accountId: PublicKey;
-    dataName: string;
+    dataName: Uint8Array | string;
     dataValue: DataValue | Uint8Array | string;
     ext: DataEntryExt;
   }) {
     super();
     this.accountId = input.accountId;
-    this.dataName = input.dataName;
+    this.dataName =
+      input.dataName instanceof Uint8Array
+        ? new TextDecoder("latin1").decode(input.dataName)
+        : input.dataName;
     this.dataValue =
       input.dataValue instanceof DataValue
         ? input.dataValue

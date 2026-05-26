@@ -25,9 +25,11 @@ export class FreezeBypassTxs extends XdrValue {
     },
   );
 
-  constructor(input: { txHashes: Hash[] }) {
+  constructor(input: { txHashes: (Hash | Uint8Array | string)[] }) {
     super();
-    this.txHashes = input.txHashes;
+    this.txHashes = input.txHashes.map((v) =>
+      v instanceof Hash ? v : new Hash(v),
+    );
   }
 
   toXdrObject(): FreezeBypassTxsWire {

@@ -51,13 +51,13 @@ abstract class AssetCodeBase extends XdrValue {
   });
 
   static assetTypeCreditAlphanum4(
-    assetCode4: AssetCode4,
+    assetCode4: AssetCode4 | Uint8Array | string,
   ): AssetCodeCreditAlphanum4 {
     return new AssetCodeCreditAlphanum4(assetCode4);
   }
 
   static assetTypeCreditAlphanum12(
-    assetCode12: AssetCode12,
+    assetCode12: AssetCode12 | Uint8Array | string,
   ): AssetCodeCreditAlphanum12 {
     return new AssetCodeCreditAlphanum12(assetCode12);
   }
@@ -82,9 +82,12 @@ export class AssetCodeCreditAlphanum4 extends AssetCodeBase {
   readonly type = "assetTypeCreditAlphanum4" as const;
   readonly assetCode4: AssetCode4;
 
-  constructor(assetCode4: AssetCode4) {
+  constructor(assetCode4: AssetCode4 | Uint8Array | string) {
     super();
-    this.assetCode4 = assetCode4;
+    this.assetCode4 =
+      assetCode4 instanceof AssetCode4
+        ? assetCode4
+        : new AssetCode4(assetCode4);
   }
 
   get value(): AssetCode4 {
@@ -100,9 +103,12 @@ export class AssetCodeCreditAlphanum12 extends AssetCodeBase {
   readonly type = "assetTypeCreditAlphanum12" as const;
   readonly assetCode12: AssetCode12;
 
-  constructor(assetCode12: AssetCode12) {
+  constructor(assetCode12: AssetCode12 | Uint8Array | string) {
     super();
-    this.assetCode12 = assetCode12;
+    this.assetCode12 =
+      assetCode12 instanceof AssetCode12
+        ? assetCode12
+        : new AssetCode12(assetCode12);
   }
 
   get value(): AssetCode12 {

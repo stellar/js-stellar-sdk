@@ -52,18 +52,29 @@ export class ScSpecEventV0 extends XdrValue {
   });
 
   constructor(input: {
-    doc: string;
-    lib: string;
-    name: string;
-    prefixTopics: string[];
+    doc: Uint8Array | string;
+    lib: Uint8Array | string;
+    name: Uint8Array | string;
+    prefixTopics: (Uint8Array | string)[];
     params: ScSpecEventParamV0[];
     dataFormat: ScSpecEventDataFormat;
   }) {
     super();
-    this.doc = input.doc;
-    this.lib = input.lib;
-    this.name = input.name;
-    this.prefixTopics = input.prefixTopics;
+    this.doc =
+      input.doc instanceof Uint8Array
+        ? new TextDecoder("latin1").decode(input.doc)
+        : input.doc;
+    this.lib =
+      input.lib instanceof Uint8Array
+        ? new TextDecoder("latin1").decode(input.lib)
+        : input.lib;
+    this.name =
+      input.name instanceof Uint8Array
+        ? new TextDecoder("latin1").decode(input.name)
+        : input.name;
+    this.prefixTopics = input.prefixTopics.map((v) =>
+      v instanceof Uint8Array ? new TextDecoder("latin1").decode(v) : v,
+    );
     this.params = input.params;
     this.dataFormat = input.dataFormat;
   }

@@ -27,10 +27,13 @@ export class LedgerKeyData extends XdrValue {
     dataName: string_(64),
   });
 
-  constructor(input: { accountId: PublicKey; dataName: string }) {
+  constructor(input: { accountId: PublicKey; dataName: Uint8Array | string }) {
     super();
     this.accountId = input.accountId;
-    this.dataName = input.dataName;
+    this.dataName =
+      input.dataName instanceof Uint8Array
+        ? new TextDecoder("latin1").decode(input.dataName)
+        : input.dataName;
   }
 
   toXdrObject(): LedgerKeyDataWire {

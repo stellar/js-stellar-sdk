@@ -37,12 +37,15 @@ export class InvokeContractArgs extends XdrValue {
 
   constructor(input: {
     contractAddress: ScAddress;
-    functionName: string;
+    functionName: Uint8Array | string;
     args: ScVal[];
   }) {
     super();
     this.contractAddress = input.contractAddress;
-    this.functionName = input.functionName;
+    this.functionName =
+      input.functionName instanceof Uint8Array
+        ? new TextDecoder("latin1").decode(input.functionName)
+        : input.functionName;
     this.args = input.args;
   }
 

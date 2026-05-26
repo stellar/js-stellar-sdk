@@ -34,10 +34,20 @@ export class ScSpecUdtEnumCaseV0 extends XdrValue {
     },
   );
 
-  constructor(input: { doc: string; name: string; value: number }) {
+  constructor(input: {
+    doc: Uint8Array | string;
+    name: Uint8Array | string;
+    value: number;
+  }) {
     super();
-    this.doc = input.doc;
-    this.name = input.name;
+    this.doc =
+      input.doc instanceof Uint8Array
+        ? new TextDecoder("latin1").decode(input.doc)
+        : input.doc;
+    this.name =
+      input.name instanceof Uint8Array
+        ? new TextDecoder("latin1").decode(input.name)
+        : input.name;
     this.value = input.value;
   }
 

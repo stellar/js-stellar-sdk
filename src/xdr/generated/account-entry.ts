@@ -91,7 +91,7 @@ export class AccountEntry extends XdrValue {
     numSubEntries: number;
     inflationDest: PublicKey | null;
     flags: number;
-    homeDomain: string;
+    homeDomain: Uint8Array | string;
     thresholds: Thresholds | Uint8Array | string;
     signers: Signer[];
     ext: AccountEntryExt;
@@ -103,7 +103,10 @@ export class AccountEntry extends XdrValue {
     this.numSubEntries = input.numSubEntries;
     this.inflationDest = input.inflationDest;
     this.flags = input.flags;
-    this.homeDomain = input.homeDomain;
+    this.homeDomain =
+      input.homeDomain instanceof Uint8Array
+        ? new TextDecoder("latin1").decode(input.homeDomain)
+        : input.homeDomain;
     this.thresholds =
       input.thresholds instanceof Thresholds
         ? input.thresholds

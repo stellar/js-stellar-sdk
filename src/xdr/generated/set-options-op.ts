@@ -73,7 +73,7 @@ export class SetOptionsOp extends XdrValue {
     lowThreshold: number | null;
     medThreshold: number | null;
     highThreshold: number | null;
-    homeDomain: string | null;
+    homeDomain: Uint8Array | string | null;
     signer: Signer | null;
   }) {
     super();
@@ -84,7 +84,12 @@ export class SetOptionsOp extends XdrValue {
     this.lowThreshold = input.lowThreshold;
     this.medThreshold = input.medThreshold;
     this.highThreshold = input.highThreshold;
-    this.homeDomain = input.homeDomain;
+    this.homeDomain =
+      input.homeDomain === null
+        ? null
+        : input.homeDomain instanceof Uint8Array
+          ? new TextDecoder("latin1").decode(input.homeDomain)
+          : input.homeDomain;
     this.signer = input.signer;
   }
 

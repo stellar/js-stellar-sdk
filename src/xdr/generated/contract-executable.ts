@@ -42,7 +42,9 @@ abstract class ContractExecutableBase extends XdrValue {
     },
   );
 
-  static contractExecutableWasm(wasmHash: Hash): ContractExecutableWasm {
+  static contractExecutableWasm(
+    wasmHash: Hash | Uint8Array | string,
+  ): ContractExecutableWasm {
     return new ContractExecutableWasm(wasmHash);
   }
 
@@ -66,9 +68,9 @@ export class ContractExecutableWasm extends ContractExecutableBase {
   readonly type = "contractExecutableWasm" as const;
   readonly wasmHash: Hash;
 
-  constructor(wasmHash: Hash) {
+  constructor(wasmHash: Hash | Uint8Array | string) {
     super();
-    this.wasmHash = wasmHash;
+    this.wasmHash = wasmHash instanceof Hash ? wasmHash : new Hash(wasmHash);
   }
 
   get value(): Hash {

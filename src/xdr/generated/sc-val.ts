@@ -358,15 +358,15 @@ abstract class ScValBase extends XdrValue {
     return new ScValI256(i256);
   }
 
-  static scvBytes(bytes: ScBytes): ScValBytes {
+  static scvBytes(bytes: ScBytes | Uint8Array | string): ScValBytes {
     return new ScValBytes(bytes);
   }
 
-  static scvString(str: string): ScValString {
+  static scvString(str: Uint8Array | string): ScValString {
     return new ScValString(str);
   }
 
-  static scvSymbol(sym: string): ScValSymbol {
+  static scvSymbol(sym: Uint8Array | string): ScValSymbol {
     return new ScValSymbol(sym);
   }
 
@@ -686,9 +686,9 @@ export class ScValBytes extends ScValBase {
   readonly type = "scvBytes" as const;
   readonly bytes: ScBytes;
 
-  constructor(bytes: ScBytes) {
+  constructor(bytes: ScBytes | Uint8Array | string) {
     super();
-    this.bytes = bytes;
+    this.bytes = bytes instanceof ScBytes ? bytes : new ScBytes(bytes);
   }
 
   get value(): ScBytes {
@@ -704,9 +704,10 @@ export class ScValString extends ScValBase {
   readonly type = "scvString" as const;
   readonly str: string;
 
-  constructor(str: string) {
+  constructor(str: Uint8Array | string) {
     super();
-    this.str = str;
+    this.str =
+      str instanceof Uint8Array ? new TextDecoder("latin1").decode(str) : str;
   }
 
   get value(): string {
@@ -722,9 +723,10 @@ export class ScValSymbol extends ScValBase {
   readonly type = "scvSymbol" as const;
   readonly sym: string;
 
-  constructor(sym: string) {
+  constructor(sym: Uint8Array | string) {
     super();
-    this.sym = sym;
+    this.sym =
+      sym instanceof Uint8Array ? new TextDecoder("latin1").decode(sym) : sym;
   }
 
   get value(): string {

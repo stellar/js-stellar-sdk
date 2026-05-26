@@ -28,9 +28,11 @@ export class FrozenLedgerKeys extends XdrValue {
     },
   );
 
-  constructor(input: { keys: EncodedLedgerKey[] }) {
+  constructor(input: { keys: (EncodedLedgerKey | Uint8Array | string)[] }) {
     super();
-    this.keys = input.keys;
+    this.keys = input.keys.map((v) =>
+      v instanceof EncodedLedgerKey ? v : new EncodedLedgerKey(v),
+    );
   }
 
   toXdrObject(): FrozenLedgerKeysWire {

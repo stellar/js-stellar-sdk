@@ -26,10 +26,16 @@ export class ScMetaV0 extends XdrValue {
     val: string_(UNBOUNDED_MAX_LENGTH),
   });
 
-  constructor(input: { key: string; val: string }) {
+  constructor(input: { key: Uint8Array | string; val: Uint8Array | string }) {
     super();
-    this.key = input.key;
-    this.val = input.val;
+    this.key =
+      input.key instanceof Uint8Array
+        ? new TextDecoder("latin1").decode(input.key)
+        : input.key;
+    this.val =
+      input.val instanceof Uint8Array
+        ? new TextDecoder("latin1").decode(input.val)
+        : input.val;
   }
 
   toXdrObject(): ScMetaV0Wire {
