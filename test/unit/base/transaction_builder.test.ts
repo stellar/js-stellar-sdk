@@ -2193,7 +2193,6 @@ describe("setMinAccountSequenceAge", () => {
     })
       .addOperation(op)
       .setMinAccountSequenceAge(BigInt(0));
-    console.log(transactionBuilder.build().minAccountSequenceAge);
     expect(
       TransactionBuilder.cloneFrom(transactionBuilder.build())
         .minAccountSequenceAge,

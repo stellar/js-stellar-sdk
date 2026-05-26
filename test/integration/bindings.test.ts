@@ -1124,7 +1124,7 @@ describe("BindingGenerator", () => {
           ],
         }),
       );
-      console.log(new XdrString("line\u2028sep\u2029end").toString());
+
       const spec = new contract.Spec([errorSpec.toXdr("base64")]);
       const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
 
@@ -1154,7 +1154,6 @@ describe("BindingGenerator", () => {
       const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
 
       // Backslashes should be double-escaped
-      console.log(result.types);
       expect(result.types).toContain("path\\\\to\\\\file");
     });
 
