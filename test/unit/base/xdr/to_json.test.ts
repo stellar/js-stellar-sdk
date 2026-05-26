@@ -815,3 +815,269 @@ describe("SEP-0051 conformance — Stellar-specific asset codes & integers", () 
     expect(ScVal.scvU256(v).toJson()).toEqual({ u256: "7" });
   });
 });
+
+// Object-level round-trip: original → toJson → fromJson → recovered. Verifies
+// not just byte equality (which most tests above already cover via
+// `.toXdr()`) but that the recovered instance is the same class and that
+// representative public fields match the originals. Catches regressions
+// where a JSON form happens to round-trip to the same bytes but loses
+// type/field information along the way.
+describe("XDR object → JSON → XDR object round-trip with field validation", () => {
+  // Helper: round-trip `original` through JSON and return the recovered
+  // instance typed exactly as the original. The ctor arg is loosely typed
+  // so TS infers `T` solely from `original` — otherwise bidirectional
+  // inference can widen `T` to the constraint and strip discriminant fields
+  // (`r.type`, arm payloads) at use sites. Runtime `instanceof` and
+  // byte-equality checks validate the cast.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  function roundTripJson<T>(ctor: any, original: T): T {
+    const json = (original as { toJson(): unknown }).toJson();
+    const recovered = ctor.fromJson(json) as T;
+    expect(recovered).toBeInstanceOf(ctor);
+    expect((recovered as { toXdr(): Uint8Array }).toXdr()).toEqual(
+      (original as { toXdr(): Uint8Array }).toXdr(),
+    );
+    return recovered;
+  }
+
+  it("Asset native: void arm preserves variant identity", () => {
+    const original = Asset.assetTypeNative();
+    const r = roundTripJson(Asset, original);
+    expect(r.type).toBe("assetTypeNative");
+  });
+
+  it("Asset credit_alphanum4: nested struct fields match end-to-end", () => {
+    const original = Asset.assetTypeCreditAlphanum4(
+      new AlphaNum4({
+        assetCode: asciiCode("USD", 4),
+        issuer: PublicKey.publicKeyTypeEd25519(ED),
+      }),
+    );
+    const r = roundTripJson(Asset, original);
+    expect(r.type).toBe("assetTypeCreditAlphanum4");
+    if (r.type === "assetTypeCreditAlphanum4") {
+      expect(r.value.assetCode.value).toEqual(asciiCode("USD", 4));
+      expect(r.value.issuer.type).toBe("publicKeyTypeEd25519");
+      if (r.value.issuer.type === "publicKeyTypeEd25519") {
+        expect(r.value.issuer.ed25519).toEqual(ED);
+      }
+    }
+  });
+
+  it("Asset credit_alphanum12: 9-char code padded to 12 wire bytes preserved", () => {
+    const original = Asset.assetTypeCreditAlphanum12(
+      new AlphaNum12({
+        assetCode: asciiCode("USDTether", 12),
+        issuer: PublicKey.publicKeyTypeEd25519(ED),
+      }),
+    );
+    const r = roundTripJson(Asset, original);
+    if (r.type !== "assetTypeCreditAlphanum12") throw new Error("wrong arm");
+    expect(r.value.assetCode.value).toEqual(asciiCode("USDTether", 12));
+  });
+
+  it("Asset credit_alphanum12: 3-char code zero-padded back to 12 bytes", () => {
+    // Tests the 5-byte minimum trim + zero-pad round-trip for AssetCode12.
+    const original = Asset.assetTypeCreditAlphanum12(
+      new AlphaNum12({
+        assetCode: asciiCode("ABC", 12),
+        issuer: PublicKey.publicKeyTypeEd25519(ED),
+      }),
+    );
+    const r = roundTripJson(Asset, original);
+    if (r.type !== "assetTypeCreditAlphanum12") throw new Error("wrong arm");
+    expect(r.value.assetCode.value).toEqual(asciiCode("ABC", 12));
+  });
+
+  it("PublicKey: ed25519 bytes preserved through StrKey round-trip", () => {
+    const original = PublicKey.publicKeyTypeEd25519(ED);
+    const r = roundTripJson(PublicKey, original);
+    if (r.type !== "publicKeyTypeEd25519") throw new Error("wrong arm");
+    expect(r.ed25519).toEqual(ED);
+  });
+
+  it("MuxedAccount muxed: id and ed25519 preserved through M-strkey", () => {
+    const original = MuxedAccount.keyTypeMuxedEd25519(
+      new MuxedAccountMed25519({ id: 42n, ed25519: ED }),
+    );
+    const r = roundTripJson(MuxedAccount, original);
+    if (r.type !== "keyTypeMuxedEd25519") throw new Error("wrong arm");
+    expect(r.med25519.id).toBe(42n);
+    expect(r.med25519.ed25519).toEqual(ED);
+  });
+
+  it("ScAddress contract: ContractId bytes preserved through C-strkey", () => {
+    const bytes = new Uint8Array(32).fill(0xab);
+    const original = ScAddress.scAddressTypeContract(new ContractId(bytes));
+    const r = roundTripJson(ScAddress, original);
+    if (r.type !== "scAddressTypeContract") throw new Error("wrong arm");
+    expect(r.contractId.value).toEqual(bytes);
+    expect(r.contractId).toBeInstanceOf(ContractId);
+  });
+
+  it("ClaimableBalanceId v0: inner Hash bytes preserved through B-strkey", () => {
+    const inner = new Uint8Array(32).fill(0x5a);
+    const original = ClaimableBalanceId.claimableBalanceIdTypeV0(
+      new Hash(inner),
+    );
+    const r = roundTripJson(ClaimableBalanceId, original);
+    if (r.type !== "claimableBalanceIdTypeV0") throw new Error("wrong arm");
+    expect(r.v0.value).toEqual(inner);
+  });
+
+  it("PoolId: bytes preserved through L-strkey", () => {
+    const bytes = new Uint8Array(32).fill(0x7f);
+    const original = new PoolId(bytes);
+    const r = roundTripJson(PoolId, original);
+    expect(r.value).toEqual(bytes);
+    expect(r).toBeInstanceOf(PoolId);
+  });
+
+  it("SignerKey preAuthTx: bytes preserved through T-strkey", () => {
+    const bytes = new Uint8Array(32).fill(0x42);
+    const original = SignerKey.signerKeyTypePreAuthTx(bytes);
+    const r = roundTripJson(SignerKey, original);
+
+    if (r.type !== "signerKeyTypePreAuthTx") throw new Error("wrong arm");
+    expect(r.preAuthTx).toEqual(bytes);
+  });
+
+  it("SignerKey ed25519SignedPayload: ed25519 + payload preserved through P-strkey", () => {
+    const payload = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8]);
+    const original = SignerKey.signerKeyTypeEd25519SignedPayload(
+      new SignerKeyEd25519SignedPayload({ ed25519: ED, payload }),
+    );
+    const r = roundTripJson(SignerKey, original);
+    if (r.type !== "signerKeyTypeEd25519SignedPayload")
+      throw new Error("wrong arm");
+    expect(r.ed25519SignedPayload.ed25519).toEqual(ED);
+    expect(r.ed25519SignedPayload.payload).toEqual(payload);
+  });
+
+  it("Int128Parts via scvI128: negative wide-int round-trips byte-exact and field-exact", () => {
+    const original = ScVal.scvI128(
+      new Int128Parts({ hi: -1n, lo: (1n << 64n) - 5n }),
+    );
+    const r = roundTripJson(ScVal, original);
+    if (r.type !== "scvI128") throw new Error("wrong arm");
+    expect(r.i128.hi).toBe(-1n);
+    expect(r.i128.lo).toBe((1n << 64n) - 5n);
+  });
+
+  it("Uint256Parts via scvU256: high-component-only value preserves all four parts", () => {
+    const original = ScVal.scvU256(
+      new Uint256Parts({ hiHi: 1n, hiLo: 0n, loHi: 0n, loLo: 0n }),
+    );
+    const r = roundTripJson(ScVal, original);
+    if (r.type !== "scvU256") throw new Error("wrong arm");
+    expect(r.u256.hiHi).toBe(1n);
+    expect(r.u256.hiLo).toBe(0n);
+    expect(r.u256.loHi).toBe(0n);
+    expect(r.u256.loLo).toBe(0n);
+  });
+
+  it("scvBytes: empty byte sequence preserved", () => {
+    const original = ScVal.scvBytes(new ScBytes(new Uint8Array()));
+    const r = roundTripJson(ScVal, original);
+    if (r.type !== "scvBytes") throw new Error("wrong arm");
+    expect(r.bytes.value).toEqual(new Uint8Array());
+  });
+
+  it("scvBytes: arbitrary binary bytes preserved", () => {
+    const bytes = new Uint8Array([0x00, 0xff, 0x80, 0x7f, 0x01]);
+    const original = ScVal.scvBytes(new ScBytes(bytes));
+    const r = roundTripJson(ScVal, original);
+    if (r.type !== "scvBytes") throw new Error("wrong arm");
+    expect(r.bytes.value).toEqual(bytes);
+  });
+
+  it("scvString: text with control chars preserved through SEP-0051 escapes", () => {
+    const original = ScVal.scvString(
+      new Uint8Array([0x61, 0x00, 0x62, 0x09, 0x0a, 0x5c]),
+    );
+    const r = roundTripJson(ScVal, original);
+    if (r.type !== "scvString") throw new Error("wrong arm");
+    expect(r.str.bytes).toEqual(
+      new Uint8Array([0x61, 0x00, 0x62, 0x09, 0x0a, 0x5c]),
+    );
+  });
+
+  it("scvSymbol: ASCII identifier preserved", () => {
+    const original = ScVal.scvSymbol("transfer");
+    const r = roundTripJson(ScVal, original);
+    if (r.type !== "scvSymbol") throw new Error("wrong arm");
+    expect(r.sym.toString()).toBe("transfer");
+  });
+
+  it("scvVec recursive: nested vec structure preserved", () => {
+    const original = ScVal.scvVec([
+      ScVal.scvU32(1),
+      ScVal.scvVec([ScVal.scvBool(true), ScVal.scvI32(-7)]),
+      ScVal.scvSymbol("end"),
+    ]);
+    const r = roundTripJson(ScVal, original);
+    if (r.type !== "scvVec") throw new Error("wrong arm");
+    expect(r.vec).not.toBeNull();
+    const arr = r.vec!;
+    expect(arr).toHaveLength(3);
+    expect(arr[0].type).toBe("scvU32");
+    expect(arr[1].type).toBe("scvVec");
+    expect(arr[2].type).toBe("scvSymbol");
+  });
+
+  it("scvMap: key + val both round-trip through walker", () => {
+    const original = ScVal.scvMap([
+      new ScMapEntry({
+        key: ScVal.scvSymbol("amount"),
+        val: ScVal.scvI128(new Int128Parts({ hi: 0n, lo: 1000n })),
+      }),
+    ]);
+    const r = roundTripJson(ScVal, original);
+    if (r.type !== "scvMap") throw new Error("wrong arm");
+    expect(r.map).not.toBeNull();
+    expect(r.map!).toHaveLength(1);
+    expect(r.map![0].key.type).toBe("scvSymbol");
+    expect(r.map![0].val.type).toBe("scvI128");
+  });
+
+  it("scvLedgerKeyNonce: nested int64 nonce preserved through decimal string", () => {
+    const original = ScVal.scvLedgerKeyNonce(new ScNonceKey({ nonce: 999n }));
+    const r = roundTripJson(ScVal, original);
+    if (r.type !== "scvLedgerKeyNonce") throw new Error("wrong arm");
+    expect(r.nonceKey.nonce).toBe(999n);
+  });
+
+  it("PreconditionsV2: null optionals stay null, populated optionals stay populated", () => {
+    const original = new PreconditionsV2({
+      timeBounds: new TimeBounds({ minTime: 10n, maxTime: 20n }),
+      ledgerBounds: null,
+      minSeqNum: 42n,
+      minSeqAge: 0n,
+      minSeqLedgerGap: 0,
+      extraSigners: [],
+    });
+    const r = roundTripJson(PreconditionsV2, original);
+    expect(r.timeBounds).not.toBeNull();
+    expect(r.timeBounds!.minTime).toBe(10n);
+    expect(r.timeBounds!.maxTime).toBe(20n);
+    expect(r.ledgerBounds).toBeNull();
+    expect(r.minSeqNum).toBe(42n);
+    expect(r.minSeqAge).toBe(0n);
+    expect(r.minSeqLedgerGap).toBe(0);
+    expect(r.extraSigners).toEqual([]);
+  });
+
+  it("SorobanTransactionMetaExt v0: int-switched void arm preserves variant", () => {
+    const original = SorobanTransactionMetaExt.v0();
+    const r = roundTripJson(SorobanTransactionMetaExt, original);
+    expect(r.type).toBe("v0");
+  });
+
+  it("Memo memoText with binary bytes: byte-exact preservation", () => {
+    const bytes = new Uint8Array([0xd1, 0xff, 0x09, 0x00, 0x41]);
+    const original = Memo.memoText(bytes);
+    const r = roundTripJson(Memo, original);
+    if (r.type !== "memoText") throw new Error("wrong arm");
+    expect(r.text.bytes).toEqual(bytes);
+  });
+});
