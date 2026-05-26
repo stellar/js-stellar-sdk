@@ -9,13 +9,13 @@ import { XdrValue } from "../values/xdr-value.js";
 import { AssetType } from "./asset-type.js";
 import { AlphaNum4, type AlphaNum4Wire } from "./alpha-num4.js";
 import { AlphaNum12, type AlphaNum12Wire } from "./alpha-num12.js";
-import { Hash, type HashWire } from "./hash.js";
+import { PoolId, type PoolIdWire } from "./pool-id.js";
 
 export type TrustLineAssetWire =
   | { type: 0 }
   | { type: 1; alphaNum4: AlphaNum4Wire }
   | { type: 2; alphaNum12: AlphaNum12Wire }
-  | { type: 3; liquidityPoolId: HashWire };
+  | { type: 3; liquidityPoolId: PoolIdWire };
 
 export type TrustLineAssetVariantName =
   | "assetTypeNative"
@@ -62,7 +62,7 @@ abstract class TrustLineAssetBase extends XdrValue {
           2,
           field("alphaNum12", AlphaNum12.schema),
         ),
-        case_("assetTypePoolShare", 3, field("liquidityPoolId", Hash.schema)),
+        case_("assetTypePoolShare", 3, field("liquidityPoolId", PoolId.schema)),
       ],
     },
   );
@@ -83,7 +83,7 @@ abstract class TrustLineAssetBase extends XdrValue {
     return new TrustLineAssetCreditAlphanum12(alphaNum12);
   }
 
-  static assetTypePoolShare(liquidityPoolId: Hash): TrustLineAssetPoolShare {
+  static assetTypePoolShare(liquidityPoolId: PoolId): TrustLineAssetPoolShare {
     return new TrustLineAssetPoolShare(liquidityPoolId);
   }
 
@@ -101,7 +101,7 @@ abstract class TrustLineAssetBase extends XdrValue {
         );
       case 3:
         return new TrustLineAssetPoolShare(
-          Hash.fromXdrObject(wire.liquidityPoolId),
+          PoolId.fromXdrObject(wire.liquidityPoolId),
         );
     }
   }
@@ -155,14 +155,14 @@ export class TrustLineAssetCreditAlphanum12 extends TrustLineAssetBase {
 
 export class TrustLineAssetPoolShare extends TrustLineAssetBase {
   readonly type = "assetTypePoolShare" as const;
-  readonly liquidityPoolId: Hash;
+  readonly liquidityPoolId: PoolId;
 
-  constructor(liquidityPoolId: Hash) {
+  constructor(liquidityPoolId: PoolId) {
     super();
     this.liquidityPoolId = liquidityPoolId;
   }
 
-  get value(): Hash {
+  get value(): PoolId {
     return this.liquidityPoolId;
   }
 

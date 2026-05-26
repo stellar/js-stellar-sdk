@@ -2,8 +2,10 @@ import { StrKey } from "./strkey.js";
 import {
   ClaimableBalanceId,
   ClaimableBalanceIdType,
+  ContractId,
   Hash,
   MuxedEd25519Account,
+  PoolId,
   PublicKey,
   ScAddress,
   ScVal,
@@ -196,9 +198,9 @@ export class Address {
           PublicKey.publicKeyTypeEd25519(this._key),
         );
       case "contract":
-        return ScAddress.scAddressTypeContract(new Hash(this._key));
+        return ScAddress.scAddressTypeContract(new ContractId(this._key));
       case "liquidityPool":
-        return ScAddress.scAddressTypeLiquidityPool(new Hash(this._key));
+        return ScAddress.scAddressTypeLiquidityPool(new PoolId(this._key));
 
       case "claimableBalance":
         return ScAddress.scAddressTypeClaimableBalance(

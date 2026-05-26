@@ -10,7 +10,7 @@ export type EncryptedBodyWire = Uint8Array;
  */
 export class EncryptedBody extends BytesValue<"EncryptedBody"> {
   static readonly encoding = "hex" as const;
-  static readonly schema = varOpaque(64000);
+  static readonly schema = varOpaque(64000, "EncryptedBody");
 
   static fromXdrObject(wire: Uint8Array): EncryptedBody {
     return new EncryptedBody(wire);

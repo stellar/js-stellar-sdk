@@ -1,10 +1,10 @@
 import { struct } from "../types/struct.js";
 import type { XdrType } from "../core/xdr-type.js";
 import { XdrValue } from "../values/xdr-value.js";
-import { Hash, type HashWire } from "./hash.js";
+import { PoolId, type PoolIdWire } from "./pool-id.js";
 
 export interface LedgerKeyLiquidityPoolWire {
-  liquidityPoolId: HashWire;
+  liquidityPoolId: PoolIdWire;
 }
 
 /**
@@ -16,16 +16,16 @@ export interface LedgerKeyLiquidityPoolWire {
  * ```
  */
 export class LedgerKeyLiquidityPool extends XdrValue {
-  readonly liquidityPoolId: Hash;
+  readonly liquidityPoolId: PoolId;
 
   static readonly schema: XdrType<LedgerKeyLiquidityPoolWire> = struct(
     "LedgerKeyLiquidityPool",
     {
-      liquidityPoolId: Hash.schema,
+      liquidityPoolId: PoolId.schema,
     },
   );
 
-  constructor(input: { liquidityPoolId: Hash }) {
+  constructor(input: { liquidityPoolId: PoolId }) {
     super();
     this.liquidityPoolId = input.liquidityPoolId;
   }
@@ -40,7 +40,7 @@ export class LedgerKeyLiquidityPool extends XdrValue {
     wire: LedgerKeyLiquidityPoolWire,
   ): LedgerKeyLiquidityPool {
     return new LedgerKeyLiquidityPool({
-      liquidityPoolId: Hash.fromXdrObject(wire.liquidityPoolId),
+      liquidityPoolId: PoolId.fromXdrObject(wire.liquidityPoolId),
     });
   }
 }

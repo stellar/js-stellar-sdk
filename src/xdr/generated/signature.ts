@@ -10,7 +10,7 @@ export type SignatureWire = Uint8Array;
  */
 export class Signature extends BytesValue<"Signature"> {
   static readonly encoding = "hex" as const;
-  static readonly schema = varOpaque(64);
+  static readonly schema = varOpaque(64, "Signature");
 
   static fromXdrObject(wire: Uint8Array): Signature {
     return new Signature(wire);

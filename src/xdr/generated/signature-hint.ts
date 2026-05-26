@@ -11,7 +11,7 @@ export type SignatureHintWire = Uint8Array;
 export class SignatureHint extends BytesValue<"SignatureHint"> {
   static readonly byteLength = 4;
   static readonly encoding = "hex" as const;
-  static readonly schema = opaque(4);
+  static readonly schema = opaque(4, "SignatureHint");
 
   static fromXdrObject(wire: Uint8Array): SignatureHint {
     return new SignatureHint(wire);

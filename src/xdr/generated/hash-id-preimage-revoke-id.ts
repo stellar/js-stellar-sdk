@@ -4,14 +4,14 @@ import { uint32 } from "../types/uint32.js";
 import type { XdrType } from "../core/xdr-type.js";
 import { XdrValue } from "../values/xdr-value.js";
 import { PublicKey, type PublicKeyWire } from "./public-key.js";
-import { Hash, type HashWire } from "./hash.js";
+import { PoolId, type PoolIdWire } from "./pool-id.js";
 import { Asset, type AssetWire } from "./asset.js";
 
 export interface HashIdPreimageRevokeIdWire {
   sourceAccount: PublicKeyWire;
   seqNum: bigint;
   opNum: number;
-  liquidityPoolId: HashWire;
+  liquidityPoolId: PoolIdWire;
   asset: AssetWire;
 }
 
@@ -31,7 +31,7 @@ export class HashIdPreimageRevokeId extends XdrValue {
   readonly sourceAccount: PublicKey;
   readonly seqNum: bigint;
   readonly opNum: number;
-  readonly liquidityPoolId: Hash;
+  readonly liquidityPoolId: PoolId;
   readonly asset: Asset;
 
   static readonly schema: XdrType<HashIdPreimageRevokeIdWire> = struct(
@@ -40,7 +40,7 @@ export class HashIdPreimageRevokeId extends XdrValue {
       sourceAccount: PublicKey.schema,
       seqNum: int64(),
       opNum: uint32(),
-      liquidityPoolId: Hash.schema,
+      liquidityPoolId: PoolId.schema,
       asset: Asset.schema,
     },
   );
@@ -49,7 +49,7 @@ export class HashIdPreimageRevokeId extends XdrValue {
     sourceAccount: PublicKey;
     seqNum: bigint;
     opNum: number;
-    liquidityPoolId: Hash;
+    liquidityPoolId: PoolId;
     asset: Asset;
   }) {
     super();
@@ -77,7 +77,7 @@ export class HashIdPreimageRevokeId extends XdrValue {
       sourceAccount: PublicKey.fromXdrObject(wire.sourceAccount),
       seqNum: wire.seqNum,
       opNum: wire.opNum,
-      liquidityPoolId: Hash.fromXdrObject(wire.liquidityPoolId),
+      liquidityPoolId: PoolId.fromXdrObject(wire.liquidityPoolId),
       asset: Asset.fromXdrObject(wire.asset),
     });
   }

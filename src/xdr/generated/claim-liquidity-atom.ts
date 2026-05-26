@@ -2,11 +2,11 @@ import { struct } from "../types/struct.js";
 import { int64 } from "../types/int64.js";
 import type { XdrType } from "../core/xdr-type.js";
 import { XdrValue } from "../values/xdr-value.js";
-import { Hash, type HashWire } from "./hash.js";
+import { PoolId, type PoolIdWire } from "./pool-id.js";
 import { Asset, type AssetWire } from "./asset.js";
 
 export interface ClaimLiquidityAtomWire {
-  liquidityPoolId: HashWire;
+  liquidityPoolId: PoolIdWire;
   assetSold: AssetWire;
   amountSold: bigint;
   assetBought: AssetWire;
@@ -30,7 +30,7 @@ export interface ClaimLiquidityAtomWire {
  * ```
  */
 export class ClaimLiquidityAtom extends XdrValue {
-  readonly liquidityPoolId: Hash;
+  readonly liquidityPoolId: PoolId;
   readonly assetSold: Asset;
   readonly amountSold: bigint;
   readonly assetBought: Asset;
@@ -39,7 +39,7 @@ export class ClaimLiquidityAtom extends XdrValue {
   static readonly schema: XdrType<ClaimLiquidityAtomWire> = struct(
     "ClaimLiquidityAtom",
     {
-      liquidityPoolId: Hash.schema,
+      liquidityPoolId: PoolId.schema,
       assetSold: Asset.schema,
       amountSold: int64(),
       assetBought: Asset.schema,
@@ -48,7 +48,7 @@ export class ClaimLiquidityAtom extends XdrValue {
   );
 
   constructor(input: {
-    liquidityPoolId: Hash;
+    liquidityPoolId: PoolId;
     assetSold: Asset;
     amountSold: bigint;
     assetBought: Asset;
@@ -74,7 +74,7 @@ export class ClaimLiquidityAtom extends XdrValue {
 
   static fromXdrObject(wire: ClaimLiquidityAtomWire): ClaimLiquidityAtom {
     return new ClaimLiquidityAtom({
-      liquidityPoolId: Hash.fromXdrObject(wire.liquidityPoolId),
+      liquidityPoolId: PoolId.fromXdrObject(wire.liquidityPoolId),
       assetSold: Asset.fromXdrObject(wire.assetSold),
       amountSold: wire.amountSold,
       assetBought: Asset.fromXdrObject(wire.assetBought),

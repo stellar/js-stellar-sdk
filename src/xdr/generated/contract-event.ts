@@ -3,7 +3,7 @@ import { option } from "../types/option.js";
 import type { XdrType } from "../core/xdr-type.js";
 import { XdrValue } from "../values/xdr-value.js";
 import { ExtensionPoint, type ExtensionPointWire } from "./extension-point.js";
-import { Hash, type HashWire } from "./hash.js";
+import { ContractId, type ContractIdWire } from "./contract-id.js";
 import {
   ContractEventType,
   type ContractEventTypeWire,
@@ -15,7 +15,7 @@ import {
 
 export interface ContractEventWire {
   ext: ExtensionPointWire;
-  contractId: HashWire | null;
+  contractId: ContractIdWire | null;
   type: ContractEventTypeWire;
   body: ContractEventBodyWire;
 }
@@ -46,20 +46,20 @@ export interface ContractEventWire {
  */
 export class ContractEvent extends XdrValue {
   readonly ext: ExtensionPoint;
-  readonly contractId: Hash | null;
+  readonly contractId: ContractId | null;
   readonly type: ContractEventType;
   readonly body: ContractEventBody;
 
   static readonly schema: XdrType<ContractEventWire> = struct("ContractEvent", {
     ext: ExtensionPoint.schema,
-    contractId: option(Hash.schema),
+    contractId: option(ContractId.schema),
     type: ContractEventType.schema,
     body: ContractEventBody.schema,
   });
 
   constructor(input: {
     ext: ExtensionPoint;
-    contractId: Hash | null;
+    contractId: ContractId | null;
     type: ContractEventType;
     body: ContractEventBody;
   }) {
@@ -84,7 +84,9 @@ export class ContractEvent extends XdrValue {
     return new ContractEvent({
       ext: ExtensionPoint.fromXdrObject(wire.ext),
       contractId:
-        wire.contractId === null ? null : Hash.fromXdrObject(wire.contractId),
+        wire.contractId === null
+          ? null
+          : ContractId.fromXdrObject(wire.contractId),
       type: ContractEventType.fromXdrObject(wire.type),
       body: ContractEventBody.fromXdrObject(wire.body),
     });

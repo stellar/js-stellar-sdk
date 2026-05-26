@@ -2,10 +2,10 @@ import { struct } from "../types/struct.js";
 import { int64 } from "../types/int64.js";
 import type { XdrType } from "../core/xdr-type.js";
 import { XdrValue } from "../values/xdr-value.js";
-import { Hash, type HashWire } from "./hash.js";
+import { PoolId, type PoolIdWire } from "./pool-id.js";
 
 export interface LiquidityPoolWithdrawOpWire {
-  liquidityPoolId: HashWire;
+  liquidityPoolId: PoolIdWire;
   amount: bigint;
   minAmountA: bigint;
   minAmountB: bigint;
@@ -23,7 +23,7 @@ export interface LiquidityPoolWithdrawOpWire {
  * ```
  */
 export class LiquidityPoolWithdrawOp extends XdrValue {
-  readonly liquidityPoolId: Hash;
+  readonly liquidityPoolId: PoolId;
   readonly amount: bigint;
   readonly minAmountA: bigint;
   readonly minAmountB: bigint;
@@ -31,7 +31,7 @@ export class LiquidityPoolWithdrawOp extends XdrValue {
   static readonly schema: XdrType<LiquidityPoolWithdrawOpWire> = struct(
     "LiquidityPoolWithdrawOp",
     {
-      liquidityPoolId: Hash.schema,
+      liquidityPoolId: PoolId.schema,
       amount: int64(),
       minAmountA: int64(),
       minAmountB: int64(),
@@ -39,7 +39,7 @@ export class LiquidityPoolWithdrawOp extends XdrValue {
   );
 
   constructor(input: {
-    liquidityPoolId: Hash;
+    liquidityPoolId: PoolId;
     amount: bigint;
     minAmountA: bigint;
     minAmountB: bigint;
@@ -64,7 +64,7 @@ export class LiquidityPoolWithdrawOp extends XdrValue {
     wire: LiquidityPoolWithdrawOpWire,
   ): LiquidityPoolWithdrawOp {
     return new LiquidityPoolWithdrawOp({
-      liquidityPoolId: Hash.fromXdrObject(wire.liquidityPoolId),
+      liquidityPoolId: PoolId.fromXdrObject(wire.liquidityPoolId),
       amount: wire.amount,
       minAmountA: wire.minAmountA,
       minAmountB: wire.minAmountB,

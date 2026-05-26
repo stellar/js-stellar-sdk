@@ -11,7 +11,7 @@ export type ScBytesWire = Uint8Array;
  */
 export class ScBytes extends BytesValue<"ScBytes"> {
   static readonly encoding = "hex" as const;
-  static readonly schema = varOpaque(UNBOUNDED_MAX_LENGTH);
+  static readonly schema = varOpaque(UNBOUNDED_MAX_LENGTH, "ScBytes");
 
   static fromXdrObject(wire: Uint8Array): ScBytes {
     return new ScBytes(wire);

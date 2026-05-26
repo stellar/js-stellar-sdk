@@ -22,6 +22,7 @@ import { string as stringBytes } from "../types/string.js";
 // and `Uint8Array` at the type level.
 
 const TAG: unique symbol = Symbol("XdrString");
+const HEX = "0123456789abcdef";
 
 export class XdrString {
   declare readonly [TAG]: true;
@@ -185,8 +186,6 @@ export class XdrString {
     return true;
   }
 }
-
-const HEX = "0123456789abcdef";
 
 function hexDigit(code: number): number {
   if (code >= 0x30 && code <= 0x39) return code - 0x30;

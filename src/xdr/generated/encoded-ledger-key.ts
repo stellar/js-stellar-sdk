@@ -11,7 +11,7 @@ export type EncodedLedgerKeyWire = Uint8Array;
  */
 export class EncodedLedgerKey extends BytesValue<"EncodedLedgerKey"> {
   static readonly encoding = "hex" as const;
-  static readonly schema = varOpaque(UNBOUNDED_MAX_LENGTH);
+  static readonly schema = varOpaque(UNBOUNDED_MAX_LENGTH, "EncodedLedgerKey");
 
   static fromXdrObject(wire: Uint8Array): EncodedLedgerKey {
     return new EncodedLedgerKey(wire);

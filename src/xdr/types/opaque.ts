@@ -7,8 +7,11 @@ import { assertLength, assertUint8Array } from "../core/helpers.js";
 class OpaqueType extends BaseType<Uint8Array> {
   readonly kind = "opaque";
 
-  constructor(private readonly length: number) {
-    super();
+  constructor(
+    private readonly length: number,
+    name?: string,
+  ) {
+    super(name);
     assertLength(length, "opaque length");
   }
 
@@ -30,6 +33,6 @@ class OpaqueType extends BaseType<Uint8Array> {
   }
 }
 
-export function opaque(length: number): XdrType<Uint8Array> {
-  return new OpaqueType(length);
+export function opaque(length: number, name?: string): XdrType<Uint8Array> {
+  return new OpaqueType(length, name);
 }

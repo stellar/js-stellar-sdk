@@ -7,8 +7,11 @@ import { assertLength, assertUint8Array } from "../core/helpers.js";
 class VarOpaqueType extends BaseType<Uint8Array> {
   readonly kind = "varOpaque";
 
-  constructor(private readonly maxLength: number) {
-    super();
+  constructor(
+    private readonly maxLength: number,
+    name?: string,
+  ) {
+    super(name);
     assertLength(maxLength, "varOpaque maxLength");
   }
 
@@ -37,6 +40,9 @@ class VarOpaqueType extends BaseType<Uint8Array> {
   }
 }
 
-export function varOpaque(maxLength: number): XdrType<Uint8Array> {
-  return new VarOpaqueType(maxLength);
+export function varOpaque(
+  maxLength: number,
+  name?: string,
+): XdrType<Uint8Array> {
+  return new VarOpaqueType(maxLength, name);
 }

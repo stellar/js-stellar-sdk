@@ -26,19 +26,13 @@ import {
   Memo,
   ScVal,
   ScAddress,
-  Hash,
   Int128,
   Uint128,
   Int128Parts,
   Operation,
   OperationBody,
   PaymentOp,
-  TransactionEnvelope,
-  TransactionV1Envelope,
-  Transaction,
-  Preconditions,
-  TransactionExt,
-  Memo as MemoVal,
+  ContractId,
 } from "../../../../src/xdr/index.js";
 
 const ED = new Uint8Array(32);
@@ -212,7 +206,9 @@ describe("round-trip: ScAddress (every variant)", () => {
 
   it("contract arm matches legacy", () => {
     const contractId = new Uint8Array(32).fill(9);
-    const next = ScAddress.scAddressTypeContract(new Hash(contractId)).toXdr();
+    const next = ScAddress.scAddressTypeContract(
+      new ContractId(contractId),
+    ).toXdr();
     const lgcy = legacy.ScAddress.scAddressTypeContract(
       Buffer.from(contractId),
     ).toXDR();

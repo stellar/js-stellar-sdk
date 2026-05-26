@@ -1,3 +1,4 @@
+import { Buffer } from "buffer";
 import { PoolId, TrustLineAsset } from "../xdr/index.js";
 
 /**
@@ -28,7 +29,12 @@ export class LiquidityPoolId {
   static fromOperation(tlAssetXdr: TrustLineAsset): LiquidityPoolId {
     const assetType = tlAssetXdr.type;
     if (assetType === "assetTypePoolShare") {
-      const liquidityPoolId = tlAssetXdr.value.toJson();
+      // LiquidityPoolId is constructed from a hex-string of the raw bytes —
+      // not the SEP-0051 JSON form (which is L-strkey now that PoolId has
+      // its override). Encode the raw bytes directly.
+      const liquidityPoolId = Buffer.from(tlAssetXdr.value.value).toString(
+        "hex",
+      );
       return new LiquidityPoolId(liquidityPoolId);
     }
 

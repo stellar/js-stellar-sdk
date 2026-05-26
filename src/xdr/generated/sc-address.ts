@@ -7,7 +7,7 @@ import type { XdrType } from "../core/xdr-type.js";
 import { XdrValue } from "../values/xdr-value.js";
 import { ScAddressType } from "./sc-address-type.js";
 import { PublicKey, type PublicKeyWire } from "./public-key.js";
-import { Hash, type HashWire } from "./hash.js";
+import { ContractId, type ContractIdWire } from "./contract-id.js";
 import {
   MuxedEd25519Account,
   type MuxedEd25519AccountWire,
@@ -16,13 +16,14 @@ import {
   ClaimableBalanceId,
   type ClaimableBalanceIdWire,
 } from "./claimable-balance-id.js";
+import { PoolId, type PoolIdWire } from "./pool-id.js";
 
 export type ScAddressWire =
   | { type: 0; accountId: PublicKeyWire }
-  | { type: 1; contractId: HashWire }
+  | { type: 1; contractId: ContractIdWire }
   | { type: 2; muxedAccount: MuxedEd25519AccountWire }
   | { type: 3; claimableBalanceId: ClaimableBalanceIdWire }
-  | { type: 4; liquidityPoolId: HashWire };
+  | { type: 4; liquidityPoolId: PoolIdWire };
 
 export type ScAddressVariantName =
   | "scAddressTypeAccount"
@@ -55,7 +56,7 @@ abstract class ScAddressBase extends XdrValue {
     switchOn: ScAddressType.schema,
     cases: [
       case_("scAddressTypeAccount", 0, field("accountId", PublicKey.schema)),
-      case_("scAddressTypeContract", 1, field("contractId", Hash.schema)),
+      case_("scAddressTypeContract", 1, field("contractId", ContractId.schema)),
       case_(
         "scAddressTypeMuxedAccount",
         2,
@@ -69,7 +70,7 @@ abstract class ScAddressBase extends XdrValue {
       case_(
         "scAddressTypeLiquidityPool",
         4,
-        field("liquidityPoolId", Hash.schema),
+        field("liquidityPoolId", PoolId.schema),
       ),
     ],
   });
@@ -78,7 +79,7 @@ abstract class ScAddressBase extends XdrValue {
     return new ScAddressAccount(accountId);
   }
 
-  static scAddressTypeContract(contractId: Hash): ScAddressContract {
+  static scAddressTypeContract(contractId: ContractId): ScAddressContract {
     return new ScAddressContract(contractId);
   }
 
@@ -95,7 +96,7 @@ abstract class ScAddressBase extends XdrValue {
   }
 
   static scAddressTypeLiquidityPool(
-    liquidityPoolId: Hash,
+    liquidityPoolId: PoolId,
   ): ScAddressLiquidityPool {
     return new ScAddressLiquidityPool(liquidityPoolId);
   }
@@ -105,7 +106,7 @@ abstract class ScAddressBase extends XdrValue {
       case 0:
         return new ScAddressAccount(PublicKey.fromXdrObject(wire.accountId));
       case 1:
-        return new ScAddressContract(Hash.fromXdrObject(wire.contractId));
+        return new ScAddressContract(ContractId.fromXdrObject(wire.contractId));
       case 2:
         return new ScAddressMuxedAccount(
           MuxedEd25519Account.fromXdrObject(wire.muxedAccount),
@@ -116,7 +117,7 @@ abstract class ScAddressBase extends XdrValue {
         );
       case 4:
         return new ScAddressLiquidityPool(
-          Hash.fromXdrObject(wire.liquidityPoolId),
+          PoolId.fromXdrObject(wire.liquidityPoolId),
         );
     }
   }
@@ -144,14 +145,14 @@ export class ScAddressAccount extends ScAddressBase {
 
 export class ScAddressContract extends ScAddressBase {
   readonly type = "scAddressTypeContract" as const;
-  readonly contractId: Hash;
+  readonly contractId: ContractId;
 
-  constructor(contractId: Hash) {
+  constructor(contractId: ContractId) {
     super();
     this.contractId = contractId;
   }
 
-  get value(): Hash {
+  get value(): ContractId {
     return this.contractId;
   }
 
@@ -201,14 +202,14 @@ export class ScAddressClaimableBalance extends ScAddressBase {
 
 export class ScAddressLiquidityPool extends ScAddressBase {
   readonly type = "scAddressTypeLiquidityPool" as const;
-  readonly liquidityPoolId: Hash;
+  readonly liquidityPoolId: PoolId;
 
-  constructor(liquidityPoolId: Hash) {
+  constructor(liquidityPoolId: PoolId) {
     super();
     this.liquidityPoolId = liquidityPoolId;
   }
 
-  get value(): Hash {
+  get value(): PoolId {
     return this.liquidityPoolId;
   }
 

@@ -198,6 +198,26 @@ function isReExport(def) {
   return def.kind === "typedef" && def.type.kind === "ref";
 }
 
+/** True iff this re-export typedef ultimately chases to a wrapped opaque
+ *  (`typedef opaque X[N]` or `typedef opaque X<N>` with uppercase name).
+ *  Such aliases emit their *own* BytesValue subclass with a distinct named
+ *  schema — same byte semantics as the chased target, but a name the JSON
+ *  walker can dispatch overrides on (PoolId → L-strkey, ContractId →
+ *  C-strkey, etc.). Refs to these resolve to the alias name itself, not
+ *  the chased target. */
+function isReExportToOpaque(def) {
+  if (!isReExport(def)) return false;
+  let current = def.type.name;
+  while (true) {
+    const d = registry.get(current);
+    if (!d || d.kind !== "typedef") return false;
+    if (d.type.kind !== "ref") {
+      return d.type.kind === "opaque_fixed" || d.type.kind === "opaque_var";
+    }
+    current = d.type.name;
+  }
+}
+
 /** True iff this typedef name should be inlined (no class) at use sites.
  *
  *  - Primitive typedefs (uint32, int64, …) — always inline as `number`/`bigint`.
@@ -318,8 +338,12 @@ function refSchemaExpr(name, ctx) {
   if (def.kind === "typedef" && isInlineTypedef(def)) {
     return schemaExpr(def.type, ctx);
   }
-  // Re-export typedef → chase to the underlying named class
-  if (def.kind === "typedef" && isReExport(def)) {
+  // Re-export typedef → chase to the underlying named class. Exception:
+  // re-exports-to-opaque (PoolId, ContractId, …) emit their own class with
+  // a distinct named schema, so we want a ref to *them*, not the chased
+  // target — that's how `schema.name` ends up "PoolId" not "Hash", which
+  // is what the JSON walker's override lookup needs.
+  if (def.kind === "typedef" && isReExport(def) && !isReExportToOpaque(def)) {
     return refSchemaExpr(def.type.name, ctx);
   }
   // Has its own class. If referencing it would close a schema cycle, wrap in lazy.
@@ -379,7 +403,8 @@ function refTsType(name, ctx) {
   if (def.kind === "typedef" && isInlineTypedef(def)) {
     return tsTypeExpr(def.type, ctx);
   }
-  if (def.kind === "typedef" && isReExport(def)) {
+  // Stop chasing for re-exports-to-opaque — they're their own class now.
+  if (def.kind === "typedef" && isReExport(def) && !isReExportToOpaque(def)) {
     return refTsType(def.type.name, ctx);
   }
   ctx.classImports.add(name);
@@ -965,17 +990,21 @@ function resolveType(t) {
   if (!def) return t;
   if (def.kind === "typedef") {
     if (isInlineTypedef(def)) return resolveType(def.type);
-    if (isReExport(def)) return resolveType(def.type);
+    // Stop at re-exports-to-opaque — those emit their own class.
+    if (isReExport(def) && !isReExportToOpaque(def))
+      return resolveType(def.type);
   }
   return t; // class ref
 }
 
-/** Resolve a ref through re-exports to the underlying named class. */
+/** Resolve a ref through re-exports to the underlying named class.
+ *  Re-exports-to-opaque are their own class — stop at them. */
 function resolveClassName(name) {
   let n = name;
   while (true) {
     const d = registry.get(n);
-    if (!d || d.kind !== "typedef" || !isReExport(d)) return n;
+    if (!d || d.kind !== "typedef" || !isReExport(d) || isReExportToOpaque(d))
+      return n;
     n = d.type.name;
   }
 }
@@ -1453,11 +1482,25 @@ function emitUnion(rawDef) {
 }
 
 function emitTypedef(def) {
-  // Re-export typedef (alias to another named type)
+  // Re-export-to-opaque: emit a distinct BytesValue subclass with its own
+  // named schema. Identical byte semantics to the chased target, but a name
+  // the JSON walker can dispatch overrides on (PoolId → L-strkey, etc.).
+  if (isReExportToOpaque(def)) {
+    let current = def.type.name;
+    while (true) {
+      const d = registry.get(current);
+      if (!d || d.kind !== "typedef" || d.type.kind === "ref" === false) break;
+      if (d.type.kind !== "ref") break;
+      current = d.type.name;
+    }
+    const targetDef = registry.get(current);
+    return emitWrappedOpaque(def.name, targetDef.type, def);
+  }
+
+  // Pure re-export typedef (alias to another named class — union, struct,
+  // enum, or BytesValue-wrapped non-opaque)
   if (isReExport(def)) {
-    const target = def.type.name;
-    // Chase target through ref typedefs to the underlying class
-    let current = target;
+    let current = def.type.name;
     while (true) {
       const d = registry.get(current);
       if (!d || d.kind !== "typedef" || !isReExport(d)) break;
@@ -1475,30 +1518,52 @@ export type ${def.name}Wire = ${current}Wire;
 
   // Wrapped opaque typedef (Hash, AssetCode4, …) → BytesValue<"Name"> class
   if (inner.kind === "opaque_fixed" || inner.kind === "opaque_var") {
-    const ctx = newCtx();
-    ctx.valueImports.add("BytesValue");
-    const schemaText = schemaExpr(inner, ctx);
-    const encoding = "hex"; // canonical default — DX layer can override
-    const byteLengthDecl =
-      inner.kind === "opaque_fixed"
-        ? `  static readonly byteLength = ${inner.size};\n`
-        : "";
-    const imports = renderImports(ctx);
-    return `${imports}\n
-export type ${def.name}Wire = Uint8Array;
-
-${sourceDoc(def)}export class ${def.name} extends BytesValue<"${def.name}"> {
-${byteLengthDecl}  static readonly encoding = "${encoding}" as const;
-  static readonly schema = ${schemaText};
-
-  static fromXdrObject(wire: Uint8Array): ${def.name} {
-    return new ${def.name}(wire);
-  }
-}
-`;
+    return emitWrappedOpaque(def.name, inner, def);
   }
 
   throw new Error(`emitTypedef: unhandled inner kind ${inner.kind}`);
+}
+
+/** Emit a BytesValue subclass for a named typedef-opaque. Used both for
+ *  direct typedef-opaques (Hash, AssetCode4, …) and for re-export aliases
+ *  whose chased target is one (PoolId, ContractId, …) — the re-export path
+ *  gets a distinct class identity so the JSON walker can dispatch overrides
+ *  on its name. `sourceDef` carries the TSDoc source from the original
+ *  declaration, even if `inner` came from a chased target. */
+function emitWrappedOpaque(name, inner, sourceDef) {
+  const ctx = newCtx();
+  ctx.valueImports.add("BytesValue");
+  let schemaText;
+  if (inner.kind === "opaque_fixed") {
+    ctx.builders.add("opaque");
+    schemaText = `opaque(${inner.size}, "${name}")`;
+  } else {
+    ctx.builders.add("varOpaque");
+    const lenArg =
+      inner.max_size != null
+        ? String(inner.max_size)
+        : (ctx.coreImports.add("UNBOUNDED_MAX_LENGTH"),
+          "UNBOUNDED_MAX_LENGTH");
+    schemaText = `varOpaque(${lenArg}, "${name}")`;
+  }
+  const encoding = "hex"; // canonical default — DX layer can override
+  const byteLengthDecl =
+    inner.kind === "opaque_fixed"
+      ? `  static readonly byteLength = ${inner.size};\n`
+      : "";
+  const imports = renderImports(ctx);
+  return `${imports}\n
+export type ${name}Wire = Uint8Array;
+
+${sourceDoc(sourceDef)}export class ${name} extends BytesValue<"${name}"> {
+${byteLengthDecl}  static readonly encoding = "${encoding}" as const;
+  static readonly schema = ${schemaText};
+
+  static fromXdrObject(wire: Uint8Array): ${name} {
+    return new ${name}(wire);
+  }
+}
+`;
 }
 
 // -----------------------------------------------------------------------------

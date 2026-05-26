@@ -1,14 +1,14 @@
 import { struct } from "../types/struct.js";
 import type { XdrType } from "../core/xdr-type.js";
 import { XdrValue } from "../values/xdr-value.js";
-import { Hash, type HashWire } from "./hash.js";
+import { PoolId, type PoolIdWire } from "./pool-id.js";
 import {
   LiquidityPoolEntryBody,
   type LiquidityPoolEntryBodyWire,
 } from "./liquidity-pool-entry-body.js";
 
 export interface LiquidityPoolEntryWire {
-  liquidityPoolId: HashWire;
+  liquidityPoolId: PoolIdWire;
   body: LiquidityPoolEntryBodyWire;
 }
 
@@ -37,18 +37,21 @@ export interface LiquidityPoolEntryWire {
  * ```
  */
 export class LiquidityPoolEntry extends XdrValue {
-  readonly liquidityPoolId: Hash;
+  readonly liquidityPoolId: PoolId;
   readonly body: LiquidityPoolEntryBody;
 
   static readonly schema: XdrType<LiquidityPoolEntryWire> = struct(
     "LiquidityPoolEntry",
     {
-      liquidityPoolId: Hash.schema,
+      liquidityPoolId: PoolId.schema,
       body: LiquidityPoolEntryBody.schema,
     },
   );
 
-  constructor(input: { liquidityPoolId: Hash; body: LiquidityPoolEntryBody }) {
+  constructor(input: {
+    liquidityPoolId: PoolId;
+    body: LiquidityPoolEntryBody;
+  }) {
     super();
     this.liquidityPoolId = input.liquidityPoolId;
     this.body = input.body;
@@ -63,7 +66,7 @@ export class LiquidityPoolEntry extends XdrValue {
 
   static fromXdrObject(wire: LiquidityPoolEntryWire): LiquidityPoolEntry {
     return new LiquidityPoolEntry({
-      liquidityPoolId: Hash.fromXdrObject(wire.liquidityPoolId),
+      liquidityPoolId: PoolId.fromXdrObject(wire.liquidityPoolId),
       body: LiquidityPoolEntryBody.fromXdrObject(wire.body),
     });
   }

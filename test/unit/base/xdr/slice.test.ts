@@ -63,9 +63,9 @@ describe("AssetCode4 (canonical hex-encoded bytes)", () => {
     expect(decoded.value).toEqual(original.value);
   });
 
-  it("JSON is hex (canonical encoding)", () => {
+  it("JSON is the trimmed text form per SEP-0051", () => {
     const code = new AssetCode4(asciiCode("USD", 4));
-    expect(code.toJson()).toBe("55534400");
+    expect(code.toJson()).toBe("USD");
   });
 });
 

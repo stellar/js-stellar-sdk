@@ -11,7 +11,7 @@ export type ValueWire = Uint8Array;
  */
 export class Value extends BytesValue<"Value"> {
   static readonly encoding = "hex" as const;
-  static readonly schema = varOpaque(UNBOUNDED_MAX_LENGTH);
+  static readonly schema = varOpaque(UNBOUNDED_MAX_LENGTH, "Value");
 
   static fromXdrObject(wire: Uint8Array): Value {
     return new Value(wire);

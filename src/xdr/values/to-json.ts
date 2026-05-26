@@ -6,12 +6,7 @@
 // addresses, wide-int parts collapsed to a decimal string, etc.); types
 // without an override fall through to the kind-based default.
 
-import {
-  uint8ArrayToHex,
-  hexToUint8Array,
-  uint8ArrayToBase64,
-  base64ToUint8Array,
-} from "uint8array-extras";
+import { uint8ArrayToHex, hexToUint8Array } from "uint8array-extras";
 import { Buffer } from "buffer";
 
 import { XdrError } from "../core/error.js";
@@ -102,9 +97,9 @@ export function walkToJson(wire: unknown, schema: XdrType<unknown>): JsonValue {
     case "string":
       return (wire as XdrString).toJson();
     case "opaque":
-      return uint8ArrayToHex(wire as Uint8Array);
     case "varOpaque":
-      return uint8ArrayToBase64(wire as Uint8Array);
+      // SEP-0051: both fixed and variable opaque are hex-encoded strings.
+      return uint8ArrayToHex(wire as Uint8Array);
     case "enum": {
       const s = schema as SchemaView<EnumView>;
       const name = s.nameByValue.get(wire as number);
@@ -128,8 +123,10 @@ export function walkToJson(wire: unknown, schema: XdrType<unknown>): JsonValue {
       const s = schema as SchemaView<StructView>;
       const rec = wire as Record<string, unknown>;
       const out: Record<string, JsonValue> = {};
+      // SEP-0051: struct field keys are snake_case in JSON. Codegen produces
+      // camelCase wire field names (`assetCode`), so transform on emit.
       for (const [k, fieldSchema] of s.entries) {
-        out[k] = walkToJson(rec[k], fieldSchema);
+        out[snakeCase(k)] = walkToJson(rec[k], fieldSchema);
       }
       return out;
     }
@@ -145,7 +142,7 @@ export function walkToJson(wire: unknown, schema: XdrType<unknown>): JsonValue {
         );
       }
       const sourceName = matched?.name ?? "default";
-      const names = sep51Names(s.cases.map((c) => c.name));
+      const names = unionCaseNames(s);
       const jsonKey = names.bySource.get(sourceName) ?? sourceName;
       if (isFieldArm(arm)) {
         return {
@@ -192,11 +189,9 @@ export function walkFromJson(
       assertJsonType(json, "string", schema);
       return XdrString.fromJson(json as string);
     case "opaque":
-      assertJsonType(json, "string", schema);
-      return hexToUint8Array(json as string);
     case "varOpaque":
       assertJsonType(json, "string", schema);
-      return base64ToUint8Array(json as string);
+      return hexToUint8Array(json as string);
     case "enum": {
       const s = schema as SchemaView<EnumView>;
       assertJsonType(json, "string", schema);
@@ -250,11 +245,18 @@ export function walkFromJson(
       }
       const rec = json as Record<string, JsonValue>;
       const out: Record<string, unknown> = {};
+      // Accept either the SEP-0051 snake_case key or the raw camelCase wire
+      // name (so internally-produced JSON round-trips even if a caller hands
+      // us camelCase).
       for (const [k, fieldSchema] of s.entries) {
-        if (!(k in rec)) {
-          throw new XdrError(`${schema.name ?? "struct"}: missing field ${k}`);
+        const snake = snakeCase(k);
+        const lookupKey = snake in rec ? snake : k in rec ? k : undefined;
+        if (lookupKey === undefined) {
+          throw new XdrError(
+            `${schema.name ?? "struct"}: missing field ${snake}`,
+          );
         }
-        out[k] = walkFromJson(rec[k], fieldSchema);
+        out[k] = walkFromJson(rec[lookupKey], fieldSchema);
       }
       return out;
     }
@@ -296,7 +298,7 @@ function unionFromJson(
 
   // Accept either the SEP-0051 form (snake_case, prefix stripped) or the
   // raw camelCase source name; fall back to literal for "default".
-  const names = sep51Names(schema.cases.map((c) => c.name));
+  const names = unionCaseNames(schema);
   const sourceName = names.byJson.get(jsonKey) ?? jsonKey;
   const matched = schema.cases.find((c) => c.name === sourceName);
   const arm =
@@ -367,6 +369,27 @@ function sep51Names(names: Iterable<string>): Sep51NameMap {
     byJson.set(jsonName, name);
   }
   return { bySource, byJson };
+}
+
+// Union-specific naming. Enum-switched unions have a meaningful "type prefix"
+// in their case names (e.g. `scvU64` ← `SCV_U64` from `SCValType`) that
+// SEP-0051 strips. Int-/bool-switched unions don't have such a prefix —
+// their cases are codegen-derived `v<N>` (or named arms), and SEP-0051
+// expects e.g. `v0`/`v1` to survive verbatim. Skip prefix-stripping when
+// the discriminator isn't an enum.
+function unionCaseNames(schema: SchemaView<UnionView>): Sep51NameMap {
+  const list = schema.cases.map((c) => c.name);
+  if (schema.switchOn.kind !== "enum") {
+    const bySource = new Map<string, string>();
+    const byJson = new Map<string, string>();
+    for (const name of list) {
+      const jsonName = snakeCase(name);
+      bySource.set(name, jsonName);
+      byJson.set(jsonName, name);
+    }
+    return { bySource, byJson };
+  }
+  return sep51Names(list);
 }
 
 function commonCamelPrefixLength(names: readonly string[]): number {
@@ -681,6 +704,74 @@ OVERRIDES.set("ClaimableBalanceId", {
     return { type: raw.readUInt8(0), v0: asUint8Array(raw.subarray(1)) };
   },
 });
+
+// PoolId / ContractId: typedef aliases of Hash with strkey JSON forms.
+// These have distinct named schemas (emitted by the codegen) so the override
+// fires only for the alias, not the underlying Hash.
+
+OVERRIDES.set("PoolId", {
+  toJson(wire) {
+    return StrKey.encodeLiquidityPool(asBuffer(wire as Uint8Array));
+  },
+  fromJson(json) {
+    if (typeof json !== "string") {
+      throw new XdrError("PoolId: expected L-strkey string");
+    }
+    return asUint8Array(StrKey.decodeLiquidityPool(json));
+  },
+});
+
+OVERRIDES.set("ContractId", {
+  toJson(wire) {
+    return StrKey.encodeContract(asBuffer(wire as Uint8Array));
+  },
+  fromJson(json) {
+    if (typeof json !== "string") {
+      throw new XdrError("ContractId: expected C-strkey string");
+    }
+    return asUint8Array(StrKey.decodeContract(json));
+  },
+});
+
+// AssetCode4 / AssetCode12: per SEP-0051, trim trailing zero bytes (down to
+// a 5-byte minimum for AssetCode12 so the result is distinguishable from
+// AssetCode4 output) and apply the string-escape rules.
+OVERRIDES.set("AssetCode4", {
+  toJson(wire) {
+    return new XdrString(trimTrailingZeros(wire as Uint8Array, 0)).toJson();
+  },
+  fromJson(json) {
+    if (typeof json !== "string") {
+      throw new XdrError("AssetCode4: expected escaped-string JSON");
+    }
+    return padRightZeros(XdrString.fromJson(json).bytes, 4);
+  },
+});
+
+OVERRIDES.set("AssetCode12", {
+  toJson(wire) {
+    return new XdrString(trimTrailingZeros(wire as Uint8Array, 5)).toJson();
+  },
+  fromJson(json) {
+    if (typeof json !== "string") {
+      throw new XdrError("AssetCode12: expected escaped-string JSON");
+    }
+    return padRightZeros(XdrString.fromJson(json).bytes, 12);
+  },
+});
+
+function trimTrailingZeros(bytes: Uint8Array, minLen: number): Uint8Array {
+  let end = bytes.length;
+  while (end > minLen && bytes[end - 1] === 0) end -= 1;
+  return end === bytes.length ? bytes : bytes.slice(0, end);
+}
+
+function padRightZeros(bytes: Uint8Array, length: number): Uint8Array {
+  if (bytes.length >= length) return bytes;
+  const out = new Uint8Array(length);
+  out.set(bytes);
+  return out;
+}
 
 // Wide-int parts collapse to a single decimal string.
 
