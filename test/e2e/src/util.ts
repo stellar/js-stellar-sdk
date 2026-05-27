@@ -1,6 +1,6 @@
 import { spawnSync } from "node:child_process";
 import path from "node:path";
-import { contract, Keypair, rpc } from "../../../src/index.js";
+import { contract, Keypair, rpc } from "../../../lib/esm/index.js";
 
 /*
  * Run a Bash command, returning stdout, stderr, and status code.
@@ -110,10 +110,12 @@ const installContract = async (
   const internalKeypair = keypair ?? (await generateFundedKeypair());
 
   let wasmHash = contracts[name].hash;
+  console.log("in installContract, wasmHash:", wasmHash);
   if (!wasmHash) {
     wasmHash = run(
       `${stellar} contract upload --wasm ${contracts[name].path}`,
     ).stdout;
+    console.log("wasm hash didn't exist, so uploaded and got:", wasmHash);
   }
   return { keypair: internalKeypair, wasmHash };
 };
@@ -143,7 +145,7 @@ const clientFor = async (
   const { wasmHash } = await installContract(name, {
     keypair: internalKeypair,
   });
-
+  console.log(`wasmHash for ${name}: ${wasmHash} <========`);
   const deploy = await contract.Client.deploy(
     (contracts[name] as any).constructorArgs ?? null,
     {

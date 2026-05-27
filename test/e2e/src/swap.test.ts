@@ -1,5 +1,5 @@
 import { expect, describe, it, beforeAll } from "vitest";
-import { contract, rpc } from "../../../src/index.js";
+import { contract, rpc } from "../../../lib/esm/index.js";
 import { clientFor, generateFundedKeypair } from "./util.js";
 
 const amountAToSwap = 2n;

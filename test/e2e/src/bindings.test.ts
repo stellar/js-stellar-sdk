@@ -9,7 +9,7 @@ import {
   generateFundedKeypair,
   installContract,
 } from "./util.js";
-import { Address, contract } from "../../../src/index.js";
+import { Address, contract } from "../../../lib/esm/index.js";
 
 const CLI_PATH = path.resolve(__dirname, "../../../bin/stellar-js");
 
@@ -331,12 +331,12 @@ describe("Generated Bindings E2E Test", () => {
     // Test bytes method
     const bytesInput = Buffer.from("hello");
     const bytesResult = await client.bytes({ bytes: bytesInput });
-    expect(bytesResult.result).toEqual(bytesInput);
+    expect(bytesResult.result).toEqual(Uint8Array.from(bytesInput));
 
     // Test bytes_n method
     const bytesNInput = Buffer.from("123456789");
     const bytesNResult = await client.bytes_n({ bytes_n: bytesNInput });
-    expect(bytesNResult.result).toEqual(bytesNInput);
+    expect(bytesNResult.result).toEqual(Uint8Array.from(bytesNInput));
 
     // Test card method
     const cardResult = await client.card({ card: 11 });
