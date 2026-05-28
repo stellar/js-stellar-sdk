@@ -15,6 +15,12 @@
 // the `xdr` namespace from this module, so users only ever see one entry
 // point.
 
+import {
+  assertBigIntFits,
+  assertIntFits,
+  intRange,
+} from "./values/bigint-parts.js";
+
 // Bases (XdrValue, BytesValue, …) and the schema-builder primitives.
 export { XdrError } from "./core/error.js";
 export {
@@ -70,23 +76,25 @@ export type Uint32 = number;
 export const Uint32 = makeIntShim(false, 32);
 
 function makeBigIntShim(signed: boolean, bits: 64) {
-  const max = signed
-    ? (1n << BigInt(bits - 1)) - 1n
-    : (1n << BigInt(bits)) - 1n;
-  const min = signed ? -(1n << BigInt(bits - 1)) : 0n;
+  const [min, max] = intRange(signed, bits);
+  const name = signed ? `Int${bits}` : `Uint${bits}`;
   function Shim(
     v: bigint | number | string | (bigint | number | string)[],
   ): bigint {
-    // Two-32-bit-halves legacy form: `new Int64([low, high])`.
+    let value: bigint;
     if (Array.isArray(v) && v.length === 2) {
+      // Two-32-bit-halves legacy form: `new Int64([low, high])`.
       const lo = BigInt.asUintN(32, BigInt(v[0]));
       const hi = BigInt(v[1]);
       const combined = (hi << 32n) | lo;
-      return signed
+      value = signed
         ? BigInt.asIntN(64, combined)
         : BigInt.asUintN(64, combined);
+    } else {
+      value = typeof v === "bigint" ? v : BigInt(v as bigint | number | string);
     }
-    return typeof v === "bigint" ? v : BigInt(v as bigint | number | string);
+    assertBigIntFits(value, signed, bits, name);
+    return value;
   }
   Shim.fromXdr = (
     input: Uint8Array | string,
@@ -102,7 +110,11 @@ function makeBigIntShim(signed: boolean, bits: 64) {
     }
     return signed ? BigInt.asIntN(bits, value) : BigInt.asUintN(bits, value);
   };
-  Shim.fromString = (s: string): bigint => BigInt(s);
+  Shim.fromString = (s: string): bigint => {
+    const value = BigInt(s);
+    assertBigIntFits(value, signed, bits, name);
+    return value;
+  };
   Shim.MAX_VALUE = max;
   Shim.MIN_VALUE = min;
   return new Proxy(Shim, {
@@ -119,10 +131,17 @@ export { expectUnionVarient, isUnionVarient } from "./util.js";
 function makeIntShim(signed: boolean, bits: 32) {
   const max = signed ? 2 ** (bits - 1) - 1 : 2 ** bits - 1;
   const min = signed ? -(2 ** (bits - 1)) : 0;
+  const name = signed ? `Int${bits}` : `Uint${bits}`;
   function Shim(v: number | string): number {
-    return typeof v === "number" ? v : Number(v);
+    const value = typeof v === "number" ? v : Number(v);
+    assertIntFits(value, signed, bits, name);
+    return value;
   }
-  Shim.fromString = (s: string): number => Number(s);
+  Shim.fromString = (s: string): number => {
+    const value = Number(s);
+    assertIntFits(value, signed, bits, name);
+    return value;
+  };
   Shim.MAX_VALUE = max;
   Shim.MIN_VALUE = min;
   return Shim;

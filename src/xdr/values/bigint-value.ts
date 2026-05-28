@@ -1,4 +1,4 @@
-import { XdrError } from "../core/error.js";
+import { assertBigIntFits } from "./bigint-parts.js";
 import { XdrValue, type JsonValue } from "./xdr-value.js";
 
 export {
@@ -25,26 +25,11 @@ export abstract class BigIntValue extends XdrValue {
       readonly bits: 128 | 256;
     };
     const v = typeof value === "bigint" ? value : BigInt(value);
-    const [min, max] = rangeFor(ctor.signed, ctor.bits);
-    if (v < min || v > max) {
-      throw new XdrError(
-        `${ctor.name}: value ${v} out of range [${min}, ${max}]`,
-      );
-    }
+    assertBigIntFits(v, ctor.signed, ctor.bits, ctor.name);
     this.value = v;
   }
 
   toJson(): JsonValue {
     return this.value.toString();
   }
-}
-
-function rangeFor(signed: boolean, bits: 128 | 256): readonly [bigint, bigint] {
-  const width = BigInt(bits);
-  if (signed) {
-    const max = (1n << (width - 1n)) - 1n;
-    const min = -(1n << (width - 1n));
-    return [min, max];
-  }
-  return [0n, (1n << width) - 1n];
 }

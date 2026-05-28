@@ -1,13 +1,78 @@
-// Pure helpers for converting between a single `bigint` and the {hi, lo} /
-// {hiHi, hiLo, loHi, loLo} wire shapes used by 128/256-bit int XDR types.
+// Pure helpers for the SDK's integer value layer: range validation plus
+// converting between a single `bigint` and the {hi, lo} / {hiHi, hiLo, loHi,
+// loLo} wire shapes used by 128/256-bit int XDR types.
 //
 // Lives in its own file (separate from `bigint-value.ts`) so the JSON walker
 // can use these helpers without pulling in `XdrValue` — and therefore without
-// creating a circular import through `xdr-value.ts` → `to-json.ts`.
+// creating a circular import through `xdr-value.ts` → `to-json.ts`. It also
+// keeps the construction/JSON-decode/shim range checks SDK-local: they must
+// not depend on `core/`'s internal `assert*Range` helpers, which belong to the
+// to-be-extracted js-xdr runtime and won't be part of its public surface.
+
+import { XdrError } from "../core/error.js";
 
 const MASK_64 = (1n << 64n) - 1n;
 const MASK_HI_SIGNED_128 = 1n << 127n;
 const MASK_HI_SIGNED_256 = 1n << 255n;
+
+/**
+ * Inclusive `[min, max]` for a two's-complement integer of the given width.
+ * Single source of truth for 32/64/128/256-bit signed and unsigned bounds,
+ * shared by the wide-int constructors, the JSON decoders, and the legacy
+ * `Int64`/`Uint64` shims.
+ */
+export function intRange(
+  signed: boolean,
+  bits: number,
+): readonly [bigint, bigint] {
+  const width = BigInt(bits);
+  if (signed) {
+    const limit = 1n << (width - 1n);
+    return [-limit, limit - 1n];
+  }
+  return [0n, (1n << width) - 1n];
+}
+
+/**
+ * Validate that an (already bigint-coerced) `value` fits a `bits`-wide
+ * signed/unsigned integer, throwing a consistent `XdrError` otherwise. This is
+ * the shared range check for the construction / JSON-decode entry points: the
+ * wide-int `BigIntValue` constructor, the `*Parts` JSON decoders, and the
+ * `Int64`/`Uint64` compatibility shims. (Encode-time validation keyed by wire
+ * path uses `assertBigIntRange` in `core/helpers.ts`.)
+ */
+export function assertBigIntFits(
+  value: bigint,
+  signed: boolean,
+  bits: number,
+  name: string,
+): void {
+  const [min, max] = intRange(signed, bits);
+  if (value < min || value > max) {
+    throw new XdrError(`${name}: value ${value} out of range [${min}, ${max}]`);
+  }
+}
+
+/**
+ * Number-valued counterpart of `assertBigIntFits` for the 32-bit `Int32`/
+ * `Uint32` shims: validate that `value` is an integer within a `bits`-wide
+ * signed/unsigned range, throwing a consistent `XdrError` otherwise.
+ */
+export function assertIntFits(
+  value: number,
+  signed: boolean,
+  bits: number,
+  name: string,
+): void {
+  if (!Number.isInteger(value)) {
+    throw new XdrError(`${name}: value ${value} is not an integer`);
+  }
+  const max = signed ? 2 ** (bits - 1) - 1 : 2 ** bits - 1;
+  const min = signed ? -(2 ** (bits - 1)) : 0;
+  if (value < min || value > max) {
+    throw new XdrError(`${name}: value ${value} out of range [${min}, ${max}]`);
+  }
+}
 
 export interface Int128Parts {
   readonly hi: bigint;

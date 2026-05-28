@@ -14,6 +14,7 @@ import type { XdrType } from "../core/xdr-type.js";
 import type { JsonValue } from "./xdr-value.js";
 import { XdrString } from "./xdr-string.js";
 import {
+  assertBigIntFits,
   bigIntTo128Parts,
   bigIntTo256Parts,
   partsTo128BigInt,
@@ -783,7 +784,9 @@ OVERRIDES.set("Int128Parts", {
     if (typeof json !== "string") {
       throw new XdrError("Int128Parts: expected decimal string");
     }
-    return bigIntTo128Parts(BigInt(json), true);
+    const value = BigInt(json);
+    assertBigIntFits(value, true, 128, "Int128Parts");
+    return bigIntTo128Parts(value, true);
   },
 });
 
@@ -795,7 +798,9 @@ OVERRIDES.set("Uint128Parts", {
     if (typeof json !== "string") {
       throw new XdrError("Uint128Parts: expected decimal string");
     }
-    return bigIntTo128Parts(BigInt(json), false);
+    const value = BigInt(json);
+    assertBigIntFits(value, false, 128, "Uint128Parts");
+    return bigIntTo128Parts(value, false);
   },
 });
 
@@ -807,7 +812,9 @@ OVERRIDES.set("Int256Parts", {
     if (typeof json !== "string") {
       throw new XdrError("Int256Parts: expected decimal string");
     }
-    return bigIntTo256Parts(BigInt(json), true);
+    const value = BigInt(json);
+    assertBigIntFits(value, true, 256, "Int256Parts");
+    return bigIntTo256Parts(value, true);
   },
 });
 
@@ -819,7 +826,9 @@ OVERRIDES.set("Uint256Parts", {
     if (typeof json !== "string") {
       throw new XdrError("Uint256Parts: expected decimal string");
     }
-    return bigIntTo256Parts(BigInt(json), false);
+    const value = BigInt(json);
+    assertBigIntFits(value, false, 256, "Uint256Parts");
+    return bigIntTo256Parts(value, false);
   },
 });
 
