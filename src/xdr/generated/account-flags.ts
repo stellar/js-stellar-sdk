@@ -1,6 +1,9 @@
 import { enumType } from "../types/enum.js";
-import { XdrError } from "../core/error.js";
-import { EnumValue, enumLookup } from "../values/enum-value.js";
+import {
+  EnumValue,
+  enumFromName,
+  enumFromValue,
+} from "../values/enum-value.js";
 
 export type AccountFlagsWire = number;
 
@@ -40,13 +43,6 @@ export class AccountFlags extends EnumValue<AccountFlagsName> {
     8,
   );
 
-  private static readonly byValue: Readonly<Record<number, AccountFlags>> = {
-    1: AccountFlags.authRequiredFlag,
-    2: AccountFlags.authRevocableFlag,
-    4: AccountFlags.authImmutableFlag,
-    8: AccountFlags.authClawbackEnabledFlag,
-  };
-
   static readonly schema = enumType("AccountFlags", {
     authRequiredFlag: 1,
     authRevocableFlag: 2,
@@ -55,26 +51,16 @@ export class AccountFlags extends EnumValue<AccountFlagsName> {
   });
 
   static fromValue(value: number): AccountFlags {
-    return enumLookup(
+    return enumFromValue(
       "AccountFlags",
-      AccountFlags.byValue,
+      AccountFlags.schema,
+      AccountFlags,
       value,
-    ) as AccountFlags;
+    );
   }
 
   static fromName(name: AccountFlagsName): AccountFlags {
-    switch (name) {
-      case "authRequiredFlag":
-        return AccountFlags.authRequiredFlag;
-      case "authRevocableFlag":
-        return AccountFlags.authRevocableFlag;
-      case "authImmutableFlag":
-        return AccountFlags.authImmutableFlag;
-      case "authClawbackEnabledFlag":
-        return AccountFlags.authClawbackEnabledFlag;
-      default:
-        throw new XdrError(`AccountFlags: unknown name ${name}`);
-    }
+    return enumFromName("AccountFlags", AccountFlags, name);
   }
 
   static fromXdrObject(wire: number): AccountFlags {

@@ -1,6 +1,9 @@
 import { enumType } from "../types/enum.js";
-import { XdrError } from "../core/error.js";
-import { EnumValue, enumLookup } from "../values/enum-value.js";
+import {
+  EnumValue,
+  enumFromName,
+  enumFromValue,
+} from "../values/enum-value.js";
 
 export type HostFunctionTypeWire = number;
 
@@ -39,14 +42,6 @@ export class HostFunctionType extends EnumValue<HostFunctionTypeName> {
     3,
   );
 
-  private static readonly byValue: Readonly<Record<number, HostFunctionType>> =
-    {
-      0: HostFunctionType.hostFunctionTypeInvokeContract,
-      1: HostFunctionType.hostFunctionTypeCreateContract,
-      2: HostFunctionType.hostFunctionTypeUploadContractWasm,
-      3: HostFunctionType.hostFunctionTypeCreateContractV2,
-    };
-
   static readonly schema = enumType("HostFunctionType", {
     hostFunctionTypeInvokeContract: 0,
     hostFunctionTypeCreateContract: 1,
@@ -55,26 +50,16 @@ export class HostFunctionType extends EnumValue<HostFunctionTypeName> {
   });
 
   static fromValue(value: number): HostFunctionType {
-    return enumLookup(
+    return enumFromValue(
       "HostFunctionType",
-      HostFunctionType.byValue,
+      HostFunctionType.schema,
+      HostFunctionType,
       value,
-    ) as HostFunctionType;
+    );
   }
 
   static fromName(name: HostFunctionTypeName): HostFunctionType {
-    switch (name) {
-      case "hostFunctionTypeInvokeContract":
-        return HostFunctionType.hostFunctionTypeInvokeContract;
-      case "hostFunctionTypeCreateContract":
-        return HostFunctionType.hostFunctionTypeCreateContract;
-      case "hostFunctionTypeUploadContractWasm":
-        return HostFunctionType.hostFunctionTypeUploadContractWasm;
-      case "hostFunctionTypeCreateContractV2":
-        return HostFunctionType.hostFunctionTypeCreateContractV2;
-      default:
-        throw new XdrError(`HostFunctionType: unknown name ${name}`);
-    }
+    return enumFromName("HostFunctionType", HostFunctionType, name);
   }
 
   static fromXdrObject(wire: number): HostFunctionType {

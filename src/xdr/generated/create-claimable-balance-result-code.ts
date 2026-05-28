@@ -1,6 +1,9 @@
 import { enumType } from "../types/enum.js";
-import { XdrError } from "../core/error.js";
-import { EnumValue, enumLookup } from "../values/enum-value.js";
+import {
+  EnumValue,
+  enumFromName,
+  enumFromValue,
+} from "../values/enum-value.js";
 
 export type CreateClaimableBalanceResultCodeWire = number;
 
@@ -48,17 +51,6 @@ export class CreateClaimableBalanceResultCode extends EnumValue<CreateClaimableB
       -5,
     );
 
-  private static readonly byValue: Readonly<
-    Record<number, CreateClaimableBalanceResultCode>
-  > = {
-    0: CreateClaimableBalanceResultCode.createClaimableBalanceSuccess,
-    "-1": CreateClaimableBalanceResultCode.createClaimableBalanceMalformed,
-    "-2": CreateClaimableBalanceResultCode.createClaimableBalanceLowReserve,
-    "-3": CreateClaimableBalanceResultCode.createClaimableBalanceNoTrust,
-    "-4": CreateClaimableBalanceResultCode.createClaimableBalanceNotAuthorized,
-    "-5": CreateClaimableBalanceResultCode.createClaimableBalanceUnderfunded,
-  };
-
   static readonly schema = enumType("CreateClaimableBalanceResultCode", {
     createClaimableBalanceSuccess: 0,
     createClaimableBalanceMalformed: -1,
@@ -69,34 +61,22 @@ export class CreateClaimableBalanceResultCode extends EnumValue<CreateClaimableB
   });
 
   static fromValue(value: number): CreateClaimableBalanceResultCode {
-    return enumLookup(
+    return enumFromValue(
       "CreateClaimableBalanceResultCode",
-      CreateClaimableBalanceResultCode.byValue,
+      CreateClaimableBalanceResultCode.schema,
+      CreateClaimableBalanceResultCode,
       value,
-    ) as CreateClaimableBalanceResultCode;
+    );
   }
 
   static fromName(
     name: CreateClaimableBalanceResultCodeName,
   ): CreateClaimableBalanceResultCode {
-    switch (name) {
-      case "createClaimableBalanceSuccess":
-        return CreateClaimableBalanceResultCode.createClaimableBalanceSuccess;
-      case "createClaimableBalanceMalformed":
-        return CreateClaimableBalanceResultCode.createClaimableBalanceMalformed;
-      case "createClaimableBalanceLowReserve":
-        return CreateClaimableBalanceResultCode.createClaimableBalanceLowReserve;
-      case "createClaimableBalanceNoTrust":
-        return CreateClaimableBalanceResultCode.createClaimableBalanceNoTrust;
-      case "createClaimableBalanceNotAuthorized":
-        return CreateClaimableBalanceResultCode.createClaimableBalanceNotAuthorized;
-      case "createClaimableBalanceUnderfunded":
-        return CreateClaimableBalanceResultCode.createClaimableBalanceUnderfunded;
-      default:
-        throw new XdrError(
-          `CreateClaimableBalanceResultCode: unknown name ${name}`,
-        );
-    }
+    return enumFromName(
+      "CreateClaimableBalanceResultCode",
+      CreateClaimableBalanceResultCode,
+      name,
+    );
   }
 
   static fromXdrObject(wire: number): CreateClaimableBalanceResultCode {

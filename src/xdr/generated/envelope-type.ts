@@ -1,6 +1,9 @@
 import { enumType } from "../types/enum.js";
-import { XdrError } from "../core/error.js";
-import { EnumValue, enumLookup } from "../values/enum-value.js";
+import {
+  EnumValue,
+  enumFromName,
+  enumFromValue,
+} from "../values/enum-value.js";
 
 export type EnvelopeTypeWire = number;
 
@@ -64,19 +67,6 @@ export class EnvelopeType extends EnumValue<EnvelopeTypeName> {
     9,
   );
 
-  private static readonly byValue: Readonly<Record<number, EnvelopeType>> = {
-    0: EnvelopeType.envelopeTypeTxV0,
-    1: EnvelopeType.envelopeTypeScp,
-    2: EnvelopeType.envelopeTypeTx,
-    3: EnvelopeType.envelopeTypeAuth,
-    4: EnvelopeType.envelopeTypeScpvalue,
-    5: EnvelopeType.envelopeTypeTxFeeBump,
-    6: EnvelopeType.envelopeTypeOpId,
-    7: EnvelopeType.envelopeTypePoolRevokeOpId,
-    8: EnvelopeType.envelopeTypeContractId,
-    9: EnvelopeType.envelopeTypeSorobanAuthorization,
-  };
-
   static readonly schema = enumType("EnvelopeType", {
     envelopeTypeTxV0: 0,
     envelopeTypeScp: 1,
@@ -91,38 +81,16 @@ export class EnvelopeType extends EnumValue<EnvelopeTypeName> {
   });
 
   static fromValue(value: number): EnvelopeType {
-    return enumLookup(
+    return enumFromValue(
       "EnvelopeType",
-      EnvelopeType.byValue,
+      EnvelopeType.schema,
+      EnvelopeType,
       value,
-    ) as EnvelopeType;
+    );
   }
 
   static fromName(name: EnvelopeTypeName): EnvelopeType {
-    switch (name) {
-      case "envelopeTypeTxV0":
-        return EnvelopeType.envelopeTypeTxV0;
-      case "envelopeTypeScp":
-        return EnvelopeType.envelopeTypeScp;
-      case "envelopeTypeTx":
-        return EnvelopeType.envelopeTypeTx;
-      case "envelopeTypeAuth":
-        return EnvelopeType.envelopeTypeAuth;
-      case "envelopeTypeScpvalue":
-        return EnvelopeType.envelopeTypeScpvalue;
-      case "envelopeTypeTxFeeBump":
-        return EnvelopeType.envelopeTypeTxFeeBump;
-      case "envelopeTypeOpId":
-        return EnvelopeType.envelopeTypeOpId;
-      case "envelopeTypePoolRevokeOpId":
-        return EnvelopeType.envelopeTypePoolRevokeOpId;
-      case "envelopeTypeContractId":
-        return EnvelopeType.envelopeTypeContractId;
-      case "envelopeTypeSorobanAuthorization":
-        return EnvelopeType.envelopeTypeSorobanAuthorization;
-      default:
-        throw new XdrError(`EnvelopeType: unknown name ${name}`);
-    }
+    return enumFromName("EnvelopeType", EnvelopeType, name);
   }
 
   static fromXdrObject(wire: number): EnvelopeType {

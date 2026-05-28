@@ -1,6 +1,9 @@
 import { enumType } from "../types/enum.js";
-import { XdrError } from "../core/error.js";
-import { EnumValue, enumLookup } from "../values/enum-value.js";
+import {
+  EnumValue,
+  enumFromName,
+  enumFromValue,
+} from "../values/enum-value.js";
 
 export type LiquidityPoolTypeWire = number;
 
@@ -20,30 +23,21 @@ export class LiquidityPoolType extends EnumValue<LiquidityPoolTypeName> {
     0,
   );
 
-  private static readonly byValue: Readonly<Record<number, LiquidityPoolType>> =
-    {
-      0: LiquidityPoolType.liquidityPoolConstantProduct,
-    };
-
   static readonly schema = enumType("LiquidityPoolType", {
     liquidityPoolConstantProduct: 0,
   });
 
   static fromValue(value: number): LiquidityPoolType {
-    return enumLookup(
+    return enumFromValue(
       "LiquidityPoolType",
-      LiquidityPoolType.byValue,
+      LiquidityPoolType.schema,
+      LiquidityPoolType,
       value,
-    ) as LiquidityPoolType;
+    );
   }
 
   static fromName(name: LiquidityPoolTypeName): LiquidityPoolType {
-    switch (name) {
-      case "liquidityPoolConstantProduct":
-        return LiquidityPoolType.liquidityPoolConstantProduct;
-      default:
-        throw new XdrError(`LiquidityPoolType: unknown name ${name}`);
-    }
+    return enumFromName("LiquidityPoolType", LiquidityPoolType, name);
   }
 
   static fromXdrObject(wire: number): LiquidityPoolType {

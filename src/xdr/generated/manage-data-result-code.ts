@@ -1,6 +1,9 @@
 import { enumType } from "../types/enum.js";
-import { XdrError } from "../core/error.js";
-import { EnumValue, enumLookup } from "../values/enum-value.js";
+import {
+  EnumValue,
+  enumFromName,
+  enumFromValue,
+} from "../values/enum-value.js";
 
 export type ManageDataResultCodeWire = number;
 
@@ -49,16 +52,6 @@ export class ManageDataResultCode extends EnumValue<ManageDataResultCodeName> {
     -4,
   );
 
-  private static readonly byValue: Readonly<
-    Record<number, ManageDataResultCode>
-  > = {
-    0: ManageDataResultCode.manageDataSuccess,
-    "-1": ManageDataResultCode.manageDataNotSupportedYet,
-    "-2": ManageDataResultCode.manageDataNameNotFound,
-    "-3": ManageDataResultCode.manageDataLowReserve,
-    "-4": ManageDataResultCode.manageDataInvalidName,
-  };
-
   static readonly schema = enumType("ManageDataResultCode", {
     manageDataSuccess: 0,
     manageDataNotSupportedYet: -1,
@@ -68,28 +61,16 @@ export class ManageDataResultCode extends EnumValue<ManageDataResultCodeName> {
   });
 
   static fromValue(value: number): ManageDataResultCode {
-    return enumLookup(
+    return enumFromValue(
       "ManageDataResultCode",
-      ManageDataResultCode.byValue,
+      ManageDataResultCode.schema,
+      ManageDataResultCode,
       value,
-    ) as ManageDataResultCode;
+    );
   }
 
   static fromName(name: ManageDataResultCodeName): ManageDataResultCode {
-    switch (name) {
-      case "manageDataSuccess":
-        return ManageDataResultCode.manageDataSuccess;
-      case "manageDataNotSupportedYet":
-        return ManageDataResultCode.manageDataNotSupportedYet;
-      case "manageDataNameNotFound":
-        return ManageDataResultCode.manageDataNameNotFound;
-      case "manageDataLowReserve":
-        return ManageDataResultCode.manageDataLowReserve;
-      case "manageDataInvalidName":
-        return ManageDataResultCode.manageDataInvalidName;
-      default:
-        throw new XdrError(`ManageDataResultCode: unknown name ${name}`);
-    }
+    return enumFromName("ManageDataResultCode", ManageDataResultCode, name);
   }
 
   static fromXdrObject(wire: number): ManageDataResultCode {

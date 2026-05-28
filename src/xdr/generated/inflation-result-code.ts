@@ -1,6 +1,9 @@
 import { enumType } from "../types/enum.js";
-import { XdrError } from "../core/error.js";
-import { EnumValue, enumLookup } from "../values/enum-value.js";
+import {
+  EnumValue,
+  enumFromName,
+  enumFromValue,
+} from "../values/enum-value.js";
 
 export type InflationResultCodeWire = number;
 
@@ -27,35 +30,22 @@ export class InflationResultCode extends EnumValue<InflationResultCodeName> {
     -1,
   );
 
-  private static readonly byValue: Readonly<
-    Record<number, InflationResultCode>
-  > = {
-    0: InflationResultCode.inflationSuccess,
-    "-1": InflationResultCode.inflationNotTime,
-  };
-
   static readonly schema = enumType("InflationResultCode", {
     inflationSuccess: 0,
     inflationNotTime: -1,
   });
 
   static fromValue(value: number): InflationResultCode {
-    return enumLookup(
+    return enumFromValue(
       "InflationResultCode",
-      InflationResultCode.byValue,
+      InflationResultCode.schema,
+      InflationResultCode,
       value,
-    ) as InflationResultCode;
+    );
   }
 
   static fromName(name: InflationResultCodeName): InflationResultCode {
-    switch (name) {
-      case "inflationSuccess":
-        return InflationResultCode.inflationSuccess;
-      case "inflationNotTime":
-        return InflationResultCode.inflationNotTime;
-      default:
-        throw new XdrError(`InflationResultCode: unknown name ${name}`);
-    }
+    return enumFromName("InflationResultCode", InflationResultCode, name);
   }
 
   static fromXdrObject(wire: number): InflationResultCode {

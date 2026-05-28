@@ -1,6 +1,9 @@
 import { enumType } from "../types/enum.js";
-import { XdrError } from "../core/error.js";
-import { EnumValue, enumLookup } from "../values/enum-value.js";
+import {
+  EnumValue,
+  enumFromName,
+  enumFromValue,
+} from "../values/enum-value.js";
 
 export type MessageTypeWire = number;
 
@@ -104,30 +107,6 @@ export class MessageType extends EnumValue<MessageTypeName> {
     24,
   );
 
-  private static readonly byValue: Readonly<Record<number, MessageType>> = {
-    0: MessageType.errorMsg,
-    2: MessageType.auth,
-    3: MessageType.dontHave,
-    5: MessageType.peers,
-    6: MessageType.getTxSet,
-    7: MessageType.txSet,
-    17: MessageType.generalizedTxSet,
-    8: MessageType.transaction,
-    9: MessageType.getScpQuorumset,
-    10: MessageType.scpQuorumset,
-    11: MessageType.scpMessage,
-    12: MessageType.getScpState,
-    13: MessageType.hello,
-    16: MessageType.sendMore,
-    20: MessageType.sendMoreExtended,
-    18: MessageType.floodAdvert,
-    19: MessageType.floodDemand,
-    21: MessageType.timeSlicedSurveyRequest,
-    22: MessageType.timeSlicedSurveyResponse,
-    23: MessageType.timeSlicedSurveyStartCollecting,
-    24: MessageType.timeSlicedSurveyStopCollecting,
-  };
-
   static readonly schema = enumType("MessageType", {
     errorMsg: 0,
     auth: 2,
@@ -153,56 +132,11 @@ export class MessageType extends EnumValue<MessageTypeName> {
   });
 
   static fromValue(value: number): MessageType {
-    return enumLookup("MessageType", MessageType.byValue, value) as MessageType;
+    return enumFromValue("MessageType", MessageType.schema, MessageType, value);
   }
 
   static fromName(name: MessageTypeName): MessageType {
-    switch (name) {
-      case "errorMsg":
-        return MessageType.errorMsg;
-      case "auth":
-        return MessageType.auth;
-      case "dontHave":
-        return MessageType.dontHave;
-      case "peers":
-        return MessageType.peers;
-      case "getTxSet":
-        return MessageType.getTxSet;
-      case "txSet":
-        return MessageType.txSet;
-      case "generalizedTxSet":
-        return MessageType.generalizedTxSet;
-      case "transaction":
-        return MessageType.transaction;
-      case "getScpQuorumset":
-        return MessageType.getScpQuorumset;
-      case "scpQuorumset":
-        return MessageType.scpQuorumset;
-      case "scpMessage":
-        return MessageType.scpMessage;
-      case "getScpState":
-        return MessageType.getScpState;
-      case "hello":
-        return MessageType.hello;
-      case "sendMore":
-        return MessageType.sendMore;
-      case "sendMoreExtended":
-        return MessageType.sendMoreExtended;
-      case "floodAdvert":
-        return MessageType.floodAdvert;
-      case "floodDemand":
-        return MessageType.floodDemand;
-      case "timeSlicedSurveyRequest":
-        return MessageType.timeSlicedSurveyRequest;
-      case "timeSlicedSurveyResponse":
-        return MessageType.timeSlicedSurveyResponse;
-      case "timeSlicedSurveyStartCollecting":
-        return MessageType.timeSlicedSurveyStartCollecting;
-      case "timeSlicedSurveyStopCollecting":
-        return MessageType.timeSlicedSurveyStopCollecting;
-      default:
-        throw new XdrError(`MessageType: unknown name ${name}`);
-    }
+    return enumFromName("MessageType", MessageType, name);
   }
 
   static fromXdrObject(wire: number): MessageType {

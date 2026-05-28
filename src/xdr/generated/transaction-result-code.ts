@@ -1,6 +1,9 @@
 import { enumType } from "../types/enum.js";
-import { XdrError } from "../core/error.js";
-import { EnumValue, enumLookup } from "../values/enum-value.js";
+import {
+  EnumValue,
+  enumFromName,
+  enumFromValue,
+} from "../values/enum-value.js";
 
 export type TransactionResultCodeWire = number;
 
@@ -115,31 +118,6 @@ export class TransactionResultCode extends EnumValue<TransactionResultCodeName> 
     -18,
   );
 
-  private static readonly byValue: Readonly<
-    Record<number, TransactionResultCode>
-  > = {
-    1: TransactionResultCode.txFeeBumpInnerSuccess,
-    0: TransactionResultCode.txSuccess,
-    "-1": TransactionResultCode.txFailed,
-    "-2": TransactionResultCode.txTooEarly,
-    "-3": TransactionResultCode.txTooLate,
-    "-4": TransactionResultCode.txMissingOperation,
-    "-5": TransactionResultCode.txBadSeq,
-    "-6": TransactionResultCode.txBadAuth,
-    "-7": TransactionResultCode.txInsufficientBalance,
-    "-8": TransactionResultCode.txNoAccount,
-    "-9": TransactionResultCode.txInsufficientFee,
-    "-10": TransactionResultCode.txBadAuthExtra,
-    "-11": TransactionResultCode.txInternalError,
-    "-12": TransactionResultCode.txNotSupported,
-    "-13": TransactionResultCode.txFeeBumpInnerFailed,
-    "-14": TransactionResultCode.txBadSponsorship,
-    "-15": TransactionResultCode.txBadMinSeqAgeOrGap,
-    "-16": TransactionResultCode.txMalformed,
-    "-17": TransactionResultCode.txSorobanInvalid,
-    "-18": TransactionResultCode.txFrozenKeyAccessed,
-  };
-
   static readonly schema = enumType("TransactionResultCode", {
     txFeeBumpInnerSuccess: 1,
     txSuccess: 0,
@@ -164,58 +142,16 @@ export class TransactionResultCode extends EnumValue<TransactionResultCodeName> 
   });
 
   static fromValue(value: number): TransactionResultCode {
-    return enumLookup(
+    return enumFromValue(
       "TransactionResultCode",
-      TransactionResultCode.byValue,
+      TransactionResultCode.schema,
+      TransactionResultCode,
       value,
-    ) as TransactionResultCode;
+    );
   }
 
   static fromName(name: TransactionResultCodeName): TransactionResultCode {
-    switch (name) {
-      case "txFeeBumpInnerSuccess":
-        return TransactionResultCode.txFeeBumpInnerSuccess;
-      case "txSuccess":
-        return TransactionResultCode.txSuccess;
-      case "txFailed":
-        return TransactionResultCode.txFailed;
-      case "txTooEarly":
-        return TransactionResultCode.txTooEarly;
-      case "txTooLate":
-        return TransactionResultCode.txTooLate;
-      case "txMissingOperation":
-        return TransactionResultCode.txMissingOperation;
-      case "txBadSeq":
-        return TransactionResultCode.txBadSeq;
-      case "txBadAuth":
-        return TransactionResultCode.txBadAuth;
-      case "txInsufficientBalance":
-        return TransactionResultCode.txInsufficientBalance;
-      case "txNoAccount":
-        return TransactionResultCode.txNoAccount;
-      case "txInsufficientFee":
-        return TransactionResultCode.txInsufficientFee;
-      case "txBadAuthExtra":
-        return TransactionResultCode.txBadAuthExtra;
-      case "txInternalError":
-        return TransactionResultCode.txInternalError;
-      case "txNotSupported":
-        return TransactionResultCode.txNotSupported;
-      case "txFeeBumpInnerFailed":
-        return TransactionResultCode.txFeeBumpInnerFailed;
-      case "txBadSponsorship":
-        return TransactionResultCode.txBadSponsorship;
-      case "txBadMinSeqAgeOrGap":
-        return TransactionResultCode.txBadMinSeqAgeOrGap;
-      case "txMalformed":
-        return TransactionResultCode.txMalformed;
-      case "txSorobanInvalid":
-        return TransactionResultCode.txSorobanInvalid;
-      case "txFrozenKeyAccessed":
-        return TransactionResultCode.txFrozenKeyAccessed;
-      default:
-        throw new XdrError(`TransactionResultCode: unknown name ${name}`);
-    }
+    return enumFromName("TransactionResultCode", TransactionResultCode, name);
   }
 
   static fromXdrObject(wire: number): TransactionResultCode {

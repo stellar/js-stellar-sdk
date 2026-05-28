@@ -1,6 +1,9 @@
 import { enumType } from "../types/enum.js";
-import { XdrError } from "../core/error.js";
-import { EnumValue, enumLookup } from "../values/enum-value.js";
+import {
+  EnumValue,
+  enumFromName,
+  enumFromValue,
+} from "../values/enum-value.js";
 
 export type PreconditionTypeWire = number;
 
@@ -21,13 +24,6 @@ export class PreconditionType extends EnumValue<PreconditionTypeName> {
   static readonly precondTime = new PreconditionType("precondTime", 1);
   static readonly precondV2 = new PreconditionType("precondV2", 2);
 
-  private static readonly byValue: Readonly<Record<number, PreconditionType>> =
-    {
-      0: PreconditionType.precondNone,
-      1: PreconditionType.precondTime,
-      2: PreconditionType.precondV2,
-    };
-
   static readonly schema = enumType("PreconditionType", {
     precondNone: 0,
     precondTime: 1,
@@ -35,24 +31,16 @@ export class PreconditionType extends EnumValue<PreconditionTypeName> {
   });
 
   static fromValue(value: number): PreconditionType {
-    return enumLookup(
+    return enumFromValue(
       "PreconditionType",
-      PreconditionType.byValue,
+      PreconditionType.schema,
+      PreconditionType,
       value,
-    ) as PreconditionType;
+    );
   }
 
   static fromName(name: PreconditionTypeName): PreconditionType {
-    switch (name) {
-      case "precondNone":
-        return PreconditionType.precondNone;
-      case "precondTime":
-        return PreconditionType.precondTime;
-      case "precondV2":
-        return PreconditionType.precondV2;
-      default:
-        throw new XdrError(`PreconditionType: unknown name ${name}`);
-    }
+    return enumFromName("PreconditionType", PreconditionType, name);
   }
 
   static fromXdrObject(wire: number): PreconditionType {

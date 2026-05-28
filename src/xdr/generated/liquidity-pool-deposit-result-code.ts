@@ -1,6 +1,9 @@
 import { enumType } from "../types/enum.js";
-import { XdrError } from "../core/error.js";
-import { EnumValue, enumLookup } from "../values/enum-value.js";
+import {
+  EnumValue,
+  enumFromName,
+  enumFromValue,
+} from "../values/enum-value.js";
 
 export type LiquidityPoolDepositResultCodeWire = number;
 
@@ -62,20 +65,6 @@ export class LiquidityPoolDepositResultCode extends EnumValue<LiquidityPoolDepos
       -8,
     );
 
-  private static readonly byValue: Readonly<
-    Record<number, LiquidityPoolDepositResultCode>
-  > = {
-    0: LiquidityPoolDepositResultCode.liquidityPoolDepositSuccess,
-    "-1": LiquidityPoolDepositResultCode.liquidityPoolDepositMalformed,
-    "-2": LiquidityPoolDepositResultCode.liquidityPoolDepositNoTrust,
-    "-3": LiquidityPoolDepositResultCode.liquidityPoolDepositNotAuthorized,
-    "-4": LiquidityPoolDepositResultCode.liquidityPoolDepositUnderfunded,
-    "-5": LiquidityPoolDepositResultCode.liquidityPoolDepositLineFull,
-    "-6": LiquidityPoolDepositResultCode.liquidityPoolDepositBadPrice,
-    "-7": LiquidityPoolDepositResultCode.liquidityPoolDepositPoolFull,
-    "-8": LiquidityPoolDepositResultCode.liquidityPoolDepositTrustlineFrozen,
-  };
-
   static readonly schema = enumType("LiquidityPoolDepositResultCode", {
     liquidityPoolDepositSuccess: 0,
     liquidityPoolDepositMalformed: -1,
@@ -89,40 +78,22 @@ export class LiquidityPoolDepositResultCode extends EnumValue<LiquidityPoolDepos
   });
 
   static fromValue(value: number): LiquidityPoolDepositResultCode {
-    return enumLookup(
+    return enumFromValue(
       "LiquidityPoolDepositResultCode",
-      LiquidityPoolDepositResultCode.byValue,
+      LiquidityPoolDepositResultCode.schema,
+      LiquidityPoolDepositResultCode,
       value,
-    ) as LiquidityPoolDepositResultCode;
+    );
   }
 
   static fromName(
     name: LiquidityPoolDepositResultCodeName,
   ): LiquidityPoolDepositResultCode {
-    switch (name) {
-      case "liquidityPoolDepositSuccess":
-        return LiquidityPoolDepositResultCode.liquidityPoolDepositSuccess;
-      case "liquidityPoolDepositMalformed":
-        return LiquidityPoolDepositResultCode.liquidityPoolDepositMalformed;
-      case "liquidityPoolDepositNoTrust":
-        return LiquidityPoolDepositResultCode.liquidityPoolDepositNoTrust;
-      case "liquidityPoolDepositNotAuthorized":
-        return LiquidityPoolDepositResultCode.liquidityPoolDepositNotAuthorized;
-      case "liquidityPoolDepositUnderfunded":
-        return LiquidityPoolDepositResultCode.liquidityPoolDepositUnderfunded;
-      case "liquidityPoolDepositLineFull":
-        return LiquidityPoolDepositResultCode.liquidityPoolDepositLineFull;
-      case "liquidityPoolDepositBadPrice":
-        return LiquidityPoolDepositResultCode.liquidityPoolDepositBadPrice;
-      case "liquidityPoolDepositPoolFull":
-        return LiquidityPoolDepositResultCode.liquidityPoolDepositPoolFull;
-      case "liquidityPoolDepositTrustlineFrozen":
-        return LiquidityPoolDepositResultCode.liquidityPoolDepositTrustlineFrozen;
-      default:
-        throw new XdrError(
-          `LiquidityPoolDepositResultCode: unknown name ${name}`,
-        );
-    }
+    return enumFromName(
+      "LiquidityPoolDepositResultCode",
+      LiquidityPoolDepositResultCode,
+      name,
+    );
   }
 
   static fromXdrObject(wire: number): LiquidityPoolDepositResultCode {

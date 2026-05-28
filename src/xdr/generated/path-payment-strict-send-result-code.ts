@@ -1,6 +1,9 @@
 import { enumType } from "../types/enum.js";
-import { XdrError } from "../core/error.js";
-import { EnumValue, enumLookup } from "../values/enum-value.js";
+import {
+  EnumValue,
+  enumFromName,
+  enumFromValue,
+} from "../values/enum-value.js";
 
 export type PathPaymentStrictSendResultCodeWire = number;
 
@@ -96,24 +99,6 @@ export class PathPaymentStrictSendResultCode extends EnumValue<PathPaymentStrict
       -12,
     );
 
-  private static readonly byValue: Readonly<
-    Record<number, PathPaymentStrictSendResultCode>
-  > = {
-    0: PathPaymentStrictSendResultCode.pathPaymentStrictSendSuccess,
-    "-1": PathPaymentStrictSendResultCode.pathPaymentStrictSendMalformed,
-    "-2": PathPaymentStrictSendResultCode.pathPaymentStrictSendUnderfunded,
-    "-3": PathPaymentStrictSendResultCode.pathPaymentStrictSendSrcNoTrust,
-    "-4": PathPaymentStrictSendResultCode.pathPaymentStrictSendSrcNotAuthorized,
-    "-5": PathPaymentStrictSendResultCode.pathPaymentStrictSendNoDestination,
-    "-6": PathPaymentStrictSendResultCode.pathPaymentStrictSendNoTrust,
-    "-7": PathPaymentStrictSendResultCode.pathPaymentStrictSendNotAuthorized,
-    "-8": PathPaymentStrictSendResultCode.pathPaymentStrictSendLineFull,
-    "-9": PathPaymentStrictSendResultCode.pathPaymentStrictSendNoIssuer,
-    "-10": PathPaymentStrictSendResultCode.pathPaymentStrictSendTooFewOffers,
-    "-11": PathPaymentStrictSendResultCode.pathPaymentStrictSendOfferCrossSelf,
-    "-12": PathPaymentStrictSendResultCode.pathPaymentStrictSendUnderDestmin,
-  };
-
   static readonly schema = enumType("PathPaymentStrictSendResultCode", {
     pathPaymentStrictSendSuccess: 0,
     pathPaymentStrictSendMalformed: -1,
@@ -131,48 +116,22 @@ export class PathPaymentStrictSendResultCode extends EnumValue<PathPaymentStrict
   });
 
   static fromValue(value: number): PathPaymentStrictSendResultCode {
-    return enumLookup(
+    return enumFromValue(
       "PathPaymentStrictSendResultCode",
-      PathPaymentStrictSendResultCode.byValue,
+      PathPaymentStrictSendResultCode.schema,
+      PathPaymentStrictSendResultCode,
       value,
-    ) as PathPaymentStrictSendResultCode;
+    );
   }
 
   static fromName(
     name: PathPaymentStrictSendResultCodeName,
   ): PathPaymentStrictSendResultCode {
-    switch (name) {
-      case "pathPaymentStrictSendSuccess":
-        return PathPaymentStrictSendResultCode.pathPaymentStrictSendSuccess;
-      case "pathPaymentStrictSendMalformed":
-        return PathPaymentStrictSendResultCode.pathPaymentStrictSendMalformed;
-      case "pathPaymentStrictSendUnderfunded":
-        return PathPaymentStrictSendResultCode.pathPaymentStrictSendUnderfunded;
-      case "pathPaymentStrictSendSrcNoTrust":
-        return PathPaymentStrictSendResultCode.pathPaymentStrictSendSrcNoTrust;
-      case "pathPaymentStrictSendSrcNotAuthorized":
-        return PathPaymentStrictSendResultCode.pathPaymentStrictSendSrcNotAuthorized;
-      case "pathPaymentStrictSendNoDestination":
-        return PathPaymentStrictSendResultCode.pathPaymentStrictSendNoDestination;
-      case "pathPaymentStrictSendNoTrust":
-        return PathPaymentStrictSendResultCode.pathPaymentStrictSendNoTrust;
-      case "pathPaymentStrictSendNotAuthorized":
-        return PathPaymentStrictSendResultCode.pathPaymentStrictSendNotAuthorized;
-      case "pathPaymentStrictSendLineFull":
-        return PathPaymentStrictSendResultCode.pathPaymentStrictSendLineFull;
-      case "pathPaymentStrictSendNoIssuer":
-        return PathPaymentStrictSendResultCode.pathPaymentStrictSendNoIssuer;
-      case "pathPaymentStrictSendTooFewOffers":
-        return PathPaymentStrictSendResultCode.pathPaymentStrictSendTooFewOffers;
-      case "pathPaymentStrictSendOfferCrossSelf":
-        return PathPaymentStrictSendResultCode.pathPaymentStrictSendOfferCrossSelf;
-      case "pathPaymentStrictSendUnderDestmin":
-        return PathPaymentStrictSendResultCode.pathPaymentStrictSendUnderDestmin;
-      default:
-        throw new XdrError(
-          `PathPaymentStrictSendResultCode: unknown name ${name}`,
-        );
-    }
+    return enumFromName(
+      "PathPaymentStrictSendResultCode",
+      PathPaymentStrictSendResultCode,
+      name,
+    );
   }
 
   static fromXdrObject(wire: number): PathPaymentStrictSendResultCode {

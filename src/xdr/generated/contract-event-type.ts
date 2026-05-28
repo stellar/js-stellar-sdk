@@ -1,6 +1,9 @@
 import { enumType } from "../types/enum.js";
-import { XdrError } from "../core/error.js";
-import { EnumValue, enumLookup } from "../values/enum-value.js";
+import {
+  EnumValue,
+  enumFromName,
+  enumFromValue,
+} from "../values/enum-value.js";
 
 export type ContractEventTypeWire = number;
 
@@ -21,13 +24,6 @@ export class ContractEventType extends EnumValue<ContractEventTypeName> {
   static readonly contract = new ContractEventType("contract", 1);
   static readonly diagnostic = new ContractEventType("diagnostic", 2);
 
-  private static readonly byValue: Readonly<Record<number, ContractEventType>> =
-    {
-      0: ContractEventType.system,
-      1: ContractEventType.contract,
-      2: ContractEventType.diagnostic,
-    };
-
   static readonly schema = enumType("ContractEventType", {
     system: 0,
     contract: 1,
@@ -35,24 +31,16 @@ export class ContractEventType extends EnumValue<ContractEventTypeName> {
   });
 
   static fromValue(value: number): ContractEventType {
-    return enumLookup(
+    return enumFromValue(
       "ContractEventType",
-      ContractEventType.byValue,
+      ContractEventType.schema,
+      ContractEventType,
       value,
-    ) as ContractEventType;
+    );
   }
 
   static fromName(name: ContractEventTypeName): ContractEventType {
-    switch (name) {
-      case "system":
-        return ContractEventType.system;
-      case "contract":
-        return ContractEventType.contract;
-      case "diagnostic":
-        return ContractEventType.diagnostic;
-      default:
-        throw new XdrError(`ContractEventType: unknown name ${name}`);
-    }
+    return enumFromName("ContractEventType", ContractEventType, name);
   }
 
   static fromXdrObject(wire: number): ContractEventType {

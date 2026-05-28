@@ -1,6 +1,9 @@
 import { enumType } from "../types/enum.js";
-import { XdrError } from "../core/error.js";
-import { EnumValue, enumLookup } from "../values/enum-value.js";
+import {
+  EnumValue,
+  enumFromName,
+  enumFromValue,
+} from "../values/enum-value.js";
 
 export type ManageSellOfferResultCodeWire = number;
 
@@ -99,24 +102,6 @@ export class ManageSellOfferResultCode extends EnumValue<ManageSellOfferResultCo
     -12,
   );
 
-  private static readonly byValue: Readonly<
-    Record<number, ManageSellOfferResultCode>
-  > = {
-    0: ManageSellOfferResultCode.manageSellOfferSuccess,
-    "-1": ManageSellOfferResultCode.manageSellOfferMalformed,
-    "-2": ManageSellOfferResultCode.manageSellOfferSellNoTrust,
-    "-3": ManageSellOfferResultCode.manageSellOfferBuyNoTrust,
-    "-4": ManageSellOfferResultCode.manageSellOfferSellNotAuthorized,
-    "-5": ManageSellOfferResultCode.manageSellOfferBuyNotAuthorized,
-    "-6": ManageSellOfferResultCode.manageSellOfferLineFull,
-    "-7": ManageSellOfferResultCode.manageSellOfferUnderfunded,
-    "-8": ManageSellOfferResultCode.manageSellOfferCrossSelf,
-    "-9": ManageSellOfferResultCode.manageSellOfferSellNoIssuer,
-    "-10": ManageSellOfferResultCode.manageSellOfferBuyNoIssuer,
-    "-11": ManageSellOfferResultCode.manageSellOfferNotFound,
-    "-12": ManageSellOfferResultCode.manageSellOfferLowReserve,
-  };
-
   static readonly schema = enumType("ManageSellOfferResultCode", {
     manageSellOfferSuccess: 0,
     manageSellOfferMalformed: -1,
@@ -134,46 +119,22 @@ export class ManageSellOfferResultCode extends EnumValue<ManageSellOfferResultCo
   });
 
   static fromValue(value: number): ManageSellOfferResultCode {
-    return enumLookup(
+    return enumFromValue(
       "ManageSellOfferResultCode",
-      ManageSellOfferResultCode.byValue,
+      ManageSellOfferResultCode.schema,
+      ManageSellOfferResultCode,
       value,
-    ) as ManageSellOfferResultCode;
+    );
   }
 
   static fromName(
     name: ManageSellOfferResultCodeName,
   ): ManageSellOfferResultCode {
-    switch (name) {
-      case "manageSellOfferSuccess":
-        return ManageSellOfferResultCode.manageSellOfferSuccess;
-      case "manageSellOfferMalformed":
-        return ManageSellOfferResultCode.manageSellOfferMalformed;
-      case "manageSellOfferSellNoTrust":
-        return ManageSellOfferResultCode.manageSellOfferSellNoTrust;
-      case "manageSellOfferBuyNoTrust":
-        return ManageSellOfferResultCode.manageSellOfferBuyNoTrust;
-      case "manageSellOfferSellNotAuthorized":
-        return ManageSellOfferResultCode.manageSellOfferSellNotAuthorized;
-      case "manageSellOfferBuyNotAuthorized":
-        return ManageSellOfferResultCode.manageSellOfferBuyNotAuthorized;
-      case "manageSellOfferLineFull":
-        return ManageSellOfferResultCode.manageSellOfferLineFull;
-      case "manageSellOfferUnderfunded":
-        return ManageSellOfferResultCode.manageSellOfferUnderfunded;
-      case "manageSellOfferCrossSelf":
-        return ManageSellOfferResultCode.manageSellOfferCrossSelf;
-      case "manageSellOfferSellNoIssuer":
-        return ManageSellOfferResultCode.manageSellOfferSellNoIssuer;
-      case "manageSellOfferBuyNoIssuer":
-        return ManageSellOfferResultCode.manageSellOfferBuyNoIssuer;
-      case "manageSellOfferNotFound":
-        return ManageSellOfferResultCode.manageSellOfferNotFound;
-      case "manageSellOfferLowReserve":
-        return ManageSellOfferResultCode.manageSellOfferLowReserve;
-      default:
-        throw new XdrError(`ManageSellOfferResultCode: unknown name ${name}`);
-    }
+    return enumFromName(
+      "ManageSellOfferResultCode",
+      ManageSellOfferResultCode,
+      name,
+    );
   }
 
   static fromXdrObject(wire: number): ManageSellOfferResultCode {

@@ -1,6 +1,9 @@
 import { enumType } from "../types/enum.js";
-import { XdrError } from "../core/error.js";
-import { EnumValue, enumLookup } from "../values/enum-value.js";
+import {
+  EnumValue,
+  enumFromName,
+  enumFromValue,
+} from "../values/enum-value.js";
 
 export type AccountMergeResultCodeWire = number;
 
@@ -66,19 +69,6 @@ export class AccountMergeResultCode extends EnumValue<AccountMergeResultCodeName
     -7,
   );
 
-  private static readonly byValue: Readonly<
-    Record<number, AccountMergeResultCode>
-  > = {
-    0: AccountMergeResultCode.accountMergeSuccess,
-    "-1": AccountMergeResultCode.accountMergeMalformed,
-    "-2": AccountMergeResultCode.accountMergeNoAccount,
-    "-3": AccountMergeResultCode.accountMergeImmutableSet,
-    "-4": AccountMergeResultCode.accountMergeHasSubEntries,
-    "-5": AccountMergeResultCode.accountMergeSeqnumTooFar,
-    "-6": AccountMergeResultCode.accountMergeDestFull,
-    "-7": AccountMergeResultCode.accountMergeIsSponsor,
-  };
-
   static readonly schema = enumType("AccountMergeResultCode", {
     accountMergeSuccess: 0,
     accountMergeMalformed: -1,
@@ -91,34 +81,16 @@ export class AccountMergeResultCode extends EnumValue<AccountMergeResultCodeName
   });
 
   static fromValue(value: number): AccountMergeResultCode {
-    return enumLookup(
+    return enumFromValue(
       "AccountMergeResultCode",
-      AccountMergeResultCode.byValue,
+      AccountMergeResultCode.schema,
+      AccountMergeResultCode,
       value,
-    ) as AccountMergeResultCode;
+    );
   }
 
   static fromName(name: AccountMergeResultCodeName): AccountMergeResultCode {
-    switch (name) {
-      case "accountMergeSuccess":
-        return AccountMergeResultCode.accountMergeSuccess;
-      case "accountMergeMalformed":
-        return AccountMergeResultCode.accountMergeMalformed;
-      case "accountMergeNoAccount":
-        return AccountMergeResultCode.accountMergeNoAccount;
-      case "accountMergeImmutableSet":
-        return AccountMergeResultCode.accountMergeImmutableSet;
-      case "accountMergeHasSubEntries":
-        return AccountMergeResultCode.accountMergeHasSubEntries;
-      case "accountMergeSeqnumTooFar":
-        return AccountMergeResultCode.accountMergeSeqnumTooFar;
-      case "accountMergeDestFull":
-        return AccountMergeResultCode.accountMergeDestFull;
-      case "accountMergeIsSponsor":
-        return AccountMergeResultCode.accountMergeIsSponsor;
-      default:
-        throw new XdrError(`AccountMergeResultCode: unknown name ${name}`);
-    }
+    return enumFromName("AccountMergeResultCode", AccountMergeResultCode, name);
   }
 
   static fromXdrObject(wire: number): AccountMergeResultCode {

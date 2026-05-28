@@ -1,6 +1,9 @@
 import { enumType } from "../types/enum.js";
-import { XdrError } from "../core/error.js";
-import { EnumValue, enumLookup } from "../values/enum-value.js";
+import {
+  EnumValue,
+  enumFromName,
+  enumFromValue,
+} from "../values/enum-value.js";
 
 export type SorobanAuthorizedFunctionTypeWire = number;
 
@@ -36,14 +39,6 @@ export class SorobanAuthorizedFunctionType extends EnumValue<SorobanAuthorizedFu
       2,
     );
 
-  private static readonly byValue: Readonly<
-    Record<number, SorobanAuthorizedFunctionType>
-  > = {
-    0: SorobanAuthorizedFunctionType.sorobanAuthorizedFunctionTypeContractFn,
-    1: SorobanAuthorizedFunctionType.sorobanAuthorizedFunctionTypeCreateContractHostFn,
-    2: SorobanAuthorizedFunctionType.sorobanAuthorizedFunctionTypeCreateContractV2HostFn,
-  };
-
   static readonly schema = enumType("SorobanAuthorizedFunctionType", {
     sorobanAuthorizedFunctionTypeContractFn: 0,
     sorobanAuthorizedFunctionTypeCreateContractHostFn: 1,
@@ -51,28 +46,22 @@ export class SorobanAuthorizedFunctionType extends EnumValue<SorobanAuthorizedFu
   });
 
   static fromValue(value: number): SorobanAuthorizedFunctionType {
-    return enumLookup(
+    return enumFromValue(
       "SorobanAuthorizedFunctionType",
-      SorobanAuthorizedFunctionType.byValue,
+      SorobanAuthorizedFunctionType.schema,
+      SorobanAuthorizedFunctionType,
       value,
-    ) as SorobanAuthorizedFunctionType;
+    );
   }
 
   static fromName(
     name: SorobanAuthorizedFunctionTypeName,
   ): SorobanAuthorizedFunctionType {
-    switch (name) {
-      case "sorobanAuthorizedFunctionTypeContractFn":
-        return SorobanAuthorizedFunctionType.sorobanAuthorizedFunctionTypeContractFn;
-      case "sorobanAuthorizedFunctionTypeCreateContractHostFn":
-        return SorobanAuthorizedFunctionType.sorobanAuthorizedFunctionTypeCreateContractHostFn;
-      case "sorobanAuthorizedFunctionTypeCreateContractV2HostFn":
-        return SorobanAuthorizedFunctionType.sorobanAuthorizedFunctionTypeCreateContractV2HostFn;
-      default:
-        throw new XdrError(
-          `SorobanAuthorizedFunctionType: unknown name ${name}`,
-        );
-    }
+    return enumFromName(
+      "SorobanAuthorizedFunctionType",
+      SorobanAuthorizedFunctionType,
+      name,
+    );
   }
 
   static fromXdrObject(wire: number): SorobanAuthorizedFunctionType {

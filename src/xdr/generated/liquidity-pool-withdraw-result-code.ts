@@ -1,6 +1,9 @@
 import { enumType } from "../types/enum.js";
-import { XdrError } from "../core/error.js";
-import { EnumValue, enumLookup } from "../values/enum-value.js";
+import {
+  EnumValue,
+  enumFromName,
+  enumFromValue,
+} from "../values/enum-value.js";
 
 export type LiquidityPoolWithdrawResultCodeWire = number;
 
@@ -56,18 +59,6 @@ export class LiquidityPoolWithdrawResultCode extends EnumValue<LiquidityPoolWith
       -6,
     );
 
-  private static readonly byValue: Readonly<
-    Record<number, LiquidityPoolWithdrawResultCode>
-  > = {
-    0: LiquidityPoolWithdrawResultCode.liquidityPoolWithdrawSuccess,
-    "-1": LiquidityPoolWithdrawResultCode.liquidityPoolWithdrawMalformed,
-    "-2": LiquidityPoolWithdrawResultCode.liquidityPoolWithdrawNoTrust,
-    "-3": LiquidityPoolWithdrawResultCode.liquidityPoolWithdrawUnderfunded,
-    "-4": LiquidityPoolWithdrawResultCode.liquidityPoolWithdrawLineFull,
-    "-5": LiquidityPoolWithdrawResultCode.liquidityPoolWithdrawUnderMinimum,
-    "-6": LiquidityPoolWithdrawResultCode.liquidityPoolWithdrawTrustlineFrozen,
-  };
-
   static readonly schema = enumType("LiquidityPoolWithdrawResultCode", {
     liquidityPoolWithdrawSuccess: 0,
     liquidityPoolWithdrawMalformed: -1,
@@ -79,36 +70,22 @@ export class LiquidityPoolWithdrawResultCode extends EnumValue<LiquidityPoolWith
   });
 
   static fromValue(value: number): LiquidityPoolWithdrawResultCode {
-    return enumLookup(
+    return enumFromValue(
       "LiquidityPoolWithdrawResultCode",
-      LiquidityPoolWithdrawResultCode.byValue,
+      LiquidityPoolWithdrawResultCode.schema,
+      LiquidityPoolWithdrawResultCode,
       value,
-    ) as LiquidityPoolWithdrawResultCode;
+    );
   }
 
   static fromName(
     name: LiquidityPoolWithdrawResultCodeName,
   ): LiquidityPoolWithdrawResultCode {
-    switch (name) {
-      case "liquidityPoolWithdrawSuccess":
-        return LiquidityPoolWithdrawResultCode.liquidityPoolWithdrawSuccess;
-      case "liquidityPoolWithdrawMalformed":
-        return LiquidityPoolWithdrawResultCode.liquidityPoolWithdrawMalformed;
-      case "liquidityPoolWithdrawNoTrust":
-        return LiquidityPoolWithdrawResultCode.liquidityPoolWithdrawNoTrust;
-      case "liquidityPoolWithdrawUnderfunded":
-        return LiquidityPoolWithdrawResultCode.liquidityPoolWithdrawUnderfunded;
-      case "liquidityPoolWithdrawLineFull":
-        return LiquidityPoolWithdrawResultCode.liquidityPoolWithdrawLineFull;
-      case "liquidityPoolWithdrawUnderMinimum":
-        return LiquidityPoolWithdrawResultCode.liquidityPoolWithdrawUnderMinimum;
-      case "liquidityPoolWithdrawTrustlineFrozen":
-        return LiquidityPoolWithdrawResultCode.liquidityPoolWithdrawTrustlineFrozen;
-      default:
-        throw new XdrError(
-          `LiquidityPoolWithdrawResultCode: unknown name ${name}`,
-        );
-    }
+    return enumFromName(
+      "LiquidityPoolWithdrawResultCode",
+      LiquidityPoolWithdrawResultCode,
+      name,
+    );
   }
 
   static fromXdrObject(wire: number): LiquidityPoolWithdrawResultCode {

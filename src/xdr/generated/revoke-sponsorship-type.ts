@@ -1,6 +1,9 @@
 import { enumType } from "../types/enum.js";
-import { XdrError } from "../core/error.js";
-import { EnumValue, enumLookup } from "../values/enum-value.js";
+import {
+  EnumValue,
+  enumFromName,
+  enumFromValue,
+} from "../values/enum-value.js";
 
 export type RevokeSponsorshipTypeWire = number;
 
@@ -27,35 +30,22 @@ export class RevokeSponsorshipType extends EnumValue<RevokeSponsorshipTypeName> 
     1,
   );
 
-  private static readonly byValue: Readonly<
-    Record<number, RevokeSponsorshipType>
-  > = {
-    0: RevokeSponsorshipType.revokeSponsorshipLedgerEntry,
-    1: RevokeSponsorshipType.revokeSponsorshipSigner,
-  };
-
   static readonly schema = enumType("RevokeSponsorshipType", {
     revokeSponsorshipLedgerEntry: 0,
     revokeSponsorshipSigner: 1,
   });
 
   static fromValue(value: number): RevokeSponsorshipType {
-    return enumLookup(
+    return enumFromValue(
       "RevokeSponsorshipType",
-      RevokeSponsorshipType.byValue,
+      RevokeSponsorshipType.schema,
+      RevokeSponsorshipType,
       value,
-    ) as RevokeSponsorshipType;
+    );
   }
 
   static fromName(name: RevokeSponsorshipTypeName): RevokeSponsorshipType {
-    switch (name) {
-      case "revokeSponsorshipLedgerEntry":
-        return RevokeSponsorshipType.revokeSponsorshipLedgerEntry;
-      case "revokeSponsorshipSigner":
-        return RevokeSponsorshipType.revokeSponsorshipSigner;
-      default:
-        throw new XdrError(`RevokeSponsorshipType: unknown name ${name}`);
-    }
+    return enumFromName("RevokeSponsorshipType", RevokeSponsorshipType, name);
   }
 
   static fromXdrObject(wire: number): RevokeSponsorshipType {

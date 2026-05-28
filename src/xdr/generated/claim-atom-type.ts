@@ -1,6 +1,9 @@
 import { enumType } from "../types/enum.js";
-import { XdrError } from "../core/error.js";
-import { EnumValue, enumLookup } from "../values/enum-value.js";
+import {
+  EnumValue,
+  enumFromName,
+  enumFromValue,
+} from "../values/enum-value.js";
 
 export type ClaimAtomTypeWire = number;
 
@@ -30,12 +33,6 @@ export class ClaimAtomType extends EnumValue<ClaimAtomTypeName> {
     2,
   );
 
-  private static readonly byValue: Readonly<Record<number, ClaimAtomType>> = {
-    0: ClaimAtomType.claimAtomTypeV0,
-    1: ClaimAtomType.claimAtomTypeOrderBook,
-    2: ClaimAtomType.claimAtomTypeLiquidityPool,
-  };
-
   static readonly schema = enumType("ClaimAtomType", {
     claimAtomTypeV0: 0,
     claimAtomTypeOrderBook: 1,
@@ -43,24 +40,16 @@ export class ClaimAtomType extends EnumValue<ClaimAtomTypeName> {
   });
 
   static fromValue(value: number): ClaimAtomType {
-    return enumLookup(
+    return enumFromValue(
       "ClaimAtomType",
-      ClaimAtomType.byValue,
+      ClaimAtomType.schema,
+      ClaimAtomType,
       value,
-    ) as ClaimAtomType;
+    );
   }
 
   static fromName(name: ClaimAtomTypeName): ClaimAtomType {
-    switch (name) {
-      case "claimAtomTypeV0":
-        return ClaimAtomType.claimAtomTypeV0;
-      case "claimAtomTypeOrderBook":
-        return ClaimAtomType.claimAtomTypeOrderBook;
-      case "claimAtomTypeLiquidityPool":
-        return ClaimAtomType.claimAtomTypeLiquidityPool;
-      default:
-        throw new XdrError(`ClaimAtomType: unknown name ${name}`);
-    }
+    return enumFromName("ClaimAtomType", ClaimAtomType, name);
   }
 
   static fromXdrObject(wire: number): ClaimAtomType {

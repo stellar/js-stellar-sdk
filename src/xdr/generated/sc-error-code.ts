@@ -1,6 +1,9 @@
 import { enumType } from "../types/enum.js";
-import { XdrError } from "../core/error.js";
-import { EnumValue, enumLookup } from "../values/enum-value.js";
+import {
+  EnumValue,
+  enumFromName,
+  enumFromValue,
+} from "../values/enum-value.js";
 
 export type ScErrorCodeWire = number;
 
@@ -45,19 +48,6 @@ export class ScErrorCode extends EnumValue<ScErrorCodeName> {
   static readonly scecUnexpectedType = new ScErrorCode("scecUnexpectedType", 8);
   static readonly scecUnexpectedSize = new ScErrorCode("scecUnexpectedSize", 9);
 
-  private static readonly byValue: Readonly<Record<number, ScErrorCode>> = {
-    0: ScErrorCode.scecArithDomain,
-    1: ScErrorCode.scecIndexBounds,
-    2: ScErrorCode.scecInvalidInput,
-    3: ScErrorCode.scecMissingValue,
-    4: ScErrorCode.scecExistingValue,
-    5: ScErrorCode.scecExceededLimit,
-    6: ScErrorCode.scecInvalidAction,
-    7: ScErrorCode.scecInternalError,
-    8: ScErrorCode.scecUnexpectedType,
-    9: ScErrorCode.scecUnexpectedSize,
-  };
-
   static readonly schema = enumType("ScErrorCode", {
     scecArithDomain: 0,
     scecIndexBounds: 1,
@@ -72,34 +62,11 @@ export class ScErrorCode extends EnumValue<ScErrorCodeName> {
   });
 
   static fromValue(value: number): ScErrorCode {
-    return enumLookup("ScErrorCode", ScErrorCode.byValue, value) as ScErrorCode;
+    return enumFromValue("ScErrorCode", ScErrorCode.schema, ScErrorCode, value);
   }
 
   static fromName(name: ScErrorCodeName): ScErrorCode {
-    switch (name) {
-      case "scecArithDomain":
-        return ScErrorCode.scecArithDomain;
-      case "scecIndexBounds":
-        return ScErrorCode.scecIndexBounds;
-      case "scecInvalidInput":
-        return ScErrorCode.scecInvalidInput;
-      case "scecMissingValue":
-        return ScErrorCode.scecMissingValue;
-      case "scecExistingValue":
-        return ScErrorCode.scecExistingValue;
-      case "scecExceededLimit":
-        return ScErrorCode.scecExceededLimit;
-      case "scecInvalidAction":
-        return ScErrorCode.scecInvalidAction;
-      case "scecInternalError":
-        return ScErrorCode.scecInternalError;
-      case "scecUnexpectedType":
-        return ScErrorCode.scecUnexpectedType;
-      case "scecUnexpectedSize":
-        return ScErrorCode.scecUnexpectedSize;
-      default:
-        throw new XdrError(`ScErrorCode: unknown name ${name}`);
-    }
+    return enumFromName("ScErrorCode", ScErrorCode, name);
   }
 
   static fromXdrObject(wire: number): ScErrorCode {

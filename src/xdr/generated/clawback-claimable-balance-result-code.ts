@@ -1,6 +1,9 @@
 import { enumType } from "../types/enum.js";
-import { XdrError } from "../core/error.js";
-import { EnumValue, enumLookup } from "../values/enum-value.js";
+import {
+  EnumValue,
+  enumFromName,
+  enumFromValue,
+} from "../values/enum-value.js";
 
 export type ClawbackClaimableBalanceResultCodeWire = number;
 
@@ -46,15 +49,6 @@ export class ClawbackClaimableBalanceResultCode extends EnumValue<ClawbackClaima
       -3,
     );
 
-  private static readonly byValue: Readonly<
-    Record<number, ClawbackClaimableBalanceResultCode>
-  > = {
-    0: ClawbackClaimableBalanceResultCode.clawbackClaimableBalanceSuccess,
-    "-1": ClawbackClaimableBalanceResultCode.clawbackClaimableBalanceDoesNotExist,
-    "-2": ClawbackClaimableBalanceResultCode.clawbackClaimableBalanceNotIssuer,
-    "-3": ClawbackClaimableBalanceResultCode.clawbackClaimableBalanceNotClawbackEnabled,
-  };
-
   static readonly schema = enumType("ClawbackClaimableBalanceResultCode", {
     clawbackClaimableBalanceSuccess: 0,
     clawbackClaimableBalanceDoesNotExist: -1,
@@ -63,30 +57,22 @@ export class ClawbackClaimableBalanceResultCode extends EnumValue<ClawbackClaima
   });
 
   static fromValue(value: number): ClawbackClaimableBalanceResultCode {
-    return enumLookup(
+    return enumFromValue(
       "ClawbackClaimableBalanceResultCode",
-      ClawbackClaimableBalanceResultCode.byValue,
+      ClawbackClaimableBalanceResultCode.schema,
+      ClawbackClaimableBalanceResultCode,
       value,
-    ) as ClawbackClaimableBalanceResultCode;
+    );
   }
 
   static fromName(
     name: ClawbackClaimableBalanceResultCodeName,
   ): ClawbackClaimableBalanceResultCode {
-    switch (name) {
-      case "clawbackClaimableBalanceSuccess":
-        return ClawbackClaimableBalanceResultCode.clawbackClaimableBalanceSuccess;
-      case "clawbackClaimableBalanceDoesNotExist":
-        return ClawbackClaimableBalanceResultCode.clawbackClaimableBalanceDoesNotExist;
-      case "clawbackClaimableBalanceNotIssuer":
-        return ClawbackClaimableBalanceResultCode.clawbackClaimableBalanceNotIssuer;
-      case "clawbackClaimableBalanceNotClawbackEnabled":
-        return ClawbackClaimableBalanceResultCode.clawbackClaimableBalanceNotClawbackEnabled;
-      default:
-        throw new XdrError(
-          `ClawbackClaimableBalanceResultCode: unknown name ${name}`,
-        );
-    }
+    return enumFromName(
+      "ClawbackClaimableBalanceResultCode",
+      ClawbackClaimableBalanceResultCode,
+      name,
+    );
   }
 
   static fromXdrObject(wire: number): ClawbackClaimableBalanceResultCode {

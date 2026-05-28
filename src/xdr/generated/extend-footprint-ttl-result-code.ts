@@ -1,6 +1,9 @@
 import { enumType } from "../types/enum.js";
-import { XdrError } from "../core/error.js";
-import { EnumValue, enumLookup } from "../values/enum-value.js";
+import {
+  EnumValue,
+  enumFromName,
+  enumFromValue,
+} from "../values/enum-value.js";
 
 export type ExtendFootprintTtlResultCodeWire = number;
 
@@ -42,15 +45,6 @@ export class ExtendFootprintTtlResultCode extends EnumValue<ExtendFootprintTtlRe
       -3,
     );
 
-  private static readonly byValue: Readonly<
-    Record<number, ExtendFootprintTtlResultCode>
-  > = {
-    0: ExtendFootprintTtlResultCode.extendFootprintTtlSuccess,
-    "-1": ExtendFootprintTtlResultCode.extendFootprintTtlMalformed,
-    "-2": ExtendFootprintTtlResultCode.extendFootprintTtlResourceLimitExceeded,
-    "-3": ExtendFootprintTtlResultCode.extendFootprintTtlInsufficientRefundableFee,
-  };
-
   static readonly schema = enumType("ExtendFootprintTtlResultCode", {
     extendFootprintTtlSuccess: 0,
     extendFootprintTtlMalformed: -1,
@@ -59,30 +53,22 @@ export class ExtendFootprintTtlResultCode extends EnumValue<ExtendFootprintTtlRe
   });
 
   static fromValue(value: number): ExtendFootprintTtlResultCode {
-    return enumLookup(
+    return enumFromValue(
       "ExtendFootprintTtlResultCode",
-      ExtendFootprintTtlResultCode.byValue,
+      ExtendFootprintTtlResultCode.schema,
+      ExtendFootprintTtlResultCode,
       value,
-    ) as ExtendFootprintTtlResultCode;
+    );
   }
 
   static fromName(
     name: ExtendFootprintTtlResultCodeName,
   ): ExtendFootprintTtlResultCode {
-    switch (name) {
-      case "extendFootprintTtlSuccess":
-        return ExtendFootprintTtlResultCode.extendFootprintTtlSuccess;
-      case "extendFootprintTtlMalformed":
-        return ExtendFootprintTtlResultCode.extendFootprintTtlMalformed;
-      case "extendFootprintTtlResourceLimitExceeded":
-        return ExtendFootprintTtlResultCode.extendFootprintTtlResourceLimitExceeded;
-      case "extendFootprintTtlInsufficientRefundableFee":
-        return ExtendFootprintTtlResultCode.extendFootprintTtlInsufficientRefundableFee;
-      default:
-        throw new XdrError(
-          `ExtendFootprintTtlResultCode: unknown name ${name}`,
-        );
-    }
+    return enumFromName(
+      "ExtendFootprintTtlResultCode",
+      ExtendFootprintTtlResultCode,
+      name,
+    );
   }
 
   static fromXdrObject(wire: number): ExtendFootprintTtlResultCode {

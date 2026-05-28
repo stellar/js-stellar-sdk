@@ -1,6 +1,9 @@
 import { enumType } from "../types/enum.js";
-import { XdrError } from "../core/error.js";
-import { EnumValue, enumLookup } from "../values/enum-value.js";
+import {
+  EnumValue,
+  enumFromName,
+  enumFromValue,
+} from "../values/enum-value.js";
 
 export type TrustLineFlagsWire = number;
 
@@ -35,12 +38,6 @@ export class TrustLineFlags extends EnumValue<TrustLineFlagsName> {
     4,
   );
 
-  private static readonly byValue: Readonly<Record<number, TrustLineFlags>> = {
-    1: TrustLineFlags.authorizedFlag,
-    2: TrustLineFlags.authorizedToMaintainLiabilitiesFlag,
-    4: TrustLineFlags.trustlineClawbackEnabledFlag,
-  };
-
   static readonly schema = enumType("TrustLineFlags", {
     authorizedFlag: 1,
     authorizedToMaintainLiabilitiesFlag: 2,
@@ -48,24 +45,16 @@ export class TrustLineFlags extends EnumValue<TrustLineFlagsName> {
   });
 
   static fromValue(value: number): TrustLineFlags {
-    return enumLookup(
+    return enumFromValue(
       "TrustLineFlags",
-      TrustLineFlags.byValue,
+      TrustLineFlags.schema,
+      TrustLineFlags,
       value,
-    ) as TrustLineFlags;
+    );
   }
 
   static fromName(name: TrustLineFlagsName): TrustLineFlags {
-    switch (name) {
-      case "authorizedFlag":
-        return TrustLineFlags.authorizedFlag;
-      case "authorizedToMaintainLiabilitiesFlag":
-        return TrustLineFlags.authorizedToMaintainLiabilitiesFlag;
-      case "trustlineClawbackEnabledFlag":
-        return TrustLineFlags.trustlineClawbackEnabledFlag;
-      default:
-        throw new XdrError(`TrustLineFlags: unknown name ${name}`);
-    }
+    return enumFromName("TrustLineFlags", TrustLineFlags, name);
   }
 
   static fromXdrObject(wire: number): TrustLineFlags {

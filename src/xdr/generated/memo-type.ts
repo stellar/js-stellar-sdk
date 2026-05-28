@@ -1,6 +1,9 @@
 import { enumType } from "../types/enum.js";
-import { XdrError } from "../core/error.js";
-import { EnumValue, enumLookup } from "../values/enum-value.js";
+import {
+  EnumValue,
+  enumFromName,
+  enumFromValue,
+} from "../values/enum-value.js";
 
 export type MemoTypeWire = number;
 
@@ -30,14 +33,6 @@ export class MemoType extends EnumValue<MemoTypeName> {
   static readonly memoHash = new MemoType("memoHash", 3);
   static readonly memoReturn = new MemoType("memoReturn", 4);
 
-  private static readonly byValue: Readonly<Record<number, MemoType>> = {
-    0: MemoType.memoNone,
-    1: MemoType.memoText,
-    2: MemoType.memoId,
-    3: MemoType.memoHash,
-    4: MemoType.memoReturn,
-  };
-
   static readonly schema = enumType("MemoType", {
     memoNone: 0,
     memoText: 1,
@@ -47,24 +42,11 @@ export class MemoType extends EnumValue<MemoTypeName> {
   });
 
   static fromValue(value: number): MemoType {
-    return enumLookup("MemoType", MemoType.byValue, value) as MemoType;
+    return enumFromValue("MemoType", MemoType.schema, MemoType, value);
   }
 
   static fromName(name: MemoTypeName): MemoType {
-    switch (name) {
-      case "memoNone":
-        return MemoType.memoNone;
-      case "memoText":
-        return MemoType.memoText;
-      case "memoId":
-        return MemoType.memoId;
-      case "memoHash":
-        return MemoType.memoHash;
-      case "memoReturn":
-        return MemoType.memoReturn;
-      default:
-        throw new XdrError(`MemoType: unknown name ${name}`);
-    }
+    return enumFromName("MemoType", MemoType, name);
   }
 
   static fromXdrObject(wire: number): MemoType {

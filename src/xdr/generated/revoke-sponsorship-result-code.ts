@@ -1,6 +1,9 @@
 import { enumType } from "../types/enum.js";
-import { XdrError } from "../core/error.js";
-import { EnumValue, enumLookup } from "../values/enum-value.js";
+import {
+  EnumValue,
+  enumFromName,
+  enumFromValue,
+} from "../values/enum-value.js";
 
 export type RevokeSponsorshipResultCodeWire = number;
 
@@ -50,17 +53,6 @@ export class RevokeSponsorshipResultCode extends EnumValue<RevokeSponsorshipResu
     -5,
   );
 
-  private static readonly byValue: Readonly<
-    Record<number, RevokeSponsorshipResultCode>
-  > = {
-    0: RevokeSponsorshipResultCode.revokeSponsorshipSuccess,
-    "-1": RevokeSponsorshipResultCode.revokeSponsorshipDoesNotExist,
-    "-2": RevokeSponsorshipResultCode.revokeSponsorshipNotSponsor,
-    "-3": RevokeSponsorshipResultCode.revokeSponsorshipLowReserve,
-    "-4": RevokeSponsorshipResultCode.revokeSponsorshipOnlyTransferable,
-    "-5": RevokeSponsorshipResultCode.revokeSponsorshipMalformed,
-  };
-
   static readonly schema = enumType("RevokeSponsorshipResultCode", {
     revokeSponsorshipSuccess: 0,
     revokeSponsorshipDoesNotExist: -1,
@@ -71,32 +63,22 @@ export class RevokeSponsorshipResultCode extends EnumValue<RevokeSponsorshipResu
   });
 
   static fromValue(value: number): RevokeSponsorshipResultCode {
-    return enumLookup(
+    return enumFromValue(
       "RevokeSponsorshipResultCode",
-      RevokeSponsorshipResultCode.byValue,
+      RevokeSponsorshipResultCode.schema,
+      RevokeSponsorshipResultCode,
       value,
-    ) as RevokeSponsorshipResultCode;
+    );
   }
 
   static fromName(
     name: RevokeSponsorshipResultCodeName,
   ): RevokeSponsorshipResultCode {
-    switch (name) {
-      case "revokeSponsorshipSuccess":
-        return RevokeSponsorshipResultCode.revokeSponsorshipSuccess;
-      case "revokeSponsorshipDoesNotExist":
-        return RevokeSponsorshipResultCode.revokeSponsorshipDoesNotExist;
-      case "revokeSponsorshipNotSponsor":
-        return RevokeSponsorshipResultCode.revokeSponsorshipNotSponsor;
-      case "revokeSponsorshipLowReserve":
-        return RevokeSponsorshipResultCode.revokeSponsorshipLowReserve;
-      case "revokeSponsorshipOnlyTransferable":
-        return RevokeSponsorshipResultCode.revokeSponsorshipOnlyTransferable;
-      case "revokeSponsorshipMalformed":
-        return RevokeSponsorshipResultCode.revokeSponsorshipMalformed;
-      default:
-        throw new XdrError(`RevokeSponsorshipResultCode: unknown name ${name}`);
-    }
+    return enumFromName(
+      "RevokeSponsorshipResultCode",
+      RevokeSponsorshipResultCode,
+      name,
+    );
   }
 
   static fromXdrObject(wire: number): RevokeSponsorshipResultCode {

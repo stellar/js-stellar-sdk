@@ -510,13 +510,18 @@ function renderImports(ctx, opts = {}) {
   if (ctx.needsXdrError) {
     lines.push(`import { XdrError } from "../core/error.js";`);
   }
-  // Value imports (XdrValue, BytesValue, EnumValue, enumLookup, JsonValue, XdrString)
+  // Value imports (XdrValue, BytesValue, EnumValue, enumFromName,
+  // enumFromValue, JsonValue, XdrString)
   if (ctx.valueImports.size > 0) {
     const valueByPath = new Map();
     for (const v of ctx.valueImports) {
       let path;
       if (v === "BytesValue") path = "../values/bytes-value.js";
-      else if (v === "EnumValue" || v === "enumLookup")
+      else if (
+        v === "EnumValue" ||
+        v === "enumFromName" ||
+        v === "enumFromValue"
+      )
         path = "../values/enum-value.js";
       else if (v === "XdrString" || v === "xdrString")
         path = "../values/xdr-string.js";
@@ -559,8 +564,8 @@ function renderImports(ctx, opts = {}) {
 function bodyOfEnum(def, ctx) {
   ctx.builders.add("enumType");
   ctx.valueImports.add("EnumValue");
-  ctx.valueImports.add("enumLookup");
-  ctx.needsXdrError = true;
+  ctx.valueImports.add("enumFromName");
+  ctx.valueImports.add("enumFromValue");
 
   const name = def.name;
   const memberNames = def.members.map((m) => camelize(m.name));
@@ -573,22 +578,8 @@ function bodyOfEnum(def, ctx) {
     )
     .join("\n");
 
-  const byValueEntries = def.members
-    .map((m, i) => {
-      const key = m.value < 0 ? `"${m.value}"` : `${m.value}`;
-      return `    ${key}: ${name}.${memberNames[i]},`;
-    })
-    .join("\n");
-
   const schemaEntries = def.members
     .map((m, i) => `    ${memberNames[i]}: ${m.value},`)
-    .join("\n");
-
-  const fromNameCases = def.members
-    .map(
-      (_, i) =>
-        `      case "${memberNames[i]}":\n        return ${name}.${memberNames[i]};`,
-    )
     .join("\n");
 
   // Enum wire type is `number` (not the literal union) — that's what the
@@ -601,24 +592,16 @@ ${memberNames.map((n) => `  | "${n}"`).join("\n")};
 ${sourceDoc(def)}export class ${name} extends EnumValue<${nameTypeName}> {
 ${singletons}
 
-  private static readonly byValue: Readonly<Record<number, ${name}>> = {
-${byValueEntries}
-  };
-
   static readonly schema = enumType("${name}", {
 ${schemaEntries}
   });
 
   static fromValue(value: number): ${name} {
-    return enumLookup("${name}", ${name}.byValue, value) as ${name};
+    return enumFromValue("${name}", ${name}.schema, ${name}, value);
   }
 
   static fromName(name: ${nameTypeName}): ${name} {
-    switch (name) {
-${fromNameCases}
-      default:
-        throw new XdrError(\`${name}: unknown name \${name}\`);
-    }
+    return enumFromName("${name}", ${name}, name);
   }
 
   static fromXdrObject(wire: number): ${name} {

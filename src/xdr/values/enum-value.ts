@@ -6,8 +6,7 @@ import { XdrValue } from "./xdr-value.js";
  *
  * Subclasses use a private constructor and expose static singleton instances
  * for each enum member. The schema for an enum is the underlying int32 plus a
- * name↔value mapping kept on the subclass via `static readonly nameByValue` and
- * `static readonly valueByName`.
+ * value→name mapping exposed via `static readonly schema.nameByValue`.
  *
  * `toJson()` is inherited from `XdrValue`, which walks the schema and applies
  * SEP-0051 naming (stripped + snake_cased), so members render the same way
@@ -28,14 +27,42 @@ export abstract class EnumValue<Name extends string> extends XdrValue {
   }
 }
 
-export function enumLookup<Name extends string>(
+export interface EnumSchemaView<Name extends string> {
+  readonly nameByValue: ReadonlyMap<number, Name>;
+}
+
+type EnumInstances<
+  Name extends string,
+  Instance extends EnumValue<Name>,
+> = Readonly<Record<Name, Instance>>;
+
+export function enumFromValue<
+  Name extends string,
+  Instance extends EnumValue<Name>,
+>(
   className: string,
-  map: Readonly<Record<number, EnumValue<Name>>>,
+  schema: EnumSchemaView<Name>,
+  instances: EnumInstances<Name, Instance>,
   value: number,
-): EnumValue<Name> {
-  const instance = map[value];
-  if (instance === undefined) {
+): Instance {
+  const name = schema.nameByValue.get(value);
+  if (name === undefined) {
     throw new XdrError(`${className}: unknown enum value ${value}`);
+  }
+  return enumFromName(className, instances, name);
+}
+
+export function enumFromName<
+  Name extends string,
+  Instance extends EnumValue<Name>,
+>(
+  className: string,
+  instances: EnumInstances<Name, Instance>,
+  name: Name,
+): Instance {
+  const instance = instances[name];
+  if (!(instance instanceof EnumValue)) {
+    throw new XdrError(`${className}: unknown name ${name}`);
   }
   return instance;
 }

@@ -1,6 +1,9 @@
 import { enumType } from "../types/enum.js";
-import { XdrError } from "../core/error.js";
-import { EnumValue, enumLookup } from "../values/enum-value.js";
+import {
+  EnumValue,
+  enumFromName,
+  enumFromValue,
+} from "../values/enum-value.js";
 
 export type ContractIdPreimageTypeWire = number;
 
@@ -27,35 +30,22 @@ export class ContractIdPreimageType extends EnumValue<ContractIdPreimageTypeName
     1,
   );
 
-  private static readonly byValue: Readonly<
-    Record<number, ContractIdPreimageType>
-  > = {
-    0: ContractIdPreimageType.contractIdPreimageFromAddress,
-    1: ContractIdPreimageType.contractIdPreimageFromAsset,
-  };
-
   static readonly schema = enumType("ContractIdPreimageType", {
     contractIdPreimageFromAddress: 0,
     contractIdPreimageFromAsset: 1,
   });
 
   static fromValue(value: number): ContractIdPreimageType {
-    return enumLookup(
+    return enumFromValue(
       "ContractIdPreimageType",
-      ContractIdPreimageType.byValue,
+      ContractIdPreimageType.schema,
+      ContractIdPreimageType,
       value,
-    ) as ContractIdPreimageType;
+    );
   }
 
   static fromName(name: ContractIdPreimageTypeName): ContractIdPreimageType {
-    switch (name) {
-      case "contractIdPreimageFromAddress":
-        return ContractIdPreimageType.contractIdPreimageFromAddress;
-      case "contractIdPreimageFromAsset":
-        return ContractIdPreimageType.contractIdPreimageFromAsset;
-      default:
-        throw new XdrError(`ContractIdPreimageType: unknown name ${name}`);
-    }
+    return enumFromName("ContractIdPreimageType", ContractIdPreimageType, name);
   }
 
   static fromXdrObject(wire: number): ContractIdPreimageType {

@@ -1,6 +1,9 @@
 import { enumType } from "../types/enum.js";
-import { XdrError } from "../core/error.js";
-import { EnumValue, enumLookup } from "../values/enum-value.js";
+import {
+  EnumValue,
+  enumFromName,
+  enumFromValue,
+} from "../values/enum-value.js";
 
 export type SurveyMessageResponseTypeWire = number;
 
@@ -20,33 +23,27 @@ export class SurveyMessageResponseType extends EnumValue<SurveyMessageResponseTy
     2,
   );
 
-  private static readonly byValue: Readonly<
-    Record<number, SurveyMessageResponseType>
-  > = {
-    2: SurveyMessageResponseType.surveyTopologyResponseV2,
-  };
-
   static readonly schema = enumType("SurveyMessageResponseType", {
     surveyTopologyResponseV2: 2,
   });
 
   static fromValue(value: number): SurveyMessageResponseType {
-    return enumLookup(
+    return enumFromValue(
       "SurveyMessageResponseType",
-      SurveyMessageResponseType.byValue,
+      SurveyMessageResponseType.schema,
+      SurveyMessageResponseType,
       value,
-    ) as SurveyMessageResponseType;
+    );
   }
 
   static fromName(
     name: SurveyMessageResponseTypeName,
   ): SurveyMessageResponseType {
-    switch (name) {
-      case "surveyTopologyResponseV2":
-        return SurveyMessageResponseType.surveyTopologyResponseV2;
-      default:
-        throw new XdrError(`SurveyMessageResponseType: unknown name ${name}`);
-    }
+    return enumFromName(
+      "SurveyMessageResponseType",
+      SurveyMessageResponseType,
+      name,
+    );
   }
 
   static fromXdrObject(wire: number): SurveyMessageResponseType {

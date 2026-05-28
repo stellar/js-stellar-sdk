@@ -1,6 +1,9 @@
 import { enumType } from "../types/enum.js";
-import { XdrError } from "../core/error.js";
-import { EnumValue, enumLookup } from "../values/enum-value.js";
+import {
+  EnumValue,
+  enumFromName,
+  enumFromValue,
+} from "../values/enum-value.js";
 
 export type ScSpecEntryKindWire = number;
 
@@ -51,15 +54,6 @@ export class ScSpecEntryKind extends EnumValue<ScSpecEntryKindName> {
     5,
   );
 
-  private static readonly byValue: Readonly<Record<number, ScSpecEntryKind>> = {
-    0: ScSpecEntryKind.scSpecEntryFunctionV0,
-    1: ScSpecEntryKind.scSpecEntryUdtStructV0,
-    2: ScSpecEntryKind.scSpecEntryUdtUnionV0,
-    3: ScSpecEntryKind.scSpecEntryUdtEnumV0,
-    4: ScSpecEntryKind.scSpecEntryUdtErrorEnumV0,
-    5: ScSpecEntryKind.scSpecEntryEventV0,
-  };
-
   static readonly schema = enumType("ScSpecEntryKind", {
     scSpecEntryFunctionV0: 0,
     scSpecEntryUdtStructV0: 1,
@@ -70,30 +64,16 @@ export class ScSpecEntryKind extends EnumValue<ScSpecEntryKindName> {
   });
 
   static fromValue(value: number): ScSpecEntryKind {
-    return enumLookup(
+    return enumFromValue(
       "ScSpecEntryKind",
-      ScSpecEntryKind.byValue,
+      ScSpecEntryKind.schema,
+      ScSpecEntryKind,
       value,
-    ) as ScSpecEntryKind;
+    );
   }
 
   static fromName(name: ScSpecEntryKindName): ScSpecEntryKind {
-    switch (name) {
-      case "scSpecEntryFunctionV0":
-        return ScSpecEntryKind.scSpecEntryFunctionV0;
-      case "scSpecEntryUdtStructV0":
-        return ScSpecEntryKind.scSpecEntryUdtStructV0;
-      case "scSpecEntryUdtUnionV0":
-        return ScSpecEntryKind.scSpecEntryUdtUnionV0;
-      case "scSpecEntryUdtEnumV0":
-        return ScSpecEntryKind.scSpecEntryUdtEnumV0;
-      case "scSpecEntryUdtErrorEnumV0":
-        return ScSpecEntryKind.scSpecEntryUdtErrorEnumV0;
-      case "scSpecEntryEventV0":
-        return ScSpecEntryKind.scSpecEntryEventV0;
-      default:
-        throw new XdrError(`ScSpecEntryKind: unknown name ${name}`);
-    }
+    return enumFromName("ScSpecEntryKind", ScSpecEntryKind, name);
   }
 
   static fromXdrObject(wire: number): ScSpecEntryKind {

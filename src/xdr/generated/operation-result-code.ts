@@ -1,6 +1,9 @@
 import { enumType } from "../types/enum.js";
-import { XdrError } from "../core/error.js";
-import { EnumValue, enumLookup } from "../values/enum-value.js";
+import {
+  EnumValue,
+  enumFromName,
+  enumFromValue,
+} from "../values/enum-value.js";
 
 export type OperationResultCodeWire = number;
 
@@ -49,18 +52,6 @@ export class OperationResultCode extends EnumValue<OperationResultCodeName> {
     -6,
   );
 
-  private static readonly byValue: Readonly<
-    Record<number, OperationResultCode>
-  > = {
-    0: OperationResultCode.opInner,
-    "-1": OperationResultCode.opBadAuth,
-    "-2": OperationResultCode.opNoAccount,
-    "-3": OperationResultCode.opNotSupported,
-    "-4": OperationResultCode.opTooManySubentries,
-    "-5": OperationResultCode.opExceededWorkLimit,
-    "-6": OperationResultCode.opTooManySponsoring,
-  };
-
   static readonly schema = enumType("OperationResultCode", {
     opInner: 0,
     opBadAuth: -1,
@@ -72,32 +63,16 @@ export class OperationResultCode extends EnumValue<OperationResultCodeName> {
   });
 
   static fromValue(value: number): OperationResultCode {
-    return enumLookup(
+    return enumFromValue(
       "OperationResultCode",
-      OperationResultCode.byValue,
+      OperationResultCode.schema,
+      OperationResultCode,
       value,
-    ) as OperationResultCode;
+    );
   }
 
   static fromName(name: OperationResultCodeName): OperationResultCode {
-    switch (name) {
-      case "opInner":
-        return OperationResultCode.opInner;
-      case "opBadAuth":
-        return OperationResultCode.opBadAuth;
-      case "opNoAccount":
-        return OperationResultCode.opNoAccount;
-      case "opNotSupported":
-        return OperationResultCode.opNotSupported;
-      case "opTooManySubentries":
-        return OperationResultCode.opTooManySubentries;
-      case "opExceededWorkLimit":
-        return OperationResultCode.opExceededWorkLimit;
-      case "opTooManySponsoring":
-        return OperationResultCode.opTooManySponsoring;
-      default:
-        throw new XdrError(`OperationResultCode: unknown name ${name}`);
-    }
+    return enumFromName("OperationResultCode", OperationResultCode, name);
   }
 
   static fromXdrObject(wire: number): OperationResultCode {

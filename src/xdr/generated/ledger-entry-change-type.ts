@@ -1,6 +1,9 @@
 import { enumType } from "../types/enum.js";
-import { XdrError } from "../core/error.js";
-import { EnumValue, enumLookup } from "../values/enum-value.js";
+import {
+  EnumValue,
+  enumFromName,
+  enumFromValue,
+} from "../values/enum-value.js";
 
 export type LedgerEntryChangeTypeWire = number;
 
@@ -45,16 +48,6 @@ export class LedgerEntryChangeType extends EnumValue<LedgerEntryChangeTypeName> 
     4,
   );
 
-  private static readonly byValue: Readonly<
-    Record<number, LedgerEntryChangeType>
-  > = {
-    0: LedgerEntryChangeType.ledgerEntryCreated,
-    1: LedgerEntryChangeType.ledgerEntryUpdated,
-    2: LedgerEntryChangeType.ledgerEntryRemoved,
-    3: LedgerEntryChangeType.ledgerEntryState,
-    4: LedgerEntryChangeType.ledgerEntryRestored,
-  };
-
   static readonly schema = enumType("LedgerEntryChangeType", {
     ledgerEntryCreated: 0,
     ledgerEntryUpdated: 1,
@@ -64,28 +57,16 @@ export class LedgerEntryChangeType extends EnumValue<LedgerEntryChangeTypeName> 
   });
 
   static fromValue(value: number): LedgerEntryChangeType {
-    return enumLookup(
+    return enumFromValue(
       "LedgerEntryChangeType",
-      LedgerEntryChangeType.byValue,
+      LedgerEntryChangeType.schema,
+      LedgerEntryChangeType,
       value,
-    ) as LedgerEntryChangeType;
+    );
   }
 
   static fromName(name: LedgerEntryChangeTypeName): LedgerEntryChangeType {
-    switch (name) {
-      case "ledgerEntryCreated":
-        return LedgerEntryChangeType.ledgerEntryCreated;
-      case "ledgerEntryUpdated":
-        return LedgerEntryChangeType.ledgerEntryUpdated;
-      case "ledgerEntryRemoved":
-        return LedgerEntryChangeType.ledgerEntryRemoved;
-      case "ledgerEntryState":
-        return LedgerEntryChangeType.ledgerEntryState;
-      case "ledgerEntryRestored":
-        return LedgerEntryChangeType.ledgerEntryRestored;
-      default:
-        throw new XdrError(`LedgerEntryChangeType: unknown name ${name}`);
-    }
+    return enumFromName("LedgerEntryChangeType", LedgerEntryChangeType, name);
   }
 
   static fromXdrObject(wire: number): LedgerEntryChangeType {

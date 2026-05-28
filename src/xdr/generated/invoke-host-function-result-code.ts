@@ -1,6 +1,9 @@
 import { enumType } from "../types/enum.js";
-import { XdrError } from "../core/error.js";
-import { EnumValue, enumLookup } from "../values/enum-value.js";
+import {
+  EnumValue,
+  enumFromName,
+  enumFromValue,
+} from "../values/enum-value.js";
 
 export type InvokeHostFunctionResultCodeWire = number;
 
@@ -52,17 +55,6 @@ export class InvokeHostFunctionResultCode extends EnumValue<InvokeHostFunctionRe
       -5,
     );
 
-  private static readonly byValue: Readonly<
-    Record<number, InvokeHostFunctionResultCode>
-  > = {
-    0: InvokeHostFunctionResultCode.invokeHostFunctionSuccess,
-    "-1": InvokeHostFunctionResultCode.invokeHostFunctionMalformed,
-    "-2": InvokeHostFunctionResultCode.invokeHostFunctionTrapped,
-    "-3": InvokeHostFunctionResultCode.invokeHostFunctionResourceLimitExceeded,
-    "-4": InvokeHostFunctionResultCode.invokeHostFunctionEntryArchived,
-    "-5": InvokeHostFunctionResultCode.invokeHostFunctionInsufficientRefundableFee,
-  };
-
   static readonly schema = enumType("InvokeHostFunctionResultCode", {
     invokeHostFunctionSuccess: 0,
     invokeHostFunctionMalformed: -1,
@@ -73,34 +65,22 @@ export class InvokeHostFunctionResultCode extends EnumValue<InvokeHostFunctionRe
   });
 
   static fromValue(value: number): InvokeHostFunctionResultCode {
-    return enumLookup(
+    return enumFromValue(
       "InvokeHostFunctionResultCode",
-      InvokeHostFunctionResultCode.byValue,
+      InvokeHostFunctionResultCode.schema,
+      InvokeHostFunctionResultCode,
       value,
-    ) as InvokeHostFunctionResultCode;
+    );
   }
 
   static fromName(
     name: InvokeHostFunctionResultCodeName,
   ): InvokeHostFunctionResultCode {
-    switch (name) {
-      case "invokeHostFunctionSuccess":
-        return InvokeHostFunctionResultCode.invokeHostFunctionSuccess;
-      case "invokeHostFunctionMalformed":
-        return InvokeHostFunctionResultCode.invokeHostFunctionMalformed;
-      case "invokeHostFunctionTrapped":
-        return InvokeHostFunctionResultCode.invokeHostFunctionTrapped;
-      case "invokeHostFunctionResourceLimitExceeded":
-        return InvokeHostFunctionResultCode.invokeHostFunctionResourceLimitExceeded;
-      case "invokeHostFunctionEntryArchived":
-        return InvokeHostFunctionResultCode.invokeHostFunctionEntryArchived;
-      case "invokeHostFunctionInsufficientRefundableFee":
-        return InvokeHostFunctionResultCode.invokeHostFunctionInsufficientRefundableFee;
-      default:
-        throw new XdrError(
-          `InvokeHostFunctionResultCode: unknown name ${name}`,
-        );
-    }
+    return enumFromName(
+      "InvokeHostFunctionResultCode",
+      InvokeHostFunctionResultCode,
+      name,
+    );
   }
 
   static fromXdrObject(wire: number): InvokeHostFunctionResultCode {

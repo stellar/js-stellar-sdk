@@ -1,6 +1,9 @@
 import { enumType } from "../types/enum.js";
-import { XdrError } from "../core/error.js";
-import { EnumValue, enumLookup } from "../values/enum-value.js";
+import {
+  EnumValue,
+  enumFromName,
+  enumFromValue,
+} from "../values/enum-value.js";
 
 export type TransactionEventStageWire = number;
 
@@ -38,14 +41,6 @@ export class TransactionEventStage extends EnumValue<TransactionEventStageName> 
     2,
   );
 
-  private static readonly byValue: Readonly<
-    Record<number, TransactionEventStage>
-  > = {
-    0: TransactionEventStage.transactionEventStageBeforeAllTxs,
-    1: TransactionEventStage.transactionEventStageAfterTx,
-    2: TransactionEventStage.transactionEventStageAfterAllTxs,
-  };
-
   static readonly schema = enumType("TransactionEventStage", {
     transactionEventStageBeforeAllTxs: 0,
     transactionEventStageAfterTx: 1,
@@ -53,24 +48,16 @@ export class TransactionEventStage extends EnumValue<TransactionEventStageName> 
   });
 
   static fromValue(value: number): TransactionEventStage {
-    return enumLookup(
+    return enumFromValue(
       "TransactionEventStage",
-      TransactionEventStage.byValue,
+      TransactionEventStage.schema,
+      TransactionEventStage,
       value,
-    ) as TransactionEventStage;
+    );
   }
 
   static fromName(name: TransactionEventStageName): TransactionEventStage {
-    switch (name) {
-      case "transactionEventStageBeforeAllTxs":
-        return TransactionEventStage.transactionEventStageBeforeAllTxs;
-      case "transactionEventStageAfterTx":
-        return TransactionEventStage.transactionEventStageAfterTx;
-      case "transactionEventStageAfterAllTxs":
-        return TransactionEventStage.transactionEventStageAfterAllTxs;
-      default:
-        throw new XdrError(`TransactionEventStage: unknown name ${name}`);
-    }
+    return enumFromName("TransactionEventStage", TransactionEventStage, name);
   }
 
   static fromXdrObject(wire: number): TransactionEventStage {

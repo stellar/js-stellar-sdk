@@ -1,6 +1,9 @@
 import { enumType } from "../types/enum.js";
-import { XdrError } from "../core/error.js";
-import { EnumValue, enumLookup } from "../values/enum-value.js";
+import {
+  EnumValue,
+  enumFromName,
+  enumFromValue,
+} from "../values/enum-value.js";
 
 export type AllowTrustResultCodeWire = number;
 
@@ -61,18 +64,6 @@ export class AllowTrustResultCode extends EnumValue<AllowTrustResultCodeName> {
     -6,
   );
 
-  private static readonly byValue: Readonly<
-    Record<number, AllowTrustResultCode>
-  > = {
-    0: AllowTrustResultCode.allowTrustSuccess,
-    "-1": AllowTrustResultCode.allowTrustMalformed,
-    "-2": AllowTrustResultCode.allowTrustNoTrustLine,
-    "-3": AllowTrustResultCode.allowTrustTrustNotRequired,
-    "-4": AllowTrustResultCode.allowTrustCantRevoke,
-    "-5": AllowTrustResultCode.allowTrustSelfNotAllowed,
-    "-6": AllowTrustResultCode.allowTrustLowReserve,
-  };
-
   static readonly schema = enumType("AllowTrustResultCode", {
     allowTrustSuccess: 0,
     allowTrustMalformed: -1,
@@ -84,32 +75,16 @@ export class AllowTrustResultCode extends EnumValue<AllowTrustResultCodeName> {
   });
 
   static fromValue(value: number): AllowTrustResultCode {
-    return enumLookup(
+    return enumFromValue(
       "AllowTrustResultCode",
-      AllowTrustResultCode.byValue,
+      AllowTrustResultCode.schema,
+      AllowTrustResultCode,
       value,
-    ) as AllowTrustResultCode;
+    );
   }
 
   static fromName(name: AllowTrustResultCodeName): AllowTrustResultCode {
-    switch (name) {
-      case "allowTrustSuccess":
-        return AllowTrustResultCode.allowTrustSuccess;
-      case "allowTrustMalformed":
-        return AllowTrustResultCode.allowTrustMalformed;
-      case "allowTrustNoTrustLine":
-        return AllowTrustResultCode.allowTrustNoTrustLine;
-      case "allowTrustTrustNotRequired":
-        return AllowTrustResultCode.allowTrustTrustNotRequired;
-      case "allowTrustCantRevoke":
-        return AllowTrustResultCode.allowTrustCantRevoke;
-      case "allowTrustSelfNotAllowed":
-        return AllowTrustResultCode.allowTrustSelfNotAllowed;
-      case "allowTrustLowReserve":
-        return AllowTrustResultCode.allowTrustLowReserve;
-      default:
-        throw new XdrError(`AllowTrustResultCode: unknown name ${name}`);
-    }
+    return enumFromName("AllowTrustResultCode", AllowTrustResultCode, name);
   }
 
   static fromXdrObject(wire: number): AllowTrustResultCode {

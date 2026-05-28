@@ -1,6 +1,9 @@
 import { enumType } from "../types/enum.js";
-import { XdrError } from "../core/error.js";
-import { EnumValue, enumLookup } from "../values/enum-value.js";
+import {
+  EnumValue,
+  enumFromName,
+  enumFromValue,
+} from "../values/enum-value.js";
 
 export type ScSpecEventDataFormatWire = number;
 
@@ -33,14 +36,6 @@ export class ScSpecEventDataFormat extends EnumValue<ScSpecEventDataFormatName> 
     2,
   );
 
-  private static readonly byValue: Readonly<
-    Record<number, ScSpecEventDataFormat>
-  > = {
-    0: ScSpecEventDataFormat.scSpecEventDataFormatSingleValue,
-    1: ScSpecEventDataFormat.scSpecEventDataFormatVec,
-    2: ScSpecEventDataFormat.scSpecEventDataFormatMap,
-  };
-
   static readonly schema = enumType("ScSpecEventDataFormat", {
     scSpecEventDataFormatSingleValue: 0,
     scSpecEventDataFormatVec: 1,
@@ -48,24 +43,16 @@ export class ScSpecEventDataFormat extends EnumValue<ScSpecEventDataFormatName> 
   });
 
   static fromValue(value: number): ScSpecEventDataFormat {
-    return enumLookup(
+    return enumFromValue(
       "ScSpecEventDataFormat",
-      ScSpecEventDataFormat.byValue,
+      ScSpecEventDataFormat.schema,
+      ScSpecEventDataFormat,
       value,
-    ) as ScSpecEventDataFormat;
+    );
   }
 
   static fromName(name: ScSpecEventDataFormatName): ScSpecEventDataFormat {
-    switch (name) {
-      case "scSpecEventDataFormatSingleValue":
-        return ScSpecEventDataFormat.scSpecEventDataFormatSingleValue;
-      case "scSpecEventDataFormatVec":
-        return ScSpecEventDataFormat.scSpecEventDataFormatVec;
-      case "scSpecEventDataFormatMap":
-        return ScSpecEventDataFormat.scSpecEventDataFormatMap;
-      default:
-        throw new XdrError(`ScSpecEventDataFormat: unknown name ${name}`);
-    }
+    return enumFromName("ScSpecEventDataFormat", ScSpecEventDataFormat, name);
   }
 
   static fromXdrObject(wire: number): ScSpecEventDataFormat {

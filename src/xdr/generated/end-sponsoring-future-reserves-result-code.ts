@@ -1,6 +1,9 @@
 import { enumType } from "../types/enum.js";
-import { XdrError } from "../core/error.js";
-import { EnumValue, enumLookup } from "../values/enum-value.js";
+import {
+  EnumValue,
+  enumFromName,
+  enumFromValue,
+} from "../values/enum-value.js";
 
 export type EndSponsoringFutureReservesResultCodeWire = number;
 
@@ -32,39 +35,28 @@ export class EndSponsoringFutureReservesResultCode extends EnumValue<EndSponsori
       -1,
     );
 
-  private static readonly byValue: Readonly<
-    Record<number, EndSponsoringFutureReservesResultCode>
-  > = {
-    0: EndSponsoringFutureReservesResultCode.endSponsoringFutureReservesSuccess,
-    "-1": EndSponsoringFutureReservesResultCode.endSponsoringFutureReservesNotSponsored,
-  };
-
   static readonly schema = enumType("EndSponsoringFutureReservesResultCode", {
     endSponsoringFutureReservesSuccess: 0,
     endSponsoringFutureReservesNotSponsored: -1,
   });
 
   static fromValue(value: number): EndSponsoringFutureReservesResultCode {
-    return enumLookup(
+    return enumFromValue(
       "EndSponsoringFutureReservesResultCode",
-      EndSponsoringFutureReservesResultCode.byValue,
+      EndSponsoringFutureReservesResultCode.schema,
+      EndSponsoringFutureReservesResultCode,
       value,
-    ) as EndSponsoringFutureReservesResultCode;
+    );
   }
 
   static fromName(
     name: EndSponsoringFutureReservesResultCodeName,
   ): EndSponsoringFutureReservesResultCode {
-    switch (name) {
-      case "endSponsoringFutureReservesSuccess":
-        return EndSponsoringFutureReservesResultCode.endSponsoringFutureReservesSuccess;
-      case "endSponsoringFutureReservesNotSponsored":
-        return EndSponsoringFutureReservesResultCode.endSponsoringFutureReservesNotSponsored;
-      default:
-        throw new XdrError(
-          `EndSponsoringFutureReservesResultCode: unknown name ${name}`,
-        );
-    }
+    return enumFromName(
+      "EndSponsoringFutureReservesResultCode",
+      EndSponsoringFutureReservesResultCode,
+      name,
+    );
   }
 
   static fromXdrObject(wire: number): EndSponsoringFutureReservesResultCode {

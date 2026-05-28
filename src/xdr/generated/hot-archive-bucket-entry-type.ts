@@ -1,6 +1,9 @@
 import { enumType } from "../types/enum.js";
-import { XdrError } from "../core/error.js";
-import { EnumValue, enumLookup } from "../values/enum-value.js";
+import {
+  EnumValue,
+  enumFromName,
+  enumFromValue,
+} from "../values/enum-value.js";
 
 export type HotArchiveBucketEntryTypeWire = number;
 
@@ -35,14 +38,6 @@ export class HotArchiveBucketEntryType extends EnumValue<HotArchiveBucketEntryTy
     1,
   );
 
-  private static readonly byValue: Readonly<
-    Record<number, HotArchiveBucketEntryType>
-  > = {
-    "-1": HotArchiveBucketEntryType.hotArchiveMetaentry,
-    0: HotArchiveBucketEntryType.hotArchiveArchived,
-    1: HotArchiveBucketEntryType.hotArchiveLive,
-  };
-
   static readonly schema = enumType("HotArchiveBucketEntryType", {
     hotArchiveMetaentry: -1,
     hotArchiveArchived: 0,
@@ -50,26 +45,22 @@ export class HotArchiveBucketEntryType extends EnumValue<HotArchiveBucketEntryTy
   });
 
   static fromValue(value: number): HotArchiveBucketEntryType {
-    return enumLookup(
+    return enumFromValue(
       "HotArchiveBucketEntryType",
-      HotArchiveBucketEntryType.byValue,
+      HotArchiveBucketEntryType.schema,
+      HotArchiveBucketEntryType,
       value,
-    ) as HotArchiveBucketEntryType;
+    );
   }
 
   static fromName(
     name: HotArchiveBucketEntryTypeName,
   ): HotArchiveBucketEntryType {
-    switch (name) {
-      case "hotArchiveMetaentry":
-        return HotArchiveBucketEntryType.hotArchiveMetaentry;
-      case "hotArchiveArchived":
-        return HotArchiveBucketEntryType.hotArchiveArchived;
-      case "hotArchiveLive":
-        return HotArchiveBucketEntryType.hotArchiveLive;
-      default:
-        throw new XdrError(`HotArchiveBucketEntryType: unknown name ${name}`);
-    }
+    return enumFromName(
+      "HotArchiveBucketEntryType",
+      HotArchiveBucketEntryType,
+      name,
+    );
   }
 
   static fromXdrObject(wire: number): HotArchiveBucketEntryType {

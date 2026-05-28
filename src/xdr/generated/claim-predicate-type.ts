@@ -1,6 +1,9 @@
 import { enumType } from "../types/enum.js";
-import { XdrError } from "../core/error.js";
-import { EnumValue, enumLookup } from "../values/enum-value.js";
+import {
+  EnumValue,
+  enumFromName,
+  enumFromValue,
+} from "../values/enum-value.js";
 
 export type ClaimPredicateTypeWire = number;
 
@@ -51,17 +54,6 @@ export class ClaimPredicateType extends EnumValue<ClaimPredicateTypeName> {
     5,
   );
 
-  private static readonly byValue: Readonly<
-    Record<number, ClaimPredicateType>
-  > = {
-    0: ClaimPredicateType.claimPredicateUnconditional,
-    1: ClaimPredicateType.claimPredicateAnd,
-    2: ClaimPredicateType.claimPredicateOr,
-    3: ClaimPredicateType.claimPredicateNot,
-    4: ClaimPredicateType.claimPredicateBeforeAbsoluteTime,
-    5: ClaimPredicateType.claimPredicateBeforeRelativeTime,
-  };
-
   static readonly schema = enumType("ClaimPredicateType", {
     claimPredicateUnconditional: 0,
     claimPredicateAnd: 1,
@@ -72,30 +64,16 @@ export class ClaimPredicateType extends EnumValue<ClaimPredicateTypeName> {
   });
 
   static fromValue(value: number): ClaimPredicateType {
-    return enumLookup(
+    return enumFromValue(
       "ClaimPredicateType",
-      ClaimPredicateType.byValue,
+      ClaimPredicateType.schema,
+      ClaimPredicateType,
       value,
-    ) as ClaimPredicateType;
+    );
   }
 
   static fromName(name: ClaimPredicateTypeName): ClaimPredicateType {
-    switch (name) {
-      case "claimPredicateUnconditional":
-        return ClaimPredicateType.claimPredicateUnconditional;
-      case "claimPredicateAnd":
-        return ClaimPredicateType.claimPredicateAnd;
-      case "claimPredicateOr":
-        return ClaimPredicateType.claimPredicateOr;
-      case "claimPredicateNot":
-        return ClaimPredicateType.claimPredicateNot;
-      case "claimPredicateBeforeAbsoluteTime":
-        return ClaimPredicateType.claimPredicateBeforeAbsoluteTime;
-      case "claimPredicateBeforeRelativeTime":
-        return ClaimPredicateType.claimPredicateBeforeRelativeTime;
-      default:
-        throw new XdrError(`ClaimPredicateType: unknown name ${name}`);
-    }
+    return enumFromName("ClaimPredicateType", ClaimPredicateType, name);
   }
 
   static fromXdrObject(wire: number): ClaimPredicateType {

@@ -1,6 +1,9 @@
 import { enumType } from "../types/enum.js";
-import { XdrError } from "../core/error.js";
-import { EnumValue, enumLookup } from "../values/enum-value.js";
+import {
+  EnumValue,
+  enumFromName,
+  enumFromValue,
+} from "../values/enum-value.js";
 
 export type SetOptionsResultCodeWire = number;
 
@@ -84,22 +87,6 @@ export class SetOptionsResultCode extends EnumValue<SetOptionsResultCodeName> {
     -10,
   );
 
-  private static readonly byValue: Readonly<
-    Record<number, SetOptionsResultCode>
-  > = {
-    0: SetOptionsResultCode.setOptionsSuccess,
-    "-1": SetOptionsResultCode.setOptionsLowReserve,
-    "-2": SetOptionsResultCode.setOptionsTooManySigners,
-    "-3": SetOptionsResultCode.setOptionsBadFlags,
-    "-4": SetOptionsResultCode.setOptionsInvalidInflation,
-    "-5": SetOptionsResultCode.setOptionsCantChange,
-    "-6": SetOptionsResultCode.setOptionsUnknownFlag,
-    "-7": SetOptionsResultCode.setOptionsThresholdOutOfRange,
-    "-8": SetOptionsResultCode.setOptionsBadSigner,
-    "-9": SetOptionsResultCode.setOptionsInvalidHomeDomain,
-    "-10": SetOptionsResultCode.setOptionsAuthRevocableRequired,
-  };
-
   static readonly schema = enumType("SetOptionsResultCode", {
     setOptionsSuccess: 0,
     setOptionsLowReserve: -1,
@@ -115,40 +102,16 @@ export class SetOptionsResultCode extends EnumValue<SetOptionsResultCodeName> {
   });
 
   static fromValue(value: number): SetOptionsResultCode {
-    return enumLookup(
+    return enumFromValue(
       "SetOptionsResultCode",
-      SetOptionsResultCode.byValue,
+      SetOptionsResultCode.schema,
+      SetOptionsResultCode,
       value,
-    ) as SetOptionsResultCode;
+    );
   }
 
   static fromName(name: SetOptionsResultCodeName): SetOptionsResultCode {
-    switch (name) {
-      case "setOptionsSuccess":
-        return SetOptionsResultCode.setOptionsSuccess;
-      case "setOptionsLowReserve":
-        return SetOptionsResultCode.setOptionsLowReserve;
-      case "setOptionsTooManySigners":
-        return SetOptionsResultCode.setOptionsTooManySigners;
-      case "setOptionsBadFlags":
-        return SetOptionsResultCode.setOptionsBadFlags;
-      case "setOptionsInvalidInflation":
-        return SetOptionsResultCode.setOptionsInvalidInflation;
-      case "setOptionsCantChange":
-        return SetOptionsResultCode.setOptionsCantChange;
-      case "setOptionsUnknownFlag":
-        return SetOptionsResultCode.setOptionsUnknownFlag;
-      case "setOptionsThresholdOutOfRange":
-        return SetOptionsResultCode.setOptionsThresholdOutOfRange;
-      case "setOptionsBadSigner":
-        return SetOptionsResultCode.setOptionsBadSigner;
-      case "setOptionsInvalidHomeDomain":
-        return SetOptionsResultCode.setOptionsInvalidHomeDomain;
-      case "setOptionsAuthRevocableRequired":
-        return SetOptionsResultCode.setOptionsAuthRevocableRequired;
-      default:
-        throw new XdrError(`SetOptionsResultCode: unknown name ${name}`);
-    }
+    return enumFromName("SetOptionsResultCode", SetOptionsResultCode, name);
   }
 
   static fromXdrObject(wire: number): SetOptionsResultCode {

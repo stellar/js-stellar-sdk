@@ -1,6 +1,9 @@
 import { enumType } from "../types/enum.js";
-import { XdrError } from "../core/error.js";
-import { EnumValue, enumLookup } from "../values/enum-value.js";
+import {
+  EnumValue,
+  enumFromName,
+  enumFromValue,
+} from "../values/enum-value.js";
 
 export type LedgerEntryTypeWire = number;
 
@@ -45,19 +48,6 @@ export class LedgerEntryType extends EnumValue<LedgerEntryTypeName> {
   static readonly configSetting = new LedgerEntryType("configSetting", 8);
   static readonly ttl = new LedgerEntryType("ttl", 9);
 
-  private static readonly byValue: Readonly<Record<number, LedgerEntryType>> = {
-    0: LedgerEntryType.account,
-    1: LedgerEntryType.trustline,
-    2: LedgerEntryType.offer,
-    3: LedgerEntryType.data,
-    4: LedgerEntryType.claimableBalance,
-    5: LedgerEntryType.liquidityPool,
-    6: LedgerEntryType.contractData,
-    7: LedgerEntryType.contractCode,
-    8: LedgerEntryType.configSetting,
-    9: LedgerEntryType.ttl,
-  };
-
   static readonly schema = enumType("LedgerEntryType", {
     account: 0,
     trustline: 1,
@@ -72,38 +62,16 @@ export class LedgerEntryType extends EnumValue<LedgerEntryTypeName> {
   });
 
   static fromValue(value: number): LedgerEntryType {
-    return enumLookup(
+    return enumFromValue(
       "LedgerEntryType",
-      LedgerEntryType.byValue,
+      LedgerEntryType.schema,
+      LedgerEntryType,
       value,
-    ) as LedgerEntryType;
+    );
   }
 
   static fromName(name: LedgerEntryTypeName): LedgerEntryType {
-    switch (name) {
-      case "account":
-        return LedgerEntryType.account;
-      case "trustline":
-        return LedgerEntryType.trustline;
-      case "offer":
-        return LedgerEntryType.offer;
-      case "data":
-        return LedgerEntryType.data;
-      case "claimableBalance":
-        return LedgerEntryType.claimableBalance;
-      case "liquidityPool":
-        return LedgerEntryType.liquidityPool;
-      case "contractData":
-        return LedgerEntryType.contractData;
-      case "contractCode":
-        return LedgerEntryType.contractCode;
-      case "configSetting":
-        return LedgerEntryType.configSetting;
-      case "ttl":
-        return LedgerEntryType.ttl;
-      default:
-        throw new XdrError(`LedgerEntryType: unknown name ${name}`);
-    }
+    return enumFromName("LedgerEntryType", LedgerEntryType, name);
   }
 
   static fromXdrObject(wire: number): LedgerEntryType {

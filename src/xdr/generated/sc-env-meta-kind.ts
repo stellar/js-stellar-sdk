@@ -1,6 +1,9 @@
 import { enumType } from "../types/enum.js";
-import { XdrError } from "../core/error.js";
-import { EnumValue, enumLookup } from "../values/enum-value.js";
+import {
+  EnumValue,
+  enumFromName,
+  enumFromValue,
+} from "../values/enum-value.js";
 
 export type ScEnvMetaKindWire = number;
 
@@ -20,29 +23,21 @@ export class ScEnvMetaKind extends EnumValue<ScEnvMetaKindName> {
     0,
   );
 
-  private static readonly byValue: Readonly<Record<number, ScEnvMetaKind>> = {
-    0: ScEnvMetaKind.scEnvMetaKindInterfaceVersion,
-  };
-
   static readonly schema = enumType("ScEnvMetaKind", {
     scEnvMetaKindInterfaceVersion: 0,
   });
 
   static fromValue(value: number): ScEnvMetaKind {
-    return enumLookup(
+    return enumFromValue(
       "ScEnvMetaKind",
-      ScEnvMetaKind.byValue,
+      ScEnvMetaKind.schema,
+      ScEnvMetaKind,
       value,
-    ) as ScEnvMetaKind;
+    );
   }
 
   static fromName(name: ScEnvMetaKindName): ScEnvMetaKind {
-    switch (name) {
-      case "scEnvMetaKindInterfaceVersion":
-        return ScEnvMetaKind.scEnvMetaKindInterfaceVersion;
-      default:
-        throw new XdrError(`ScEnvMetaKind: unknown name ${name}`);
-    }
+    return enumFromName("ScEnvMetaKind", ScEnvMetaKind, name);
   }
 
   static fromXdrObject(wire: number): ScEnvMetaKind {

@@ -1,6 +1,9 @@
 import { enumType } from "../types/enum.js";
-import { XdrError } from "../core/error.js";
-import { EnumValue, enumLookup } from "../values/enum-value.js";
+import {
+  EnumValue,
+  enumFromName,
+  enumFromValue,
+} from "../values/enum-value.js";
 
 export type ClaimableBalanceIdTypeWire = number;
 
@@ -20,31 +23,21 @@ export class ClaimableBalanceIdType extends EnumValue<ClaimableBalanceIdTypeName
     0,
   );
 
-  private static readonly byValue: Readonly<
-    Record<number, ClaimableBalanceIdType>
-  > = {
-    0: ClaimableBalanceIdType.claimableBalanceIdTypeV0,
-  };
-
   static readonly schema = enumType("ClaimableBalanceIdType", {
     claimableBalanceIdTypeV0: 0,
   });
 
   static fromValue(value: number): ClaimableBalanceIdType {
-    return enumLookup(
+    return enumFromValue(
       "ClaimableBalanceIdType",
-      ClaimableBalanceIdType.byValue,
+      ClaimableBalanceIdType.schema,
+      ClaimableBalanceIdType,
       value,
-    ) as ClaimableBalanceIdType;
+    );
   }
 
   static fromName(name: ClaimableBalanceIdTypeName): ClaimableBalanceIdType {
-    switch (name) {
-      case "claimableBalanceIdTypeV0":
-        return ClaimableBalanceIdType.claimableBalanceIdTypeV0;
-      default:
-        throw new XdrError(`ClaimableBalanceIdType: unknown name ${name}`);
-    }
+    return enumFromName("ClaimableBalanceIdType", ClaimableBalanceIdType, name);
   }
 
   static fromXdrObject(wire: number): ClaimableBalanceIdType {

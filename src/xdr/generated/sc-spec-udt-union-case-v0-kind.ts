@@ -1,6 +1,9 @@
 import { enumType } from "../types/enum.js";
-import { XdrError } from "../core/error.js";
-import { EnumValue, enumLookup } from "../values/enum-value.js";
+import {
+  EnumValue,
+  enumFromName,
+  enumFromValue,
+} from "../values/enum-value.js";
 
 export type ScSpecUdtUnionCaseV0KindWire = number;
 
@@ -27,37 +30,28 @@ export class ScSpecUdtUnionCaseV0Kind extends EnumValue<ScSpecUdtUnionCaseV0Kind
     1,
   );
 
-  private static readonly byValue: Readonly<
-    Record<number, ScSpecUdtUnionCaseV0Kind>
-  > = {
-    0: ScSpecUdtUnionCaseV0Kind.scSpecUdtUnionCaseVoidV0,
-    1: ScSpecUdtUnionCaseV0Kind.scSpecUdtUnionCaseTupleV0,
-  };
-
   static readonly schema = enumType("ScSpecUdtUnionCaseV0Kind", {
     scSpecUdtUnionCaseVoidV0: 0,
     scSpecUdtUnionCaseTupleV0: 1,
   });
 
   static fromValue(value: number): ScSpecUdtUnionCaseV0Kind {
-    return enumLookup(
+    return enumFromValue(
       "ScSpecUdtUnionCaseV0Kind",
-      ScSpecUdtUnionCaseV0Kind.byValue,
+      ScSpecUdtUnionCaseV0Kind.schema,
+      ScSpecUdtUnionCaseV0Kind,
       value,
-    ) as ScSpecUdtUnionCaseV0Kind;
+    );
   }
 
   static fromName(
     name: ScSpecUdtUnionCaseV0KindName,
   ): ScSpecUdtUnionCaseV0Kind {
-    switch (name) {
-      case "scSpecUdtUnionCaseVoidV0":
-        return ScSpecUdtUnionCaseV0Kind.scSpecUdtUnionCaseVoidV0;
-      case "scSpecUdtUnionCaseTupleV0":
-        return ScSpecUdtUnionCaseV0Kind.scSpecUdtUnionCaseTupleV0;
-      default:
-        throw new XdrError(`ScSpecUdtUnionCaseV0Kind: unknown name ${name}`);
-    }
+    return enumFromName(
+      "ScSpecUdtUnionCaseV0Kind",
+      ScSpecUdtUnionCaseV0Kind,
+      name,
+    );
   }
 
   static fromXdrObject(wire: number): ScSpecUdtUnionCaseV0Kind {

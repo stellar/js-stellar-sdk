@@ -1,6 +1,9 @@
 import { enumType } from "../types/enum.js";
-import { XdrError } from "../core/error.js";
-import { EnumValue, enumLookup } from "../values/enum-value.js";
+import {
+  EnumValue,
+  enumFromName,
+  enumFromValue,
+} from "../values/enum-value.js";
 
 export type AssetTypeWire = number;
 
@@ -33,13 +36,6 @@ export class AssetType extends EnumValue<AssetTypeName> {
   );
   static readonly assetTypePoolShare = new AssetType("assetTypePoolShare", 3);
 
-  private static readonly byValue: Readonly<Record<number, AssetType>> = {
-    0: AssetType.assetTypeNative,
-    1: AssetType.assetTypeCreditAlphanum4,
-    2: AssetType.assetTypeCreditAlphanum12,
-    3: AssetType.assetTypePoolShare,
-  };
-
   static readonly schema = enumType("AssetType", {
     assetTypeNative: 0,
     assetTypeCreditAlphanum4: 1,
@@ -48,22 +44,11 @@ export class AssetType extends EnumValue<AssetTypeName> {
   });
 
   static fromValue(value: number): AssetType {
-    return enumLookup("AssetType", AssetType.byValue, value) as AssetType;
+    return enumFromValue("AssetType", AssetType.schema, AssetType, value);
   }
 
   static fromName(name: AssetTypeName): AssetType {
-    switch (name) {
-      case "assetTypeNative":
-        return AssetType.assetTypeNative;
-      case "assetTypeCreditAlphanum4":
-        return AssetType.assetTypeCreditAlphanum4;
-      case "assetTypeCreditAlphanum12":
-        return AssetType.assetTypeCreditAlphanum12;
-      case "assetTypePoolShare":
-        return AssetType.assetTypePoolShare;
-      default:
-        throw new XdrError(`AssetType: unknown name ${name}`);
-    }
+    return enumFromName("AssetType", AssetType, name);
   }
 
   static fromXdrObject(wire: number): AssetType {

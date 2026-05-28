@@ -1,6 +1,9 @@
 import { enumType } from "../types/enum.js";
-import { XdrError } from "../core/error.js";
-import { EnumValue, enumLookup } from "../values/enum-value.js";
+import {
+  EnumValue,
+  enumFromName,
+  enumFromValue,
+} from "../values/enum-value.js";
 
 export type ScSpecTypeWire = number;
 
@@ -105,35 +108,6 @@ export class ScSpecType extends EnumValue<ScSpecTypeName> {
   static readonly scSpecTypeBytesN = new ScSpecType("scSpecTypeBytesN", 1006);
   static readonly scSpecTypeUdt = new ScSpecType("scSpecTypeUdt", 2000);
 
-  private static readonly byValue: Readonly<Record<number, ScSpecType>> = {
-    0: ScSpecType.scSpecTypeVal,
-    1: ScSpecType.scSpecTypeBool,
-    2: ScSpecType.scSpecTypeVoid,
-    3: ScSpecType.scSpecTypeError,
-    4: ScSpecType.scSpecTypeU32,
-    5: ScSpecType.scSpecTypeI32,
-    6: ScSpecType.scSpecTypeU64,
-    7: ScSpecType.scSpecTypeI64,
-    8: ScSpecType.scSpecTypeTimepoint,
-    9: ScSpecType.scSpecTypeDuration,
-    10: ScSpecType.scSpecTypeU128,
-    11: ScSpecType.scSpecTypeI128,
-    12: ScSpecType.scSpecTypeU256,
-    13: ScSpecType.scSpecTypeI256,
-    14: ScSpecType.scSpecTypeBytes,
-    16: ScSpecType.scSpecTypeString,
-    17: ScSpecType.scSpecTypeSymbol,
-    19: ScSpecType.scSpecTypeAddress,
-    20: ScSpecType.scSpecTypeMuxedAddress,
-    1000: ScSpecType.scSpecTypeOption,
-    1001: ScSpecType.scSpecTypeResult,
-    1002: ScSpecType.scSpecTypeVec,
-    1004: ScSpecType.scSpecTypeMap,
-    1005: ScSpecType.scSpecTypeTuple,
-    1006: ScSpecType.scSpecTypeBytesN,
-    2000: ScSpecType.scSpecTypeUdt,
-  };
-
   static readonly schema = enumType("ScSpecType", {
     scSpecTypeVal: 0,
     scSpecTypeBool: 1,
@@ -164,66 +138,11 @@ export class ScSpecType extends EnumValue<ScSpecTypeName> {
   });
 
   static fromValue(value: number): ScSpecType {
-    return enumLookup("ScSpecType", ScSpecType.byValue, value) as ScSpecType;
+    return enumFromValue("ScSpecType", ScSpecType.schema, ScSpecType, value);
   }
 
   static fromName(name: ScSpecTypeName): ScSpecType {
-    switch (name) {
-      case "scSpecTypeVal":
-        return ScSpecType.scSpecTypeVal;
-      case "scSpecTypeBool":
-        return ScSpecType.scSpecTypeBool;
-      case "scSpecTypeVoid":
-        return ScSpecType.scSpecTypeVoid;
-      case "scSpecTypeError":
-        return ScSpecType.scSpecTypeError;
-      case "scSpecTypeU32":
-        return ScSpecType.scSpecTypeU32;
-      case "scSpecTypeI32":
-        return ScSpecType.scSpecTypeI32;
-      case "scSpecTypeU64":
-        return ScSpecType.scSpecTypeU64;
-      case "scSpecTypeI64":
-        return ScSpecType.scSpecTypeI64;
-      case "scSpecTypeTimepoint":
-        return ScSpecType.scSpecTypeTimepoint;
-      case "scSpecTypeDuration":
-        return ScSpecType.scSpecTypeDuration;
-      case "scSpecTypeU128":
-        return ScSpecType.scSpecTypeU128;
-      case "scSpecTypeI128":
-        return ScSpecType.scSpecTypeI128;
-      case "scSpecTypeU256":
-        return ScSpecType.scSpecTypeU256;
-      case "scSpecTypeI256":
-        return ScSpecType.scSpecTypeI256;
-      case "scSpecTypeBytes":
-        return ScSpecType.scSpecTypeBytes;
-      case "scSpecTypeString":
-        return ScSpecType.scSpecTypeString;
-      case "scSpecTypeSymbol":
-        return ScSpecType.scSpecTypeSymbol;
-      case "scSpecTypeAddress":
-        return ScSpecType.scSpecTypeAddress;
-      case "scSpecTypeMuxedAddress":
-        return ScSpecType.scSpecTypeMuxedAddress;
-      case "scSpecTypeOption":
-        return ScSpecType.scSpecTypeOption;
-      case "scSpecTypeResult":
-        return ScSpecType.scSpecTypeResult;
-      case "scSpecTypeVec":
-        return ScSpecType.scSpecTypeVec;
-      case "scSpecTypeMap":
-        return ScSpecType.scSpecTypeMap;
-      case "scSpecTypeTuple":
-        return ScSpecType.scSpecTypeTuple;
-      case "scSpecTypeBytesN":
-        return ScSpecType.scSpecTypeBytesN;
-      case "scSpecTypeUdt":
-        return ScSpecType.scSpecTypeUdt;
-      default:
-        throw new XdrError(`ScSpecType: unknown name ${name}`);
-    }
+    return enumFromName("ScSpecType", ScSpecType, name);
   }
 
   static fromXdrObject(wire: number): ScSpecType {

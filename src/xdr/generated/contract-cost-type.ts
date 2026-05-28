@@ -1,6 +1,9 @@
 import { enumType } from "../types/enum.js";
-import { XdrError } from "../core/error.js";
-import { EnumValue, enumLookup } from "../values/enum-value.js";
+import {
+  EnumValue,
+  enumFromName,
+  enumFromValue,
+} from "../values/enum-value.js";
 
 export type ContractCostTypeWire = number;
 
@@ -519,96 +522,6 @@ export class ContractCostType extends EnumValue<ContractCostTypeName> {
   static readonly bn254frinv = new ContractCostType("bn254frinv", 84);
   static readonly bn254g1msm = new ContractCostType("bn254g1msm", 85);
 
-  private static readonly byValue: Readonly<Record<number, ContractCostType>> =
-    {
-      0: ContractCostType.wasminsnexec,
-      1: ContractCostType.memalloc,
-      2: ContractCostType.memcpy,
-      3: ContractCostType.memcmp,
-      4: ContractCostType.dispatchhostfunction,
-      5: ContractCostType.visitobject,
-      6: ContractCostType.valser,
-      7: ContractCostType.valdeser,
-      8: ContractCostType.computesha256hash,
-      9: ContractCostType.computeed25519pubkey,
-      10: ContractCostType.verifyed25519sig,
-      11: ContractCostType.vminstantiation,
-      12: ContractCostType.vmcachedinstantiation,
-      13: ContractCostType.invokevmfunction,
-      14: ContractCostType.computekeccak256hash,
-      15: ContractCostType.decodeecdsacurve256sig,
-      16: ContractCostType.recoverecdsasecp256k1key,
-      17: ContractCostType.int256addsub,
-      18: ContractCostType.int256mul,
-      19: ContractCostType.int256div,
-      20: ContractCostType.int256pow,
-      21: ContractCostType.int256shift,
-      22: ContractCostType.chacha20drawbytes,
-      23: ContractCostType.parsewasminstructions,
-      24: ContractCostType.parsewasmfunctions,
-      25: ContractCostType.parsewasmglobals,
-      26: ContractCostType.parsewasmtableentries,
-      27: ContractCostType.parsewasmtypes,
-      28: ContractCostType.parsewasmdatasegments,
-      29: ContractCostType.parsewasmelemsegments,
-      30: ContractCostType.parsewasmimports,
-      31: ContractCostType.parsewasmexports,
-      32: ContractCostType.parsewasmdatasegmentbytes,
-      33: ContractCostType.instantiatewasminstructions,
-      34: ContractCostType.instantiatewasmfunctions,
-      35: ContractCostType.instantiatewasmglobals,
-      36: ContractCostType.instantiatewasmtableentries,
-      37: ContractCostType.instantiatewasmtypes,
-      38: ContractCostType.instantiatewasmdatasegments,
-      39: ContractCostType.instantiatewasmelemsegments,
-      40: ContractCostType.instantiatewasmimports,
-      41: ContractCostType.instantiatewasmexports,
-      42: ContractCostType.instantiatewasmdatasegmentbytes,
-      43: ContractCostType.sec1decodepointuncompressed,
-      44: ContractCostType.verifyecdsasecp256r1sig,
-      45: ContractCostType.bls12381encodefp,
-      46: ContractCostType.bls12381decodefp,
-      47: ContractCostType.bls12381g1checkpointoncurve,
-      48: ContractCostType.bls12381g1checkpointinsubgroup,
-      49: ContractCostType.bls12381g2checkpointoncurve,
-      50: ContractCostType.bls12381g2checkpointinsubgroup,
-      51: ContractCostType.bls12381g1projectivetoaffine,
-      52: ContractCostType.bls12381g2projectivetoaffine,
-      53: ContractCostType.bls12381g1add,
-      54: ContractCostType.bls12381g1mul,
-      55: ContractCostType.bls12381g1msm,
-      56: ContractCostType.bls12381mapfptog1,
-      57: ContractCostType.bls12381hashtog1,
-      58: ContractCostType.bls12381g2add,
-      59: ContractCostType.bls12381g2mul,
-      60: ContractCostType.bls12381g2msm,
-      61: ContractCostType.bls12381mapfp2tog2,
-      62: ContractCostType.bls12381hashtog2,
-      63: ContractCostType.bls12381pairing,
-      64: ContractCostType.bls12381frfromu256,
-      65: ContractCostType.bls12381frtou256,
-      66: ContractCostType.bls12381fraddsub,
-      67: ContractCostType.bls12381frmul,
-      68: ContractCostType.bls12381frpow,
-      69: ContractCostType.bls12381frinv,
-      70: ContractCostType.bn254encodefp,
-      71: ContractCostType.bn254decodefp,
-      72: ContractCostType.bn254g1checkpointoncurve,
-      73: ContractCostType.bn254g2checkpointoncurve,
-      74: ContractCostType.bn254g2checkpointinsubgroup,
-      75: ContractCostType.bn254g1projectivetoaffine,
-      76: ContractCostType.bn254g1add,
-      77: ContractCostType.bn254g1mul,
-      78: ContractCostType.bn254pairing,
-      79: ContractCostType.bn254frfromu256,
-      80: ContractCostType.bn254frtou256,
-      81: ContractCostType.bn254fraddsub,
-      82: ContractCostType.bn254frmul,
-      83: ContractCostType.bn254frpow,
-      84: ContractCostType.bn254frinv,
-      85: ContractCostType.bn254g1msm,
-    };
-
   static readonly schema = enumType("ContractCostType", {
     wasminsnexec: 0,
     memalloc: 1,
@@ -699,190 +612,16 @@ export class ContractCostType extends EnumValue<ContractCostTypeName> {
   });
 
   static fromValue(value: number): ContractCostType {
-    return enumLookup(
+    return enumFromValue(
       "ContractCostType",
-      ContractCostType.byValue,
+      ContractCostType.schema,
+      ContractCostType,
       value,
-    ) as ContractCostType;
+    );
   }
 
   static fromName(name: ContractCostTypeName): ContractCostType {
-    switch (name) {
-      case "wasminsnexec":
-        return ContractCostType.wasminsnexec;
-      case "memalloc":
-        return ContractCostType.memalloc;
-      case "memcpy":
-        return ContractCostType.memcpy;
-      case "memcmp":
-        return ContractCostType.memcmp;
-      case "dispatchhostfunction":
-        return ContractCostType.dispatchhostfunction;
-      case "visitobject":
-        return ContractCostType.visitobject;
-      case "valser":
-        return ContractCostType.valser;
-      case "valdeser":
-        return ContractCostType.valdeser;
-      case "computesha256hash":
-        return ContractCostType.computesha256hash;
-      case "computeed25519pubkey":
-        return ContractCostType.computeed25519pubkey;
-      case "verifyed25519sig":
-        return ContractCostType.verifyed25519sig;
-      case "vminstantiation":
-        return ContractCostType.vminstantiation;
-      case "vmcachedinstantiation":
-        return ContractCostType.vmcachedinstantiation;
-      case "invokevmfunction":
-        return ContractCostType.invokevmfunction;
-      case "computekeccak256hash":
-        return ContractCostType.computekeccak256hash;
-      case "decodeecdsacurve256sig":
-        return ContractCostType.decodeecdsacurve256sig;
-      case "recoverecdsasecp256k1key":
-        return ContractCostType.recoverecdsasecp256k1key;
-      case "int256addsub":
-        return ContractCostType.int256addsub;
-      case "int256mul":
-        return ContractCostType.int256mul;
-      case "int256div":
-        return ContractCostType.int256div;
-      case "int256pow":
-        return ContractCostType.int256pow;
-      case "int256shift":
-        return ContractCostType.int256shift;
-      case "chacha20drawbytes":
-        return ContractCostType.chacha20drawbytes;
-      case "parsewasminstructions":
-        return ContractCostType.parsewasminstructions;
-      case "parsewasmfunctions":
-        return ContractCostType.parsewasmfunctions;
-      case "parsewasmglobals":
-        return ContractCostType.parsewasmglobals;
-      case "parsewasmtableentries":
-        return ContractCostType.parsewasmtableentries;
-      case "parsewasmtypes":
-        return ContractCostType.parsewasmtypes;
-      case "parsewasmdatasegments":
-        return ContractCostType.parsewasmdatasegments;
-      case "parsewasmelemsegments":
-        return ContractCostType.parsewasmelemsegments;
-      case "parsewasmimports":
-        return ContractCostType.parsewasmimports;
-      case "parsewasmexports":
-        return ContractCostType.parsewasmexports;
-      case "parsewasmdatasegmentbytes":
-        return ContractCostType.parsewasmdatasegmentbytes;
-      case "instantiatewasminstructions":
-        return ContractCostType.instantiatewasminstructions;
-      case "instantiatewasmfunctions":
-        return ContractCostType.instantiatewasmfunctions;
-      case "instantiatewasmglobals":
-        return ContractCostType.instantiatewasmglobals;
-      case "instantiatewasmtableentries":
-        return ContractCostType.instantiatewasmtableentries;
-      case "instantiatewasmtypes":
-        return ContractCostType.instantiatewasmtypes;
-      case "instantiatewasmdatasegments":
-        return ContractCostType.instantiatewasmdatasegments;
-      case "instantiatewasmelemsegments":
-        return ContractCostType.instantiatewasmelemsegments;
-      case "instantiatewasmimports":
-        return ContractCostType.instantiatewasmimports;
-      case "instantiatewasmexports":
-        return ContractCostType.instantiatewasmexports;
-      case "instantiatewasmdatasegmentbytes":
-        return ContractCostType.instantiatewasmdatasegmentbytes;
-      case "sec1decodepointuncompressed":
-        return ContractCostType.sec1decodepointuncompressed;
-      case "verifyecdsasecp256r1sig":
-        return ContractCostType.verifyecdsasecp256r1sig;
-      case "bls12381encodefp":
-        return ContractCostType.bls12381encodefp;
-      case "bls12381decodefp":
-        return ContractCostType.bls12381decodefp;
-      case "bls12381g1checkpointoncurve":
-        return ContractCostType.bls12381g1checkpointoncurve;
-      case "bls12381g1checkpointinsubgroup":
-        return ContractCostType.bls12381g1checkpointinsubgroup;
-      case "bls12381g2checkpointoncurve":
-        return ContractCostType.bls12381g2checkpointoncurve;
-      case "bls12381g2checkpointinsubgroup":
-        return ContractCostType.bls12381g2checkpointinsubgroup;
-      case "bls12381g1projectivetoaffine":
-        return ContractCostType.bls12381g1projectivetoaffine;
-      case "bls12381g2projectivetoaffine":
-        return ContractCostType.bls12381g2projectivetoaffine;
-      case "bls12381g1add":
-        return ContractCostType.bls12381g1add;
-      case "bls12381g1mul":
-        return ContractCostType.bls12381g1mul;
-      case "bls12381g1msm":
-        return ContractCostType.bls12381g1msm;
-      case "bls12381mapfptog1":
-        return ContractCostType.bls12381mapfptog1;
-      case "bls12381hashtog1":
-        return ContractCostType.bls12381hashtog1;
-      case "bls12381g2add":
-        return ContractCostType.bls12381g2add;
-      case "bls12381g2mul":
-        return ContractCostType.bls12381g2mul;
-      case "bls12381g2msm":
-        return ContractCostType.bls12381g2msm;
-      case "bls12381mapfp2tog2":
-        return ContractCostType.bls12381mapfp2tog2;
-      case "bls12381hashtog2":
-        return ContractCostType.bls12381hashtog2;
-      case "bls12381pairing":
-        return ContractCostType.bls12381pairing;
-      case "bls12381frfromu256":
-        return ContractCostType.bls12381frfromu256;
-      case "bls12381frtou256":
-        return ContractCostType.bls12381frtou256;
-      case "bls12381fraddsub":
-        return ContractCostType.bls12381fraddsub;
-      case "bls12381frmul":
-        return ContractCostType.bls12381frmul;
-      case "bls12381frpow":
-        return ContractCostType.bls12381frpow;
-      case "bls12381frinv":
-        return ContractCostType.bls12381frinv;
-      case "bn254encodefp":
-        return ContractCostType.bn254encodefp;
-      case "bn254decodefp":
-        return ContractCostType.bn254decodefp;
-      case "bn254g1checkpointoncurve":
-        return ContractCostType.bn254g1checkpointoncurve;
-      case "bn254g2checkpointoncurve":
-        return ContractCostType.bn254g2checkpointoncurve;
-      case "bn254g2checkpointinsubgroup":
-        return ContractCostType.bn254g2checkpointinsubgroup;
-      case "bn254g1projectivetoaffine":
-        return ContractCostType.bn254g1projectivetoaffine;
-      case "bn254g1add":
-        return ContractCostType.bn254g1add;
-      case "bn254g1mul":
-        return ContractCostType.bn254g1mul;
-      case "bn254pairing":
-        return ContractCostType.bn254pairing;
-      case "bn254frfromu256":
-        return ContractCostType.bn254frfromu256;
-      case "bn254frtou256":
-        return ContractCostType.bn254frtou256;
-      case "bn254fraddsub":
-        return ContractCostType.bn254fraddsub;
-      case "bn254frmul":
-        return ContractCostType.bn254frmul;
-      case "bn254frpow":
-        return ContractCostType.bn254frpow;
-      case "bn254frinv":
-        return ContractCostType.bn254frinv;
-      case "bn254g1msm":
-        return ContractCostType.bn254g1msm;
-      default:
-        throw new XdrError(`ContractCostType: unknown name ${name}`);
-    }
+    return enumFromName("ContractCostType", ContractCostType, name);
   }
 
   static fromXdrObject(wire: number): ContractCostType {

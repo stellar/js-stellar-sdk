@@ -1,6 +1,9 @@
 import { enumType } from "../types/enum.js";
-import { XdrError } from "../core/error.js";
-import { EnumValue, enumLookup } from "../values/enum-value.js";
+import {
+  EnumValue,
+  enumFromName,
+  enumFromValue,
+} from "../values/enum-value.js";
 
 export type SurveyMessageCommandTypeWire = number;
 
@@ -20,33 +23,27 @@ export class SurveyMessageCommandType extends EnumValue<SurveyMessageCommandType
     1,
   );
 
-  private static readonly byValue: Readonly<
-    Record<number, SurveyMessageCommandType>
-  > = {
-    1: SurveyMessageCommandType.timeSlicedSurveyTopology,
-  };
-
   static readonly schema = enumType("SurveyMessageCommandType", {
     timeSlicedSurveyTopology: 1,
   });
 
   static fromValue(value: number): SurveyMessageCommandType {
-    return enumLookup(
+    return enumFromValue(
       "SurveyMessageCommandType",
-      SurveyMessageCommandType.byValue,
+      SurveyMessageCommandType.schema,
+      SurveyMessageCommandType,
       value,
-    ) as SurveyMessageCommandType;
+    );
   }
 
   static fromName(
     name: SurveyMessageCommandTypeName,
   ): SurveyMessageCommandType {
-    switch (name) {
-      case "timeSlicedSurveyTopology":
-        return SurveyMessageCommandType.timeSlicedSurveyTopology;
-      default:
-        throw new XdrError(`SurveyMessageCommandType: unknown name ${name}`);
-    }
+    return enumFromName(
+      "SurveyMessageCommandType",
+      SurveyMessageCommandType,
+      name,
+    );
   }
 
   static fromXdrObject(wire: number): SurveyMessageCommandType {

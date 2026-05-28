@@ -1,6 +1,9 @@
 import { enumType } from "../types/enum.js";
-import { XdrError } from "../core/error.js";
-import { EnumValue, enumLookup } from "../values/enum-value.js";
+import {
+  EnumValue,
+  enumFromName,
+  enumFromValue,
+} from "../values/enum-value.js";
 
 export type ScErrorTypeWire = number;
 
@@ -45,19 +48,6 @@ export class ScErrorType extends EnumValue<ScErrorTypeName> {
   static readonly sceValue = new ScErrorType("sceValue", 8);
   static readonly sceAuth = new ScErrorType("sceAuth", 9);
 
-  private static readonly byValue: Readonly<Record<number, ScErrorType>> = {
-    0: ScErrorType.sceContract,
-    1: ScErrorType.sceWasmVm,
-    2: ScErrorType.sceContext,
-    3: ScErrorType.sceStorage,
-    4: ScErrorType.sceObject,
-    5: ScErrorType.sceCrypto,
-    6: ScErrorType.sceEvents,
-    7: ScErrorType.sceBudget,
-    8: ScErrorType.sceValue,
-    9: ScErrorType.sceAuth,
-  };
-
   static readonly schema = enumType("ScErrorType", {
     sceContract: 0,
     sceWasmVm: 1,
@@ -72,34 +62,11 @@ export class ScErrorType extends EnumValue<ScErrorTypeName> {
   });
 
   static fromValue(value: number): ScErrorType {
-    return enumLookup("ScErrorType", ScErrorType.byValue, value) as ScErrorType;
+    return enumFromValue("ScErrorType", ScErrorType.schema, ScErrorType, value);
   }
 
   static fromName(name: ScErrorTypeName): ScErrorType {
-    switch (name) {
-      case "sceContract":
-        return ScErrorType.sceContract;
-      case "sceWasmVm":
-        return ScErrorType.sceWasmVm;
-      case "sceContext":
-        return ScErrorType.sceContext;
-      case "sceStorage":
-        return ScErrorType.sceStorage;
-      case "sceObject":
-        return ScErrorType.sceObject;
-      case "sceCrypto":
-        return ScErrorType.sceCrypto;
-      case "sceEvents":
-        return ScErrorType.sceEvents;
-      case "sceBudget":
-        return ScErrorType.sceBudget;
-      case "sceValue":
-        return ScErrorType.sceValue;
-      case "sceAuth":
-        return ScErrorType.sceAuth;
-      default:
-        throw new XdrError(`ScErrorType: unknown name ${name}`);
-    }
+    return enumFromName("ScErrorType", ScErrorType, name);
   }
 
   static fromXdrObject(wire: number): ScErrorType {

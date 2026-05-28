@@ -1,6 +1,9 @@
 import { enumType } from "../types/enum.js";
-import { XdrError } from "../core/error.js";
-import { EnumValue, enumLookup } from "../values/enum-value.js";
+import {
+  EnumValue,
+  enumFromName,
+  enumFromValue,
+} from "../values/enum-value.js";
 
 export type SorobanCredentialsTypeWire = number;
 
@@ -32,35 +35,22 @@ export class SorobanCredentialsType extends EnumValue<SorobanCredentialsTypeName
     1,
   );
 
-  private static readonly byValue: Readonly<
-    Record<number, SorobanCredentialsType>
-  > = {
-    0: SorobanCredentialsType.sorobanCredentialsSourceAccount,
-    1: SorobanCredentialsType.sorobanCredentialsAddress,
-  };
-
   static readonly schema = enumType("SorobanCredentialsType", {
     sorobanCredentialsSourceAccount: 0,
     sorobanCredentialsAddress: 1,
   });
 
   static fromValue(value: number): SorobanCredentialsType {
-    return enumLookup(
+    return enumFromValue(
       "SorobanCredentialsType",
-      SorobanCredentialsType.byValue,
+      SorobanCredentialsType.schema,
+      SorobanCredentialsType,
       value,
-    ) as SorobanCredentialsType;
+    );
   }
 
   static fromName(name: SorobanCredentialsTypeName): SorobanCredentialsType {
-    switch (name) {
-      case "sorobanCredentialsSourceAccount":
-        return SorobanCredentialsType.sorobanCredentialsSourceAccount;
-      case "sorobanCredentialsAddress":
-        return SorobanCredentialsType.sorobanCredentialsAddress;
-      default:
-        throw new XdrError(`SorobanCredentialsType: unknown name ${name}`);
-    }
+    return enumFromName("SorobanCredentialsType", SorobanCredentialsType, name);
   }
 
   static fromXdrObject(wire: number): SorobanCredentialsType {

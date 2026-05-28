@@ -1,6 +1,9 @@
 import { enumType } from "../types/enum.js";
-import { XdrError } from "../core/error.js";
-import { EnumValue, enumLookup } from "../values/enum-value.js";
+import {
+  EnumValue,
+  enumFromName,
+  enumFromValue,
+} from "../values/enum-value.js";
 
 export type BeginSponsoringFutureReservesResultCodeWire = number;
 
@@ -46,15 +49,6 @@ export class BeginSponsoringFutureReservesResultCode extends EnumValue<BeginSpon
       -3,
     );
 
-  private static readonly byValue: Readonly<
-    Record<number, BeginSponsoringFutureReservesResultCode>
-  > = {
-    0: BeginSponsoringFutureReservesResultCode.beginSponsoringFutureReservesSuccess,
-    "-1": BeginSponsoringFutureReservesResultCode.beginSponsoringFutureReservesMalformed,
-    "-2": BeginSponsoringFutureReservesResultCode.beginSponsoringFutureReservesAlreadySponsored,
-    "-3": BeginSponsoringFutureReservesResultCode.beginSponsoringFutureReservesRecursive,
-  };
-
   static readonly schema = enumType("BeginSponsoringFutureReservesResultCode", {
     beginSponsoringFutureReservesSuccess: 0,
     beginSponsoringFutureReservesMalformed: -1,
@@ -63,30 +57,22 @@ export class BeginSponsoringFutureReservesResultCode extends EnumValue<BeginSpon
   });
 
   static fromValue(value: number): BeginSponsoringFutureReservesResultCode {
-    return enumLookup(
+    return enumFromValue(
       "BeginSponsoringFutureReservesResultCode",
-      BeginSponsoringFutureReservesResultCode.byValue,
+      BeginSponsoringFutureReservesResultCode.schema,
+      BeginSponsoringFutureReservesResultCode,
       value,
-    ) as BeginSponsoringFutureReservesResultCode;
+    );
   }
 
   static fromName(
     name: BeginSponsoringFutureReservesResultCodeName,
   ): BeginSponsoringFutureReservesResultCode {
-    switch (name) {
-      case "beginSponsoringFutureReservesSuccess":
-        return BeginSponsoringFutureReservesResultCode.beginSponsoringFutureReservesSuccess;
-      case "beginSponsoringFutureReservesMalformed":
-        return BeginSponsoringFutureReservesResultCode.beginSponsoringFutureReservesMalformed;
-      case "beginSponsoringFutureReservesAlreadySponsored":
-        return BeginSponsoringFutureReservesResultCode.beginSponsoringFutureReservesAlreadySponsored;
-      case "beginSponsoringFutureReservesRecursive":
-        return BeginSponsoringFutureReservesResultCode.beginSponsoringFutureReservesRecursive;
-      default:
-        throw new XdrError(
-          `BeginSponsoringFutureReservesResultCode: unknown name ${name}`,
-        );
-    }
+    return enumFromName(
+      "BeginSponsoringFutureReservesResultCode",
+      BeginSponsoringFutureReservesResultCode,
+      name,
+    );
   }
 
   static fromXdrObject(wire: number): BeginSponsoringFutureReservesResultCode {

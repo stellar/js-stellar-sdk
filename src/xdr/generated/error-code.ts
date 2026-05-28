@@ -1,6 +1,9 @@
 import { enumType } from "../types/enum.js";
-import { XdrError } from "../core/error.js";
-import { EnumValue, enumLookup } from "../values/enum-value.js";
+import {
+  EnumValue,
+  enumFromName,
+  enumFromValue,
+} from "../values/enum-value.js";
 
 export type ErrorCodeWire = number;
 
@@ -30,14 +33,6 @@ export class ErrorCode extends EnumValue<ErrorCodeName> {
   static readonly errAuth = new ErrorCode("errAuth", 3);
   static readonly errLoad = new ErrorCode("errLoad", 4);
 
-  private static readonly byValue: Readonly<Record<number, ErrorCode>> = {
-    0: ErrorCode.errMisc,
-    1: ErrorCode.errData,
-    2: ErrorCode.errConf,
-    3: ErrorCode.errAuth,
-    4: ErrorCode.errLoad,
-  };
-
   static readonly schema = enumType("ErrorCode", {
     errMisc: 0,
     errData: 1,
@@ -47,24 +42,11 @@ export class ErrorCode extends EnumValue<ErrorCodeName> {
   });
 
   static fromValue(value: number): ErrorCode {
-    return enumLookup("ErrorCode", ErrorCode.byValue, value) as ErrorCode;
+    return enumFromValue("ErrorCode", ErrorCode.schema, ErrorCode, value);
   }
 
   static fromName(name: ErrorCodeName): ErrorCode {
-    switch (name) {
-      case "errMisc":
-        return ErrorCode.errMisc;
-      case "errData":
-        return ErrorCode.errData;
-      case "errConf":
-        return ErrorCode.errConf;
-      case "errAuth":
-        return ErrorCode.errAuth;
-      case "errLoad":
-        return ErrorCode.errLoad;
-      default:
-        throw new XdrError(`ErrorCode: unknown name ${name}`);
-    }
+    return enumFromName("ErrorCode", ErrorCode, name);
   }
 
   static fromXdrObject(wire: number): ErrorCode {

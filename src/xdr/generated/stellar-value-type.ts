@@ -1,6 +1,9 @@
 import { enumType } from "../types/enum.js";
-import { XdrError } from "../core/error.js";
-import { EnumValue, enumLookup } from "../values/enum-value.js";
+import {
+  EnumValue,
+  enumFromName,
+  enumFromValue,
+} from "../values/enum-value.js";
 
 export type StellarValueTypeWire = number;
 
@@ -25,34 +28,22 @@ export class StellarValueType extends EnumValue<StellarValueTypeName> {
     1,
   );
 
-  private static readonly byValue: Readonly<Record<number, StellarValueType>> =
-    {
-      0: StellarValueType.stellarValueBasic,
-      1: StellarValueType.stellarValueSigned,
-    };
-
   static readonly schema = enumType("StellarValueType", {
     stellarValueBasic: 0,
     stellarValueSigned: 1,
   });
 
   static fromValue(value: number): StellarValueType {
-    return enumLookup(
+    return enumFromValue(
       "StellarValueType",
-      StellarValueType.byValue,
+      StellarValueType.schema,
+      StellarValueType,
       value,
-    ) as StellarValueType;
+    );
   }
 
   static fromName(name: StellarValueTypeName): StellarValueType {
-    switch (name) {
-      case "stellarValueBasic":
-        return StellarValueType.stellarValueBasic;
-      case "stellarValueSigned":
-        return StellarValueType.stellarValueSigned;
-      default:
-        throw new XdrError(`StellarValueType: unknown name ${name}`);
-    }
+    return enumFromName("StellarValueType", StellarValueType, name);
   }
 
   static fromXdrObject(wire: number): StellarValueType {

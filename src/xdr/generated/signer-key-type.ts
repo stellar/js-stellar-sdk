@@ -1,6 +1,9 @@
 import { enumType } from "../types/enum.js";
-import { XdrError } from "../core/error.js";
-import { EnumValue, enumLookup } from "../values/enum-value.js";
+import {
+  EnumValue,
+  enumFromName,
+  enumFromValue,
+} from "../values/enum-value.js";
 
 export type SignerKeyTypeWire = number;
 
@@ -39,13 +42,6 @@ export class SignerKeyType extends EnumValue<SignerKeyTypeName> {
     3,
   );
 
-  private static readonly byValue: Readonly<Record<number, SignerKeyType>> = {
-    0: SignerKeyType.signerKeyTypeEd25519,
-    1: SignerKeyType.signerKeyTypePreAuthTx,
-    2: SignerKeyType.signerKeyTypeHashX,
-    3: SignerKeyType.signerKeyTypeEd25519SignedPayload,
-  };
-
   static readonly schema = enumType("SignerKeyType", {
     signerKeyTypeEd25519: 0,
     signerKeyTypePreAuthTx: 1,
@@ -54,26 +50,16 @@ export class SignerKeyType extends EnumValue<SignerKeyTypeName> {
   });
 
   static fromValue(value: number): SignerKeyType {
-    return enumLookup(
+    return enumFromValue(
       "SignerKeyType",
-      SignerKeyType.byValue,
+      SignerKeyType.schema,
+      SignerKeyType,
       value,
-    ) as SignerKeyType;
+    );
   }
 
   static fromName(name: SignerKeyTypeName): SignerKeyType {
-    switch (name) {
-      case "signerKeyTypeEd25519":
-        return SignerKeyType.signerKeyTypeEd25519;
-      case "signerKeyTypePreAuthTx":
-        return SignerKeyType.signerKeyTypePreAuthTx;
-      case "signerKeyTypeHashX":
-        return SignerKeyType.signerKeyTypeHashX;
-      case "signerKeyTypeEd25519SignedPayload":
-        return SignerKeyType.signerKeyTypeEd25519SignedPayload;
-      default:
-        throw new XdrError(`SignerKeyType: unknown name ${name}`);
-    }
+    return enumFromName("SignerKeyType", SignerKeyType, name);
   }
 
   static fromXdrObject(wire: number): SignerKeyType {

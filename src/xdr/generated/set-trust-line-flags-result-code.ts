@@ -1,6 +1,9 @@
 import { enumType } from "../types/enum.js";
-import { XdrError } from "../core/error.js";
-import { EnumValue, enumLookup } from "../values/enum-value.js";
+import {
+  EnumValue,
+  enumFromName,
+  enumFromValue,
+} from "../values/enum-value.js";
 
 export type SetTrustLineFlagsResultCodeWire = number;
 
@@ -51,17 +54,6 @@ export class SetTrustLineFlagsResultCode extends EnumValue<SetTrustLineFlagsResu
     -5,
   );
 
-  private static readonly byValue: Readonly<
-    Record<number, SetTrustLineFlagsResultCode>
-  > = {
-    0: SetTrustLineFlagsResultCode.setTrustLineFlagsSuccess,
-    "-1": SetTrustLineFlagsResultCode.setTrustLineFlagsMalformed,
-    "-2": SetTrustLineFlagsResultCode.setTrustLineFlagsNoTrustLine,
-    "-3": SetTrustLineFlagsResultCode.setTrustLineFlagsCantRevoke,
-    "-4": SetTrustLineFlagsResultCode.setTrustLineFlagsInvalidState,
-    "-5": SetTrustLineFlagsResultCode.setTrustLineFlagsLowReserve,
-  };
-
   static readonly schema = enumType("SetTrustLineFlagsResultCode", {
     setTrustLineFlagsSuccess: 0,
     setTrustLineFlagsMalformed: -1,
@@ -72,32 +64,22 @@ export class SetTrustLineFlagsResultCode extends EnumValue<SetTrustLineFlagsResu
   });
 
   static fromValue(value: number): SetTrustLineFlagsResultCode {
-    return enumLookup(
+    return enumFromValue(
       "SetTrustLineFlagsResultCode",
-      SetTrustLineFlagsResultCode.byValue,
+      SetTrustLineFlagsResultCode.schema,
+      SetTrustLineFlagsResultCode,
       value,
-    ) as SetTrustLineFlagsResultCode;
+    );
   }
 
   static fromName(
     name: SetTrustLineFlagsResultCodeName,
   ): SetTrustLineFlagsResultCode {
-    switch (name) {
-      case "setTrustLineFlagsSuccess":
-        return SetTrustLineFlagsResultCode.setTrustLineFlagsSuccess;
-      case "setTrustLineFlagsMalformed":
-        return SetTrustLineFlagsResultCode.setTrustLineFlagsMalformed;
-      case "setTrustLineFlagsNoTrustLine":
-        return SetTrustLineFlagsResultCode.setTrustLineFlagsNoTrustLine;
-      case "setTrustLineFlagsCantRevoke":
-        return SetTrustLineFlagsResultCode.setTrustLineFlagsCantRevoke;
-      case "setTrustLineFlagsInvalidState":
-        return SetTrustLineFlagsResultCode.setTrustLineFlagsInvalidState;
-      case "setTrustLineFlagsLowReserve":
-        return SetTrustLineFlagsResultCode.setTrustLineFlagsLowReserve;
-      default:
-        throw new XdrError(`SetTrustLineFlagsResultCode: unknown name ${name}`);
-    }
+    return enumFromName(
+      "SetTrustLineFlagsResultCode",
+      SetTrustLineFlagsResultCode,
+      name,
+    );
   }
 
   static fromXdrObject(wire: number): SetTrustLineFlagsResultCode {

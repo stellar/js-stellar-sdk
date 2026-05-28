@@ -1,6 +1,9 @@
 import { enumType } from "../types/enum.js";
-import { XdrError } from "../core/error.js";
-import { EnumValue, enumLookup } from "../values/enum-value.js";
+import {
+  EnumValue,
+  enumFromName,
+  enumFromValue,
+} from "../values/enum-value.js";
 
 export type ClawbackResultCodeWire = number;
 
@@ -48,16 +51,6 @@ export class ClawbackResultCode extends EnumValue<ClawbackResultCodeName> {
     -4,
   );
 
-  private static readonly byValue: Readonly<
-    Record<number, ClawbackResultCode>
-  > = {
-    0: ClawbackResultCode.clawbackSuccess,
-    "-1": ClawbackResultCode.clawbackMalformed,
-    "-2": ClawbackResultCode.clawbackNotClawbackEnabled,
-    "-3": ClawbackResultCode.clawbackNoTrust,
-    "-4": ClawbackResultCode.clawbackUnderfunded,
-  };
-
   static readonly schema = enumType("ClawbackResultCode", {
     clawbackSuccess: 0,
     clawbackMalformed: -1,
@@ -67,28 +60,16 @@ export class ClawbackResultCode extends EnumValue<ClawbackResultCodeName> {
   });
 
   static fromValue(value: number): ClawbackResultCode {
-    return enumLookup(
+    return enumFromValue(
       "ClawbackResultCode",
-      ClawbackResultCode.byValue,
+      ClawbackResultCode.schema,
+      ClawbackResultCode,
       value,
-    ) as ClawbackResultCode;
+    );
   }
 
   static fromName(name: ClawbackResultCodeName): ClawbackResultCode {
-    switch (name) {
-      case "clawbackSuccess":
-        return ClawbackResultCode.clawbackSuccess;
-      case "clawbackMalformed":
-        return ClawbackResultCode.clawbackMalformed;
-      case "clawbackNotClawbackEnabled":
-        return ClawbackResultCode.clawbackNotClawbackEnabled;
-      case "clawbackNoTrust":
-        return ClawbackResultCode.clawbackNoTrust;
-      case "clawbackUnderfunded":
-        return ClawbackResultCode.clawbackUnderfunded;
-      default:
-        throw new XdrError(`ClawbackResultCode: unknown name ${name}`);
-    }
+    return enumFromName("ClawbackResultCode", ClawbackResultCode, name);
   }
 
   static fromXdrObject(wire: number): ClawbackResultCode {

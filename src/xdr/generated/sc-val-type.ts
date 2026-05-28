@@ -1,6 +1,9 @@
 import { enumType } from "../types/enum.js";
-import { XdrError } from "../core/error.js";
-import { EnumValue, enumLookup } from "../values/enum-value.js";
+import {
+  EnumValue,
+  enumFromName,
+  enumFromValue,
+} from "../values/enum-value.js";
 
 export type ScValTypeWire = number;
 
@@ -116,31 +119,6 @@ export class ScValType extends EnumValue<ScValTypeName> {
   );
   static readonly scvLedgerKeyNonce = new ScValType("scvLedgerKeyNonce", 21);
 
-  private static readonly byValue: Readonly<Record<number, ScValType>> = {
-    0: ScValType.scvBool,
-    1: ScValType.scvVoid,
-    2: ScValType.scvError,
-    3: ScValType.scvU32,
-    4: ScValType.scvI32,
-    5: ScValType.scvU64,
-    6: ScValType.scvI64,
-    7: ScValType.scvTimepoint,
-    8: ScValType.scvDuration,
-    9: ScValType.scvU128,
-    10: ScValType.scvI128,
-    11: ScValType.scvU256,
-    12: ScValType.scvI256,
-    13: ScValType.scvBytes,
-    14: ScValType.scvString,
-    15: ScValType.scvSymbol,
-    16: ScValType.scvVec,
-    17: ScValType.scvMap,
-    18: ScValType.scvAddress,
-    19: ScValType.scvContractInstance,
-    20: ScValType.scvLedgerKeyContractInstance,
-    21: ScValType.scvLedgerKeyNonce,
-  };
-
   static readonly schema = enumType("ScValType", {
     scvBool: 0,
     scvVoid: 1,
@@ -167,58 +145,11 @@ export class ScValType extends EnumValue<ScValTypeName> {
   });
 
   static fromValue(value: number): ScValType {
-    return enumLookup("ScValType", ScValType.byValue, value) as ScValType;
+    return enumFromValue("ScValType", ScValType.schema, ScValType, value);
   }
 
   static fromName(name: ScValTypeName): ScValType {
-    switch (name) {
-      case "scvBool":
-        return ScValType.scvBool;
-      case "scvVoid":
-        return ScValType.scvVoid;
-      case "scvError":
-        return ScValType.scvError;
-      case "scvU32":
-        return ScValType.scvU32;
-      case "scvI32":
-        return ScValType.scvI32;
-      case "scvU64":
-        return ScValType.scvU64;
-      case "scvI64":
-        return ScValType.scvI64;
-      case "scvTimepoint":
-        return ScValType.scvTimepoint;
-      case "scvDuration":
-        return ScValType.scvDuration;
-      case "scvU128":
-        return ScValType.scvU128;
-      case "scvI128":
-        return ScValType.scvI128;
-      case "scvU256":
-        return ScValType.scvU256;
-      case "scvI256":
-        return ScValType.scvI256;
-      case "scvBytes":
-        return ScValType.scvBytes;
-      case "scvString":
-        return ScValType.scvString;
-      case "scvSymbol":
-        return ScValType.scvSymbol;
-      case "scvVec":
-        return ScValType.scvVec;
-      case "scvMap":
-        return ScValType.scvMap;
-      case "scvAddress":
-        return ScValType.scvAddress;
-      case "scvContractInstance":
-        return ScValType.scvContractInstance;
-      case "scvLedgerKeyContractInstance":
-        return ScValType.scvLedgerKeyContractInstance;
-      case "scvLedgerKeyNonce":
-        return ScValType.scvLedgerKeyNonce;
-      default:
-        throw new XdrError(`ScValType: unknown name ${name}`);
-    }
+    return enumFromName("ScValType", ScValType, name);
   }
 
   static fromXdrObject(wire: number): ScValType {

@@ -114,6 +114,8 @@ function makeBigIntShim(signed: boolean, bits: 64) {
   });
 }
 
+export { expectUnionVarient, isUnionVarient } from "./util.js";
+
 function makeIntShim(signed: boolean, bits: 32) {
   const max = signed ? 2 ** (bits - 1) - 1 : 2 ** bits - 1;
   const min = signed ? -(2 ** (bits - 1)) : 0;

@@ -1,6 +1,9 @@
 import { enumType } from "../types/enum.js";
-import { XdrError } from "../core/error.js";
-import { EnumValue, enumLookup } from "../values/enum-value.js";
+import {
+  EnumValue,
+  enumFromName,
+  enumFromValue,
+} from "../values/enum-value.js";
 
 export type PaymentResultCodeWire = number;
 
@@ -72,20 +75,6 @@ export class PaymentResultCode extends EnumValue<PaymentResultCodeName> {
     -9,
   );
 
-  private static readonly byValue: Readonly<Record<number, PaymentResultCode>> =
-    {
-      0: PaymentResultCode.paymentSuccess,
-      "-1": PaymentResultCode.paymentMalformed,
-      "-2": PaymentResultCode.paymentUnderfunded,
-      "-3": PaymentResultCode.paymentSrcNoTrust,
-      "-4": PaymentResultCode.paymentSrcNotAuthorized,
-      "-5": PaymentResultCode.paymentNoDestination,
-      "-6": PaymentResultCode.paymentNoTrust,
-      "-7": PaymentResultCode.paymentNotAuthorized,
-      "-8": PaymentResultCode.paymentLineFull,
-      "-9": PaymentResultCode.paymentNoIssuer,
-    };
-
   static readonly schema = enumType("PaymentResultCode", {
     paymentSuccess: 0,
     paymentMalformed: -1,
@@ -100,38 +89,16 @@ export class PaymentResultCode extends EnumValue<PaymentResultCodeName> {
   });
 
   static fromValue(value: number): PaymentResultCode {
-    return enumLookup(
+    return enumFromValue(
       "PaymentResultCode",
-      PaymentResultCode.byValue,
+      PaymentResultCode.schema,
+      PaymentResultCode,
       value,
-    ) as PaymentResultCode;
+    );
   }
 
   static fromName(name: PaymentResultCodeName): PaymentResultCode {
-    switch (name) {
-      case "paymentSuccess":
-        return PaymentResultCode.paymentSuccess;
-      case "paymentMalformed":
-        return PaymentResultCode.paymentMalformed;
-      case "paymentUnderfunded":
-        return PaymentResultCode.paymentUnderfunded;
-      case "paymentSrcNoTrust":
-        return PaymentResultCode.paymentSrcNoTrust;
-      case "paymentSrcNotAuthorized":
-        return PaymentResultCode.paymentSrcNotAuthorized;
-      case "paymentNoDestination":
-        return PaymentResultCode.paymentNoDestination;
-      case "paymentNoTrust":
-        return PaymentResultCode.paymentNoTrust;
-      case "paymentNotAuthorized":
-        return PaymentResultCode.paymentNotAuthorized;
-      case "paymentLineFull":
-        return PaymentResultCode.paymentLineFull;
-      case "paymentNoIssuer":
-        return PaymentResultCode.paymentNoIssuer;
-      default:
-        throw new XdrError(`PaymentResultCode: unknown name ${name}`);
-    }
+    return enumFromName("PaymentResultCode", PaymentResultCode, name);
   }
 
   static fromXdrObject(wire: number): PaymentResultCode {

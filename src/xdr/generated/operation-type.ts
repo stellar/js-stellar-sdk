@@ -1,6 +1,9 @@
 import { enumType } from "../types/enum.js";
-import { XdrError } from "../core/error.js";
-import { EnumValue, enumLookup } from "../values/enum-value.js";
+import {
+  EnumValue,
+  enumFromName,
+  enumFromValue,
+} from "../values/enum-value.js";
 
 export type OperationTypeWire = number;
 
@@ -138,36 +141,6 @@ export class OperationType extends EnumValue<OperationTypeName> {
   );
   static readonly restoreFootprint = new OperationType("restoreFootprint", 26);
 
-  private static readonly byValue: Readonly<Record<number, OperationType>> = {
-    0: OperationType.createAccount,
-    1: OperationType.payment,
-    2: OperationType.pathPaymentStrictReceive,
-    3: OperationType.manageSellOffer,
-    4: OperationType.createPassiveSellOffer,
-    5: OperationType.setOptions,
-    6: OperationType.changeTrust,
-    7: OperationType.allowTrust,
-    8: OperationType.accountMerge,
-    9: OperationType.inflation,
-    10: OperationType.manageData,
-    11: OperationType.bumpSequence,
-    12: OperationType.manageBuyOffer,
-    13: OperationType.pathPaymentStrictSend,
-    14: OperationType.createClaimableBalance,
-    15: OperationType.claimClaimableBalance,
-    16: OperationType.beginSponsoringFutureReserves,
-    17: OperationType.endSponsoringFutureReserves,
-    18: OperationType.revokeSponsorship,
-    19: OperationType.clawback,
-    20: OperationType.clawbackClaimableBalance,
-    21: OperationType.setTrustLineFlags,
-    22: OperationType.liquidityPoolDeposit,
-    23: OperationType.liquidityPoolWithdraw,
-    24: OperationType.invokeHostFunction,
-    25: OperationType.extendFootprintTtl,
-    26: OperationType.restoreFootprint,
-  };
-
   static readonly schema = enumType("OperationType", {
     createAccount: 0,
     payment: 1,
@@ -199,72 +172,16 @@ export class OperationType extends EnumValue<OperationTypeName> {
   });
 
   static fromValue(value: number): OperationType {
-    return enumLookup(
+    return enumFromValue(
       "OperationType",
-      OperationType.byValue,
+      OperationType.schema,
+      OperationType,
       value,
-    ) as OperationType;
+    );
   }
 
   static fromName(name: OperationTypeName): OperationType {
-    switch (name) {
-      case "createAccount":
-        return OperationType.createAccount;
-      case "payment":
-        return OperationType.payment;
-      case "pathPaymentStrictReceive":
-        return OperationType.pathPaymentStrictReceive;
-      case "manageSellOffer":
-        return OperationType.manageSellOffer;
-      case "createPassiveSellOffer":
-        return OperationType.createPassiveSellOffer;
-      case "setOptions":
-        return OperationType.setOptions;
-      case "changeTrust":
-        return OperationType.changeTrust;
-      case "allowTrust":
-        return OperationType.allowTrust;
-      case "accountMerge":
-        return OperationType.accountMerge;
-      case "inflation":
-        return OperationType.inflation;
-      case "manageData":
-        return OperationType.manageData;
-      case "bumpSequence":
-        return OperationType.bumpSequence;
-      case "manageBuyOffer":
-        return OperationType.manageBuyOffer;
-      case "pathPaymentStrictSend":
-        return OperationType.pathPaymentStrictSend;
-      case "createClaimableBalance":
-        return OperationType.createClaimableBalance;
-      case "claimClaimableBalance":
-        return OperationType.claimClaimableBalance;
-      case "beginSponsoringFutureReserves":
-        return OperationType.beginSponsoringFutureReserves;
-      case "endSponsoringFutureReserves":
-        return OperationType.endSponsoringFutureReserves;
-      case "revokeSponsorship":
-        return OperationType.revokeSponsorship;
-      case "clawback":
-        return OperationType.clawback;
-      case "clawbackClaimableBalance":
-        return OperationType.clawbackClaimableBalance;
-      case "setTrustLineFlags":
-        return OperationType.setTrustLineFlags;
-      case "liquidityPoolDeposit":
-        return OperationType.liquidityPoolDeposit;
-      case "liquidityPoolWithdraw":
-        return OperationType.liquidityPoolWithdraw;
-      case "invokeHostFunction":
-        return OperationType.invokeHostFunction;
-      case "extendFootprintTtl":
-        return OperationType.extendFootprintTtl;
-      case "restoreFootprint":
-        return OperationType.restoreFootprint;
-      default:
-        throw new XdrError(`OperationType: unknown name ${name}`);
-    }
+    return enumFromName("OperationType", OperationType, name);
   }
 
   static fromXdrObject(wire: number): OperationType {

@@ -1,6 +1,9 @@
 import { enumType } from "../types/enum.js";
-import { XdrError } from "../core/error.js";
-import { EnumValue, enumLookup } from "../values/enum-value.js";
+import {
+  EnumValue,
+  enumFromName,
+  enumFromValue,
+} from "../values/enum-value.js";
 
 export type LedgerHeaderFlagsWire = number;
 
@@ -33,13 +36,6 @@ export class LedgerHeaderFlags extends EnumValue<LedgerHeaderFlagsName> {
     4,
   );
 
-  private static readonly byValue: Readonly<Record<number, LedgerHeaderFlags>> =
-    {
-      1: LedgerHeaderFlags.disableLiquidityPoolTradingFlag,
-      2: LedgerHeaderFlags.disableLiquidityPoolDepositFlag,
-      4: LedgerHeaderFlags.disableLiquidityPoolWithdrawalFlag,
-    };
-
   static readonly schema = enumType("LedgerHeaderFlags", {
     disableLiquidityPoolTradingFlag: 1,
     disableLiquidityPoolDepositFlag: 2,
@@ -47,24 +43,16 @@ export class LedgerHeaderFlags extends EnumValue<LedgerHeaderFlagsName> {
   });
 
   static fromValue(value: number): LedgerHeaderFlags {
-    return enumLookup(
+    return enumFromValue(
       "LedgerHeaderFlags",
-      LedgerHeaderFlags.byValue,
+      LedgerHeaderFlags.schema,
+      LedgerHeaderFlags,
       value,
-    ) as LedgerHeaderFlags;
+    );
   }
 
   static fromName(name: LedgerHeaderFlagsName): LedgerHeaderFlags {
-    switch (name) {
-      case "disableLiquidityPoolTradingFlag":
-        return LedgerHeaderFlags.disableLiquidityPoolTradingFlag;
-      case "disableLiquidityPoolDepositFlag":
-        return LedgerHeaderFlags.disableLiquidityPoolDepositFlag;
-      case "disableLiquidityPoolWithdrawalFlag":
-        return LedgerHeaderFlags.disableLiquidityPoolWithdrawalFlag;
-      default:
-        throw new XdrError(`LedgerHeaderFlags: unknown name ${name}`);
-    }
+    return enumFromName("LedgerHeaderFlags", LedgerHeaderFlags, name);
   }
 
   static fromXdrObject(wire: number): LedgerHeaderFlags {

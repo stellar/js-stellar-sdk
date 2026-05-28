@@ -1,6 +1,9 @@
 import { enumType } from "../types/enum.js";
-import { XdrError } from "../core/error.js";
-import { EnumValue, enumLookup } from "../values/enum-value.js";
+import {
+  EnumValue,
+  enumFromName,
+  enumFromValue,
+} from "../values/enum-value.js";
 
 export type ContractExecutableTypeWire = number;
 
@@ -27,35 +30,22 @@ export class ContractExecutableType extends EnumValue<ContractExecutableTypeName
     1,
   );
 
-  private static readonly byValue: Readonly<
-    Record<number, ContractExecutableType>
-  > = {
-    0: ContractExecutableType.contractExecutableWasm,
-    1: ContractExecutableType.contractExecutableStellarAsset,
-  };
-
   static readonly schema = enumType("ContractExecutableType", {
     contractExecutableWasm: 0,
     contractExecutableStellarAsset: 1,
   });
 
   static fromValue(value: number): ContractExecutableType {
-    return enumLookup(
+    return enumFromValue(
       "ContractExecutableType",
-      ContractExecutableType.byValue,
+      ContractExecutableType.schema,
+      ContractExecutableType,
       value,
-    ) as ContractExecutableType;
+    );
   }
 
   static fromName(name: ContractExecutableTypeName): ContractExecutableType {
-    switch (name) {
-      case "contractExecutableWasm":
-        return ContractExecutableType.contractExecutableWasm;
-      case "contractExecutableStellarAsset":
-        return ContractExecutableType.contractExecutableStellarAsset;
-      default:
-        throw new XdrError(`ContractExecutableType: unknown name ${name}`);
-    }
+    return enumFromName("ContractExecutableType", ContractExecutableType, name);
   }
 
   static fromXdrObject(wire: number): ContractExecutableType {

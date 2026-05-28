@@ -1,6 +1,9 @@
 import { enumType } from "../types/enum.js";
-import { XdrError } from "../core/error.js";
-import { EnumValue, enumLookup } from "../values/enum-value.js";
+import {
+  EnumValue,
+  enumFromName,
+  enumFromValue,
+} from "../values/enum-value.js";
 
 export type RestoreFootprintResultCodeWire = number;
 
@@ -41,15 +44,6 @@ export class RestoreFootprintResultCode extends EnumValue<RestoreFootprintResult
       -3,
     );
 
-  private static readonly byValue: Readonly<
-    Record<number, RestoreFootprintResultCode>
-  > = {
-    0: RestoreFootprintResultCode.restoreFootprintSuccess,
-    "-1": RestoreFootprintResultCode.restoreFootprintMalformed,
-    "-2": RestoreFootprintResultCode.restoreFootprintResourceLimitExceeded,
-    "-3": RestoreFootprintResultCode.restoreFootprintInsufficientRefundableFee,
-  };
-
   static readonly schema = enumType("RestoreFootprintResultCode", {
     restoreFootprintSuccess: 0,
     restoreFootprintMalformed: -1,
@@ -58,28 +52,22 @@ export class RestoreFootprintResultCode extends EnumValue<RestoreFootprintResult
   });
 
   static fromValue(value: number): RestoreFootprintResultCode {
-    return enumLookup(
+    return enumFromValue(
       "RestoreFootprintResultCode",
-      RestoreFootprintResultCode.byValue,
+      RestoreFootprintResultCode.schema,
+      RestoreFootprintResultCode,
       value,
-    ) as RestoreFootprintResultCode;
+    );
   }
 
   static fromName(
     name: RestoreFootprintResultCodeName,
   ): RestoreFootprintResultCode {
-    switch (name) {
-      case "restoreFootprintSuccess":
-        return RestoreFootprintResultCode.restoreFootprintSuccess;
-      case "restoreFootprintMalformed":
-        return RestoreFootprintResultCode.restoreFootprintMalformed;
-      case "restoreFootprintResourceLimitExceeded":
-        return RestoreFootprintResultCode.restoreFootprintResourceLimitExceeded;
-      case "restoreFootprintInsufficientRefundableFee":
-        return RestoreFootprintResultCode.restoreFootprintInsufficientRefundableFee;
-      default:
-        throw new XdrError(`RestoreFootprintResultCode: unknown name ${name}`);
-    }
+    return enumFromName(
+      "RestoreFootprintResultCode",
+      RestoreFootprintResultCode,
+      name,
+    );
   }
 
   static fromXdrObject(wire: number): RestoreFootprintResultCode {

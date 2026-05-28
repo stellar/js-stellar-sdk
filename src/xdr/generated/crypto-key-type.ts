@@ -1,6 +1,9 @@
 import { enumType } from "../types/enum.js";
-import { XdrError } from "../core/error.js";
-import { EnumValue, enumLookup } from "../values/enum-value.js";
+import {
+  EnumValue,
+  enumFromName,
+  enumFromValue,
+} from "../values/enum-value.js";
 
 export type CryptoKeyTypeWire = number;
 
@@ -38,14 +41,6 @@ export class CryptoKeyType extends EnumValue<CryptoKeyTypeName> {
     256,
   );
 
-  private static readonly byValue: Readonly<Record<number, CryptoKeyType>> = {
-    0: CryptoKeyType.keyTypeEd25519,
-    1: CryptoKeyType.keyTypePreAuthTx,
-    2: CryptoKeyType.keyTypeHashX,
-    3: CryptoKeyType.keyTypeEd25519SignedPayload,
-    256: CryptoKeyType.keyTypeMuxedEd25519,
-  };
-
   static readonly schema = enumType("CryptoKeyType", {
     keyTypeEd25519: 0,
     keyTypePreAuthTx: 1,
@@ -55,28 +50,16 @@ export class CryptoKeyType extends EnumValue<CryptoKeyTypeName> {
   });
 
   static fromValue(value: number): CryptoKeyType {
-    return enumLookup(
+    return enumFromValue(
       "CryptoKeyType",
-      CryptoKeyType.byValue,
+      CryptoKeyType.schema,
+      CryptoKeyType,
       value,
-    ) as CryptoKeyType;
+    );
   }
 
   static fromName(name: CryptoKeyTypeName): CryptoKeyType {
-    switch (name) {
-      case "keyTypeEd25519":
-        return CryptoKeyType.keyTypeEd25519;
-      case "keyTypePreAuthTx":
-        return CryptoKeyType.keyTypePreAuthTx;
-      case "keyTypeHashX":
-        return CryptoKeyType.keyTypeHashX;
-      case "keyTypeEd25519SignedPayload":
-        return CryptoKeyType.keyTypeEd25519SignedPayload;
-      case "keyTypeMuxedEd25519":
-        return CryptoKeyType.keyTypeMuxedEd25519;
-      default:
-        throw new XdrError(`CryptoKeyType: unknown name ${name}`);
-    }
+    return enumFromName("CryptoKeyType", CryptoKeyType, name);
   }
 
   static fromXdrObject(wire: number): CryptoKeyType {

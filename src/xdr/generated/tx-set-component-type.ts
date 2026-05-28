@@ -1,6 +1,9 @@
 import { enumType } from "../types/enum.js";
-import { XdrError } from "../core/error.js";
-import { EnumValue, enumLookup } from "../values/enum-value.js";
+import {
+  EnumValue,
+  enumFromName,
+  enumFromValue,
+} from "../values/enum-value.js";
 
 export type TxSetComponentTypeWire = number;
 
@@ -22,31 +25,21 @@ export class TxSetComponentType extends EnumValue<TxSetComponentTypeName> {
     0,
   );
 
-  private static readonly byValue: Readonly<
-    Record<number, TxSetComponentType>
-  > = {
-    0: TxSetComponentType.txsetCompTxsMaybeDiscountedFee,
-  };
-
   static readonly schema = enumType("TxSetComponentType", {
     txsetCompTxsMaybeDiscountedFee: 0,
   });
 
   static fromValue(value: number): TxSetComponentType {
-    return enumLookup(
+    return enumFromValue(
       "TxSetComponentType",
-      TxSetComponentType.byValue,
+      TxSetComponentType.schema,
+      TxSetComponentType,
       value,
-    ) as TxSetComponentType;
+    );
   }
 
   static fromName(name: TxSetComponentTypeName): TxSetComponentType {
-    switch (name) {
-      case "txsetCompTxsMaybeDiscountedFee":
-        return TxSetComponentType.txsetCompTxsMaybeDiscountedFee;
-      default:
-        throw new XdrError(`TxSetComponentType: unknown name ${name}`);
-    }
+    return enumFromName("TxSetComponentType", TxSetComponentType, name);
   }
 
   static fromXdrObject(wire: number): TxSetComponentType {

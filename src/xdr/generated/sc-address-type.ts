@@ -1,6 +1,9 @@
 import { enumType } from "../types/enum.js";
-import { XdrError } from "../core/error.js";
-import { EnumValue, enumLookup } from "../values/enum-value.js";
+import {
+  EnumValue,
+  enumFromName,
+  enumFromValue,
+} from "../values/enum-value.js";
 
 export type ScAddressTypeWire = number;
 
@@ -45,14 +48,6 @@ export class ScAddressType extends EnumValue<ScAddressTypeName> {
     4,
   );
 
-  private static readonly byValue: Readonly<Record<number, ScAddressType>> = {
-    0: ScAddressType.scAddressTypeAccount,
-    1: ScAddressType.scAddressTypeContract,
-    2: ScAddressType.scAddressTypeMuxedAccount,
-    3: ScAddressType.scAddressTypeClaimableBalance,
-    4: ScAddressType.scAddressTypeLiquidityPool,
-  };
-
   static readonly schema = enumType("ScAddressType", {
     scAddressTypeAccount: 0,
     scAddressTypeContract: 1,
@@ -62,28 +57,16 @@ export class ScAddressType extends EnumValue<ScAddressTypeName> {
   });
 
   static fromValue(value: number): ScAddressType {
-    return enumLookup(
+    return enumFromValue(
       "ScAddressType",
-      ScAddressType.byValue,
+      ScAddressType.schema,
+      ScAddressType,
       value,
-    ) as ScAddressType;
+    );
   }
 
   static fromName(name: ScAddressTypeName): ScAddressType {
-    switch (name) {
-      case "scAddressTypeAccount":
-        return ScAddressType.scAddressTypeAccount;
-      case "scAddressTypeContract":
-        return ScAddressType.scAddressTypeContract;
-      case "scAddressTypeMuxedAccount":
-        return ScAddressType.scAddressTypeMuxedAccount;
-      case "scAddressTypeClaimableBalance":
-        return ScAddressType.scAddressTypeClaimableBalance;
-      case "scAddressTypeLiquidityPool":
-        return ScAddressType.scAddressTypeLiquidityPool;
-      default:
-        throw new XdrError(`ScAddressType: unknown name ${name}`);
-    }
+    return enumFromName("ScAddressType", ScAddressType, name);
   }
 
   static fromXdrObject(wire: number): ScAddressType {

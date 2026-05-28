@@ -1,6 +1,9 @@
 import { enumType } from "../types/enum.js";
-import { XdrError } from "../core/error.js";
-import { EnumValue, enumLookup } from "../values/enum-value.js";
+import {
+  EnumValue,
+  enumFromName,
+  enumFromValue,
+} from "../values/enum-value.js";
 
 export type CreateAccountResultCodeWire = number;
 
@@ -49,16 +52,6 @@ export class CreateAccountResultCode extends EnumValue<CreateAccountResultCodeNa
     -4,
   );
 
-  private static readonly byValue: Readonly<
-    Record<number, CreateAccountResultCode>
-  > = {
-    0: CreateAccountResultCode.createAccountSuccess,
-    "-1": CreateAccountResultCode.createAccountMalformed,
-    "-2": CreateAccountResultCode.createAccountUnderfunded,
-    "-3": CreateAccountResultCode.createAccountLowReserve,
-    "-4": CreateAccountResultCode.createAccountAlreadyExist,
-  };
-
   static readonly schema = enumType("CreateAccountResultCode", {
     createAccountSuccess: 0,
     createAccountMalformed: -1,
@@ -68,28 +61,20 @@ export class CreateAccountResultCode extends EnumValue<CreateAccountResultCodeNa
   });
 
   static fromValue(value: number): CreateAccountResultCode {
-    return enumLookup(
+    return enumFromValue(
       "CreateAccountResultCode",
-      CreateAccountResultCode.byValue,
+      CreateAccountResultCode.schema,
+      CreateAccountResultCode,
       value,
-    ) as CreateAccountResultCode;
+    );
   }
 
   static fromName(name: CreateAccountResultCodeName): CreateAccountResultCode {
-    switch (name) {
-      case "createAccountSuccess":
-        return CreateAccountResultCode.createAccountSuccess;
-      case "createAccountMalformed":
-        return CreateAccountResultCode.createAccountMalformed;
-      case "createAccountUnderfunded":
-        return CreateAccountResultCode.createAccountUnderfunded;
-      case "createAccountLowReserve":
-        return CreateAccountResultCode.createAccountLowReserve;
-      case "createAccountAlreadyExist":
-        return CreateAccountResultCode.createAccountAlreadyExist;
-      default:
-        throw new XdrError(`CreateAccountResultCode: unknown name ${name}`);
-    }
+    return enumFromName(
+      "CreateAccountResultCode",
+      CreateAccountResultCode,
+      name,
+    );
   }
 
   static fromXdrObject(wire: number): CreateAccountResultCode {

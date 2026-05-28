@@ -1,6 +1,9 @@
 import { enumType } from "../types/enum.js";
-import { XdrError } from "../core/error.js";
-import { EnumValue, enumLookup } from "../values/enum-value.js";
+import {
+  EnumValue,
+  enumFromName,
+  enumFromValue,
+} from "../values/enum-value.js";
 
 export type ConfigSettingIdWire = number;
 
@@ -137,30 +140,6 @@ export class ConfigSettingId extends EnumValue<ConfigSettingIdName> {
     20,
   );
 
-  private static readonly byValue: Readonly<Record<number, ConfigSettingId>> = {
-    0: ConfigSettingId.configSettingContractMaxSizeBytes,
-    1: ConfigSettingId.configSettingContractComputeV0,
-    2: ConfigSettingId.configSettingContractLedgerCostV0,
-    3: ConfigSettingId.configSettingContractHistoricalDataV0,
-    4: ConfigSettingId.configSettingContractEventsV0,
-    5: ConfigSettingId.configSettingContractBandwidthV0,
-    6: ConfigSettingId.configSettingContractCostParamsCpuInstructions,
-    7: ConfigSettingId.configSettingContractCostParamsMemoryBytes,
-    8: ConfigSettingId.configSettingContractDataKeySizeBytes,
-    9: ConfigSettingId.configSettingContractDataEntrySizeBytes,
-    10: ConfigSettingId.configSettingStateArchival,
-    11: ConfigSettingId.configSettingContractExecutionLanes,
-    12: ConfigSettingId.configSettingLiveSorobanStateSizeWindow,
-    13: ConfigSettingId.configSettingEvictionIterator,
-    14: ConfigSettingId.configSettingContractParallelComputeV0,
-    15: ConfigSettingId.configSettingContractLedgerCostExtV0,
-    16: ConfigSettingId.configSettingScpTiming,
-    17: ConfigSettingId.configSettingFrozenLedgerKeys,
-    18: ConfigSettingId.configSettingFrozenLedgerKeysDelta,
-    19: ConfigSettingId.configSettingFreezeBypassTxs,
-    20: ConfigSettingId.configSettingFreezeBypassTxsDelta,
-  };
-
   static readonly schema = enumType("ConfigSettingId", {
     configSettingContractMaxSizeBytes: 0,
     configSettingContractComputeV0: 1,
@@ -186,60 +165,16 @@ export class ConfigSettingId extends EnumValue<ConfigSettingIdName> {
   });
 
   static fromValue(value: number): ConfigSettingId {
-    return enumLookup(
+    return enumFromValue(
       "ConfigSettingId",
-      ConfigSettingId.byValue,
+      ConfigSettingId.schema,
+      ConfigSettingId,
       value,
-    ) as ConfigSettingId;
+    );
   }
 
   static fromName(name: ConfigSettingIdName): ConfigSettingId {
-    switch (name) {
-      case "configSettingContractMaxSizeBytes":
-        return ConfigSettingId.configSettingContractMaxSizeBytes;
-      case "configSettingContractComputeV0":
-        return ConfigSettingId.configSettingContractComputeV0;
-      case "configSettingContractLedgerCostV0":
-        return ConfigSettingId.configSettingContractLedgerCostV0;
-      case "configSettingContractHistoricalDataV0":
-        return ConfigSettingId.configSettingContractHistoricalDataV0;
-      case "configSettingContractEventsV0":
-        return ConfigSettingId.configSettingContractEventsV0;
-      case "configSettingContractBandwidthV0":
-        return ConfigSettingId.configSettingContractBandwidthV0;
-      case "configSettingContractCostParamsCpuInstructions":
-        return ConfigSettingId.configSettingContractCostParamsCpuInstructions;
-      case "configSettingContractCostParamsMemoryBytes":
-        return ConfigSettingId.configSettingContractCostParamsMemoryBytes;
-      case "configSettingContractDataKeySizeBytes":
-        return ConfigSettingId.configSettingContractDataKeySizeBytes;
-      case "configSettingContractDataEntrySizeBytes":
-        return ConfigSettingId.configSettingContractDataEntrySizeBytes;
-      case "configSettingStateArchival":
-        return ConfigSettingId.configSettingStateArchival;
-      case "configSettingContractExecutionLanes":
-        return ConfigSettingId.configSettingContractExecutionLanes;
-      case "configSettingLiveSorobanStateSizeWindow":
-        return ConfigSettingId.configSettingLiveSorobanStateSizeWindow;
-      case "configSettingEvictionIterator":
-        return ConfigSettingId.configSettingEvictionIterator;
-      case "configSettingContractParallelComputeV0":
-        return ConfigSettingId.configSettingContractParallelComputeV0;
-      case "configSettingContractLedgerCostExtV0":
-        return ConfigSettingId.configSettingContractLedgerCostExtV0;
-      case "configSettingScpTiming":
-        return ConfigSettingId.configSettingScpTiming;
-      case "configSettingFrozenLedgerKeys":
-        return ConfigSettingId.configSettingFrozenLedgerKeys;
-      case "configSettingFrozenLedgerKeysDelta":
-        return ConfigSettingId.configSettingFrozenLedgerKeysDelta;
-      case "configSettingFreezeBypassTxs":
-        return ConfigSettingId.configSettingFreezeBypassTxs;
-      case "configSettingFreezeBypassTxsDelta":
-        return ConfigSettingId.configSettingFreezeBypassTxsDelta;
-      default:
-        throw new XdrError(`ConfigSettingId: unknown name ${name}`);
-    }
+    return enumFromName("ConfigSettingId", ConfigSettingId, name);
   }
 
   static fromXdrObject(wire: number): ConfigSettingId {

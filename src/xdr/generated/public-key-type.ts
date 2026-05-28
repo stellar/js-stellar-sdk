@@ -1,6 +1,9 @@
 import { enumType } from "../types/enum.js";
-import { XdrError } from "../core/error.js";
-import { EnumValue, enumLookup } from "../values/enum-value.js";
+import {
+  EnumValue,
+  enumFromName,
+  enumFromValue,
+} from "../values/enum-value.js";
 
 export type PublicKeyTypeWire = number;
 
@@ -20,29 +23,21 @@ export class PublicKeyType extends EnumValue<PublicKeyTypeName> {
     0,
   );
 
-  private static readonly byValue: Readonly<Record<number, PublicKeyType>> = {
-    0: PublicKeyType.publicKeyTypeEd25519,
-  };
-
   static readonly schema = enumType("PublicKeyType", {
     publicKeyTypeEd25519: 0,
   });
 
   static fromValue(value: number): PublicKeyType {
-    return enumLookup(
+    return enumFromValue(
       "PublicKeyType",
-      PublicKeyType.byValue,
+      PublicKeyType.schema,
+      PublicKeyType,
       value,
-    ) as PublicKeyType;
+    );
   }
 
   static fromName(name: PublicKeyTypeName): PublicKeyType {
-    switch (name) {
-      case "publicKeyTypeEd25519":
-        return PublicKeyType.publicKeyTypeEd25519;
-      default:
-        throw new XdrError(`PublicKeyType: unknown name ${name}`);
-    }
+    return enumFromName("PublicKeyType", PublicKeyType, name);
   }
 
   static fromXdrObject(wire: number): PublicKeyType {

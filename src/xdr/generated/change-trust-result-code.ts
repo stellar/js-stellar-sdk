@@ -1,6 +1,9 @@
 import { enumType } from "../types/enum.js";
-import { XdrError } from "../core/error.js";
-import { EnumValue, enumLookup } from "../values/enum-value.js";
+import {
+  EnumValue,
+  enumFromName,
+  enumFromValue,
+} from "../values/enum-value.js";
 
 export type ChangeTrustResultCodeWire = number;
 
@@ -73,20 +76,6 @@ export class ChangeTrustResultCode extends EnumValue<ChangeTrustResultCodeName> 
   static readonly changeTrustNotAuthMaintainLiabilities =
     new ChangeTrustResultCode("changeTrustNotAuthMaintainLiabilities", -8);
 
-  private static readonly byValue: Readonly<
-    Record<number, ChangeTrustResultCode>
-  > = {
-    0: ChangeTrustResultCode.changeTrustSuccess,
-    "-1": ChangeTrustResultCode.changeTrustMalformed,
-    "-2": ChangeTrustResultCode.changeTrustNoIssuer,
-    "-3": ChangeTrustResultCode.changeTrustInvalidLimit,
-    "-4": ChangeTrustResultCode.changeTrustLowReserve,
-    "-5": ChangeTrustResultCode.changeTrustSelfNotAllowed,
-    "-6": ChangeTrustResultCode.changeTrustTrustLineMissing,
-    "-7": ChangeTrustResultCode.changeTrustCannotDelete,
-    "-8": ChangeTrustResultCode.changeTrustNotAuthMaintainLiabilities,
-  };
-
   static readonly schema = enumType("ChangeTrustResultCode", {
     changeTrustSuccess: 0,
     changeTrustMalformed: -1,
@@ -100,36 +89,16 @@ export class ChangeTrustResultCode extends EnumValue<ChangeTrustResultCodeName> 
   });
 
   static fromValue(value: number): ChangeTrustResultCode {
-    return enumLookup(
+    return enumFromValue(
       "ChangeTrustResultCode",
-      ChangeTrustResultCode.byValue,
+      ChangeTrustResultCode.schema,
+      ChangeTrustResultCode,
       value,
-    ) as ChangeTrustResultCode;
+    );
   }
 
   static fromName(name: ChangeTrustResultCodeName): ChangeTrustResultCode {
-    switch (name) {
-      case "changeTrustSuccess":
-        return ChangeTrustResultCode.changeTrustSuccess;
-      case "changeTrustMalformed":
-        return ChangeTrustResultCode.changeTrustMalformed;
-      case "changeTrustNoIssuer":
-        return ChangeTrustResultCode.changeTrustNoIssuer;
-      case "changeTrustInvalidLimit":
-        return ChangeTrustResultCode.changeTrustInvalidLimit;
-      case "changeTrustLowReserve":
-        return ChangeTrustResultCode.changeTrustLowReserve;
-      case "changeTrustSelfNotAllowed":
-        return ChangeTrustResultCode.changeTrustSelfNotAllowed;
-      case "changeTrustTrustLineMissing":
-        return ChangeTrustResultCode.changeTrustTrustLineMissing;
-      case "changeTrustCannotDelete":
-        return ChangeTrustResultCode.changeTrustCannotDelete;
-      case "changeTrustNotAuthMaintainLiabilities":
-        return ChangeTrustResultCode.changeTrustNotAuthMaintainLiabilities;
-      default:
-        throw new XdrError(`ChangeTrustResultCode: unknown name ${name}`);
-    }
+    return enumFromName("ChangeTrustResultCode", ChangeTrustResultCode, name);
   }
 
   static fromXdrObject(wire: number): ChangeTrustResultCode {
