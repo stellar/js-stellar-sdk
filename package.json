@@ -199,7 +199,7 @@
     "webpack-cli": "^5.0.1"
   },
   "dependencies": {
-    "@stellar/stellar-base": "^15.0.0",
+    "@stellar/stellar-base": "github:sisuresh/js-stellar-base#cap-71-p27",
     "axios": "1.15.0",
     "bignumber.js": "^9.3.1",
     "commander": "^14.0.3",
