@@ -131,6 +131,7 @@
     "@rollup/plugin-node-resolve": "^16.0.1",
     "@rollup/plugin-replace": "^6.0.2",
     "@rollup/plugin-terser": "^1.0.0",
+    "@stellar/stellar-xdr-json": "^26.0.0",
     "@stellar/tsconfig": "^1.0.2",
     "@types/detect-node": "^2.0.2",
     "@types/json-schema": "^7.0.15",
@@ -169,6 +170,7 @@
     "rollup-plugin-polyfill-node": "^0.13.0",
     "taffydb": "^2.7.3",
     "ts-node": "^10.9.2",
+    "tsx": "^4.19.2",
     "typescript": "5.9.3",
     "vitest": "^4.1.2"
   },
