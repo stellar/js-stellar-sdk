@@ -68,6 +68,16 @@ abstract class PersistedScpStateBase extends XdrValue {
     }
   }
 
+  /**
+   * Type guard narrowing an unknown value to a concrete PersistedScpState variant.
+   * Use this instead of `instanceof PersistedScpState`: the exported `PersistedScpState` value
+   * is the abstract base, so `instanceof` narrows to the base (not the
+   * variant union) and forces a cast. `PersistedScpState.is(x)` narrows to the union.
+   */
+  static is(value: unknown): value is PersistedScpState {
+    return value instanceof PersistedScpStateBase;
+  }
+
   abstract toXdrObject(): PersistedScpStateWire;
 }
 

@@ -199,6 +199,16 @@ abstract class PathPaymentStrictReceiveResultBase extends XdrValue {
     }
   }
 
+  /**
+   * Type guard narrowing an unknown value to a concrete PathPaymentStrictReceiveResult variant.
+   * Use this instead of `instanceof PathPaymentStrictReceiveResult`: the exported `PathPaymentStrictReceiveResult` value
+   * is the abstract base, so `instanceof` narrows to the base (not the
+   * variant union) and forces a cast. `PathPaymentStrictReceiveResult.is(x)` narrows to the union.
+   */
+  static is(value: unknown): value is PathPaymentStrictReceiveResult {
+    return value instanceof PathPaymentStrictReceiveResultBase;
+  }
+
   abstract toXdrObject(): PathPaymentStrictReceiveResultWire;
 }
 

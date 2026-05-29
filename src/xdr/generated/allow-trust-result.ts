@@ -109,6 +109,16 @@ abstract class AllowTrustResultBase extends XdrValue {
     }
   }
 
+  /**
+   * Type guard narrowing an unknown value to a concrete AllowTrustResult variant.
+   * Use this instead of `instanceof AllowTrustResult`: the exported `AllowTrustResult` value
+   * is the abstract base, so `instanceof` narrows to the base (not the
+   * variant union) and forces a cast. `AllowTrustResult.is(x)` narrows to the union.
+   */
+  static is(value: unknown): value is AllowTrustResult {
+    return value instanceof AllowTrustResultBase;
+  }
+
   abstract toXdrObject(): AllowTrustResultWire;
 }
 

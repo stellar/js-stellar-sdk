@@ -65,6 +65,16 @@ abstract class AccountEntryExtensionV2ExtBase extends XdrValue {
     }
   }
 
+  /**
+   * Type guard narrowing an unknown value to a concrete AccountEntryExtensionV2Ext variant.
+   * Use this instead of `instanceof AccountEntryExtensionV2Ext`: the exported `AccountEntryExtensionV2Ext` value
+   * is the abstract base, so `instanceof` narrows to the base (not the
+   * variant union) and forces a cast. `AccountEntryExtensionV2Ext.is(x)` narrows to the union.
+   */
+  static is(value: unknown): value is AccountEntryExtensionV2Ext {
+    return value instanceof AccountEntryExtensionV2ExtBase;
+  }
+
   abstract toXdrObject(): AccountEntryExtensionV2ExtWire;
 }
 

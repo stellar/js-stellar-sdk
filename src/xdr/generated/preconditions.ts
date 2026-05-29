@@ -71,6 +71,16 @@ abstract class PreconditionsBase extends XdrValue {
     }
   }
 
+  /**
+   * Type guard narrowing an unknown value to a concrete Preconditions variant.
+   * Use this instead of `instanceof Preconditions`: the exported `Preconditions` value
+   * is the abstract base, so `instanceof` narrows to the base (not the
+   * variant union) and forces a cast. `Preconditions.is(x)` narrows to the union.
+   */
+  static is(value: unknown): value is Preconditions {
+    return value instanceof PreconditionsBase;
+  }
+
   abstract toXdrObject(): PreconditionsWire;
 }
 

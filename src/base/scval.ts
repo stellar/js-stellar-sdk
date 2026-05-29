@@ -171,8 +171,8 @@ export function nativeToScVal(
         return ScVal.scvVoid();
       }
 
-      if (val instanceof ScVal) {
-        return val as ScVal; // should we copy?
+      if (ScVal.is(val)) {
+        return val;
       }
 
       if (val instanceof Address) {

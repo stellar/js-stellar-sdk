@@ -80,6 +80,16 @@ abstract class BeginSponsoringFutureReservesResultBase extends XdrValue {
     }
   }
 
+  /**
+   * Type guard narrowing an unknown value to a concrete BeginSponsoringFutureReservesResult variant.
+   * Use this instead of `instanceof BeginSponsoringFutureReservesResult`: the exported `BeginSponsoringFutureReservesResult` value
+   * is the abstract base, so `instanceof` narrows to the base (not the
+   * variant union) and forces a cast. `BeginSponsoringFutureReservesResult.is(x)` narrows to the union.
+   */
+  static is(value: unknown): value is BeginSponsoringFutureReservesResult {
+    return value instanceof BeginSponsoringFutureReservesResultBase;
+  }
+
   abstract toXdrObject(): BeginSponsoringFutureReservesResultWire;
 }
 

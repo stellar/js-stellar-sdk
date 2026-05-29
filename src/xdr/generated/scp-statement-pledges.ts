@@ -130,6 +130,16 @@ abstract class ScpStatementPledgesBase extends XdrValue {
     }
   }
 
+  /**
+   * Type guard narrowing an unknown value to a concrete ScpStatementPledges variant.
+   * Use this instead of `instanceof ScpStatementPledges`: the exported `ScpStatementPledges` value
+   * is the abstract base, so `instanceof` narrows to the base (not the
+   * variant union) and forces a cast. `ScpStatementPledges.is(x)` narrows to the union.
+   */
+  static is(value: unknown): value is ScpStatementPledges {
+    return value instanceof ScpStatementPledgesBase;
+  }
+
   abstract toXdrObject(): ScpStatementPledgesWire;
 }
 

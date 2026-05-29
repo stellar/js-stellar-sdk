@@ -131,6 +131,16 @@ abstract class LiquidityPoolDepositResultBase extends XdrValue {
     }
   }
 
+  /**
+   * Type guard narrowing an unknown value to a concrete LiquidityPoolDepositResult variant.
+   * Use this instead of `instanceof LiquidityPoolDepositResult`: the exported `LiquidityPoolDepositResult` value
+   * is the abstract base, so `instanceof` narrows to the base (not the
+   * variant union) and forces a cast. `LiquidityPoolDepositResult.is(x)` narrows to the union.
+   */
+  static is(value: unknown): value is LiquidityPoolDepositResult {
+    return value instanceof LiquidityPoolDepositResultBase;
+  }
+
   abstract toXdrObject(): LiquidityPoolDepositResultWire;
 }
 

@@ -126,6 +126,16 @@ abstract class TransactionMetaBase extends XdrValue {
     }
   }
 
+  /**
+   * Type guard narrowing an unknown value to a concrete TransactionMeta variant.
+   * Use this instead of `instanceof TransactionMeta`: the exported `TransactionMeta` value
+   * is the abstract base, so `instanceof` narrows to the base (not the
+   * variant union) and forces a cast. `TransactionMeta.is(x)` narrows to the union.
+   */
+  static is(value: unknown): value is TransactionMeta {
+    return value instanceof TransactionMetaBase;
+  }
+
   abstract toXdrObject(): TransactionMetaWire;
 }
 

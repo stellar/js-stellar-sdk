@@ -82,6 +82,16 @@ abstract class ScSpecUdtUnionCaseV0Base extends XdrValue {
     }
   }
 
+  /**
+   * Type guard narrowing an unknown value to a concrete ScSpecUdtUnionCaseV0 variant.
+   * Use this instead of `instanceof ScSpecUdtUnionCaseV0`: the exported `ScSpecUdtUnionCaseV0` value
+   * is the abstract base, so `instanceof` narrows to the base (not the
+   * variant union) and forces a cast. `ScSpecUdtUnionCaseV0.is(x)` narrows to the union.
+   */
+  static is(value: unknown): value is ScSpecUdtUnionCaseV0 {
+    return value instanceof ScSpecUdtUnionCaseV0Base;
+  }
+
   abstract toXdrObject(): ScSpecUdtUnionCaseV0Wire;
 }
 

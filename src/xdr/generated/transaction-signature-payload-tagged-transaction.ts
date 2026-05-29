@@ -75,6 +75,18 @@ abstract class TransactionSignaturePayloadTaggedTransactionBase extends XdrValue
     }
   }
 
+  /**
+   * Type guard narrowing an unknown value to a concrete TransactionSignaturePayloadTaggedTransaction variant.
+   * Use this instead of `instanceof TransactionSignaturePayloadTaggedTransaction`: the exported `TransactionSignaturePayloadTaggedTransaction` value
+   * is the abstract base, so `instanceof` narrows to the base (not the
+   * variant union) and forces a cast. `TransactionSignaturePayloadTaggedTransaction.is(x)` narrows to the union.
+   */
+  static is(
+    value: unknown,
+  ): value is TransactionSignaturePayloadTaggedTransaction {
+    return value instanceof TransactionSignaturePayloadTaggedTransactionBase;
+  }
+
   abstract toXdrObject(): TransactionSignaturePayloadTaggedTransactionWire;
 }
 

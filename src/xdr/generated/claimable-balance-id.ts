@@ -45,6 +45,16 @@ abstract class ClaimableBalanceIdBase extends XdrValue {
     }
   }
 
+  /**
+   * Type guard narrowing an unknown value to a concrete ClaimableBalanceId variant.
+   * Use this instead of `instanceof ClaimableBalanceId`: the exported `ClaimableBalanceId` value
+   * is the abstract base, so `instanceof` narrows to the base (not the
+   * variant union) and forces a cast. `ClaimableBalanceId.is(x)` narrows to the union.
+   */
+  static is(value: unknown): value is ClaimableBalanceId {
+    return value instanceof ClaimableBalanceIdBase;
+  }
+
   abstract toXdrObject(): ClaimableBalanceIdWire;
 }
 

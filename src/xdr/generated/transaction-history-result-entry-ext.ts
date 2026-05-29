@@ -46,6 +46,16 @@ abstract class TransactionHistoryResultEntryExtBase extends XdrValue {
     }
   }
 
+  /**
+   * Type guard narrowing an unknown value to a concrete TransactionHistoryResultEntryExt variant.
+   * Use this instead of `instanceof TransactionHistoryResultEntryExt`: the exported `TransactionHistoryResultEntryExt` value
+   * is the abstract base, so `instanceof` narrows to the base (not the
+   * variant union) and forces a cast. `TransactionHistoryResultEntryExt.is(x)` narrows to the union.
+   */
+  static is(value: unknown): value is TransactionHistoryResultEntryExt {
+    return value instanceof TransactionHistoryResultEntryExtBase;
+  }
+
   abstract toXdrObject(): TransactionHistoryResultEntryExtWire;
 }
 

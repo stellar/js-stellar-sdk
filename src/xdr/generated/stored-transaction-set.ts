@@ -71,6 +71,16 @@ abstract class StoredTransactionSetBase extends XdrValue {
     }
   }
 
+  /**
+   * Type guard narrowing an unknown value to a concrete StoredTransactionSet variant.
+   * Use this instead of `instanceof StoredTransactionSet`: the exported `StoredTransactionSet` value
+   * is the abstract base, so `instanceof` narrows to the base (not the
+   * variant union) and forces a cast. `StoredTransactionSet.is(x)` narrows to the union.
+   */
+  static is(value: unknown): value is StoredTransactionSet {
+    return value instanceof StoredTransactionSetBase;
+  }
+
   abstract toXdrObject(): StoredTransactionSetWire;
 }
 

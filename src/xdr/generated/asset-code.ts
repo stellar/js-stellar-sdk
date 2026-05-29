@@ -75,6 +75,16 @@ abstract class AssetCodeBase extends XdrValue {
     }
   }
 
+  /**
+   * Type guard narrowing an unknown value to a concrete AssetCode variant.
+   * Use this instead of `instanceof AssetCode`: the exported `AssetCode` value
+   * is the abstract base, so `instanceof` narrows to the base (not the
+   * variant union) and forces a cast. `AssetCode.is(x)` narrows to the union.
+   */
+  static is(value: unknown): value is AssetCode {
+    return value instanceof AssetCodeBase;
+  }
+
   abstract toXdrObject(): AssetCodeWire;
 }
 

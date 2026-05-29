@@ -115,6 +115,16 @@ abstract class ChangeTrustAssetBase extends XdrValue {
     }
   }
 
+  /**
+   * Type guard narrowing an unknown value to a concrete ChangeTrustAsset variant.
+   * Use this instead of `instanceof ChangeTrustAsset`: the exported `ChangeTrustAsset` value
+   * is the abstract base, so `instanceof` narrows to the base (not the
+   * variant union) and forces a cast. `ChangeTrustAsset.is(x)` narrows to the union.
+   */
+  static is(value: unknown): value is ChangeTrustAsset {
+    return value instanceof ChangeTrustAssetBase;
+  }
+
   abstract toXdrObject(): ChangeTrustAssetWire;
 }
 

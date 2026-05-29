@@ -41,6 +41,16 @@ abstract class DataEntryExtBase extends XdrValue {
     }
   }
 
+  /**
+   * Type guard narrowing an unknown value to a concrete DataEntryExt variant.
+   * Use this instead of `instanceof DataEntryExt`: the exported `DataEntryExt` value
+   * is the abstract base, so `instanceof` narrows to the base (not the
+   * variant union) and forces a cast. `DataEntryExt.is(x)` narrows to the union.
+   */
+  static is(value: unknown): value is DataEntryExt {
+    return value instanceof DataEntryExtBase;
+  }
+
   abstract toXdrObject(): DataEntryExtWire;
 }
 

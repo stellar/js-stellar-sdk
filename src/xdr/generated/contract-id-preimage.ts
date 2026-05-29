@@ -80,6 +80,16 @@ abstract class ContractIdPreimageBase extends XdrValue {
     }
   }
 
+  /**
+   * Type guard narrowing an unknown value to a concrete ContractIdPreimage variant.
+   * Use this instead of `instanceof ContractIdPreimage`: the exported `ContractIdPreimage` value
+   * is the abstract base, so `instanceof` narrows to the base (not the
+   * variant union) and forces a cast. `ContractIdPreimage.is(x)` narrows to the union.
+   */
+  static is(value: unknown): value is ContractIdPreimage {
+    return value instanceof ContractIdPreimageBase;
+  }
+
   abstract toXdrObject(): ContractIdPreimageWire;
 }
 

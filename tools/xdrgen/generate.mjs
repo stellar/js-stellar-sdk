@@ -1447,6 +1447,16 @@ ${fromWireCases}
     }
   }
 
+  /**
+   * Type guard narrowing an unknown value to a concrete ${name} variant.
+   * Use this instead of \`instanceof ${name}\`: the exported \`${name}\` value
+   * is the abstract base, so \`instanceof\` narrows to the base (not the
+   * variant union) and forces a cast. \`${name}.is(x)\` narrows to the union.
+   */
+  static is(value: unknown): value is ${name} {
+    return value instanceof ${baseName};
+  }
+
   abstract toXdrObject(): ${wireName};
 }
 

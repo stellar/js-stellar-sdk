@@ -99,6 +99,16 @@ abstract class SignerKeyBase extends XdrValue {
     }
   }
 
+  /**
+   * Type guard narrowing an unknown value to a concrete SignerKey variant.
+   * Use this instead of `instanceof SignerKey`: the exported `SignerKey` value
+   * is the abstract base, so `instanceof` narrows to the base (not the
+   * variant union) and forces a cast. `SignerKey.is(x)` narrows to the union.
+   */
+  static is(value: unknown): value is SignerKey {
+    return value instanceof SignerKeyBase;
+  }
+
   abstract toXdrObject(): SignerKeyWire;
 }
 

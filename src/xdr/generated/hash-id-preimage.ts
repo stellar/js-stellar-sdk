@@ -165,6 +165,16 @@ abstract class HashIdPreimageBase extends XdrValue {
     }
   }
 
+  /**
+   * Type guard narrowing an unknown value to a concrete HashIdPreimage variant.
+   * Use this instead of `instanceof HashIdPreimage`: the exported `HashIdPreimage` value
+   * is the abstract base, so `instanceof` narrows to the base (not the
+   * variant union) and forces a cast. `HashIdPreimage.is(x)` narrows to the union.
+   */
+  static is(value: unknown): value is HashIdPreimage {
+    return value instanceof HashIdPreimageBase;
+  }
+
   abstract toXdrObject(): HashIdPreimageWire;
 }
 

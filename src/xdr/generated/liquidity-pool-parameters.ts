@@ -68,6 +68,16 @@ abstract class LiquidityPoolParametersBase extends XdrValue {
     }
   }
 
+  /**
+   * Type guard narrowing an unknown value to a concrete LiquidityPoolParameters variant.
+   * Use this instead of `instanceof LiquidityPoolParameters`: the exported `LiquidityPoolParameters` value
+   * is the abstract base, so `instanceof` narrows to the base (not the
+   * variant union) and forces a cast. `LiquidityPoolParameters.is(x)` narrows to the union.
+   */
+  static is(value: unknown): value is LiquidityPoolParameters {
+    return value instanceof LiquidityPoolParametersBase;
+  }
+
   abstract toXdrObject(): LiquidityPoolParametersWire;
 }
 

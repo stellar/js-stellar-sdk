@@ -61,6 +61,16 @@ abstract class SurveyResponseBodyBase extends XdrValue {
     }
   }
 
+  /**
+   * Type guard narrowing an unknown value to a concrete SurveyResponseBody variant.
+   * Use this instead of `instanceof SurveyResponseBody`: the exported `SurveyResponseBody` value
+   * is the abstract base, so `instanceof` narrows to the base (not the
+   * variant union) and forces a cast. `SurveyResponseBody.is(x)` narrows to the union.
+   */
+  static is(value: unknown): value is SurveyResponseBody {
+    return value instanceof SurveyResponseBodyBase;
+  }
+
   abstract toXdrObject(): SurveyResponseBodyWire;
 }
 

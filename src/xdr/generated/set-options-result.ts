@@ -149,6 +149,16 @@ abstract class SetOptionsResultBase extends XdrValue {
     }
   }
 
+  /**
+   * Type guard narrowing an unknown value to a concrete SetOptionsResult variant.
+   * Use this instead of `instanceof SetOptionsResult`: the exported `SetOptionsResult` value
+   * is the abstract base, so `instanceof` narrows to the base (not the
+   * variant union) and forces a cast. `SetOptionsResult.is(x)` narrows to the union.
+   */
+  static is(value: unknown): value is SetOptionsResult {
+    return value instanceof SetOptionsResultBase;
+  }
+
   abstract toXdrObject(): SetOptionsResultWire;
 }
 

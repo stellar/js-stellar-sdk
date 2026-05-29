@@ -53,6 +53,16 @@ abstract class PeerAddressIpBase extends XdrValue {
     }
   }
 
+  /**
+   * Type guard narrowing an unknown value to a concrete PeerAddressIp variant.
+   * Use this instead of `instanceof PeerAddressIp`: the exported `PeerAddressIp` value
+   * is the abstract base, so `instanceof` narrows to the base (not the
+   * variant union) and forces a cast. `PeerAddressIp.is(x)` narrows to the union.
+   */
+  static is(value: unknown): value is PeerAddressIp {
+    return value instanceof PeerAddressIpBase;
+  }
+
   abstract toXdrObject(): PeerAddressIpWire;
 }
 

@@ -67,6 +67,16 @@ abstract class ContractCodeEntryExtBase extends XdrValue {
     }
   }
 
+  /**
+   * Type guard narrowing an unknown value to a concrete ContractCodeEntryExt variant.
+   * Use this instead of `instanceof ContractCodeEntryExt`: the exported `ContractCodeEntryExt` value
+   * is the abstract base, so `instanceof` narrows to the base (not the
+   * variant union) and forces a cast. `ContractCodeEntryExt.is(x)` narrows to the union.
+   */
+  static is(value: unknown): value is ContractCodeEntryExt {
+    return value instanceof ContractCodeEntryExtBase;
+  }
+
   abstract toXdrObject(): ContractCodeEntryExtWire;
 }
 

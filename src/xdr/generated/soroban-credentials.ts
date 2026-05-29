@@ -76,6 +76,16 @@ abstract class SorobanCredentialsBase extends XdrValue {
     }
   }
 
+  /**
+   * Type guard narrowing an unknown value to a concrete SorobanCredentials variant.
+   * Use this instead of `instanceof SorobanCredentials`: the exported `SorobanCredentials` value
+   * is the abstract base, so `instanceof` narrows to the base (not the
+   * variant union) and forces a cast. `SorobanCredentials.is(x)` narrows to the union.
+   */
+  static is(value: unknown): value is SorobanCredentials {
+    return value instanceof SorobanCredentialsBase;
+  }
+
   abstract toXdrObject(): SorobanCredentialsWire;
 }
 

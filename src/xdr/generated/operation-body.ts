@@ -578,6 +578,16 @@ abstract class OperationBodyBase extends XdrValue {
     }
   }
 
+  /**
+   * Type guard narrowing an unknown value to a concrete OperationBody variant.
+   * Use this instead of `instanceof OperationBody`: the exported `OperationBody` value
+   * is the abstract base, so `instanceof` narrows to the base (not the
+   * variant union) and forces a cast. `OperationBody.is(x)` narrows to the union.
+   */
+  static is(value: unknown): value is OperationBody {
+    return value instanceof OperationBodyBase;
+  }
+
   abstract toXdrObject(): OperationBodyWire;
 }
 

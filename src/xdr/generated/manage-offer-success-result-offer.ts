@@ -80,6 +80,16 @@ abstract class ManageOfferSuccessResultOfferBase extends XdrValue {
     }
   }
 
+  /**
+   * Type guard narrowing an unknown value to a concrete ManageOfferSuccessResultOffer variant.
+   * Use this instead of `instanceof ManageOfferSuccessResultOffer`: the exported `ManageOfferSuccessResultOffer` value
+   * is the abstract base, so `instanceof` narrows to the base (not the
+   * variant union) and forces a cast. `ManageOfferSuccessResultOffer.is(x)` narrows to the union.
+   */
+  static is(value: unknown): value is ManageOfferSuccessResultOffer {
+    return value instanceof ManageOfferSuccessResultOfferBase;
+  }
+
   abstract toXdrObject(): ManageOfferSuccessResultOfferWire;
 }
 

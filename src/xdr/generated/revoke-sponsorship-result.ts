@@ -101,6 +101,16 @@ abstract class RevokeSponsorshipResultBase extends XdrValue {
     }
   }
 
+  /**
+   * Type guard narrowing an unknown value to a concrete RevokeSponsorshipResult variant.
+   * Use this instead of `instanceof RevokeSponsorshipResult`: the exported `RevokeSponsorshipResult` value
+   * is the abstract base, so `instanceof` narrows to the base (not the
+   * variant union) and forces a cast. `RevokeSponsorshipResult.is(x)` narrows to the union.
+   */
+  static is(value: unknown): value is RevokeSponsorshipResult {
+    return value instanceof RevokeSponsorshipResultBase;
+  }
+
   abstract toXdrObject(): RevokeSponsorshipResultWire;
 }
 

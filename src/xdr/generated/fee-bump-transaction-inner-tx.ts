@@ -57,6 +57,16 @@ abstract class FeeBumpTransactionInnerTxBase extends XdrValue {
     }
   }
 
+  /**
+   * Type guard narrowing an unknown value to a concrete FeeBumpTransactionInnerTx variant.
+   * Use this instead of `instanceof FeeBumpTransactionInnerTx`: the exported `FeeBumpTransactionInnerTx` value
+   * is the abstract base, so `instanceof` narrows to the base (not the
+   * variant union) and forces a cast. `FeeBumpTransactionInnerTx.is(x)` narrows to the union.
+   */
+  static is(value: unknown): value is FeeBumpTransactionInnerTx {
+    return value instanceof FeeBumpTransactionInnerTxBase;
+  }
+
   abstract toXdrObject(): FeeBumpTransactionInnerTxWire;
 }
 

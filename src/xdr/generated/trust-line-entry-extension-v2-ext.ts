@@ -46,6 +46,16 @@ abstract class TrustLineEntryExtensionV2ExtBase extends XdrValue {
     }
   }
 
+  /**
+   * Type guard narrowing an unknown value to a concrete TrustLineEntryExtensionV2Ext variant.
+   * Use this instead of `instanceof TrustLineEntryExtensionV2Ext`: the exported `TrustLineEntryExtensionV2Ext` value
+   * is the abstract base, so `instanceof` narrows to the base (not the
+   * variant union) and forces a cast. `TrustLineEntryExtensionV2Ext.is(x)` narrows to the union.
+   */
+  static is(value: unknown): value is TrustLineEntryExtensionV2Ext {
+    return value instanceof TrustLineEntryExtensionV2ExtBase;
+  }
+
   abstract toXdrObject(): TrustLineEntryExtensionV2ExtWire;
 }
 

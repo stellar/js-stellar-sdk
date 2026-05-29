@@ -88,6 +88,16 @@ abstract class HotArchiveBucketEntryBase extends XdrValue {
     }
   }
 
+  /**
+   * Type guard narrowing an unknown value to a concrete HotArchiveBucketEntry variant.
+   * Use this instead of `instanceof HotArchiveBucketEntry`: the exported `HotArchiveBucketEntry` value
+   * is the abstract base, so `instanceof` narrows to the base (not the
+   * variant union) and forces a cast. `HotArchiveBucketEntry.is(x)` narrows to the union.
+   */
+  static is(value: unknown): value is HotArchiveBucketEntry {
+    return value instanceof HotArchiveBucketEntryBase;
+  }
+
   abstract toXdrObject(): HotArchiveBucketEntryWire;
 }
 

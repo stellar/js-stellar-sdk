@@ -87,6 +87,16 @@ abstract class BucketEntryBase extends XdrValue {
     }
   }
 
+  /**
+   * Type guard narrowing an unknown value to a concrete BucketEntry variant.
+   * Use this instead of `instanceof BucketEntry`: the exported `BucketEntry` value
+   * is the abstract base, so `instanceof` narrows to the base (not the
+   * variant union) and forces a cast. `BucketEntry.is(x)` narrows to the union.
+   */
+  static is(value: unknown): value is BucketEntry {
+    return value instanceof BucketEntryBase;
+  }
+
   abstract toXdrObject(): BucketEntryWire;
 }
 

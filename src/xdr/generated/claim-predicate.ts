@@ -153,6 +153,16 @@ abstract class ClaimPredicateBase extends XdrValue {
     }
   }
 
+  /**
+   * Type guard narrowing an unknown value to a concrete ClaimPredicate variant.
+   * Use this instead of `instanceof ClaimPredicate`: the exported `ClaimPredicate` value
+   * is the abstract base, so `instanceof` narrows to the base (not the
+   * variant union) and forces a cast. `ClaimPredicate.is(x)` narrows to the union.
+   */
+  static is(value: unknown): value is ClaimPredicate {
+    return value instanceof ClaimPredicateBase;
+  }
+
   abstract toXdrObject(): ClaimPredicateWire;
 }
 

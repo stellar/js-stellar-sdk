@@ -41,6 +41,16 @@ abstract class ScMetaEntryBase extends XdrValue {
     }
   }
 
+  /**
+   * Type guard narrowing an unknown value to a concrete ScMetaEntry variant.
+   * Use this instead of `instanceof ScMetaEntry`: the exported `ScMetaEntry` value
+   * is the abstract base, so `instanceof` narrows to the base (not the
+   * variant union) and forces a cast. `ScMetaEntry.is(x)` narrows to the union.
+   */
+  static is(value: unknown): value is ScMetaEntry {
+    return value instanceof ScMetaEntryBase;
+  }
+
   abstract toXdrObject(): ScMetaEntryWire;
 }
 

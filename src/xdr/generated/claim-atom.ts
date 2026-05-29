@@ -88,6 +88,16 @@ abstract class ClaimAtomBase extends XdrValue {
     }
   }
 
+  /**
+   * Type guard narrowing an unknown value to a concrete ClaimAtom variant.
+   * Use this instead of `instanceof ClaimAtom`: the exported `ClaimAtom` value
+   * is the abstract base, so `instanceof` narrows to the base (not the
+   * variant union) and forces a cast. `ClaimAtom.is(x)` narrows to the union.
+   */
+  static is(value: unknown): value is ClaimAtom {
+    return value instanceof ClaimAtomBase;
+  }
+
   abstract toXdrObject(): ClaimAtomWire;
 }
 

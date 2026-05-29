@@ -455,6 +455,16 @@ abstract class ScValBase extends XdrValue {
     }
   }
 
+  /**
+   * Type guard narrowing an unknown value to a concrete ScVal variant.
+   * Use this instead of `instanceof ScVal`: the exported `ScVal` value
+   * is the abstract base, so `instanceof` narrows to the base (not the
+   * variant union) and forces a cast. `ScVal.is(x)` narrows to the union.
+   */
+  static is(value: unknown): value is ScVal {
+    return value instanceof ScValBase;
+  }
+
   abstract toXdrObject(): ScValWire;
 }
 

@@ -709,6 +709,16 @@ abstract class OperationResultTrBase extends XdrValue {
     }
   }
 
+  /**
+   * Type guard narrowing an unknown value to a concrete OperationResultTr variant.
+   * Use this instead of `instanceof OperationResultTr`: the exported `OperationResultTr` value
+   * is the abstract base, so `instanceof` narrows to the base (not the
+   * variant union) and forces a cast. `OperationResultTr.is(x)` narrows to the union.
+   */
+  static is(value: unknown): value is OperationResultTr {
+    return value instanceof OperationResultTrBase;
+  }
+
   abstract toXdrObject(): OperationResultTrWire;
 }
 

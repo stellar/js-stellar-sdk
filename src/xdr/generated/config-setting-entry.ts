@@ -577,6 +577,16 @@ abstract class ConfigSettingEntryBase extends XdrValue {
     }
   }
 
+  /**
+   * Type guard narrowing an unknown value to a concrete ConfigSettingEntry variant.
+   * Use this instead of `instanceof ConfigSettingEntry`: the exported `ConfigSettingEntry` value
+   * is the abstract base, so `instanceof` narrows to the base (not the
+   * variant union) and forces a cast. `ConfigSettingEntry.is(x)` narrows to the union.
+   */
+  static is(value: unknown): value is ConfigSettingEntry {
+    return value instanceof ConfigSettingEntryBase;
+  }
+
   abstract toXdrObject(): ConfigSettingEntryWire;
 }
 

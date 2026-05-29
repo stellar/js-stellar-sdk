@@ -70,6 +70,16 @@ abstract class InflationResultBase extends XdrValue {
     }
   }
 
+  /**
+   * Type guard narrowing an unknown value to a concrete InflationResult variant.
+   * Use this instead of `instanceof InflationResult`: the exported `InflationResult` value
+   * is the abstract base, so `instanceof` narrows to the base (not the
+   * variant union) and forces a cast. `InflationResult.is(x)` narrows to the union.
+   */
+  static is(value: unknown): value is InflationResult {
+    return value instanceof InflationResultBase;
+  }
+
   abstract toXdrObject(): InflationResultWire;
 }
 

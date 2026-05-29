@@ -83,6 +83,16 @@ abstract class TransactionPhaseBase extends XdrValue {
     }
   }
 
+  /**
+   * Type guard narrowing an unknown value to a concrete TransactionPhase variant.
+   * Use this instead of `instanceof TransactionPhase`: the exported `TransactionPhase` value
+   * is the abstract base, so `instanceof` narrows to the base (not the
+   * variant union) and forces a cast. `TransactionPhase.is(x)` narrows to the union.
+   */
+  static is(value: unknown): value is TransactionPhase {
+    return value instanceof TransactionPhaseBase;
+  }
+
   abstract toXdrObject(): TransactionPhaseWire;
 }
 

@@ -54,6 +54,16 @@ abstract class AuthenticatedMessageBase extends XdrValue {
     }
   }
 
+  /**
+   * Type guard narrowing an unknown value to a concrete AuthenticatedMessage variant.
+   * Use this instead of `instanceof AuthenticatedMessage`: the exported `AuthenticatedMessage` value
+   * is the abstract base, so `instanceof` narrows to the base (not the
+   * variant union) and forces a cast. `AuthenticatedMessage.is(x)` narrows to the union.
+   */
+  static is(value: unknown): value is AuthenticatedMessage {
+    return value instanceof AuthenticatedMessageBase;
+  }
+
   abstract toXdrObject(): AuthenticatedMessageWire;
 }
 

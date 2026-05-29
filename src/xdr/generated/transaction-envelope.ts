@@ -92,6 +92,16 @@ abstract class TransactionEnvelopeBase extends XdrValue {
     }
   }
 
+  /**
+   * Type guard narrowing an unknown value to a concrete TransactionEnvelope variant.
+   * Use this instead of `instanceof TransactionEnvelope`: the exported `TransactionEnvelope` value
+   * is the abstract base, so `instanceof` narrows to the base (not the
+   * variant union) and forces a cast. `TransactionEnvelope.is(x)` narrows to the union.
+   */
+  static is(value: unknown): value is TransactionEnvelope {
+    return value instanceof TransactionEnvelopeBase;
+  }
+
   abstract toXdrObject(): TransactionEnvelopeWire;
 }
 

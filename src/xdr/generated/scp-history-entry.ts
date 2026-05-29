@@ -49,6 +49,16 @@ abstract class ScpHistoryEntryBase extends XdrValue {
     }
   }
 
+  /**
+   * Type guard narrowing an unknown value to a concrete ScpHistoryEntry variant.
+   * Use this instead of `instanceof ScpHistoryEntry`: the exported `ScpHistoryEntry` value
+   * is the abstract base, so `instanceof` narrows to the base (not the
+   * variant union) and forces a cast. `ScpHistoryEntry.is(x)` narrows to the union.
+   */
+  static is(value: unknown): value is ScpHistoryEntry {
+    return value instanceof ScpHistoryEntryBase;
+  }
+
   abstract toXdrObject(): ScpHistoryEntryWire;
 }
 

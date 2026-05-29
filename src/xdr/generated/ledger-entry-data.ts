@@ -214,6 +214,16 @@ abstract class LedgerEntryDataBase extends XdrValue {
     }
   }
 
+  /**
+   * Type guard narrowing an unknown value to a concrete LedgerEntryData variant.
+   * Use this instead of `instanceof LedgerEntryData`: the exported `LedgerEntryData` value
+   * is the abstract base, so `instanceof` narrows to the base (not the
+   * variant union) and forces a cast. `LedgerEntryData.is(x)` narrows to the union.
+   */
+  static is(value: unknown): value is LedgerEntryData {
+    return value instanceof LedgerEntryDataBase;
+  }
+
   abstract toXdrObject(): LedgerEntryDataWire;
 }
 

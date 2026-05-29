@@ -46,6 +46,16 @@ abstract class LedgerHeaderExtensionV1ExtBase extends XdrValue {
     }
   }
 
+  /**
+   * Type guard narrowing an unknown value to a concrete LedgerHeaderExtensionV1Ext variant.
+   * Use this instead of `instanceof LedgerHeaderExtensionV1Ext`: the exported `LedgerHeaderExtensionV1Ext` value
+   * is the abstract base, so `instanceof` narrows to the base (not the
+   * variant union) and forces a cast. `LedgerHeaderExtensionV1Ext.is(x)` narrows to the union.
+   */
+  static is(value: unknown): value is LedgerHeaderExtensionV1Ext {
+    return value instanceof LedgerHeaderExtensionV1ExtBase;
+  }
+
   abstract toXdrObject(): LedgerHeaderExtensionV1ExtWire;
 }
 

@@ -70,6 +70,16 @@ abstract class TxSetComponentBase extends XdrValue {
     }
   }
 
+  /**
+   * Type guard narrowing an unknown value to a concrete TxSetComponent variant.
+   * Use this instead of `instanceof TxSetComponent`: the exported `TxSetComponent` value
+   * is the abstract base, so `instanceof` narrows to the base (not the
+   * variant union) and forces a cast. `TxSetComponent.is(x)` narrows to the union.
+   */
+  static is(value: unknown): value is TxSetComponent {
+    return value instanceof TxSetComponentBase;
+  }
+
   abstract toXdrObject(): TxSetComponentWire;
 }
 

@@ -40,6 +40,16 @@ abstract class PublicKeyBase extends XdrValue {
     }
   }
 
+  /**
+   * Type guard narrowing an unknown value to a concrete PublicKey variant.
+   * Use this instead of `instanceof PublicKey`: the exported `PublicKey` value
+   * is the abstract base, so `instanceof` narrows to the base (not the
+   * variant union) and forces a cast. `PublicKey.is(x)` narrows to the union.
+   */
+  static is(value: unknown): value is PublicKey {
+    return value instanceof PublicKeyBase;
+  }
+
   abstract toXdrObject(): PublicKeyWire;
 }
 

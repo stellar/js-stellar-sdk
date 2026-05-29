@@ -71,6 +71,16 @@ abstract class StellarValueExtBase extends XdrValue {
     }
   }
 
+  /**
+   * Type guard narrowing an unknown value to a concrete StellarValueExt variant.
+   * Use this instead of `instanceof StellarValueExt`: the exported `StellarValueExt` value
+   * is the abstract base, so `instanceof` narrows to the base (not the
+   * variant union) and forces a cast. `StellarValueExt.is(x)` narrows to the union.
+   */
+  static is(value: unknown): value is StellarValueExt {
+    return value instanceof StellarValueExtBase;
+  }
+
   abstract toXdrObject(): StellarValueExtWire;
 }
 

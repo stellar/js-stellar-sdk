@@ -44,6 +44,16 @@ abstract class TransactionV0ExtBase extends XdrValue {
     }
   }
 
+  /**
+   * Type guard narrowing an unknown value to a concrete TransactionV0Ext variant.
+   * Use this instead of `instanceof TransactionV0Ext`: the exported `TransactionV0Ext` value
+   * is the abstract base, so `instanceof` narrows to the base (not the
+   * variant union) and forces a cast. `TransactionV0Ext.is(x)` narrows to the union.
+   */
+  static is(value: unknown): value is TransactionV0Ext {
+    return value instanceof TransactionV0ExtBase;
+  }
+
   abstract toXdrObject(): TransactionV0ExtWire;
 }
 

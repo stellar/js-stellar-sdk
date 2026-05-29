@@ -72,6 +72,16 @@ abstract class LiquidityPoolEntryBodyBase extends XdrValue {
     }
   }
 
+  /**
+   * Type guard narrowing an unknown value to a concrete LiquidityPoolEntryBody variant.
+   * Use this instead of `instanceof LiquidityPoolEntryBody`: the exported `LiquidityPoolEntryBody` value
+   * is the abstract base, so `instanceof` narrows to the base (not the
+   * variant union) and forces a cast. `LiquidityPoolEntryBody.is(x)` narrows to the union.
+   */
+  static is(value: unknown): value is LiquidityPoolEntryBody {
+    return value instanceof LiquidityPoolEntryBodyBase;
+  }
+
   abstract toXdrObject(): LiquidityPoolEntryBodyWire;
 }
 

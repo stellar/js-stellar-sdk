@@ -65,6 +65,16 @@ abstract class SorobanTransactionMetaExtBase extends XdrValue {
     }
   }
 
+  /**
+   * Type guard narrowing an unknown value to a concrete SorobanTransactionMetaExt variant.
+   * Use this instead of `instanceof SorobanTransactionMetaExt`: the exported `SorobanTransactionMetaExt` value
+   * is the abstract base, so `instanceof` narrows to the base (not the
+   * variant union) and forces a cast. `SorobanTransactionMetaExt.is(x)` narrows to the union.
+   */
+  static is(value: unknown): value is SorobanTransactionMetaExt {
+    return value instanceof SorobanTransactionMetaExtBase;
+  }
+
   abstract toXdrObject(): SorobanTransactionMetaExtWire;
 }
 
