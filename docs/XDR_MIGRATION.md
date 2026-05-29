@@ -29,7 +29,7 @@ do; they're brand-new capabilities):
 | Method                                              | Description                                                                                                               |
 | --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
 | `value.toXdrObject()` / `Class.fromXdrObject(wire)` | Bridges instance ↔ wire-shape object. Legacy types directly held their wire shape, so this distinction wasn't meaningful. |
-| `value.toJson()` / `Class.fromJson(json)`           | SEP-0051-compliant JSON serialization. See § 13.                                                                          |
+| `value.toJson()` / `Class.fromJson(json)`           | [SEP-51](https://stellar.org/protocol/sep-51)-compliant JSON serialization. See § 13.                                     |
 
 `toJSON()` (capital JSON) is **kept as-is** — it's a JavaScript standard called
 automatically by `JSON.stringify()`, and renaming it would break that
@@ -569,8 +569,9 @@ If you previously did `someMemo.value === "expected-string"`, switch to
 
 ## 13. SEP-0051 JSON output: `toJson()` / `fromJson()`
 
-Every generated XDR class has SEP-0051-compliant JSON serialization built in.
-New in this release; no legacy equivalent.
+Every generated XDR class has
+[SEP-51](https://stellar.org/protocol/sep-51)-compliant JSON serialization built
+in. New in this release; no legacy equivalent.
 
 ```ts
 // Encode any XDR value to JSON
