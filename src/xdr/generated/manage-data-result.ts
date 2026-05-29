@@ -95,6 +95,10 @@ abstract class ManageDataResultBase extends XdrValue {
 export class ManageDataResultSuccess extends ManageDataResultBase {
   readonly type = "manageDataSuccess" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<ManageDataResultWire, { code: 0 }> {
     return { code: 0 };
   }
@@ -102,6 +106,10 @@ export class ManageDataResultSuccess extends ManageDataResultBase {
 
 export class ManageDataResultNotSupportedYet extends ManageDataResultBase {
   readonly type = "manageDataNotSupportedYet" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<ManageDataResultWire, { code: -1 }> {
     return { code: -1 };
@@ -111,6 +119,10 @@ export class ManageDataResultNotSupportedYet extends ManageDataResultBase {
 export class ManageDataResultNameNotFound extends ManageDataResultBase {
   readonly type = "manageDataNameNotFound" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<ManageDataResultWire, { code: -2 }> {
     return { code: -2 };
   }
@@ -119,6 +131,10 @@ export class ManageDataResultNameNotFound extends ManageDataResultBase {
 export class ManageDataResultLowReserve extends ManageDataResultBase {
   readonly type = "manageDataLowReserve" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<ManageDataResultWire, { code: -3 }> {
     return { code: -3 };
   }
@@ -126,6 +142,10 @@ export class ManageDataResultLowReserve extends ManageDataResultBase {
 
 export class ManageDataResultInvalidName extends ManageDataResultBase {
   readonly type = "manageDataInvalidName" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<ManageDataResultWire, { code: -4 }> {
     return { code: -4 };

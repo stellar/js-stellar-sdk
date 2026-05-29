@@ -69,6 +69,10 @@ abstract class LedgerCloseMetaExtBase extends XdrValue {
 export class LedgerCloseMetaExtV0 extends LedgerCloseMetaExtBase {
   readonly type = "v0" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<LedgerCloseMetaExtWire, { v: 0 }> {
     return { v: 0 };
   }

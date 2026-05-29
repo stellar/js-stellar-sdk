@@ -50,6 +50,10 @@ abstract class ExtensionPointBase extends XdrValue {
 export class ExtensionPointV0 extends ExtensionPointBase {
   readonly type = "v0" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<ExtensionPointWire, { v: 0 }> {
     return { v: 0 };
   }

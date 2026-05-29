@@ -94,6 +94,10 @@ export class InflationResultSuccess extends InflationResultBase {
 export class InflationResultNotTime extends InflationResultBase {
   readonly type = "inflationNotTime" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<InflationResultWire, { code: -1 }> {
     return { code: -1 };
   }

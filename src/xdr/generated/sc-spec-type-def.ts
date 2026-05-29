@@ -358,6 +358,10 @@ abstract class ScSpecTypeDefBase extends XdrValue {
 export class ScSpecTypeDefVal extends ScSpecTypeDefBase {
   readonly type = "scSpecTypeVal" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<ScSpecTypeDefWire, { type: 0 }> {
     return { type: 0 };
   }
@@ -365,6 +369,10 @@ export class ScSpecTypeDefVal extends ScSpecTypeDefBase {
 
 export class ScSpecTypeDefBool extends ScSpecTypeDefBase {
   readonly type = "scSpecTypeBool" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<ScSpecTypeDefWire, { type: 1 }> {
     return { type: 1 };
@@ -374,6 +382,10 @@ export class ScSpecTypeDefBool extends ScSpecTypeDefBase {
 export class ScSpecTypeDefVoid extends ScSpecTypeDefBase {
   readonly type = "scSpecTypeVoid" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<ScSpecTypeDefWire, { type: 2 }> {
     return { type: 2 };
   }
@@ -381,6 +393,10 @@ export class ScSpecTypeDefVoid extends ScSpecTypeDefBase {
 
 export class ScSpecTypeDefError extends ScSpecTypeDefBase {
   readonly type = "scSpecTypeError" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<ScSpecTypeDefWire, { type: 3 }> {
     return { type: 3 };
@@ -390,6 +406,10 @@ export class ScSpecTypeDefError extends ScSpecTypeDefBase {
 export class ScSpecTypeDefU32 extends ScSpecTypeDefBase {
   readonly type = "scSpecTypeU32" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<ScSpecTypeDefWire, { type: 4 }> {
     return { type: 4 };
   }
@@ -397,6 +417,10 @@ export class ScSpecTypeDefU32 extends ScSpecTypeDefBase {
 
 export class ScSpecTypeDefI32 extends ScSpecTypeDefBase {
   readonly type = "scSpecTypeI32" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<ScSpecTypeDefWire, { type: 5 }> {
     return { type: 5 };
@@ -406,6 +430,10 @@ export class ScSpecTypeDefI32 extends ScSpecTypeDefBase {
 export class ScSpecTypeDefU64 extends ScSpecTypeDefBase {
   readonly type = "scSpecTypeU64" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<ScSpecTypeDefWire, { type: 6 }> {
     return { type: 6 };
   }
@@ -413,6 +441,10 @@ export class ScSpecTypeDefU64 extends ScSpecTypeDefBase {
 
 export class ScSpecTypeDefI64 extends ScSpecTypeDefBase {
   readonly type = "scSpecTypeI64" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<ScSpecTypeDefWire, { type: 7 }> {
     return { type: 7 };
@@ -422,6 +454,10 @@ export class ScSpecTypeDefI64 extends ScSpecTypeDefBase {
 export class ScSpecTypeDefTimepoint extends ScSpecTypeDefBase {
   readonly type = "scSpecTypeTimepoint" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<ScSpecTypeDefWire, { type: 8 }> {
     return { type: 8 };
   }
@@ -429,6 +465,10 @@ export class ScSpecTypeDefTimepoint extends ScSpecTypeDefBase {
 
 export class ScSpecTypeDefDuration extends ScSpecTypeDefBase {
   readonly type = "scSpecTypeDuration" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<ScSpecTypeDefWire, { type: 9 }> {
     return { type: 9 };
@@ -438,6 +478,10 @@ export class ScSpecTypeDefDuration extends ScSpecTypeDefBase {
 export class ScSpecTypeDefU128 extends ScSpecTypeDefBase {
   readonly type = "scSpecTypeU128" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<ScSpecTypeDefWire, { type: 10 }> {
     return { type: 10 };
   }
@@ -445,6 +489,10 @@ export class ScSpecTypeDefU128 extends ScSpecTypeDefBase {
 
 export class ScSpecTypeDefI128 extends ScSpecTypeDefBase {
   readonly type = "scSpecTypeI128" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<ScSpecTypeDefWire, { type: 11 }> {
     return { type: 11 };
@@ -454,6 +502,10 @@ export class ScSpecTypeDefI128 extends ScSpecTypeDefBase {
 export class ScSpecTypeDefU256 extends ScSpecTypeDefBase {
   readonly type = "scSpecTypeU256" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<ScSpecTypeDefWire, { type: 12 }> {
     return { type: 12 };
   }
@@ -461,6 +513,10 @@ export class ScSpecTypeDefU256 extends ScSpecTypeDefBase {
 
 export class ScSpecTypeDefI256 extends ScSpecTypeDefBase {
   readonly type = "scSpecTypeI256" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<ScSpecTypeDefWire, { type: 13 }> {
     return { type: 13 };
@@ -470,6 +526,10 @@ export class ScSpecTypeDefI256 extends ScSpecTypeDefBase {
 export class ScSpecTypeDefBytes extends ScSpecTypeDefBase {
   readonly type = "scSpecTypeBytes" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<ScSpecTypeDefWire, { type: 14 }> {
     return { type: 14 };
   }
@@ -477,6 +537,10 @@ export class ScSpecTypeDefBytes extends ScSpecTypeDefBase {
 
 export class ScSpecTypeDefString extends ScSpecTypeDefBase {
   readonly type = "scSpecTypeString" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<ScSpecTypeDefWire, { type: 16 }> {
     return { type: 16 };
@@ -486,6 +550,10 @@ export class ScSpecTypeDefString extends ScSpecTypeDefBase {
 export class ScSpecTypeDefSymbol extends ScSpecTypeDefBase {
   readonly type = "scSpecTypeSymbol" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<ScSpecTypeDefWire, { type: 17 }> {
     return { type: 17 };
   }
@@ -494,6 +562,10 @@ export class ScSpecTypeDefSymbol extends ScSpecTypeDefBase {
 export class ScSpecTypeDefAddress extends ScSpecTypeDefBase {
   readonly type = "scSpecTypeAddress" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<ScSpecTypeDefWire, { type: 19 }> {
     return { type: 19 };
   }
@@ -501,6 +573,10 @@ export class ScSpecTypeDefAddress extends ScSpecTypeDefBase {
 
 export class ScSpecTypeDefMuxedAddress extends ScSpecTypeDefBase {
   readonly type = "scSpecTypeMuxedAddress" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<ScSpecTypeDefWire, { type: 20 }> {
     return { type: 20 };

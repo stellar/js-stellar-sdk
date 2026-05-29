@@ -86,6 +86,10 @@ abstract class BeginSponsoringFutureReservesResultBase extends XdrValue {
 export class BeginSponsoringFutureReservesResultSuccess extends BeginSponsoringFutureReservesResultBase {
   readonly type = "beginSponsoringFutureReservesSuccess" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<BeginSponsoringFutureReservesResultWire, { code: 0 }> {
     return { code: 0 };
   }
@@ -93,6 +97,10 @@ export class BeginSponsoringFutureReservesResultSuccess extends BeginSponsoringF
 
 export class BeginSponsoringFutureReservesResultMalformed extends BeginSponsoringFutureReservesResultBase {
   readonly type = "beginSponsoringFutureReservesMalformed" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<
     BeginSponsoringFutureReservesResultWire,
@@ -105,6 +113,10 @@ export class BeginSponsoringFutureReservesResultMalformed extends BeginSponsorin
 export class BeginSponsoringFutureReservesResultAlreadySponsored extends BeginSponsoringFutureReservesResultBase {
   readonly type = "beginSponsoringFutureReservesAlreadySponsored" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<
     BeginSponsoringFutureReservesResultWire,
     { code: -2 }
@@ -115,6 +127,10 @@ export class BeginSponsoringFutureReservesResultAlreadySponsored extends BeginSp
 
 export class BeginSponsoringFutureReservesResultRecursive extends BeginSponsoringFutureReservesResultBase {
   readonly type = "beginSponsoringFutureReservesRecursive" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<
     BeginSponsoringFutureReservesResultWire,

@@ -77,6 +77,10 @@ abstract class PreconditionsBase extends XdrValue {
 export class PreconditionsNone extends PreconditionsBase {
   readonly type = "precondNone" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<PreconditionsWire, { type: 0 }> {
     return { type: 0 };
   }

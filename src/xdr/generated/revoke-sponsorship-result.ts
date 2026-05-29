@@ -107,6 +107,10 @@ abstract class RevokeSponsorshipResultBase extends XdrValue {
 export class RevokeSponsorshipResultSuccess extends RevokeSponsorshipResultBase {
   readonly type = "revokeSponsorshipSuccess" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<RevokeSponsorshipResultWire, { code: 0 }> {
     return { code: 0 };
   }
@@ -114,6 +118,10 @@ export class RevokeSponsorshipResultSuccess extends RevokeSponsorshipResultBase 
 
 export class RevokeSponsorshipResultDoesNotExist extends RevokeSponsorshipResultBase {
   readonly type = "revokeSponsorshipDoesNotExist" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<RevokeSponsorshipResultWire, { code: -1 }> {
     return { code: -1 };
@@ -123,6 +131,10 @@ export class RevokeSponsorshipResultDoesNotExist extends RevokeSponsorshipResult
 export class RevokeSponsorshipResultNotSponsor extends RevokeSponsorshipResultBase {
   readonly type = "revokeSponsorshipNotSponsor" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<RevokeSponsorshipResultWire, { code: -2 }> {
     return { code: -2 };
   }
@@ -130,6 +142,10 @@ export class RevokeSponsorshipResultNotSponsor extends RevokeSponsorshipResultBa
 
 export class RevokeSponsorshipResultLowReserve extends RevokeSponsorshipResultBase {
   readonly type = "revokeSponsorshipLowReserve" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<RevokeSponsorshipResultWire, { code: -3 }> {
     return { code: -3 };
@@ -139,6 +155,10 @@ export class RevokeSponsorshipResultLowReserve extends RevokeSponsorshipResultBa
 export class RevokeSponsorshipResultOnlyTransferable extends RevokeSponsorshipResultBase {
   readonly type = "revokeSponsorshipOnlyTransferable" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<RevokeSponsorshipResultWire, { code: -4 }> {
     return { code: -4 };
   }
@@ -146,6 +166,10 @@ export class RevokeSponsorshipResultOnlyTransferable extends RevokeSponsorshipRe
 
 export class RevokeSponsorshipResultMalformed extends RevokeSponsorshipResultBase {
   readonly type = "revokeSponsorshipMalformed" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<RevokeSponsorshipResultWire, { code: -5 }> {
     return { code: -5 };

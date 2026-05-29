@@ -117,6 +117,10 @@ abstract class LiquidityPoolWithdrawResultBase extends XdrValue {
 export class LiquidityPoolWithdrawResultSuccess extends LiquidityPoolWithdrawResultBase {
   readonly type = "liquidityPoolWithdrawSuccess" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<LiquidityPoolWithdrawResultWire, { code: 0 }> {
     return { code: 0 };
   }
@@ -124,6 +128,10 @@ export class LiquidityPoolWithdrawResultSuccess extends LiquidityPoolWithdrawRes
 
 export class LiquidityPoolWithdrawResultMalformed extends LiquidityPoolWithdrawResultBase {
   readonly type = "liquidityPoolWithdrawMalformed" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<LiquidityPoolWithdrawResultWire, { code: -1 }> {
     return { code: -1 };
@@ -133,6 +141,10 @@ export class LiquidityPoolWithdrawResultMalformed extends LiquidityPoolWithdrawR
 export class LiquidityPoolWithdrawResultNoTrust extends LiquidityPoolWithdrawResultBase {
   readonly type = "liquidityPoolWithdrawNoTrust" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<LiquidityPoolWithdrawResultWire, { code: -2 }> {
     return { code: -2 };
   }
@@ -140,6 +152,10 @@ export class LiquidityPoolWithdrawResultNoTrust extends LiquidityPoolWithdrawRes
 
 export class LiquidityPoolWithdrawResultUnderfunded extends LiquidityPoolWithdrawResultBase {
   readonly type = "liquidityPoolWithdrawUnderfunded" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<LiquidityPoolWithdrawResultWire, { code: -3 }> {
     return { code: -3 };
@@ -149,6 +165,10 @@ export class LiquidityPoolWithdrawResultUnderfunded extends LiquidityPoolWithdra
 export class LiquidityPoolWithdrawResultLineFull extends LiquidityPoolWithdrawResultBase {
   readonly type = "liquidityPoolWithdrawLineFull" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<LiquidityPoolWithdrawResultWire, { code: -4 }> {
     return { code: -4 };
   }
@@ -157,6 +177,10 @@ export class LiquidityPoolWithdrawResultLineFull extends LiquidityPoolWithdrawRe
 export class LiquidityPoolWithdrawResultUnderMinimum extends LiquidityPoolWithdrawResultBase {
   readonly type = "liquidityPoolWithdrawUnderMinimum" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<LiquidityPoolWithdrawResultWire, { code: -5 }> {
     return { code: -5 };
   }
@@ -164,6 +188,10 @@ export class LiquidityPoolWithdrawResultUnderMinimum extends LiquidityPoolWithdr
 
 export class LiquidityPoolWithdrawResultTrustlineFrozen extends LiquidityPoolWithdrawResultBase {
   readonly type = "liquidityPoolWithdrawTrustlineFrozen" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<LiquidityPoolWithdrawResultWire, { code: -6 }> {
     return { code: -6 };

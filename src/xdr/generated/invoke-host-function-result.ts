@@ -130,6 +130,10 @@ export class InvokeHostFunctionResultSuccess extends InvokeHostFunctionResultBas
 export class InvokeHostFunctionResultMalformed extends InvokeHostFunctionResultBase {
   readonly type = "invokeHostFunctionMalformed" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<InvokeHostFunctionResultWire, { code: -1 }> {
     return { code: -1 };
   }
@@ -137,6 +141,10 @@ export class InvokeHostFunctionResultMalformed extends InvokeHostFunctionResultB
 
 export class InvokeHostFunctionResultTrapped extends InvokeHostFunctionResultBase {
   readonly type = "invokeHostFunctionTrapped" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<InvokeHostFunctionResultWire, { code: -2 }> {
     return { code: -2 };
@@ -146,6 +154,10 @@ export class InvokeHostFunctionResultTrapped extends InvokeHostFunctionResultBas
 export class InvokeHostFunctionResultResourceLimitExceeded extends InvokeHostFunctionResultBase {
   readonly type = "invokeHostFunctionResourceLimitExceeded" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<InvokeHostFunctionResultWire, { code: -3 }> {
     return { code: -3 };
   }
@@ -154,6 +166,10 @@ export class InvokeHostFunctionResultResourceLimitExceeded extends InvokeHostFun
 export class InvokeHostFunctionResultEntryArchived extends InvokeHostFunctionResultBase {
   readonly type = "invokeHostFunctionEntryArchived" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<InvokeHostFunctionResultWire, { code: -4 }> {
     return { code: -4 };
   }
@@ -161,6 +177,10 @@ export class InvokeHostFunctionResultEntryArchived extends InvokeHostFunctionRes
 
 export class InvokeHostFunctionResultInsufficientRefundableFee extends InvokeHostFunctionResultBase {
   readonly type = "invokeHostFunctionInsufficientRefundableFee" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<InvokeHostFunctionResultWire, { code: -5 }> {
     return { code: -5 };

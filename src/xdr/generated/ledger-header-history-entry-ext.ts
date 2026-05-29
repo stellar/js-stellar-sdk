@@ -52,6 +52,10 @@ abstract class LedgerHeaderHistoryEntryExtBase extends XdrValue {
 export class LedgerHeaderHistoryEntryExtV0 extends LedgerHeaderHistoryEntryExtBase {
   readonly type = "v0" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<LedgerHeaderHistoryEntryExtWire, { v: 0 }> {
     return { v: 0 };
   }

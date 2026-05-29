@@ -79,6 +79,10 @@ abstract class TrustLineEntryExtBase extends XdrValue {
 export class TrustLineEntryExtV0 extends TrustLineEntryExtBase {
   readonly type = "v0" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<TrustLineEntryExtWire, { v: 0 }> {
     return { v: 0 };
   }

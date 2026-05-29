@@ -142,6 +142,10 @@ abstract class PaymentResultBase extends XdrValue {
 export class PaymentResultSuccess extends PaymentResultBase {
   readonly type = "paymentSuccess" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<PaymentResultWire, { code: 0 }> {
     return { code: 0 };
   }
@@ -149,6 +153,10 @@ export class PaymentResultSuccess extends PaymentResultBase {
 
 export class PaymentResultMalformed extends PaymentResultBase {
   readonly type = "paymentMalformed" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<PaymentResultWire, { code: -1 }> {
     return { code: -1 };
@@ -158,6 +166,10 @@ export class PaymentResultMalformed extends PaymentResultBase {
 export class PaymentResultUnderfunded extends PaymentResultBase {
   readonly type = "paymentUnderfunded" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<PaymentResultWire, { code: -2 }> {
     return { code: -2 };
   }
@@ -165,6 +177,10 @@ export class PaymentResultUnderfunded extends PaymentResultBase {
 
 export class PaymentResultSrcNoTrust extends PaymentResultBase {
   readonly type = "paymentSrcNoTrust" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<PaymentResultWire, { code: -3 }> {
     return { code: -3 };
@@ -174,6 +190,10 @@ export class PaymentResultSrcNoTrust extends PaymentResultBase {
 export class PaymentResultSrcNotAuthorized extends PaymentResultBase {
   readonly type = "paymentSrcNotAuthorized" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<PaymentResultWire, { code: -4 }> {
     return { code: -4 };
   }
@@ -181,6 +201,10 @@ export class PaymentResultSrcNotAuthorized extends PaymentResultBase {
 
 export class PaymentResultNoDestination extends PaymentResultBase {
   readonly type = "paymentNoDestination" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<PaymentResultWire, { code: -5 }> {
     return { code: -5 };
@@ -190,6 +214,10 @@ export class PaymentResultNoDestination extends PaymentResultBase {
 export class PaymentResultNoTrust extends PaymentResultBase {
   readonly type = "paymentNoTrust" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<PaymentResultWire, { code: -6 }> {
     return { code: -6 };
   }
@@ -197,6 +225,10 @@ export class PaymentResultNoTrust extends PaymentResultBase {
 
 export class PaymentResultNotAuthorized extends PaymentResultBase {
   readonly type = "paymentNotAuthorized" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<PaymentResultWire, { code: -7 }> {
     return { code: -7 };
@@ -206,6 +238,10 @@ export class PaymentResultNotAuthorized extends PaymentResultBase {
 export class PaymentResultLineFull extends PaymentResultBase {
   readonly type = "paymentLineFull" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<PaymentResultWire, { code: -8 }> {
     return { code: -8 };
   }
@@ -213,6 +249,10 @@ export class PaymentResultLineFull extends PaymentResultBase {
 
 export class PaymentResultNoIssuer extends PaymentResultBase {
   readonly type = "paymentNoIssuer" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<PaymentResultWire, { code: -9 }> {
     return { code: -9 };

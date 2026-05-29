@@ -137,6 +137,10 @@ abstract class LiquidityPoolDepositResultBase extends XdrValue {
 export class LiquidityPoolDepositResultSuccess extends LiquidityPoolDepositResultBase {
   readonly type = "liquidityPoolDepositSuccess" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<LiquidityPoolDepositResultWire, { code: 0 }> {
     return { code: 0 };
   }
@@ -144,6 +148,10 @@ export class LiquidityPoolDepositResultSuccess extends LiquidityPoolDepositResul
 
 export class LiquidityPoolDepositResultMalformed extends LiquidityPoolDepositResultBase {
   readonly type = "liquidityPoolDepositMalformed" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<LiquidityPoolDepositResultWire, { code: -1 }> {
     return { code: -1 };
@@ -153,6 +161,10 @@ export class LiquidityPoolDepositResultMalformed extends LiquidityPoolDepositRes
 export class LiquidityPoolDepositResultNoTrust extends LiquidityPoolDepositResultBase {
   readonly type = "liquidityPoolDepositNoTrust" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<LiquidityPoolDepositResultWire, { code: -2 }> {
     return { code: -2 };
   }
@@ -160,6 +172,10 @@ export class LiquidityPoolDepositResultNoTrust extends LiquidityPoolDepositResul
 
 export class LiquidityPoolDepositResultNotAuthorized extends LiquidityPoolDepositResultBase {
   readonly type = "liquidityPoolDepositNotAuthorized" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<LiquidityPoolDepositResultWire, { code: -3 }> {
     return { code: -3 };
@@ -169,6 +185,10 @@ export class LiquidityPoolDepositResultNotAuthorized extends LiquidityPoolDeposi
 export class LiquidityPoolDepositResultUnderfunded extends LiquidityPoolDepositResultBase {
   readonly type = "liquidityPoolDepositUnderfunded" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<LiquidityPoolDepositResultWire, { code: -4 }> {
     return { code: -4 };
   }
@@ -176,6 +196,10 @@ export class LiquidityPoolDepositResultUnderfunded extends LiquidityPoolDepositR
 
 export class LiquidityPoolDepositResultLineFull extends LiquidityPoolDepositResultBase {
   readonly type = "liquidityPoolDepositLineFull" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<LiquidityPoolDepositResultWire, { code: -5 }> {
     return { code: -5 };
@@ -185,6 +209,10 @@ export class LiquidityPoolDepositResultLineFull extends LiquidityPoolDepositResu
 export class LiquidityPoolDepositResultBadPrice extends LiquidityPoolDepositResultBase {
   readonly type = "liquidityPoolDepositBadPrice" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<LiquidityPoolDepositResultWire, { code: -6 }> {
     return { code: -6 };
   }
@@ -193,6 +221,10 @@ export class LiquidityPoolDepositResultBadPrice extends LiquidityPoolDepositResu
 export class LiquidityPoolDepositResultPoolFull extends LiquidityPoolDepositResultBase {
   readonly type = "liquidityPoolDepositPoolFull" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<LiquidityPoolDepositResultWire, { code: -7 }> {
     return { code: -7 };
   }
@@ -200,6 +232,10 @@ export class LiquidityPoolDepositResultPoolFull extends LiquidityPoolDepositResu
 
 export class LiquidityPoolDepositResultTrustlineFrozen extends LiquidityPoolDepositResultBase {
   readonly type = "liquidityPoolDepositTrustlineFrozen" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<LiquidityPoolDepositResultWire, { code: -8 }> {
     return { code: -8 };

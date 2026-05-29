@@ -117,6 +117,10 @@ abstract class ClaimClaimableBalanceResultBase extends XdrValue {
 export class ClaimClaimableBalanceResultSuccess extends ClaimClaimableBalanceResultBase {
   readonly type = "claimClaimableBalanceSuccess" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<ClaimClaimableBalanceResultWire, { code: 0 }> {
     return { code: 0 };
   }
@@ -124,6 +128,10 @@ export class ClaimClaimableBalanceResultSuccess extends ClaimClaimableBalanceRes
 
 export class ClaimClaimableBalanceResultDoesNotExist extends ClaimClaimableBalanceResultBase {
   readonly type = "claimClaimableBalanceDoesNotExist" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<ClaimClaimableBalanceResultWire, { code: -1 }> {
     return { code: -1 };
@@ -133,6 +141,10 @@ export class ClaimClaimableBalanceResultDoesNotExist extends ClaimClaimableBalan
 export class ClaimClaimableBalanceResultCannotClaim extends ClaimClaimableBalanceResultBase {
   readonly type = "claimClaimableBalanceCannotClaim" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<ClaimClaimableBalanceResultWire, { code: -2 }> {
     return { code: -2 };
   }
@@ -140,6 +152,10 @@ export class ClaimClaimableBalanceResultCannotClaim extends ClaimClaimableBalanc
 
 export class ClaimClaimableBalanceResultLineFull extends ClaimClaimableBalanceResultBase {
   readonly type = "claimClaimableBalanceLineFull" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<ClaimClaimableBalanceResultWire, { code: -3 }> {
     return { code: -3 };
@@ -149,6 +165,10 @@ export class ClaimClaimableBalanceResultLineFull extends ClaimClaimableBalanceRe
 export class ClaimClaimableBalanceResultNoTrust extends ClaimClaimableBalanceResultBase {
   readonly type = "claimClaimableBalanceNoTrust" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<ClaimClaimableBalanceResultWire, { code: -4 }> {
     return { code: -4 };
   }
@@ -157,6 +177,10 @@ export class ClaimClaimableBalanceResultNoTrust extends ClaimClaimableBalanceRes
 export class ClaimClaimableBalanceResultNotAuthorized extends ClaimClaimableBalanceResultBase {
   readonly type = "claimClaimableBalanceNotAuthorized" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<ClaimClaimableBalanceResultWire, { code: -5 }> {
     return { code: -5 };
   }
@@ -164,6 +188,10 @@ export class ClaimClaimableBalanceResultNotAuthorized extends ClaimClaimableBala
 
 export class ClaimClaimableBalanceResultTrustlineFrozen extends ClaimClaimableBalanceResultBase {
   readonly type = "claimClaimableBalanceTrustlineFrozen" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<ClaimClaimableBalanceResultWire, { code: -6 }> {
     return { code: -6 };

@@ -223,6 +223,10 @@ export class PathPaymentStrictReceiveResultSuccessArm extends PathPaymentStrictR
 export class PathPaymentStrictReceiveResultMalformed extends PathPaymentStrictReceiveResultBase {
   readonly type = "pathPaymentStrictReceiveMalformed" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<PathPaymentStrictReceiveResultWire, { code: -1 }> {
     return { code: -1 };
   }
@@ -230,6 +234,10 @@ export class PathPaymentStrictReceiveResultMalformed extends PathPaymentStrictRe
 
 export class PathPaymentStrictReceiveResultUnderfunded extends PathPaymentStrictReceiveResultBase {
   readonly type = "pathPaymentStrictReceiveUnderfunded" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<PathPaymentStrictReceiveResultWire, { code: -2 }> {
     return { code: -2 };
@@ -239,6 +247,10 @@ export class PathPaymentStrictReceiveResultUnderfunded extends PathPaymentStrict
 export class PathPaymentStrictReceiveResultSrcNoTrust extends PathPaymentStrictReceiveResultBase {
   readonly type = "pathPaymentStrictReceiveSrcNoTrust" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<PathPaymentStrictReceiveResultWire, { code: -3 }> {
     return { code: -3 };
   }
@@ -246,6 +258,10 @@ export class PathPaymentStrictReceiveResultSrcNoTrust extends PathPaymentStrictR
 
 export class PathPaymentStrictReceiveResultSrcNotAuthorized extends PathPaymentStrictReceiveResultBase {
   readonly type = "pathPaymentStrictReceiveSrcNotAuthorized" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<PathPaymentStrictReceiveResultWire, { code: -4 }> {
     return { code: -4 };
@@ -255,6 +271,10 @@ export class PathPaymentStrictReceiveResultSrcNotAuthorized extends PathPaymentS
 export class PathPaymentStrictReceiveResultNoDestination extends PathPaymentStrictReceiveResultBase {
   readonly type = "pathPaymentStrictReceiveNoDestination" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<PathPaymentStrictReceiveResultWire, { code: -5 }> {
     return { code: -5 };
   }
@@ -262,6 +282,10 @@ export class PathPaymentStrictReceiveResultNoDestination extends PathPaymentStri
 
 export class PathPaymentStrictReceiveResultNoTrust extends PathPaymentStrictReceiveResultBase {
   readonly type = "pathPaymentStrictReceiveNoTrust" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<PathPaymentStrictReceiveResultWire, { code: -6 }> {
     return { code: -6 };
@@ -271,6 +295,10 @@ export class PathPaymentStrictReceiveResultNoTrust extends PathPaymentStrictRece
 export class PathPaymentStrictReceiveResultNotAuthorized extends PathPaymentStrictReceiveResultBase {
   readonly type = "pathPaymentStrictReceiveNotAuthorized" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<PathPaymentStrictReceiveResultWire, { code: -7 }> {
     return { code: -7 };
   }
@@ -278,6 +306,10 @@ export class PathPaymentStrictReceiveResultNotAuthorized extends PathPaymentStri
 
 export class PathPaymentStrictReceiveResultLineFull extends PathPaymentStrictReceiveResultBase {
   readonly type = "pathPaymentStrictReceiveLineFull" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<PathPaymentStrictReceiveResultWire, { code: -8 }> {
     return { code: -8 };
@@ -305,6 +337,10 @@ export class PathPaymentStrictReceiveResultNoIssuer extends PathPaymentStrictRec
 export class PathPaymentStrictReceiveResultTooFewOffers extends PathPaymentStrictReceiveResultBase {
   readonly type = "pathPaymentStrictReceiveTooFewOffers" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<PathPaymentStrictReceiveResultWire, { code: -10 }> {
     return { code: -10 };
   }
@@ -313,6 +349,10 @@ export class PathPaymentStrictReceiveResultTooFewOffers extends PathPaymentStric
 export class PathPaymentStrictReceiveResultOfferCrossSelf extends PathPaymentStrictReceiveResultBase {
   readonly type = "pathPaymentStrictReceiveOfferCrossSelf" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<PathPaymentStrictReceiveResultWire, { code: -11 }> {
     return { code: -11 };
   }
@@ -320,6 +360,10 @@ export class PathPaymentStrictReceiveResultOfferCrossSelf extends PathPaymentStr
 
 export class PathPaymentStrictReceiveResultOverSendmax extends PathPaymentStrictReceiveResultBase {
   readonly type = "pathPaymentStrictReceiveOverSendmax" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<PathPaymentStrictReceiveResultWire, { code: -12 }> {
     return { code: -12 };

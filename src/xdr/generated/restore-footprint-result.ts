@@ -87,6 +87,10 @@ abstract class RestoreFootprintResultBase extends XdrValue {
 export class RestoreFootprintResultSuccess extends RestoreFootprintResultBase {
   readonly type = "restoreFootprintSuccess" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<RestoreFootprintResultWire, { code: 0 }> {
     return { code: 0 };
   }
@@ -94,6 +98,10 @@ export class RestoreFootprintResultSuccess extends RestoreFootprintResultBase {
 
 export class RestoreFootprintResultMalformed extends RestoreFootprintResultBase {
   readonly type = "restoreFootprintMalformed" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<RestoreFootprintResultWire, { code: -1 }> {
     return { code: -1 };
@@ -103,6 +111,10 @@ export class RestoreFootprintResultMalformed extends RestoreFootprintResultBase 
 export class RestoreFootprintResultResourceLimitExceeded extends RestoreFootprintResultBase {
   readonly type = "restoreFootprintResourceLimitExceeded" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<RestoreFootprintResultWire, { code: -2 }> {
     return { code: -2 };
   }
@@ -110,6 +122,10 @@ export class RestoreFootprintResultResourceLimitExceeded extends RestoreFootprin
 
 export class RestoreFootprintResultInsufficientRefundableFee extends RestoreFootprintResultBase {
   readonly type = "restoreFootprintInsufficientRefundableFee" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<RestoreFootprintResultWire, { code: -3 }> {
     return { code: -3 };

@@ -1353,8 +1353,15 @@ function bodyOfUnion(rawDef, ctx) {
     .map((a) => {
       const wireType = `Extract<${wireName}, { ${switchKey}: ${a.discValue} }>`;
       if (a.isVoid) {
+        // Void cases carry no payload; expose a uniform `value` getter that
+        // returns null so `.value` is callable on every variant of the union
+        // (the union's `.value` type becomes `<payloads> | null`).
         return `export class ${a.variantCls} extends ${baseName} {
   readonly type = "${a.discCamel}" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): ${wireType} {
     return { ${switchKey}: ${a.discValue} };

@@ -196,6 +196,10 @@ export class OperationResultOpInner extends OperationResultBase {
 export class OperationResultOpBadAuth extends OperationResultBase {
   readonly type = "opBadAuth" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<OperationResultWire, { code: -1 }> {
     return { code: -1 };
   }
@@ -203,6 +207,10 @@ export class OperationResultOpBadAuth extends OperationResultBase {
 
 export class OperationResultOpNoAccount extends OperationResultBase {
   readonly type = "opNoAccount" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<OperationResultWire, { code: -2 }> {
     return { code: -2 };
@@ -212,6 +220,10 @@ export class OperationResultOpNoAccount extends OperationResultBase {
 export class OperationResultOpNotSupported extends OperationResultBase {
   readonly type = "opNotSupported" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<OperationResultWire, { code: -3 }> {
     return { code: -3 };
   }
@@ -219,6 +231,10 @@ export class OperationResultOpNotSupported extends OperationResultBase {
 
 export class OperationResultOpTooManySubentries extends OperationResultBase {
   readonly type = "opTooManySubentries" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<OperationResultWire, { code: -4 }> {
     return { code: -4 };
@@ -228,6 +244,10 @@ export class OperationResultOpTooManySubentries extends OperationResultBase {
 export class OperationResultOpExceededWorkLimit extends OperationResultBase {
   readonly type = "opExceededWorkLimit" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<OperationResultWire, { code: -5 }> {
     return { code: -5 };
   }
@@ -235,6 +255,10 @@ export class OperationResultOpExceededWorkLimit extends OperationResultBase {
 
 export class OperationResultOpTooManySponsoring extends OperationResultBase {
   readonly type = "opTooManySponsoring" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<OperationResultWire, { code: -6 }> {
     return { code: -6 };

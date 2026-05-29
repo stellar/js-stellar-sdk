@@ -115,6 +115,10 @@ abstract class AllowTrustResultBase extends XdrValue {
 export class AllowTrustResultSuccess extends AllowTrustResultBase {
   readonly type = "allowTrustSuccess" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<AllowTrustResultWire, { code: 0 }> {
     return { code: 0 };
   }
@@ -122,6 +126,10 @@ export class AllowTrustResultSuccess extends AllowTrustResultBase {
 
 export class AllowTrustResultMalformed extends AllowTrustResultBase {
   readonly type = "allowTrustMalformed" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<AllowTrustResultWire, { code: -1 }> {
     return { code: -1 };
@@ -131,6 +139,10 @@ export class AllowTrustResultMalformed extends AllowTrustResultBase {
 export class AllowTrustResultNoTrustLine extends AllowTrustResultBase {
   readonly type = "allowTrustNoTrustLine" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<AllowTrustResultWire, { code: -2 }> {
     return { code: -2 };
   }
@@ -138,6 +150,10 @@ export class AllowTrustResultNoTrustLine extends AllowTrustResultBase {
 
 export class AllowTrustResultTrustNotRequired extends AllowTrustResultBase {
   readonly type = "allowTrustTrustNotRequired" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<AllowTrustResultWire, { code: -3 }> {
     return { code: -3 };
@@ -147,6 +163,10 @@ export class AllowTrustResultTrustNotRequired extends AllowTrustResultBase {
 export class AllowTrustResultCantRevoke extends AllowTrustResultBase {
   readonly type = "allowTrustCantRevoke" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<AllowTrustResultWire, { code: -4 }> {
     return { code: -4 };
   }
@@ -155,6 +175,10 @@ export class AllowTrustResultCantRevoke extends AllowTrustResultBase {
 export class AllowTrustResultSelfNotAllowed extends AllowTrustResultBase {
   readonly type = "allowTrustSelfNotAllowed" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<AllowTrustResultWire, { code: -5 }> {
     return { code: -5 };
   }
@@ -162,6 +186,10 @@ export class AllowTrustResultSelfNotAllowed extends AllowTrustResultBase {
 
 export class AllowTrustResultLowReserve extends AllowTrustResultBase {
   readonly type = "allowTrustLowReserve" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<AllowTrustResultWire, { code: -6 }> {
     return { code: -6 };

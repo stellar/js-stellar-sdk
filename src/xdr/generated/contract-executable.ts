@@ -85,6 +85,10 @@ export class ContractExecutableWasm extends ContractExecutableBase {
 export class ContractExecutableStellarAsset extends ContractExecutableBase {
   readonly type = "contractExecutableStellarAsset" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<ContractExecutableWire, { type: 1 }> {
     return { type: 1 };
   }

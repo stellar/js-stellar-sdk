@@ -50,6 +50,10 @@ abstract class ClaimableBalanceEntryExtensionV1ExtBase extends XdrValue {
 export class ClaimableBalanceEntryExtensionV1ExtV0 extends ClaimableBalanceEntryExtensionV1ExtBase {
   readonly type = "v0" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<ClaimableBalanceEntryExtensionV1ExtWire, { v: 0 }> {
     return { v: 0 };
   }

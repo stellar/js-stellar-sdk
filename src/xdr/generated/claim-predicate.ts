@@ -159,6 +159,10 @@ abstract class ClaimPredicateBase extends XdrValue {
 export class ClaimPredicateUnconditional extends ClaimPredicateBase {
   readonly type = "claimPredicateUnconditional" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<ClaimPredicateWire, { type: 0 }> {
     return { type: 0 };
   }

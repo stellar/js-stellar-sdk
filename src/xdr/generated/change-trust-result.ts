@@ -135,6 +135,10 @@ abstract class ChangeTrustResultBase extends XdrValue {
 export class ChangeTrustResultSuccess extends ChangeTrustResultBase {
   readonly type = "changeTrustSuccess" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<ChangeTrustResultWire, { code: 0 }> {
     return { code: 0 };
   }
@@ -142,6 +146,10 @@ export class ChangeTrustResultSuccess extends ChangeTrustResultBase {
 
 export class ChangeTrustResultMalformed extends ChangeTrustResultBase {
   readonly type = "changeTrustMalformed" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<ChangeTrustResultWire, { code: -1 }> {
     return { code: -1 };
@@ -151,6 +159,10 @@ export class ChangeTrustResultMalformed extends ChangeTrustResultBase {
 export class ChangeTrustResultNoIssuer extends ChangeTrustResultBase {
   readonly type = "changeTrustNoIssuer" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<ChangeTrustResultWire, { code: -2 }> {
     return { code: -2 };
   }
@@ -158,6 +170,10 @@ export class ChangeTrustResultNoIssuer extends ChangeTrustResultBase {
 
 export class ChangeTrustResultInvalidLimit extends ChangeTrustResultBase {
   readonly type = "changeTrustInvalidLimit" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<ChangeTrustResultWire, { code: -3 }> {
     return { code: -3 };
@@ -167,6 +183,10 @@ export class ChangeTrustResultInvalidLimit extends ChangeTrustResultBase {
 export class ChangeTrustResultLowReserve extends ChangeTrustResultBase {
   readonly type = "changeTrustLowReserve" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<ChangeTrustResultWire, { code: -4 }> {
     return { code: -4 };
   }
@@ -174,6 +194,10 @@ export class ChangeTrustResultLowReserve extends ChangeTrustResultBase {
 
 export class ChangeTrustResultSelfNotAllowed extends ChangeTrustResultBase {
   readonly type = "changeTrustSelfNotAllowed" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<ChangeTrustResultWire, { code: -5 }> {
     return { code: -5 };
@@ -183,6 +207,10 @@ export class ChangeTrustResultSelfNotAllowed extends ChangeTrustResultBase {
 export class ChangeTrustResultTrustLineMissing extends ChangeTrustResultBase {
   readonly type = "changeTrustTrustLineMissing" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<ChangeTrustResultWire, { code: -6 }> {
     return { code: -6 };
   }
@@ -191,6 +219,10 @@ export class ChangeTrustResultTrustLineMissing extends ChangeTrustResultBase {
 export class ChangeTrustResultCannotDelete extends ChangeTrustResultBase {
   readonly type = "changeTrustCannotDelete" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<ChangeTrustResultWire, { code: -7 }> {
     return { code: -7 };
   }
@@ -198,6 +230,10 @@ export class ChangeTrustResultCannotDelete extends ChangeTrustResultBase {
 
 export class ChangeTrustResultNotAuthMaintainLiabilities extends ChangeTrustResultBase {
   readonly type = "changeTrustNotAuthMaintainLiabilities" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<ChangeTrustResultWire, { code: -8 }> {
     return { code: -8 };

@@ -107,6 +107,10 @@ abstract class SetTrustLineFlagsResultBase extends XdrValue {
 export class SetTrustLineFlagsResultSuccess extends SetTrustLineFlagsResultBase {
   readonly type = "setTrustLineFlagsSuccess" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<SetTrustLineFlagsResultWire, { code: 0 }> {
     return { code: 0 };
   }
@@ -114,6 +118,10 @@ export class SetTrustLineFlagsResultSuccess extends SetTrustLineFlagsResultBase 
 
 export class SetTrustLineFlagsResultMalformed extends SetTrustLineFlagsResultBase {
   readonly type = "setTrustLineFlagsMalformed" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<SetTrustLineFlagsResultWire, { code: -1 }> {
     return { code: -1 };
@@ -123,6 +131,10 @@ export class SetTrustLineFlagsResultMalformed extends SetTrustLineFlagsResultBas
 export class SetTrustLineFlagsResultNoTrustLine extends SetTrustLineFlagsResultBase {
   readonly type = "setTrustLineFlagsNoTrustLine" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<SetTrustLineFlagsResultWire, { code: -2 }> {
     return { code: -2 };
   }
@@ -130,6 +142,10 @@ export class SetTrustLineFlagsResultNoTrustLine extends SetTrustLineFlagsResultB
 
 export class SetTrustLineFlagsResultCantRevoke extends SetTrustLineFlagsResultBase {
   readonly type = "setTrustLineFlagsCantRevoke" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<SetTrustLineFlagsResultWire, { code: -3 }> {
     return { code: -3 };
@@ -139,6 +155,10 @@ export class SetTrustLineFlagsResultCantRevoke extends SetTrustLineFlagsResultBa
 export class SetTrustLineFlagsResultInvalidState extends SetTrustLineFlagsResultBase {
   readonly type = "setTrustLineFlagsInvalidState" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<SetTrustLineFlagsResultWire, { code: -4 }> {
     return { code: -4 };
   }
@@ -146,6 +166,10 @@ export class SetTrustLineFlagsResultInvalidState extends SetTrustLineFlagsResult
 
 export class SetTrustLineFlagsResultLowReserve extends SetTrustLineFlagsResultBase {
   readonly type = "setTrustLineFlagsLowReserve" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<SetTrustLineFlagsResultWire, { code: -5 }> {
     return { code: -5 };

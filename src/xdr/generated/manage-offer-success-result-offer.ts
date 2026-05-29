@@ -122,6 +122,10 @@ export class ManageOfferSuccessResultOfferUpdated extends ManageOfferSuccessResu
 export class ManageOfferSuccessResultOfferDeleted extends ManageOfferSuccessResultOfferBase {
   readonly type = "manageOfferDeleted" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<ManageOfferSuccessResultOfferWire, { effect: 2 }> {
     return { effect: 2 };
   }

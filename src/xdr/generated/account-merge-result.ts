@@ -146,6 +146,10 @@ export class AccountMergeResultSuccess extends AccountMergeResultBase {
 export class AccountMergeResultMalformed extends AccountMergeResultBase {
   readonly type = "accountMergeMalformed" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<AccountMergeResultWire, { code: -1 }> {
     return { code: -1 };
   }
@@ -153,6 +157,10 @@ export class AccountMergeResultMalformed extends AccountMergeResultBase {
 
 export class AccountMergeResultNoAccount extends AccountMergeResultBase {
   readonly type = "accountMergeNoAccount" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<AccountMergeResultWire, { code: -2 }> {
     return { code: -2 };
@@ -162,6 +170,10 @@ export class AccountMergeResultNoAccount extends AccountMergeResultBase {
 export class AccountMergeResultImmutableSet extends AccountMergeResultBase {
   readonly type = "accountMergeImmutableSet" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<AccountMergeResultWire, { code: -3 }> {
     return { code: -3 };
   }
@@ -169,6 +181,10 @@ export class AccountMergeResultImmutableSet extends AccountMergeResultBase {
 
 export class AccountMergeResultHasSubEntries extends AccountMergeResultBase {
   readonly type = "accountMergeHasSubEntries" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<AccountMergeResultWire, { code: -4 }> {
     return { code: -4 };
@@ -178,6 +194,10 @@ export class AccountMergeResultHasSubEntries extends AccountMergeResultBase {
 export class AccountMergeResultSeqnumTooFar extends AccountMergeResultBase {
   readonly type = "accountMergeSeqnumTooFar" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<AccountMergeResultWire, { code: -5 }> {
     return { code: -5 };
   }
@@ -186,6 +206,10 @@ export class AccountMergeResultSeqnumTooFar extends AccountMergeResultBase {
 export class AccountMergeResultDestFull extends AccountMergeResultBase {
   readonly type = "accountMergeDestFull" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<AccountMergeResultWire, { code: -6 }> {
     return { code: -6 };
   }
@@ -193,6 +217,10 @@ export class AccountMergeResultDestFull extends AccountMergeResultBase {
 
 export class AccountMergeResultIsSponsor extends AccountMergeResultBase {
   readonly type = "accountMergeIsSponsor" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<AccountMergeResultWire, { code: -7 }> {
     return { code: -7 };

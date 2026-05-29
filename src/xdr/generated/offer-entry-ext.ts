@@ -47,6 +47,10 @@ abstract class OfferEntryExtBase extends XdrValue {
 export class OfferEntryExtV0 extends OfferEntryExtBase {
   readonly type = "v0" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<OfferEntryExtWire, { v: 0 }> {
     return { v: 0 };
   }

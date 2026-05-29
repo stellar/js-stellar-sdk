@@ -50,6 +50,10 @@ abstract class TransactionV0ExtBase extends XdrValue {
 export class TransactionV0ExtV0 extends TransactionV0ExtBase {
   readonly type = "v0" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<TransactionV0ExtWire, { v: 0 }> {
     return { v: 0 };
   }

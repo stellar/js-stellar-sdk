@@ -88,6 +88,10 @@ abstract class ClawbackClaimableBalanceResultBase extends XdrValue {
 export class ClawbackClaimableBalanceResultSuccess extends ClawbackClaimableBalanceResultBase {
   readonly type = "clawbackClaimableBalanceSuccess" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<ClawbackClaimableBalanceResultWire, { code: 0 }> {
     return { code: 0 };
   }
@@ -95,6 +99,10 @@ export class ClawbackClaimableBalanceResultSuccess extends ClawbackClaimableBala
 
 export class ClawbackClaimableBalanceResultDoesNotExist extends ClawbackClaimableBalanceResultBase {
   readonly type = "clawbackClaimableBalanceDoesNotExist" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<ClawbackClaimableBalanceResultWire, { code: -1 }> {
     return { code: -1 };
@@ -104,6 +112,10 @@ export class ClawbackClaimableBalanceResultDoesNotExist extends ClawbackClaimabl
 export class ClawbackClaimableBalanceResultNotIssuer extends ClawbackClaimableBalanceResultBase {
   readonly type = "clawbackClaimableBalanceNotIssuer" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<ClawbackClaimableBalanceResultWire, { code: -2 }> {
     return { code: -2 };
   }
@@ -111,6 +123,10 @@ export class ClawbackClaimableBalanceResultNotIssuer extends ClawbackClaimableBa
 
 export class ClawbackClaimableBalanceResultNotClawbackEnabled extends ClawbackClaimableBalanceResultBase {
   readonly type = "clawbackClaimableBalanceNotClawbackEnabled" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<ClawbackClaimableBalanceResultWire, { code: -3 }> {
     return { code: -3 };

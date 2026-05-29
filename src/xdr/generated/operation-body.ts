@@ -752,6 +752,10 @@ export class OperationBodyAccountMerge extends OperationBodyBase {
 export class OperationBodyInflation extends OperationBodyBase {
   readonly type = "inflation" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<OperationBodyWire, { type: 9 }> {
     return { type: 9 };
   }
@@ -900,6 +904,10 @@ export class OperationBodyBeginSponsoringFutureReserves extends OperationBodyBas
 
 export class OperationBodyEndSponsoringFutureReserves extends OperationBodyBase {
   readonly type = "endSponsoringFutureReserves" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<OperationBodyWire, { type: 17 }> {
     return { type: 17 };

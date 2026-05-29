@@ -71,6 +71,10 @@ abstract class SorobanTransactionMetaExtBase extends XdrValue {
 export class SorobanTransactionMetaExtV0 extends SorobanTransactionMetaExtBase {
   readonly type = "v0" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<SorobanTransactionMetaExtWire, { v: 0 }> {
     return { v: 0 };
   }

@@ -286,6 +286,10 @@ export class InnerTransactionResultResultTxFailed extends InnerTransactionResult
 export class InnerTransactionResultResultTxTooEarly extends InnerTransactionResultResultBase {
   readonly type = "txTooEarly" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<InnerTransactionResultResultWire, { code: -2 }> {
     return { code: -2 };
   }
@@ -293,6 +297,10 @@ export class InnerTransactionResultResultTxTooEarly extends InnerTransactionResu
 
 export class InnerTransactionResultResultTxTooLate extends InnerTransactionResultResultBase {
   readonly type = "txTooLate" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<InnerTransactionResultResultWire, { code: -3 }> {
     return { code: -3 };
@@ -302,6 +310,10 @@ export class InnerTransactionResultResultTxTooLate extends InnerTransactionResul
 export class InnerTransactionResultResultTxMissingOperation extends InnerTransactionResultResultBase {
   readonly type = "txMissingOperation" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<InnerTransactionResultResultWire, { code: -4 }> {
     return { code: -4 };
   }
@@ -309,6 +321,10 @@ export class InnerTransactionResultResultTxMissingOperation extends InnerTransac
 
 export class InnerTransactionResultResultTxBadSeq extends InnerTransactionResultResultBase {
   readonly type = "txBadSeq" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<InnerTransactionResultResultWire, { code: -5 }> {
     return { code: -5 };
@@ -318,6 +334,10 @@ export class InnerTransactionResultResultTxBadSeq extends InnerTransactionResult
 export class InnerTransactionResultResultTxBadAuth extends InnerTransactionResultResultBase {
   readonly type = "txBadAuth" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<InnerTransactionResultResultWire, { code: -6 }> {
     return { code: -6 };
   }
@@ -325,6 +345,10 @@ export class InnerTransactionResultResultTxBadAuth extends InnerTransactionResul
 
 export class InnerTransactionResultResultTxInsufficientBalance extends InnerTransactionResultResultBase {
   readonly type = "txInsufficientBalance" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<InnerTransactionResultResultWire, { code: -7 }> {
     return { code: -7 };
@@ -334,6 +358,10 @@ export class InnerTransactionResultResultTxInsufficientBalance extends InnerTran
 export class InnerTransactionResultResultTxNoAccount extends InnerTransactionResultResultBase {
   readonly type = "txNoAccount" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<InnerTransactionResultResultWire, { code: -8 }> {
     return { code: -8 };
   }
@@ -341,6 +369,10 @@ export class InnerTransactionResultResultTxNoAccount extends InnerTransactionRes
 
 export class InnerTransactionResultResultTxInsufficientFee extends InnerTransactionResultResultBase {
   readonly type = "txInsufficientFee" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<InnerTransactionResultResultWire, { code: -9 }> {
     return { code: -9 };
@@ -350,6 +382,10 @@ export class InnerTransactionResultResultTxInsufficientFee extends InnerTransact
 export class InnerTransactionResultResultTxBadAuthExtra extends InnerTransactionResultResultBase {
   readonly type = "txBadAuthExtra" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<InnerTransactionResultResultWire, { code: -10 }> {
     return { code: -10 };
   }
@@ -357,6 +393,10 @@ export class InnerTransactionResultResultTxBadAuthExtra extends InnerTransaction
 
 export class InnerTransactionResultResultTxInternalError extends InnerTransactionResultResultBase {
   readonly type = "txInternalError" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<InnerTransactionResultResultWire, { code: -11 }> {
     return { code: -11 };
@@ -366,6 +406,10 @@ export class InnerTransactionResultResultTxInternalError extends InnerTransactio
 export class InnerTransactionResultResultTxNotSupported extends InnerTransactionResultResultBase {
   readonly type = "txNotSupported" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<InnerTransactionResultResultWire, { code: -12 }> {
     return { code: -12 };
   }
@@ -373,6 +417,10 @@ export class InnerTransactionResultResultTxNotSupported extends InnerTransaction
 
 export class InnerTransactionResultResultTxBadSponsorship extends InnerTransactionResultResultBase {
   readonly type = "txBadSponsorship" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<InnerTransactionResultResultWire, { code: -14 }> {
     return { code: -14 };
@@ -382,6 +430,10 @@ export class InnerTransactionResultResultTxBadSponsorship extends InnerTransacti
 export class InnerTransactionResultResultTxBadMinSeqAgeOrGap extends InnerTransactionResultResultBase {
   readonly type = "txBadMinSeqAgeOrGap" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<InnerTransactionResultResultWire, { code: -15 }> {
     return { code: -15 };
   }
@@ -389,6 +441,10 @@ export class InnerTransactionResultResultTxBadMinSeqAgeOrGap extends InnerTransa
 
 export class InnerTransactionResultResultTxMalformed extends InnerTransactionResultResultBase {
   readonly type = "txMalformed" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<InnerTransactionResultResultWire, { code: -16 }> {
     return { code: -16 };
@@ -398,6 +454,10 @@ export class InnerTransactionResultResultTxMalformed extends InnerTransactionRes
 export class InnerTransactionResultResultTxSorobanInvalid extends InnerTransactionResultResultBase {
   readonly type = "txSorobanInvalid" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<InnerTransactionResultResultWire, { code: -17 }> {
     return { code: -17 };
   }
@@ -405,6 +465,10 @@ export class InnerTransactionResultResultTxSorobanInvalid extends InnerTransacti
 
 export class InnerTransactionResultResultTxFrozenKeyAccessed extends InnerTransactionResultResultBase {
   readonly type = "txFrozenKeyAccessed" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<InnerTransactionResultResultWire, { code: -18 }> {
     return { code: -18 };

@@ -95,6 +95,10 @@ abstract class CreateAccountResultBase extends XdrValue {
 export class CreateAccountResultSuccess extends CreateAccountResultBase {
   readonly type = "createAccountSuccess" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<CreateAccountResultWire, { code: 0 }> {
     return { code: 0 };
   }
@@ -102,6 +106,10 @@ export class CreateAccountResultSuccess extends CreateAccountResultBase {
 
 export class CreateAccountResultMalformed extends CreateAccountResultBase {
   readonly type = "createAccountMalformed" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<CreateAccountResultWire, { code: -1 }> {
     return { code: -1 };
@@ -111,6 +119,10 @@ export class CreateAccountResultMalformed extends CreateAccountResultBase {
 export class CreateAccountResultUnderfunded extends CreateAccountResultBase {
   readonly type = "createAccountUnderfunded" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<CreateAccountResultWire, { code: -2 }> {
     return { code: -2 };
   }
@@ -119,6 +131,10 @@ export class CreateAccountResultUnderfunded extends CreateAccountResultBase {
 export class CreateAccountResultLowReserve extends CreateAccountResultBase {
   readonly type = "createAccountLowReserve" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<CreateAccountResultWire, { code: -3 }> {
     return { code: -3 };
   }
@@ -126,6 +142,10 @@ export class CreateAccountResultLowReserve extends CreateAccountResultBase {
 
 export class CreateAccountResultAlreadyExist extends CreateAccountResultBase {
   readonly type = "createAccountAlreadyExist" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<CreateAccountResultWire, { code: -4 }> {
     return { code: -4 };

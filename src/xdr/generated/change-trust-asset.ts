@@ -121,6 +121,10 @@ abstract class ChangeTrustAssetBase extends XdrValue {
 export class ChangeTrustAssetNative extends ChangeTrustAssetBase {
   readonly type = "assetTypeNative" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<ChangeTrustAssetWire, { type: 0 }> {
     return { type: 0 };
   }

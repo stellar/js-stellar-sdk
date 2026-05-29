@@ -205,6 +205,10 @@ export class ManageSellOfferResultSuccess extends ManageSellOfferResultBase {
 export class ManageSellOfferResultMalformed extends ManageSellOfferResultBase {
   readonly type = "manageSellOfferMalformed" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<ManageSellOfferResultWire, { code: -1 }> {
     return { code: -1 };
   }
@@ -212,6 +216,10 @@ export class ManageSellOfferResultMalformed extends ManageSellOfferResultBase {
 
 export class ManageSellOfferResultSellNoTrust extends ManageSellOfferResultBase {
   readonly type = "manageSellOfferSellNoTrust" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<ManageSellOfferResultWire, { code: -2 }> {
     return { code: -2 };
@@ -221,6 +229,10 @@ export class ManageSellOfferResultSellNoTrust extends ManageSellOfferResultBase 
 export class ManageSellOfferResultBuyNoTrust extends ManageSellOfferResultBase {
   readonly type = "manageSellOfferBuyNoTrust" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<ManageSellOfferResultWire, { code: -3 }> {
     return { code: -3 };
   }
@@ -228,6 +240,10 @@ export class ManageSellOfferResultBuyNoTrust extends ManageSellOfferResultBase {
 
 export class ManageSellOfferResultSellNotAuthorized extends ManageSellOfferResultBase {
   readonly type = "manageSellOfferSellNotAuthorized" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<ManageSellOfferResultWire, { code: -4 }> {
     return { code: -4 };
@@ -237,6 +253,10 @@ export class ManageSellOfferResultSellNotAuthorized extends ManageSellOfferResul
 export class ManageSellOfferResultBuyNotAuthorized extends ManageSellOfferResultBase {
   readonly type = "manageSellOfferBuyNotAuthorized" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<ManageSellOfferResultWire, { code: -5 }> {
     return { code: -5 };
   }
@@ -244,6 +264,10 @@ export class ManageSellOfferResultBuyNotAuthorized extends ManageSellOfferResult
 
 export class ManageSellOfferResultLineFull extends ManageSellOfferResultBase {
   readonly type = "manageSellOfferLineFull" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<ManageSellOfferResultWire, { code: -6 }> {
     return { code: -6 };
@@ -253,6 +277,10 @@ export class ManageSellOfferResultLineFull extends ManageSellOfferResultBase {
 export class ManageSellOfferResultUnderfunded extends ManageSellOfferResultBase {
   readonly type = "manageSellOfferUnderfunded" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<ManageSellOfferResultWire, { code: -7 }> {
     return { code: -7 };
   }
@@ -260,6 +288,10 @@ export class ManageSellOfferResultUnderfunded extends ManageSellOfferResultBase 
 
 export class ManageSellOfferResultCrossSelf extends ManageSellOfferResultBase {
   readonly type = "manageSellOfferCrossSelf" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<ManageSellOfferResultWire, { code: -8 }> {
     return { code: -8 };
@@ -269,6 +301,10 @@ export class ManageSellOfferResultCrossSelf extends ManageSellOfferResultBase {
 export class ManageSellOfferResultSellNoIssuer extends ManageSellOfferResultBase {
   readonly type = "manageSellOfferSellNoIssuer" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<ManageSellOfferResultWire, { code: -9 }> {
     return { code: -9 };
   }
@@ -276,6 +312,10 @@ export class ManageSellOfferResultSellNoIssuer extends ManageSellOfferResultBase
 
 export class ManageSellOfferResultBuyNoIssuer extends ManageSellOfferResultBase {
   readonly type = "manageSellOfferBuyNoIssuer" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<ManageSellOfferResultWire, { code: -10 }> {
     return { code: -10 };
@@ -285,6 +325,10 @@ export class ManageSellOfferResultBuyNoIssuer extends ManageSellOfferResultBase 
 export class ManageSellOfferResultNotFound extends ManageSellOfferResultBase {
   readonly type = "manageSellOfferNotFound" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<ManageSellOfferResultWire, { code: -11 }> {
     return { code: -11 };
   }
@@ -292,6 +336,10 @@ export class ManageSellOfferResultNotFound extends ManageSellOfferResultBase {
 
 export class ManageSellOfferResultLowReserve extends ManageSellOfferResultBase {
   readonly type = "manageSellOfferLowReserve" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<ManageSellOfferResultWire, { code: -12 }> {
     return { code: -12 };

@@ -138,6 +138,10 @@ export class CreateClaimableBalanceResultSuccess extends CreateClaimableBalanceR
 export class CreateClaimableBalanceResultMalformed extends CreateClaimableBalanceResultBase {
   readonly type = "createClaimableBalanceMalformed" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<CreateClaimableBalanceResultWire, { code: -1 }> {
     return { code: -1 };
   }
@@ -145,6 +149,10 @@ export class CreateClaimableBalanceResultMalformed extends CreateClaimableBalanc
 
 export class CreateClaimableBalanceResultLowReserve extends CreateClaimableBalanceResultBase {
   readonly type = "createClaimableBalanceLowReserve" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<CreateClaimableBalanceResultWire, { code: -2 }> {
     return { code: -2 };
@@ -154,6 +162,10 @@ export class CreateClaimableBalanceResultLowReserve extends CreateClaimableBalan
 export class CreateClaimableBalanceResultNoTrust extends CreateClaimableBalanceResultBase {
   readonly type = "createClaimableBalanceNoTrust" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<CreateClaimableBalanceResultWire, { code: -3 }> {
     return { code: -3 };
   }
@@ -162,6 +174,10 @@ export class CreateClaimableBalanceResultNoTrust extends CreateClaimableBalanceR
 export class CreateClaimableBalanceResultNotAuthorized extends CreateClaimableBalanceResultBase {
   readonly type = "createClaimableBalanceNotAuthorized" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<CreateClaimableBalanceResultWire, { code: -4 }> {
     return { code: -4 };
   }
@@ -169,6 +185,10 @@ export class CreateClaimableBalanceResultNotAuthorized extends CreateClaimableBa
 
 export class CreateClaimableBalanceResultUnderfunded extends CreateClaimableBalanceResultBase {
   readonly type = "createClaimableBalanceUnderfunded" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<CreateClaimableBalanceResultWire, { code: -5 }> {
     return { code: -5 };

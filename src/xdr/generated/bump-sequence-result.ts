@@ -63,6 +63,10 @@ abstract class BumpSequenceResultBase extends XdrValue {
 export class BumpSequenceResultSuccess extends BumpSequenceResultBase {
   readonly type = "bumpSequenceSuccess" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<BumpSequenceResultWire, { code: 0 }> {
     return { code: 0 };
   }
@@ -70,6 +74,10 @@ export class BumpSequenceResultSuccess extends BumpSequenceResultBase {
 
 export class BumpSequenceResultBadSeq extends BumpSequenceResultBase {
   readonly type = "bumpSequenceBadSeq" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<BumpSequenceResultWire, { code: -1 }> {
     return { code: -1 };

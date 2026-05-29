@@ -47,6 +47,10 @@ abstract class DataEntryExtBase extends XdrValue {
 export class DataEntryExtV0 extends DataEntryExtBase {
   readonly type = "v0" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<DataEntryExtWire, { v: 0 }> {
     return { v: 0 };
   }

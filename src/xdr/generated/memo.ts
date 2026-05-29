@@ -97,6 +97,10 @@ abstract class MemoBase extends XdrValue {
 export class MemoNone extends MemoBase {
   readonly type = "memoNone" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<MemoWire, { type: 0 }> {
     return { type: 0 };
   }

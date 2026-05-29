@@ -72,6 +72,10 @@ abstract class BucketMetadataExtBase extends XdrValue {
 export class BucketMetadataExtV0 extends BucketMetadataExtBase {
   readonly type = "v0" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<BucketMetadataExtWire, { v: 0 }> {
     return { v: 0 };
   }

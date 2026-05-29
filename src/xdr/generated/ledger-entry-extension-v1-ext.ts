@@ -52,6 +52,10 @@ abstract class LedgerEntryExtensionV1ExtBase extends XdrValue {
 export class LedgerEntryExtensionV1ExtV0 extends LedgerEntryExtensionV1ExtBase {
   readonly type = "v0" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<LedgerEntryExtensionV1ExtWire, { v: 0 }> {
     return { v: 0 };
   }

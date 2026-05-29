@@ -95,6 +95,10 @@ abstract class ClawbackResultBase extends XdrValue {
 export class ClawbackResultSuccess extends ClawbackResultBase {
   readonly type = "clawbackSuccess" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<ClawbackResultWire, { code: 0 }> {
     return { code: 0 };
   }
@@ -102,6 +106,10 @@ export class ClawbackResultSuccess extends ClawbackResultBase {
 
 export class ClawbackResultMalformed extends ClawbackResultBase {
   readonly type = "clawbackMalformed" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<ClawbackResultWire, { code: -1 }> {
     return { code: -1 };
@@ -111,6 +119,10 @@ export class ClawbackResultMalformed extends ClawbackResultBase {
 export class ClawbackResultNotClawbackEnabled extends ClawbackResultBase {
   readonly type = "clawbackNotClawbackEnabled" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<ClawbackResultWire, { code: -2 }> {
     return { code: -2 };
   }
@@ -119,6 +131,10 @@ export class ClawbackResultNotClawbackEnabled extends ClawbackResultBase {
 export class ClawbackResultNoTrust extends ClawbackResultBase {
   readonly type = "clawbackNoTrust" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<ClawbackResultWire, { code: -3 }> {
     return { code: -3 };
   }
@@ -126,6 +142,10 @@ export class ClawbackResultNoTrust extends ClawbackResultBase {
 
 export class ClawbackResultUnderfunded extends ClawbackResultBase {
   readonly type = "clawbackUnderfunded" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<ClawbackResultWire, { code: -4 }> {
     return { code: -4 };

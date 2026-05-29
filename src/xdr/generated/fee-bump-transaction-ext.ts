@@ -50,6 +50,10 @@ abstract class FeeBumpTransactionExtBase extends XdrValue {
 export class FeeBumpTransactionExtV0 extends FeeBumpTransactionExtBase {
   readonly type = "v0" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<FeeBumpTransactionExtWire, { v: 0 }> {
     return { v: 0 };
   }

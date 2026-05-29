@@ -77,6 +77,10 @@ abstract class TransactionHistoryEntryExtBase extends XdrValue {
 export class TransactionHistoryEntryExtV0 extends TransactionHistoryEntryExtBase {
   readonly type = "v0" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<TransactionHistoryEntryExtWire, { v: 0 }> {
     return { v: 0 };
   }

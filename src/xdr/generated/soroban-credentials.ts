@@ -82,6 +82,10 @@ abstract class SorobanCredentialsBase extends XdrValue {
 export class SorobanCredentialsSourceAccount extends SorobanCredentialsBase {
   readonly type = "sorobanCredentialsSourceAccount" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<SorobanCredentialsWire, { type: 0 }> {
     return { type: 0 };
   }

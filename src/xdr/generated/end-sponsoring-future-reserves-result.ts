@@ -64,6 +64,10 @@ abstract class EndSponsoringFutureReservesResultBase extends XdrValue {
 export class EndSponsoringFutureReservesResultSuccess extends EndSponsoringFutureReservesResultBase {
   readonly type = "endSponsoringFutureReservesSuccess" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<EndSponsoringFutureReservesResultWire, { code: 0 }> {
     return { code: 0 };
   }
@@ -71,6 +75,10 @@ export class EndSponsoringFutureReservesResultSuccess extends EndSponsoringFutur
 
 export class EndSponsoringFutureReservesResultNotSponsored extends EndSponsoringFutureReservesResultBase {
   readonly type = "endSponsoringFutureReservesNotSponsored" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<EndSponsoringFutureReservesResultWire, { code: -1 }> {
     return { code: -1 };

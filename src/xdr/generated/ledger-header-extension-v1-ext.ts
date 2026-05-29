@@ -52,6 +52,10 @@ abstract class LedgerHeaderExtensionV1ExtBase extends XdrValue {
 export class LedgerHeaderExtensionV1ExtV0 extends LedgerHeaderExtensionV1ExtBase {
   readonly type = "v0" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<LedgerHeaderExtensionV1ExtWire, { v: 0 }> {
     return { v: 0 };
   }

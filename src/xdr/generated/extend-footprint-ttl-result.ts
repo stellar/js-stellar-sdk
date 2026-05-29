@@ -87,6 +87,10 @@ abstract class ExtendFootprintTtlResultBase extends XdrValue {
 export class ExtendFootprintTtlResultSuccess extends ExtendFootprintTtlResultBase {
   readonly type = "extendFootprintTtlSuccess" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<ExtendFootprintTtlResultWire, { code: 0 }> {
     return { code: 0 };
   }
@@ -94,6 +98,10 @@ export class ExtendFootprintTtlResultSuccess extends ExtendFootprintTtlResultBas
 
 export class ExtendFootprintTtlResultMalformed extends ExtendFootprintTtlResultBase {
   readonly type = "extendFootprintTtlMalformed" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<ExtendFootprintTtlResultWire, { code: -1 }> {
     return { code: -1 };
@@ -103,6 +111,10 @@ export class ExtendFootprintTtlResultMalformed extends ExtendFootprintTtlResultB
 export class ExtendFootprintTtlResultResourceLimitExceeded extends ExtendFootprintTtlResultBase {
   readonly type = "extendFootprintTtlResourceLimitExceeded" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<ExtendFootprintTtlResultWire, { code: -2 }> {
     return { code: -2 };
   }
@@ -110,6 +122,10 @@ export class ExtendFootprintTtlResultResourceLimitExceeded extends ExtendFootpri
 
 export class ExtendFootprintTtlResultInsufficientRefundableFee extends ExtendFootprintTtlResultBase {
   readonly type = "extendFootprintTtlInsufficientRefundableFee" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<ExtendFootprintTtlResultWire, { code: -3 }> {
     return { code: -3 };

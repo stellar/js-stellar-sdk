@@ -360,6 +360,10 @@ export class TransactionResultResultTxFailed extends TransactionResultResultBase
 export class TransactionResultResultTxTooEarly extends TransactionResultResultBase {
   readonly type = "txTooEarly" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<TransactionResultResultWire, { code: -2 }> {
     return { code: -2 };
   }
@@ -367,6 +371,10 @@ export class TransactionResultResultTxTooEarly extends TransactionResultResultBa
 
 export class TransactionResultResultTxTooLate extends TransactionResultResultBase {
   readonly type = "txTooLate" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<TransactionResultResultWire, { code: -3 }> {
     return { code: -3 };
@@ -376,6 +384,10 @@ export class TransactionResultResultTxTooLate extends TransactionResultResultBas
 export class TransactionResultResultTxMissingOperation extends TransactionResultResultBase {
   readonly type = "txMissingOperation" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<TransactionResultResultWire, { code: -4 }> {
     return { code: -4 };
   }
@@ -383,6 +395,10 @@ export class TransactionResultResultTxMissingOperation extends TransactionResult
 
 export class TransactionResultResultTxBadSeq extends TransactionResultResultBase {
   readonly type = "txBadSeq" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<TransactionResultResultWire, { code: -5 }> {
     return { code: -5 };
@@ -392,6 +408,10 @@ export class TransactionResultResultTxBadSeq extends TransactionResultResultBase
 export class TransactionResultResultTxBadAuth extends TransactionResultResultBase {
   readonly type = "txBadAuth" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<TransactionResultResultWire, { code: -6 }> {
     return { code: -6 };
   }
@@ -399,6 +419,10 @@ export class TransactionResultResultTxBadAuth extends TransactionResultResultBas
 
 export class TransactionResultResultTxInsufficientBalance extends TransactionResultResultBase {
   readonly type = "txInsufficientBalance" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<TransactionResultResultWire, { code: -7 }> {
     return { code: -7 };
@@ -408,6 +432,10 @@ export class TransactionResultResultTxInsufficientBalance extends TransactionRes
 export class TransactionResultResultTxNoAccount extends TransactionResultResultBase {
   readonly type = "txNoAccount" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<TransactionResultResultWire, { code: -8 }> {
     return { code: -8 };
   }
@@ -415,6 +443,10 @@ export class TransactionResultResultTxNoAccount extends TransactionResultResultB
 
 export class TransactionResultResultTxInsufficientFee extends TransactionResultResultBase {
   readonly type = "txInsufficientFee" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<TransactionResultResultWire, { code: -9 }> {
     return { code: -9 };
@@ -424,6 +456,10 @@ export class TransactionResultResultTxInsufficientFee extends TransactionResultR
 export class TransactionResultResultTxBadAuthExtra extends TransactionResultResultBase {
   readonly type = "txBadAuthExtra" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<TransactionResultResultWire, { code: -10 }> {
     return { code: -10 };
   }
@@ -431,6 +467,10 @@ export class TransactionResultResultTxBadAuthExtra extends TransactionResultResu
 
 export class TransactionResultResultTxInternalError extends TransactionResultResultBase {
   readonly type = "txInternalError" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<TransactionResultResultWire, { code: -11 }> {
     return { code: -11 };
@@ -440,6 +480,10 @@ export class TransactionResultResultTxInternalError extends TransactionResultRes
 export class TransactionResultResultTxNotSupported extends TransactionResultResultBase {
   readonly type = "txNotSupported" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<TransactionResultResultWire, { code: -12 }> {
     return { code: -12 };
   }
@@ -447,6 +491,10 @@ export class TransactionResultResultTxNotSupported extends TransactionResultResu
 
 export class TransactionResultResultTxBadSponsorship extends TransactionResultResultBase {
   readonly type = "txBadSponsorship" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<TransactionResultResultWire, { code: -14 }> {
     return { code: -14 };
@@ -456,6 +504,10 @@ export class TransactionResultResultTxBadSponsorship extends TransactionResultRe
 export class TransactionResultResultTxBadMinSeqAgeOrGap extends TransactionResultResultBase {
   readonly type = "txBadMinSeqAgeOrGap" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<TransactionResultResultWire, { code: -15 }> {
     return { code: -15 };
   }
@@ -463,6 +515,10 @@ export class TransactionResultResultTxBadMinSeqAgeOrGap extends TransactionResul
 
 export class TransactionResultResultTxMalformed extends TransactionResultResultBase {
   readonly type = "txMalformed" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<TransactionResultResultWire, { code: -16 }> {
     return { code: -16 };
@@ -472,6 +528,10 @@ export class TransactionResultResultTxMalformed extends TransactionResultResultB
 export class TransactionResultResultTxSorobanInvalid extends TransactionResultResultBase {
   readonly type = "txSorobanInvalid" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<TransactionResultResultWire, { code: -17 }> {
     return { code: -17 };
   }
@@ -479,6 +539,10 @@ export class TransactionResultResultTxSorobanInvalid extends TransactionResultRe
 
 export class TransactionResultResultTxFrozenKeyAccessed extends TransactionResultResultBase {
   readonly type = "txFrozenKeyAccessed" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<TransactionResultResultWire, { code: -18 }> {
     return { code: -18 };

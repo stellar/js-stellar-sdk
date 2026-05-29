@@ -69,6 +69,10 @@ abstract class AccountEntryExtBase extends XdrValue {
 export class AccountEntryExtV0 extends AccountEntryExtBase {
   readonly type = "v0" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<AccountEntryExtWire, { v: 0 }> {
     return { v: 0 };
   }

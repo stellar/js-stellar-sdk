@@ -73,6 +73,10 @@ abstract class ContractCodeEntryExtBase extends XdrValue {
 export class ContractCodeEntryExtV0 extends ContractCodeEntryExtBase {
   readonly type = "v0" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<ContractCodeEntryExtWire, { v: 0 }> {
     return { v: 0 };
   }

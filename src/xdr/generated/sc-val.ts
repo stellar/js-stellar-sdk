@@ -479,6 +479,10 @@ export class ScValBool extends ScValBase {
 export class ScValVoid extends ScValBase {
   readonly type = "scvVoid" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<ScValWire, { type: 1 }> {
     return { type: 1 };
   }
@@ -816,6 +820,10 @@ export class ScValContractInstance extends ScValBase {
 
 export class ScValLedgerKeyContractInstance extends ScValBase {
   readonly type = "scvLedgerKeyContractInstance" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<ScValWire, { type: 20 }> {
     return { type: 20 };

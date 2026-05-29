@@ -77,6 +77,10 @@ abstract class StellarValueExtBase extends XdrValue {
 export class StellarValueExtBasic extends StellarValueExtBase {
   readonly type = "stellarValueBasic" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<StellarValueExtWire, { v: 0 }> {
     return { v: 0 };
   }

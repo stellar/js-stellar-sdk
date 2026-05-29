@@ -112,6 +112,10 @@ abstract class TrustLineAssetBase extends XdrValue {
 export class TrustLineAssetNative extends TrustLineAssetBase {
   readonly type = "assetTypeNative" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<TrustLineAssetWire, { type: 0 }> {
     return { type: 0 };
   }

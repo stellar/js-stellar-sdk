@@ -155,6 +155,10 @@ abstract class SetOptionsResultBase extends XdrValue {
 export class SetOptionsResultSuccess extends SetOptionsResultBase {
   readonly type = "setOptionsSuccess" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<SetOptionsResultWire, { code: 0 }> {
     return { code: 0 };
   }
@@ -162,6 +166,10 @@ export class SetOptionsResultSuccess extends SetOptionsResultBase {
 
 export class SetOptionsResultLowReserve extends SetOptionsResultBase {
   readonly type = "setOptionsLowReserve" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<SetOptionsResultWire, { code: -1 }> {
     return { code: -1 };
@@ -171,6 +179,10 @@ export class SetOptionsResultLowReserve extends SetOptionsResultBase {
 export class SetOptionsResultTooManySigners extends SetOptionsResultBase {
   readonly type = "setOptionsTooManySigners" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<SetOptionsResultWire, { code: -2 }> {
     return { code: -2 };
   }
@@ -178,6 +190,10 @@ export class SetOptionsResultTooManySigners extends SetOptionsResultBase {
 
 export class SetOptionsResultBadFlags extends SetOptionsResultBase {
   readonly type = "setOptionsBadFlags" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<SetOptionsResultWire, { code: -3 }> {
     return { code: -3 };
@@ -187,6 +203,10 @@ export class SetOptionsResultBadFlags extends SetOptionsResultBase {
 export class SetOptionsResultInvalidInflation extends SetOptionsResultBase {
   readonly type = "setOptionsInvalidInflation" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<SetOptionsResultWire, { code: -4 }> {
     return { code: -4 };
   }
@@ -194,6 +214,10 @@ export class SetOptionsResultInvalidInflation extends SetOptionsResultBase {
 
 export class SetOptionsResultCantChange extends SetOptionsResultBase {
   readonly type = "setOptionsCantChange" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<SetOptionsResultWire, { code: -5 }> {
     return { code: -5 };
@@ -203,6 +227,10 @@ export class SetOptionsResultCantChange extends SetOptionsResultBase {
 export class SetOptionsResultUnknownFlag extends SetOptionsResultBase {
   readonly type = "setOptionsUnknownFlag" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<SetOptionsResultWire, { code: -6 }> {
     return { code: -6 };
   }
@@ -210,6 +238,10 @@ export class SetOptionsResultUnknownFlag extends SetOptionsResultBase {
 
 export class SetOptionsResultThresholdOutOfRange extends SetOptionsResultBase {
   readonly type = "setOptionsThresholdOutOfRange" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<SetOptionsResultWire, { code: -7 }> {
     return { code: -7 };
@@ -219,6 +251,10 @@ export class SetOptionsResultThresholdOutOfRange extends SetOptionsResultBase {
 export class SetOptionsResultBadSigner extends SetOptionsResultBase {
   readonly type = "setOptionsBadSigner" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<SetOptionsResultWire, { code: -8 }> {
     return { code: -8 };
   }
@@ -227,6 +263,10 @@ export class SetOptionsResultBadSigner extends SetOptionsResultBase {
 export class SetOptionsResultInvalidHomeDomain extends SetOptionsResultBase {
   readonly type = "setOptionsInvalidHomeDomain" as const;
 
+  get value(): null {
+    return null;
+  }
+
   toXdrObject(): Extract<SetOptionsResultWire, { code: -9 }> {
     return { code: -9 };
   }
@@ -234,6 +274,10 @@ export class SetOptionsResultInvalidHomeDomain extends SetOptionsResultBase {
 
 export class SetOptionsResultAuthRevocableRequired extends SetOptionsResultBase {
   readonly type = "setOptionsAuthRevocableRequired" as const;
+
+  get value(): null {
+    return null;
+  }
 
   toXdrObject(): Extract<SetOptionsResultWire, { code: -10 }> {
     return { code: -10 };
