@@ -23,13 +23,13 @@ flowchart TB
         CORE["core/<br/><b>Reader · Writer</b><br/><b>BaseType&lt;T&gt;</b> · XdrError"]
         TYPES["types/<br/><b>schema primitives</b><br/>struct · union · enum<br/>opaque · varOpaque · string<br/>int32 · int64 · uint64<br/>array · fixedArray · option · lazy · void · bool"]
         VALUES["values/<br/><b>consumer value classes</b><br/>XdrValue (base)<br/>BytesValue · EnumValue · BigIntValue<br/>XdrString · to-json walker"]
-        GEN["generated/<br/><b>447 generated classes</b><br/>Asset · ScVal · Memo<br/>TransactionEnvelope · ..."]
+        GEN["generated/<br/><b>generated classes</b><br/>one per XDR type<br/>Asset · ScVal · Memo<br/>TransactionEnvelope · ..."]
         DX["dx/<br/><b>DX overlays</b><br/>Int128 · Uint128<br/>Int256 · Uint256<br/>(bigint wrappers)"]
         INDEX["<b>index.ts</b><br/><i>public surface</i>"]
     end
 
     XJSON --> CODEGEN
-    CODEGEN -.->|emits 447 files| GEN
+    CODEGEN -.->|emits one file per type| GEN
 
     CORE --> TYPES
     CORE --> VALUES
@@ -66,7 +66,8 @@ The dependency edges encode the design constraints:
   `XdrString`), and the SEP-0051 JSON walker.
 - **`generated/`** is codegen output. Each file references its schema
   primitives from `types/` and extends the right value-class base from
-  `values/`. 447 files, one per named XDR type.
+  `values/`. One file per named XDR type, so the count grows as new types
+  are added to the schema.
 - **`dx/`** is hand-written ergonomic overlays on top of `generated/` —
   e.g. `Int128` exposes a single `bigint` instead of the generated
   `Int128Parts` struct's `{hi, lo}` split.
