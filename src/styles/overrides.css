@@ -1,3 +1,61 @@
+/* Dark mode colors. */
+:root {
+  --sl-color-accent-low: #5842c3;
+  --sl-color-accent: #f1eefe;
+  --sl-color-accent-high: #9e8cfc;
+  --sl-color-white: #ededed;
+  --sl-color-gray-1: #eceef2;
+  --sl-color-gray-2: #c0c2c7;
+  --sl-color-gray-3: #888b96;
+  --sl-color-gray-4: #545861;
+  --sl-color-gray-5: #353841;
+  --sl-color-gray-6: #343434;
+  --sl-color-black: #1c1c1c;
+
+  --stellar-link-bg: #2c2250;
+  --stellar-link-text: #9e8cfc;
+}
+/* Light mode colors. */
+:root[data-theme="light"] {
+  --sl-color-accent-low: #aa99ec;
+  --sl-color-accent: #5746af;
+  --sl-color-accent-high: #20134b;
+  --sl-color-white: #171717;
+  --sl-color-gray-1: #24272f;
+  --sl-color-gray-2: #353841;
+  --sl-color-gray-3: #545861;
+  --sl-color-gray-4: #888b96;
+  --sl-color-gray-5: #c0c2c7;
+  --sl-color-gray-6: #e2e2e2;
+  --sl-color-gray-7: #f5f6f8;
+  --sl-color-black: #fcfcfc;
+
+  --stellar-link-bg: #ede9fe;
+  --stellar-link-text: #5746af;
+}
+
+/* Theme overrides */
+header.header {
+  background-color: var(--sl-color-black);
+  border-bottom-color: var(--sl-color-gray-6);
+}
+
+.sidebar-content .top-level li a[aria-current="page"] {
+  background-color: var(--stellar-link-bg);
+  color: var(--stellar-link-text);
+}
+
+.right-sidebar-panel li a[aria-current="true"] {
+  font-weight: 600;
+}
+
+@media (min-width: 50rem) {
+  .sidebar-pane {
+    background-color: var(--sl-color-black);
+    border-inline-end-color: var(--sl-color-gray-6);
+  }
+}
+
 /* Collapse Starlight's first content panel when it contains only our skip-link
    anchor — i.e. on normal pages where PageTitle.astro emits nothing else.
    When DraftContentNotice or FallbackContentNotice render, #_top is no longer
