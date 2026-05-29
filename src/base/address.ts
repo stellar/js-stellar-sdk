@@ -1,7 +1,7 @@
 import { StrKey } from "./strkey.js";
 import {
-  ClaimableBalanceId,
   ClaimableBalanceIdType,
+  ClaimableBalanceIdV0,
   ContractId,
   Hash,
   MuxedEd25519Account,
@@ -204,9 +204,7 @@ export class Address {
 
       case "claimableBalance":
         return ScAddress.scAddressTypeClaimableBalance(
-          ClaimableBalanceId.claimableBalanceIdTypeV0(
-            new Hash(this._key.subarray(1)),
-          ),
+          new ClaimableBalanceIdV0(new Hash(this._key.subarray(1))),
         );
 
       case "muxedAccount":

@@ -47,7 +47,7 @@ export class FeeBumpTransaction extends TransactionBase<XdrFeeBumpTransaction> {
       );
     }
 
-    const txEnvelope = envelope.value as FeeBumpTransactionEnvelope;
+    const txEnvelope = envelope.value;
     const tx = txEnvelope.tx;
     const fee = tx.fee.toString();
     // clone signatures

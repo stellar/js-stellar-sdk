@@ -363,9 +363,10 @@ export class HorizonServer {
         // carries an array of OperationResult on the `.results` property.
         let results: OperationResult[] | undefined;
 
-        if (isUnionVarient(responseXDR.result, "txSuccess")) {
-          results = responseXDR.result.results;
-        } else if (isUnionVarient(responseXDR.result, "txFailed")) {
+        if (
+          isUnionVarient(responseXDR.result, "txSuccess") ||
+          isUnionVarient(responseXDR.result, "txFailed")
+        ) {
           results = responseXDR.result.results;
         }
 

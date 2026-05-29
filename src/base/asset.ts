@@ -127,7 +127,8 @@ export class Asset {
         ) as string;
         return new this(code, issuer);
       default:
-        throw new Error("Invalid asset type");
+        // @ts-ignore this should be unreachable if the XDR types are correct, but we throw just in case
+        throw new Error("Invalid asset type received: " + assetXdr.type);
     }
   }
 
@@ -166,7 +167,7 @@ export class Asset {
     const networkId = hash(Buffer.from(networkPassphrase));
     const preimage = HashIdPreimage.envelopeTypeContractId(
       new HashIdPreimageContractId({
-        networkId: networkId,
+        networkId,
         contractIdPreimage: ContractIdPreimage.contractIdPreimageFromAsset(
           this.toXdrObject(),
         ),
@@ -243,7 +244,8 @@ export class Asset {
         return AssetType.credit12;
       default:
         throw new Error(
-          "Supported asset types are: native, credit_alphanum4, credit_alphanum12",
+          "Supported asset types are: native, credit_alphanum4, credit_alphanum12. received: " +
+            this.getRawAssetType().name,
         );
     }
   }

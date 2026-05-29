@@ -587,7 +587,8 @@ function convertXdrSignerKeyToObject(
       break;
     }
     default: {
-      throw new Error("Unknown signerKey");
+      // @ts-ignore this should be unreachable if the XDR types are correct, but we throw just in case
+      throw new Error("Unknown signerKey type: " + signerKey.type);
     }
   }
 

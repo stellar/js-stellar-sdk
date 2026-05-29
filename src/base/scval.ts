@@ -458,9 +458,9 @@ export function scValToNative(scv: ScVal): any {
     case "scvLedgerKeyContractInstance":
       return undefined;
 
-    // in the fallthrough case, just return the underlying value directly
     default:
-      return undefined;
+      // @ts-ignore this should be unreachable if the XDR types are correct, but we return the underlying value just in case
+      return scv.value;
   }
 }
 

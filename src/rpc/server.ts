@@ -154,7 +154,10 @@ function findCreatedAccountSequenceInTransactionMeta(
       operations = (meta.value as TransactionMetaV4).operations;
       break;
     default:
-      throw new Error("Unexpected transaction meta switch value");
+      throw new Error(
+        // @ts-ignore this should be unreachable if the XDR types are correct, but we throw just in case
+        "Unexpected transaction meta switch value variant: " + meta.type,
+      );
   }
   const created = operations
     .flatMap((op) => op.changes)
@@ -267,7 +270,9 @@ export class RpcServer {
     try {
       const resp = await this.getLedgerEntry(ledgerKey);
       if (resp.val.type !== "account") {
-        throw new Error("unexpected ledger entry type");
+        throw new Error(
+          "unexpected ledger entry type for account: " + resp.val.type,
+        );
       }
       return resp.val.value;
     } catch {
@@ -311,7 +316,9 @@ export class RpcServer {
     try {
       const entry = await this.getLedgerEntry(trustlineLedgerKey);
       if (entry.val.type !== "trustline") {
-        throw new Error("unexpected ledger entry type");
+        throw new Error(
+          "unexpected ledger entry type for trustline: " + entry.val.type,
+        );
       }
       return entry.val.value;
     } catch {
@@ -371,7 +378,10 @@ export class RpcServer {
     try {
       const entry = await this.getLedgerEntry(trustlineLedgerKey);
       if (entry.val.type !== "claimableBalance") {
-        throw new Error("unexpected ledger entry type");
+        throw new Error(
+          "unexpected ledger entry type for claimable balance: " +
+            entry.val.type,
+        );
       }
       return entry.val.value;
     } catch {

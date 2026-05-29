@@ -78,8 +78,8 @@ export function gatherTxSigners(
  * Verifies if a transaction was signed by the given account id.
  *
  * @param {Transaction | FeeBumpTransaction} transaction The signed transaction.
- * @param {string} accountID The signer's public key.
- * @returns {boolean} Whether or not `accountID` was found to have signed the
+ * @param {string} accountId The signer's public key.
+ * @returns {boolean} Whether or not `accountId` was found to have signed the
  *    transaction.
  *
  * @example
