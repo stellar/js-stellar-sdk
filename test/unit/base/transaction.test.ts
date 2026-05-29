@@ -18,7 +18,16 @@ import { SignerKey } from "../../../src/base/signerkey.js";
 import { StrKey } from "../../../src/base/strkey.js";
 import { hash } from "../../../src/base/hashing.js";
 import type { PaymentResult } from "../../../src/base/operations/types.js";
-import xdr from "../../../src/base/xdr.js";
+import * as xdr from "../../../src/xdr/index.js";
+import type {
+  TransactionEnvelopeTx,
+  TransactionEnvelopeTxFeeBump,
+  TransactionEnvelopeTxV0,
+  PreconditionsV2 as PreconditionsV2Variant,
+  PreconditionsTime,
+  OperationBodyPayment,
+} from "../../../src/xdr/index.js";
+import { expectVariant } from "./support/xdr.js";
 
 function expectBuffersToBeEqual(
   left: { toString(encoding: BufferEncoding): string },
@@ -58,7 +67,7 @@ describe("Transaction", () => {
       .setTimeout(TimeoutInfinite)
       .build()
       .toEnvelope()
-      .toXDR("base64");
+      .toXdr("base64");
 
     const transaction = new Transaction(input, Networks.TESTNET);
     const operation = transaction.operations[0];
@@ -82,10 +91,10 @@ describe("Transaction", () => {
     const v0EnvelopeXdr =
       "AAAAAPQQv+uPYrlCDnjgPyPRgIjB6T8Zb8ANmL8YGAXC2IAgAAAAZAAIteYAAAAHAAAAAAAAAAAAAAABAAAAAAAAAAMAAAAAAAAAAUVVUgAAAAAAUtYuFczBLlsXyEp3q8BbTBpEGINWahqkFbnTPd93YUUAAAAXSHboAAAAABEAACcQAAAAAAAAAKIAAAAAAAAAAcLYgCAAAABAo2tU6n0Bb7bbbpaXacVeaTVbxNMBtnrrXVk2QAOje2Flllk/ORlmQdFU/9c8z43eWh1RNMpI3PscY+yDCnJPBQ==";
 
-    const envelope = xdr.TransactionEnvelope.fromXDR(v0EnvelopeXdr, "base64");
-    const txe = envelope.value() as xdr.TransactionV0Envelope;
+    const envelope = xdr.TransactionEnvelope.fromXdr(v0EnvelopeXdr, "base64");
+    const txe = expectVariant(envelope, "envelopeTypeTxV0").v0;
     const expectedSource = StrKey.encodeEd25519PublicKey(
-      txe.tx().sourceAccountEd25519(),
+      Buffer.from(txe.tx.sourceAccountEd25519),
     );
 
     const tx = new Transaction(v0EnvelopeXdr, Networks.TESTNET);
@@ -153,20 +162,29 @@ describe("Transaction", () => {
     });
 
     it("does not return a reference to source signatures", () => {
-      const envelope = transaction
-        .toEnvelope()
-        .value() as xdr.TransactionV1Envelope;
-      envelope.signatures().push({} as xdr.DecoratedSignature);
+      const envelope = expectVariant(
+        transaction.toEnvelope(),
+        "envelopeTypeTx",
+      ).v1;
+      envelope.signatures.push({} as xdr.DecoratedSignature);
 
       expect(transaction.signatures.length).toEqual(0);
     });
     it("does not return a reference to the source transaction", () => {
-      const envelope = transaction
-        .toEnvelope()
-        .value() as xdr.TransactionV1Envelope;
-      envelope.tx().fee(300);
+      const envelope = expectVariant(
+        transaction.toEnvelope(),
+        "envelopeTypeTx",
+      ).v1;
 
-      expect(transaction.tx.fee().toString()).toEqual("100");
+      // Fields are readonly in the new XDR layer — verify the returned
+      // transaction is a defensive copy by checking that `toEnvelope()` makes
+      // a fresh instance.
+      const envelope2 = expectVariant(
+        transaction.toEnvelope(),
+        "envelopeTypeTx",
+      ).v1;
+      expect(envelope).not.toBe(envelope2);
+      expect(transaction.tx.fee.toString()).toEqual("100");
     });
     it("throws when setting networkPassphrase", () => {
       expect(() => {
@@ -245,8 +263,13 @@ describe("Transaction", () => {
 
       const hashBefore = tx.hash().toString("hex");
 
-      // Attempt to mutate the XDR via the tx getter — should have no effect
-      tx.tx.fee(999999);
+      // Attempt to mutate the XDR via the tx getter — fee is a readonly
+      // bigint in the new class layer; assignment should silently no-op.
+      try {
+        (tx.tx as { fee: bigint }).fee = 999999n;
+      } catch {
+        // strict mode may throw; either way the source must not change
+      }
 
       const hashAfter = tx.hash().toString("hex");
       expect(hashAfter).toBe(hashBefore);
@@ -271,12 +294,16 @@ describe("Transaction", () => {
         .setTimeout(TimeoutInfinite)
         .build();
 
-      // Mutate via the tx getter — should have no effect
-      tx.tx.fee(50000);
+      // Mutate via the tx getter — should have no effect (readonly fields)
+      try {
+        (tx.tx as { fee: bigint }).fee = 50000n;
+      } catch {
+        // strict mode may throw; either way the source must not change
+      }
 
       // Sign and rebuild
       tx.sign(kp);
-      const rebuilt = new Transaction(tx.toXDR(), Networks.TESTNET);
+      const rebuilt = new Transaction(tx.toXdr(), Networks.TESTNET);
 
       // The serialized transaction must match the cached getter values
       expect(rebuilt.fee).toBe(tx.fee);
@@ -310,7 +337,7 @@ describe("Transaction", () => {
       const ref2 = tx.tx;
       expect(ref1).not.toBe(ref2);
       // But they are equivalent
-      expect(ref1.fee()).toBe(ref2.fee());
+      expect(ref1.fee).toBe(ref2.fee);
     });
 
     it("works with Transaction constructed from XDR", () => {
@@ -332,17 +359,21 @@ describe("Transaction", () => {
         .build();
 
       original.sign(kp);
-      const xdrString = original.toXDR();
+      const xdrString = original.toXdr();
 
       const tx = new Transaction(xdrString, Networks.TESTNET);
 
       const hashBefore = tx.hash().toString("hex");
-      tx.tx.fee(999999);
+      try {
+        (tx.tx as { fee: bigint }).fee = 999999n;
+      } catch {
+        // strict mode may throw; readonly assignment must not affect source
+      }
       const hashAfter = tx.hash().toString("hex");
       expect(hashAfter).toBe(hashBefore);
     });
 
-    it("works with TransactionBuilder.fromXDR", () => {
+    it("works with TransactionBuilder.fromXdr", () => {
       const kp = Keypair.random();
       const source = new Account(kp.publicKey(), "0");
 
@@ -361,15 +392,19 @@ describe("Transaction", () => {
         .build();
 
       original.sign(kp);
-      const xdrString = original.toXDR();
+      const xdrString = original.toXdr();
 
-      const tx = TransactionBuilder.fromXDR(
+      const tx = TransactionBuilder.fromXdr(
         xdrString,
         Networks.TESTNET,
       ) as Transaction;
 
       const hashBefore = tx.hash().toString("hex");
-      tx.tx.fee(999999);
+      try {
+        (tx.tx as { fee: bigint }).fee = 999999n;
+      } catch {
+        // strict mode may throw; readonly assignment must not affect source
+      }
       const hashAfter = tx.hash().toString("hex");
       expect(hashAfter).toBe(hashBefore);
     });
@@ -394,7 +429,7 @@ describe("Transaction", () => {
       .setTimeout(TimeoutInfinite)
       .build()
       .toEnvelope()
-      .toXDR("base64");
+      .toXdr("base64");
 
     expect(() => {
       new Transaction(input, { garbage: "yes" } as unknown as string);
@@ -424,7 +459,7 @@ describe("Transaction", () => {
       .setTimeout(TimeoutInfinite)
       .build()
       .toEnvelope()
-      .toXDR("base64");
+      .toXdr("base64");
 
     expect(() => {
       // @ts-expect-error testing missing required argument
@@ -472,13 +507,13 @@ describe("Transaction", () => {
       .build();
     tx.sign(signer);
 
-    const env = tx.toEnvelope().value() as xdr.TransactionV1Envelope;
+    const env = expectVariant(tx.toEnvelope(), "envelopeTypeTx").v1;
 
-    const sig = env.signatures()[0];
+    const sig = env.signatures[0];
     if (sig === undefined) {
       throw new Error("expected a signature");
     }
-    const rawSig = sig.signature();
+    const rawSig = Buffer.from(sig.signature.value);
     const verified = signer.verify(tx.hash(), rawSig);
     expect(verified).toBe(true);
   });
@@ -505,14 +540,14 @@ describe("Transaction", () => {
       .build();
     tx.signHashX(preimage);
 
-    const env = tx.toEnvelope().value() as xdr.TransactionV1Envelope;
-    const sig = env.signatures()[0];
+    const env = expectVariant(tx.toEnvelope(), "envelopeTypeTx").v1;
+    const sig = env.signatures[0];
     if (sig === undefined) {
       throw new Error("expected a signature");
     }
-    expectBuffersToBeEqual(sig.signature(), preimage);
+    expectBuffersToBeEqual(Buffer.from(sig.signature.value), preimage);
     expectBuffersToBeEqual(
-      sig.hint(),
+      Buffer.from(sig.hint.value),
       preimageHash.subarray(preimageHash.length - 4),
     );
   });
@@ -568,9 +603,10 @@ describe("Transaction", () => {
     const presignHash = signedTx.hash();
     signedTx.sign(signer);
 
-    const envelopeSigned = signedTx
-      .toEnvelope()
-      .value() as xdr.TransactionV1Envelope;
+    const envelopeSigned = expectVariant(
+      signedTx.toEnvelope(),
+      "envelopeTypeTx",
+    ).v1;
 
     const addedSignatureTx = new TransactionBuilder(addedSignatureSource, {
       timebounds: {
@@ -587,27 +623,37 @@ describe("Transaction", () => {
 
     addedSignatureTx.addSignature(signer.publicKey(), signature);
 
-    const envelopeAddedSignature = addedSignatureTx
-      .toEnvelope()
-      .value() as xdr.TransactionV1Envelope;
+    const envelopeAddedSignature = expectVariant(
+      addedSignatureTx.toEnvelope(),
+      "envelopeTypeTx",
+    ).v1;
 
-    const addedSig = envelopeAddedSignature.signatures()[0];
+    const addedSig = envelopeAddedSignature.signatures[0];
     if (addedSig === undefined) {
       throw new Error("expected a signature");
     }
 
-    expect(signer.verify(addedSignatureTx.hash(), addedSig.signature())).toBe(
-      true,
-    );
+    expect(
+      signer.verify(
+        addedSignatureTx.hash(),
+        Buffer.from(addedSig.signature.value),
+      ),
+    ).toBe(true);
 
-    const signedSig = envelopeSigned.signatures()[0];
+    const signedSig = envelopeSigned.signatures[0];
     if (signedSig === undefined) {
       throw new Error("expected a signature");
     }
 
-    expectBuffersToBeEqual(signedSig.signature(), addedSig.signature());
+    expectBuffersToBeEqual(
+      Buffer.from(signedSig.signature.value),
+      Buffer.from(addedSig.signature.value),
+    );
 
-    expectBuffersToBeEqual(signedSig.hint(), addedSig.hint());
+    expectBuffersToBeEqual(
+      Buffer.from(signedSig.hint.value),
+      Buffer.from(addedSig.hint.value),
+    );
 
     expectBuffersToBeEqual(addedSignatureTx.hash(), signedTx.hash());
   });
@@ -638,12 +684,13 @@ describe("Transaction", () => {
     const presignHash = signedTx.hash();
     signedTx.sign(signer);
 
-    const envelopeSigned = signedTx
-      .toEnvelope()
-      .value() as xdr.TransactionV1Envelope;
+    const envelopeSigned = expectVariant(
+      signedTx.toEnvelope(),
+      "envelopeTypeTx",
+    ).v1;
 
     const signature = new Transaction(
-      signedTx.toXDR(),
+      signedTx.toXdr(),
       Networks.TESTNET,
     ).getKeypairSignature(signer);
 
@@ -662,27 +709,37 @@ describe("Transaction", () => {
 
     addedSignatureTx.addSignature(signer.publicKey(), signature);
 
-    const envelopeAddedSignature = addedSignatureTx
-      .toEnvelope()
-      .value() as xdr.TransactionV1Envelope;
+    const envelopeAddedSignature = expectVariant(
+      addedSignatureTx.toEnvelope(),
+      "envelopeTypeTx",
+    ).v1;
 
-    const addedSig = envelopeAddedSignature.signatures()[0];
+    const addedSig = envelopeAddedSignature.signatures[0];
     if (addedSig === undefined) {
       throw new Error("expected a signature");
     }
 
-    expect(signer.verify(addedSignatureTx.hash(), addedSig.signature())).toBe(
-      true,
-    );
+    expect(
+      signer.verify(
+        addedSignatureTx.hash(),
+        Buffer.from(addedSig.signature.value),
+      ),
+    ).toBe(true);
 
-    const signedSig = envelopeSigned.signatures()[0];
+    const signedSig = envelopeSigned.signatures[0];
     if (signedSig === undefined) {
       throw new Error("expected a signature");
     }
 
-    expectBuffersToBeEqual(signedSig.signature(), addedSig.signature());
+    expectBuffersToBeEqual(
+      Buffer.from(signedSig.signature.value),
+      Buffer.from(addedSig.signature.value),
+    );
 
-    expectBuffersToBeEqual(signedSig.hint(), addedSig.hint());
+    expectBuffersToBeEqual(
+      Buffer.from(signedSig.hint.value),
+      Buffer.from(addedSig.hint.value),
+    );
 
     expectBuffersToBeEqual(addedSignatureTx.hash(), signedTx.hash());
   });
@@ -718,7 +775,7 @@ describe("Transaction", () => {
       .build();
 
     const signature = new Transaction(
-      originalTx.toXDR(),
+      originalTx.toXdr(),
       Networks.TESTNET,
     ).getKeypairSignature(signer);
 
@@ -763,7 +820,7 @@ describe("Transaction", () => {
       .setTimeout(TimeoutInfinite)
       .build()
       .toEnvelope()
-      .toXDR("base64");
+      .toXdr("base64");
 
     const transaction = new Transaction(input, Networks.TESTNET);
 
@@ -775,8 +832,8 @@ describe("Transaction", () => {
       "AAAAAAW8Dk9idFR5Le+xi0/h/tU47bgC1YWjtPH1vIVO3BklAAAAZACoKlYAAAABAAAAAAAAAAEAAAALdmlhIGtleWJhc2UAAAAAAQAAAAAAAAAIAAAAAN7aGcXNPO36J1I8MR8S4QFhO79T5JGG2ZeS5Ka1m4mJAAAAAAAAAAFO3BklAAAAQP0ccCoeHdm3S7bOhMjXRMn3EbmETJ9glxpKUZjPSPIxpqZ7EkyTgl3FruieqpZd9LYOzdJrNik1GNBLhgTh/AU=";
     const transaction = new Transaction(xdrString, Networks.TESTNET);
     expect(typeof transaction).toBe("object");
-    expect(typeof transaction.toXDR).toBe("function");
-    expect(transaction.toXDR()).toBe(xdrString);
+    expect(typeof transaction.toXdr).toBe("function");
+    expect(transaction.toXdr()).toBe(xdrString);
   });
 
   describe("TransactionEnvelope with MuxedAccount", () => {
@@ -788,7 +845,18 @@ describe("Transaction", () => {
         "GDQERENWDDSQZS7R7WKHZI3BSOYMV3FSWR7TFUYFTKQ447PIX6NREOJM";
       const amount = "2000.0000000";
       const asset = Asset.native();
-      const tx = new TransactionBuilder(account, {
+
+      // Build a TX from a muxed source going to a muxed destination, then
+      // verify the resulting envelope decodes back to the expected muxed
+      // identities. The new XDR layer is immutable, so we set up the muxed
+      // accounts directly in the builder rather than mutating the envelope
+      // post-build.
+      const muxedSource = new MuxedAccount(account, "0");
+      const destinationMuxed = new MuxedAccount(
+        new Account(destination, "1"),
+        "0",
+      );
+      const muxedTx = new TransactionBuilder(muxedSource, {
         fee: "100",
         networkPassphrase: networkPassphrase,
         timebounds: {
@@ -798,7 +866,7 @@ describe("Transaction", () => {
       })
         .addOperation(
           Operation.payment({
-            destination,
+            destination: destinationMuxed.accountId(),
             asset,
             amount,
           }),
@@ -806,33 +874,14 @@ describe("Transaction", () => {
         .addMemo(Memo.text("Happy birthday!"))
         .build();
 
-      // force the source to be muxed in the envelope
-      const muxedSource = new MuxedAccount(account, "0");
-      const envelope = tx.toEnvelope();
-      envelope.v1().tx().sourceAccount(muxedSource.toXDRObject());
-
-      // force the payment destination to be muxed in the envelope
-      const destinationMuxed = new MuxedAccount(
-        new Account(destination, "1"),
-        "0",
+      const muxedTxRoundtrip = new Transaction(
+        muxedTx.toEnvelope(),
+        networkPassphrase,
       );
-      const op = envelope.v1().tx().operations()[0];
-      if (op === undefined) {
-        throw new Error("expected an operation");
-      }
-      const opValue = op.body().value();
-      if (opValue === undefined) {
-        throw new Error("Expected payment operation");
-      }
-      (opValue as xdr.PaymentOp).destination(destinationMuxed.toXDRObject());
-
-      // muxed properties should decode
-      const muxedTx = new Transaction(envelope, networkPassphrase);
-      expect(tx.source).toEqual(source.publicKey());
-      expect(muxedTx.source).toBe(muxedSource.accountId());
-      expect((muxedTx.operations[0] as Operation.Payment).destination).toBe(
-        destinationMuxed.accountId(),
-      );
+      expect(muxedTxRoundtrip.source).toBe(muxedSource.accountId());
+      expect(
+        (muxedTxRoundtrip.operations[0] as Operation.Payment).destination,
+      ).toBe(destinationMuxed.accountId());
     });
   });
 
@@ -962,9 +1011,12 @@ describe("Transaction", () => {
         expect(tx.timeBounds.minTime).toEqual(expMin);
         expect(tx.timeBounds.maxTime).toEqual(expMax);
 
-        const tb = tx.toEnvelope().v1().tx().cond().timeBounds();
-        expect(tb.minTime().toString()).toEqual(expMin);
-        expect(tb.maxTime().toString()).toEqual(expMax);
+        const tb = expectVariant(
+          expectVariant(tx.toEnvelope(), "envelopeTypeTx").v1.tx.cond,
+          "precondTime",
+        ).timeBounds;
+        expect(tb.minTime.toString()).toEqual(expMin);
+        expect(tb.maxTime.toString()).toEqual(expMax);
       });
 
       it("number", () => {
@@ -975,9 +1027,12 @@ describe("Transaction", () => {
         expect(tx.timeBounds.minTime).toEqual("5");
         expect(tx.timeBounds.maxTime).toEqual("10");
 
-        const tb = tx.toEnvelope().v1().tx().cond().timeBounds();
-        expect(tb.minTime().toString()).toEqual("5");
-        expect(tb.maxTime().toString()).toEqual("10");
+        const tb = expectVariant(
+          expectVariant(tx.toEnvelope(), "envelopeTypeTx").v1.tx.cond,
+          "precondTime",
+        ).timeBounds;
+        expect(tb.minTime.toString()).toEqual("5");
+        expect(tb.maxTime.toString()).toEqual("10");
       });
     });
 
@@ -990,19 +1045,25 @@ describe("Transaction", () => {
       expect(tx.ledgerBounds.minLedger).toEqual(5);
       expect(tx.ledgerBounds.maxLedger).toEqual(10);
 
-      const lb = tx.toEnvelope().v1().tx().cond().v2().ledgerBounds();
+      const lb = expectVariant(
+        expectVariant(tx.toEnvelope(), "envelopeTypeTx").v1.tx.cond,
+        "precondV2",
+      ).v2.ledgerBounds;
       if (lb === null) {
         throw new Error("Expected ledgerBounds to be defined");
       }
-      expect(lb.minLedger()).toEqual(5);
-      expect(lb.maxLedger()).toEqual(10);
+      expect(lb.minLedger).toEqual(5);
+      expect(lb.maxLedger).toEqual(10);
     });
 
     it("minAccountSequence", () => {
       const tx = makeBuilder().setTimeout(5).setMinAccountSequence("5").build();
       expect(tx.minAccountSequence).toEqual("5");
 
-      const val = tx.toEnvelope().v1().tx().cond().v2().minSeqNum();
+      const val = expectVariant(
+        expectVariant(tx.toEnvelope(), "envelopeTypeTx").v1.tx.cond,
+        "precondV2",
+      ).v2.minSeqNum;
       if (val === null) {
         throw new Error("Expected minSeqNum to be defined");
       }
@@ -1016,7 +1077,10 @@ describe("Transaction", () => {
         .build();
       expect(tx.minAccountSequence).toEqual("103420918407103888");
 
-      const val = tx.toEnvelope().v1().tx().cond().v2().minSeqNum();
+      const val = expectVariant(
+        expectVariant(tx.toEnvelope(), "envelopeTypeTx").v1.tx.cond,
+        "precondV2",
+      ).v2.minSeqNum;
       if (val === null) {
         throw new Error("Expected minSeqNum to be defined");
       }
@@ -1036,7 +1100,10 @@ describe("Transaction", () => {
         expectedMinAccountSequenceAge.toString(),
       );
 
-      const val = tx.toEnvelope().v1().tx().cond().v2().minSeqAge();
+      const val = expectVariant(
+        expectVariant(tx.toEnvelope(), "envelopeTypeTx").v1.tx.cond,
+        "precondV2",
+      ).v2.minSeqAge;
       expect(val.toString()).toEqual(expectedMinAccountSequenceAge.toString());
     });
 
@@ -1047,7 +1114,10 @@ describe("Transaction", () => {
         .build();
       expect(tx.minAccountSequenceLedgerGap).toEqual(5);
 
-      const val = tx.toEnvelope().v1().tx().cond().v2().minSeqLedgerGap();
+      const val = expectVariant(
+        expectVariant(tx.toEnvelope(), "envelopeTypeTx").v1.tx.cond,
+        "precondV2",
+      ).v2.minSeqLedgerGap;
       expect(val.toString()).toEqual("5");
     });
 
@@ -1059,9 +1129,13 @@ describe("Transaction", () => {
       expect(tx.extraSigners).toHaveLength(1);
       expect(tx.extraSigners.map(SignerKey.encodeSignerKey)).toEqual([address]);
 
-      const signers = tx.toEnvelope().v1().tx().cond().v2().extraSigners();
+      const signers = expectVariant(
+        expectVariant(tx.toEnvelope(), "envelopeTypeTx").v1.tx.cond,
+        "precondV2",
+      ).v2.extraSigners;
       expect(signers).toHaveLength(1);
-      expect(signers[0]).toEqual(SignerKey.decodeAddress(address));
+      const expectedKey = SignerKey.decodeAddress(address);
+      expect(signers[0]!.toXdr("base64")).toBe(expectedKey.toXdr("base64"));
     });
   });
 });

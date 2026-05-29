@@ -1,4 +1,3 @@
-import { xdr } from "../base/index.js";
 import { Spec } from "../contract/index.js";
 import {
   parseTypeFromTypeDef,
@@ -9,6 +8,16 @@ import {
   formatImports,
   isTupleStruct,
 } from "./utils.js";
+import {
+  ScSpecEntry,
+  ScSpecUdtEnumCaseV0,
+  ScSpecUdtEnumV0,
+  ScSpecUdtErrorEnumV0,
+  ScSpecUdtStructFieldV0,
+  ScSpecUdtStructV0,
+  ScSpecUdtUnionCaseV0,
+  ScSpecUdtUnionV0,
+} from "../xdr/index.js";
 
 /**
  * Interface for struct fields
@@ -68,19 +77,19 @@ export class TypeGenerator {
   /**
    * Generate TypeScript for a single spec entry
    */
-  private generateEntry(entry: xdr.ScSpecEntry): string | null {
-    switch (entry.switch()) {
-      case xdr.ScSpecEntryKind.scSpecEntryUdtStructV0():
-        if (isTupleStruct(entry.udtStructV0())) {
-          return this.generateTupleStruct(entry.udtStructV0());
+  private generateEntry(entry: ScSpecEntry): string | null {
+    switch (entry.type) {
+      case "scSpecEntryUdtStructV0":
+        if (isTupleStruct(entry.value)) {
+          return this.generateTupleStruct(entry.value);
         }
-        return this.generateStruct(entry.udtStructV0());
-      case xdr.ScSpecEntryKind.scSpecEntryUdtUnionV0():
-        return this.generateUnion(entry.udtUnionV0());
-      case xdr.ScSpecEntryKind.scSpecEntryUdtEnumV0():
-        return this.generateEnum(entry.udtEnumV0());
-      case xdr.ScSpecEntryKind.scSpecEntryUdtErrorEnumV0():
-        return this.generateErrorEnum(entry.udtErrorEnumV0());
+        return this.generateStruct(entry.value);
+      case "scSpecEntryUdtUnionV0":
+        return this.generateUnion(entry.value);
+      case "scSpecEntryUdtEnumV0":
+        return this.generateEnum(entry.value);
+      case "scSpecEntryUdtErrorEnumV0":
+        return this.generateErrorEnum(entry.value);
       default:
         return null;
     }
@@ -89,29 +98,24 @@ export class TypeGenerator {
   private generateImports(): string {
     const imports = generateTypeImports(
       this.spec.entries.flatMap((entry) => {
-        switch (entry.switch()) {
-          case xdr.ScSpecEntryKind.scSpecEntryUdtStructV0():
-            return entry
-              .udtStructV0()
-              .fields()
-              .map((field) => field.type());
-          case xdr.ScSpecEntryKind.scSpecEntryUdtUnionV0():
-            return entry
-              .udtUnionV0()
-              .cases()
-              .flatMap((unionCase) => {
-                if (
-                  unionCase.switch() ===
-                  xdr.ScSpecUdtUnionCaseV0Kind.scSpecUdtUnionCaseTupleV0()
-                ) {
-                  return unionCase.tupleCase().type();
+        switch (entry.type) {
+          case "scSpecEntryUdtStructV0":
+            return entry.value.fields.map(
+              (field: ScSpecUdtStructFieldV0) => field.type,
+            );
+          case "scSpecEntryUdtUnionV0":
+            return entry.value.cases.flatMap(
+              (unionCase: ScSpecUdtUnionCaseV0) => {
+                if (unionCase.type === "scSpecUdtUnionCaseTupleV0") {
+                  return unionCase.value.type;
                 }
                 return [];
-              });
-          case xdr.ScSpecEntryKind.scSpecEntryUdtEnumV0():
+              },
+            );
+          case "scSpecEntryUdtEnumV0":
             // Enums do not have associated types
             return [];
-          case xdr.ScSpecEntryKind.scSpecEntryUdtErrorEnumV0():
+          case "scSpecEntryUdtErrorEnumV0":
             // Enums do not have associated types
             return [];
           default:
@@ -128,19 +132,18 @@ export class TypeGenerator {
   /**
    * Generate TypeScript interface for a struct
    */
-  private generateStruct(struct: xdr.ScSpecUdtStructV0): string {
-    const name = sanitizeIdentifier(struct.name().toString());
+  private generateStruct(struct: ScSpecUdtStructV0): string {
+    const name = sanitizeIdentifier(struct.name.toString());
     const doc = formatJSDocComment(
-      struct.doc().toString() || `Struct: ${name}`,
+      struct.doc.toString() || `Struct: ${name}`,
       0,
     );
 
-    const fields = struct
-      .fields()
+    const fields = struct.fields
       .map((field) => {
-        const fieldName = sanitizeIdentifier(field.name().toString());
-        const fieldType = parseTypeFromTypeDef(field.type());
-        const fieldDoc = formatJSDocComment(field.doc().toString(), 2);
+        const fieldName = sanitizeIdentifier(field.name.toString());
+        const fieldType = parseTypeFromTypeDef(field.type);
+        const fieldDoc = formatJSDocComment(field.doc.toString(), 2);
 
         return `${fieldDoc}  ${fieldName}: ${fieldType};`;
       })
@@ -154,15 +157,12 @@ ${fields}
   /**
    * Generate TypeScript union type
    */
-  private generateUnion(union: xdr.ScSpecUdtUnionV0): string {
-    const name = sanitizeIdentifier(union.name().toString());
-    const doc = formatJSDocComment(
-      union.doc().toString() || `Union: ${name}`,
-      0,
+  private generateUnion(union: ScSpecUdtUnionV0): string {
+    const name = sanitizeIdentifier(union.name.toString());
+    const doc = formatJSDocComment(union.doc.toString() || `Union: ${name}`, 0);
+    const cases = union.cases.map((unionCase) =>
+      this.generateUnionCase(unionCase),
     );
-    const cases = union
-      .cases()
-      .map((unionCase) => this.generateUnionCase(unionCase));
 
     const caseTypes = cases
       .map((c) => {
@@ -180,19 +180,18 @@ ${caseTypes};`;
   /**
    * Generate TypeScript enum
    */
-  private generateEnum(enumEntry: xdr.ScSpecUdtEnumV0): string {
-    const name = sanitizeIdentifier(enumEntry.name().toString());
+  private generateEnum(enumEntry: ScSpecUdtEnumV0): string {
+    const name = sanitizeIdentifier(enumEntry.name.toString());
     const doc = formatJSDocComment(
-      enumEntry.doc().toString() || `Enum: ${name}`,
+      enumEntry.doc.toString() || `Enum: ${name}`,
       0,
     );
 
-    const members = enumEntry
-      .cases()
+    const members = enumEntry.cases
       .map((enumCase) => {
-        const caseName = sanitizeIdentifier(enumCase.name().toString());
-        const caseValue = enumCase.value();
-        const caseDoc = enumCase.doc().toString() || `Enum Case: ${caseName}`;
+        const caseName = sanitizeIdentifier(enumCase.name.toString());
+        const caseValue = enumCase.value;
+        const caseDoc = enumCase.doc.toString() || `Enum Case: ${caseName}`;
 
         return `${formatJSDocComment(caseDoc, 2)}  ${caseName} = ${caseValue}`;
       })
@@ -206,15 +205,15 @@ ${members}
   /**
    * Generate TypeScript error enum
    */
-  private generateErrorEnum(errorEnum: xdr.ScSpecUdtErrorEnumV0): string {
-    const name = sanitizeIdentifier(errorEnum.name().toString());
+  private generateErrorEnum(errorEnum: ScSpecUdtErrorEnumV0): string {
+    const name = sanitizeIdentifier(errorEnum.name.toString());
     const doc = formatJSDocComment(
-      errorEnum.doc().toString() || `Error Enum: ${name}`,
+      errorEnum.doc.toString() || `Error Enum: ${name}`,
       0,
     );
-    const cases = errorEnum
-      .cases()
-      .map((enumCase) => this.generateEnumCase(enumCase));
+    const cases = errorEnum.cases.map((enumCase) =>
+      this.generateEnumCase(enumCase),
+    );
 
     const members = cases
       .map((c) => {
@@ -230,50 +229,51 @@ ${members}
   /**
    * Generate union case
    */
-  private generateUnionCase(unionCase: xdr.ScSpecUdtUnionCaseV0): UnionCase {
-    switch (unionCase.switch()) {
-      case xdr.ScSpecUdtUnionCaseV0Kind.scSpecUdtUnionCaseVoidV0(): {
-        const voidCase = unionCase.voidCase();
+  private generateUnionCase(unionCase: ScSpecUdtUnionCaseV0): UnionCase {
+    switch (unionCase.type) {
+      case "scSpecUdtUnionCaseVoidV0": {
+        const voidCase = unionCase.value;
         return {
-          doc: voidCase.doc().toString(),
-          name: voidCase.name().toString(),
+          doc: voidCase.doc.toString(),
+          name: voidCase.name.toString(),
           types: [],
         };
       }
-      case xdr.ScSpecUdtUnionCaseV0Kind.scSpecUdtUnionCaseTupleV0(): {
-        const tupleCase = unionCase.tupleCase();
+      case "scSpecUdtUnionCaseTupleV0": {
+        const tupleCase = unionCase.value;
         return {
-          doc: tupleCase.doc().toString(),
-          name: tupleCase.name().toString(),
-          types: tupleCase.type().map((t) => parseTypeFromTypeDef(t)),
+          doc: tupleCase.doc.toString(),
+          name: tupleCase.name.toString(),
+          types: tupleCase.type.map((t) => parseTypeFromTypeDef(t)),
         };
       }
       default:
-        throw new Error(`Unknown union case kind: ${unionCase.switch()}`);
+        throw new Error(
+          `Unknown union case kind: ${(unionCase as { type: string }).type}`,
+        );
     }
   }
 
   /**
    * Generate enum case
    */
-  private generateEnumCase(enumCase: xdr.ScSpecUdtEnumCaseV0): EnumCase {
+  private generateEnumCase(enumCase: ScSpecUdtEnumCaseV0): EnumCase {
     return {
-      doc: enumCase.doc().toString(),
-      name: enumCase.name().toString(),
-      value: enumCase.value(),
+      doc: enumCase.doc.toString(),
+      name: enumCase.name.toString(),
+      value: enumCase.value,
     };
   }
 
-  private generateTupleStruct(udtStruct: xdr.ScSpecUdtStructV0): string {
-    const name = sanitizeIdentifier(udtStruct.name().toString());
+  private generateTupleStruct(udtStruct: ScSpecUdtStructV0): string {
+    const name = sanitizeIdentifier(udtStruct.name.toString());
     const doc = formatJSDocComment(
-      udtStruct.doc().toString() || `Tuple Struct: ${name}`,
+      udtStruct.doc.toString() || `Tuple Struct: ${name}`,
       0,
     );
 
-    const types = udtStruct
-      .fields()
-      .map((field) => parseTypeFromTypeDef(field.type()))
+    const types = udtStruct.fields
+      .map((field) => parseTypeFromTypeDef(field.type))
       .join(", ");
 
     return `${doc}export type ${name} = readonly [${types}];`;

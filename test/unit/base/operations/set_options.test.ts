@@ -11,7 +11,7 @@ import {
   AuthImmutableFlag,
   AuthClawbackEnabledFlag,
 } from "../../../../src/base/operation.js";
-import xdr from "../../../../src/base/xdr.js";
+import * as xdr from "../../../../src/xdr/index.js";
 import { hash } from "../../../../src/base/hashing.js";
 import { TimeoutInfinite } from "../../../../src/base/transaction_builder.js";
 import { expectDefined } from "../support/expect_defined.js";
@@ -45,10 +45,10 @@ describe("Operation.setOptions()", () => {
       homeDomain: "www.example.com",
     };
     const op = Operation.setOptions(opts);
-    const xdrHex = op.toXDR("hex");
-    const operation = xdr.Operation.fromXDR(Buffer.from(xdrHex, "hex"));
+    const xdrHex = op.toXdr("hex");
+    const operation = xdr.Operation.fromXdr(Buffer.from(xdrHex, "hex"));
     const obj = expectOperationType(
-      Operation.fromXDRObject(operation),
+      Operation.fromXdrObject(operation),
       "setOptions",
     );
     const signer = expectObjectWithProperty(
@@ -76,10 +76,10 @@ describe("Operation.setOptions()", () => {
         weight: 10,
       },
     });
-    const xdrHex = op.toXDR("hex");
-    const operation = xdr.Operation.fromXDR(Buffer.from(xdrHex, "hex"));
+    const xdrHex = op.toXdr("hex");
+    const operation = xdr.Operation.fromXdr(Buffer.from(xdrHex, "hex"));
     const obj = expectOperationType(
-      Operation.fromXDRObject(operation),
+      Operation.fromXdrObject(operation),
       "setOptions",
     );
     const signer = expectObjectWithProperty(
@@ -103,10 +103,10 @@ describe("Operation.setOptions()", () => {
         weight: 10,
       },
     });
-    const xdrHex = op.toXDR("hex");
-    const operation = xdr.Operation.fromXDR(Buffer.from(xdrHex, "hex"));
+    const xdrHex = op.toXdr("hex");
+    const operation = xdr.Operation.fromXdr(Buffer.from(xdrHex, "hex"));
     const obj = expectOperationType(
-      Operation.fromXDRObject(operation),
+      Operation.fromXdrObject(operation),
       "setOptions",
     );
     const signer = expectObjectWithProperty(
@@ -126,10 +126,10 @@ describe("Operation.setOptions()", () => {
         weight: 10,
       },
     });
-    const xdrHex = op.toXDR("hex");
-    const operation = xdr.Operation.fromXDR(Buffer.from(xdrHex, "hex"));
+    const xdrHex = op.toXdr("hex");
+    const operation = xdr.Operation.fromXdr(Buffer.from(xdrHex, "hex"));
     const obj = expectOperationType(
-      Operation.fromXDRObject(operation),
+      Operation.fromXdrObject(operation),
       "setOptions",
     );
     const signer = expectObjectWithProperty(
@@ -153,10 +153,10 @@ describe("Operation.setOptions()", () => {
         weight: 10,
       },
     });
-    const xdrHex = op.toXDR("hex");
-    const operation = xdr.Operation.fromXDR(Buffer.from(xdrHex, "hex"));
+    const xdrHex = op.toXdr("hex");
+    const operation = xdr.Operation.fromXdr(Buffer.from(xdrHex, "hex"));
     const obj = expectOperationType(
-      Operation.fromXDRObject(operation),
+      Operation.fromXdrObject(operation),
       "setOptions",
     );
     const signer = expectObjectWithProperty(
@@ -184,10 +184,10 @@ describe("Operation.setOptions()", () => {
         weight: 10,
       },
     });
-    const xdrHex = op.toXDR("hex");
-    const operation = xdr.Operation.fromXDR(Buffer.from(xdrHex, "hex"));
+    const xdrHex = op.toXdr("hex");
+    const operation = xdr.Operation.fromXdr(Buffer.from(xdrHex, "hex"));
     const obj = expectOperationType(
-      Operation.fromXDRObject(operation),
+      Operation.fromXdrObject(operation),
       "setOptions",
     );
     const signer = expectObjectWithProperty(
@@ -230,10 +230,10 @@ describe("Operation.setOptions()", () => {
 
   it("creates a setOptionsOp with string setFlags", () => {
     const op = Operation.setOptions({ setFlags: 4 });
-    const xdrHex = op.toXDR("hex");
-    const operation = xdr.Operation.fromXDR(Buffer.from(xdrHex, "hex"));
+    const xdrHex = op.toXdr("hex");
+    const operation = xdr.Operation.fromXdr(Buffer.from(xdrHex, "hex"));
     const obj = expectOperationType(
-      Operation.fromXDRObject(operation),
+      Operation.fromXdrObject(operation),
       "setOptions",
     );
 
@@ -242,10 +242,10 @@ describe("Operation.setOptions()", () => {
 
   it("creates a setOptionsOp with string clearFlags", () => {
     const op = Operation.setOptions({ clearFlags: 4 });
-    const xdrHex = op.toXDR("hex");
-    const operation = xdr.Operation.fromXDR(Buffer.from(xdrHex, "hex"));
+    const xdrHex = op.toXdr("hex");
+    const operation = xdr.Operation.fromXdr(Buffer.from(xdrHex, "hex"));
     const obj = expectOperationType(
-      Operation.fromXDRObject(operation),
+      Operation.fromXdrObject(operation),
       "setOptions",
     );
 
@@ -260,9 +260,9 @@ describe("Operation.setOptions()", () => {
   it("creates a setOptionsOp with source account", () => {
     const source = "GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGSNFHEYVXM3XOJMDS674JZ";
     const op = Operation.setOptions({ source });
-    const xdrHex = op.toXDR("hex");
-    const operation = xdr.Operation.fromXDR(Buffer.from(xdrHex, "hex"));
-    const obj = Operation.fromXDRObject(operation);
+    const xdrHex = op.toXdr("hex");
+    const operation = xdr.Operation.fromXdr(Buffer.from(xdrHex, "hex"));
+    const obj = Operation.fromXdrObject(operation);
     expect(obj.source).toBe(source);
   });
 
@@ -353,8 +353,8 @@ describe("Operation.setOptions()", () => {
     const op = Operation.setOptions({
       inflationDest: "GDGU5OAPHNPU5UCLE5RDJHG7PXZFQYWKCFOEXSXNMR6KRQRI5T6XXCD7",
     });
-    const hex = op.toXDR("hex");
-    const roundtripped = xdr.Operation.fromXDR(hex, "hex");
-    expect(roundtripped.body().switch().name).toBe("setOptions");
+    const hex = op.toXdr("hex");
+    const roundtripped = xdr.Operation.fromXdr(hex, "hex");
+    expect(roundtripped.body.type).toBe("setOptions");
   });
 });

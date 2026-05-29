@@ -1,4 +1,11 @@
-import xdr from "./xdr.js";
+import {
+  Int32,
+  ScBytes,
+  ScErrorCode,
+  ScMapEntry,
+  ScVal,
+  Uint32,
+} from "../xdr/index.js";
 import { Keypair } from "./keypair.js";
 import { Address } from "./address.js";
 import { Contract } from "./contract.js";
@@ -8,7 +15,7 @@ import type { ScIntType } from "./numbers/index.js";
 type ScValIntType = ScIntType | "i32" | "u32";
 type ScValStringType = ScValIntType | "address" | "string" | "symbol";
 type ScValBytesType = "bytes" | "string" | "symbol";
-type ScValType = ScValBytesType | ScValIntType | ScValStringType;
+type ScValType = ScValBytesType | ScValIntType | ScValStringType | "bool";
 
 type ScValMapTypeSpec = Record<
   string,
@@ -157,15 +164,15 @@ export interface NativeToScValOpts {
 export function nativeToScVal(
   val: unknown,
   opts: NativeToScValOpts = {},
-): xdr.ScVal {
+): ScVal {
   switch (typeof val) {
     case "object": {
       if (val === null) {
-        return xdr.ScVal.scvVoid();
+        return ScVal.scvVoid();
       }
 
-      if (val instanceof xdr.ScVal) {
-        return val; // should we copy?
+      if (ScVal.is(val)) {
+        return val;
       }
 
       if (val instanceof Address) {
@@ -181,14 +188,14 @@ export function nativeToScVal(
       }
 
       if (val instanceof Uint8Array || Buffer.isBuffer(val)) {
-        const copy = Buffer.from(val);
+        const copy = Uint8Array.from(val);
         switch ((opts?.type as string) ?? "bytes") {
           case "bytes":
-            return xdr.ScVal.scvBytes(copy);
+            return ScVal.scvBytes(new ScBytes(copy));
           case "symbol":
-            return xdr.ScVal.scvSymbol(copy);
+            return ScVal.scvSymbol(new TextDecoder().decode(copy));
           case "string":
-            return xdr.ScVal.scvString(copy);
+            return ScVal.scvString(new TextDecoder().decode(copy));
           default:
             throw new TypeError(
               `invalid type (${JSON.stringify(opts.type)}) specified for bytes-like value`,
@@ -197,7 +204,7 @@ export function nativeToScVal(
       }
 
       if (Array.isArray(val)) {
-        return xdr.ScVal.scvVec(
+        return ScVal.scvVec(
           val.map((v: unknown, idx: number) => {
             // There may be different type specifications for each element in
             // the array, so we need to apply those accordingly.
@@ -230,7 +237,7 @@ export function nativeToScVal(
 
       const mapTypeSpec = (opts?.type ?? {}) as ScValMapTypeSpec;
 
-      return xdr.ScVal.scvMap(
+      return ScVal.scvMap(
         Object.entries(val as Record<string, unknown>)
           // The Soroban runtime expects maps to have their keys in sorted
           // order, so let's do that here as part of the conversion to prevent
@@ -246,7 +253,7 @@ export function nativeToScVal(
             const keyOpts: NativeToScValOpts = keyType ? { type: keyType } : {};
             const valOpts: NativeToScValOpts = valType ? { type: valType } : {};
 
-            return new xdr.ScMapEntry({
+            return new ScMapEntry({
               key: nativeToScVal(k, keyOpts),
               val: nativeToScVal(v, valOpts),
             });
@@ -260,20 +267,20 @@ export function nativeToScVal(
       switch (opts?.type) {
         case "u32":
           if (
-            bigintVal < BigInt(xdr.Uint32.MIN_VALUE) ||
-            bigintVal > BigInt(xdr.Uint32.MAX_VALUE)
+            bigintVal < BigInt(Uint32.MIN_VALUE) ||
+            bigintVal > BigInt(Uint32.MAX_VALUE)
           ) {
             throw new TypeError(`invalid value (${val}) for type u32`);
           }
-          return xdr.ScVal.scvU32(Number(val));
+          return ScVal.scvU32(Number(val));
         case "i32":
           if (
-            bigintVal < -BigInt(xdr.Int32.MIN_VALUE) ||
-            bigintVal > BigInt(xdr.Int32.MAX_VALUE)
+            bigintVal < BigInt(Int32.MIN_VALUE) ||
+            bigintVal > BigInt(Int32.MAX_VALUE)
           ) {
             throw new TypeError(`invalid value (${val}) for type i32`);
           }
-          return xdr.ScVal.scvI32(Number(val));
+          return ScVal.scvI32(Number(val));
 
         default:
           break;
@@ -285,10 +292,10 @@ export function nativeToScVal(
       const optType = (opts?.type as string) ?? "string";
       switch (optType) {
         case "string":
-          return xdr.ScVal.scvString(val);
+          return ScVal.scvString(val);
 
         case "symbol":
-          return xdr.ScVal.scvSymbol(val);
+          return ScVal.scvSymbol(val);
 
         case "address":
           return new Address(val).toScVal();
@@ -296,25 +303,23 @@ export function nativeToScVal(
         case "u32": {
           const bigintVal = BigInt(val);
           if (
-            bigintVal < BigInt(xdr.Uint32.MIN_VALUE) ||
-            bigintVal > BigInt(xdr.Uint32.MAX_VALUE)
+            bigintVal < BigInt(Uint32.MIN_VALUE) ||
+            bigintVal > BigInt(Uint32.MAX_VALUE)
           ) {
             throw new TypeError(`invalid value (${val}) for type u32`);
           }
-          return xdr.ScVal.scvU32(Number(bigintVal));
+          return ScVal.scvU32(Number(bigintVal));
         }
 
         case "i32": {
           const bigintVal = BigInt(val);
-          // TODO: Update this check once xdr.Int32.MIN_VALUE in XDR is properly
-          // set to negative. Check this globally.
           if (
-            bigintVal < -BigInt(xdr.Int32.MIN_VALUE) ||
-            bigintVal > BigInt(xdr.Int32.MAX_VALUE)
+            bigintVal < BigInt(Int32.MIN_VALUE) ||
+            bigintVal > BigInt(Int32.MAX_VALUE)
           ) {
             throw new TypeError(`invalid value (${val}) for type i32`);
           }
-          return xdr.ScVal.scvI32(Number(bigintVal));
+          return ScVal.scvI32(Number(bigintVal));
         }
 
         default:
@@ -329,10 +334,10 @@ export function nativeToScVal(
     }
 
     case "boolean":
-      return xdr.ScVal.scvBool(val);
+      return ScVal.scvBool(val);
 
     case "undefined":
-      return xdr.ScVal.scvVoid();
+      return ScVal.scvVoid();
 
     case "function": // FIXME: Is this too helpful?
       return nativeToScVal((val as () => unknown)());
@@ -367,48 +372,49 @@ export function nativeToScVal(
  * @see nativeToScVal
  */
 
-export function scValToNative(scv: xdr.ScVal): any {
+export function scValToNative(scv: ScVal): any {
   // we use the verbose xdr.ScValType.<type>.value form here because it's faster
   // than string comparisons and the underlying constants never need to be
   // updated
-  switch (scv.switch().value) {
-    case xdr.ScValType.scvVoid().value:
+  switch (scv.type) {
+    case "scvVoid":
       return null;
 
     // these can be converted to bigints directly
-    case xdr.ScValType.scvU64().value:
-    case xdr.ScValType.scvI64().value:
-      return (scv.value() as xdr.Int64 | xdr.Uint64).toBigInt();
+    case "scvU64":
+    case "scvI64":
+      return scv.value;
 
     // these can be parsed by internal abstractions note that this can also
     // handle the above two cases, but it's not as efficient (another
     // type-check, parsing, etc.)
-    case xdr.ScValType.scvU128().value:
-    case xdr.ScValType.scvI128().value:
-    case xdr.ScValType.scvU256().value:
-    case xdr.ScValType.scvI256().value:
+    case "scvU128":
+    case "scvI128":
+    case "scvU256":
+    case "scvI256":
       return scValToBigInt(scv);
 
-    case xdr.ScValType.scvVec().value:
-      return (scv.vec() ?? []).map(scValToNative);
+    case "scvVec":
+      return (scv.value ?? []).map(scValToNative);
 
-    case xdr.ScValType.scvAddress().value:
+    case "scvAddress":
       return Address.fromScVal(scv).toString();
 
-    case xdr.ScValType.scvMap().value:
+    case "scvMap":
       return Object.fromEntries(
-        (scv.map() ?? []).map((entry: xdr.ScMapEntry) => [
-          scValToNative(entry.key()),
-          scValToNative(entry.val()),
+        (scv.value ?? []).map((entry: ScMapEntry) => [
+          scValToNative(entry.key),
+          scValToNative(entry.val),
         ]),
       );
 
     // these return the primitive type directly
-    case xdr.ScValType.scvBool().value:
-    case xdr.ScValType.scvU32().value:
-    case xdr.ScValType.scvI32().value:
-    case xdr.ScValType.scvBytes().value:
-      return scv.value();
+    case "scvBool":
+    case "scvU32":
+    case "scvI32":
+      return scv.value;
+    case "scvBytes":
+      return scv.value.value;
 
     // Symbols are limited to [a-zA-Z0-9_]+, so we can safely make ascii strings
     //
@@ -419,58 +425,42 @@ export function scValToNative(scv: xdr.ScVal): any {
     // Note that we assume a utf8 encoding (ascii-compatible). For other
     // encodings, you should probably use bytes anyway. If it cannot be decoded,
     // the raw bytes are returned.
-    case xdr.ScValType.scvSymbol().value: {
-      const v = scv.sym();
-      if (
-        Buffer.isBuffer(v) ||
-        (ArrayBuffer.isView(v) && typeof v !== "string")
-      ) {
-        try {
-          return new TextDecoder().decode(v);
-        } catch {
-          return new Uint8Array((v as ArrayBufferView).buffer); // copy of bytes
-        }
-      }
-      return v; // string already
-    }
-    case xdr.ScValType.scvString().value: {
-      const v = scv.str();
-      if (
-        Buffer.isBuffer(v) ||
-        (ArrayBuffer.isView(v) && typeof v !== "string")
-      ) {
-        try {
-          return new TextDecoder().decode(v);
-        } catch {
-          return new Uint8Array((v as ArrayBufferView).buffer); // copy of bytes
-        }
-      }
-      return v; // string already
-    }
+    case "scvSymbol":
+      // Reach the raw XdrString wrapper (the `.value` getter would do a
+      // strict UTF-8 decode that throws on invalid bytes; we want a best-
+      // effort decode that falls back to raw bytes for binary content).
+      return scv.sym.asStringOrBytes();
+    case "scvString":
+      return scv.str.asStringOrBytes();
 
     // these can be converted to bigint
-    case xdr.ScValType.scvTimepoint().value:
-    case xdr.ScValType.scvDuration().value:
-      return (scv.value() as xdr.Uint64).toBigInt();
+    case "scvTimepoint":
+    case "scvDuration":
+      return scv.value;
 
-    case xdr.ScValType.scvError().value:
-      switch (scv.error().switch().value) {
-        // Distinguish errors from the user contract.
-        case xdr.ScErrorType.sceContract().value:
-          return { type: "contract", code: scv.error().contractCode() };
-        default: {
-          const err = scv.error();
-          return {
-            type: "system",
-            code: err.code().value,
-            value: err.code().name,
-          };
-        }
+    case "scvError": {
+      const err = scv.value;
+      // Distinguish errors from the user contract.
+      if (err.type === "sceContract") {
+        return { type: "contract", code: err.value };
       }
+      const code = err.value as ScErrorCode;
+      return {
+        type: "system",
+        code: code.value,
+        value: code.name,
+      };
+    }
 
-    // in the fallthrough case, just return the underlying value directly
+    case "scvContractInstance":
+    case "scvLedgerKeyNonce":
+      return scv.value;
+    case "scvLedgerKeyContractInstance":
+      return undefined;
+
     default:
-      return scv.value();
+      // @ts-ignore this should be unreachable if the XDR types are correct, but we return the underlying value just in case
+      return scv.value;
   }
 }
 
@@ -479,15 +469,15 @@ export function scValToNative(scv: xdr.ScVal): any {
  *
  * @param items - the unsorted map entries
  */
-export function scvSortedMap(items: xdr.ScMapEntry[]): xdr.ScVal {
+export function scvSortedMap(items: ScMapEntry[]): ScVal {
   const sorted = Array.from(items).sort((a, b) => {
     // Both a and b are `ScMapEntry`s, so we need to sort by underlying key.
     //
     // We couldn't possibly handle every combination of keys since Soroban
     // maps don't enforce consistent types, so we do a best-effort and try
     // sorting by "number-like" or "string-like."
-    const nativeA = scValToNative(a.key()) as bigint | number | string;
-    const nativeB = scValToNative(b.key()) as bigint | number | string;
+    const nativeA = scValToNative(a.key) as bigint | number | string;
+    const nativeB = scValToNative(b.key) as bigint | number | string;
 
     switch (typeof nativeA) {
       case "number":
@@ -503,8 +493,5 @@ export function scvSortedMap(items: xdr.ScMapEntry[]): xdr.ScVal {
     }
   });
 
-  return xdr.ScVal.scvMap(sorted);
+  return ScVal.scvMap(sorted);
 }
-
-// Inject a sortable map builder into the xdr module for backwards compatibility.
-xdr.scvSortedMap = scvSortedMap;

@@ -1,4 +1,5 @@
-import xdr from "./xdr.js";
+import { Buffer } from "buffer";
+import { PoolId, TrustLineAsset } from "../xdr/index.js";
 
 /**
  * LiquidityPoolId class represents the asset referenced by a trustline to a
@@ -25,17 +26,19 @@ export class LiquidityPoolId {
    * Returns a liquidity pool ID object from its xdr.TrustLineAsset representation.
    * @param tlAssetXdr - The asset XDR object.
    */
-  static fromOperation(tlAssetXdr: xdr.TrustLineAsset): LiquidityPoolId {
-    const assetType = tlAssetXdr.switch();
-    if (assetType === xdr.AssetType.assetTypePoolShare()) {
-      // tlAssetXdr.liquidityPoolId() is Buffer at runtime
-      const liquidityPoolId = (
-        tlAssetXdr.liquidityPoolId() as unknown as Buffer
-      ).toString("hex");
+  static fromOperation(tlAssetXdr: TrustLineAsset): LiquidityPoolId {
+    const assetType = tlAssetXdr.type;
+    if (assetType === "assetTypePoolShare") {
+      // LiquidityPoolId is constructed from a hex-string of the raw bytes —
+      // not the SEP-0051 JSON form (which is L-strkey now that PoolId has
+      // its override). Encode the raw bytes directly.
+      const liquidityPoolId = Buffer.from(tlAssetXdr.value.value).toString(
+        "hex",
+      );
       return new LiquidityPoolId(liquidityPoolId);
     }
 
-    throw new Error(`Invalid asset type: ${assetType.name}`);
+    throw new Error(`Invalid asset type: ${assetType}`);
   }
 
   /**
@@ -43,14 +46,11 @@ export class LiquidityPoolId {
    *
    * Note: To convert from {@link Asset `Asset`} to `xdr.TrustLineAsset` please
    * refer to the
-   * {@link Asset.toTrustLineXDRObject `Asset.toTrustLineXDRObject`} method.
+   * {@link Asset.toTrustLineXdrObject `Asset.toTrustLineXdrObject`} method.
    */
-  toXDRObject(): xdr.TrustLineAsset {
-    const xdrPoolId = Buffer.from(
-      this.liquidityPoolId,
-      "hex",
-    ) as unknown as xdr.PoolId;
-    return xdr.TrustLineAsset.assetTypePoolShare(xdrPoolId);
+  toXdrObject(): TrustLineAsset {
+    const xdrPoolId = new PoolId(this.liquidityPoolId);
+    return TrustLineAsset.assetTypePoolShare(xdrPoolId);
   }
 
   /**

@@ -1,7 +1,9 @@
-import { xdr, cereal, Account } from "../base/index.js";
+import { Account } from "../base/index.js";
 import { Server } from "../rpc/index.js";
 import { type AssembledTransaction } from "./assembled_transaction.js";
 import { NULL_ACCOUNT, type AssembledTransactionOptions } from "./types.js";
+import { ScSpecEntry } from "../xdr/index.js";
+import { Reader } from "../xdr/core/reader.js";
 
 /**
  * Keep calling a `fn` for `timeoutInSeconds` seconds, if `keepWaitingIf` is
@@ -181,11 +183,11 @@ export function parseWasmCustomSections(
  * @private
  */
 export function processSpecEntryStream(buffer: Buffer) {
-  const reader = new cereal.XdrReader(buffer);
-  const res: xdr.ScSpecEntry[] = [];
-  while (!reader.eof) {
-    // @ts-ignore
-    res.push(xdr.ScSpecEntry.read(reader));
+  const reader = new Reader(new Uint8Array(buffer));
+  const res: ScSpecEntry[] = [];
+  while (reader.remaining > 0) {
+    const wire = (ScSpecEntry as any).schema._read(reader, "ScSpecEntry");
+    res.push(ScSpecEntry.fromXdrObject(wire));
   }
   return res;
 }

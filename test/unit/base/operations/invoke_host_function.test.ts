@@ -6,9 +6,10 @@ import { Asset } from "../../../../src/base/asset.js";
 import { hash } from "../../../../src/base/hashing.js";
 import { nativeToScVal } from "../../../../src/base/scval.js";
 import type { InvokeHostFunctionOpts } from "../../../../src/base/operations/types.js";
-import xdr from "../../../../src/base/xdr.js";
+import * as xdr from "../../../../src/xdr/index.js";
 import { expectDefined } from "../support/expect_defined.js";
 import { expectOperationType } from "../support/operation.js";
+import { expectVariant } from "../support/xdr.js";
 
 describe("Operation", () => {
   describe(".invokeHostFunction()", () => {
@@ -31,15 +32,15 @@ describe("Operation", () => {
           }),
         ),
       });
-      const hex = op.toXDR("hex");
-      const operation = xdr.Operation.fromXDR(hex, "hex");
+      const hex = op.toXdr("hex");
+      const operation = xdr.Operation.fromXdr(hex, "hex");
 
-      expect(operation.body().switch().name).toBe("invokeHostFunction");
+      expect(operation.body.type).toBe("invokeHostFunction");
       const obj = expectOperationType(
-        Operation.fromXDRObject(operation),
+        Operation.fromXdrObject(operation),
         "invokeHostFunction",
       );
-      expect(obj.func.switch().name).toBe("hostFunctionTypeInvokeContract");
+      expect(obj.func.type).toBe("hostFunctionTypeInvokeContract");
       expect(expectDefined(obj.auth)).toEqual([]);
 
       expect(
@@ -47,7 +48,7 @@ describe("Operation", () => {
           contract: contractId,
           function: "hello",
           args: [nativeToScVal("world")],
-        }).toXDR("hex"),
+        }).toXdr("hex"),
       ).toEqual(hex);
     });
 
@@ -68,26 +69,25 @@ describe("Operation", () => {
           wasmHash: h,
           salt: h,
         });
-        expect(op.body().switch().name).toBe("invokeHostFunction");
+        expect(op.body.type).toBe("invokeHostFunction");
 
         // round trip back
-        const hex = op.toXDR("hex");
-        const xdrOp = xdr.Operation.fromXDR(hex, "hex");
+        const hex = op.toXdr("hex");
+        const xdrOp = xdr.Operation.fromXdr(hex, "hex");
         const decodedOp = expectOperationType(
-          Operation.fromXDRObject(xdrOp),
+          Operation.fromXdrObject(xdrOp),
           "invokeHostFunction",
-        );
-        expect(decodedOp.func.switch().name).toBe(
-          "hostFunctionTypeCreateContractV2",
         );
         expect(
           // check deep inner field to ensure RT
-          decodedOp.func
-            .createContractV2()
-            .contractIdPreimage()
-            .fromAddress()
-            .salt(),
-        ).toEqual(h);
+          Array.from(
+            expectVariant(
+              expectVariant(decodedOp.func, "hostFunctionTypeCreateContractV2")
+                .value.contractIdPreimage,
+              "contractIdPreimageFromAddress",
+            ).value.salt,
+          ),
+        ).toEqual(Array.from(h));
         expect(expectDefined(decodedOp.auth)).toHaveLength(0);
       });
 
@@ -102,25 +102,26 @@ describe("Operation", () => {
         ].forEach((asset) => {
           it(`with asset ${asset.toString()}`, () => {
             const op = Operation.createStellarAssetContract({ asset });
-            expect(op.body().switch().name).toBe("invokeHostFunction");
+            expect(op.body.type).toBe("invokeHostFunction");
 
             // round trip back
-            const hex = op.toXDR("hex");
-            const xdrOp = xdr.Operation.fromXDR(hex, "hex");
+            const hex = op.toXdr("hex");
+            const xdrOp = xdr.Operation.fromXdr(hex, "hex");
             const decodedOp = expectOperationType(
-              Operation.fromXDRObject(xdrOp),
+              Operation.fromXdrObject(xdrOp),
               "invokeHostFunction",
             );
-            expect(decodedOp.func.switch().name).toBe(
-              "hostFunctionTypeCreateContract",
-            );
+            expect(decodedOp.func.type).toBe("hostFunctionTypeCreateContract");
             expect(
               // check deep inner field to ensure RT
               Asset.fromOperation(
-                decodedOp.func
-                  .createContract()
-                  .contractIdPreimage()
-                  .fromAsset(),
+                expectVariant(
+                  expectVariant(
+                    decodedOp.func,
+                    "hostFunctionTypeCreateContract",
+                  ).value.contractIdPreimage,
+                  "contractIdPreimageFromAsset",
+                ).fromAsset,
               ).toString(),
             ).toBe(asset.toString());
             expect(expectDefined(decodedOp.auth)).toHaveLength(0);
@@ -131,19 +132,22 @@ describe("Operation", () => {
       it("lets you upload wasm", () => {
         const wasm = Buffer.alloc(512);
         const op = Operation.uploadContractWasm({ wasm });
-        expect(op.body().switch().name).toBe("invokeHostFunction");
+        expect(op.body.type).toBe("invokeHostFunction");
 
         // round trip back
-        const hex = op.toXDR("hex");
-        const xdrOp = xdr.Operation.fromXDR(hex, "hex");
+        const hex = op.toXdr("hex");
+        const xdrOp = xdr.Operation.fromXdr(hex, "hex");
         const decodedOp = expectOperationType(
-          Operation.fromXDRObject(xdrOp),
+          Operation.fromXdrObject(xdrOp),
           "invokeHostFunction",
         );
-        expect(decodedOp.func.switch().name).toBe(
-          "hostFunctionTypeUploadContractWasm",
-        );
-        expect(decodedOp.func.wasm()).toEqual(wasm);
+        expect(decodedOp.func.type).toBe("hostFunctionTypeUploadContractWasm");
+        expect(
+          Array.from(
+            expectVariant(decodedOp.func, "hostFunctionTypeUploadContractWasm")
+              .wasm,
+          ),
+        ).toEqual(Array.from(wasm));
         expect(expectDefined(decodedOp.auth)).toHaveLength(0);
       });
 
@@ -160,30 +164,33 @@ describe("Operation", () => {
           wasmHash: h,
           salt: h,
         });
-        expect(op.body().switch().name).toBe("invokeHostFunction");
+        expect(op.body.type).toBe("invokeHostFunction");
 
         // round trip back
-        const hex = op.toXDR("hex");
-        const xdrOp = xdr.Operation.fromXDR(hex, "hex");
+        const hex = op.toXdr("hex");
+        const xdrOp = xdr.Operation.fromXdr(hex, "hex");
         const decodedOp = expectOperationType(
-          Operation.fromXDRObject(xdrOp),
+          Operation.fromXdrObject(xdrOp),
           "invokeHostFunction",
         );
-        expect(decodedOp.func.switch().name).toBe(
-          "hostFunctionTypeCreateContractV2",
-        );
+        expect(decodedOp.func.type).toBe("hostFunctionTypeCreateContractV2");
 
         // check deep inner field to ensure RT
         expect(
-          decodedOp.func
-            .createContractV2()
-            .contractIdPreimage()
-            .fromAddress()
-            .salt(),
-        ).toEqual(h);
+          Array.from(
+            expectVariant(
+              expectVariant(decodedOp.func, "hostFunctionTypeCreateContractV2")
+                .createContractV2.contractIdPreimage,
+              "contractIdPreimageFromAddress",
+            ).fromAddress.salt,
+          ),
+        ).toEqual(Array.from(h));
 
         // check deep inner field to ensure ctor args match
-        const ctorArgs = decodedOp.func.createContractV2().constructorArgs();
+        const ctorArgs = expectVariant(
+          decodedOp.func,
+          "hostFunctionTypeCreateContractV2",
+        ).createContractV2.constructorArgs;
 
         expect(ctorArgs).toHaveLength(2);
         expect(ctorArgs[0]).toBeDefined();
@@ -192,15 +199,14 @@ describe("Operation", () => {
         expect(ctorArgs[1]).toEqual(constructorArgs[1]);
         expect(expectDefined(decodedOp.auth)).toHaveLength(0);
 
-        // note: we used a string initially but once the operation is
-        // encoded/decoded it will be a Buffer internally, so we need to
-        // compare that way instead.
-        const decodedStr = ctorArgs[0]?.str();
-        const originalStr = constructorArgs[0]?.str();
+        // `.str` is the raw XdrString wrapper — compare via equals (or
+        // .asString() for textual equality).
+        const decodedStr = expectVariant(ctorArgs[0], "scvString").str;
+        const originalStr = expectVariant(constructorArgs[0], "scvString").str;
 
         expect(decodedStr).toBeDefined();
         expect(originalStr).toBeDefined();
-        expect(decodedStr?.toString()).toBe(originalStr);
+        expect(decodedStr.equals(originalStr)).toBe(true);
       });
 
       it("prevents invocation with liquidity pool args", () => {
@@ -249,10 +255,10 @@ describe("Operation", () => {
         ),
         source,
       });
-      const hex = op.toXDR("hex");
-      const operation = xdr.Operation.fromXDR(hex, "hex");
+      const hex = op.toXdr("hex");
+      const operation = xdr.Operation.fromXdr(hex, "hex");
       const obj = expectOperationType(
-        Operation.fromXDRObject(operation),
+        Operation.fromXdrObject(operation),
         "invokeHostFunction",
       );
       expect(obj.source).toBe(source);
@@ -268,10 +274,10 @@ describe("Operation", () => {
           }),
         ),
       });
-      const hex = op.toXDR("hex");
-      const operation = xdr.Operation.fromXDR(hex, "hex");
+      const hex = op.toXdr("hex");
+      const operation = xdr.Operation.fromXdr(hex, "hex");
       const obj = expectOperationType(
-        Operation.fromXDRObject(operation),
+        Operation.fromXdrObject(operation),
         "invokeHostFunction",
       );
       expect(expectDefined(obj.auth)).toHaveLength(0);
@@ -327,20 +333,20 @@ describe("Operation", () => {
           address: c.address(),
           wasmHash: h,
         });
-        expect(op.body().switch().name).toBe("invokeHostFunction");
+        expect(op.body.type).toBe("invokeHostFunction");
 
-        const hex = op.toXDR("hex");
-        const xdrOp = xdr.Operation.fromXDR(hex, "hex");
+        const hex = op.toXdr("hex");
+        const xdrOp = xdr.Operation.fromXdr(hex, "hex");
         const decodedOp = expectOperationType(
-          Operation.fromXDRObject(xdrOp),
+          Operation.fromXdrObject(xdrOp),
           "invokeHostFunction",
         );
 
-        const salt = decodedOp.func
-          .createContractV2()
-          .contractIdPreimage()
-          .fromAddress()
-          .salt();
+        const salt = expectVariant(
+          expectVariant(decodedOp.func, "hostFunctionTypeCreateContractV2")
+            .createContractV2.contractIdPreimage,
+          "contractIdPreimageFromAddress",
+        ).fromAddress.salt;
         expect(salt).toHaveLength(32);
       });
     });

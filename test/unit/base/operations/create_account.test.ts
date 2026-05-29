@@ -1,7 +1,8 @@
 import { describe, it, expect } from "vitest";
 import { Operation } from "../../../../src/base/operation.js";
-import xdr from "../../../../src/base/xdr.js";
+import * as xdr from "../../../../src/xdr/index.js";
 import { expectOperationType } from "../support/operation.js";
+import { expectVariant } from "../support/xdr.js";
 
 describe("Operation.createAccount()", () => {
   const destination =
@@ -10,15 +11,20 @@ describe("Operation.createAccount()", () => {
   it("creates a createAccountOp", () => {
     const startingBalance = "1000.0000000";
     const op = Operation.createAccount({ destination, startingBalance });
-    const xdrHex = op.toXDR("hex");
-    const operation = xdr.Operation.fromXDR(Buffer.from(xdrHex, "hex"));
+    const xdrHex = op.toXdr("hex");
+    const operation = xdr.Operation.fromXdr(Buffer.from(xdrHex, "hex"));
     const obj = expectOperationType(
-      Operation.fromXDRObject(operation),
+      Operation.fromXdrObject(operation),
       "createAccount",
     );
     expect(obj.destination).toBe(destination);
+    expect(operation.body.type).toBe("createAccount");
+
     expect(
-      operation.body().createAccountOp().startingBalance().toString(),
+      expectVariant(
+        operation.body,
+        "createAccount",
+      ).createAccountOp.startingBalance.toString(),
     ).toBe("10000000000");
     expect(obj.startingBalance).toBe(startingBalance);
   });
@@ -39,10 +45,10 @@ describe("Operation.createAccount()", () => {
       startingBalance: "100",
       source,
     });
-    const xdrHex = op.toXDR("hex");
-    const operation = xdr.Operation.fromXDR(Buffer.from(xdrHex, "hex"));
+    const xdrHex = op.toXdr("hex");
+    const operation = xdr.Operation.fromXdr(Buffer.from(xdrHex, "hex"));
     const obj = expectOperationType(
-      Operation.fromXDRObject(operation),
+      Operation.fromXdrObject(operation),
       "createAccount",
     );
     expect(obj.source).toBe(source);
@@ -86,8 +92,8 @@ describe("Operation.createAccount()", () => {
       destination,
       startingBalance: "50.0000000",
     });
-    const hex = op.toXDR("hex");
-    const roundtripped = xdr.Operation.fromXDR(hex, "hex");
-    expect(roundtripped.body().switch().name).toBe("createAccount");
+    const hex = op.toXdr("hex");
+    const roundtripped = xdr.Operation.fromXdr(hex, "hex");
+    expect(roundtripped.body.type).toBe("createAccount");
   });
 });

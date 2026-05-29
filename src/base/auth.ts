@@ -1,4 +1,13 @@
-import xdr from "./xdr.js";
+import {
+  HashIdPreimage,
+  HashIdPreimageSorobanAuthorization,
+  Int64,
+  ScVal,
+  SorobanAddressCredentials,
+  SorobanAuthorizationEntry,
+  SorobanAuthorizedInvocation,
+  SorobanCredentials,
+} from "../xdr/index.js";
 
 import { Keypair } from "./keypair.js";
 import { StrKey } from "./strkey.js";
@@ -28,13 +37,13 @@ function toBuffer(value: BufferLike): Buffer {
  *    than blindly signing a hash)
  *
  * @returns the signature of the raw payload (which is the sha256 hash of the
- *    preimage bytes, so `hash(preimage.toXDR())`) either naked, implying it is
+ *    preimage bytes, so `hash(preimage.toXdr())`) either naked, implying it is
  *    signed by the key corresponding to the public key in the entry you pass to
  *    {@link authorizeEntry} (decipherable from its
  *    `credentials().address().address()`), or alongside an explicit `publicKey`.
  */
 export type SigningCallback = (
-  preimage: xdr.HashIdPreimage,
+  preimage: HashIdPreimage,
 ) => Promise<BufferLike | { signature: BufferLike; publicKey: string }>;
 
 /**
@@ -93,7 +102,7 @@ export type SigningCallback = (
  * // transaction to a third-party service for signing, or just do simple
  * // signing via Keypair like it does here:
  * function signPayloadCallback(payload) {
- *    return signer.sign(hash(payload.toXDR()));
+ *    return signer.sign(hash(payload.toXdr()));
  * }
  *
  * function multiPartyAuth(
@@ -122,34 +131,39 @@ export type SigningCallback = (
  * ```
  */
 export async function authorizeEntry(
-  entry: xdr.SorobanAuthorizationEntry,
+  entry: SorobanAuthorizationEntry,
   signer: Keypair | SigningCallback,
   validUntilLedgerSeq: number,
   networkPassphrase: string,
-): Promise<xdr.SorobanAuthorizationEntry> {
+): Promise<SorobanAuthorizationEntry> {
   // no-op if it's source account auth
-  if (
-    entry.credentials().switch().value !==
-    xdr.SorobanCredentialsType.sorobanCredentialsAddress().value
-  ) {
+  if (entry.credentials.type !== "sorobanCredentialsAddress") {
     return entry;
   }
 
-  const clone = xdr.SorobanAuthorizationEntry.fromXDR(entry.toXDR());
+  const clone = SorobanAuthorizationEntry.fromXdr(entry.toXdr());
+  if (clone.credentials.type !== "sorobanCredentialsAddress") {
+    return clone;
+  }
 
-  const addrAuth: xdr.SorobanAddressCredentials = clone.credentials().address();
-  addrAuth.signatureExpirationLedger(validUntilLedgerSeq);
+  const addrAuth: SorobanAddressCredentials = clone.credentials.value;
+  const unsignedAddrAuth = new SorobanAddressCredentials({
+    address: addrAuth.address,
+    nonce: addrAuth.nonce,
+    signatureExpirationLedger: validUntilLedgerSeq,
+    signature: addrAuth.signature,
+  });
 
   const networkId = hash(Buffer.from(networkPassphrase));
-  const preimage = xdr.HashIdPreimage.envelopeTypeSorobanAuthorization(
-    new xdr.HashIdPreimageSorobanAuthorization({
-      networkId,
-      nonce: addrAuth.nonce(),
-      invocation: clone.rootInvocation(),
-      signatureExpirationLedger: addrAuth.signatureExpirationLedger(),
+  const preimage = HashIdPreimage.envelopeTypeSorobanAuthorization(
+    new HashIdPreimageSorobanAuthorization({
+      networkId: networkId,
+      nonce: unsignedAddrAuth.nonce,
+      invocation: clone.rootInvocation,
+      signatureExpirationLedger: unsignedAddrAuth.signatureExpirationLedger,
     }),
   );
-  const payload = hash(preimage.toXDR());
+  const payload = hash(Buffer.from(preimage.toXdr()));
 
   let signature: Buffer;
   let publicKey: string;
@@ -165,7 +179,7 @@ export async function authorizeEntry(
     } else {
       // if using the deprecated form, assume it's for the entry
       signature = toBuffer(sigResult);
-      publicKey = Address.fromScAddress(addrAuth.address()).toString();
+      publicKey = Address.fromScAddress(unsignedAddrAuth.address).toString();
     }
   } else {
     signature = toBuffer(signer.sign(payload));
@@ -194,8 +208,17 @@ export async function authorizeEntry(
     },
   );
 
-  addrAuth.signature(xdr.ScVal.scvVec([sigScVal]));
-  return clone;
+  return new SorobanAuthorizationEntry({
+    credentials: SorobanCredentials.sorobanCredentialsAddress(
+      new SorobanAddressCredentials({
+        address: unsignedAddrAuth.address,
+        nonce: unsignedAddrAuth.nonce,
+        signatureExpirationLedger: unsignedAddrAuth.signatureExpirationLedger,
+        signature: ScVal.scvVec([sigScVal]),
+      }),
+    ),
+    rootInvocation: clone.rootInvocation,
+  });
 }
 
 /**
@@ -232,14 +255,14 @@ export async function authorizeEntry(
 export interface AuthorizeInvocationParams {
   signer: Keypair | SigningCallback;
   validUntilLedgerSeq: number;
-  invocation: xdr.SorobanAuthorizedInvocation;
+  invocation: SorobanAuthorizedInvocation;
   networkPassphrase: string;
   publicKey?: string;
 }
 
 export function authorizeInvocation(
   params: AuthorizeInvocationParams,
-): Promise<xdr.SorobanAuthorizationEntry> {
+): Promise<SorobanAuthorizationEntry> {
   const {
     signer,
     validUntilLedgerSeq,
@@ -251,7 +274,7 @@ export function authorizeInvocation(
   // with any crypto dependencies. Note that this just has to be random and
   // unique, not cryptographically secure, so it's fine.
   const kp = Keypair.random().rawPublicKey();
-  const nonce = new xdr.Int64(bytesToInt64(kp));
+  const nonce = Int64(bytesToInt64(kp));
 
   const pk =
     publicKey || (signer instanceof Keypair ? signer.publicKey() : null);
@@ -259,14 +282,14 @@ export function authorizeInvocation(
     throw new Error(`authorizeInvocation requires publicKey parameter`);
   }
 
-  const entry = new xdr.SorobanAuthorizationEntry({
+  const entry = new SorobanAuthorizationEntry({
     rootInvocation: invocation,
-    credentials: xdr.SorobanCredentials.sorobanCredentialsAddress(
-      new xdr.SorobanAddressCredentials({
+    credentials: SorobanCredentials.sorobanCredentialsAddress(
+      new SorobanAddressCredentials({
         address: new Address(pk).toScAddress(),
         nonce,
         signatureExpirationLedger: 0, // replaced
-        signature: xdr.ScVal.scvVec([]), // replaced
+        signature: ScVal.scvVec([]), // replaced
       }),
     ),
   });

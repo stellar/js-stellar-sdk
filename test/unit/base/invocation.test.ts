@@ -3,7 +3,7 @@ import { describe, it, expect } from "vitest";
 import { Keypair } from "../../../src/base/keypair.js";
 import { Asset } from "../../../src/base/asset.js";
 import { StrKey } from "../../../src/base/strkey.js";
-import xdr from "../../../src/base/xdr.js";
+import * as xdr from "../../../src/xdr/index.js";
 import { hash } from "../../../src/base/hashing.js";
 import { Address } from "../../../src/base/address.js";
 import { Contract } from "../../../src/base/contract.js";
@@ -64,7 +64,7 @@ describe("buildInvocationTree", () => {
             new xdr.CreateContractArgs({
               contractIdPreimage:
                 xdr.ContractIdPreimage.contractIdPreimageFromAsset(
-                  new Asset("TEST", nftId).toXDRObject(),
+                  new Asset("TEST", nftId).toXdrObject(),
                 ),
               executable:
                 xdr.ContractExecutable.contractExecutableStellarAsset(),
@@ -128,7 +128,7 @@ describe("buildInvocationTree", () => {
                 });
               }),
               executable: xdr.ContractExecutable.contractExecutableWasm(
-                Buffer.alloc(32, "\x20"),
+                new xdr.Hash(Buffer.alloc(32, "\x20")),
               ),
             }),
           ),
@@ -207,7 +207,7 @@ describe("buildInvocationTree", () => {
   };
 
   it("builds valid XDR for the root invocation", () => {
-    expect(() => rootInvocation.toXDR()).not.toThrow();
+    expect(() => rootInvocation.toXdr()).not.toThrow();
   });
 
   it("outputs a human-readable version of the invocation tree", () => {
@@ -243,7 +243,7 @@ describe("buildInvocationTree", () => {
           new xdr.CreateContractArgs({
             contractIdPreimage:
               xdr.ContractIdPreimage.contractIdPreimageFromAsset(
-                new Asset("USD", issuer).toXDRObject(),
+                new Asset("USD", issuer).toXdrObject(),
               ),
             executable: xdr.ContractExecutable.contractExecutableStellarAsset(),
           }),
@@ -258,7 +258,7 @@ describe("buildInvocationTree", () => {
 
   it("handles a WASM V1 creation invocation (no constructorArgs)", () => {
     const contract = randomContract();
-    const wasmHash = Buffer.alloc(32, "\x42");
+    const wasmHash = new xdr.Hash(Buffer.alloc(32, "\x42"));
     const salt = Buffer.alloc(32, "\x01");
     const inv = new xdr.SorobanAuthorizedInvocation({
       function:
@@ -302,7 +302,7 @@ describe("buildInvocationTree", () => {
               ),
             constructorArgs: [],
             executable: xdr.ContractExecutable.contractExecutableWasm(
-              Buffer.alloc(32, "\x10"),
+              new xdr.Hash(Buffer.alloc(32, "\x10")),
             ),
           }),
         ),
@@ -324,10 +324,10 @@ describe("buildInvocationTree", () => {
           new xdr.CreateContractArgs({
             contractIdPreimage:
               xdr.ContractIdPreimage.contractIdPreimageFromAsset(
-                new Asset("USD", issuer).toXDRObject(),
+                new Asset("USD", issuer).toXdrObject(),
               ),
             executable: xdr.ContractExecutable.contractExecutableWasm(
-              Buffer.alloc(32, "\x01"),
+              new xdr.Hash(Buffer.alloc(32, "\x01")),
             ),
           }),
         ),
@@ -363,7 +363,7 @@ describe("walkInvocationTree", () => {
 
     walkInvocationTree(root, (node, depth) => {
       walkCount++;
-      const s = node.toXDR("base64");
+      const s = node.toXdr("base64");
       if (s in walkSet) {
         const count = expectDefined(walkSet[s]);
         walkSet[s] = count + 1;
@@ -400,7 +400,7 @@ describe("walkInvocationTree", () => {
               new xdr.CreateContractArgs({
                 contractIdPreimage:
                   xdr.ContractIdPreimage.contractIdPreimageFromAsset(
-                    new Asset("TEST", nftId).toXDRObject(),
+                    new Asset("TEST", nftId).toXdrObject(),
                   ),
                 executable:
                   xdr.ContractExecutable.contractExecutableStellarAsset(),
@@ -464,7 +464,7 @@ describe("walkInvocationTree", () => {
                   });
                 }),
                 executable: xdr.ContractExecutable.contractExecutableWasm(
-                  Buffer.alloc(32, "\x20"),
+                  new xdr.Hash(Buffer.alloc(32, "\x20")),
                 ),
               }),
             ),
@@ -479,7 +479,7 @@ describe("walkInvocationTree", () => {
 
     walkInvocationTree(rootInvocation, (node, depth) => {
       walkCount++;
-      const s = node.toXDR("base64");
+      const s = node.toXdr("base64");
       if (s in walkSet) {
         const count = expectDefined(walkSet[s]);
         walkSet[s] = count + 1;
@@ -551,7 +551,7 @@ describe("walkInvocationTree", () => {
     expect(parents[0]).toBeUndefined();
     // Child's parent should be the root
     const parent = expectDefined(parents[1]);
-    expect(parent.toXDR("base64")).toBe(root.toXDR("base64"));
+    expect(parent.toXdr("base64")).toBe(root.toXdr("base64"));
   });
 
   it("handles void return from callback (continues walking)", () => {

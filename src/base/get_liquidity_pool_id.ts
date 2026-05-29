@@ -1,4 +1,7 @@
-import xdr from "./xdr.js";
+import {
+  LiquidityPoolConstantProductParameters,
+  LiquidityPoolParameters as XdrLiquidityPoolParameters,
+} from "../xdr/index.js";
 import { Asset } from "./asset.js";
 import { hash } from "./hashing.js";
 
@@ -62,13 +65,13 @@ export function getLiquidityPoolId(
     throw new Error("Assets are not in lexicographic order");
   }
 
-  const payload = xdr.LiquidityPoolParameters.liquidityPoolConstantProduct(
-    new xdr.LiquidityPoolConstantProductParameters({
-      assetA: assetA.toXDRObject(),
-      assetB: assetB.toXDRObject(),
+  const payload = XdrLiquidityPoolParameters.liquidityPoolConstantProduct(
+    new LiquidityPoolConstantProductParameters({
+      assetA: assetA.toXdrObject(),
+      assetB: assetB.toXdrObject(),
       fee,
     }),
-  ).toXDR();
+  ).toXdr();
 
-  return hash(payload);
+  return hash(Buffer.from(payload));
 }

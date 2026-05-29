@@ -22,10 +22,9 @@ export default defineConfig({
     environment: "node",
     coverage: {
       provider: "v8",
-      reporter: ["text", "html", "lcov"],
+      reporter: ["text-summary", "html", "lcov"],
       include: ["src/**/*.ts"],
       exclude: coverageExclude,
-      all: true,
     },
     testTimeout: 20000,
     // Only include non-browser tests in Node.js test runs

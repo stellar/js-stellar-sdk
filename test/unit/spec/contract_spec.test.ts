@@ -164,6 +164,9 @@ function replaceBigIntWithStrings(obj: any): any {
   if (Buffer.isBuffer(obj)) {
     return obj;
   }
+  if (obj instanceof Uint8Array) {
+    return Buffer.from(obj);
+  }
   // If obj is an array, process each element
   if (Array.isArray(obj)) {
     return obj.map(replaceBigIntWithStrings);
@@ -294,14 +297,14 @@ describe("Spec constructor", () => {
 
 describe("Can round trip custom types", () => {
   function getResultType(funcName: string): xdr.ScSpecTypeDef {
-    const fn = SPEC.findEntry(funcName).value();
+    const fn = SPEC.findEntry(funcName).value;
     if (!(fn instanceof xdr.ScSpecFunctionV0)) {
       throw new Error("Not a function");
     }
-    if (fn.outputs().length === 0) {
+    if (fn.outputs.length === 0) {
       return xdr.ScSpecTypeDef.scSpecTypeVoid();
     }
-    const output = fn.outputs()[0];
+    const output = fn.outputs[0];
     if (!output) {
       throw new Error("No output type found");
     }
@@ -357,7 +360,9 @@ describe("Can round trip custom types", () => {
 
   describe("Json Schema", () => {
     SPEC = new contract.Spec(spec);
-    const names = SPEC.funcs().map((f) => f.name().toString());
+    // Function names are XDR `string<32>` (XdrString wrapper); decode for
+    // use as JS `it()` labels and downstream string comparisons.
+    const names = SPEC.funcs().map((f) => f.name.toString());
     const banned = ["strukt_hel", "not", "woid", "val", "multi_args"];
     names
       .filter((name) => !name.includes("fail"))
@@ -541,9 +546,7 @@ describe("Can round trip custom types", () => {
 
   it("u256", () => {
     roundtrip("u256", 1n);
-    expect(() => roundtrip("u256", -1n)).toThrow(
-      /expected a positive value, got: -1/i,
-    );
+    expect(() => roundtrip("u256", -1n)).toThrow(/too large for 256-bit u256/);
   });
 
   it("i256", () => {

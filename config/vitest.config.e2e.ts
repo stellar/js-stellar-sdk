@@ -1,24 +1,31 @@
-import { defineConfig } from 'vitest/config'
-import { resolve } from 'path'
+import { defineConfig } from "vitest/config";
+import { resolve } from "path";
 
 export default defineConfig({
   test: {
     globals: true,
-    environment: 'node',
+    environment: "node",
     coverage: {
-      provider: 'v8',
-      reporter: ['text', 'html', 'lcov'],
-      include: ['lib/esm/**/*.js'],
-      exclude: ['test/**', 'dist/**', 'coverage/**', '**/*.d.ts', 'lib/**/*.d.ts', 'lib/axios', '**/*/browser.js'],
-      all: true,
+      provider: "v8",
+      reporter: ["text-summary", "html"],
+      include: ["lib/esm/**/*.js"],
+      exclude: [
+        "test/**",
+        "dist/**",
+        "coverage/**",
+        "**/*.d.ts",
+        "lib/**/*.d.ts",
+        "lib/axios",
+        "**/*/browser.js",
+      ],
     },
     testTimeout: 120000, // 2 minutes timeout for e2e tests (same as original Mocha config)
     hookTimeout: 120000, // 2 minutes timeout for hooks (beforeAll, afterAll, etc.)
     // Include only e2e tests
-    include: ['test/e2e/src/**/*.test.ts'],
-    exclude: ['**/browser.test.ts'],
+    include: ["test/e2e/src/**/*.test.ts"],
+    exclude: ["**/browser.test.ts"],
     // Run tests in sequence to avoid conflicts with shared resources
-    pool: 'forks',
+    pool: "forks",
     poolOptions: {
       forks: {
         singleFork: true,
@@ -27,17 +34,17 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@': resolve(__dirname, '../src'),
+      "@": resolve(__dirname, "../src"),
     },
-    extensions: ['.ts', '.tsx', '.js', '.jsx', '.json'],
+    extensions: [".ts", ".tsx", ".js", ".jsx", ".json"],
   },
   esbuild: {
-    target: 'node20',
+    target: "node20",
   },
   optimizeDeps: {
-    include: ['axios'],
+    include: ["axios"],
   },
   define: {
     __PACKAGE_VERSION__: JSON.stringify(process.env.npm_package_version),
   },
-})
+});

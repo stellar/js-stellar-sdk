@@ -1,7 +1,8 @@
 import { describe, it, expect } from "vitest";
 import { Claimant } from "../../../src/base/claimant.js";
 import { StrKey } from "../../../src/base/strkey.js";
-import xdr from "../../../src/base/xdr.js";
+import * as xdr from "../../../src/xdr/index.js";
+import { expectVariant } from "./support/xdr.js";
 
 const DESTINATION = "GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGSNFHEYVXM3XOJMDS674JZ";
 
@@ -15,9 +16,7 @@ describe("Claimant", () => {
 
     it("defaults to unconditional if predicate is undefined", () => {
       const claimant = new Claimant(DESTINATION);
-      expect(claimant.predicate.switch()).toBe(
-        xdr.ClaimPredicateType.claimPredicateUnconditional(),
-      );
+      expect(claimant.predicate.type).toBe("claimPredicateUnconditional");
     });
 
     it("throws an error if predicate is not an xdr.ClaimPredicate", () => {
@@ -30,9 +29,7 @@ describe("Claimant", () => {
   describe("predicateUnconditional()", () => {
     it("returns an `unconditional` claim predicate", () => {
       const predicate = Claimant.predicateUnconditional();
-      expect(predicate.switch()).toBe(
-        xdr.ClaimPredicateType.claimPredicateUnconditional(),
-      );
+      expect(predicate.type).toBe("claimPredicateUnconditional");
     });
   });
 
@@ -40,11 +37,11 @@ describe("Claimant", () => {
     it("returns a `beforeAbsoluteTime` claim predicate", () => {
       const time = "4102444800000";
       const predicate = Claimant.predicateBeforeAbsoluteTime(time);
-      expect(predicate.switch()).toBe(
-        xdr.ClaimPredicateType.claimPredicateBeforeAbsoluteTime(),
+      const before = expectVariant(
+        predicate,
+        "claimPredicateBeforeAbsoluteTime",
       );
-      const value = predicate.absBefore();
-      expect(value.toString()).toBe(time);
+      expect(before.absBefore.toString()).toBe(time);
     });
   });
 
@@ -52,11 +49,11 @@ describe("Claimant", () => {
     it("returns a `beforeRelativeTime` claim predicate", () => {
       const time = "86400";
       const predicate = Claimant.predicateBeforeRelativeTime(time);
-      expect(predicate.switch()).toBe(
-        xdr.ClaimPredicateType.claimPredicateBeforeRelativeTime(),
+      const before = expectVariant(
+        predicate,
+        "claimPredicateBeforeRelativeTime",
       );
-      const value = predicate.relBefore();
-      expect(value.toString()).toBe(time);
+      expect(before.relBefore.toString()).toBe(time);
     });
   });
 
@@ -65,18 +62,13 @@ describe("Claimant", () => {
       const time = "86400";
       const beforeRel = Claimant.predicateBeforeRelativeTime(time);
       const predicate = Claimant.predicateNot(beforeRel);
-      expect(predicate.switch()).toBe(
-        xdr.ClaimPredicateType.claimPredicateNot(),
-      );
-      const notPred = predicate.notPredicate();
-      if (notPred == null) {
+      const not = expectVariant(predicate, "claimPredicateNot");
+      const inner = not.notPredicate;
+      if (inner == null) {
         expect.fail("Expected notPredicate to be defined");
       }
-      const value = notPred.value();
-      if (value == null) {
-        expect.fail("Expected notPredicate value to be defined");
-      }
-      expect(value.toString()).toBe(time);
+      const innerRel = expectVariant(inner, "claimPredicateBeforeRelativeTime");
+      expect(innerRel.relBefore.toString()).toBe(time);
     });
   });
 
@@ -85,17 +77,18 @@ describe("Claimant", () => {
       const left = Claimant.predicateBeforeRelativeTime("800");
       const right = Claimant.predicateBeforeRelativeTime("1200");
       const predicate = Claimant.predicateOr(left, right);
-      expect(predicate.switch()).toBe(
-        xdr.ClaimPredicateType.claimPredicateOr(),
+      const or = expectVariant(predicate, "claimPredicateOr");
+      const [first, second] = or.orPredicates;
+      const firstRel = expectVariant(
+        first!,
+        "claimPredicateBeforeRelativeTime",
       );
-      const predicates = predicate.orPredicates();
-      const firstValue = predicates[0]?.value();
-      const secondValue = predicates[1]?.value();
-      if (firstValue == null || secondValue == null) {
-        expect.fail("Expected or predicate values to be defined");
-      }
-      expect(firstValue.toString()).toBe("800");
-      expect(secondValue.toString()).toBe("1200");
+      const secondRel = expectVariant(
+        second!,
+        "claimPredicateBeforeRelativeTime",
+      );
+      expect(firstRel.relBefore.toString()).toBe("800");
+      expect(secondRel.relBefore.toString()).toBe("1200");
     });
   });
 
@@ -104,17 +97,18 @@ describe("Claimant", () => {
       const left = Claimant.predicateBeforeRelativeTime("800");
       const right = Claimant.predicateBeforeRelativeTime("1200");
       const predicate = Claimant.predicateAnd(left, right);
-      expect(predicate.switch()).toBe(
-        xdr.ClaimPredicateType.claimPredicateAnd(),
+      const and = expectVariant(predicate, "claimPredicateAnd");
+      const [first, second] = and.andPredicates;
+      const firstRel = expectVariant(
+        first!,
+        "claimPredicateBeforeRelativeTime",
       );
-      const predicates = predicate.andPredicates();
-      const firstValue = predicates[0]?.value();
-      const secondValue = predicates[1]?.value();
-      if (firstValue == null || secondValue == null) {
-        expect.fail("Expected and predicate values to be defined");
-      }
-      expect(firstValue.toString()).toBe("800");
-      expect(secondValue.toString()).toBe("1200");
+      const secondRel = expectVariant(
+        second!,
+        "claimPredicateBeforeRelativeTime",
+      );
+      expect(firstRel.relBefore.toString()).toBe("800");
+      expect(secondRel.relBefore.toString()).toBe("1200");
     });
   });
 
@@ -135,9 +129,7 @@ describe("Claimant", () => {
   describe("predicate", () => {
     it("returns the predicate", () => {
       const claimant = new Claimant(DESTINATION);
-      expect(claimant.predicate.switch()).toBe(
-        Claimant.predicateUnconditional().switch(),
-      );
+      expect(claimant.predicate.type).toBe("claimPredicateUnconditional");
     });
 
     it("does not allow changes in predicate", () => {
@@ -148,34 +140,31 @@ describe("Claimant", () => {
     });
   });
 
-  describe("toXDRObject()", () => {
+  describe("toXdrObject()", () => {
     it("returns a xdr.Claimant", () => {
       const claimant = new Claimant(DESTINATION);
-      const xdrClaimant = claimant.toXDRObject();
+      const xdrClaimant = claimant.toXdrObject();
       expect(xdrClaimant).toBeInstanceOf(xdr.Claimant);
-      expect(xdrClaimant.switch()).toBe(xdr.ClaimantType.claimantTypeV0());
-      const value = xdrClaimant.value();
-      expect(StrKey.encodeEd25519PublicKey(value.destination().ed25519())).toBe(
+      const v0 = expectVariant(xdrClaimant, "claimantTypeV0");
+      const inner = v0.v0;
+      const dest = expectVariant(inner.destination, "publicKeyTypeEd25519");
+      expect(StrKey.encodeEd25519PublicKey(Buffer.from(dest.ed25519))).toBe(
         DESTINATION,
       );
-      expect(value.predicate().switch()).toBe(
-        Claimant.predicateUnconditional().switch(),
-      );
+      expect(inner.predicate.type).toBe("claimPredicateUnconditional");
 
-      expect(() => xdrClaimant.toXDR()).not.toThrow();
+      expect(() => xdrClaimant.toXdr()).not.toThrow();
     });
   });
 
-  describe("fromXDR()", () => {
+  describe("fromXdr()", () => {
     it("returns a Claimant", () => {
       const claimant = new Claimant(DESTINATION);
-      const hex = claimant.toXDRObject().toXDR("hex");
-      const xdrClaimant = xdr.Claimant.fromXDR(hex, "hex");
-      const fromXDR = Claimant.fromXDR(xdrClaimant);
-      expect(fromXDR.destination).toBe(DESTINATION);
-      expect(fromXDR.predicate.switch()).toBe(
-        Claimant.predicateUnconditional().switch(),
-      );
+      const hex = claimant.toXdrObject().toXdr("hex");
+      const xdrClaimant = xdr.Claimant.fromXdr(hex, "hex");
+      const fromXdr = Claimant.fromXdr(xdrClaimant);
+      expect(fromXdr.destination).toBe(DESTINATION);
+      expect(fromXdr.predicate.type).toBe("claimPredicateUnconditional");
     });
   });
 
@@ -185,9 +174,7 @@ describe("Claimant", () => {
       const predicate = Claimant.predicateBeforeRelativeTime("86400");
       const claimant = new Claimant(DESTINATION, predicate);
       expect(claimant.destination).toBe(DESTINATION);
-      expect(claimant.predicate.switch()).toBe(
-        xdr.ClaimPredicateType.claimPredicateBeforeRelativeTime(),
-      );
+      expect(claimant.predicate.type).toBe("claimPredicateBeforeRelativeTime");
     });
   });
 
@@ -231,18 +218,19 @@ describe("Claimant", () => {
     });
   });
 
-  describe("fromXDR() with predicate", () => {
+  describe("fromXdr() with predicate", () => {
     it("preserves predicate through XDR roundtrip", () => {
       const predicate = Claimant.predicateBeforeAbsoluteTime("4102444800000");
       const claimant = new Claimant(DESTINATION, predicate);
-      const hex = claimant.toXDRObject().toXDR("hex");
-      const xdrClaimant = xdr.Claimant.fromXDR(hex, "hex");
-      const fromXDR = Claimant.fromXDR(xdrClaimant);
-      expect(fromXDR.destination).toBe(DESTINATION);
-      expect(fromXDR.predicate.switch()).toBe(
-        xdr.ClaimPredicateType.claimPredicateBeforeAbsoluteTime(),
+      const hex = claimant.toXdrObject().toXdr("hex");
+      const xdrClaimant = xdr.Claimant.fromXdr(hex, "hex");
+      const fromXdr = Claimant.fromXdr(xdrClaimant);
+      expect(fromXdr.destination).toBe(DESTINATION);
+      const abs = expectVariant(
+        fromXdr.predicate,
+        "claimPredicateBeforeAbsoluteTime",
       );
-      expect(fromXDR.predicate.absBefore().toString()).toBe("4102444800000");
+      expect(abs.absBefore.toString()).toBe("4102444800000");
     });
   });
 });

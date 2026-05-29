@@ -1,12 +1,25 @@
 import { describe, it, expect } from "vitest";
 import * as StellarSdk from "../../src/index.js";
+import { expectVariant } from "./base/support/xdr.js";
 
-const { xdr, rpc } = StellarSdk;
+const {
+  xdr,
+  rpc,
+  Address,
+  Account,
+  Asset,
+  Networks,
+  Operation,
+  SorobanDataBuilder,
+  StrKey,
+  TimeoutInfinite,
+  TransactionBuilder,
+} = StellarSdk;
 
 describe("assembleTransaction", () => {
   it("works with keybump transactions");
 
-  const scAddress = new StellarSdk.Address(
+  const scAddress = new Address(
     "GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI",
   ).toScAddress();
 
@@ -15,7 +28,7 @@ describe("assembleTransaction", () => {
     credentials: xdr.SorobanCredentials.sorobanCredentialsAddress(
       new xdr.SorobanAddressCredentials({
         address: scAddress,
-        nonce: new xdr.Int64(0),
+        nonce: 0n,
         signatureExpirationLedger: 1,
         signature: xdr.ScVal.scvVoid(),
       }),
@@ -32,22 +45,22 @@ describe("assembleTransaction", () => {
         ),
       subInvocations: [],
     }),
-  }).toXDR("base64");
+  }).toXdr("base64");
 
-  const sorobanTransactionData = new StellarSdk.SorobanDataBuilder()
+  const sorobanTransactionData = new SorobanDataBuilder()
     .setResources(0, 5, 0)
     .setResourceFee("115")
     .build();
 
   const simulationResponse = {
     id: "test-simulation-id",
-    transactionData: sorobanTransactionData.toXDR("base64"),
+    transactionData: sorobanTransactionData.toXdr("base64"),
     events: [],
     minResourceFee: "115",
     results: [
       {
         auth: [fnAuth],
-        xdr: xdr.ScVal.scvU32(0).toXDR("base64"),
+        xdr: xdr.ScVal.scvU32(0).toXdr("base64"),
       },
     ],
     latestLedger: 3,
@@ -58,18 +71,18 @@ describe("assembleTransaction", () => {
   };
 
   describe("Transaction", () => {
-    const networkPassphrase = StellarSdk.Networks.TESTNET;
-    const source = new StellarSdk.Account(
+    const networkPassphrase = Networks.TESTNET;
+    const source = new Account(
       "GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI",
       "1",
     );
 
     function singleContractFnTransaction(auth: any) {
-      return new StellarSdk.TransactionBuilder(source, { fee: "100" })
+      return new TransactionBuilder(source, { fee: "100" })
         .setNetworkPassphrase(networkPassphrase)
-        .setTimeout(StellarSdk.TimeoutInfinite)
+        .setTimeout(TimeoutInfinite)
         .addOperation(
-          StellarSdk.Operation.invokeHostFunction({
+          Operation.invokeHostFunction({
             func: xdr.HostFunction.hostFunctionTypeInvokeContract(
               new xdr.InvokeContractArgs({
                 contractAddress: scAddress,
@@ -89,11 +102,13 @@ describe("assembleTransaction", () => {
 
       // validate it auto updated the tx fees from sim response fees
       // since it was greater than tx.fee
-      expect(result.toEnvelope().v1().tx().fee()).toBe(215);
+      const v1 = expectVariant(result.toEnvelope(), "envelopeTypeTx").v1;
+      expect(Number(v1.tx.fee)).toBe(215);
 
       // validate it updated sorobantransactiondata block in the tx ext
-      expect(result.toEnvelope().v1().tx().ext().sorobanData()).toEqual(
-        sorobanTransactionData,
+      const ext = expectVariant(v1.tx.ext, "sorobanData");
+      expect(ext.sorobanData.toXdr("base64")).toEqual(
+        sorobanTransactionData.toXdr("base64"),
       );
     });
 
@@ -101,39 +116,29 @@ describe("assembleTransaction", () => {
       const txn = singleContractFnTransaction(undefined);
       const result = rpc.assembleTransaction(txn, simulationResponse).build();
 
-      expect(
-        result
-          .toEnvelope()
-          .v1()
-          .tx()
-          .operations()[0]!
-          .body()
-          .invokeHostFunctionOp()
-          .auth()[0]!
-          .rootInvocation()
-          .function()
-          .contractFn()
-          .functionName()
-          .toString(),
-      ).toBe("fn");
+      const v1 = expectVariant(result.toEnvelope(), "envelopeTypeTx").v1;
+      const opBody = v1.tx.operations[0]!.body;
+      const invokeOp = expectVariant(
+        opBody,
+        "invokeHostFunction",
+      ).invokeHostFunctionOp;
+      const fn = expectVariant(
+        invokeOp.auth[0]!.rootInvocation.function,
+        "sorobanAuthorizedFunctionTypeContractFn",
+      ).contractFn;
+      expect(fn.functionName.toString()).toBe("fn");
 
-      expect(
-        StellarSdk.StrKey.encodeEd25519PublicKey(
-          result
-            .toEnvelope()
-            .v1()
-            .tx()
-            .operations()[0]!
-            .body()
-            .invokeHostFunctionOp()
-            .auth()[0]!
-            .credentials()
-            .address()
-            .address()
-            .accountId()
-            .ed25519(),
-        ),
-      ).toBe("GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI");
+      const credAddr = expectVariant(
+        invokeOp.auth[0]!.credentials,
+        "sorobanCredentialsAddress",
+      ).address;
+      const accountKey = expectVariant(
+        credAddr.address,
+        "scAddressTypeAccount",
+      ).accountId;
+      expect(StrKey.encodeEd25519PublicKey(Buffer.from(accountKey.value))).toBe(
+        "GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI",
+      );
     });
 
     it("simulate ignores non auth from simulation", () => {
@@ -142,29 +147,25 @@ describe("assembleTransaction", () => {
       simulateResp.results[0].auth = null;
       const result = rpc.assembleTransaction(txn, simulateResp).build();
 
-      expect(
-        result
-          .toEnvelope()
-          .v1()
-          .tx()
-          .operations()[0]!
-          .body()
-          .invokeHostFunctionOp()
-          .auth(),
-      ).toHaveLength(0);
+      const v1 = expectVariant(result.toEnvelope(), "envelopeTypeTx").v1;
+      const invokeOp = expectVariant(
+        v1.tx.operations[0]!.body,
+        "invokeHostFunction",
+      ).invokeHostFunctionOp;
+      expect(invokeOp.auth).toHaveLength(0);
     });
 
     it("throws for non-Soroban ops", () => {
-      const txn = new StellarSdk.TransactionBuilder(source, {
+      const txn = new TransactionBuilder(source, {
         fee: "100",
         networkPassphrase,
       })
         .addOperation(
-          StellarSdk.Operation.changeTrust({
-            asset: StellarSdk.Asset.native(),
+          Operation.changeTrust({
+            asset: Asset.native(),
           }),
         )
-        .setTimeout(StellarSdk.TimeoutInfinite)
+        .setTimeout(TimeoutInfinite)
         .build();
 
       expect(() => {
@@ -184,34 +185,32 @@ describe("assembleTransaction", () => {
 
     it("works for all Soroban ops", () => {
       [
-        StellarSdk.Operation.invokeContractFunction({
-          contract: StellarSdk.Asset.native().contractId(
-            StellarSdk.Networks.TESTNET,
-          ),
+        Operation.invokeContractFunction({
+          contract: Asset.native().contractId(Networks.TESTNET),
           function: "hello",
           args: [],
         }),
-        StellarSdk.Operation.extendFootprintTtl({ extendTo: 27 }),
-        StellarSdk.Operation.restoreFootprint({}),
+        Operation.extendFootprintTtl({ extendTo: 27 }),
+        Operation.restoreFootprint({}),
       ].forEach((op) => {
-        const txn = new StellarSdk.TransactionBuilder(source, {
+        const txn = new TransactionBuilder(source, {
           fee: "100",
           networkPassphrase,
         })
-          .setTimeout(StellarSdk.TimeoutInfinite)
+          .setTimeout(TimeoutInfinite)
           .addOperation(op)
           .build();
 
         const tx = rpc.assembleTransaction(txn, simulationResponse).build();
-        expect(tx.operations[0]!.type).toEqual(op.body().switch().name);
+        expect(tx.operations[0]!.type).toEqual(op.body.type);
       });
     });
 
     it("doesn't overwrite auth if it's present", () => {
       const authEntries = [
-        xdr.SorobanAuthorizationEntry.fromXDR(fnAuth, "base64"),
-        xdr.SorobanAuthorizationEntry.fromXDR(fnAuth, "base64"),
-        xdr.SorobanAuthorizationEntry.fromXDR(fnAuth, "base64"),
+        xdr.SorobanAuthorizationEntry.fromXdr(fnAuth, "base64"),
+        xdr.SorobanAuthorizationEntry.fromXdr(fnAuth, "base64"),
+        xdr.SorobanAuthorizationEntry.fromXdr(fnAuth, "base64"),
       ];
       const txn = singleContractFnTransaction(authEntries);
       const tx = rpc.assembleTransaction(txn, simulationResponse).build();
@@ -228,20 +227,20 @@ describe("assembleTransaction", () => {
 
       // Build soroban data with a non-zero resourceFee to simulate
       // a transaction that was previously assembled/simulated
-      const preExistingSorobanData = new StellarSdk.SorobanDataBuilder()
+      const preExistingSorobanData = new SorobanDataBuilder()
         .setResources(0, 5, 0)
         .setResourceFee(oldResourceFee)
         .build();
 
       function txWithPreExistingSorobanData(fee: string) {
-        return new StellarSdk.TransactionBuilder(source, {
+        return new TransactionBuilder(source, {
           fee,
           networkPassphrase,
         })
-          .setTimeout(StellarSdk.TimeoutInfinite)
+          .setTimeout(TimeoutInfinite)
           .setSorobanData(preExistingSorobanData)
           .addOperation(
-            StellarSdk.Operation.invokeHostFunction({
+            Operation.invokeHostFunction({
               func: xdr.HostFunction.hostFunctionTypeInvokeContract(
                 new xdr.InvokeContractArgs({
                   contractAddress: scAddress,
@@ -261,7 +260,9 @@ describe("assembleTransaction", () => {
         expect(parseInt(txn.fee)).toBe(100 + oldResourceFee);
 
         const result = rpc.assembleTransaction(txn, simulationResponse).build();
-        const finalFee = result.toEnvelope().v1().tx().fee();
+        const finalFee = Number(
+          expectVariant(result.toEnvelope(), "envelopeTypeTx").v1.tx.fee,
+        );
 
         // assembleTransaction should strip old resourceFee from tx.fee (600 - 500 = 100),
         // then build() adds the new resourceFee (100 + 115 = 215)
@@ -274,7 +275,9 @@ describe("assembleTransaction", () => {
         expect(parseInt(txn.fee)).toBe(300 + oldResourceFee);
 
         const result = rpc.assembleTransaction(txn, simulationResponse).build();
-        const finalFee = result.toEnvelope().v1().tx().fee();
+        const finalFee = Number(
+          expectVariant(result.toEnvelope(), "envelopeTypeTx").v1.tx.fee,
+        );
 
         // 800 - 500 = 300 classic, then build() adds 115 = 415
         expect(finalFee).toBe(300 + newResourceFee);
@@ -286,13 +289,18 @@ describe("assembleTransaction", () => {
         const firstAssembly = rpc
           .assembleTransaction(freshTxn, simulationResponse)
           .build();
-        const feeAfterFirst = firstAssembly.toEnvelope().v1().tx().fee();
+        const feeAfterFirst = Number(
+          expectVariant(firstAssembly.toEnvelope(), "envelopeTypeTx").v1.tx.fee,
+        );
 
         // Second assembly: re-assemble the already-assembled transaction
         const secondAssembly = rpc
           .assembleTransaction(firstAssembly, simulationResponse)
           .build();
-        const feeAfterSecond = secondAssembly.toEnvelope().v1().tx().fee();
+        const feeAfterSecond = Number(
+          expectVariant(secondAssembly.toEnvelope(), "envelopeTypeTx").v1.tx
+            .fee,
+        );
 
         // Should be identical — no double-counting
         expect(feeAfterSecond).toBe(feeAfterFirst);

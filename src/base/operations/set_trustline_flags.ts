@@ -1,8 +1,12 @@
-import xdr from "../xdr.js";
+import {
+  Operation,
+  OperationBody,
+  SetTrustLineFlagsOp,
+  TrustLineFlags,
+} from "../../xdr/index.js";
 import { Keypair } from "../keypair.js";
 import {
   SetTrustLineFlagsOpts,
-  SetTrustLineFlagsResult,
   TrustLineFlagMap,
   OperationAttributes,
 } from "./types.js";
@@ -36,18 +40,16 @@ import { setSourceAccount } from "../util/operations.js";
  * @see https://github.com/stellar/stellar-protocol/blob/master/core/cap-0035.md#set-trustline-flags-operation
  * @see https://developers.stellar.org/docs/start/list-of-operations/#set-options
  */
-export function setTrustLineFlags(
-  opts: SetTrustLineFlagsOpts,
-): xdr.Operation<SetTrustLineFlagsResult> {
+export function setTrustLineFlags(opts: SetTrustLineFlagsOpts): Operation {
   if (typeof opts.flags !== "object" || Object.keys(opts.flags).length === 0) {
     throw new Error("opts.flags must be a map of boolean flags to modify");
   }
 
   const mapping: Record<string, { value: number }> = {
-    authorized: xdr.TrustLineFlags.authorizedFlag(),
+    authorized: TrustLineFlags.authorizedFlag,
     authorizedToMaintainLiabilities:
-      xdr.TrustLineFlags.authorizedToMaintainLiabilitiesFlag(),
-    clawbackEnabled: xdr.TrustLineFlags.trustlineClawbackEnabledFlag(),
+      TrustLineFlags.authorizedToMaintainLiabilitiesFlag,
+    clawbackEnabled: TrustLineFlags.trustlineClawbackEnabledFlag,
   };
 
   /* eslint no-bitwise: "off" */
@@ -79,12 +81,12 @@ export function setTrustLineFlags(
   });
 
   const trustor = Keypair.fromPublicKey(opts.trustor).xdrAccountId();
-  const asset = opts.asset.toXDRObject();
+  const asset = opts.asset.toXdrObject();
 
   const opAttributes: OperationAttributes = {
     sourceAccount: null,
-    body: xdr.OperationBody.setTrustLineFlags(
-      new xdr.SetTrustLineFlagsOp({
+    body: OperationBody.setTrustLineFlags(
+      new SetTrustLineFlagsOp({
         trustor,
         asset,
         clearFlags: clearFlag,
@@ -94,5 +96,5 @@ export function setTrustLineFlags(
   };
   setSourceAccount(opAttributes, opts);
 
-  return new xdr.Operation(opAttributes);
+  return new Operation(opAttributes);
 }

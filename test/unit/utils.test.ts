@@ -3,7 +3,19 @@ import { uint8ArrayToBase64 } from "uint8array-extras";
 import * as StellarSdk from "../../src/index.js";
 import type { TransactionBuilderOptions } from "../../src/base/transaction_builder.js";
 
-const { WebAuth } = StellarSdk;
+const {
+  WebAuth,
+  Utils,
+  Networks,
+  Keypair,
+  Account,
+  Asset,
+  TransactionBuilder,
+  Operation,
+  Memo,
+  Transaction,
+  BASE_FEE,
+} = StellarSdk;
 
 function newClientSigner(key: string, weight: number) {
   return { key, weight, type: "ed25519_public_key" };
@@ -16,7 +28,7 @@ describe("Utils", () => {
     vi.useFakeTimers({ now: 0 });
     txBuilderOpts = {
       fee: "100",
-      networkPassphrase: StellarSdk.Networks.TESTNET,
+      networkPassphrase: Networks.TESTNET,
     };
   });
 
@@ -26,7 +38,7 @@ describe("Utils", () => {
 
   describe("WebAuth.buildChallengeTx", () => {
     it("allows non-muxed accounts", () => {
-      const keypair = StellarSdk.Keypair.random();
+      const keypair = Keypair.random();
       const muxedAddress =
         "MAAAAAAAAAAAAAB7BQ2L7E5NBWMXDUCMZSIPOBKRDSBYVLMXGSSKF6YNPIB7Y77ITLVL6";
       const challenge = WebAuth.buildChallengeTx(
@@ -34,44 +46,38 @@ describe("Utils", () => {
         "MAAAAAAAAAAAAAB7BQ2L7E5NBWMXDUCMZSIPOBKRDSBYVLMXGSSKF6YNPIB7Y77ITLVL6",
         "testanchor.stellar.org",
         300,
-        StellarSdk.Networks.TESTNET,
+        Networks.TESTNET,
         "testanchor.stellar.org",
       );
-      const transaction = new StellarSdk.Transaction(
-        challenge,
-        StellarSdk.Networks.TESTNET,
-      );
+      const transaction = new Transaction(challenge, Networks.TESTNET);
       expect(transaction.operations[0]).toBeDefined();
       expect(transaction.operations[0]!.source).toBe(muxedAddress);
     });
 
     it("allows ID memos", () => {
-      const keypair = StellarSdk.Keypair.random();
+      const keypair = Keypair.random();
       const challenge = WebAuth.buildChallengeTx(
         keypair,
-        StellarSdk.Keypair.random().publicKey(),
+        Keypair.random().publicKey(),
         "testanchor.stellar.org",
         300,
-        StellarSdk.Networks.TESTNET,
+        Networks.TESTNET,
         "testanchor.stellar.org",
         "8884404377665521220",
       );
-      const transaction = new StellarSdk.Transaction(
-        challenge,
-        StellarSdk.Networks.TESTNET,
-      );
+      const transaction = new Transaction(challenge, Networks.TESTNET);
       expect(transaction.memo.value).toBe("8884404377665521220");
     });
 
     it("disallows non-ID memos", () => {
-      const keypair = StellarSdk.Keypair.random();
+      const keypair = Keypair.random();
       expect(() => {
         WebAuth.buildChallengeTx(
           keypair,
-          StellarSdk.Keypair.random().publicKey(),
+          Keypair.random().publicKey(),
           "testanchor.stellar.org",
           300,
-          StellarSdk.Networks.TESTNET,
+          Networks.TESTNET,
           "testanchor.stellar.org",
           "memo text",
         );
@@ -79,7 +85,7 @@ describe("Utils", () => {
     });
 
     it("disallows memos with muxed accounts", () => {
-      const keypair = StellarSdk.Keypair.random();
+      const keypair = Keypair.random();
       const muxedAddress =
         "MAAAAAAAAAAAAAB7BQ2L7E5NBWMXDUCMZSIPOBKRDSBYVLMXGSSKF6YNPIB7Y77ITLVL6";
       expect(() => {
@@ -88,7 +94,7 @@ describe("Utils", () => {
           muxedAddress,
           "testanchor.stellar.org",
           300,
-          StellarSdk.Networks.TESTNET,
+          Networks.TESTNET,
           "testanchor.stellar.org",
           "8884404377665521220",
         );
@@ -96,25 +102,22 @@ describe("Utils", () => {
     });
 
     it("returns challenge which follows SEP0010 spec", () => {
-      const keypair = StellarSdk.Keypair.random();
-      const clientSigningKeypair = StellarSdk.Keypair.random();
+      const keypair = Keypair.random();
+      const clientSigningKeypair = Keypair.random();
 
       const challenge = WebAuth.buildChallengeTx(
         keypair,
         "GBDIT5GUJ7R5BXO3GJHFXJ6AZ5UQK6MNOIDMPQUSMXLIHTUNR2Q5CFNF",
         "testanchor.stellar.org",
         300,
-        StellarSdk.Networks.TESTNET,
+        Networks.TESTNET,
         "testanchor.stellar.org",
         null,
         "testdomain",
         clientSigningKeypair.publicKey(),
       );
 
-      const transaction = new StellarSdk.Transaction(
-        challenge,
-        StellarSdk.Networks.TESTNET,
-      );
+      const transaction = new Transaction(challenge, Networks.TESTNET);
 
       expect(transaction.sequence).toEqual("0");
       expect(transaction.source).toEqual(keypair.publicKey());
@@ -151,21 +154,18 @@ describe("Utils", () => {
     });
 
     it("uses the passed-in timeout", () => {
-      const keypair = StellarSdk.Keypair.random();
+      const keypair = Keypair.random();
 
       const challenge = WebAuth.buildChallengeTx(
         keypair,
         "GBDIT5GUJ7R5BXO3GJHFXJ6AZ5UQK6MNOIDMPQUSMXLIHTUNR2Q5CFNF",
         "testanchor.stellar.org",
         600,
-        StellarSdk.Networks.TESTNET,
+        Networks.TESTNET,
         "testanchor.stellar.org",
       );
 
-      const transaction = new StellarSdk.Transaction(
-        challenge,
-        StellarSdk.Networks.TESTNET,
-      );
+      const transaction = new Transaction(challenge, Networks.TESTNET);
 
       expect(transaction.timeBounds).toBeDefined();
       const maxTime = parseInt(transaction.timeBounds!.maxTime);
@@ -177,7 +177,7 @@ describe("Utils", () => {
     });
 
     it("throws an error if a muxed account and memo is passed", () => {
-      const keypair = StellarSdk.Keypair.random();
+      const keypair = Keypair.random();
       const muxedAddress =
         "MCQQMHTBRF2NPCEJWO2JMDT2HBQ2FGDCYREY2YIBSHLTXDG54Y3KTWX3R7NBER62VBELC";
       expect(() =>
@@ -186,7 +186,7 @@ describe("Utils", () => {
           muxedAddress,
           "testanchor.stellar.org",
           600,
-          StellarSdk.Networks.TESTNET,
+          Networks.TESTNET,
           "testanchor.stellar.org",
           "10154623012567072189",
         ),
@@ -196,11 +196,11 @@ describe("Utils", () => {
     it("throws an error if clientSigningKey is not passed", () => {
       expect(() =>
         WebAuth.buildChallengeTx(
-          StellarSdk.Keypair.random(),
-          StellarSdk.Keypair.random().publicKey(),
+          Keypair.random(),
+          Keypair.random().publicKey(),
           "testanchor.stellar.org",
           600,
-          StellarSdk.Networks.TESTNET,
+          Networks.TESTNET,
           "testanchor.stellar.org",
           null,
           "testdomain",
@@ -212,23 +212,23 @@ describe("Utils", () => {
 
   describe("WebAuth.readChallengeTx", () => {
     it("requires a envelopeTypeTxV0 or envelopeTypeTx", () => {
-      const serverKP = StellarSdk.Keypair.random();
-      const clientKP = StellarSdk.Keypair.random();
+      const serverKP = Keypair.random();
+      const clientKP = Keypair.random();
 
       const challenge = WebAuth.buildChallengeTx(
         serverKP,
         clientKP.publicKey(),
         "SDF",
         300,
-        StellarSdk.Networks.TESTNET,
+        Networks.TESTNET,
         "testanchor.stellar.org",
       );
 
-      const innerTx = new StellarSdk.TransactionBuilder(
-        new StellarSdk.Account(clientKP.publicKey(), "0"),
+      const innerTx = new TransactionBuilder(
+        new Account(clientKP.publicKey(), "0"),
         {
           fee: "100",
-          networkPassphrase: StellarSdk.Networks.TESTNET,
+          networkPassphrase: Networks.TESTNET,
           timebounds: {
             minTime: 0,
             maxTime: 0,
@@ -236,26 +236,26 @@ describe("Utils", () => {
         },
       )
         .addOperation(
-          StellarSdk.Operation.payment({
+          Operation.payment({
             destination: clientKP.publicKey(),
-            asset: StellarSdk.Asset.native(),
+            asset: Asset.native(),
             amount: "10.000",
           }),
         )
         .build();
 
-      const feeBump = StellarSdk.TransactionBuilder.buildFeeBumpTransaction(
+      const feeBump = TransactionBuilder.buildFeeBumpTransaction(
         serverKP,
         "300",
         innerTx,
-        StellarSdk.Networks.TESTNET,
-      ).toXDR();
+        Networks.TESTNET,
+      ).toXdr();
 
       expect(() =>
         WebAuth.readChallengeTx(
           feeBump,
           serverKP.publicKey(),
-          StellarSdk.Networks.TESTNET,
+          Networks.TESTNET,
           "SDF",
           "testanchor.stellar.org",
         ),
@@ -265,7 +265,7 @@ describe("Utils", () => {
         WebAuth.readChallengeTx(
           challenge,
           serverKP.publicKey(),
-          StellarSdk.Networks.TESTNET,
+          Networks.TESTNET,
           "SDF",
           "testanchor.stellar.org",
         ),
@@ -274,37 +274,34 @@ describe("Utils", () => {
         WebAuth.readChallengeTx(
           feeBump,
           serverKP.publicKey(),
-          StellarSdk.Networks.TESTNET,
+          Networks.TESTNET,
           "SDF",
           "testanchor.stellar.org",
         ),
       ).toThrow(WebAuth.InvalidChallengeError);
     });
     it("returns the transaction and the clientAccountID (client's pubKey) if the challenge was created successfully", () => {
-      const serverKP = StellarSdk.Keypair.random();
-      const clientKP = StellarSdk.Keypair.random();
+      const serverKP = Keypair.random();
+      const clientKP = Keypair.random();
 
       const challenge = WebAuth.buildChallengeTx(
         serverKP,
         clientKP.publicKey(),
         "SDF",
         300,
-        StellarSdk.Networks.TESTNET,
+        Networks.TESTNET,
         "testanchor.stellar.org",
       );
 
       vi.advanceTimersByTime(200);
 
-      const transaction = new StellarSdk.Transaction(
-        challenge,
-        StellarSdk.Networks.TESTNET,
-      );
+      const transaction = new Transaction(challenge, Networks.TESTNET);
 
       expect(
         WebAuth.readChallengeTx(
           challenge,
           serverKP.publicKey(),
-          StellarSdk.Networks.TESTNET,
+          Networks.TESTNET,
           "SDF",
           "testanchor.stellar.org",
         ),
@@ -317,8 +314,8 @@ describe("Utils", () => {
     });
 
     it("returns the clientAccountID and memo if the challenge includes a memo", () => {
-      const serverKP = StellarSdk.Keypair.random();
-      const clientKP = StellarSdk.Keypair.random();
+      const serverKP = Keypair.random();
+      const clientKP = Keypair.random();
       const clientMemo = "7659725268483412096";
 
       const challenge = WebAuth.buildChallengeTx(
@@ -326,23 +323,20 @@ describe("Utils", () => {
         clientKP.publicKey(),
         "SDF",
         300,
-        StellarSdk.Networks.TESTNET,
+        Networks.TESTNET,
         "testanchor.stellar.org",
         clientMemo,
       );
 
       vi.advanceTimersByTime(200);
 
-      const transaction = new StellarSdk.Transaction(
-        challenge,
-        StellarSdk.Networks.TESTNET,
-      );
+      const transaction = new Transaction(challenge, Networks.TESTNET);
 
       expect(
         WebAuth.readChallengeTx(
           challenge,
           serverKP.publicKey(),
-          StellarSdk.Networks.TESTNET,
+          Networks.TESTNET,
           "SDF",
           "testanchor.stellar.org",
         ),
@@ -355,7 +349,7 @@ describe("Utils", () => {
     });
 
     it("returns the muxed clientAccountID if included in the challenge", () => {
-      const serverKP = StellarSdk.Keypair.random();
+      const serverKP = Keypair.random();
       const muxedAddress =
         "MCQQMHTBRF2NPCEJWO2JMDT2HBQ2FGDCYREY2YIBSHLTXDG54Y3KTWX3R7NBER62VBELC";
 
@@ -364,22 +358,19 @@ describe("Utils", () => {
         muxedAddress,
         "SDF",
         300,
-        StellarSdk.Networks.TESTNET,
+        Networks.TESTNET,
         "testanchor.stellar.org",
       );
 
       vi.advanceTimersByTime(200);
 
-      const transaction = new StellarSdk.Transaction(
-        challenge,
-        StellarSdk.Networks.TESTNET,
-      );
+      const transaction = new Transaction(challenge, Networks.TESTNET);
 
       expect(
         WebAuth.readChallengeTx(
           challenge,
           serverKP.publicKey(),
-          StellarSdk.Networks.TESTNET,
+          Networks.TESTNET,
           "SDF",
           "testanchor.stellar.org",
         ),
@@ -392,16 +383,13 @@ describe("Utils", () => {
     });
 
     it("throws an error if the transaction uses a muxed account and has a memo", () => {
-      const serverKP = StellarSdk.Keypair.random();
-      const serverAccount = new StellarSdk.Account(serverKP.publicKey(), "-1");
+      const serverKP = Keypair.random();
+      const serverAccount = new Account(serverKP.publicKey(), "-1");
       const clientMuxedAddress =
         "MCQQMHTBRF2NPCEJWO2JMDT2HBQ2FGDCYREY2YIBSHLTXDG54Y3KTWX3R7NBER62VBELC";
-      const transaction = new StellarSdk.TransactionBuilder(
-        serverAccount,
-        txBuilderOpts,
-      )
+      const transaction = new TransactionBuilder(serverAccount, txBuilderOpts)
         .addOperation(
-          StellarSdk.Operation.manageData({
+          Operation.manageData({
             source: clientMuxedAddress,
             name: "testanchor.stellar.org auth",
             value: uint8ArrayToBase64(
@@ -409,18 +397,18 @@ describe("Utils", () => {
             ),
           }),
         )
-        .addMemo(StellarSdk.Memo.id("5842698851377328257"))
+        .addMemo(Memo.id("5842698851377328257"))
         .setTimeout(30)
         .build();
 
       transaction.sign(serverKP);
-      const challenge = transaction.toEnvelope().toXDR("base64").toString();
+      const challenge = transaction.toEnvelope().toXdr("base64").toString();
 
       expect(() =>
         WebAuth.readChallengeTx(
           challenge,
           serverKP.publicKey(),
-          StellarSdk.Networks.TESTNET,
+          Networks.TESTNET,
           "testanchor.stellar.org",
           "testanchor.stellar.org",
         ),
@@ -428,15 +416,15 @@ describe("Utils", () => {
     });
 
     it("throws an error if the server hasn't signed the transaction", () => {
-      const serverKP = StellarSdk.Keypair.random();
-      const clientKP = StellarSdk.Keypair.random();
+      const serverKP = Keypair.random();
+      const clientKP = Keypair.random();
 
-      const transaction = new StellarSdk.TransactionBuilder(
-        new StellarSdk.Account(serverKP.publicKey(), "-1"),
-        { fee: "100", networkPassphrase: StellarSdk.Networks.TESTNET },
+      const transaction = new TransactionBuilder(
+        new Account(serverKP.publicKey(), "-1"),
+        { fee: "100", networkPassphrase: Networks.TESTNET },
       )
         .addOperation(
-          StellarSdk.Operation.manageData({
+          Operation.manageData({
             source: clientKP.publicKey(),
             name: "SDF-test auth",
             value: uint8ArrayToBase64(
@@ -447,117 +435,108 @@ describe("Utils", () => {
         .setTimeout(30)
         .build();
 
-      const challenge = transaction.toEnvelope().toXDR("base64").toString();
+      const challenge = transaction.toEnvelope().toXdr("base64").toString();
 
       expect(() =>
         WebAuth.readChallengeTx(
           challenge,
           serverKP.publicKey(),
-          StellarSdk.Networks.TESTNET,
+          Networks.TESTNET,
           "SDF-test",
           "testanchor.stellar.org",
         ),
       ).toThrow(
-        new StellarSdk.WebAuth.InvalidChallengeError(
+        new WebAuth.InvalidChallengeError(
           `Transaction not signed by server: '${serverKP.publicKey()}'`,
         ),
       );
     });
 
     it("throws an error if transaction sequenceNumber is different to zero", () => {
-      const keypair = StellarSdk.Keypair.random();
+      const keypair = Keypair.random();
 
-      const account = new StellarSdk.Account(keypair.publicKey(), "100");
-      const transaction = new StellarSdk.TransactionBuilder(
-        account,
-        txBuilderOpts,
-      )
+      const account = new Account(keypair.publicKey(), "100");
+      const transaction = new TransactionBuilder(account, txBuilderOpts)
         .setTimeout(30)
         .build();
 
-      const challenge = transaction.toEnvelope().toXDR("base64").toString();
+      const challenge = transaction.toEnvelope().toXdr("base64").toString();
 
       expect(() =>
         WebAuth.readChallengeTx(
           challenge,
           keypair.publicKey(),
-          StellarSdk.Networks.TESTNET,
+          Networks.TESTNET,
           "SDF",
           "testanchor.stellar.org",
         ),
       ).toThrow(
-        new StellarSdk.WebAuth.InvalidChallengeError(
+        new WebAuth.InvalidChallengeError(
           "The transaction sequence number should be zero",
         ),
       );
     });
 
     it("throws an error if transaction source account is different to server account id", () => {
-      const keypair = StellarSdk.Keypair.random();
+      const keypair = Keypair.random();
 
       const challenge = WebAuth.buildChallengeTx(
         keypair,
         "GBDIT5GUJ7R5BXO3GJHFXJ6AZ5UQK6MNOIDMPQUSMXLIHTUNR2Q5CFNF",
         "SDF",
         300,
-        StellarSdk.Networks.TESTNET,
+        Networks.TESTNET,
         "testanchor.stellar.org",
       );
 
-      const serverAccountId = StellarSdk.Keypair.random().publicKey();
+      const serverAccountId = Keypair.random().publicKey();
 
       expect(() =>
         WebAuth.readChallengeTx(
           challenge,
           serverAccountId,
-          StellarSdk.Networks.TESTNET,
+          Networks.TESTNET,
           "SDF",
           "testanchor.stellar.org",
         ),
       ).toThrow(
-        new StellarSdk.WebAuth.InvalidChallengeError(
+        new WebAuth.InvalidChallengeError(
           "The transaction source account is not equal to the server's account",
         ),
       );
     });
 
     it("throws an error if transaction doesn't contain any operation", () => {
-      const keypair = StellarSdk.Keypair.random();
-      const account = new StellarSdk.Account(keypair.publicKey(), "-1");
-      const transaction = new StellarSdk.TransactionBuilder(
-        account,
-        txBuilderOpts,
-      )
+      const keypair = Keypair.random();
+      const account = new Account(keypair.publicKey(), "-1");
+      const transaction = new TransactionBuilder(account, txBuilderOpts)
         .setTimeout(30)
         .build();
 
       transaction.sign(keypair);
-      const challenge = transaction.toEnvelope().toXDR("base64").toString();
+      const challenge = transaction.toEnvelope().toXdr("base64").toString();
 
       expect(() =>
         WebAuth.readChallengeTx(
           challenge,
           keypair.publicKey(),
-          StellarSdk.Networks.TESTNET,
+          Networks.TESTNET,
           "SDF",
           "testanchor.stellar.org",
         ),
       ).toThrow(
-        new StellarSdk.WebAuth.InvalidChallengeError(
+        new WebAuth.InvalidChallengeError(
           "The transaction should contain at least one operation",
         ),
       );
     });
 
     it("throws an error if operation does not contain the source account", () => {
-      const keypair = StellarSdk.Keypair.random();
-      const account = new StellarSdk.Account(keypair.publicKey(), "-1");
-      const transaction = new StellarSdk.TransactionBuilder(
-        account,
-        txBuilderOpts,
-      )
+      const keypair = Keypair.random();
+      const account = new Account(keypair.publicKey(), "-1");
+      const transaction = new TransactionBuilder(account, txBuilderOpts)
         .addOperation(
-          StellarSdk.Operation.manageData({
+          Operation.manageData({
             name: "SDF auth",
             value: uint8ArrayToBase64(
               crypto.getRandomValues(new Uint8Array(48)),
@@ -568,32 +547,29 @@ describe("Utils", () => {
         .build();
 
       transaction.sign(keypair);
-      const challenge = transaction.toEnvelope().toXDR("base64").toString();
+      const challenge = transaction.toEnvelope().toXdr("base64").toString();
 
       expect(() =>
         WebAuth.readChallengeTx(
           challenge,
           keypair.publicKey(),
-          StellarSdk.Networks.TESTNET,
+          Networks.TESTNET,
           "SDF",
           "testanchor.stellar.org",
         ),
       ).toThrow(
-        new StellarSdk.WebAuth.InvalidChallengeError(
+        new WebAuth.InvalidChallengeError(
           "The transaction's operation should contain a source account",
         ),
       );
     });
 
     it("throws an error if operation is not manage data", () => {
-      const keypair = StellarSdk.Keypair.random();
-      const account = new StellarSdk.Account(keypair.publicKey(), "-1");
-      const transaction = new StellarSdk.TransactionBuilder(
-        account,
-        txBuilderOpts,
-      )
+      const keypair = Keypair.random();
+      const account = new Account(keypair.publicKey(), "-1");
+      const transaction = new TransactionBuilder(account, txBuilderOpts)
         .addOperation(
-          StellarSdk.Operation.accountMerge({
+          Operation.accountMerge({
             destination: keypair.publicKey(),
             source: keypair.publicKey(),
           }),
@@ -602,39 +578,39 @@ describe("Utils", () => {
         .build();
 
       transaction.sign(keypair);
-      const challenge = transaction.toEnvelope().toXDR("base64").toString();
+      const challenge = transaction.toEnvelope().toXdr("base64").toString();
 
       expect(() =>
         WebAuth.readChallengeTx(
           challenge,
           keypair.publicKey(),
-          StellarSdk.Networks.TESTNET,
+          Networks.TESTNET,
           "SDF",
           "testanchor.stellar.org",
         ),
       ).toThrow(
-        new StellarSdk.WebAuth.InvalidChallengeError(
+        new WebAuth.InvalidChallengeError(
           "The transaction's operation type should be 'manageData'",
         ),
       );
     });
 
     it("throws an error if transaction.timeBounds.maxTime is infinite", () => {
-      const serverKeypair = StellarSdk.Keypair.random();
-      const clientKeypair = StellarSdk.Keypair.random();
+      const serverKeypair = Keypair.random();
+      const clientKeypair = Keypair.random();
 
       const anchorName = "SDF";
-      const networkPassphrase = StellarSdk.Networks.TESTNET;
+      const networkPassphrase = Networks.TESTNET;
 
-      const account = new StellarSdk.Account(serverKeypair.publicKey(), "-1");
+      const account = new Account(serverKeypair.publicKey(), "-1");
       const now = Math.floor(Date.now() / 1000);
 
       const value = uint8ArrayToBase64(
         crypto.getRandomValues(new Uint8Array(48)),
       );
 
-      let transaction = new StellarSdk.TransactionBuilder(account, {
-        fee: StellarSdk.BASE_FEE,
+      let transaction = new TransactionBuilder(account, {
+        fee: BASE_FEE,
         networkPassphrase,
         timebounds: {
           minTime: now,
@@ -642,7 +618,7 @@ describe("Utils", () => {
         },
       })
         .addOperation(
-          StellarSdk.Operation.manageData({
+          Operation.manageData({
             name: `${anchorName} auth`,
             value,
             source: clientKeypair.publicKey(),
@@ -651,43 +627,37 @@ describe("Utils", () => {
         .build();
 
       transaction.sign(serverKeypair);
-      const challenge = transaction.toEnvelope().toXDR("base64").toString();
+      const challenge = transaction.toEnvelope().toXdr("base64").toString();
 
-      transaction = new StellarSdk.Transaction(
-        challenge,
-        StellarSdk.Networks.TESTNET,
-      );
+      transaction = new Transaction(challenge, Networks.TESTNET);
       transaction.sign(clientKeypair);
 
       const signedChallenge = transaction
         .toEnvelope()
-        .toXDR("base64")
+        .toXdr("base64")
         .toString();
 
       expect(() =>
         WebAuth.readChallengeTx(
           signedChallenge,
           serverKeypair.publicKey(),
-          StellarSdk.Networks.TESTNET,
+          Networks.TESTNET,
           anchorName,
           "testanchor.stellar.org",
         ),
       ).toThrow(
-        new StellarSdk.WebAuth.InvalidChallengeError(
+        new WebAuth.InvalidChallengeError(
           "The transaction requires non-infinite timebounds",
         ),
       );
     });
 
     it("throws an error if operation value is not a 64 bytes base64 string", () => {
-      const keypair = StellarSdk.Keypair.random();
-      const account = new StellarSdk.Account(keypair.publicKey(), "-1");
-      const transaction = new StellarSdk.TransactionBuilder(
-        account,
-        txBuilderOpts,
-      )
+      const keypair = Keypair.random();
+      const account = new Account(keypair.publicKey(), "-1");
+      const transaction = new TransactionBuilder(account, txBuilderOpts)
         .addOperation(
-          StellarSdk.Operation.manageData({
+          Operation.manageData({
             name: "SDF auth",
             value: Buffer.from(crypto.getRandomValues(new Uint8Array(64))),
             source: "GBDIT5GUJ7R5BXO3GJHFXJ6AZ5UQK6MNOIDMPQUSMXLIHTUNR2Q5CFNF",
@@ -697,62 +667,57 @@ describe("Utils", () => {
         .build();
 
       transaction.sign(keypair);
-      const challenge = transaction.toEnvelope().toXDR("base64").toString();
+      const challenge = transaction.toEnvelope().toXdr("base64").toString();
 
       expect(() =>
         WebAuth.readChallengeTx(
           challenge,
           keypair.publicKey(),
-          StellarSdk.Networks.TESTNET,
+          Networks.TESTNET,
           "SDF",
           "testanchor.stellar.org",
         ),
       ).toThrow(
-        new StellarSdk.WebAuth.InvalidChallengeError(
+        new WebAuth.InvalidChallengeError(
           "The transaction's operation value should be a 64 bytes base64 random string",
         ),
       );
     });
 
     it("throws an error if transaction does not contain valid timeBounds", () => {
-      const keypair = StellarSdk.Keypair.random();
-      const clientKeypair = StellarSdk.Keypair.random();
+      const keypair = Keypair.random();
+      const clientKeypair = Keypair.random();
 
       const challenge = WebAuth.buildChallengeTx(
         keypair,
         clientKeypair.publicKey(),
         "SDF",
         300,
-        StellarSdk.Networks.TESTNET,
+        Networks.TESTNET,
         "testanchor.stellar.org",
       );
 
       // Note that this is greater than the grace period of 5 minutes (600 seconds)
       vi.advanceTimersByTime(1000 * 1000);
 
-      const transaction = new StellarSdk.Transaction(
-        challenge,
-        StellarSdk.Networks.TESTNET,
-      );
+      const transaction = new Transaction(challenge, Networks.TESTNET);
       transaction.sign(clientKeypair);
 
       const signedChallenge = transaction
         .toEnvelope()
-        .toXDR("base64")
+        .toXdr("base64")
         .toString();
 
       expect(() =>
         WebAuth.readChallengeTx(
           signedChallenge,
           keypair.publicKey(),
-          StellarSdk.Networks.TESTNET,
+          Networks.TESTNET,
           "SDF",
           "testanchor.stellar.org",
         ),
       ).toThrow(
-        new StellarSdk.WebAuth.InvalidChallengeError(
-          "The transaction has expired",
-        ),
+        new WebAuth.InvalidChallengeError("The transaction has expired"),
       );
     });
 
@@ -768,7 +733,7 @@ describe("Utils", () => {
         WebAuth.readChallengeTx(
           signedChallenge,
           "GDMSN2PQ3EB32LZY5JVACI4H7GUVQ3YUWOM4437IDTVQHHWHYG7CGA5Z",
-          StellarSdk.Networks.TESTNET,
+          Networks.TESTNET,
           "testnet-sep.stablex.cloud",
           "staging-transfer-server.zetl.network",
         ),
@@ -776,15 +741,12 @@ describe("Utils", () => {
     });
 
     it("home domain string matches transaction's operation key name", () => {
-      const serverKP = StellarSdk.Keypair.random();
-      const clientKP = StellarSdk.Keypair.random();
-      const serverAccount = new StellarSdk.Account(serverKP.publicKey(), "-1");
-      const transaction = new StellarSdk.TransactionBuilder(
-        serverAccount,
-        txBuilderOpts,
-      )
+      const serverKP = Keypair.random();
+      const clientKP = Keypair.random();
+      const serverAccount = new Account(serverKP.publicKey(), "-1");
+      const transaction = new TransactionBuilder(serverAccount, txBuilderOpts)
         .addOperation(
-          StellarSdk.Operation.manageData({
+          Operation.manageData({
             source: clientKP.publicKey(),
             name: "testanchor.stellar.org auth",
             value: uint8ArrayToBase64(
@@ -796,18 +758,18 @@ describe("Utils", () => {
         .build();
 
       transaction.sign(serverKP);
-      const challenge = transaction.toEnvelope().toXDR("base64").toString();
+      const challenge = transaction.toEnvelope().toXdr("base64").toString();
 
-      const transactionRoundTripped = new StellarSdk.Transaction(
+      const transactionRoundTripped = new Transaction(
         challenge,
-        StellarSdk.Networks.TESTNET,
+        Networks.TESTNET,
       );
 
       expect(
         WebAuth.readChallengeTx(
           challenge,
           serverKP.publicKey(),
-          StellarSdk.Networks.TESTNET,
+          Networks.TESTNET,
           "testanchor.stellar.org",
           "testanchor.stellar.org",
         ),
@@ -820,15 +782,12 @@ describe("Utils", () => {
     });
 
     it("home domain in array matches transaction's operation key name", () => {
-      const serverKP = StellarSdk.Keypair.random();
-      const clientKP = StellarSdk.Keypair.random();
-      const serverAccount = new StellarSdk.Account(serverKP.publicKey(), "-1");
-      const transaction = new StellarSdk.TransactionBuilder(
-        serverAccount,
-        txBuilderOpts,
-      )
+      const serverKP = Keypair.random();
+      const clientKP = Keypair.random();
+      const serverAccount = new Account(serverKP.publicKey(), "-1");
+      const transaction = new TransactionBuilder(serverAccount, txBuilderOpts)
         .addOperation(
-          StellarSdk.Operation.manageData({
+          Operation.manageData({
             source: clientKP.publicKey(),
             name: "testanchor.stellar.org auth",
             value: uint8ArrayToBase64(
@@ -840,18 +799,18 @@ describe("Utils", () => {
         .build();
 
       transaction.sign(serverKP);
-      const challenge = transaction.toEnvelope().toXDR("base64").toString();
+      const challenge = transaction.toEnvelope().toXdr("base64").toString();
 
-      const transactionRoundTripped = new StellarSdk.Transaction(
+      const transactionRoundTripped = new Transaction(
         challenge,
-        StellarSdk.Networks.TESTNET,
+        Networks.TESTNET,
       );
 
       expect(
         WebAuth.readChallengeTx(
           challenge,
           serverKP.publicKey(),
-          StellarSdk.Networks.TESTNET,
+          Networks.TESTNET,
           ["SDF", "Test", "testanchor.stellar.org", "SDF-test"],
           "testanchor.stellar.org",
         ),
@@ -864,15 +823,12 @@ describe("Utils", () => {
     });
 
     it("throws an error if home domain string does not match transaction's operation key name", () => {
-      const serverKP = StellarSdk.Keypair.random();
-      const clientKP = StellarSdk.Keypair.random();
-      const serverAccount = new StellarSdk.Account(serverKP.publicKey(), "-1");
-      const transaction = new StellarSdk.TransactionBuilder(
-        serverAccount,
-        txBuilderOpts,
-      )
+      const serverKP = Keypair.random();
+      const clientKP = Keypair.random();
+      const serverAccount = new Account(serverKP.publicKey(), "-1");
+      const transaction = new TransactionBuilder(serverAccount, txBuilderOpts)
         .addOperation(
-          StellarSdk.Operation.manageData({
+          Operation.manageData({
             source: clientKP.publicKey(),
             name: "does.not.match auth",
             value: uint8ArrayToBase64(
@@ -884,33 +840,30 @@ describe("Utils", () => {
         .build();
 
       transaction.sign(serverKP);
-      const challenge = transaction.toEnvelope().toXDR("base64").toString();
+      const challenge = transaction.toEnvelope().toXdr("base64").toString();
 
       expect(() =>
         WebAuth.readChallengeTx(
           challenge,
           serverKP.publicKey(),
-          StellarSdk.Networks.TESTNET,
+          Networks.TESTNET,
           "testanchor.stellar.org",
           "testanchor.stellar.org",
         ),
       ).toThrow(
-        new StellarSdk.WebAuth.InvalidChallengeError(
+        new WebAuth.InvalidChallengeError(
           "Invalid homeDomains: the transaction's operation key name does not match the expected home domain",
         ),
       );
     });
 
     it("throws an error if home domain array does not have a match to transaction's operation key name", () => {
-      const serverKP = StellarSdk.Keypair.random();
-      const clientKP = StellarSdk.Keypair.random();
-      const serverAccount = new StellarSdk.Account(serverKP.publicKey(), "-1");
-      const transaction = new StellarSdk.TransactionBuilder(
-        serverAccount,
-        txBuilderOpts,
-      )
+      const serverKP = Keypair.random();
+      const clientKP = Keypair.random();
+      const serverAccount = new Account(serverKP.publicKey(), "-1");
+      const transaction = new TransactionBuilder(serverAccount, txBuilderOpts)
         .addOperation(
-          StellarSdk.Operation.manageData({
+          Operation.manageData({
             source: clientKP.publicKey(),
             name: "does.not.match auth",
             value: uint8ArrayToBase64(
@@ -922,33 +875,30 @@ describe("Utils", () => {
         .build();
 
       transaction.sign(serverKP);
-      const challenge = transaction.toEnvelope().toXDR("base64").toString();
+      const challenge = transaction.toEnvelope().toXdr("base64").toString();
 
       expect(() =>
         WebAuth.readChallengeTx(
           challenge,
           serverKP.publicKey(),
-          StellarSdk.Networks.TESTNET,
+          Networks.TESTNET,
           ["SDF", "Test", "testanchor.stellar.org", "SDF-test"],
           "testanchor.stellar.org",
         ),
       ).toThrow(
-        new StellarSdk.WebAuth.InvalidChallengeError(
+        new WebAuth.InvalidChallengeError(
           "Invalid homeDomains: the transaction's operation key name does not match the expected home domain",
         ),
       );
     });
 
     it("allows transaction to contain subsequent manage data ops with server account as source account", () => {
-      const serverKP = StellarSdk.Keypair.random();
-      const clientKP = StellarSdk.Keypair.random();
-      const serverAccount = new StellarSdk.Account(serverKP.publicKey(), "-1");
-      const transaction = new StellarSdk.TransactionBuilder(
-        serverAccount,
-        txBuilderOpts,
-      )
+      const serverKP = Keypair.random();
+      const clientKP = Keypair.random();
+      const serverAccount = new Account(serverKP.publicKey(), "-1");
+      const transaction = new TransactionBuilder(serverAccount, txBuilderOpts)
         .addOperation(
-          StellarSdk.Operation.manageData({
+          Operation.manageData({
             source: clientKP.publicKey(),
             name: "SDF auth",
             value: uint8ArrayToBase64(
@@ -957,7 +907,7 @@ describe("Utils", () => {
           }),
         )
         .addOperation(
-          StellarSdk.Operation.manageData({
+          Operation.manageData({
             source: serverKP.publicKey(),
             name: "a key",
             value: "a value",
@@ -967,18 +917,18 @@ describe("Utils", () => {
         .build();
 
       transaction.sign(serverKP);
-      const challenge = transaction.toEnvelope().toXDR("base64").toString();
+      const challenge = transaction.toEnvelope().toXdr("base64").toString();
 
-      const transactionRoundTripped = new StellarSdk.Transaction(
+      const transactionRoundTripped = new Transaction(
         challenge,
-        StellarSdk.Networks.TESTNET,
+        Networks.TESTNET,
       );
 
       expect(
         WebAuth.readChallengeTx(
           challenge,
           serverKP.publicKey(),
-          StellarSdk.Networks.TESTNET,
+          Networks.TESTNET,
           "SDF",
           "testanchor.stellar.org",
         ),
@@ -991,15 +941,12 @@ describe("Utils", () => {
     });
 
     it("throws an error if the transaction contain subsequent manage data ops without the server account as the source account", () => {
-      const serverKP = StellarSdk.Keypair.random();
-      const clientKP = StellarSdk.Keypair.random();
-      const serverAccount = new StellarSdk.Account(serverKP.publicKey(), "-1");
-      const transaction = new StellarSdk.TransactionBuilder(
-        serverAccount,
-        txBuilderOpts,
-      )
+      const serverKP = Keypair.random();
+      const clientKP = Keypair.random();
+      const serverAccount = new Account(serverKP.publicKey(), "-1");
+      const transaction = new TransactionBuilder(serverAccount, txBuilderOpts)
         .addOperation(
-          StellarSdk.Operation.manageData({
+          Operation.manageData({
             source: clientKP.publicKey(),
             name: "SDF auth",
             value: uint8ArrayToBase64(
@@ -1008,7 +955,7 @@ describe("Utils", () => {
           }),
         )
         .addOperation(
-          StellarSdk.Operation.manageData({
+          Operation.manageData({
             source: clientKP.publicKey(),
             name: "a key",
             value: "a value",
@@ -1018,33 +965,30 @@ describe("Utils", () => {
         .build();
 
       transaction.sign(serverKP);
-      const challenge = transaction.toEnvelope().toXDR("base64").toString();
+      const challenge = transaction.toEnvelope().toXdr("base64").toString();
 
       expect(() =>
         WebAuth.readChallengeTx(
           challenge,
           serverKP.publicKey(),
-          StellarSdk.Networks.TESTNET,
+          Networks.TESTNET,
           "SDF",
           "testanchor.stellar.org",
         ),
       ).toThrow(
-        new StellarSdk.WebAuth.InvalidChallengeError(
+        new WebAuth.InvalidChallengeError(
           "The transaction has operations that are unrecognized",
         ),
       );
     });
 
     it("throws an error if the transaction contain subsequent ops that are not manage data ops", () => {
-      const serverKP = StellarSdk.Keypair.random();
-      const clientKP = StellarSdk.Keypair.random();
-      const serverAccount = new StellarSdk.Account(serverKP.publicKey(), "-1");
-      const transaction = new StellarSdk.TransactionBuilder(
-        serverAccount,
-        txBuilderOpts,
-      )
+      const serverKP = Keypair.random();
+      const clientKP = Keypair.random();
+      const serverAccount = new Account(serverKP.publicKey(), "-1");
+      const transaction = new TransactionBuilder(serverAccount, txBuilderOpts)
         .addOperation(
-          StellarSdk.Operation.manageData({
+          Operation.manageData({
             source: clientKP.publicKey(),
             name: "SDF auth",
             value: uint8ArrayToBase64(
@@ -1053,7 +997,7 @@ describe("Utils", () => {
           }),
         )
         .addOperation(
-          StellarSdk.Operation.bumpSequence({
+          Operation.bumpSequence({
             source: clientKP.publicKey(),
             bumpTo: "0",
           }),
@@ -1062,33 +1006,30 @@ describe("Utils", () => {
         .build();
 
       transaction.sign(serverKP);
-      const challenge = transaction.toEnvelope().toXDR("base64").toString();
+      const challenge = transaction.toEnvelope().toXdr("base64").toString();
 
       expect(() =>
         WebAuth.readChallengeTx(
           challenge,
           serverKP.publicKey(),
-          StellarSdk.Networks.TESTNET,
+          Networks.TESTNET,
           "SDF",
           "testanchor.stellar.org",
         ),
       ).toThrow(
-        new StellarSdk.WebAuth.InvalidChallengeError(
+        new WebAuth.InvalidChallengeError(
           "The transaction has operations that are not of type 'manageData'",
         ),
       );
     });
 
     it("throws an error if the provided webAuthDomain does not match the 'web_auth_domain' operation's value", () => {
-      const serverKP = StellarSdk.Keypair.random();
-      const clientKP = StellarSdk.Keypair.random();
-      const serverAccount = new StellarSdk.Account(serverKP.publicKey(), "-1");
-      const transaction = new StellarSdk.TransactionBuilder(
-        serverAccount,
-        txBuilderOpts,
-      )
+      const serverKP = Keypair.random();
+      const clientKP = Keypair.random();
+      const serverAccount = new Account(serverKP.publicKey(), "-1");
+      const transaction = new TransactionBuilder(serverAccount, txBuilderOpts)
         .addOperation(
-          StellarSdk.Operation.manageData({
+          Operation.manageData({
             source: clientKP.publicKey(),
             name: "testanchor.stellar.org auth",
             value: uint8ArrayToBase64(
@@ -1097,7 +1038,7 @@ describe("Utils", () => {
           }),
         )
         .addOperation(
-          StellarSdk.Operation.manageData({
+          Operation.manageData({
             source: serverKP.publicKey(),
             name: "web_auth_domain",
             value: "unexpected_web_auth_domain",
@@ -1107,33 +1048,30 @@ describe("Utils", () => {
         .build();
 
       transaction.sign(serverKP);
-      const challenge = transaction.toEnvelope().toXDR("base64").toString();
+      const challenge = transaction.toEnvelope().toXdr("base64").toString();
 
       expect(() =>
         WebAuth.readChallengeTx(
           challenge,
           serverKP.publicKey(),
-          StellarSdk.Networks.TESTNET,
+          Networks.TESTNET,
           "testanchor.stellar.org",
           "testanchor.stellar.org",
         ),
       ).toThrow(
-        new StellarSdk.WebAuth.InvalidChallengeError(
+        new WebAuth.InvalidChallengeError(
           "'web_auth_domain' operation value does not match testanchor.stellar.org",
         ),
       );
     });
 
     it("throws an error if the 'web_auth_domain' operation's source account is not the server's public key", () => {
-      const serverKP = StellarSdk.Keypair.random();
-      const clientKP = StellarSdk.Keypair.random();
-      const serverAccount = new StellarSdk.Account(serverKP.publicKey(), "-1");
-      const transaction = new StellarSdk.TransactionBuilder(
-        serverAccount,
-        txBuilderOpts,
-      )
+      const serverKP = Keypair.random();
+      const clientKP = Keypair.random();
+      const serverAccount = new Account(serverKP.publicKey(), "-1");
+      const transaction = new TransactionBuilder(serverAccount, txBuilderOpts)
         .addOperation(
-          StellarSdk.Operation.manageData({
+          Operation.manageData({
             source: clientKP.publicKey(),
             name: "testanchor.stellar.org auth",
             value: uint8ArrayToBase64(
@@ -1142,7 +1080,7 @@ describe("Utils", () => {
           }),
         )
         .addOperation(
-          StellarSdk.Operation.manageData({
+          Operation.manageData({
             source: clientKP.publicKey(),
             name: "web_auth_domain",
             value: "testanchor.stellar.org",
@@ -1152,33 +1090,30 @@ describe("Utils", () => {
         .build();
 
       transaction.sign(serverKP);
-      const challenge = transaction.toEnvelope().toXDR("base64").toString();
+      const challenge = transaction.toEnvelope().toXdr("base64").toString();
 
       expect(() =>
         WebAuth.readChallengeTx(
           challenge,
           serverKP.publicKey(),
-          StellarSdk.Networks.TESTNET,
+          Networks.TESTNET,
           "testanchor.stellar.org",
           "testanchor.stellar.org",
         ),
       ).toThrow(
-        new StellarSdk.WebAuth.InvalidChallengeError(
+        new WebAuth.InvalidChallengeError(
           "The transaction has operations that are unrecognized",
         ),
       );
     });
 
     it("allows transaction to omit the 'web_auth_domain' operation", () => {
-      const serverKP = StellarSdk.Keypair.random();
-      const clientKP = StellarSdk.Keypair.random();
-      const serverAccount = new StellarSdk.Account(serverKP.publicKey(), "-1");
-      const transaction = new StellarSdk.TransactionBuilder(
-        serverAccount,
-        txBuilderOpts,
-      )
+      const serverKP = Keypair.random();
+      const clientKP = Keypair.random();
+      const serverAccount = new Account(serverKP.publicKey(), "-1");
+      const transaction = new TransactionBuilder(serverAccount, txBuilderOpts)
         .addOperation(
-          StellarSdk.Operation.manageData({
+          Operation.manageData({
             source: clientKP.publicKey(),
             name: "testanchor.stellar.org auth",
             value: uint8ArrayToBase64(
@@ -1190,18 +1125,18 @@ describe("Utils", () => {
         .build();
 
       transaction.sign(serverKP);
-      const challenge = transaction.toEnvelope().toXDR("base64").toString();
+      const challenge = transaction.toEnvelope().toXdr("base64").toString();
 
-      const transactionRoundTripped = new StellarSdk.Transaction(
+      const transactionRoundTripped = new Transaction(
         challenge,
-        StellarSdk.Networks.TESTNET,
+        Networks.TESTNET,
       );
 
       expect(
         WebAuth.readChallengeTx(
           challenge,
           serverKP.publicKey(),
-          StellarSdk.Networks.TESTNET,
+          Networks.TESTNET,
           "testanchor.stellar.org",
           "testanchor.stellar.org",
         ),
@@ -1214,15 +1149,12 @@ describe("Utils", () => {
     });
 
     it("matches the 'web_auth_domain' operation value with webAuthDomain", () => {
-      const serverKP = StellarSdk.Keypair.random();
-      const clientKP = StellarSdk.Keypair.random();
-      const serverAccount = new StellarSdk.Account(serverKP.publicKey(), "-1");
-      const transaction = new StellarSdk.TransactionBuilder(
-        serverAccount,
-        txBuilderOpts,
-      )
+      const serverKP = Keypair.random();
+      const clientKP = Keypair.random();
+      const serverAccount = new Account(serverKP.publicKey(), "-1");
+      const transaction = new TransactionBuilder(serverAccount, txBuilderOpts)
         .addOperation(
-          StellarSdk.Operation.manageData({
+          Operation.manageData({
             source: clientKP.publicKey(),
             name: "testanchor.stellar.org auth",
             value: uint8ArrayToBase64(
@@ -1231,7 +1163,7 @@ describe("Utils", () => {
           }),
         )
         .addOperation(
-          StellarSdk.Operation.manageData({
+          Operation.manageData({
             source: serverKP.publicKey(),
             name: "web_auth_domain",
             value: "auth.stellar.org",
@@ -1241,18 +1173,18 @@ describe("Utils", () => {
         .build();
 
       transaction.sign(serverKP);
-      const challenge = transaction.toEnvelope().toXDR("base64").toString();
+      const challenge = transaction.toEnvelope().toXdr("base64").toString();
 
-      const transactionRoundTripped = new StellarSdk.Transaction(
+      const transactionRoundTripped = new Transaction(
         challenge,
-        StellarSdk.Networks.TESTNET,
+        Networks.TESTNET,
       );
 
       expect(
         WebAuth.readChallengeTx(
           challenge,
           serverKP.publicKey(),
-          StellarSdk.Networks.TESTNET,
+          Networks.TESTNET,
           "testanchor.stellar.org",
           "auth.stellar.org",
         ),
@@ -1265,15 +1197,12 @@ describe("Utils", () => {
     });
 
     it("allows subsequent manageData operations to have undefined values", () => {
-      const serverKP = StellarSdk.Keypair.random();
-      const clientKP = StellarSdk.Keypair.random();
-      const serverAccount = new StellarSdk.Account(serverKP.publicKey(), "-1");
-      const transaction = new StellarSdk.TransactionBuilder(
-        serverAccount,
-        txBuilderOpts,
-      )
+      const serverKP = Keypair.random();
+      const clientKP = Keypair.random();
+      const serverAccount = new Account(serverKP.publicKey(), "-1");
+      const transaction = new TransactionBuilder(serverAccount, txBuilderOpts)
         .addOperation(
-          StellarSdk.Operation.manageData({
+          Operation.manageData({
             source: clientKP.publicKey(),
             name: "testanchor.stellar.org auth",
             value: uint8ArrayToBase64(
@@ -1282,7 +1211,7 @@ describe("Utils", () => {
           }),
         )
         .addOperation(
-          StellarSdk.Operation.manageData({
+          Operation.manageData({
             source: serverKP.publicKey(),
             name: "nonWebAuthDomainKey",
             value: null,
@@ -1292,18 +1221,18 @@ describe("Utils", () => {
         .build();
 
       transaction.sign(serverKP);
-      const challenge = transaction.toEnvelope().toXDR("base64").toString();
+      const challenge = transaction.toEnvelope().toXdr("base64").toString();
 
-      const transactionRoundTripped = new StellarSdk.Transaction(
+      const transactionRoundTripped = new Transaction(
         challenge,
-        StellarSdk.Networks.TESTNET,
+        Networks.TESTNET,
       );
 
       expect(
         WebAuth.readChallengeTx(
           challenge,
           serverKP.publicKey(),
-          StellarSdk.Networks.TESTNET,
+          Networks.TESTNET,
           "testanchor.stellar.org",
           "auth.stellar.org",
         ),
@@ -1316,17 +1245,14 @@ describe("Utils", () => {
     });
 
     it("validates a challenge containing a 'client_domain' manageData operation", () => {
-      const serverKP = StellarSdk.Keypair.random();
-      const clientKP = StellarSdk.Keypair.random();
-      const serverAccount = new StellarSdk.Account(serverKP.publicKey(), "-1");
-      const clientSigningKeypair = StellarSdk.Keypair.random();
+      const serverKP = Keypair.random();
+      const clientKP = Keypair.random();
+      const serverAccount = new Account(serverKP.publicKey(), "-1");
+      const clientSigningKeypair = Keypair.random();
 
-      const transaction = new StellarSdk.TransactionBuilder(
-        serverAccount,
-        txBuilderOpts,
-      )
+      const transaction = new TransactionBuilder(serverAccount, txBuilderOpts)
         .addOperation(
-          StellarSdk.Operation.manageData({
+          Operation.manageData({
             source: clientKP.publicKey(),
             name: "testanchor.stellar.org auth",
             value: uint8ArrayToBase64(
@@ -1335,7 +1261,7 @@ describe("Utils", () => {
           }),
         )
         .addOperation(
-          StellarSdk.Operation.manageData({
+          Operation.manageData({
             source: clientSigningKeypair.publicKey(),
             name: "client_domain",
             value: "testdomain",
@@ -1345,12 +1271,12 @@ describe("Utils", () => {
         .build();
 
       transaction.sign(serverKP);
-      const challenge = transaction.toEnvelope().toXDR("base64").toString();
+      const challenge = transaction.toEnvelope().toXdr("base64").toString();
 
       WebAuth.readChallengeTx(
         challenge,
         serverKP.publicKey(),
-        StellarSdk.Networks.TESTNET,
+        Networks.TESTNET,
         "testanchor.stellar.org",
         "testanchor.stellar.org",
       );
@@ -1366,14 +1292,14 @@ describe("Utils", () => {
     let operation: any;
 
     beforeEach(() => {
-      serverKP = StellarSdk.Keypair.random();
-      clientKP1 = StellarSdk.Keypair.random();
-      clientKP2 = StellarSdk.Keypair.random();
-      clientKP3 = StellarSdk.Keypair.random();
+      serverKP = Keypair.random();
+      clientKP1 = Keypair.random();
+      clientKP2 = Keypair.random();
+      clientKP3 = Keypair.random();
 
-      txAccount = new StellarSdk.Account(serverKP.publicKey(), "-1");
+      txAccount = new Account(serverKP.publicKey(), "-1");
 
-      operation = StellarSdk.Operation.manageData({
+      operation = Operation.manageData({
         source: clientKP1.publicKey(),
         name: "SDF-test auth",
         value: uint8ArrayToBase64(crypto.getRandomValues(new Uint8Array(48))),
@@ -1381,7 +1307,7 @@ describe("Utils", () => {
 
       txBuilderOpts = {
         fee: "100",
-        networkPassphrase: StellarSdk.Networks.TESTNET,
+        networkPassphrase: Networks.TESTNET,
       };
     });
 
@@ -1394,10 +1320,7 @@ describe("Utils", () => {
     });
 
     it("throws an error if the server hasn't signed the transaction", () => {
-      const transaction = new StellarSdk.TransactionBuilder(
-        txAccount,
-        txBuilderOpts,
-      )
+      const transaction = new TransactionBuilder(txAccount, txBuilderOpts)
         .addOperation(operation)
         .setTimeout(30)
         .build();
@@ -1407,20 +1330,20 @@ describe("Utils", () => {
 
       transaction.sign(clientKP1);
 
-      const challenge = transaction.toEnvelope().toXDR("base64").toString();
+      const challenge = transaction.toEnvelope().toXdr("base64").toString();
 
       expect(() =>
         WebAuth.verifyChallengeTxThreshold(
           challenge,
           serverKP.publicKey(),
-          StellarSdk.Networks.TESTNET,
+          Networks.TESTNET,
           threshold,
           signerSummary,
           "SDF-test",
           "testanchor.stellar.org",
         ),
       ).toThrow(
-        new StellarSdk.WebAuth.InvalidChallengeError(
+        new WebAuth.InvalidChallengeError(
           `Transaction not signed by server: '${serverKP.publicKey()}'`,
         ),
       );
@@ -1432,20 +1355,17 @@ describe("Utils", () => {
         clientKP1.publicKey(),
         "SDF",
         300,
-        StellarSdk.Networks.TESTNET,
+        Networks.TESTNET,
         "testanchor.stellar.org",
       );
 
       vi.advanceTimersByTime(200);
 
-      const transaction = new StellarSdk.Transaction(
-        challenge,
-        StellarSdk.Networks.TESTNET,
-      );
+      const transaction = new Transaction(challenge, Networks.TESTNET);
       transaction.sign(clientKP1);
       const signedChallenge = transaction
         .toEnvelope()
-        .toXDR("base64")
+        .toXdr("base64")
         .toString();
 
       const threshold = 1;
@@ -1455,7 +1375,7 @@ describe("Utils", () => {
         WebAuth.verifyChallengeTxThreshold(
           signedChallenge,
           serverKP.publicKey(),
-          StellarSdk.Networks.TESTNET,
+          Networks.TESTNET,
           threshold,
           signerSummary,
           "SDF",
@@ -1470,20 +1390,17 @@ describe("Utils", () => {
         clientKP1.publicKey(),
         "SDF",
         300,
-        StellarSdk.Networks.TESTNET,
+        Networks.TESTNET,
         "testanchor.stellar.org",
       );
 
       vi.advanceTimersByTime(200);
 
-      const transaction = new StellarSdk.Transaction(
-        challenge,
-        StellarSdk.Networks.TESTNET,
-      );
+      const transaction = new Transaction(challenge, Networks.TESTNET);
       transaction.sign(clientKP1, clientKP2);
       const signedChallenge = transaction
         .toEnvelope()
-        .toXDR("base64")
+        .toXdr("base64")
         .toString();
 
       const threshold = 3;
@@ -1496,7 +1413,7 @@ describe("Utils", () => {
         WebAuth.verifyChallengeTxThreshold(
           signedChallenge,
           serverKP.publicKey(),
-          StellarSdk.Networks.TESTNET,
+          Networks.TESTNET,
           threshold,
           signerSummary,
           "SDF",
@@ -1511,20 +1428,17 @@ describe("Utils", () => {
         clientKP1.publicKey(),
         "SDF",
         300,
-        StellarSdk.Networks.TESTNET,
+        Networks.TESTNET,
         "testanchor.stellar.org",
       );
 
       vi.advanceTimersByTime(200);
 
-      const transaction = new StellarSdk.Transaction(
-        challenge,
-        StellarSdk.Networks.TESTNET,
-      );
+      const transaction = new Transaction(challenge, Networks.TESTNET);
       transaction.sign(clientKP1, clientKP2);
       const signedChallenge = transaction
         .toEnvelope()
-        .toXDR("base64")
+        .toXdr("base64")
         .toString();
 
       const threshold = 3;
@@ -1538,7 +1452,7 @@ describe("Utils", () => {
         WebAuth.verifyChallengeTxThreshold(
           signedChallenge,
           serverKP.publicKey(),
-          StellarSdk.Networks.TESTNET,
+          Networks.TESTNET,
           threshold,
           signerSummary,
           "SDF",
@@ -1559,20 +1473,17 @@ describe("Utils", () => {
         clientKP1.publicKey(),
         "SDF",
         300,
-        StellarSdk.Networks.TESTNET,
+        Networks.TESTNET,
         "testanchor.stellar.org",
       );
 
       vi.advanceTimersByTime(200);
 
-      const transaction = new StellarSdk.Transaction(
-        challenge,
-        StellarSdk.Networks.TESTNET,
-      );
+      const transaction = new Transaction(challenge, Networks.TESTNET);
       transaction.sign(clientKP1, clientKP2);
       const signedChallenge = transaction
         .toEnvelope()
-        .toXDR("base64")
+        .toXdr("base64")
         .toString();
 
       const threshold = 3;
@@ -1589,7 +1500,7 @@ describe("Utils", () => {
         WebAuth.verifyChallengeTxThreshold(
           signedChallenge,
           serverKP.publicKey(),
-          StellarSdk.Networks.TESTNET,
+          Networks.TESTNET,
           threshold,
           signerSummary,
           "SDF",
@@ -1604,20 +1515,17 @@ describe("Utils", () => {
         clientKP1.publicKey(),
         "SDF",
         300,
-        StellarSdk.Networks.TESTNET,
+        Networks.TESTNET,
         "testanchor.stellar.org",
       );
 
       vi.advanceTimersByTime(200);
 
-      const transaction = new StellarSdk.Transaction(
-        challenge,
-        StellarSdk.Networks.TESTNET,
-      );
+      const transaction = new Transaction(challenge, Networks.TESTNET);
       transaction.sign(clientKP1, clientKP2);
       const signedChallenge = transaction
         .toEnvelope()
-        .toXDR("base64")
+        .toXdr("base64")
         .toString();
 
       const threshold = 10;
@@ -1631,14 +1539,14 @@ describe("Utils", () => {
         WebAuth.verifyChallengeTxThreshold(
           signedChallenge,
           serverKP.publicKey(),
-          StellarSdk.Networks.TESTNET,
+          Networks.TESTNET,
           threshold,
           signerSummary,
           "SDF",
           "testanchor.stellar.org",
         ),
       ).toThrow(
-        new StellarSdk.WebAuth.InvalidChallengeError(
+        new WebAuth.InvalidChallengeError(
           `signers with weight 3 do not meet threshold ${threshold}"`,
         ),
       );
@@ -1650,20 +1558,17 @@ describe("Utils", () => {
         clientKP1.publicKey(),
         "SDF",
         300,
-        StellarSdk.Networks.TESTNET,
+        Networks.TESTNET,
         "testanchor.stellar.org",
       );
 
       vi.advanceTimersByTime(200);
 
-      const transaction = new StellarSdk.Transaction(
-        challenge,
-        StellarSdk.Networks.TESTNET,
-      );
+      const transaction = new Transaction(challenge, Networks.TESTNET);
       transaction.sign(clientKP1, clientKP2, clientKP3);
       const signedChallenge = transaction
         .toEnvelope()
-        .toXDR("base64")
+        .toXdr("base64")
         .toString();
 
       const threshold = 10;
@@ -1676,14 +1581,14 @@ describe("Utils", () => {
         WebAuth.verifyChallengeTxThreshold(
           signedChallenge,
           serverKP.publicKey(),
-          StellarSdk.Networks.TESTNET,
+          Networks.TESTNET,
           threshold,
           signerSummary,
           "SDF",
           "testanchor.stellar.org",
         ),
       ).toThrow(
-        new StellarSdk.WebAuth.InvalidChallengeError(
+        new WebAuth.InvalidChallengeError(
           "Transaction has unrecognized signatures",
         ),
       );
@@ -1695,20 +1600,17 @@ describe("Utils", () => {
         clientKP1.publicKey(),
         "SDF",
         300,
-        StellarSdk.Networks.TESTNET,
+        Networks.TESTNET,
         "testanchor.stellar.org",
       );
 
       vi.advanceTimersByTime(200);
 
-      const transaction = new StellarSdk.Transaction(
-        challenge,
-        StellarSdk.Networks.TESTNET,
-      );
+      const transaction = new Transaction(challenge, Networks.TESTNET);
       transaction.sign(clientKP1, clientKP2, clientKP3);
       const signedChallenge = transaction
         .toEnvelope()
-        .toXDR("base64")
+        .toXdr("base64")
         .toString();
 
       const threshold = 10;
@@ -1717,14 +1619,14 @@ describe("Utils", () => {
         WebAuth.verifyChallengeTxThreshold(
           signedChallenge,
           serverKP.publicKey(),
-          StellarSdk.Networks.TESTNET,
+          Networks.TESTNET,
           threshold,
           [],
           "SDF",
           "testanchor.stellar.org",
         ),
       ).toThrow(
-        new StellarSdk.WebAuth.InvalidChallengeError(
+        new WebAuth.InvalidChallengeError(
           "No verifiable client signers provided, at least one G... address must be provided",
         ),
       );
@@ -1739,13 +1641,13 @@ describe("Utils", () => {
     let operation: any;
 
     beforeEach(() => {
-      serverKP = StellarSdk.Keypair.random();
-      clientKP1 = StellarSdk.Keypair.random();
-      clientKP2 = StellarSdk.Keypair.random();
+      serverKP = Keypair.random();
+      clientKP1 = Keypair.random();
+      clientKP2 = Keypair.random();
 
-      txAccount = new StellarSdk.Account(serverKP.publicKey(), "-1");
+      txAccount = new Account(serverKP.publicKey(), "-1");
 
-      operation = StellarSdk.Operation.manageData({
+      operation = Operation.manageData({
         source: clientKP1.publicKey(),
         name: "SDF-test auth",
         value: uint8ArrayToBase64(crypto.getRandomValues(new Uint8Array(48))),
@@ -1753,7 +1655,7 @@ describe("Utils", () => {
 
       txBuilderOpts = {
         fee: "100",
-        networkPassphrase: StellarSdk.Networks.TESTNET,
+        networkPassphrase: Networks.TESTNET,
       };
     });
 
@@ -1771,28 +1673,25 @@ describe("Utils", () => {
         clientKP1.publicKey(),
         "SDF",
         300,
-        StellarSdk.Networks.TESTNET,
+        Networks.TESTNET,
         "testanchor.stellar.org",
       );
 
       vi.advanceTimersByTime(200);
 
-      const transaction = new StellarSdk.Transaction(
-        challenge,
-        StellarSdk.Networks.TESTNET,
-      );
+      const transaction = new Transaction(challenge, Networks.TESTNET);
       transaction.sign(clientKP1);
 
       const signedChallenge = transaction
         .toEnvelope()
-        .toXDR("base64")
+        .toXdr("base64")
         .toString();
 
       expect(
         WebAuth.verifyChallengeTxSigners(
           signedChallenge,
           serverKP.publicKey(),
-          StellarSdk.Networks.TESTNET,
+          Networks.TESTNET,
           [clientKP1.publicKey()],
           "SDF",
           "testanchor.stellar.org",
@@ -1801,32 +1700,29 @@ describe("Utils", () => {
     });
 
     it("throws an error if the server hasn't signed the transaction", () => {
-      const transaction = new StellarSdk.TransactionBuilder(
-        txAccount,
-        txBuilderOpts,
-      )
+      const transaction = new TransactionBuilder(txAccount, txBuilderOpts)
         .addOperation(operation)
         .setTimeout(30)
         .build();
 
-      transaction.sign(StellarSdk.Keypair.random()); // Signing with another key pair instead of the server's
+      transaction.sign(Keypair.random()); // Signing with another key pair instead of the server's
 
       const invalidsServerSignedChallenge = transaction
         .toEnvelope()
-        .toXDR("base64")
+        .toXdr("base64")
         .toString();
 
       expect(() =>
         WebAuth.verifyChallengeTxSigners(
           invalidsServerSignedChallenge,
           serverKP.publicKey(),
-          StellarSdk.Networks.TESTNET,
+          Networks.TESTNET,
           [clientKP1.publicKey()],
           "SDF-test",
           "testanchor.stellar.org",
         ),
       ).toThrow(
-        new StellarSdk.WebAuth.InvalidChallengeError(
+        new WebAuth.InvalidChallengeError(
           `Transaction not signed by server: '${serverKP.publicKey()}'`,
         ),
       );
@@ -1838,7 +1734,7 @@ describe("Utils", () => {
         clientKP1.publicKey(),
         "SDF",
         300,
-        StellarSdk.Networks.TESTNET,
+        Networks.TESTNET,
         "testanchor.stellar.org",
       );
 
@@ -1848,13 +1744,13 @@ describe("Utils", () => {
         WebAuth.verifyChallengeTxSigners(
           challenge,
           serverKP.publicKey(),
-          StellarSdk.Networks.TESTNET,
+          Networks.TESTNET,
           [],
           "SDF",
           "testanchor.stellar.org",
         ),
       ).toThrow(
-        new StellarSdk.WebAuth.InvalidChallengeError(
+        new WebAuth.InvalidChallengeError(
           "No verifiable client signers provided, at least one G... address must be provided",
         ),
       );
@@ -1866,36 +1762,30 @@ describe("Utils", () => {
         clientKP1.publicKey(),
         "SDF",
         300,
-        StellarSdk.Networks.TESTNET,
+        Networks.TESTNET,
         "testanchor.stellar.org",
       );
 
       vi.advanceTimersByTime(200);
 
-      const transaction = new StellarSdk.Transaction(
-        challenge,
-        StellarSdk.Networks.TESTNET,
-      );
-      transaction.sign(
-        StellarSdk.Keypair.random(),
-        StellarSdk.Keypair.random(),
-      );
+      const transaction = new Transaction(challenge, Networks.TESTNET);
+      transaction.sign(Keypair.random(), Keypair.random());
       const signedChallenge = transaction
         .toEnvelope()
-        .toXDR("base64")
+        .toXdr("base64")
         .toString();
 
       expect(() =>
         WebAuth.verifyChallengeTxSigners(
           signedChallenge,
           serverKP.publicKey(),
-          StellarSdk.Networks.TESTNET,
+          Networks.TESTNET,
           [clientKP1.publicKey()],
           "SDF",
           "testanchor.stellar.org",
         ),
       ).toThrow(
-        new StellarSdk.WebAuth.InvalidChallengeError(
+        new WebAuth.InvalidChallengeError(
           "None of the given signers match the transaction signatures",
         ),
       );
@@ -1907,30 +1797,27 @@ describe("Utils", () => {
         clientKP1.publicKey(),
         "SDF",
         300,
-        StellarSdk.Networks.TESTNET,
+        Networks.TESTNET,
         "testanchor.stellar.org",
       );
 
       vi.advanceTimersByTime(200);
 
-      const transaction = new StellarSdk.Transaction(
-        challenge,
-        StellarSdk.Networks.TESTNET,
-      );
+      const transaction = new Transaction(challenge, Networks.TESTNET);
       const clientSigners = [clientKP1, clientKP2];
       transaction.sign(...clientSigners);
       const clientSignersPubKey = clientSigners.map((kp) => kp.publicKey());
 
       const signedChallenge = transaction
         .toEnvelope()
-        .toXDR("base64")
+        .toXdr("base64")
         .toString();
 
       expect(
         WebAuth.verifyChallengeTxSigners(
           signedChallenge,
           serverKP.publicKey(),
-          StellarSdk.Networks.TESTNET,
+          Networks.TESTNET,
           clientSignersPubKey,
           "SDF",
           "testanchor.stellar.org",
@@ -1944,30 +1831,27 @@ describe("Utils", () => {
         clientKP1.publicKey(),
         "SDF",
         300,
-        StellarSdk.Networks.TESTNET,
+        Networks.TESTNET,
         "testanchor.stellar.org",
       );
 
       vi.advanceTimersByTime(200);
 
-      const transaction = new StellarSdk.Transaction(
-        challenge,
-        StellarSdk.Networks.TESTNET,
-      );
+      const transaction = new Transaction(challenge, Networks.TESTNET);
       const clientSigners = [clientKP1, clientKP2];
       transaction.sign(...clientSigners.reverse());
       const clientSignersPubKey = clientSigners.map((kp) => kp.publicKey());
 
       const signedChallenge = transaction
         .toEnvelope()
-        .toXDR("base64")
+        .toXdr("base64")
         .toString();
 
       expect(
         WebAuth.verifyChallengeTxSigners(
           signedChallenge,
           serverKP.publicKey(),
-          StellarSdk.Networks.TESTNET,
+          Networks.TESTNET,
           clientSignersPubKey,
           "SDF",
           "testanchor.stellar.org",
@@ -1981,28 +1865,25 @@ describe("Utils", () => {
         clientKP1.publicKey(),
         "SDF",
         300,
-        StellarSdk.Networks.TESTNET,
+        Networks.TESTNET,
         "testanchor.stellar.org",
       );
 
       vi.advanceTimersByTime(200);
 
-      const transaction = new StellarSdk.Transaction(
-        challenge,
-        StellarSdk.Networks.TESTNET,
-      );
+      const transaction = new Transaction(challenge, Networks.TESTNET);
       transaction.sign(clientKP2);
 
       const signedChallenge = transaction
         .toEnvelope()
-        .toXDR("base64")
+        .toXdr("base64")
         .toString();
 
       expect(
         WebAuth.verifyChallengeTxSigners(
           signedChallenge,
           serverKP.publicKey(),
-          StellarSdk.Networks.TESTNET,
+          Networks.TESTNET,
           [clientKP2.publicKey()],
           "SDF",
           "testanchor.stellar.org",
@@ -2016,29 +1897,26 @@ describe("Utils", () => {
         clientKP1.publicKey(),
         "SDF",
         300,
-        StellarSdk.Networks.TESTNET,
+        Networks.TESTNET,
         "testanchor.stellar.org",
       );
 
       vi.advanceTimersByTime(200);
 
-      const transaction = new StellarSdk.Transaction(
-        challenge,
-        StellarSdk.Networks.TESTNET,
-      );
+      const transaction = new Transaction(challenge, Networks.TESTNET);
       transaction.sign(clientKP2);
 
       const signedChallenge = transaction
         .toEnvelope()
-        .toXDR("base64")
+        .toXdr("base64")
         .toString();
 
       expect(
         WebAuth.verifyChallengeTxSigners(
           signedChallenge,
           serverKP.publicKey(),
-          StellarSdk.Networks.TESTNET,
-          [clientKP2.publicKey(), StellarSdk.Keypair.random().publicKey()],
+          Networks.TESTNET,
+          [clientKP2.publicKey(), Keypair.random().publicKey()],
           "SDF",
           "testanchor.stellar.org",
         ),
@@ -2051,34 +1929,31 @@ describe("Utils", () => {
         clientKP1.publicKey(),
         "SDF",
         300,
-        StellarSdk.Networks.TESTNET,
+        Networks.TESTNET,
         "testanchor.stellar.org",
       );
 
       vi.advanceTimersByTime(200);
 
-      const transaction = new StellarSdk.Transaction(
-        challenge,
-        StellarSdk.Networks.TESTNET,
-      );
+      const transaction = new Transaction(challenge, Networks.TESTNET);
       transaction.sign(serverKP);
 
       const signedChallenge = transaction
         .toEnvelope()
-        .toXDR("base64")
+        .toXdr("base64")
         .toString();
 
       expect(() =>
         WebAuth.verifyChallengeTxSigners(
           signedChallenge,
           serverKP.publicKey(),
-          StellarSdk.Networks.TESTNET,
+          Networks.TESTNET,
           [clientKP2.publicKey(), serverKP.publicKey()],
           "SDF",
           "testanchor.stellar.org",
         ),
       ).toThrow(
-        new StellarSdk.WebAuth.InvalidChallengeError(
+        new WebAuth.InvalidChallengeError(
           "None of the given signers match the transaction signatures",
         ),
       );
@@ -2090,28 +1965,25 @@ describe("Utils", () => {
         clientKP1.publicKey(),
         "SDF",
         300,
-        StellarSdk.Networks.TESTNET,
+        Networks.TESTNET,
         "testanchor.stellar.org",
       );
 
       vi.advanceTimersByTime(200);
 
-      const transaction = new StellarSdk.Transaction(
-        challenge,
-        StellarSdk.Networks.TESTNET,
-      );
+      const transaction = new Transaction(challenge, Networks.TESTNET);
       transaction.sign(clientKP2);
 
       const signedChallenge = transaction
         .toEnvelope()
-        .toXDR("base64")
+        .toXdr("base64")
         .toString();
 
       expect(
         WebAuth.verifyChallengeTxSigners(
           signedChallenge,
           serverKP.publicKey(),
-          StellarSdk.Networks.TESTNET,
+          Networks.TESTNET,
           [clientKP2.publicKey(), clientKP2.publicKey()],
           "SDF",
           "testanchor.stellar.org",
@@ -2131,28 +2003,25 @@ describe("Utils", () => {
         clientKP1.publicKey(),
         "SDF",
         300,
-        StellarSdk.Networks.TESTNET,
+        Networks.TESTNET,
         "testanchor.stellar.org",
       );
 
       vi.advanceTimersByTime(200);
 
-      const transaction = new StellarSdk.Transaction(
-        challenge,
-        StellarSdk.Networks.TESTNET,
-      );
+      const transaction = new Transaction(challenge, Networks.TESTNET);
       transaction.sign(clientKP2);
 
       const signedChallenge = transaction
         .toEnvelope()
-        .toXDR("base64")
+        .toXdr("base64")
         .toString();
 
       expect(
         WebAuth.verifyChallengeTxSigners(
           signedChallenge,
           serverKP.publicKey(),
-          StellarSdk.Networks.TESTNET,
+          Networks.TESTNET,
           [clientKP2.publicKey(), preauthTxHash, xHash, unknownSignerType],
           "SDF",
           "testanchor.stellar.org",
@@ -2166,33 +2035,30 @@ describe("Utils", () => {
         clientKP1.publicKey(),
         "SDF",
         300,
-        StellarSdk.Networks.TESTNET,
+        Networks.TESTNET,
         "testanchor.stellar.org",
       );
 
       vi.advanceTimersByTime(200);
 
-      const transaction = new StellarSdk.Transaction(
-        challenge,
-        StellarSdk.Networks.TESTNET,
-      );
+      const transaction = new Transaction(challenge, Networks.TESTNET);
       transaction.sign(clientKP1);
       const signedChallenge = transaction
         .toEnvelope()
-        .toXDR("base64")
+        .toXdr("base64")
         .toString();
 
       expect(() =>
         WebAuth.verifyChallengeTxSigners(
           signedChallenge,
           serverKP.publicKey(),
-          StellarSdk.Networks.TESTNET,
+          Networks.TESTNET,
           [clientKP2.publicKey(), clientKP2.publicKey()],
           "SDF",
           "testanchor.stellar.org",
         ),
       ).toThrow(
-        new StellarSdk.WebAuth.InvalidChallengeError(
+        new WebAuth.InvalidChallengeError(
           "None of the given signers match the transaction signatures",
         ),
       );
@@ -2204,34 +2070,31 @@ describe("Utils", () => {
         clientKP1.publicKey(),
         "SDF",
         300,
-        StellarSdk.Networks.TESTNET,
+        Networks.TESTNET,
         "testanchor.stellar.org",
       );
 
       vi.advanceTimersByTime(200);
 
-      const transaction = new StellarSdk.Transaction(
-        challenge,
-        StellarSdk.Networks.TESTNET,
-      );
+      const transaction = new Transaction(challenge, Networks.TESTNET);
       transaction.sign(clientKP2, clientKP2);
 
       const signedChallenge = transaction
         .toEnvelope()
-        .toXDR("base64")
+        .toXdr("base64")
         .toString();
 
       expect(() =>
         WebAuth.verifyChallengeTxSigners(
           signedChallenge,
           serverKP.publicKey(),
-          StellarSdk.Networks.TESTNET,
+          Networks.TESTNET,
           [clientKP2.publicKey()],
           "SDF",
           "testanchor.stellar.org",
         ),
       ).toThrow(
-        new StellarSdk.WebAuth.InvalidChallengeError(
+        new WebAuth.InvalidChallengeError(
           "Transaction has unrecognized signatures",
         ),
       );
@@ -2243,50 +2106,44 @@ describe("Utils", () => {
         clientKP1.publicKey(),
         "SDF",
         300,
-        StellarSdk.Networks.TESTNET,
+        Networks.TESTNET,
         "testanchor.stellar.org",
       );
 
       vi.advanceTimersByTime(200);
 
-      const transaction = new StellarSdk.Transaction(
-        challenge,
-        StellarSdk.Networks.TESTNET,
-      );
+      const transaction = new Transaction(challenge, Networks.TESTNET);
       transaction.sign(clientKP2, clientKP2);
 
       const signedChallenge = transaction
         .toEnvelope()
-        .toXDR("base64")
+        .toXdr("base64")
         .toString();
 
       expect(() =>
         WebAuth.verifyChallengeTxSigners(
           signedChallenge,
           serverKP.publicKey(),
-          StellarSdk.Networks.TESTNET,
+          Networks.TESTNET,
           [clientKP2.secret()],
           "SDF",
           "testanchor.stellar.org",
         ),
       ).toThrow(
-        new StellarSdk.WebAuth.InvalidChallengeError(
+        new WebAuth.InvalidChallengeError(
           "No verifiable client signers provided, at least one G... address must be provided",
         ),
       );
     });
 
     it("throws an error if no client has signed the transaction", () => {
-      const transaction = new StellarSdk.TransactionBuilder(
-        txAccount,
-        txBuilderOpts,
-      )
+      const transaction = new TransactionBuilder(txAccount, txBuilderOpts)
         .addOperation(operation)
         .setTimeout(30)
         .build();
 
       transaction.sign(serverKP);
-      const challenge = transaction.toEnvelope().toXDR("base64").toString();
+      const challenge = transaction.toEnvelope().toXdr("base64").toString();
 
       const clientSigners = [clientKP1.publicKey(), clientKP2.publicKey()];
 
@@ -2294,13 +2151,13 @@ describe("Utils", () => {
         WebAuth.verifyChallengeTxSigners(
           challenge,
           serverKP.publicKey(),
-          StellarSdk.Networks.TESTNET,
+          Networks.TESTNET,
           clientSigners,
           "SDF-test",
           "testanchor.stellar.org",
         ),
       ).toThrow(
-        new StellarSdk.WebAuth.InvalidChallengeError(
+        new WebAuth.InvalidChallengeError(
           "None of the given signers match the transaction signatures",
         ),
       );
@@ -2312,49 +2169,46 @@ describe("Utils", () => {
         clientKP1.publicKey(),
         "SDF",
         300,
-        StellarSdk.Networks.TESTNET,
+        Networks.TESTNET,
         "testanchor.stellar.org",
       );
 
       vi.advanceTimersByTime(200);
 
-      const transaction = new StellarSdk.Transaction(
-        challenge,
-        StellarSdk.Networks.TESTNET,
-      );
+      const transaction = new Transaction(challenge, Networks.TESTNET);
       transaction.sign(clientKP1);
 
       const signedChallenge = transaction
         .toEnvelope()
-        .toXDR("base64")
+        .toXdr("base64")
         .toString();
 
       expect(() =>
         WebAuth.verifyChallengeTxSigners(
           signedChallenge,
           serverKP.publicKey(),
-          StellarSdk.Networks.TESTNET,
+          Networks.TESTNET,
           [],
           "SDF",
           "testanchor.stellar.org",
         ),
       ).toThrow(
-        new StellarSdk.WebAuth.InvalidChallengeError(
+        new WebAuth.InvalidChallengeError(
           "No verifiable client signers provided, at least one G... address must be provided",
         ),
       );
     });
 
     it("validates challenges containing client domain signers", () => {
-      serverKP = StellarSdk.Keypair.random();
-      const clientKP = StellarSdk.Keypair.random();
-      const clientSigningKey = StellarSdk.Keypair.random();
+      serverKP = Keypair.random();
+      const clientKP = Keypair.random();
+      const clientSigningKey = Keypair.random();
       const challenge = WebAuth.buildChallengeTx(
         serverKP,
         clientKP.publicKey(),
         "SDF",
         300,
-        StellarSdk.Networks.TESTNET,
+        Networks.TESTNET,
         "testanchor.stellar.org",
         null,
         "testdomain",
@@ -2363,23 +2217,20 @@ describe("Utils", () => {
 
       vi.advanceTimersByTime(200);
 
-      const transaction = new StellarSdk.Transaction(
-        challenge,
-        StellarSdk.Networks.TESTNET,
-      );
+      const transaction = new Transaction(challenge, Networks.TESTNET);
 
       transaction.sign(clientKP);
       transaction.sign(clientSigningKey);
 
       const signedChallenge = transaction
         .toEnvelope()
-        .toXDR("base64")
+        .toXdr("base64")
         .toString();
 
       const signersFound = WebAuth.verifyChallengeTxSigners(
         signedChallenge,
         serverKP.publicKey(),
-        StellarSdk.Networks.TESTNET,
+        Networks.TESTNET,
         [clientKP.publicKey()],
         "SDF",
         "testanchor.stellar.org",
@@ -2389,15 +2240,15 @@ describe("Utils", () => {
     });
 
     it("throws an error if challenge is signed only by server and client_domain key but no client signer", () => {
-      serverKP = StellarSdk.Keypair.random();
-      const clientKP = StellarSdk.Keypair.random();
-      const clientSigningKey = StellarSdk.Keypair.random();
+      serverKP = Keypair.random();
+      const clientKP = Keypair.random();
+      const clientSigningKey = Keypair.random();
       const challenge = WebAuth.buildChallengeTx(
         serverKP,
         clientKP.publicKey(),
         "SDF",
         300,
-        StellarSdk.Networks.TESTNET,
+        Networks.TESTNET,
         "testanchor.stellar.org",
         null,
         "testdomain",
@@ -2406,45 +2257,42 @@ describe("Utils", () => {
 
       vi.advanceTimersByTime(200);
 
-      const transaction = new StellarSdk.Transaction(
-        challenge,
-        StellarSdk.Networks.TESTNET,
-      );
+      const transaction = new Transaction(challenge, Networks.TESTNET);
 
       // Only sign with clientSigningKey, NOT clientKP (no actual client signer)
       transaction.sign(clientSigningKey);
 
       const signedChallenge = transaction
         .toEnvelope()
-        .toXDR("base64")
+        .toXdr("base64")
         .toString();
 
       expect(() =>
         WebAuth.verifyChallengeTxSigners(
           signedChallenge,
           serverKP.publicKey(),
-          StellarSdk.Networks.TESTNET,
+          Networks.TESTNET,
           [clientKP.publicKey()],
           "SDF",
           "testanchor.stellar.org",
         ),
       ).toThrow(
-        new StellarSdk.WebAuth.InvalidChallengeError(
+        new WebAuth.InvalidChallengeError(
           "None of the given signers match the transaction signatures",
         ),
       );
     });
 
     it("throws an error if a challenge with a client_domain operation doesn't have a matching signature", () => {
-      serverKP = StellarSdk.Keypair.random();
-      const clientKP = StellarSdk.Keypair.random();
-      const clientSigningKeypair = StellarSdk.Keypair.random();
+      serverKP = Keypair.random();
+      const clientKP = Keypair.random();
+      const clientSigningKeypair = Keypair.random();
       const challenge = WebAuth.buildChallengeTx(
         serverKP,
         clientKP.publicKey(),
         "SDF",
         300,
-        StellarSdk.Networks.TESTNET,
+        Networks.TESTNET,
         "testanchor.stellar.org",
         null,
         "testdomain",
@@ -2453,47 +2301,41 @@ describe("Utils", () => {
 
       vi.advanceTimersByTime(200);
 
-      const transaction = new StellarSdk.Transaction(
-        challenge,
-        StellarSdk.Networks.TESTNET,
-      );
+      const transaction = new Transaction(challenge, Networks.TESTNET);
 
       transaction.sign(clientKP);
 
       const signedChallenge = transaction
         .toEnvelope()
-        .toXDR("base64")
+        .toXdr("base64")
         .toString();
 
       expect(() =>
         WebAuth.verifyChallengeTxSigners(
           signedChallenge,
           serverKP.publicKey(),
-          StellarSdk.Networks.TESTNET,
+          Networks.TESTNET,
           [clientKP.publicKey()],
           "SDF",
           "testanchor.stellar.org",
         ),
       ).toThrow(
-        new StellarSdk.WebAuth.InvalidChallengeError(
+        new WebAuth.InvalidChallengeError(
           "Transaction not signed by the source account of the 'client_domain' ManageData operation",
         ),
       );
     });
 
     it("throws an error if a challenge has multiple client_domain operations", () => {
-      serverKP = StellarSdk.Keypair.random();
-      const clientKP = StellarSdk.Keypair.random();
-      const clientSigningKeypair = StellarSdk.Keypair.random();
+      serverKP = Keypair.random();
+      const clientKP = Keypair.random();
+      const clientSigningKeypair = Keypair.random();
 
-      const serverAccount = new StellarSdk.Account(serverKP.publicKey(), "-1");
+      const serverAccount = new Account(serverKP.publicKey(), "-1");
 
-      const transaction = new StellarSdk.TransactionBuilder(
-        serverAccount,
-        txBuilderOpts,
-      )
+      const transaction = new TransactionBuilder(serverAccount, txBuilderOpts)
         .addOperation(
-          StellarSdk.Operation.manageData({
+          Operation.manageData({
             source: clientKP.publicKey(),
             name: "testanchor.stellar.org auth",
             value: uint8ArrayToBase64(
@@ -2502,14 +2344,14 @@ describe("Utils", () => {
           }),
         )
         .addOperation(
-          StellarSdk.Operation.manageData({
+          Operation.manageData({
             source: clientSigningKeypair.publicKey(),
             name: "client_domain",
             value: "testdomain",
           }),
         )
         .addOperation(
-          StellarSdk.Operation.manageData({
+          Operation.manageData({
             source: clientSigningKeypair.publicKey(),
             name: "client_domain",
             value: "testdomain2",
@@ -2526,20 +2368,20 @@ describe("Utils", () => {
 
       const signedChallenge = transaction
         .toEnvelope()
-        .toXDR("base64")
+        .toXdr("base64")
         .toString();
 
       expect(() =>
         WebAuth.verifyChallengeTxSigners(
           signedChallenge,
           serverKP.publicKey(),
-          StellarSdk.Networks.TESTNET,
+          Networks.TESTNET,
           [clientKP.publicKey()],
           "testanchor.stellar.org",
           "testanchor.stellar.org",
         ),
       ).toThrow(
-        new StellarSdk.WebAuth.InvalidChallengeError(
+        new WebAuth.InvalidChallengeError(
           "Found more than one client_domain operation",
         ),
       );
@@ -2552,9 +2394,9 @@ describe("Utils", () => {
     let transaction: any;
 
     beforeEach(() => {
-      keypair = StellarSdk.Keypair.random();
-      account = new StellarSdk.Account(keypair.publicKey(), "-1");
-      transaction = new StellarSdk.TransactionBuilder(account, txBuilderOpts)
+      keypair = Keypair.random();
+      account = new Account(keypair.publicKey(), "-1");
+      transaction = new TransactionBuilder(account, txBuilderOpts)
         .setTimeout(30)
         .build();
     });
@@ -2576,7 +2418,7 @@ describe("Utils", () => {
     it("returns false if the transaction was not signed by the given account", () => {
       transaction.sign(keypair);
 
-      const differentKeypair = StellarSdk.Keypair.random();
+      const differentKeypair = Keypair.random();
 
       expect(
         WebAuth.verifyTxSignedBy(transaction, differentKeypair.publicKey()),
@@ -2597,10 +2439,10 @@ describe("Utils", () => {
     let transaction: any;
 
     beforeEach(() => {
-      keypair1 = StellarSdk.Keypair.random();
-      keypair2 = StellarSdk.Keypair.random();
-      account = new StellarSdk.Account(keypair1.publicKey(), "-1");
-      transaction = new StellarSdk.TransactionBuilder(account, txBuilderOpts)
+      keypair1 = Keypair.random();
+      keypair2 = Keypair.random();
+      account = new Account(keypair1.publicKey(), "-1");
+      transaction = new TransactionBuilder(account, txBuilderOpts)
         .setTimeout(30)
         .build();
     });
@@ -2644,9 +2486,9 @@ describe("Utils", () => {
       transaction.sign(keypair1, keypair2);
 
       const wrongSignatures = [
-        StellarSdk.Keypair.random().publicKey(),
-        StellarSdk.Keypair.random().publicKey(),
-        StellarSdk.Keypair.random().publicKey(),
+        Keypair.random().publicKey(),
+        Keypair.random().publicKey(),
+        Keypair.random().publicKey(),
       ];
 
       expect(WebAuth.gatherTxSigners(transaction, wrongSignatures)).toEqual([]);
@@ -2671,7 +2513,7 @@ describe("Utils", () => {
           keypair1.publicKey(),
         ]),
       ).toThrow(
-        new StellarSdk.WebAuth.InvalidChallengeError(
+        new WebAuth.InvalidChallengeError(
           "Signer is not a valid address: invalid version byte. expected 48, got 152",
         ),
       );
@@ -2687,7 +2529,7 @@ describe("Utils", () => {
           keypair1.publicKey(),
         ]),
       ).toThrow(
-        new StellarSdk.WebAuth.InvalidChallengeError(
+        new WebAuth.InvalidChallengeError(
           "Signer is not a valid address: invalid checksum",
         ),
       );

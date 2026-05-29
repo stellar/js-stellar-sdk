@@ -1,11 +1,12 @@
 import { setSourceAccount } from "../util/operations.js";
-import xdr from "../xdr.js";
-import { validateClaimableBalanceId } from "./claim_claimable_balance.js";
 import {
-  ClawbackClaimableBalanceResult,
-  ClawbackClaimableBalanceOpts,
-  OperationAttributes,
-} from "./types.js";
+  ClaimableBalanceId,
+  ClawbackClaimableBalanceOp,
+  Operation,
+  OperationBody,
+} from "../../xdr/index.js";
+import { validateClaimableBalanceId } from "./claim_claimable_balance.js";
+import { ClawbackClaimableBalanceOpts, OperationAttributes } from "./types.js";
 
 /**
  * Creates a clawback operation for a claimable balance.
@@ -23,22 +24,22 @@ import {
  */
 export function clawbackClaimableBalance(
   opts: ClawbackClaimableBalanceOpts = {} as ClawbackClaimableBalanceOpts,
-): xdr.Operation<ClawbackClaimableBalanceResult> {
+): Operation {
   validateClaimableBalanceId(opts.balanceId);
 
-  const balanceId: xdr.ClaimableBalanceId = xdr.ClaimableBalanceId.fromXDR(
+  const balanceId: ClaimableBalanceId = ClaimableBalanceId.fromXdr(
     opts.balanceId,
     "hex",
   );
 
   const opAttributes: OperationAttributes = {
     sourceAccount: null,
-    body: xdr.OperationBody.clawbackClaimableBalance(
-      new xdr.ClawbackClaimableBalanceOp({ balanceId }),
+    body: OperationBody.clawbackClaimableBalance(
+      new ClawbackClaimableBalanceOp({ balanceId: balanceId }),
     ),
   };
 
   setSourceAccount(opAttributes, opts);
 
-  return new xdr.Operation(opAttributes);
+  return new Operation(opAttributes);
 }

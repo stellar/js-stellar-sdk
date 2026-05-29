@@ -2,38 +2,47 @@ import { describe, it, beforeEach, afterEach, expect, vi } from "vitest";
 
 import * as StellarSdk from "../../src/index.js";
 
-const { Horizon } = StellarSdk;
+const {
+  Horizon,
+  Keypair,
+  Account,
+  TransactionBuilder,
+  Operation,
+  Asset,
+  Networks,
+  TimeoutInfinite,
+  Transaction,
+  BASE_FEE,
+} = StellarSdk;
 describe("server.js async transaction submission tests", () => {
   let server: any;
   let mockPost: any;
   let transaction: any;
   let blob: string;
 
-  const keypair = StellarSdk.Keypair.random();
-  const account = new StellarSdk.Account(keypair.publicKey(), "56199647068161");
+  const keypair = Keypair.random();
+  const account = new Account(keypair.publicKey(), "56199647068161");
 
   beforeEach(() => {
     server = new Horizon.Server("https://horizon-live.stellar.org:1337");
     mockPost = vi.spyOn(server.httpClient, "post");
-    transaction = new StellarSdk.TransactionBuilder(account, {
-      fee: StellarSdk.BASE_FEE,
-      networkPassphrase: StellarSdk.Networks.TESTNET,
+    transaction = new TransactionBuilder(account, {
+      fee: BASE_FEE,
+      networkPassphrase: Networks.TESTNET,
     })
       .addOperation(
-        StellarSdk.Operation.payment({
+        Operation.payment({
           destination:
             "GASOCNHNNLYFNMDJYQ3XFMI7BYHIOCFW3GJEOWRPEGK2TDPGTG2E5EDW",
-          asset: StellarSdk.Asset.native(),
+          asset: Asset.native(),
           amount: "100.50",
         }),
       )
-      .setTimeout(StellarSdk.TimeoutInfinite)
+      .setTimeout(TimeoutInfinite)
       .build();
     transaction.sign(keypair);
 
-    blob = encodeURIComponent(
-      transaction.toEnvelope().toXDR().toString("base64"),
-    );
+    blob = encodeURIComponent(transaction.toEnvelope().toXdr("base64"));
   });
 
   afterEach(() => {

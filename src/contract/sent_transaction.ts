@@ -148,7 +148,7 @@ export class SentTransaction<T> {
 
     // 2. otherwise, maybe it was merely sent with `sendTransaction`
     if (this.sendTransactionResponse) {
-      const errorResult = this.sendTransactionResponse.errorResult?.result();
+      const errorResult = this.sendTransactionResponse.errorResult?.result;
       if (errorResult) {
         throw new SentTransaction.Errors.SendFailed(
           `Transaction simulation looked correct, but attempting to send the transaction failed. Check \`simulation\` and \`sendTransactionResponseAll\` to troubleshoot. Decoded \`sendTransactionResponse.errorResultXdr\`: ${errorResult}`,

@@ -15,9 +15,9 @@ const {
   xdr,
   Address,
 } = StellarSdk;
-const { Server } = StellarSdk.rpc;
+const { Server } = rpc;
 
-const restoreTxnData = StellarSdk.SorobanDataBuilder.fromXDR(
+const restoreTxnData = SorobanDataBuilder.fromXdr(
   "AAAAAAAAAAAAAAAEAAAABgAAAAHZ4Y4l0GNoS97QH0fa5Jbbm61Ou3t9McQ09l7wREKJYwAAAA8AAAAJUEVSU19DTlQxAAAAAAAAAQAAAAYAAAAB2eGOJdBjaEve0B9H2uSW25utTrt7fTHENPZe8ERCiWMAAAAPAAAACVBFUlNfQ05UMgAAAAAAAAEAAAAGAAAAAdnhjiXQY2hL3tAfR9rkltubrU67e30xxDT2XvBEQoljAAAAFAAAAAEAAAAH+BoQswzzGTKRzrdC6axxKaM4qnyDP8wgQv8Id3S4pbsAAAAAAAAGNAAABjQAAAAAAADNoQ==",
 );
 
@@ -141,12 +141,12 @@ describe("AssembledTransaction", () => {
             new xdr.LedgerKeyContractData({
               contract: Address.fromString(contractId).toScAddress(),
               key: xdr.ScVal.scvU32(0),
-              durability: xdr.ContractDataDurability.persistent(),
+              durability: xdr.ContractDataDurability.persistent,
             }),
           ),
         ])
         .build(),
-      results: [{ auth: [], xdr: xdr.ScVal.scvU32(0).toXDR("base64") }],
+      results: [{ auth: [], xdr: xdr.ScVal.scvU32(0).toXdr("base64") }],
       stateChanges: [],
     };
 
@@ -185,7 +185,7 @@ describe("Contract ID validation on deserialization", () => {
         outputs: [xdr.ScSpecTypeDef.scSpecTypeU32()],
       }),
     );
-    return new contract.Spec([funcSpec.toXDR("base64")]);
+    return new contract.Spec([funcSpec.toXdr("base64")]);
   };
 
   function buildInvokeTx(targetContractId: string, methodName: string) {
@@ -204,12 +204,12 @@ describe("Contract ID validation on deserialization", () => {
       .build();
   }
 
-  it("fromXDR() accepts a transaction targeting the configured contract", () => {
+  it("fromXdr() accepts a transaction targeting the configured contract", () => {
     const tx = buildInvokeTx(victimContractId, "test");
-    const xdrBase64 = tx.toEnvelope().toXDR("base64");
+    const xdrBase64 = tx.toEnvelope().toXdr("base64");
     const spec = createSpec("test");
 
-    const assembled = contract.AssembledTransaction.fromXDR(
+    const assembled = contract.AssembledTransaction.fromXdr(
       {
         contractId: victimContractId,
         networkPassphrase,
@@ -221,13 +221,13 @@ describe("Contract ID validation on deserialization", () => {
     expect(assembled.built).toBeDefined();
   });
 
-  it("fromXDR() rejects a transaction targeting a different contract", () => {
+  it("fromXdr() rejects a transaction targeting a different contract", () => {
     const tx = buildInvokeTx(attackerContractId, "drain");
-    const xdrBase64 = tx.toEnvelope().toXDR("base64");
+    const xdrBase64 = tx.toEnvelope().toXdr("base64");
     const spec = createSpec("drain");
 
     expect(() =>
-      contract.AssembledTransaction.fromXDR(
+      contract.AssembledTransaction.fromXdr(
         {
           contractId: victimContractId,
           networkPassphrase,
@@ -246,15 +246,15 @@ describe("Contract ID validation on deserialization", () => {
     const spec = createSpec("test");
     const simulationResult = {
       auth: [],
-      retval: xdr.ScVal.scvU32(0).toXDR("base64"),
+      retval: xdr.ScVal.scvU32(0).toXdr("base64"),
     };
     const simulationTransactionData = new SorobanDataBuilder()
       .build()
-      .toXDR("base64");
+      .toXdr("base64");
 
     const json = JSON.stringify({
       method: "test",
-      tx: tx.toEnvelope().toXDR("base64"),
+      tx: tx.toEnvelope().toXdr("base64"),
       simulationResult,
       simulationTransactionData,
     });
@@ -277,15 +277,15 @@ describe("Contract ID validation on deserialization", () => {
     const tx = buildInvokeTx(attackerContractId, "drain");
     const simulationResult = {
       auth: [],
-      retval: xdr.ScVal.scvU32(0).toXDR("base64"),
+      retval: xdr.ScVal.scvU32(0).toXdr("base64"),
     };
     const simulationTransactionData = new SorobanDataBuilder()
       .build()
-      .toXDR("base64");
+      .toXdr("base64");
 
     const json = JSON.stringify({
       method: "drain",
-      tx: tx.toEnvelope().toXDR("base64"),
+      tx: tx.toEnvelope().toXdr("base64"),
       simulationResult,
       simulationTransactionData,
     });
@@ -312,15 +312,15 @@ describe("Contract ID validation on deserialization", () => {
     const tx = buildInvokeTx(victimContractId, "transfer");
     const simulationResult = {
       auth: [],
-      retval: xdr.ScVal.scvU32(0).toXDR("base64"),
+      retval: xdr.ScVal.scvU32(0).toXdr("base64"),
     };
     const simulationTransactionData = new SorobanDataBuilder()
       .build()
-      .toXDR("base64");
+      .toXdr("base64");
 
     const json = JSON.stringify({
       method: "safe_operation",
-      tx: tx.toEnvelope().toXDR("base64"),
+      tx: tx.toEnvelope().toXdr("base64"),
       simulationResult,
       simulationTransactionData,
     });

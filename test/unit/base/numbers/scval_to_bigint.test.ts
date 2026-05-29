@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any */
 import { describe, it, expect } from "vitest";
 import { scValToBigInt } from "../../../../src/base/numbers/index.js";
-import xdr from "../../../../src/base/xdr.js";
+import * as xdr from "../../../../src/xdr/index.js";
 
 // ---------------------------------------------------------------------------
 // scvU32
@@ -54,22 +54,22 @@ describe("scValToBigInt — scvI32", () => {
 // ---------------------------------------------------------------------------
 describe("scValToBigInt — scvU64", () => {
   it("converts 0", () => {
-    const scv = xdr.ScVal.scvU64(new xdr.Uint64(0));
+    const scv = xdr.ScVal.scvU64(xdr.Uint64(0));
     expect(scValToBigInt(scv)).toBe(0n);
   });
 
   it("converts 1", () => {
-    const scv = xdr.ScVal.scvU64(new xdr.Uint64(1));
+    const scv = xdr.ScVal.scvU64(xdr.Uint64(1));
     expect(scValToBigInt(scv)).toBe(1n);
   });
 
   it("converts large value", () => {
-    const scv = xdr.ScVal.scvU64(new xdr.Uint64("18446744073709551615"));
+    const scv = xdr.ScVal.scvU64(xdr.Uint64("18446744073709551615"));
     expect(scValToBigInt(scv)).toBe(18446744073709551615n);
   });
 
   it("converts mid-range value", () => {
-    const scv = xdr.ScVal.scvU64(new xdr.Uint64(1000000n));
+    const scv = xdr.ScVal.scvU64(xdr.Uint64(1000000n));
     expect(scValToBigInt(scv)).toBe(1000000n);
   });
 });
@@ -79,27 +79,27 @@ describe("scValToBigInt — scvU64", () => {
 // ---------------------------------------------------------------------------
 describe("scValToBigInt — scvI64", () => {
   it("converts 0", () => {
-    const scv = xdr.ScVal.scvI64(new xdr.Int64(0));
+    const scv = xdr.ScVal.scvI64(xdr.Int64(0));
     expect(scValToBigInt(scv)).toBe(0n);
   });
 
   it("converts positive", () => {
-    const scv = xdr.ScVal.scvI64(new xdr.Int64(999));
+    const scv = xdr.ScVal.scvI64(xdr.Int64(999));
     expect(scValToBigInt(scv)).toBe(999n);
   });
 
   it("converts negative", () => {
-    const scv = xdr.ScVal.scvI64(new xdr.Int64(-999));
+    const scv = xdr.ScVal.scvI64(xdr.Int64(-999));
     expect(scValToBigInt(scv)).toBe(-999n);
   });
 
   it("converts max i64", () => {
-    const scv = xdr.ScVal.scvI64(new xdr.Int64("9223372036854775807"));
+    const scv = xdr.ScVal.scvI64(xdr.Int64("9223372036854775807"));
     expect(scValToBigInt(scv)).toBe(9223372036854775807n);
   });
 
   it("converts min i64", () => {
-    const scv = xdr.ScVal.scvI64(new xdr.Int64("-9223372036854775808"));
+    const scv = xdr.ScVal.scvI64(xdr.Int64("-9223372036854775808"));
     expect(scValToBigInt(scv)).toBe(-9223372036854775808n);
   });
 });
@@ -109,17 +109,17 @@ describe("scValToBigInt — scvI64", () => {
 // ---------------------------------------------------------------------------
 describe("scValToBigInt — scvTimepoint", () => {
   it("converts 0", () => {
-    const scv = xdr.ScVal.scvTimepoint(new xdr.Uint64(0));
+    const scv = xdr.ScVal.scvTimepoint(xdr.Uint64(0));
     expect(scValToBigInt(scv)).toBe(0n);
   });
 
   it("converts a realistic timestamp", () => {
-    const scv = xdr.ScVal.scvTimepoint(new xdr.Uint64(1443571200n));
+    const scv = xdr.ScVal.scvTimepoint(xdr.Uint64(1443571200n));
     expect(scValToBigInt(scv)).toBe(1443571200n);
   });
 
   it("converts max u64 timepoint", () => {
-    const scv = xdr.ScVal.scvTimepoint(new xdr.Uint64("18446744073709551615"));
+    const scv = xdr.ScVal.scvTimepoint(xdr.Uint64("18446744073709551615"));
     expect(scValToBigInt(scv)).toBe(18446744073709551615n);
   });
 });
@@ -129,17 +129,17 @@ describe("scValToBigInt — scvTimepoint", () => {
 // ---------------------------------------------------------------------------
 describe("scValToBigInt — scvDuration", () => {
   it("converts 0", () => {
-    const scv = xdr.ScVal.scvDuration(new xdr.Uint64(0));
+    const scv = xdr.ScVal.scvDuration(xdr.Uint64(0));
     expect(scValToBigInt(scv)).toBe(0n);
   });
 
   it("converts small duration", () => {
-    const scv = xdr.ScVal.scvDuration(new xdr.Uint64(3600n));
+    const scv = xdr.ScVal.scvDuration(xdr.Uint64(3600n));
     expect(scValToBigInt(scv)).toBe(3600n);
   });
 
   it("converts large duration", () => {
-    const scv = xdr.ScVal.scvDuration(new xdr.Uint64("18446744073709551615"));
+    const scv = xdr.ScVal.scvDuration(xdr.Uint64("18446744073709551615"));
     expect(scValToBigInt(scv)).toBe(18446744073709551615n);
   });
 });
@@ -150,9 +150,9 @@ describe("scValToBigInt — scvDuration", () => {
 describe("scValToBigInt — scvU128", () => {
   it("converts 0", () => {
     const scv = xdr.ScVal.scvU128(
-      new xdr.UInt128Parts({
-        lo: new xdr.Uint64(0),
-        hi: new xdr.Uint64(0),
+      new xdr.Uint128Parts({
+        lo: xdr.Uint64(0),
+        hi: xdr.Uint64(0),
       }),
     );
     expect(scValToBigInt(scv)).toBe(0n);
@@ -160,9 +160,9 @@ describe("scValToBigInt — scvU128", () => {
 
   it("converts 1 (lo only)", () => {
     const scv = xdr.ScVal.scvU128(
-      new xdr.UInt128Parts({
-        lo: new xdr.Uint64(1),
-        hi: new xdr.Uint64(0),
+      new xdr.Uint128Parts({
+        lo: xdr.Uint64(1),
+        hi: xdr.Uint64(0),
       }),
     );
     expect(scValToBigInt(scv)).toBe(1n);
@@ -170,9 +170,9 @@ describe("scValToBigInt — scvU128", () => {
 
   it("converts value in hi part only", () => {
     const scv = xdr.ScVal.scvU128(
-      new xdr.UInt128Parts({
-        lo: new xdr.Uint64(0),
-        hi: new xdr.Uint64(1),
+      new xdr.Uint128Parts({
+        lo: xdr.Uint64(0),
+        hi: xdr.Uint64(1),
       }),
     );
     // 1 << 64
@@ -181,9 +181,9 @@ describe("scValToBigInt — scvU128", () => {
 
   it("converts value spanning both parts", () => {
     const scv = xdr.ScVal.scvU128(
-      new xdr.UInt128Parts({
-        lo: new xdr.Uint64(42),
-        hi: new xdr.Uint64(1),
+      new xdr.Uint128Parts({
+        lo: xdr.Uint64(42),
+        hi: xdr.Uint64(1),
       }),
     );
     expect(scValToBigInt(scv)).toBe((1n << 64n) + 42n);
@@ -192,9 +192,9 @@ describe("scValToBigInt — scvU128", () => {
   it("converts max u128", () => {
     const maxU64 = "18446744073709551615";
     const scv = xdr.ScVal.scvU128(
-      new xdr.UInt128Parts({
-        lo: new xdr.Uint64(maxU64),
-        hi: new xdr.Uint64(maxU64),
+      new xdr.Uint128Parts({
+        lo: xdr.Uint64(maxU64),
+        hi: xdr.Uint64(maxU64),
       }),
     );
     const maxU128 = (1n << 128n) - 1n;
@@ -204,9 +204,9 @@ describe("scValToBigInt — scvU128", () => {
   it("converts a known power of 2", () => {
     // 2^100 = hi: 2^36, lo: 0
     const scv = xdr.ScVal.scvU128(
-      new xdr.UInt128Parts({
-        lo: new xdr.Uint64(0),
-        hi: new xdr.Uint64(1n << 36n),
+      new xdr.Uint128Parts({
+        lo: xdr.Uint64(0),
+        hi: xdr.Uint64(1n << 36n),
       }),
     );
     expect(scValToBigInt(scv)).toBe(1n << 100n);
@@ -220,8 +220,8 @@ describe("scValToBigInt — scvI128", () => {
   it("converts 0", () => {
     const scv = xdr.ScVal.scvI128(
       new xdr.Int128Parts({
-        lo: new xdr.Uint64(0),
-        hi: new xdr.Int64(0),
+        lo: xdr.Uint64(0),
+        hi: xdr.Int64(0),
       }),
     );
     expect(scValToBigInt(scv)).toBe(0n);
@@ -230,8 +230,8 @@ describe("scValToBigInt — scvI128", () => {
   it("converts positive value (lo only)", () => {
     const scv = xdr.ScVal.scvI128(
       new xdr.Int128Parts({
-        lo: new xdr.Uint64(100),
-        hi: new xdr.Int64(0),
+        lo: xdr.Uint64(100),
+        hi: xdr.Int64(0),
       }),
     );
     expect(scValToBigInt(scv)).toBe(100n);
@@ -242,8 +242,8 @@ describe("scValToBigInt — scvI128", () => {
     const maxU64 = "18446744073709551615";
     const scv = xdr.ScVal.scvI128(
       new xdr.Int128Parts({
-        lo: new xdr.Uint64(maxU64),
-        hi: new xdr.Int64(-1),
+        lo: xdr.Uint64(maxU64),
+        hi: xdr.Int64(-1),
       }),
     );
     expect(scValToBigInt(scv)).toBe(-1n);
@@ -252,8 +252,8 @@ describe("scValToBigInt — scvI128", () => {
   it("converts positive value spanning both parts", () => {
     const scv = xdr.ScVal.scvI128(
       new xdr.Int128Parts({
-        lo: new xdr.Uint64(7),
-        hi: new xdr.Int64(3),
+        lo: xdr.Uint64(7),
+        hi: xdr.Int64(3),
       }),
     );
     expect(scValToBigInt(scv)).toBe((3n << 64n) + 7n);
@@ -264,8 +264,8 @@ describe("scValToBigInt — scvI128", () => {
     const lo = (1n << 64n) - 100n;
     const scv = xdr.ScVal.scvI128(
       new xdr.Int128Parts({
-        lo: new xdr.Uint64(lo.toString()),
-        hi: new xdr.Int64(-1),
+        lo: xdr.Uint64(lo.toString()),
+        hi: xdr.Int64(-1),
       }),
     );
     expect(scValToBigInt(scv)).toBe(-100n);
@@ -278,11 +278,11 @@ describe("scValToBigInt — scvI128", () => {
 describe("scValToBigInt — scvU256", () => {
   it("converts 0", () => {
     const scv = xdr.ScVal.scvU256(
-      new xdr.UInt256Parts({
-        loLo: new xdr.Uint64(0),
-        loHi: new xdr.Uint64(0),
-        hiLo: new xdr.Uint64(0),
-        hiHi: new xdr.Uint64(0),
+      new xdr.Uint256Parts({
+        loLo: xdr.Uint64(0),
+        loHi: xdr.Uint64(0),
+        hiLo: xdr.Uint64(0),
+        hiHi: xdr.Uint64(0),
       }),
     );
     expect(scValToBigInt(scv)).toBe(0n);
@@ -290,11 +290,11 @@ describe("scValToBigInt — scvU256", () => {
 
   it("converts 1 (loLo only)", () => {
     const scv = xdr.ScVal.scvU256(
-      new xdr.UInt256Parts({
-        loLo: new xdr.Uint64(1),
-        loHi: new xdr.Uint64(0),
-        hiLo: new xdr.Uint64(0),
-        hiHi: new xdr.Uint64(0),
+      new xdr.Uint256Parts({
+        loLo: xdr.Uint64(1),
+        loHi: xdr.Uint64(0),
+        hiLo: xdr.Uint64(0),
+        hiHi: xdr.Uint64(0),
       }),
     );
     expect(scValToBigInt(scv)).toBe(1n);
@@ -302,11 +302,11 @@ describe("scValToBigInt — scvU256", () => {
 
   it("converts value in hiHi part", () => {
     const scv = xdr.ScVal.scvU256(
-      new xdr.UInt256Parts({
-        loLo: new xdr.Uint64(0),
-        loHi: new xdr.Uint64(0),
-        hiLo: new xdr.Uint64(0),
-        hiHi: new xdr.Uint64(1),
+      new xdr.Uint256Parts({
+        loLo: xdr.Uint64(0),
+        loHi: xdr.Uint64(0),
+        hiLo: xdr.Uint64(0),
+        hiHi: xdr.Uint64(1),
       }),
     );
     // 1 << 192
@@ -315,11 +315,11 @@ describe("scValToBigInt — scvU256", () => {
 
   it("converts value in loHi part", () => {
     const scv = xdr.ScVal.scvU256(
-      new xdr.UInt256Parts({
-        loLo: new xdr.Uint64(0),
-        loHi: new xdr.Uint64(1),
-        hiLo: new xdr.Uint64(0),
-        hiHi: new xdr.Uint64(0),
+      new xdr.Uint256Parts({
+        loLo: xdr.Uint64(0),
+        loHi: xdr.Uint64(1),
+        hiLo: xdr.Uint64(0),
+        hiHi: xdr.Uint64(0),
       }),
     );
     expect(scValToBigInt(scv)).toBe(1n << 64n);
@@ -327,11 +327,11 @@ describe("scValToBigInt — scvU256", () => {
 
   it("converts value in hiLo part", () => {
     const scv = xdr.ScVal.scvU256(
-      new xdr.UInt256Parts({
-        loLo: new xdr.Uint64(0),
-        loHi: new xdr.Uint64(0),
-        hiLo: new xdr.Uint64(1),
-        hiHi: new xdr.Uint64(0),
+      new xdr.Uint256Parts({
+        loLo: xdr.Uint64(0),
+        loHi: xdr.Uint64(0),
+        hiLo: xdr.Uint64(1),
+        hiHi: xdr.Uint64(0),
       }),
     );
     expect(scValToBigInt(scv)).toBe(1n << 128n);
@@ -339,11 +339,11 @@ describe("scValToBigInt — scvU256", () => {
 
   it("converts value spanning all parts", () => {
     const scv = xdr.ScVal.scvU256(
-      new xdr.UInt256Parts({
-        loLo: new xdr.Uint64(1),
-        loHi: new xdr.Uint64(2),
-        hiLo: new xdr.Uint64(3),
-        hiHi: new xdr.Uint64(4),
+      new xdr.Uint256Parts({
+        loLo: xdr.Uint64(1),
+        loHi: xdr.Uint64(2),
+        hiLo: xdr.Uint64(3),
+        hiHi: xdr.Uint64(4),
       }),
     );
     const expected = 1n + (2n << 64n) + (3n << 128n) + (4n << 192n);
@@ -353,11 +353,11 @@ describe("scValToBigInt — scvU256", () => {
   it("converts max u256", () => {
     const maxU64 = "18446744073709551615";
     const scv = xdr.ScVal.scvU256(
-      new xdr.UInt256Parts({
-        loLo: new xdr.Uint64(maxU64),
-        loHi: new xdr.Uint64(maxU64),
-        hiLo: new xdr.Uint64(maxU64),
-        hiHi: new xdr.Uint64(maxU64),
+      new xdr.Uint256Parts({
+        loLo: xdr.Uint64(maxU64),
+        loHi: xdr.Uint64(maxU64),
+        hiLo: xdr.Uint64(maxU64),
+        hiHi: xdr.Uint64(maxU64),
       }),
     );
     const maxU256 = (1n << 256n) - 1n;
@@ -367,11 +367,11 @@ describe("scValToBigInt — scvU256", () => {
   it("converts 2^200", () => {
     // 2^200 = hiHi: 2^8, rest: 0
     const scv = xdr.ScVal.scvU256(
-      new xdr.UInt256Parts({
-        loLo: new xdr.Uint64(0),
-        loHi: new xdr.Uint64(0),
-        hiLo: new xdr.Uint64(0),
-        hiHi: new xdr.Uint64(1n << 8n),
+      new xdr.Uint256Parts({
+        loLo: xdr.Uint64(0),
+        loHi: xdr.Uint64(0),
+        hiLo: xdr.Uint64(0),
+        hiHi: xdr.Uint64(1n << 8n),
       }),
     );
     expect(scValToBigInt(scv)).toBe(1n << 200n);
@@ -385,10 +385,10 @@ describe("scValToBigInt — scvI256", () => {
   it("converts 0", () => {
     const scv = xdr.ScVal.scvI256(
       new xdr.Int256Parts({
-        loLo: new xdr.Uint64(0),
-        loHi: new xdr.Uint64(0),
-        hiLo: new xdr.Uint64(0),
-        hiHi: new xdr.Int64(0),
+        loLo: xdr.Uint64(0),
+        loHi: xdr.Uint64(0),
+        hiLo: xdr.Uint64(0),
+        hiHi: xdr.Int64(0),
       }),
     );
     expect(scValToBigInt(scv)).toBe(0n);
@@ -397,10 +397,10 @@ describe("scValToBigInt — scvI256", () => {
   it("converts 1", () => {
     const scv = xdr.ScVal.scvI256(
       new xdr.Int256Parts({
-        loLo: new xdr.Uint64(1),
-        loHi: new xdr.Uint64(0),
-        hiLo: new xdr.Uint64(0),
-        hiHi: new xdr.Int64(0),
+        loLo: xdr.Uint64(1),
+        loHi: xdr.Uint64(0),
+        hiLo: xdr.Uint64(0),
+        hiHi: xdr.Int64(0),
       }),
     );
     expect(scValToBigInt(scv)).toBe(1n);
@@ -410,10 +410,10 @@ describe("scValToBigInt — scvI256", () => {
     const maxU64 = "18446744073709551615";
     const scv = xdr.ScVal.scvI256(
       new xdr.Int256Parts({
-        loLo: new xdr.Uint64(maxU64),
-        loHi: new xdr.Uint64(maxU64),
-        hiLo: new xdr.Uint64(maxU64),
-        hiHi: new xdr.Int64(-1),
+        loLo: xdr.Uint64(maxU64),
+        loHi: xdr.Uint64(maxU64),
+        hiLo: xdr.Uint64(maxU64),
+        hiHi: xdr.Int64(-1),
       }),
     );
     expect(scValToBigInt(scv)).toBe(-1n);
@@ -422,10 +422,10 @@ describe("scValToBigInt — scvI256", () => {
   it("converts positive value spanning parts", () => {
     const scv = xdr.ScVal.scvI256(
       new xdr.Int256Parts({
-        loLo: new xdr.Uint64(5),
-        loHi: new xdr.Uint64(0),
-        hiLo: new xdr.Uint64(0),
-        hiHi: new xdr.Int64(1),
+        loLo: xdr.Uint64(5),
+        loHi: xdr.Uint64(0),
+        hiLo: xdr.Uint64(0),
+        hiHi: xdr.Int64(1),
       }),
     );
     expect(scValToBigInt(scv)).toBe((1n << 192n) + 5n);
@@ -437,10 +437,10 @@ describe("scValToBigInt — scvI256", () => {
     const loLo = (1n << 64n) - 100n;
     const scv = xdr.ScVal.scvI256(
       new xdr.Int256Parts({
-        loLo: new xdr.Uint64(loLo.toString()),
-        loHi: new xdr.Uint64(maxU64Str),
-        hiLo: new xdr.Uint64(maxU64Str),
-        hiHi: new xdr.Int64(-1),
+        loLo: xdr.Uint64(loLo.toString()),
+        loHi: xdr.Uint64(maxU64Str),
+        hiLo: xdr.Uint64(maxU64Str),
+        hiHi: xdr.Int64(-1),
       }),
     );
     expect(scValToBigInt(scv)).toBe(-100n);
@@ -471,7 +471,9 @@ describe("scValToBigInt — error cases", () => {
 
   it("throws on scvBytes", () => {
     expect(() =>
-      scValToBigInt(xdr.ScVal.scvBytes(Buffer.from([1, 2, 3]))),
+      scValToBigInt(
+        xdr.ScVal.scvBytes(new xdr.ScBytes(Uint8Array.from([1, 2, 3]))),
+      ),
     ).toThrow(TypeError);
   });
 
@@ -509,18 +511,18 @@ describe("scValToBigInt — round-trip consistency", () => {
   });
 
   it("u64 and i64 produce the same bigint for the same positive value", () => {
-    const u = scValToBigInt(xdr.ScVal.scvU64(new xdr.Uint64(100)));
-    const i = scValToBigInt(xdr.ScVal.scvI64(new xdr.Int64(100)));
+    const u = scValToBigInt(xdr.ScVal.scvU64(xdr.Uint64(100)));
+    const i = scValToBigInt(xdr.ScVal.scvI64(xdr.Int64(100)));
     expect(u).toBe(i);
   });
 
   it("u128 value 42 matches u64 value 42", () => {
-    const from64 = scValToBigInt(xdr.ScVal.scvU64(new xdr.Uint64(42)));
+    const from64 = scValToBigInt(xdr.ScVal.scvU64(xdr.Uint64(42)));
     const from128 = scValToBigInt(
       xdr.ScVal.scvU128(
-        new xdr.UInt128Parts({
-          lo: new xdr.Uint64(42),
-          hi: new xdr.Uint64(0),
+        new xdr.Uint128Parts({
+          lo: xdr.Uint64(42),
+          hi: xdr.Uint64(0),
         }),
       ),
     );
@@ -530,19 +532,19 @@ describe("scValToBigInt — round-trip consistency", () => {
   it("u256 value 42 matches u128 value 42", () => {
     const from128 = scValToBigInt(
       xdr.ScVal.scvU128(
-        new xdr.UInt128Parts({
-          lo: new xdr.Uint64(42),
-          hi: new xdr.Uint64(0),
+        new xdr.Uint128Parts({
+          lo: xdr.Uint64(42),
+          hi: xdr.Uint64(0),
         }),
       ),
     );
     const from256 = scValToBigInt(
       xdr.ScVal.scvU256(
-        new xdr.UInt256Parts({
-          loLo: new xdr.Uint64(42),
-          loHi: new xdr.Uint64(0),
-          hiLo: new xdr.Uint64(0),
-          hiHi: new xdr.Uint64(0),
+        new xdr.Uint256Parts({
+          loLo: xdr.Uint64(42),
+          loHi: xdr.Uint64(0),
+          hiLo: xdr.Uint64(0),
+          hiHi: xdr.Uint64(0),
         }),
       ),
     );
@@ -550,14 +552,14 @@ describe("scValToBigInt — round-trip consistency", () => {
   });
 
   it("i128 negative matches i64 negative for small values", () => {
-    const from64 = scValToBigInt(xdr.ScVal.scvI64(new xdr.Int64(-50)));
-    const maxU64 = "18446744073709551615";
+    const from64 = scValToBigInt(xdr.ScVal.scvI64(xdr.Int64(-50)));
+
     const lo = (1n << 64n) - 50n;
     const from128 = scValToBigInt(
       xdr.ScVal.scvI128(
         new xdr.Int128Parts({
-          lo: new xdr.Uint64(lo.toString()),
-          hi: new xdr.Int64(-1),
+          lo: xdr.Uint64(lo.toString()),
+          hi: xdr.Int64(-1),
         }),
       ),
     );
@@ -565,8 +567,8 @@ describe("scValToBigInt — round-trip consistency", () => {
   });
 
   it("timepoint and duration with same value produce same bigint", () => {
-    const tp = scValToBigInt(xdr.ScVal.scvTimepoint(new xdr.Uint64(999)));
-    const dur = scValToBigInt(xdr.ScVal.scvDuration(new xdr.Uint64(999)));
+    const tp = scValToBigInt(xdr.ScVal.scvTimepoint(xdr.Uint64(999)));
+    const dur = scValToBigInt(xdr.ScVal.scvDuration(xdr.Uint64(999)));
     expect(tp).toBe(dur);
   });
 });
