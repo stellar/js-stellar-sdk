@@ -1,4 +1,4 @@
-import { defineConfig } from "astro/config";
+import { defineConfig, fontProviders } from "astro/config";
 import starlight from "@astrojs/starlight";
 import sitemap from "@astrojs/sitemap";
 
@@ -9,11 +9,30 @@ export default defineConfig({
   base: BASE_PATH,
   outDir: "./dist/site",
   prefetch: { prefetchAll: true },
+  fonts: [
+    {
+      name: "Inter",
+      cssVariable: "--font-inter",
+      provider: fontProviders.google(),
+      weights: [400, 500, 600, 700],
+      styles: ["normal"],
+      subsets: ["latin"],
+    },
+    {
+      name: "Inconsolata",
+      cssVariable: "--font-inconsolata",
+      provider: fontProviders.google(),
+      weights: [400, 700],
+      styles: ["normal"],
+      subsets: ["latin"],
+    },
+  ],
   integrations: [
     starlight({
       title: "@stellar/stellar-sdk",
       components: {
         PageTitle: "./src/starlightComponents/PageTitle.astro",
+        Head: "./src/starlightComponents/Head.astro",
       },
       customCss: ["./src/styles/overrides.css"],
       social: [

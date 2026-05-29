@@ -1,8 +1,23 @@
+/* Bump the global type scale: 16px → 18px root. Starlight sizes everything
+   in rem, so this scales body, headings, sidebar, and code uniformly.
+   Compensates for Inter's smaller apparent x-height. Using % (not px) on
+   :root so the browser's default font-size preference is respected. */
+html {
+  font-size: 110%;
+}
+
+/* Fonts. Loaded via Astro's `fonts` API in astro.config.mjs and injected
+   into <head> by src/starlightComponents/Head.astro. */
+:root {
+  --sl-font: var(--font-inter);
+  --sl-font-mono: var(--font-inconsolata);
+}
+
 /* Dark mode colors. */
 :root {
   --sl-color-accent-low: #5842c3;
   --sl-color-accent: #f1eefe;
-  --sl-color-accent-high: #9e8cfc;
+  --sl-color-accent-high: #b3a3fd;
   --sl-color-white: #ededed;
   --sl-color-gray-1: #eceef2;
   --sl-color-gray-2: #c0c2c7;
