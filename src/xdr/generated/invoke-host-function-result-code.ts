@@ -3,6 +3,7 @@ import {
   EnumValue,
   enumFromName,
   enumFromValue,
+  withMemberPrefix,
 } from "../values/enum-value.js";
 
 export type InvokeHostFunctionResultCodeWire = number;
@@ -55,14 +56,17 @@ export class InvokeHostFunctionResultCode extends EnumValue<InvokeHostFunctionRe
       -5,
     );
 
-  static readonly schema = enumType("InvokeHostFunctionResultCode", {
-    invokeHostFunctionSuccess: 0,
-    invokeHostFunctionMalformed: -1,
-    invokeHostFunctionTrapped: -2,
-    invokeHostFunctionResourceLimitExceeded: -3,
-    invokeHostFunctionEntryArchived: -4,
-    invokeHostFunctionInsufficientRefundableFee: -5,
-  });
+  static readonly schema = withMemberPrefix(
+    enumType("InvokeHostFunctionResultCode", {
+      invokeHostFunctionSuccess: 0,
+      invokeHostFunctionMalformed: -1,
+      invokeHostFunctionTrapped: -2,
+      invokeHostFunctionResourceLimitExceeded: -3,
+      invokeHostFunctionEntryArchived: -4,
+      invokeHostFunctionInsufficientRefundableFee: -5,
+    }),
+    "invokeHostFunction",
+  );
 
   static fromValue(value: number): InvokeHostFunctionResultCode {
     return enumFromValue(

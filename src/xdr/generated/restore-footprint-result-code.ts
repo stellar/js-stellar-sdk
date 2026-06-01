@@ -3,6 +3,7 @@ import {
   EnumValue,
   enumFromName,
   enumFromValue,
+  withMemberPrefix,
 } from "../values/enum-value.js";
 
 export type RestoreFootprintResultCodeWire = number;
@@ -44,12 +45,15 @@ export class RestoreFootprintResultCode extends EnumValue<RestoreFootprintResult
       -3,
     );
 
-  static readonly schema = enumType("RestoreFootprintResultCode", {
-    restoreFootprintSuccess: 0,
-    restoreFootprintMalformed: -1,
-    restoreFootprintResourceLimitExceeded: -2,
-    restoreFootprintInsufficientRefundableFee: -3,
-  });
+  static readonly schema = withMemberPrefix(
+    enumType("RestoreFootprintResultCode", {
+      restoreFootprintSuccess: 0,
+      restoreFootprintMalformed: -1,
+      restoreFootprintResourceLimitExceeded: -2,
+      restoreFootprintInsufficientRefundableFee: -3,
+    }),
+    "restoreFootprint",
+  );
 
   static fromValue(value: number): RestoreFootprintResultCode {
     return enumFromValue(

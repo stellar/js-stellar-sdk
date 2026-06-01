@@ -3,6 +3,7 @@ import {
   EnumValue,
   enumFromName,
   enumFromValue,
+  withMemberPrefix,
 } from "../values/enum-value.js";
 
 export type RevokeSponsorshipTypeWire = number;
@@ -30,10 +31,13 @@ export class RevokeSponsorshipType extends EnumValue<RevokeSponsorshipTypeName> 
     1,
   );
 
-  static readonly schema = enumType("RevokeSponsorshipType", {
-    revokeSponsorshipLedgerEntry: 0,
-    revokeSponsorshipSigner: 1,
-  });
+  static readonly schema = withMemberPrefix(
+    enumType("RevokeSponsorshipType", {
+      revokeSponsorshipLedgerEntry: 0,
+      revokeSponsorshipSigner: 1,
+    }),
+    "revokeSponsorship",
+  );
 
   static fromValue(value: number): RevokeSponsorshipType {
     return enumFromValue(

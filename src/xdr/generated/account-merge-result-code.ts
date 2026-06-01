@@ -3,6 +3,7 @@ import {
   EnumValue,
   enumFromName,
   enumFromValue,
+  withMemberPrefix,
 } from "../values/enum-value.js";
 
 export type AccountMergeResultCodeWire = number;
@@ -69,16 +70,19 @@ export class AccountMergeResultCode extends EnumValue<AccountMergeResultCodeName
     -7,
   );
 
-  static readonly schema = enumType("AccountMergeResultCode", {
-    accountMergeSuccess: 0,
-    accountMergeMalformed: -1,
-    accountMergeNoAccount: -2,
-    accountMergeImmutableSet: -3,
-    accountMergeHasSubEntries: -4,
-    accountMergeSeqnumTooFar: -5,
-    accountMergeDestFull: -6,
-    accountMergeIsSponsor: -7,
-  });
+  static readonly schema = withMemberPrefix(
+    enumType("AccountMergeResultCode", {
+      accountMergeSuccess: 0,
+      accountMergeMalformed: -1,
+      accountMergeNoAccount: -2,
+      accountMergeImmutableSet: -3,
+      accountMergeHasSubEntries: -4,
+      accountMergeSeqnumTooFar: -5,
+      accountMergeDestFull: -6,
+      accountMergeIsSponsor: -7,
+    }),
+    "accountMerge",
+  );
 
   static fromValue(value: number): AccountMergeResultCode {
     return enumFromValue(

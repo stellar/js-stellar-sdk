@@ -3,6 +3,7 @@ import {
   EnumValue,
   enumFromName,
   enumFromValue,
+  withMemberPrefix,
 } from "../values/enum-value.js";
 
 export type ScSpecEventDataFormatWire = number;
@@ -36,11 +37,14 @@ export class ScSpecEventDataFormat extends EnumValue<ScSpecEventDataFormatName> 
     2,
   );
 
-  static readonly schema = enumType("ScSpecEventDataFormat", {
-    scSpecEventDataFormatSingleValue: 0,
-    scSpecEventDataFormatVec: 1,
-    scSpecEventDataFormatMap: 2,
-  });
+  static readonly schema = withMemberPrefix(
+    enumType("ScSpecEventDataFormat", {
+      scSpecEventDataFormatSingleValue: 0,
+      scSpecEventDataFormatVec: 1,
+      scSpecEventDataFormatMap: 2,
+    }),
+    "scSpecEventDataFormat",
+  );
 
   static fromValue(value: number): ScSpecEventDataFormat {
     return enumFromValue(

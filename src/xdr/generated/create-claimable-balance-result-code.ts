@@ -3,6 +3,7 @@ import {
   EnumValue,
   enumFromName,
   enumFromValue,
+  withMemberPrefix,
 } from "../values/enum-value.js";
 
 export type CreateClaimableBalanceResultCodeWire = number;
@@ -51,14 +52,17 @@ export class CreateClaimableBalanceResultCode extends EnumValue<CreateClaimableB
       -5,
     );
 
-  static readonly schema = enumType("CreateClaimableBalanceResultCode", {
-    createClaimableBalanceSuccess: 0,
-    createClaimableBalanceMalformed: -1,
-    createClaimableBalanceLowReserve: -2,
-    createClaimableBalanceNoTrust: -3,
-    createClaimableBalanceNotAuthorized: -4,
-    createClaimableBalanceUnderfunded: -5,
-  });
+  static readonly schema = withMemberPrefix(
+    enumType("CreateClaimableBalanceResultCode", {
+      createClaimableBalanceSuccess: 0,
+      createClaimableBalanceMalformed: -1,
+      createClaimableBalanceLowReserve: -2,
+      createClaimableBalanceNoTrust: -3,
+      createClaimableBalanceNotAuthorized: -4,
+      createClaimableBalanceUnderfunded: -5,
+    }),
+    "createClaimableBalance",
+  );
 
   static fromValue(value: number): CreateClaimableBalanceResultCode {
     return enumFromValue(

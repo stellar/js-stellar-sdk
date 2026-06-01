@@ -3,6 +3,7 @@ import {
   EnumValue,
   enumFromName,
   enumFromValue,
+  withMemberPrefix,
 } from "../values/enum-value.js";
 
 export type AssetTypeWire = number;
@@ -36,12 +37,15 @@ export class AssetType extends EnumValue<AssetTypeName> {
   );
   static readonly assetTypePoolShare = new AssetType("assetTypePoolShare", 3);
 
-  static readonly schema = enumType("AssetType", {
-    assetTypeNative: 0,
-    assetTypeCreditAlphanum4: 1,
-    assetTypeCreditAlphanum12: 2,
-    assetTypePoolShare: 3,
-  });
+  static readonly schema = withMemberPrefix(
+    enumType("AssetType", {
+      assetTypeNative: 0,
+      assetTypeCreditAlphanum4: 1,
+      assetTypeCreditAlphanum12: 2,
+      assetTypePoolShare: 3,
+    }),
+    "assetType",
+  );
 
   static fromValue(value: number): AssetType {
     return enumFromValue("AssetType", AssetType.schema, AssetType, value);

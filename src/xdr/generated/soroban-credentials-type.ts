@@ -3,6 +3,7 @@ import {
   EnumValue,
   enumFromName,
   enumFromValue,
+  withMemberPrefix,
 } from "../values/enum-value.js";
 
 export type SorobanCredentialsTypeWire = number;
@@ -35,10 +36,13 @@ export class SorobanCredentialsType extends EnumValue<SorobanCredentialsTypeName
     1,
   );
 
-  static readonly schema = enumType("SorobanCredentialsType", {
-    sorobanCredentialsSourceAccount: 0,
-    sorobanCredentialsAddress: 1,
-  });
+  static readonly schema = withMemberPrefix(
+    enumType("SorobanCredentialsType", {
+      sorobanCredentialsSourceAccount: 0,
+      sorobanCredentialsAddress: 1,
+    }),
+    "sorobanCredentials",
+  );
 
   static fromValue(value: number): SorobanCredentialsType {
     return enumFromValue(

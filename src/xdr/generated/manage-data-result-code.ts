@@ -3,6 +3,7 @@ import {
   EnumValue,
   enumFromName,
   enumFromValue,
+  withMemberPrefix,
 } from "../values/enum-value.js";
 
 export type ManageDataResultCodeWire = number;
@@ -52,13 +53,16 @@ export class ManageDataResultCode extends EnumValue<ManageDataResultCodeName> {
     -4,
   );
 
-  static readonly schema = enumType("ManageDataResultCode", {
-    manageDataSuccess: 0,
-    manageDataNotSupportedYet: -1,
-    manageDataNameNotFound: -2,
-    manageDataLowReserve: -3,
-    manageDataInvalidName: -4,
-  });
+  static readonly schema = withMemberPrefix(
+    enumType("ManageDataResultCode", {
+      manageDataSuccess: 0,
+      manageDataNotSupportedYet: -1,
+      manageDataNameNotFound: -2,
+      manageDataLowReserve: -3,
+      manageDataInvalidName: -4,
+    }),
+    "manageData",
+  );
 
   static fromValue(value: number): ManageDataResultCode {
     return enumFromValue(

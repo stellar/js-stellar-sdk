@@ -3,6 +3,7 @@ import {
   EnumValue,
   enumFromName,
   enumFromValue,
+  withMemberPrefix,
 } from "../values/enum-value.js";
 
 export type StellarValueTypeWire = number;
@@ -28,10 +29,13 @@ export class StellarValueType extends EnumValue<StellarValueTypeName> {
     1,
   );
 
-  static readonly schema = enumType("StellarValueType", {
-    stellarValueBasic: 0,
-    stellarValueSigned: 1,
-  });
+  static readonly schema = withMemberPrefix(
+    enumType("StellarValueType", {
+      stellarValueBasic: 0,
+      stellarValueSigned: 1,
+    }),
+    "stellarValue",
+  );
 
   static fromValue(value: number): StellarValueType {
     return enumFromValue(

@@ -12,7 +12,7 @@ export type PeerAddressIpWire =
   | { type: 0; ipv4: Uint8Array }
   | { type: 1; ipv6: Uint8Array };
 
-export type PeerAddressIpVariantName = "ipv4" | "ipv6";
+export type PeerAddressIpVariantName = "iPv4" | "iPv6";
 
 /**
  * ```xdr
@@ -31,25 +31,25 @@ abstract class PeerAddressIpBase extends XdrValue {
   static readonly schema: XdrType<PeerAddressIpWire> = union("PeerAddressIp", {
     switchOn: IpAddrType.schema,
     cases: [
-      case_("ipv4", 0, field("ipv4", opaque(4))),
-      case_("ipv6", 1, field("ipv6", opaque(16))),
+      case_("iPv4", 0, field("ipv4", opaque(4))),
+      case_("iPv6", 1, field("ipv6", opaque(16))),
     ],
   });
 
-  static ipv4(ipv4: Uint8Array): PeerAddressIpIpv4 {
-    return new PeerAddressIpIpv4(ipv4);
+  static iPv4(ipv4: Uint8Array): PeerAddressIpIPv4 {
+    return new PeerAddressIpIPv4(ipv4);
   }
 
-  static ipv6(ipv6: Uint8Array): PeerAddressIpIpv6 {
-    return new PeerAddressIpIpv6(ipv6);
+  static iPv6(ipv6: Uint8Array): PeerAddressIpIPv6 {
+    return new PeerAddressIpIPv6(ipv6);
   }
 
   static fromXdrObject(wire: PeerAddressIpWire): PeerAddressIp {
     switch (wire.type) {
       case 0:
-        return new PeerAddressIpIpv4(wire.ipv4);
+        return new PeerAddressIpIPv4(wire.ipv4);
       case 1:
-        return new PeerAddressIpIpv6(wire.ipv6);
+        return new PeerAddressIpIPv6(wire.ipv6);
     }
   }
 
@@ -66,8 +66,8 @@ abstract class PeerAddressIpBase extends XdrValue {
   abstract toXdrObject(): PeerAddressIpWire;
 }
 
-export class PeerAddressIpIpv4 extends PeerAddressIpBase {
-  readonly type = "ipv4" as const;
+export class PeerAddressIpIPv4 extends PeerAddressIpBase {
+  readonly type = "iPv4" as const;
   readonly ipv4: Uint8Array;
 
   constructor(ipv4: Uint8Array) {
@@ -84,8 +84,8 @@ export class PeerAddressIpIpv4 extends PeerAddressIpBase {
   }
 }
 
-export class PeerAddressIpIpv6 extends PeerAddressIpBase {
-  readonly type = "ipv6" as const;
+export class PeerAddressIpIPv6 extends PeerAddressIpBase {
+  readonly type = "iPv6" as const;
   readonly ipv6: Uint8Array;
 
   constructor(ipv6: Uint8Array) {
@@ -102,5 +102,5 @@ export class PeerAddressIpIpv6 extends PeerAddressIpBase {
   }
 }
 
-export type PeerAddressIp = PeerAddressIpIpv4 | PeerAddressIpIpv6;
+export type PeerAddressIp = PeerAddressIpIPv4 | PeerAddressIpIPv6;
 export const PeerAddressIp = PeerAddressIpBase;

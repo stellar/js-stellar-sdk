@@ -14,6 +14,11 @@ import type { XdrType } from "../core/xdr-type.js";
 import type { JsonValue } from "./xdr-value.js";
 import { XdrString } from "./xdr-string.js";
 import {
+  structFieldJsonName,
+  enumJsonNames,
+  unionCaseNames,
+} from "./json-names.js";
+import {
   assertBigIntFits,
   bigIntTo128Parts,
   bigIntTo256Parts,
@@ -51,6 +56,10 @@ type UnionArmView =
 
 interface EnumView {
   readonly nameByValue: ReadonlyMap<number, string>;
+  // The enum's camelized `member_prefix`, stripped before snake_casing to
+  // recover the SEP-0051 JSON name (attached by `withMemberPrefix` in the value
+  // layer). Absent for enums without a prefix.
+  readonly memberPrefix?: string;
 }
 
 interface ArrayView {
@@ -109,7 +118,9 @@ export function walkToJson(wire: unknown, schema: XdrType<unknown>): JsonValue {
           `${schema.name ?? "enum"}: unknown enum value ${String(wire)}`,
         );
       }
-      return sep51Names(s.nameByValue.values()).bySource.get(name) ?? name;
+      return (
+        enumJsonNames(s.memberPrefix, s.nameByValue).bySource.get(name) ?? name
+      );
     }
     case "option": {
       const s = schema as SchemaView<OptionView>;
@@ -127,7 +138,7 @@ export function walkToJson(wire: unknown, schema: XdrType<unknown>): JsonValue {
       // SEP-0051: struct field keys are snake_case in JSON. Codegen produces
       // camelCase wire field names (`assetCode`), so transform on emit.
       for (const [k, fieldSchema] of s.entries) {
-        out[snakeCase(k)] = walkToJson(rec[k], fieldSchema);
+        out[structFieldJsonName(k)] = walkToJson(rec[k], fieldSchema);
       }
       return out;
     }
@@ -197,7 +208,7 @@ export function walkFromJson(
       const s = schema as SchemaView<EnumView>;
       assertJsonType(json, "string", schema);
       const target = json as string;
-      const names = sep51Names(s.nameByValue.values());
+      const names = enumJsonNames(s.memberPrefix, s.nameByValue);
       const sourceName = names.byJson.get(target);
       if (sourceName !== undefined) {
         for (const [value, name] of s.nameByValue) {
@@ -250,7 +261,7 @@ export function walkFromJson(
       // name (so internally-produced JSON round-trips even if a caller hands
       // us camelCase).
       for (const [k, fieldSchema] of s.entries) {
-        const snake = snakeCase(k);
+        const snake = structFieldJsonName(k);
         const lookupKey = snake in rec ? snake : k in rec ? k : undefined;
         if (lookupKey === undefined) {
           throw new XdrError(
@@ -345,114 +356,6 @@ function assertJsonType(
       `${schema.name ?? schema.kind}: expected JSON ${expected}, got ${typeof json}`,
     );
   }
-}
-
-// SEP-0051 maps each variant/enum-member name to a snake_cased identifier
-// with the union/enum's common camelCase prefix stripped. We compute the
-// prefix at runtime from the full set of names (e.g. all union case names
-// or all enum member names); single-member sets fall back to splitting at
-// the last `<lower><Upper>` boundary, recovering the typedef-style suffix
-// even when there's no peer to align against.
-interface Sep51NameMap {
-  readonly bySource: ReadonlyMap<string, string>;
-  readonly byJson: ReadonlyMap<string, string>;
-}
-
-function sep51Names(names: Iterable<string>): Sep51NameMap {
-  const list = Array.from(names);
-  const prefixLen = commonCamelPrefixLength(list);
-  const bySource = new Map<string, string>();
-  const byJson = new Map<string, string>();
-  for (const name of list) {
-    const suffix = stripPrefixWithFallback(name, prefixLen);
-    const jsonName = snakeCase(suffix);
-    bySource.set(name, jsonName);
-    byJson.set(jsonName, name);
-  }
-  return { bySource, byJson };
-}
-
-// Union-specific naming. Enum-switched unions have a meaningful "type prefix"
-// in their case names (e.g. `scvU64` ← `SCV_U64` from `SCValType`) that
-// SEP-0051 strips. Int-/bool-switched unions don't have such a prefix —
-// their cases are codegen-derived `v<N>` (or named arms), and SEP-0051
-// expects e.g. `v0`/`v1` to survive verbatim. Skip prefix-stripping when
-// the discriminator isn't an enum.
-function unionCaseNames(schema: SchemaView<UnionView>): Sep51NameMap {
-  const list = schema.cases.map((c) => c.name);
-  if (schema.switchOn.kind !== "enum") {
-    const bySource = new Map<string, string>();
-    const byJson = new Map<string, string>();
-    for (const name of list) {
-      const jsonName = snakeCase(name);
-      bySource.set(name, jsonName);
-      byJson.set(jsonName, name);
-    }
-    return { bySource, byJson };
-  }
-  return sep51Names(list);
-}
-
-function commonCamelPrefixLength(names: readonly string[]): number {
-  if (names.length === 0) return 0;
-  if (names.length === 1) return 0; // single-member ⇒ rely on fallback
-  let i = 0;
-  outer: while (true) {
-    const ch = names[0][i];
-    if (ch === undefined) break;
-    for (let n = 1; n < names.length; n += 1) {
-      if (names[n][i] !== ch) break outer;
-    }
-    i += 1;
-  }
-  // Don't split inside a token: walk back to the last lowercase letter so
-  // we keep `<lowerRun><Upper><suffix>` (e.g. don't strip `scvU` leaving `64`).
-  while (i > 0 && !isLowerAscii(names[0][i - 1])) i -= 1;
-  return i;
-}
-
-function stripPrefixWithFallback(name: string, prefixLen: number): string {
-  if (prefixLen > 0 && prefixLen < name.length) {
-    return name.slice(prefixLen);
-  }
-  // Fallback: split at the last `<lower><Upper>` boundary.
-  for (let i = name.length - 1; i > 0; i -= 1) {
-    if (isUpperAscii(name[i]) && isLowerAscii(name[i - 1])) {
-      return name.slice(i);
-    }
-  }
-  return name;
-}
-
-function snakeCase(input: string): string {
-  // Insert `_` between a lowercase/digit and an uppercase letter (camel
-  // boundary), and between consecutive uppercase letters that are followed
-  // by a lowercase letter (acronym boundary, e.g. `XMLParser` → `xml_parser`).
-  let out = "";
-  for (let i = 0; i < input.length; i += 1) {
-    const ch = input[i];
-    const prev = i > 0 ? input[i - 1] : "";
-    const next = i + 1 < input.length ? input[i + 1] : "";
-    const isCamelBoundary =
-      isUpperAscii(ch) && (isLowerAscii(prev) || isDigitAscii(prev));
-    const isAcronymBoundary =
-      isUpperAscii(ch) && isUpperAscii(prev) && isLowerAscii(next);
-    if (i > 0 && (isCamelBoundary || isAcronymBoundary)) out += "_";
-    out += ch.toLowerCase();
-  }
-  return out;
-}
-
-function isLowerAscii(ch: string): boolean {
-  return ch >= "a" && ch <= "z";
-}
-
-function isUpperAscii(ch: string): boolean {
-  return ch >= "A" && ch <= "Z";
-}
-
-function isDigitAscii(ch: string): boolean {
-  return ch >= "0" && ch <= "9";
 }
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {

@@ -3,6 +3,7 @@ import {
   EnumValue,
   enumFromName,
   enumFromValue,
+  withMemberPrefix,
 } from "../values/enum-value.js";
 
 export type AllowTrustResultCodeWire = number;
@@ -64,15 +65,18 @@ export class AllowTrustResultCode extends EnumValue<AllowTrustResultCodeName> {
     -6,
   );
 
-  static readonly schema = enumType("AllowTrustResultCode", {
-    allowTrustSuccess: 0,
-    allowTrustMalformed: -1,
-    allowTrustNoTrustLine: -2,
-    allowTrustTrustNotRequired: -3,
-    allowTrustCantRevoke: -4,
-    allowTrustSelfNotAllowed: -5,
-    allowTrustLowReserve: -6,
-  });
+  static readonly schema = withMemberPrefix(
+    enumType("AllowTrustResultCode", {
+      allowTrustSuccess: 0,
+      allowTrustMalformed: -1,
+      allowTrustNoTrustLine: -2,
+      allowTrustTrustNotRequired: -3,
+      allowTrustCantRevoke: -4,
+      allowTrustSelfNotAllowed: -5,
+      allowTrustLowReserve: -6,
+    }),
+    "allowTrust",
+  );
 
   static fromValue(value: number): AllowTrustResultCode {
     return enumFromValue(

@@ -3,6 +3,7 @@ import {
   EnumValue,
   enumFromName,
   enumFromValue,
+  withMemberPrefix,
 } from "../values/enum-value.js";
 
 export type MemoTypeWire = number;
@@ -33,13 +34,16 @@ export class MemoType extends EnumValue<MemoTypeName> {
   static readonly memoHash = new MemoType("memoHash", 3);
   static readonly memoReturn = new MemoType("memoReturn", 4);
 
-  static readonly schema = enumType("MemoType", {
-    memoNone: 0,
-    memoText: 1,
-    memoId: 2,
-    memoHash: 3,
-    memoReturn: 4,
-  });
+  static readonly schema = withMemberPrefix(
+    enumType("MemoType", {
+      memoNone: 0,
+      memoText: 1,
+      memoId: 2,
+      memoHash: 3,
+      memoReturn: 4,
+    }),
+    "memo",
+  );
 
   static fromValue(value: number): MemoType {
     return enumFromValue("MemoType", MemoType.schema, MemoType, value);

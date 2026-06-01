@@ -3,6 +3,7 @@ import {
   EnumValue,
   enumFromName,
   enumFromValue,
+  withMemberPrefix,
 } from "../values/enum-value.js";
 
 export type ScSpecEventParamLocationV0Wire = number;
@@ -28,10 +29,13 @@ export class ScSpecEventParamLocationV0 extends EnumValue<ScSpecEventParamLocati
   static readonly scSpecEventParamLocationTopicList =
     new ScSpecEventParamLocationV0("scSpecEventParamLocationTopicList", 1);
 
-  static readonly schema = enumType("ScSpecEventParamLocationV0", {
-    scSpecEventParamLocationData: 0,
-    scSpecEventParamLocationTopicList: 1,
-  });
+  static readonly schema = withMemberPrefix(
+    enumType("ScSpecEventParamLocationV0", {
+      scSpecEventParamLocationData: 0,
+      scSpecEventParamLocationTopicList: 1,
+    }),
+    "scSpecEventParamLocation",
+  );
 
   static fromValue(value: number): ScSpecEventParamLocationV0 {
     return enumFromValue(

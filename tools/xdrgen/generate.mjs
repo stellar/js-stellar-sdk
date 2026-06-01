@@ -54,18 +54,37 @@ const PRIMITIVE_KINDS = new Set([
 // 2. Naming helpers
 // -----------------------------------------------------------------------------
 
-/** Split a member name (e.g. `ASSET_TYPE_NATIVE`, `txTOO_EARLY`, `Ed25519`)
- *  into capitalized segments. Preserves leading-lowercase prefixes (like the
- *  `tx` in `txTOO_EARLY`) as their own segment, which is the xdrgen convention.
+/** Split a member name into capitalized word segments. Splits on underscores
+ *  AND camelCase/acronym boundaries, so SCREAMING_SNAKE (`ASSET_TYPE_NATIVE`),
+ *  leading-lowercase (`txTOO_EARLY`), and PascalCase (`WasmInsnExec`, `IPv4`)
+ *  names all decompose into the same words — PascalCase no longer collapses to
+ *  `wasminsnexec` / `ipv4`.
  */
 function nameSegments(name) {
+  const up = (c) => c >= "A" && c <= "Z";
+  const lo = (c) => c >= "a" && c <= "z";
+  const dg = (c) => c >= "0" && c <= "9";
   const m = name.match(/^([a-z]+)(.*)$/);
   const prefix = m && m[2].length > 0 ? m[1] : "";
   const rest = (prefix ? m[2] : name).replace(/^_/, "");
-  const restParts = rest.length > 0 ? rest.split("_") : [];
-  const all = (prefix ? [prefix, ...restParts] : restParts).filter(
-    (p) => p.length > 0,
-  );
+  const words = [];
+  for (const part of rest.split("_")) {
+    let word = "";
+    for (let i = 0; i < part.length; i += 1) {
+      const ch = part[i];
+      const prev = part[i - 1] ?? "";
+      const next = part[i + 1] ?? "";
+      const camel = up(ch) && (lo(prev) || dg(prev)); // `wasmI`, `g1G`
+      const acronym = up(ch) && up(prev) && lo(next); // `IPv` → `I|Pv`
+      if (word && (camel || acronym)) {
+        words.push(word);
+        word = "";
+      }
+      word += ch;
+    }
+    if (word) words.push(word);
+  }
+  const all = (prefix ? [prefix, ...words] : words).filter((p) => p.length > 0);
   return all.map((p) => p.charAt(0).toUpperCase() + p.slice(1).toLowerCase());
 }
 
@@ -520,7 +539,8 @@ function renderImports(ctx, opts = {}) {
       else if (
         v === "EnumValue" ||
         v === "enumFromName" ||
-        v === "enumFromValue"
+        v === "enumFromValue" ||
+        v === "withMemberPrefix"
       )
         path = "../values/enum-value.js";
       else if (v === "XdrString" || v === "xdrString")
@@ -582,6 +602,25 @@ function bodyOfEnum(def, ctx) {
     .map((m, i) => `    ${memberNames[i]}: ${m.value},`)
     .join("\n");
 
+  // Canonical SEP-0051 JSON names are derived in the value layer (a Stellar
+  // concept), not by the generic `enumType` builder. The Rust `stellar-xdr`
+  // crate strips each enum's `member_prefix` before serde renders the variant
+  // `snake_case` (`SCV_BOOL` → `bool`, `ENVELOPE_TYPE_TX_V0` → `tx_v0`), so we
+  // tag the schema with that prefix — camelized to match the member names
+  // (`SCV_` → `scv`) — via `withMemberPrefix`, and the walker strips it at
+  // runtime. Prefix-less enums emit a plain schema: their camelCase member
+  // names already `snake_case` to the canonical form (`createAccount` →
+  // `create_account`, `wasmInsnExec` → `wasm_insn_exec`).
+  const memberPrefix = def.member_prefix || "";
+  const baseSchema = `enumType("${name}", {
+${schemaEntries}
+  })`;
+  let schemaExpr = baseSchema;
+  if (memberPrefix) {
+    ctx.valueImports.add("withMemberPrefix");
+    schemaExpr = `withMemberPrefix(${baseSchema}, "${camelize(memberPrefix)}")`;
+  }
+
   // Enum wire type is `number` (not the literal union) — that's what the
   // `enumType` schema builder infers since its values object isn't `as const`.
   return `export type ${name}Wire = number;
@@ -592,9 +631,7 @@ ${memberNames.map((n) => `  | "${n}"`).join("\n")};
 ${sourceDoc(def)}export class ${name} extends EnumValue<${nameTypeName}> {
 ${singletons}
 
-  static readonly schema = enumType("${name}", {
-${schemaEntries}
-  });
+  static readonly schema = ${schemaExpr};
 
   static fromValue(value: number): ${name} {
     return enumFromValue("${name}", ${name}.schema, ${name}, value);
@@ -1489,7 +1526,8 @@ function emitTypedef(def) {
     let current = def.type.name;
     while (true) {
       const d = registry.get(current);
-      if (!d || d.kind !== "typedef" || d.type.kind === "ref" === false) break;
+      if (!d || d.kind !== "typedef" || (d.type.kind === "ref") === false)
+        break;
       if (d.type.kind !== "ref") break;
       current = d.type.name;
     }
@@ -1542,8 +1580,7 @@ function emitWrappedOpaque(name, inner, sourceDef) {
     const lenArg =
       inner.max_size != null
         ? String(inner.max_size)
-        : (ctx.coreImports.add("UNBOUNDED_MAX_LENGTH"),
-          "UNBOUNDED_MAX_LENGTH");
+        : (ctx.coreImports.add("UNBOUNDED_MAX_LENGTH"), "UNBOUNDED_MAX_LENGTH");
     schemaText = `varOpaque(${lenArg}, "${name}")`;
   }
   const encoding = "hex"; // canonical default — DX layer can override

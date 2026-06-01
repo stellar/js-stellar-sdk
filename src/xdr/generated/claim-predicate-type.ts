@@ -3,6 +3,7 @@ import {
   EnumValue,
   enumFromName,
   enumFromValue,
+  withMemberPrefix,
 } from "../values/enum-value.js";
 
 export type ClaimPredicateTypeWire = number;
@@ -54,14 +55,17 @@ export class ClaimPredicateType extends EnumValue<ClaimPredicateTypeName> {
     5,
   );
 
-  static readonly schema = enumType("ClaimPredicateType", {
-    claimPredicateUnconditional: 0,
-    claimPredicateAnd: 1,
-    claimPredicateOr: 2,
-    claimPredicateNot: 3,
-    claimPredicateBeforeAbsoluteTime: 4,
-    claimPredicateBeforeRelativeTime: 5,
-  });
+  static readonly schema = withMemberPrefix(
+    enumType("ClaimPredicateType", {
+      claimPredicateUnconditional: 0,
+      claimPredicateAnd: 1,
+      claimPredicateOr: 2,
+      claimPredicateNot: 3,
+      claimPredicateBeforeAbsoluteTime: 4,
+      claimPredicateBeforeRelativeTime: 5,
+    }),
+    "claimPredicate",
+  );
 
   static fromValue(value: number): ClaimPredicateType {
     return enumFromValue(

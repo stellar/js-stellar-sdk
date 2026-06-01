@@ -3,6 +3,7 @@ import {
   EnumValue,
   enumFromName,
   enumFromValue,
+  withMemberPrefix,
 } from "../values/enum-value.js";
 
 export type SignerKeyTypeWire = number;
@@ -42,12 +43,15 @@ export class SignerKeyType extends EnumValue<SignerKeyTypeName> {
     3,
   );
 
-  static readonly schema = enumType("SignerKeyType", {
-    signerKeyTypeEd25519: 0,
-    signerKeyTypePreAuthTx: 1,
-    signerKeyTypeHashX: 2,
-    signerKeyTypeEd25519SignedPayload: 3,
-  });
+  static readonly schema = withMemberPrefix(
+    enumType("SignerKeyType", {
+      signerKeyTypeEd25519: 0,
+      signerKeyTypePreAuthTx: 1,
+      signerKeyTypeHashX: 2,
+      signerKeyTypeEd25519SignedPayload: 3,
+    }),
+    "signerKeyType",
+  );
 
   static fromValue(value: number): SignerKeyType {
     return enumFromValue(

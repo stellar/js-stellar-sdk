@@ -3,6 +3,7 @@ import {
   EnumValue,
   enumFromName,
   enumFromValue,
+  withMemberPrefix,
 } from "../values/enum-value.js";
 
 export type InflationResultCodeWire = number;
@@ -30,10 +31,13 @@ export class InflationResultCode extends EnumValue<InflationResultCodeName> {
     -1,
   );
 
-  static readonly schema = enumType("InflationResultCode", {
-    inflationSuccess: 0,
-    inflationNotTime: -1,
-  });
+  static readonly schema = withMemberPrefix(
+    enumType("InflationResultCode", {
+      inflationSuccess: 0,
+      inflationNotTime: -1,
+    }),
+    "inflation",
+  );
 
   static fromValue(value: number): InflationResultCode {
     return enumFromValue(

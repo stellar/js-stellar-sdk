@@ -3,6 +3,7 @@ import {
   EnumValue,
   enumFromName,
   enumFromValue,
+  withMemberPrefix,
 } from "../values/enum-value.js";
 
 export type ClaimAtomTypeWire = number;
@@ -33,11 +34,14 @@ export class ClaimAtomType extends EnumValue<ClaimAtomTypeName> {
     2,
   );
 
-  static readonly schema = enumType("ClaimAtomType", {
-    claimAtomTypeV0: 0,
-    claimAtomTypeOrderBook: 1,
-    claimAtomTypeLiquidityPool: 2,
-  });
+  static readonly schema = withMemberPrefix(
+    enumType("ClaimAtomType", {
+      claimAtomTypeV0: 0,
+      claimAtomTypeOrderBook: 1,
+      claimAtomTypeLiquidityPool: 2,
+    }),
+    "claimAtomType",
+  );
 
   static fromValue(value: number): ClaimAtomType {
     return enumFromValue(

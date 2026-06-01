@@ -3,6 +3,7 @@ import {
   EnumValue,
   enumFromName,
   enumFromValue,
+  withMemberPrefix,
 } from "../values/enum-value.js";
 
 export type LedgerHeaderFlagsWire = number;
@@ -36,11 +37,14 @@ export class LedgerHeaderFlags extends EnumValue<LedgerHeaderFlagsName> {
     4,
   );
 
-  static readonly schema = enumType("LedgerHeaderFlags", {
-    disableLiquidityPoolTradingFlag: 1,
-    disableLiquidityPoolDepositFlag: 2,
-    disableLiquidityPoolWithdrawalFlag: 4,
-  });
+  static readonly schema = withMemberPrefix(
+    enumType("LedgerHeaderFlags", {
+      disableLiquidityPoolTradingFlag: 1,
+      disableLiquidityPoolDepositFlag: 2,
+      disableLiquidityPoolWithdrawalFlag: 4,
+    }),
+    "disableLiquidityPool",
+  );
 
   static fromValue(value: number): LedgerHeaderFlags {
     return enumFromValue(

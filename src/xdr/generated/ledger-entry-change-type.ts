@@ -3,6 +3,7 @@ import {
   EnumValue,
   enumFromName,
   enumFromValue,
+  withMemberPrefix,
 } from "../values/enum-value.js";
 
 export type LedgerEntryChangeTypeWire = number;
@@ -48,13 +49,16 @@ export class LedgerEntryChangeType extends EnumValue<LedgerEntryChangeTypeName> 
     4,
   );
 
-  static readonly schema = enumType("LedgerEntryChangeType", {
-    ledgerEntryCreated: 0,
-    ledgerEntryUpdated: 1,
-    ledgerEntryRemoved: 2,
-    ledgerEntryState: 3,
-    ledgerEntryRestored: 4,
-  });
+  static readonly schema = withMemberPrefix(
+    enumType("LedgerEntryChangeType", {
+      ledgerEntryCreated: 0,
+      ledgerEntryUpdated: 1,
+      ledgerEntryRemoved: 2,
+      ledgerEntryState: 3,
+      ledgerEntryRestored: 4,
+    }),
+    "ledgerEntry",
+  );
 
   static fromValue(value: number): LedgerEntryChangeType {
     return enumFromValue(

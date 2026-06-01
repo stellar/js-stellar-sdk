@@ -3,6 +3,7 @@ import {
   EnumValue,
   enumFromName,
   enumFromValue,
+  withMemberPrefix,
 } from "../values/enum-value.js";
 
 export type ExtendFootprintTtlResultCodeWire = number;
@@ -45,12 +46,15 @@ export class ExtendFootprintTtlResultCode extends EnumValue<ExtendFootprintTtlRe
       -3,
     );
 
-  static readonly schema = enumType("ExtendFootprintTtlResultCode", {
-    extendFootprintTtlSuccess: 0,
-    extendFootprintTtlMalformed: -1,
-    extendFootprintTtlResourceLimitExceeded: -2,
-    extendFootprintTtlInsufficientRefundableFee: -3,
-  });
+  static readonly schema = withMemberPrefix(
+    enumType("ExtendFootprintTtlResultCode", {
+      extendFootprintTtlSuccess: 0,
+      extendFootprintTtlMalformed: -1,
+      extendFootprintTtlResourceLimitExceeded: -2,
+      extendFootprintTtlInsufficientRefundableFee: -3,
+    }),
+    "extendFootprintTtl",
+  );
 
   static fromValue(value: number): ExtendFootprintTtlResultCode {
     return enumFromValue(

@@ -8,92 +8,92 @@ import {
 export type ContractCostTypeWire = number;
 
 export type ContractCostTypeName =
-  | "wasminsnexec"
-  | "memalloc"
-  | "memcpy"
-  | "memcmp"
-  | "dispatchhostfunction"
-  | "visitobject"
-  | "valser"
-  | "valdeser"
-  | "computesha256hash"
-  | "computeed25519pubkey"
-  | "verifyed25519sig"
-  | "vminstantiation"
-  | "vmcachedinstantiation"
-  | "invokevmfunction"
-  | "computekeccak256hash"
-  | "decodeecdsacurve256sig"
-  | "recoverecdsasecp256k1key"
-  | "int256addsub"
-  | "int256mul"
-  | "int256div"
-  | "int256pow"
-  | "int256shift"
-  | "chacha20drawbytes"
-  | "parsewasminstructions"
-  | "parsewasmfunctions"
-  | "parsewasmglobals"
-  | "parsewasmtableentries"
-  | "parsewasmtypes"
-  | "parsewasmdatasegments"
-  | "parsewasmelemsegments"
-  | "parsewasmimports"
-  | "parsewasmexports"
-  | "parsewasmdatasegmentbytes"
-  | "instantiatewasminstructions"
-  | "instantiatewasmfunctions"
-  | "instantiatewasmglobals"
-  | "instantiatewasmtableentries"
-  | "instantiatewasmtypes"
-  | "instantiatewasmdatasegments"
-  | "instantiatewasmelemsegments"
-  | "instantiatewasmimports"
-  | "instantiatewasmexports"
-  | "instantiatewasmdatasegmentbytes"
-  | "sec1decodepointuncompressed"
-  | "verifyecdsasecp256r1sig"
-  | "bls12381encodefp"
-  | "bls12381decodefp"
-  | "bls12381g1checkpointoncurve"
-  | "bls12381g1checkpointinsubgroup"
-  | "bls12381g2checkpointoncurve"
-  | "bls12381g2checkpointinsubgroup"
-  | "bls12381g1projectivetoaffine"
-  | "bls12381g2projectivetoaffine"
-  | "bls12381g1add"
-  | "bls12381g1mul"
-  | "bls12381g1msm"
-  | "bls12381mapfptog1"
-  | "bls12381hashtog1"
-  | "bls12381g2add"
-  | "bls12381g2mul"
-  | "bls12381g2msm"
-  | "bls12381mapfp2tog2"
-  | "bls12381hashtog2"
-  | "bls12381pairing"
-  | "bls12381frfromu256"
-  | "bls12381frtou256"
-  | "bls12381fraddsub"
-  | "bls12381frmul"
-  | "bls12381frpow"
-  | "bls12381frinv"
-  | "bn254encodefp"
-  | "bn254decodefp"
-  | "bn254g1checkpointoncurve"
-  | "bn254g2checkpointoncurve"
-  | "bn254g2checkpointinsubgroup"
-  | "bn254g1projectivetoaffine"
-  | "bn254g1add"
-  | "bn254g1mul"
-  | "bn254pairing"
-  | "bn254frfromu256"
-  | "bn254frtou256"
-  | "bn254fraddsub"
-  | "bn254frmul"
-  | "bn254frpow"
-  | "bn254frinv"
-  | "bn254g1msm";
+  | "wasmInsnExec"
+  | "memAlloc"
+  | "memCpy"
+  | "memCmp"
+  | "dispatchHostFunction"
+  | "visitObject"
+  | "valSer"
+  | "valDeser"
+  | "computeSha256Hash"
+  | "computeEd25519PubKey"
+  | "verifyEd25519Sig"
+  | "vmInstantiation"
+  | "vmCachedInstantiation"
+  | "invokeVmFunction"
+  | "computeKeccak256Hash"
+  | "decodeEcdsaCurve256Sig"
+  | "recoverEcdsaSecp256k1Key"
+  | "int256AddSub"
+  | "int256Mul"
+  | "int256Div"
+  | "int256Pow"
+  | "int256Shift"
+  | "chaCha20DrawBytes"
+  | "parseWasmInstructions"
+  | "parseWasmFunctions"
+  | "parseWasmGlobals"
+  | "parseWasmTableEntries"
+  | "parseWasmTypes"
+  | "parseWasmDataSegments"
+  | "parseWasmElemSegments"
+  | "parseWasmImports"
+  | "parseWasmExports"
+  | "parseWasmDataSegmentBytes"
+  | "instantiateWasmInstructions"
+  | "instantiateWasmFunctions"
+  | "instantiateWasmGlobals"
+  | "instantiateWasmTableEntries"
+  | "instantiateWasmTypes"
+  | "instantiateWasmDataSegments"
+  | "instantiateWasmElemSegments"
+  | "instantiateWasmImports"
+  | "instantiateWasmExports"
+  | "instantiateWasmDataSegmentBytes"
+  | "sec1DecodePointUncompressed"
+  | "verifyEcdsaSecp256r1Sig"
+  | "bls12381EncodeFp"
+  | "bls12381DecodeFp"
+  | "bls12381G1CheckPointOnCurve"
+  | "bls12381G1CheckPointInSubgroup"
+  | "bls12381G2CheckPointOnCurve"
+  | "bls12381G2CheckPointInSubgroup"
+  | "bls12381G1ProjectiveToAffine"
+  | "bls12381G2ProjectiveToAffine"
+  | "bls12381G1Add"
+  | "bls12381G1Mul"
+  | "bls12381G1Msm"
+  | "bls12381MapFpToG1"
+  | "bls12381HashToG1"
+  | "bls12381G2Add"
+  | "bls12381G2Mul"
+  | "bls12381G2Msm"
+  | "bls12381MapFp2ToG2"
+  | "bls12381HashToG2"
+  | "bls12381Pairing"
+  | "bls12381FrFromU256"
+  | "bls12381FrToU256"
+  | "bls12381FrAddSub"
+  | "bls12381FrMul"
+  | "bls12381FrPow"
+  | "bls12381FrInv"
+  | "bn254EncodeFp"
+  | "bn254DecodeFp"
+  | "bn254G1CheckPointOnCurve"
+  | "bn254G2CheckPointOnCurve"
+  | "bn254G2CheckPointInSubgroup"
+  | "bn254G1ProjectiveToAffine"
+  | "bn254G1Add"
+  | "bn254G1Mul"
+  | "bn254Pairing"
+  | "bn254FrFromU256"
+  | "bn254FrToU256"
+  | "bn254FrAddSub"
+  | "bn254FrMul"
+  | "bn254FrPow"
+  | "bn254FrInv"
+  | "bn254G1Msm";
 
 /**
  * ```xdr
@@ -285,330 +285,330 @@ export type ContractCostTypeName =
  * ```
  */
 export class ContractCostType extends EnumValue<ContractCostTypeName> {
-  static readonly wasminsnexec = new ContractCostType("wasminsnexec", 0);
-  static readonly memalloc = new ContractCostType("memalloc", 1);
-  static readonly memcpy = new ContractCostType("memcpy", 2);
-  static readonly memcmp = new ContractCostType("memcmp", 3);
-  static readonly dispatchhostfunction = new ContractCostType(
-    "dispatchhostfunction",
+  static readonly wasmInsnExec = new ContractCostType("wasmInsnExec", 0);
+  static readonly memAlloc = new ContractCostType("memAlloc", 1);
+  static readonly memCpy = new ContractCostType("memCpy", 2);
+  static readonly memCmp = new ContractCostType("memCmp", 3);
+  static readonly dispatchHostFunction = new ContractCostType(
+    "dispatchHostFunction",
     4,
   );
-  static readonly visitobject = new ContractCostType("visitobject", 5);
-  static readonly valser = new ContractCostType("valser", 6);
-  static readonly valdeser = new ContractCostType("valdeser", 7);
-  static readonly computesha256hash = new ContractCostType(
-    "computesha256hash",
+  static readonly visitObject = new ContractCostType("visitObject", 5);
+  static readonly valSer = new ContractCostType("valSer", 6);
+  static readonly valDeser = new ContractCostType("valDeser", 7);
+  static readonly computeSha256Hash = new ContractCostType(
+    "computeSha256Hash",
     8,
   );
-  static readonly computeed25519pubkey = new ContractCostType(
-    "computeed25519pubkey",
+  static readonly computeEd25519PubKey = new ContractCostType(
+    "computeEd25519PubKey",
     9,
   );
-  static readonly verifyed25519sig = new ContractCostType(
-    "verifyed25519sig",
+  static readonly verifyEd25519Sig = new ContractCostType(
+    "verifyEd25519Sig",
     10,
   );
-  static readonly vminstantiation = new ContractCostType("vminstantiation", 11);
-  static readonly vmcachedinstantiation = new ContractCostType(
-    "vmcachedinstantiation",
+  static readonly vmInstantiation = new ContractCostType("vmInstantiation", 11);
+  static readonly vmCachedInstantiation = new ContractCostType(
+    "vmCachedInstantiation",
     12,
   );
-  static readonly invokevmfunction = new ContractCostType(
-    "invokevmfunction",
+  static readonly invokeVmFunction = new ContractCostType(
+    "invokeVmFunction",
     13,
   );
-  static readonly computekeccak256hash = new ContractCostType(
-    "computekeccak256hash",
+  static readonly computeKeccak256Hash = new ContractCostType(
+    "computeKeccak256Hash",
     14,
   );
-  static readonly decodeecdsacurve256sig = new ContractCostType(
-    "decodeecdsacurve256sig",
+  static readonly decodeEcdsaCurve256Sig = new ContractCostType(
+    "decodeEcdsaCurve256Sig",
     15,
   );
-  static readonly recoverecdsasecp256k1key = new ContractCostType(
-    "recoverecdsasecp256k1key",
+  static readonly recoverEcdsaSecp256k1Key = new ContractCostType(
+    "recoverEcdsaSecp256k1Key",
     16,
   );
-  static readonly int256addsub = new ContractCostType("int256addsub", 17);
-  static readonly int256mul = new ContractCostType("int256mul", 18);
-  static readonly int256div = new ContractCostType("int256div", 19);
-  static readonly int256pow = new ContractCostType("int256pow", 20);
-  static readonly int256shift = new ContractCostType("int256shift", 21);
-  static readonly chacha20drawbytes = new ContractCostType(
-    "chacha20drawbytes",
+  static readonly int256AddSub = new ContractCostType("int256AddSub", 17);
+  static readonly int256Mul = new ContractCostType("int256Mul", 18);
+  static readonly int256Div = new ContractCostType("int256Div", 19);
+  static readonly int256Pow = new ContractCostType("int256Pow", 20);
+  static readonly int256Shift = new ContractCostType("int256Shift", 21);
+  static readonly chaCha20DrawBytes = new ContractCostType(
+    "chaCha20DrawBytes",
     22,
   );
-  static readonly parsewasminstructions = new ContractCostType(
-    "parsewasminstructions",
+  static readonly parseWasmInstructions = new ContractCostType(
+    "parseWasmInstructions",
     23,
   );
-  static readonly parsewasmfunctions = new ContractCostType(
-    "parsewasmfunctions",
+  static readonly parseWasmFunctions = new ContractCostType(
+    "parseWasmFunctions",
     24,
   );
-  static readonly parsewasmglobals = new ContractCostType(
-    "parsewasmglobals",
+  static readonly parseWasmGlobals = new ContractCostType(
+    "parseWasmGlobals",
     25,
   );
-  static readonly parsewasmtableentries = new ContractCostType(
-    "parsewasmtableentries",
+  static readonly parseWasmTableEntries = new ContractCostType(
+    "parseWasmTableEntries",
     26,
   );
-  static readonly parsewasmtypes = new ContractCostType("parsewasmtypes", 27);
-  static readonly parsewasmdatasegments = new ContractCostType(
-    "parsewasmdatasegments",
+  static readonly parseWasmTypes = new ContractCostType("parseWasmTypes", 27);
+  static readonly parseWasmDataSegments = new ContractCostType(
+    "parseWasmDataSegments",
     28,
   );
-  static readonly parsewasmelemsegments = new ContractCostType(
-    "parsewasmelemsegments",
+  static readonly parseWasmElemSegments = new ContractCostType(
+    "parseWasmElemSegments",
     29,
   );
-  static readonly parsewasmimports = new ContractCostType(
-    "parsewasmimports",
+  static readonly parseWasmImports = new ContractCostType(
+    "parseWasmImports",
     30,
   );
-  static readonly parsewasmexports = new ContractCostType(
-    "parsewasmexports",
+  static readonly parseWasmExports = new ContractCostType(
+    "parseWasmExports",
     31,
   );
-  static readonly parsewasmdatasegmentbytes = new ContractCostType(
-    "parsewasmdatasegmentbytes",
+  static readonly parseWasmDataSegmentBytes = new ContractCostType(
+    "parseWasmDataSegmentBytes",
     32,
   );
-  static readonly instantiatewasminstructions = new ContractCostType(
-    "instantiatewasminstructions",
+  static readonly instantiateWasmInstructions = new ContractCostType(
+    "instantiateWasmInstructions",
     33,
   );
-  static readonly instantiatewasmfunctions = new ContractCostType(
-    "instantiatewasmfunctions",
+  static readonly instantiateWasmFunctions = new ContractCostType(
+    "instantiateWasmFunctions",
     34,
   );
-  static readonly instantiatewasmglobals = new ContractCostType(
-    "instantiatewasmglobals",
+  static readonly instantiateWasmGlobals = new ContractCostType(
+    "instantiateWasmGlobals",
     35,
   );
-  static readonly instantiatewasmtableentries = new ContractCostType(
-    "instantiatewasmtableentries",
+  static readonly instantiateWasmTableEntries = new ContractCostType(
+    "instantiateWasmTableEntries",
     36,
   );
-  static readonly instantiatewasmtypes = new ContractCostType(
-    "instantiatewasmtypes",
+  static readonly instantiateWasmTypes = new ContractCostType(
+    "instantiateWasmTypes",
     37,
   );
-  static readonly instantiatewasmdatasegments = new ContractCostType(
-    "instantiatewasmdatasegments",
+  static readonly instantiateWasmDataSegments = new ContractCostType(
+    "instantiateWasmDataSegments",
     38,
   );
-  static readonly instantiatewasmelemsegments = new ContractCostType(
-    "instantiatewasmelemsegments",
+  static readonly instantiateWasmElemSegments = new ContractCostType(
+    "instantiateWasmElemSegments",
     39,
   );
-  static readonly instantiatewasmimports = new ContractCostType(
-    "instantiatewasmimports",
+  static readonly instantiateWasmImports = new ContractCostType(
+    "instantiateWasmImports",
     40,
   );
-  static readonly instantiatewasmexports = new ContractCostType(
-    "instantiatewasmexports",
+  static readonly instantiateWasmExports = new ContractCostType(
+    "instantiateWasmExports",
     41,
   );
-  static readonly instantiatewasmdatasegmentbytes = new ContractCostType(
-    "instantiatewasmdatasegmentbytes",
+  static readonly instantiateWasmDataSegmentBytes = new ContractCostType(
+    "instantiateWasmDataSegmentBytes",
     42,
   );
-  static readonly sec1decodepointuncompressed = new ContractCostType(
-    "sec1decodepointuncompressed",
+  static readonly sec1DecodePointUncompressed = new ContractCostType(
+    "sec1DecodePointUncompressed",
     43,
   );
-  static readonly verifyecdsasecp256r1sig = new ContractCostType(
-    "verifyecdsasecp256r1sig",
+  static readonly verifyEcdsaSecp256r1Sig = new ContractCostType(
+    "verifyEcdsaSecp256r1Sig",
     44,
   );
-  static readonly bls12381encodefp = new ContractCostType(
-    "bls12381encodefp",
+  static readonly bls12381EncodeFp = new ContractCostType(
+    "bls12381EncodeFp",
     45,
   );
-  static readonly bls12381decodefp = new ContractCostType(
-    "bls12381decodefp",
+  static readonly bls12381DecodeFp = new ContractCostType(
+    "bls12381DecodeFp",
     46,
   );
-  static readonly bls12381g1checkpointoncurve = new ContractCostType(
-    "bls12381g1checkpointoncurve",
+  static readonly bls12381G1CheckPointOnCurve = new ContractCostType(
+    "bls12381G1CheckPointOnCurve",
     47,
   );
-  static readonly bls12381g1checkpointinsubgroup = new ContractCostType(
-    "bls12381g1checkpointinsubgroup",
+  static readonly bls12381G1CheckPointInSubgroup = new ContractCostType(
+    "bls12381G1CheckPointInSubgroup",
     48,
   );
-  static readonly bls12381g2checkpointoncurve = new ContractCostType(
-    "bls12381g2checkpointoncurve",
+  static readonly bls12381G2CheckPointOnCurve = new ContractCostType(
+    "bls12381G2CheckPointOnCurve",
     49,
   );
-  static readonly bls12381g2checkpointinsubgroup = new ContractCostType(
-    "bls12381g2checkpointinsubgroup",
+  static readonly bls12381G2CheckPointInSubgroup = new ContractCostType(
+    "bls12381G2CheckPointInSubgroup",
     50,
   );
-  static readonly bls12381g1projectivetoaffine = new ContractCostType(
-    "bls12381g1projectivetoaffine",
+  static readonly bls12381G1ProjectiveToAffine = new ContractCostType(
+    "bls12381G1ProjectiveToAffine",
     51,
   );
-  static readonly bls12381g2projectivetoaffine = new ContractCostType(
-    "bls12381g2projectivetoaffine",
+  static readonly bls12381G2ProjectiveToAffine = new ContractCostType(
+    "bls12381G2ProjectiveToAffine",
     52,
   );
-  static readonly bls12381g1add = new ContractCostType("bls12381g1add", 53);
-  static readonly bls12381g1mul = new ContractCostType("bls12381g1mul", 54);
-  static readonly bls12381g1msm = new ContractCostType("bls12381g1msm", 55);
-  static readonly bls12381mapfptog1 = new ContractCostType(
-    "bls12381mapfptog1",
+  static readonly bls12381G1Add = new ContractCostType("bls12381G1Add", 53);
+  static readonly bls12381G1Mul = new ContractCostType("bls12381G1Mul", 54);
+  static readonly bls12381G1Msm = new ContractCostType("bls12381G1Msm", 55);
+  static readonly bls12381MapFpToG1 = new ContractCostType(
+    "bls12381MapFpToG1",
     56,
   );
-  static readonly bls12381hashtog1 = new ContractCostType(
-    "bls12381hashtog1",
+  static readonly bls12381HashToG1 = new ContractCostType(
+    "bls12381HashToG1",
     57,
   );
-  static readonly bls12381g2add = new ContractCostType("bls12381g2add", 58);
-  static readonly bls12381g2mul = new ContractCostType("bls12381g2mul", 59);
-  static readonly bls12381g2msm = new ContractCostType("bls12381g2msm", 60);
-  static readonly bls12381mapfp2tog2 = new ContractCostType(
-    "bls12381mapfp2tog2",
+  static readonly bls12381G2Add = new ContractCostType("bls12381G2Add", 58);
+  static readonly bls12381G2Mul = new ContractCostType("bls12381G2Mul", 59);
+  static readonly bls12381G2Msm = new ContractCostType("bls12381G2Msm", 60);
+  static readonly bls12381MapFp2ToG2 = new ContractCostType(
+    "bls12381MapFp2ToG2",
     61,
   );
-  static readonly bls12381hashtog2 = new ContractCostType(
-    "bls12381hashtog2",
+  static readonly bls12381HashToG2 = new ContractCostType(
+    "bls12381HashToG2",
     62,
   );
-  static readonly bls12381pairing = new ContractCostType("bls12381pairing", 63);
-  static readonly bls12381frfromu256 = new ContractCostType(
-    "bls12381frfromu256",
+  static readonly bls12381Pairing = new ContractCostType("bls12381Pairing", 63);
+  static readonly bls12381FrFromU256 = new ContractCostType(
+    "bls12381FrFromU256",
     64,
   );
-  static readonly bls12381frtou256 = new ContractCostType(
-    "bls12381frtou256",
+  static readonly bls12381FrToU256 = new ContractCostType(
+    "bls12381FrToU256",
     65,
   );
-  static readonly bls12381fraddsub = new ContractCostType(
-    "bls12381fraddsub",
+  static readonly bls12381FrAddSub = new ContractCostType(
+    "bls12381FrAddSub",
     66,
   );
-  static readonly bls12381frmul = new ContractCostType("bls12381frmul", 67);
-  static readonly bls12381frpow = new ContractCostType("bls12381frpow", 68);
-  static readonly bls12381frinv = new ContractCostType("bls12381frinv", 69);
-  static readonly bn254encodefp = new ContractCostType("bn254encodefp", 70);
-  static readonly bn254decodefp = new ContractCostType("bn254decodefp", 71);
-  static readonly bn254g1checkpointoncurve = new ContractCostType(
-    "bn254g1checkpointoncurve",
+  static readonly bls12381FrMul = new ContractCostType("bls12381FrMul", 67);
+  static readonly bls12381FrPow = new ContractCostType("bls12381FrPow", 68);
+  static readonly bls12381FrInv = new ContractCostType("bls12381FrInv", 69);
+  static readonly bn254EncodeFp = new ContractCostType("bn254EncodeFp", 70);
+  static readonly bn254DecodeFp = new ContractCostType("bn254DecodeFp", 71);
+  static readonly bn254G1CheckPointOnCurve = new ContractCostType(
+    "bn254G1CheckPointOnCurve",
     72,
   );
-  static readonly bn254g2checkpointoncurve = new ContractCostType(
-    "bn254g2checkpointoncurve",
+  static readonly bn254G2CheckPointOnCurve = new ContractCostType(
+    "bn254G2CheckPointOnCurve",
     73,
   );
-  static readonly bn254g2checkpointinsubgroup = new ContractCostType(
-    "bn254g2checkpointinsubgroup",
+  static readonly bn254G2CheckPointInSubgroup = new ContractCostType(
+    "bn254G2CheckPointInSubgroup",
     74,
   );
-  static readonly bn254g1projectivetoaffine = new ContractCostType(
-    "bn254g1projectivetoaffine",
+  static readonly bn254G1ProjectiveToAffine = new ContractCostType(
+    "bn254G1ProjectiveToAffine",
     75,
   );
-  static readonly bn254g1add = new ContractCostType("bn254g1add", 76);
-  static readonly bn254g1mul = new ContractCostType("bn254g1mul", 77);
-  static readonly bn254pairing = new ContractCostType("bn254pairing", 78);
-  static readonly bn254frfromu256 = new ContractCostType("bn254frfromu256", 79);
-  static readonly bn254frtou256 = new ContractCostType("bn254frtou256", 80);
-  static readonly bn254fraddsub = new ContractCostType("bn254fraddsub", 81);
-  static readonly bn254frmul = new ContractCostType("bn254frmul", 82);
-  static readonly bn254frpow = new ContractCostType("bn254frpow", 83);
-  static readonly bn254frinv = new ContractCostType("bn254frinv", 84);
-  static readonly bn254g1msm = new ContractCostType("bn254g1msm", 85);
+  static readonly bn254G1Add = new ContractCostType("bn254G1Add", 76);
+  static readonly bn254G1Mul = new ContractCostType("bn254G1Mul", 77);
+  static readonly bn254Pairing = new ContractCostType("bn254Pairing", 78);
+  static readonly bn254FrFromU256 = new ContractCostType("bn254FrFromU256", 79);
+  static readonly bn254FrToU256 = new ContractCostType("bn254FrToU256", 80);
+  static readonly bn254FrAddSub = new ContractCostType("bn254FrAddSub", 81);
+  static readonly bn254FrMul = new ContractCostType("bn254FrMul", 82);
+  static readonly bn254FrPow = new ContractCostType("bn254FrPow", 83);
+  static readonly bn254FrInv = new ContractCostType("bn254FrInv", 84);
+  static readonly bn254G1Msm = new ContractCostType("bn254G1Msm", 85);
 
   static readonly schema = enumType("ContractCostType", {
-    wasminsnexec: 0,
-    memalloc: 1,
-    memcpy: 2,
-    memcmp: 3,
-    dispatchhostfunction: 4,
-    visitobject: 5,
-    valser: 6,
-    valdeser: 7,
-    computesha256hash: 8,
-    computeed25519pubkey: 9,
-    verifyed25519sig: 10,
-    vminstantiation: 11,
-    vmcachedinstantiation: 12,
-    invokevmfunction: 13,
-    computekeccak256hash: 14,
-    decodeecdsacurve256sig: 15,
-    recoverecdsasecp256k1key: 16,
-    int256addsub: 17,
-    int256mul: 18,
-    int256div: 19,
-    int256pow: 20,
-    int256shift: 21,
-    chacha20drawbytes: 22,
-    parsewasminstructions: 23,
-    parsewasmfunctions: 24,
-    parsewasmglobals: 25,
-    parsewasmtableentries: 26,
-    parsewasmtypes: 27,
-    parsewasmdatasegments: 28,
-    parsewasmelemsegments: 29,
-    parsewasmimports: 30,
-    parsewasmexports: 31,
-    parsewasmdatasegmentbytes: 32,
-    instantiatewasminstructions: 33,
-    instantiatewasmfunctions: 34,
-    instantiatewasmglobals: 35,
-    instantiatewasmtableentries: 36,
-    instantiatewasmtypes: 37,
-    instantiatewasmdatasegments: 38,
-    instantiatewasmelemsegments: 39,
-    instantiatewasmimports: 40,
-    instantiatewasmexports: 41,
-    instantiatewasmdatasegmentbytes: 42,
-    sec1decodepointuncompressed: 43,
-    verifyecdsasecp256r1sig: 44,
-    bls12381encodefp: 45,
-    bls12381decodefp: 46,
-    bls12381g1checkpointoncurve: 47,
-    bls12381g1checkpointinsubgroup: 48,
-    bls12381g2checkpointoncurve: 49,
-    bls12381g2checkpointinsubgroup: 50,
-    bls12381g1projectivetoaffine: 51,
-    bls12381g2projectivetoaffine: 52,
-    bls12381g1add: 53,
-    bls12381g1mul: 54,
-    bls12381g1msm: 55,
-    bls12381mapfptog1: 56,
-    bls12381hashtog1: 57,
-    bls12381g2add: 58,
-    bls12381g2mul: 59,
-    bls12381g2msm: 60,
-    bls12381mapfp2tog2: 61,
-    bls12381hashtog2: 62,
-    bls12381pairing: 63,
-    bls12381frfromu256: 64,
-    bls12381frtou256: 65,
-    bls12381fraddsub: 66,
-    bls12381frmul: 67,
-    bls12381frpow: 68,
-    bls12381frinv: 69,
-    bn254encodefp: 70,
-    bn254decodefp: 71,
-    bn254g1checkpointoncurve: 72,
-    bn254g2checkpointoncurve: 73,
-    bn254g2checkpointinsubgroup: 74,
-    bn254g1projectivetoaffine: 75,
-    bn254g1add: 76,
-    bn254g1mul: 77,
-    bn254pairing: 78,
-    bn254frfromu256: 79,
-    bn254frtou256: 80,
-    bn254fraddsub: 81,
-    bn254frmul: 82,
-    bn254frpow: 83,
-    bn254frinv: 84,
-    bn254g1msm: 85,
+    wasmInsnExec: 0,
+    memAlloc: 1,
+    memCpy: 2,
+    memCmp: 3,
+    dispatchHostFunction: 4,
+    visitObject: 5,
+    valSer: 6,
+    valDeser: 7,
+    computeSha256Hash: 8,
+    computeEd25519PubKey: 9,
+    verifyEd25519Sig: 10,
+    vmInstantiation: 11,
+    vmCachedInstantiation: 12,
+    invokeVmFunction: 13,
+    computeKeccak256Hash: 14,
+    decodeEcdsaCurve256Sig: 15,
+    recoverEcdsaSecp256k1Key: 16,
+    int256AddSub: 17,
+    int256Mul: 18,
+    int256Div: 19,
+    int256Pow: 20,
+    int256Shift: 21,
+    chaCha20DrawBytes: 22,
+    parseWasmInstructions: 23,
+    parseWasmFunctions: 24,
+    parseWasmGlobals: 25,
+    parseWasmTableEntries: 26,
+    parseWasmTypes: 27,
+    parseWasmDataSegments: 28,
+    parseWasmElemSegments: 29,
+    parseWasmImports: 30,
+    parseWasmExports: 31,
+    parseWasmDataSegmentBytes: 32,
+    instantiateWasmInstructions: 33,
+    instantiateWasmFunctions: 34,
+    instantiateWasmGlobals: 35,
+    instantiateWasmTableEntries: 36,
+    instantiateWasmTypes: 37,
+    instantiateWasmDataSegments: 38,
+    instantiateWasmElemSegments: 39,
+    instantiateWasmImports: 40,
+    instantiateWasmExports: 41,
+    instantiateWasmDataSegmentBytes: 42,
+    sec1DecodePointUncompressed: 43,
+    verifyEcdsaSecp256r1Sig: 44,
+    bls12381EncodeFp: 45,
+    bls12381DecodeFp: 46,
+    bls12381G1CheckPointOnCurve: 47,
+    bls12381G1CheckPointInSubgroup: 48,
+    bls12381G2CheckPointOnCurve: 49,
+    bls12381G2CheckPointInSubgroup: 50,
+    bls12381G1ProjectiveToAffine: 51,
+    bls12381G2ProjectiveToAffine: 52,
+    bls12381G1Add: 53,
+    bls12381G1Mul: 54,
+    bls12381G1Msm: 55,
+    bls12381MapFpToG1: 56,
+    bls12381HashToG1: 57,
+    bls12381G2Add: 58,
+    bls12381G2Mul: 59,
+    bls12381G2Msm: 60,
+    bls12381MapFp2ToG2: 61,
+    bls12381HashToG2: 62,
+    bls12381Pairing: 63,
+    bls12381FrFromU256: 64,
+    bls12381FrToU256: 65,
+    bls12381FrAddSub: 66,
+    bls12381FrMul: 67,
+    bls12381FrPow: 68,
+    bls12381FrInv: 69,
+    bn254EncodeFp: 70,
+    bn254DecodeFp: 71,
+    bn254G1CheckPointOnCurve: 72,
+    bn254G2CheckPointOnCurve: 73,
+    bn254G2CheckPointInSubgroup: 74,
+    bn254G1ProjectiveToAffine: 75,
+    bn254G1Add: 76,
+    bn254G1Mul: 77,
+    bn254Pairing: 78,
+    bn254FrFromU256: 79,
+    bn254FrToU256: 80,
+    bn254FrAddSub: 81,
+    bn254FrMul: 82,
+    bn254FrPow: 83,
+    bn254FrInv: 84,
+    bn254G1Msm: 85,
   });
 
   static fromValue(value: number): ContractCostType {

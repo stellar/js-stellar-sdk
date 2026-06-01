@@ -3,6 +3,7 @@ import {
   EnumValue,
   enumFromName,
   enumFromValue,
+  withMemberPrefix,
 } from "../values/enum-value.js";
 
 export type ScErrorCodeWire = number;
@@ -48,18 +49,21 @@ export class ScErrorCode extends EnumValue<ScErrorCodeName> {
   static readonly scecUnexpectedType = new ScErrorCode("scecUnexpectedType", 8);
   static readonly scecUnexpectedSize = new ScErrorCode("scecUnexpectedSize", 9);
 
-  static readonly schema = enumType("ScErrorCode", {
-    scecArithDomain: 0,
-    scecIndexBounds: 1,
-    scecInvalidInput: 2,
-    scecMissingValue: 3,
-    scecExistingValue: 4,
-    scecExceededLimit: 5,
-    scecInvalidAction: 6,
-    scecInternalError: 7,
-    scecUnexpectedType: 8,
-    scecUnexpectedSize: 9,
-  });
+  static readonly schema = withMemberPrefix(
+    enumType("ScErrorCode", {
+      scecArithDomain: 0,
+      scecIndexBounds: 1,
+      scecInvalidInput: 2,
+      scecMissingValue: 3,
+      scecExistingValue: 4,
+      scecExceededLimit: 5,
+      scecInvalidAction: 6,
+      scecInternalError: 7,
+      scecUnexpectedType: 8,
+      scecUnexpectedSize: 9,
+    }),
+    "scec",
+  );
 
   static fromValue(value: number): ScErrorCode {
     return enumFromValue("ScErrorCode", ScErrorCode.schema, ScErrorCode, value);

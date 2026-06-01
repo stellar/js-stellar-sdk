@@ -3,6 +3,7 @@ import {
   EnumValue,
   enumFromName,
   enumFromValue,
+  withMemberPrefix,
 } from "../values/enum-value.js";
 
 export type ScErrorTypeWire = number;
@@ -48,18 +49,21 @@ export class ScErrorType extends EnumValue<ScErrorTypeName> {
   static readonly sceValue = new ScErrorType("sceValue", 8);
   static readonly sceAuth = new ScErrorType("sceAuth", 9);
 
-  static readonly schema = enumType("ScErrorType", {
-    sceContract: 0,
-    sceWasmVm: 1,
-    sceContext: 2,
-    sceStorage: 3,
-    sceObject: 4,
-    sceCrypto: 5,
-    sceEvents: 6,
-    sceBudget: 7,
-    sceValue: 8,
-    sceAuth: 9,
-  });
+  static readonly schema = withMemberPrefix(
+    enumType("ScErrorType", {
+      sceContract: 0,
+      sceWasmVm: 1,
+      sceContext: 2,
+      sceStorage: 3,
+      sceObject: 4,
+      sceCrypto: 5,
+      sceEvents: 6,
+      sceBudget: 7,
+      sceValue: 8,
+      sceAuth: 9,
+    }),
+    "sce",
+  );
 
   static fromValue(value: number): ScErrorType {
     return enumFromValue("ScErrorType", ScErrorType.schema, ScErrorType, value);

@@ -3,6 +3,7 @@ import {
   EnumValue,
   enumFromName,
   enumFromValue,
+  withMemberPrefix,
 } from "../values/enum-value.js";
 
 export type ScSpecUdtUnionCaseV0KindWire = number;
@@ -30,10 +31,13 @@ export class ScSpecUdtUnionCaseV0Kind extends EnumValue<ScSpecUdtUnionCaseV0Kind
     1,
   );
 
-  static readonly schema = enumType("ScSpecUdtUnionCaseV0Kind", {
-    scSpecUdtUnionCaseVoidV0: 0,
-    scSpecUdtUnionCaseTupleV0: 1,
-  });
+  static readonly schema = withMemberPrefix(
+    enumType("ScSpecUdtUnionCaseV0Kind", {
+      scSpecUdtUnionCaseVoidV0: 0,
+      scSpecUdtUnionCaseTupleV0: 1,
+    }),
+    "scSpecUdtUnionCase",
+  );
 
   static fromValue(value: number): ScSpecUdtUnionCaseV0Kind {
     return enumFromValue(

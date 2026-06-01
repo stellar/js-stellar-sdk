@@ -3,6 +3,7 @@ import {
   EnumValue,
   enumFromName,
   enumFromValue,
+  withMemberPrefix,
 } from "../values/enum-value.js";
 
 export type CryptoKeyTypeWire = number;
@@ -41,13 +42,16 @@ export class CryptoKeyType extends EnumValue<CryptoKeyTypeName> {
     256,
   );
 
-  static readonly schema = enumType("CryptoKeyType", {
-    keyTypeEd25519: 0,
-    keyTypePreAuthTx: 1,
-    keyTypeHashX: 2,
-    keyTypeEd25519SignedPayload: 3,
-    keyTypeMuxedEd25519: 256,
-  });
+  static readonly schema = withMemberPrefix(
+    enumType("CryptoKeyType", {
+      keyTypeEd25519: 0,
+      keyTypePreAuthTx: 1,
+      keyTypeHashX: 2,
+      keyTypeEd25519SignedPayload: 3,
+      keyTypeMuxedEd25519: 256,
+    }),
+    "keyType",
+  );
 
   static fromValue(value: number): CryptoKeyType {
     return enumFromValue(

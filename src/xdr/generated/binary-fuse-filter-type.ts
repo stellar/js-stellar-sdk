@@ -3,6 +3,7 @@ import {
   EnumValue,
   enumFromName,
   enumFromValue,
+  withMemberPrefix,
 } from "../values/enum-value.js";
 
 export type BinaryFuseFilterTypeWire = number;
@@ -36,11 +37,14 @@ export class BinaryFuseFilterType extends EnumValue<BinaryFuseFilterTypeName> {
     2,
   );
 
-  static readonly schema = enumType("BinaryFuseFilterType", {
-    binaryFuseFilter8Bit: 0,
-    binaryFuseFilter16Bit: 1,
-    binaryFuseFilter32Bit: 2,
-  });
+  static readonly schema = withMemberPrefix(
+    enumType("BinaryFuseFilterType", {
+      binaryFuseFilter8Bit: 0,
+      binaryFuseFilter16Bit: 1,
+      binaryFuseFilter32Bit: 2,
+    }),
+    "binaryFuseFilter",
+  );
 
   static fromValue(value: number): BinaryFuseFilterType {
     return enumFromValue(

@@ -3,6 +3,7 @@ import {
   EnumValue,
   enumFromName,
   enumFromValue,
+  withMemberPrefix,
 } from "../values/enum-value.js";
 
 export type PathPaymentStrictSendResultCodeWire = number;
@@ -99,21 +100,24 @@ export class PathPaymentStrictSendResultCode extends EnumValue<PathPaymentStrict
       -12,
     );
 
-  static readonly schema = enumType("PathPaymentStrictSendResultCode", {
-    pathPaymentStrictSendSuccess: 0,
-    pathPaymentStrictSendMalformed: -1,
-    pathPaymentStrictSendUnderfunded: -2,
-    pathPaymentStrictSendSrcNoTrust: -3,
-    pathPaymentStrictSendSrcNotAuthorized: -4,
-    pathPaymentStrictSendNoDestination: -5,
-    pathPaymentStrictSendNoTrust: -6,
-    pathPaymentStrictSendNotAuthorized: -7,
-    pathPaymentStrictSendLineFull: -8,
-    pathPaymentStrictSendNoIssuer: -9,
-    pathPaymentStrictSendTooFewOffers: -10,
-    pathPaymentStrictSendOfferCrossSelf: -11,
-    pathPaymentStrictSendUnderDestmin: -12,
-  });
+  static readonly schema = withMemberPrefix(
+    enumType("PathPaymentStrictSendResultCode", {
+      pathPaymentStrictSendSuccess: 0,
+      pathPaymentStrictSendMalformed: -1,
+      pathPaymentStrictSendUnderfunded: -2,
+      pathPaymentStrictSendSrcNoTrust: -3,
+      pathPaymentStrictSendSrcNotAuthorized: -4,
+      pathPaymentStrictSendNoDestination: -5,
+      pathPaymentStrictSendNoTrust: -6,
+      pathPaymentStrictSendNotAuthorized: -7,
+      pathPaymentStrictSendLineFull: -8,
+      pathPaymentStrictSendNoIssuer: -9,
+      pathPaymentStrictSendTooFewOffers: -10,
+      pathPaymentStrictSendOfferCrossSelf: -11,
+      pathPaymentStrictSendUnderDestmin: -12,
+    }),
+    "pathPaymentStrictSend",
+  );
 
   static fromValue(value: number): PathPaymentStrictSendResultCode {
     return enumFromValue(

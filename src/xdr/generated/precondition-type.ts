@@ -3,6 +3,7 @@ import {
   EnumValue,
   enumFromName,
   enumFromValue,
+  withMemberPrefix,
 } from "../values/enum-value.js";
 
 export type PreconditionTypeWire = number;
@@ -24,11 +25,14 @@ export class PreconditionType extends EnumValue<PreconditionTypeName> {
   static readonly precondTime = new PreconditionType("precondTime", 1);
   static readonly precondV2 = new PreconditionType("precondV2", 2);
 
-  static readonly schema = enumType("PreconditionType", {
-    precondNone: 0,
-    precondTime: 1,
-    precondV2: 2,
-  });
+  static readonly schema = withMemberPrefix(
+    enumType("PreconditionType", {
+      precondNone: 0,
+      precondTime: 1,
+      precondV2: 2,
+    }),
+    "precond",
+  );
 
   static fromValue(value: number): PreconditionType {
     return enumFromValue(

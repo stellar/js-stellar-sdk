@@ -3,6 +3,7 @@ import {
   EnumValue,
   enumFromName,
   enumFromValue,
+  withMemberPrefix,
 } from "../values/enum-value.js";
 
 export type ScValTypeWire = number;
@@ -119,30 +120,33 @@ export class ScValType extends EnumValue<ScValTypeName> {
   );
   static readonly scvLedgerKeyNonce = new ScValType("scvLedgerKeyNonce", 21);
 
-  static readonly schema = enumType("ScValType", {
-    scvBool: 0,
-    scvVoid: 1,
-    scvError: 2,
-    scvU32: 3,
-    scvI32: 4,
-    scvU64: 5,
-    scvI64: 6,
-    scvTimepoint: 7,
-    scvDuration: 8,
-    scvU128: 9,
-    scvI128: 10,
-    scvU256: 11,
-    scvI256: 12,
-    scvBytes: 13,
-    scvString: 14,
-    scvSymbol: 15,
-    scvVec: 16,
-    scvMap: 17,
-    scvAddress: 18,
-    scvContractInstance: 19,
-    scvLedgerKeyContractInstance: 20,
-    scvLedgerKeyNonce: 21,
-  });
+  static readonly schema = withMemberPrefix(
+    enumType("ScValType", {
+      scvBool: 0,
+      scvVoid: 1,
+      scvError: 2,
+      scvU32: 3,
+      scvI32: 4,
+      scvU64: 5,
+      scvI64: 6,
+      scvTimepoint: 7,
+      scvDuration: 8,
+      scvU128: 9,
+      scvI128: 10,
+      scvU256: 11,
+      scvI256: 12,
+      scvBytes: 13,
+      scvString: 14,
+      scvSymbol: 15,
+      scvVec: 16,
+      scvMap: 17,
+      scvAddress: 18,
+      scvContractInstance: 19,
+      scvLedgerKeyContractInstance: 20,
+      scvLedgerKeyNonce: 21,
+    }),
+    "scv",
+  );
 
   static fromValue(value: number): ScValType {
     return enumFromValue("ScValType", ScValType.schema, ScValType, value);

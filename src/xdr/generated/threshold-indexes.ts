@@ -3,6 +3,7 @@ import {
   EnumValue,
   enumFromName,
   enumFromValue,
+  withMemberPrefix,
 } from "../values/enum-value.js";
 
 export type ThresholdIndexesWire = number;
@@ -33,12 +34,15 @@ export class ThresholdIndexes extends EnumValue<ThresholdIndexesName> {
   static readonly thresholdMed = new ThresholdIndexes("thresholdMed", 2);
   static readonly thresholdHigh = new ThresholdIndexes("thresholdHigh", 3);
 
-  static readonly schema = enumType("ThresholdIndexes", {
-    thresholdMasterWeight: 0,
-    thresholdLow: 1,
-    thresholdMed: 2,
-    thresholdHigh: 3,
-  });
+  static readonly schema = withMemberPrefix(
+    enumType("ThresholdIndexes", {
+      thresholdMasterWeight: 0,
+      thresholdLow: 1,
+      thresholdMed: 2,
+      thresholdHigh: 3,
+    }),
+    "threshold",
+  );
 
   static fromValue(value: number): ThresholdIndexes {
     return enumFromValue(

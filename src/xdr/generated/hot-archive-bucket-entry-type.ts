@@ -3,6 +3,7 @@ import {
   EnumValue,
   enumFromName,
   enumFromValue,
+  withMemberPrefix,
 } from "../values/enum-value.js";
 
 export type HotArchiveBucketEntryTypeWire = number;
@@ -38,11 +39,14 @@ export class HotArchiveBucketEntryType extends EnumValue<HotArchiveBucketEntryTy
     1,
   );
 
-  static readonly schema = enumType("HotArchiveBucketEntryType", {
-    hotArchiveMetaentry: -1,
-    hotArchiveArchived: 0,
-    hotArchiveLive: 1,
-  });
+  static readonly schema = withMemberPrefix(
+    enumType("HotArchiveBucketEntryType", {
+      hotArchiveMetaentry: -1,
+      hotArchiveArchived: 0,
+      hotArchiveLive: 1,
+    }),
+    "hotArchive",
+  );
 
   static fromValue(value: number): HotArchiveBucketEntryType {
     return enumFromValue(

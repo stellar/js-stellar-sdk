@@ -3,6 +3,7 @@ import {
   EnumValue,
   enumFromName,
   enumFromValue,
+  withMemberPrefix,
 } from "../values/enum-value.js";
 
 export type TransactionEventStageWire = number;
@@ -41,11 +42,14 @@ export class TransactionEventStage extends EnumValue<TransactionEventStageName> 
     2,
   );
 
-  static readonly schema = enumType("TransactionEventStage", {
-    transactionEventStageBeforeAllTxs: 0,
-    transactionEventStageAfterTx: 1,
-    transactionEventStageAfterAllTxs: 2,
-  });
+  static readonly schema = withMemberPrefix(
+    enumType("TransactionEventStage", {
+      transactionEventStageBeforeAllTxs: 0,
+      transactionEventStageAfterTx: 1,
+      transactionEventStageAfterAllTxs: 2,
+    }),
+    "transactionEventStage",
+  );
 
   static fromValue(value: number): TransactionEventStage {
     return enumFromValue(

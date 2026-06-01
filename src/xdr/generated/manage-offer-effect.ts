@@ -3,6 +3,7 @@ import {
   EnumValue,
   enumFromName,
   enumFromValue,
+  withMemberPrefix,
 } from "../values/enum-value.js";
 
 export type ManageOfferEffectWire = number;
@@ -36,11 +37,14 @@ export class ManageOfferEffect extends EnumValue<ManageOfferEffectName> {
     2,
   );
 
-  static readonly schema = enumType("ManageOfferEffect", {
-    manageOfferCreated: 0,
-    manageOfferUpdated: 1,
-    manageOfferDeleted: 2,
-  });
+  static readonly schema = withMemberPrefix(
+    enumType("ManageOfferEffect", {
+      manageOfferCreated: 0,
+      manageOfferUpdated: 1,
+      manageOfferDeleted: 2,
+    }),
+    "manageOffer",
+  );
 
   static fromValue(value: number): ManageOfferEffect {
     return enumFromValue(

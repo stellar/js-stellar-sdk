@@ -3,6 +3,7 @@ import {
   EnumValue,
   enumFromName,
   enumFromValue,
+  withMemberPrefix,
 } from "../values/enum-value.js";
 
 export type AccountFlagsWire = number;
@@ -43,12 +44,15 @@ export class AccountFlags extends EnumValue<AccountFlagsName> {
     8,
   );
 
-  static readonly schema = enumType("AccountFlags", {
-    authRequiredFlag: 1,
-    authRevocableFlag: 2,
-    authImmutableFlag: 4,
-    authClawbackEnabledFlag: 8,
-  });
+  static readonly schema = withMemberPrefix(
+    enumType("AccountFlags", {
+      authRequiredFlag: 1,
+      authRevocableFlag: 2,
+      authImmutableFlag: 4,
+      authClawbackEnabledFlag: 8,
+    }),
+    "auth",
+  );
 
   static fromValue(value: number): AccountFlags {
     return enumFromValue(

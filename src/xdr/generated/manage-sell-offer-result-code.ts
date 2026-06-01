@@ -3,6 +3,7 @@ import {
   EnumValue,
   enumFromName,
   enumFromValue,
+  withMemberPrefix,
 } from "../values/enum-value.js";
 
 export type ManageSellOfferResultCodeWire = number;
@@ -102,21 +103,24 @@ export class ManageSellOfferResultCode extends EnumValue<ManageSellOfferResultCo
     -12,
   );
 
-  static readonly schema = enumType("ManageSellOfferResultCode", {
-    manageSellOfferSuccess: 0,
-    manageSellOfferMalformed: -1,
-    manageSellOfferSellNoTrust: -2,
-    manageSellOfferBuyNoTrust: -3,
-    manageSellOfferSellNotAuthorized: -4,
-    manageSellOfferBuyNotAuthorized: -5,
-    manageSellOfferLineFull: -6,
-    manageSellOfferUnderfunded: -7,
-    manageSellOfferCrossSelf: -8,
-    manageSellOfferSellNoIssuer: -9,
-    manageSellOfferBuyNoIssuer: -10,
-    manageSellOfferNotFound: -11,
-    manageSellOfferLowReserve: -12,
-  });
+  static readonly schema = withMemberPrefix(
+    enumType("ManageSellOfferResultCode", {
+      manageSellOfferSuccess: 0,
+      manageSellOfferMalformed: -1,
+      manageSellOfferSellNoTrust: -2,
+      manageSellOfferBuyNoTrust: -3,
+      manageSellOfferSellNotAuthorized: -4,
+      manageSellOfferBuyNotAuthorized: -5,
+      manageSellOfferLineFull: -6,
+      manageSellOfferUnderfunded: -7,
+      manageSellOfferCrossSelf: -8,
+      manageSellOfferSellNoIssuer: -9,
+      manageSellOfferBuyNoIssuer: -10,
+      manageSellOfferNotFound: -11,
+      manageSellOfferLowReserve: -12,
+    }),
+    "manageSellOffer",
+  );
 
   static fromValue(value: number): ManageSellOfferResultCode {
     return enumFromValue(

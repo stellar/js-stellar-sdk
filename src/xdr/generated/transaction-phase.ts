@@ -60,24 +60,24 @@ abstract class TransactionPhaseBase extends XdrValue {
 
   static v0Components(
     v0Components: TxSetComponent[],
-  ): TransactionPhaseV0components {
-    return new TransactionPhaseV0components(v0Components);
+  ): TransactionPhaseV0Components {
+    return new TransactionPhaseV0Components(v0Components);
   }
 
   static parallelTxsComponent(
     parallelTxsComponent: ParallelTxsComponent,
-  ): TransactionPhaseParallelTxscomponent {
-    return new TransactionPhaseParallelTxscomponent(parallelTxsComponent);
+  ): TransactionPhaseParallelTxsComponent {
+    return new TransactionPhaseParallelTxsComponent(parallelTxsComponent);
   }
 
   static fromXdrObject(wire: TransactionPhaseWire): TransactionPhase {
     switch (wire.v) {
       case 0:
-        return new TransactionPhaseV0components(
+        return new TransactionPhaseV0Components(
           wire.v0Components.map((w) => TxSetComponent.fromXdrObject(w)),
         );
       case 1:
-        return new TransactionPhaseParallelTxscomponent(
+        return new TransactionPhaseParallelTxsComponent(
           ParallelTxsComponent.fromXdrObject(wire.parallelTxsComponent),
         );
     }
@@ -96,7 +96,7 @@ abstract class TransactionPhaseBase extends XdrValue {
   abstract toXdrObject(): TransactionPhaseWire;
 }
 
-export class TransactionPhaseV0components extends TransactionPhaseBase {
+export class TransactionPhaseV0Components extends TransactionPhaseBase {
   readonly type = "v0Components" as const;
   readonly v0Components: TxSetComponent[];
 
@@ -117,7 +117,7 @@ export class TransactionPhaseV0components extends TransactionPhaseBase {
   }
 }
 
-export class TransactionPhaseParallelTxscomponent extends TransactionPhaseBase {
+export class TransactionPhaseParallelTxsComponent extends TransactionPhaseBase {
   readonly type = "parallelTxsComponent" as const;
   readonly parallelTxsComponent: ParallelTxsComponent;
 
@@ -139,6 +139,6 @@ export class TransactionPhaseParallelTxscomponent extends TransactionPhaseBase {
 }
 
 export type TransactionPhase =
-  | TransactionPhaseV0components
-  | TransactionPhaseParallelTxscomponent;
+  | TransactionPhaseV0Components
+  | TransactionPhaseParallelTxsComponent;
 export const TransactionPhase = TransactionPhaseBase;

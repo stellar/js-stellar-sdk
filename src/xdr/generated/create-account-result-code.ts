@@ -3,6 +3,7 @@ import {
   EnumValue,
   enumFromName,
   enumFromValue,
+  withMemberPrefix,
 } from "../values/enum-value.js";
 
 export type CreateAccountResultCodeWire = number;
@@ -52,13 +53,16 @@ export class CreateAccountResultCode extends EnumValue<CreateAccountResultCodeNa
     -4,
   );
 
-  static readonly schema = enumType("CreateAccountResultCode", {
-    createAccountSuccess: 0,
-    createAccountMalformed: -1,
-    createAccountUnderfunded: -2,
-    createAccountLowReserve: -3,
-    createAccountAlreadyExist: -4,
-  });
+  static readonly schema = withMemberPrefix(
+    enumType("CreateAccountResultCode", {
+      createAccountSuccess: 0,
+      createAccountMalformed: -1,
+      createAccountUnderfunded: -2,
+      createAccountLowReserve: -3,
+      createAccountAlreadyExist: -4,
+    }),
+    "createAccount",
+  );
 
   static fromValue(value: number): CreateAccountResultCode {
     return enumFromValue(

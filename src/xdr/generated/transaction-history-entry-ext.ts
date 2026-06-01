@@ -54,8 +54,8 @@ abstract class TransactionHistoryEntryExtBase extends XdrValue {
 
   static generalizedTxSet(
     generalizedTxSet: GeneralizedTransactionSet,
-  ): TransactionHistoryEntryExtGeneralizedTxset {
-    return new TransactionHistoryEntryExtGeneralizedTxset(generalizedTxSet);
+  ): TransactionHistoryEntryExtGeneralizedTxSet {
+    return new TransactionHistoryEntryExtGeneralizedTxSet(generalizedTxSet);
   }
 
   static fromXdrObject(
@@ -65,7 +65,7 @@ abstract class TransactionHistoryEntryExtBase extends XdrValue {
       case 0:
         return new TransactionHistoryEntryExtV0();
       case 1:
-        return new TransactionHistoryEntryExtGeneralizedTxset(
+        return new TransactionHistoryEntryExtGeneralizedTxSet(
           GeneralizedTransactionSet.fromXdrObject(wire.generalizedTxSet),
         );
     }
@@ -96,7 +96,7 @@ export class TransactionHistoryEntryExtV0 extends TransactionHistoryEntryExtBase
   }
 }
 
-export class TransactionHistoryEntryExtGeneralizedTxset extends TransactionHistoryEntryExtBase {
+export class TransactionHistoryEntryExtGeneralizedTxSet extends TransactionHistoryEntryExtBase {
   readonly type = "generalizedTxSet" as const;
   readonly generalizedTxSet: GeneralizedTransactionSet;
 
@@ -116,5 +116,5 @@ export class TransactionHistoryEntryExtGeneralizedTxset extends TransactionHisto
 
 export type TransactionHistoryEntryExt =
   | TransactionHistoryEntryExtV0
-  | TransactionHistoryEntryExtGeneralizedTxset;
+  | TransactionHistoryEntryExtGeneralizedTxSet;
 export const TransactionHistoryEntryExt = TransactionHistoryEntryExtBase;

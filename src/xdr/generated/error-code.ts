@@ -3,6 +3,7 @@ import {
   EnumValue,
   enumFromName,
   enumFromValue,
+  withMemberPrefix,
 } from "../values/enum-value.js";
 
 export type ErrorCodeWire = number;
@@ -33,13 +34,16 @@ export class ErrorCode extends EnumValue<ErrorCodeName> {
   static readonly errAuth = new ErrorCode("errAuth", 3);
   static readonly errLoad = new ErrorCode("errLoad", 4);
 
-  static readonly schema = enumType("ErrorCode", {
-    errMisc: 0,
-    errData: 1,
-    errConf: 2,
-    errAuth: 3,
-    errLoad: 4,
-  });
+  static readonly schema = withMemberPrefix(
+    enumType("ErrorCode", {
+      errMisc: 0,
+      errData: 1,
+      errConf: 2,
+      errAuth: 3,
+      errLoad: 4,
+    }),
+    "err",
+  );
 
   static fromValue(value: number): ErrorCode {
     return enumFromValue("ErrorCode", ErrorCode.schema, ErrorCode, value);

@@ -3,6 +3,7 @@ import {
   EnumValue,
   enumFromName,
   enumFromValue,
+  withMemberPrefix,
 } from "../values/enum-value.js";
 
 export type ScSpecEntryKindWire = number;
@@ -54,14 +55,17 @@ export class ScSpecEntryKind extends EnumValue<ScSpecEntryKindName> {
     5,
   );
 
-  static readonly schema = enumType("ScSpecEntryKind", {
-    scSpecEntryFunctionV0: 0,
-    scSpecEntryUdtStructV0: 1,
-    scSpecEntryUdtUnionV0: 2,
-    scSpecEntryUdtEnumV0: 3,
-    scSpecEntryUdtErrorEnumV0: 4,
-    scSpecEntryEventV0: 5,
-  });
+  static readonly schema = withMemberPrefix(
+    enumType("ScSpecEntryKind", {
+      scSpecEntryFunctionV0: 0,
+      scSpecEntryUdtStructV0: 1,
+      scSpecEntryUdtUnionV0: 2,
+      scSpecEntryUdtEnumV0: 3,
+      scSpecEntryUdtErrorEnumV0: 4,
+      scSpecEntryEventV0: 5,
+    }),
+    "scSpecEntry",
+  );
 
   static fromValue(value: number): ScSpecEntryKind {
     return enumFromValue(

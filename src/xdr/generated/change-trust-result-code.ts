@@ -3,6 +3,7 @@ import {
   EnumValue,
   enumFromName,
   enumFromValue,
+  withMemberPrefix,
 } from "../values/enum-value.js";
 
 export type ChangeTrustResultCodeWire = number;
@@ -76,17 +77,20 @@ export class ChangeTrustResultCode extends EnumValue<ChangeTrustResultCodeName> 
   static readonly changeTrustNotAuthMaintainLiabilities =
     new ChangeTrustResultCode("changeTrustNotAuthMaintainLiabilities", -8);
 
-  static readonly schema = enumType("ChangeTrustResultCode", {
-    changeTrustSuccess: 0,
-    changeTrustMalformed: -1,
-    changeTrustNoIssuer: -2,
-    changeTrustInvalidLimit: -3,
-    changeTrustLowReserve: -4,
-    changeTrustSelfNotAllowed: -5,
-    changeTrustTrustLineMissing: -6,
-    changeTrustCannotDelete: -7,
-    changeTrustNotAuthMaintainLiabilities: -8,
-  });
+  static readonly schema = withMemberPrefix(
+    enumType("ChangeTrustResultCode", {
+      changeTrustSuccess: 0,
+      changeTrustMalformed: -1,
+      changeTrustNoIssuer: -2,
+      changeTrustInvalidLimit: -3,
+      changeTrustLowReserve: -4,
+      changeTrustSelfNotAllowed: -5,
+      changeTrustTrustLineMissing: -6,
+      changeTrustCannotDelete: -7,
+      changeTrustNotAuthMaintainLiabilities: -8,
+    }),
+    "changeTrust",
+  );
 
   static fromValue(value: number): ChangeTrustResultCode {
     return enumFromValue(

@@ -3,6 +3,7 @@ import {
   EnumValue,
   enumFromName,
   enumFromValue,
+  withMemberPrefix,
 } from "../values/enum-value.js";
 
 export type SetOptionsResultCodeWire = number;
@@ -87,19 +88,22 @@ export class SetOptionsResultCode extends EnumValue<SetOptionsResultCodeName> {
     -10,
   );
 
-  static readonly schema = enumType("SetOptionsResultCode", {
-    setOptionsSuccess: 0,
-    setOptionsLowReserve: -1,
-    setOptionsTooManySigners: -2,
-    setOptionsBadFlags: -3,
-    setOptionsInvalidInflation: -4,
-    setOptionsCantChange: -5,
-    setOptionsUnknownFlag: -6,
-    setOptionsThresholdOutOfRange: -7,
-    setOptionsBadSigner: -8,
-    setOptionsInvalidHomeDomain: -9,
-    setOptionsAuthRevocableRequired: -10,
-  });
+  static readonly schema = withMemberPrefix(
+    enumType("SetOptionsResultCode", {
+      setOptionsSuccess: 0,
+      setOptionsLowReserve: -1,
+      setOptionsTooManySigners: -2,
+      setOptionsBadFlags: -3,
+      setOptionsInvalidInflation: -4,
+      setOptionsCantChange: -5,
+      setOptionsUnknownFlag: -6,
+      setOptionsThresholdOutOfRange: -7,
+      setOptionsBadSigner: -8,
+      setOptionsInvalidHomeDomain: -9,
+      setOptionsAuthRevocableRequired: -10,
+    }),
+    "setOptions",
+  );
 
   static fromValue(value: number): SetOptionsResultCode {
     return enumFromValue(

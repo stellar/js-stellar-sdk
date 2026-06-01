@@ -7,7 +7,7 @@ import {
 
 export type IpAddrTypeWire = number;
 
-export type IpAddrTypeName = "ipv4" | "ipv6";
+export type IpAddrTypeName = "iPv4" | "iPv6";
 
 /**
  * ```xdr
@@ -19,12 +19,12 @@ export type IpAddrTypeName = "ipv4" | "ipv6";
  * ```
  */
 export class IpAddrType extends EnumValue<IpAddrTypeName> {
-  static readonly ipv4 = new IpAddrType("ipv4", 0);
-  static readonly ipv6 = new IpAddrType("ipv6", 1);
+  static readonly iPv4 = new IpAddrType("iPv4", 0);
+  static readonly iPv6 = new IpAddrType("iPv6", 1);
 
   static readonly schema = enumType("IpAddrType", {
-    ipv4: 0,
-    ipv6: 1,
+    iPv4: 0,
+    iPv6: 1,
   });
 
   static fromValue(value: number): IpAddrType {

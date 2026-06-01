@@ -3,6 +3,7 @@ import {
   EnumValue,
   enumFromName,
   enumFromValue,
+  withMemberPrefix,
 } from "../values/enum-value.js";
 
 export type HostFunctionTypeWire = number;
@@ -42,12 +43,15 @@ export class HostFunctionType extends EnumValue<HostFunctionTypeName> {
     3,
   );
 
-  static readonly schema = enumType("HostFunctionType", {
-    hostFunctionTypeInvokeContract: 0,
-    hostFunctionTypeCreateContract: 1,
-    hostFunctionTypeUploadContractWasm: 2,
-    hostFunctionTypeCreateContractV2: 3,
-  });
+  static readonly schema = withMemberPrefix(
+    enumType("HostFunctionType", {
+      hostFunctionTypeInvokeContract: 0,
+      hostFunctionTypeCreateContract: 1,
+      hostFunctionTypeUploadContractWasm: 2,
+      hostFunctionTypeCreateContractV2: 3,
+    }),
+    "hostFunctionType",
+  );
 
   static fromValue(value: number): HostFunctionType {
     return enumFromValue(

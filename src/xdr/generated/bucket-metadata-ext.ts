@@ -51,8 +51,8 @@ abstract class BucketMetadataExtBase extends XdrValue {
 
   static bucketListType(
     bucketListType: BucketListType,
-  ): BucketMetadataExtBucketListtype {
-    return new BucketMetadataExtBucketListtype(bucketListType);
+  ): BucketMetadataExtBucketListType {
+    return new BucketMetadataExtBucketListType(bucketListType);
   }
 
   static fromXdrObject(wire: BucketMetadataExtWire): BucketMetadataExt {
@@ -60,7 +60,7 @@ abstract class BucketMetadataExtBase extends XdrValue {
       case 0:
         return new BucketMetadataExtV0();
       case 1:
-        return new BucketMetadataExtBucketListtype(
+        return new BucketMetadataExtBucketListType(
           BucketListType.fromXdrObject(wire.bucketListType),
         );
     }
@@ -91,7 +91,7 @@ export class BucketMetadataExtV0 extends BucketMetadataExtBase {
   }
 }
 
-export class BucketMetadataExtBucketListtype extends BucketMetadataExtBase {
+export class BucketMetadataExtBucketListType extends BucketMetadataExtBase {
   readonly type = "bucketListType" as const;
   readonly bucketListType: BucketListType;
 
@@ -111,5 +111,5 @@ export class BucketMetadataExtBucketListtype extends BucketMetadataExtBase {
 
 export type BucketMetadataExt =
   | BucketMetadataExtV0
-  | BucketMetadataExtBucketListtype;
+  | BucketMetadataExtBucketListType;
 export const BucketMetadataExt = BucketMetadataExtBase;

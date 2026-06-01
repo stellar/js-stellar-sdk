@@ -3,6 +3,7 @@ import {
   EnumValue,
   enumFromName,
   enumFromValue,
+  withMemberPrefix,
 } from "../values/enum-value.js";
 
 export type SetTrustLineFlagsResultCodeWire = number;
@@ -54,14 +55,17 @@ export class SetTrustLineFlagsResultCode extends EnumValue<SetTrustLineFlagsResu
     -5,
   );
 
-  static readonly schema = enumType("SetTrustLineFlagsResultCode", {
-    setTrustLineFlagsSuccess: 0,
-    setTrustLineFlagsMalformed: -1,
-    setTrustLineFlagsNoTrustLine: -2,
-    setTrustLineFlagsCantRevoke: -3,
-    setTrustLineFlagsInvalidState: -4,
-    setTrustLineFlagsLowReserve: -5,
-  });
+  static readonly schema = withMemberPrefix(
+    enumType("SetTrustLineFlagsResultCode", {
+      setTrustLineFlagsSuccess: 0,
+      setTrustLineFlagsMalformed: -1,
+      setTrustLineFlagsNoTrustLine: -2,
+      setTrustLineFlagsCantRevoke: -3,
+      setTrustLineFlagsInvalidState: -4,
+      setTrustLineFlagsLowReserve: -5,
+    }),
+    "setTrustLineFlags",
+  );
 
   static fromValue(value: number): SetTrustLineFlagsResultCode {
     return enumFromValue(

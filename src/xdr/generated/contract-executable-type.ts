@@ -3,6 +3,7 @@ import {
   EnumValue,
   enumFromName,
   enumFromValue,
+  withMemberPrefix,
 } from "../values/enum-value.js";
 
 export type ContractExecutableTypeWire = number;
@@ -30,10 +31,13 @@ export class ContractExecutableType extends EnumValue<ContractExecutableTypeName
     1,
   );
 
-  static readonly schema = enumType("ContractExecutableType", {
-    contractExecutableWasm: 0,
-    contractExecutableStellarAsset: 1,
-  });
+  static readonly schema = withMemberPrefix(
+    enumType("ContractExecutableType", {
+      contractExecutableWasm: 0,
+      contractExecutableStellarAsset: 1,
+    }),
+    "contractExecutable",
+  );
 
   static fromValue(value: number): ContractExecutableType {
     return enumFromValue(

@@ -3,6 +3,7 @@ import {
   EnumValue,
   enumFromName,
   enumFromValue,
+  withMemberPrefix,
 } from "../values/enum-value.js";
 
 export type ScpStatementTypeWire = number;
@@ -33,12 +34,15 @@ export class ScpStatementType extends EnumValue<ScpStatementTypeName> {
   );
   static readonly scpStNominate = new ScpStatementType("scpStNominate", 3);
 
-  static readonly schema = enumType("ScpStatementType", {
-    scpStPrepare: 0,
-    scpStConfirm: 1,
-    scpStExternalize: 2,
-    scpStNominate: 3,
-  });
+  static readonly schema = withMemberPrefix(
+    enumType("ScpStatementType", {
+      scpStPrepare: 0,
+      scpStConfirm: 1,
+      scpStExternalize: 2,
+      scpStNominate: 3,
+    }),
+    "scpSt",
+  );
 
   static fromValue(value: number): ScpStatementType {
     return enumFromValue(

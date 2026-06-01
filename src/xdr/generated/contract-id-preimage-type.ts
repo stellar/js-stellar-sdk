@@ -3,6 +3,7 @@ import {
   EnumValue,
   enumFromName,
   enumFromValue,
+  withMemberPrefix,
 } from "../values/enum-value.js";
 
 export type ContractIdPreimageTypeWire = number;
@@ -30,10 +31,13 @@ export class ContractIdPreimageType extends EnumValue<ContractIdPreimageTypeName
     1,
   );
 
-  static readonly schema = enumType("ContractIdPreimageType", {
-    contractIdPreimageFromAddress: 0,
-    contractIdPreimageFromAsset: 1,
-  });
+  static readonly schema = withMemberPrefix(
+    enumType("ContractIdPreimageType", {
+      contractIdPreimageFromAddress: 0,
+      contractIdPreimageFromAsset: 1,
+    }),
+    "contractIdPreimageFrom",
+  );
 
   static fromValue(value: number): ContractIdPreimageType {
     return enumFromValue(

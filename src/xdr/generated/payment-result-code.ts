@@ -3,6 +3,7 @@ import {
   EnumValue,
   enumFromName,
   enumFromValue,
+  withMemberPrefix,
 } from "../values/enum-value.js";
 
 export type PaymentResultCodeWire = number;
@@ -75,18 +76,21 @@ export class PaymentResultCode extends EnumValue<PaymentResultCodeName> {
     -9,
   );
 
-  static readonly schema = enumType("PaymentResultCode", {
-    paymentSuccess: 0,
-    paymentMalformed: -1,
-    paymentUnderfunded: -2,
-    paymentSrcNoTrust: -3,
-    paymentSrcNotAuthorized: -4,
-    paymentNoDestination: -5,
-    paymentNoTrust: -6,
-    paymentNotAuthorized: -7,
-    paymentLineFull: -8,
-    paymentNoIssuer: -9,
-  });
+  static readonly schema = withMemberPrefix(
+    enumType("PaymentResultCode", {
+      paymentSuccess: 0,
+      paymentMalformed: -1,
+      paymentUnderfunded: -2,
+      paymentSrcNoTrust: -3,
+      paymentSrcNotAuthorized: -4,
+      paymentNoDestination: -5,
+      paymentNoTrust: -6,
+      paymentNotAuthorized: -7,
+      paymentLineFull: -8,
+      paymentNoIssuer: -9,
+    }),
+    "payment",
+  );
 
   static fromValue(value: number): PaymentResultCode {
     return enumFromValue(

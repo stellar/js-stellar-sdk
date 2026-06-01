@@ -3,6 +3,7 @@ import {
   EnumValue,
   enumFromName,
   enumFromValue,
+  withMemberPrefix,
 } from "../values/enum-value.js";
 
 export type EnvelopeTypeWire = number;
@@ -67,18 +68,21 @@ export class EnvelopeType extends EnumValue<EnvelopeTypeName> {
     9,
   );
 
-  static readonly schema = enumType("EnvelopeType", {
-    envelopeTypeTxV0: 0,
-    envelopeTypeScp: 1,
-    envelopeTypeTx: 2,
-    envelopeTypeAuth: 3,
-    envelopeTypeScpvalue: 4,
-    envelopeTypeTxFeeBump: 5,
-    envelopeTypeOpId: 6,
-    envelopeTypePoolRevokeOpId: 7,
-    envelopeTypeContractId: 8,
-    envelopeTypeSorobanAuthorization: 9,
-  });
+  static readonly schema = withMemberPrefix(
+    enumType("EnvelopeType", {
+      envelopeTypeTxV0: 0,
+      envelopeTypeScp: 1,
+      envelopeTypeTx: 2,
+      envelopeTypeAuth: 3,
+      envelopeTypeScpvalue: 4,
+      envelopeTypeTxFeeBump: 5,
+      envelopeTypeOpId: 6,
+      envelopeTypePoolRevokeOpId: 7,
+      envelopeTypeContractId: 8,
+      envelopeTypeSorobanAuthorization: 9,
+    }),
+    "envelopeType",
+  );
 
   static fromValue(value: number): EnvelopeType {
     return enumFromValue(

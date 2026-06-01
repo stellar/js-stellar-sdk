@@ -40,8 +40,8 @@ abstract class GeneralizedTransactionSetBase extends XdrValue {
     },
   );
 
-  static v1TxSet(v1TxSet: TransactionSetV1): GeneralizedTransactionSetV1txset {
-    return new GeneralizedTransactionSetV1txset(v1TxSet);
+  static v1TxSet(v1TxSet: TransactionSetV1): GeneralizedTransactionSetV1TxSet {
+    return new GeneralizedTransactionSetV1TxSet(v1TxSet);
   }
 
   static fromXdrObject(
@@ -49,7 +49,7 @@ abstract class GeneralizedTransactionSetBase extends XdrValue {
   ): GeneralizedTransactionSet {
     switch (wire.v) {
       case 1:
-        return new GeneralizedTransactionSetV1txset(
+        return new GeneralizedTransactionSetV1TxSet(
           TransactionSetV1.fromXdrObject(wire.v1TxSet),
         );
     }
@@ -68,7 +68,7 @@ abstract class GeneralizedTransactionSetBase extends XdrValue {
   abstract toXdrObject(): GeneralizedTransactionSetWire;
 }
 
-export class GeneralizedTransactionSetV1txset extends GeneralizedTransactionSetBase {
+export class GeneralizedTransactionSetV1TxSet extends GeneralizedTransactionSetBase {
   readonly type = "v1TxSet" as const;
   readonly v1TxSet: TransactionSetV1;
 
@@ -86,5 +86,5 @@ export class GeneralizedTransactionSetV1txset extends GeneralizedTransactionSetB
   }
 }
 
-export type GeneralizedTransactionSet = GeneralizedTransactionSetV1txset;
+export type GeneralizedTransactionSet = GeneralizedTransactionSetV1TxSet;
 export const GeneralizedTransactionSet = GeneralizedTransactionSetBase;

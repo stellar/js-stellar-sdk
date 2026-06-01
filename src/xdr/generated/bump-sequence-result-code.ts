@@ -3,6 +3,7 @@ import {
   EnumValue,
   enumFromName,
   enumFromValue,
+  withMemberPrefix,
 } from "../values/enum-value.js";
 
 export type BumpSequenceResultCodeWire = number;
@@ -32,10 +33,13 @@ export class BumpSequenceResultCode extends EnumValue<BumpSequenceResultCodeName
     -1,
   );
 
-  static readonly schema = enumType("BumpSequenceResultCode", {
-    bumpSequenceSuccess: 0,
-    bumpSequenceBadSeq: -1,
-  });
+  static readonly schema = withMemberPrefix(
+    enumType("BumpSequenceResultCode", {
+      bumpSequenceSuccess: 0,
+      bumpSequenceBadSeq: -1,
+    }),
+    "bumpSequence",
+  );
 
   static fromValue(value: number): BumpSequenceResultCode {
     return enumFromValue(

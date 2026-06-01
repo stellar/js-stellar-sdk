@@ -3,6 +3,7 @@ import {
   EnumValue,
   enumFromName,
   enumFromValue,
+  withMemberPrefix,
 } from "../values/enum-value.js";
 
 export type BeginSponsoringFutureReservesResultCodeWire = number;
@@ -49,12 +50,15 @@ export class BeginSponsoringFutureReservesResultCode extends EnumValue<BeginSpon
       -3,
     );
 
-  static readonly schema = enumType("BeginSponsoringFutureReservesResultCode", {
-    beginSponsoringFutureReservesSuccess: 0,
-    beginSponsoringFutureReservesMalformed: -1,
-    beginSponsoringFutureReservesAlreadySponsored: -2,
-    beginSponsoringFutureReservesRecursive: -3,
-  });
+  static readonly schema = withMemberPrefix(
+    enumType("BeginSponsoringFutureReservesResultCode", {
+      beginSponsoringFutureReservesSuccess: 0,
+      beginSponsoringFutureReservesMalformed: -1,
+      beginSponsoringFutureReservesAlreadySponsored: -2,
+      beginSponsoringFutureReservesRecursive: -3,
+    }),
+    "beginSponsoringFutureReserves",
+  );
 
   static fromValue(value: number): BeginSponsoringFutureReservesResultCode {
     return enumFromValue(

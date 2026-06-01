@@ -3,6 +3,7 @@ import {
   EnumValue,
   enumFromName,
   enumFromValue,
+  withMemberPrefix,
 } from "../values/enum-value.js";
 
 export type LiquidityPoolDepositResultCodeWire = number;
@@ -65,17 +66,20 @@ export class LiquidityPoolDepositResultCode extends EnumValue<LiquidityPoolDepos
       -8,
     );
 
-  static readonly schema = enumType("LiquidityPoolDepositResultCode", {
-    liquidityPoolDepositSuccess: 0,
-    liquidityPoolDepositMalformed: -1,
-    liquidityPoolDepositNoTrust: -2,
-    liquidityPoolDepositNotAuthorized: -3,
-    liquidityPoolDepositUnderfunded: -4,
-    liquidityPoolDepositLineFull: -5,
-    liquidityPoolDepositBadPrice: -6,
-    liquidityPoolDepositPoolFull: -7,
-    liquidityPoolDepositTrustlineFrozen: -8,
-  });
+  static readonly schema = withMemberPrefix(
+    enumType("LiquidityPoolDepositResultCode", {
+      liquidityPoolDepositSuccess: 0,
+      liquidityPoolDepositMalformed: -1,
+      liquidityPoolDepositNoTrust: -2,
+      liquidityPoolDepositNotAuthorized: -3,
+      liquidityPoolDepositUnderfunded: -4,
+      liquidityPoolDepositLineFull: -5,
+      liquidityPoolDepositBadPrice: -6,
+      liquidityPoolDepositPoolFull: -7,
+      liquidityPoolDepositTrustlineFrozen: -8,
+    }),
+    "liquidityPoolDeposit",
+  );
 
   static fromValue(value: number): LiquidityPoolDepositResultCode {
     return enumFromValue(

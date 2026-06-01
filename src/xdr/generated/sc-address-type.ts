@@ -3,6 +3,7 @@ import {
   EnumValue,
   enumFromName,
   enumFromValue,
+  withMemberPrefix,
 } from "../values/enum-value.js";
 
 export type ScAddressTypeWire = number;
@@ -48,13 +49,16 @@ export class ScAddressType extends EnumValue<ScAddressTypeName> {
     4,
   );
 
-  static readonly schema = enumType("ScAddressType", {
-    scAddressTypeAccount: 0,
-    scAddressTypeContract: 1,
-    scAddressTypeMuxedAccount: 2,
-    scAddressTypeClaimableBalance: 3,
-    scAddressTypeLiquidityPool: 4,
-  });
+  static readonly schema = withMemberPrefix(
+    enumType("ScAddressType", {
+      scAddressTypeAccount: 0,
+      scAddressTypeContract: 1,
+      scAddressTypeMuxedAccount: 2,
+      scAddressTypeClaimableBalance: 3,
+      scAddressTypeLiquidityPool: 4,
+    }),
+    "scAddressType",
+  );
 
   static fromValue(value: number): ScAddressType {
     return enumFromValue(
