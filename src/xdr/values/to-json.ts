@@ -452,6 +452,29 @@ OVERRIDES.set("MuxedEd25519Account", {
   },
 });
 
+// The `MuxedAccount.med25519` arm struct. Normally rendered through the
+// `MuxedAccount` override above, but the reference also string-encodes it (as
+// an M-address) when serialized standalone, so it needs its own override.
+OVERRIDES.set("MuxedAccountMed25519", {
+  toJson(wire) {
+    const w = wire as { id: bigint; ed25519: Uint8Array };
+    const payload = Buffer.alloc(40);
+    payload.set(w.ed25519, 0);
+    payload.writeBigUInt64BE(w.id, 32);
+    return StrKey.encodeMed25519PublicKey(payload);
+  },
+  fromJson(json) {
+    if (typeof json !== "string") {
+      throw new XdrError("MuxedAccountMed25519: expected M-strkey string");
+    }
+    const raw = StrKey.decodeMed25519PublicKey(json);
+    return {
+      id: raw.readBigUInt64BE(32),
+      ed25519: asUint8Array(raw.subarray(0, 32)),
+    };
+  },
+});
+
 OVERRIDES.set("SignerKey", {
   toJson(wire) {
     const w = wire as
@@ -506,6 +529,32 @@ OVERRIDES.set("SignerKey", {
       return { type: 3, ed25519SignedPayload: { ed25519, payload } };
     }
     throw new XdrError(`SignerKey: unsupported strkey prefix in ${json}`);
+  },
+});
+
+// The `SignerKey.ed25519SignedPayload` arm struct. Like the med25519 case
+// above, the reference string-encodes it (as a P-strkey) when serialized
+// standalone, so it needs its own override in addition to the `SignerKey` one.
+OVERRIDES.set("SignerKeyEd25519SignedPayload", {
+  toJson(wire) {
+    const w = wire as { ed25519: Uint8Array; payload: Uint8Array };
+    const buf = Buffer.alloc(32 + 4 + roundUp4(w.payload.length));
+    buf.set(w.ed25519, 0);
+    buf.writeUInt32BE(w.payload.length, 32);
+    buf.set(w.payload, 36);
+    return StrKey.encodeSignedPayload(buf);
+  },
+  fromJson(json) {
+    if (typeof json !== "string") {
+      throw new XdrError(
+        "SignerKeyEd25519SignedPayload: expected P-strkey string",
+      );
+    }
+    const raw = StrKey.decodeSignedPayload(json);
+    return {
+      ed25519: asUint8Array(raw.subarray(0, 32)),
+      payload: asUint8Array(raw.subarray(36, 36 + raw.readUInt32BE(32))),
+    };
   },
 });
 
@@ -661,6 +710,33 @@ OVERRIDES.set("AssetCode12", {
       throw new XdrError("AssetCode12: expected escaped-string JSON");
     }
     return padRightZeros(XdrString.fromJson(json).bytes, 12);
+  },
+});
+
+// `AssetCode` is a `union switch (AssetType) { …Alphanum4; …Alphanum12 }`, but
+// SEP-0051 renders it as the bare code string (not a tagged union). Flatten it,
+// picking the arm by code length on the way back in — matching the reference.
+// (`type` is the AssetType wire value: 1 = ALPHANUM4, 2 = ALPHANUM12.)
+OVERRIDES.set("AssetCode", {
+  toJson(wire) {
+    const w = wire as {
+      assetCode4?: Uint8Array;
+      assetCode12?: Uint8Array;
+    };
+    return w.assetCode4 !== undefined
+      ? new XdrString(trimTrailingZeros(w.assetCode4, 0)).toJson()
+      : new XdrString(
+          trimTrailingZeros(w.assetCode12 as Uint8Array, 5),
+        ).toJson();
+  },
+  fromJson(json) {
+    if (typeof json !== "string") {
+      throw new XdrError("AssetCode: expected escaped-string JSON");
+    }
+    const bytes = XdrString.fromJson(json).bytes;
+    return bytes.length <= 4
+      ? { type: 1, assetCode4: padRightZeros(bytes, 4) }
+      : { type: 2, assetCode12: padRightZeros(bytes, 12) };
   },
 });
 
