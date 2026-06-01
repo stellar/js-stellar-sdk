@@ -32,6 +32,9 @@ import {
   ClaimableBalanceId,
   PoolId,
   SorobanTransactionMetaExt,
+  AssetCode,
+  AssetCode12,
+  MuxedEd25519Account,
 } from "../../../src/xdr/index.js";
 
 const ED = new Uint8Array(32);
@@ -829,7 +832,6 @@ describe("XDR object → JSON → XDR object round-trip with field validation", 
   // inference can widen `T` to the constraint and strip discriminant fields
   // (`r.type`, arm payloads) at use sites. Runtime `instanceof` and
   // byte-equality checks validate the cast.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function roundTripJson<T>(ctor: any, original: T): T {
     const json = (original as { toJson(): unknown }).toJson();
     const recovered = ctor.fromJson(json) as T;
@@ -952,6 +954,122 @@ describe("XDR object → JSON → XDR object round-trip with field validation", 
       throw new Error("wrong arm");
     expect(r.ed25519SignedPayload.ed25519).toEqual(ED);
     expect(r.ed25519SignedPayload.payload).toEqual(payload);
+  });
+
+  it("MuxedEd25519Account (standalone): emits M-strkey and round-trips", () => {
+    const original = new MuxedEd25519Account({ id: 7n, ed25519: ED });
+    expect((original.toJson() as string).startsWith("M")).toBe(true);
+    const r = roundTripJson(MuxedEd25519Account, original);
+    expect(r.id).toBe(7n);
+    expect(r.ed25519).toEqual(ED);
+  });
+
+  it("MuxedAccountMed25519 (standalone): emits M-strkey and round-trips", () => {
+    const original = new MuxedAccountMed25519({ id: 99n, ed25519: ED });
+    expect((original.toJson() as string).startsWith("M")).toBe(true);
+    const r = roundTripJson(MuxedAccountMed25519, original);
+    expect(r.id).toBe(99n);
+    expect(r.ed25519).toEqual(ED);
+  });
+
+  it("SignerKeyEd25519SignedPayload (standalone): emits P-strkey and round-trips", () => {
+    const payload = new Uint8Array([9, 8, 7, 6]);
+    const original = new SignerKeyEd25519SignedPayload({
+      ed25519: ED,
+      payload,
+    });
+    expect((original.toJson() as string).startsWith("P")).toBe(true);
+    const r = roundTripJson(SignerKeyEd25519SignedPayload, original);
+    expect(r.ed25519).toEqual(ED);
+    expect(r.payload).toEqual(payload);
+  });
+
+  it("ScAddress muxed: MuxedEd25519Account id+ed25519 preserved through M-strkey", () => {
+    const original = ScAddress.scAddressTypeMuxedAccount(
+      new MuxedEd25519Account({ id: 5n, ed25519: ED }),
+    );
+    expect((original.toJson() as string).startsWith("M")).toBe(true);
+    const r = roundTripJson(ScAddress, original);
+    if (r.type !== "scAddressTypeMuxedAccount") throw new Error("wrong arm");
+    expect(r.muxedAccount.id).toBe(5n);
+    expect(r.muxedAccount.ed25519).toEqual(ED);
+  });
+
+  it("ScAddress liquidity_pool: PoolId bytes preserved through L-strkey", () => {
+    const bytes = new Uint8Array(32).fill(0x3c);
+    const original = ScAddress.scAddressTypeLiquidityPool(new PoolId(bytes));
+    expect((original.toJson() as string).startsWith("L")).toBe(true);
+    const r = roundTripJson(ScAddress, original);
+    if (r.type !== "scAddressTypeLiquidityPool") throw new Error("wrong arm");
+    expect(r.liquidityPoolId.value).toEqual(bytes);
+  });
+
+  it("ScAddress claimable_balance: fromJson round-trips the B-strkey arm", () => {
+    const inner = new Uint8Array(32).fill(0x6b);
+    const original = ScAddress.scAddressTypeClaimableBalance(
+      ClaimableBalanceId.claimableBalanceIdTypeV0(new Hash(inner)),
+    );
+    const r = roundTripJson(ScAddress, original);
+    if (r.type !== "scAddressTypeClaimableBalance")
+      throw new Error("wrong arm");
+    expect(r.claimableBalanceId.type).toBe("claimableBalanceIdTypeV0");
+  });
+
+  // --- G-strkey (ed25519) fromJson branches of the MuxedAccount / SignerKey
+  // overrides: toJson was covered, the decode side was not. ---
+
+  it("MuxedAccount ed25519 (G): fromJson round-trips the G-strkey arm", () => {
+    const original = MuxedAccount.keyTypeEd25519(ED);
+    const r = roundTripJson(MuxedAccount, original);
+    if (r.type !== "keyTypeEd25519") throw new Error("wrong arm");
+    expect(r.ed25519).toEqual(ED);
+  });
+
+  it("SignerKey ed25519 (G): fromJson round-trips the G-strkey arm", () => {
+    const original = SignerKey.signerKeyTypeEd25519(ED);
+    const r = roundTripJson(SignerKey, original);
+    if (r.type !== "signerKeyTypeEd25519") throw new Error("wrong arm");
+    expect(r.ed25519).toEqual(ED);
+  });
+
+  it("AssetCode union: bare-string fromJson selects alphanum4 by length (<=4)", () => {
+    const original = AssetCode.assetTypeCreditAlphanum4(
+      new AssetCode4(asciiCode("USD", 4)),
+    );
+    expect(original.toJson()).toBe("USD");
+    const r = roundTripJson(AssetCode, original);
+    if (r.type !== "assetTypeCreditAlphanum4") throw new Error("wrong arm");
+    expect(r.value.value).toEqual(asciiCode("USD", 4));
+  });
+
+  it("AssetCode union: bare-string fromJson selects alphanum12 by length (>=5)", () => {
+    const original = AssetCode.assetTypeCreditAlphanum12(
+      new AssetCode12(asciiCode("USDTether", 12)),
+    );
+    expect(original.toJson()).toBe("USDTether");
+    const r = roundTripJson(AssetCode, original);
+    if (r.type !== "assetTypeCreditAlphanum12") throw new Error("wrong arm");
+    expect(r.value.value).toEqual(asciiCode("USDTether", 12));
+  });
+
+  it("AssetCode union: short alphanum12 (5-byte min) stays alphanum12 on fromJson", () => {
+    // "USD" in a 12-byte code → toJson "USD\0\0" (5 bytes) → fromJson length 5
+    // (>4) keeps it on the alphanum12 arm rather than collapsing to AssetCode4.
+    const original = AssetCode.assetTypeCreditAlphanum12(
+      new AssetCode12(asciiCode("USD", 12)),
+    );
+    expect(original.toJson()).toBe("USD\\0\\0");
+    const r = roundTripJson(AssetCode, original);
+    if (r.type !== "assetTypeCreditAlphanum12") throw new Error("wrong arm");
+    expect(r.value.value).toEqual(asciiCode("USD", 12));
+  });
+
+  it("Uint128Parts via scvU128: fromJson round-trips both parts", () => {
+    const original = ScVal.scvU128(new Uint128Parts({ hi: 3n, lo: 5n }));
+    const r = roundTripJson(ScVal, original);
+    if (r.type !== "scvU128") throw new Error("wrong arm");
+    expect(r.u128.hi).toBe(3n);
+    expect(r.u128.lo).toBe(5n);
   });
 
   it("Int128Parts via scvI128: negative wide-int round-trips byte-exact and field-exact", () => {
