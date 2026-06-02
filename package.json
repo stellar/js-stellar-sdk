@@ -112,6 +112,8 @@
     "prepare": "pnpm run build:prod && pnpm run setup && husky",
     "download-sac-spec": "node scripts/download-sac-spec.js",
     "xdrgen": "node tools/xdrgen/generate.mjs --out=src/xdr/generated --all",
+    "xdr:roundtrip": "node --import ./scripts/tsx-with-js-xdr.mjs scripts/xdr-roundtrip-monitor.ts",
+    "xdr:json-parity": "tsx scripts/xdr-json-parity-monitor.ts",
     "_build": "pnpm run clean && pnpm run build:lib:all && pnpm run build:types:all",
     "_prettier": "prettier --ignore-path config/.prettierignore --write './src/**/*.ts' './test/**/*.{js,ts}'"
   },

@@ -155,6 +155,7 @@ ignoreFiles.ignores.push(
     "eslint.config.js",
     "rollup.config.mjs",
     "config/**/*",
+    "scripts/**",
     "src/base/generated/**",
     "tools/**",
   ],

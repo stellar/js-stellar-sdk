@@ -20,3 +20,9 @@ config/tsconfig.tmp.json
 .claude/
 .copilot/
 .codex/
+
+# xdr-roundtrip-monitor failure dumps (scripts/xdr-roundtrip-monitor.ts)
+xdr-roundtrip-failures*.jsonl
+
+# xdr-json-parity-monitor failure dumps (scripts/xdr-json-parity-monitor.ts)
+xdr-json-parity-failures*.jsonl
