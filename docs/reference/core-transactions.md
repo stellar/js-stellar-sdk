@@ -90,7 +90,7 @@ const AuthClawbackEnabledFlag: number
 ## AuthFlag
 
 ```ts
-type AuthFlag = unknown
+type AuthFlag = { readonly clawbackEnabled: 8; readonly immutable: 4; readonly required: 1; readonly revocable: 2 }
 ```
 
 **Source:** [src/base/operations/types.ts:431](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L431)

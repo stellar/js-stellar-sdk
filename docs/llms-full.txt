@@ -2238,7 +2238,7 @@ const AuthClawbackEnabledFlag: number
 ## AuthFlag
 
 ```ts
-type AuthFlag = unknown
+type AuthFlag = { readonly clawbackEnabled: 8; readonly immutable: 4; readonly required: 1; readonly revocable: 2 }
 ```
 
 **Source:** [src/base/operations/types.ts:431](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L431)
@@ -26043,7 +26043,7 @@ txFromXDR<T>(xdrBase64: string): AssembledTransaction<T>;
 Options for a smart contract client.
 
 ```ts
-type ClientOptions = unknown
+type ClientOptions = { allowHttp?: boolean; contractId: string; errorTypes?: Record<number, { message: string }>; headers?: Record<string, string>; networkPassphrase: string; publicKey?: string; rpcUrl: string; server?: Server; signAuthEntry?: SignAuthEntry; signTransaction?: SignTransaction }
 ```
 
 **Source:** [src/contract/types.ts:127](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L127)
@@ -26100,7 +26100,7 @@ message: string;
 Options for a smart contract method invocation.
 
 ```ts
-type MethodOptions = unknown
+type MethodOptions = { fee?: string; publicKey?: string; restore?: boolean; signAuthEntry?: SignAuthEntry; signTransaction?: SignTransaction; simulate?: boolean; timeoutInSeconds?: number }
 ```
 
 **Source:** [src/contract/types.ts:203](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L203)
@@ -28328,7 +28328,7 @@ A promise that resolves to the federation record
 A parsed and validated challenge transaction, and some of its constituent details.
 
 ```ts
-type ChallengeTxDetails = unknown
+type ChallengeTxDetails = { clientAccountId: string; matchedHomeDomain: string; memo?: string; tx: Transaction }
 ```
 
 **Source:** [src/webauth/utils.ts:104](https://github.com/stellar/js-stellar-sdk/blob/main/src/webauth/utils.ts#L104)

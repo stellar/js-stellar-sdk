@@ -793,7 +793,7 @@ txFromXDR<T>(xdrBase64: string): AssembledTransaction<T>;
 Options for a smart contract client.
 
 ```ts
-type ClientOptions = unknown
+type ClientOptions = { allowHttp?: boolean; contractId: string; errorTypes?: Record<number, { message: string }>; headers?: Record<string, string>; networkPassphrase: string; publicKey?: string; rpcUrl: string; server?: Server; signAuthEntry?: SignAuthEntry; signTransaction?: SignTransaction }
 ```
 
 **Source:** [src/contract/types.ts:127](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L127)
@@ -850,7 +850,7 @@ message: string;
 Options for a smart contract method invocation.
 
 ```ts
-type MethodOptions = unknown
+type MethodOptions = { fee?: string; publicKey?: string; restore?: boolean; signAuthEntry?: SignAuthEntry; signTransaction?: SignTransaction; simulate?: boolean; timeoutInSeconds?: number }
 ```
 
 **Source:** [src/contract/types.ts:203](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L203)

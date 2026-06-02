@@ -713,7 +713,12 @@ function renderSignature(refl: Reflection): string {
   switch (refl.kind) {
     case KIND_TYPE_ALIAS: {
       const tparams = renderTypeParameters(refl.typeParameters);
-      const rhs = refl.type !== undefined ? renderType(refl.type) : "unknown";
+      const rhs =
+        refl.type !== undefined
+          ? renderType(refl.type)
+          : refl.children !== undefined && refl.children.length > 0
+            ? renderReflectionType(refl)
+            : "unknown";
       return `type ${refl.name}${tparams} = ${rhs}`;
     }
     case KIND_FUNCTION: {
