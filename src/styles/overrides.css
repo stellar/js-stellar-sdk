@@ -1,11 +1,3 @@
-/* Bump the global type scale: 16px → 18px root. Starlight sizes everything
-   in rem, so this scales body, headings, sidebar, and code uniformly.
-   Compensates for Inter's smaller apparent x-height. Using % (not px) on
-   :root so the browser's default font-size preference is respected. */
-html {
-  font-size: 110%;
-}
-
 /* Fonts. Loaded via Astro's `fonts` API in astro.config.mjs and injected
    into <head> by src/starlightComponents/Head.astro. */
 :root {
