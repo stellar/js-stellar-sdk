@@ -9,9 +9,10 @@ import {
   SorobanDataBuilder,
   TransactionBuilder,
   authorizeEntry as stellarBaseAuthorizeEntry,
-  getAddressCredentials,
   xdr,
 } from "../base/index.js";
+// internal helper (not part of the public API), imported directly from auth.js
+import { getAddressCredentials } from "../base/auth.js";
 import type {
   AssembledTransactionOptions,
   ClientOptions,

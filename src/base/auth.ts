@@ -314,6 +314,11 @@ export function authorizeInvocation(
 }
 
 /**
+ * Internal helper — intentionally NOT re-exported from `base/index.js`, so it
+ * is not part of the public SDK API. Shared with the contract package, which
+ * imports it directly from this module. If a public need arises, add it to the
+ * explicit auth re-exports in `base/index.ts`.
+ *
  * Extracts the {@link xdr.SorobanAddressCredentials} from any address-based
  * Soroban credential, regardless of which credential type variant is used.
  *
