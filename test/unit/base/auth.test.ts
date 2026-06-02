@@ -76,8 +76,8 @@ describe("building authorization entries", () => {
     });
 
     it("signs the entry correctly with a callback", async () => {
-      const callback: SigningCallback = async (preimage) =>
-        kp.sign(hash(preimage.toXDR()));
+      const callback: SigningCallback = (preimage) =>
+        Promise.resolve(kp.sign(hash(preimage.toXDR())));
 
       const signedEntry = await authorizeEntry(
         authEntry,
@@ -101,10 +101,11 @@ describe("building authorization entries", () => {
     });
 
     it("signs the entry correctly with a callback returning an object", async () => {
-      const callback: SigningCallback = async (preimage) => ({
-        signature: kp.sign(hash(preimage.toXDR())),
-        publicKey: kp.publicKey(),
-      });
+      const callback: SigningCallback = (preimage) =>
+        Promise.resolve({
+          signature: kp.sign(hash(preimage.toXDR())),
+          publicKey: kp.publicKey(),
+        });
 
       const signedEntry = await authorizeEntry(
         authEntry,
@@ -178,10 +179,11 @@ describe("building authorization entries", () => {
       // different key, paired with the entry's publicKey — verification
       // will fail because the signature doesn't match.
       const wrongKp = Keypair.random();
-      const badCallback: SigningCallback = async (preimage) => ({
-        signature: wrongKp.sign(hash(preimage.toXDR())),
-        publicKey: kp.publicKey(), // claims to be kp but signed with wrongKp
-      });
+      const badCallback: SigningCallback = (preimage) =>
+        Promise.resolve({
+          signature: wrongKp.sign(hash(preimage.toXDR())),
+          publicKey: kp.publicKey(), // claims to be kp but signed with wrongKp
+        });
 
       await expect(
         authorizeEntry(authEntry, badCallback, 10, Networks.TESTNET),
@@ -189,10 +191,11 @@ describe("building authorization entries", () => {
     });
 
     it("throws with a bad signature from a callback", async () => {
-      const badCallback: SigningCallback = async () => ({
-        signature: Buffer.from("bad-signature-data"),
-        publicKey: kp.publicKey(),
-      });
+      const badCallback: SigningCallback = () =>
+        Promise.resolve({
+          signature: Buffer.from("bad-signature-data"),
+          publicKey: kp.publicKey(),
+        });
 
       await expect(
         authorizeEntry(authEntry, badCallback, 10, Networks.TESTNET),
@@ -228,6 +231,211 @@ describe("building authorization entries", () => {
     });
   });
 
+  describe("credential type switching", () => {
+    const EXPIRATION = 4242;
+    const NONCE = 987654321n;
+
+    function makeAddrCreds(): xdr.SorobanAddressCredentials {
+      return new xdr.SorobanAddressCredentials({
+        address: new Address(kp.publicKey()).toScAddress(),
+        nonce: new xdr.Int64(NONCE),
+        signatureExpirationLedger: 0,
+        signature: xdr.ScVal.scvVec([]),
+      });
+    }
+
+    function entryWith(
+      credentials: xdr.SorobanCredentials,
+    ): xdr.SorobanAuthorizationEntry {
+      return new xdr.SorobanAuthorizationEntry({
+        rootInvocation: authEntry.rootInvocation(),
+        credentials,
+      });
+    }
+
+    // Captures the preimage handed to the signer so we can assert which
+    // HashIdPreimage variant authorizeEntry built (and what it committed to).
+    function capturingSigner(capture: {
+      preimage?: xdr.HashIdPreimage;
+    }): SigningCallback {
+      return (preimage) => {
+        capture.preimage = preimage;
+        return Promise.resolve(kp.sign(hash(preimage.toXDR())));
+      };
+    }
+
+    const expectedNetworkId = (passphrase: string) =>
+      hash(Buffer.from(passphrase)).toString("hex");
+
+    it("ADDRESS switches to the non-address-bound preimage", async () => {
+      const capture: { preimage?: xdr.HashIdPreimage } = {};
+      const signed = await authorizeEntry(
+        entryWith(
+          xdr.SorobanCredentials.sorobanCredentialsAddress(makeAddrCreds()),
+        ),
+        capturingSigner(capture),
+        EXPIRATION,
+        Networks.TESTNET,
+      );
+
+      const preimage = expectDefined(capture.preimage);
+      expect(preimage.switch().name).toBe("envelopeTypeSorobanAuthorization");
+
+      const inner = preimage.sorobanAuthorization();
+      expect(inner.signatureExpirationLedger()).toBe(EXPIRATION);
+      expect(inner.nonce().toBigInt()).toBe(NONCE);
+      expect(inner.networkId().toString("hex")).toBe(
+        expectedNetworkId(Networks.TESTNET),
+      );
+
+      // the signature + expiration land on the ADDRESS arm
+      const addr = signed.credentials().address();
+      expect(addr.signatureExpirationLedger()).toBe(EXPIRATION);
+      expect(addr.signature().switch().name).toBe("scvVec");
+    });
+
+    it("ADDRESS_V2 switches to the address-bound preimage", async () => {
+      const capture: { preimage?: xdr.HashIdPreimage } = {};
+      const signed = await authorizeEntry(
+        entryWith(
+          xdr.SorobanCredentials.sorobanCredentialsAddressV2(makeAddrCreds()),
+        ),
+        capturingSigner(capture),
+        EXPIRATION,
+        Networks.TESTNET,
+      );
+
+      const preimage = expectDefined(capture.preimage);
+      expect(preimage.switch().name).toBe(
+        "envelopeTypeSorobanAuthorizationWithAddress",
+      );
+
+      const inner = preimage.sorobanAuthorizationWithAddress();
+      expect(inner.signatureExpirationLedger()).toBe(EXPIRATION);
+      expect(inner.nonce().toBigInt()).toBe(NONCE);
+      expect(inner.networkId().toString("hex")).toBe(
+        expectedNetworkId(Networks.TESTNET),
+      );
+      // the address is bound into the signed payload
+      expect(inner.address().toXDR()).toEqual(
+        new Address(kp.publicKey()).toScAddress().toXDR(),
+      );
+
+      const addr = signed.credentials().addressV2();
+      expect(addr.signatureExpirationLedger()).toBe(EXPIRATION);
+      expect(addr.signature().switch().name).toBe("scvVec");
+    });
+
+    it("ADDRESS_WITH_DELEGATES uses the address-bound preimage and signs the inner credentials", async () => {
+      const capture: { preimage?: xdr.HashIdPreimage } = {};
+      const signed = await authorizeEntry(
+        entryWith(
+          xdr.SorobanCredentials.sorobanCredentialsAddressWithDelegates(
+            new xdr.SorobanAddressCredentialsWithDelegates({
+              addressCredentials: makeAddrCreds(),
+              delegates: [],
+            }),
+          ),
+        ),
+        capturingSigner(capture),
+        EXPIRATION,
+        Networks.TESTNET,
+      );
+
+      const preimage = expectDefined(capture.preimage);
+      expect(preimage.switch().name).toBe(
+        "envelopeTypeSorobanAuthorizationWithAddress",
+      );
+
+      const inner = preimage.sorobanAuthorizationWithAddress();
+      expect(inner.signatureExpirationLedger()).toBe(EXPIRATION);
+      expect(inner.address().toXDR()).toEqual(
+        new Address(kp.publicKey()).toScAddress().toXDR(),
+      );
+
+      // the signature + expiration land on the wrapped addressCredentials
+      const wrapped = signed.credentials().addressWithDelegates();
+      expect(wrapped.addressCredentials().signatureExpirationLedger()).toBe(
+        EXPIRATION,
+      );
+      expect(wrapped.addressCredentials().signature().switch().name).toBe(
+        "scvVec",
+      );
+      // the (empty) delegate set is preserved
+      expect(wrapped.delegates()).toHaveLength(0);
+    });
+
+    it("commits the expiration ledger into the signed payload (not the original)", async () => {
+      // Regression: the preimage must be built *after* the expiration is
+      // updated, otherwise the signature commits to the stale expiration (0)
+      // and the network rejects it.
+      const capture: { preimage?: xdr.HashIdPreimage } = {};
+      await authorizeEntry(
+        entryWith(
+          xdr.SorobanCredentials.sorobanCredentialsAddress(makeAddrCreds()),
+        ),
+        capturingSigner(capture),
+        EXPIRATION,
+        Networks.TESTNET,
+      );
+
+      expect(
+        expectDefined(capture.preimage)
+          .sorobanAuthorization()
+          .signatureExpirationLedger(),
+      ).toBe(EXPIRATION);
+    });
+
+    it("ADDRESS and ADDRESS_V2 produce different payloads for the same invocation", async () => {
+      const legacy: { preimage?: xdr.HashIdPreimage } = {};
+      const v2: { preimage?: xdr.HashIdPreimage } = {};
+
+      await authorizeEntry(
+        entryWith(
+          xdr.SorobanCredentials.sorobanCredentialsAddress(makeAddrCreds()),
+        ),
+        capturingSigner(legacy),
+        EXPIRATION,
+        Networks.TESTNET,
+      );
+      await authorizeEntry(
+        entryWith(
+          xdr.SorobanCredentials.sorobanCredentialsAddressV2(makeAddrCreds()),
+        ),
+        capturingSigner(v2),
+        EXPIRATION,
+        Networks.TESTNET,
+      );
+
+      // address-binding changes the signed payload
+      expect(expectDefined(legacy.preimage).toXDR("hex")).not.toBe(
+        expectDefined(v2.preimage).toXDR("hex"),
+      );
+    });
+
+    it("infers the public key from the V2 address arm on the naked-signature path", async () => {
+      // The backwards-compat (naked signature) path derives the public key
+      // from the entry's address; this exercises addrAuth.address() on the V2
+      // arm rather than the legacy ADDRESS arm.
+      const signed = await authorizeEntry(
+        entryWith(
+          xdr.SorobanCredentials.sorobanCredentialsAddressV2(makeAddrCreds()),
+        ),
+        (preimage) => Promise.resolve(kp.sign(hash(preimage.toXDR()))),
+        EXPIRATION,
+        Networks.TESTNET,
+      );
+
+      const sigArgs = expectDefined(
+        signed.credentials().addressV2().signature().vec(),
+      ).map((v) => scValToNative(v));
+      const sig = sigArgs[0] as { public_key: Buffer; signature: Buffer };
+      expect(StrKey.encodeEd25519PublicKey(sig.public_key)).toBe(
+        kp.publicKey(),
+      );
+    });
+  });
+
   describe("authorizeInvocation", () => {
     it("can build from scratch with a Keypair", async () => {
       const signedEntry = await authorizeInvocation({
@@ -241,7 +449,8 @@ describe("building authorization entries", () => {
         authEntry.rootInvocation().toXDR(),
       );
 
-      const signedAddr = signedEntry.credentials().address();
+      // authorizeInvocation builds SOROBAN_CREDENTIALS_ADDRESS_V2 entries
+      const signedAddr = signedEntry.credentials().addressV2();
       expect(signedAddr.signatureExpirationLedger()).toBe(10);
 
       const addrStr = Address.fromScAddress(signedAddr.address()).toString();
@@ -249,10 +458,11 @@ describe("building authorization entries", () => {
     });
 
     it("can build from scratch with explicit publicKey", async () => {
-      const callback: SigningCallback = async (preimage) => ({
-        signature: kp.sign(hash(preimage.toXDR())),
-        publicKey: kp.publicKey(),
-      });
+      const callback: SigningCallback = (preimage) =>
+        Promise.resolve({
+          signature: kp.sign(hash(preimage.toXDR())),
+          publicKey: kp.publicKey(),
+        });
 
       const signedEntry = await authorizeInvocation({
         signer: callback,
@@ -262,7 +472,7 @@ describe("building authorization entries", () => {
         publicKey: kp.publicKey(),
       });
 
-      const signedAddr = signedEntry.credentials().address();
+      const signedAddr = signedEntry.credentials().addressV2();
       expect(signedAddr.signatureExpirationLedger()).toBe(10);
 
       const addrStr = Address.fromScAddress(signedAddr.address()).toString();
@@ -270,8 +480,8 @@ describe("building authorization entries", () => {
     });
 
     it("throws when signer has no publicKey method and none provided", () => {
-      const callback: SigningCallback = async (preimage) =>
-        kp.sign(hash(preimage.toXDR()));
+      const callback: SigningCallback = (preimage) =>
+        Promise.resolve(kp.sign(hash(preimage.toXDR())));
 
       // When called with a non-Keypair signer and no explicit publicKey, the
       // implementation throws Error("authorizeInvocation requires publicKey parameter").
@@ -311,7 +521,7 @@ describe("building authorization entries", () => {
         invocation: authEntry.rootInvocation(),
         networkPassphrase: Networks.TESTNET,
       });
-      expect(entry.credentials().address().nonce().toBigInt()).toBe(
+      expect(entry.credentials().addressV2().nonce().toBigInt()).toBe(
         4294967296n,
       ); // 2^32
     });
@@ -324,7 +534,7 @@ describe("building authorization entries", () => {
         invocation: authEntry.rootInvocation(),
         networkPassphrase: Networks.TESTNET,
       });
-      expect(entry.credentials().address().nonce().toBigInt()).toBe(-1n);
+      expect(entry.credentials().addressV2().nonce().toBigInt()).toBe(-1n);
     });
 
     it("high bit set produces Int64 minimum value", async () => {
@@ -335,7 +545,7 @@ describe("building authorization entries", () => {
         invocation: authEntry.rootInvocation(),
         networkPassphrase: Networks.TESTNET,
       });
-      expect(entry.credentials().address().nonce().toBigInt()).toBe(
+      expect(entry.credentials().addressV2().nonce().toBigInt()).toBe(
         -9223372036854775808n,
       ); // -(2^63), Int64 minimum
     });
@@ -348,10 +558,10 @@ describe("building authorization entries", () => {
         invocation: authEntry.rootInvocation(),
         networkPassphrase: Networks.TESTNET,
       });
-      expect(entry.credentials().address().nonce().toBigInt()).toBe(0n);
+      expect(entry.credentials().addressV2().nonce().toBigInt()).toBe(0n);
     });
 
-    it("throws if fewer than 8 bytes are available", async () => {
+    it("throws if fewer than 8 bytes are available", () => {
       stubRawBytes([0, 0, 0]); // only 3 bytes
 
       expect(() =>

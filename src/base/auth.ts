@@ -129,26 +129,65 @@ export async function authorizeEntry(
 ): Promise<xdr.SorobanAuthorizationEntry> {
   // no-op if it's source account auth
   if (
-    entry.credentials().switch().value !==
-    xdr.SorobanCredentialsType.sorobanCredentialsAddress().value
+    entry.credentials().switch().value ===
+    xdr.SorobanCredentialsType.sorobanCredentialsSourceAccount().value
   ) {
     return entry;
   }
 
-  const clone = xdr.SorobanAuthorizationEntry.fromXDR(entry.toXDR());
+  const networkId = hash(Buffer.from(networkPassphrase));
 
-  const addrAuth: xdr.SorobanAddressCredentials = clone.credentials().address();
+  const clone = xdr.SorobanAuthorizationEntry.fromXDR(entry.toXDR());
+  const credentials = clone.credentials();
+  const addrAuth = getAddressCredentials(credentials);
+  if (addrAuth === null) {
+    // We should have already returned if the credentials were source account credentials,
+    // so if we can't get address credentials out of this, it's an unsupported credential type.
+    throw new Error(`unsupported credential type ${credentials.switch().name}`);
+  }
+
+  // Set the expiration before building the preimage, so the hash that gets
+  // signed commits to the same expiration ledger stored in the credentials.
+  // Otherwise the network reconstructs the preimage from the (updated)
+  // credentials and the signature no longer matches.
   addrAuth.signatureExpirationLedger(validUntilLedgerSeq);
 
-  const networkId = hash(Buffer.from(networkPassphrase));
-  const preimage = xdr.HashIdPreimage.envelopeTypeSorobanAuthorization(
-    new xdr.HashIdPreimageSorobanAuthorization({
-      networkId,
-      nonce: addrAuth.nonce(),
-      invocation: clone.rootInvocation(),
-      signatureExpirationLedger: addrAuth.signatureExpirationLedger(),
-    }),
-  );
+  let preimage: xdr.HashIdPreimage;
+  switch (credentials.switch().value) {
+    // legacy address credentials are not address-bound
+    case xdr.SorobanCredentialsType.sorobanCredentialsAddress().value:
+      preimage = xdr.HashIdPreimage.envelopeTypeSorobanAuthorization(
+        new xdr.HashIdPreimageSorobanAuthorization({
+          networkId,
+          nonce: addrAuth.nonce(),
+          invocation: clone.rootInvocation(),
+          signatureExpirationLedger: addrAuth.signatureExpirationLedger(),
+        }),
+      );
+      break;
+
+    // ADDRESS_V2 and ADDRESS_WITH_DELEGATES bind the address into the signed
+    // payload via the WithAddress preimage (CAP-71)
+    case xdr.SorobanCredentialsType.sorobanCredentialsAddressV2().value:
+    case xdr.SorobanCredentialsType.sorobanCredentialsAddressWithDelegates()
+      .value:
+      preimage = xdr.HashIdPreimage.envelopeTypeSorobanAuthorizationWithAddress(
+        new xdr.HashIdPreimageSorobanAuthorizationWithAddress({
+          networkId,
+          nonce: addrAuth.nonce(),
+          invocation: clone.rootInvocation(),
+          address: addrAuth.address(),
+          signatureExpirationLedger: addrAuth.signatureExpirationLedger(),
+        }),
+      );
+      break;
+
+    default:
+      throw new Error(
+        `unsupported credential type ${credentials.switch().name}`,
+      );
+  }
+
   const payload = hash(preimage.toXDR());
 
   let signature: Buffer;
@@ -261,7 +300,7 @@ export function authorizeInvocation(
 
   const entry = new xdr.SorobanAuthorizationEntry({
     rootInvocation: invocation,
-    credentials: xdr.SorobanCredentials.sorobanCredentialsAddress(
+    credentials: xdr.SorobanCredentials.sorobanCredentialsAddressV2(
       new xdr.SorobanAddressCredentials({
         address: new Address(pk).toScAddress(),
         nonce,
@@ -272,6 +311,36 @@ export function authorizeInvocation(
   });
 
   return authorizeEntry(entry, signer, validUntilLedgerSeq, networkPassphrase);
+}
+
+/**
+ * Extracts the {@link xdr.SorobanAddressCredentials} from any address-based
+ * Soroban credential, regardless of which credential type variant is used.
+ *
+ * This unifies access across `SOROBAN_CREDENTIALS_ADDRESS`,
+ * `SOROBAN_CREDENTIALS_ADDRESS_V2` (which carries identical fields but binds
+ * the address into the signature payload), and
+ * `SOROBAN_CREDENTIALS_ADDRESS_WITH_DELEGATES` (which wraps the same address
+ * credentials alongside a set of delegate signatures).
+ *
+ * @param credentials - the credentials to inspect
+ * @returns the inner address credentials, or `null` for source-account
+ *    credentials (which carry no address payload)
+ */
+export function getAddressCredentials(
+  credentials: xdr.SorobanCredentials,
+): xdr.SorobanAddressCredentials | null {
+  switch (credentials.switch().value) {
+    case xdr.SorobanCredentialsType.sorobanCredentialsAddress().value:
+      return credentials.address();
+    case xdr.SorobanCredentialsType.sorobanCredentialsAddressV2().value:
+      return credentials.addressV2();
+    case xdr.SorobanCredentialsType.sorobanCredentialsAddressWithDelegates()
+      .value:
+      return credentials.addressWithDelegates().addressCredentials();
+    default:
+      return null;
+  }
 }
 
 function bytesToInt64(bytes: Uint8Array): bigint {
