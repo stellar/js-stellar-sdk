@@ -11,7 +11,7 @@ description: Parse and validate stellar.toml files per SEP-1, including issuer m
 type ContractId = string
 ```
 
-**Source:** [src/stellartoml/index.ts:101](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L101)
+**Source:** [src/stellartoml/index.ts:101](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L101)
 
 ## StellarToml.Api.Currency
 
@@ -45,7 +45,7 @@ interface Currency {
 }
 ```
 
-**Source:** [src/stellartoml/index.ts:134](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L134)
+**Source:** [src/stellartoml/index.ts:134](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L134)
 
 ### `currency.anchor_asset`
 
@@ -53,7 +53,7 @@ interface Currency {
 anchor_asset?: string;
 ```
 
-**Source:** [src/stellartoml/index.ts:155](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L155)
+**Source:** [src/stellartoml/index.ts:155](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L155)
 
 ### `currency.anchor_asset_type`
 
@@ -61,7 +61,7 @@ anchor_asset?: string;
 anchor_asset_type?: "fiat" | "crypto" | "nft" | "stock" | "bond" | "commodity" | "realestate" | "other";
 ```
 
-**Source:** [src/stellartoml/index.ts:146](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L146)
+**Source:** [src/stellartoml/index.ts:146](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L146)
 
 ### `currency.approval_criteria`
 
@@ -69,7 +69,7 @@ anchor_asset_type?: "fiat" | "crypto" | "nft" | "stock" | "bond" | "commodity" |
 approval_criteria?: string;
 ```
 
-**Source:** [src/stellartoml/index.ts:167](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L167)
+**Source:** [src/stellartoml/index.ts:167](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L167)
 
 ### `currency.approval_server`
 
@@ -77,7 +77,7 @@ approval_criteria?: string;
 approval_server?: string;
 ```
 
-**Source:** [src/stellartoml/index.ts:166](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L166)
+**Source:** [src/stellartoml/index.ts:166](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L166)
 
 ### `currency.attestation_of_reserve`
 
@@ -85,7 +85,7 @@ approval_server?: string;
 attestation_of_reserve?: string;
 ```
 
-**Source:** [src/stellartoml/index.ts:156](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L156)
+**Source:** [src/stellartoml/index.ts:156](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L156)
 
 ### `currency.attestation_of_reserve_amount`
 
@@ -93,7 +93,7 @@ attestation_of_reserve?: string;
 attestation_of_reserve_amount?: string;
 ```
 
-**Source:** [src/stellartoml/index.ts:157](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L157)
+**Source:** [src/stellartoml/index.ts:157](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L157)
 
 ### `currency.attestation_of_reserve_last_audit`
 
@@ -101,7 +101,7 @@ attestation_of_reserve_amount?: string;
 attestation_of_reserve_last_audit?: string;
 ```
 
-**Source:** [src/stellartoml/index.ts:158](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L158)
+**Source:** [src/stellartoml/index.ts:158](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L158)
 
 ### `currency.code`
 
@@ -109,7 +109,7 @@ attestation_of_reserve_last_audit?: string;
 code?: string;
 ```
 
-**Source:** [src/stellartoml/index.ts:135](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L135)
+**Source:** [src/stellartoml/index.ts:135](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L135)
 
 ### `currency.code_template`
 
@@ -117,7 +117,7 @@ code?: string;
 code_template?: string;
 ```
 
-**Source:** [src/stellartoml/index.ts:136](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L136)
+**Source:** [src/stellartoml/index.ts:136](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L136)
 
 ### `currency.collateral_address_messages`
 
@@ -125,7 +125,7 @@ code_template?: string;
 collateral_address_messages?: string[];
 ```
 
-**Source:** [src/stellartoml/index.ts:164](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L164)
+**Source:** [src/stellartoml/index.ts:164](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L164)
 
 ### `currency.collateral_address_signatures`
 
@@ -133,7 +133,7 @@ collateral_address_messages?: string[];
 collateral_address_signatures?: string[];
 ```
 
-**Source:** [src/stellartoml/index.ts:165](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L165)
+**Source:** [src/stellartoml/index.ts:165](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L165)
 
 ### `currency.collateral_addresses`
 
@@ -141,7 +141,7 @@ collateral_address_signatures?: string[];
 collateral_addresses?: string[];
 ```
 
-**Source:** [src/stellartoml/index.ts:163](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L163)
+**Source:** [src/stellartoml/index.ts:163](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L163)
 
 ### `currency.conditions`
 
@@ -149,7 +149,7 @@ collateral_addresses?: string[];
 conditions?: string;
 ```
 
-**Source:** [src/stellartoml/index.ts:142](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L142)
+**Source:** [src/stellartoml/index.ts:142](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L142)
 
 ### `currency.desc`
 
@@ -157,7 +157,7 @@ conditions?: string;
 desc?: string;
 ```
 
-**Source:** [src/stellartoml/index.ts:141](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L141)
+**Source:** [src/stellartoml/index.ts:141](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L141)
 
 ### `currency.display_decimals`
 
@@ -165,7 +165,7 @@ desc?: string;
 display_decimals?: number;
 ```
 
-**Source:** [src/stellartoml/index.ts:138](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L138)
+**Source:** [src/stellartoml/index.ts:138](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L138)
 
 ### `currency.fixed_number`
 
@@ -173,7 +173,7 @@ display_decimals?: number;
 fixed_number?: number;
 ```
 
-**Source:** [src/stellartoml/index.ts:143](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L143)
+**Source:** [src/stellartoml/index.ts:143](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L143)
 
 ### `currency.image`
 
@@ -181,7 +181,7 @@ fixed_number?: number;
 image?: string;
 ```
 
-**Source:** [src/stellartoml/index.ts:161](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L161)
+**Source:** [src/stellartoml/index.ts:161](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L161)
 
 ### `currency.is_asset_anchored`
 
@@ -189,7 +189,7 @@ image?: string;
 is_asset_anchored?: boolean;
 ```
 
-**Source:** [src/stellartoml/index.ts:145](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L145)
+**Source:** [src/stellartoml/index.ts:145](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L145)
 
 ### `currency.is_unlimited`
 
@@ -197,7 +197,7 @@ is_asset_anchored?: boolean;
 is_unlimited?: boolean;
 ```
 
-**Source:** [src/stellartoml/index.ts:159](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L159)
+**Source:** [src/stellartoml/index.ts:159](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L159)
 
 ### `currency.issuer`
 
@@ -205,7 +205,7 @@ is_unlimited?: boolean;
 issuer?: string;
 ```
 
-**Source:** [src/stellartoml/index.ts:137](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L137)
+**Source:** [src/stellartoml/index.ts:137](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L137)
 
 ### `currency.max_number`
 
@@ -213,7 +213,7 @@ issuer?: string;
 max_number?: number;
 ```
 
-**Source:** [src/stellartoml/index.ts:144](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L144)
+**Source:** [src/stellartoml/index.ts:144](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L144)
 
 ### `currency.name`
 
@@ -221,7 +221,7 @@ max_number?: number;
 name?: string;
 ```
 
-**Source:** [src/stellartoml/index.ts:140](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L140)
+**Source:** [src/stellartoml/index.ts:140](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L140)
 
 ### `currency.redemption_instructions`
 
@@ -229,7 +229,7 @@ name?: string;
 redemption_instructions?: string;
 ```
 
-**Source:** [src/stellartoml/index.ts:160](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L160)
+**Source:** [src/stellartoml/index.ts:160](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L160)
 
 ### `currency.regulated`
 
@@ -237,7 +237,7 @@ redemption_instructions?: string;
 regulated?: boolean;
 ```
 
-**Source:** [src/stellartoml/index.ts:162](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L162)
+**Source:** [src/stellartoml/index.ts:162](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L162)
 
 ### `currency.status`
 
@@ -245,7 +245,7 @@ regulated?: boolean;
 status?: "live" | "dead" | "test" | "private";
 ```
 
-**Source:** [src/stellartoml/index.ts:139](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L139)
+**Source:** [src/stellartoml/index.ts:139](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L139)
 
 ## StellarToml.Api.Documentation
 
@@ -271,7 +271,7 @@ interface Documentation {
 }
 ```
 
-**Source:** [src/stellartoml/index.ts:103](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L103)
+**Source:** [src/stellartoml/index.ts:103](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L103)
 
 ### `documentation.ORG_DBA`
 
@@ -279,7 +279,7 @@ interface Documentation {
 ORG_DBA?: string;
 ```
 
-**Source:** [src/stellartoml/index.ts:105](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L105)
+**Source:** [src/stellartoml/index.ts:105](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L105)
 
 ### `documentation.ORG_DESCRIPTION`
 
@@ -287,7 +287,7 @@ ORG_DBA?: string;
 ORG_DESCRIPTION?: string;
 ```
 
-**Source:** [src/stellartoml/index.ts:112](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L112)
+**Source:** [src/stellartoml/index.ts:112](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L112)
 
 ### `documentation.ORG_GITHUB`
 
@@ -295,7 +295,7 @@ ORG_DESCRIPTION?: string;
 ORG_GITHUB?: string;
 ```
 
-**Source:** [src/stellartoml/index.ts:120](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L120)
+**Source:** [src/stellartoml/index.ts:120](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L120)
 
 ### `documentation.ORG_KEYBASE`
 
@@ -303,7 +303,7 @@ ORG_GITHUB?: string;
 ORG_KEYBASE?: string;
 ```
 
-**Source:** [src/stellartoml/index.ts:118](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L118)
+**Source:** [src/stellartoml/index.ts:118](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L118)
 
 ### `documentation.ORG_LICENSE_NUMBER`
 
@@ -311,7 +311,7 @@ ORG_KEYBASE?: string;
 ORG_LICENSE_NUMBER?: string;
 ```
 
-**Source:** [src/stellartoml/index.ts:109](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L109)
+**Source:** [src/stellartoml/index.ts:109](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L109)
 
 ### `documentation.ORG_LICENSE_TYPE`
 
@@ -319,7 +319,7 @@ ORG_LICENSE_NUMBER?: string;
 ORG_LICENSE_TYPE?: string;
 ```
 
-**Source:** [src/stellartoml/index.ts:111](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L111)
+**Source:** [src/stellartoml/index.ts:111](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L111)
 
 ### `documentation.ORG_LICENSING_AUTHORITY`
 
@@ -327,7 +327,7 @@ ORG_LICENSE_TYPE?: string;
 ORG_LICENSING_AUTHORITY?: string;
 ```
 
-**Source:** [src/stellartoml/index.ts:110](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L110)
+**Source:** [src/stellartoml/index.ts:110](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L110)
 
 ### `documentation.ORG_LOGO`
 
@@ -335,7 +335,7 @@ ORG_LICENSING_AUTHORITY?: string;
 ORG_LOGO?: string;
 ```
 
-**Source:** [src/stellartoml/index.ts:108](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L108)
+**Source:** [src/stellartoml/index.ts:108](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L108)
 
 ### `documentation.ORG_NAME`
 
@@ -343,7 +343,7 @@ ORG_LOGO?: string;
 ORG_NAME?: string;
 ```
 
-**Source:** [src/stellartoml/index.ts:104](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L104)
+**Source:** [src/stellartoml/index.ts:104](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L104)
 
 ### `documentation.ORG_OFFICIAL_EMAIL`
 
@@ -351,7 +351,7 @@ ORG_NAME?: string;
 ORG_OFFICIAL_EMAIL?: string;
 ```
 
-**Source:** [src/stellartoml/index.ts:116](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L116)
+**Source:** [src/stellartoml/index.ts:116](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L116)
 
 ### `documentation.ORG_PHONE_NUMBER`
 
@@ -359,7 +359,7 @@ ORG_OFFICIAL_EMAIL?: string;
 ORG_PHONE_NUMBER?: string;
 ```
 
-**Source:** [src/stellartoml/index.ts:107](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L107)
+**Source:** [src/stellartoml/index.ts:107](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L107)
 
 ### `documentation.ORG_PHONE_NUMBER_ATTESTATION`
 
@@ -367,7 +367,7 @@ ORG_PHONE_NUMBER?: string;
 ORG_PHONE_NUMBER_ATTESTATION?: string;
 ```
 
-**Source:** [src/stellartoml/index.ts:115](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L115)
+**Source:** [src/stellartoml/index.ts:115](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L115)
 
 ### `documentation.ORG_PHYSICAL_ADDRESS`
 
@@ -375,7 +375,7 @@ ORG_PHONE_NUMBER_ATTESTATION?: string;
 ORG_PHYSICAL_ADDRESS?: string;
 ```
 
-**Source:** [src/stellartoml/index.ts:113](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L113)
+**Source:** [src/stellartoml/index.ts:113](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L113)
 
 ### `documentation.ORG_PHYSICAL_ADDRESS_ATTESTATION`
 
@@ -383,7 +383,7 @@ ORG_PHYSICAL_ADDRESS?: string;
 ORG_PHYSICAL_ADDRESS_ATTESTATION?: string;
 ```
 
-**Source:** [src/stellartoml/index.ts:114](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L114)
+**Source:** [src/stellartoml/index.ts:114](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L114)
 
 ### `documentation.ORG_SUPPORT_EMAIL`
 
@@ -391,7 +391,7 @@ ORG_PHYSICAL_ADDRESS_ATTESTATION?: string;
 ORG_SUPPORT_EMAIL?: string;
 ```
 
-**Source:** [src/stellartoml/index.ts:117](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L117)
+**Source:** [src/stellartoml/index.ts:117](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L117)
 
 ### `documentation.ORG_TWITTER`
 
@@ -399,7 +399,7 @@ ORG_SUPPORT_EMAIL?: string;
 ORG_TWITTER?: string;
 ```
 
-**Source:** [src/stellartoml/index.ts:119](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L119)
+**Source:** [src/stellartoml/index.ts:119](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L119)
 
 ### `documentation.ORG_URL`
 
@@ -407,7 +407,7 @@ ORG_TWITTER?: string;
 ORG_URL?: string;
 ```
 
-**Source:** [src/stellartoml/index.ts:106](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L106)
+**Source:** [src/stellartoml/index.ts:106](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L106)
 
 ## StellarToml.Api.ISODateTime
 
@@ -415,7 +415,7 @@ ORG_URL?: string;
 type ISODateTime = string
 ```
 
-**Source:** [src/stellartoml/index.ts:102](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L102)
+**Source:** [src/stellartoml/index.ts:102](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L102)
 
 ## StellarToml.Api.Principal
 
@@ -432,7 +432,7 @@ interface Principal {
 }
 ```
 
-**Source:** [src/stellartoml/index.ts:123](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L123)
+**Source:** [src/stellartoml/index.ts:123](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L123)
 
 ### `principal.email`
 
@@ -440,7 +440,7 @@ interface Principal {
 email: string;
 ```
 
-**Source:** [src/stellartoml/index.ts:125](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L125)
+**Source:** [src/stellartoml/index.ts:125](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L125)
 
 ### `principal.github`
 
@@ -448,7 +448,7 @@ email: string;
 github?: string;
 ```
 
-**Source:** [src/stellartoml/index.ts:126](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L126)
+**Source:** [src/stellartoml/index.ts:126](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L126)
 
 ### `principal.id_photo_hash`
 
@@ -456,7 +456,7 @@ github?: string;
 id_photo_hash?: string;
 ```
 
-**Source:** [src/stellartoml/index.ts:130](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L130)
+**Source:** [src/stellartoml/index.ts:130](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L130)
 
 ### `principal.keybase`
 
@@ -464,7 +464,7 @@ id_photo_hash?: string;
 keybase?: string;
 ```
 
-**Source:** [src/stellartoml/index.ts:127](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L127)
+**Source:** [src/stellartoml/index.ts:127](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L127)
 
 ### `principal.name`
 
@@ -472,7 +472,7 @@ keybase?: string;
 name: string;
 ```
 
-**Source:** [src/stellartoml/index.ts:124](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L124)
+**Source:** [src/stellartoml/index.ts:124](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L124)
 
 ### `principal.telegram`
 
@@ -480,7 +480,7 @@ name: string;
 telegram?: string;
 ```
 
-**Source:** [src/stellartoml/index.ts:128](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L128)
+**Source:** [src/stellartoml/index.ts:128](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L128)
 
 ### `principal.twitter`
 
@@ -488,7 +488,7 @@ telegram?: string;
 twitter?: string;
 ```
 
-**Source:** [src/stellartoml/index.ts:129](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L129)
+**Source:** [src/stellartoml/index.ts:129](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L129)
 
 ### `principal.verification_photo_hash`
 
@@ -496,7 +496,7 @@ twitter?: string;
 verification_photo_hash?: string;
 ```
 
-**Source:** [src/stellartoml/index.ts:131](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L131)
+**Source:** [src/stellartoml/index.ts:131](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L131)
 
 ## StellarToml.Api.PublicKey
 
@@ -504,7 +504,7 @@ verification_photo_hash?: string;
 type PublicKey = string
 ```
 
-**Source:** [src/stellartoml/index.ts:100](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L100)
+**Source:** [src/stellartoml/index.ts:100](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L100)
 
 ## StellarToml.Api.StellarToml
 
@@ -532,7 +532,7 @@ interface StellarToml {
 }
 ```
 
-**Source:** [src/stellartoml/index.ts:182](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L182)
+**Source:** [src/stellartoml/index.ts:182](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L182)
 
 ### `stellarToml.ACCOUNTS`
 
@@ -540,7 +540,7 @@ interface StellarToml {
 ACCOUNTS?: string[];
 ```
 
-**Source:** [src/stellartoml/index.ts:184](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L184)
+**Source:** [src/stellartoml/index.ts:184](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L184)
 
 ### `stellarToml.ANCHOR_QUOTE_SERVER`
 
@@ -548,7 +548,7 @@ ACCOUNTS?: string[];
 ANCHOR_QUOTE_SERVER?: string;
 ```
 
-**Source:** [src/stellartoml/index.ts:197](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L197)
+**Source:** [src/stellartoml/index.ts:197](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L197)
 
 ### `stellarToml.CURRENCIES`
 
@@ -556,7 +556,7 @@ ANCHOR_QUOTE_SERVER?: string;
 CURRENCIES?: Currency[];
 ```
 
-**Source:** [src/stellartoml/index.ts:200](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L200)
+**Source:** [src/stellartoml/index.ts:200](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L200)
 
 ### `stellarToml.DIRECT_PAYMENT_SERVER`
 
@@ -564,7 +564,7 @@ CURRENCIES?: Currency[];
 DIRECT_PAYMENT_SERVER?: string;
 ```
 
-**Source:** [src/stellartoml/index.ts:196](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L196)
+**Source:** [src/stellartoml/index.ts:196](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L196)
 
 ### `stellarToml.DOCUMENTATION`
 
@@ -572,7 +572,7 @@ DIRECT_PAYMENT_SERVER?: string;
 DOCUMENTATION?: Documentation;
 ```
 
-**Source:** [src/stellartoml/index.ts:198](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L198)
+**Source:** [src/stellartoml/index.ts:198](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L198)
 
 ### `stellarToml.FEDERATION_SERVER`
 
@@ -580,7 +580,7 @@ DOCUMENTATION?: Documentation;
 FEDERATION_SERVER?: string;
 ```
 
-**Source:** [src/stellartoml/index.ts:192](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L192)
+**Source:** [src/stellartoml/index.ts:192](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L192)
 
 ### `stellarToml.HORIZON_URL`
 
@@ -588,7 +588,7 @@ FEDERATION_SERVER?: string;
 HORIZON_URL?: string;
 ```
 
-**Source:** [src/stellartoml/index.ts:194](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L194)
+**Source:** [src/stellartoml/index.ts:194](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L194)
 
 ### `stellarToml.KYC_SERVER`
 
@@ -596,7 +596,7 @@ HORIZON_URL?: string;
 KYC_SERVER?: string;
 ```
 
-**Source:** [src/stellartoml/index.ts:188](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L188)
+**Source:** [src/stellartoml/index.ts:188](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L188)
 
 ### `stellarToml.NETWORK_PASSPHRASE`
 
@@ -604,7 +604,7 @@ KYC_SERVER?: string;
 NETWORK_PASSPHRASE?: Networks;
 ```
 
-**Source:** [src/stellartoml/index.ts:185](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L185)
+**Source:** [src/stellartoml/index.ts:185](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L185)
 
 ### `stellarToml.PRINCIPALS`
 
@@ -612,7 +612,7 @@ NETWORK_PASSPHRASE?: Networks;
 PRINCIPALS?: Principal[];
 ```
 
-**Source:** [src/stellartoml/index.ts:199](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L199)
+**Source:** [src/stellartoml/index.ts:199](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L199)
 
 ### `stellarToml.SIGNING_KEY`
 
@@ -620,7 +620,7 @@ PRINCIPALS?: Principal[];
 SIGNING_KEY?: string;
 ```
 
-**Source:** [src/stellartoml/index.ts:193](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L193)
+**Source:** [src/stellartoml/index.ts:193](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L193)
 
 ### `stellarToml.TRANSFER_SERVER`
 
@@ -628,7 +628,7 @@ SIGNING_KEY?: string;
 TRANSFER_SERVER?: string;
 ```
 
-**Source:** [src/stellartoml/index.ts:187](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L187)
+**Source:** [src/stellartoml/index.ts:187](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L187)
 
 ### `stellarToml.TRANSFER_SERVER_SEP0024`
 
@@ -636,7 +636,7 @@ TRANSFER_SERVER?: string;
 TRANSFER_SERVER_SEP0024?: string;
 ```
 
-**Source:** [src/stellartoml/index.ts:186](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L186)
+**Source:** [src/stellartoml/index.ts:186](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L186)
 
 ### `stellarToml.URI_REQUEST_SIGNING_KEY`
 
@@ -644,7 +644,7 @@ TRANSFER_SERVER_SEP0024?: string;
 URI_REQUEST_SIGNING_KEY?: string;
 ```
 
-**Source:** [src/stellartoml/index.ts:195](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L195)
+**Source:** [src/stellartoml/index.ts:195](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L195)
 
 ### `stellarToml.VALIDATORS`
 
@@ -652,7 +652,7 @@ URI_REQUEST_SIGNING_KEY?: string;
 VALIDATORS?: Validator[];
 ```
 
-**Source:** [src/stellartoml/index.ts:201](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L201)
+**Source:** [src/stellartoml/index.ts:201](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L201)
 
 ### `stellarToml.VERSION`
 
@@ -660,7 +660,7 @@ VALIDATORS?: Validator[];
 VERSION?: string;
 ```
 
-**Source:** [src/stellartoml/index.ts:183](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L183)
+**Source:** [src/stellartoml/index.ts:183](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L183)
 
 ### `stellarToml.WEB_AUTH_CONTRACT_ID`
 
@@ -668,7 +668,7 @@ VERSION?: string;
 WEB_AUTH_CONTRACT_ID?: string;
 ```
 
-**Source:** [src/stellartoml/index.ts:191](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L191)
+**Source:** [src/stellartoml/index.ts:191](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L191)
 
 ### `stellarToml.WEB_AUTH_ENDPOINT`
 
@@ -676,7 +676,7 @@ WEB_AUTH_CONTRACT_ID?: string;
 WEB_AUTH_ENDPOINT?: string;
 ```
 
-**Source:** [src/stellartoml/index.ts:189](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L189)
+**Source:** [src/stellartoml/index.ts:189](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L189)
 
 ### `stellarToml.WEB_AUTH_FOR_CONTRACTS_ENDPOINT`
 
@@ -684,7 +684,7 @@ WEB_AUTH_ENDPOINT?: string;
 WEB_AUTH_FOR_CONTRACTS_ENDPOINT?: string;
 ```
 
-**Source:** [src/stellartoml/index.ts:190](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L190)
+**Source:** [src/stellartoml/index.ts:190](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L190)
 
 ## StellarToml.Api.StellarTomlResolveOptions
 
@@ -696,7 +696,7 @@ interface StellarTomlResolveOptions {
 }
 ```
 
-**Source:** [src/stellartoml/index.ts:94](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L94)
+**Source:** [src/stellartoml/index.ts:94](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L94)
 
 ### `stellarTomlResolveOptions.allowedRedirects`
 
@@ -704,7 +704,7 @@ interface StellarTomlResolveOptions {
 allowedRedirects?: number;
 ```
 
-**Source:** [src/stellartoml/index.ts:97](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L97)
+**Source:** [src/stellartoml/index.ts:97](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L97)
 
 ### `stellarTomlResolveOptions.allowHttp`
 
@@ -712,7 +712,7 @@ allowedRedirects?: number;
 allowHttp?: boolean;
 ```
 
-**Source:** [src/stellartoml/index.ts:95](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L95)
+**Source:** [src/stellartoml/index.ts:95](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L95)
 
 ### `stellarTomlResolveOptions.timeout`
 
@@ -720,7 +720,7 @@ allowHttp?: boolean;
 timeout?: number;
 ```
 
-**Source:** [src/stellartoml/index.ts:96](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L96)
+**Source:** [src/stellartoml/index.ts:96](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L96)
 
 ## StellarToml.Api.Url
 
@@ -728,7 +728,7 @@ timeout?: number;
 type Url = string
 ```
 
-**Source:** [src/stellartoml/index.ts:99](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L99)
+**Source:** [src/stellartoml/index.ts:99](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L99)
 
 ## StellarToml.Api.Validator
 
@@ -742,7 +742,7 @@ interface Validator {
 }
 ```
 
-**Source:** [src/stellartoml/index.ts:171](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L171)
+**Source:** [src/stellartoml/index.ts:171](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L171)
 
 ### `validator.ALIAS`
 
@@ -750,7 +750,7 @@ interface Validator {
 ALIAS?: string;
 ```
 
-**Source:** [src/stellartoml/index.ts:172](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L172)
+**Source:** [src/stellartoml/index.ts:172](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L172)
 
 ### `validator.DISPLAY_NAME`
 
@@ -758,7 +758,7 @@ ALIAS?: string;
 DISPLAY_NAME?: string;
 ```
 
-**Source:** [src/stellartoml/index.ts:173](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L173)
+**Source:** [src/stellartoml/index.ts:173](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L173)
 
 ### `validator.HISTORY`
 
@@ -766,7 +766,7 @@ DISPLAY_NAME?: string;
 HISTORY?: string;
 ```
 
-**Source:** [src/stellartoml/index.ts:176](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L176)
+**Source:** [src/stellartoml/index.ts:176](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L176)
 
 ### `validator.HOST`
 
@@ -774,7 +774,7 @@ HISTORY?: string;
 HOST?: string;
 ```
 
-**Source:** [src/stellartoml/index.ts:175](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L175)
+**Source:** [src/stellartoml/index.ts:175](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L175)
 
 ### `validator.PUBLIC_KEY`
 
@@ -782,7 +782,7 @@ HOST?: string;
 PUBLIC_KEY?: string;
 ```
 
-**Source:** [src/stellartoml/index.ts:174](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L174)
+**Source:** [src/stellartoml/index.ts:174](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L174)
 
 ## StellarToml.Resolver
 
@@ -795,7 +795,7 @@ class Resolver {
 }
 ```
 
-**Source:** [src/stellartoml/index.ts:16](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L16)
+**Source:** [src/stellartoml/index.ts:16](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L16)
 
 ### `new Resolver()`
 
@@ -838,7 +838,7 @@ StellarSdk.StellarToml.Resolver.resolve('acme.com')
 
 - `Stellar.toml doc`
 
-**Source:** [src/stellartoml/index.ts:38](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L38)
+**Source:** [src/stellartoml/index.ts:38](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L38)
 
 ## StellarToml.STELLAR_TOML_MAX_SIZE
 
@@ -848,4 +848,4 @@ The maximum size of stellar.toml file, in bytes
 const STELLAR_TOML_MAX_SIZE: number
 ```
 
-**Source:** [src/stellartoml/index.ts:11](https://github.com/stellar/js-stellar-sdk/blob/master/src/stellartoml/index.ts#L11)
+**Source:** [src/stellartoml/index.ts:11](https://github.com/stellar/js-stellar-sdk/blob/main/src/stellartoml/index.ts#L11)

@@ -37,7 +37,7 @@ console.log('The following account requires a memo ', err.accountId)
 console.log('The account is used in operation: ', err.operationIndex)
 ```
 
-**Source:** [src/errors/account_requires_memo.ts:20](https://github.com/stellar/js-stellar-sdk/blob/master/src/errors/account_requires_memo.ts#L20)
+**Source:** [src/errors/account_requires_memo.ts:20](https://github.com/stellar/js-stellar-sdk/blob/main/src/errors/account_requires_memo.ts#L20)
 
 ### `new AccountRequiresMemoError(message, accountId, operationIndex)`
 
@@ -51,7 +51,7 @@ constructor(message: string, accountId: string, operationIndex: number);
 - **`accountId`** — `string` (required)
 - **`operationIndex`** — `number` (required)
 
-**Source:** [src/errors/account_requires_memo.ts:24](https://github.com/stellar/js-stellar-sdk/blob/master/src/errors/account_requires_memo.ts#L24)
+**Source:** [src/errors/account_requires_memo.ts:24](https://github.com/stellar/js-stellar-sdk/blob/main/src/errors/account_requires_memo.ts#L24)
 
 ### `AccountRequiresMemoError.stackTraceLimit`
 
@@ -69,7 +69,7 @@ not capture any frames.
 static stackTraceLimit: number;
 ```
 
-**Source:** [node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts:68](https://github.com/stellar/js-stellar-sdk/blob/master/node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts#L68)
+**Source:** [node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts:68](https://github.com/stellar/js-stellar-sdk/blob/main/node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts#L68)
 
 ### `AccountRequiresMemoError.captureStackTrace(targetObject, constructorOpt)`
 
@@ -126,7 +126,7 @@ static captureStackTrace(targetObject: object, constructorOpt?: Function): void;
 - **`targetObject`** — `object` (required)
 - **`constructorOpt`** — `Function` (optional)
 
-**Source:** [node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts:52](https://github.com/stellar/js-stellar-sdk/blob/master/node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts#L52)
+**Source:** [node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts:52](https://github.com/stellar/js-stellar-sdk/blob/main/node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts#L52)
 
 ### `AccountRequiresMemoError.prepareStackTrace(err, stackTraces)`
 
@@ -143,7 +143,7 @@ static prepareStackTrace(err: Error, stackTraces: CallSite[]): any;
 
 - https://v8.dev/docs/stack-trace-api#customizing-stack-traces
 
-**Source:** [node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts:56](https://github.com/stellar/js-stellar-sdk/blob/master/node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts#L56)
+**Source:** [node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts:56](https://github.com/stellar/js-stellar-sdk/blob/main/node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts#L56)
 
 ### `accountRequiresMemoError.accountId`
 
@@ -151,7 +151,7 @@ static prepareStackTrace(err: Error, stackTraces: CallSite[]): any;
 accountId: string;
 ```
 
-**Source:** [src/errors/account_requires_memo.ts:21](https://github.com/stellar/js-stellar-sdk/blob/master/src/errors/account_requires_memo.ts#L21)
+**Source:** [src/errors/account_requires_memo.ts:21](https://github.com/stellar/js-stellar-sdk/blob/main/src/errors/account_requires_memo.ts#L21)
 
 ### `accountRequiresMemoError.cause`
 
@@ -159,7 +159,7 @@ accountId: string;
 cause?: unknown;
 ```
 
-**Source:** [node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es2022.error.d.ts:26](https://github.com/stellar/js-stellar-sdk/blob/master/node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es2022.error.d.ts#L26)
+**Source:** [node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es2022.error.d.ts:26](https://github.com/stellar/js-stellar-sdk/blob/main/node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es2022.error.d.ts#L26)
 
 ### `accountRequiresMemoError.message`
 
@@ -167,7 +167,7 @@ cause?: unknown;
 message: string;
 ```
 
-**Source:** [node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts:1077](https://github.com/stellar/js-stellar-sdk/blob/master/node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts#L1077)
+**Source:** [node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts:1077](https://github.com/stellar/js-stellar-sdk/blob/main/node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts#L1077)
 
 ### `accountRequiresMemoError.name`
 
@@ -175,7 +175,7 @@ message: string;
 name: string;
 ```
 
-**Source:** [node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts:1076](https://github.com/stellar/js-stellar-sdk/blob/master/node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts#L1076)
+**Source:** [node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts:1076](https://github.com/stellar/js-stellar-sdk/blob/main/node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts#L1076)
 
 ### `accountRequiresMemoError.operationIndex`
 
@@ -183,7 +183,7 @@ name: string;
 operationIndex: number;
 ```
 
-**Source:** [src/errors/account_requires_memo.ts:22](https://github.com/stellar/js-stellar-sdk/blob/master/src/errors/account_requires_memo.ts#L22)
+**Source:** [src/errors/account_requires_memo.ts:22](https://github.com/stellar/js-stellar-sdk/blob/main/src/errors/account_requires_memo.ts#L22)
 
 ### `accountRequiresMemoError.stack`
 
@@ -191,7 +191,7 @@ operationIndex: number;
 stack?: string;
 ```
 
-**Source:** [node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts:1078](https://github.com/stellar/js-stellar-sdk/blob/master/node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts#L1078)
+**Source:** [node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts:1078](https://github.com/stellar/js-stellar-sdk/blob/main/node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts#L1078)
 
 ## BadRequestError
 
@@ -213,7 +213,7 @@ class BadRequestError extends NetworkError {
 }
 ```
 
-**Source:** [src/errors/bad_request.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/errors/bad_request.ts#L10)
+**Source:** [src/errors/bad_request.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/errors/bad_request.ts#L10)
 
 ### `new BadRequestError(message, response)`
 
@@ -226,7 +226,7 @@ constructor(message: string, response: any);
 - **`message`** — `string` (required)
 - **`response`** — `any` (required)
 
-**Source:** [src/errors/network.ts:29](https://github.com/stellar/js-stellar-sdk/blob/master/src/errors/network.ts#L29)
+**Source:** [src/errors/network.ts:29](https://github.com/stellar/js-stellar-sdk/blob/main/src/errors/network.ts#L29)
 
 ### `BadRequestError.stackTraceLimit`
 
@@ -244,7 +244,7 @@ not capture any frames.
 static stackTraceLimit: number;
 ```
 
-**Source:** [node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts:68](https://github.com/stellar/js-stellar-sdk/blob/master/node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts#L68)
+**Source:** [node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts:68](https://github.com/stellar/js-stellar-sdk/blob/main/node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts#L68)
 
 ### `BadRequestError.captureStackTrace(targetObject, constructorOpt)`
 
@@ -301,7 +301,7 @@ static captureStackTrace(targetObject: object, constructorOpt?: Function): void;
 - **`targetObject`** — `object` (required)
 - **`constructorOpt`** — `Function` (optional)
 
-**Source:** [node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts:52](https://github.com/stellar/js-stellar-sdk/blob/master/node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts#L52)
+**Source:** [node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts:52](https://github.com/stellar/js-stellar-sdk/blob/main/node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts#L52)
 
 ### `BadRequestError.prepareStackTrace(err, stackTraces)`
 
@@ -318,7 +318,7 @@ static prepareStackTrace(err: Error, stackTraces: CallSite[]): any;
 
 - https://v8.dev/docs/stack-trace-api#customizing-stack-traces
 
-**Source:** [node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts:56](https://github.com/stellar/js-stellar-sdk/blob/master/node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts#L56)
+**Source:** [node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts:56](https://github.com/stellar/js-stellar-sdk/blob/main/node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts#L56)
 
 ### `badRequestError.cause`
 
@@ -326,7 +326,7 @@ static prepareStackTrace(err: Error, stackTraces: CallSite[]): any;
 cause?: unknown;
 ```
 
-**Source:** [node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es2022.error.d.ts:26](https://github.com/stellar/js-stellar-sdk/blob/master/node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es2022.error.d.ts#L26)
+**Source:** [node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es2022.error.d.ts:26](https://github.com/stellar/js-stellar-sdk/blob/main/node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es2022.error.d.ts#L26)
 
 ### `badRequestError.message`
 
@@ -334,7 +334,7 @@ cause?: unknown;
 message: string;
 ```
 
-**Source:** [node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts:1077](https://github.com/stellar/js-stellar-sdk/blob/master/node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts#L1077)
+**Source:** [node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts:1077](https://github.com/stellar/js-stellar-sdk/blob/main/node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts#L1077)
 
 ### `badRequestError.name`
 
@@ -342,7 +342,7 @@ message: string;
 name: string;
 ```
 
-**Source:** [node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts:1076](https://github.com/stellar/js-stellar-sdk/blob/master/node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts#L1076)
+**Source:** [node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts:1076](https://github.com/stellar/js-stellar-sdk/blob/main/node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts#L1076)
 
 ### `badRequestError.response`
 
@@ -352,7 +352,7 @@ Response details, received from the Horizon server.
 response: { data?: ErrorResponseData; status?: number; statusText?: string; url?: string };
 ```
 
-**Source:** [src/errors/network.ts:18](https://github.com/stellar/js-stellar-sdk/blob/master/src/errors/network.ts#L18)
+**Source:** [src/errors/network.ts:18](https://github.com/stellar/js-stellar-sdk/blob/main/src/errors/network.ts#L18)
 
 ### `badRequestError.stack`
 
@@ -360,7 +360,7 @@ response: { data?: ErrorResponseData; status?: number; statusText?: string; url?
 stack?: string;
 ```
 
-**Source:** [node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts:1078](https://github.com/stellar/js-stellar-sdk/blob/master/node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts#L1078)
+**Source:** [node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts:1078](https://github.com/stellar/js-stellar-sdk/blob/main/node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts#L1078)
 
 ### `badRequestError.getResponse()`
 
@@ -374,7 +374,7 @@ getResponse(): { data?: ErrorResponseData; status?: number; statusText?: string;
 
 Response details, received from the Horizon server.
 
-**Source:** [src/errors/network.ts:38](https://github.com/stellar/js-stellar-sdk/blob/master/src/errors/network.ts#L38)
+**Source:** [src/errors/network.ts:38](https://github.com/stellar/js-stellar-sdk/blob/main/src/errors/network.ts#L38)
 
 ## BadResponseError
 
@@ -399,7 +399,7 @@ class BadResponseError extends NetworkError {
 }
 ```
 
-**Source:** [src/errors/bad_response.ts:13](https://github.com/stellar/js-stellar-sdk/blob/master/src/errors/bad_response.ts#L13)
+**Source:** [src/errors/bad_response.ts:13](https://github.com/stellar/js-stellar-sdk/blob/main/src/errors/bad_response.ts#L13)
 
 ### `new BadResponseError(message, response)`
 
@@ -412,7 +412,7 @@ constructor(message: string, response: any);
 - **`message`** — `string` (required)
 - **`response`** — `any` (required)
 
-**Source:** [src/errors/network.ts:29](https://github.com/stellar/js-stellar-sdk/blob/master/src/errors/network.ts#L29)
+**Source:** [src/errors/network.ts:29](https://github.com/stellar/js-stellar-sdk/blob/main/src/errors/network.ts#L29)
 
 ### `BadResponseError.stackTraceLimit`
 
@@ -430,7 +430,7 @@ not capture any frames.
 static stackTraceLimit: number;
 ```
 
-**Source:** [node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts:68](https://github.com/stellar/js-stellar-sdk/blob/master/node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts#L68)
+**Source:** [node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts:68](https://github.com/stellar/js-stellar-sdk/blob/main/node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts#L68)
 
 ### `BadResponseError.captureStackTrace(targetObject, constructorOpt)`
 
@@ -487,7 +487,7 @@ static captureStackTrace(targetObject: object, constructorOpt?: Function): void;
 - **`targetObject`** — `object` (required)
 - **`constructorOpt`** — `Function` (optional)
 
-**Source:** [node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts:52](https://github.com/stellar/js-stellar-sdk/blob/master/node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts#L52)
+**Source:** [node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts:52](https://github.com/stellar/js-stellar-sdk/blob/main/node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts#L52)
 
 ### `BadResponseError.prepareStackTrace(err, stackTraces)`
 
@@ -504,7 +504,7 @@ static prepareStackTrace(err: Error, stackTraces: CallSite[]): any;
 
 - https://v8.dev/docs/stack-trace-api#customizing-stack-traces
 
-**Source:** [node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts:56](https://github.com/stellar/js-stellar-sdk/blob/master/node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts#L56)
+**Source:** [node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts:56](https://github.com/stellar/js-stellar-sdk/blob/main/node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts#L56)
 
 ### `badResponseError.cause`
 
@@ -512,7 +512,7 @@ static prepareStackTrace(err: Error, stackTraces: CallSite[]): any;
 cause?: unknown;
 ```
 
-**Source:** [node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es2022.error.d.ts:26](https://github.com/stellar/js-stellar-sdk/blob/master/node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es2022.error.d.ts#L26)
+**Source:** [node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es2022.error.d.ts:26](https://github.com/stellar/js-stellar-sdk/blob/main/node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es2022.error.d.ts#L26)
 
 ### `badResponseError.message`
 
@@ -520,7 +520,7 @@ cause?: unknown;
 message: string;
 ```
 
-**Source:** [node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts:1077](https://github.com/stellar/js-stellar-sdk/blob/master/node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts#L1077)
+**Source:** [node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts:1077](https://github.com/stellar/js-stellar-sdk/blob/main/node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts#L1077)
 
 ### `badResponseError.name`
 
@@ -528,7 +528,7 @@ message: string;
 name: string;
 ```
 
-**Source:** [node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts:1076](https://github.com/stellar/js-stellar-sdk/blob/master/node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts#L1076)
+**Source:** [node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts:1076](https://github.com/stellar/js-stellar-sdk/blob/main/node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts#L1076)
 
 ### `badResponseError.response`
 
@@ -538,7 +538,7 @@ Response details, received from the Horizon server.
 response: { data?: ErrorResponseData; status?: number; statusText?: string; url?: string };
 ```
 
-**Source:** [src/errors/network.ts:18](https://github.com/stellar/js-stellar-sdk/blob/master/src/errors/network.ts#L18)
+**Source:** [src/errors/network.ts:18](https://github.com/stellar/js-stellar-sdk/blob/main/src/errors/network.ts#L18)
 
 ### `badResponseError.stack`
 
@@ -546,7 +546,7 @@ response: { data?: ErrorResponseData; status?: number; statusText?: string; url?
 stack?: string;
 ```
 
-**Source:** [node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts:1078](https://github.com/stellar/js-stellar-sdk/blob/master/node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts#L1078)
+**Source:** [node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts:1078](https://github.com/stellar/js-stellar-sdk/blob/main/node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts#L1078)
 
 ### `badResponseError.getResponse()`
 
@@ -560,7 +560,7 @@ getResponse(): { data?: ErrorResponseData; status?: number; statusText?: string;
 
 Response details, received from the Horizon server.
 
-**Source:** [src/errors/network.ts:38](https://github.com/stellar/js-stellar-sdk/blob/master/src/errors/network.ts#L38)
+**Source:** [src/errors/network.ts:38](https://github.com/stellar/js-stellar-sdk/blob/main/src/errors/network.ts#L38)
 
 ## NetworkError
 
@@ -582,7 +582,7 @@ class NetworkError extends Error {
 }
 ```
 
-**Source:** [src/errors/network.ts:16](https://github.com/stellar/js-stellar-sdk/blob/master/src/errors/network.ts#L16)
+**Source:** [src/errors/network.ts:16](https://github.com/stellar/js-stellar-sdk/blob/main/src/errors/network.ts#L16)
 
 ### `new NetworkError(message, response)`
 
@@ -595,7 +595,7 @@ constructor(message: string, response: any);
 - **`message`** — `string` (required)
 - **`response`** — `any` (required)
 
-**Source:** [src/errors/network.ts:29](https://github.com/stellar/js-stellar-sdk/blob/master/src/errors/network.ts#L29)
+**Source:** [src/errors/network.ts:29](https://github.com/stellar/js-stellar-sdk/blob/main/src/errors/network.ts#L29)
 
 ### `NetworkError.stackTraceLimit`
 
@@ -613,7 +613,7 @@ not capture any frames.
 static stackTraceLimit: number;
 ```
 
-**Source:** [node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts:68](https://github.com/stellar/js-stellar-sdk/blob/master/node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts#L68)
+**Source:** [node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts:68](https://github.com/stellar/js-stellar-sdk/blob/main/node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts#L68)
 
 ### `NetworkError.captureStackTrace(targetObject, constructorOpt)`
 
@@ -670,7 +670,7 @@ static captureStackTrace(targetObject: object, constructorOpt?: Function): void;
 - **`targetObject`** — `object` (required)
 - **`constructorOpt`** — `Function` (optional)
 
-**Source:** [node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts:52](https://github.com/stellar/js-stellar-sdk/blob/master/node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts#L52)
+**Source:** [node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts:52](https://github.com/stellar/js-stellar-sdk/blob/main/node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts#L52)
 
 ### `NetworkError.prepareStackTrace(err, stackTraces)`
 
@@ -687,7 +687,7 @@ static prepareStackTrace(err: Error, stackTraces: CallSite[]): any;
 
 - https://v8.dev/docs/stack-trace-api#customizing-stack-traces
 
-**Source:** [node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts:56](https://github.com/stellar/js-stellar-sdk/blob/master/node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts#L56)
+**Source:** [node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts:56](https://github.com/stellar/js-stellar-sdk/blob/main/node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts#L56)
 
 ### `networkError.cause`
 
@@ -695,7 +695,7 @@ static prepareStackTrace(err: Error, stackTraces: CallSite[]): any;
 cause?: unknown;
 ```
 
-**Source:** [node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es2022.error.d.ts:26](https://github.com/stellar/js-stellar-sdk/blob/master/node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es2022.error.d.ts#L26)
+**Source:** [node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es2022.error.d.ts:26](https://github.com/stellar/js-stellar-sdk/blob/main/node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es2022.error.d.ts#L26)
 
 ### `networkError.message`
 
@@ -703,7 +703,7 @@ cause?: unknown;
 message: string;
 ```
 
-**Source:** [node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts:1077](https://github.com/stellar/js-stellar-sdk/blob/master/node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts#L1077)
+**Source:** [node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts:1077](https://github.com/stellar/js-stellar-sdk/blob/main/node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts#L1077)
 
 ### `networkError.name`
 
@@ -711,7 +711,7 @@ message: string;
 name: string;
 ```
 
-**Source:** [node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts:1076](https://github.com/stellar/js-stellar-sdk/blob/master/node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts#L1076)
+**Source:** [node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts:1076](https://github.com/stellar/js-stellar-sdk/blob/main/node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts#L1076)
 
 ### `networkError.response`
 
@@ -721,7 +721,7 @@ Response details, received from the Horizon server.
 response: { data?: ErrorResponseData; status?: number; statusText?: string; url?: string };
 ```
 
-**Source:** [src/errors/network.ts:18](https://github.com/stellar/js-stellar-sdk/blob/master/src/errors/network.ts#L18)
+**Source:** [src/errors/network.ts:18](https://github.com/stellar/js-stellar-sdk/blob/main/src/errors/network.ts#L18)
 
 ### `networkError.stack`
 
@@ -729,7 +729,7 @@ response: { data?: ErrorResponseData; status?: number; statusText?: string; url?
 stack?: string;
 ```
 
-**Source:** [node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts:1078](https://github.com/stellar/js-stellar-sdk/blob/master/node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts#L1078)
+**Source:** [node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts:1078](https://github.com/stellar/js-stellar-sdk/blob/main/node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts#L1078)
 
 ### `networkError.getResponse()`
 
@@ -743,7 +743,7 @@ getResponse(): { data?: ErrorResponseData; status?: number; statusText?: string;
 
 Response details, received from the Horizon server.
 
-**Source:** [src/errors/network.ts:38](https://github.com/stellar/js-stellar-sdk/blob/master/src/errors/network.ts#L38)
+**Source:** [src/errors/network.ts:38](https://github.com/stellar/js-stellar-sdk/blob/main/src/errors/network.ts#L38)
 
 ## NotFoundError
 
@@ -765,7 +765,7 @@ class NotFoundError extends NetworkError {
 }
 ```
 
-**Source:** [src/errors/not_found.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/errors/not_found.ts#L10)
+**Source:** [src/errors/not_found.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/errors/not_found.ts#L10)
 
 ### `new NotFoundError(message, response)`
 
@@ -778,7 +778,7 @@ constructor(message: string, response: any);
 - **`message`** — `string` (required)
 - **`response`** — `any` (required)
 
-**Source:** [src/errors/network.ts:29](https://github.com/stellar/js-stellar-sdk/blob/master/src/errors/network.ts#L29)
+**Source:** [src/errors/network.ts:29](https://github.com/stellar/js-stellar-sdk/blob/main/src/errors/network.ts#L29)
 
 ### `NotFoundError.stackTraceLimit`
 
@@ -796,7 +796,7 @@ not capture any frames.
 static stackTraceLimit: number;
 ```
 
-**Source:** [node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts:68](https://github.com/stellar/js-stellar-sdk/blob/master/node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts#L68)
+**Source:** [node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts:68](https://github.com/stellar/js-stellar-sdk/blob/main/node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts#L68)
 
 ### `NotFoundError.captureStackTrace(targetObject, constructorOpt)`
 
@@ -853,7 +853,7 @@ static captureStackTrace(targetObject: object, constructorOpt?: Function): void;
 - **`targetObject`** — `object` (required)
 - **`constructorOpt`** — `Function` (optional)
 
-**Source:** [node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts:52](https://github.com/stellar/js-stellar-sdk/blob/master/node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts#L52)
+**Source:** [node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts:52](https://github.com/stellar/js-stellar-sdk/blob/main/node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts#L52)
 
 ### `NotFoundError.prepareStackTrace(err, stackTraces)`
 
@@ -870,7 +870,7 @@ static prepareStackTrace(err: Error, stackTraces: CallSite[]): any;
 
 - https://v8.dev/docs/stack-trace-api#customizing-stack-traces
 
-**Source:** [node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts:56](https://github.com/stellar/js-stellar-sdk/blob/master/node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts#L56)
+**Source:** [node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts:56](https://github.com/stellar/js-stellar-sdk/blob/main/node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts#L56)
 
 ### `notFoundError.cause`
 
@@ -878,7 +878,7 @@ static prepareStackTrace(err: Error, stackTraces: CallSite[]): any;
 cause?: unknown;
 ```
 
-**Source:** [node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es2022.error.d.ts:26](https://github.com/stellar/js-stellar-sdk/blob/master/node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es2022.error.d.ts#L26)
+**Source:** [node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es2022.error.d.ts:26](https://github.com/stellar/js-stellar-sdk/blob/main/node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es2022.error.d.ts#L26)
 
 ### `notFoundError.message`
 
@@ -886,7 +886,7 @@ cause?: unknown;
 message: string;
 ```
 
-**Source:** [node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts:1077](https://github.com/stellar/js-stellar-sdk/blob/master/node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts#L1077)
+**Source:** [node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts:1077](https://github.com/stellar/js-stellar-sdk/blob/main/node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts#L1077)
 
 ### `notFoundError.name`
 
@@ -894,7 +894,7 @@ message: string;
 name: string;
 ```
 
-**Source:** [node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts:1076](https://github.com/stellar/js-stellar-sdk/blob/master/node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts#L1076)
+**Source:** [node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts:1076](https://github.com/stellar/js-stellar-sdk/blob/main/node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts#L1076)
 
 ### `notFoundError.response`
 
@@ -904,7 +904,7 @@ Response details, received from the Horizon server.
 response: { data?: ErrorResponseData; status?: number; statusText?: string; url?: string };
 ```
 
-**Source:** [src/errors/network.ts:18](https://github.com/stellar/js-stellar-sdk/blob/master/src/errors/network.ts#L18)
+**Source:** [src/errors/network.ts:18](https://github.com/stellar/js-stellar-sdk/blob/main/src/errors/network.ts#L18)
 
 ### `notFoundError.stack`
 
@@ -912,7 +912,7 @@ response: { data?: ErrorResponseData; status?: number; statusText?: string; url?
 stack?: string;
 ```
 
-**Source:** [node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts:1078](https://github.com/stellar/js-stellar-sdk/blob/master/node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts#L1078)
+**Source:** [node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts:1078](https://github.com/stellar/js-stellar-sdk/blob/main/node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts#L1078)
 
 ### `notFoundError.getResponse()`
 
@@ -926,7 +926,7 @@ getResponse(): { data?: ErrorResponseData; status?: number; statusText?: string;
 
 Response details, received from the Horizon server.
 
-**Source:** [src/errors/network.ts:38](https://github.com/stellar/js-stellar-sdk/blob/master/src/errors/network.ts#L38)
+**Source:** [src/errors/network.ts:38](https://github.com/stellar/js-stellar-sdk/blob/main/src/errors/network.ts#L38)
 
 ## WebAuth.InvalidChallengeError
 
@@ -947,7 +947,7 @@ class InvalidChallengeError extends Error {
 }
 ```
 
-**Source:** [src/webauth/errors.ts:8](https://github.com/stellar/js-stellar-sdk/blob/master/src/webauth/errors.ts#L8)
+**Source:** [src/webauth/errors.ts:8](https://github.com/stellar/js-stellar-sdk/blob/main/src/webauth/errors.ts#L8)
 
 ### `new InvalidChallengeError(message)`
 
@@ -959,7 +959,7 @@ constructor(message?: string);
 
 - **`message`** — `string` (optional)
 
-**Source:** [node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts:1082](https://github.com/stellar/js-stellar-sdk/blob/master/node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts#L1082)
+**Source:** [node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts:1082](https://github.com/stellar/js-stellar-sdk/blob/main/node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts#L1082)
 
 ### `InvalidChallengeError.stackTraceLimit`
 
@@ -977,7 +977,7 @@ not capture any frames.
 static stackTraceLimit: number;
 ```
 
-**Source:** [node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts:68](https://github.com/stellar/js-stellar-sdk/blob/master/node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts#L68)
+**Source:** [node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts:68](https://github.com/stellar/js-stellar-sdk/blob/main/node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts#L68)
 
 ### `InvalidChallengeError.captureStackTrace(targetObject, constructorOpt)`
 
@@ -1034,7 +1034,7 @@ static captureStackTrace(targetObject: object, constructorOpt?: Function): void;
 - **`targetObject`** — `object` (required)
 - **`constructorOpt`** — `Function` (optional)
 
-**Source:** [node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts:52](https://github.com/stellar/js-stellar-sdk/blob/master/node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts#L52)
+**Source:** [node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts:52](https://github.com/stellar/js-stellar-sdk/blob/main/node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts#L52)
 
 ### `InvalidChallengeError.prepareStackTrace(err, stackTraces)`
 
@@ -1051,7 +1051,7 @@ static prepareStackTrace(err: Error, stackTraces: CallSite[]): any;
 
 - https://v8.dev/docs/stack-trace-api#customizing-stack-traces
 
-**Source:** [node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts:56](https://github.com/stellar/js-stellar-sdk/blob/master/node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts#L56)
+**Source:** [node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts:56](https://github.com/stellar/js-stellar-sdk/blob/main/node_modules/.pnpm/@types+node@22.19.17/node_modules/@types/node/globals.d.ts#L56)
 
 ### `invalidChallengeError.cause`
 
@@ -1059,7 +1059,7 @@ static prepareStackTrace(err: Error, stackTraces: CallSite[]): any;
 cause?: unknown;
 ```
 
-**Source:** [node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es2022.error.d.ts:26](https://github.com/stellar/js-stellar-sdk/blob/master/node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es2022.error.d.ts#L26)
+**Source:** [node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es2022.error.d.ts:26](https://github.com/stellar/js-stellar-sdk/blob/main/node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es2022.error.d.ts#L26)
 
 ### `invalidChallengeError.message`
 
@@ -1067,7 +1067,7 @@ cause?: unknown;
 message: string;
 ```
 
-**Source:** [node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts:1077](https://github.com/stellar/js-stellar-sdk/blob/master/node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts#L1077)
+**Source:** [node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts:1077](https://github.com/stellar/js-stellar-sdk/blob/main/node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts#L1077)
 
 ### `invalidChallengeError.name`
 
@@ -1075,7 +1075,7 @@ message: string;
 name: string;
 ```
 
-**Source:** [node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts:1076](https://github.com/stellar/js-stellar-sdk/blob/master/node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts#L1076)
+**Source:** [node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts:1076](https://github.com/stellar/js-stellar-sdk/blob/main/node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts#L1076)
 
 ### `invalidChallengeError.stack`
 
@@ -1083,4 +1083,4 @@ name: string;
 stack?: string;
 ```
 
-**Source:** [node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts:1078](https://github.com/stellar/js-stellar-sdk/blob/master/node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts#L1078)
+**Source:** [node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts:1078](https://github.com/stellar/js-stellar-sdk/blob/main/node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/lib.es5.d.ts#L1078)

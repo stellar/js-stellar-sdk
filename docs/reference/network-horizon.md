@@ -22,7 +22,7 @@ interface AccountMergeOperationResponse extends BaseOperationResponse<OperationR
 }
 ```
 
-**Source:** [src/horizon/horizon_api.ts:416](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L416)
+**Source:** [src/horizon/horizon_api.ts:416](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L416)
 
 ### `accountMergeOperationResponse._links`
 
@@ -30,7 +30,7 @@ interface AccountMergeOperationResponse extends BaseOperationResponse<OperationR
 _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; succeeds: ResponseLink; transaction: ResponseLink };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L10)
+**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L10)
 
 ### `accountMergeOperationResponse.created_at`
 
@@ -38,7 +38,7 @@ _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; suc
 created_at: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L268)
+**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L268)
 
 ### `accountMergeOperationResponse.id`
 
@@ -46,7 +46,7 @@ created_at: string;
 id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L263)
+**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L263)
 
 ### `accountMergeOperationResponse.into`
 
@@ -54,7 +54,7 @@ id: string;
 into: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:420](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L420)
+**Source:** [src/horizon/horizon_api.ts:420](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L420)
 
 ### `accountMergeOperationResponse.paging_token`
 
@@ -62,7 +62,7 @@ into: string;
 paging_token: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L264)
+**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L264)
 
 ### `accountMergeOperationResponse.source_account`
 
@@ -70,7 +70,7 @@ paging_token: string;
 source_account: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L265)
+**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L265)
 
 ### `accountMergeOperationResponse.transaction_hash`
 
@@ -78,7 +78,7 @@ source_account: string;
 transaction_hash: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L269)
+**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L269)
 
 ### `accountMergeOperationResponse.transaction_successful`
 
@@ -86,7 +86,7 @@ transaction_hash: string;
 transaction_successful: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L270)
+**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L270)
 
 ### `accountMergeOperationResponse.type`
 
@@ -94,7 +94,7 @@ transaction_successful: boolean;
 type: accountMerge;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L266)
+**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L266)
 
 ### `accountMergeOperationResponse.type_i`
 
@@ -102,7 +102,7 @@ type: accountMerge;
 type_i: accountMerge;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L267)
+**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L267)
 
 ## Horizon.HorizonApi.AccountResponse
 
@@ -129,7 +129,7 @@ interface AccountResponse extends BaseResponse<"transactions" | "operations" | "
 }
 ```
 
-**Source:** [src/horizon/horizon_api.ts:167](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L167)
+**Source:** [src/horizon/horizon_api.ts:167](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L167)
 
 ### `accountResponse._links`
 
@@ -137,7 +137,7 @@ interface AccountResponse extends BaseResponse<"transactions" | "operations" | "
 _links: { data: ResponseLink; effects: ResponseLink; offers: ResponseLink; operations: ResponseLink; payments: ResponseLink; self: ResponseLink; trades: ResponseLink; transactions: ResponseLink };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L10)
+**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L10)
 
 ### `accountResponse.account_id`
 
@@ -145,7 +145,7 @@ _links: { data: ResponseLink; effects: ResponseLink; offers: ResponseLink; opera
 account_id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:178](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L178)
+**Source:** [src/horizon/horizon_api.ts:178](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L178)
 
 ### `accountResponse.balances`
 
@@ -153,7 +153,7 @@ account_id: string;
 balances: (BalanceLineNative | BalanceLineLiquidityPool | BalanceLineAsset<"credit_alphanum4"> | BalanceLineAsset<"credit_alphanum12">)[];
 ```
 
-**Source:** [src/horizon/horizon_api.ts:187](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L187)
+**Source:** [src/horizon/horizon_api.ts:187](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L187)
 
 ### `accountResponse.data`
 
@@ -161,7 +161,7 @@ balances: (BalanceLineNative | BalanceLineLiquidityPool | BalanceLineAsset<"cred
 data: { [key: string]: string };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:189](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L189)
+**Source:** [src/horizon/horizon_api.ts:189](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L189)
 
 ### `accountResponse.flags`
 
@@ -169,7 +169,7 @@ data: { [key: string]: string };
 flags: Flags;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:186](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L186)
+**Source:** [src/horizon/horizon_api.ts:186](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L186)
 
 ### `accountResponse.id`
 
@@ -177,7 +177,7 @@ flags: Flags;
 id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:176](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L176)
+**Source:** [src/horizon/horizon_api.ts:176](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L176)
 
 ### `accountResponse.last_modified_ledger`
 
@@ -185,7 +185,7 @@ id: string;
 last_modified_ledger: number;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:184](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L184)
+**Source:** [src/horizon/horizon_api.ts:184](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L184)
 
 ### `accountResponse.last_modified_time`
 
@@ -193,7 +193,7 @@ last_modified_ledger: number;
 last_modified_time: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:185](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L185)
+**Source:** [src/horizon/horizon_api.ts:185](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L185)
 
 ### `accountResponse.num_sponsored`
 
@@ -201,7 +201,7 @@ last_modified_time: string;
 num_sponsored: number;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:194](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L194)
+**Source:** [src/horizon/horizon_api.ts:194](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L194)
 
 ### `accountResponse.num_sponsoring`
 
@@ -209,7 +209,7 @@ num_sponsored: number;
 num_sponsoring: number;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:193](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L193)
+**Source:** [src/horizon/horizon_api.ts:193](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L193)
 
 ### `accountResponse.paging_token`
 
@@ -217,7 +217,7 @@ num_sponsoring: number;
 paging_token: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:177](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L177)
+**Source:** [src/horizon/horizon_api.ts:177](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L177)
 
 ### `accountResponse.sequence`
 
@@ -225,7 +225,7 @@ paging_token: string;
 sequence: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:179](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L179)
+**Source:** [src/horizon/horizon_api.ts:179](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L179)
 
 ### `accountResponse.sequence_ledger`
 
@@ -233,7 +233,7 @@ sequence: string;
 sequence_ledger?: number;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:180](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L180)
+**Source:** [src/horizon/horizon_api.ts:180](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L180)
 
 ### `accountResponse.sequence_time`
 
@@ -241,7 +241,7 @@ sequence_ledger?: number;
 sequence_time?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:181](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L181)
+**Source:** [src/horizon/horizon_api.ts:181](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L181)
 
 ### `accountResponse.signers`
 
@@ -249,7 +249,7 @@ sequence_time?: string;
 signers: AccountSigner[];
 ```
 
-**Source:** [src/horizon/horizon_api.ts:188](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L188)
+**Source:** [src/horizon/horizon_api.ts:188](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L188)
 
 ### `accountResponse.sponsor`
 
@@ -257,7 +257,7 @@ signers: AccountSigner[];
 sponsor?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:192](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L192)
+**Source:** [src/horizon/horizon_api.ts:192](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L192)
 
 ### `accountResponse.subentry_count`
 
@@ -265,7 +265,7 @@ sponsor?: string;
 subentry_count: number;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:182](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L182)
+**Source:** [src/horizon/horizon_api.ts:182](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L182)
 
 ### `accountResponse.thresholds`
 
@@ -273,7 +273,7 @@ subentry_count: number;
 thresholds: AccountThresholds;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:183](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L183)
+**Source:** [src/horizon/horizon_api.ts:183](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L183)
 
 ## Horizon.HorizonApi.AccountSigner
 
@@ -286,7 +286,7 @@ interface AccountSigner {
 }
 ```
 
-**Source:** [src/horizon/horizon_api.ts:161](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L161)
+**Source:** [src/horizon/horizon_api.ts:161](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L161)
 
 ### `accountSigner.key`
 
@@ -294,7 +294,7 @@ interface AccountSigner {
 key: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:162](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L162)
+**Source:** [src/horizon/horizon_api.ts:162](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L162)
 
 ### `accountSigner.sponsor`
 
@@ -302,7 +302,7 @@ key: string;
 sponsor?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:165](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L165)
+**Source:** [src/horizon/horizon_api.ts:165](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L165)
 
 ### `accountSigner.type`
 
@@ -310,7 +310,7 @@ sponsor?: string;
 type: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:164](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L164)
+**Source:** [src/horizon/horizon_api.ts:164](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L164)
 
 ### `accountSigner.weight`
 
@@ -318,7 +318,7 @@ type: string;
 weight: number;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:163](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L163)
+**Source:** [src/horizon/horizon_api.ts:163](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L163)
 
 ## Horizon.HorizonApi.AccountThresholds
 
@@ -330,7 +330,7 @@ interface AccountThresholds {
 }
 ```
 
-**Source:** [src/horizon/horizon_api.ts:150](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L150)
+**Source:** [src/horizon/horizon_api.ts:150](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L150)
 
 ### `accountThresholds.high_threshold`
 
@@ -338,7 +338,7 @@ interface AccountThresholds {
 high_threshold: number;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:153](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L153)
+**Source:** [src/horizon/horizon_api.ts:153](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L153)
 
 ### `accountThresholds.low_threshold`
 
@@ -346,7 +346,7 @@ high_threshold: number;
 low_threshold: number;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:151](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L151)
+**Source:** [src/horizon/horizon_api.ts:151](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L151)
 
 ### `accountThresholds.med_threshold`
 
@@ -354,7 +354,7 @@ low_threshold: number;
 med_threshold: number;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:152](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L152)
+**Source:** [src/horizon/horizon_api.ts:152](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L152)
 
 ## Horizon.HorizonApi.AllowTrustOperationResponse
 
@@ -379,7 +379,7 @@ interface AllowTrustOperationResponse extends BaseOperationResponse<OperationRes
 }
 ```
 
-**Source:** [src/horizon/horizon_api.ts:404](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L404)
+**Source:** [src/horizon/horizon_api.ts:404](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L404)
 
 ### `allowTrustOperationResponse._links`
 
@@ -387,7 +387,7 @@ interface AllowTrustOperationResponse extends BaseOperationResponse<OperationRes
 _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; succeeds: ResponseLink; transaction: ResponseLink };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L10)
+**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L10)
 
 ### `allowTrustOperationResponse.asset_code`
 
@@ -395,7 +395,7 @@ _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; suc
 asset_code: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:409](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L409)
+**Source:** [src/horizon/horizon_api.ts:409](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L409)
 
 ### `allowTrustOperationResponse.asset_issuer`
 
@@ -403,7 +403,7 @@ asset_code: string;
 asset_issuer: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:410](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L410)
+**Source:** [src/horizon/horizon_api.ts:410](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L410)
 
 ### `allowTrustOperationResponse.asset_type`
 
@@ -411,7 +411,7 @@ asset_issuer: string;
 asset_type: AssetType;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:408](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L408)
+**Source:** [src/horizon/horizon_api.ts:408](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L408)
 
 ### `allowTrustOperationResponse.authorize`
 
@@ -419,7 +419,7 @@ asset_type: AssetType;
 authorize: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:411](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L411)
+**Source:** [src/horizon/horizon_api.ts:411](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L411)
 
 ### `allowTrustOperationResponse.authorize_to_maintain_liabilities`
 
@@ -427,7 +427,7 @@ authorize: boolean;
 authorize_to_maintain_liabilities: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:412](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L412)
+**Source:** [src/horizon/horizon_api.ts:412](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L412)
 
 ### `allowTrustOperationResponse.created_at`
 
@@ -435,7 +435,7 @@ authorize_to_maintain_liabilities: boolean;
 created_at: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L268)
+**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L268)
 
 ### `allowTrustOperationResponse.id`
 
@@ -443,7 +443,7 @@ created_at: string;
 id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L263)
+**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L263)
 
 ### `allowTrustOperationResponse.paging_token`
 
@@ -451,7 +451,7 @@ id: string;
 paging_token: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L264)
+**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L264)
 
 ### `allowTrustOperationResponse.source_account`
 
@@ -459,7 +459,7 @@ paging_token: string;
 source_account: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L265)
+**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L265)
 
 ### `allowTrustOperationResponse.transaction_hash`
 
@@ -467,7 +467,7 @@ source_account: string;
 transaction_hash: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L269)
+**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L269)
 
 ### `allowTrustOperationResponse.transaction_successful`
 
@@ -475,7 +475,7 @@ transaction_hash: string;
 transaction_successful: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L270)
+**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L270)
 
 ### `allowTrustOperationResponse.trustee`
 
@@ -483,7 +483,7 @@ transaction_successful: boolean;
 trustee: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:413](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L413)
+**Source:** [src/horizon/horizon_api.ts:413](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L413)
 
 ### `allowTrustOperationResponse.trustor`
 
@@ -491,7 +491,7 @@ trustee: string;
 trustor: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:414](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L414)
+**Source:** [src/horizon/horizon_api.ts:414](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L414)
 
 ### `allowTrustOperationResponse.type`
 
@@ -499,7 +499,7 @@ trustor: string;
 type: allowTrust;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L266)
+**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L266)
 
 ### `allowTrustOperationResponse.type_i`
 
@@ -507,7 +507,7 @@ type: allowTrust;
 type_i: allowTrust;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L267)
+**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L267)
 
 ## Horizon.HorizonApi.AssetAccounts
 
@@ -519,7 +519,7 @@ interface AssetAccounts {
 }
 ```
 
-**Source:** [src/horizon/horizon_api.ts:129](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L129)
+**Source:** [src/horizon/horizon_api.ts:129](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L129)
 
 ### `assetAccounts.authorized`
 
@@ -527,7 +527,7 @@ interface AssetAccounts {
 authorized: number;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:130](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L130)
+**Source:** [src/horizon/horizon_api.ts:130](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L130)
 
 ### `assetAccounts.authorized_to_maintain_liabilities`
 
@@ -535,7 +535,7 @@ authorized: number;
 authorized_to_maintain_liabilities: number;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:131](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L131)
+**Source:** [src/horizon/horizon_api.ts:131](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L131)
 
 ### `assetAccounts.unauthorized`
 
@@ -543,7 +543,7 @@ authorized_to_maintain_liabilities: number;
 unauthorized: number;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:132](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L132)
+**Source:** [src/horizon/horizon_api.ts:132](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L132)
 
 ## Horizon.HorizonApi.AssetBalances
 
@@ -555,7 +555,7 @@ interface AssetBalances {
 }
 ```
 
-**Source:** [src/horizon/horizon_api.ts:134](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L134)
+**Source:** [src/horizon/horizon_api.ts:134](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L134)
 
 ### `assetBalances.authorized`
 
@@ -563,7 +563,7 @@ interface AssetBalances {
 authorized: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:135](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L135)
+**Source:** [src/horizon/horizon_api.ts:135](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L135)
 
 ### `assetBalances.authorized_to_maintain_liabilities`
 
@@ -571,7 +571,7 @@ authorized: string;
 authorized_to_maintain_liabilities: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:136](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L136)
+**Source:** [src/horizon/horizon_api.ts:136](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L136)
 
 ### `assetBalances.unauthorized`
 
@@ -579,7 +579,7 @@ authorized_to_maintain_liabilities: string;
 unauthorized: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:137](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L137)
+**Source:** [src/horizon/horizon_api.ts:137](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L137)
 
 ## Horizon.HorizonApi.BalanceChange
 
@@ -596,7 +596,7 @@ interface BalanceChange {
 }
 ```
 
-**Source:** [src/horizon/horizon_api.ts:556](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L556)
+**Source:** [src/horizon/horizon_api.ts:556](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L556)
 
 ### `balanceChange.amount`
 
@@ -604,7 +604,7 @@ interface BalanceChange {
 amount: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:564](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L564)
+**Source:** [src/horizon/horizon_api.ts:564](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L564)
 
 ### `balanceChange.asset_code`
 
@@ -612,7 +612,7 @@ amount: string;
 asset_code?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:558](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L558)
+**Source:** [src/horizon/horizon_api.ts:558](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L558)
 
 ### `balanceChange.asset_issuer`
 
@@ -620,7 +620,7 @@ asset_code?: string;
 asset_issuer?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:559](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L559)
+**Source:** [src/horizon/horizon_api.ts:559](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L559)
 
 ### `balanceChange.asset_type`
 
@@ -628,7 +628,7 @@ asset_issuer?: string;
 asset_type: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:557](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L557)
+**Source:** [src/horizon/horizon_api.ts:557](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L557)
 
 ### `balanceChange.destination_muxed_id`
 
@@ -636,7 +636,7 @@ asset_type: string;
 destination_muxed_id?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:565](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L565)
+**Source:** [src/horizon/horizon_api.ts:565](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L565)
 
 ### `balanceChange.from`
 
@@ -644,7 +644,7 @@ destination_muxed_id?: string;
 from: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:562](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L562)
+**Source:** [src/horizon/horizon_api.ts:562](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L562)
 
 ### `balanceChange.to`
 
@@ -652,7 +652,7 @@ from: string;
 to: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:563](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L563)
+**Source:** [src/horizon/horizon_api.ts:563](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L563)
 
 ### `balanceChange.type`
 
@@ -660,7 +660,7 @@ to: string;
 type: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:561](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L561)
+**Source:** [src/horizon/horizon_api.ts:561](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L561)
 
 ## Horizon.HorizonApi.BalanceLine
 
@@ -668,7 +668,7 @@ type: string;
 type BalanceLine<T extends AssetType = AssetType> = T extends AssetType.native ? BalanceLineNative : T extends (AssetType.credit4 | AssetType.credit12) ? BalanceLineAsset<T> : T extends AssetType.liquidityPoolShares ? BalanceLineLiquidityPool : BalanceLineNative | BalanceLineAsset | BalanceLineLiquidityPool
 ```
 
-**Source:** [src/horizon/horizon_api.ts:120](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L120)
+**Source:** [src/horizon/horizon_api.ts:120](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L120)
 
 ## Horizon.HorizonApi.BalanceLineAsset
 
@@ -689,7 +689,7 @@ interface BalanceLineAsset<T extends AssetType.credit4 | AssetType.credit12 = As
 }
 ```
 
-**Source:** [src/horizon/horizon_api.ts:102](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L102)
+**Source:** [src/horizon/horizon_api.ts:102](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L102)
 
 ### `balanceLineAsset.asset_code`
 
@@ -697,7 +697,7 @@ interface BalanceLineAsset<T extends AssetType.credit4 | AssetType.credit12 = As
 asset_code: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:110](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L110)
+**Source:** [src/horizon/horizon_api.ts:110](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L110)
 
 ### `balanceLineAsset.asset_issuer`
 
@@ -705,7 +705,7 @@ asset_code: string;
 asset_issuer: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:111](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L111)
+**Source:** [src/horizon/horizon_api.ts:111](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L111)
 
 ### `balanceLineAsset.asset_type`
 
@@ -713,7 +713,7 @@ asset_issuer: string;
 asset_type: T;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:109](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L109)
+**Source:** [src/horizon/horizon_api.ts:109](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L109)
 
 ### `balanceLineAsset.balance`
 
@@ -721,7 +721,7 @@ asset_type: T;
 balance: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:107](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L107)
+**Source:** [src/horizon/horizon_api.ts:107](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L107)
 
 ### `balanceLineAsset.buying_liabilities`
 
@@ -729,7 +729,7 @@ balance: string;
 buying_liabilities: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:112](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L112)
+**Source:** [src/horizon/horizon_api.ts:112](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L112)
 
 ### `balanceLineAsset.is_authorized`
 
@@ -737,7 +737,7 @@ buying_liabilities: string;
 is_authorized: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:115](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L115)
+**Source:** [src/horizon/horizon_api.ts:115](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L115)
 
 ### `balanceLineAsset.is_authorized_to_maintain_liabilities`
 
@@ -745,7 +745,7 @@ is_authorized: boolean;
 is_authorized_to_maintain_liabilities: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:116](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L116)
+**Source:** [src/horizon/horizon_api.ts:116](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L116)
 
 ### `balanceLineAsset.is_clawback_enabled`
 
@@ -753,7 +753,7 @@ is_authorized_to_maintain_liabilities: boolean;
 is_clawback_enabled: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:117](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L117)
+**Source:** [src/horizon/horizon_api.ts:117](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L117)
 
 ### `balanceLineAsset.last_modified_ledger`
 
@@ -761,7 +761,7 @@ is_clawback_enabled: boolean;
 last_modified_ledger: number;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:114](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L114)
+**Source:** [src/horizon/horizon_api.ts:114](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L114)
 
 ### `balanceLineAsset.limit`
 
@@ -769,7 +769,7 @@ last_modified_ledger: number;
 limit: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:108](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L108)
+**Source:** [src/horizon/horizon_api.ts:108](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L108)
 
 ### `balanceLineAsset.selling_liabilities`
 
@@ -777,7 +777,7 @@ limit: string;
 selling_liabilities: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:113](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L113)
+**Source:** [src/horizon/horizon_api.ts:113](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L113)
 
 ### `balanceLineAsset.sponsor`
 
@@ -785,7 +785,7 @@ selling_liabilities: string;
 sponsor?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:118](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L118)
+**Source:** [src/horizon/horizon_api.ts:118](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L118)
 
 ## Horizon.HorizonApi.BalanceLineLiquidityPool
 
@@ -803,7 +803,7 @@ interface BalanceLineLiquidityPool {
 }
 ```
 
-**Source:** [src/horizon/horizon_api.ts:91](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L91)
+**Source:** [src/horizon/horizon_api.ts:91](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L91)
 
 ### `balanceLineLiquidityPool.asset_type`
 
@@ -811,7 +811,7 @@ interface BalanceLineLiquidityPool {
 asset_type: "liquidity_pool_shares";
 ```
 
-**Source:** [src/horizon/horizon_api.ts:93](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L93)
+**Source:** [src/horizon/horizon_api.ts:93](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L93)
 
 ### `balanceLineLiquidityPool.balance`
 
@@ -819,7 +819,7 @@ asset_type: "liquidity_pool_shares";
 balance: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:94](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L94)
+**Source:** [src/horizon/horizon_api.ts:94](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L94)
 
 ### `balanceLineLiquidityPool.is_authorized`
 
@@ -827,7 +827,7 @@ balance: string;
 is_authorized: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:97](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L97)
+**Source:** [src/horizon/horizon_api.ts:97](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L97)
 
 ### `balanceLineLiquidityPool.is_authorized_to_maintain_liabilities`
 
@@ -835,7 +835,7 @@ is_authorized: boolean;
 is_authorized_to_maintain_liabilities: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:98](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L98)
+**Source:** [src/horizon/horizon_api.ts:98](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L98)
 
 ### `balanceLineLiquidityPool.is_clawback_enabled`
 
@@ -843,7 +843,7 @@ is_authorized_to_maintain_liabilities: boolean;
 is_clawback_enabled: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:99](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L99)
+**Source:** [src/horizon/horizon_api.ts:99](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L99)
 
 ### `balanceLineLiquidityPool.last_modified_ledger`
 
@@ -851,7 +851,7 @@ is_clawback_enabled: boolean;
 last_modified_ledger: number;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:96](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L96)
+**Source:** [src/horizon/horizon_api.ts:96](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L96)
 
 ### `balanceLineLiquidityPool.limit`
 
@@ -859,7 +859,7 @@ last_modified_ledger: number;
 limit: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:95](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L95)
+**Source:** [src/horizon/horizon_api.ts:95](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L95)
 
 ### `balanceLineLiquidityPool.liquidity_pool_id`
 
@@ -867,7 +867,7 @@ limit: string;
 liquidity_pool_id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:92](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L92)
+**Source:** [src/horizon/horizon_api.ts:92](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L92)
 
 ### `balanceLineLiquidityPool.sponsor`
 
@@ -875,7 +875,7 @@ liquidity_pool_id: string;
 sponsor?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:100](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L100)
+**Source:** [src/horizon/horizon_api.ts:100](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L100)
 
 ## Horizon.HorizonApi.BalanceLineNative
 
@@ -888,7 +888,7 @@ interface BalanceLineNative {
 }
 ```
 
-**Source:** [src/horizon/horizon_api.ts:85](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L85)
+**Source:** [src/horizon/horizon_api.ts:85](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L85)
 
 ### `balanceLineNative.asset_type`
 
@@ -896,7 +896,7 @@ interface BalanceLineNative {
 asset_type: "native";
 ```
 
-**Source:** [src/horizon/horizon_api.ts:87](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L87)
+**Source:** [src/horizon/horizon_api.ts:87](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L87)
 
 ### `balanceLineNative.balance`
 
@@ -904,7 +904,7 @@ asset_type: "native";
 balance: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:86](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L86)
+**Source:** [src/horizon/horizon_api.ts:86](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L86)
 
 ### `balanceLineNative.buying_liabilities`
 
@@ -912,7 +912,7 @@ balance: string;
 buying_liabilities: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:88](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L88)
+**Source:** [src/horizon/horizon_api.ts:88](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L88)
 
 ### `balanceLineNative.selling_liabilities`
 
@@ -920,7 +920,7 @@ buying_liabilities: string;
 selling_liabilities: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:89](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L89)
+**Source:** [src/horizon/horizon_api.ts:89](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L89)
 
 ## Horizon.HorizonApi.BaseOperationResponse
 
@@ -938,7 +938,7 @@ interface BaseOperationResponse<T extends OperationResponseType = OperationRespo
 }
 ```
 
-**Source:** [src/horizon/horizon_api.ts:259](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L259)
+**Source:** [src/horizon/horizon_api.ts:259](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L259)
 
 ### `baseOperationResponse._links`
 
@@ -946,7 +946,7 @@ interface BaseOperationResponse<T extends OperationResponseType = OperationRespo
 _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; succeeds: ResponseLink; transaction: ResponseLink };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L10)
+**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L10)
 
 ### `baseOperationResponse.created_at`
 
@@ -954,7 +954,7 @@ _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; suc
 created_at: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L268)
+**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L268)
 
 ### `baseOperationResponse.id`
 
@@ -962,7 +962,7 @@ created_at: string;
 id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L263)
+**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L263)
 
 ### `baseOperationResponse.paging_token`
 
@@ -970,7 +970,7 @@ id: string;
 paging_token: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L264)
+**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L264)
 
 ### `baseOperationResponse.source_account`
 
@@ -978,7 +978,7 @@ paging_token: string;
 source_account: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L265)
+**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L265)
 
 ### `baseOperationResponse.transaction_hash`
 
@@ -986,7 +986,7 @@ source_account: string;
 transaction_hash: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L269)
+**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L269)
 
 ### `baseOperationResponse.transaction_successful`
 
@@ -994,7 +994,7 @@ transaction_hash: string;
 transaction_successful: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L270)
+**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L270)
 
 ### `baseOperationResponse.type`
 
@@ -1002,7 +1002,7 @@ transaction_successful: boolean;
 type: T;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L266)
+**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L266)
 
 ### `baseOperationResponse.type_i`
 
@@ -1010,7 +1010,7 @@ type: T;
 type_i: TI;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L267)
+**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L267)
 
 ## Horizon.HorizonApi.BaseResponse
 
@@ -1020,7 +1020,7 @@ interface BaseResponse<T extends string = never> {
 }
 ```
 
-**Source:** [src/horizon/horizon_api.ts:9](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L9)
+**Source:** [src/horizon/horizon_api.ts:9](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L9)
 
 ### `baseResponse._links`
 
@@ -1028,7 +1028,7 @@ interface BaseResponse<T extends string = never> {
 _links: { [key in string]: ResponseLink };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L10)
+**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L10)
 
 ## Horizon.HorizonApi.BeginSponsoringFutureReservesOperationResponse
 
@@ -1047,7 +1047,7 @@ interface BeginSponsoringFutureReservesOperationResponse extends BaseOperationRe
 }
 ```
 
-**Source:** [src/horizon/horizon_api.ts:470](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L470)
+**Source:** [src/horizon/horizon_api.ts:470](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L470)
 
 ### `beginSponsoringFutureReservesOperationResponse._links`
 
@@ -1055,7 +1055,7 @@ interface BeginSponsoringFutureReservesOperationResponse extends BaseOperationRe
 _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; succeeds: ResponseLink; transaction: ResponseLink };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L10)
+**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L10)
 
 ### `beginSponsoringFutureReservesOperationResponse.created_at`
 
@@ -1063,7 +1063,7 @@ _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; suc
 created_at: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L268)
+**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L268)
 
 ### `beginSponsoringFutureReservesOperationResponse.id`
 
@@ -1071,7 +1071,7 @@ created_at: string;
 id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L263)
+**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L263)
 
 ### `beginSponsoringFutureReservesOperationResponse.paging_token`
 
@@ -1079,7 +1079,7 @@ id: string;
 paging_token: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L264)
+**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L264)
 
 ### `beginSponsoringFutureReservesOperationResponse.source_account`
 
@@ -1087,7 +1087,7 @@ paging_token: string;
 source_account: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L265)
+**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L265)
 
 ### `beginSponsoringFutureReservesOperationResponse.sponsored_id`
 
@@ -1095,7 +1095,7 @@ source_account: string;
 sponsored_id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:474](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L474)
+**Source:** [src/horizon/horizon_api.ts:474](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L474)
 
 ### `beginSponsoringFutureReservesOperationResponse.transaction_hash`
 
@@ -1103,7 +1103,7 @@ sponsored_id: string;
 transaction_hash: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L269)
+**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L269)
 
 ### `beginSponsoringFutureReservesOperationResponse.transaction_successful`
 
@@ -1111,7 +1111,7 @@ transaction_hash: string;
 transaction_successful: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L270)
+**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L270)
 
 ### `beginSponsoringFutureReservesOperationResponse.type`
 
@@ -1119,7 +1119,7 @@ transaction_successful: boolean;
 type: beginSponsoringFutureReserves;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L266)
+**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L266)
 
 ### `beginSponsoringFutureReservesOperationResponse.type_i`
 
@@ -1127,7 +1127,7 @@ type: beginSponsoringFutureReserves;
 type_i: beginSponsoringFutureReserves;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L267)
+**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L267)
 
 ## Horizon.HorizonApi.BumpFootprintExpirationOperationResponse
 
@@ -1146,7 +1146,7 @@ interface BumpFootprintExpirationOperationResponse extends BaseOperationResponse
 }
 ```
 
-**Source:** [src/horizon/horizon_api.ts:582](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L582)
+**Source:** [src/horizon/horizon_api.ts:582](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L582)
 
 ### `bumpFootprintExpirationOperationResponse._links`
 
@@ -1154,7 +1154,7 @@ interface BumpFootprintExpirationOperationResponse extends BaseOperationResponse
 _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; succeeds: ResponseLink; transaction: ResponseLink };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L10)
+**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L10)
 
 ### `bumpFootprintExpirationOperationResponse.created_at`
 
@@ -1162,7 +1162,7 @@ _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; suc
 created_at: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L268)
+**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L268)
 
 ### `bumpFootprintExpirationOperationResponse.id`
 
@@ -1170,7 +1170,7 @@ created_at: string;
 id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L263)
+**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L263)
 
 ### `bumpFootprintExpirationOperationResponse.ledgers_to_expire`
 
@@ -1178,7 +1178,7 @@ id: string;
 ledgers_to_expire: number;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:586](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L586)
+**Source:** [src/horizon/horizon_api.ts:586](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L586)
 
 ### `bumpFootprintExpirationOperationResponse.paging_token`
 
@@ -1186,7 +1186,7 @@ ledgers_to_expire: number;
 paging_token: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L264)
+**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L264)
 
 ### `bumpFootprintExpirationOperationResponse.source_account`
 
@@ -1194,7 +1194,7 @@ paging_token: string;
 source_account: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L265)
+**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L265)
 
 ### `bumpFootprintExpirationOperationResponse.transaction_hash`
 
@@ -1202,7 +1202,7 @@ source_account: string;
 transaction_hash: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L269)
+**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L269)
 
 ### `bumpFootprintExpirationOperationResponse.transaction_successful`
 
@@ -1210,7 +1210,7 @@ transaction_hash: string;
 transaction_successful: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L270)
+**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L270)
 
 ### `bumpFootprintExpirationOperationResponse.type`
 
@@ -1218,7 +1218,7 @@ transaction_successful: boolean;
 type: bumpFootprintExpiration;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L266)
+**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L266)
 
 ### `bumpFootprintExpirationOperationResponse.type_i`
 
@@ -1226,7 +1226,7 @@ type: bumpFootprintExpiration;
 type_i: bumpFootprintExpiration;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L267)
+**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L267)
 
 ## Horizon.HorizonApi.BumpSequenceOperationResponse
 
@@ -1245,7 +1245,7 @@ interface BumpSequenceOperationResponse extends BaseOperationResponse<OperationR
 }
 ```
 
-**Source:** [src/horizon/horizon_api.ts:433](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L433)
+**Source:** [src/horizon/horizon_api.ts:433](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L433)
 
 ### `bumpSequenceOperationResponse._links`
 
@@ -1253,7 +1253,7 @@ interface BumpSequenceOperationResponse extends BaseOperationResponse<OperationR
 _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; succeeds: ResponseLink; transaction: ResponseLink };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L10)
+**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L10)
 
 ### `bumpSequenceOperationResponse.bump_to`
 
@@ -1261,7 +1261,7 @@ _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; suc
 bump_to: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:437](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L437)
+**Source:** [src/horizon/horizon_api.ts:437](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L437)
 
 ### `bumpSequenceOperationResponse.created_at`
 
@@ -1269,7 +1269,7 @@ bump_to: string;
 created_at: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L268)
+**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L268)
 
 ### `bumpSequenceOperationResponse.id`
 
@@ -1277,7 +1277,7 @@ created_at: string;
 id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L263)
+**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L263)
 
 ### `bumpSequenceOperationResponse.paging_token`
 
@@ -1285,7 +1285,7 @@ id: string;
 paging_token: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L264)
+**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L264)
 
 ### `bumpSequenceOperationResponse.source_account`
 
@@ -1293,7 +1293,7 @@ paging_token: string;
 source_account: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L265)
+**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L265)
 
 ### `bumpSequenceOperationResponse.transaction_hash`
 
@@ -1301,7 +1301,7 @@ source_account: string;
 transaction_hash: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L269)
+**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L269)
 
 ### `bumpSequenceOperationResponse.transaction_successful`
 
@@ -1309,7 +1309,7 @@ transaction_hash: string;
 transaction_successful: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L270)
+**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L270)
 
 ### `bumpSequenceOperationResponse.type`
 
@@ -1317,7 +1317,7 @@ transaction_successful: boolean;
 type: bumpSequence;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L266)
+**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L266)
 
 ### `bumpSequenceOperationResponse.type_i`
 
@@ -1325,7 +1325,7 @@ type: bumpSequence;
 type_i: bumpSequence;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L267)
+**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L267)
 
 ## Horizon.HorizonApi.ChangeTrustOperationResponse
 
@@ -1350,7 +1350,7 @@ interface ChangeTrustOperationResponse extends BaseOperationResponse<OperationRe
 }
 ```
 
-**Source:** [src/horizon/horizon_api.ts:389](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L389)
+**Source:** [src/horizon/horizon_api.ts:389](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L389)
 
 ### `changeTrustOperationResponse._links`
 
@@ -1358,7 +1358,7 @@ interface ChangeTrustOperationResponse extends BaseOperationResponse<OperationRe
 _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; succeeds: ResponseLink; transaction: ResponseLink };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L10)
+**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L10)
 
 ### `changeTrustOperationResponse.asset_code`
 
@@ -1366,7 +1366,7 @@ _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; suc
 asset_code?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:397](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L397)
+**Source:** [src/horizon/horizon_api.ts:397](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L397)
 
 ### `changeTrustOperationResponse.asset_issuer`
 
@@ -1374,7 +1374,7 @@ asset_code?: string;
 asset_issuer?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:398](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L398)
+**Source:** [src/horizon/horizon_api.ts:398](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L398)
 
 ### `changeTrustOperationResponse.asset_type`
 
@@ -1382,7 +1382,7 @@ asset_issuer?: string;
 asset_type: "credit_alphanum4" | "credit_alphanum12" | "liquidity_pool_shares";
 ```
 
-**Source:** [src/horizon/horizon_api.ts:393](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L393)
+**Source:** [src/horizon/horizon_api.ts:393](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L393)
 
 ### `changeTrustOperationResponse.created_at`
 
@@ -1390,7 +1390,7 @@ asset_type: "credit_alphanum4" | "credit_alphanum12" | "liquidity_pool_shares";
 created_at: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L268)
+**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L268)
 
 ### `changeTrustOperationResponse.id`
 
@@ -1398,7 +1398,7 @@ created_at: string;
 id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L263)
+**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L263)
 
 ### `changeTrustOperationResponse.limit`
 
@@ -1406,7 +1406,7 @@ id: string;
 limit: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:402](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L402)
+**Source:** [src/horizon/horizon_api.ts:402](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L402)
 
 ### `changeTrustOperationResponse.liquidity_pool_id`
 
@@ -1414,7 +1414,7 @@ limit: string;
 liquidity_pool_id?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:399](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L399)
+**Source:** [src/horizon/horizon_api.ts:399](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L399)
 
 ### `changeTrustOperationResponse.paging_token`
 
@@ -1422,7 +1422,7 @@ liquidity_pool_id?: string;
 paging_token: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L264)
+**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L264)
 
 ### `changeTrustOperationResponse.source_account`
 
@@ -1430,7 +1430,7 @@ paging_token: string;
 source_account: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L265)
+**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L265)
 
 ### `changeTrustOperationResponse.transaction_hash`
 
@@ -1438,7 +1438,7 @@ source_account: string;
 transaction_hash: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L269)
+**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L269)
 
 ### `changeTrustOperationResponse.transaction_successful`
 
@@ -1446,7 +1446,7 @@ transaction_hash: string;
 transaction_successful: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L270)
+**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L270)
 
 ### `changeTrustOperationResponse.trustee`
 
@@ -1454,7 +1454,7 @@ transaction_successful: boolean;
 trustee?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:400](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L400)
+**Source:** [src/horizon/horizon_api.ts:400](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L400)
 
 ### `changeTrustOperationResponse.trustor`
 
@@ -1462,7 +1462,7 @@ trustee?: string;
 trustor: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:401](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L401)
+**Source:** [src/horizon/horizon_api.ts:401](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L401)
 
 ### `changeTrustOperationResponse.type`
 
@@ -1470,7 +1470,7 @@ trustor: string;
 type: changeTrust;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L266)
+**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L266)
 
 ### `changeTrustOperationResponse.type_i`
 
@@ -1478,7 +1478,7 @@ type: changeTrust;
 type_i: changeTrust;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L267)
+**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L267)
 
 ## Horizon.HorizonApi.ClaimClaimableBalanceOperationResponse
 
@@ -1498,7 +1498,7 @@ interface ClaimClaimableBalanceOperationResponse extends BaseOperationResponse<O
 }
 ```
 
-**Source:** [src/horizon/horizon_api.ts:462](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L462)
+**Source:** [src/horizon/horizon_api.ts:462](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L462)
 
 ### `claimClaimableBalanceOperationResponse._links`
 
@@ -1506,7 +1506,7 @@ interface ClaimClaimableBalanceOperationResponse extends BaseOperationResponse<O
 _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; succeeds: ResponseLink; transaction: ResponseLink };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L10)
+**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L10)
 
 ### `claimClaimableBalanceOperationResponse.balance_id`
 
@@ -1514,7 +1514,7 @@ _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; suc
 balance_id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:466](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L466)
+**Source:** [src/horizon/horizon_api.ts:466](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L466)
 
 ### `claimClaimableBalanceOperationResponse.claimant`
 
@@ -1522,7 +1522,7 @@ balance_id: string;
 claimant: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:467](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L467)
+**Source:** [src/horizon/horizon_api.ts:467](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L467)
 
 ### `claimClaimableBalanceOperationResponse.created_at`
 
@@ -1530,7 +1530,7 @@ claimant: string;
 created_at: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L268)
+**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L268)
 
 ### `claimClaimableBalanceOperationResponse.id`
 
@@ -1538,7 +1538,7 @@ created_at: string;
 id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L263)
+**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L263)
 
 ### `claimClaimableBalanceOperationResponse.paging_token`
 
@@ -1546,7 +1546,7 @@ id: string;
 paging_token: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L264)
+**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L264)
 
 ### `claimClaimableBalanceOperationResponse.source_account`
 
@@ -1554,7 +1554,7 @@ paging_token: string;
 source_account: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L265)
+**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L265)
 
 ### `claimClaimableBalanceOperationResponse.transaction_hash`
 
@@ -1562,7 +1562,7 @@ source_account: string;
 transaction_hash: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L269)
+**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L269)
 
 ### `claimClaimableBalanceOperationResponse.transaction_successful`
 
@@ -1570,7 +1570,7 @@ transaction_hash: string;
 transaction_successful: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L270)
+**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L270)
 
 ### `claimClaimableBalanceOperationResponse.type`
 
@@ -1578,7 +1578,7 @@ transaction_successful: boolean;
 type: claimClaimableBalance;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L266)
+**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L266)
 
 ### `claimClaimableBalanceOperationResponse.type_i`
 
@@ -1586,7 +1586,7 @@ type: claimClaimableBalance;
 type_i: claimClaimableBalance;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L267)
+**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L267)
 
 ## Horizon.HorizonApi.Claimant
 
@@ -1597,7 +1597,7 @@ interface Claimant {
 }
 ```
 
-**Source:** [src/horizon/horizon_api.ts:447](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L447)
+**Source:** [src/horizon/horizon_api.ts:447](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L447)
 
 ### `claimant.destination`
 
@@ -1605,7 +1605,7 @@ interface Claimant {
 destination: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:448](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L448)
+**Source:** [src/horizon/horizon_api.ts:448](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L448)
 
 ### `claimant.predicate`
 
@@ -1613,7 +1613,7 @@ destination: string;
 predicate: Predicate;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:449](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L449)
+**Source:** [src/horizon/horizon_api.ts:449](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L449)
 
 ## Horizon.HorizonApi.ClawbackClaimableBalanceOperationResponse
 
@@ -1632,7 +1632,7 @@ interface ClawbackClaimableBalanceOperationResponse extends BaseOperationRespons
 }
 ```
 
-**Source:** [src/horizon/horizon_api.ts:511](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L511)
+**Source:** [src/horizon/horizon_api.ts:511](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L511)
 
 ### `clawbackClaimableBalanceOperationResponse._links`
 
@@ -1640,7 +1640,7 @@ interface ClawbackClaimableBalanceOperationResponse extends BaseOperationRespons
 _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; succeeds: ResponseLink; transaction: ResponseLink };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L10)
+**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L10)
 
 ### `clawbackClaimableBalanceOperationResponse.balance_id`
 
@@ -1648,7 +1648,7 @@ _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; suc
 balance_id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:515](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L515)
+**Source:** [src/horizon/horizon_api.ts:515](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L515)
 
 ### `clawbackClaimableBalanceOperationResponse.created_at`
 
@@ -1656,7 +1656,7 @@ balance_id: string;
 created_at: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L268)
+**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L268)
 
 ### `clawbackClaimableBalanceOperationResponse.id`
 
@@ -1664,7 +1664,7 @@ created_at: string;
 id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L263)
+**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L263)
 
 ### `clawbackClaimableBalanceOperationResponse.paging_token`
 
@@ -1672,7 +1672,7 @@ id: string;
 paging_token: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L264)
+**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L264)
 
 ### `clawbackClaimableBalanceOperationResponse.source_account`
 
@@ -1680,7 +1680,7 @@ paging_token: string;
 source_account: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L265)
+**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L265)
 
 ### `clawbackClaimableBalanceOperationResponse.transaction_hash`
 
@@ -1688,7 +1688,7 @@ source_account: string;
 transaction_hash: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L269)
+**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L269)
 
 ### `clawbackClaimableBalanceOperationResponse.transaction_successful`
 
@@ -1696,7 +1696,7 @@ transaction_hash: string;
 transaction_successful: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L270)
+**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L270)
 
 ### `clawbackClaimableBalanceOperationResponse.type`
 
@@ -1704,7 +1704,7 @@ transaction_successful: boolean;
 type: clawbackClaimableBalance;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L266)
+**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L266)
 
 ### `clawbackClaimableBalanceOperationResponse.type_i`
 
@@ -1712,7 +1712,7 @@ type: clawbackClaimableBalance;
 type_i: clawbackClaimableBalance;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L267)
+**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L267)
 
 ## Horizon.HorizonApi.ClawbackOperationResponse
 
@@ -1735,7 +1735,7 @@ interface ClawbackOperationResponse extends BaseOperationResponse<OperationRespo
 }
 ```
 
-**Source:** [src/horizon/horizon_api.ts:500](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L500)
+**Source:** [src/horizon/horizon_api.ts:500](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L500)
 
 ### `clawbackOperationResponse._links`
 
@@ -1743,7 +1743,7 @@ interface ClawbackOperationResponse extends BaseOperationResponse<OperationRespo
 _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; succeeds: ResponseLink; transaction: ResponseLink };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L10)
+**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L10)
 
 ### `clawbackOperationResponse.amount`
 
@@ -1751,7 +1751,7 @@ _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; suc
 amount: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:508](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L508)
+**Source:** [src/horizon/horizon_api.ts:508](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L508)
 
 ### `clawbackOperationResponse.asset_code`
 
@@ -1759,7 +1759,7 @@ amount: string;
 asset_code: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:505](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L505)
+**Source:** [src/horizon/horizon_api.ts:505](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L505)
 
 ### `clawbackOperationResponse.asset_issuer`
 
@@ -1767,7 +1767,7 @@ asset_code: string;
 asset_issuer: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:506](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L506)
+**Source:** [src/horizon/horizon_api.ts:506](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L506)
 
 ### `clawbackOperationResponse.asset_type`
 
@@ -1775,7 +1775,7 @@ asset_issuer: string;
 asset_type: AssetType;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:504](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L504)
+**Source:** [src/horizon/horizon_api.ts:504](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L504)
 
 ### `clawbackOperationResponse.created_at`
 
@@ -1783,7 +1783,7 @@ asset_type: AssetType;
 created_at: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L268)
+**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L268)
 
 ### `clawbackOperationResponse.from`
 
@@ -1791,7 +1791,7 @@ created_at: string;
 from: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:507](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L507)
+**Source:** [src/horizon/horizon_api.ts:507](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L507)
 
 ### `clawbackOperationResponse.id`
 
@@ -1799,7 +1799,7 @@ from: string;
 id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L263)
+**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L263)
 
 ### `clawbackOperationResponse.paging_token`
 
@@ -1807,7 +1807,7 @@ id: string;
 paging_token: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L264)
+**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L264)
 
 ### `clawbackOperationResponse.source_account`
 
@@ -1815,7 +1815,7 @@ paging_token: string;
 source_account: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L265)
+**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L265)
 
 ### `clawbackOperationResponse.transaction_hash`
 
@@ -1823,7 +1823,7 @@ source_account: string;
 transaction_hash: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L269)
+**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L269)
 
 ### `clawbackOperationResponse.transaction_successful`
 
@@ -1831,7 +1831,7 @@ transaction_hash: string;
 transaction_successful: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L270)
+**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L270)
 
 ### `clawbackOperationResponse.type`
 
@@ -1839,7 +1839,7 @@ transaction_successful: boolean;
 type: clawback;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L266)
+**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L266)
 
 ### `clawbackOperationResponse.type_i`
 
@@ -1847,7 +1847,7 @@ type: clawback;
 type_i: clawback;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L267)
+**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L267)
 
 ## Horizon.HorizonApi.CreateAccountOperationResponse
 
@@ -1868,7 +1868,7 @@ interface CreateAccountOperationResponse extends BaseOperationResponse<Operation
 }
 ```
 
-**Source:** [src/horizon/horizon_api.ts:272](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L272)
+**Source:** [src/horizon/horizon_api.ts:272](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L272)
 
 ### `createAccountOperationResponse._links`
 
@@ -1876,7 +1876,7 @@ interface CreateAccountOperationResponse extends BaseOperationResponse<Operation
 _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; succeeds: ResponseLink; transaction: ResponseLink };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L10)
+**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L10)
 
 ### `createAccountOperationResponse.account`
 
@@ -1884,7 +1884,7 @@ _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; suc
 account: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:276](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L276)
+**Source:** [src/horizon/horizon_api.ts:276](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L276)
 
 ### `createAccountOperationResponse.created_at`
 
@@ -1892,7 +1892,7 @@ account: string;
 created_at: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L268)
+**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L268)
 
 ### `createAccountOperationResponse.funder`
 
@@ -1900,7 +1900,7 @@ created_at: string;
 funder: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:277](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L277)
+**Source:** [src/horizon/horizon_api.ts:277](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L277)
 
 ### `createAccountOperationResponse.id`
 
@@ -1908,7 +1908,7 @@ funder: string;
 id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L263)
+**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L263)
 
 ### `createAccountOperationResponse.paging_token`
 
@@ -1916,7 +1916,7 @@ id: string;
 paging_token: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L264)
+**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L264)
 
 ### `createAccountOperationResponse.source_account`
 
@@ -1924,7 +1924,7 @@ paging_token: string;
 source_account: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L265)
+**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L265)
 
 ### `createAccountOperationResponse.starting_balance`
 
@@ -1932,7 +1932,7 @@ source_account: string;
 starting_balance: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:278](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L278)
+**Source:** [src/horizon/horizon_api.ts:278](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L278)
 
 ### `createAccountOperationResponse.transaction_hash`
 
@@ -1940,7 +1940,7 @@ starting_balance: string;
 transaction_hash: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L269)
+**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L269)
 
 ### `createAccountOperationResponse.transaction_successful`
 
@@ -1948,7 +1948,7 @@ transaction_hash: string;
 transaction_successful: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L270)
+**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L270)
 
 ### `createAccountOperationResponse.type`
 
@@ -1956,7 +1956,7 @@ transaction_successful: boolean;
 type: createAccount;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L266)
+**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L266)
 
 ### `createAccountOperationResponse.type_i`
 
@@ -1964,7 +1964,7 @@ type: createAccount;
 type_i: createAccount;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L267)
+**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L267)
 
 ## Horizon.HorizonApi.CreateClaimableBalanceOperationResponse
 
@@ -1986,7 +1986,7 @@ interface CreateClaimableBalanceOperationResponse extends BaseOperationResponse<
 }
 ```
 
-**Source:** [src/horizon/horizon_api.ts:452](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L452)
+**Source:** [src/horizon/horizon_api.ts:452](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L452)
 
 ### `createClaimableBalanceOperationResponse._links`
 
@@ -1994,7 +1994,7 @@ interface CreateClaimableBalanceOperationResponse extends BaseOperationResponse<
 _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; succeeds: ResponseLink; transaction: ResponseLink };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L10)
+**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L10)
 
 ### `createClaimableBalanceOperationResponse.amount`
 
@@ -2002,7 +2002,7 @@ _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; suc
 amount: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:457](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L457)
+**Source:** [src/horizon/horizon_api.ts:457](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L457)
 
 ### `createClaimableBalanceOperationResponse.asset`
 
@@ -2010,7 +2010,7 @@ amount: string;
 asset: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:456](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L456)
+**Source:** [src/horizon/horizon_api.ts:456](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L456)
 
 ### `createClaimableBalanceOperationResponse.claimants`
 
@@ -2018,7 +2018,7 @@ asset: string;
 claimants: Claimant[];
 ```
 
-**Source:** [src/horizon/horizon_api.ts:459](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L459)
+**Source:** [src/horizon/horizon_api.ts:459](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L459)
 
 ### `createClaimableBalanceOperationResponse.created_at`
 
@@ -2026,7 +2026,7 @@ claimants: Claimant[];
 created_at: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L268)
+**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L268)
 
 ### `createClaimableBalanceOperationResponse.id`
 
@@ -2034,7 +2034,7 @@ created_at: string;
 id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L263)
+**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L263)
 
 ### `createClaimableBalanceOperationResponse.paging_token`
 
@@ -2042,7 +2042,7 @@ id: string;
 paging_token: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L264)
+**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L264)
 
 ### `createClaimableBalanceOperationResponse.source_account`
 
@@ -2050,7 +2050,7 @@ paging_token: string;
 source_account: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L265)
+**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L265)
 
 ### `createClaimableBalanceOperationResponse.sponsor`
 
@@ -2058,7 +2058,7 @@ source_account: string;
 sponsor: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:458](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L458)
+**Source:** [src/horizon/horizon_api.ts:458](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L458)
 
 ### `createClaimableBalanceOperationResponse.transaction_hash`
 
@@ -2066,7 +2066,7 @@ sponsor: string;
 transaction_hash: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L269)
+**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L269)
 
 ### `createClaimableBalanceOperationResponse.transaction_successful`
 
@@ -2074,7 +2074,7 @@ transaction_hash: string;
 transaction_successful: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L270)
+**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L270)
 
 ### `createClaimableBalanceOperationResponse.type`
 
@@ -2082,7 +2082,7 @@ transaction_successful: boolean;
 type: createClaimableBalance;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L266)
+**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L266)
 
 ### `createClaimableBalanceOperationResponse.type_i`
 
@@ -2090,7 +2090,7 @@ type: createClaimableBalance;
 type_i: createClaimableBalance;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L267)
+**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L267)
 
 ## Horizon.HorizonApi.DepositLiquidityOperationResponse
 
@@ -2116,7 +2116,7 @@ interface DepositLiquidityOperationResponse extends BaseOperationResponse<Operat
 }
 ```
 
-**Source:** [src/horizon/horizon_api.ts:533](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L533)
+**Source:** [src/horizon/horizon_api.ts:533](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L533)
 
 ### `depositLiquidityOperationResponse._links`
 
@@ -2124,7 +2124,7 @@ interface DepositLiquidityOperationResponse extends BaseOperationResponse<Operat
 _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; succeeds: ResponseLink; transaction: ResponseLink };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L10)
+**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L10)
 
 ### `depositLiquidityOperationResponse.created_at`
 
@@ -2132,7 +2132,7 @@ _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; suc
 created_at: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L268)
+**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L268)
 
 ### `depositLiquidityOperationResponse.id`
 
@@ -2140,7 +2140,7 @@ created_at: string;
 id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L263)
+**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L263)
 
 ### `depositLiquidityOperationResponse.liquidity_pool_id`
 
@@ -2148,7 +2148,7 @@ id: string;
 liquidity_pool_id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:537](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L537)
+**Source:** [src/horizon/horizon_api.ts:537](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L537)
 
 ### `depositLiquidityOperationResponse.max_price`
 
@@ -2156,7 +2156,7 @@ liquidity_pool_id: string;
 max_price: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:541](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L541)
+**Source:** [src/horizon/horizon_api.ts:541](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L541)
 
 ### `depositLiquidityOperationResponse.max_price_r`
 
@@ -2164,7 +2164,7 @@ max_price: string;
 max_price_r: PriceRShorthand;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:542](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L542)
+**Source:** [src/horizon/horizon_api.ts:542](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L542)
 
 ### `depositLiquidityOperationResponse.min_price`
 
@@ -2172,7 +2172,7 @@ max_price_r: PriceRShorthand;
 min_price: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:539](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L539)
+**Source:** [src/horizon/horizon_api.ts:539](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L539)
 
 ### `depositLiquidityOperationResponse.min_price_r`
 
@@ -2180,7 +2180,7 @@ min_price: string;
 min_price_r: PriceRShorthand;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:540](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L540)
+**Source:** [src/horizon/horizon_api.ts:540](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L540)
 
 ### `depositLiquidityOperationResponse.paging_token`
 
@@ -2188,7 +2188,7 @@ min_price_r: PriceRShorthand;
 paging_token: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L264)
+**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L264)
 
 ### `depositLiquidityOperationResponse.reserves_deposited`
 
@@ -2196,7 +2196,7 @@ paging_token: string;
 reserves_deposited: Reserve[];
 ```
 
-**Source:** [src/horizon/horizon_api.ts:543](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L543)
+**Source:** [src/horizon/horizon_api.ts:543](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L543)
 
 ### `depositLiquidityOperationResponse.reserves_max`
 
@@ -2204,7 +2204,7 @@ reserves_deposited: Reserve[];
 reserves_max: Reserve[];
 ```
 
-**Source:** [src/horizon/horizon_api.ts:538](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L538)
+**Source:** [src/horizon/horizon_api.ts:538](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L538)
 
 ### `depositLiquidityOperationResponse.shares_received`
 
@@ -2212,7 +2212,7 @@ reserves_max: Reserve[];
 shares_received: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:544](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L544)
+**Source:** [src/horizon/horizon_api.ts:544](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L544)
 
 ### `depositLiquidityOperationResponse.source_account`
 
@@ -2220,7 +2220,7 @@ shares_received: string;
 source_account: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L265)
+**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L265)
 
 ### `depositLiquidityOperationResponse.transaction_hash`
 
@@ -2228,7 +2228,7 @@ source_account: string;
 transaction_hash: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L269)
+**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L269)
 
 ### `depositLiquidityOperationResponse.transaction_successful`
 
@@ -2236,7 +2236,7 @@ transaction_hash: string;
 transaction_successful: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L270)
+**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L270)
 
 ### `depositLiquidityOperationResponse.type`
 
@@ -2244,7 +2244,7 @@ transaction_successful: boolean;
 type: liquidityPoolDeposit;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L266)
+**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L266)
 
 ### `depositLiquidityOperationResponse.type_i`
 
@@ -2252,7 +2252,7 @@ type: liquidityPoolDeposit;
 type_i: liquidityPoolDeposit;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L267)
+**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L267)
 
 ## Horizon.HorizonApi.EndSponsoringFutureReservesOperationResponse
 
@@ -2271,7 +2271,7 @@ interface EndSponsoringFutureReservesOperationResponse extends BaseOperationResp
 }
 ```
 
-**Source:** [src/horizon/horizon_api.ts:477](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L477)
+**Source:** [src/horizon/horizon_api.ts:477](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L477)
 
 ### `endSponsoringFutureReservesOperationResponse._links`
 
@@ -2279,7 +2279,7 @@ interface EndSponsoringFutureReservesOperationResponse extends BaseOperationResp
 _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; succeeds: ResponseLink; transaction: ResponseLink };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L10)
+**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L10)
 
 ### `endSponsoringFutureReservesOperationResponse.begin_sponsor`
 
@@ -2287,7 +2287,7 @@ _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; suc
 begin_sponsor: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:481](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L481)
+**Source:** [src/horizon/horizon_api.ts:481](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L481)
 
 ### `endSponsoringFutureReservesOperationResponse.created_at`
 
@@ -2295,7 +2295,7 @@ begin_sponsor: string;
 created_at: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L268)
+**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L268)
 
 ### `endSponsoringFutureReservesOperationResponse.id`
 
@@ -2303,7 +2303,7 @@ created_at: string;
 id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L263)
+**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L263)
 
 ### `endSponsoringFutureReservesOperationResponse.paging_token`
 
@@ -2311,7 +2311,7 @@ id: string;
 paging_token: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L264)
+**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L264)
 
 ### `endSponsoringFutureReservesOperationResponse.source_account`
 
@@ -2319,7 +2319,7 @@ paging_token: string;
 source_account: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L265)
+**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L265)
 
 ### `endSponsoringFutureReservesOperationResponse.transaction_hash`
 
@@ -2327,7 +2327,7 @@ source_account: string;
 transaction_hash: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L269)
+**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L269)
 
 ### `endSponsoringFutureReservesOperationResponse.transaction_successful`
 
@@ -2335,7 +2335,7 @@ transaction_hash: string;
 transaction_successful: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L270)
+**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L270)
 
 ### `endSponsoringFutureReservesOperationResponse.type`
 
@@ -2343,7 +2343,7 @@ transaction_successful: boolean;
 type: endSponsoringFutureReserves;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L266)
+**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L266)
 
 ### `endSponsoringFutureReservesOperationResponse.type_i`
 
@@ -2351,7 +2351,7 @@ type: endSponsoringFutureReserves;
 type_i: endSponsoringFutureReserves;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L267)
+**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L267)
 
 ## Horizon.HorizonApi.ErrorResponseData
 
@@ -2359,7 +2359,7 @@ type_i: endSponsoringFutureReserves;
 type ErrorResponseData = ErrorResponseData.RateLimitExceeded | ErrorResponseData.InternalServerError | ErrorResponseData.TransactionFailed
 ```
 
-**Source:** [src/horizon/horizon_api.ts:630](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L630)
+**Source:** [src/horizon/horizon_api.ts:630](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L630)
 
 ## Horizon.HorizonApi.ErrorResponseData.Base
 
@@ -2373,7 +2373,7 @@ interface Base {
 }
 ```
 
-**Source:** [src/horizon/horizon_api.ts:636](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L636)
+**Source:** [src/horizon/horizon_api.ts:636](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L636)
 
 ### `base.details`
 
@@ -2381,7 +2381,7 @@ interface Base {
 details: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:640](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L640)
+**Source:** [src/horizon/horizon_api.ts:640](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L640)
 
 ### `base.instance`
 
@@ -2389,7 +2389,7 @@ details: string;
 instance: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:641](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L641)
+**Source:** [src/horizon/horizon_api.ts:641](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L641)
 
 ### `base.status`
 
@@ -2397,7 +2397,7 @@ instance: string;
 status: number;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:637](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L637)
+**Source:** [src/horizon/horizon_api.ts:637](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L637)
 
 ### `base.title`
 
@@ -2405,7 +2405,7 @@ status: number;
 title: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:638](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L638)
+**Source:** [src/horizon/horizon_api.ts:638](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L638)
 
 ### `base.type`
 
@@ -2413,7 +2413,7 @@ title: string;
 type: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:639](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L639)
+**Source:** [src/horizon/horizon_api.ts:639](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L639)
 
 ## Horizon.HorizonApi.ErrorResponseData.InternalServerError
 
@@ -2427,7 +2427,7 @@ interface InternalServerError extends Base {
 }
 ```
 
-**Source:** [src/horizon/horizon_api.ts:648](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L648)
+**Source:** [src/horizon/horizon_api.ts:648](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L648)
 
 ### `internalServerError.details`
 
@@ -2435,7 +2435,7 @@ interface InternalServerError extends Base {
 details: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:640](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L640)
+**Source:** [src/horizon/horizon_api.ts:640](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L640)
 
 ### `internalServerError.instance`
 
@@ -2443,7 +2443,7 @@ details: string;
 instance: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:641](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L641)
+**Source:** [src/horizon/horizon_api.ts:641](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L641)
 
 ### `internalServerError.status`
 
@@ -2451,7 +2451,7 @@ instance: string;
 status: 500;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:649](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L649)
+**Source:** [src/horizon/horizon_api.ts:649](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L649)
 
 ### `internalServerError.title`
 
@@ -2459,7 +2459,7 @@ status: 500;
 title: "Internal Server Error";
 ```
 
-**Source:** [src/horizon/horizon_api.ts:650](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L650)
+**Source:** [src/horizon/horizon_api.ts:650](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L650)
 
 ### `internalServerError.type`
 
@@ -2467,7 +2467,7 @@ title: "Internal Server Error";
 type: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:639](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L639)
+**Source:** [src/horizon/horizon_api.ts:639](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L639)
 
 ## Horizon.HorizonApi.ErrorResponseData.RateLimitExceeded
 
@@ -2481,7 +2481,7 @@ interface RateLimitExceeded extends Base {
 }
 ```
 
-**Source:** [src/horizon/horizon_api.ts:644](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L644)
+**Source:** [src/horizon/horizon_api.ts:644](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L644)
 
 ### `rateLimitExceeded.details`
 
@@ -2489,7 +2489,7 @@ interface RateLimitExceeded extends Base {
 details: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:640](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L640)
+**Source:** [src/horizon/horizon_api.ts:640](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L640)
 
 ### `rateLimitExceeded.instance`
 
@@ -2497,7 +2497,7 @@ details: string;
 instance: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:641](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L641)
+**Source:** [src/horizon/horizon_api.ts:641](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L641)
 
 ### `rateLimitExceeded.status`
 
@@ -2505,7 +2505,7 @@ instance: string;
 status: 429;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:645](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L645)
+**Source:** [src/horizon/horizon_api.ts:645](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L645)
 
 ### `rateLimitExceeded.title`
 
@@ -2513,7 +2513,7 @@ status: 429;
 title: "Rate Limit Exceeded";
 ```
 
-**Source:** [src/horizon/horizon_api.ts:646](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L646)
+**Source:** [src/horizon/horizon_api.ts:646](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L646)
 
 ### `rateLimitExceeded.type`
 
@@ -2521,7 +2521,7 @@ title: "Rate Limit Exceeded";
 type: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:639](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L639)
+**Source:** [src/horizon/horizon_api.ts:639](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L639)
 
 ## Horizon.HorizonApi.ErrorResponseData.TransactionFailed
 
@@ -2536,7 +2536,7 @@ interface TransactionFailed extends Base {
 }
 ```
 
-**Source:** [src/horizon/horizon_api.ts:652](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L652)
+**Source:** [src/horizon/horizon_api.ts:652](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L652)
 
 ### `transactionFailed.details`
 
@@ -2544,7 +2544,7 @@ interface TransactionFailed extends Base {
 details: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:640](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L640)
+**Source:** [src/horizon/horizon_api.ts:640](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L640)
 
 ### `transactionFailed.extras`
 
@@ -2552,7 +2552,7 @@ details: string;
 extras: TransactionFailedExtras;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:655](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L655)
+**Source:** [src/horizon/horizon_api.ts:655](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L655)
 
 ### `transactionFailed.instance`
 
@@ -2560,7 +2560,7 @@ extras: TransactionFailedExtras;
 instance: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:641](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L641)
+**Source:** [src/horizon/horizon_api.ts:641](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L641)
 
 ### `transactionFailed.status`
 
@@ -2568,7 +2568,7 @@ instance: string;
 status: 400;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:653](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L653)
+**Source:** [src/horizon/horizon_api.ts:653](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L653)
 
 ### `transactionFailed.title`
 
@@ -2576,7 +2576,7 @@ status: 400;
 title: "Transaction Failed";
 ```
 
-**Source:** [src/horizon/horizon_api.ts:654](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L654)
+**Source:** [src/horizon/horizon_api.ts:654](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L654)
 
 ### `transactionFailed.type`
 
@@ -2584,7 +2584,7 @@ title: "Transaction Failed";
 type: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:639](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L639)
+**Source:** [src/horizon/horizon_api.ts:639](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L639)
 
 ## Horizon.HorizonApi.FeeBumpTransactionResponse
 
@@ -2595,7 +2595,7 @@ interface FeeBumpTransactionResponse {
 }
 ```
 
-**Source:** [src/horizon/horizon_api.ts:29](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L29)
+**Source:** [src/horizon/horizon_api.ts:29](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L29)
 
 ### `feeBumpTransactionResponse.hash`
 
@@ -2603,7 +2603,7 @@ interface FeeBumpTransactionResponse {
 hash: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:30](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L30)
+**Source:** [src/horizon/horizon_api.ts:30](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L30)
 
 ### `feeBumpTransactionResponse.signatures`
 
@@ -2611,7 +2611,7 @@ hash: string;
 signatures: string[];
 ```
 
-**Source:** [src/horizon/horizon_api.ts:31](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L31)
+**Source:** [src/horizon/horizon_api.ts:31](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L31)
 
 ## Horizon.HorizonApi.FeeDistribution
 
@@ -2634,7 +2634,7 @@ interface FeeDistribution {
 }
 ```
 
-**Source:** [src/horizon/horizon_api.ts:606](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L606)
+**Source:** [src/horizon/horizon_api.ts:606](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L606)
 
 ### `feeDistribution.max`
 
@@ -2642,7 +2642,7 @@ interface FeeDistribution {
 max: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:607](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L607)
+**Source:** [src/horizon/horizon_api.ts:607](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L607)
 
 ### `feeDistribution.min`
 
@@ -2650,7 +2650,7 @@ max: string;
 min: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:608](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L608)
+**Source:** [src/horizon/horizon_api.ts:608](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L608)
 
 ### `feeDistribution.mode`
 
@@ -2658,7 +2658,7 @@ min: string;
 mode: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:609](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L609)
+**Source:** [src/horizon/horizon_api.ts:609](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L609)
 
 ### `feeDistribution.p10`
 
@@ -2666,7 +2666,7 @@ mode: string;
 p10: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:610](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L610)
+**Source:** [src/horizon/horizon_api.ts:610](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L610)
 
 ### `feeDistribution.p20`
 
@@ -2674,7 +2674,7 @@ p10: string;
 p20: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:611](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L611)
+**Source:** [src/horizon/horizon_api.ts:611](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L611)
 
 ### `feeDistribution.p30`
 
@@ -2682,7 +2682,7 @@ p20: string;
 p30: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:612](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L612)
+**Source:** [src/horizon/horizon_api.ts:612](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L612)
 
 ### `feeDistribution.p40`
 
@@ -2690,7 +2690,7 @@ p30: string;
 p40: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:613](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L613)
+**Source:** [src/horizon/horizon_api.ts:613](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L613)
 
 ### `feeDistribution.p50`
 
@@ -2698,7 +2698,7 @@ p40: string;
 p50: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:614](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L614)
+**Source:** [src/horizon/horizon_api.ts:614](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L614)
 
 ### `feeDistribution.p60`
 
@@ -2706,7 +2706,7 @@ p50: string;
 p60: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:615](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L615)
+**Source:** [src/horizon/horizon_api.ts:615](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L615)
 
 ### `feeDistribution.p70`
 
@@ -2714,7 +2714,7 @@ p60: string;
 p70: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:616](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L616)
+**Source:** [src/horizon/horizon_api.ts:616](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L616)
 
 ### `feeDistribution.p80`
 
@@ -2722,7 +2722,7 @@ p70: string;
 p80: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:617](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L617)
+**Source:** [src/horizon/horizon_api.ts:617](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L617)
 
 ### `feeDistribution.p90`
 
@@ -2730,7 +2730,7 @@ p80: string;
 p90: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:618](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L618)
+**Source:** [src/horizon/horizon_api.ts:618](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L618)
 
 ### `feeDistribution.p95`
 
@@ -2738,7 +2738,7 @@ p90: string;
 p95: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:619](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L619)
+**Source:** [src/horizon/horizon_api.ts:619](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L619)
 
 ### `feeDistribution.p99`
 
@@ -2746,7 +2746,7 @@ p95: string;
 p99: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:620](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L620)
+**Source:** [src/horizon/horizon_api.ts:620](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L620)
 
 ## Horizon.HorizonApi.FeeStatsResponse
 
@@ -2760,7 +2760,7 @@ interface FeeStatsResponse {
 }
 ```
 
-**Source:** [src/horizon/horizon_api.ts:622](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L622)
+**Source:** [src/horizon/horizon_api.ts:622](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L622)
 
 ### `feeStatsResponse.fee_charged`
 
@@ -2768,7 +2768,7 @@ interface FeeStatsResponse {
 fee_charged: FeeDistribution;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:626](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L626)
+**Source:** [src/horizon/horizon_api.ts:626](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L626)
 
 ### `feeStatsResponse.last_ledger`
 
@@ -2776,7 +2776,7 @@ fee_charged: FeeDistribution;
 last_ledger: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:623](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L623)
+**Source:** [src/horizon/horizon_api.ts:623](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L623)
 
 ### `feeStatsResponse.last_ledger_base_fee`
 
@@ -2784,7 +2784,7 @@ last_ledger: string;
 last_ledger_base_fee: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:624](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L624)
+**Source:** [src/horizon/horizon_api.ts:624](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L624)
 
 ### `feeStatsResponse.ledger_capacity_usage`
 
@@ -2792,7 +2792,7 @@ last_ledger_base_fee: string;
 ledger_capacity_usage: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:625](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L625)
+**Source:** [src/horizon/horizon_api.ts:625](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L625)
 
 ### `feeStatsResponse.max_fee`
 
@@ -2800,7 +2800,7 @@ ledger_capacity_usage: string;
 max_fee: FeeDistribution;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:627](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L627)
+**Source:** [src/horizon/horizon_api.ts:627](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L627)
 
 ## Horizon.HorizonApi.Flags
 
@@ -2813,7 +2813,7 @@ interface Flags {
 }
 ```
 
-**Source:** [src/horizon/horizon_api.ts:155](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L155)
+**Source:** [src/horizon/horizon_api.ts:155](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L155)
 
 ### `flags.auth_clawback_enabled`
 
@@ -2821,7 +2821,7 @@ interface Flags {
 auth_clawback_enabled: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:159](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L159)
+**Source:** [src/horizon/horizon_api.ts:159](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L159)
 
 ### `flags.auth_immutable`
 
@@ -2829,7 +2829,7 @@ auth_clawback_enabled: boolean;
 auth_immutable: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:156](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L156)
+**Source:** [src/horizon/horizon_api.ts:156](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L156)
 
 ### `flags.auth_required`
 
@@ -2837,7 +2837,7 @@ auth_immutable: boolean;
 auth_required: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:157](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L157)
+**Source:** [src/horizon/horizon_api.ts:157](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L157)
 
 ### `flags.auth_revocable`
 
@@ -2845,7 +2845,7 @@ auth_required: boolean;
 auth_revocable: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:158](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L158)
+**Source:** [src/horizon/horizon_api.ts:158](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L158)
 
 ## Horizon.HorizonApi.InflationOperationResponse
 
@@ -2863,7 +2863,7 @@ interface InflationOperationResponse extends BaseOperationResponse<OperationResp
 }
 ```
 
-**Source:** [src/horizon/horizon_api.ts:422](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L422)
+**Source:** [src/horizon/horizon_api.ts:422](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L422)
 
 ### `inflationOperationResponse._links`
 
@@ -2871,7 +2871,7 @@ interface InflationOperationResponse extends BaseOperationResponse<OperationResp
 _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; succeeds: ResponseLink; transaction: ResponseLink };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L10)
+**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L10)
 
 ### `inflationOperationResponse.created_at`
 
@@ -2879,7 +2879,7 @@ _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; suc
 created_at: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L268)
+**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L268)
 
 ### `inflationOperationResponse.id`
 
@@ -2887,7 +2887,7 @@ created_at: string;
 id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L263)
+**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L263)
 
 ### `inflationOperationResponse.paging_token`
 
@@ -2895,7 +2895,7 @@ id: string;
 paging_token: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L264)
+**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L264)
 
 ### `inflationOperationResponse.source_account`
 
@@ -2903,7 +2903,7 @@ paging_token: string;
 source_account: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L265)
+**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L265)
 
 ### `inflationOperationResponse.transaction_hash`
 
@@ -2911,7 +2911,7 @@ source_account: string;
 transaction_hash: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L269)
+**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L269)
 
 ### `inflationOperationResponse.transaction_successful`
 
@@ -2919,7 +2919,7 @@ transaction_hash: string;
 transaction_successful: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L270)
+**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L270)
 
 ### `inflationOperationResponse.type`
 
@@ -2927,7 +2927,7 @@ transaction_successful: boolean;
 type: inflation;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L266)
+**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L266)
 
 ### `inflationOperationResponse.type_i`
 
@@ -2935,7 +2935,7 @@ type: inflation;
 type_i: inflation;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L267)
+**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L267)
 
 ## Horizon.HorizonApi.InnerTransactionResponse
 
@@ -2947,7 +2947,7 @@ interface InnerTransactionResponse {
 }
 ```
 
-**Source:** [src/horizon/horizon_api.ts:34](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L34)
+**Source:** [src/horizon/horizon_api.ts:34](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L34)
 
 ### `innerTransactionResponse.hash`
 
@@ -2955,7 +2955,7 @@ interface InnerTransactionResponse {
 hash: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:35](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L35)
+**Source:** [src/horizon/horizon_api.ts:35](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L35)
 
 ### `innerTransactionResponse.max_fee`
 
@@ -2963,7 +2963,7 @@ hash: string;
 max_fee: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:37](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L37)
+**Source:** [src/horizon/horizon_api.ts:37](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L37)
 
 ### `innerTransactionResponse.signatures`
 
@@ -2971,7 +2971,7 @@ max_fee: string;
 signatures: string[];
 ```
 
-**Source:** [src/horizon/horizon_api.ts:36](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L36)
+**Source:** [src/horizon/horizon_api.ts:36](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L36)
 
 ## Horizon.HorizonApi.InvokeHostFunctionOperationResponse
 
@@ -2994,7 +2994,7 @@ interface InvokeHostFunctionOperationResponse extends BaseOperationResponse<Oper
 }
 ```
 
-**Source:** [src/horizon/horizon_api.ts:568](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L568)
+**Source:** [src/horizon/horizon_api.ts:568](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L568)
 
 ### `invokeHostFunctionOperationResponse._links`
 
@@ -3002,7 +3002,7 @@ interface InvokeHostFunctionOperationResponse extends BaseOperationResponse<Oper
 _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; succeeds: ResponseLink; transaction: ResponseLink };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L10)
+**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L10)
 
 ### `invokeHostFunctionOperationResponse.address`
 
@@ -3010,7 +3010,7 @@ _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; suc
 address: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:577](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L577)
+**Source:** [src/horizon/horizon_api.ts:577](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L577)
 
 ### `invokeHostFunctionOperationResponse.asset_balance_changes`
 
@@ -3018,7 +3018,7 @@ address: string;
 asset_balance_changes: BalanceChange[];
 ```
 
-**Source:** [src/horizon/horizon_api.ts:579](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L579)
+**Source:** [src/horizon/horizon_api.ts:579](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L579)
 
 ### `invokeHostFunctionOperationResponse.created_at`
 
@@ -3026,7 +3026,7 @@ asset_balance_changes: BalanceChange[];
 created_at: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L268)
+**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L268)
 
 ### `invokeHostFunctionOperationResponse.function`
 
@@ -3034,7 +3034,7 @@ created_at: string;
 function: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:572](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L572)
+**Source:** [src/horizon/horizon_api.ts:572](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L572)
 
 ### `invokeHostFunctionOperationResponse.id`
 
@@ -3042,7 +3042,7 @@ function: string;
 id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L263)
+**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L263)
 
 ### `invokeHostFunctionOperationResponse.paging_token`
 
@@ -3050,7 +3050,7 @@ id: string;
 paging_token: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L264)
+**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L264)
 
 ### `invokeHostFunctionOperationResponse.parameters`
 
@@ -3058,7 +3058,7 @@ paging_token: string;
 parameters: { type: string; value: string }[];
 ```
 
-**Source:** [src/horizon/horizon_api.ts:573](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L573)
+**Source:** [src/horizon/horizon_api.ts:573](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L573)
 
 ### `invokeHostFunctionOperationResponse.salt`
 
@@ -3066,7 +3066,7 @@ parameters: { type: string; value: string }[];
 salt: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:578](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L578)
+**Source:** [src/horizon/horizon_api.ts:578](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L578)
 
 ### `invokeHostFunctionOperationResponse.source_account`
 
@@ -3074,7 +3074,7 @@ salt: string;
 source_account: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L265)
+**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L265)
 
 ### `invokeHostFunctionOperationResponse.transaction_hash`
 
@@ -3082,7 +3082,7 @@ source_account: string;
 transaction_hash: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L269)
+**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L269)
 
 ### `invokeHostFunctionOperationResponse.transaction_successful`
 
@@ -3090,7 +3090,7 @@ transaction_hash: string;
 transaction_successful: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L270)
+**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L270)
 
 ### `invokeHostFunctionOperationResponse.type`
 
@@ -3098,7 +3098,7 @@ transaction_successful: boolean;
 type: invokeHostFunction;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L266)
+**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L266)
 
 ### `invokeHostFunctionOperationResponse.type_i`
 
@@ -3106,7 +3106,7 @@ type: invokeHostFunction;
 type_i: invokeHostFunction;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L267)
+**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L267)
 
 ## Horizon.HorizonApi.LiquidityPoolType
 
@@ -3114,7 +3114,7 @@ type_i: invokeHostFunction;
 enum LiquidityPoolType
 ```
 
-**Source:** [src/horizon/horizon_api.ts:197](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L197)
+**Source:** [src/horizon/horizon_api.ts:197](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L197)
 
 ## Horizon.HorizonApi.ManageDataOperationResponse
 
@@ -3134,7 +3134,7 @@ interface ManageDataOperationResponse extends BaseOperationResponse<OperationRes
 }
 ```
 
-**Source:** [src/horizon/horizon_api.ts:426](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L426)
+**Source:** [src/horizon/horizon_api.ts:426](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L426)
 
 ### `manageDataOperationResponse._links`
 
@@ -3142,7 +3142,7 @@ interface ManageDataOperationResponse extends BaseOperationResponse<OperationRes
 _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; succeeds: ResponseLink; transaction: ResponseLink };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L10)
+**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L10)
 
 ### `manageDataOperationResponse.created_at`
 
@@ -3150,7 +3150,7 @@ _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; suc
 created_at: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L268)
+**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L268)
 
 ### `manageDataOperationResponse.id`
 
@@ -3158,7 +3158,7 @@ created_at: string;
 id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L263)
+**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L263)
 
 ### `manageDataOperationResponse.name`
 
@@ -3166,7 +3166,7 @@ id: string;
 name: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:430](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L430)
+**Source:** [src/horizon/horizon_api.ts:430](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L430)
 
 ### `manageDataOperationResponse.paging_token`
 
@@ -3174,7 +3174,7 @@ name: string;
 paging_token: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L264)
+**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L264)
 
 ### `manageDataOperationResponse.source_account`
 
@@ -3182,7 +3182,7 @@ paging_token: string;
 source_account: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L265)
+**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L265)
 
 ### `manageDataOperationResponse.transaction_hash`
 
@@ -3190,7 +3190,7 @@ source_account: string;
 transaction_hash: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L269)
+**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L269)
 
 ### `manageDataOperationResponse.transaction_successful`
 
@@ -3198,7 +3198,7 @@ transaction_hash: string;
 transaction_successful: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L270)
+**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L270)
 
 ### `manageDataOperationResponse.type`
 
@@ -3206,7 +3206,7 @@ transaction_successful: boolean;
 type: manageData;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L266)
+**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L266)
 
 ### `manageDataOperationResponse.type_i`
 
@@ -3214,7 +3214,7 @@ type: manageData;
 type_i: manageData;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L267)
+**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L267)
 
 ### `manageDataOperationResponse.value`
 
@@ -3222,7 +3222,7 @@ type_i: manageData;
 value: Buffer;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:431](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L431)
+**Source:** [src/horizon/horizon_api.ts:431](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L431)
 
 ## Horizon.HorizonApi.ManageOfferOperationResponse
 
@@ -3250,7 +3250,7 @@ interface ManageOfferOperationResponse extends BaseOperationResponse<OperationRe
 }
 ```
 
-**Source:** [src/horizon/horizon_api.ts:335](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L335)
+**Source:** [src/horizon/horizon_api.ts:335](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L335)
 
 ### `manageOfferOperationResponse._links`
 
@@ -3258,7 +3258,7 @@ interface ManageOfferOperationResponse extends BaseOperationResponse<OperationRe
 _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; succeeds: ResponseLink; transaction: ResponseLink };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L10)
+**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L10)
 
 ### `manageOfferOperationResponse.amount`
 
@@ -3266,7 +3266,7 @@ _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; suc
 amount: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:340](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L340)
+**Source:** [src/horizon/horizon_api.ts:340](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L340)
 
 ### `manageOfferOperationResponse.buying_asset_code`
 
@@ -3274,7 +3274,7 @@ amount: string;
 buying_asset_code?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:342](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L342)
+**Source:** [src/horizon/horizon_api.ts:342](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L342)
 
 ### `manageOfferOperationResponse.buying_asset_issuer`
 
@@ -3282,7 +3282,7 @@ buying_asset_code?: string;
 buying_asset_issuer?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:343](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L343)
+**Source:** [src/horizon/horizon_api.ts:343](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L343)
 
 ### `manageOfferOperationResponse.buying_asset_type`
 
@@ -3290,7 +3290,7 @@ buying_asset_issuer?: string;
 buying_asset_type: AssetType;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:341](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L341)
+**Source:** [src/horizon/horizon_api.ts:341](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L341)
 
 ### `manageOfferOperationResponse.created_at`
 
@@ -3298,7 +3298,7 @@ buying_asset_type: AssetType;
 created_at: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L268)
+**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L268)
 
 ### `manageOfferOperationResponse.id`
 
@@ -3306,7 +3306,7 @@ created_at: string;
 id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L263)
+**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L263)
 
 ### `manageOfferOperationResponse.offer_id`
 
@@ -3314,7 +3314,7 @@ id: string;
 offer_id: string | number;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:339](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L339)
+**Source:** [src/horizon/horizon_api.ts:339](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L339)
 
 ### `manageOfferOperationResponse.paging_token`
 
@@ -3322,7 +3322,7 @@ offer_id: string | number;
 paging_token: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L264)
+**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L264)
 
 ### `manageOfferOperationResponse.price`
 
@@ -3330,7 +3330,7 @@ paging_token: string;
 price: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:344](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L344)
+**Source:** [src/horizon/horizon_api.ts:344](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L344)
 
 ### `manageOfferOperationResponse.price_r`
 
@@ -3338,7 +3338,7 @@ price: string;
 price_r: PriceR;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:345](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L345)
+**Source:** [src/horizon/horizon_api.ts:345](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L345)
 
 ### `manageOfferOperationResponse.selling_asset_code`
 
@@ -3346,7 +3346,7 @@ price_r: PriceR;
 selling_asset_code?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:347](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L347)
+**Source:** [src/horizon/horizon_api.ts:347](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L347)
 
 ### `manageOfferOperationResponse.selling_asset_issuer`
 
@@ -3354,7 +3354,7 @@ selling_asset_code?: string;
 selling_asset_issuer?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:348](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L348)
+**Source:** [src/horizon/horizon_api.ts:348](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L348)
 
 ### `manageOfferOperationResponse.selling_asset_type`
 
@@ -3362,7 +3362,7 @@ selling_asset_issuer?: string;
 selling_asset_type: AssetType;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:346](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L346)
+**Source:** [src/horizon/horizon_api.ts:346](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L346)
 
 ### `manageOfferOperationResponse.source_account`
 
@@ -3370,7 +3370,7 @@ selling_asset_type: AssetType;
 source_account: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L265)
+**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L265)
 
 ### `manageOfferOperationResponse.transaction_hash`
 
@@ -3378,7 +3378,7 @@ source_account: string;
 transaction_hash: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L269)
+**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L269)
 
 ### `manageOfferOperationResponse.transaction_successful`
 
@@ -3386,7 +3386,7 @@ transaction_hash: string;
 transaction_successful: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L270)
+**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L270)
 
 ### `manageOfferOperationResponse.type`
 
@@ -3394,7 +3394,7 @@ transaction_successful: boolean;
 type: manageOffer;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L266)
+**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L266)
 
 ### `manageOfferOperationResponse.type_i`
 
@@ -3402,7 +3402,7 @@ type: manageOffer;
 type_i: manageOffer;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L267)
+**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L267)
 
 ## Horizon.HorizonApi.OperationResponseType
 
@@ -3410,7 +3410,7 @@ type_i: manageOffer;
 enum OperationResponseType
 ```
 
-**Source:** [src/horizon/horizon_api.ts:201](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L201)
+**Source:** [src/horizon/horizon_api.ts:201](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L201)
 
 ## Horizon.HorizonApi.OperationResponseTypeI
 
@@ -3418,7 +3418,7 @@ enum OperationResponseType
 enum OperationResponseTypeI
 ```
 
-**Source:** [src/horizon/horizon_api.ts:230](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L230)
+**Source:** [src/horizon/horizon_api.ts:230](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L230)
 
 ## Horizon.HorizonApi.PassiveOfferOperationResponse
 
@@ -3446,7 +3446,7 @@ interface PassiveOfferOperationResponse extends BaseOperationResponse<OperationR
 }
 ```
 
-**Source:** [src/horizon/horizon_api.ts:350](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L350)
+**Source:** [src/horizon/horizon_api.ts:350](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L350)
 
 ### `passiveOfferOperationResponse._links`
 
@@ -3454,7 +3454,7 @@ interface PassiveOfferOperationResponse extends BaseOperationResponse<OperationR
 _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; succeeds: ResponseLink; transaction: ResponseLink };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L10)
+**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L10)
 
 ### `passiveOfferOperationResponse.amount`
 
@@ -3462,7 +3462,7 @@ _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; suc
 amount: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:355](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L355)
+**Source:** [src/horizon/horizon_api.ts:355](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L355)
 
 ### `passiveOfferOperationResponse.buying_asset_code`
 
@@ -3470,7 +3470,7 @@ amount: string;
 buying_asset_code?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:357](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L357)
+**Source:** [src/horizon/horizon_api.ts:357](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L357)
 
 ### `passiveOfferOperationResponse.buying_asset_issuer`
 
@@ -3478,7 +3478,7 @@ buying_asset_code?: string;
 buying_asset_issuer?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:358](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L358)
+**Source:** [src/horizon/horizon_api.ts:358](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L358)
 
 ### `passiveOfferOperationResponse.buying_asset_type`
 
@@ -3486,7 +3486,7 @@ buying_asset_issuer?: string;
 buying_asset_type: AssetType;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:356](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L356)
+**Source:** [src/horizon/horizon_api.ts:356](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L356)
 
 ### `passiveOfferOperationResponse.created_at`
 
@@ -3494,7 +3494,7 @@ buying_asset_type: AssetType;
 created_at: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L268)
+**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L268)
 
 ### `passiveOfferOperationResponse.id`
 
@@ -3502,7 +3502,7 @@ created_at: string;
 id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L263)
+**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L263)
 
 ### `passiveOfferOperationResponse.offer_id`
 
@@ -3510,7 +3510,7 @@ id: string;
 offer_id: string | number;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:354](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L354)
+**Source:** [src/horizon/horizon_api.ts:354](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L354)
 
 ### `passiveOfferOperationResponse.paging_token`
 
@@ -3518,7 +3518,7 @@ offer_id: string | number;
 paging_token: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L264)
+**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L264)
 
 ### `passiveOfferOperationResponse.price`
 
@@ -3526,7 +3526,7 @@ paging_token: string;
 price: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:359](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L359)
+**Source:** [src/horizon/horizon_api.ts:359](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L359)
 
 ### `passiveOfferOperationResponse.price_r`
 
@@ -3534,7 +3534,7 @@ price: string;
 price_r: PriceR;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:360](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L360)
+**Source:** [src/horizon/horizon_api.ts:360](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L360)
 
 ### `passiveOfferOperationResponse.selling_asset_code`
 
@@ -3542,7 +3542,7 @@ price_r: PriceR;
 selling_asset_code?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:362](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L362)
+**Source:** [src/horizon/horizon_api.ts:362](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L362)
 
 ### `passiveOfferOperationResponse.selling_asset_issuer`
 
@@ -3550,7 +3550,7 @@ selling_asset_code?: string;
 selling_asset_issuer?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:363](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L363)
+**Source:** [src/horizon/horizon_api.ts:363](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L363)
 
 ### `passiveOfferOperationResponse.selling_asset_type`
 
@@ -3558,7 +3558,7 @@ selling_asset_issuer?: string;
 selling_asset_type: AssetType;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:361](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L361)
+**Source:** [src/horizon/horizon_api.ts:361](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L361)
 
 ### `passiveOfferOperationResponse.source_account`
 
@@ -3566,7 +3566,7 @@ selling_asset_type: AssetType;
 source_account: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L265)
+**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L265)
 
 ### `passiveOfferOperationResponse.transaction_hash`
 
@@ -3574,7 +3574,7 @@ source_account: string;
 transaction_hash: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L269)
+**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L269)
 
 ### `passiveOfferOperationResponse.transaction_successful`
 
@@ -3582,7 +3582,7 @@ transaction_hash: string;
 transaction_successful: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L270)
+**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L270)
 
 ### `passiveOfferOperationResponse.type`
 
@@ -3590,7 +3590,7 @@ transaction_successful: boolean;
 type: createPassiveOffer;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L266)
+**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L266)
 
 ### `passiveOfferOperationResponse.type_i`
 
@@ -3598,7 +3598,7 @@ type: createPassiveOffer;
 type_i: createPassiveOffer;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L267)
+**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L267)
 
 ## Horizon.HorizonApi.PathPaymentOperationResponse
 
@@ -3628,7 +3628,7 @@ interface PathPaymentOperationResponse extends BaseOperationResponse<OperationRe
 }
 ```
 
-**Source:** [src/horizon/horizon_api.ts:293](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L293)
+**Source:** [src/horizon/horizon_api.ts:293](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L293)
 
 ### `pathPaymentOperationResponse._links`
 
@@ -3636,7 +3636,7 @@ interface PathPaymentOperationResponse extends BaseOperationResponse<OperationRe
 _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; succeeds: ResponseLink; transaction: ResponseLink };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L10)
+**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L10)
 
 ### `pathPaymentOperationResponse.amount`
 
@@ -3644,7 +3644,7 @@ _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; suc
 amount: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:297](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L297)
+**Source:** [src/horizon/horizon_api.ts:297](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L297)
 
 ### `pathPaymentOperationResponse.asset_code`
 
@@ -3652,7 +3652,7 @@ amount: string;
 asset_code?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:298](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L298)
+**Source:** [src/horizon/horizon_api.ts:298](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L298)
 
 ### `pathPaymentOperationResponse.asset_issuer`
 
@@ -3660,7 +3660,7 @@ asset_code?: string;
 asset_issuer?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:299](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L299)
+**Source:** [src/horizon/horizon_api.ts:299](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L299)
 
 ### `pathPaymentOperationResponse.asset_type`
 
@@ -3668,7 +3668,7 @@ asset_issuer?: string;
 asset_type: AssetType;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:300](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L300)
+**Source:** [src/horizon/horizon_api.ts:300](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L300)
 
 ### `pathPaymentOperationResponse.created_at`
 
@@ -3676,7 +3676,7 @@ asset_type: AssetType;
 created_at: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L268)
+**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L268)
 
 ### `pathPaymentOperationResponse.from`
 
@@ -3684,7 +3684,7 @@ created_at: string;
 from: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:301](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L301)
+**Source:** [src/horizon/horizon_api.ts:301](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L301)
 
 ### `pathPaymentOperationResponse.id`
 
@@ -3692,7 +3692,7 @@ from: string;
 id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L263)
+**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L263)
 
 ### `pathPaymentOperationResponse.paging_token`
 
@@ -3700,7 +3700,7 @@ id: string;
 paging_token: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L264)
+**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L264)
 
 ### `pathPaymentOperationResponse.path`
 
@@ -3708,7 +3708,7 @@ paging_token: string;
 path: { asset_code: string; asset_issuer: string; asset_type: AssetType }[];
 ```
 
-**Source:** [src/horizon/horizon_api.ts:302](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L302)
+**Source:** [src/horizon/horizon_api.ts:302](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L302)
 
 ### `pathPaymentOperationResponse.source_account`
 
@@ -3716,7 +3716,7 @@ path: { asset_code: string; asset_issuer: string; asset_type: AssetType }[];
 source_account: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L265)
+**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L265)
 
 ### `pathPaymentOperationResponse.source_amount`
 
@@ -3724,7 +3724,7 @@ source_account: string;
 source_amount: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:307](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L307)
+**Source:** [src/horizon/horizon_api.ts:307](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L307)
 
 ### `pathPaymentOperationResponse.source_asset_code`
 
@@ -3732,7 +3732,7 @@ source_amount: string;
 source_asset_code?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:308](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L308)
+**Source:** [src/horizon/horizon_api.ts:308](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L308)
 
 ### `pathPaymentOperationResponse.source_asset_issuer`
 
@@ -3740,7 +3740,7 @@ source_asset_code?: string;
 source_asset_issuer?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:309](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L309)
+**Source:** [src/horizon/horizon_api.ts:309](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L309)
 
 ### `pathPaymentOperationResponse.source_asset_type`
 
@@ -3748,7 +3748,7 @@ source_asset_issuer?: string;
 source_asset_type: AssetType;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:310](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L310)
+**Source:** [src/horizon/horizon_api.ts:310](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L310)
 
 ### `pathPaymentOperationResponse.source_max`
 
@@ -3756,7 +3756,7 @@ source_asset_type: AssetType;
 source_max: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:311](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L311)
+**Source:** [src/horizon/horizon_api.ts:311](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L311)
 
 ### `pathPaymentOperationResponse.to`
 
@@ -3764,7 +3764,7 @@ source_max: string;
 to: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:312](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L312)
+**Source:** [src/horizon/horizon_api.ts:312](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L312)
 
 ### `pathPaymentOperationResponse.transaction_hash`
 
@@ -3772,7 +3772,7 @@ to: string;
 transaction_hash: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L269)
+**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L269)
 
 ### `pathPaymentOperationResponse.transaction_successful`
 
@@ -3780,7 +3780,7 @@ transaction_hash: string;
 transaction_successful: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L270)
+**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L270)
 
 ### `pathPaymentOperationResponse.type`
 
@@ -3788,7 +3788,7 @@ transaction_successful: boolean;
 type: pathPayment;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L266)
+**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L266)
 
 ### `pathPaymentOperationResponse.type_i`
 
@@ -3796,7 +3796,7 @@ type: pathPayment;
 type_i: pathPayment;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L267)
+**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L267)
 
 ## Horizon.HorizonApi.PathPaymentStrictSendOperationResponse
 
@@ -3826,7 +3826,7 @@ interface PathPaymentStrictSendOperationResponse extends BaseOperationResponse<O
 }
 ```
 
-**Source:** [src/horizon/horizon_api.ts:314](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L314)
+**Source:** [src/horizon/horizon_api.ts:314](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L314)
 
 ### `pathPaymentStrictSendOperationResponse._links`
 
@@ -3834,7 +3834,7 @@ interface PathPaymentStrictSendOperationResponse extends BaseOperationResponse<O
 _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; succeeds: ResponseLink; transaction: ResponseLink };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L10)
+**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L10)
 
 ### `pathPaymentStrictSendOperationResponse.amount`
 
@@ -3842,7 +3842,7 @@ _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; suc
 amount: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:318](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L318)
+**Source:** [src/horizon/horizon_api.ts:318](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L318)
 
 ### `pathPaymentStrictSendOperationResponse.asset_code`
 
@@ -3850,7 +3850,7 @@ amount: string;
 asset_code?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:319](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L319)
+**Source:** [src/horizon/horizon_api.ts:319](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L319)
 
 ### `pathPaymentStrictSendOperationResponse.asset_issuer`
 
@@ -3858,7 +3858,7 @@ asset_code?: string;
 asset_issuer?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:320](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L320)
+**Source:** [src/horizon/horizon_api.ts:320](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L320)
 
 ### `pathPaymentStrictSendOperationResponse.asset_type`
 
@@ -3866,7 +3866,7 @@ asset_issuer?: string;
 asset_type: AssetType;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:321](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L321)
+**Source:** [src/horizon/horizon_api.ts:321](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L321)
 
 ### `pathPaymentStrictSendOperationResponse.created_at`
 
@@ -3874,7 +3874,7 @@ asset_type: AssetType;
 created_at: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L268)
+**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L268)
 
 ### `pathPaymentStrictSendOperationResponse.destination_min`
 
@@ -3882,7 +3882,7 @@ created_at: string;
 destination_min: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:322](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L322)
+**Source:** [src/horizon/horizon_api.ts:322](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L322)
 
 ### `pathPaymentStrictSendOperationResponse.from`
 
@@ -3890,7 +3890,7 @@ destination_min: string;
 from: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:323](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L323)
+**Source:** [src/horizon/horizon_api.ts:323](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L323)
 
 ### `pathPaymentStrictSendOperationResponse.id`
 
@@ -3898,7 +3898,7 @@ from: string;
 id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L263)
+**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L263)
 
 ### `pathPaymentStrictSendOperationResponse.paging_token`
 
@@ -3906,7 +3906,7 @@ id: string;
 paging_token: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L264)
+**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L264)
 
 ### `pathPaymentStrictSendOperationResponse.path`
 
@@ -3914,7 +3914,7 @@ paging_token: string;
 path: { asset_code: string; asset_issuer: string; asset_type: AssetType }[];
 ```
 
-**Source:** [src/horizon/horizon_api.ts:324](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L324)
+**Source:** [src/horizon/horizon_api.ts:324](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L324)
 
 ### `pathPaymentStrictSendOperationResponse.source_account`
 
@@ -3922,7 +3922,7 @@ path: { asset_code: string; asset_issuer: string; asset_type: AssetType }[];
 source_account: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L265)
+**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L265)
 
 ### `pathPaymentStrictSendOperationResponse.source_amount`
 
@@ -3930,7 +3930,7 @@ source_account: string;
 source_amount: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:329](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L329)
+**Source:** [src/horizon/horizon_api.ts:329](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L329)
 
 ### `pathPaymentStrictSendOperationResponse.source_asset_code`
 
@@ -3938,7 +3938,7 @@ source_amount: string;
 source_asset_code?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:330](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L330)
+**Source:** [src/horizon/horizon_api.ts:330](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L330)
 
 ### `pathPaymentStrictSendOperationResponse.source_asset_issuer`
 
@@ -3946,7 +3946,7 @@ source_asset_code?: string;
 source_asset_issuer?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:331](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L331)
+**Source:** [src/horizon/horizon_api.ts:331](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L331)
 
 ### `pathPaymentStrictSendOperationResponse.source_asset_type`
 
@@ -3954,7 +3954,7 @@ source_asset_issuer?: string;
 source_asset_type: AssetType;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:332](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L332)
+**Source:** [src/horizon/horizon_api.ts:332](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L332)
 
 ### `pathPaymentStrictSendOperationResponse.to`
 
@@ -3962,7 +3962,7 @@ source_asset_type: AssetType;
 to: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:333](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L333)
+**Source:** [src/horizon/horizon_api.ts:333](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L333)
 
 ### `pathPaymentStrictSendOperationResponse.transaction_hash`
 
@@ -3970,7 +3970,7 @@ to: string;
 transaction_hash: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L269)
+**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L269)
 
 ### `pathPaymentStrictSendOperationResponse.transaction_successful`
 
@@ -3978,7 +3978,7 @@ transaction_hash: string;
 transaction_successful: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L270)
+**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L270)
 
 ### `pathPaymentStrictSendOperationResponse.type`
 
@@ -3986,7 +3986,7 @@ transaction_successful: boolean;
 type: pathPaymentStrictSend;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L266)
+**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L266)
 
 ### `pathPaymentStrictSendOperationResponse.type_i`
 
@@ -3994,7 +3994,7 @@ type: pathPaymentStrictSend;
 type_i: pathPaymentStrictSend;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L267)
+**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L267)
 
 ## Horizon.HorizonApi.PaymentOperationResponse
 
@@ -4020,7 +4020,7 @@ interface PaymentOperationResponse extends BaseOperationResponse<OperationRespon
 }
 ```
 
-**Source:** [src/horizon/horizon_api.ts:280](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L280)
+**Source:** [src/horizon/horizon_api.ts:280](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L280)
 
 ### `paymentOperationResponse._links`
 
@@ -4028,7 +4028,7 @@ interface PaymentOperationResponse extends BaseOperationResponse<OperationRespon
 _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; succeeds: ResponseLink; transaction: ResponseLink };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L10)
+**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L10)
 
 ### `paymentOperationResponse.amount`
 
@@ -4036,7 +4036,7 @@ _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; suc
 amount: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:289](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L289)
+**Source:** [src/horizon/horizon_api.ts:289](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L289)
 
 ### `paymentOperationResponse.asset_code`
 
@@ -4044,7 +4044,7 @@ amount: string;
 asset_code?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:287](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L287)
+**Source:** [src/horizon/horizon_api.ts:287](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L287)
 
 ### `paymentOperationResponse.asset_issuer`
 
@@ -4052,7 +4052,7 @@ asset_code?: string;
 asset_issuer?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:288](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L288)
+**Source:** [src/horizon/horizon_api.ts:288](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L288)
 
 ### `paymentOperationResponse.asset_type`
 
@@ -4060,7 +4060,7 @@ asset_issuer?: string;
 asset_type: AssetType;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:286](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L286)
+**Source:** [src/horizon/horizon_api.ts:286](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L286)
 
 ### `paymentOperationResponse.created_at`
 
@@ -4068,7 +4068,7 @@ asset_type: AssetType;
 created_at: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L268)
+**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L268)
 
 ### `paymentOperationResponse.from`
 
@@ -4076,7 +4076,7 @@ created_at: string;
 from: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:284](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L284)
+**Source:** [src/horizon/horizon_api.ts:284](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L284)
 
 ### `paymentOperationResponse.id`
 
@@ -4084,7 +4084,7 @@ from: string;
 id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L263)
+**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L263)
 
 ### `paymentOperationResponse.paging_token`
 
@@ -4092,7 +4092,7 @@ id: string;
 paging_token: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L264)
+**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L264)
 
 ### `paymentOperationResponse.source_account`
 
@@ -4100,7 +4100,7 @@ paging_token: string;
 source_account: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L265)
+**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L265)
 
 ### `paymentOperationResponse.to`
 
@@ -4108,7 +4108,7 @@ source_account: string;
 to: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:285](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L285)
+**Source:** [src/horizon/horizon_api.ts:285](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L285)
 
 ### `paymentOperationResponse.to_muxed`
 
@@ -4116,7 +4116,7 @@ to: string;
 to_muxed?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:290](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L290)
+**Source:** [src/horizon/horizon_api.ts:290](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L290)
 
 ### `paymentOperationResponse.to_muxed_id`
 
@@ -4124,7 +4124,7 @@ to_muxed?: string;
 to_muxed_id?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:291](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L291)
+**Source:** [src/horizon/horizon_api.ts:291](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L291)
 
 ### `paymentOperationResponse.transaction_hash`
 
@@ -4132,7 +4132,7 @@ to_muxed_id?: string;
 transaction_hash: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L269)
+**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L269)
 
 ### `paymentOperationResponse.transaction_successful`
 
@@ -4140,7 +4140,7 @@ transaction_hash: string;
 transaction_successful: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L270)
+**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L270)
 
 ### `paymentOperationResponse.type`
 
@@ -4148,7 +4148,7 @@ transaction_successful: boolean;
 type: payment;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L266)
+**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L266)
 
 ### `paymentOperationResponse.type_i`
 
@@ -4156,7 +4156,7 @@ type: payment;
 type_i: payment;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L267)
+**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L267)
 
 ## Horizon.HorizonApi.Predicate
 
@@ -4170,7 +4170,7 @@ interface Predicate {
 }
 ```
 
-**Source:** [src/horizon/horizon_api.ts:439](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L439)
+**Source:** [src/horizon/horizon_api.ts:439](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L439)
 
 ### `predicate.abs_before`
 
@@ -4178,7 +4178,7 @@ interface Predicate {
 abs_before?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:443](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L443)
+**Source:** [src/horizon/horizon_api.ts:443](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L443)
 
 ### `predicate.and`
 
@@ -4186,7 +4186,7 @@ abs_before?: string;
 and?: Predicate[];
 ```
 
-**Source:** [src/horizon/horizon_api.ts:440](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L440)
+**Source:** [src/horizon/horizon_api.ts:440](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L440)
 
 ### `predicate.not`
 
@@ -4194,7 +4194,7 @@ and?: Predicate[];
 not?: Predicate;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:442](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L442)
+**Source:** [src/horizon/horizon_api.ts:442](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L442)
 
 ### `predicate.or`
 
@@ -4202,7 +4202,7 @@ not?: Predicate;
 or?: Predicate[];
 ```
 
-**Source:** [src/horizon/horizon_api.ts:441](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L441)
+**Source:** [src/horizon/horizon_api.ts:441](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L441)
 
 ### `predicate.rel_before`
 
@@ -4210,7 +4210,7 @@ or?: Predicate[];
 rel_before?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:444](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L444)
+**Source:** [src/horizon/horizon_api.ts:444](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L444)
 
 ## Horizon.HorizonApi.PriceR
 
@@ -4221,7 +4221,7 @@ interface PriceR {
 }
 ```
 
-**Source:** [src/horizon/horizon_api.ts:140](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L140)
+**Source:** [src/horizon/horizon_api.ts:140](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L140)
 
 ### `priceR.denominator`
 
@@ -4229,7 +4229,7 @@ interface PriceR {
 denominator: number;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:142](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L142)
+**Source:** [src/horizon/horizon_api.ts:142](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L142)
 
 ### `priceR.numerator`
 
@@ -4237,7 +4237,7 @@ denominator: number;
 numerator: number;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:141](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L141)
+**Source:** [src/horizon/horizon_api.ts:141](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L141)
 
 ## Horizon.HorizonApi.PriceRShorthand
 
@@ -4248,7 +4248,7 @@ interface PriceRShorthand {
 }
 ```
 
-**Source:** [src/horizon/horizon_api.ts:145](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L145)
+**Source:** [src/horizon/horizon_api.ts:145](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L145)
 
 ### `priceRShorthand.d`
 
@@ -4256,7 +4256,7 @@ interface PriceRShorthand {
 d: number;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:147](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L147)
+**Source:** [src/horizon/horizon_api.ts:147](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L147)
 
 ### `priceRShorthand.n`
 
@@ -4264,7 +4264,7 @@ d: number;
 n: number;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:146](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L146)
+**Source:** [src/horizon/horizon_api.ts:146](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L146)
 
 ## Horizon.HorizonApi.Reserve
 
@@ -4275,7 +4275,7 @@ interface Reserve {
 }
 ```
 
-**Source:** [src/horizon/horizon_api.ts:529](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L529)
+**Source:** [src/horizon/horizon_api.ts:529](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L529)
 
 ### `reserve.amount`
 
@@ -4283,7 +4283,7 @@ interface Reserve {
 amount: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:531](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L531)
+**Source:** [src/horizon/horizon_api.ts:531](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L531)
 
 ### `reserve.asset`
 
@@ -4291,7 +4291,7 @@ amount: string;
 asset: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:530](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L530)
+**Source:** [src/horizon/horizon_api.ts:530](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L530)
 
 ## Horizon.HorizonApi.ResponseCollection
 
@@ -4302,7 +4302,7 @@ interface ResponseCollection<T extends BaseResponse = BaseResponse> {
 }
 ```
 
-**Source:** [src/horizon/horizon_api.ts:594](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L594)
+**Source:** [src/horizon/horizon_api.ts:594](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L594)
 
 ### `responseCollection._embedded`
 
@@ -4310,7 +4310,7 @@ interface ResponseCollection<T extends BaseResponse = BaseResponse> {
 _embedded: { records: T[] };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:600](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L600)
+**Source:** [src/horizon/horizon_api.ts:600](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L600)
 
 ### `responseCollection._links`
 
@@ -4318,7 +4318,7 @@ _embedded: { records: T[] };
 _links: { next: ResponseLink; prev: ResponseLink; self: ResponseLink };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:595](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L595)
+**Source:** [src/horizon/horizon_api.ts:595](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L595)
 
 ## Horizon.HorizonApi.ResponseLink
 
@@ -4329,7 +4329,7 @@ interface ResponseLink {
 }
 ```
 
-**Source:** [src/horizon/horizon_api.ts:5](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L5)
+**Source:** [src/horizon/horizon_api.ts:5](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L5)
 
 ### `responseLink.href`
 
@@ -4337,7 +4337,7 @@ interface ResponseLink {
 href: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:6](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L6)
+**Source:** [src/horizon/horizon_api.ts:6](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L6)
 
 ### `responseLink.templated`
 
@@ -4345,7 +4345,7 @@ href: string;
 templated?: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:7](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L7)
+**Source:** [src/horizon/horizon_api.ts:7](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L7)
 
 ## Horizon.HorizonApi.RestoreFootprintOperationResponse
 
@@ -4363,7 +4363,7 @@ interface RestoreFootprintOperationResponse extends BaseOperationResponse<Operat
 }
 ```
 
-**Source:** [src/horizon/horizon_api.ts:589](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L589)
+**Source:** [src/horizon/horizon_api.ts:589](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L589)
 
 ### `restoreFootprintOperationResponse._links`
 
@@ -4371,7 +4371,7 @@ interface RestoreFootprintOperationResponse extends BaseOperationResponse<Operat
 _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; succeeds: ResponseLink; transaction: ResponseLink };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L10)
+**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L10)
 
 ### `restoreFootprintOperationResponse.created_at`
 
@@ -4379,7 +4379,7 @@ _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; suc
 created_at: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L268)
+**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L268)
 
 ### `restoreFootprintOperationResponse.id`
 
@@ -4387,7 +4387,7 @@ created_at: string;
 id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L263)
+**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L263)
 
 ### `restoreFootprintOperationResponse.paging_token`
 
@@ -4395,7 +4395,7 @@ id: string;
 paging_token: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L264)
+**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L264)
 
 ### `restoreFootprintOperationResponse.source_account`
 
@@ -4403,7 +4403,7 @@ paging_token: string;
 source_account: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L265)
+**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L265)
 
 ### `restoreFootprintOperationResponse.transaction_hash`
 
@@ -4411,7 +4411,7 @@ source_account: string;
 transaction_hash: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L269)
+**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L269)
 
 ### `restoreFootprintOperationResponse.transaction_successful`
 
@@ -4419,7 +4419,7 @@ transaction_hash: string;
 transaction_successful: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L270)
+**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L270)
 
 ### `restoreFootprintOperationResponse.type`
 
@@ -4427,7 +4427,7 @@ transaction_successful: boolean;
 type: restoreFootprint;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L266)
+**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L266)
 
 ### `restoreFootprintOperationResponse.type_i`
 
@@ -4435,7 +4435,7 @@ type: restoreFootprint;
 type_i: restoreFootprint;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L267)
+**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L267)
 
 ## Horizon.HorizonApi.RevokeSponsorshipOperationResponse
 
@@ -4463,7 +4463,7 @@ interface RevokeSponsorshipOperationResponse extends BaseOperationResponse<Opera
 }
 ```
 
-**Source:** [src/horizon/horizon_api.ts:484](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L484)
+**Source:** [src/horizon/horizon_api.ts:484](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L484)
 
 ### `revokeSponsorshipOperationResponse._links`
 
@@ -4471,7 +4471,7 @@ interface RevokeSponsorshipOperationResponse extends BaseOperationResponse<Opera
 _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; succeeds: ResponseLink; transaction: ResponseLink };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L10)
+**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L10)
 
 ### `revokeSponsorshipOperationResponse.account_id`
 
@@ -4479,7 +4479,7 @@ _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; suc
 account_id?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:488](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L488)
+**Source:** [src/horizon/horizon_api.ts:488](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L488)
 
 ### `revokeSponsorshipOperationResponse.claimable_balance_id`
 
@@ -4487,7 +4487,7 @@ account_id?: string;
 claimable_balance_id?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:489](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L489)
+**Source:** [src/horizon/horizon_api.ts:489](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L489)
 
 ### `revokeSponsorshipOperationResponse.created_at`
 
@@ -4495,7 +4495,7 @@ claimable_balance_id?: string;
 created_at: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L268)
+**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L268)
 
 ### `revokeSponsorshipOperationResponse.data_account_id`
 
@@ -4503,7 +4503,7 @@ created_at: string;
 data_account_id?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:490](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L490)
+**Source:** [src/horizon/horizon_api.ts:490](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L490)
 
 ### `revokeSponsorshipOperationResponse.data_name`
 
@@ -4511,7 +4511,7 @@ data_account_id?: string;
 data_name?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:491](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L491)
+**Source:** [src/horizon/horizon_api.ts:491](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L491)
 
 ### `revokeSponsorshipOperationResponse.id`
 
@@ -4519,7 +4519,7 @@ data_name?: string;
 id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L263)
+**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L263)
 
 ### `revokeSponsorshipOperationResponse.offer_id`
 
@@ -4527,7 +4527,7 @@ id: string;
 offer_id?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:492](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L492)
+**Source:** [src/horizon/horizon_api.ts:492](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L492)
 
 ### `revokeSponsorshipOperationResponse.paging_token`
 
@@ -4535,7 +4535,7 @@ offer_id?: string;
 paging_token: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L264)
+**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L264)
 
 ### `revokeSponsorshipOperationResponse.signer_account_id`
 
@@ -4543,7 +4543,7 @@ paging_token: string;
 signer_account_id?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:496](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L496)
+**Source:** [src/horizon/horizon_api.ts:496](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L496)
 
 ### `revokeSponsorshipOperationResponse.signer_key`
 
@@ -4551,7 +4551,7 @@ signer_account_id?: string;
 signer_key?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:497](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L497)
+**Source:** [src/horizon/horizon_api.ts:497](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L497)
 
 ### `revokeSponsorshipOperationResponse.source_account`
 
@@ -4559,7 +4559,7 @@ signer_key?: string;
 source_account: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L265)
+**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L265)
 
 ### `revokeSponsorshipOperationResponse.transaction_hash`
 
@@ -4567,7 +4567,7 @@ source_account: string;
 transaction_hash: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L269)
+**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L269)
 
 ### `revokeSponsorshipOperationResponse.transaction_successful`
 
@@ -4575,7 +4575,7 @@ transaction_hash: string;
 transaction_successful: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L270)
+**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L270)
 
 ### `revokeSponsorshipOperationResponse.trustline_account_id`
 
@@ -4583,7 +4583,7 @@ transaction_successful: boolean;
 trustline_account_id?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:493](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L493)
+**Source:** [src/horizon/horizon_api.ts:493](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L493)
 
 ### `revokeSponsorshipOperationResponse.trustline_asset`
 
@@ -4591,7 +4591,7 @@ trustline_account_id?: string;
 trustline_asset?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:494](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L494)
+**Source:** [src/horizon/horizon_api.ts:494](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L494)
 
 ### `revokeSponsorshipOperationResponse.trustline_liquidity_pool_id`
 
@@ -4599,7 +4599,7 @@ trustline_asset?: string;
 trustline_liquidity_pool_id?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:495](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L495)
+**Source:** [src/horizon/horizon_api.ts:495](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L495)
 
 ### `revokeSponsorshipOperationResponse.type`
 
@@ -4607,7 +4607,7 @@ trustline_liquidity_pool_id?: string;
 type: revokeSponsorship;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L266)
+**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L266)
 
 ### `revokeSponsorshipOperationResponse.type_i`
 
@@ -4615,7 +4615,7 @@ type: revokeSponsorship;
 type_i: revokeSponsorship;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L267)
+**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L267)
 
 ## Horizon.HorizonApi.RootResponse
 
@@ -4635,7 +4635,7 @@ interface RootResponse {
 }
 ```
 
-**Source:** [src/horizon/horizon_api.ts:686](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L686)
+**Source:** [src/horizon/horizon_api.ts:686](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L686)
 
 ### `rootResponse.core_latest_ledger`
 
@@ -4643,7 +4643,7 @@ interface RootResponse {
 core_latest_ledger: number;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:693](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L693)
+**Source:** [src/horizon/horizon_api.ts:693](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L693)
 
 ### `rootResponse.core_supported_protocol_version`
 
@@ -4651,7 +4651,7 @@ core_latest_ledger: number;
 core_supported_protocol_version: number;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:697](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L697)
+**Source:** [src/horizon/horizon_api.ts:697](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L697)
 
 ### `rootResponse.core_version`
 
@@ -4659,7 +4659,7 @@ core_supported_protocol_version: number;
 core_version: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:688](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L688)
+**Source:** [src/horizon/horizon_api.ts:688](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L688)
 
 ### `rootResponse.current_protocol_version`
 
@@ -4667,7 +4667,7 @@ core_version: string;
 current_protocol_version: number;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:695](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L695)
+**Source:** [src/horizon/horizon_api.ts:695](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L695)
 
 ### `rootResponse.history_elder_ledger`
 
@@ -4675,7 +4675,7 @@ current_protocol_version: number;
 history_elder_ledger: number;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:692](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L692)
+**Source:** [src/horizon/horizon_api.ts:692](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L692)
 
 ### `rootResponse.history_latest_ledger`
 
@@ -4683,7 +4683,7 @@ history_elder_ledger: number;
 history_latest_ledger: number;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:690](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L690)
+**Source:** [src/horizon/horizon_api.ts:690](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L690)
 
 ### `rootResponse.history_latest_ledger_closed_at`
 
@@ -4691,7 +4691,7 @@ history_latest_ledger: number;
 history_latest_ledger_closed_at: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:691](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L691)
+**Source:** [src/horizon/horizon_api.ts:691](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L691)
 
 ### `rootResponse.horizon_version`
 
@@ -4699,7 +4699,7 @@ history_latest_ledger_closed_at: string;
 horizon_version: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:687](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L687)
+**Source:** [src/horizon/horizon_api.ts:687](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L687)
 
 ### `rootResponse.ingest_latest_ledger`
 
@@ -4707,7 +4707,7 @@ horizon_version: string;
 ingest_latest_ledger: number;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:689](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L689)
+**Source:** [src/horizon/horizon_api.ts:689](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L689)
 
 ### `rootResponse.network_passphrase`
 
@@ -4715,7 +4715,7 @@ ingest_latest_ledger: number;
 network_passphrase: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:694](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L694)
+**Source:** [src/horizon/horizon_api.ts:694](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L694)
 
 ### `rootResponse.supported_protocol_version`
 
@@ -4723,7 +4723,7 @@ network_passphrase: string;
 supported_protocol_version: number;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:696](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L696)
+**Source:** [src/horizon/horizon_api.ts:696](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L696)
 
 ## Horizon.HorizonApi.SetOptionsOperationResponse
 
@@ -4752,7 +4752,7 @@ interface SetOptionsOperationResponse extends BaseOperationResponse<OperationRes
 }
 ```
 
-**Source:** [src/horizon/horizon_api.ts:365](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L365)
+**Source:** [src/horizon/horizon_api.ts:365](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L365)
 
 ### `setOptionsOperationResponse._links`
 
@@ -4760,7 +4760,7 @@ interface SetOptionsOperationResponse extends BaseOperationResponse<OperationRes
 _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; succeeds: ResponseLink; transaction: ResponseLink };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L10)
+**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L10)
 
 ### `setOptionsOperationResponse.clear_flags`
 
@@ -4768,7 +4768,7 @@ _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; suc
 clear_flags: (1 | 2 | 4)[];
 ```
 
-**Source:** [src/horizon/horizon_api.ts:382](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L382)
+**Source:** [src/horizon/horizon_api.ts:382](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L382)
 
 ### `setOptionsOperationResponse.clear_flags_s`
 
@@ -4776,7 +4776,7 @@ clear_flags: (1 | 2 | 4)[];
 clear_flags_s: ("auth_required_flag" | "auth_revocable_flag" | "auth_clawback_enabled_flag")[];
 ```
 
-**Source:** [src/horizon/horizon_api.ts:383](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L383)
+**Source:** [src/horizon/horizon_api.ts:383](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L383)
 
 ### `setOptionsOperationResponse.created_at`
 
@@ -4784,7 +4784,7 @@ clear_flags_s: ("auth_required_flag" | "auth_revocable_flag" | "auth_clawback_en
 created_at: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L268)
+**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L268)
 
 ### `setOptionsOperationResponse.high_threshold`
 
@@ -4792,7 +4792,7 @@ created_at: string;
 high_threshold?: number;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:374](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L374)
+**Source:** [src/horizon/horizon_api.ts:374](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L374)
 
 ### `setOptionsOperationResponse.home_domain`
 
@@ -4800,7 +4800,7 @@ high_threshold?: number;
 home_domain?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:375](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L375)
+**Source:** [src/horizon/horizon_api.ts:375](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L375)
 
 ### `setOptionsOperationResponse.id`
 
@@ -4808,7 +4808,7 @@ home_domain?: string;
 id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L263)
+**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L263)
 
 ### `setOptionsOperationResponse.low_threshold`
 
@@ -4816,7 +4816,7 @@ id: string;
 low_threshold?: number;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:372](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L372)
+**Source:** [src/horizon/horizon_api.ts:372](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L372)
 
 ### `setOptionsOperationResponse.master_key_weight`
 
@@ -4824,7 +4824,7 @@ low_threshold?: number;
 master_key_weight?: number;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:371](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L371)
+**Source:** [src/horizon/horizon_api.ts:371](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L371)
 
 ### `setOptionsOperationResponse.med_threshold`
 
@@ -4832,7 +4832,7 @@ master_key_weight?: number;
 med_threshold?: number;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:373](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L373)
+**Source:** [src/horizon/horizon_api.ts:373](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L373)
 
 ### `setOptionsOperationResponse.paging_token`
 
@@ -4840,7 +4840,7 @@ med_threshold?: number;
 paging_token: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L264)
+**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L264)
 
 ### `setOptionsOperationResponse.set_flags`
 
@@ -4848,7 +4848,7 @@ paging_token: string;
 set_flags: (1 | 2 | 4)[];
 ```
 
-**Source:** [src/horizon/horizon_api.ts:376](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L376)
+**Source:** [src/horizon/horizon_api.ts:376](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L376)
 
 ### `setOptionsOperationResponse.set_flags_s`
 
@@ -4856,7 +4856,7 @@ set_flags: (1 | 2 | 4)[];
 set_flags_s: ("auth_required_flag" | "auth_revocable_flag" | "auth_clawback_enabled_flag")[];
 ```
 
-**Source:** [src/horizon/horizon_api.ts:377](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L377)
+**Source:** [src/horizon/horizon_api.ts:377](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L377)
 
 ### `setOptionsOperationResponse.signer_key`
 
@@ -4864,7 +4864,7 @@ set_flags_s: ("auth_required_flag" | "auth_revocable_flag" | "auth_clawback_enab
 signer_key?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:369](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L369)
+**Source:** [src/horizon/horizon_api.ts:369](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L369)
 
 ### `setOptionsOperationResponse.signer_weight`
 
@@ -4872,7 +4872,7 @@ signer_key?: string;
 signer_weight?: number;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:370](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L370)
+**Source:** [src/horizon/horizon_api.ts:370](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L370)
 
 ### `setOptionsOperationResponse.source_account`
 
@@ -4880,7 +4880,7 @@ signer_weight?: number;
 source_account: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L265)
+**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L265)
 
 ### `setOptionsOperationResponse.transaction_hash`
 
@@ -4888,7 +4888,7 @@ source_account: string;
 transaction_hash: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L269)
+**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L269)
 
 ### `setOptionsOperationResponse.transaction_successful`
 
@@ -4896,7 +4896,7 @@ transaction_hash: string;
 transaction_successful: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L270)
+**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L270)
 
 ### `setOptionsOperationResponse.type`
 
@@ -4904,7 +4904,7 @@ transaction_successful: boolean;
 type: setOptions;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L266)
+**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L266)
 
 ### `setOptionsOperationResponse.type_i`
 
@@ -4912,7 +4912,7 @@ type: setOptions;
 type_i: setOptions;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L267)
+**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L267)
 
 ## Horizon.HorizonApi.SetTrustLineFlagsOperationResponse
 
@@ -4936,7 +4936,7 @@ interface SetTrustLineFlagsOperationResponse extends BaseOperationResponse<Opera
 }
 ```
 
-**Source:** [src/horizon/horizon_api.ts:518](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L518)
+**Source:** [src/horizon/horizon_api.ts:518](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L518)
 
 ### `setTrustLineFlagsOperationResponse._links`
 
@@ -4944,7 +4944,7 @@ interface SetTrustLineFlagsOperationResponse extends BaseOperationResponse<Opera
 _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; succeeds: ResponseLink; transaction: ResponseLink };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L10)
+**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L10)
 
 ### `setTrustLineFlagsOperationResponse.asset_code`
 
@@ -4952,7 +4952,7 @@ _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; suc
 asset_code: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:523](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L523)
+**Source:** [src/horizon/horizon_api.ts:523](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L523)
 
 ### `setTrustLineFlagsOperationResponse.asset_issuer`
 
@@ -4960,7 +4960,7 @@ asset_code: string;
 asset_issuer: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:524](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L524)
+**Source:** [src/horizon/horizon_api.ts:524](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L524)
 
 ### `setTrustLineFlagsOperationResponse.asset_type`
 
@@ -4968,7 +4968,7 @@ asset_issuer: string;
 asset_type: AssetType;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:522](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L522)
+**Source:** [src/horizon/horizon_api.ts:522](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L522)
 
 ### `setTrustLineFlagsOperationResponse.clear_flags`
 
@@ -4976,7 +4976,7 @@ asset_type: AssetType;
 clear_flags: (1 | 2 | 4)[];
 ```
 
-**Source:** [src/horizon/horizon_api.ts:527](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L527)
+**Source:** [src/horizon/horizon_api.ts:527](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L527)
 
 ### `setTrustLineFlagsOperationResponse.created_at`
 
@@ -4984,7 +4984,7 @@ clear_flags: (1 | 2 | 4)[];
 created_at: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L268)
+**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L268)
 
 ### `setTrustLineFlagsOperationResponse.id`
 
@@ -4992,7 +4992,7 @@ created_at: string;
 id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L263)
+**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L263)
 
 ### `setTrustLineFlagsOperationResponse.paging_token`
 
@@ -5000,7 +5000,7 @@ id: string;
 paging_token: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L264)
+**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L264)
 
 ### `setTrustLineFlagsOperationResponse.set_flags`
 
@@ -5008,7 +5008,7 @@ paging_token: string;
 set_flags: (1 | 2 | 4)[];
 ```
 
-**Source:** [src/horizon/horizon_api.ts:526](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L526)
+**Source:** [src/horizon/horizon_api.ts:526](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L526)
 
 ### `setTrustLineFlagsOperationResponse.source_account`
 
@@ -5016,7 +5016,7 @@ set_flags: (1 | 2 | 4)[];
 source_account: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L265)
+**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L265)
 
 ### `setTrustLineFlagsOperationResponse.transaction_hash`
 
@@ -5024,7 +5024,7 @@ source_account: string;
 transaction_hash: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L269)
+**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L269)
 
 ### `setTrustLineFlagsOperationResponse.transaction_successful`
 
@@ -5032,7 +5032,7 @@ transaction_hash: string;
 transaction_successful: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L270)
+**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L270)
 
 ### `setTrustLineFlagsOperationResponse.trustor`
 
@@ -5040,7 +5040,7 @@ transaction_successful: boolean;
 trustor: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:525](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L525)
+**Source:** [src/horizon/horizon_api.ts:525](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L525)
 
 ### `setTrustLineFlagsOperationResponse.type`
 
@@ -5048,7 +5048,7 @@ trustor: string;
 type: setTrustLineFlags;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L266)
+**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L266)
 
 ### `setTrustLineFlagsOperationResponse.type_i`
 
@@ -5056,7 +5056,7 @@ type: setTrustLineFlags;
 type_i: setTrustLineFlags;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L267)
+**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L267)
 
 ## Horizon.HorizonApi.SubmitAsyncTransactionResponse
 
@@ -5068,7 +5068,7 @@ interface SubmitAsyncTransactionResponse {
 }
 ```
 
-**Source:** [src/horizon/horizon_api.ts:23](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L23)
+**Source:** [src/horizon/horizon_api.ts:23](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L23)
 
 ### `submitAsyncTransactionResponse.error_result_xdr`
 
@@ -5076,7 +5076,7 @@ interface SubmitAsyncTransactionResponse {
 error_result_xdr: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:26](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L26)
+**Source:** [src/horizon/horizon_api.ts:26](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L26)
 
 ### `submitAsyncTransactionResponse.hash`
 
@@ -5084,7 +5084,7 @@ error_result_xdr: string;
 hash: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:24](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L24)
+**Source:** [src/horizon/horizon_api.ts:24](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L24)
 
 ### `submitAsyncTransactionResponse.tx_status`
 
@@ -5092,7 +5092,7 @@ hash: string;
 tx_status: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:25](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L25)
+**Source:** [src/horizon/horizon_api.ts:25](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L25)
 
 ## Horizon.HorizonApi.SubmitTransactionResponse
 
@@ -5108,7 +5108,7 @@ interface SubmitTransactionResponse {
 }
 ```
 
-**Source:** [src/horizon/horizon_api.ts:13](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L13)
+**Source:** [src/horizon/horizon_api.ts:13](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L13)
 
 ### `submitTransactionResponse.envelope_xdr`
 
@@ -5116,7 +5116,7 @@ interface SubmitTransactionResponse {
 envelope_xdr: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:17](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L17)
+**Source:** [src/horizon/horizon_api.ts:17](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L17)
 
 ### `submitTransactionResponse.hash`
 
@@ -5124,7 +5124,7 @@ envelope_xdr: string;
 hash: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:14](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L14)
+**Source:** [src/horizon/horizon_api.ts:14](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L14)
 
 ### `submitTransactionResponse.ledger`
 
@@ -5132,7 +5132,7 @@ hash: string;
 ledger: number;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:15](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L15)
+**Source:** [src/horizon/horizon_api.ts:15](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L15)
 
 ### `submitTransactionResponse.paging_token`
 
@@ -5140,7 +5140,7 @@ ledger: number;
 paging_token: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:20](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L20)
+**Source:** [src/horizon/horizon_api.ts:20](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L20)
 
 ### `submitTransactionResponse.result_meta_xdr`
 
@@ -5148,7 +5148,7 @@ paging_token: string;
 result_meta_xdr: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:19](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L19)
+**Source:** [src/horizon/horizon_api.ts:19](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L19)
 
 ### `submitTransactionResponse.result_xdr`
 
@@ -5156,7 +5156,7 @@ result_meta_xdr: string;
 result_xdr: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:18](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L18)
+**Source:** [src/horizon/horizon_api.ts:18](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L18)
 
 ### `submitTransactionResponse.successful`
 
@@ -5164,7 +5164,7 @@ result_xdr: string;
 successful: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:16](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L16)
+**Source:** [src/horizon/horizon_api.ts:16](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L16)
 
 ## Horizon.HorizonApi.TransactionFailedExtras
 
@@ -5176,7 +5176,7 @@ interface TransactionFailedExtras {
 }
 ```
 
-**Source:** [src/horizon/horizon_api.ts:677](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L677)
+**Source:** [src/horizon/horizon_api.ts:677](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L677)
 
 ### `transactionFailedExtras.envelope_xdr`
 
@@ -5184,7 +5184,7 @@ interface TransactionFailedExtras {
 envelope_xdr: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:678](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L678)
+**Source:** [src/horizon/horizon_api.ts:678](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L678)
 
 ### `transactionFailedExtras.result_codes`
 
@@ -5192,7 +5192,7 @@ envelope_xdr: string;
 result_codes: { operations: string[]; transaction: TransactionFailedResultCodes };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:679](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L679)
+**Source:** [src/horizon/horizon_api.ts:679](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L679)
 
 ### `transactionFailedExtras.result_xdr`
 
@@ -5200,7 +5200,7 @@ result_codes: { operations: string[]; transaction: TransactionFailedResultCodes 
 result_xdr: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:683](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L683)
+**Source:** [src/horizon/horizon_api.ts:683](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L683)
 
 ## Horizon.HorizonApi.TransactionFailedResultCodes
 
@@ -5208,7 +5208,7 @@ result_xdr: string;
 enum TransactionFailedResultCodes
 ```
 
-**Source:** [src/horizon/horizon_api.ts:659](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L659)
+**Source:** [src/horizon/horizon_api.ts:659](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L659)
 
 ## Horizon.HorizonApi.TransactionPreconditions
 
@@ -5223,7 +5223,7 @@ interface TransactionPreconditions {
 }
 ```
 
-**Source:** [src/horizon/horizon_api.ts:40](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L40)
+**Source:** [src/horizon/horizon_api.ts:40](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L40)
 
 ### `transactionPreconditions.extra_signers`
 
@@ -5231,7 +5231,7 @@ interface TransactionPreconditions {
 extra_signers?: string[];
 ```
 
-**Source:** [src/horizon/horizon_api.ts:52](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L52)
+**Source:** [src/horizon/horizon_api.ts:52](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L52)
 
 ### `transactionPreconditions.ledgerbounds`
 
@@ -5239,7 +5239,7 @@ extra_signers?: string[];
 ledgerbounds?: { max_ledger: number; min_ledger: number };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:45](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L45)
+**Source:** [src/horizon/horizon_api.ts:45](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L45)
 
 ### `transactionPreconditions.min_account_sequence`
 
@@ -5247,7 +5247,7 @@ ledgerbounds?: { max_ledger: number; min_ledger: number };
 min_account_sequence?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:49](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L49)
+**Source:** [src/horizon/horizon_api.ts:49](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L49)
 
 ### `transactionPreconditions.min_account_sequence_age`
 
@@ -5255,7 +5255,7 @@ min_account_sequence?: string;
 min_account_sequence_age?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:50](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L50)
+**Source:** [src/horizon/horizon_api.ts:50](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L50)
 
 ### `transactionPreconditions.min_account_sequence_ledger_gap`
 
@@ -5263,7 +5263,7 @@ min_account_sequence_age?: string;
 min_account_sequence_ledger_gap?: number;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:51](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L51)
+**Source:** [src/horizon/horizon_api.ts:51](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L51)
 
 ### `transactionPreconditions.timebounds`
 
@@ -5271,7 +5271,7 @@ min_account_sequence_ledger_gap?: number;
 timebounds?: { max_time: string; min_time: string };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:41](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L41)
+**Source:** [src/horizon/horizon_api.ts:41](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L41)
 
 ## Horizon.HorizonApi.TransactionResponse
 
@@ -5304,7 +5304,7 @@ interface TransactionResponse extends SubmitTransactionResponse, BaseResponse<"a
 }
 ```
 
-**Source:** [src/horizon/horizon_api.ts:55](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L55)
+**Source:** [src/horizon/horizon_api.ts:55](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L55)
 
 ### `transactionResponse._links`
 
@@ -5312,7 +5312,7 @@ interface TransactionResponse extends SubmitTransactionResponse, BaseResponse<"a
 _links: { account: ResponseLink; effects: ResponseLink; ledger: ResponseLink; operations: ResponseLink; precedes: ResponseLink; self: ResponseLink; succeeds: ResponseLink };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L10)
+**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L10)
 
 ### `transactionResponse.created_at`
 
@@ -5320,7 +5320,7 @@ _links: { account: ResponseLink; effects: ResponseLink; ledger: ResponseLink; op
 created_at: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:66](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L66)
+**Source:** [src/horizon/horizon_api.ts:66](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L66)
 
 ### `transactionResponse.envelope_xdr`
 
@@ -5328,7 +5328,7 @@ created_at: string;
 envelope_xdr: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:17](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L17)
+**Source:** [src/horizon/horizon_api.ts:17](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L17)
 
 ### `transactionResponse.fee_account`
 
@@ -5336,7 +5336,7 @@ envelope_xdr: string;
 fee_account: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:79](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L79)
+**Source:** [src/horizon/horizon_api.ts:79](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L79)
 
 ### `transactionResponse.fee_bump_transaction`
 
@@ -5344,7 +5344,7 @@ fee_account: string;
 fee_bump_transaction?: FeeBumpTransactionResponse;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:81](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L81)
+**Source:** [src/horizon/horizon_api.ts:81](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L81)
 
 ### `transactionResponse.fee_charged`
 
@@ -5352,7 +5352,7 @@ fee_bump_transaction?: FeeBumpTransactionResponse;
 fee_charged: string | number;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:68](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L68)
+**Source:** [src/horizon/horizon_api.ts:68](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L68)
 
 ### `transactionResponse.fee_meta_xdr`
 
@@ -5360,7 +5360,7 @@ fee_charged: string | number;
 fee_meta_xdr: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:67](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L67)
+**Source:** [src/horizon/horizon_api.ts:67](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L67)
 
 ### `transactionResponse.hash`
 
@@ -5368,7 +5368,7 @@ fee_meta_xdr: string;
 hash: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:14](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L14)
+**Source:** [src/horizon/horizon_api.ts:14](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L14)
 
 ### `transactionResponse.id`
 
@@ -5376,7 +5376,7 @@ hash: string;
 id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:70](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L70)
+**Source:** [src/horizon/horizon_api.ts:70](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L70)
 
 ### `transactionResponse.inner_transaction`
 
@@ -5384,7 +5384,7 @@ id: string;
 inner_transaction?: InnerTransactionResponse;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:80](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L80)
+**Source:** [src/horizon/horizon_api.ts:80](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L80)
 
 ### `transactionResponse.ledger`
 
@@ -5392,7 +5392,7 @@ inner_transaction?: InnerTransactionResponse;
 ledger: number;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:15](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L15)
+**Source:** [src/horizon/horizon_api.ts:15](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L15)
 
 ### `transactionResponse.max_fee`
 
@@ -5400,7 +5400,7 @@ ledger: number;
 max_fee: string | number;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:69](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L69)
+**Source:** [src/horizon/horizon_api.ts:69](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L69)
 
 ### `transactionResponse.memo`
 
@@ -5408,7 +5408,7 @@ max_fee: string | number;
 memo?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:72](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L72)
+**Source:** [src/horizon/horizon_api.ts:72](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L72)
 
 ### `transactionResponse.memo_bytes`
 
@@ -5416,7 +5416,7 @@ memo?: string;
 memo_bytes?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:73](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L73)
+**Source:** [src/horizon/horizon_api.ts:73](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L73)
 
 ### `transactionResponse.memo_type`
 
@@ -5424,7 +5424,7 @@ memo_bytes?: string;
 memo_type: MemoType;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:71](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L71)
+**Source:** [src/horizon/horizon_api.ts:71](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L71)
 
 ### `transactionResponse.operation_count`
 
@@ -5432,7 +5432,7 @@ memo_type: MemoType;
 operation_count: number;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:74](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L74)
+**Source:** [src/horizon/horizon_api.ts:74](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L74)
 
 ### `transactionResponse.paging_token`
 
@@ -5440,7 +5440,7 @@ operation_count: number;
 paging_token: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:75](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L75)
+**Source:** [src/horizon/horizon_api.ts:75](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L75)
 
 ### `transactionResponse.preconditions`
 
@@ -5448,7 +5448,7 @@ paging_token: string;
 preconditions?: TransactionPreconditions;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:82](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L82)
+**Source:** [src/horizon/horizon_api.ts:82](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L82)
 
 ### `transactionResponse.result_meta_xdr`
 
@@ -5456,7 +5456,7 @@ preconditions?: TransactionPreconditions;
 result_meta_xdr: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:19](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L19)
+**Source:** [src/horizon/horizon_api.ts:19](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L19)
 
 ### `transactionResponse.result_xdr`
 
@@ -5464,7 +5464,7 @@ result_meta_xdr: string;
 result_xdr: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:18](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L18)
+**Source:** [src/horizon/horizon_api.ts:18](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L18)
 
 ### `transactionResponse.signatures`
 
@@ -5472,7 +5472,7 @@ result_xdr: string;
 signatures: string[];
 ```
 
-**Source:** [src/horizon/horizon_api.ts:76](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L76)
+**Source:** [src/horizon/horizon_api.ts:76](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L76)
 
 ### `transactionResponse.source_account`
 
@@ -5480,7 +5480,7 @@ signatures: string[];
 source_account: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:77](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L77)
+**Source:** [src/horizon/horizon_api.ts:77](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L77)
 
 ### `transactionResponse.source_account_sequence`
 
@@ -5488,7 +5488,7 @@ source_account: string;
 source_account_sequence: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:78](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L78)
+**Source:** [src/horizon/horizon_api.ts:78](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L78)
 
 ### `transactionResponse.successful`
 
@@ -5496,7 +5496,7 @@ source_account_sequence: string;
 successful: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:16](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L16)
+**Source:** [src/horizon/horizon_api.ts:16](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L16)
 
 ## Horizon.HorizonApi.TransactionResponseCollection
 
@@ -5507,7 +5507,7 @@ interface TransactionResponseCollection extends ResponseCollection<TransactionRe
 }
 ```
 
-**Source:** [src/horizon/horizon_api.ts:604](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L604)
+**Source:** [src/horizon/horizon_api.ts:604](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L604)
 
 ### `transactionResponseCollection._embedded`
 
@@ -5515,7 +5515,7 @@ interface TransactionResponseCollection extends ResponseCollection<TransactionRe
 _embedded: { records: TransactionResponse[] };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:600](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L600)
+**Source:** [src/horizon/horizon_api.ts:600](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L600)
 
 ### `transactionResponseCollection._links`
 
@@ -5523,7 +5523,7 @@ _embedded: { records: TransactionResponse[] };
 _links: { next: ResponseLink; prev: ResponseLink; self: ResponseLink };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:595](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L595)
+**Source:** [src/horizon/horizon_api.ts:595](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L595)
 
 ## Horizon.HorizonApi.WithdrawLiquidityOperationResponse
 
@@ -5545,7 +5545,7 @@ interface WithdrawLiquidityOperationResponse extends BaseOperationResponse<Opera
 }
 ```
 
-**Source:** [src/horizon/horizon_api.ts:546](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L546)
+**Source:** [src/horizon/horizon_api.ts:546](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L546)
 
 ### `withdrawLiquidityOperationResponse._links`
 
@@ -5553,7 +5553,7 @@ interface WithdrawLiquidityOperationResponse extends BaseOperationResponse<Opera
 _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; succeeds: ResponseLink; transaction: ResponseLink };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L10)
+**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L10)
 
 ### `withdrawLiquidityOperationResponse.created_at`
 
@@ -5561,7 +5561,7 @@ _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; suc
 created_at: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L268)
+**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L268)
 
 ### `withdrawLiquidityOperationResponse.id`
 
@@ -5569,7 +5569,7 @@ created_at: string;
 id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L263)
+**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L263)
 
 ### `withdrawLiquidityOperationResponse.liquidity_pool_id`
 
@@ -5577,7 +5577,7 @@ id: string;
 liquidity_pool_id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:550](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L550)
+**Source:** [src/horizon/horizon_api.ts:550](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L550)
 
 ### `withdrawLiquidityOperationResponse.paging_token`
 
@@ -5585,7 +5585,7 @@ liquidity_pool_id: string;
 paging_token: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L264)
+**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L264)
 
 ### `withdrawLiquidityOperationResponse.reserves_min`
 
@@ -5593,7 +5593,7 @@ paging_token: string;
 reserves_min: Reserve[];
 ```
 
-**Source:** [src/horizon/horizon_api.ts:551](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L551)
+**Source:** [src/horizon/horizon_api.ts:551](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L551)
 
 ### `withdrawLiquidityOperationResponse.reserves_received`
 
@@ -5601,7 +5601,7 @@ reserves_min: Reserve[];
 reserves_received: Reserve[];
 ```
 
-**Source:** [src/horizon/horizon_api.ts:553](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L553)
+**Source:** [src/horizon/horizon_api.ts:553](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L553)
 
 ### `withdrawLiquidityOperationResponse.shares`
 
@@ -5609,7 +5609,7 @@ reserves_received: Reserve[];
 shares: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:552](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L552)
+**Source:** [src/horizon/horizon_api.ts:552](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L552)
 
 ### `withdrawLiquidityOperationResponse.source_account`
 
@@ -5617,7 +5617,7 @@ shares: string;
 source_account: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L265)
+**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L265)
 
 ### `withdrawLiquidityOperationResponse.transaction_hash`
 
@@ -5625,7 +5625,7 @@ source_account: string;
 transaction_hash: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L269)
+**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L269)
 
 ### `withdrawLiquidityOperationResponse.transaction_successful`
 
@@ -5633,7 +5633,7 @@ transaction_hash: string;
 transaction_successful: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L270)
+**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L270)
 
 ### `withdrawLiquidityOperationResponse.type`
 
@@ -5641,7 +5641,7 @@ transaction_successful: boolean;
 type: liquidityPoolWithdraw;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L266)
+**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L266)
 
 ### `withdrawLiquidityOperationResponse.type_i`
 
@@ -5649,7 +5649,7 @@ type: liquidityPoolWithdraw;
 type_i: liquidityPoolWithdraw;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L267)
+**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L267)
 
 ## Horizon.SERVER_TIME_MAP
 
@@ -5672,7 +5672,7 @@ const SERVER_TIME_MAP: Record<string, ServerTime>
 }
 ```
 
-**Source:** [src/horizon/horizon_axios_client.ts:33](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_axios_client.ts#L33)
+**Source:** [src/horizon/horizon_axios_client.ts:33](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_axios_client.ts#L33)
 
 ## Horizon.Server
 
@@ -5710,7 +5710,7 @@ class Server {
 }
 ```
 
-**Source:** [src/horizon/server.ts:70](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server.ts#L70)
+**Source:** [src/horizon/server.ts:70](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L70)
 
 ### `new Server(serverURL, opts)`
 
@@ -5723,7 +5723,7 @@ constructor(serverURL: string, opts: Options = {});
 - **`serverURL`** — `string` (required)
 - **`opts`** — `Options` (optional) (default: `{}`)
 
-**Source:** [src/horizon/server.ts:95](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server.ts#L95)
+**Source:** [src/horizon/server.ts:95](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L95)
 
 ### `server.httpClient`
 
@@ -5747,7 +5747,7 @@ server.httpClient.interceptors.request.use((config) => {
 });
 ```
 
-**Source:** [src/horizon/server.ts:94](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server.ts#L94)
+**Source:** [src/horizon/server.ts:94](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L94)
 
 ### `server.serverURL`
 
@@ -5759,7 +5759,7 @@ TODO: Solve `this.serverURL`.
 readonly serverURL: URL;
 ```
 
-**Source:** [src/horizon/server.ts:76](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server.ts#L76)
+**Source:** [src/horizon/server.ts:76](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L76)
 
 ### `server.accounts()`
 
@@ -5771,7 +5771,7 @@ accounts(): AccountCallBuilder;
 
 New `AccountCallBuilder` object configured by a current Horizon server configuration.
 
-**Source:** [src/horizon/server.ts:601](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server.ts#L601)
+**Source:** [src/horizon/server.ts:601](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L601)
 
 ### `server.assets()`
 
@@ -5786,7 +5786,7 @@ assets(): AssetsCallBuilder;
 
 New AssetsCallBuilder instance
 
-**Source:** [src/horizon/server.ts:784](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server.ts#L784)
+**Source:** [src/horizon/server.ts:784](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L784)
 
 ### `server.checkMemoRequired(transaction)`
 
@@ -5817,7 +5817,7 @@ requires a memo, the promise will throw `AccountRequiresMemoError`.
 
 - `SEP-29: Account Memo Requirements`
 
-**Source:** [src/horizon/server.ts:850](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server.ts#L850)
+**Source:** [src/horizon/server.ts:850](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L850)
 
 ### `server.claimableBalances()`
 
@@ -5829,7 +5829,7 @@ claimableBalances(): ClaimableBalanceCallBuilder;
 
 New `ClaimableBalanceCallBuilder` object configured by a current Horizon server configuration.
 
-**Source:** [src/horizon/server.ts:608](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server.ts#L608)
+**Source:** [src/horizon/server.ts:608](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L608)
 
 ### `server.effects()`
 
@@ -5842,7 +5842,7 @@ effects(): EffectCallBuilder;
 New `EffectCallBuilder` instance configured with the current
 Horizon server configuration
 
-**Source:** [src/horizon/server.ts:765](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server.ts#L765)
+**Source:** [src/horizon/server.ts:765](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L765)
 
 ### `server.feeStats()`
 
@@ -5860,7 +5860,7 @@ Promise that resolves to the fee stats returned by Horizon.
 
 - `Fee Stats`
 
-**Source:** [src/horizon/server.ts:204](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server.ts#L204)
+**Source:** [src/horizon/server.ts:204](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L204)
 
 ### `server.fetchBaseFee()`
 
@@ -5876,7 +5876,7 @@ fetchBaseFee(): Promise<number>;
 
 Promise that resolves to the base fee.
 
-**Source:** [src/horizon/server.ts:193](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server.ts#L193)
+**Source:** [src/horizon/server.ts:193](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L193)
 
 ### `server.fetchTimebounds(seconds, _isRetry)`
 
@@ -5919,7 +5919,7 @@ const transaction = new StellarSdk.TransactionBuilder(accountId, {
   .build();
 ```
 
-**Source:** [src/horizon/server.ts:155](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server.ts#L155)
+**Source:** [src/horizon/server.ts:155](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L155)
 
 ### `server.ledgers()`
 
@@ -5931,7 +5931,7 @@ ledgers(): LedgerCallBuilder;
 
 New `LedgerCallBuilder` object configured by a current Horizon server configuration.
 
-**Source:** [src/horizon/server.ts:615](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server.ts#L615)
+**Source:** [src/horizon/server.ts:615](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L615)
 
 ### `server.liquidityPools()`
 
@@ -5944,7 +5944,7 @@ liquidityPools(): LiquidityPoolCallBuilder;
 New `LiquidityPoolCallBuilder`
     object configured to the current Horizon server settings.
 
-**Source:** [src/horizon/server.ts:680](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server.ts#L680)
+**Source:** [src/horizon/server.ts:680](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L680)
 
 ### `server.loadAccount(accountId)`
 
@@ -5964,7 +5964,7 @@ loadAccount(accountId: string): Promise<AccountResponse>;
 Returns a promise to the `AccountResponse` object
 with populated sequence number.
 
-**Source:** [src/horizon/server.ts:797](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server.ts#L797)
+**Source:** [src/horizon/server.ts:797](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L797)
 
 ### `server.offers()`
 
@@ -5990,7 +5990,7 @@ server.offers()
   });
 ```
 
-**Source:** [src/horizon/server.ts:642](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server.ts#L642)
+**Source:** [src/horizon/server.ts:642](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L642)
 
 ### `server.operations()`
 
@@ -6002,7 +6002,7 @@ operations(): OperationCallBuilder;
 
 New `OperationCallBuilder` object configured by a current Horizon server configuration.
 
-**Source:** [src/horizon/server.ts:672](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server.ts#L672)
+**Source:** [src/horizon/server.ts:672](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L672)
 
 ### `server.orderbook(selling, buying)`
 
@@ -6019,7 +6019,7 @@ orderbook(selling: Asset, buying: Asset): OrderbookCallBuilder;
 
 New `OrderbookCallBuilder` object configured by a current Horizon server configuration.
 
-**Source:** [src/horizon/server.ts:651](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server.ts#L651)
+**Source:** [src/horizon/server.ts:651](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L651)
 
 ### `server.payments()`
 
@@ -6032,7 +6032,7 @@ payments(): PaymentCallBuilder;
 New `PaymentCallBuilder` instance configured with the current
 Horizon server configuration.
 
-**Source:** [src/horizon/server.ts:757](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server.ts#L757)
+**Source:** [src/horizon/server.ts:757](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L757)
 
 ### `server.root()`
 
@@ -6046,7 +6046,7 @@ root(): Promise<RootResponse>;
 
 Promise that resolves to the root endpoint returned by Horizon.
 
-**Source:** [src/horizon/server.ts:217](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server.ts#L217)
+**Source:** [src/horizon/server.ts:217](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L217)
 
 ### `server.strictReceivePaths(source, destinationAsset, destinationAmount)`
 
@@ -6084,7 +6084,7 @@ strictReceivePaths(source: string | Asset[], destinationAsset: Asset, destinatio
 
 New `StrictReceivePathCallBuilder` object configured with the current Horizon server configuration.
 
-**Source:** [src/horizon/server.ts:710](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server.ts#L710)
+**Source:** [src/horizon/server.ts:710](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L710)
 
 ### `server.strictSendPaths(sourceAsset, sourceAmount, destination)`
 
@@ -6111,7 +6111,7 @@ strictSendPaths(sourceAsset: Asset, sourceAmount: string, destination: string | 
 
 New `StrictSendPathCallBuilder` object configured with the current Horizon server configuration.
 
-**Source:** [src/horizon/server.ts:739](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server.ts#L739)
+**Source:** [src/horizon/server.ts:739](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L739)
 
 ### `server.submitAsyncTransaction(transaction, opts)`
 
@@ -6143,7 +6143,7 @@ horizon.
 
 - [Submit-Async-Transaction](https://developers.stellar.org/docs/data/horizon/api-reference/resources/submit-async-transaction)
 
-**Source:** [src/horizon/server.ts:559](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server.ts#L559)
+**Source:** [src/horizon/server.ts:559](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L559)
 
 ### `server.submitTransaction(transaction, opts)`
 
@@ -6262,7 +6262,7 @@ const res = {
 
 - `Submit a Transaction`
 
-**Source:** [src/horizon/server.ts:328](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server.ts#L328)
+**Source:** [src/horizon/server.ts:328](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L328)
 
 ### `server.tradeAggregation(base, counter, start_time, end_time, resolution, offset)`
 
@@ -6284,7 +6284,7 @@ tradeAggregation(base: Asset, counter: Asset, start_time: number, end_time: numb
 
 New TradeAggregationCallBuilder instance
 
-**Source:** [src/horizon/server.ts:814](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server.ts#L814)
+**Source:** [src/horizon/server.ts:814](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L814)
 
 ### `server.trades()`
 
@@ -6298,7 +6298,7 @@ trades(): TradesCallBuilder;
 
 New `TradesCallBuilder` object configured by a current Horizon server configuration.
 
-**Source:** [src/horizon/server.ts:665](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server.ts#L665)
+**Source:** [src/horizon/server.ts:665](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L665)
 
 ### `server.transactions()`
 
@@ -6310,7 +6310,7 @@ transactions(): TransactionCallBuilder;
 
 New `TransactionCallBuilder` object configured by a current Horizon server configuration.
 
-**Source:** [src/horizon/server.ts:622](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server.ts#L622)
+**Source:** [src/horizon/server.ts:622](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L622)
 
 ## Horizon.Server.Options
 
@@ -6326,7 +6326,7 @@ interface Options {
 }
 ```
 
-**Source:** [src/horizon/server.ts:917](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server.ts#L917)
+**Source:** [src/horizon/server.ts:917](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L917)
 
 ### `options.allowHttp`
 
@@ -6336,7 +6336,7 @@ Allow connecting to http servers, default: `false`. This must be set to false in
 allowHttp?: boolean;
 ```
 
-**Source:** [src/horizon/server.ts:919](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server.ts#L919)
+**Source:** [src/horizon/server.ts:919](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L919)
 
 ### `options.appName`
 
@@ -6346,7 +6346,7 @@ Allow set custom header `X-App-Name`, default: `undefined`.
 appName?: string;
 ```
 
-**Source:** [src/horizon/server.ts:921](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server.ts#L921)
+**Source:** [src/horizon/server.ts:921](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L921)
 
 ### `options.appVersion`
 
@@ -6356,7 +6356,7 @@ Allow set custom header `X-App-Version`, default: `undefined`.
 appVersion?: string;
 ```
 
-**Source:** [src/horizon/server.ts:923](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server.ts#L923)
+**Source:** [src/horizon/server.ts:923](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L923)
 
 ### `options.authToken`
 
@@ -6366,7 +6366,7 @@ Allow set custom header `X-Auth-Token`, default: `undefined`.
 authToken?: string;
 ```
 
-**Source:** [src/horizon/server.ts:925](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server.ts#L925)
+**Source:** [src/horizon/server.ts:925](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L925)
 
 ### `options.headers`
 
@@ -6374,7 +6374,7 @@ authToken?: string;
 headers?: Record<string, string>;
 ```
 
-**Source:** [src/horizon/server.ts:926](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server.ts#L926)
+**Source:** [src/horizon/server.ts:926](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L926)
 
 ## Horizon.Server.SubmitTransactionOptions
 
@@ -6384,7 +6384,7 @@ interface SubmitTransactionOptions {
 }
 ```
 
-**Source:** [src/horizon/server.ts:934](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server.ts#L934)
+**Source:** [src/horizon/server.ts:934](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L934)
 
 ### `submitTransactionOptions.skipMemoRequiredCheck`
 
@@ -6392,7 +6392,7 @@ interface SubmitTransactionOptions {
 skipMemoRequiredCheck?: boolean;
 ```
 
-**Source:** [src/horizon/server.ts:935](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server.ts#L935)
+**Source:** [src/horizon/server.ts:935](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L935)
 
 ## Horizon.Server.Timebounds
 
@@ -6403,7 +6403,7 @@ interface Timebounds {
 }
 ```
 
-**Source:** [src/horizon/server.ts:929](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server.ts#L929)
+**Source:** [src/horizon/server.ts:929](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L929)
 
 ### `timebounds.maxTime`
 
@@ -6411,7 +6411,7 @@ interface Timebounds {
 maxTime: number;
 ```
 
-**Source:** [src/horizon/server.ts:931](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server.ts#L931)
+**Source:** [src/horizon/server.ts:931](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L931)
 
 ### `timebounds.minTime`
 
@@ -6419,7 +6419,7 @@ maxTime: number;
 minTime: number;
 ```
 
-**Source:** [src/horizon/server.ts:930](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server.ts#L930)
+**Source:** [src/horizon/server.ts:930](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L930)
 
 ## Horizon.ServerApi.AccountMergeOperationRecord
 
@@ -6443,7 +6443,7 @@ interface AccountMergeOperationRecord extends BaseOperationRecord<OperationRespo
 }
 ```
 
-**Source:** [src/horizon/server_api.ts:249](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L249)
+**Source:** [src/horizon/server_api.ts:249](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L249)
 
 ### `accountMergeOperationRecord._links`
 
@@ -6451,7 +6451,7 @@ interface AccountMergeOperationRecord extends BaseOperationRecord<OperationRespo
 _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; succeeds: ResponseLink; transaction: ResponseLink };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L10)
+**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L10)
 
 ### `accountMergeOperationRecord.created_at`
 
@@ -6459,7 +6459,7 @@ _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; suc
 created_at: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L268)
+**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L268)
 
 ### `accountMergeOperationRecord.effects`
 
@@ -6467,7 +6467,7 @@ created_at: string;
 effects: CallCollectionFunction<EffectRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:180](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L180)
+**Source:** [src/horizon/server_api.ts:180](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L180)
 
 ### `accountMergeOperationRecord.id`
 
@@ -6475,7 +6475,7 @@ effects: CallCollectionFunction<EffectRecord>;
 id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L263)
+**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L263)
 
 ### `accountMergeOperationRecord.into`
 
@@ -6483,7 +6483,7 @@ id: string;
 into: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:420](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L420)
+**Source:** [src/horizon/horizon_api.ts:420](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L420)
 
 ### `accountMergeOperationRecord.paging_token`
 
@@ -6491,7 +6491,7 @@ into: string;
 paging_token: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L264)
+**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L264)
 
 ### `accountMergeOperationRecord.precedes`
 
@@ -6499,7 +6499,7 @@ paging_token: string;
 precedes: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:179](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L179)
+**Source:** [src/horizon/server_api.ts:179](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L179)
 
 ### `accountMergeOperationRecord.self`
 
@@ -6507,7 +6507,7 @@ precedes: CallFunction<OperationRecord>;
 self: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:177](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L177)
+**Source:** [src/horizon/server_api.ts:177](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L177)
 
 ### `accountMergeOperationRecord.source_account`
 
@@ -6515,7 +6515,7 @@ self: CallFunction<OperationRecord>;
 source_account: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L265)
+**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L265)
 
 ### `accountMergeOperationRecord.succeeds`
 
@@ -6523,7 +6523,7 @@ source_account: string;
 succeeds: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:178](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L178)
+**Source:** [src/horizon/server_api.ts:178](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L178)
 
 ### `accountMergeOperationRecord.transaction`
 
@@ -6531,7 +6531,7 @@ succeeds: CallFunction<OperationRecord>;
 transaction: CallFunction<TransactionRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:181](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L181)
+**Source:** [src/horizon/server_api.ts:181](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L181)
 
 ### `accountMergeOperationRecord.transaction_hash`
 
@@ -6539,7 +6539,7 @@ transaction: CallFunction<TransactionRecord>;
 transaction_hash: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L269)
+**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L269)
 
 ### `accountMergeOperationRecord.transaction_successful`
 
@@ -6547,7 +6547,7 @@ transaction_hash: string;
 transaction_successful: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L270)
+**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L270)
 
 ### `accountMergeOperationRecord.type`
 
@@ -6555,7 +6555,7 @@ transaction_successful: boolean;
 type: accountMerge;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L266)
+**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L266)
 
 ### `accountMergeOperationRecord.type_i`
 
@@ -6563,7 +6563,7 @@ type: accountMerge;
 type_i: accountMerge;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L267)
+**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L267)
 
 ## Horizon.ServerApi.AccountRecord
 
@@ -6599,7 +6599,7 @@ interface AccountRecord extends BaseResponse {
 }
 ```
 
-**Source:** [src/horizon/server_api.ts:96](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L96)
+**Source:** [src/horizon/server_api.ts:96](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L96)
 
 ### `accountRecord._links`
 
@@ -6607,7 +6607,7 @@ interface AccountRecord extends BaseResponse {
 _links: { self: ResponseLink };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L10)
+**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L10)
 
 ### `accountRecord.account_id`
 
@@ -6615,7 +6615,7 @@ _links: { self: ResponseLink };
 account_id: string;
 ```
 
-**Source:** [src/horizon/server_api.ts:99](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L99)
+**Source:** [src/horizon/server_api.ts:99](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L99)
 
 ### `accountRecord.balances`
 
@@ -6623,7 +6623,7 @@ account_id: string;
 balances: (BalanceLineNative | BalanceLineLiquidityPool | BalanceLineAsset<"credit_alphanum4"> | BalanceLineAsset<"credit_alphanum12">)[];
 ```
 
-**Source:** [src/horizon/server_api.ts:110](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L110)
+**Source:** [src/horizon/server_api.ts:110](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L110)
 
 ### `accountRecord.data`
 
@@ -6631,7 +6631,7 @@ balances: (BalanceLineNative | BalanceLineLiquidityPool | BalanceLineAsset<"cred
 data: (options: { value: string }) => Promise<{ value: string }>;
 ```
 
-**Source:** [src/horizon/server_api.ts:112](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L112)
+**Source:** [src/horizon/server_api.ts:112](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L112)
 
 ### `accountRecord.data_attr`
 
@@ -6639,7 +6639,7 @@ data: (options: { value: string }) => Promise<{ value: string }>;
 data_attr: { [key: string]: string };
 ```
 
-**Source:** [src/horizon/server_api.ts:113](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L113)
+**Source:** [src/horizon/server_api.ts:113](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L113)
 
 ### `accountRecord.effects`
 
@@ -6647,7 +6647,7 @@ data_attr: { [key: string]: string };
 effects: CallCollectionFunction<EffectRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:120](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L120)
+**Source:** [src/horizon/server_api.ts:120](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L120)
 
 ### `accountRecord.flags`
 
@@ -6655,7 +6655,7 @@ effects: CallCollectionFunction<EffectRecord>;
 flags: Flags;
 ```
 
-**Source:** [src/horizon/server_api.ts:109](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L109)
+**Source:** [src/horizon/server_api.ts:109](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L109)
 
 ### `accountRecord.home_domain`
 
@@ -6663,7 +6663,7 @@ flags: Flags;
 home_domain?: string;
 ```
 
-**Source:** [src/horizon/server_api.ts:104](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L104)
+**Source:** [src/horizon/server_api.ts:104](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L104)
 
 ### `accountRecord.id`
 
@@ -6671,7 +6671,7 @@ home_domain?: string;
 id: string;
 ```
 
-**Source:** [src/horizon/server_api.ts:97](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L97)
+**Source:** [src/horizon/server_api.ts:97](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L97)
 
 ### `accountRecord.inflation_destination`
 
@@ -6679,7 +6679,7 @@ id: string;
 inflation_destination?: string;
 ```
 
-**Source:** [src/horizon/server_api.ts:105](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L105)
+**Source:** [src/horizon/server_api.ts:105](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L105)
 
 ### `accountRecord.last_modified_ledger`
 
@@ -6687,7 +6687,7 @@ inflation_destination?: string;
 last_modified_ledger: number;
 ```
 
-**Source:** [src/horizon/server_api.ts:106](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L106)
+**Source:** [src/horizon/server_api.ts:106](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L106)
 
 ### `accountRecord.last_modified_time`
 
@@ -6695,7 +6695,7 @@ last_modified_ledger: number;
 last_modified_time: string;
 ```
 
-**Source:** [src/horizon/server_api.ts:107](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L107)
+**Source:** [src/horizon/server_api.ts:107](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L107)
 
 ### `accountRecord.num_sponsored`
 
@@ -6703,7 +6703,7 @@ last_modified_time: string;
 num_sponsored: number;
 ```
 
-**Source:** [src/horizon/server_api.ts:118](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L118)
+**Source:** [src/horizon/server_api.ts:118](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L118)
 
 ### `accountRecord.num_sponsoring`
 
@@ -6711,7 +6711,7 @@ num_sponsored: number;
 num_sponsoring: number;
 ```
 
-**Source:** [src/horizon/server_api.ts:117](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L117)
+**Source:** [src/horizon/server_api.ts:117](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L117)
 
 ### `accountRecord.offers`
 
@@ -6719,7 +6719,7 @@ num_sponsoring: number;
 offers: CallCollectionFunction<OfferRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:121](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L121)
+**Source:** [src/horizon/server_api.ts:121](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L121)
 
 ### `accountRecord.operations`
 
@@ -6727,7 +6727,7 @@ offers: CallCollectionFunction<OfferRecord>;
 operations: CallCollectionFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:122](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L122)
+**Source:** [src/horizon/server_api.ts:122](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L122)
 
 ### `accountRecord.paging_token`
 
@@ -6735,7 +6735,7 @@ operations: CallCollectionFunction<OperationRecord>;
 paging_token: string;
 ```
 
-**Source:** [src/horizon/server_api.ts:98](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L98)
+**Source:** [src/horizon/server_api.ts:98](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L98)
 
 ### `accountRecord.payments`
 
@@ -6743,7 +6743,7 @@ paging_token: string;
 payments: CallCollectionFunction<PaymentOperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:123](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L123)
+**Source:** [src/horizon/server_api.ts:123](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L123)
 
 ### `accountRecord.sequence`
 
@@ -6751,7 +6751,7 @@ payments: CallCollectionFunction<PaymentOperationRecord>;
 sequence: string;
 ```
 
-**Source:** [src/horizon/server_api.ts:100](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L100)
+**Source:** [src/horizon/server_api.ts:100](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L100)
 
 ### `accountRecord.sequence_ledger`
 
@@ -6759,7 +6759,7 @@ sequence: string;
 sequence_ledger?: number;
 ```
 
-**Source:** [src/horizon/server_api.ts:101](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L101)
+**Source:** [src/horizon/server_api.ts:101](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L101)
 
 ### `accountRecord.sequence_time`
 
@@ -6767,7 +6767,7 @@ sequence_ledger?: number;
 sequence_time?: string;
 ```
 
-**Source:** [src/horizon/server_api.ts:102](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L102)
+**Source:** [src/horizon/server_api.ts:102](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L102)
 
 ### `accountRecord.signers`
 
@@ -6775,7 +6775,7 @@ sequence_time?: string;
 signers: AccountRecordSigners[];
 ```
 
-**Source:** [src/horizon/server_api.ts:111](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L111)
+**Source:** [src/horizon/server_api.ts:111](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L111)
 
 ### `accountRecord.sponsor`
 
@@ -6783,7 +6783,7 @@ signers: AccountRecordSigners[];
 sponsor?: string;
 ```
 
-**Source:** [src/horizon/server_api.ts:116](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L116)
+**Source:** [src/horizon/server_api.ts:116](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L116)
 
 ### `accountRecord.subentry_count`
 
@@ -6791,7 +6791,7 @@ sponsor?: string;
 subentry_count: number;
 ```
 
-**Source:** [src/horizon/server_api.ts:103](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L103)
+**Source:** [src/horizon/server_api.ts:103](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L103)
 
 ### `accountRecord.thresholds`
 
@@ -6799,7 +6799,7 @@ subentry_count: number;
 thresholds: AccountThresholds;
 ```
 
-**Source:** [src/horizon/server_api.ts:108](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L108)
+**Source:** [src/horizon/server_api.ts:108](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L108)
 
 ### `accountRecord.trades`
 
@@ -6807,7 +6807,7 @@ thresholds: AccountThresholds;
 trades: CallCollectionFunction<TradeRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:124](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L124)
+**Source:** [src/horizon/server_api.ts:124](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L124)
 
 ### `accountRecord.transactions`
 
@@ -6815,7 +6815,7 @@ trades: CallCollectionFunction<TradeRecord>;
 transactions: CallCollectionFunction<TransactionRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:119](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L119)
+**Source:** [src/horizon/server_api.ts:119](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L119)
 
 ## Horizon.ServerApi.AccountRecordSigners
 
@@ -6823,7 +6823,7 @@ transactions: CallCollectionFunction<TransactionRecord>;
 type AccountRecordSigners = AccountRecordSignersType
 ```
 
-**Source:** [src/horizon/server_api.ts:14](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L14)
+**Source:** [src/horizon/server_api.ts:14](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L14)
 
 ## Horizon.ServerApi.AllowTrustOperationRecord
 
@@ -6853,7 +6853,7 @@ interface AllowTrustOperationRecord extends BaseOperationRecord<OperationRespons
 }
 ```
 
-**Source:** [src/horizon/server_api.ts:242](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L242)
+**Source:** [src/horizon/server_api.ts:242](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L242)
 
 ### `allowTrustOperationRecord._links`
 
@@ -6861,7 +6861,7 @@ interface AllowTrustOperationRecord extends BaseOperationRecord<OperationRespons
 _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; succeeds: ResponseLink; transaction: ResponseLink };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L10)
+**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L10)
 
 ### `allowTrustOperationRecord.asset_code`
 
@@ -6869,7 +6869,7 @@ _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; suc
 asset_code: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:409](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L409)
+**Source:** [src/horizon/horizon_api.ts:409](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L409)
 
 ### `allowTrustOperationRecord.asset_issuer`
 
@@ -6877,7 +6877,7 @@ asset_code: string;
 asset_issuer: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:410](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L410)
+**Source:** [src/horizon/horizon_api.ts:410](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L410)
 
 ### `allowTrustOperationRecord.asset_type`
 
@@ -6885,7 +6885,7 @@ asset_issuer: string;
 asset_type: AssetType;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:408](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L408)
+**Source:** [src/horizon/horizon_api.ts:408](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L408)
 
 ### `allowTrustOperationRecord.authorize`
 
@@ -6893,7 +6893,7 @@ asset_type: AssetType;
 authorize: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:411](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L411)
+**Source:** [src/horizon/horizon_api.ts:411](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L411)
 
 ### `allowTrustOperationRecord.authorize_to_maintain_liabilities`
 
@@ -6901,7 +6901,7 @@ authorize: boolean;
 authorize_to_maintain_liabilities: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:412](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L412)
+**Source:** [src/horizon/horizon_api.ts:412](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L412)
 
 ### `allowTrustOperationRecord.created_at`
 
@@ -6909,7 +6909,7 @@ authorize_to_maintain_liabilities: boolean;
 created_at: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L268)
+**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L268)
 
 ### `allowTrustOperationRecord.effects`
 
@@ -6917,7 +6917,7 @@ created_at: string;
 effects: CallCollectionFunction<EffectRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:180](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L180)
+**Source:** [src/horizon/server_api.ts:180](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L180)
 
 ### `allowTrustOperationRecord.id`
 
@@ -6925,7 +6925,7 @@ effects: CallCollectionFunction<EffectRecord>;
 id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L263)
+**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L263)
 
 ### `allowTrustOperationRecord.paging_token`
 
@@ -6933,7 +6933,7 @@ id: string;
 paging_token: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L264)
+**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L264)
 
 ### `allowTrustOperationRecord.precedes`
 
@@ -6941,7 +6941,7 @@ paging_token: string;
 precedes: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:179](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L179)
+**Source:** [src/horizon/server_api.ts:179](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L179)
 
 ### `allowTrustOperationRecord.self`
 
@@ -6949,7 +6949,7 @@ precedes: CallFunction<OperationRecord>;
 self: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:177](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L177)
+**Source:** [src/horizon/server_api.ts:177](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L177)
 
 ### `allowTrustOperationRecord.source_account`
 
@@ -6957,7 +6957,7 @@ self: CallFunction<OperationRecord>;
 source_account: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L265)
+**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L265)
 
 ### `allowTrustOperationRecord.succeeds`
 
@@ -6965,7 +6965,7 @@ source_account: string;
 succeeds: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:178](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L178)
+**Source:** [src/horizon/server_api.ts:178](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L178)
 
 ### `allowTrustOperationRecord.transaction`
 
@@ -6973,7 +6973,7 @@ succeeds: CallFunction<OperationRecord>;
 transaction: CallFunction<TransactionRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:181](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L181)
+**Source:** [src/horizon/server_api.ts:181](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L181)
 
 ### `allowTrustOperationRecord.transaction_hash`
 
@@ -6981,7 +6981,7 @@ transaction: CallFunction<TransactionRecord>;
 transaction_hash: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L269)
+**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L269)
 
 ### `allowTrustOperationRecord.transaction_successful`
 
@@ -6989,7 +6989,7 @@ transaction_hash: string;
 transaction_successful: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L270)
+**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L270)
 
 ### `allowTrustOperationRecord.trustee`
 
@@ -6997,7 +6997,7 @@ transaction_successful: boolean;
 trustee: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:413](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L413)
+**Source:** [src/horizon/horizon_api.ts:413](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L413)
 
 ### `allowTrustOperationRecord.trustor`
 
@@ -7005,7 +7005,7 @@ trustee: string;
 trustor: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:414](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L414)
+**Source:** [src/horizon/horizon_api.ts:414](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L414)
 
 ### `allowTrustOperationRecord.type`
 
@@ -7013,7 +7013,7 @@ trustor: string;
 type: allowTrust;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L266)
+**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L266)
 
 ### `allowTrustOperationRecord.type_i`
 
@@ -7021,7 +7021,7 @@ type: allowTrust;
 type_i: allowTrust;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L267)
+**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L267)
 
 ## Horizon.ServerApi.AssetRecord
 
@@ -7029,7 +7029,7 @@ type_i: allowTrust;
 type AssetRecord = AssetRecordType
 ```
 
-**Source:** [src/horizon/server_api.ts:15](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L15)
+**Source:** [src/horizon/server_api.ts:15](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L15)
 
 ## Horizon.ServerApi.BaseOperationRecord
 
@@ -7052,7 +7052,7 @@ interface BaseOperationRecord<T extends OperationResponseType = OperationRespons
 }
 ```
 
-**Source:** [src/horizon/server_api.ts:173](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L173)
+**Source:** [src/horizon/server_api.ts:173](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L173)
 
 ### `baseOperationRecord._links`
 
@@ -7060,7 +7060,7 @@ interface BaseOperationRecord<T extends OperationResponseType = OperationRespons
 _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; succeeds: ResponseLink; transaction: ResponseLink };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L10)
+**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L10)
 
 ### `baseOperationRecord.created_at`
 
@@ -7068,7 +7068,7 @@ _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; suc
 created_at: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L268)
+**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L268)
 
 ### `baseOperationRecord.effects`
 
@@ -7076,7 +7076,7 @@ created_at: string;
 effects: CallCollectionFunction<EffectRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:180](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L180)
+**Source:** [src/horizon/server_api.ts:180](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L180)
 
 ### `baseOperationRecord.id`
 
@@ -7084,7 +7084,7 @@ effects: CallCollectionFunction<EffectRecord>;
 id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L263)
+**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L263)
 
 ### `baseOperationRecord.paging_token`
 
@@ -7092,7 +7092,7 @@ id: string;
 paging_token: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L264)
+**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L264)
 
 ### `baseOperationRecord.precedes`
 
@@ -7100,7 +7100,7 @@ paging_token: string;
 precedes: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:179](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L179)
+**Source:** [src/horizon/server_api.ts:179](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L179)
 
 ### `baseOperationRecord.self`
 
@@ -7108,7 +7108,7 @@ precedes: CallFunction<OperationRecord>;
 self: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:177](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L177)
+**Source:** [src/horizon/server_api.ts:177](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L177)
 
 ### `baseOperationRecord.source_account`
 
@@ -7116,7 +7116,7 @@ self: CallFunction<OperationRecord>;
 source_account: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L265)
+**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L265)
 
 ### `baseOperationRecord.succeeds`
 
@@ -7124,7 +7124,7 @@ source_account: string;
 succeeds: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:178](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L178)
+**Source:** [src/horizon/server_api.ts:178](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L178)
 
 ### `baseOperationRecord.transaction`
 
@@ -7132,7 +7132,7 @@ succeeds: CallFunction<OperationRecord>;
 transaction: CallFunction<TransactionRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:181](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L181)
+**Source:** [src/horizon/server_api.ts:181](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L181)
 
 ### `baseOperationRecord.transaction_hash`
 
@@ -7140,7 +7140,7 @@ transaction: CallFunction<TransactionRecord>;
 transaction_hash: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L269)
+**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L269)
 
 ### `baseOperationRecord.transaction_successful`
 
@@ -7148,7 +7148,7 @@ transaction_hash: string;
 transaction_successful: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L270)
+**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L270)
 
 ### `baseOperationRecord.type`
 
@@ -7156,7 +7156,7 @@ transaction_successful: boolean;
 type: T;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L266)
+**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L266)
 
 ### `baseOperationRecord.type_i`
 
@@ -7164,7 +7164,7 @@ type: T;
 type_i: TI;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L267)
+**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L267)
 
 ## Horizon.ServerApi.BeginSponsoringFutureReservesOperationRecord
 
@@ -7188,7 +7188,7 @@ interface BeginSponsoringFutureReservesOperationRecord extends BaseOperationReco
 }
 ```
 
-**Source:** [src/horizon/server_api.ts:291](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L291)
+**Source:** [src/horizon/server_api.ts:291](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L291)
 
 ### `beginSponsoringFutureReservesOperationRecord._links`
 
@@ -7196,7 +7196,7 @@ interface BeginSponsoringFutureReservesOperationRecord extends BaseOperationReco
 _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; succeeds: ResponseLink; transaction: ResponseLink };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L10)
+**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L10)
 
 ### `beginSponsoringFutureReservesOperationRecord.created_at`
 
@@ -7204,7 +7204,7 @@ _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; suc
 created_at: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L268)
+**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L268)
 
 ### `beginSponsoringFutureReservesOperationRecord.effects`
 
@@ -7212,7 +7212,7 @@ created_at: string;
 effects: CallCollectionFunction<EffectRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:180](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L180)
+**Source:** [src/horizon/server_api.ts:180](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L180)
 
 ### `beginSponsoringFutureReservesOperationRecord.id`
 
@@ -7220,7 +7220,7 @@ effects: CallCollectionFunction<EffectRecord>;
 id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L263)
+**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L263)
 
 ### `beginSponsoringFutureReservesOperationRecord.paging_token`
 
@@ -7228,7 +7228,7 @@ id: string;
 paging_token: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L264)
+**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L264)
 
 ### `beginSponsoringFutureReservesOperationRecord.precedes`
 
@@ -7236,7 +7236,7 @@ paging_token: string;
 precedes: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:179](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L179)
+**Source:** [src/horizon/server_api.ts:179](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L179)
 
 ### `beginSponsoringFutureReservesOperationRecord.self`
 
@@ -7244,7 +7244,7 @@ precedes: CallFunction<OperationRecord>;
 self: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:177](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L177)
+**Source:** [src/horizon/server_api.ts:177](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L177)
 
 ### `beginSponsoringFutureReservesOperationRecord.source_account`
 
@@ -7252,7 +7252,7 @@ self: CallFunction<OperationRecord>;
 source_account: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L265)
+**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L265)
 
 ### `beginSponsoringFutureReservesOperationRecord.sponsored_id`
 
@@ -7260,7 +7260,7 @@ source_account: string;
 sponsored_id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:474](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L474)
+**Source:** [src/horizon/horizon_api.ts:474](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L474)
 
 ### `beginSponsoringFutureReservesOperationRecord.succeeds`
 
@@ -7268,7 +7268,7 @@ sponsored_id: string;
 succeeds: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:178](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L178)
+**Source:** [src/horizon/server_api.ts:178](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L178)
 
 ### `beginSponsoringFutureReservesOperationRecord.transaction`
 
@@ -7276,7 +7276,7 @@ succeeds: CallFunction<OperationRecord>;
 transaction: CallFunction<TransactionRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:181](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L181)
+**Source:** [src/horizon/server_api.ts:181](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L181)
 
 ### `beginSponsoringFutureReservesOperationRecord.transaction_hash`
 
@@ -7284,7 +7284,7 @@ transaction: CallFunction<TransactionRecord>;
 transaction_hash: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L269)
+**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L269)
 
 ### `beginSponsoringFutureReservesOperationRecord.transaction_successful`
 
@@ -7292,7 +7292,7 @@ transaction_hash: string;
 transaction_successful: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L270)
+**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L270)
 
 ### `beginSponsoringFutureReservesOperationRecord.type`
 
@@ -7300,7 +7300,7 @@ transaction_successful: boolean;
 type: beginSponsoringFutureReserves;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L266)
+**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L266)
 
 ### `beginSponsoringFutureReservesOperationRecord.type_i`
 
@@ -7308,7 +7308,7 @@ type: beginSponsoringFutureReserves;
 type_i: beginSponsoringFutureReserves;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L267)
+**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L267)
 
 ## Horizon.ServerApi.BumpFootprintExpirationOperationRecord
 
@@ -7332,7 +7332,7 @@ interface BumpFootprintExpirationOperationRecord extends BaseOperationRecord<Ope
 }
 ```
 
-**Source:** [src/horizon/server_api.ts:354](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L354)
+**Source:** [src/horizon/server_api.ts:354](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L354)
 
 ### `bumpFootprintExpirationOperationRecord._links`
 
@@ -7340,7 +7340,7 @@ interface BumpFootprintExpirationOperationRecord extends BaseOperationRecord<Ope
 _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; succeeds: ResponseLink; transaction: ResponseLink };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L10)
+**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L10)
 
 ### `bumpFootprintExpirationOperationRecord.created_at`
 
@@ -7348,7 +7348,7 @@ _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; suc
 created_at: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L268)
+**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L268)
 
 ### `bumpFootprintExpirationOperationRecord.effects`
 
@@ -7356,7 +7356,7 @@ created_at: string;
 effects: CallCollectionFunction<EffectRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:180](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L180)
+**Source:** [src/horizon/server_api.ts:180](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L180)
 
 ### `bumpFootprintExpirationOperationRecord.id`
 
@@ -7364,7 +7364,7 @@ effects: CallCollectionFunction<EffectRecord>;
 id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L263)
+**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L263)
 
 ### `bumpFootprintExpirationOperationRecord.ledgers_to_expire`
 
@@ -7372,7 +7372,7 @@ id: string;
 ledgers_to_expire: number;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:586](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L586)
+**Source:** [src/horizon/horizon_api.ts:586](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L586)
 
 ### `bumpFootprintExpirationOperationRecord.paging_token`
 
@@ -7380,7 +7380,7 @@ ledgers_to_expire: number;
 paging_token: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L264)
+**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L264)
 
 ### `bumpFootprintExpirationOperationRecord.precedes`
 
@@ -7388,7 +7388,7 @@ paging_token: string;
 precedes: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:179](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L179)
+**Source:** [src/horizon/server_api.ts:179](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L179)
 
 ### `bumpFootprintExpirationOperationRecord.self`
 
@@ -7396,7 +7396,7 @@ precedes: CallFunction<OperationRecord>;
 self: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:177](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L177)
+**Source:** [src/horizon/server_api.ts:177](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L177)
 
 ### `bumpFootprintExpirationOperationRecord.source_account`
 
@@ -7404,7 +7404,7 @@ self: CallFunction<OperationRecord>;
 source_account: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L265)
+**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L265)
 
 ### `bumpFootprintExpirationOperationRecord.succeeds`
 
@@ -7412,7 +7412,7 @@ source_account: string;
 succeeds: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:178](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L178)
+**Source:** [src/horizon/server_api.ts:178](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L178)
 
 ### `bumpFootprintExpirationOperationRecord.transaction`
 
@@ -7420,7 +7420,7 @@ succeeds: CallFunction<OperationRecord>;
 transaction: CallFunction<TransactionRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:181](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L181)
+**Source:** [src/horizon/server_api.ts:181](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L181)
 
 ### `bumpFootprintExpirationOperationRecord.transaction_hash`
 
@@ -7428,7 +7428,7 @@ transaction: CallFunction<TransactionRecord>;
 transaction_hash: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L269)
+**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L269)
 
 ### `bumpFootprintExpirationOperationRecord.transaction_successful`
 
@@ -7436,7 +7436,7 @@ transaction_hash: string;
 transaction_successful: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L270)
+**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L270)
 
 ### `bumpFootprintExpirationOperationRecord.type`
 
@@ -7444,7 +7444,7 @@ transaction_successful: boolean;
 type: bumpFootprintExpiration;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L266)
+**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L266)
 
 ### `bumpFootprintExpirationOperationRecord.type_i`
 
@@ -7452,7 +7452,7 @@ type: bumpFootprintExpiration;
 type_i: bumpFootprintExpiration;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L267)
+**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L267)
 
 ## Horizon.ServerApi.BumpSequenceOperationRecord
 
@@ -7476,7 +7476,7 @@ interface BumpSequenceOperationRecord extends BaseOperationRecord<OperationRespo
 }
 ```
 
-**Source:** [src/horizon/server_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L270)
+**Source:** [src/horizon/server_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L270)
 
 ### `bumpSequenceOperationRecord._links`
 
@@ -7484,7 +7484,7 @@ interface BumpSequenceOperationRecord extends BaseOperationRecord<OperationRespo
 _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; succeeds: ResponseLink; transaction: ResponseLink };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L10)
+**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L10)
 
 ### `bumpSequenceOperationRecord.bump_to`
 
@@ -7492,7 +7492,7 @@ _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; suc
 bump_to: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:437](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L437)
+**Source:** [src/horizon/horizon_api.ts:437](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L437)
 
 ### `bumpSequenceOperationRecord.created_at`
 
@@ -7500,7 +7500,7 @@ bump_to: string;
 created_at: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L268)
+**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L268)
 
 ### `bumpSequenceOperationRecord.effects`
 
@@ -7508,7 +7508,7 @@ created_at: string;
 effects: CallCollectionFunction<EffectRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:180](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L180)
+**Source:** [src/horizon/server_api.ts:180](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L180)
 
 ### `bumpSequenceOperationRecord.id`
 
@@ -7516,7 +7516,7 @@ effects: CallCollectionFunction<EffectRecord>;
 id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L263)
+**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L263)
 
 ### `bumpSequenceOperationRecord.paging_token`
 
@@ -7524,7 +7524,7 @@ id: string;
 paging_token: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L264)
+**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L264)
 
 ### `bumpSequenceOperationRecord.precedes`
 
@@ -7532,7 +7532,7 @@ paging_token: string;
 precedes: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:179](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L179)
+**Source:** [src/horizon/server_api.ts:179](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L179)
 
 ### `bumpSequenceOperationRecord.self`
 
@@ -7540,7 +7540,7 @@ precedes: CallFunction<OperationRecord>;
 self: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:177](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L177)
+**Source:** [src/horizon/server_api.ts:177](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L177)
 
 ### `bumpSequenceOperationRecord.source_account`
 
@@ -7548,7 +7548,7 @@ self: CallFunction<OperationRecord>;
 source_account: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L265)
+**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L265)
 
 ### `bumpSequenceOperationRecord.succeeds`
 
@@ -7556,7 +7556,7 @@ source_account: string;
 succeeds: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:178](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L178)
+**Source:** [src/horizon/server_api.ts:178](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L178)
 
 ### `bumpSequenceOperationRecord.transaction`
 
@@ -7564,7 +7564,7 @@ succeeds: CallFunction<OperationRecord>;
 transaction: CallFunction<TransactionRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:181](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L181)
+**Source:** [src/horizon/server_api.ts:181](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L181)
 
 ### `bumpSequenceOperationRecord.transaction_hash`
 
@@ -7572,7 +7572,7 @@ transaction: CallFunction<TransactionRecord>;
 transaction_hash: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L269)
+**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L269)
 
 ### `bumpSequenceOperationRecord.transaction_successful`
 
@@ -7580,7 +7580,7 @@ transaction_hash: string;
 transaction_successful: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L270)
+**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L270)
 
 ### `bumpSequenceOperationRecord.type`
 
@@ -7588,7 +7588,7 @@ transaction_successful: boolean;
 type: bumpSequence;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L266)
+**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L266)
 
 ### `bumpSequenceOperationRecord.type_i`
 
@@ -7596,7 +7596,7 @@ type: bumpSequence;
 type_i: bumpSequence;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L267)
+**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L267)
 
 ## Horizon.ServerApi.CallCollectionFunction
 
@@ -7604,7 +7604,7 @@ type_i: bumpSequence;
 type CallCollectionFunction<T extends HorizonApi.BaseResponse = HorizonApi.BaseResponse> = (options?: CallFunctionTemplateOptions) => Promise<CollectionPage<T>>
 ```
 
-**Source:** [src/horizon/server_api.ts:33](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L33)
+**Source:** [src/horizon/server_api.ts:33](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L33)
 
 ## Horizon.ServerApi.CallFunction
 
@@ -7612,7 +7612,7 @@ type CallCollectionFunction<T extends HorizonApi.BaseResponse = HorizonApi.BaseR
 type CallFunction<T extends HorizonApi.BaseResponse = HorizonApi.BaseResponse> = () => Promise<T>
 ```
 
-**Source:** [src/horizon/server_api.ts:30](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L30)
+**Source:** [src/horizon/server_api.ts:30](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L30)
 
 ## Horizon.ServerApi.CallFunctionTemplateOptions
 
@@ -7624,7 +7624,7 @@ interface CallFunctionTemplateOptions {
 }
 ```
 
-**Source:** [src/horizon/server_api.ts:24](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L24)
+**Source:** [src/horizon/server_api.ts:24](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L24)
 
 ### `callFunctionTemplateOptions.cursor`
 
@@ -7632,7 +7632,7 @@ interface CallFunctionTemplateOptions {
 cursor?: string | number;
 ```
 
-**Source:** [src/horizon/server_api.ts:25](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L25)
+**Source:** [src/horizon/server_api.ts:25](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L25)
 
 ### `callFunctionTemplateOptions.limit`
 
@@ -7640,7 +7640,7 @@ cursor?: string | number;
 limit?: number;
 ```
 
-**Source:** [src/horizon/server_api.ts:26](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L26)
+**Source:** [src/horizon/server_api.ts:26](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L26)
 
 ### `callFunctionTemplateOptions.order`
 
@@ -7648,7 +7648,7 @@ limit?: number;
 order?: "desc" | "asc";
 ```
 
-**Source:** [src/horizon/server_api.ts:27](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L27)
+**Source:** [src/horizon/server_api.ts:27](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L27)
 
 ## Horizon.ServerApi.ChangeTrustOperationRecord
 
@@ -7678,7 +7678,7 @@ interface ChangeTrustOperationRecord extends BaseOperationRecord<OperationRespon
 }
 ```
 
-**Source:** [src/horizon/server_api.ts:235](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L235)
+**Source:** [src/horizon/server_api.ts:235](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L235)
 
 ### `changeTrustOperationRecord._links`
 
@@ -7686,7 +7686,7 @@ interface ChangeTrustOperationRecord extends BaseOperationRecord<OperationRespon
 _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; succeeds: ResponseLink; transaction: ResponseLink };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L10)
+**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L10)
 
 ### `changeTrustOperationRecord.asset_code`
 
@@ -7694,7 +7694,7 @@ _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; suc
 asset_code?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:397](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L397)
+**Source:** [src/horizon/horizon_api.ts:397](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L397)
 
 ### `changeTrustOperationRecord.asset_issuer`
 
@@ -7702,7 +7702,7 @@ asset_code?: string;
 asset_issuer?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:398](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L398)
+**Source:** [src/horizon/horizon_api.ts:398](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L398)
 
 ### `changeTrustOperationRecord.asset_type`
 
@@ -7710,7 +7710,7 @@ asset_issuer?: string;
 asset_type: "credit_alphanum4" | "credit_alphanum12" | "liquidity_pool_shares";
 ```
 
-**Source:** [src/horizon/horizon_api.ts:393](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L393)
+**Source:** [src/horizon/horizon_api.ts:393](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L393)
 
 ### `changeTrustOperationRecord.created_at`
 
@@ -7718,7 +7718,7 @@ asset_type: "credit_alphanum4" | "credit_alphanum12" | "liquidity_pool_shares";
 created_at: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L268)
+**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L268)
 
 ### `changeTrustOperationRecord.effects`
 
@@ -7726,7 +7726,7 @@ created_at: string;
 effects: CallCollectionFunction<EffectRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:180](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L180)
+**Source:** [src/horizon/server_api.ts:180](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L180)
 
 ### `changeTrustOperationRecord.id`
 
@@ -7734,7 +7734,7 @@ effects: CallCollectionFunction<EffectRecord>;
 id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L263)
+**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L263)
 
 ### `changeTrustOperationRecord.limit`
 
@@ -7742,7 +7742,7 @@ id: string;
 limit: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:402](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L402)
+**Source:** [src/horizon/horizon_api.ts:402](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L402)
 
 ### `changeTrustOperationRecord.liquidity_pool_id`
 
@@ -7750,7 +7750,7 @@ limit: string;
 liquidity_pool_id?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:399](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L399)
+**Source:** [src/horizon/horizon_api.ts:399](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L399)
 
 ### `changeTrustOperationRecord.paging_token`
 
@@ -7758,7 +7758,7 @@ liquidity_pool_id?: string;
 paging_token: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L264)
+**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L264)
 
 ### `changeTrustOperationRecord.precedes`
 
@@ -7766,7 +7766,7 @@ paging_token: string;
 precedes: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:179](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L179)
+**Source:** [src/horizon/server_api.ts:179](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L179)
 
 ### `changeTrustOperationRecord.self`
 
@@ -7774,7 +7774,7 @@ precedes: CallFunction<OperationRecord>;
 self: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:177](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L177)
+**Source:** [src/horizon/server_api.ts:177](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L177)
 
 ### `changeTrustOperationRecord.source_account`
 
@@ -7782,7 +7782,7 @@ self: CallFunction<OperationRecord>;
 source_account: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L265)
+**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L265)
 
 ### `changeTrustOperationRecord.succeeds`
 
@@ -7790,7 +7790,7 @@ source_account: string;
 succeeds: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:178](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L178)
+**Source:** [src/horizon/server_api.ts:178](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L178)
 
 ### `changeTrustOperationRecord.transaction`
 
@@ -7798,7 +7798,7 @@ succeeds: CallFunction<OperationRecord>;
 transaction: CallFunction<TransactionRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:181](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L181)
+**Source:** [src/horizon/server_api.ts:181](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L181)
 
 ### `changeTrustOperationRecord.transaction_hash`
 
@@ -7806,7 +7806,7 @@ transaction: CallFunction<TransactionRecord>;
 transaction_hash: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L269)
+**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L269)
 
 ### `changeTrustOperationRecord.transaction_successful`
 
@@ -7814,7 +7814,7 @@ transaction_hash: string;
 transaction_successful: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L270)
+**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L270)
 
 ### `changeTrustOperationRecord.trustee`
 
@@ -7822,7 +7822,7 @@ transaction_successful: boolean;
 trustee?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:400](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L400)
+**Source:** [src/horizon/horizon_api.ts:400](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L400)
 
 ### `changeTrustOperationRecord.trustor`
 
@@ -7830,7 +7830,7 @@ trustee?: string;
 trustor: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:401](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L401)
+**Source:** [src/horizon/horizon_api.ts:401](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L401)
 
 ### `changeTrustOperationRecord.type`
 
@@ -7838,7 +7838,7 @@ trustor: string;
 type: changeTrust;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L266)
+**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L266)
 
 ### `changeTrustOperationRecord.type_i`
 
@@ -7846,7 +7846,7 @@ type: changeTrust;
 type_i: changeTrust;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L267)
+**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L267)
 
 ## Horizon.ServerApi.ClaimClaimableBalanceOperationRecord
 
@@ -7871,7 +7871,7 @@ interface ClaimClaimableBalanceOperationRecord extends BaseOperationRecord<Opera
 }
 ```
 
-**Source:** [src/horizon/server_api.ts:284](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L284)
+**Source:** [src/horizon/server_api.ts:284](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L284)
 
 ### `claimClaimableBalanceOperationRecord._links`
 
@@ -7879,7 +7879,7 @@ interface ClaimClaimableBalanceOperationRecord extends BaseOperationRecord<Opera
 _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; succeeds: ResponseLink; transaction: ResponseLink };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L10)
+**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L10)
 
 ### `claimClaimableBalanceOperationRecord.balance_id`
 
@@ -7887,7 +7887,7 @@ _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; suc
 balance_id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:466](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L466)
+**Source:** [src/horizon/horizon_api.ts:466](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L466)
 
 ### `claimClaimableBalanceOperationRecord.claimant`
 
@@ -7895,7 +7895,7 @@ balance_id: string;
 claimant: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:467](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L467)
+**Source:** [src/horizon/horizon_api.ts:467](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L467)
 
 ### `claimClaimableBalanceOperationRecord.created_at`
 
@@ -7903,7 +7903,7 @@ claimant: string;
 created_at: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L268)
+**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L268)
 
 ### `claimClaimableBalanceOperationRecord.effects`
 
@@ -7911,7 +7911,7 @@ created_at: string;
 effects: CallCollectionFunction<EffectRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:180](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L180)
+**Source:** [src/horizon/server_api.ts:180](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L180)
 
 ### `claimClaimableBalanceOperationRecord.id`
 
@@ -7919,7 +7919,7 @@ effects: CallCollectionFunction<EffectRecord>;
 id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L263)
+**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L263)
 
 ### `claimClaimableBalanceOperationRecord.paging_token`
 
@@ -7927,7 +7927,7 @@ id: string;
 paging_token: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L264)
+**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L264)
 
 ### `claimClaimableBalanceOperationRecord.precedes`
 
@@ -7935,7 +7935,7 @@ paging_token: string;
 precedes: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:179](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L179)
+**Source:** [src/horizon/server_api.ts:179](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L179)
 
 ### `claimClaimableBalanceOperationRecord.self`
 
@@ -7943,7 +7943,7 @@ precedes: CallFunction<OperationRecord>;
 self: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:177](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L177)
+**Source:** [src/horizon/server_api.ts:177](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L177)
 
 ### `claimClaimableBalanceOperationRecord.source_account`
 
@@ -7951,7 +7951,7 @@ self: CallFunction<OperationRecord>;
 source_account: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L265)
+**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L265)
 
 ### `claimClaimableBalanceOperationRecord.succeeds`
 
@@ -7959,7 +7959,7 @@ source_account: string;
 succeeds: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:178](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L178)
+**Source:** [src/horizon/server_api.ts:178](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L178)
 
 ### `claimClaimableBalanceOperationRecord.transaction`
 
@@ -7967,7 +7967,7 @@ succeeds: CallFunction<OperationRecord>;
 transaction: CallFunction<TransactionRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:181](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L181)
+**Source:** [src/horizon/server_api.ts:181](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L181)
 
 ### `claimClaimableBalanceOperationRecord.transaction_hash`
 
@@ -7975,7 +7975,7 @@ transaction: CallFunction<TransactionRecord>;
 transaction_hash: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L269)
+**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L269)
 
 ### `claimClaimableBalanceOperationRecord.transaction_successful`
 
@@ -7983,7 +7983,7 @@ transaction_hash: string;
 transaction_successful: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L270)
+**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L270)
 
 ### `claimClaimableBalanceOperationRecord.type`
 
@@ -7991,7 +7991,7 @@ transaction_successful: boolean;
 type: claimClaimableBalance;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L266)
+**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L266)
 
 ### `claimClaimableBalanceOperationRecord.type_i`
 
@@ -7999,7 +7999,7 @@ type: claimClaimableBalance;
 type_i: claimClaimableBalance;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L267)
+**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L267)
 
 ## Horizon.ServerApi.ClaimableBalanceRecord
 
@@ -8016,7 +8016,7 @@ interface ClaimableBalanceRecord extends BaseResponse {
 }
 ```
 
-**Source:** [src/horizon/server_api.ts:87](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L87)
+**Source:** [src/horizon/server_api.ts:87](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L87)
 
 ### `claimableBalanceRecord._links`
 
@@ -8024,7 +8024,7 @@ interface ClaimableBalanceRecord extends BaseResponse {
 _links: { self: ResponseLink };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L10)
+**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L10)
 
 ### `claimableBalanceRecord.amount`
 
@@ -8032,7 +8032,7 @@ _links: { self: ResponseLink };
 amount: string;
 ```
 
-**Source:** [src/horizon/server_api.ts:91](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L91)
+**Source:** [src/horizon/server_api.ts:91](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L91)
 
 ### `claimableBalanceRecord.asset`
 
@@ -8040,7 +8040,7 @@ amount: string;
 asset: string;
 ```
 
-**Source:** [src/horizon/server_api.ts:90](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L90)
+**Source:** [src/horizon/server_api.ts:90](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L90)
 
 ### `claimableBalanceRecord.claimants`
 
@@ -8048,7 +8048,7 @@ asset: string;
 claimants: Claimant[];
 ```
 
-**Source:** [src/horizon/server_api.ts:94](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L94)
+**Source:** [src/horizon/server_api.ts:94](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L94)
 
 ### `claimableBalanceRecord.id`
 
@@ -8056,7 +8056,7 @@ claimants: Claimant[];
 id: string;
 ```
 
-**Source:** [src/horizon/server_api.ts:88](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L88)
+**Source:** [src/horizon/server_api.ts:88](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L88)
 
 ### `claimableBalanceRecord.last_modified_ledger`
 
@@ -8064,7 +8064,7 @@ id: string;
 last_modified_ledger: number;
 ```
 
-**Source:** [src/horizon/server_api.ts:93](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L93)
+**Source:** [src/horizon/server_api.ts:93](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L93)
 
 ### `claimableBalanceRecord.paging_token`
 
@@ -8072,7 +8072,7 @@ last_modified_ledger: number;
 paging_token: string;
 ```
 
-**Source:** [src/horizon/server_api.ts:89](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L89)
+**Source:** [src/horizon/server_api.ts:89](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L89)
 
 ### `claimableBalanceRecord.sponsor`
 
@@ -8080,7 +8080,7 @@ paging_token: string;
 sponsor?: string;
 ```
 
-**Source:** [src/horizon/server_api.ts:92](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L92)
+**Source:** [src/horizon/server_api.ts:92](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L92)
 
 ## Horizon.ServerApi.ClawbackClaimableBalanceOperationRecord
 
@@ -8104,7 +8104,7 @@ interface ClawbackClaimableBalanceOperationRecord extends BaseOperationRecord<Op
 }
 ```
 
-**Source:** [src/horizon/server_api.ts:319](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L319)
+**Source:** [src/horizon/server_api.ts:319](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L319)
 
 ### `clawbackClaimableBalanceOperationRecord._links`
 
@@ -8112,7 +8112,7 @@ interface ClawbackClaimableBalanceOperationRecord extends BaseOperationRecord<Op
 _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; succeeds: ResponseLink; transaction: ResponseLink };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L10)
+**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L10)
 
 ### `clawbackClaimableBalanceOperationRecord.balance_id`
 
@@ -8120,7 +8120,7 @@ _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; suc
 balance_id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:515](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L515)
+**Source:** [src/horizon/horizon_api.ts:515](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L515)
 
 ### `clawbackClaimableBalanceOperationRecord.created_at`
 
@@ -8128,7 +8128,7 @@ balance_id: string;
 created_at: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L268)
+**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L268)
 
 ### `clawbackClaimableBalanceOperationRecord.effects`
 
@@ -8136,7 +8136,7 @@ created_at: string;
 effects: CallCollectionFunction<EffectRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:180](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L180)
+**Source:** [src/horizon/server_api.ts:180](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L180)
 
 ### `clawbackClaimableBalanceOperationRecord.id`
 
@@ -8144,7 +8144,7 @@ effects: CallCollectionFunction<EffectRecord>;
 id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L263)
+**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L263)
 
 ### `clawbackClaimableBalanceOperationRecord.paging_token`
 
@@ -8152,7 +8152,7 @@ id: string;
 paging_token: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L264)
+**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L264)
 
 ### `clawbackClaimableBalanceOperationRecord.precedes`
 
@@ -8160,7 +8160,7 @@ paging_token: string;
 precedes: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:179](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L179)
+**Source:** [src/horizon/server_api.ts:179](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L179)
 
 ### `clawbackClaimableBalanceOperationRecord.self`
 
@@ -8168,7 +8168,7 @@ precedes: CallFunction<OperationRecord>;
 self: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:177](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L177)
+**Source:** [src/horizon/server_api.ts:177](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L177)
 
 ### `clawbackClaimableBalanceOperationRecord.source_account`
 
@@ -8176,7 +8176,7 @@ self: CallFunction<OperationRecord>;
 source_account: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L265)
+**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L265)
 
 ### `clawbackClaimableBalanceOperationRecord.succeeds`
 
@@ -8184,7 +8184,7 @@ source_account: string;
 succeeds: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:178](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L178)
+**Source:** [src/horizon/server_api.ts:178](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L178)
 
 ### `clawbackClaimableBalanceOperationRecord.transaction`
 
@@ -8192,7 +8192,7 @@ succeeds: CallFunction<OperationRecord>;
 transaction: CallFunction<TransactionRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:181](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L181)
+**Source:** [src/horizon/server_api.ts:181](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L181)
 
 ### `clawbackClaimableBalanceOperationRecord.transaction_hash`
 
@@ -8200,7 +8200,7 @@ transaction: CallFunction<TransactionRecord>;
 transaction_hash: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L269)
+**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L269)
 
 ### `clawbackClaimableBalanceOperationRecord.transaction_successful`
 
@@ -8208,7 +8208,7 @@ transaction_hash: string;
 transaction_successful: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L270)
+**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L270)
 
 ### `clawbackClaimableBalanceOperationRecord.type`
 
@@ -8216,7 +8216,7 @@ transaction_successful: boolean;
 type: clawbackClaimableBalance;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L266)
+**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L266)
 
 ### `clawbackClaimableBalanceOperationRecord.type_i`
 
@@ -8224,7 +8224,7 @@ type: clawbackClaimableBalance;
 type_i: clawbackClaimableBalance;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L267)
+**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L267)
 
 ## Horizon.ServerApi.ClawbackOperationRecord
 
@@ -8252,7 +8252,7 @@ interface ClawbackOperationRecord extends BaseOperationRecord<OperationResponseT
 }
 ```
 
-**Source:** [src/horizon/server_api.ts:312](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L312)
+**Source:** [src/horizon/server_api.ts:312](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L312)
 
 ### `clawbackOperationRecord._links`
 
@@ -8260,7 +8260,7 @@ interface ClawbackOperationRecord extends BaseOperationRecord<OperationResponseT
 _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; succeeds: ResponseLink; transaction: ResponseLink };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L10)
+**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L10)
 
 ### `clawbackOperationRecord.amount`
 
@@ -8268,7 +8268,7 @@ _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; suc
 amount: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:508](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L508)
+**Source:** [src/horizon/horizon_api.ts:508](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L508)
 
 ### `clawbackOperationRecord.asset_code`
 
@@ -8276,7 +8276,7 @@ amount: string;
 asset_code: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:505](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L505)
+**Source:** [src/horizon/horizon_api.ts:505](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L505)
 
 ### `clawbackOperationRecord.asset_issuer`
 
@@ -8284,7 +8284,7 @@ asset_code: string;
 asset_issuer: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:506](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L506)
+**Source:** [src/horizon/horizon_api.ts:506](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L506)
 
 ### `clawbackOperationRecord.asset_type`
 
@@ -8292,7 +8292,7 @@ asset_issuer: string;
 asset_type: AssetType;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:504](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L504)
+**Source:** [src/horizon/horizon_api.ts:504](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L504)
 
 ### `clawbackOperationRecord.created_at`
 
@@ -8300,7 +8300,7 @@ asset_type: AssetType;
 created_at: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L268)
+**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L268)
 
 ### `clawbackOperationRecord.effects`
 
@@ -8308,7 +8308,7 @@ created_at: string;
 effects: CallCollectionFunction<EffectRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:180](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L180)
+**Source:** [src/horizon/server_api.ts:180](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L180)
 
 ### `clawbackOperationRecord.from`
 
@@ -8316,7 +8316,7 @@ effects: CallCollectionFunction<EffectRecord>;
 from: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:507](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L507)
+**Source:** [src/horizon/horizon_api.ts:507](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L507)
 
 ### `clawbackOperationRecord.id`
 
@@ -8324,7 +8324,7 @@ from: string;
 id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L263)
+**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L263)
 
 ### `clawbackOperationRecord.paging_token`
 
@@ -8332,7 +8332,7 @@ id: string;
 paging_token: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L264)
+**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L264)
 
 ### `clawbackOperationRecord.precedes`
 
@@ -8340,7 +8340,7 @@ paging_token: string;
 precedes: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:179](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L179)
+**Source:** [src/horizon/server_api.ts:179](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L179)
 
 ### `clawbackOperationRecord.self`
 
@@ -8348,7 +8348,7 @@ precedes: CallFunction<OperationRecord>;
 self: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:177](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L177)
+**Source:** [src/horizon/server_api.ts:177](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L177)
 
 ### `clawbackOperationRecord.source_account`
 
@@ -8356,7 +8356,7 @@ self: CallFunction<OperationRecord>;
 source_account: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L265)
+**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L265)
 
 ### `clawbackOperationRecord.succeeds`
 
@@ -8364,7 +8364,7 @@ source_account: string;
 succeeds: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:178](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L178)
+**Source:** [src/horizon/server_api.ts:178](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L178)
 
 ### `clawbackOperationRecord.transaction`
 
@@ -8372,7 +8372,7 @@ succeeds: CallFunction<OperationRecord>;
 transaction: CallFunction<TransactionRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:181](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L181)
+**Source:** [src/horizon/server_api.ts:181](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L181)
 
 ### `clawbackOperationRecord.transaction_hash`
 
@@ -8380,7 +8380,7 @@ transaction: CallFunction<TransactionRecord>;
 transaction_hash: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L269)
+**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L269)
 
 ### `clawbackOperationRecord.transaction_successful`
 
@@ -8388,7 +8388,7 @@ transaction_hash: string;
 transaction_successful: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L270)
+**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L270)
 
 ### `clawbackOperationRecord.type`
 
@@ -8396,7 +8396,7 @@ transaction_successful: boolean;
 type: clawback;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L266)
+**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L266)
 
 ### `clawbackOperationRecord.type_i`
 
@@ -8404,7 +8404,7 @@ type: clawback;
 type_i: clawback;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L267)
+**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L267)
 
 ## Horizon.ServerApi.CollectionPage
 
@@ -8416,7 +8416,7 @@ interface CollectionPage<T extends HorizonApi.BaseResponse = HorizonApi.BaseResp
 }
 ```
 
-**Source:** [src/horizon/server_api.ts:16](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L16)
+**Source:** [src/horizon/server_api.ts:16](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L16)
 
 ### `collectionPage.next`
 
@@ -8424,7 +8424,7 @@ interface CollectionPage<T extends HorizonApi.BaseResponse = HorizonApi.BaseResp
 next: () => Promise<CollectionPage<T>>;
 ```
 
-**Source:** [src/horizon/server_api.ts:20](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L20)
+**Source:** [src/horizon/server_api.ts:20](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L20)
 
 ### `collectionPage.prev`
 
@@ -8432,7 +8432,7 @@ next: () => Promise<CollectionPage<T>>;
 prev: () => Promise<CollectionPage<T>>;
 ```
 
-**Source:** [src/horizon/server_api.ts:21](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L21)
+**Source:** [src/horizon/server_api.ts:21](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L21)
 
 ### `collectionPage.records`
 
@@ -8440,7 +8440,7 @@ prev: () => Promise<CollectionPage<T>>;
 records: T[];
 ```
 
-**Source:** [src/horizon/server_api.ts:19](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L19)
+**Source:** [src/horizon/server_api.ts:19](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L19)
 
 ## Horizon.ServerApi.CreateAccountOperationRecord
 
@@ -8466,7 +8466,7 @@ interface CreateAccountOperationRecord extends BaseOperationRecord<OperationResp
 }
 ```
 
-**Source:** [src/horizon/server_api.ts:183](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L183)
+**Source:** [src/horizon/server_api.ts:183](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L183)
 
 ### `createAccountOperationRecord._links`
 
@@ -8474,7 +8474,7 @@ interface CreateAccountOperationRecord extends BaseOperationRecord<OperationResp
 _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; succeeds: ResponseLink; transaction: ResponseLink };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L10)
+**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L10)
 
 ### `createAccountOperationRecord.account`
 
@@ -8482,7 +8482,7 @@ _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; suc
 account: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:276](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L276)
+**Source:** [src/horizon/horizon_api.ts:276](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L276)
 
 ### `createAccountOperationRecord.created_at`
 
@@ -8490,7 +8490,7 @@ account: string;
 created_at: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L268)
+**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L268)
 
 ### `createAccountOperationRecord.effects`
 
@@ -8498,7 +8498,7 @@ created_at: string;
 effects: CallCollectionFunction<EffectRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:180](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L180)
+**Source:** [src/horizon/server_api.ts:180](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L180)
 
 ### `createAccountOperationRecord.funder`
 
@@ -8506,7 +8506,7 @@ effects: CallCollectionFunction<EffectRecord>;
 funder: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:277](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L277)
+**Source:** [src/horizon/horizon_api.ts:277](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L277)
 
 ### `createAccountOperationRecord.id`
 
@@ -8514,7 +8514,7 @@ funder: string;
 id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L263)
+**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L263)
 
 ### `createAccountOperationRecord.paging_token`
 
@@ -8522,7 +8522,7 @@ id: string;
 paging_token: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L264)
+**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L264)
 
 ### `createAccountOperationRecord.precedes`
 
@@ -8530,7 +8530,7 @@ paging_token: string;
 precedes: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:179](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L179)
+**Source:** [src/horizon/server_api.ts:179](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L179)
 
 ### `createAccountOperationRecord.self`
 
@@ -8538,7 +8538,7 @@ precedes: CallFunction<OperationRecord>;
 self: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:177](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L177)
+**Source:** [src/horizon/server_api.ts:177](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L177)
 
 ### `createAccountOperationRecord.source_account`
 
@@ -8546,7 +8546,7 @@ self: CallFunction<OperationRecord>;
 source_account: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L265)
+**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L265)
 
 ### `createAccountOperationRecord.starting_balance`
 
@@ -8554,7 +8554,7 @@ source_account: string;
 starting_balance: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:278](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L278)
+**Source:** [src/horizon/horizon_api.ts:278](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L278)
 
 ### `createAccountOperationRecord.succeeds`
 
@@ -8562,7 +8562,7 @@ starting_balance: string;
 succeeds: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:178](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L178)
+**Source:** [src/horizon/server_api.ts:178](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L178)
 
 ### `createAccountOperationRecord.transaction`
 
@@ -8570,7 +8570,7 @@ succeeds: CallFunction<OperationRecord>;
 transaction: CallFunction<TransactionRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:181](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L181)
+**Source:** [src/horizon/server_api.ts:181](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L181)
 
 ### `createAccountOperationRecord.transaction_hash`
 
@@ -8578,7 +8578,7 @@ transaction: CallFunction<TransactionRecord>;
 transaction_hash: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L269)
+**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L269)
 
 ### `createAccountOperationRecord.transaction_successful`
 
@@ -8586,7 +8586,7 @@ transaction_hash: string;
 transaction_successful: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L270)
+**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L270)
 
 ### `createAccountOperationRecord.type`
 
@@ -8594,7 +8594,7 @@ transaction_successful: boolean;
 type: createAccount;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L266)
+**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L266)
 
 ### `createAccountOperationRecord.type_i`
 
@@ -8602,7 +8602,7 @@ type: createAccount;
 type_i: createAccount;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L267)
+**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L267)
 
 ## Horizon.ServerApi.CreateClaimableBalanceOperationRecord
 
@@ -8629,7 +8629,7 @@ interface CreateClaimableBalanceOperationRecord extends BaseOperationRecord<Oper
 }
 ```
 
-**Source:** [src/horizon/server_api.ts:277](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L277)
+**Source:** [src/horizon/server_api.ts:277](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L277)
 
 ### `createClaimableBalanceOperationRecord._links`
 
@@ -8637,7 +8637,7 @@ interface CreateClaimableBalanceOperationRecord extends BaseOperationRecord<Oper
 _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; succeeds: ResponseLink; transaction: ResponseLink };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L10)
+**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L10)
 
 ### `createClaimableBalanceOperationRecord.amount`
 
@@ -8645,7 +8645,7 @@ _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; suc
 amount: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:457](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L457)
+**Source:** [src/horizon/horizon_api.ts:457](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L457)
 
 ### `createClaimableBalanceOperationRecord.asset`
 
@@ -8653,7 +8653,7 @@ amount: string;
 asset: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:456](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L456)
+**Source:** [src/horizon/horizon_api.ts:456](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L456)
 
 ### `createClaimableBalanceOperationRecord.claimants`
 
@@ -8661,7 +8661,7 @@ asset: string;
 claimants: Claimant[];
 ```
 
-**Source:** [src/horizon/horizon_api.ts:459](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L459)
+**Source:** [src/horizon/horizon_api.ts:459](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L459)
 
 ### `createClaimableBalanceOperationRecord.created_at`
 
@@ -8669,7 +8669,7 @@ claimants: Claimant[];
 created_at: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L268)
+**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L268)
 
 ### `createClaimableBalanceOperationRecord.effects`
 
@@ -8677,7 +8677,7 @@ created_at: string;
 effects: CallCollectionFunction<EffectRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:180](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L180)
+**Source:** [src/horizon/server_api.ts:180](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L180)
 
 ### `createClaimableBalanceOperationRecord.id`
 
@@ -8685,7 +8685,7 @@ effects: CallCollectionFunction<EffectRecord>;
 id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L263)
+**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L263)
 
 ### `createClaimableBalanceOperationRecord.paging_token`
 
@@ -8693,7 +8693,7 @@ id: string;
 paging_token: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L264)
+**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L264)
 
 ### `createClaimableBalanceOperationRecord.precedes`
 
@@ -8701,7 +8701,7 @@ paging_token: string;
 precedes: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:179](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L179)
+**Source:** [src/horizon/server_api.ts:179](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L179)
 
 ### `createClaimableBalanceOperationRecord.self`
 
@@ -8709,7 +8709,7 @@ precedes: CallFunction<OperationRecord>;
 self: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:177](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L177)
+**Source:** [src/horizon/server_api.ts:177](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L177)
 
 ### `createClaimableBalanceOperationRecord.source_account`
 
@@ -8717,7 +8717,7 @@ self: CallFunction<OperationRecord>;
 source_account: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L265)
+**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L265)
 
 ### `createClaimableBalanceOperationRecord.sponsor`
 
@@ -8725,7 +8725,7 @@ source_account: string;
 sponsor: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:458](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L458)
+**Source:** [src/horizon/horizon_api.ts:458](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L458)
 
 ### `createClaimableBalanceOperationRecord.succeeds`
 
@@ -8733,7 +8733,7 @@ sponsor: string;
 succeeds: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:178](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L178)
+**Source:** [src/horizon/server_api.ts:178](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L178)
 
 ### `createClaimableBalanceOperationRecord.transaction`
 
@@ -8741,7 +8741,7 @@ succeeds: CallFunction<OperationRecord>;
 transaction: CallFunction<TransactionRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:181](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L181)
+**Source:** [src/horizon/server_api.ts:181](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L181)
 
 ### `createClaimableBalanceOperationRecord.transaction_hash`
 
@@ -8749,7 +8749,7 @@ transaction: CallFunction<TransactionRecord>;
 transaction_hash: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L269)
+**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L269)
 
 ### `createClaimableBalanceOperationRecord.transaction_successful`
 
@@ -8757,7 +8757,7 @@ transaction_hash: string;
 transaction_successful: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L270)
+**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L270)
 
 ### `createClaimableBalanceOperationRecord.type`
 
@@ -8765,7 +8765,7 @@ transaction_successful: boolean;
 type: createClaimableBalance;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L266)
+**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L266)
 
 ### `createClaimableBalanceOperationRecord.type_i`
 
@@ -8773,7 +8773,7 @@ type: createClaimableBalance;
 type_i: createClaimableBalance;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L267)
+**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L267)
 
 ## Horizon.ServerApi.DepositLiquidityOperationRecord
 
@@ -8804,7 +8804,7 @@ interface DepositLiquidityOperationRecord extends BaseOperationRecord<OperationR
 }
 ```
 
-**Source:** [src/horizon/server_api.ts:333](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L333)
+**Source:** [src/horizon/server_api.ts:333](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L333)
 
 ### `depositLiquidityOperationRecord._links`
 
@@ -8812,7 +8812,7 @@ interface DepositLiquidityOperationRecord extends BaseOperationRecord<OperationR
 _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; succeeds: ResponseLink; transaction: ResponseLink };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L10)
+**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L10)
 
 ### `depositLiquidityOperationRecord.created_at`
 
@@ -8820,7 +8820,7 @@ _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; suc
 created_at: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L268)
+**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L268)
 
 ### `depositLiquidityOperationRecord.effects`
 
@@ -8828,7 +8828,7 @@ created_at: string;
 effects: CallCollectionFunction<EffectRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:180](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L180)
+**Source:** [src/horizon/server_api.ts:180](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L180)
 
 ### `depositLiquidityOperationRecord.id`
 
@@ -8836,7 +8836,7 @@ effects: CallCollectionFunction<EffectRecord>;
 id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L263)
+**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L263)
 
 ### `depositLiquidityOperationRecord.liquidity_pool_id`
 
@@ -8844,7 +8844,7 @@ id: string;
 liquidity_pool_id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:537](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L537)
+**Source:** [src/horizon/horizon_api.ts:537](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L537)
 
 ### `depositLiquidityOperationRecord.max_price`
 
@@ -8852,7 +8852,7 @@ liquidity_pool_id: string;
 max_price: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:541](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L541)
+**Source:** [src/horizon/horizon_api.ts:541](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L541)
 
 ### `depositLiquidityOperationRecord.max_price_r`
 
@@ -8860,7 +8860,7 @@ max_price: string;
 max_price_r: PriceRShorthand;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:542](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L542)
+**Source:** [src/horizon/horizon_api.ts:542](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L542)
 
 ### `depositLiquidityOperationRecord.min_price`
 
@@ -8868,7 +8868,7 @@ max_price_r: PriceRShorthand;
 min_price: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:539](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L539)
+**Source:** [src/horizon/horizon_api.ts:539](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L539)
 
 ### `depositLiquidityOperationRecord.min_price_r`
 
@@ -8876,7 +8876,7 @@ min_price: string;
 min_price_r: PriceRShorthand;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:540](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L540)
+**Source:** [src/horizon/horizon_api.ts:540](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L540)
 
 ### `depositLiquidityOperationRecord.paging_token`
 
@@ -8884,7 +8884,7 @@ min_price_r: PriceRShorthand;
 paging_token: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L264)
+**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L264)
 
 ### `depositLiquidityOperationRecord.precedes`
 
@@ -8892,7 +8892,7 @@ paging_token: string;
 precedes: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:179](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L179)
+**Source:** [src/horizon/server_api.ts:179](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L179)
 
 ### `depositLiquidityOperationRecord.reserves_deposited`
 
@@ -8900,7 +8900,7 @@ precedes: CallFunction<OperationRecord>;
 reserves_deposited: Reserve[];
 ```
 
-**Source:** [src/horizon/horizon_api.ts:543](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L543)
+**Source:** [src/horizon/horizon_api.ts:543](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L543)
 
 ### `depositLiquidityOperationRecord.reserves_max`
 
@@ -8908,7 +8908,7 @@ reserves_deposited: Reserve[];
 reserves_max: Reserve[];
 ```
 
-**Source:** [src/horizon/horizon_api.ts:538](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L538)
+**Source:** [src/horizon/horizon_api.ts:538](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L538)
 
 ### `depositLiquidityOperationRecord.self`
 
@@ -8916,7 +8916,7 @@ reserves_max: Reserve[];
 self: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:177](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L177)
+**Source:** [src/horizon/server_api.ts:177](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L177)
 
 ### `depositLiquidityOperationRecord.shares_received`
 
@@ -8924,7 +8924,7 @@ self: CallFunction<OperationRecord>;
 shares_received: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:544](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L544)
+**Source:** [src/horizon/horizon_api.ts:544](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L544)
 
 ### `depositLiquidityOperationRecord.source_account`
 
@@ -8932,7 +8932,7 @@ shares_received: string;
 source_account: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L265)
+**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L265)
 
 ### `depositLiquidityOperationRecord.succeeds`
 
@@ -8940,7 +8940,7 @@ source_account: string;
 succeeds: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:178](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L178)
+**Source:** [src/horizon/server_api.ts:178](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L178)
 
 ### `depositLiquidityOperationRecord.transaction`
 
@@ -8948,7 +8948,7 @@ succeeds: CallFunction<OperationRecord>;
 transaction: CallFunction<TransactionRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:181](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L181)
+**Source:** [src/horizon/server_api.ts:181](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L181)
 
 ### `depositLiquidityOperationRecord.transaction_hash`
 
@@ -8956,7 +8956,7 @@ transaction: CallFunction<TransactionRecord>;
 transaction_hash: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L269)
+**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L269)
 
 ### `depositLiquidityOperationRecord.transaction_successful`
 
@@ -8964,7 +8964,7 @@ transaction_hash: string;
 transaction_successful: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L270)
+**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L270)
 
 ### `depositLiquidityOperationRecord.type`
 
@@ -8972,7 +8972,7 @@ transaction_successful: boolean;
 type: liquidityPoolDeposit;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L266)
+**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L266)
 
 ### `depositLiquidityOperationRecord.type_i`
 
@@ -8980,7 +8980,7 @@ type: liquidityPoolDeposit;
 type_i: liquidityPoolDeposit;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L267)
+**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L267)
 
 ## Horizon.ServerApi.EffectRecord
 
@@ -8988,7 +8988,7 @@ type_i: liquidityPoolDeposit;
 type EffectRecord = BaseEffectRecordFromTypes & EffectRecordMethods
 ```
 
-**Source:** [src/horizon/server_api.ts:85](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L85)
+**Source:** [src/horizon/server_api.ts:85](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L85)
 
 ## Horizon.ServerApi.EffectType
 
@@ -8996,7 +8996,7 @@ type EffectRecord = BaseEffectRecordFromTypes & EffectRecordMethods
 const EffectType: typeof EffectType
 ```
 
-**Source:** [src/horizon/server_api.ts:86](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L86)
+**Source:** [src/horizon/server_api.ts:86](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L86)
 
 ## Horizon.ServerApi.EndSponsoringFutureReservesOperationRecord
 
@@ -9020,7 +9020,7 @@ interface EndSponsoringFutureReservesOperationRecord extends BaseOperationRecord
 }
 ```
 
-**Source:** [src/horizon/server_api.ts:298](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L298)
+**Source:** [src/horizon/server_api.ts:298](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L298)
 
 ### `endSponsoringFutureReservesOperationRecord._links`
 
@@ -9028,7 +9028,7 @@ interface EndSponsoringFutureReservesOperationRecord extends BaseOperationRecord
 _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; succeeds: ResponseLink; transaction: ResponseLink };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L10)
+**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L10)
 
 ### `endSponsoringFutureReservesOperationRecord.begin_sponsor`
 
@@ -9036,7 +9036,7 @@ _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; suc
 begin_sponsor: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:481](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L481)
+**Source:** [src/horizon/horizon_api.ts:481](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L481)
 
 ### `endSponsoringFutureReservesOperationRecord.created_at`
 
@@ -9044,7 +9044,7 @@ begin_sponsor: string;
 created_at: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L268)
+**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L268)
 
 ### `endSponsoringFutureReservesOperationRecord.effects`
 
@@ -9052,7 +9052,7 @@ created_at: string;
 effects: CallCollectionFunction<EffectRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:180](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L180)
+**Source:** [src/horizon/server_api.ts:180](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L180)
 
 ### `endSponsoringFutureReservesOperationRecord.id`
 
@@ -9060,7 +9060,7 @@ effects: CallCollectionFunction<EffectRecord>;
 id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L263)
+**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L263)
 
 ### `endSponsoringFutureReservesOperationRecord.paging_token`
 
@@ -9068,7 +9068,7 @@ id: string;
 paging_token: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L264)
+**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L264)
 
 ### `endSponsoringFutureReservesOperationRecord.precedes`
 
@@ -9076,7 +9076,7 @@ paging_token: string;
 precedes: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:179](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L179)
+**Source:** [src/horizon/server_api.ts:179](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L179)
 
 ### `endSponsoringFutureReservesOperationRecord.self`
 
@@ -9084,7 +9084,7 @@ precedes: CallFunction<OperationRecord>;
 self: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:177](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L177)
+**Source:** [src/horizon/server_api.ts:177](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L177)
 
 ### `endSponsoringFutureReservesOperationRecord.source_account`
 
@@ -9092,7 +9092,7 @@ self: CallFunction<OperationRecord>;
 source_account: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L265)
+**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L265)
 
 ### `endSponsoringFutureReservesOperationRecord.succeeds`
 
@@ -9100,7 +9100,7 @@ source_account: string;
 succeeds: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:178](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L178)
+**Source:** [src/horizon/server_api.ts:178](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L178)
 
 ### `endSponsoringFutureReservesOperationRecord.transaction`
 
@@ -9108,7 +9108,7 @@ succeeds: CallFunction<OperationRecord>;
 transaction: CallFunction<TransactionRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:181](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L181)
+**Source:** [src/horizon/server_api.ts:181](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L181)
 
 ### `endSponsoringFutureReservesOperationRecord.transaction_hash`
 
@@ -9116,7 +9116,7 @@ transaction: CallFunction<TransactionRecord>;
 transaction_hash: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L269)
+**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L269)
 
 ### `endSponsoringFutureReservesOperationRecord.transaction_successful`
 
@@ -9124,7 +9124,7 @@ transaction_hash: string;
 transaction_successful: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L270)
+**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L270)
 
 ### `endSponsoringFutureReservesOperationRecord.type`
 
@@ -9132,7 +9132,7 @@ transaction_successful: boolean;
 type: endSponsoringFutureReserves;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L266)
+**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L266)
 
 ### `endSponsoringFutureReservesOperationRecord.type_i`
 
@@ -9140,7 +9140,7 @@ type: endSponsoringFutureReserves;
 type_i: endSponsoringFutureReserves;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L267)
+**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L267)
 
 ## Horizon.ServerApi.InflationOperationRecord
 
@@ -9163,7 +9163,7 @@ interface InflationOperationRecord extends BaseOperationRecord<OperationResponse
 }
 ```
 
-**Source:** [src/horizon/server_api.ts:256](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L256)
+**Source:** [src/horizon/server_api.ts:256](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L256)
 
 ### `inflationOperationRecord._links`
 
@@ -9171,7 +9171,7 @@ interface InflationOperationRecord extends BaseOperationRecord<OperationResponse
 _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; succeeds: ResponseLink; transaction: ResponseLink };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L10)
+**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L10)
 
 ### `inflationOperationRecord.created_at`
 
@@ -9179,7 +9179,7 @@ _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; suc
 created_at: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L268)
+**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L268)
 
 ### `inflationOperationRecord.effects`
 
@@ -9187,7 +9187,7 @@ created_at: string;
 effects: CallCollectionFunction<EffectRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:180](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L180)
+**Source:** [src/horizon/server_api.ts:180](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L180)
 
 ### `inflationOperationRecord.id`
 
@@ -9195,7 +9195,7 @@ effects: CallCollectionFunction<EffectRecord>;
 id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L263)
+**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L263)
 
 ### `inflationOperationRecord.paging_token`
 
@@ -9203,7 +9203,7 @@ id: string;
 paging_token: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L264)
+**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L264)
 
 ### `inflationOperationRecord.precedes`
 
@@ -9211,7 +9211,7 @@ paging_token: string;
 precedes: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:179](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L179)
+**Source:** [src/horizon/server_api.ts:179](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L179)
 
 ### `inflationOperationRecord.self`
 
@@ -9219,7 +9219,7 @@ precedes: CallFunction<OperationRecord>;
 self: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:177](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L177)
+**Source:** [src/horizon/server_api.ts:177](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L177)
 
 ### `inflationOperationRecord.source_account`
 
@@ -9227,7 +9227,7 @@ self: CallFunction<OperationRecord>;
 source_account: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L265)
+**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L265)
 
 ### `inflationOperationRecord.succeeds`
 
@@ -9235,7 +9235,7 @@ source_account: string;
 succeeds: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:178](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L178)
+**Source:** [src/horizon/server_api.ts:178](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L178)
 
 ### `inflationOperationRecord.transaction`
 
@@ -9243,7 +9243,7 @@ succeeds: CallFunction<OperationRecord>;
 transaction: CallFunction<TransactionRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:181](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L181)
+**Source:** [src/horizon/server_api.ts:181](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L181)
 
 ### `inflationOperationRecord.transaction_hash`
 
@@ -9251,7 +9251,7 @@ transaction: CallFunction<TransactionRecord>;
 transaction_hash: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L269)
+**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L269)
 
 ### `inflationOperationRecord.transaction_successful`
 
@@ -9259,7 +9259,7 @@ transaction_hash: string;
 transaction_successful: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L270)
+**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L270)
 
 ### `inflationOperationRecord.type`
 
@@ -9267,7 +9267,7 @@ transaction_successful: boolean;
 type: inflation;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L266)
+**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L266)
 
 ### `inflationOperationRecord.type_i`
 
@@ -9275,7 +9275,7 @@ type: inflation;
 type_i: inflation;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L267)
+**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L267)
 
 ## Horizon.ServerApi.InvokeHostFunctionOperationRecord
 
@@ -9303,7 +9303,7 @@ interface InvokeHostFunctionOperationRecord extends BaseOperationRecord<Operatio
 }
 ```
 
-**Source:** [src/horizon/server_api.ts:347](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L347)
+**Source:** [src/horizon/server_api.ts:347](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L347)
 
 ### `invokeHostFunctionOperationRecord._links`
 
@@ -9311,7 +9311,7 @@ interface InvokeHostFunctionOperationRecord extends BaseOperationRecord<Operatio
 _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; succeeds: ResponseLink; transaction: ResponseLink };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L10)
+**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L10)
 
 ### `invokeHostFunctionOperationRecord.address`
 
@@ -9319,7 +9319,7 @@ _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; suc
 address: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:577](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L577)
+**Source:** [src/horizon/horizon_api.ts:577](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L577)
 
 ### `invokeHostFunctionOperationRecord.asset_balance_changes`
 
@@ -9327,7 +9327,7 @@ address: string;
 asset_balance_changes: BalanceChange[];
 ```
 
-**Source:** [src/horizon/horizon_api.ts:579](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L579)
+**Source:** [src/horizon/horizon_api.ts:579](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L579)
 
 ### `invokeHostFunctionOperationRecord.created_at`
 
@@ -9335,7 +9335,7 @@ asset_balance_changes: BalanceChange[];
 created_at: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L268)
+**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L268)
 
 ### `invokeHostFunctionOperationRecord.effects`
 
@@ -9343,7 +9343,7 @@ created_at: string;
 effects: CallCollectionFunction<EffectRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:180](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L180)
+**Source:** [src/horizon/server_api.ts:180](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L180)
 
 ### `invokeHostFunctionOperationRecord.function`
 
@@ -9351,7 +9351,7 @@ effects: CallCollectionFunction<EffectRecord>;
 function: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:572](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L572)
+**Source:** [src/horizon/horizon_api.ts:572](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L572)
 
 ### `invokeHostFunctionOperationRecord.id`
 
@@ -9359,7 +9359,7 @@ function: string;
 id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L263)
+**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L263)
 
 ### `invokeHostFunctionOperationRecord.paging_token`
 
@@ -9367,7 +9367,7 @@ id: string;
 paging_token: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L264)
+**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L264)
 
 ### `invokeHostFunctionOperationRecord.parameters`
 
@@ -9375,7 +9375,7 @@ paging_token: string;
 parameters: { type: string; value: string }[];
 ```
 
-**Source:** [src/horizon/horizon_api.ts:573](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L573)
+**Source:** [src/horizon/horizon_api.ts:573](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L573)
 
 ### `invokeHostFunctionOperationRecord.precedes`
 
@@ -9383,7 +9383,7 @@ parameters: { type: string; value: string }[];
 precedes: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:179](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L179)
+**Source:** [src/horizon/server_api.ts:179](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L179)
 
 ### `invokeHostFunctionOperationRecord.salt`
 
@@ -9391,7 +9391,7 @@ precedes: CallFunction<OperationRecord>;
 salt: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:578](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L578)
+**Source:** [src/horizon/horizon_api.ts:578](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L578)
 
 ### `invokeHostFunctionOperationRecord.self`
 
@@ -9399,7 +9399,7 @@ salt: string;
 self: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:177](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L177)
+**Source:** [src/horizon/server_api.ts:177](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L177)
 
 ### `invokeHostFunctionOperationRecord.source_account`
 
@@ -9407,7 +9407,7 @@ self: CallFunction<OperationRecord>;
 source_account: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L265)
+**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L265)
 
 ### `invokeHostFunctionOperationRecord.succeeds`
 
@@ -9415,7 +9415,7 @@ source_account: string;
 succeeds: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:178](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L178)
+**Source:** [src/horizon/server_api.ts:178](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L178)
 
 ### `invokeHostFunctionOperationRecord.transaction`
 
@@ -9423,7 +9423,7 @@ succeeds: CallFunction<OperationRecord>;
 transaction: CallFunction<TransactionRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:181](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L181)
+**Source:** [src/horizon/server_api.ts:181](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L181)
 
 ### `invokeHostFunctionOperationRecord.transaction_hash`
 
@@ -9431,7 +9431,7 @@ transaction: CallFunction<TransactionRecord>;
 transaction_hash: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L269)
+**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L269)
 
 ### `invokeHostFunctionOperationRecord.transaction_successful`
 
@@ -9439,7 +9439,7 @@ transaction_hash: string;
 transaction_successful: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L270)
+**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L270)
 
 ### `invokeHostFunctionOperationRecord.type`
 
@@ -9447,7 +9447,7 @@ transaction_successful: boolean;
 type: invokeHostFunction;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L266)
+**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L266)
 
 ### `invokeHostFunctionOperationRecord.type_i`
 
@@ -9455,7 +9455,7 @@ type: invokeHostFunction;
 type_i: invokeHostFunction;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L267)
+**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L267)
 
 ## Horizon.ServerApi.LedgerRecord
 
@@ -9486,7 +9486,7 @@ interface LedgerRecord extends BaseResponse {
 }
 ```
 
-**Source:** [src/horizon/server_api.ts:145](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L145)
+**Source:** [src/horizon/server_api.ts:145](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L145)
 
 ### `ledgerRecord._links`
 
@@ -9494,7 +9494,7 @@ interface LedgerRecord extends BaseResponse {
 _links: { self: ResponseLink };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L10)
+**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L10)
 
 ### `ledgerRecord.base_fee_in_stroops`
 
@@ -9502,7 +9502,7 @@ _links: { self: ResponseLink };
 base_fee_in_stroops: number;
 ```
 
-**Source:** [src/horizon/server_api.ts:161](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L161)
+**Source:** [src/horizon/server_api.ts:161](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L161)
 
 ### `ledgerRecord.base_reserve_in_stroops`
 
@@ -9510,7 +9510,7 @@ base_fee_in_stroops: number;
 base_reserve_in_stroops: number;
 ```
 
-**Source:** [src/horizon/server_api.ts:162](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L162)
+**Source:** [src/horizon/server_api.ts:162](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L162)
 
 ### `ledgerRecord.closed_at`
 
@@ -9518,7 +9518,7 @@ base_reserve_in_stroops: number;
 closed_at: string;
 ```
 
-**Source:** [src/horizon/server_api.ts:155](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L155)
+**Source:** [src/horizon/server_api.ts:155](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L155)
 
 ### `ledgerRecord.effects`
 
@@ -9526,7 +9526,7 @@ closed_at: string;
 effects: CallCollectionFunction<EffectRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:164](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L164)
+**Source:** [src/horizon/server_api.ts:164](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L164)
 
 ### `ledgerRecord.failed_transaction_count`
 
@@ -9534,7 +9534,7 @@ effects: CallCollectionFunction<EffectRecord>;
 failed_transaction_count: number;
 ```
 
-**Source:** [src/horizon/server_api.ts:152](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L152)
+**Source:** [src/horizon/server_api.ts:152](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L152)
 
 ### `ledgerRecord.fee_pool`
 
@@ -9542,7 +9542,7 @@ failed_transaction_count: number;
 fee_pool: string;
 ```
 
-**Source:** [src/horizon/server_api.ts:157](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L157)
+**Source:** [src/horizon/server_api.ts:157](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L157)
 
 ### `ledgerRecord.hash`
 
@@ -9550,7 +9550,7 @@ fee_pool: string;
 hash: string;
 ```
 
-**Source:** [src/horizon/server_api.ts:148](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L148)
+**Source:** [src/horizon/server_api.ts:148](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L148)
 
 ### `ledgerRecord.header_xdr`
 
@@ -9558,7 +9558,7 @@ hash: string;
 header_xdr: string;
 ```
 
-**Source:** [src/horizon/server_api.ts:160](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L160)
+**Source:** [src/horizon/server_api.ts:160](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L160)
 
 ### `ledgerRecord.id`
 
@@ -9566,7 +9566,7 @@ header_xdr: string;
 id: string;
 ```
 
-**Source:** [src/horizon/server_api.ts:146](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L146)
+**Source:** [src/horizon/server_api.ts:146](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L146)
 
 ### `ledgerRecord.max_tx_set_size`
 
@@ -9574,7 +9574,7 @@ id: string;
 max_tx_set_size: number;
 ```
 
-**Source:** [src/horizon/server_api.ts:158](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L158)
+**Source:** [src/horizon/server_api.ts:158](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L158)
 
 ### `ledgerRecord.operation_count`
 
@@ -9582,7 +9582,7 @@ max_tx_set_size: number;
 operation_count: number;
 ```
 
-**Source:** [src/horizon/server_api.ts:153](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L153)
+**Source:** [src/horizon/server_api.ts:153](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L153)
 
 ### `ledgerRecord.operations`
 
@@ -9590,7 +9590,7 @@ operation_count: number;
 operations: CallCollectionFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:165](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L165)
+**Source:** [src/horizon/server_api.ts:165](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L165)
 
 ### `ledgerRecord.paging_token`
 
@@ -9598,7 +9598,7 @@ operations: CallCollectionFunction<OperationRecord>;
 paging_token: string;
 ```
 
-**Source:** [src/horizon/server_api.ts:147](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L147)
+**Source:** [src/horizon/server_api.ts:147](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L147)
 
 ### `ledgerRecord.prev_hash`
 
@@ -9606,7 +9606,7 @@ paging_token: string;
 prev_hash: string;
 ```
 
-**Source:** [src/horizon/server_api.ts:149](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L149)
+**Source:** [src/horizon/server_api.ts:149](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L149)
 
 ### `ledgerRecord.protocol_version`
 
@@ -9614,7 +9614,7 @@ prev_hash: string;
 protocol_version: number;
 ```
 
-**Source:** [src/horizon/server_api.ts:159](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L159)
+**Source:** [src/horizon/server_api.ts:159](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L159)
 
 ### `ledgerRecord.self`
 
@@ -9622,7 +9622,7 @@ protocol_version: number;
 self: CallFunction<LedgerRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:166](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L166)
+**Source:** [src/horizon/server_api.ts:166](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L166)
 
 ### `ledgerRecord.sequence`
 
@@ -9630,7 +9630,7 @@ self: CallFunction<LedgerRecord>;
 sequence: number;
 ```
 
-**Source:** [src/horizon/server_api.ts:150](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L150)
+**Source:** [src/horizon/server_api.ts:150](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L150)
 
 ### `ledgerRecord.successful_transaction_count`
 
@@ -9638,7 +9638,7 @@ sequence: number;
 successful_transaction_count: number;
 ```
 
-**Source:** [src/horizon/server_api.ts:151](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L151)
+**Source:** [src/horizon/server_api.ts:151](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L151)
 
 ### `ledgerRecord.total_coins`
 
@@ -9646,7 +9646,7 @@ successful_transaction_count: number;
 total_coins: string;
 ```
 
-**Source:** [src/horizon/server_api.ts:156](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L156)
+**Source:** [src/horizon/server_api.ts:156](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L156)
 
 ### `ledgerRecord.transactions`
 
@@ -9654,7 +9654,7 @@ total_coins: string;
 transactions: CallCollectionFunction<TransactionRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:167](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L167)
+**Source:** [src/horizon/server_api.ts:167](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L167)
 
 ### `ledgerRecord.tx_set_operation_count`
 
@@ -9662,7 +9662,7 @@ transactions: CallCollectionFunction<TransactionRecord>;
 tx_set_operation_count: number | null;
 ```
 
-**Source:** [src/horizon/server_api.ts:154](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L154)
+**Source:** [src/horizon/server_api.ts:154](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L154)
 
 ## Horizon.ServerApi.LiquidityPoolRecord
 
@@ -9679,7 +9679,7 @@ interface LiquidityPoolRecord extends BaseResponse {
 }
 ```
 
-**Source:** [src/horizon/server_api.ts:126](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L126)
+**Source:** [src/horizon/server_api.ts:126](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L126)
 
 ### `liquidityPoolRecord._links`
 
@@ -9687,7 +9687,7 @@ interface LiquidityPoolRecord extends BaseResponse {
 _links: { self: ResponseLink };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L10)
+**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L10)
 
 ### `liquidityPoolRecord.fee_bp`
 
@@ -9695,7 +9695,7 @@ _links: { self: ResponseLink };
 fee_bp: number;
 ```
 
-**Source:** [src/horizon/server_api.ts:129](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L129)
+**Source:** [src/horizon/server_api.ts:129](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L129)
 
 ### `liquidityPoolRecord.id`
 
@@ -9703,7 +9703,7 @@ fee_bp: number;
 id: string;
 ```
 
-**Source:** [src/horizon/server_api.ts:127](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L127)
+**Source:** [src/horizon/server_api.ts:127](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L127)
 
 ### `liquidityPoolRecord.paging_token`
 
@@ -9711,7 +9711,7 @@ id: string;
 paging_token: string;
 ```
 
-**Source:** [src/horizon/server_api.ts:128](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L128)
+**Source:** [src/horizon/server_api.ts:128](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L128)
 
 ### `liquidityPoolRecord.reserves`
 
@@ -9719,7 +9719,7 @@ paging_token: string;
 reserves: Reserve[];
 ```
 
-**Source:** [src/horizon/server_api.ts:133](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L133)
+**Source:** [src/horizon/server_api.ts:133](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L133)
 
 ### `liquidityPoolRecord.total_shares`
 
@@ -9727,7 +9727,7 @@ reserves: Reserve[];
 total_shares: string;
 ```
 
-**Source:** [src/horizon/server_api.ts:132](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L132)
+**Source:** [src/horizon/server_api.ts:132](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L132)
 
 ### `liquidityPoolRecord.total_trustlines`
 
@@ -9735,7 +9735,7 @@ total_shares: string;
 total_trustlines: string;
 ```
 
-**Source:** [src/horizon/server_api.ts:131](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L131)
+**Source:** [src/horizon/server_api.ts:131](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L131)
 
 ### `liquidityPoolRecord.type`
 
@@ -9743,7 +9743,7 @@ total_trustlines: string;
 type: LiquidityPoolType;
 ```
 
-**Source:** [src/horizon/server_api.ts:130](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L130)
+**Source:** [src/horizon/server_api.ts:130](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L130)
 
 ## Horizon.ServerApi.ManageDataOperationRecord
 
@@ -9768,7 +9768,7 @@ interface ManageDataOperationRecord extends BaseOperationRecord<OperationRespons
 }
 ```
 
-**Source:** [src/horizon/server_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L263)
+**Source:** [src/horizon/server_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L263)
 
 ### `manageDataOperationRecord._links`
 
@@ -9776,7 +9776,7 @@ interface ManageDataOperationRecord extends BaseOperationRecord<OperationRespons
 _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; succeeds: ResponseLink; transaction: ResponseLink };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L10)
+**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L10)
 
 ### `manageDataOperationRecord.created_at`
 
@@ -9784,7 +9784,7 @@ _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; suc
 created_at: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L268)
+**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L268)
 
 ### `manageDataOperationRecord.effects`
 
@@ -9792,7 +9792,7 @@ created_at: string;
 effects: CallCollectionFunction<EffectRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:180](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L180)
+**Source:** [src/horizon/server_api.ts:180](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L180)
 
 ### `manageDataOperationRecord.id`
 
@@ -9800,7 +9800,7 @@ effects: CallCollectionFunction<EffectRecord>;
 id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L263)
+**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L263)
 
 ### `manageDataOperationRecord.name`
 
@@ -9808,7 +9808,7 @@ id: string;
 name: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:430](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L430)
+**Source:** [src/horizon/horizon_api.ts:430](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L430)
 
 ### `manageDataOperationRecord.paging_token`
 
@@ -9816,7 +9816,7 @@ name: string;
 paging_token: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L264)
+**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L264)
 
 ### `manageDataOperationRecord.precedes`
 
@@ -9824,7 +9824,7 @@ paging_token: string;
 precedes: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:179](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L179)
+**Source:** [src/horizon/server_api.ts:179](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L179)
 
 ### `manageDataOperationRecord.self`
 
@@ -9832,7 +9832,7 @@ precedes: CallFunction<OperationRecord>;
 self: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:177](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L177)
+**Source:** [src/horizon/server_api.ts:177](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L177)
 
 ### `manageDataOperationRecord.source_account`
 
@@ -9840,7 +9840,7 @@ self: CallFunction<OperationRecord>;
 source_account: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L265)
+**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L265)
 
 ### `manageDataOperationRecord.succeeds`
 
@@ -9848,7 +9848,7 @@ source_account: string;
 succeeds: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:178](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L178)
+**Source:** [src/horizon/server_api.ts:178](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L178)
 
 ### `manageDataOperationRecord.transaction`
 
@@ -9856,7 +9856,7 @@ succeeds: CallFunction<OperationRecord>;
 transaction: CallFunction<TransactionRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:181](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L181)
+**Source:** [src/horizon/server_api.ts:181](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L181)
 
 ### `manageDataOperationRecord.transaction_hash`
 
@@ -9864,7 +9864,7 @@ transaction: CallFunction<TransactionRecord>;
 transaction_hash: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L269)
+**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L269)
 
 ### `manageDataOperationRecord.transaction_successful`
 
@@ -9872,7 +9872,7 @@ transaction_hash: string;
 transaction_successful: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L270)
+**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L270)
 
 ### `manageDataOperationRecord.type`
 
@@ -9880,7 +9880,7 @@ transaction_successful: boolean;
 type: manageData;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L266)
+**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L266)
 
 ### `manageDataOperationRecord.type_i`
 
@@ -9888,7 +9888,7 @@ type: manageData;
 type_i: manageData;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L267)
+**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L267)
 
 ### `manageDataOperationRecord.value`
 
@@ -9896,7 +9896,7 @@ type_i: manageData;
 value: Buffer;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:431](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L431)
+**Source:** [src/horizon/horizon_api.ts:431](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L431)
 
 ## Horizon.ServerApi.ManageOfferOperationRecord
 
@@ -9929,7 +9929,7 @@ interface ManageOfferOperationRecord extends BaseOperationRecord<OperationRespon
 }
 ```
 
-**Source:** [src/horizon/server_api.ts:214](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L214)
+**Source:** [src/horizon/server_api.ts:214](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L214)
 
 ### `manageOfferOperationRecord._links`
 
@@ -9937,7 +9937,7 @@ interface ManageOfferOperationRecord extends BaseOperationRecord<OperationRespon
 _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; succeeds: ResponseLink; transaction: ResponseLink };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L10)
+**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L10)
 
 ### `manageOfferOperationRecord.amount`
 
@@ -9945,7 +9945,7 @@ _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; suc
 amount: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:340](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L340)
+**Source:** [src/horizon/horizon_api.ts:340](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L340)
 
 ### `manageOfferOperationRecord.buying_asset_code`
 
@@ -9953,7 +9953,7 @@ amount: string;
 buying_asset_code?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:342](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L342)
+**Source:** [src/horizon/horizon_api.ts:342](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L342)
 
 ### `manageOfferOperationRecord.buying_asset_issuer`
 
@@ -9961,7 +9961,7 @@ buying_asset_code?: string;
 buying_asset_issuer?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:343](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L343)
+**Source:** [src/horizon/horizon_api.ts:343](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L343)
 
 ### `manageOfferOperationRecord.buying_asset_type`
 
@@ -9969,7 +9969,7 @@ buying_asset_issuer?: string;
 buying_asset_type: AssetType;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:341](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L341)
+**Source:** [src/horizon/horizon_api.ts:341](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L341)
 
 ### `manageOfferOperationRecord.created_at`
 
@@ -9977,7 +9977,7 @@ buying_asset_type: AssetType;
 created_at: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L268)
+**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L268)
 
 ### `manageOfferOperationRecord.effects`
 
@@ -9985,7 +9985,7 @@ created_at: string;
 effects: CallCollectionFunction<EffectRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:180](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L180)
+**Source:** [src/horizon/server_api.ts:180](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L180)
 
 ### `manageOfferOperationRecord.id`
 
@@ -9993,7 +9993,7 @@ effects: CallCollectionFunction<EffectRecord>;
 id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L263)
+**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L263)
 
 ### `manageOfferOperationRecord.offer_id`
 
@@ -10001,7 +10001,7 @@ id: string;
 offer_id: string | number;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:339](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L339)
+**Source:** [src/horizon/horizon_api.ts:339](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L339)
 
 ### `manageOfferOperationRecord.paging_token`
 
@@ -10009,7 +10009,7 @@ offer_id: string | number;
 paging_token: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L264)
+**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L264)
 
 ### `manageOfferOperationRecord.precedes`
 
@@ -10017,7 +10017,7 @@ paging_token: string;
 precedes: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:179](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L179)
+**Source:** [src/horizon/server_api.ts:179](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L179)
 
 ### `manageOfferOperationRecord.price`
 
@@ -10025,7 +10025,7 @@ precedes: CallFunction<OperationRecord>;
 price: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:344](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L344)
+**Source:** [src/horizon/horizon_api.ts:344](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L344)
 
 ### `manageOfferOperationRecord.price_r`
 
@@ -10033,7 +10033,7 @@ price: string;
 price_r: PriceR;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:345](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L345)
+**Source:** [src/horizon/horizon_api.ts:345](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L345)
 
 ### `manageOfferOperationRecord.self`
 
@@ -10041,7 +10041,7 @@ price_r: PriceR;
 self: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:177](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L177)
+**Source:** [src/horizon/server_api.ts:177](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L177)
 
 ### `manageOfferOperationRecord.selling_asset_code`
 
@@ -10049,7 +10049,7 @@ self: CallFunction<OperationRecord>;
 selling_asset_code?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:347](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L347)
+**Source:** [src/horizon/horizon_api.ts:347](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L347)
 
 ### `manageOfferOperationRecord.selling_asset_issuer`
 
@@ -10057,7 +10057,7 @@ selling_asset_code?: string;
 selling_asset_issuer?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:348](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L348)
+**Source:** [src/horizon/horizon_api.ts:348](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L348)
 
 ### `manageOfferOperationRecord.selling_asset_type`
 
@@ -10065,7 +10065,7 @@ selling_asset_issuer?: string;
 selling_asset_type: AssetType;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:346](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L346)
+**Source:** [src/horizon/horizon_api.ts:346](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L346)
 
 ### `manageOfferOperationRecord.source_account`
 
@@ -10073,7 +10073,7 @@ selling_asset_type: AssetType;
 source_account: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L265)
+**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L265)
 
 ### `manageOfferOperationRecord.succeeds`
 
@@ -10081,7 +10081,7 @@ source_account: string;
 succeeds: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:178](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L178)
+**Source:** [src/horizon/server_api.ts:178](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L178)
 
 ### `manageOfferOperationRecord.transaction`
 
@@ -10089,7 +10089,7 @@ succeeds: CallFunction<OperationRecord>;
 transaction: CallFunction<TransactionRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:181](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L181)
+**Source:** [src/horizon/server_api.ts:181](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L181)
 
 ### `manageOfferOperationRecord.transaction_hash`
 
@@ -10097,7 +10097,7 @@ transaction: CallFunction<TransactionRecord>;
 transaction_hash: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L269)
+**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L269)
 
 ### `manageOfferOperationRecord.transaction_successful`
 
@@ -10105,7 +10105,7 @@ transaction_hash: string;
 transaction_successful: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L270)
+**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L270)
 
 ### `manageOfferOperationRecord.type`
 
@@ -10113,7 +10113,7 @@ transaction_successful: boolean;
 type: manageOffer;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L266)
+**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L266)
 
 ### `manageOfferOperationRecord.type_i`
 
@@ -10121,7 +10121,7 @@ type: manageOffer;
 type_i: manageOffer;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L267)
+**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L267)
 
 ## Horizon.ServerApi.OfferRecord
 
@@ -10129,7 +10129,7 @@ type_i: manageOffer;
 type OfferRecord = OfferRecordType
 ```
 
-**Source:** [src/horizon/server_api.ts:13](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L13)
+**Source:** [src/horizon/server_api.ts:13](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L13)
 
 ## Horizon.ServerApi.OperationRecord
 
@@ -10137,7 +10137,7 @@ type OfferRecord = OfferRecordType
 type OperationRecord = CreateAccountOperationRecord | PaymentOperationRecord | PathPaymentOperationRecord | ManageOfferOperationRecord | PassiveOfferOperationRecord | SetOptionsOperationRecord | ChangeTrustOperationRecord | AllowTrustOperationRecord | AccountMergeOperationRecord | InflationOperationRecord | ManageDataOperationRecord | BumpSequenceOperationRecord | PathPaymentStrictSendOperationRecord | CreateClaimableBalanceOperationRecord | ClaimClaimableBalanceOperationRecord | BeginSponsoringFutureReservesOperationRecord | EndSponsoringFutureReservesOperationRecord | RevokeSponsorshipOperationRecord | ClawbackClaimableBalanceOperationRecord | ClawbackOperationRecord | SetTrustLineFlagsOperationRecord | DepositLiquidityOperationRecord | WithdrawLiquidityOperationRecord | InvokeHostFunctionOperationRecord | BumpFootprintExpirationOperationRecord | RestoreFootprintOperationRecord
 ```
 
-**Source:** [src/horizon/server_api.ts:369](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L369)
+**Source:** [src/horizon/server_api.ts:369](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L369)
 
 ## Horizon.ServerApi.OrderbookRecord
 
@@ -10151,7 +10151,7 @@ interface OrderbookRecord extends BaseResponse {
 }
 ```
 
-**Source:** [src/horizon/server_api.ts:456](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L456)
+**Source:** [src/horizon/server_api.ts:456](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L456)
 
 ### `orderbookRecord._links`
 
@@ -10159,7 +10159,7 @@ interface OrderbookRecord extends BaseResponse {
 _links: { self: ResponseLink };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L10)
+**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L10)
 
 ### `orderbookRecord.asks`
 
@@ -10167,7 +10167,7 @@ _links: { self: ResponseLink };
 asks: { amount: string; price: string; price_r: { d: number; n: number } }[];
 ```
 
-**Source:** [src/horizon/server_api.ts:465](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L465)
+**Source:** [src/horizon/server_api.ts:465](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L465)
 
 ### `orderbookRecord.base`
 
@@ -10175,7 +10175,7 @@ asks: { amount: string; price: string; price_r: { d: number; n: number } }[];
 base: Asset;
 ```
 
-**Source:** [src/horizon/server_api.ts:473](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L473)
+**Source:** [src/horizon/server_api.ts:473](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L473)
 
 ### `orderbookRecord.bids`
 
@@ -10183,7 +10183,7 @@ base: Asset;
 bids: { amount: string; price: string; price_r: { d: number; n: number } }[];
 ```
 
-**Source:** [src/horizon/server_api.ts:457](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L457)
+**Source:** [src/horizon/server_api.ts:457](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L457)
 
 ### `orderbookRecord.counter`
 
@@ -10191,7 +10191,7 @@ bids: { amount: string; price: string; price_r: { d: number; n: number } }[];
 counter: Asset;
 ```
 
-**Source:** [src/horizon/server_api.ts:474](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L474)
+**Source:** [src/horizon/server_api.ts:474](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L474)
 
 ## Horizon.ServerApi.PassiveOfferOperationRecord
 
@@ -10224,7 +10224,7 @@ interface PassiveOfferOperationRecord extends BaseOperationRecord<OperationRespo
 }
 ```
 
-**Source:** [src/horizon/server_api.ts:221](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L221)
+**Source:** [src/horizon/server_api.ts:221](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L221)
 
 ### `passiveOfferOperationRecord._links`
 
@@ -10232,7 +10232,7 @@ interface PassiveOfferOperationRecord extends BaseOperationRecord<OperationRespo
 _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; succeeds: ResponseLink; transaction: ResponseLink };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L10)
+**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L10)
 
 ### `passiveOfferOperationRecord.amount`
 
@@ -10240,7 +10240,7 @@ _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; suc
 amount: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:355](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L355)
+**Source:** [src/horizon/horizon_api.ts:355](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L355)
 
 ### `passiveOfferOperationRecord.buying_asset_code`
 
@@ -10248,7 +10248,7 @@ amount: string;
 buying_asset_code?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:357](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L357)
+**Source:** [src/horizon/horizon_api.ts:357](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L357)
 
 ### `passiveOfferOperationRecord.buying_asset_issuer`
 
@@ -10256,7 +10256,7 @@ buying_asset_code?: string;
 buying_asset_issuer?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:358](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L358)
+**Source:** [src/horizon/horizon_api.ts:358](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L358)
 
 ### `passiveOfferOperationRecord.buying_asset_type`
 
@@ -10264,7 +10264,7 @@ buying_asset_issuer?: string;
 buying_asset_type: AssetType;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:356](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L356)
+**Source:** [src/horizon/horizon_api.ts:356](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L356)
 
 ### `passiveOfferOperationRecord.created_at`
 
@@ -10272,7 +10272,7 @@ buying_asset_type: AssetType;
 created_at: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L268)
+**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L268)
 
 ### `passiveOfferOperationRecord.effects`
 
@@ -10280,7 +10280,7 @@ created_at: string;
 effects: CallCollectionFunction<EffectRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:180](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L180)
+**Source:** [src/horizon/server_api.ts:180](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L180)
 
 ### `passiveOfferOperationRecord.id`
 
@@ -10288,7 +10288,7 @@ effects: CallCollectionFunction<EffectRecord>;
 id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L263)
+**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L263)
 
 ### `passiveOfferOperationRecord.offer_id`
 
@@ -10296,7 +10296,7 @@ id: string;
 offer_id: string | number;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:354](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L354)
+**Source:** [src/horizon/horizon_api.ts:354](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L354)
 
 ### `passiveOfferOperationRecord.paging_token`
 
@@ -10304,7 +10304,7 @@ offer_id: string | number;
 paging_token: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L264)
+**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L264)
 
 ### `passiveOfferOperationRecord.precedes`
 
@@ -10312,7 +10312,7 @@ paging_token: string;
 precedes: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:179](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L179)
+**Source:** [src/horizon/server_api.ts:179](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L179)
 
 ### `passiveOfferOperationRecord.price`
 
@@ -10320,7 +10320,7 @@ precedes: CallFunction<OperationRecord>;
 price: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:359](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L359)
+**Source:** [src/horizon/horizon_api.ts:359](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L359)
 
 ### `passiveOfferOperationRecord.price_r`
 
@@ -10328,7 +10328,7 @@ price: string;
 price_r: PriceR;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:360](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L360)
+**Source:** [src/horizon/horizon_api.ts:360](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L360)
 
 ### `passiveOfferOperationRecord.self`
 
@@ -10336,7 +10336,7 @@ price_r: PriceR;
 self: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:177](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L177)
+**Source:** [src/horizon/server_api.ts:177](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L177)
 
 ### `passiveOfferOperationRecord.selling_asset_code`
 
@@ -10344,7 +10344,7 @@ self: CallFunction<OperationRecord>;
 selling_asset_code?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:362](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L362)
+**Source:** [src/horizon/horizon_api.ts:362](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L362)
 
 ### `passiveOfferOperationRecord.selling_asset_issuer`
 
@@ -10352,7 +10352,7 @@ selling_asset_code?: string;
 selling_asset_issuer?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:363](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L363)
+**Source:** [src/horizon/horizon_api.ts:363](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L363)
 
 ### `passiveOfferOperationRecord.selling_asset_type`
 
@@ -10360,7 +10360,7 @@ selling_asset_issuer?: string;
 selling_asset_type: AssetType;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:361](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L361)
+**Source:** [src/horizon/horizon_api.ts:361](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L361)
 
 ### `passiveOfferOperationRecord.source_account`
 
@@ -10368,7 +10368,7 @@ selling_asset_type: AssetType;
 source_account: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L265)
+**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L265)
 
 ### `passiveOfferOperationRecord.succeeds`
 
@@ -10376,7 +10376,7 @@ source_account: string;
 succeeds: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:178](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L178)
+**Source:** [src/horizon/server_api.ts:178](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L178)
 
 ### `passiveOfferOperationRecord.transaction`
 
@@ -10384,7 +10384,7 @@ succeeds: CallFunction<OperationRecord>;
 transaction: CallFunction<TransactionRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:181](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L181)
+**Source:** [src/horizon/server_api.ts:181](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L181)
 
 ### `passiveOfferOperationRecord.transaction_hash`
 
@@ -10392,7 +10392,7 @@ transaction: CallFunction<TransactionRecord>;
 transaction_hash: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L269)
+**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L269)
 
 ### `passiveOfferOperationRecord.transaction_successful`
 
@@ -10400,7 +10400,7 @@ transaction_hash: string;
 transaction_successful: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L270)
+**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L270)
 
 ### `passiveOfferOperationRecord.type`
 
@@ -10408,7 +10408,7 @@ transaction_successful: boolean;
 type: createPassiveOffer;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L266)
+**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L266)
 
 ### `passiveOfferOperationRecord.type_i`
 
@@ -10416,7 +10416,7 @@ type: createPassiveOffer;
 type_i: createPassiveOffer;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L267)
+**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L267)
 
 ## Horizon.ServerApi.PathPaymentOperationRecord
 
@@ -10451,7 +10451,7 @@ interface PathPaymentOperationRecord extends BaseOperationRecord<OperationRespon
 }
 ```
 
-**Source:** [src/horizon/server_api.ts:200](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L200)
+**Source:** [src/horizon/server_api.ts:200](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L200)
 
 ### `pathPaymentOperationRecord._links`
 
@@ -10459,7 +10459,7 @@ interface PathPaymentOperationRecord extends BaseOperationRecord<OperationRespon
 _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; succeeds: ResponseLink; transaction: ResponseLink };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L10)
+**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L10)
 
 ### `pathPaymentOperationRecord.amount`
 
@@ -10467,7 +10467,7 @@ _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; suc
 amount: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:297](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L297)
+**Source:** [src/horizon/horizon_api.ts:297](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L297)
 
 ### `pathPaymentOperationRecord.asset_code`
 
@@ -10475,7 +10475,7 @@ amount: string;
 asset_code?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:298](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L298)
+**Source:** [src/horizon/horizon_api.ts:298](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L298)
 
 ### `pathPaymentOperationRecord.asset_issuer`
 
@@ -10483,7 +10483,7 @@ asset_code?: string;
 asset_issuer?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:299](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L299)
+**Source:** [src/horizon/horizon_api.ts:299](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L299)
 
 ### `pathPaymentOperationRecord.asset_type`
 
@@ -10491,7 +10491,7 @@ asset_issuer?: string;
 asset_type: AssetType;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:300](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L300)
+**Source:** [src/horizon/horizon_api.ts:300](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L300)
 
 ### `pathPaymentOperationRecord.created_at`
 
@@ -10499,7 +10499,7 @@ asset_type: AssetType;
 created_at: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L268)
+**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L268)
 
 ### `pathPaymentOperationRecord.effects`
 
@@ -10507,7 +10507,7 @@ created_at: string;
 effects: CallCollectionFunction<EffectRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:180](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L180)
+**Source:** [src/horizon/server_api.ts:180](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L180)
 
 ### `pathPaymentOperationRecord.from`
 
@@ -10515,7 +10515,7 @@ effects: CallCollectionFunction<EffectRecord>;
 from: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:301](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L301)
+**Source:** [src/horizon/horizon_api.ts:301](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L301)
 
 ### `pathPaymentOperationRecord.id`
 
@@ -10523,7 +10523,7 @@ from: string;
 id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L263)
+**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L263)
 
 ### `pathPaymentOperationRecord.paging_token`
 
@@ -10531,7 +10531,7 @@ id: string;
 paging_token: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L264)
+**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L264)
 
 ### `pathPaymentOperationRecord.path`
 
@@ -10539,7 +10539,7 @@ paging_token: string;
 path: { asset_code: string; asset_issuer: string; asset_type: AssetType }[];
 ```
 
-**Source:** [src/horizon/horizon_api.ts:302](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L302)
+**Source:** [src/horizon/horizon_api.ts:302](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L302)
 
 ### `pathPaymentOperationRecord.precedes`
 
@@ -10547,7 +10547,7 @@ path: { asset_code: string; asset_issuer: string; asset_type: AssetType }[];
 precedes: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:179](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L179)
+**Source:** [src/horizon/server_api.ts:179](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L179)
 
 ### `pathPaymentOperationRecord.self`
 
@@ -10555,7 +10555,7 @@ precedes: CallFunction<OperationRecord>;
 self: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:177](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L177)
+**Source:** [src/horizon/server_api.ts:177](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L177)
 
 ### `pathPaymentOperationRecord.source_account`
 
@@ -10563,7 +10563,7 @@ self: CallFunction<OperationRecord>;
 source_account: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L265)
+**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L265)
 
 ### `pathPaymentOperationRecord.source_amount`
 
@@ -10571,7 +10571,7 @@ source_account: string;
 source_amount: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:307](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L307)
+**Source:** [src/horizon/horizon_api.ts:307](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L307)
 
 ### `pathPaymentOperationRecord.source_asset_code`
 
@@ -10579,7 +10579,7 @@ source_amount: string;
 source_asset_code?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:308](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L308)
+**Source:** [src/horizon/horizon_api.ts:308](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L308)
 
 ### `pathPaymentOperationRecord.source_asset_issuer`
 
@@ -10587,7 +10587,7 @@ source_asset_code?: string;
 source_asset_issuer?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:309](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L309)
+**Source:** [src/horizon/horizon_api.ts:309](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L309)
 
 ### `pathPaymentOperationRecord.source_asset_type`
 
@@ -10595,7 +10595,7 @@ source_asset_issuer?: string;
 source_asset_type: AssetType;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:310](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L310)
+**Source:** [src/horizon/horizon_api.ts:310](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L310)
 
 ### `pathPaymentOperationRecord.source_max`
 
@@ -10603,7 +10603,7 @@ source_asset_type: AssetType;
 source_max: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:311](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L311)
+**Source:** [src/horizon/horizon_api.ts:311](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L311)
 
 ### `pathPaymentOperationRecord.succeeds`
 
@@ -10611,7 +10611,7 @@ source_max: string;
 succeeds: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:178](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L178)
+**Source:** [src/horizon/server_api.ts:178](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L178)
 
 ### `pathPaymentOperationRecord.to`
 
@@ -10619,7 +10619,7 @@ succeeds: CallFunction<OperationRecord>;
 to: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:312](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L312)
+**Source:** [src/horizon/horizon_api.ts:312](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L312)
 
 ### `pathPaymentOperationRecord.transaction`
 
@@ -10627,7 +10627,7 @@ to: string;
 transaction: CallFunction<TransactionRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:181](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L181)
+**Source:** [src/horizon/server_api.ts:181](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L181)
 
 ### `pathPaymentOperationRecord.transaction_hash`
 
@@ -10635,7 +10635,7 @@ transaction: CallFunction<TransactionRecord>;
 transaction_hash: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L269)
+**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L269)
 
 ### `pathPaymentOperationRecord.transaction_successful`
 
@@ -10643,7 +10643,7 @@ transaction_hash: string;
 transaction_successful: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L270)
+**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L270)
 
 ### `pathPaymentOperationRecord.type`
 
@@ -10651,7 +10651,7 @@ transaction_successful: boolean;
 type: pathPayment;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L266)
+**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L266)
 
 ### `pathPaymentOperationRecord.type_i`
 
@@ -10659,7 +10659,7 @@ type: pathPayment;
 type_i: pathPayment;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L267)
+**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L267)
 
 ## Horizon.ServerApi.PathPaymentStrictSendOperationRecord
 
@@ -10694,7 +10694,7 @@ interface PathPaymentStrictSendOperationRecord extends BaseOperationRecord<Opera
 }
 ```
 
-**Source:** [src/horizon/server_api.ts:207](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L207)
+**Source:** [src/horizon/server_api.ts:207](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L207)
 
 ### `pathPaymentStrictSendOperationRecord._links`
 
@@ -10702,7 +10702,7 @@ interface PathPaymentStrictSendOperationRecord extends BaseOperationRecord<Opera
 _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; succeeds: ResponseLink; transaction: ResponseLink };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L10)
+**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L10)
 
 ### `pathPaymentStrictSendOperationRecord.amount`
 
@@ -10710,7 +10710,7 @@ _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; suc
 amount: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:318](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L318)
+**Source:** [src/horizon/horizon_api.ts:318](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L318)
 
 ### `pathPaymentStrictSendOperationRecord.asset_code`
 
@@ -10718,7 +10718,7 @@ amount: string;
 asset_code?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:319](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L319)
+**Source:** [src/horizon/horizon_api.ts:319](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L319)
 
 ### `pathPaymentStrictSendOperationRecord.asset_issuer`
 
@@ -10726,7 +10726,7 @@ asset_code?: string;
 asset_issuer?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:320](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L320)
+**Source:** [src/horizon/horizon_api.ts:320](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L320)
 
 ### `pathPaymentStrictSendOperationRecord.asset_type`
 
@@ -10734,7 +10734,7 @@ asset_issuer?: string;
 asset_type: AssetType;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:321](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L321)
+**Source:** [src/horizon/horizon_api.ts:321](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L321)
 
 ### `pathPaymentStrictSendOperationRecord.created_at`
 
@@ -10742,7 +10742,7 @@ asset_type: AssetType;
 created_at: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L268)
+**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L268)
 
 ### `pathPaymentStrictSendOperationRecord.destination_min`
 
@@ -10750,7 +10750,7 @@ created_at: string;
 destination_min: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:322](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L322)
+**Source:** [src/horizon/horizon_api.ts:322](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L322)
 
 ### `pathPaymentStrictSendOperationRecord.effects`
 
@@ -10758,7 +10758,7 @@ destination_min: string;
 effects: CallCollectionFunction<EffectRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:180](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L180)
+**Source:** [src/horizon/server_api.ts:180](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L180)
 
 ### `pathPaymentStrictSendOperationRecord.from`
 
@@ -10766,7 +10766,7 @@ effects: CallCollectionFunction<EffectRecord>;
 from: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:323](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L323)
+**Source:** [src/horizon/horizon_api.ts:323](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L323)
 
 ### `pathPaymentStrictSendOperationRecord.id`
 
@@ -10774,7 +10774,7 @@ from: string;
 id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L263)
+**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L263)
 
 ### `pathPaymentStrictSendOperationRecord.paging_token`
 
@@ -10782,7 +10782,7 @@ id: string;
 paging_token: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L264)
+**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L264)
 
 ### `pathPaymentStrictSendOperationRecord.path`
 
@@ -10790,7 +10790,7 @@ paging_token: string;
 path: { asset_code: string; asset_issuer: string; asset_type: AssetType }[];
 ```
 
-**Source:** [src/horizon/horizon_api.ts:324](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L324)
+**Source:** [src/horizon/horizon_api.ts:324](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L324)
 
 ### `pathPaymentStrictSendOperationRecord.precedes`
 
@@ -10798,7 +10798,7 @@ path: { asset_code: string; asset_issuer: string; asset_type: AssetType }[];
 precedes: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:179](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L179)
+**Source:** [src/horizon/server_api.ts:179](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L179)
 
 ### `pathPaymentStrictSendOperationRecord.self`
 
@@ -10806,7 +10806,7 @@ precedes: CallFunction<OperationRecord>;
 self: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:177](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L177)
+**Source:** [src/horizon/server_api.ts:177](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L177)
 
 ### `pathPaymentStrictSendOperationRecord.source_account`
 
@@ -10814,7 +10814,7 @@ self: CallFunction<OperationRecord>;
 source_account: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L265)
+**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L265)
 
 ### `pathPaymentStrictSendOperationRecord.source_amount`
 
@@ -10822,7 +10822,7 @@ source_account: string;
 source_amount: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:329](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L329)
+**Source:** [src/horizon/horizon_api.ts:329](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L329)
 
 ### `pathPaymentStrictSendOperationRecord.source_asset_code`
 
@@ -10830,7 +10830,7 @@ source_amount: string;
 source_asset_code?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:330](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L330)
+**Source:** [src/horizon/horizon_api.ts:330](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L330)
 
 ### `pathPaymentStrictSendOperationRecord.source_asset_issuer`
 
@@ -10838,7 +10838,7 @@ source_asset_code?: string;
 source_asset_issuer?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:331](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L331)
+**Source:** [src/horizon/horizon_api.ts:331](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L331)
 
 ### `pathPaymentStrictSendOperationRecord.source_asset_type`
 
@@ -10846,7 +10846,7 @@ source_asset_issuer?: string;
 source_asset_type: AssetType;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:332](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L332)
+**Source:** [src/horizon/horizon_api.ts:332](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L332)
 
 ### `pathPaymentStrictSendOperationRecord.succeeds`
 
@@ -10854,7 +10854,7 @@ source_asset_type: AssetType;
 succeeds: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:178](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L178)
+**Source:** [src/horizon/server_api.ts:178](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L178)
 
 ### `pathPaymentStrictSendOperationRecord.to`
 
@@ -10862,7 +10862,7 @@ succeeds: CallFunction<OperationRecord>;
 to: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:333](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L333)
+**Source:** [src/horizon/horizon_api.ts:333](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L333)
 
 ### `pathPaymentStrictSendOperationRecord.transaction`
 
@@ -10870,7 +10870,7 @@ to: string;
 transaction: CallFunction<TransactionRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:181](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L181)
+**Source:** [src/horizon/server_api.ts:181](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L181)
 
 ### `pathPaymentStrictSendOperationRecord.transaction_hash`
 
@@ -10878,7 +10878,7 @@ transaction: CallFunction<TransactionRecord>;
 transaction_hash: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L269)
+**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L269)
 
 ### `pathPaymentStrictSendOperationRecord.transaction_successful`
 
@@ -10886,7 +10886,7 @@ transaction_hash: string;
 transaction_successful: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L270)
+**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L270)
 
 ### `pathPaymentStrictSendOperationRecord.type`
 
@@ -10894,7 +10894,7 @@ transaction_successful: boolean;
 type: pathPaymentStrictSend;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L266)
+**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L266)
 
 ### `pathPaymentStrictSendOperationRecord.type_i`
 
@@ -10902,7 +10902,7 @@ type: pathPaymentStrictSend;
 type_i: pathPaymentStrictSend;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L267)
+**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L267)
 
 ## Horizon.ServerApi.PaymentOperationRecord
 
@@ -10935,7 +10935,7 @@ interface PaymentOperationRecord extends BaseOperationRecord<OperationResponseTy
 }
 ```
 
-**Source:** [src/horizon/server_api.ts:190](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L190)
+**Source:** [src/horizon/server_api.ts:190](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L190)
 
 ### `paymentOperationRecord._links`
 
@@ -10943,7 +10943,7 @@ interface PaymentOperationRecord extends BaseOperationRecord<OperationResponseTy
 _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; succeeds: ResponseLink; transaction: ResponseLink };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L10)
+**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L10)
 
 ### `paymentOperationRecord.amount`
 
@@ -10951,7 +10951,7 @@ _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; suc
 amount: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:289](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L289)
+**Source:** [src/horizon/horizon_api.ts:289](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L289)
 
 ### `paymentOperationRecord.asset_code`
 
@@ -10959,7 +10959,7 @@ amount: string;
 asset_code?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:287](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L287)
+**Source:** [src/horizon/horizon_api.ts:287](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L287)
 
 ### `paymentOperationRecord.asset_issuer`
 
@@ -10967,7 +10967,7 @@ asset_code?: string;
 asset_issuer?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:288](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L288)
+**Source:** [src/horizon/horizon_api.ts:288](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L288)
 
 ### `paymentOperationRecord.asset_type`
 
@@ -10975,7 +10975,7 @@ asset_issuer?: string;
 asset_type: AssetType;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:286](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L286)
+**Source:** [src/horizon/horizon_api.ts:286](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L286)
 
 ### `paymentOperationRecord.created_at`
 
@@ -10983,7 +10983,7 @@ asset_type: AssetType;
 created_at: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L268)
+**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L268)
 
 ### `paymentOperationRecord.effects`
 
@@ -10991,7 +10991,7 @@ created_at: string;
 effects: CallCollectionFunction<EffectRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:180](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L180)
+**Source:** [src/horizon/server_api.ts:180](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L180)
 
 ### `paymentOperationRecord.from`
 
@@ -10999,7 +10999,7 @@ effects: CallCollectionFunction<EffectRecord>;
 from: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:284](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L284)
+**Source:** [src/horizon/horizon_api.ts:284](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L284)
 
 ### `paymentOperationRecord.id`
 
@@ -11007,7 +11007,7 @@ from: string;
 id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L263)
+**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L263)
 
 ### `paymentOperationRecord.paging_token`
 
@@ -11015,7 +11015,7 @@ id: string;
 paging_token: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L264)
+**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L264)
 
 ### `paymentOperationRecord.precedes`
 
@@ -11023,7 +11023,7 @@ paging_token: string;
 precedes: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:179](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L179)
+**Source:** [src/horizon/server_api.ts:179](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L179)
 
 ### `paymentOperationRecord.receiver`
 
@@ -11031,7 +11031,7 @@ precedes: CallFunction<OperationRecord>;
 receiver: CallFunction<AccountRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:198](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L198)
+**Source:** [src/horizon/server_api.ts:198](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L198)
 
 ### `paymentOperationRecord.self`
 
@@ -11039,7 +11039,7 @@ receiver: CallFunction<AccountRecord>;
 self: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:177](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L177)
+**Source:** [src/horizon/server_api.ts:177](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L177)
 
 ### `paymentOperationRecord.sender`
 
@@ -11047,7 +11047,7 @@ self: CallFunction<OperationRecord>;
 sender: CallFunction<AccountRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:197](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L197)
+**Source:** [src/horizon/server_api.ts:197](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L197)
 
 ### `paymentOperationRecord.source_account`
 
@@ -11055,7 +11055,7 @@ sender: CallFunction<AccountRecord>;
 source_account: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L265)
+**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L265)
 
 ### `paymentOperationRecord.succeeds`
 
@@ -11063,7 +11063,7 @@ source_account: string;
 succeeds: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:178](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L178)
+**Source:** [src/horizon/server_api.ts:178](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L178)
 
 ### `paymentOperationRecord.to`
 
@@ -11071,7 +11071,7 @@ succeeds: CallFunction<OperationRecord>;
 to: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:285](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L285)
+**Source:** [src/horizon/horizon_api.ts:285](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L285)
 
 ### `paymentOperationRecord.to_muxed`
 
@@ -11079,7 +11079,7 @@ to: string;
 to_muxed?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:290](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L290)
+**Source:** [src/horizon/horizon_api.ts:290](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L290)
 
 ### `paymentOperationRecord.to_muxed_id`
 
@@ -11087,7 +11087,7 @@ to_muxed?: string;
 to_muxed_id?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:291](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L291)
+**Source:** [src/horizon/horizon_api.ts:291](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L291)
 
 ### `paymentOperationRecord.transaction`
 
@@ -11095,7 +11095,7 @@ to_muxed_id?: string;
 transaction: CallFunction<TransactionRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:181](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L181)
+**Source:** [src/horizon/server_api.ts:181](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L181)
 
 ### `paymentOperationRecord.transaction_hash`
 
@@ -11103,7 +11103,7 @@ transaction: CallFunction<TransactionRecord>;
 transaction_hash: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L269)
+**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L269)
 
 ### `paymentOperationRecord.transaction_successful`
 
@@ -11111,7 +11111,7 @@ transaction_hash: string;
 transaction_successful: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L270)
+**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L270)
 
 ### `paymentOperationRecord.type`
 
@@ -11119,7 +11119,7 @@ transaction_successful: boolean;
 type: payment;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L266)
+**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L266)
 
 ### `paymentOperationRecord.type_i`
 
@@ -11127,7 +11127,7 @@ type: payment;
 type_i: payment;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L267)
+**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L267)
 
 ## Horizon.ServerApi.PaymentPathRecord
 
@@ -11146,7 +11146,7 @@ interface PaymentPathRecord extends BaseResponse {
 }
 ```
 
-**Source:** [src/horizon/server_api.ts:476](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L476)
+**Source:** [src/horizon/server_api.ts:476](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L476)
 
 ### `paymentPathRecord._links`
 
@@ -11154,7 +11154,7 @@ interface PaymentPathRecord extends BaseResponse {
 _links: { self: ResponseLink };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L10)
+**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L10)
 
 ### `paymentPathRecord.destination_amount`
 
@@ -11162,7 +11162,7 @@ _links: { self: ResponseLink };
 destination_amount: string;
 ```
 
-**Source:** [src/horizon/server_api.ts:486](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L486)
+**Source:** [src/horizon/server_api.ts:486](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L486)
 
 ### `paymentPathRecord.destination_asset_code`
 
@@ -11170,7 +11170,7 @@ destination_amount: string;
 destination_asset_code: string;
 ```
 
-**Source:** [src/horizon/server_api.ts:488](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L488)
+**Source:** [src/horizon/server_api.ts:488](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L488)
 
 ### `paymentPathRecord.destination_asset_issuer`
 
@@ -11178,7 +11178,7 @@ destination_asset_code: string;
 destination_asset_issuer: string;
 ```
 
-**Source:** [src/horizon/server_api.ts:489](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L489)
+**Source:** [src/horizon/server_api.ts:489](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L489)
 
 ### `paymentPathRecord.destination_asset_type`
 
@@ -11186,7 +11186,7 @@ destination_asset_issuer: string;
 destination_asset_type: string;
 ```
 
-**Source:** [src/horizon/server_api.ts:487](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L487)
+**Source:** [src/horizon/server_api.ts:487](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L487)
 
 ### `paymentPathRecord.path`
 
@@ -11194,7 +11194,7 @@ destination_asset_type: string;
 path: { asset_code: string; asset_issuer: string; asset_type: string }[];
 ```
 
-**Source:** [src/horizon/server_api.ts:477](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L477)
+**Source:** [src/horizon/server_api.ts:477](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L477)
 
 ### `paymentPathRecord.source_amount`
 
@@ -11202,7 +11202,7 @@ path: { asset_code: string; asset_issuer: string; asset_type: string }[];
 source_amount: string;
 ```
 
-**Source:** [src/horizon/server_api.ts:482](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L482)
+**Source:** [src/horizon/server_api.ts:482](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L482)
 
 ### `paymentPathRecord.source_asset_code`
 
@@ -11210,7 +11210,7 @@ source_amount: string;
 source_asset_code: string;
 ```
 
-**Source:** [src/horizon/server_api.ts:484](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L484)
+**Source:** [src/horizon/server_api.ts:484](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L484)
 
 ### `paymentPathRecord.source_asset_issuer`
 
@@ -11218,7 +11218,7 @@ source_asset_code: string;
 source_asset_issuer: string;
 ```
 
-**Source:** [src/horizon/server_api.ts:485](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L485)
+**Source:** [src/horizon/server_api.ts:485](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L485)
 
 ### `paymentPathRecord.source_asset_type`
 
@@ -11226,7 +11226,7 @@ source_asset_issuer: string;
 source_asset_type: string;
 ```
 
-**Source:** [src/horizon/server_api.ts:483](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L483)
+**Source:** [src/horizon/server_api.ts:483](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L483)
 
 ## Horizon.ServerApi.RestoreFootprintOperationRecord
 
@@ -11249,7 +11249,7 @@ interface RestoreFootprintOperationRecord extends BaseOperationRecord<OperationR
 }
 ```
 
-**Source:** [src/horizon/server_api.ts:361](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L361)
+**Source:** [src/horizon/server_api.ts:361](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L361)
 
 ### `restoreFootprintOperationRecord._links`
 
@@ -11257,7 +11257,7 @@ interface RestoreFootprintOperationRecord extends BaseOperationRecord<OperationR
 _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; succeeds: ResponseLink; transaction: ResponseLink };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L10)
+**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L10)
 
 ### `restoreFootprintOperationRecord.created_at`
 
@@ -11265,7 +11265,7 @@ _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; suc
 created_at: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L268)
+**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L268)
 
 ### `restoreFootprintOperationRecord.effects`
 
@@ -11273,7 +11273,7 @@ created_at: string;
 effects: CallCollectionFunction<EffectRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:180](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L180)
+**Source:** [src/horizon/server_api.ts:180](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L180)
 
 ### `restoreFootprintOperationRecord.id`
 
@@ -11281,7 +11281,7 @@ effects: CallCollectionFunction<EffectRecord>;
 id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L263)
+**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L263)
 
 ### `restoreFootprintOperationRecord.paging_token`
 
@@ -11289,7 +11289,7 @@ id: string;
 paging_token: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L264)
+**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L264)
 
 ### `restoreFootprintOperationRecord.precedes`
 
@@ -11297,7 +11297,7 @@ paging_token: string;
 precedes: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:179](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L179)
+**Source:** [src/horizon/server_api.ts:179](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L179)
 
 ### `restoreFootprintOperationRecord.self`
 
@@ -11305,7 +11305,7 @@ precedes: CallFunction<OperationRecord>;
 self: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:177](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L177)
+**Source:** [src/horizon/server_api.ts:177](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L177)
 
 ### `restoreFootprintOperationRecord.source_account`
 
@@ -11313,7 +11313,7 @@ self: CallFunction<OperationRecord>;
 source_account: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L265)
+**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L265)
 
 ### `restoreFootprintOperationRecord.succeeds`
 
@@ -11321,7 +11321,7 @@ source_account: string;
 succeeds: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:178](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L178)
+**Source:** [src/horizon/server_api.ts:178](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L178)
 
 ### `restoreFootprintOperationRecord.transaction`
 
@@ -11329,7 +11329,7 @@ succeeds: CallFunction<OperationRecord>;
 transaction: CallFunction<TransactionRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:181](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L181)
+**Source:** [src/horizon/server_api.ts:181](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L181)
 
 ### `restoreFootprintOperationRecord.transaction_hash`
 
@@ -11337,7 +11337,7 @@ transaction: CallFunction<TransactionRecord>;
 transaction_hash: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L269)
+**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L269)
 
 ### `restoreFootprintOperationRecord.transaction_successful`
 
@@ -11345,7 +11345,7 @@ transaction_hash: string;
 transaction_successful: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L270)
+**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L270)
 
 ### `restoreFootprintOperationRecord.type`
 
@@ -11353,7 +11353,7 @@ transaction_successful: boolean;
 type: restoreFootprint;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L266)
+**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L266)
 
 ### `restoreFootprintOperationRecord.type_i`
 
@@ -11361,7 +11361,7 @@ type: restoreFootprint;
 type_i: restoreFootprint;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L267)
+**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L267)
 
 ## Horizon.ServerApi.RevokeSponsorshipOperationRecord
 
@@ -11394,7 +11394,7 @@ interface RevokeSponsorshipOperationRecord extends BaseOperationRecord<Operation
 }
 ```
 
-**Source:** [src/horizon/server_api.ts:305](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L305)
+**Source:** [src/horizon/server_api.ts:305](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L305)
 
 ### `revokeSponsorshipOperationRecord._links`
 
@@ -11402,7 +11402,7 @@ interface RevokeSponsorshipOperationRecord extends BaseOperationRecord<Operation
 _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; succeeds: ResponseLink; transaction: ResponseLink };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L10)
+**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L10)
 
 ### `revokeSponsorshipOperationRecord.account_id`
 
@@ -11410,7 +11410,7 @@ _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; suc
 account_id?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:488](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L488)
+**Source:** [src/horizon/horizon_api.ts:488](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L488)
 
 ### `revokeSponsorshipOperationRecord.claimable_balance_id`
 
@@ -11418,7 +11418,7 @@ account_id?: string;
 claimable_balance_id?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:489](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L489)
+**Source:** [src/horizon/horizon_api.ts:489](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L489)
 
 ### `revokeSponsorshipOperationRecord.created_at`
 
@@ -11426,7 +11426,7 @@ claimable_balance_id?: string;
 created_at: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L268)
+**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L268)
 
 ### `revokeSponsorshipOperationRecord.data_account_id`
 
@@ -11434,7 +11434,7 @@ created_at: string;
 data_account_id?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:490](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L490)
+**Source:** [src/horizon/horizon_api.ts:490](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L490)
 
 ### `revokeSponsorshipOperationRecord.data_name`
 
@@ -11442,7 +11442,7 @@ data_account_id?: string;
 data_name?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:491](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L491)
+**Source:** [src/horizon/horizon_api.ts:491](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L491)
 
 ### `revokeSponsorshipOperationRecord.effects`
 
@@ -11450,7 +11450,7 @@ data_name?: string;
 effects: CallCollectionFunction<EffectRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:180](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L180)
+**Source:** [src/horizon/server_api.ts:180](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L180)
 
 ### `revokeSponsorshipOperationRecord.id`
 
@@ -11458,7 +11458,7 @@ effects: CallCollectionFunction<EffectRecord>;
 id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L263)
+**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L263)
 
 ### `revokeSponsorshipOperationRecord.offer_id`
 
@@ -11466,7 +11466,7 @@ id: string;
 offer_id?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:492](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L492)
+**Source:** [src/horizon/horizon_api.ts:492](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L492)
 
 ### `revokeSponsorshipOperationRecord.paging_token`
 
@@ -11474,7 +11474,7 @@ offer_id?: string;
 paging_token: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L264)
+**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L264)
 
 ### `revokeSponsorshipOperationRecord.precedes`
 
@@ -11482,7 +11482,7 @@ paging_token: string;
 precedes: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:179](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L179)
+**Source:** [src/horizon/server_api.ts:179](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L179)
 
 ### `revokeSponsorshipOperationRecord.self`
 
@@ -11490,7 +11490,7 @@ precedes: CallFunction<OperationRecord>;
 self: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:177](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L177)
+**Source:** [src/horizon/server_api.ts:177](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L177)
 
 ### `revokeSponsorshipOperationRecord.signer_account_id`
 
@@ -11498,7 +11498,7 @@ self: CallFunction<OperationRecord>;
 signer_account_id?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:496](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L496)
+**Source:** [src/horizon/horizon_api.ts:496](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L496)
 
 ### `revokeSponsorshipOperationRecord.signer_key`
 
@@ -11506,7 +11506,7 @@ signer_account_id?: string;
 signer_key?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:497](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L497)
+**Source:** [src/horizon/horizon_api.ts:497](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L497)
 
 ### `revokeSponsorshipOperationRecord.source_account`
 
@@ -11514,7 +11514,7 @@ signer_key?: string;
 source_account: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L265)
+**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L265)
 
 ### `revokeSponsorshipOperationRecord.succeeds`
 
@@ -11522,7 +11522,7 @@ source_account: string;
 succeeds: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:178](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L178)
+**Source:** [src/horizon/server_api.ts:178](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L178)
 
 ### `revokeSponsorshipOperationRecord.transaction`
 
@@ -11530,7 +11530,7 @@ succeeds: CallFunction<OperationRecord>;
 transaction: CallFunction<TransactionRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:181](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L181)
+**Source:** [src/horizon/server_api.ts:181](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L181)
 
 ### `revokeSponsorshipOperationRecord.transaction_hash`
 
@@ -11538,7 +11538,7 @@ transaction: CallFunction<TransactionRecord>;
 transaction_hash: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L269)
+**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L269)
 
 ### `revokeSponsorshipOperationRecord.transaction_successful`
 
@@ -11546,7 +11546,7 @@ transaction_hash: string;
 transaction_successful: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L270)
+**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L270)
 
 ### `revokeSponsorshipOperationRecord.trustline_account_id`
 
@@ -11554,7 +11554,7 @@ transaction_successful: boolean;
 trustline_account_id?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:493](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L493)
+**Source:** [src/horizon/horizon_api.ts:493](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L493)
 
 ### `revokeSponsorshipOperationRecord.trustline_asset`
 
@@ -11562,7 +11562,7 @@ trustline_account_id?: string;
 trustline_asset?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:494](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L494)
+**Source:** [src/horizon/horizon_api.ts:494](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L494)
 
 ### `revokeSponsorshipOperationRecord.trustline_liquidity_pool_id`
 
@@ -11570,7 +11570,7 @@ trustline_asset?: string;
 trustline_liquidity_pool_id?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:495](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L495)
+**Source:** [src/horizon/horizon_api.ts:495](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L495)
 
 ### `revokeSponsorshipOperationRecord.type`
 
@@ -11578,7 +11578,7 @@ trustline_liquidity_pool_id?: string;
 type: revokeSponsorship;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L266)
+**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L266)
 
 ### `revokeSponsorshipOperationRecord.type_i`
 
@@ -11586,7 +11586,7 @@ type: revokeSponsorship;
 type_i: revokeSponsorship;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L267)
+**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L267)
 
 ## Horizon.ServerApi.SetOptionsOperationRecord
 
@@ -11620,7 +11620,7 @@ interface SetOptionsOperationRecord extends BaseOperationRecord<OperationRespons
 }
 ```
 
-**Source:** [src/horizon/server_api.ts:228](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L228)
+**Source:** [src/horizon/server_api.ts:228](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L228)
 
 ### `setOptionsOperationRecord._links`
 
@@ -11628,7 +11628,7 @@ interface SetOptionsOperationRecord extends BaseOperationRecord<OperationRespons
 _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; succeeds: ResponseLink; transaction: ResponseLink };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L10)
+**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L10)
 
 ### `setOptionsOperationRecord.clear_flags`
 
@@ -11636,7 +11636,7 @@ _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; suc
 clear_flags: (1 | 2 | 4)[];
 ```
 
-**Source:** [src/horizon/horizon_api.ts:382](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L382)
+**Source:** [src/horizon/horizon_api.ts:382](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L382)
 
 ### `setOptionsOperationRecord.clear_flags_s`
 
@@ -11644,7 +11644,7 @@ clear_flags: (1 | 2 | 4)[];
 clear_flags_s: ("auth_required_flag" | "auth_revocable_flag" | "auth_clawback_enabled_flag")[];
 ```
 
-**Source:** [src/horizon/horizon_api.ts:383](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L383)
+**Source:** [src/horizon/horizon_api.ts:383](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L383)
 
 ### `setOptionsOperationRecord.created_at`
 
@@ -11652,7 +11652,7 @@ clear_flags_s: ("auth_required_flag" | "auth_revocable_flag" | "auth_clawback_en
 created_at: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L268)
+**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L268)
 
 ### `setOptionsOperationRecord.effects`
 
@@ -11660,7 +11660,7 @@ created_at: string;
 effects: CallCollectionFunction<EffectRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:180](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L180)
+**Source:** [src/horizon/server_api.ts:180](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L180)
 
 ### `setOptionsOperationRecord.high_threshold`
 
@@ -11668,7 +11668,7 @@ effects: CallCollectionFunction<EffectRecord>;
 high_threshold?: number;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:374](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L374)
+**Source:** [src/horizon/horizon_api.ts:374](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L374)
 
 ### `setOptionsOperationRecord.home_domain`
 
@@ -11676,7 +11676,7 @@ high_threshold?: number;
 home_domain?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:375](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L375)
+**Source:** [src/horizon/horizon_api.ts:375](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L375)
 
 ### `setOptionsOperationRecord.id`
 
@@ -11684,7 +11684,7 @@ home_domain?: string;
 id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L263)
+**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L263)
 
 ### `setOptionsOperationRecord.low_threshold`
 
@@ -11692,7 +11692,7 @@ id: string;
 low_threshold?: number;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:372](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L372)
+**Source:** [src/horizon/horizon_api.ts:372](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L372)
 
 ### `setOptionsOperationRecord.master_key_weight`
 
@@ -11700,7 +11700,7 @@ low_threshold?: number;
 master_key_weight?: number;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:371](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L371)
+**Source:** [src/horizon/horizon_api.ts:371](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L371)
 
 ### `setOptionsOperationRecord.med_threshold`
 
@@ -11708,7 +11708,7 @@ master_key_weight?: number;
 med_threshold?: number;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:373](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L373)
+**Source:** [src/horizon/horizon_api.ts:373](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L373)
 
 ### `setOptionsOperationRecord.paging_token`
 
@@ -11716,7 +11716,7 @@ med_threshold?: number;
 paging_token: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L264)
+**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L264)
 
 ### `setOptionsOperationRecord.precedes`
 
@@ -11724,7 +11724,7 @@ paging_token: string;
 precedes: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:179](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L179)
+**Source:** [src/horizon/server_api.ts:179](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L179)
 
 ### `setOptionsOperationRecord.self`
 
@@ -11732,7 +11732,7 @@ precedes: CallFunction<OperationRecord>;
 self: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:177](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L177)
+**Source:** [src/horizon/server_api.ts:177](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L177)
 
 ### `setOptionsOperationRecord.set_flags`
 
@@ -11740,7 +11740,7 @@ self: CallFunction<OperationRecord>;
 set_flags: (1 | 2 | 4)[];
 ```
 
-**Source:** [src/horizon/horizon_api.ts:376](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L376)
+**Source:** [src/horizon/horizon_api.ts:376](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L376)
 
 ### `setOptionsOperationRecord.set_flags_s`
 
@@ -11748,7 +11748,7 @@ set_flags: (1 | 2 | 4)[];
 set_flags_s: ("auth_required_flag" | "auth_revocable_flag" | "auth_clawback_enabled_flag")[];
 ```
 
-**Source:** [src/horizon/horizon_api.ts:377](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L377)
+**Source:** [src/horizon/horizon_api.ts:377](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L377)
 
 ### `setOptionsOperationRecord.signer_key`
 
@@ -11756,7 +11756,7 @@ set_flags_s: ("auth_required_flag" | "auth_revocable_flag" | "auth_clawback_enab
 signer_key?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:369](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L369)
+**Source:** [src/horizon/horizon_api.ts:369](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L369)
 
 ### `setOptionsOperationRecord.signer_weight`
 
@@ -11764,7 +11764,7 @@ signer_key?: string;
 signer_weight?: number;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:370](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L370)
+**Source:** [src/horizon/horizon_api.ts:370](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L370)
 
 ### `setOptionsOperationRecord.source_account`
 
@@ -11772,7 +11772,7 @@ signer_weight?: number;
 source_account: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L265)
+**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L265)
 
 ### `setOptionsOperationRecord.succeeds`
 
@@ -11780,7 +11780,7 @@ source_account: string;
 succeeds: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:178](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L178)
+**Source:** [src/horizon/server_api.ts:178](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L178)
 
 ### `setOptionsOperationRecord.transaction`
 
@@ -11788,7 +11788,7 @@ succeeds: CallFunction<OperationRecord>;
 transaction: CallFunction<TransactionRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:181](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L181)
+**Source:** [src/horizon/server_api.ts:181](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L181)
 
 ### `setOptionsOperationRecord.transaction_hash`
 
@@ -11796,7 +11796,7 @@ transaction: CallFunction<TransactionRecord>;
 transaction_hash: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L269)
+**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L269)
 
 ### `setOptionsOperationRecord.transaction_successful`
 
@@ -11804,7 +11804,7 @@ transaction_hash: string;
 transaction_successful: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L270)
+**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L270)
 
 ### `setOptionsOperationRecord.type`
 
@@ -11812,7 +11812,7 @@ transaction_successful: boolean;
 type: setOptions;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L266)
+**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L266)
 
 ### `setOptionsOperationRecord.type_i`
 
@@ -11820,7 +11820,7 @@ type: setOptions;
 type_i: setOptions;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L267)
+**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L267)
 
 ## Horizon.ServerApi.SetTrustLineFlagsOperationRecord
 
@@ -11849,7 +11849,7 @@ interface SetTrustLineFlagsOperationRecord extends BaseOperationRecord<Operation
 }
 ```
 
-**Source:** [src/horizon/server_api.ts:326](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L326)
+**Source:** [src/horizon/server_api.ts:326](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L326)
 
 ### `setTrustLineFlagsOperationRecord._links`
 
@@ -11857,7 +11857,7 @@ interface SetTrustLineFlagsOperationRecord extends BaseOperationRecord<Operation
 _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; succeeds: ResponseLink; transaction: ResponseLink };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L10)
+**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L10)
 
 ### `setTrustLineFlagsOperationRecord.asset_code`
 
@@ -11865,7 +11865,7 @@ _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; suc
 asset_code: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:523](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L523)
+**Source:** [src/horizon/horizon_api.ts:523](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L523)
 
 ### `setTrustLineFlagsOperationRecord.asset_issuer`
 
@@ -11873,7 +11873,7 @@ asset_code: string;
 asset_issuer: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:524](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L524)
+**Source:** [src/horizon/horizon_api.ts:524](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L524)
 
 ### `setTrustLineFlagsOperationRecord.asset_type`
 
@@ -11881,7 +11881,7 @@ asset_issuer: string;
 asset_type: AssetType;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:522](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L522)
+**Source:** [src/horizon/horizon_api.ts:522](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L522)
 
 ### `setTrustLineFlagsOperationRecord.clear_flags`
 
@@ -11889,7 +11889,7 @@ asset_type: AssetType;
 clear_flags: (1 | 2 | 4)[];
 ```
 
-**Source:** [src/horizon/horizon_api.ts:527](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L527)
+**Source:** [src/horizon/horizon_api.ts:527](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L527)
 
 ### `setTrustLineFlagsOperationRecord.created_at`
 
@@ -11897,7 +11897,7 @@ clear_flags: (1 | 2 | 4)[];
 created_at: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L268)
+**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L268)
 
 ### `setTrustLineFlagsOperationRecord.effects`
 
@@ -11905,7 +11905,7 @@ created_at: string;
 effects: CallCollectionFunction<EffectRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:180](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L180)
+**Source:** [src/horizon/server_api.ts:180](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L180)
 
 ### `setTrustLineFlagsOperationRecord.id`
 
@@ -11913,7 +11913,7 @@ effects: CallCollectionFunction<EffectRecord>;
 id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L263)
+**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L263)
 
 ### `setTrustLineFlagsOperationRecord.paging_token`
 
@@ -11921,7 +11921,7 @@ id: string;
 paging_token: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L264)
+**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L264)
 
 ### `setTrustLineFlagsOperationRecord.precedes`
 
@@ -11929,7 +11929,7 @@ paging_token: string;
 precedes: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:179](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L179)
+**Source:** [src/horizon/server_api.ts:179](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L179)
 
 ### `setTrustLineFlagsOperationRecord.self`
 
@@ -11937,7 +11937,7 @@ precedes: CallFunction<OperationRecord>;
 self: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:177](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L177)
+**Source:** [src/horizon/server_api.ts:177](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L177)
 
 ### `setTrustLineFlagsOperationRecord.set_flags`
 
@@ -11945,7 +11945,7 @@ self: CallFunction<OperationRecord>;
 set_flags: (1 | 2 | 4)[];
 ```
 
-**Source:** [src/horizon/horizon_api.ts:526](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L526)
+**Source:** [src/horizon/horizon_api.ts:526](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L526)
 
 ### `setTrustLineFlagsOperationRecord.source_account`
 
@@ -11953,7 +11953,7 @@ set_flags: (1 | 2 | 4)[];
 source_account: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L265)
+**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L265)
 
 ### `setTrustLineFlagsOperationRecord.succeeds`
 
@@ -11961,7 +11961,7 @@ source_account: string;
 succeeds: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:178](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L178)
+**Source:** [src/horizon/server_api.ts:178](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L178)
 
 ### `setTrustLineFlagsOperationRecord.transaction`
 
@@ -11969,7 +11969,7 @@ succeeds: CallFunction<OperationRecord>;
 transaction: CallFunction<TransactionRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:181](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L181)
+**Source:** [src/horizon/server_api.ts:181](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L181)
 
 ### `setTrustLineFlagsOperationRecord.transaction_hash`
 
@@ -11977,7 +11977,7 @@ transaction: CallFunction<TransactionRecord>;
 transaction_hash: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L269)
+**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L269)
 
 ### `setTrustLineFlagsOperationRecord.transaction_successful`
 
@@ -11985,7 +11985,7 @@ transaction_hash: string;
 transaction_successful: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L270)
+**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L270)
 
 ### `setTrustLineFlagsOperationRecord.trustor`
 
@@ -11993,7 +11993,7 @@ transaction_successful: boolean;
 trustor: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:525](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L525)
+**Source:** [src/horizon/horizon_api.ts:525](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L525)
 
 ### `setTrustLineFlagsOperationRecord.type`
 
@@ -12001,7 +12001,7 @@ trustor: string;
 type: setTrustLineFlags;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L266)
+**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L266)
 
 ### `setTrustLineFlagsOperationRecord.type_i`
 
@@ -12009,7 +12009,7 @@ type: setTrustLineFlags;
 type_i: setTrustLineFlags;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L267)
+**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L267)
 
 ## Horizon.ServerApi.TradeRecord
 
@@ -12017,7 +12017,7 @@ type_i: setTrustLineFlags;
 type TradeRecord = TradeRecord.Orderbook | TradeRecord.LiquidityPool
 ```
 
-**Source:** [src/horizon/server_api.ts:397](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L397)
+**Source:** [src/horizon/server_api.ts:397](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L397)
 
 ## Horizon.ServerApi.TradeRecord.LiquidityPool
 
@@ -12049,7 +12049,7 @@ interface LiquidityPool extends Base {
 }
 ```
 
-**Source:** [src/horizon/server_api.ts:431](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L431)
+**Source:** [src/horizon/server_api.ts:431](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L431)
 
 ### `liquidityPool._links`
 
@@ -12057,7 +12057,7 @@ interface LiquidityPool extends Base {
 _links: { self: ResponseLink };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L10)
+**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L10)
 
 ### `liquidityPool.base`
 
@@ -12065,7 +12065,7 @@ _links: { self: ResponseLink };
 base: CallFunction<AccountRecord | LiquidityPoolRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:437](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L437)
+**Source:** [src/horizon/server_api.ts:437](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L437)
 
 ### `liquidityPool.base_account`
 
@@ -12073,7 +12073,7 @@ base: CallFunction<AccountRecord | LiquidityPoolRecord>;
 base_account?: string;
 ```
 
-**Source:** [src/horizon/server_api.ts:403](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L403)
+**Source:** [src/horizon/server_api.ts:403](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L403)
 
 ### `liquidityPool.base_amount`
 
@@ -12081,7 +12081,7 @@ base_account?: string;
 base_amount: string;
 ```
 
-**Source:** [src/horizon/server_api.ts:404](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L404)
+**Source:** [src/horizon/server_api.ts:404](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L404)
 
 ### `liquidityPool.base_asset_code`
 
@@ -12089,7 +12089,7 @@ base_amount: string;
 base_asset_code?: string;
 ```
 
-**Source:** [src/horizon/server_api.ts:406](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L406)
+**Source:** [src/horizon/server_api.ts:406](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L406)
 
 ### `liquidityPool.base_asset_issuer`
 
@@ -12097,7 +12097,7 @@ base_asset_code?: string;
 base_asset_issuer?: string;
 ```
 
-**Source:** [src/horizon/server_api.ts:407](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L407)
+**Source:** [src/horizon/server_api.ts:407](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L407)
 
 ### `liquidityPool.base_asset_type`
 
@@ -12105,7 +12105,7 @@ base_asset_issuer?: string;
 base_asset_type: string;
 ```
 
-**Source:** [src/horizon/server_api.ts:405](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L405)
+**Source:** [src/horizon/server_api.ts:405](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L405)
 
 ### `liquidityPool.base_is_seller`
 
@@ -12113,7 +12113,7 @@ base_asset_type: string;
 base_is_seller: boolean;
 ```
 
-**Source:** [src/horizon/server_api.ts:413](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L413)
+**Source:** [src/horizon/server_api.ts:413](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L413)
 
 ### `liquidityPool.base_liquidity_pool_id`
 
@@ -12121,7 +12121,7 @@ base_is_seller: boolean;
 base_liquidity_pool_id?: string;
 ```
 
-**Source:** [src/horizon/server_api.ts:433](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L433)
+**Source:** [src/horizon/server_api.ts:433](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L433)
 
 ### `liquidityPool.counter`
 
@@ -12129,7 +12129,7 @@ base_liquidity_pool_id?: string;
 counter: CallFunction<AccountRecord | LiquidityPoolRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:438](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L438)
+**Source:** [src/horizon/server_api.ts:438](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L438)
 
 ### `liquidityPool.counter_account`
 
@@ -12137,7 +12137,7 @@ counter: CallFunction<AccountRecord | LiquidityPoolRecord>;
 counter_account?: string;
 ```
 
-**Source:** [src/horizon/server_api.ts:408](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L408)
+**Source:** [src/horizon/server_api.ts:408](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L408)
 
 ### `liquidityPool.counter_amount`
 
@@ -12145,7 +12145,7 @@ counter_account?: string;
 counter_amount: string;
 ```
 
-**Source:** [src/horizon/server_api.ts:409](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L409)
+**Source:** [src/horizon/server_api.ts:409](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L409)
 
 ### `liquidityPool.counter_asset_code`
 
@@ -12153,7 +12153,7 @@ counter_amount: string;
 counter_asset_code?: string;
 ```
 
-**Source:** [src/horizon/server_api.ts:411](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L411)
+**Source:** [src/horizon/server_api.ts:411](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L411)
 
 ### `liquidityPool.counter_asset_issuer`
 
@@ -12161,7 +12161,7 @@ counter_asset_code?: string;
 counter_asset_issuer?: string;
 ```
 
-**Source:** [src/horizon/server_api.ts:412](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L412)
+**Source:** [src/horizon/server_api.ts:412](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L412)
 
 ### `liquidityPool.counter_asset_type`
 
@@ -12169,7 +12169,7 @@ counter_asset_issuer?: string;
 counter_asset_type: string;
 ```
 
-**Source:** [src/horizon/server_api.ts:410](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L410)
+**Source:** [src/horizon/server_api.ts:410](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L410)
 
 ### `liquidityPool.counter_liquidity_pool_id`
 
@@ -12177,7 +12177,7 @@ counter_asset_type: string;
 counter_liquidity_pool_id?: string;
 ```
 
-**Source:** [src/horizon/server_api.ts:434](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L434)
+**Source:** [src/horizon/server_api.ts:434](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L434)
 
 ### `liquidityPool.id`
 
@@ -12185,7 +12185,7 @@ counter_liquidity_pool_id?: string;
 id: string;
 ```
 
-**Source:** [src/horizon/server_api.ts:399](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L399)
+**Source:** [src/horizon/server_api.ts:399](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L399)
 
 ### `liquidityPool.ledger_close_time`
 
@@ -12193,7 +12193,7 @@ id: string;
 ledger_close_time: string;
 ```
 
-**Source:** [src/horizon/server_api.ts:401](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L401)
+**Source:** [src/horizon/server_api.ts:401](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L401)
 
 ### `liquidityPool.liquidity_pool_fee_bp`
 
@@ -12201,7 +12201,7 @@ ledger_close_time: string;
 liquidity_pool_fee_bp: number;
 ```
 
-**Source:** [src/horizon/server_api.ts:435](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L435)
+**Source:** [src/horizon/server_api.ts:435](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L435)
 
 ### `liquidityPool.operation`
 
@@ -12209,7 +12209,7 @@ liquidity_pool_fee_bp: number;
 operation: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:419](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L419)
+**Source:** [src/horizon/server_api.ts:419](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L419)
 
 ### `liquidityPool.paging_token`
 
@@ -12217,7 +12217,7 @@ operation: CallFunction<OperationRecord>;
 paging_token: string;
 ```
 
-**Source:** [src/horizon/server_api.ts:400](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L400)
+**Source:** [src/horizon/server_api.ts:400](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L400)
 
 ### `liquidityPool.price`
 
@@ -12225,7 +12225,7 @@ paging_token: string;
 price?: { d: string; n: string };
 ```
 
-**Source:** [src/horizon/server_api.ts:414](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L414)
+**Source:** [src/horizon/server_api.ts:414](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L414)
 
 ### `liquidityPool.trade_type`
 
@@ -12233,7 +12233,7 @@ price?: { d: string; n: string };
 trade_type: liquidityPools;
 ```
 
-**Source:** [src/horizon/server_api.ts:432](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L432)
+**Source:** [src/horizon/server_api.ts:432](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L432)
 
 ## Horizon.ServerApi.TradeRecord.Orderbook
 
@@ -12264,7 +12264,7 @@ interface Orderbook extends Base {
 }
 ```
 
-**Source:** [src/horizon/server_api.ts:421](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L421)
+**Source:** [src/horizon/server_api.ts:421](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L421)
 
 ### `orderbook._links`
 
@@ -12272,7 +12272,7 @@ interface Orderbook extends Base {
 _links: { self: ResponseLink };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L10)
+**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L10)
 
 ### `orderbook.base`
 
@@ -12280,7 +12280,7 @@ _links: { self: ResponseLink };
 base: CallFunction<AccountRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:428](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L428)
+**Source:** [src/horizon/server_api.ts:428](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L428)
 
 ### `orderbook.base_account`
 
@@ -12288,7 +12288,7 @@ base: CallFunction<AccountRecord>;
 base_account: string;
 ```
 
-**Source:** [src/horizon/server_api.ts:424](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L424)
+**Source:** [src/horizon/server_api.ts:424](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L424)
 
 ### `orderbook.base_amount`
 
@@ -12296,7 +12296,7 @@ base_account: string;
 base_amount: string;
 ```
 
-**Source:** [src/horizon/server_api.ts:404](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L404)
+**Source:** [src/horizon/server_api.ts:404](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L404)
 
 ### `orderbook.base_asset_code`
 
@@ -12304,7 +12304,7 @@ base_amount: string;
 base_asset_code?: string;
 ```
 
-**Source:** [src/horizon/server_api.ts:406](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L406)
+**Source:** [src/horizon/server_api.ts:406](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L406)
 
 ### `orderbook.base_asset_issuer`
 
@@ -12312,7 +12312,7 @@ base_asset_code?: string;
 base_asset_issuer?: string;
 ```
 
-**Source:** [src/horizon/server_api.ts:407](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L407)
+**Source:** [src/horizon/server_api.ts:407](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L407)
 
 ### `orderbook.base_asset_type`
 
@@ -12320,7 +12320,7 @@ base_asset_issuer?: string;
 base_asset_type: string;
 ```
 
-**Source:** [src/horizon/server_api.ts:405](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L405)
+**Source:** [src/horizon/server_api.ts:405](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L405)
 
 ### `orderbook.base_is_seller`
 
@@ -12328,7 +12328,7 @@ base_asset_type: string;
 base_is_seller: boolean;
 ```
 
-**Source:** [src/horizon/server_api.ts:413](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L413)
+**Source:** [src/horizon/server_api.ts:413](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L413)
 
 ### `orderbook.base_offer_id`
 
@@ -12336,7 +12336,7 @@ base_is_seller: boolean;
 base_offer_id: string;
 ```
 
-**Source:** [src/horizon/server_api.ts:423](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L423)
+**Source:** [src/horizon/server_api.ts:423](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L423)
 
 ### `orderbook.counter`
 
@@ -12344,7 +12344,7 @@ base_offer_id: string;
 counter: CallFunction<AccountRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:429](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L429)
+**Source:** [src/horizon/server_api.ts:429](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L429)
 
 ### `orderbook.counter_account`
 
@@ -12352,7 +12352,7 @@ counter: CallFunction<AccountRecord>;
 counter_account: string;
 ```
 
-**Source:** [src/horizon/server_api.ts:426](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L426)
+**Source:** [src/horizon/server_api.ts:426](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L426)
 
 ### `orderbook.counter_amount`
 
@@ -12360,7 +12360,7 @@ counter_account: string;
 counter_amount: string;
 ```
 
-**Source:** [src/horizon/server_api.ts:409](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L409)
+**Source:** [src/horizon/server_api.ts:409](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L409)
 
 ### `orderbook.counter_asset_code`
 
@@ -12368,7 +12368,7 @@ counter_amount: string;
 counter_asset_code?: string;
 ```
 
-**Source:** [src/horizon/server_api.ts:411](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L411)
+**Source:** [src/horizon/server_api.ts:411](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L411)
 
 ### `orderbook.counter_asset_issuer`
 
@@ -12376,7 +12376,7 @@ counter_asset_code?: string;
 counter_asset_issuer?: string;
 ```
 
-**Source:** [src/horizon/server_api.ts:412](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L412)
+**Source:** [src/horizon/server_api.ts:412](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L412)
 
 ### `orderbook.counter_asset_type`
 
@@ -12384,7 +12384,7 @@ counter_asset_issuer?: string;
 counter_asset_type: string;
 ```
 
-**Source:** [src/horizon/server_api.ts:410](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L410)
+**Source:** [src/horizon/server_api.ts:410](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L410)
 
 ### `orderbook.counter_offer_id`
 
@@ -12392,7 +12392,7 @@ counter_asset_type: string;
 counter_offer_id: string;
 ```
 
-**Source:** [src/horizon/server_api.ts:425](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L425)
+**Source:** [src/horizon/server_api.ts:425](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L425)
 
 ### `orderbook.id`
 
@@ -12400,7 +12400,7 @@ counter_offer_id: string;
 id: string;
 ```
 
-**Source:** [src/horizon/server_api.ts:399](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L399)
+**Source:** [src/horizon/server_api.ts:399](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L399)
 
 ### `orderbook.ledger_close_time`
 
@@ -12408,7 +12408,7 @@ id: string;
 ledger_close_time: string;
 ```
 
-**Source:** [src/horizon/server_api.ts:401](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L401)
+**Source:** [src/horizon/server_api.ts:401](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L401)
 
 ### `orderbook.operation`
 
@@ -12416,7 +12416,7 @@ ledger_close_time: string;
 operation: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:419](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L419)
+**Source:** [src/horizon/server_api.ts:419](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L419)
 
 ### `orderbook.paging_token`
 
@@ -12424,7 +12424,7 @@ operation: CallFunction<OperationRecord>;
 paging_token: string;
 ```
 
-**Source:** [src/horizon/server_api.ts:400](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L400)
+**Source:** [src/horizon/server_api.ts:400](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L400)
 
 ### `orderbook.price`
 
@@ -12432,7 +12432,7 @@ paging_token: string;
 price?: { d: string; n: string };
 ```
 
-**Source:** [src/horizon/server_api.ts:414](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L414)
+**Source:** [src/horizon/server_api.ts:414](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L414)
 
 ### `orderbook.trade_type`
 
@@ -12440,7 +12440,7 @@ price?: { d: string; n: string };
 trade_type: orderbook;
 ```
 
-**Source:** [src/horizon/server_api.ts:422](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L422)
+**Source:** [src/horizon/server_api.ts:422](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L422)
 
 ## Horizon.ServerApi.TradeType
 
@@ -12448,7 +12448,7 @@ trade_type: orderbook;
 enum TradeType
 ```
 
-**Source:** [src/horizon/server_api.ts:135](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L135)
+**Source:** [src/horizon/server_api.ts:135](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L135)
 
 ## Horizon.ServerApi.TransactionRecord
 
@@ -12488,7 +12488,7 @@ interface TransactionRecord extends Omit<HorizonApi.TransactionResponse, "ledger
 }
 ```
 
-**Source:** [src/horizon/server_api.ts:442](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L442)
+**Source:** [src/horizon/server_api.ts:442](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L442)
 
 ### `transactionRecord._links`
 
@@ -12496,7 +12496,7 @@ interface TransactionRecord extends Omit<HorizonApi.TransactionResponse, "ledger
 _links: { account: ResponseLink; effects: ResponseLink; ledger: ResponseLink; operations: ResponseLink; precedes: ResponseLink; self: ResponseLink; succeeds: ResponseLink };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L10)
+**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L10)
 
 ### `transactionRecord.account`
 
@@ -12504,7 +12504,7 @@ _links: { account: ResponseLink; effects: ResponseLink; ledger: ResponseLink; op
 account: CallFunction<AccountRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:448](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L448)
+**Source:** [src/horizon/server_api.ts:448](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L448)
 
 ### `transactionRecord.created_at`
 
@@ -12512,7 +12512,7 @@ account: CallFunction<AccountRecord>;
 created_at: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:66](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L66)
+**Source:** [src/horizon/horizon_api.ts:66](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L66)
 
 ### `transactionRecord.effects`
 
@@ -12520,7 +12520,7 @@ created_at: string;
 effects: CallCollectionFunction<EffectRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:449](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L449)
+**Source:** [src/horizon/server_api.ts:449](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L449)
 
 ### `transactionRecord.envelope_xdr`
 
@@ -12528,7 +12528,7 @@ effects: CallCollectionFunction<EffectRecord>;
 envelope_xdr: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:17](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L17)
+**Source:** [src/horizon/horizon_api.ts:17](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L17)
 
 ### `transactionRecord.fee_account`
 
@@ -12536,7 +12536,7 @@ envelope_xdr: string;
 fee_account: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:79](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L79)
+**Source:** [src/horizon/horizon_api.ts:79](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L79)
 
 ### `transactionRecord.fee_bump_transaction`
 
@@ -12544,7 +12544,7 @@ fee_account: string;
 fee_bump_transaction?: FeeBumpTransactionResponse;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:81](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L81)
+**Source:** [src/horizon/horizon_api.ts:81](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L81)
 
 ### `transactionRecord.fee_charged`
 
@@ -12552,7 +12552,7 @@ fee_bump_transaction?: FeeBumpTransactionResponse;
 fee_charged: string | number;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:68](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L68)
+**Source:** [src/horizon/horizon_api.ts:68](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L68)
 
 ### `transactionRecord.fee_meta_xdr`
 
@@ -12560,7 +12560,7 @@ fee_charged: string | number;
 fee_meta_xdr: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:67](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L67)
+**Source:** [src/horizon/horizon_api.ts:67](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L67)
 
 ### `transactionRecord.hash`
 
@@ -12568,7 +12568,7 @@ fee_meta_xdr: string;
 hash: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:14](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L14)
+**Source:** [src/horizon/horizon_api.ts:14](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L14)
 
 ### `transactionRecord.id`
 
@@ -12576,7 +12576,7 @@ hash: string;
 id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:70](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L70)
+**Source:** [src/horizon/horizon_api.ts:70](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L70)
 
 ### `transactionRecord.inner_transaction`
 
@@ -12584,7 +12584,7 @@ id: string;
 inner_transaction?: InnerTransactionResponse;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:80](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L80)
+**Source:** [src/horizon/horizon_api.ts:80](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L80)
 
 ### `transactionRecord.ledger`
 
@@ -12592,7 +12592,7 @@ inner_transaction?: InnerTransactionResponse;
 ledger: CallFunction<LedgerRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:450](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L450)
+**Source:** [src/horizon/server_api.ts:450](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L450)
 
 ### `transactionRecord.ledger_attr`
 
@@ -12600,7 +12600,7 @@ ledger: CallFunction<LedgerRecord>;
 ledger_attr: number;
 ```
 
-**Source:** [src/horizon/server_api.ts:446](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L446)
+**Source:** [src/horizon/server_api.ts:446](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L446)
 
 ### `transactionRecord.max_fee`
 
@@ -12608,7 +12608,7 @@ ledger_attr: number;
 max_fee: string | number;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:69](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L69)
+**Source:** [src/horizon/horizon_api.ts:69](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L69)
 
 ### `transactionRecord.memo`
 
@@ -12616,7 +12616,7 @@ max_fee: string | number;
 memo?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:72](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L72)
+**Source:** [src/horizon/horizon_api.ts:72](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L72)
 
 ### `transactionRecord.memo_bytes`
 
@@ -12624,7 +12624,7 @@ memo?: string;
 memo_bytes?: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:73](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L73)
+**Source:** [src/horizon/horizon_api.ts:73](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L73)
 
 ### `transactionRecord.memo_type`
 
@@ -12632,7 +12632,7 @@ memo_bytes?: string;
 memo_type: MemoType;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:71](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L71)
+**Source:** [src/horizon/horizon_api.ts:71](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L71)
 
 ### `transactionRecord.operation_count`
 
@@ -12640,7 +12640,7 @@ memo_type: MemoType;
 operation_count: number;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:74](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L74)
+**Source:** [src/horizon/horizon_api.ts:74](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L74)
 
 ### `transactionRecord.operations`
 
@@ -12648,7 +12648,7 @@ operation_count: number;
 operations: CallCollectionFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:451](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L451)
+**Source:** [src/horizon/server_api.ts:451](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L451)
 
 ### `transactionRecord.paging_token`
 
@@ -12656,7 +12656,7 @@ operations: CallCollectionFunction<OperationRecord>;
 paging_token: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:75](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L75)
+**Source:** [src/horizon/horizon_api.ts:75](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L75)
 
 ### `transactionRecord.precedes`
 
@@ -12664,7 +12664,7 @@ paging_token: string;
 precedes: CallFunction<TransactionRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:452](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L452)
+**Source:** [src/horizon/server_api.ts:452](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L452)
 
 ### `transactionRecord.preconditions`
 
@@ -12672,7 +12672,7 @@ precedes: CallFunction<TransactionRecord>;
 preconditions?: TransactionPreconditions;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:82](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L82)
+**Source:** [src/horizon/horizon_api.ts:82](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L82)
 
 ### `transactionRecord.result_meta_xdr`
 
@@ -12680,7 +12680,7 @@ preconditions?: TransactionPreconditions;
 result_meta_xdr: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:19](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L19)
+**Source:** [src/horizon/horizon_api.ts:19](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L19)
 
 ### `transactionRecord.result_xdr`
 
@@ -12688,7 +12688,7 @@ result_meta_xdr: string;
 result_xdr: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:18](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L18)
+**Source:** [src/horizon/horizon_api.ts:18](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L18)
 
 ### `transactionRecord.self`
 
@@ -12696,7 +12696,7 @@ result_xdr: string;
 self: CallFunction<TransactionRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:453](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L453)
+**Source:** [src/horizon/server_api.ts:453](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L453)
 
 ### `transactionRecord.signatures`
 
@@ -12704,7 +12704,7 @@ self: CallFunction<TransactionRecord>;
 signatures: string[];
 ```
 
-**Source:** [src/horizon/horizon_api.ts:76](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L76)
+**Source:** [src/horizon/horizon_api.ts:76](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L76)
 
 ### `transactionRecord.source_account`
 
@@ -12712,7 +12712,7 @@ signatures: string[];
 source_account: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:77](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L77)
+**Source:** [src/horizon/horizon_api.ts:77](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L77)
 
 ### `transactionRecord.source_account_sequence`
 
@@ -12720,7 +12720,7 @@ source_account: string;
 source_account_sequence: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:78](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L78)
+**Source:** [src/horizon/horizon_api.ts:78](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L78)
 
 ### `transactionRecord.succeeds`
 
@@ -12728,7 +12728,7 @@ source_account_sequence: string;
 succeeds: CallFunction<TransactionRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:454](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L454)
+**Source:** [src/horizon/server_api.ts:454](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L454)
 
 ### `transactionRecord.successful`
 
@@ -12736,7 +12736,7 @@ succeeds: CallFunction<TransactionRecord>;
 successful: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:16](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L16)
+**Source:** [src/horizon/horizon_api.ts:16](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L16)
 
 ## Horizon.ServerApi.WithdrawLiquidityOperationRecord
 
@@ -12763,7 +12763,7 @@ interface WithdrawLiquidityOperationRecord extends BaseOperationRecord<Operation
 }
 ```
 
-**Source:** [src/horizon/server_api.ts:340](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L340)
+**Source:** [src/horizon/server_api.ts:340](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L340)
 
 ### `withdrawLiquidityOperationRecord._links`
 
@@ -12771,7 +12771,7 @@ interface WithdrawLiquidityOperationRecord extends BaseOperationRecord<Operation
 _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; succeeds: ResponseLink; transaction: ResponseLink };
 ```
 
-**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L10)
+**Source:** [src/horizon/horizon_api.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L10)
 
 ### `withdrawLiquidityOperationRecord.created_at`
 
@@ -12779,7 +12779,7 @@ _links: { effects: ResponseLink; precedes: ResponseLink; self: ResponseLink; suc
 created_at: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L268)
+**Source:** [src/horizon/horizon_api.ts:268](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L268)
 
 ### `withdrawLiquidityOperationRecord.effects`
 
@@ -12787,7 +12787,7 @@ created_at: string;
 effects: CallCollectionFunction<EffectRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:180](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L180)
+**Source:** [src/horizon/server_api.ts:180](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L180)
 
 ### `withdrawLiquidityOperationRecord.id`
 
@@ -12795,7 +12795,7 @@ effects: CallCollectionFunction<EffectRecord>;
 id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L263)
+**Source:** [src/horizon/horizon_api.ts:263](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L263)
 
 ### `withdrawLiquidityOperationRecord.liquidity_pool_id`
 
@@ -12803,7 +12803,7 @@ id: string;
 liquidity_pool_id: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:550](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L550)
+**Source:** [src/horizon/horizon_api.ts:550](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L550)
 
 ### `withdrawLiquidityOperationRecord.paging_token`
 
@@ -12811,7 +12811,7 @@ liquidity_pool_id: string;
 paging_token: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L264)
+**Source:** [src/horizon/horizon_api.ts:264](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L264)
 
 ### `withdrawLiquidityOperationRecord.precedes`
 
@@ -12819,7 +12819,7 @@ paging_token: string;
 precedes: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:179](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L179)
+**Source:** [src/horizon/server_api.ts:179](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L179)
 
 ### `withdrawLiquidityOperationRecord.reserves_min`
 
@@ -12827,7 +12827,7 @@ precedes: CallFunction<OperationRecord>;
 reserves_min: Reserve[];
 ```
 
-**Source:** [src/horizon/horizon_api.ts:551](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L551)
+**Source:** [src/horizon/horizon_api.ts:551](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L551)
 
 ### `withdrawLiquidityOperationRecord.reserves_received`
 
@@ -12835,7 +12835,7 @@ reserves_min: Reserve[];
 reserves_received: Reserve[];
 ```
 
-**Source:** [src/horizon/horizon_api.ts:553](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L553)
+**Source:** [src/horizon/horizon_api.ts:553](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L553)
 
 ### `withdrawLiquidityOperationRecord.self`
 
@@ -12843,7 +12843,7 @@ reserves_received: Reserve[];
 self: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:177](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L177)
+**Source:** [src/horizon/server_api.ts:177](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L177)
 
 ### `withdrawLiquidityOperationRecord.shares`
 
@@ -12851,7 +12851,7 @@ self: CallFunction<OperationRecord>;
 shares: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:552](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L552)
+**Source:** [src/horizon/horizon_api.ts:552](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L552)
 
 ### `withdrawLiquidityOperationRecord.source_account`
 
@@ -12859,7 +12859,7 @@ shares: string;
 source_account: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L265)
+**Source:** [src/horizon/horizon_api.ts:265](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L265)
 
 ### `withdrawLiquidityOperationRecord.succeeds`
 
@@ -12867,7 +12867,7 @@ source_account: string;
 succeeds: CallFunction<OperationRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:178](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L178)
+**Source:** [src/horizon/server_api.ts:178](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L178)
 
 ### `withdrawLiquidityOperationRecord.transaction`
 
@@ -12875,7 +12875,7 @@ succeeds: CallFunction<OperationRecord>;
 transaction: CallFunction<TransactionRecord>;
 ```
 
-**Source:** [src/horizon/server_api.ts:181](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/server_api.ts#L181)
+**Source:** [src/horizon/server_api.ts:181](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server_api.ts#L181)
 
 ### `withdrawLiquidityOperationRecord.transaction_hash`
 
@@ -12883,7 +12883,7 @@ transaction: CallFunction<TransactionRecord>;
 transaction_hash: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L269)
+**Source:** [src/horizon/horizon_api.ts:269](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L269)
 
 ### `withdrawLiquidityOperationRecord.transaction_successful`
 
@@ -12891,7 +12891,7 @@ transaction_hash: string;
 transaction_successful: boolean;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L270)
+**Source:** [src/horizon/horizon_api.ts:270](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L270)
 
 ### `withdrawLiquidityOperationRecord.type`
 
@@ -12899,7 +12899,7 @@ transaction_successful: boolean;
 type: liquidityPoolWithdraw;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L266)
+**Source:** [src/horizon/horizon_api.ts:266](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L266)
 
 ### `withdrawLiquidityOperationRecord.type_i`
 
@@ -12907,7 +12907,7 @@ type: liquidityPoolWithdraw;
 type_i: liquidityPoolWithdraw;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_api.ts#L267)
+**Source:** [src/horizon/horizon_api.ts:267](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L267)
 
 ## Horizon.getCurrentServerTime
 
@@ -12929,4 +12929,4 @@ The UNIX timestamp (in seconds, not milliseconds)
 representing the current time on that server, or `null` if we don't have
 a record of that time.
 
-**Source:** [src/horizon/horizon_axios_client.ts:96](https://github.com/stellar/js-stellar-sdk/blob/master/src/horizon/horizon_axios_client.ts#L96)
+**Source:** [src/horizon/horizon_axios_client.ts:96](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_axios_client.ts#L96)

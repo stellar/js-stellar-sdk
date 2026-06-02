@@ -35,7 +35,7 @@ StellarSdk.Config.setAllowHttp(true);
 StellarSdk.Config.setTimeout(5000);
 ```
 
-**Source:** [src/config.ts:39](https://github.com/stellar/js-stellar-sdk/blob/master/src/config.ts#L39)
+**Source:** [src/config.ts:39](https://github.com/stellar/js-stellar-sdk/blob/main/src/config.ts#L39)
 
 ### `new Config()`
 
@@ -55,7 +55,7 @@ static getTimeout(): number;
 
 The timeout value.
 
-**Source:** [src/config.ts:71](https://github.com/stellar/js-stellar-sdk/blob/master/src/config.ts#L71)
+**Source:** [src/config.ts:71](https://github.com/stellar/js-stellar-sdk/blob/main/src/config.ts#L71)
 
 ### `Config.isAllowHttp()`
 
@@ -69,7 +69,7 @@ static isAllowHttp(): boolean;
 
 The allowHttp value.
 
-**Source:** [src/config.ts:63](https://github.com/stellar/js-stellar-sdk/blob/master/src/config.ts#L63)
+**Source:** [src/config.ts:63](https://github.com/stellar/js-stellar-sdk/blob/main/src/config.ts#L63)
 
 ### `Config.setAllowHttp(value)`
 
@@ -85,7 +85,7 @@ static setAllowHttp(value: boolean): void;
 
 - **`value`** — `boolean` (required)
 
-**Source:** [src/config.ts:46](https://github.com/stellar/js-stellar-sdk/blob/master/src/config.ts#L46)
+**Source:** [src/config.ts:46](https://github.com/stellar/js-stellar-sdk/blob/main/src/config.ts#L46)
 
 ### `Config.setDefault()`
 
@@ -95,7 +95,7 @@ Sets all global config flags to default values.
 static setDefault(): void;
 ```
 
-**Source:** [src/config.ts:78](https://github.com/stellar/js-stellar-sdk/blob/master/src/config.ts#L78)
+**Source:** [src/config.ts:78](https://github.com/stellar/js-stellar-sdk/blob/main/src/config.ts#L78)
 
 ### `Config.setTimeout(value)`
 
@@ -110,7 +110,7 @@ static setTimeout(value: number): void;
 
 - **`value`** — `number` (required)
 
-**Source:** [src/config.ts:55](https://github.com/stellar/js-stellar-sdk/blob/master/src/config.ts#L55)
+**Source:** [src/config.ts:55](https://github.com/stellar/js-stellar-sdk/blob/main/src/config.ts#L55)
 
 ## Utils
 
@@ -124,7 +124,7 @@ class Utils {
 }
 ```
 
-**Source:** [src/utils.ts:7](https://github.com/stellar/js-stellar-sdk/blob/master/src/utils.ts#L7)
+**Source:** [src/utils.ts:7](https://github.com/stellar/js-stellar-sdk/blob/main/src/utils.ts#L7)
 
 ### `new Utils()`
 
@@ -142,7 +142,7 @@ static sleep(ms: number): Promise<void>;
 
 - **`ms`** — `number` (required)
 
-**Source:** [src/utils.ts:34](https://github.com/stellar/js-stellar-sdk/blob/master/src/utils.ts#L34)
+**Source:** [src/utils.ts:34](https://github.com/stellar/js-stellar-sdk/blob/main/src/utils.ts#L34)
 
 ### `Utils.validateTimebounds(transaction, gracePeriod)`
 
@@ -161,4 +161,4 @@ static validateTimebounds(transaction: Transaction, gracePeriod: number = 0): bo
 
 Returns true if the current time is within the transaction's [minTime, maxTime] range.
 
-**Source:** [src/utils.ts:17](https://github.com/stellar/js-stellar-sdk/blob/master/src/utils.ts#L17)
+**Source:** [src/utils.ts:17](https://github.com/stellar/js-stellar-sdk/blob/main/src/utils.ts#L17)

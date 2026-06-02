@@ -14,7 +14,7 @@ interface Response {
 }
 ```
 
-**Source:** [src/friendbot/index.ts:3](https://github.com/stellar/js-stellar-sdk/blob/master/src/friendbot/index.ts#L3)
+**Source:** [src/friendbot/index.ts:3](https://github.com/stellar/js-stellar-sdk/blob/main/src/friendbot/index.ts#L3)
 
 ### `response.hash`
 
@@ -22,7 +22,7 @@ interface Response {
 hash: string;
 ```
 
-**Source:** [src/friendbot/index.ts:4](https://github.com/stellar/js-stellar-sdk/blob/master/src/friendbot/index.ts#L4)
+**Source:** [src/friendbot/index.ts:4](https://github.com/stellar/js-stellar-sdk/blob/main/src/friendbot/index.ts#L4)
 
 ### `response.result_meta_xdr`
 
@@ -30,4 +30,4 @@ hash: string;
 result_meta_xdr: string;
 ```
 
-**Source:** [src/friendbot/index.ts:5](https://github.com/stellar/js-stellar-sdk/blob/master/src/friendbot/index.ts#L5)
+**Source:** [src/friendbot/index.ts:5](https://github.com/stellar/js-stellar-sdk/blob/main/src/friendbot/index.ts#L5)

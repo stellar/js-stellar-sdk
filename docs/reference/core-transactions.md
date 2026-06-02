@@ -23,7 +23,7 @@ class Account {
 }
 ```
 
-**Source:** [src/base/account.ts:15](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/account.ts#L15)
+**Source:** [src/base/account.ts:15](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/account.ts#L15)
 
 ### `new Account(accountId, sequence)`
 
@@ -38,7 +38,7 @@ constructor(accountId: string, sequence: string);
       provide a muxed account address, this will throw; use `MuxedAccount` instead.
 - **`sequence`** — `string` (required) — current sequence number of the account
 
-**Source:** [src/base/account.ts:26](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/account.ts#L26)
+**Source:** [src/base/account.ts:26](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/account.ts#L26)
 
 ### `account.accountId()`
 
@@ -49,7 +49,7 @@ Returns Stellar account ID, ex.
 accountId(): string;
 ```
 
-**Source:** [src/base/account.ts:57](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/account.ts#L57)
+**Source:** [src/base/account.ts:57](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/account.ts#L57)
 
 ### `account.incrementSequenceNumber()`
 
@@ -59,7 +59,7 @@ Increments sequence number in this object by one.
 incrementSequenceNumber(): void;
 ```
 
-**Source:** [src/base/account.ts:71](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/account.ts#L71)
+**Source:** [src/base/account.ts:71](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/account.ts#L71)
 
 ### `account.sequenceNumber()`
 
@@ -69,7 +69,7 @@ Returns sequence number for the account as a string
 sequenceNumber(): string;
 ```
 
-**Source:** [src/base/account.ts:64](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/account.ts#L64)
+**Source:** [src/base/account.ts:64](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/account.ts#L64)
 
 ## AuthClawbackEnabledFlag
 
@@ -85,7 +85,7 @@ const AuthClawbackEnabledFlag: number
 
 - [Account flags](https://developers.stellar.org/docs/glossary/accounts/#flags)
 
-**Source:** [src/base/operation.ts:83](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L83)
+**Source:** [src/base/operation.ts:83](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L83)
 
 ## AuthFlag
 
@@ -93,7 +93,7 @@ const AuthClawbackEnabledFlag: number
 type AuthFlag = unknown
 ```
 
-**Source:** [src/base/operations/types.ts:431](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operations/types.ts#L431)
+**Source:** [src/base/operations/types.ts:431](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L431)
 
 ## AuthFlag
 
@@ -101,7 +101,7 @@ type AuthFlag = unknown
 type AuthFlag = typeof AuthFlag[keyof typeof AuthFlag]
 ```
 
-**Source:** [src/base/operations/types.ts:431](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operations/types.ts#L431)
+**Source:** [src/base/operations/types.ts:431](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L431)
 
 ## AuthImmutableFlag
 
@@ -116,7 +116,7 @@ const AuthImmutableFlag: number
 
 - [Account flags](https://developers.stellar.org/docs/glossary/accounts/#flags)
 
-**Source:** [src/base/operation.ts:74](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L74)
+**Source:** [src/base/operation.ts:74](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L74)
 
 ## AuthRequiredFlag
 
@@ -132,7 +132,7 @@ const AuthRequiredFlag: number
 
 - [Account flags](https://developers.stellar.org/docs/glossary/accounts/#flags)
 
-**Source:** [src/base/operation.ts:60](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L60)
+**Source:** [src/base/operation.ts:60](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L60)
 
 ## AuthRevocableFlag
 
@@ -147,7 +147,7 @@ const AuthRevocableFlag: number
 
 - [Account flags](https://developers.stellar.org/docs/glossary/accounts/#flags)
 
-**Source:** [src/base/operation.ts:67](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L67)
+**Source:** [src/base/operation.ts:67](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L67)
 
 ## BASE_FEE
 
@@ -165,7 +165,7 @@ const BASE_FEE: "100"
 
 - [Fees](https://developers.stellar.org/docs/glossary/fees/)
 
-**Source:** [src/base/transaction_builder.ts:38](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction_builder.ts#L38)
+**Source:** [src/base/transaction_builder.ts:38](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L38)
 
 ## FeeBumpTransaction
 
@@ -199,7 +199,7 @@ class FeeBumpTransaction {
 }
 ```
 
-**Source:** [src/base/fee_bump_transaction.ts:17](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/fee_bump_transaction.ts#L17)
+**Source:** [src/base/fee_bump_transaction.ts:17](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/fee_bump_transaction.ts#L17)
 
 ### `new FeeBumpTransaction(envelope, networkPassphrase)`
 
@@ -213,7 +213,7 @@ constructor(envelope: string | TransactionEnvelope, networkPassphrase: string);
 - **`networkPassphrase`** — `string` (required) — passphrase of the target Stellar network
       (e.g. "Public Global Stellar Network ; September 2015").
 
-**Source:** [src/base/fee_bump_transaction.ts:26](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/fee_bump_transaction.ts#L26)
+**Source:** [src/base/fee_bump_transaction.ts:26](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/fee_bump_transaction.ts#L26)
 
 ### `feeBumpTransaction.fee`
 
@@ -223,7 +223,7 @@ The total fee for this transaction, in stroops.
 fee: string;
 ```
 
-**Source:** [src/base/transaction_base.ts:76](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction_base.ts#L76)
+**Source:** [src/base/transaction_base.ts:76](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L76)
 
 ### `feeBumpTransaction.feeSource`
 
@@ -233,7 +233,7 @@ The account paying the fee for this transaction.
 readonly feeSource: string;
 ```
 
-**Source:** [src/base/fee_bump_transaction.ts:78](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/fee_bump_transaction.ts#L78)
+**Source:** [src/base/fee_bump_transaction.ts:78](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/fee_bump_transaction.ts#L78)
 
 ### `feeBumpTransaction.innerTransaction`
 
@@ -243,7 +243,7 @@ The inner transaction that this fee bump wraps.
 readonly innerTransaction: Transaction;
 ```
 
-**Source:** [src/base/fee_bump_transaction.ts:64](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/fee_bump_transaction.ts#L64)
+**Source:** [src/base/fee_bump_transaction.ts:64](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/fee_bump_transaction.ts#L64)
 
 ### `feeBumpTransaction.networkPassphrase`
 
@@ -253,7 +253,7 @@ The network passphrase for this transaction.
 networkPassphrase: string;
 ```
 
-**Source:** [src/base/transaction_base.ts:85](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction_base.ts#L85)
+**Source:** [src/base/transaction_base.ts:85](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L85)
 
 ### `feeBumpTransaction.operations`
 
@@ -263,7 +263,7 @@ The operations from the inner transaction.
 readonly operations: OperationRecord[];
 ```
 
-**Source:** [src/base/fee_bump_transaction.ts:71](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/fee_bump_transaction.ts#L71)
+**Source:** [src/base/fee_bump_transaction.ts:71](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/fee_bump_transaction.ts#L71)
 
 ### `feeBumpTransaction.signatures`
 
@@ -273,7 +273,7 @@ The list of signatures for this transaction.
 signatures: DecoratedSignature[];
 ```
 
-**Source:** [src/base/transaction_base.ts:35](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction_base.ts#L35)
+**Source:** [src/base/transaction_base.ts:35](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L35)
 
 ### `feeBumpTransaction.tx`
 
@@ -290,7 +290,7 @@ tx: TTx;
 
 - if the internal transaction is not a recognized XDR type
 
-**Source:** [src/base/transaction_base.ts:51](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction_base.ts#L51)
+**Source:** [src/base/transaction_base.ts:51](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L51)
 
 ### `feeBumpTransaction.addDecoratedSignature(signature)`
 
@@ -309,7 +309,7 @@ addDecoratedSignature(signature: DecoratedSignature): void;
 - - Keypair.signDecorated
  - Keypair.signPayloadDecorated
 
-**Source:** [src/base/transaction_base.ts:196](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction_base.ts#L196)
+**Source:** [src/base/transaction_base.ts:196](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L196)
 
 ### `feeBumpTransaction.addSignature(publicKey, signature)`
 
@@ -341,7 +341,7 @@ addSignature(publicKey: string = "", signature: string = ""): void;
 - **`publicKey`** — `string` (optional) (default: `""`) — the public key of the signer
 - **`signature`** — `string` (optional) (default: `""`) — the base64 value of the signature XDR
 
-**Source:** [src/base/transaction_base.ts:156](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction_base.ts#L156)
+**Source:** [src/base/transaction_base.ts:156](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L156)
 
 ### `feeBumpTransaction.getKeypairSignature(keypair)`
 
@@ -373,7 +373,7 @@ getKeypairSignature(keypair: Keypair): string;
 
 - **`keypair`** — `Keypair` (required) — Keypair of signer
 
-**Source:** [src/base/transaction_base.ts:129](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction_base.ts#L129)
+**Source:** [src/base/transaction_base.ts:129](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L129)
 
 ### `feeBumpTransaction.hash()`
 
@@ -383,7 +383,7 @@ Returns a hash for this transaction, suitable for signing.
 hash(): Buffer;
 ```
 
-**Source:** [src/base/transaction_base.ts:222](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction_base.ts#L222)
+**Source:** [src/base/transaction_base.ts:222](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L222)
 
 ### `feeBumpTransaction.sign(keypairs)`
 
@@ -397,7 +397,7 @@ sign(...keypairs: Keypair[]): void;
 
 - **`...keypairs`** — `Keypair[]` (required) — Keypairs of signers
 
-**Source:** [src/base/transaction_base.ts:97](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction_base.ts#L97)
+**Source:** [src/base/transaction_base.ts:97](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L97)
 
 ### `feeBumpTransaction.signatureBase()`
 
@@ -412,7 +412,7 @@ of this transaction.
 signatureBase(): Buffer;
 ```
 
-**Source:** [src/base/fee_bump_transaction.ts:90](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/fee_bump_transaction.ts#L90)
+**Source:** [src/base/fee_bump_transaction.ts:90](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/fee_bump_transaction.ts#L90)
 
 ### `feeBumpTransaction.signHashX(preimage)`
 
@@ -426,7 +426,7 @@ signHashX(preimage: string | Buffer<ArrayBufferLike>): void;
 
 - **`preimage`** — `string | Buffer<ArrayBufferLike>` (required) — preimage of hash used as signer
 
-**Source:** [src/base/transaction_base.ts:204](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction_base.ts#L204)
+**Source:** [src/base/transaction_base.ts:204](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L204)
 
 ### `feeBumpTransaction.toEnvelope()`
 
@@ -436,7 +436,7 @@ To envelope returns a xdr.TransactionEnvelope which can be submitted to the netw
 toEnvelope(): TransactionEnvelope;
 ```
 
-**Source:** [src/base/fee_bump_transaction.ts:107](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/fee_bump_transaction.ts#L107)
+**Source:** [src/base/fee_bump_transaction.ts:107](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/fee_bump_transaction.ts#L107)
 
 ### `feeBumpTransaction.toXDR()`
 
@@ -446,7 +446,7 @@ Returns the transaction envelope as a base64-encoded XDR string.
 toXDR(): string;
 ```
 
-**Source:** [src/base/transaction_base.ts:239](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction_base.ts#L239)
+**Source:** [src/base/transaction_base.ts:239](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L239)
 
 ## Int128
 
@@ -466,7 +466,7 @@ class Int128 extends LargeInt {
 }
 ```
 
-**Source:** [src/base/numbers/int128.ts:3](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/numbers/int128.ts#L3)
+**Source:** [src/base/numbers/int128.ts:3](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/int128.ts#L3)
 
 ### `new Int128(args)`
 
@@ -481,7 +481,7 @@ constructor(...args: (string | number | bigint)[]);
 - **`...args`** — `(string | number | bigint)[]` (required) — one or more slices to encode
       in big-endian format (i.e. earlier elements are higher bits)
 
-**Source:** [src/base/numbers/int128.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/numbers/int128.ts#L10)
+**Source:** [src/base/numbers/int128.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/int128.ts#L10)
 
 ### `Int128.MAX_VALUE`
 
@@ -489,7 +489,7 @@ constructor(...args: (string | number | bigint)[]);
 static MAX_VALUE: LargeInt;
 ```
 
-**Source:** [types/stellar__js-xdr/index.d.ts:14](https://github.com/stellar/js-stellar-sdk/blob/master/types/stellar__js-xdr/index.d.ts#L14)
+**Source:** [types/stellar__js-xdr/index.d.ts:14](https://github.com/stellar/js-stellar-sdk/blob/main/types/stellar__js-xdr/index.d.ts#L14)
 
 ### `Int128.MIN_VALUE`
 
@@ -497,7 +497,7 @@ static MAX_VALUE: LargeInt;
 static MIN_VALUE: LargeInt;
 ```
 
-**Source:** [types/stellar__js-xdr/index.d.ts:13](https://github.com/stellar/js-stellar-sdk/blob/master/types/stellar__js-xdr/index.d.ts#L13)
+**Source:** [types/stellar__js-xdr/index.d.ts:13](https://github.com/stellar/js-stellar-sdk/blob/main/types/stellar__js-xdr/index.d.ts#L13)
 
 ### `Int128.defineIntBoundaries()`
 
@@ -505,7 +505,7 @@ static MIN_VALUE: LargeInt;
 static defineIntBoundaries(): void;
 ```
 
-**Source:** [types/stellar__js-xdr/index.d.ts:12](https://github.com/stellar/js-stellar-sdk/blob/master/types/stellar__js-xdr/index.d.ts#L12)
+**Source:** [types/stellar__js-xdr/index.d.ts:12](https://github.com/stellar/js-stellar-sdk/blob/main/types/stellar__js-xdr/index.d.ts#L12)
 
 ### `Int128.fromString(value)`
 
@@ -517,7 +517,7 @@ static fromString(value: string): LargeInt;
 
 - **`value`** — `string` (required)
 
-**Source:** [types/stellar__js-xdr/index.d.ts:16](https://github.com/stellar/js-stellar-sdk/blob/master/types/stellar__js-xdr/index.d.ts#L16)
+**Source:** [types/stellar__js-xdr/index.d.ts:16](https://github.com/stellar/js-stellar-sdk/blob/main/types/stellar__js-xdr/index.d.ts#L16)
 
 ### `Int128.isValid(value)`
 
@@ -529,7 +529,7 @@ static isValid(value: unknown): boolean;
 
 - **`value`** — `unknown` (required)
 
-**Source:** [types/stellar__js-xdr/index.d.ts:15](https://github.com/stellar/js-stellar-sdk/blob/master/types/stellar__js-xdr/index.d.ts#L15)
+**Source:** [types/stellar__js-xdr/index.d.ts:15](https://github.com/stellar/js-stellar-sdk/blob/main/types/stellar__js-xdr/index.d.ts#L15)
 
 ### `int128.size`
 
@@ -537,7 +537,7 @@ static isValid(value: unknown): boolean;
 readonly size: number;
 ```
 
-**Source:** [src/base/numbers/int128.ts:18](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/numbers/int128.ts#L18)
+**Source:** [src/base/numbers/int128.ts:18](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/int128.ts#L18)
 
 ### `int128.unsigned`
 
@@ -545,7 +545,7 @@ readonly size: number;
 readonly unsigned: boolean;
 ```
 
-**Source:** [src/base/numbers/int128.ts:14](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/numbers/int128.ts#L14)
+**Source:** [src/base/numbers/int128.ts:14](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/int128.ts#L14)
 
 ### `int128.slice(chunkSize)`
 
@@ -557,7 +557,7 @@ slice(chunkSize: number): bigint[];
 
 - **`chunkSize`** — `number` (required)
 
-**Source:** [types/stellar__js-xdr/index.d.ts:21](https://github.com/stellar/js-stellar-sdk/blob/master/types/stellar__js-xdr/index.d.ts#L21)
+**Source:** [types/stellar__js-xdr/index.d.ts:21](https://github.com/stellar/js-stellar-sdk/blob/main/types/stellar__js-xdr/index.d.ts#L21)
 
 ### `int128.toBigInt()`
 
@@ -565,7 +565,7 @@ slice(chunkSize: number): bigint[];
 toBigInt(): bigint;
 ```
 
-**Source:** [types/stellar__js-xdr/index.d.ts:19](https://github.com/stellar/js-stellar-sdk/blob/master/types/stellar__js-xdr/index.d.ts#L19)
+**Source:** [types/stellar__js-xdr/index.d.ts:19](https://github.com/stellar/js-stellar-sdk/blob/main/types/stellar__js-xdr/index.d.ts#L19)
 
 ### `int128.toString()`
 
@@ -573,7 +573,7 @@ toBigInt(): bigint;
 toString(): string;
 ```
 
-**Source:** [types/stellar__js-xdr/index.d.ts:20](https://github.com/stellar/js-stellar-sdk/blob/master/types/stellar__js-xdr/index.d.ts#L20)
+**Source:** [types/stellar__js-xdr/index.d.ts:20](https://github.com/stellar/js-stellar-sdk/blob/main/types/stellar__js-xdr/index.d.ts#L20)
 
 ## Int256
 
@@ -593,7 +593,7 @@ class Int256 extends LargeInt {
 }
 ```
 
-**Source:** [src/base/numbers/int256.ts:3](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/numbers/int256.ts#L3)
+**Source:** [src/base/numbers/int256.ts:3](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/int256.ts#L3)
 
 ### `new Int256(args)`
 
@@ -608,7 +608,7 @@ constructor(...args: (string | number | bigint)[]);
 - **`...args`** — `(string | number | bigint)[]` (required) — one or more slices to encode
       in big-endian format (i.e. earlier elements are higher bits)
 
-**Source:** [src/base/numbers/int256.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/numbers/int256.ts#L10)
+**Source:** [src/base/numbers/int256.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/int256.ts#L10)
 
 ### `Int256.MAX_VALUE`
 
@@ -616,7 +616,7 @@ constructor(...args: (string | number | bigint)[]);
 static MAX_VALUE: LargeInt;
 ```
 
-**Source:** [types/stellar__js-xdr/index.d.ts:14](https://github.com/stellar/js-stellar-sdk/blob/master/types/stellar__js-xdr/index.d.ts#L14)
+**Source:** [types/stellar__js-xdr/index.d.ts:14](https://github.com/stellar/js-stellar-sdk/blob/main/types/stellar__js-xdr/index.d.ts#L14)
 
 ### `Int256.MIN_VALUE`
 
@@ -624,7 +624,7 @@ static MAX_VALUE: LargeInt;
 static MIN_VALUE: LargeInt;
 ```
 
-**Source:** [types/stellar__js-xdr/index.d.ts:13](https://github.com/stellar/js-stellar-sdk/blob/master/types/stellar__js-xdr/index.d.ts#L13)
+**Source:** [types/stellar__js-xdr/index.d.ts:13](https://github.com/stellar/js-stellar-sdk/blob/main/types/stellar__js-xdr/index.d.ts#L13)
 
 ### `Int256.defineIntBoundaries()`
 
@@ -632,7 +632,7 @@ static MIN_VALUE: LargeInt;
 static defineIntBoundaries(): void;
 ```
 
-**Source:** [types/stellar__js-xdr/index.d.ts:12](https://github.com/stellar/js-stellar-sdk/blob/master/types/stellar__js-xdr/index.d.ts#L12)
+**Source:** [types/stellar__js-xdr/index.d.ts:12](https://github.com/stellar/js-stellar-sdk/blob/main/types/stellar__js-xdr/index.d.ts#L12)
 
 ### `Int256.fromString(value)`
 
@@ -644,7 +644,7 @@ static fromString(value: string): LargeInt;
 
 - **`value`** — `string` (required)
 
-**Source:** [types/stellar__js-xdr/index.d.ts:16](https://github.com/stellar/js-stellar-sdk/blob/master/types/stellar__js-xdr/index.d.ts#L16)
+**Source:** [types/stellar__js-xdr/index.d.ts:16](https://github.com/stellar/js-stellar-sdk/blob/main/types/stellar__js-xdr/index.d.ts#L16)
 
 ### `Int256.isValid(value)`
 
@@ -656,7 +656,7 @@ static isValid(value: unknown): boolean;
 
 - **`value`** — `unknown` (required)
 
-**Source:** [types/stellar__js-xdr/index.d.ts:15](https://github.com/stellar/js-stellar-sdk/blob/master/types/stellar__js-xdr/index.d.ts#L15)
+**Source:** [types/stellar__js-xdr/index.d.ts:15](https://github.com/stellar/js-stellar-sdk/blob/main/types/stellar__js-xdr/index.d.ts#L15)
 
 ### `int256.size`
 
@@ -664,7 +664,7 @@ static isValid(value: unknown): boolean;
 readonly size: number;
 ```
 
-**Source:** [src/base/numbers/int256.ts:18](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/numbers/int256.ts#L18)
+**Source:** [src/base/numbers/int256.ts:18](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/int256.ts#L18)
 
 ### `int256.unsigned`
 
@@ -672,7 +672,7 @@ readonly size: number;
 readonly unsigned: boolean;
 ```
 
-**Source:** [src/base/numbers/int256.ts:14](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/numbers/int256.ts#L14)
+**Source:** [src/base/numbers/int256.ts:14](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/int256.ts#L14)
 
 ### `int256.slice(chunkSize)`
 
@@ -684,7 +684,7 @@ slice(chunkSize: number): bigint[];
 
 - **`chunkSize`** — `number` (required)
 
-**Source:** [types/stellar__js-xdr/index.d.ts:21](https://github.com/stellar/js-stellar-sdk/blob/master/types/stellar__js-xdr/index.d.ts#L21)
+**Source:** [types/stellar__js-xdr/index.d.ts:21](https://github.com/stellar/js-stellar-sdk/blob/main/types/stellar__js-xdr/index.d.ts#L21)
 
 ### `int256.toBigInt()`
 
@@ -692,7 +692,7 @@ slice(chunkSize: number): bigint[];
 toBigInt(): bigint;
 ```
 
-**Source:** [types/stellar__js-xdr/index.d.ts:19](https://github.com/stellar/js-stellar-sdk/blob/master/types/stellar__js-xdr/index.d.ts#L19)
+**Source:** [types/stellar__js-xdr/index.d.ts:19](https://github.com/stellar/js-stellar-sdk/blob/main/types/stellar__js-xdr/index.d.ts#L19)
 
 ### `int256.toString()`
 
@@ -700,7 +700,7 @@ toBigInt(): bigint;
 toString(): string;
 ```
 
-**Source:** [types/stellar__js-xdr/index.d.ts:20](https://github.com/stellar/js-stellar-sdk/blob/master/types/stellar__js-xdr/index.d.ts#L20)
+**Source:** [types/stellar__js-xdr/index.d.ts:20](https://github.com/stellar/js-stellar-sdk/blob/main/types/stellar__js-xdr/index.d.ts#L20)
 
 ## Memo
 
@@ -725,7 +725,7 @@ class Memo<T extends MemoType = MemoType> {
 
 - [Transactions concept](https://developers.stellar.org/docs/glossary/transactions/)
 
-**Source:** [src/base/memo.ts:63](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/memo.ts#L63)
+**Source:** [src/base/memo.ts:63](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L63)
 
 ### `new Memo(type, value)`
 
@@ -738,7 +738,7 @@ constructor(type: "none", value?: null);
 - **`type`** — `"none"` (required)
 - **`value`** — `null` (optional)
 
-**Source:** [src/base/memo.ts:67](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/memo.ts#L67)
+**Source:** [src/base/memo.ts:67](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L67)
 
 ### `Memo.fromXDRObject(object)`
 
@@ -752,7 +752,7 @@ static fromXDRObject(object: Memo): Memo;
 
 - **`object`** — `Memo` (required) — XDR memo object
 
-**Source:** [src/base/memo.ts:302](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/memo.ts#L302)
+**Source:** [src/base/memo.ts:302](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L302)
 
 ### `Memo.hash(hash)`
 
@@ -766,7 +766,7 @@ static hash(hash: string | Buffer<ArrayBufferLike>): Memo<"hash">;
 
 - **`hash`** — `string | Buffer<ArrayBufferLike>` (required) — 32 byte hash or hex encoded string
 
-**Source:** [src/base/memo.ts:260](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/memo.ts#L260)
+**Source:** [src/base/memo.ts:260](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L260)
 
 ### `Memo.id(id)`
 
@@ -780,7 +780,7 @@ static id(id: string): Memo<"id">;
 
 - **`id`** — `string` (required) — 64-bit number represented as a string
 
-**Source:** [src/base/memo.ts:251](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/memo.ts#L251)
+**Source:** [src/base/memo.ts:251](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L251)
 
 ### `Memo.none()`
 
@@ -790,7 +790,7 @@ Returns an empty memo (`MemoNone`).
 static none(): Memo<"none">;
 ```
 
-**Source:** [src/base/memo.ts:233](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/memo.ts#L233)
+**Source:** [src/base/memo.ts:233](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L233)
 
 ### `Memo.return(hash)`
 
@@ -804,7 +804,7 @@ static return(hash: string | Buffer<ArrayBufferLike>): Memo<"return">;
 
 - **`hash`** — `string | Buffer<ArrayBufferLike>` (required) — 32 byte hash or hex encoded string
 
-**Source:** [src/base/memo.ts:269](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/memo.ts#L269)
+**Source:** [src/base/memo.ts:269](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L269)
 
 ### `Memo.text(text)`
 
@@ -818,7 +818,7 @@ static text(text: string): Memo<"text">;
 
 - **`text`** — `string` (required) — memo text
 
-**Source:** [src/base/memo.ts:242](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/memo.ts#L242)
+**Source:** [src/base/memo.ts:242](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L242)
 
 ### `memo.type`
 
@@ -828,7 +828,7 @@ Contains memo type: `MemoNone`, `MemoID`, `MemoText`, `MemoHash` or `MemoReturn`
 type: T;
 ```
 
-**Source:** [src/base/memo.ts:107](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/memo.ts#L107)
+**Source:** [src/base/memo.ts:107](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L107)
 
 ### `memo.value`
 
@@ -842,7 +842,7 @@ Contains memo value:
 value: MemoTypeToValue<T>;
 ```
 
-**Source:** [src/base/memo.ts:122](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/memo.ts#L122)
+**Source:** [src/base/memo.ts:122](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L122)
 
 ### `memo.toXDRObject()`
 
@@ -852,7 +852,7 @@ Returns XDR memo object.
 toXDRObject(): Memo;
 ```
 
-**Source:** [src/base/memo.ts:276](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/memo.ts#L276)
+**Source:** [src/base/memo.ts:276](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L276)
 
 ## MemoHash
 
@@ -862,7 +862,7 @@ Type of `Memo`.
 const MemoHash: "hash"
 ```
 
-**Source:** [src/base/memo.ts:21](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/memo.ts#L21)
+**Source:** [src/base/memo.ts:21](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L21)
 
 ## MemoID
 
@@ -872,7 +872,7 @@ Type of `Memo`.
 const MemoID: "id"
 ```
 
-**Source:** [src/base/memo.ts:13](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/memo.ts#L13)
+**Source:** [src/base/memo.ts:13](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L13)
 
 ## MemoNone
 
@@ -882,7 +882,7 @@ Type of `Memo`.
 const MemoNone: "none"
 ```
 
-**Source:** [src/base/memo.ts:9](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/memo.ts#L9)
+**Source:** [src/base/memo.ts:9](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L9)
 
 ## MemoReturn
 
@@ -892,7 +892,7 @@ Type of `Memo`.
 const MemoReturn: "return"
 ```
 
-**Source:** [src/base/memo.ts:25](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/memo.ts#L25)
+**Source:** [src/base/memo.ts:25](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L25)
 
 ## MemoText
 
@@ -902,7 +902,7 @@ Type of `Memo`.
 const MemoText: "text"
 ```
 
-**Source:** [src/base/memo.ts:17](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/memo.ts#L17)
+**Source:** [src/base/memo.ts:17](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L17)
 
 ## MemoType
 
@@ -910,7 +910,7 @@ const MemoText: "text"
 type MemoType = MemoTypeHash | MemoTypeID | MemoTypeNone | MemoTypeReturn | MemoTypeText
 ```
 
-**Source:** [src/base/memo.ts:33](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/memo.ts#L33)
+**Source:** [src/base/memo.ts:33](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L33)
 
 ## MemoType.Hash
 
@@ -918,7 +918,7 @@ type MemoType = MemoTypeHash | MemoTypeID | MemoTypeNone | MemoTypeReturn | Memo
 type Hash = MemoTypeHash
 ```
 
-**Source:** [src/base/memo.ts:37](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/memo.ts#L37)
+**Source:** [src/base/memo.ts:37](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L37)
 
 ## MemoType.ID
 
@@ -926,7 +926,7 @@ type Hash = MemoTypeHash
 type ID = MemoTypeID
 ```
 
-**Source:** [src/base/memo.ts:35](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/memo.ts#L35)
+**Source:** [src/base/memo.ts:35](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L35)
 
 ## MemoType.None
 
@@ -934,7 +934,7 @@ type ID = MemoTypeID
 type None = MemoTypeNone
 ```
 
-**Source:** [src/base/memo.ts:34](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/memo.ts#L34)
+**Source:** [src/base/memo.ts:34](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L34)
 
 ## MemoType.Return
 
@@ -942,7 +942,7 @@ type None = MemoTypeNone
 type Return = MemoTypeReturn
 ```
 
-**Source:** [src/base/memo.ts:38](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/memo.ts#L38)
+**Source:** [src/base/memo.ts:38](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L38)
 
 ## MemoType.Text
 
@@ -950,7 +950,7 @@ type Return = MemoTypeReturn
 type Text = MemoTypeText
 ```
 
-**Source:** [src/base/memo.ts:36](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/memo.ts#L36)
+**Source:** [src/base/memo.ts:36](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L36)
 
 ## MemoTypeHash
 
@@ -958,7 +958,7 @@ type Text = MemoTypeText
 type MemoTypeHash = typeof MemoHash
 ```
 
-**Source:** [src/base/memo.ts:30](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/memo.ts#L30)
+**Source:** [src/base/memo.ts:30](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L30)
 
 ## MemoTypeID
 
@@ -966,7 +966,7 @@ type MemoTypeHash = typeof MemoHash
 type MemoTypeID = typeof MemoID
 ```
 
-**Source:** [src/base/memo.ts:28](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/memo.ts#L28)
+**Source:** [src/base/memo.ts:28](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L28)
 
 ## MemoTypeNone
 
@@ -974,7 +974,7 @@ type MemoTypeID = typeof MemoID
 type MemoTypeNone = typeof MemoNone
 ```
 
-**Source:** [src/base/memo.ts:27](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/memo.ts#L27)
+**Source:** [src/base/memo.ts:27](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L27)
 
 ## MemoTypeReturn
 
@@ -982,7 +982,7 @@ type MemoTypeNone = typeof MemoNone
 type MemoTypeReturn = typeof MemoReturn
 ```
 
-**Source:** [src/base/memo.ts:31](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/memo.ts#L31)
+**Source:** [src/base/memo.ts:31](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L31)
 
 ## MemoTypeText
 
@@ -990,7 +990,7 @@ type MemoTypeReturn = typeof MemoReturn
 type MemoTypeText = typeof MemoText
 ```
 
-**Source:** [src/base/memo.ts:29](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/memo.ts#L29)
+**Source:** [src/base/memo.ts:29](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L29)
 
 ## MemoValue
 
@@ -998,7 +998,7 @@ type MemoTypeText = typeof MemoText
 type MemoValue = Buffer | string | null
 ```
 
-**Source:** [src/base/memo.ts:47](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/memo.ts#L47)
+**Source:** [src/base/memo.ts:47](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L47)
 
 ## MuxedAccount
 
@@ -1047,7 +1047,7 @@ class MuxedAccount {
 
 - https://developers.stellar.org/docs/glossary/muxed-accounts/
 
-**Source:** [src/base/muxed_account.ts:59](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/muxed_account.ts#L59)
+**Source:** [src/base/muxed_account.ts:59](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L59)
 
 ### `new MuxedAccount(baseAccount, id)`
 
@@ -1062,7 +1062,7 @@ constructor(baseAccount: Account, id: string);
 - **`id`** — `string` (required) — a stringified uint64 value that represents the ID of the
       muxed account
 
-**Source:** [src/base/muxed_account.ts:71](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/muxed_account.ts#L71)
+**Source:** [src/base/muxed_account.ts:71](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L71)
 
 ### `MuxedAccount.fromAddress(mAddress, sequenceNum)`
 
@@ -1078,7 +1078,7 @@ static fromAddress(mAddress: string, sequenceNum: string): MuxedAccount;
 - **`sequenceNum`** — `string` (required) — the sequence number of the underlying `Account`, to use for the underlying base account `MuxedAccount.baseAccount`. If you're using the SDK, you can use
       `server.loadAccount` to fetch this if you don't know it.
 
-**Source:** [src/base/muxed_account.ts:95](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/muxed_account.ts#L95)
+**Source:** [src/base/muxed_account.ts:95](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L95)
 
 ### `muxedAccount.accountId()`
 
@@ -1088,7 +1088,7 @@ Returns the M-address representing this account's (G-address, ID).
 accountId(): string;
 ```
 
-**Source:** [src/base/muxed_account.ts:114](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/muxed_account.ts#L114)
+**Source:** [src/base/muxed_account.ts:114](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L114)
 
 ### `muxedAccount.baseAccount()`
 
@@ -1099,7 +1099,7 @@ accounts with this Stellar address.
 baseAccount(): Account;
 ```
 
-**Source:** [src/base/muxed_account.ts:107](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/muxed_account.ts#L107)
+**Source:** [src/base/muxed_account.ts:107](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L107)
 
 ### `muxedAccount.equals(otherMuxedAccount)`
 
@@ -1113,7 +1113,7 @@ equals(otherMuxedAccount: MuxedAccount): boolean;
 
 - **`otherMuxedAccount`** — `MuxedAccount` (required) — the MuxedAccount to compare against
 
-**Source:** [src/base/muxed_account.ts:170](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/muxed_account.ts#L170)
+**Source:** [src/base/muxed_account.ts:170](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L170)
 
 ### `muxedAccount.id()`
 
@@ -1123,7 +1123,7 @@ Returns the uint64 ID of this muxed account as a string.
 id(): string;
 ```
 
-**Source:** [src/base/muxed_account.ts:121](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/muxed_account.ts#L121)
+**Source:** [src/base/muxed_account.ts:121](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L121)
 
 ### `muxedAccount.incrementSequenceNumber()`
 
@@ -1133,7 +1133,7 @@ Increments the underlying account's sequence number by one.
 incrementSequenceNumber(): void;
 ```
 
-**Source:** [src/base/muxed_account.ts:153](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/muxed_account.ts#L153)
+**Source:** [src/base/muxed_account.ts:153](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L153)
 
 ### `muxedAccount.sequenceNumber()`
 
@@ -1143,7 +1143,7 @@ Returns the stringified sequence number for the underlying account.
 sequenceNumber(): string;
 ```
 
-**Source:** [src/base/muxed_account.ts:146](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/muxed_account.ts#L146)
+**Source:** [src/base/muxed_account.ts:146](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L146)
 
 ### `muxedAccount.setId(id)`
 
@@ -1157,7 +1157,7 @@ setId(id: string): MuxedAccount;
 
 - **`id`** — `string` (required) — a stringified uint64 value to set as the new muxed account ID
 
-**Source:** [src/base/muxed_account.ts:130](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/muxed_account.ts#L130)
+**Source:** [src/base/muxed_account.ts:130](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L130)
 
 ### `muxedAccount.toXDRObject()`
 
@@ -1168,7 +1168,7 @@ G-address and uint64 ID.
 toXDRObject(): MuxedAccount;
 ```
 
-**Source:** [src/base/muxed_account.ts:161](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/muxed_account.ts#L161)
+**Source:** [src/base/muxed_account.ts:161](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L161)
 
 ## Networks
 
@@ -1183,7 +1183,7 @@ Contains passphrases for common networks:
 enum Networks
 ```
 
-**Source:** [src/base/network.ts:9](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/network.ts#L9)
+**Source:** [src/base/network.ts:9](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/network.ts#L9)
 
 ## Operation
 
@@ -1275,7 +1275,7 @@ class Operation {
 }
 ```
 
-**Source:** [src/base/operation.ts:131](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L131)
+**Source:** [src/base/operation.ts:131](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L131)
 
 ### `new Operation()`
 
@@ -1289,7 +1289,7 @@ constructor();
 static accountMerge: (opts: AccountMergeOpts) => Operation2<AccountMergeResult>;
 ```
 
-**Source:** [src/base/operation.ts:436](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L436)
+**Source:** [src/base/operation.ts:436](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L436)
 
 ### `Operation.allowTrust`
 
@@ -1297,7 +1297,7 @@ static accountMerge: (opts: AccountMergeOpts) => Operation2<AccountMergeResult>;
 static allowTrust: (opts: AllowTrustOpts) => Operation2<AllowTrustResult>;
 ```
 
-**Source:** [src/base/operation.ts:437](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L437)
+**Source:** [src/base/operation.ts:437](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L437)
 
 ### `Operation.beginSponsoringFutureReserves`
 
@@ -1305,7 +1305,7 @@ static allowTrust: (opts: AllowTrustOpts) => Operation2<AllowTrustResult>;
 static beginSponsoringFutureReserves: (opts: BeginSponsoringFutureReservesOpts) => Operation2<BeginSponsoringFutureReservesResult>;
 ```
 
-**Source:** [src/base/operation.ts:453](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L453)
+**Source:** [src/base/operation.ts:453](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L453)
 
 ### `Operation.bumpSequence`
 
@@ -1313,7 +1313,7 @@ static beginSponsoringFutureReserves: (opts: BeginSponsoringFutureReservesOpts) 
 static bumpSequence: (opts: BumpSequenceOpts) => Operation2<BumpSequenceResult>;
 ```
 
-**Source:** [src/base/operation.ts:438](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L438)
+**Source:** [src/base/operation.ts:438](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L438)
 
 ### `Operation.changeTrust`
 
@@ -1321,7 +1321,7 @@ static bumpSequence: (opts: BumpSequenceOpts) => Operation2<BumpSequenceResult>;
 static changeTrust: (opts: ChangeTrustOpts) => Operation2<ChangeTrustResult>;
 ```
 
-**Source:** [src/base/operation.ts:439](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L439)
+**Source:** [src/base/operation.ts:439](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L439)
 
 ### `Operation.claimClaimableBalance`
 
@@ -1329,7 +1329,7 @@ static changeTrust: (opts: ChangeTrustOpts) => Operation2<ChangeTrustResult>;
 static claimClaimableBalance: (opts: ClaimClaimableBalanceOpts = ...) => Operation2<ClaimClaimableBalanceResult>;
 ```
 
-**Source:** [src/base/operation.ts:442](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L442)
+**Source:** [src/base/operation.ts:442](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L442)
 
 ### `Operation.clawback`
 
@@ -1337,7 +1337,7 @@ static claimClaimableBalance: (opts: ClaimClaimableBalanceOpts = ...) => Operati
 static clawback: (opts: ClawbackOpts) => Operation2<ClawbackResult>;
 ```
 
-**Source:** [src/base/operation.ts:463](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L463)
+**Source:** [src/base/operation.ts:463](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L463)
 
 ### `Operation.clawbackClaimableBalance`
 
@@ -1345,7 +1345,7 @@ static clawback: (opts: ClawbackOpts) => Operation2<ClawbackResult>;
 static clawbackClaimableBalance: (opts: ClawbackClaimableBalanceOpts = ...) => Operation2<ClawbackClaimableBalanceResult>;
 ```
 
-**Source:** [src/base/operation.ts:443](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L443)
+**Source:** [src/base/operation.ts:443](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L443)
 
 ### `Operation.createAccount`
 
@@ -1353,7 +1353,7 @@ static clawbackClaimableBalance: (opts: ClawbackClaimableBalanceOpts = ...) => O
 static createAccount: (opts: CreateAccountOpts) => Operation2<CreateAccountResult>;
 ```
 
-**Source:** [src/base/operation.ts:440](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L440)
+**Source:** [src/base/operation.ts:440](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L440)
 
 ### `Operation.createClaimableBalance`
 
@@ -1361,7 +1361,7 @@ static createAccount: (opts: CreateAccountOpts) => Operation2<CreateAccountResul
 static createClaimableBalance: (opts: CreateClaimableBalanceOpts) => Operation2<CreateClaimableBalanceResult>;
 ```
 
-**Source:** [src/base/operation.ts:441](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L441)
+**Source:** [src/base/operation.ts:441](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L441)
 
 ### `Operation.createCustomContract`
 
@@ -1369,7 +1369,7 @@ static createClaimableBalance: (opts: CreateClaimableBalanceOpts) => Operation2<
 static createCustomContract: (opts: CreateCustomContractOpts) => Operation2<InvokeHostFunctionResult>;
 ```
 
-**Source:** [src/base/operation.ts:475](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L475)
+**Source:** [src/base/operation.ts:475](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L475)
 
 ### `Operation.createPassiveSellOffer`
 
@@ -1377,7 +1377,7 @@ static createCustomContract: (opts: CreateCustomContractOpts) => Operation2<Invo
 static createPassiveSellOffer: (opts: CreatePassiveSellOfferOpts) => Operation2<CreatePassiveSellOfferResult>;
 ```
 
-**Source:** [src/base/operation.ts:444](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L444)
+**Source:** [src/base/operation.ts:444](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L444)
 
 ### `Operation.createStellarAssetContract`
 
@@ -1385,7 +1385,7 @@ static createPassiveSellOffer: (opts: CreatePassiveSellOfferOpts) => Operation2<
 static createStellarAssetContract: (opts: CreateStellarAssetContractOpts) => Operation2<InvokeHostFunctionResult>;
 ```
 
-**Source:** [src/base/operation.ts:473](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L473)
+**Source:** [src/base/operation.ts:473](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L473)
 
 ### `Operation.endSponsoringFutureReserves`
 
@@ -1393,7 +1393,7 @@ static createStellarAssetContract: (opts: CreateStellarAssetContractOpts) => Ope
 static endSponsoringFutureReserves: (opts: EndSponsoringFutureReservesOpts = {}) => Operation2<EndSponsoringFutureReservesResult>;
 ```
 
-**Source:** [src/base/operation.ts:454](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L454)
+**Source:** [src/base/operation.ts:454](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L454)
 
 ### `Operation.extendFootprintTtl`
 
@@ -1401,7 +1401,7 @@ static endSponsoringFutureReserves: (opts: EndSponsoringFutureReservesOpts = {})
 static extendFootprintTtl: (opts: ExtendFootprintTtlOpts) => Operation2<ExtendFootprintTTLResult>;
 ```
 
-**Source:** [src/base/operation.ts:468](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L468)
+**Source:** [src/base/operation.ts:468](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L468)
 
 ### `Operation.inflation`
 
@@ -1409,7 +1409,7 @@ static extendFootprintTtl: (opts: ExtendFootprintTtlOpts) => Operation2<ExtendFo
 static inflation: (opts: InflationOpts = {}) => Operation2<InflationResult>;
 ```
 
-**Source:** [src/base/operation.ts:445](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L445)
+**Source:** [src/base/operation.ts:445](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L445)
 
 ### `Operation.invokeContractFunction`
 
@@ -1417,7 +1417,7 @@ static inflation: (opts: InflationOpts = {}) => Operation2<InflationResult>;
 static invokeContractFunction: (opts: InvokeContractFunctionOpts) => Operation2<InvokeHostFunctionResult>;
 ```
 
-**Source:** [src/base/operation.ts:474](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L474)
+**Source:** [src/base/operation.ts:474](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L474)
 
 ### `Operation.invokeHostFunction`
 
@@ -1425,7 +1425,7 @@ static invokeContractFunction: (opts: InvokeContractFunctionOpts) => Operation2<
 static invokeHostFunction: (opts: InvokeHostFunctionOpts) => Operation2<InvokeHostFunctionResult>;
 ```
 
-**Source:** [src/base/operation.ts:467](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L467)
+**Source:** [src/base/operation.ts:467](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L467)
 
 ### `Operation.liquidityPoolDeposit`
 
@@ -1433,7 +1433,7 @@ static invokeHostFunction: (opts: InvokeHostFunctionOpts) => Operation2<InvokeHo
 static liquidityPoolDeposit: (opts: LiquidityPoolDepositOpts = ...) => Operation2<LiquidityPoolDepositResult>;
 ```
 
-**Source:** [src/base/operation.ts:465](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L465)
+**Source:** [src/base/operation.ts:465](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L465)
 
 ### `Operation.liquidityPoolWithdraw`
 
@@ -1441,7 +1441,7 @@ static liquidityPoolDeposit: (opts: LiquidityPoolDepositOpts = ...) => Operation
 static liquidityPoolWithdraw: (opts: LiquidityPoolWithdrawOpts = ...) => Operation2<LiquidityPoolWithdrawResult>;
 ```
 
-**Source:** [src/base/operation.ts:466](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L466)
+**Source:** [src/base/operation.ts:466](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L466)
 
 ### `Operation.manageBuyOffer`
 
@@ -1449,7 +1449,7 @@ static liquidityPoolWithdraw: (opts: LiquidityPoolWithdrawOpts = ...) => Operati
 static manageBuyOffer: (opts: ManageBuyOfferOpts) => Operation2<ManageBuyOfferResult>;
 ```
 
-**Source:** [src/base/operation.ts:448](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L448)
+**Source:** [src/base/operation.ts:448](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L448)
 
 ### `Operation.manageData`
 
@@ -1457,7 +1457,7 @@ static manageBuyOffer: (opts: ManageBuyOfferOpts) => Operation2<ManageBuyOfferRe
 static manageData: (opts: ManageDataOpts) => Operation2<ManageDataResult>;
 ```
 
-**Source:** [src/base/operation.ts:446](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L446)
+**Source:** [src/base/operation.ts:446](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L446)
 
 ### `Operation.manageSellOffer`
 
@@ -1465,7 +1465,7 @@ static manageData: (opts: ManageDataOpts) => Operation2<ManageDataResult>;
 static manageSellOffer: (opts: ManageSellOfferOpts) => Operation2<ManageSellOfferResult>;
 ```
 
-**Source:** [src/base/operation.ts:447](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L447)
+**Source:** [src/base/operation.ts:447](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L447)
 
 ### `Operation.pathPaymentStrictReceive`
 
@@ -1473,7 +1473,7 @@ static manageSellOffer: (opts: ManageSellOfferOpts) => Operation2<ManageSellOffe
 static pathPaymentStrictReceive: (opts: PathPaymentStrictReceiveOpts) => Operation2<PathPaymentStrictReceiveResult>;
 ```
 
-**Source:** [src/base/operation.ts:449](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L449)
+**Source:** [src/base/operation.ts:449](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L449)
 
 ### `Operation.pathPaymentStrictSend`
 
@@ -1481,7 +1481,7 @@ static pathPaymentStrictReceive: (opts: PathPaymentStrictReceiveOpts) => Operati
 static pathPaymentStrictSend: (opts: PathPaymentStrictSendOpts) => Operation2<PathPaymentStrictSendResult>;
 ```
 
-**Source:** [src/base/operation.ts:450](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L450)
+**Source:** [src/base/operation.ts:450](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L450)
 
 ### `Operation.payment`
 
@@ -1489,7 +1489,7 @@ static pathPaymentStrictSend: (opts: PathPaymentStrictSendOpts) => Operation2<Pa
 static payment: (opts: PaymentOpts) => Operation2<PaymentResult>;
 ```
 
-**Source:** [src/base/operation.ts:451](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L451)
+**Source:** [src/base/operation.ts:451](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L451)
 
 ### `Operation.restoreFootprint`
 
@@ -1497,7 +1497,7 @@ static payment: (opts: PaymentOpts) => Operation2<PaymentResult>;
 static restoreFootprint: (opts: RestoreFootprintOpts = {}) => Operation2<RestoreFootprintResult>;
 ```
 
-**Source:** [src/base/operation.ts:469](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L469)
+**Source:** [src/base/operation.ts:469](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L469)
 
 ### `Operation.revokeAccountSponsorship`
 
@@ -1505,7 +1505,7 @@ static restoreFootprint: (opts: RestoreFootprintOpts = {}) => Operation2<Restore
 static revokeAccountSponsorship: (opts: RevokeAccountSponsorshipOpts = ...) => Operation2<RevokeAccountSponsorshipResult>;
 ```
 
-**Source:** [src/base/operation.ts:455](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L455)
+**Source:** [src/base/operation.ts:455](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L455)
 
 ### `Operation.revokeClaimableBalanceSponsorship`
 
@@ -1513,7 +1513,7 @@ static revokeAccountSponsorship: (opts: RevokeAccountSponsorshipOpts = ...) => O
 static revokeClaimableBalanceSponsorship: (opts: RevokeClaimableBalanceSponsorshipOpts = ...) => Operation2<RevokeClaimableBalanceSponsorshipResult>;
 ```
 
-**Source:** [src/base/operation.ts:459](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L459)
+**Source:** [src/base/operation.ts:459](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L459)
 
 ### `Operation.revokeDataSponsorship`
 
@@ -1521,7 +1521,7 @@ static revokeClaimableBalanceSponsorship: (opts: RevokeClaimableBalanceSponsorsh
 static revokeDataSponsorship: (opts: RevokeDataSponsorshipOpts = ...) => Operation2<RevokeDataSponsorshipResult>;
 ```
 
-**Source:** [src/base/operation.ts:458](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L458)
+**Source:** [src/base/operation.ts:458](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L458)
 
 ### `Operation.revokeLiquidityPoolSponsorship`
 
@@ -1529,7 +1529,7 @@ static revokeDataSponsorship: (opts: RevokeDataSponsorshipOpts = ...) => Operati
 static revokeLiquidityPoolSponsorship: (opts: RevokeLiquidityPoolSponsorshipOpts = ...) => Operation2<RevokeLiquidityPoolSponsorshipResult>;
 ```
 
-**Source:** [src/base/operation.ts:461](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L461)
+**Source:** [src/base/operation.ts:461](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L461)
 
 ### `Operation.revokeOfferSponsorship`
 
@@ -1537,7 +1537,7 @@ static revokeLiquidityPoolSponsorship: (opts: RevokeLiquidityPoolSponsorshipOpts
 static revokeOfferSponsorship: (opts: RevokeOfferSponsorshipOpts = ...) => Operation2<RevokeOfferSponsorshipResult>;
 ```
 
-**Source:** [src/base/operation.ts:457](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L457)
+**Source:** [src/base/operation.ts:457](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L457)
 
 ### `Operation.revokeSignerSponsorship`
 
@@ -1545,7 +1545,7 @@ static revokeOfferSponsorship: (opts: RevokeOfferSponsorshipOpts = ...) => Opera
 static revokeSignerSponsorship: (opts: RevokeSignerSponsorshipOpts = ...) => Operation2<RevokeSignerSponsorshipResult>;
 ```
 
-**Source:** [src/base/operation.ts:462](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L462)
+**Source:** [src/base/operation.ts:462](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L462)
 
 ### `Operation.revokeTrustlineSponsorship`
 
@@ -1553,7 +1553,7 @@ static revokeSignerSponsorship: (opts: RevokeSignerSponsorshipOpts = ...) => Ope
 static revokeTrustlineSponsorship: (opts: RevokeTrustlineSponsorshipOpts = ...) => Operation2<RevokeTrustlineSponsorshipResult>;
 ```
 
-**Source:** [src/base/operation.ts:456](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L456)
+**Source:** [src/base/operation.ts:456](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L456)
 
 ### `Operation.setOptions`
 
@@ -1561,7 +1561,7 @@ static revokeTrustlineSponsorship: (opts: RevokeTrustlineSponsorshipOpts = ...) 
 static setOptions: <T extends SignerOpts = never>(opts: SetOptionsOpts<T>) => Operation2<SetOptionsResult<T>>;
 ```
 
-**Source:** [src/base/operation.ts:452](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L452)
+**Source:** [src/base/operation.ts:452](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L452)
 
 ### `Operation.setTrustLineFlags`
 
@@ -1569,7 +1569,7 @@ static setOptions: <T extends SignerOpts = never>(opts: SetOptionsOpts<T>) => Op
 static setTrustLineFlags: (opts: SetTrustLineFlagsOpts) => Operation2<SetTrustLineFlagsResult>;
 ```
 
-**Source:** [src/base/operation.ts:464](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L464)
+**Source:** [src/base/operation.ts:464](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L464)
 
 ### `Operation.uploadContractWasm`
 
@@ -1577,7 +1577,7 @@ static setTrustLineFlags: (opts: SetTrustLineFlagsOpts) => Operation2<SetTrustLi
 static uploadContractWasm: (opts: UploadContractWasmOpts) => Operation2<InvokeHostFunctionResult>;
 ```
 
-**Source:** [src/base/operation.ts:476](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L476)
+**Source:** [src/base/operation.ts:476](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L476)
 
 ### `Operation.fromXDRObject(operation)`
 
@@ -1592,7 +1592,7 @@ static fromXDRObject<T extends OperationRecord = OperationRecord>(operation: Ope
 
 - **`operation`** — `Operation2<T>` (required) — An XDR Operation.
 
-**Source:** [src/base/operation.ts:139](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L139)
+**Source:** [src/base/operation.ts:139](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L139)
 
 ## Operation.AccountMerge
 
@@ -1600,7 +1600,7 @@ static fromXDRObject<T extends OperationRecord = OperationRecord>(operation: Ope
 type AccountMerge = AccountMergeResult
 ```
 
-**Source:** [src/base/operation.ts:613](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L613)
+**Source:** [src/base/operation.ts:613](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L613)
 
 ## Operation.AllowTrust
 
@@ -1608,7 +1608,7 @@ type AccountMerge = AccountMergeResult
 type AllowTrust = AllowTrustResult
 ```
 
-**Source:** [src/base/operation.ts:612](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L612)
+**Source:** [src/base/operation.ts:612](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L612)
 
 ## Operation.BaseOperation
 
@@ -1616,7 +1616,7 @@ type AllowTrust = AllowTrustResult
 type BaseOperation<T extends _OperationType = _OperationType> = _BaseOperation<T>
 ```
 
-**Source:** [src/base/operation.ts:601](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L601)
+**Source:** [src/base/operation.ts:601](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L601)
 
 ## Operation.BeginSponsoringFutureReserves
 
@@ -1624,7 +1624,7 @@ type BaseOperation<T extends _OperationType = _OperationType> = _BaseOperation<T
 type BeginSponsoringFutureReserves = BeginSponsoringFutureReservesResult
 ```
 
-**Source:** [src/base/operation.ts:619](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L619)
+**Source:** [src/base/operation.ts:619](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L619)
 
 ## Operation.BumpSequence
 
@@ -1632,7 +1632,7 @@ type BeginSponsoringFutureReserves = BeginSponsoringFutureReservesResult
 type BumpSequence = BumpSequenceResult
 ```
 
-**Source:** [src/base/operation.ts:616](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L616)
+**Source:** [src/base/operation.ts:616](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L616)
 
 ## Operation.ChangeTrust
 
@@ -1640,7 +1640,7 @@ type BumpSequence = BumpSequenceResult
 type ChangeTrust = ChangeTrustResult
 ```
 
-**Source:** [src/base/operation.ts:611](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L611)
+**Source:** [src/base/operation.ts:611](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L611)
 
 ## Operation.ClaimClaimableBalance
 
@@ -1648,7 +1648,7 @@ type ChangeTrust = ChangeTrustResult
 type ClaimClaimableBalance = ClaimClaimableBalanceResult
 ```
 
-**Source:** [src/base/operation.ts:618](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L618)
+**Source:** [src/base/operation.ts:618](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L618)
 
 ## Operation.Clawback
 
@@ -1656,7 +1656,7 @@ type ClaimClaimableBalance = ClaimClaimableBalanceResult
 type Clawback = ClawbackResult
 ```
 
-**Source:** [src/base/operation.ts:631](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L631)
+**Source:** [src/base/operation.ts:631](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L631)
 
 ## Operation.ClawbackClaimableBalance
 
@@ -1664,7 +1664,7 @@ type Clawback = ClawbackResult
 type ClawbackClaimableBalance = ClawbackClaimableBalanceResult
 ```
 
-**Source:** [src/base/operation.ts:632](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L632)
+**Source:** [src/base/operation.ts:632](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L632)
 
 ## Operation.CreateAccount
 
@@ -1672,7 +1672,7 @@ type ClawbackClaimableBalance = ClawbackClaimableBalanceResult
 type CreateAccount = CreateAccountResult
 ```
 
-**Source:** [src/base/operation.ts:603](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L603)
+**Source:** [src/base/operation.ts:603](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L603)
 
 ## Operation.CreateClaimableBalance
 
@@ -1680,7 +1680,7 @@ type CreateAccount = CreateAccountResult
 type CreateClaimableBalance = CreateClaimableBalanceResult
 ```
 
-**Source:** [src/base/operation.ts:617](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L617)
+**Source:** [src/base/operation.ts:617](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L617)
 
 ## Operation.CreatePassiveSellOffer
 
@@ -1688,7 +1688,7 @@ type CreateClaimableBalance = CreateClaimableBalanceResult
 type CreatePassiveSellOffer = CreatePassiveSellOfferResult
 ```
 
-**Source:** [src/base/operation.ts:607](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L607)
+**Source:** [src/base/operation.ts:607](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L607)
 
 ## Operation.EndSponsoringFutureReserves
 
@@ -1696,7 +1696,7 @@ type CreatePassiveSellOffer = CreatePassiveSellOfferResult
 type EndSponsoringFutureReserves = EndSponsoringFutureReservesResult
 ```
 
-**Source:** [src/base/operation.ts:621](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L621)
+**Source:** [src/base/operation.ts:621](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L621)
 
 ## Operation.ExtendFootprintTTL
 
@@ -1704,7 +1704,7 @@ type EndSponsoringFutureReserves = EndSponsoringFutureReservesResult
 type ExtendFootprintTTL = ExtendFootprintTTLResult
 ```
 
-**Source:** [src/base/operation.ts:637](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L637)
+**Source:** [src/base/operation.ts:637](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L637)
 
 ## Operation.Inflation
 
@@ -1712,7 +1712,7 @@ type ExtendFootprintTTL = ExtendFootprintTTLResult
 type Inflation = InflationResult
 ```
 
-**Source:** [src/base/operation.ts:614](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L614)
+**Source:** [src/base/operation.ts:614](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L614)
 
 ## Operation.InvokeHostFunction
 
@@ -1720,7 +1720,7 @@ type Inflation = InflationResult
 type InvokeHostFunction = InvokeHostFunctionResult
 ```
 
-**Source:** [src/base/operation.ts:636](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L636)
+**Source:** [src/base/operation.ts:636](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L636)
 
 ## Operation.LiquidityPoolDeposit
 
@@ -1728,7 +1728,7 @@ type InvokeHostFunction = InvokeHostFunctionResult
 type LiquidityPoolDeposit = LiquidityPoolDepositResult
 ```
 
-**Source:** [src/base/operation.ts:634](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L634)
+**Source:** [src/base/operation.ts:634](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L634)
 
 ## Operation.LiquidityPoolWithdraw
 
@@ -1736,7 +1736,7 @@ type LiquidityPoolDeposit = LiquidityPoolDepositResult
 type LiquidityPoolWithdraw = LiquidityPoolWithdrawResult
 ```
 
-**Source:** [src/base/operation.ts:635](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L635)
+**Source:** [src/base/operation.ts:635](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L635)
 
 ## Operation.ManageBuyOffer
 
@@ -1744,7 +1744,7 @@ type LiquidityPoolWithdraw = LiquidityPoolWithdrawResult
 type ManageBuyOffer = ManageBuyOfferResult
 ```
 
-**Source:** [src/base/operation.ts:609](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L609)
+**Source:** [src/base/operation.ts:609](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L609)
 
 ## Operation.ManageData
 
@@ -1752,7 +1752,7 @@ type ManageBuyOffer = ManageBuyOfferResult
 type ManageData = ManageDataResult
 ```
 
-**Source:** [src/base/operation.ts:615](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L615)
+**Source:** [src/base/operation.ts:615](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L615)
 
 ## Operation.ManageSellOffer
 
@@ -1760,7 +1760,7 @@ type ManageData = ManageDataResult
 type ManageSellOffer = ManageSellOfferResult
 ```
 
-**Source:** [src/base/operation.ts:608](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L608)
+**Source:** [src/base/operation.ts:608](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L608)
 
 ## Operation.PathPaymentStrictReceive
 
@@ -1768,7 +1768,7 @@ type ManageSellOffer = ManageSellOfferResult
 type PathPaymentStrictReceive = PathPaymentStrictReceiveResult
 ```
 
-**Source:** [src/base/operation.ts:605](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L605)
+**Source:** [src/base/operation.ts:605](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L605)
 
 ## Operation.PathPaymentStrictSend
 
@@ -1776,7 +1776,7 @@ type PathPaymentStrictReceive = PathPaymentStrictReceiveResult
 type PathPaymentStrictSend = PathPaymentStrictSendResult
 ```
 
-**Source:** [src/base/operation.ts:606](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L606)
+**Source:** [src/base/operation.ts:606](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L606)
 
 ## Operation.Payment
 
@@ -1784,7 +1784,7 @@ type PathPaymentStrictSend = PathPaymentStrictSendResult
 type Payment = PaymentResult
 ```
 
-**Source:** [src/base/operation.ts:604](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L604)
+**Source:** [src/base/operation.ts:604](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L604)
 
 ## Operation.RestoreFootprint
 
@@ -1792,7 +1792,7 @@ type Payment = PaymentResult
 type RestoreFootprint = RestoreFootprintResult
 ```
 
-**Source:** [src/base/operation.ts:638](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L638)
+**Source:** [src/base/operation.ts:638](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L638)
 
 ## Operation.RevokeAccountSponsorship
 
@@ -1800,7 +1800,7 @@ type RestoreFootprint = RestoreFootprintResult
 type RevokeAccountSponsorship = RevokeAccountSponsorshipResult
 ```
 
-**Source:** [src/base/operation.ts:622](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L622)
+**Source:** [src/base/operation.ts:622](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L622)
 
 ## Operation.RevokeClaimableBalanceSponsorship
 
@@ -1808,7 +1808,7 @@ type RevokeAccountSponsorship = RevokeAccountSponsorshipResult
 type RevokeClaimableBalanceSponsorship = RevokeClaimableBalanceSponsorshipResult
 ```
 
-**Source:** [src/base/operation.ts:626](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L626)
+**Source:** [src/base/operation.ts:626](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L626)
 
 ## Operation.RevokeDataSponsorship
 
@@ -1816,7 +1816,7 @@ type RevokeClaimableBalanceSponsorship = RevokeClaimableBalanceSponsorshipResult
 type RevokeDataSponsorship = RevokeDataSponsorshipResult
 ```
 
-**Source:** [src/base/operation.ts:625](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L625)
+**Source:** [src/base/operation.ts:625](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L625)
 
 ## Operation.RevokeLiquidityPoolSponsorship
 
@@ -1824,7 +1824,7 @@ type RevokeDataSponsorship = RevokeDataSponsorshipResult
 type RevokeLiquidityPoolSponsorship = RevokeLiquidityPoolSponsorshipResult
 ```
 
-**Source:** [src/base/operation.ts:628](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L628)
+**Source:** [src/base/operation.ts:628](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L628)
 
 ## Operation.RevokeOfferSponsorship
 
@@ -1832,7 +1832,7 @@ type RevokeLiquidityPoolSponsorship = RevokeLiquidityPoolSponsorshipResult
 type RevokeOfferSponsorship = RevokeOfferSponsorshipResult
 ```
 
-**Source:** [src/base/operation.ts:624](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L624)
+**Source:** [src/base/operation.ts:624](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L624)
 
 ## Operation.RevokeSignerSponsorship
 
@@ -1840,7 +1840,7 @@ type RevokeOfferSponsorship = RevokeOfferSponsorshipResult
 type RevokeSignerSponsorship = RevokeSignerSponsorshipResult
 ```
 
-**Source:** [src/base/operation.ts:630](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L630)
+**Source:** [src/base/operation.ts:630](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L630)
 
 ## Operation.RevokeTrustlineSponsorship
 
@@ -1848,7 +1848,7 @@ type RevokeSignerSponsorship = RevokeSignerSponsorshipResult
 type RevokeTrustlineSponsorship = RevokeTrustlineSponsorshipResult
 ```
 
-**Source:** [src/base/operation.ts:623](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L623)
+**Source:** [src/base/operation.ts:623](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L623)
 
 ## Operation.SetOptions
 
@@ -1856,7 +1856,7 @@ type RevokeTrustlineSponsorship = RevokeTrustlineSponsorshipResult
 type SetOptions = SetOptionsResult<Signer>
 ```
 
-**Source:** [src/base/operation.ts:610](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L610)
+**Source:** [src/base/operation.ts:610](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L610)
 
 ## Operation.SetTrustLineFlags
 
@@ -1864,7 +1864,7 @@ type SetOptions = SetOptionsResult<Signer>
 type SetTrustLineFlags = SetTrustLineFlagsResult
 ```
 
-**Source:** [src/base/operation.ts:633](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operation.ts#L633)
+**Source:** [src/base/operation.ts:633](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L633)
 
 ## OperationOptions
 
@@ -1872,7 +1872,7 @@ type SetTrustLineFlags = SetTrustLineFlagsResult
 type OperationOptions = AccountMergeOpts | AllowTrustOpts | BeginSponsoringFutureReservesOpts | BumpSequenceOpts | ChangeTrustOpts | ClaimClaimableBalanceOpts | ClawbackClaimableBalanceOpts | ClawbackOpts | CreateAccountOpts | CreateClaimableBalanceOpts | CreateCustomContractOpts | CreatePassiveSellOfferOpts | CreateStellarAssetContractOpts | EndSponsoringFutureReservesOpts | ExtendFootprintTtlOpts | InflationOpts | InvokeContractFunctionOpts | InvokeHostFunctionOpts | LiquidityPoolDepositOpts | LiquidityPoolWithdrawOpts | ManageBuyOfferOpts | ManageDataOpts | ManageSellOfferOpts | PathPaymentStrictReceiveOpts | PathPaymentStrictSendOpts | PaymentOpts | RestoreFootprintOpts | RevokeAccountSponsorshipOpts | RevokeClaimableBalanceSponsorshipOpts | RevokeDataSponsorshipOpts | RevokeLiquidityPoolSponsorshipOpts | RevokeOfferSponsorshipOpts | RevokeSignerSponsorshipOpts | RevokeTrustlineSponsorshipOpts | SetOptionsOpts | SetTrustLineFlagsOpts | UploadContractWasmOpts
 ```
 
-**Source:** [src/base/operations/types.ts:311](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operations/types.ts#L311)
+**Source:** [src/base/operations/types.ts:311](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L311)
 
 ## OperationRecord
 
@@ -1882,7 +1882,7 @@ Union of all possible operation objects returned by Operation.fromXDRObject.
 type OperationRecord = AccountMergeResult | AllowTrustResult | BeginSponsoringFutureReservesResult | BumpSequenceResult | ChangeTrustResult | ClaimClaimableBalanceResult | ClawbackClaimableBalanceResult | ClawbackResult | CreateAccountResult | CreateClaimableBalanceResult | CreatePassiveSellOfferResult | EndSponsoringFutureReservesResult | ExtendFootprintTTLResult | InflationResult | InvokeHostFunctionResult | LiquidityPoolDepositResult | LiquidityPoolWithdrawResult | ManageBuyOfferResult | ManageDataResult | ManageSellOfferResult | PathPaymentStrictReceiveResult | PathPaymentStrictSendResult | PaymentResult | RestoreFootprintResult | RevokeAccountSponsorshipResult | RevokeClaimableBalanceSponsorshipResult | RevokeDataSponsorshipResult | RevokeLiquidityPoolSponsorshipResult | RevokeOfferSponsorshipResult | RevokeSignerSponsorshipResult | RevokeTrustlineSponsorshipResult | SetOptionsResult<SignerOpts> | SetTrustLineFlagsResult
 ```
 
-**Source:** [src/base/operations/types.ts:677](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operations/types.ts#L677)
+**Source:** [src/base/operations/types.ts:677](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L677)
 
 ## OperationType
 
@@ -1890,7 +1890,7 @@ type OperationRecord = AccountMergeResult | AllowTrustResult | BeginSponsoringFu
 type OperationType = OperationType.AccountMerge | OperationType.AllowTrust | OperationType.BeginSponsoringFutureReserves | OperationType.BumpSequence | OperationType.ChangeTrust | OperationType.ClaimClaimableBalance | OperationType.Clawback | OperationType.ClawbackClaimableBalance | OperationType.CreateAccount | OperationType.CreateClaimableBalance | OperationType.CreatePassiveSellOffer | OperationType.EndSponsoringFutureReserves | OperationType.ExtendFootprintTTL | OperationType.Inflation | OperationType.InvokeHostFunction | OperationType.LiquidityPoolDeposit | OperationType.LiquidityPoolWithdraw | OperationType.ManageBuyOffer | OperationType.ManageData | OperationType.ManageSellOffer | OperationType.PathPaymentStrictReceive | OperationType.PathPaymentStrictSend | OperationType.Payment | OperationType.RestoreFootprint | OperationType.RevokeAccountSponsorship | OperationType.RevokeClaimableBalanceSponsorship | OperationType.RevokeDataSponsorship | OperationType.RevokeLiquidityPoolSponsorship | OperationType.RevokeOfferSponsorship | OperationType.RevokeSignerSponsorship | OperationType.RevokeTrustlineSponsorship | OperationType.SetOptions | OperationType.SetTrustLineFlags
 ```
 
-**Source:** [src/base/operations/types.ts:354](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operations/types.ts#L354)
+**Source:** [src/base/operations/types.ts:354](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L354)
 
 ## OperationType.AccountMerge
 
@@ -1898,7 +1898,7 @@ type OperationType = OperationType.AccountMerge | OperationType.AllowTrust | Ope
 type AccountMerge = "accountMerge"
 ```
 
-**Source:** [src/base/operations/types.ts:365](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operations/types.ts#L365)
+**Source:** [src/base/operations/types.ts:365](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L365)
 
 ## OperationType.AllowTrust
 
@@ -1906,7 +1906,7 @@ type AccountMerge = "accountMerge"
 type AllowTrust = "allowTrust"
 ```
 
-**Source:** [src/base/operations/types.ts:364](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operations/types.ts#L364)
+**Source:** [src/base/operations/types.ts:364](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L364)
 
 ## OperationType.BeginSponsoringFutureReserves
 
@@ -1914,7 +1914,7 @@ type AllowTrust = "allowTrust"
 type BeginSponsoringFutureReserves = "beginSponsoringFutureReserves"
 ```
 
-**Source:** [src/base/operations/types.ts:371](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operations/types.ts#L371)
+**Source:** [src/base/operations/types.ts:371](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L371)
 
 ## OperationType.BumpSequence
 
@@ -1922,7 +1922,7 @@ type BeginSponsoringFutureReserves = "beginSponsoringFutureReserves"
 type BumpSequence = "bumpSequence"
 ```
 
-**Source:** [src/base/operations/types.ts:368](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operations/types.ts#L368)
+**Source:** [src/base/operations/types.ts:368](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L368)
 
 ## OperationType.ChangeTrust
 
@@ -1930,7 +1930,7 @@ type BumpSequence = "bumpSequence"
 type ChangeTrust = "changeTrust"
 ```
 
-**Source:** [src/base/operations/types.ts:363](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operations/types.ts#L363)
+**Source:** [src/base/operations/types.ts:363](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L363)
 
 ## OperationType.ClaimClaimableBalance
 
@@ -1938,7 +1938,7 @@ type ChangeTrust = "changeTrust"
 type ClaimClaimableBalance = "claimClaimableBalance"
 ```
 
-**Source:** [src/base/operations/types.ts:370](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operations/types.ts#L370)
+**Source:** [src/base/operations/types.ts:370](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L370)
 
 ## OperationType.Clawback
 
@@ -1946,7 +1946,7 @@ type ClaimClaimableBalance = "claimClaimableBalance"
 type Clawback = "clawback"
 ```
 
-**Source:** [src/base/operations/types.ts:383](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operations/types.ts#L383)
+**Source:** [src/base/operations/types.ts:383](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L383)
 
 ## OperationType.ClawbackClaimableBalance
 
@@ -1954,7 +1954,7 @@ type Clawback = "clawback"
 type ClawbackClaimableBalance = "clawbackClaimableBalance"
 ```
 
-**Source:** [src/base/operations/types.ts:384](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operations/types.ts#L384)
+**Source:** [src/base/operations/types.ts:384](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L384)
 
 ## OperationType.CreateAccount
 
@@ -1962,7 +1962,7 @@ type ClawbackClaimableBalance = "clawbackClaimableBalance"
 type CreateAccount = "createAccount"
 ```
 
-**Source:** [src/base/operations/types.ts:355](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operations/types.ts#L355)
+**Source:** [src/base/operations/types.ts:355](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L355)
 
 ## OperationType.CreateClaimableBalance
 
@@ -1970,7 +1970,7 @@ type CreateAccount = "createAccount"
 type CreateClaimableBalance = "createClaimableBalance"
 ```
 
-**Source:** [src/base/operations/types.ts:369](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operations/types.ts#L369)
+**Source:** [src/base/operations/types.ts:369](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L369)
 
 ## OperationType.CreatePassiveSellOffer
 
@@ -1978,7 +1978,7 @@ type CreateClaimableBalance = "createClaimableBalance"
 type CreatePassiveSellOffer = "createPassiveSellOffer"
 ```
 
-**Source:** [src/base/operations/types.ts:359](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operations/types.ts#L359)
+**Source:** [src/base/operations/types.ts:359](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L359)
 
 ## OperationType.EndSponsoringFutureReserves
 
@@ -1986,7 +1986,7 @@ type CreatePassiveSellOffer = "createPassiveSellOffer"
 type EndSponsoringFutureReserves = "endSponsoringFutureReserves"
 ```
 
-**Source:** [src/base/operations/types.ts:372](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operations/types.ts#L372)
+**Source:** [src/base/operations/types.ts:372](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L372)
 
 ## OperationType.ExtendFootprintTTL
 
@@ -1994,7 +1994,7 @@ type EndSponsoringFutureReserves = "endSponsoringFutureReserves"
 type ExtendFootprintTTL = "extendFootprintTtl"
 ```
 
-**Source:** [src/base/operations/types.ts:389](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operations/types.ts#L389)
+**Source:** [src/base/operations/types.ts:389](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L389)
 
 ## OperationType.Inflation
 
@@ -2002,7 +2002,7 @@ type ExtendFootprintTTL = "extendFootprintTtl"
 type Inflation = "inflation"
 ```
 
-**Source:** [src/base/operations/types.ts:366](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operations/types.ts#L366)
+**Source:** [src/base/operations/types.ts:366](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L366)
 
 ## OperationType.InvokeHostFunction
 
@@ -2010,7 +2010,7 @@ type Inflation = "inflation"
 type InvokeHostFunction = "invokeHostFunction"
 ```
 
-**Source:** [src/base/operations/types.ts:388](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operations/types.ts#L388)
+**Source:** [src/base/operations/types.ts:388](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L388)
 
 ## OperationType.LiquidityPoolDeposit
 
@@ -2018,7 +2018,7 @@ type InvokeHostFunction = "invokeHostFunction"
 type LiquidityPoolDeposit = "liquidityPoolDeposit"
 ```
 
-**Source:** [src/base/operations/types.ts:386](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operations/types.ts#L386)
+**Source:** [src/base/operations/types.ts:386](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L386)
 
 ## OperationType.LiquidityPoolWithdraw
 
@@ -2026,7 +2026,7 @@ type LiquidityPoolDeposit = "liquidityPoolDeposit"
 type LiquidityPoolWithdraw = "liquidityPoolWithdraw"
 ```
 
-**Source:** [src/base/operations/types.ts:387](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operations/types.ts#L387)
+**Source:** [src/base/operations/types.ts:387](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L387)
 
 ## OperationType.ManageBuyOffer
 
@@ -2034,7 +2034,7 @@ type LiquidityPoolWithdraw = "liquidityPoolWithdraw"
 type ManageBuyOffer = "manageBuyOffer"
 ```
 
-**Source:** [src/base/operations/types.ts:361](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operations/types.ts#L361)
+**Source:** [src/base/operations/types.ts:361](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L361)
 
 ## OperationType.ManageData
 
@@ -2042,7 +2042,7 @@ type ManageBuyOffer = "manageBuyOffer"
 type ManageData = "manageData"
 ```
 
-**Source:** [src/base/operations/types.ts:367](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operations/types.ts#L367)
+**Source:** [src/base/operations/types.ts:367](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L367)
 
 ## OperationType.ManageSellOffer
 
@@ -2050,7 +2050,7 @@ type ManageData = "manageData"
 type ManageSellOffer = "manageSellOffer"
 ```
 
-**Source:** [src/base/operations/types.ts:360](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operations/types.ts#L360)
+**Source:** [src/base/operations/types.ts:360](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L360)
 
 ## OperationType.PathPaymentStrictReceive
 
@@ -2058,7 +2058,7 @@ type ManageSellOffer = "manageSellOffer"
 type PathPaymentStrictReceive = "pathPaymentStrictReceive"
 ```
 
-**Source:** [src/base/operations/types.ts:357](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operations/types.ts#L357)
+**Source:** [src/base/operations/types.ts:357](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L357)
 
 ## OperationType.PathPaymentStrictSend
 
@@ -2066,7 +2066,7 @@ type PathPaymentStrictReceive = "pathPaymentStrictReceive"
 type PathPaymentStrictSend = "pathPaymentStrictSend"
 ```
 
-**Source:** [src/base/operations/types.ts:358](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operations/types.ts#L358)
+**Source:** [src/base/operations/types.ts:358](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L358)
 
 ## OperationType.Payment
 
@@ -2074,7 +2074,7 @@ type PathPaymentStrictSend = "pathPaymentStrictSend"
 type Payment = "payment"
 ```
 
-**Source:** [src/base/operations/types.ts:356](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operations/types.ts#L356)
+**Source:** [src/base/operations/types.ts:356](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L356)
 
 ## OperationType.RestoreFootprint
 
@@ -2082,7 +2082,7 @@ type Payment = "payment"
 type RestoreFootprint = "restoreFootprint"
 ```
 
-**Source:** [src/base/operations/types.ts:390](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operations/types.ts#L390)
+**Source:** [src/base/operations/types.ts:390](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L390)
 
 ## OperationType.RevokeAccountSponsorship
 
@@ -2090,7 +2090,7 @@ type RestoreFootprint = "restoreFootprint"
 type RevokeAccountSponsorship = "revokeAccountSponsorship"
 ```
 
-**Source:** [src/base/operations/types.ts:375](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operations/types.ts#L375)
+**Source:** [src/base/operations/types.ts:375](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L375)
 
 ## OperationType.RevokeClaimableBalanceSponsorship
 
@@ -2098,7 +2098,7 @@ type RevokeAccountSponsorship = "revokeAccountSponsorship"
 type RevokeClaimableBalanceSponsorship = "revokeClaimableBalanceSponsorship"
 ```
 
-**Source:** [src/base/operations/types.ts:379](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operations/types.ts#L379)
+**Source:** [src/base/operations/types.ts:379](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L379)
 
 ## OperationType.RevokeDataSponsorship
 
@@ -2106,7 +2106,7 @@ type RevokeClaimableBalanceSponsorship = "revokeClaimableBalanceSponsorship"
 type RevokeDataSponsorship = "revokeDataSponsorship"
 ```
 
-**Source:** [src/base/operations/types.ts:378](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operations/types.ts#L378)
+**Source:** [src/base/operations/types.ts:378](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L378)
 
 ## OperationType.RevokeLiquidityPoolSponsorship
 
@@ -2114,7 +2114,7 @@ type RevokeDataSponsorship = "revokeDataSponsorship"
 type RevokeLiquidityPoolSponsorship = "revokeLiquidityPoolSponsorship"
 ```
 
-**Source:** [src/base/operations/types.ts:381](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operations/types.ts#L381)
+**Source:** [src/base/operations/types.ts:381](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L381)
 
 ## OperationType.RevokeOfferSponsorship
 
@@ -2122,7 +2122,7 @@ type RevokeLiquidityPoolSponsorship = "revokeLiquidityPoolSponsorship"
 type RevokeOfferSponsorship = "revokeOfferSponsorship"
 ```
 
-**Source:** [src/base/operations/types.ts:377](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operations/types.ts#L377)
+**Source:** [src/base/operations/types.ts:377](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L377)
 
 ## OperationType.RevokeSignerSponsorship
 
@@ -2130,7 +2130,7 @@ type RevokeOfferSponsorship = "revokeOfferSponsorship"
 type RevokeSignerSponsorship = "revokeSignerSponsorship"
 ```
 
-**Source:** [src/base/operations/types.ts:382](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operations/types.ts#L382)
+**Source:** [src/base/operations/types.ts:382](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L382)
 
 ## OperationType.RevokeSponsorship
 
@@ -2140,7 +2140,7 @@ type RevokeSignerSponsorship = "revokeSignerSponsorship"
 type RevokeSponsorship = "revokeSponsorship"
 ```
 
-**Source:** [src/base/operations/types.ts:374](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operations/types.ts#L374)
+**Source:** [src/base/operations/types.ts:374](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L374)
 
 ## OperationType.RevokeTrustlineSponsorship
 
@@ -2148,7 +2148,7 @@ type RevokeSponsorship = "revokeSponsorship"
 type RevokeTrustlineSponsorship = "revokeTrustlineSponsorship"
 ```
 
-**Source:** [src/base/operations/types.ts:376](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operations/types.ts#L376)
+**Source:** [src/base/operations/types.ts:376](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L376)
 
 ## OperationType.SetOptions
 
@@ -2156,7 +2156,7 @@ type RevokeTrustlineSponsorship = "revokeTrustlineSponsorship"
 type SetOptions = "setOptions"
 ```
 
-**Source:** [src/base/operations/types.ts:362](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operations/types.ts#L362)
+**Source:** [src/base/operations/types.ts:362](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L362)
 
 ## OperationType.SetTrustLineFlags
 
@@ -2164,7 +2164,7 @@ type SetOptions = "setOptions"
 type SetTrustLineFlags = "setTrustLineFlags"
 ```
 
-**Source:** [src/base/operations/types.ts:385](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operations/types.ts#L385)
+**Source:** [src/base/operations/types.ts:385](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L385)
 
 ## ScInt
 
@@ -2247,7 +2247,7 @@ const scv = new xdr.ScVal.scvU256(i.raw);
 const scv = i.toI64();
 ```
 
-**Source:** [src/base/numbers/sc_int.ts:63](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/numbers/sc_int.ts#L63)
+**Source:** [src/base/numbers/sc_int.ts:63](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/sc_int.ts#L63)
 
 ### `new ScInt(value, opts)`
 
@@ -2268,7 +2268,7 @@ constructor(value: string | number | bigint, opts?: { type?: ScIntType; [key: st
      or 'u256') to override the default type selection. If not specified, the
      smallest type that fits the value is used.
 
-**Source:** [src/base/numbers/sc_int.ts:76](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/numbers/sc_int.ts#L76)
+**Source:** [src/base/numbers/sc_int.ts:76](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/sc_int.ts#L76)
 
 ### `ScInt.getType(scvType)`
 
@@ -2288,7 +2288,7 @@ static getType(scvType: string): ScIntType | undefined;
 the corresponding `ScIntType` if it's an integer type, or
    `undefined` if it's not an integer type
 
-**Source:** [src/base/numbers/xdr_large_int.ts:322](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/numbers/xdr_large_int.ts#L322)
+**Source:** [src/base/numbers/xdr_large_int.ts:322](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L322)
 
 ### `ScInt.isType(type)`
 
@@ -2302,7 +2302,7 @@ static isType(type: string): type is ScIntType;
 
 - **`type`** — `string` (required)
 
-**Source:** [src/base/numbers/xdr_large_int.ts:298](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/numbers/xdr_large_int.ts#L298)
+**Source:** [src/base/numbers/xdr_large_int.ts:298](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L298)
 
 ### `scInt.int`
 
@@ -2310,7 +2310,7 @@ static isType(type: string): type is ScIntType;
 int: LargeInt;
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:36](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/numbers/xdr_large_int.ts#L36)
+**Source:** [src/base/numbers/xdr_large_int.ts:36](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L36)
 
 ### `scInt.type`
 
@@ -2318,7 +2318,7 @@ int: LargeInt;
 type: ScIntType;
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:37](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/numbers/xdr_large_int.ts#L37)
+**Source:** [src/base/numbers/xdr_large_int.ts:37](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L37)
 
 ### `scInt.toBigInt()`
 
@@ -2328,7 +2328,7 @@ Converts to a native BigInt.
 toBigInt(): bigint;
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:116](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/numbers/xdr_large_int.ts#L116)
+**Source:** [src/base/numbers/xdr_large_int.ts:116](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L116)
 
 ### `scInt.toDuration()`
 
@@ -2338,7 +2338,7 @@ The integer encoded with `ScValType = Duration`
 toDuration(): ScVal;
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:152](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/numbers/xdr_large_int.ts#L152)
+**Source:** [src/base/numbers/xdr_large_int.ts:152](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L152)
 
 ### `scInt.toI128()`
 
@@ -2352,7 +2352,7 @@ toI128(): ScVal;
 
 - if the value cannot fit in 128 bits
 
-**Source:** [src/base/numbers/xdr_large_int.ts:164](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/numbers/xdr_large_int.ts#L164)
+**Source:** [src/base/numbers/xdr_large_int.ts:164](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L164)
 
 ### `scInt.toI256()`
 
@@ -2366,7 +2366,7 @@ toI256(): ScVal;
 
 - if the value cannot fit in a signed 256-bit integer
 
-**Source:** [src/base/numbers/xdr_large_int.ts:204](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/numbers/xdr_large_int.ts#L204)
+**Source:** [src/base/numbers/xdr_large_int.ts:204](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L204)
 
 ### `scInt.toI64()`
 
@@ -2380,7 +2380,7 @@ toI64(): ScVal;
 
 - if the value cannot fit in 64 bits
 
-**Source:** [src/base/numbers/xdr_large_int.ts:125](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/numbers/xdr_large_int.ts#L125)
+**Source:** [src/base/numbers/xdr_large_int.ts:125](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L125)
 
 ### `scInt.toJSON()`
 
@@ -2390,7 +2390,7 @@ Returns a JSON-friendly representation with `value` and `type` fields.
 toJSON(): { type: string; value: string };
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:284](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/numbers/xdr_large_int.ts#L284)
+**Source:** [src/base/numbers/xdr_large_int.ts:284](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L284)
 
 ### `scInt.toNumber()`
 
@@ -2404,7 +2404,7 @@ toNumber(): number;
 
 - if the value can't fit into a Number
 
-**Source:** [src/base/numbers/xdr_large_int.ts:103](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/numbers/xdr_large_int.ts#L103)
+**Source:** [src/base/numbers/xdr_large_int.ts:103](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L103)
 
 ### `scInt.toScVal()`
 
@@ -2414,7 +2414,7 @@ The smallest interpretation of the stored value
 toScVal(): ScVal;
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:247](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/numbers/xdr_large_int.ts#L247)
+**Source:** [src/base/numbers/xdr_large_int.ts:247](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L247)
 
 ### `scInt.toString()`
 
@@ -2424,7 +2424,7 @@ Returns the string representation of this integer.
 toString(): string;
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:279](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/numbers/xdr_large_int.ts#L279)
+**Source:** [src/base/numbers/xdr_large_int.ts:279](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L279)
 
 ### `scInt.toTimepoint()`
 
@@ -2434,7 +2434,7 @@ The integer encoded with `ScValType = Timepoint`
 toTimepoint(): ScVal;
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:144](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/numbers/xdr_large_int.ts#L144)
+**Source:** [src/base/numbers/xdr_large_int.ts:144](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L144)
 
 ### `scInt.toU128()`
 
@@ -2448,7 +2448,7 @@ toU128(): ScVal;
 
 - if the value cannot fit in 128 bits
 
-**Source:** [src/base/numbers/xdr_large_int.ts:187](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/numbers/xdr_large_int.ts#L187)
+**Source:** [src/base/numbers/xdr_large_int.ts:187](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L187)
 
 ### `scInt.toU256()`
 
@@ -2460,7 +2460,7 @@ Note: No size check needed - U256 is the largest unsigned type.
 toU256(): ScVal;
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:229](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/numbers/xdr_large_int.ts#L229)
+**Source:** [src/base/numbers/xdr_large_int.ts:229](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L229)
 
 ### `scInt.toU64()`
 
@@ -2470,7 +2470,7 @@ The integer encoded with `ScValType = U64`
 toU64(): ScVal;
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:136](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/numbers/xdr_large_int.ts#L136)
+**Source:** [src/base/numbers/xdr_large_int.ts:136](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L136)
 
 ### `scInt.valueOf()`
 
@@ -2480,7 +2480,7 @@ Returns the primitive value of this integer.
 valueOf(): unknown;
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:274](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/numbers/xdr_large_int.ts#L274)
+**Source:** [src/base/numbers/xdr_large_int.ts:274](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L274)
 
 ## ScIntType
 
@@ -2488,7 +2488,7 @@ valueOf(): unknown;
 type ScIntType = "duration" | "i64" | "i128" | "i256" | "timepoint" | "u64" | "u128" | "u256"
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:18](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/numbers/xdr_large_int.ts#L18)
+**Source:** [src/base/numbers/xdr_large_int.ts:18](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L18)
 
 ## Signer
 
@@ -2496,7 +2496,7 @@ type ScIntType = "duration" | "i64" | "i128" | "i256" | "timepoint" | "u64" | "u
 type Signer = Signer.Ed25519PublicKey | Signer.Ed25519SignedPayload | Signer.PreAuthTx | Signer.Sha256Hash
 ```
 
-**Source:** [src/base/operations/types.ts:453](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operations/types.ts#L453)
+**Source:** [src/base/operations/types.ts:453](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L453)
 
 ## Signer.Ed25519PublicKey
 
@@ -2507,7 +2507,7 @@ interface Ed25519PublicKey {
 }
 ```
 
-**Source:** [src/base/operations/types.ts:454](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operations/types.ts#L454)
+**Source:** [src/base/operations/types.ts:454](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L454)
 
 ### `ed25519PublicKey.ed25519PublicKey`
 
@@ -2515,7 +2515,7 @@ interface Ed25519PublicKey {
 ed25519PublicKey: string;
 ```
 
-**Source:** [src/base/operations/types.ts:455](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operations/types.ts#L455)
+**Source:** [src/base/operations/types.ts:455](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L455)
 
 ### `ed25519PublicKey.weight`
 
@@ -2523,7 +2523,7 @@ ed25519PublicKey: string;
 weight?: number;
 ```
 
-**Source:** [src/base/operations/types.ts:456](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operations/types.ts#L456)
+**Source:** [src/base/operations/types.ts:456](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L456)
 
 ## Signer.Ed25519SignedPayload
 
@@ -2534,7 +2534,7 @@ interface Ed25519SignedPayload {
 }
 ```
 
-**Source:** [src/base/operations/types.ts:466](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operations/types.ts#L466)
+**Source:** [src/base/operations/types.ts:466](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L466)
 
 ### `ed25519SignedPayload.ed25519SignedPayload`
 
@@ -2542,7 +2542,7 @@ interface Ed25519SignedPayload {
 ed25519SignedPayload: string;
 ```
 
-**Source:** [src/base/operations/types.ts:467](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operations/types.ts#L467)
+**Source:** [src/base/operations/types.ts:467](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L467)
 
 ### `ed25519SignedPayload.weight`
 
@@ -2550,7 +2550,7 @@ ed25519SignedPayload: string;
 weight?: number;
 ```
 
-**Source:** [src/base/operations/types.ts:468](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operations/types.ts#L468)
+**Source:** [src/base/operations/types.ts:468](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L468)
 
 ## Signer.PreAuthTx
 
@@ -2561,7 +2561,7 @@ interface PreAuthTx {
 }
 ```
 
-**Source:** [src/base/operations/types.ts:462](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operations/types.ts#L462)
+**Source:** [src/base/operations/types.ts:462](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L462)
 
 ### `preAuthTx.preAuthTx`
 
@@ -2569,7 +2569,7 @@ interface PreAuthTx {
 preAuthTx: Buffer;
 ```
 
-**Source:** [src/base/operations/types.ts:463](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operations/types.ts#L463)
+**Source:** [src/base/operations/types.ts:463](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L463)
 
 ### `preAuthTx.weight`
 
@@ -2577,7 +2577,7 @@ preAuthTx: Buffer;
 weight?: number;
 ```
 
-**Source:** [src/base/operations/types.ts:464](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operations/types.ts#L464)
+**Source:** [src/base/operations/types.ts:464](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L464)
 
 ## Signer.Sha256Hash
 
@@ -2588,7 +2588,7 @@ interface Sha256Hash {
 }
 ```
 
-**Source:** [src/base/operations/types.ts:458](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operations/types.ts#L458)
+**Source:** [src/base/operations/types.ts:458](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L458)
 
 ### `sha256Hash.sha256Hash`
 
@@ -2596,7 +2596,7 @@ interface Sha256Hash {
 sha256Hash: Buffer;
 ```
 
-**Source:** [src/base/operations/types.ts:459](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operations/types.ts#L459)
+**Source:** [src/base/operations/types.ts:459](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L459)
 
 ### `sha256Hash.weight`
 
@@ -2604,7 +2604,7 @@ sha256Hash: Buffer;
 weight?: number;
 ```
 
-**Source:** [src/base/operations/types.ts:460](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operations/types.ts#L460)
+**Source:** [src/base/operations/types.ts:460](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L460)
 
 ## SorobanFees
 
@@ -2619,7 +2619,7 @@ interface SorobanFees {
 }
 ```
 
-**Source:** [src/base/transaction_builder.ts:49](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction_builder.ts#L49)
+**Source:** [src/base/transaction_builder.ts:49](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L49)
 
 ### `sorobanFees.instructions`
 
@@ -2629,7 +2629,7 @@ The number of instructions executed by the transaction.
 instructions: number;
 ```
 
-**Source:** [src/base/transaction_builder.ts:51](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction_builder.ts#L51)
+**Source:** [src/base/transaction_builder.ts:51](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L51)
 
 ### `sorobanFees.readBytes`
 
@@ -2639,7 +2639,7 @@ The number of bytes read from the ledger by the transaction.
 readBytes: number;
 ```
 
-**Source:** [src/base/transaction_builder.ts:53](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction_builder.ts#L53)
+**Source:** [src/base/transaction_builder.ts:53](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L53)
 
 ### `sorobanFees.resourceFee`
 
@@ -2649,7 +2649,7 @@ The fee to be paid for the transaction, in stroops.
 resourceFee: bigint;
 ```
 
-**Source:** [src/base/transaction_builder.ts:57](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction_builder.ts#L57)
+**Source:** [src/base/transaction_builder.ts:57](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L57)
 
 ### `sorobanFees.writeBytes`
 
@@ -2659,7 +2659,7 @@ The number of bytes written to the ledger by the transaction.
 writeBytes: number;
 ```
 
-**Source:** [src/base/transaction_builder.ts:55](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction_builder.ts#L55)
+**Source:** [src/base/transaction_builder.ts:55](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L55)
 
 ## TimeoutInfinite
 
@@ -2672,7 +2672,7 @@ const TimeoutInfinite: 0
 - - `TransactionBuilder.setTimeout`
  - [Timeout](https://developers.stellar.org/api/resources/transactions/post/)
 
-**Source:** [src/base/transaction_builder.ts:44](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction_builder.ts#L44)
+**Source:** [src/base/transaction_builder.ts:44](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L44)
 
 ## Transaction
 
@@ -2714,7 +2714,7 @@ class Transaction {
 }
 ```
 
-**Source:** [src/base/transaction.ts:25](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction.ts#L25)
+**Source:** [src/base/transaction.ts:25](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L25)
 
 ### `new Transaction(envelope, networkPassphrase)`
 
@@ -2728,7 +2728,7 @@ constructor(envelope: string | TransactionEnvelope, networkPassphrase: string);
 - **`networkPassphrase`** — `string` (required) — passphrase of the target stellar network
       (e.g. "Public Global Stellar Network ; September 2015")
 
-**Source:** [src/base/transaction.ts:45](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction.ts#L45)
+**Source:** [src/base/transaction.ts:45](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L45)
 
 ### `transaction.extraSigners`
 
@@ -2739,7 +2739,7 @@ to convert to StrKey strings.
 extraSigners: SignerKey[] | undefined;
 ```
 
-**Source:** [src/base/transaction.ts:199](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction.ts#L199)
+**Source:** [src/base/transaction.ts:199](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L199)
 
 ### `transaction.fee`
 
@@ -2749,7 +2749,7 @@ The total fee for this transaction, in stroops.
 fee: string;
 ```
 
-**Source:** [src/base/transaction_base.ts:76](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction_base.ts#L76)
+**Source:** [src/base/transaction_base.ts:76](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L76)
 
 ### `transaction.ledgerBounds`
 
@@ -2760,7 +2760,7 @@ The ledger bounds for this transaction, with `minLedger` (uint32) and
 ledgerBounds: { maxLedger: number; minLedger: number } | undefined;
 ```
 
-**Source:** [src/base/transaction.ts:164](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction.ts#L164)
+**Source:** [src/base/transaction.ts:164](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L164)
 
 ### `transaction.memo`
 
@@ -2770,7 +2770,7 @@ The memo attached to this transaction.
 memo: Memo<MemoType>;
 ```
 
-**Source:** [src/base/transaction.ts:231](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction.ts#L231)
+**Source:** [src/base/transaction.ts:231](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L231)
 
 ### `transaction.minAccountSequence`
 
@@ -2780,7 +2780,7 @@ The minimum account sequence (64-bit, as a string).
 minAccountSequence: string | undefined;
 ```
 
-**Source:** [src/base/transaction.ts:172](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction.ts#L172)
+**Source:** [src/base/transaction.ts:172](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L172)
 
 ### `transaction.minAccountSequenceAge`
 
@@ -2790,7 +2790,7 @@ The minimum account sequence age (64-bit number of seconds).
 minAccountSequenceAge: bigint | undefined;
 ```
 
-**Source:** [src/base/transaction.ts:180](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction.ts#L180)
+**Source:** [src/base/transaction.ts:180](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L180)
 
 ### `transaction.minAccountSequenceLedgerGap`
 
@@ -2800,7 +2800,7 @@ The minimum account sequence ledger gap (32-bit number of ledgers).
 minAccountSequenceLedgerGap: number | undefined;
 ```
 
-**Source:** [src/base/transaction.ts:188](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction.ts#L188)
+**Source:** [src/base/transaction.ts:188](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L188)
 
 ### `transaction.networkPassphrase`
 
@@ -2810,7 +2810,7 @@ The network passphrase for this transaction.
 networkPassphrase: string;
 ```
 
-**Source:** [src/base/transaction_base.ts:85](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction_base.ts#L85)
+**Source:** [src/base/transaction_base.ts:85](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L85)
 
 ### `transaction.operations`
 
@@ -2820,7 +2820,7 @@ The list of operations in this transaction.
 operations: OperationRecord[];
 ```
 
-**Source:** [src/base/transaction.ts:223](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction.ts#L223)
+**Source:** [src/base/transaction.ts:223](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L223)
 
 ### `transaction.sequence`
 
@@ -2830,7 +2830,7 @@ The sequence number for this transaction.
 sequence: string;
 ```
 
-**Source:** [src/base/transaction.ts:207](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction.ts#L207)
+**Source:** [src/base/transaction.ts:207](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L207)
 
 ### `transaction.signatures`
 
@@ -2840,7 +2840,7 @@ The list of signatures for this transaction.
 signatures: DecoratedSignature[];
 ```
 
-**Source:** [src/base/transaction_base.ts:35](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction_base.ts#L35)
+**Source:** [src/base/transaction_base.ts:35](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L35)
 
 ### `transaction.source`
 
@@ -2850,7 +2850,7 @@ The source account for this transaction.
 source: string;
 ```
 
-**Source:** [src/base/transaction.ts:215](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction.ts#L215)
+**Source:** [src/base/transaction.ts:215](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L215)
 
 ### `transaction.timeBounds`
 
@@ -2861,7 +2861,7 @@ The time bounds for this transaction, with `minTime` and `maxTime` as
 timeBounds: { maxTime: string; minTime: string } | undefined;
 ```
 
-**Source:** [src/base/transaction.ts:153](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction.ts#L153)
+**Source:** [src/base/transaction.ts:153](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L153)
 
 ### `transaction.tx`
 
@@ -2878,7 +2878,7 @@ tx: TTx;
 
 - if the internal transaction is not a recognized XDR type
 
-**Source:** [src/base/transaction_base.ts:51](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction_base.ts#L51)
+**Source:** [src/base/transaction_base.ts:51](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L51)
 
 ### `transaction.addDecoratedSignature(signature)`
 
@@ -2897,7 +2897,7 @@ addDecoratedSignature(signature: DecoratedSignature): void;
 - - Keypair.signDecorated
  - Keypair.signPayloadDecorated
 
-**Source:** [src/base/transaction_base.ts:196](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction_base.ts#L196)
+**Source:** [src/base/transaction_base.ts:196](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L196)
 
 ### `transaction.addSignature(publicKey, signature)`
 
@@ -2929,7 +2929,7 @@ addSignature(publicKey: string = "", signature: string = ""): void;
 - **`publicKey`** — `string` (optional) (default: `""`) — the public key of the signer
 - **`signature`** — `string` (optional) (default: `""`) — the base64 value of the signature XDR
 
-**Source:** [src/base/transaction_base.ts:156](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction_base.ts#L156)
+**Source:** [src/base/transaction_base.ts:156](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L156)
 
 ### `transaction.getClaimableBalanceId(opIndex)`
 
@@ -2952,7 +2952,7 @@ getClaimableBalanceId(opIndex: number): string;
 
 - https://github.com/stellar/go/blob/d712346e61e288d450b0c08038c158f8848cc3e4/txnbuild/transaction.go#L392-L435
 
-**Source:** [src/base/transaction.ts:321](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction.ts#L321)
+**Source:** [src/base/transaction.ts:321](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L321)
 
 ### `transaction.getKeypairSignature(keypair)`
 
@@ -2984,7 +2984,7 @@ getKeypairSignature(keypair: Keypair): string;
 
 - **`keypair`** — `Keypair` (required) — Keypair of signer
 
-**Source:** [src/base/transaction_base.ts:129](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction_base.ts#L129)
+**Source:** [src/base/transaction_base.ts:129](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L129)
 
 ### `transaction.hash()`
 
@@ -2994,7 +2994,7 @@ Returns a hash for this transaction, suitable for signing.
 hash(): Buffer;
 ```
 
-**Source:** [src/base/transaction_base.ts:222](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction_base.ts#L222)
+**Source:** [src/base/transaction_base.ts:222](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L222)
 
 ### `transaction.sign(keypairs)`
 
@@ -3008,7 +3008,7 @@ sign(...keypairs: Keypair[]): void;
 
 - **`...keypairs`** — `Keypair[]` (required) — Keypairs of signers
 
-**Source:** [src/base/transaction_base.ts:97](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction_base.ts#L97)
+**Source:** [src/base/transaction_base.ts:97](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L97)
 
 ### `transaction.signatureBase()`
 
@@ -3023,7 +3023,7 @@ of this transaction.
 signatureBase(): Buffer;
 ```
 
-**Source:** [src/base/transaction.ts:246](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction.ts#L246)
+**Source:** [src/base/transaction.ts:246](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L246)
 
 ### `transaction.signHashX(preimage)`
 
@@ -3037,7 +3037,7 @@ signHashX(preimage: string | Buffer<ArrayBufferLike>): void;
 
 - **`preimage`** — `string | Buffer<ArrayBufferLike>` (required) — preimage of hash used as signer
 
-**Source:** [src/base/transaction_base.ts:204](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction_base.ts#L204)
+**Source:** [src/base/transaction_base.ts:204](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L204)
 
 ### `transaction.toEnvelope()`
 
@@ -3047,7 +3047,7 @@ To envelope returns a xdr.TransactionEnvelope which can be submitted to the netw
 toEnvelope(): TransactionEnvelope;
 ```
 
-**Source:** [src/base/transaction.ts:279](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction.ts#L279)
+**Source:** [src/base/transaction.ts:279](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L279)
 
 ### `transaction.toXDR()`
 
@@ -3057,7 +3057,7 @@ Returns the transaction envelope as a base64-encoded XDR string.
 toXDR(): string;
 ```
 
-**Source:** [src/base/transaction_base.ts:239](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction_base.ts#L239)
+**Source:** [src/base/transaction_base.ts:239](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L239)
 
 ## TransactionBuilder
 
@@ -3145,7 +3145,7 @@ class TransactionBuilder {
 }
 ```
 
-**Source:** [src/base/transaction_builder.ts:152](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction_builder.ts#L152)
+**Source:** [src/base/transaction_builder.ts:152](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L152)
 
 ### `new TransactionBuilder(sourceAccount, opts)`
 
@@ -3158,7 +3158,7 @@ constructor(sourceAccount: Account | MuxedAccount, opts: TransactionBuilderOptio
 - **`sourceAccount`** — `Account | MuxedAccount` (required) — source account for this transaction
 - **`opts`** — `TransactionBuilderOptions` (optional) (default: `...`) — options object (see `TransactionBuilderOptions`)
 
-**Source:** [src/base/transaction_builder.ts:173](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction_builder.ts#L173)
+**Source:** [src/base/transaction_builder.ts:173](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L173)
 
 ### `TransactionBuilder.buildFeeBumpTransaction(feeSource, baseFee, innerTx, networkPassphrase)`
 
@@ -3192,7 +3192,7 @@ static buildFeeBumpTransaction(feeSource: string | Keypair, baseFee: string, inn
 
 - https://developers.stellar.org/docs/glossary/fee-bumps/#replace-by-fee
 
-**Source:** [src/base/transaction_builder.ts:1091](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction_builder.ts#L1091)
+**Source:** [src/base/transaction_builder.ts:1091](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L1091)
 
 ### `TransactionBuilder.cloneFrom(tx, opts)`
 
@@ -3223,7 +3223,7 @@ static cloneFrom(tx: Transaction, opts: Partial<TransactionBuilderOptions> = {})
   
   TODO: This cannot clone `FeeBumpTransaction`s, yet.
 
-**Source:** [src/base/transaction_builder.ts:280](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction_builder.ts#L280)
+**Source:** [src/base/transaction_builder.ts:280](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L280)
 
 ### `TransactionBuilder.fromXDR(envelope, networkPassphrase)`
 
@@ -3242,7 +3242,7 @@ static fromXDR(envelope: string | TransactionEnvelope, networkPassphrase: string
       Stellar network (e.g. "Public Global Stellar Network ; September
       2015"), see `Networks`.
 
-**Source:** [src/base/transaction_builder.ts:1202](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction_builder.ts#L1202)
+**Source:** [src/base/transaction_builder.ts:1202](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L1202)
 
 ### `transactionBuilder.baseFee`
 
@@ -3250,7 +3250,7 @@ static fromXDR(envelope: string | TransactionEnvelope, networkPassphrase: string
 baseFee: string;
 ```
 
-**Source:** [src/base/transaction_builder.ts:155](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction_builder.ts#L155)
+**Source:** [src/base/transaction_builder.ts:155](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L155)
 
 ### `transactionBuilder.extraSigners`
 
@@ -3258,7 +3258,7 @@ baseFee: string;
 extraSigners: string[] | null;
 ```
 
-**Source:** [src/base/transaction_builder.ts:164](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction_builder.ts#L164)
+**Source:** [src/base/transaction_builder.ts:164](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L164)
 
 ### `transactionBuilder.ledgerbounds`
 
@@ -3266,7 +3266,7 @@ extraSigners: string[] | null;
 ledgerbounds: { maxLedger?: number; minLedger?: number } | null;
 ```
 
-**Source:** [src/base/transaction_builder.ts:160](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction_builder.ts#L160)
+**Source:** [src/base/transaction_builder.ts:160](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L160)
 
 ### `transactionBuilder.memo`
 
@@ -3274,7 +3274,7 @@ ledgerbounds: { maxLedger?: number; minLedger?: number } | null;
 memo: Memo;
 ```
 
-**Source:** [src/base/transaction_builder.ts:165](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction_builder.ts#L165)
+**Source:** [src/base/transaction_builder.ts:165](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L165)
 
 ### `transactionBuilder.minAccountSequence`
 
@@ -3282,7 +3282,7 @@ memo: Memo;
 minAccountSequence: string | null;
 ```
 
-**Source:** [src/base/transaction_builder.ts:161](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction_builder.ts#L161)
+**Source:** [src/base/transaction_builder.ts:161](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L161)
 
 ### `transactionBuilder.minAccountSequenceAge`
 
@@ -3290,7 +3290,7 @@ minAccountSequence: string | null;
 minAccountSequenceAge: bigint | null;
 ```
 
-**Source:** [src/base/transaction_builder.ts:162](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction_builder.ts#L162)
+**Source:** [src/base/transaction_builder.ts:162](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L162)
 
 ### `transactionBuilder.minAccountSequenceLedgerGap`
 
@@ -3298,7 +3298,7 @@ minAccountSequenceAge: bigint | null;
 minAccountSequenceLedgerGap: number | null;
 ```
 
-**Source:** [src/base/transaction_builder.ts:163](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction_builder.ts#L163)
+**Source:** [src/base/transaction_builder.ts:163](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L163)
 
 ### `transactionBuilder.networkPassphrase`
 
@@ -3306,7 +3306,7 @@ minAccountSequenceLedgerGap: number | null;
 networkPassphrase: string | null;
 ```
 
-**Source:** [src/base/transaction_builder.ts:166](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction_builder.ts#L166)
+**Source:** [src/base/transaction_builder.ts:166](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L166)
 
 ### `transactionBuilder.operations`
 
@@ -3314,7 +3314,7 @@ networkPassphrase: string | null;
 operations: Operation2<OperationRecord>[];
 ```
 
-**Source:** [src/base/transaction_builder.ts:154](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction_builder.ts#L154)
+**Source:** [src/base/transaction_builder.ts:154](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L154)
 
 ### `transactionBuilder.sorobanData`
 
@@ -3322,7 +3322,7 @@ operations: Operation2<OperationRecord>[];
 sorobanData: SorobanTransactionData | null;
 ```
 
-**Source:** [src/base/transaction_builder.ts:167](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction_builder.ts#L167)
+**Source:** [src/base/transaction_builder.ts:167](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L167)
 
 ### `transactionBuilder.source`
 
@@ -3330,7 +3330,7 @@ sorobanData: SorobanTransactionData | null;
 source: Account | MuxedAccount;
 ```
 
-**Source:** [src/base/transaction_builder.ts:153](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction_builder.ts#L153)
+**Source:** [src/base/transaction_builder.ts:153](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L153)
 
 ### `transactionBuilder.timebounds`
 
@@ -3338,7 +3338,7 @@ source: Account | MuxedAccount;
 timebounds: { maxTime?: string | number | Date; minTime?: string | number | Date } | null;
 ```
 
-**Source:** [src/base/transaction_builder.ts:156](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction_builder.ts#L156)
+**Source:** [src/base/transaction_builder.ts:156](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L156)
 
 ### `transactionBuilder.addMemo(memo)`
 
@@ -3352,7 +3352,7 @@ addMemo(memo: Memo): TransactionBuilder;
 
 - **`memo`** — `Memo` (required) — `Memo` object
 
-**Source:** [src/base/transaction_builder.ts:393](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction_builder.ts#L393)
+**Source:** [src/base/transaction_builder.ts:393](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L393)
 
 ### `transactionBuilder.addOperation(operation)`
 
@@ -3366,7 +3366,7 @@ addOperation(operation: Operation2): TransactionBuilder;
 
 - **`operation`** — `Operation2` (required) — The xdr operation object, use `Operation` static methods.
 
-**Source:** [src/base/transaction_builder.ts:355](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction_builder.ts#L355)
+**Source:** [src/base/transaction_builder.ts:355](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L355)
 
 ### `transactionBuilder.addOperationAt(operation, index)`
 
@@ -3381,7 +3381,7 @@ addOperationAt(operation: Operation2, index: number): TransactionBuilder;
 - **`operation`** — `Operation2` (required) — The xdr operation object to add, use `Operation` static methods.
 - **`index`** — `number` (required) — The index at which to insert the operation.
 
-**Source:** [src/base/transaction_builder.ts:366](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction_builder.ts#L366)
+**Source:** [src/base/transaction_builder.ts:366](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L366)
 
 ### `transactionBuilder.addSacTransferOperation(destination, asset, amount, sorobanFees)`
 
@@ -3400,7 +3400,7 @@ addSacTransferOperation(destination: string, asset: Asset, amount: string | bigi
 - **`amount`** — `string | bigint` (required) — the amount of tokens to be transferred in 7 decimals. IE 1 token with 7 decimals of precision would be represented as "1_0000000"
 - **`sorobanFees`** — `SorobanFees` (optional) — optional Soroban fees for the transaction to override the default fees used
 
-**Source:** [src/base/transaction_builder.ts:700](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction_builder.ts#L700)
+**Source:** [src/base/transaction_builder.ts:700](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L700)
 
 ### `transactionBuilder.build()`
 
@@ -3411,7 +3411,7 @@ number by 1.
 build(): Transaction;
 ```
 
-**Source:** [src/base/transaction_builder.ts:920](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction_builder.ts#L920)
+**Source:** [src/base/transaction_builder.ts:920](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L920)
 
 ### `transactionBuilder.clearOperationAt(index)`
 
@@ -3425,7 +3425,7 @@ clearOperationAt(index: number): TransactionBuilder;
 
 - **`index`** — `number` (required) — The index of the operation to remove.
 
-**Source:** [src/base/transaction_builder.ts:384](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction_builder.ts#L384)
+**Source:** [src/base/transaction_builder.ts:384](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L384)
 
 ### `transactionBuilder.clearOperations()`
 
@@ -3435,7 +3435,7 @@ Removes the operations from the builder (useful when cloning).
 clearOperations(): TransactionBuilder;
 ```
 
-**Source:** [src/base/transaction_builder.ts:374](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction_builder.ts#L374)
+**Source:** [src/base/transaction_builder.ts:374](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L374)
 
 ### `transactionBuilder.hasV2Preconditions()`
 
@@ -3445,7 +3445,7 @@ Checks whether any v2 preconditions have been set on this builder.
 hasV2Preconditions(): boolean;
 ```
 
-**Source:** [src/base/transaction_builder.ts:1059](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction_builder.ts#L1059)
+**Source:** [src/base/transaction_builder.ts:1059](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L1059)
 
 ### `transactionBuilder.setExtraSigners(extraSigners)`
 
@@ -3462,7 +3462,7 @@ setExtraSigners(extraSigners: string[]): TransactionBuilder;
 
 - **`extraSigners`** — `string[]` (required) — required extra signers (as `StrKey`s)
 
-**Source:** [src/base/transaction_builder.ts:635](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction_builder.ts#L635)
+**Source:** [src/base/transaction_builder.ts:635](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L635)
 
 ### `transactionBuilder.setLedgerbounds(minLedger, maxLedger)`
 
@@ -3483,7 +3483,7 @@ setLedgerbounds(minLedger: number, maxLedger: number): TransactionBuilder;
       before. Cannot be negative. If the value is `0`, the transaction is
       valid indefinitely.
 
-**Source:** [src/base/transaction_builder.ts:523](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction_builder.ts#L523)
+**Source:** [src/base/transaction_builder.ts:523](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L523)
 
 ### `transactionBuilder.setMinAccountSequence(minAccountSequence)`
 
@@ -3507,7 +3507,7 @@ setMinAccountSequence(minAccountSequence: string): TransactionBuilder;
       default), the transaction is valid when `sourceAccount`'s sequence
       number `== tx.seqNum - 1`.
 
-**Source:** [src/base/transaction_builder.ts:560](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction_builder.ts#L560)
+**Source:** [src/base/transaction_builder.ts:560](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L560)
 
 ### `transactionBuilder.setMinAccountSequenceAge(durationInSeconds)`
 
@@ -3526,7 +3526,7 @@ setMinAccountSequenceAge(durationInSeconds: bigint): TransactionBuilder;
       will become valid. If the value is `0`, the transaction is unrestricted
       by the account sequence age. Cannot be negative.
 
-**Source:** [src/base/transaction_builder.ts:582](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction_builder.ts#L582)
+**Source:** [src/base/transaction_builder.ts:582](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L582)
 
 ### `transactionBuilder.setMinAccountSequenceLedgerGap(gap)`
 
@@ -3545,7 +3545,7 @@ setMinAccountSequenceLedgerGap(gap: number): TransactionBuilder;
       If the value is `0`, the transaction is unrestricted by the account
       sequence ledger. Cannot be negative.
 
-**Source:** [src/base/transaction_builder.ts:611](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction_builder.ts#L611)
+**Source:** [src/base/transaction_builder.ts:611](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L611)
 
 ### `transactionBuilder.setNetworkPassphrase(networkPassphrase)`
 
@@ -3560,7 +3560,7 @@ setNetworkPassphrase(networkPassphrase: string): TransactionBuilder;
 - **`networkPassphrase`** — `string` (required) — passphrase of the target Stellar
       network (e.g. "Public Global Stellar Network ; September 2015").
 
-**Source:** [src/base/transaction_builder.ts:661](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction_builder.ts#L661)
+**Source:** [src/base/transaction_builder.ts:661](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L661)
 
 ### `transactionBuilder.setSorobanData(sorobanData)`
 
@@ -3588,7 +3588,7 @@ setSorobanData(sorobanData: string | SorobanTransactionData): TransactionBuilder
 
 - `SorobanDataBuilder`
 
-**Source:** [src/base/transaction_builder.ts:683](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction_builder.ts#L683)
+**Source:** [src/base/transaction_builder.ts:683](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L683)
 
 ### `transactionBuilder.setTimebounds(minEpochOrDate, maxEpochOrDate)`
 
@@ -3612,7 +3612,7 @@ setTimebounds(minEpochOrDate: number | Date, maxEpochOrDate: number | Date): Tra
       Can't be negative. If the value is `0`, the transaction is valid
       indefinitely.
 
-**Source:** [src/base/transaction_builder.ts:474](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction_builder.ts#L474)
+**Source:** [src/base/transaction_builder.ts:474](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L474)
 
 ### `transactionBuilder.setTimeout(timeoutSeconds)`
 
@@ -3652,7 +3652,7 @@ setTimeout(timeoutSeconds: number): TransactionBuilder;
 - - `TimeoutInfinite`
  - https://developers.stellar.org/docs/tutorials/handling-errors/
 
-**Source:** [src/base/transaction_builder.ts:427](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/transaction_builder.ts#L427)
+**Source:** [src/base/transaction_builder.ts:427](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L427)
 
 ## TrustLineFlag
 
@@ -3660,7 +3660,7 @@ setTimeout(timeoutSeconds: number): TransactionBuilder;
 type TrustLineFlag = TrustLineFlag.authorize | TrustLineFlag.authorizeToMaintainLiabilities | TrustLineFlag.deauthorize
 ```
 
-**Source:** [src/base/operations/types.ts:442](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operations/types.ts#L442)
+**Source:** [src/base/operations/types.ts:442](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L442)
 
 ## TrustLineFlag.authorize
 
@@ -3668,7 +3668,7 @@ type TrustLineFlag = TrustLineFlag.authorize | TrustLineFlag.authorizeToMaintain
 type authorize = 1
 ```
 
-**Source:** [src/base/operations/types.ts:444](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operations/types.ts#L444)
+**Source:** [src/base/operations/types.ts:444](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L444)
 
 ## TrustLineFlag.authorizeToMaintainLiabilities
 
@@ -3676,7 +3676,7 @@ type authorize = 1
 type authorizeToMaintainLiabilities = 2
 ```
 
-**Source:** [src/base/operations/types.ts:445](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operations/types.ts#L445)
+**Source:** [src/base/operations/types.ts:445](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L445)
 
 ## TrustLineFlag.deauthorize
 
@@ -3684,7 +3684,7 @@ type authorizeToMaintainLiabilities = 2
 type deauthorize = 0
 ```
 
-**Source:** [src/base/operations/types.ts:443](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/operations/types.ts#L443)
+**Source:** [src/base/operations/types.ts:443](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L443)
 
 ## Uint128
 
@@ -3704,7 +3704,7 @@ class Uint128 extends LargeInt {
 }
 ```
 
-**Source:** [src/base/numbers/uint128.ts:3](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/numbers/uint128.ts#L3)
+**Source:** [src/base/numbers/uint128.ts:3](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/uint128.ts#L3)
 
 ### `new Uint128(args)`
 
@@ -3719,7 +3719,7 @@ constructor(...args: (string | number | bigint)[]);
 - **`...args`** — `(string | number | bigint)[]` (required) — one or more slices to encode
       in big-endian format (i.e. earlier elements are higher bits)
 
-**Source:** [src/base/numbers/uint128.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/numbers/uint128.ts#L10)
+**Source:** [src/base/numbers/uint128.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/uint128.ts#L10)
 
 ### `Uint128.MAX_VALUE`
 
@@ -3727,7 +3727,7 @@ constructor(...args: (string | number | bigint)[]);
 static MAX_VALUE: LargeInt;
 ```
 
-**Source:** [types/stellar__js-xdr/index.d.ts:14](https://github.com/stellar/js-stellar-sdk/blob/master/types/stellar__js-xdr/index.d.ts#L14)
+**Source:** [types/stellar__js-xdr/index.d.ts:14](https://github.com/stellar/js-stellar-sdk/blob/main/types/stellar__js-xdr/index.d.ts#L14)
 
 ### `Uint128.MIN_VALUE`
 
@@ -3735,7 +3735,7 @@ static MAX_VALUE: LargeInt;
 static MIN_VALUE: LargeInt;
 ```
 
-**Source:** [types/stellar__js-xdr/index.d.ts:13](https://github.com/stellar/js-stellar-sdk/blob/master/types/stellar__js-xdr/index.d.ts#L13)
+**Source:** [types/stellar__js-xdr/index.d.ts:13](https://github.com/stellar/js-stellar-sdk/blob/main/types/stellar__js-xdr/index.d.ts#L13)
 
 ### `Uint128.defineIntBoundaries()`
 
@@ -3743,7 +3743,7 @@ static MIN_VALUE: LargeInt;
 static defineIntBoundaries(): void;
 ```
 
-**Source:** [types/stellar__js-xdr/index.d.ts:12](https://github.com/stellar/js-stellar-sdk/blob/master/types/stellar__js-xdr/index.d.ts#L12)
+**Source:** [types/stellar__js-xdr/index.d.ts:12](https://github.com/stellar/js-stellar-sdk/blob/main/types/stellar__js-xdr/index.d.ts#L12)
 
 ### `Uint128.fromString(value)`
 
@@ -3755,7 +3755,7 @@ static fromString(value: string): LargeInt;
 
 - **`value`** — `string` (required)
 
-**Source:** [types/stellar__js-xdr/index.d.ts:16](https://github.com/stellar/js-stellar-sdk/blob/master/types/stellar__js-xdr/index.d.ts#L16)
+**Source:** [types/stellar__js-xdr/index.d.ts:16](https://github.com/stellar/js-stellar-sdk/blob/main/types/stellar__js-xdr/index.d.ts#L16)
 
 ### `Uint128.isValid(value)`
 
@@ -3767,7 +3767,7 @@ static isValid(value: unknown): boolean;
 
 - **`value`** — `unknown` (required)
 
-**Source:** [types/stellar__js-xdr/index.d.ts:15](https://github.com/stellar/js-stellar-sdk/blob/master/types/stellar__js-xdr/index.d.ts#L15)
+**Source:** [types/stellar__js-xdr/index.d.ts:15](https://github.com/stellar/js-stellar-sdk/blob/main/types/stellar__js-xdr/index.d.ts#L15)
 
 ### `uint128.size`
 
@@ -3775,7 +3775,7 @@ static isValid(value: unknown): boolean;
 readonly size: number;
 ```
 
-**Source:** [src/base/numbers/uint128.ts:18](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/numbers/uint128.ts#L18)
+**Source:** [src/base/numbers/uint128.ts:18](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/uint128.ts#L18)
 
 ### `uint128.unsigned`
 
@@ -3783,7 +3783,7 @@ readonly size: number;
 readonly unsigned: boolean;
 ```
 
-**Source:** [src/base/numbers/uint128.ts:14](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/numbers/uint128.ts#L14)
+**Source:** [src/base/numbers/uint128.ts:14](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/uint128.ts#L14)
 
 ### `uint128.slice(chunkSize)`
 
@@ -3795,7 +3795,7 @@ slice(chunkSize: number): bigint[];
 
 - **`chunkSize`** — `number` (required)
 
-**Source:** [types/stellar__js-xdr/index.d.ts:21](https://github.com/stellar/js-stellar-sdk/blob/master/types/stellar__js-xdr/index.d.ts#L21)
+**Source:** [types/stellar__js-xdr/index.d.ts:21](https://github.com/stellar/js-stellar-sdk/blob/main/types/stellar__js-xdr/index.d.ts#L21)
 
 ### `uint128.toBigInt()`
 
@@ -3803,7 +3803,7 @@ slice(chunkSize: number): bigint[];
 toBigInt(): bigint;
 ```
 
-**Source:** [types/stellar__js-xdr/index.d.ts:19](https://github.com/stellar/js-stellar-sdk/blob/master/types/stellar__js-xdr/index.d.ts#L19)
+**Source:** [types/stellar__js-xdr/index.d.ts:19](https://github.com/stellar/js-stellar-sdk/blob/main/types/stellar__js-xdr/index.d.ts#L19)
 
 ### `uint128.toString()`
 
@@ -3811,7 +3811,7 @@ toBigInt(): bigint;
 toString(): string;
 ```
 
-**Source:** [types/stellar__js-xdr/index.d.ts:20](https://github.com/stellar/js-stellar-sdk/blob/master/types/stellar__js-xdr/index.d.ts#L20)
+**Source:** [types/stellar__js-xdr/index.d.ts:20](https://github.com/stellar/js-stellar-sdk/blob/main/types/stellar__js-xdr/index.d.ts#L20)
 
 ## Uint256
 
@@ -3831,7 +3831,7 @@ class Uint256 extends LargeInt {
 }
 ```
 
-**Source:** [src/base/numbers/uint256.ts:3](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/numbers/uint256.ts#L3)
+**Source:** [src/base/numbers/uint256.ts:3](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/uint256.ts#L3)
 
 ### `new Uint256(args)`
 
@@ -3846,7 +3846,7 @@ constructor(...args: (string | number | bigint)[]);
 - **`...args`** — `(string | number | bigint)[]` (required) — one or more slices to encode
       in big-endian format (i.e. earlier elements are higher bits)
 
-**Source:** [src/base/numbers/uint256.ts:10](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/numbers/uint256.ts#L10)
+**Source:** [src/base/numbers/uint256.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/uint256.ts#L10)
 
 ### `Uint256.MAX_VALUE`
 
@@ -3854,7 +3854,7 @@ constructor(...args: (string | number | bigint)[]);
 static MAX_VALUE: LargeInt;
 ```
 
-**Source:** [types/stellar__js-xdr/index.d.ts:14](https://github.com/stellar/js-stellar-sdk/blob/master/types/stellar__js-xdr/index.d.ts#L14)
+**Source:** [types/stellar__js-xdr/index.d.ts:14](https://github.com/stellar/js-stellar-sdk/blob/main/types/stellar__js-xdr/index.d.ts#L14)
 
 ### `Uint256.MIN_VALUE`
 
@@ -3862,7 +3862,7 @@ static MAX_VALUE: LargeInt;
 static MIN_VALUE: LargeInt;
 ```
 
-**Source:** [types/stellar__js-xdr/index.d.ts:13](https://github.com/stellar/js-stellar-sdk/blob/master/types/stellar__js-xdr/index.d.ts#L13)
+**Source:** [types/stellar__js-xdr/index.d.ts:13](https://github.com/stellar/js-stellar-sdk/blob/main/types/stellar__js-xdr/index.d.ts#L13)
 
 ### `Uint256.defineIntBoundaries()`
 
@@ -3870,7 +3870,7 @@ static MIN_VALUE: LargeInt;
 static defineIntBoundaries(): void;
 ```
 
-**Source:** [types/stellar__js-xdr/index.d.ts:12](https://github.com/stellar/js-stellar-sdk/blob/master/types/stellar__js-xdr/index.d.ts#L12)
+**Source:** [types/stellar__js-xdr/index.d.ts:12](https://github.com/stellar/js-stellar-sdk/blob/main/types/stellar__js-xdr/index.d.ts#L12)
 
 ### `Uint256.fromString(value)`
 
@@ -3882,7 +3882,7 @@ static fromString(value: string): LargeInt;
 
 - **`value`** — `string` (required)
 
-**Source:** [types/stellar__js-xdr/index.d.ts:16](https://github.com/stellar/js-stellar-sdk/blob/master/types/stellar__js-xdr/index.d.ts#L16)
+**Source:** [types/stellar__js-xdr/index.d.ts:16](https://github.com/stellar/js-stellar-sdk/blob/main/types/stellar__js-xdr/index.d.ts#L16)
 
 ### `Uint256.isValid(value)`
 
@@ -3894,7 +3894,7 @@ static isValid(value: unknown): boolean;
 
 - **`value`** — `unknown` (required)
 
-**Source:** [types/stellar__js-xdr/index.d.ts:15](https://github.com/stellar/js-stellar-sdk/blob/master/types/stellar__js-xdr/index.d.ts#L15)
+**Source:** [types/stellar__js-xdr/index.d.ts:15](https://github.com/stellar/js-stellar-sdk/blob/main/types/stellar__js-xdr/index.d.ts#L15)
 
 ### `uint256.size`
 
@@ -3902,7 +3902,7 @@ static isValid(value: unknown): boolean;
 readonly size: number;
 ```
 
-**Source:** [src/base/numbers/uint256.ts:18](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/numbers/uint256.ts#L18)
+**Source:** [src/base/numbers/uint256.ts:18](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/uint256.ts#L18)
 
 ### `uint256.unsigned`
 
@@ -3910,7 +3910,7 @@ readonly size: number;
 readonly unsigned: boolean;
 ```
 
-**Source:** [src/base/numbers/uint256.ts:14](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/numbers/uint256.ts#L14)
+**Source:** [src/base/numbers/uint256.ts:14](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/uint256.ts#L14)
 
 ### `uint256.slice(chunkSize)`
 
@@ -3922,7 +3922,7 @@ slice(chunkSize: number): bigint[];
 
 - **`chunkSize`** — `number` (required)
 
-**Source:** [types/stellar__js-xdr/index.d.ts:21](https://github.com/stellar/js-stellar-sdk/blob/master/types/stellar__js-xdr/index.d.ts#L21)
+**Source:** [types/stellar__js-xdr/index.d.ts:21](https://github.com/stellar/js-stellar-sdk/blob/main/types/stellar__js-xdr/index.d.ts#L21)
 
 ### `uint256.toBigInt()`
 
@@ -3930,7 +3930,7 @@ slice(chunkSize: number): bigint[];
 toBigInt(): bigint;
 ```
 
-**Source:** [types/stellar__js-xdr/index.d.ts:19](https://github.com/stellar/js-stellar-sdk/blob/master/types/stellar__js-xdr/index.d.ts#L19)
+**Source:** [types/stellar__js-xdr/index.d.ts:19](https://github.com/stellar/js-stellar-sdk/blob/main/types/stellar__js-xdr/index.d.ts#L19)
 
 ### `uint256.toString()`
 
@@ -3938,7 +3938,7 @@ toBigInt(): bigint;
 toString(): string;
 ```
 
-**Source:** [types/stellar__js-xdr/index.d.ts:20](https://github.com/stellar/js-stellar-sdk/blob/master/types/stellar__js-xdr/index.d.ts#L20)
+**Source:** [types/stellar__js-xdr/index.d.ts:20](https://github.com/stellar/js-stellar-sdk/blob/main/types/stellar__js-xdr/index.d.ts#L20)
 
 ## XdrLargeInt
 
@@ -3972,7 +3972,7 @@ class XdrLargeInt {
 }
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:35](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/numbers/xdr_large_int.ts#L35)
+**Source:** [src/base/numbers/xdr_large_int.ts:35](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L35)
 
 ### `new XdrLargeInt(type, values)`
 
@@ -3987,7 +3987,7 @@ constructor(type: ScIntType, values: XdrLargeIntValues);
      (see `XdrLargeInt.isType`)
 - **`values`** — `XdrLargeIntValues` (required) — a list of integer-like values interpreted in big-endian order
 
-**Source:** [src/base/numbers/xdr_large_int.ts:45](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/numbers/xdr_large_int.ts#L45)
+**Source:** [src/base/numbers/xdr_large_int.ts:45](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L45)
 
 ### `XdrLargeInt.getType(scvType)`
 
@@ -4007,7 +4007,7 @@ static getType(scvType: string): ScIntType | undefined;
 the corresponding `ScIntType` if it's an integer type, or
    `undefined` if it's not an integer type
 
-**Source:** [src/base/numbers/xdr_large_int.ts:322](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/numbers/xdr_large_int.ts#L322)
+**Source:** [src/base/numbers/xdr_large_int.ts:322](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L322)
 
 ### `XdrLargeInt.isType(type)`
 
@@ -4021,7 +4021,7 @@ static isType(type: string): type is ScIntType;
 
 - **`type`** — `string` (required)
 
-**Source:** [src/base/numbers/xdr_large_int.ts:298](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/numbers/xdr_large_int.ts#L298)
+**Source:** [src/base/numbers/xdr_large_int.ts:298](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L298)
 
 ### `xdrLargeInt.int`
 
@@ -4029,7 +4029,7 @@ static isType(type: string): type is ScIntType;
 int: LargeInt;
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:36](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/numbers/xdr_large_int.ts#L36)
+**Source:** [src/base/numbers/xdr_large_int.ts:36](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L36)
 
 ### `xdrLargeInt.type`
 
@@ -4037,7 +4037,7 @@ int: LargeInt;
 type: ScIntType;
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:37](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/numbers/xdr_large_int.ts#L37)
+**Source:** [src/base/numbers/xdr_large_int.ts:37](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L37)
 
 ### `xdrLargeInt.toBigInt()`
 
@@ -4047,7 +4047,7 @@ Converts to a native BigInt.
 toBigInt(): bigint;
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:116](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/numbers/xdr_large_int.ts#L116)
+**Source:** [src/base/numbers/xdr_large_int.ts:116](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L116)
 
 ### `xdrLargeInt.toDuration()`
 
@@ -4057,7 +4057,7 @@ The integer encoded with `ScValType = Duration`
 toDuration(): ScVal;
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:152](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/numbers/xdr_large_int.ts#L152)
+**Source:** [src/base/numbers/xdr_large_int.ts:152](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L152)
 
 ### `xdrLargeInt.toI128()`
 
@@ -4071,7 +4071,7 @@ toI128(): ScVal;
 
 - if the value cannot fit in 128 bits
 
-**Source:** [src/base/numbers/xdr_large_int.ts:164](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/numbers/xdr_large_int.ts#L164)
+**Source:** [src/base/numbers/xdr_large_int.ts:164](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L164)
 
 ### `xdrLargeInt.toI256()`
 
@@ -4085,7 +4085,7 @@ toI256(): ScVal;
 
 - if the value cannot fit in a signed 256-bit integer
 
-**Source:** [src/base/numbers/xdr_large_int.ts:204](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/numbers/xdr_large_int.ts#L204)
+**Source:** [src/base/numbers/xdr_large_int.ts:204](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L204)
 
 ### `xdrLargeInt.toI64()`
 
@@ -4099,7 +4099,7 @@ toI64(): ScVal;
 
 - if the value cannot fit in 64 bits
 
-**Source:** [src/base/numbers/xdr_large_int.ts:125](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/numbers/xdr_large_int.ts#L125)
+**Source:** [src/base/numbers/xdr_large_int.ts:125](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L125)
 
 ### `xdrLargeInt.toJSON()`
 
@@ -4109,7 +4109,7 @@ Returns a JSON-friendly representation with `value` and `type` fields.
 toJSON(): { type: string; value: string };
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:284](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/numbers/xdr_large_int.ts#L284)
+**Source:** [src/base/numbers/xdr_large_int.ts:284](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L284)
 
 ### `xdrLargeInt.toNumber()`
 
@@ -4123,7 +4123,7 @@ toNumber(): number;
 
 - if the value can't fit into a Number
 
-**Source:** [src/base/numbers/xdr_large_int.ts:103](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/numbers/xdr_large_int.ts#L103)
+**Source:** [src/base/numbers/xdr_large_int.ts:103](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L103)
 
 ### `xdrLargeInt.toScVal()`
 
@@ -4133,7 +4133,7 @@ The smallest interpretation of the stored value
 toScVal(): ScVal;
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:247](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/numbers/xdr_large_int.ts#L247)
+**Source:** [src/base/numbers/xdr_large_int.ts:247](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L247)
 
 ### `xdrLargeInt.toString()`
 
@@ -4143,7 +4143,7 @@ Returns the string representation of this integer.
 toString(): string;
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:279](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/numbers/xdr_large_int.ts#L279)
+**Source:** [src/base/numbers/xdr_large_int.ts:279](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L279)
 
 ### `xdrLargeInt.toTimepoint()`
 
@@ -4153,7 +4153,7 @@ The integer encoded with `ScValType = Timepoint`
 toTimepoint(): ScVal;
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:144](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/numbers/xdr_large_int.ts#L144)
+**Source:** [src/base/numbers/xdr_large_int.ts:144](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L144)
 
 ### `xdrLargeInt.toU128()`
 
@@ -4167,7 +4167,7 @@ toU128(): ScVal;
 
 - if the value cannot fit in 128 bits
 
-**Source:** [src/base/numbers/xdr_large_int.ts:187](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/numbers/xdr_large_int.ts#L187)
+**Source:** [src/base/numbers/xdr_large_int.ts:187](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L187)
 
 ### `xdrLargeInt.toU256()`
 
@@ -4179,7 +4179,7 @@ Note: No size check needed - U256 is the largest unsigned type.
 toU256(): ScVal;
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:229](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/numbers/xdr_large_int.ts#L229)
+**Source:** [src/base/numbers/xdr_large_int.ts:229](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L229)
 
 ### `xdrLargeInt.toU64()`
 
@@ -4189,7 +4189,7 @@ The integer encoded with `ScValType = U64`
 toU64(): ScVal;
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:136](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/numbers/xdr_large_int.ts#L136)
+**Source:** [src/base/numbers/xdr_large_int.ts:136](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L136)
 
 ### `xdrLargeInt.valueOf()`
 
@@ -4199,7 +4199,7 @@ Returns the primitive value of this integer.
 valueOf(): unknown;
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:274](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/numbers/xdr_large_int.ts#L274)
+**Source:** [src/base/numbers/xdr_large_int.ts:274](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L274)
 
 ## cereal
 
@@ -4207,7 +4207,7 @@ valueOf(): unknown;
 const cereal: { XdrReader: typeof XdrReader; XdrWriter: typeof XdrWriter }
 ```
 
-**Source:** [src/base/jsxdr.ts:7](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/jsxdr.ts#L7)
+**Source:** [src/base/jsxdr.ts:7](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/jsxdr.ts#L7)
 
 ## decodeAddressToMuxedAccount
 
@@ -4225,7 +4225,7 @@ decodeAddressToMuxedAccount(address: string): MuxedAccount
 
 - **`address`** — `string` (required) — G... or M... address to encode into XDR
 
-**Source:** [src/base/util/decode_encode_muxed_account.ts:13](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/util/decode_encode_muxed_account.ts#L13)
+**Source:** [src/base/util/decode_encode_muxed_account.ts:13](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/util/decode_encode_muxed_account.ts#L13)
 
 ## encodeMuxedAccount
 
@@ -4240,7 +4240,7 @@ encodeMuxedAccount(address: string, id: string): MuxedAccount
 - **`address`** — `string` (required) — a Stellar G... address
 - **`id`** — `string` (required) — a Uint64 ID represented as a string
 
-**Source:** [src/base/util/decode_encode_muxed_account.ts:52](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/util/decode_encode_muxed_account.ts#L52)
+**Source:** [src/base/util/decode_encode_muxed_account.ts:52](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/util/decode_encode_muxed_account.ts#L52)
 
 ## encodeMuxedAccountToAddress
 
@@ -4261,7 +4261,7 @@ encodeMuxedAccountToAddress(muxedAccount: MuxedAccount): string
 
 - https://stellar.org/protocol/sep-23
 
-**Source:** [src/base/util/decode_encode_muxed_account.ts:33](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/util/decode_encode_muxed_account.ts#L33)
+**Source:** [src/base/util/decode_encode_muxed_account.ts:33](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/util/decode_encode_muxed_account.ts#L33)
 
 ## extractBaseAddress
 
@@ -4275,7 +4275,7 @@ extractBaseAddress(address: string): string
 
 - **`address`** — `string` (required) — an account address (either M... or G...)
 
-**Source:** [src/base/util/decode_encode_muxed_account.ts:74](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/util/decode_encode_muxed_account.ts#L74)
+**Source:** [src/base/util/decode_encode_muxed_account.ts:74](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/util/decode_encode_muxed_account.ts#L74)
 
 ## scValToBigInt
 
@@ -4306,4 +4306,4 @@ new ScInt(bigi);               // if you don't care about types, and
 new XdrLargeInt('i128', bigi); // if you do
 ```
 
-**Source:** [src/base/numbers/index.ts:31](https://github.com/stellar/js-stellar-sdk/blob/master/src/base/numbers/index.ts#L31)
+**Source:** [src/base/numbers/index.ts:31](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/index.ts#L31)

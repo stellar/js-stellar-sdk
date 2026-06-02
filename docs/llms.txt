@@ -3,13 +3,11 @@
 > A library for working with the Stellar network, including communication with the Horizon and Soroban RPC servers.
 
 - Version: 15.0.1
-- Source ref: master
+- Source ref: main
 
 ## Guides
 
 - [Versioning & Compatibility](guides/00-versioning): How SDK versions map to Stellar protocol versions, and why this site documents only the current major.
-- [Getting Started](guides/01-getting-started): Install the Stellar SDK and write your first script against testnet.
-- [Building & Signing Transactions](guides/04-building-and-signing-transactions): Construct, sign, and inspect Stellar transactions with TransactionBuilder.
 
 ## Reference
 

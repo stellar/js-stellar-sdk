@@ -10,6 +10,6 @@
 // Update `DEFAULT_DOCS_REF` here when the trunk branch is renamed
 // (e.g. `master` → `main`). Do not hardcode the branch name in
 // scripts/build-docs.ts or scripts/build-llms.ts.
-export const DEFAULT_DOCS_REF = "master";
+export const DEFAULT_DOCS_REF = "main";
 
 export const DOCS_SOURCE_REF = process.env.DOCS_SOURCE_REF ?? DEFAULT_DOCS_REF;

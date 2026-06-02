@@ -53,7 +53,7 @@ const generator = BindingGenerator.fromSpec(spec);
 const bindings = generator.generate({ contractName: "my-contract" });
 ```
 
-**Source:** [src/bindings/generator.ts:78](https://github.com/stellar/js-stellar-sdk/blob/master/src/bindings/generator.ts#L78)
+**Source:** [src/bindings/generator.ts:78](https://github.com/stellar/js-stellar-sdk/blob/main/src/bindings/generator.ts#L78)
 
 ### `BindingGenerator.fromContractId(contractId, rpcServer)`
 
@@ -89,7 +89,7 @@ const generator = await BindingGenerator.fromContractId(
 );
 ```
 
-**Source:** [src/bindings/generator.ts:182](https://github.com/stellar/js-stellar-sdk/blob/master/src/bindings/generator.ts#L182)
+**Source:** [src/bindings/generator.ts:182](https://github.com/stellar/js-stellar-sdk/blob/main/src/bindings/generator.ts#L182)
 
 ### `BindingGenerator.fromSpec(spec)`
 
@@ -117,7 +117,7 @@ const spec = new Spec(specEntries);
 const generator = BindingGenerator.fromSpec(spec);
 ```
 
-**Source:** [src/bindings/generator.ts:105](https://github.com/stellar/js-stellar-sdk/blob/master/src/bindings/generator.ts#L105)
+**Source:** [src/bindings/generator.ts:105](https://github.com/stellar/js-stellar-sdk/blob/main/src/bindings/generator.ts#L105)
 
 ### `BindingGenerator.fromWasm(wasmBuffer)`
 
@@ -149,7 +149,7 @@ const wasmBuffer = fs.readFileSync("./target/wasm32-unknown-unknown/release/my_c
 const generator = await BindingGenerator.fromWasm(wasmBuffer);
 ```
 
-**Source:** [src/bindings/generator.ts:125](https://github.com/stellar/js-stellar-sdk/blob/master/src/bindings/generator.ts#L125)
+**Source:** [src/bindings/generator.ts:125](https://github.com/stellar/js-stellar-sdk/blob/main/src/bindings/generator.ts#L125)
 
 ### `BindingGenerator.fromWasmHash(wasmHash, rpcServer)`
 
@@ -186,7 +186,7 @@ const generator = await BindingGenerator.fromWasmHash(
 );
 ```
 
-**Source:** [src/bindings/generator.ts:151](https://github.com/stellar/js-stellar-sdk/blob/master/src/bindings/generator.ts#L151)
+**Source:** [src/bindings/generator.ts:151](https://github.com/stellar/js-stellar-sdk/blob/main/src/bindings/generator.ts#L151)
 
 ### `bindingGenerator.generate(options)`
 
@@ -233,4 +233,4 @@ fs.writeFileSync("./src/client.ts", bindings.client);
 fs.writeFileSync("./src/types.ts", bindings.types);
 ```
 
-**Source:** [src/bindings/generator.ts:226](https://github.com/stellar/js-stellar-sdk/blob/master/src/bindings/generator.ts#L226)
+**Source:** [src/bindings/generator.ts:226](https://github.com/stellar/js-stellar-sdk/blob/main/src/bindings/generator.ts#L226)
