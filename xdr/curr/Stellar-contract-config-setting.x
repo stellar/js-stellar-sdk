@@ -1,6 +1,9 @@
 %#include "xdr/Stellar-types.h"
 
 namespace stellar {
+
+typedef opaque EncodedLedgerKey<>;
+
 // General “Soroban execution lane” settings
 struct ConfigSettingContractExecutionLanesV0
 {
@@ -260,7 +263,40 @@ enum ContractCostType {
     // Cost of performing BLS12-381 scalar element exponentiation
     Bls12381FrPow = 68,
     // Cost of performing BLS12-381 scalar element inversion
-    Bls12381FrInv = 69
+    Bls12381FrInv = 69,
+
+    // Cost of encoding a BN254 Fp (base field element)
+    Bn254EncodeFp = 70,
+    // Cost of decoding a BN254 Fp (base field element)
+    Bn254DecodeFp = 71,
+    // Cost of checking a G1 point lies on the curve
+    Bn254G1CheckPointOnCurve = 72,
+    // Cost of checking a G2 point lies on the curve
+    Bn254G2CheckPointOnCurve = 73,
+    // Cost of checking a G2 point belongs to the correct subgroup
+    Bn254G2CheckPointInSubgroup = 74,
+    // Cost of converting a BN254 G1 point from projective to affine coordinates
+    Bn254G1ProjectiveToAffine = 75,
+    // Cost of performing BN254 G1 point addition
+    Bn254G1Add = 76,
+    // Cost of performing BN254 G1 scalar multiplication
+    Bn254G1Mul = 77,
+    // Cost of performing BN254 pairing operation
+    Bn254Pairing = 78,
+    // Cost of converting a BN254 scalar element from U256
+    Bn254FrFromU256 = 79,
+    // Cost of converting a BN254 scalar element to U256
+    Bn254FrToU256 = 80,
+    // // Cost of performing BN254 scalar element addition/subtraction
+    Bn254FrAddSub = 81,
+    // Cost of performing BN254 scalar element multiplication
+    Bn254FrMul = 82,
+    // Cost of performing BN254 scalar element exponentiation
+    Bn254FrPow = 83,
+     // Cost of performing BN254 scalar element inversion
+    Bn254FrInv = 84,
+    // Cost of performing BN254 G1 multi-scalar multiplication (MSM)
+    Bn254G1Msm = 85
 };
 
 struct ContractCostParamEntry {
@@ -310,6 +346,24 @@ struct ConfigSettingSCPTiming {
     uint32 ballotTimeoutIncrementMilliseconds;
 };
 
+struct FrozenLedgerKeys {
+    EncodedLedgerKey keys<>;
+};
+
+struct FrozenLedgerKeysDelta {
+    EncodedLedgerKey keysToFreeze<>;
+    EncodedLedgerKey keysToUnfreeze<>;
+};
+
+struct FreezeBypassTxs {
+    Hash txHashes<>;
+};
+
+struct FreezeBypassTxsDelta {
+    Hash addTxs<>;
+    Hash removeTxs<>;
+};
+
 // limits the ContractCostParams size to 20kB
 const CONTRACT_COST_COUNT_LIMIT = 1024;
 
@@ -334,7 +388,11 @@ enum ConfigSettingID
     CONFIG_SETTING_EVICTION_ITERATOR = 13,
     CONFIG_SETTING_CONTRACT_PARALLEL_COMPUTE_V0 = 14,
     CONFIG_SETTING_CONTRACT_LEDGER_COST_EXT_V0 = 15,
-    CONFIG_SETTING_SCP_TIMING = 16
+    CONFIG_SETTING_SCP_TIMING = 16,
+    CONFIG_SETTING_FROZEN_LEDGER_KEYS = 17,
+    CONFIG_SETTING_FROZEN_LEDGER_KEYS_DELTA = 18,
+    CONFIG_SETTING_FREEZE_BYPASS_TXS = 19,
+    CONFIG_SETTING_FREEZE_BYPASS_TXS_DELTA = 20
 };
 
 union ConfigSettingEntry switch (ConfigSettingID configSettingID)
@@ -373,5 +431,13 @@ case CONFIG_SETTING_CONTRACT_LEDGER_COST_EXT_V0:
     ConfigSettingContractLedgerCostExtV0 contractLedgerCostExt;
 case CONFIG_SETTING_SCP_TIMING:
     ConfigSettingSCPTiming contractSCPTiming;
+case CONFIG_SETTING_FROZEN_LEDGER_KEYS:
+    FrozenLedgerKeys frozenLedgerKeys;
+case CONFIG_SETTING_FROZEN_LEDGER_KEYS_DELTA:
+    FrozenLedgerKeysDelta frozenLedgerKeysDelta;
+case CONFIG_SETTING_FREEZE_BYPASS_TXS:
+    FreezeBypassTxs freezeBypassTxs;
+case CONFIG_SETTING_FREEZE_BYPASS_TXS_DELTA:
+    FreezeBypassTxsDelta freezeBypassTxsDelta;
 };
 }
