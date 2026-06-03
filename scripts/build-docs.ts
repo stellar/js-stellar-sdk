@@ -758,6 +758,80 @@ function slugifyHeading(text: string): string {
     .replace(/[^a-z0-9-]/g, "");
 }
 
+interface RenderedFile {
+  slug: string;
+  content: string;
+}
+
+// Post-render guard: every intra-page (`#anchor`) and cross-file
+// (`./slug.md#anchor`) markdown link must point at a heading that
+// actually exists. Heading ids are derived with `slugifyHeading`, so
+// they match the ids Starlight emits. This catches stale or mistyped
+// anchors — e.g. JSDoc links written against an older anchor scheme —
+// before they ship as dead links. Fails the build on any miss,
+// consistent with the unmapped-symbol gate in `main()`. External
+// (`http(s):`/`mailto:`) links and non-`.md` relative paths are out of
+// scope and skipped.
+function validateAnchors(files: RenderedFile[]): void {
+  // Strip fenced code blocks first: a ```ts``` declaration is not a
+  // heading, and signatures must never be scanned for links.
+  const stripFences = (content: string): string =>
+    content.replace(/```[\s\S]*?```/g, "");
+
+  const anchorsBySlug = new Map<string, Set<string>>();
+  for (const { slug, content } of files) {
+    const ids = new Set<string>();
+    for (const m of stripFences(content).matchAll(/^#{1,6}\s+(.+?)\s*$/gm)) {
+      ids.add(slugifyHeading(m[1]));
+    }
+    anchorsBySlug.set(slug, ids);
+  }
+
+  const problems: string[] = [];
+  for (const { slug, content } of files) {
+    for (const m of stripFences(content).matchAll(/\[[^\]]*\]\(([^)]+)\)/g)) {
+      const url = m[1].trim();
+      if (/^(https?:|mailto:)/.test(url)) continue;
+
+      if (url.startsWith("#")) {
+        const anchor = url.slice(1);
+        if (anchorsBySlug.get(slug)?.has(anchor) !== true) {
+          problems.push(
+            `${slug}.md: ${m[0]} → no heading with id "#${anchor}" on this page`,
+          );
+        }
+        continue;
+      }
+
+      const cross = url.match(/^\.?\/?([\w-]+)\.md(?:#(.+))?$/);
+      if (cross !== null) {
+        const targetSlug = cross[1];
+        const targetAnchor = cross[2];
+        const targetIds = anchorsBySlug.get(targetSlug);
+        if (targetIds === undefined) {
+          problems.push(
+            `${slug}.md: ${m[0]} → links to unknown file "${targetSlug}.md"`,
+          );
+        } else if (targetAnchor !== undefined && !targetIds.has(targetAnchor)) {
+          problems.push(
+            `${slug}.md: ${m[0]} → no heading with id "#${targetAnchor}" in ${targetSlug}.md`,
+          );
+        }
+      }
+    }
+  }
+
+  if (problems.length > 0) {
+    console.error(
+      `[error] ${problems.length} dead anchor link(s) in generated reference docs:`,
+    );
+    for (const p of problems) {
+      console.error(`  [dead-anchor] ${p}`);
+    }
+    process.exit(1);
+  }
+}
+
 interface ResolvedLink {
   bucket: BucketName;
   slug: string;
@@ -1254,6 +1328,7 @@ function main(): void {
   currentLinkResolver = buildLinkResolver(collected);
 
   mkdirSync(OUTPUT_DIR, { recursive: true });
+  const rendered: RenderedFile[] = [];
   let totalSymbols = 0;
   for (const [bucket, slug] of Object.entries(BUCKET_TO_SLUG) as [
     BucketName,
@@ -1264,9 +1339,17 @@ function main(): void {
       throw new Error(`Internal: bucket "${bucket}" not pre-populated`);
     }
     const content = renderFile(bucket, list, DOCS_SOURCE_REF);
-    writeFileSync(join(OUTPUT_DIR, `${slug}.md`), content, "utf8");
+    rendered.push({ slug, content });
     console.log(`  ${slug}.md: ${list.length} symbol(s)`);
     totalSymbols += list.length;
+  }
+
+  // Guard before writing: a dead intra-page or cross-file anchor must
+  // fail the build rather than ship (mirrors the unmapped-symbol gate
+  // above). Only write once every link is known to resolve.
+  validateAnchors(rendered);
+  for (const { slug, content } of rendered) {
+    writeFileSync(join(OUTPUT_DIR, `${slug}.md`), content, "utf8");
   }
   currentLinkResolver = undefined;
   currentRenderBucket = undefined;

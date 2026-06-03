@@ -2447,9 +2447,9 @@ base64-encoded XDR string.
 transactions onto your account! Doing so will invalidate this pre-compiled
 transaction!
 - Send this XDR string to your other parties. They can use the instructions
-for [getKeypairSignature](#getKeypairSignature) to sign the transaction.
+for [`getKeypairSignature`](#transactiongetkeypairsignaturekeypair) to sign the transaction.
 - They should send you back their `publicKey` and the `signature` string
-from [getKeypairSignature](#getKeypairSignature), both of which you pass to
+from [`getKeypairSignature`](#transactiongetkeypairsignaturekeypair), both of which you pass to
 this function.
 
 ```ts
@@ -2467,7 +2467,7 @@ addSignature(publicKey: string = "", signature: string = ""): void;
 
 Signs a transaction with the given `Keypair`. Useful if someone sends
 you a transaction XDR for you to sign and return (see
-[addSignature](#addSignature) for more information).
+[`addSignature`](#transactionaddsignaturepublickey-signature) for more information).
 
 When you get a transaction XDR to sign....
 - Instantiate a `Transaction` object with the XDR
@@ -5035,9 +5035,9 @@ base64-encoded XDR string.
 transactions onto your account! Doing so will invalidate this pre-compiled
 transaction!
 - Send this XDR string to your other parties. They can use the instructions
-for [getKeypairSignature](#getKeypairSignature) to sign the transaction.
+for [`getKeypairSignature`](#transactiongetkeypairsignaturekeypair) to sign the transaction.
 - They should send you back their `publicKey` and the `signature` string
-from [getKeypairSignature](#getKeypairSignature), both of which you pass to
+from [`getKeypairSignature`](#transactiongetkeypairsignaturekeypair), both of which you pass to
 this function.
 
 ```ts
@@ -5078,7 +5078,7 @@ getClaimableBalanceId(opIndex: number): string;
 
 Signs a transaction with the given `Keypair`. Useful if someone sends
 you a transaction XDR for you to sign and return (see
-[addSignature](#addSignature) for more information).
+[`addSignature`](#transactionaddsignaturepublickey-signature) for more information).
 
 When you get a transaction XDR to sign....
 - Instantiate a `Transaction` object with the XDR
