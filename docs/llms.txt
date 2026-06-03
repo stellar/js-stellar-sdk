@@ -7,7 +7,7 @@
 
 ## Guides
 
-- [Versioning & Compatibility](guides/00-versioning): Why to use the latest @stellar/stellar-sdk, where these docs apply, and how to find older docs and release notes.
+- [Versioning & Compatibility](guides/00-versioning)
 
 ## Reference
 
