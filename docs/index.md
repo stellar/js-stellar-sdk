@@ -67,6 +67,8 @@ You can use a CDN:
 <script src="https://cdnjs.cloudflare.com/ajax/libs/stellar-sdk/{version}/stellar-sdk.js"></script>
 ```
 
+<!-- TODO: Bower is end-of-life. The `bower install` / `bower_components` instructions below (and the bower-js-stellar-sdk repo reference) are likely obsolete. Review for removal or replacement with a current self-hosting approach. -->
+
 Note that this method relies on using a third party to host the JS library. This may not be entirely secure. You can self-host it via [Bower](http://bower.io):
 
 ```shell
@@ -93,7 +95,7 @@ The default bundle uses a native-fetch HTTP client with no axios dependency. If 
 
 #### Build with Axios
 ```
-npm run build:browser:axios
+pnpm run build:lib:axios
 ```
 This will create `stellar-sdk-axios.js` in `dist/`. Consumers can also import the axios-backed entry from Node via `@stellar/stellar-sdk/axios`.
 
@@ -101,8 +103,7 @@ This will create `stellar-sdk-axios.js` in `dist/`. Consumers can also import th
 
 The usage documentation for this library lives in a handful of places:
 
- * across the [Stellar Developer Docs](https://developers.stellar.org), which includes tutorials and examples,
- * within [this repository itself](https://github.com/stellar/js-stellar-sdk/blob/master/docs/reference/readme.md), and
+ * across the [Stellar Developer Docs](https://developers.stellar.org), which includes tutorials and examples, and
  * on the generated [API doc site](https://stellar.github.io/js-stellar-sdk/) — which also publishes [agent-friendly bundles, raw markdown siblings, and a crawler policy](https://stellar.github.io/js-stellar-sdk/agents/) for AI tools. The site's URL, base path, and AI policy values live in [`config/site.ts`](config/site.ts).
 
 You can also refer to:
@@ -111,6 +112,8 @@ You can also refer to:
  * the [documentation](https://developers.stellar.org/docs/data/rpc) for Soroban RPC's API (if using the `rpc` module)
 
 ### Usage with React-Native
+
+<!-- TODO: These React Native instructions use pre-RN-0.60 patterns (`react-native link`, `rn-cli.config.js`, manual `rn-nodeify` shimming) that predate Metro autolinking and `metro.config.js`. Likely outdated; needs verification against a current React Native version, and the linked third-party sample may be stale. -->
 
 1. Install `yarn add --dev rn-nodeify`
 2. Add the following postinstall script:
@@ -136,6 +139,8 @@ There is also a [sample](https://github.com/fnando/rn-stellar-sdk-sample) that y
 
 #### Usage with Expo managed workflows
 
+<!-- TODO: These Expo instructions are likely outdated: `expo-random` is deprecated (replaced by `expo-crypto`), and `expo install` is now `npx expo install`. Needs verification against a current Expo SDK version. -->
+
 1. Install `yarn add --dev rn-nodeify`
 2. Add the following postinstall script:
 ```
@@ -158,6 +163,8 @@ const generateRandomKeypair = () => {
 ```
 
 #### Usage with CloudFlare Workers
+
+<!-- TODO: This section is outdated and the code example no longer works. It sets `Horizon.AxiosClient.defaults.adapter`, but `AxiosClient` no longer exists in the codebase — the SDK now defaults to a native-fetch HTTP client with no axios dependency. It also references axios@0.26.1, Yarn 1, `@vespaiach/axios-fetch-adapter`, and the experimental `make-eventsource-optional` branch (PR #901). Rewrite for the current native-fetch architecture, or remove. -->
 
 Both `eventsource` (needed for streaming) and `axios` (needed for making HTTP requests) are problematic dependencies in the CFW environment. The experimental branch [`make-eventsource-optional`](https://github.com/stellar/js-stellar-sdk/pull/901) is an attempt to resolve these issues.
 
@@ -419,19 +426,16 @@ In order to have a faster test loop, these suite-specific commands **do not** bu
 To generate and check the documentation site:
 
 ```shell
-# install the `serve` command if you don't have it already
-npm i -g serve
-
-# clone the base library for complete docs
-git clone https://github.com/stellar/js-stellar-base
-
-# generate the docs files
+# generate the docs site (reference pages, llms bundles, and the Astro site under dist/site)
 pnpm run docs
 
-# get these files working in a browser
-cd jsdoc && serve .
+# preview the built site in a browser
+pnpm docs:preview
 
-# you'll be able to browse the docs at http://localhost:5000
+# the preview server prints the local URL (default http://localhost:4321)
+
+# for a live-reloading dev server instead, use:
+pnpm docs:dev
 ```
 
 ### Publishing
@@ -442,7 +446,9 @@ For information on how to contribute or publish new versions of this software to
 
 ### `stellar-sdk` vs `stellar-base`
 
-`stellar-sdk` is a high-level library that serves as client-side API for Horizon and Soroban RPC, while [`stellar-base](https://github.com/stellar/js-stellar-base) is lower-level library for creating Stellar primitive constructs via XDR helpers and wrappers.
+<!-- TODO: Review this section — it is partly out of date. `@stellar/stellar-base` is no longer a separate dependency: its functionality is now bundled directly into this repo under `src/base/` and re-exported from the package's entry point. As a result, the claim below that "`stellar-sdk` automatically installs `stellar-base`" is inaccurate (nothing is installed; the primitives ship inside `stellar-sdk`). Decide how to frame the relationship now that base is merged, and whether/how to reference the standalone js-stellar-base repo. -->
+
+`stellar-sdk` is a high-level library that serves as client-side API for Horizon and Soroban RPC, while [`stellar-base`](https://github.com/stellar/js-stellar-base) is a lower-level library for creating Stellar primitive constructs via XDR helpers and wrappers.
 
 **Most people will want stellar-sdk instead of stellar-base.** You should only use stellar-base if you know what you're doing!
 
