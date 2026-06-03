@@ -7,7 +7,7 @@
 
 ## Guides
 
-- [Versioning & Compatibility](guides/00-versioning): How SDK versions map to Stellar protocol versions, and why this site documents only the current major.
+- [Versioning & Compatibility](guides/00-versioning): Why to use the latest @stellar/stellar-sdk, where these docs apply, and how to find older docs and release notes.
 
 ## Reference
 

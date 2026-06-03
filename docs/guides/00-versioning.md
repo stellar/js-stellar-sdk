@@ -1,58 +1,33 @@
 ---
 title: Versioning & Compatibility
-description: How SDK versions map to Stellar protocol versions, and why this site documents only the current major.
+description: Why to use the latest @stellar/stellar-sdk, where these docs apply, and how to find older docs and release notes.
 ---
 
 # Versioning & Compatibility
 
-## SDK ↔ Protocol mapping
+## Use the latest version
 
-Each major version of `@stellar/stellar-sdk` is built against a
-specific Stellar protocol version. From v27 onwards the SDK major
-matches the protocol major (v27 → Protocol 27, v28 → Protocol 28, …).
-For majors before v27, the protocol target is documented in the
-[release notes](https://github.com/stellar/js-stellar-sdk/releases) of
-the relevant tag.
+We recommend always using the latest version of `@stellar/stellar-sdk`
+so your application keeps working as expected on the Stellar network.
+The network upgrades its protocol periodically, and an older SDK may
+not handle newer data — for example, newer XDR can fail to render when
+an older SDK version is used.
 
-| SDK major | Protocol | Status |
-| --- | --- | --- |
-| 15.x | (see release notes) | Current |
+You can check the protocol version a network currently runs from its
+Horizon root endpoint, in the `current_protocol_version` field — for
+example, [horizon.stellar.org](https://horizon.stellar.org/) for
+Mainnet. Each network (Testnet, Futurenet) exposes its own Horizon
+root.
 
-> The mapping table is intentionally minimal pre-v27. After v27 the
-> table becomes 1:1 and self-explanatory.
+## These docs cover the latest version only
 
-## Why older majors aren't network-compatible
+This site documents only the latest version of `@stellar/stellar-sdk`.
+To read docs for an older version, find its Git tag on the
+[releases page](https://github.com/stellar/js-stellar-sdk/releases) and
+browse the `docs/` directory at that ref on GitHub.
 
-The Stellar network upgrades its protocol periodically. Once an
-upgrade ships, transactions built with an SDK major that targets an
-older protocol may use deprecated XDR shapes or fail validation. A
-keypair or strkey doesn't depend on the protocol version, so basic key
-manipulation remains usable across majors — but anything that
-constructs, signs, or submits a transaction is protocol-bound.
+## What's new in each version
 
-Always use the SDK major that matches the protocol of the network
-you're targeting (mainnet, testnet, or futurenet — each may run a
-different protocol during a rollout window).
-
-## Single-version docs policy
-
-This site documents only the **current major** of
-`@stellar/stellar-sdk`. We do not maintain a documentation archive
-for older majors. The maintenance cost — keeping multiple parallel
-reference trees in sync, ensuring cross-version links don't rot,
-running multiple builds — outweighs the benefit, given that older
-majors are rarely the right choice for new development (per the
-network-compatibility note above).
-
-## Finding docs for older versions
-
-To browse documentation for a specific older SDK version:
-
-1. Find the matching Git tag in the
-   [stellar/js-stellar-sdk releases](https://github.com/stellar/js-stellar-sdk/releases)
-   page.
-2. Browse the `docs/` directory at that ref on GitHub. The reference
-   pages under `docs/reference/` are committed at each release and
-   their inline source links point to the source files at that
-   release's commit SHA, so the link targets resolve correctly even
-   when the docs site itself only shows the current major.
+See the
+[release notes](https://github.com/stellar/js-stellar-sdk/releases) for
+what changed in each release — breaking changes are clearly marked.
