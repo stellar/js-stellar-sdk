@@ -75,7 +75,17 @@ export * from "./events.js";
 export * from "./sorobandata_builder.js";
 // Explicit (not `export *`) so `getAddressCredentials` stays internal: it's
 // shared with the contract package but intentionally excluded from the public API.
-export { authorizeEntry, authorizeInvocation } from "./auth.js";
-export type { SigningCallback, AuthorizeInvocationParams } from "./auth.js";
+export {
+  authorizeEntry,
+  authorizeInvocation,
+  buildAuthorizationEntryPreimage,
+  buildWithDelegatesEntry,
+} from "./auth.js";
+export type {
+  SigningCallback,
+  AuthorizeInvocationParams,
+  DelegateSignature,
+  BuildWithDelegatesParams,
+} from "./auth.js";
 export * from "./invocation.js";
 export * from "./numbers/index.js";

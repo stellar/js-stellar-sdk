@@ -2,6 +2,8 @@ import { describe, it, expect, afterEach, vi } from "vitest";
 import {
   authorizeEntry,
   authorizeInvocation,
+  buildAuthorizationEntryPreimage,
+  buildWithDelegatesEntry,
   SigningCallback,
 } from "../../../src/base/auth.js";
 import { Keypair } from "../../../src/base/keypair.js";
@@ -365,6 +367,86 @@ describe("building authorization entries", () => {
       expect(wrapped.delegates()).toHaveLength(0);
     });
 
+    it("ADDRESS_WITH_DELEGATES fills the matching delegate node, binding the payload to the top-level address", async () => {
+      const delegate = Keypair.random();
+      const capture: { preimage?: xdr.HashIdPreimage } = {};
+      const signer: SigningCallback = (preimage) => {
+        capture.preimage = preimage;
+        return Promise.resolve({
+          signature: delegate.sign(hash(preimage.toXDR())),
+          publicKey: delegate.publicKey(),
+        });
+      };
+
+      const signed = await authorizeEntry(
+        entryWith(
+          xdr.SorobanCredentials.sorobanCredentialsAddressWithDelegates(
+            new xdr.SorobanAddressCredentialsWithDelegates({
+              addressCredentials: makeAddrCreds(),
+              delegates: [
+                new xdr.SorobanDelegateSignature({
+                  address: new Address(delegate.publicKey()).toScAddress(),
+                  signature: xdr.ScVal.scvVoid(),
+                  nestedDelegates: [],
+                }),
+              ],
+            }),
+          ),
+        ),
+        signer,
+        EXPIRATION,
+        Networks.TESTNET,
+        delegate.publicKey(),
+      );
+
+      // the signed payload is bound to the *top-level* address, not the
+      // delegate's (CAP-71-01: the payload is shared across all signers)
+      const preimage = expectDefined(capture.preimage);
+      expect(
+        preimage.sorobanAuthorizationWithAddress().address().toXDR(),
+      ).toEqual(new Address(kp.publicKey()).toScAddress().toXDR());
+
+      const wrapped = signed.credentials().addressWithDelegates();
+      // the top-level signature is left untouched (still the placeholder)
+      expect(wrapped.addressCredentials().signature().switch().name).toBe(
+        "scvVec",
+      );
+      expect(
+        expectDefined(wrapped.addressCredentials().signature().vec()),
+      ).toHaveLength(0);
+      // the delegate's node now carries the signature, attributed to the
+      // delegate's key
+      const signedDelegate = wrapped.delegates()[0];
+      expect(signedDelegate.signature().switch().name).toBe("scvVec");
+      const sigArgs = expectDefined(signedDelegate.signature().vec()).map((v) =>
+        scValToNative(v),
+      );
+      const sig = sigArgs[0] as { public_key: Buffer; signature: Buffer };
+      expect(StrKey.encodeEd25519PublicKey(sig.public_key)).toBe(
+        delegate.publicKey(),
+      );
+    });
+
+    it("throws when forAddress matches no node in the entry", async () => {
+      const stranger = Keypair.random();
+      await expect(
+        authorizeEntry(
+          entryWith(
+            xdr.SorobanCredentials.sorobanCredentialsAddressWithDelegates(
+              new xdr.SorobanAddressCredentialsWithDelegates({
+                addressCredentials: makeAddrCreds(),
+                delegates: [],
+              }),
+            ),
+          ),
+          kp,
+          EXPIRATION,
+          Networks.TESTNET,
+          stranger.publicKey(),
+        ),
+      ).rejects.toThrow(/no credential node for address/);
+    });
+
     it("commits the expiration ledger into the signed payload (not the original)", async () => {
       // Regression: the preimage must be built *after* the expiration is
       // updated, otherwise the signature commits to the stale expiration (0)
@@ -572,6 +654,219 @@ describe("building authorization entries", () => {
           networkPassphrase: Networks.TESTNET,
         }),
       ).toThrow(/need at least 8 bytes to convert to Int64, got 3/);
+    });
+  });
+
+  describe("delegate credential builders", () => {
+    // an ADDRESS_V2 entry as simulation would return it (Void signature
+    // placeholder), for the given top-level account
+    function addressV2Entry(
+      pk = kp.publicKey(),
+    ): xdr.SorobanAuthorizationEntry {
+      return new xdr.SorobanAuthorizationEntry({
+        rootInvocation: authEntry.rootInvocation(),
+        credentials: xdr.SorobanCredentials.sorobanCredentialsAddressV2(
+          new xdr.SorobanAddressCredentials({
+            address: new Address(pk).toScAddress(),
+            nonce: new xdr.Int64(777n),
+            signatureExpirationLedger: 0,
+            signature: xdr.ScVal.scvVoid(),
+          }),
+        ),
+      });
+    }
+
+    describe("buildAuthorizationEntryPreimage", () => {
+      it("builds the address-bound preimage for ADDRESS_V2, bound to the top-level address", () => {
+        const preimage = buildAuthorizationEntryPreimage(
+          addressV2Entry(),
+          4242,
+          Networks.TESTNET,
+        );
+        expect(preimage.switch().name).toBe(
+          "envelopeTypeSorobanAuthorizationWithAddress",
+        );
+        const inner = preimage.sorobanAuthorizationWithAddress();
+        expect(inner.signatureExpirationLedger()).toBe(4242);
+        expect(inner.nonce().toBigInt()).toBe(777n);
+        expect(inner.address().toXDR()).toEqual(
+          new Address(kp.publicKey()).toScAddress().toXDR(),
+        );
+      });
+
+      it("builds the legacy non-address-bound preimage for ADDRESS", () => {
+        const entry = new xdr.SorobanAuthorizationEntry({
+          rootInvocation: authEntry.rootInvocation(),
+          credentials: xdr.SorobanCredentials.sorobanCredentialsAddress(
+            new xdr.SorobanAddressCredentials({
+              address: new Address(kp.publicKey()).toScAddress(),
+              nonce: new xdr.Int64(5n),
+              signatureExpirationLedger: 0,
+              signature: xdr.ScVal.scvVoid(),
+            }),
+          ),
+        });
+        const preimage = buildAuthorizationEntryPreimage(
+          entry,
+          10,
+          Networks.TESTNET,
+        );
+        expect(preimage.switch().name).toBe("envelopeTypeSorobanAuthorization");
+        expect(
+          preimage.sorobanAuthorization().signatureExpirationLedger(),
+        ).toBe(10);
+      });
+
+      it("matches the payload authorizeEntry actually signs", async () => {
+        const entry = addressV2Entry();
+        const capture: { preimage?: xdr.HashIdPreimage } = {};
+        await authorizeEntry(
+          entry,
+          (preimage) => {
+            capture.preimage = preimage;
+            return Promise.resolve(kp.sign(hash(preimage.toXDR())));
+          },
+          4242,
+          Networks.TESTNET,
+        );
+        const built = buildAuthorizationEntryPreimage(
+          entry,
+          4242,
+          Networks.TESTNET,
+        );
+        expect(built.toXDR("hex")).toBe(
+          expectDefined(capture.preimage).toXDR("hex"),
+        );
+      });
+
+      it("throws for source-account credentials", () => {
+        const entry = new xdr.SorobanAuthorizationEntry({
+          rootInvocation: authEntry.rootInvocation(),
+          credentials: xdr.SorobanCredentials.sorobanCredentialsSourceAccount(),
+        });
+        expect(() =>
+          buildAuthorizationEntryPreimage(entry, 10, Networks.TESTNET),
+        ).toThrow(/cannot build a signature payload/);
+      });
+    });
+
+    describe("buildWithDelegatesEntry", () => {
+      it("wraps ADDRESS_V2 creds, defaulting the top-level signature to Void", () => {
+        const delegate = Keypair.random();
+        const wrapped = buildWithDelegatesEntry({
+          entry: addressV2Entry(),
+          validUntilLedgerSeq: 100,
+          delegates: [{ address: delegate.publicKey() }],
+        });
+
+        expect(wrapped.credentials().switch().name).toBe(
+          "sorobanCredentialsAddressWithDelegates",
+        );
+        const wd = wrapped.credentials().addressWithDelegates();
+        // top-level address + nonce preserved, expiration set, signature Void
+        expect(wd.addressCredentials().address().toXDR()).toEqual(
+          new Address(kp.publicKey()).toScAddress().toXDR(),
+        );
+        expect(wd.addressCredentials().nonce().toBigInt()).toBe(777n);
+        expect(wd.addressCredentials().signatureExpirationLedger()).toBe(100);
+        expect(wd.addressCredentials().signature().switch().name).toBe(
+          "scvVoid",
+        );
+        // delegate placeholder present with a Void signature
+        expect(wd.delegates()).toHaveLength(1);
+        expect(
+          Address.fromScAddress(wd.delegates()[0].address()).toString(),
+        ).toBe(delegate.publicKey());
+        expect(wd.delegates()[0].signature().switch().name).toBe("scvVoid");
+      });
+
+      it("sorts each delegates array ascending by address", () => {
+        const kps = [Keypair.random(), Keypair.random(), Keypair.random()];
+        const expectedOrder = kps
+          .map((k) => k.publicKey())
+          .sort((a, b) =>
+            Buffer.compare(
+              new Address(a).toScAddress().toXDR(),
+              new Address(b).toScAddress().toXDR(),
+            ),
+          );
+
+        const wrapped = buildWithDelegatesEntry({
+          entry: addressV2Entry(),
+          validUntilLedgerSeq: 100,
+          delegates: kps.map((k) => ({ address: k.publicKey() })),
+        });
+
+        const order = wrapped
+          .credentials()
+          .addressWithDelegates()
+          .delegates()
+          .map((node: xdr.SorobanDelegateSignature) =>
+            Address.fromScAddress(node.address()).toString(),
+          );
+        expect(order).toEqual(expectedOrder);
+      });
+
+      it("throws on duplicate delegate addresses within a level", () => {
+        const delegate = Keypair.random();
+        expect(() =>
+          buildWithDelegatesEntry({
+            entry: addressV2Entry(),
+            validUntilLedgerSeq: 100,
+            delegates: [
+              { address: delegate.publicKey() },
+              { address: delegate.publicKey() },
+            ],
+          }),
+        ).toThrow(/duplicate delegate address/);
+      });
+
+      it("rejects entries that are already ADDRESS_WITH_DELEGATES", () => {
+        const wrapped = buildWithDelegatesEntry({
+          entry: addressV2Entry(),
+          validUntilLedgerSeq: 100,
+          delegates: [],
+        });
+        expect(() =>
+          buildWithDelegatesEntry({
+            entry: wrapped,
+            validUntilLedgerSeq: 100,
+            delegates: [],
+          }),
+        ).toThrow(/expects ADDRESS or ADDRESS_V2 credentials/);
+      });
+
+      it("composes with authorizeEntry to fill a delegate signature end-to-end", async () => {
+        const delegate = Keypair.random();
+        const wrapped = buildWithDelegatesEntry({
+          entry: addressV2Entry(),
+          validUntilLedgerSeq: 100,
+          delegates: [{ address: delegate.publicKey() }],
+        });
+
+        // the delegate signs the shared (top-level-bound) payload; passing its
+        // address as `forAddress` writes the signature into the delegate node
+        const signed = await authorizeEntry(
+          wrapped,
+          delegate,
+          100,
+          Networks.TESTNET,
+          delegate.publicKey(),
+        );
+
+        const wd = signed.credentials().addressWithDelegates();
+        // top-level stays Void; only the delegate signed
+        expect(wd.addressCredentials().signature().switch().name).toBe(
+          "scvVoid",
+        );
+        const sigArgs = expectDefined(wd.delegates()[0].signature().vec()).map(
+          (v) => scValToNative(v),
+        );
+        const sig = sigArgs[0] as { public_key: Buffer; signature: Buffer };
+        expect(StrKey.encodeEd25519PublicKey(sig.public_key)).toBe(
+          delegate.publicKey(),
+        );
+      });
     });
   });
 });
