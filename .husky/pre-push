@@ -7,9 +7,18 @@ echo ""
 pnpm run docs:reference
 pnpm run docs:llms
 
-if ! git diff --exit-code --stat -- docs/; then
+# Only docs/reference/* and docs/{index.md,llms.txt,llms-full.txt} are generated.
+# docs/guides/* and docs/agents.md are hand-written inputs — exclude them so an
+# uncommitted source edit isn't misreported as stale generated output.
+# --porcelain (vs git diff) also catches brand-new untracked generated files,
+# and status is relative to HEAD so staged-but-uncommitted docs still block.
+STALE=$(git status --porcelain --untracked-files=all -- \
+  docs/ ':(exclude)docs/guides' ':(exclude)docs/agents.md')
+
+if [ -n "$STALE" ]; then
+  echo "$STALE"
   echo ""
-  echo "✗ Generated docs are out of date. Run 'pnpm run docs', then stage & commit the changes."
+  echo "✗ Generated docs are out of date or uncommitted. Run 'pnpm run docs', then stage & commit the changes under docs/."
   echo ""
   exit 1
 fi
