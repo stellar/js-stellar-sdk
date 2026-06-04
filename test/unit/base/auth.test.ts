@@ -130,6 +130,23 @@ describe("building authorization entries", () => {
       );
     });
 
+    it("invokes the signing callback", async () => {
+      // the callback only records that it ran; the assertion lives in the test
+      // body (after the await), never inside the callback
+      let invoked = false;
+      await authorizeEntry(
+        authEntry,
+        (preimage) => {
+          invoked = true;
+          return Promise.resolve(kp.sign(hash(preimage.toXDR())));
+        },
+        10,
+        Networks.TESTNET,
+      );
+
+      expect(invoked).toBe(true);
+    });
+
     it("returns entry unchanged for source account credentials (no-op)", async () => {
       const sourceAccountEntry = new xdr.SorobanAuthorizationEntry({
         rootInvocation: authEntry.rootInvocation(),
