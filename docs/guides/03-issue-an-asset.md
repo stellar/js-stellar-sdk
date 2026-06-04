@@ -7,10 +7,14 @@ description:
 
 # Issue an Asset
 
-On Stellar an asset is just a code (like `ASTRO`) plus the public key of the
-account that issues it. There is no contract to deploy: you "create" an asset by
-sending it from its issuing account. This guide sets up the issuer/distributor
-pattern, establishes a trustline, and issues the asset.
+On Stellar a Stellar asset is just a code (like `ASTRO`) plus the public key of
+the account that issues it. There is no contract to deploy: you "create" it by
+sending it from its issuing account. This is one of two token types on Stellar:
+the ledger-native **Stellar asset** covered here, versus **contract tokens** built
+on Soroban smart contracts. See
+[Stellar Assets and Contract Tokens](https://developers.stellar.org/docs/tokens)
+for when to use which. This guide sets up the issuer/distributor pattern,
+establishes a trustline, and issues the asset.
 
 ## Prerequisites
 
@@ -22,8 +26,10 @@ pattern, establishes a trustline, and issues the asset.
 
 Use two accounts. The **issuer** defines the asset and creates supply; the
 **distributor** holds the supply and hands it out to users. Keeping them separate
-is the standard practice: once issued, you can lock the issuer to fix the supply
-while the distributor keeps operating.
+is the standard practice: once issued, you can lock the issuer (remove its
+signing weight with
+[`Operation.setOptions`](/reference/core-transactions/#operationsetoptions)) to
+fix the supply permanently, while the distributor keeps operating.
 
 ```ts
 import { Asset } from "@stellar/stellar-sdk";
@@ -32,8 +38,8 @@ import { Asset } from "@stellar/stellar-sdk";
 const astro = new Asset("ASTRO", issuer.publicKey());
 ```
 
-Asset codes are 1-12 characters. The issuer is the account whose keypair you
-control.
+The code is 1 to 12 characters and the issuer is the account whose keypair you
+control. See [`Asset`](/reference/core-assets/#asset) in the reference.
 
 ## Trust the asset
 
@@ -66,7 +72,10 @@ await horizon.submitTransaction(tx);
 ```
 
 Pass `limit` to cap how much the account will hold (`changeTrust({ asset: astro,
-limit: "5000" })`); setting `limit: "0"` removes the trustline.
+limit: "5000" })`); amounts and limits are strings, and omitting `limit` defaults
+to the maximum. Setting `limit: "0"` removes the trustline. Each trustline also
+reserves about 0.5 XLM of the account's balance, so the distributor needs a
+little XLM beyond the reserve (friendbot-funded testnet accounts have plenty).
 
 ## Issue it
 
@@ -99,7 +108,8 @@ The distributor now holds 1000 ASTRO, and 1000 ASTRO exists on the network.
 ## Put it together
 
 The whole flow as one runnable script. It funds a throwaway issuer and
-distributor so the example runs end to end:
+distributor so the example runs end to end; in your app, replace the
+`Keypair.random()` calls with your real keypairs and drop the friendbot funding:
 
 ```ts
 import {
@@ -114,7 +124,7 @@ import {
 
 const horizon = new Horizon.Server("https://horizon-testnet.stellar.org");
 
-async function submit(source, build) {
+async function submit(source: Keypair, build: (b: TransactionBuilder) => void) {
   const account = await horizon.loadAccount(source.publicKey());
   const builder = new TransactionBuilder(account, {
     fee: BASE_FEE,
