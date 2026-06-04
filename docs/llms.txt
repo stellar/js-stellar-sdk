@@ -13,6 +13,7 @@
 - [Issue an Asset](guides/03-issue-an-asset)
 - [Query and Stream](guides/04-query-and-stream)
 - [Handle Errors](guides/05-handle-errors)
+- [Invoke a Contract](guides/06-invoke-a-contract)
 
 ## Reference
 
