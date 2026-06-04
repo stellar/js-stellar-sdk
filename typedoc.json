@@ -3,17 +3,6 @@
   "entryPointStrategy": "expand",
   "tsconfig": "tsconfig.json",
   "exclude": ["src/base/generated/**"],
-  "blockTags": [
-    "@defaultValue", "@deprecated", "@example", "@jsx", "@param",
-    "@privateRemarks", "@remarks", "@returns", "@see", "@throws",
-    "@typeParam", "@author", "@callback", "@category",
-    "@categoryDescription", "@default", "@document", "@extends",
-    "@augments", "@yields", "@group", "@groupDescription", "@import",
-    "@inheritDoc", "@license", "@module", "@mergeModuleWith", "@prop",
-    "@property", "@return", "@satisfies", "@since", "@sortStrategy",
-    "@template", "@this", "@type", "@typedef", "@summary",
-    "@preventInline", "@inlineType", "@preventExpand", "@expandType"
-  ],
   "validation": {
     "invalidLink": true,
     "notExported": false,
