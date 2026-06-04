@@ -73,7 +73,9 @@ result.successful; // true when it was applied
 ```
 
 If submission fails, Horizon returns the error in the rejected promise, so wrap
-the call in `try/catch` to inspect the failure.
+the call in `try/catch` to inspect the failure. See
+[Handle Errors](/guides/05-handle-errors/) for reading result codes and
+Horizon's error responses.
 
 ## Add a memo
 

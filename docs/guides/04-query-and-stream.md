@@ -135,4 +135,6 @@ main().catch(console.error);
 ```
 
 You can now read history and react to it live. The same call builders back most
-of what an app needs to display from the network.
+of what an app needs to display from the network. Reads can still fail (a missing
+account, a malformed request); [Handle Errors](/guides/05-handle-errors/) covers
+catching those.

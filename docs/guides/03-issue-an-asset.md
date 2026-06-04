@@ -103,7 +103,9 @@ issueTx.sign(issuer);
 await horizon.submitTransaction(issueTx);
 ```
 
-The distributor now holds 1000 ASTRO, and 1000 ASTRO exists on the network.
+The distributor now holds 1000 ASTRO, and 1000 ASTRO exists on the network. If a
+submission is rejected (for example the distributor never added the trustline),
+[Handle Errors](/guides/05-handle-errors/) shows how to read the result codes.
 
 ## Put it together
 
