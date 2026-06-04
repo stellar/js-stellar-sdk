@@ -6,15 +6,16 @@
  *
  * This error contains two attributes to help you identify the account requiring
  * the memo and the operation where the account is the destination
- * @category Errors
  *
- * @param {string} message Human-readable error message
- * @param {string} accountId The account which requires a memo
- * @param {number} operationIndex The index of the operation where `accountId` is the destination
+ * @param message - Human-readable error message
+ * @param accountId - The account which requires a memo
+ * @param operationIndex - The index of the operation where `accountId` is the destination
  *
  * @example
+ * ```ts
  * console.log('The following account requires a memo ', err.accountId)
  * console.log('The account is used in operation: ', err.operationIndex)
+ * ```
  */
 export class AccountRequiresMemoError extends Error {
   public accountId: string;
@@ -25,12 +26,10 @@ export class AccountRequiresMemoError extends Error {
 
     /**
      * The account which requires a memo.
-     * @type {string}
      */
     this.accountId = accountId;
     /**
      * Operation where accountId is the destination.
-     * @type {number}
      */
     this.operationIndex = operationIndex;
   }

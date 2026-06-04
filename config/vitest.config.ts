@@ -13,6 +13,10 @@ const coverageExclude = [
   "lib/**/*.d.ts",
   "lib/**",
   "**/*/browser.js",
+  // Astro content collection schema for the docs site; imports the
+  // virtual `astro:content` module that only resolves inside Astro's
+  // runtime. Not SDK code, not in scope for SDK coverage.
+  "src/content.config.ts",
 ];
 
 export default defineConfig({

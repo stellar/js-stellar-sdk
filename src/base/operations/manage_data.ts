@@ -9,9 +9,9 @@ import {
 /**
  * This operation adds data entry to the ledger.
  * @param opts - Options object
- * @param opts.name - The name of the data entry.
- * @param opts.value - The value of the data entry.
- * @param opts.source - The optional source account.
+ *   - `name`: The name of the data entry.
+ *   - `value`: The value of the data entry.
+ *   - `source`: The optional source account.
  */
 export function manageData(
   opts: ManageDataOpts,

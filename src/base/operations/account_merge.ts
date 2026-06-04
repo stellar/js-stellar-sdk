@@ -11,8 +11,8 @@ import { setSourceAccount } from "../util/operations.js";
  * Transfers native balance to destination account.
  *
  * @param opts - options object
- * @param opts.destination - destination to merge the source account into
- * @param opts.source - operation source account (defaults to
+ *   - `destination`: destination to merge the source account into
+ *   - `source`: operation source account (defaults to
  *     transaction source)
  */
 export function accountMerge(

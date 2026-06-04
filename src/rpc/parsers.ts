@@ -3,11 +3,10 @@ import { Api } from "./api.js";
 
 /**
  * Parse the response from invoking the `submitTransaction` method of a RPC server.
- * @memberof module:rpc
- * @private
+ * @internal
  *
- * @param {Api.RawSendTransactionResponse} raw the raw `submitTransaction` response from the RPC server to parse
- * @returns {Api.SendTransactionResponse} transaction response parsed from the RPC server's response
+ * @param raw - the raw `submitTransaction` response from the RPC server to parse
+ * @returns transaction response parsed from the RPC server's response
  */
 export function parseRawSendTransaction(
   raw: Api.RawSendTransactionResponse,
@@ -88,11 +87,10 @@ export function parseRawTransactions(
 /**
  * Parse and return the retrieved events, if any, from a raw response from a
  * RPC server.
- * @memberof module:rpc
  *
- * @param {Api.RawGetEventsResponse} raw the raw `getEvents` response from the
+ * @param raw - the raw `getEvents` response from the
  *    RPC server to parse
- * @returns {Api.GetEventsResponse} events parsed from the RPC server's
+ * @returns events parsed from the RPC server's
  *    response
  */
 export function parseRawEvents(
@@ -127,12 +125,11 @@ export function parseRawEvents(
 /**
  * Parse and return the retrieved ledger entries, if any, from a raw response
  * from a RPC server.
- * @memberof module:rpc
- * @private
+ * @internal
  *
- * @param {Api.RawGetLedgerEntriesResponse} raw the raw `getLedgerEntries`
+ * @param raw - the raw `getLedgerEntries`
  *    response from the RPC server to parse
- * @returns {Api.GetLedgerEntriesResponse} ledger entries parsed from the
+ * @returns ledger entries parsed from the
  *    RPC server's response
  */
 export function parseRawLedgerEntries(
@@ -162,18 +159,15 @@ export function parseRawLedgerEntries(
 /**
  * Parse whether or not the transaction simulation was successful, returning the
  * relevant response.
- * @memberof module:rpc
- * @private
+ * @internal
  *
- * @param {Api.RawSimulateTransactionResponse} sim a raw response from the
+ * @param sim - a raw response from the
  *    `simulateTransaction` method of the RPC server to parse
- * @param {Api.BaseSimulateTransactionResponse} partial a partially built
+ * @param partial - a partially built
  *    simulate transaction response that will be used to build the return
  *    response
- * @returns {Api.SimulateTransactionRestoreResponse |
- *    Api.SimulateTransactionSuccessResponse} Either a simulation response
- *    indicating what ledger entries should be restored, or if the simulation
- *    was successful.
+ * @returns Either a simulation response indicating what ledger entries
+ *    should be restored, or if the simulation was successful.
  */
 function parseSuccessful(
   sim: Api.RawSimulateTransactionResponse,
@@ -232,12 +226,12 @@ function parseSuccessful(
 
 /**
  * Converts a raw response schema into one with parsed XDR fields and a simplified interface.
- * @warning This API is only exported for testing purposes and should not be relied on or considered "stable".
- * @memberof module:rpc
  *
- * @param {Api.SimulateTransactionResponse | Api.RawSimulateTransactionResponse} sim the raw response schema (parsed ones are allowed, best-effort
+ * **Warning:** This API is only exported for testing purposes and should not be relied on or considered "stable".
+ *
+ * @param sim - the raw response schema (parsed ones are allowed, best-effort
  *    detected, and returned untouched)
- * @returns {Api.SimulateTransactionResponse} the original parameter (if already parsed), parsed otherwise
+ * @returns the original parameter (if already parsed), parsed otherwise
  */
 export function parseRawSimulation(
   sim: Api.SimulateTransactionResponse | Api.RawSimulateTransactionResponse,

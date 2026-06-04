@@ -21,18 +21,16 @@ import type { HttpClient } from "../http-client/index.js";
  * used to determine if there a given path can satisfy a payment of the desired
  * amount.
  *
- * Do not create this object directly, use {@link Horizon.Server#strictSendPaths}.
+ * Do not create this object directly, use {@link Horizon.Server.strictSendPaths}.
  *
- * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/aggregations/paths|Find Payment Paths}
+ * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/aggregations/paths | Find Payment Paths}
  *
- * @augments CallBuilder
- * @private
- * @class
+ * @internal
  *
- * @param {string} serverUrl Horizon server URL.
- * @param {Asset} sourceAsset The asset to be sent.
- * @param {string} sourceAmount The amount, denominated in the source asset, that any returned path should be able to satisfy.
- * @param {string|Asset[]} destination The destination account or the destination assets.
+ * @param serverUrl - Horizon server URL.
+ * @param sourceAsset - The asset to be sent.
+ * @param sourceAmount - The amount, denominated in the source asset, that any returned path should be able to satisfy.
+ * @param destination - The destination account or the destination assets.
  *
  */
 export class StrictSendPathCallBuilder extends CallBuilder<

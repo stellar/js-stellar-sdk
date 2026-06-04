@@ -31,9 +31,9 @@ export const LiquidityPoolFeeV18 = 30;
  *
  * @param liquidityPoolType - A string representing the liquidity pool type.
  * @param liquidityPoolParameters - The liquidity pool parameters.
- * @param liquidityPoolParameters.assetA - The first asset in the Pool, it must respect the rule assetA < assetB.
- * @param liquidityPoolParameters.assetB - The second asset in the Pool, it must respect the rule assetA < assetB.
- * @param liquidityPoolParameters.fee - The liquidity pool fee. For now the only fee supported is `30`.
+ *   - `assetA`: The first asset in the Pool, it must respect the rule `assetA < assetB`.
+ *   - `assetB`: The second asset in the Pool, it must respect the rule `assetA < assetB`.
+ *   - `fee`: The liquidity pool fee. For now the only fee supported is `30`.
  */
 export function getLiquidityPoolId(
   liquidityPoolType: LiquidityPoolType,

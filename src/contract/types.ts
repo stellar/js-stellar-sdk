@@ -8,64 +8,52 @@ import { Server } from "../rpc/index.js";
 export type XDR_BASE64 = string;
 /**
  * An unsigned 32-bit integer.
- * @memberof module:contract
  */
 export type u32 = number;
 /**
  * A signed 32-bit integer.
- * @memberof module:contract
  */
 export type i32 = number;
 /**
  * An unsigned 64-bit integer.
- * @memberof module:contract
  */
 export type u64 = bigint;
 /**
  * A signed 64-bit integer.
- * @memberof module:contract
  */
 export type i64 = bigint;
 /**
  * An unsigned 128-bit integer.
- * @memberof module:contract
  */
 export type u128 = bigint;
 /**
  * A signed 128-bit integer.
- * @memberof module:contract
  */
 export type i128 = bigint;
 /**
  * An unsigned 256-bit integer.
- * @memberof module:contract
  */
 export type u256 = bigint;
 /**
  * A signed 256-bit integer.
- * @memberof module:contract
  */
 export type i256 = bigint;
 export type Option<T> = T | undefined;
 /**
  * @deprecated Use {@link Timepoint} instead.
- * @memberof module:contract
  */
 export type Typepoint = bigint;
 /**
  * An unsigned 64-bit integer.
- * @memberof module:contract
  */
 export type Timepoint = bigint;
 /**
  * An unsigned 64-bit integer.
- * @memberof module:contract
  */
 export type Duration = bigint;
 
 /**
  * A "regular" transaction, as opposed to a FeeBumpTransaction.
- * @memberof module:contract
  */
 export type Tx = Transaction;
 
@@ -84,10 +72,10 @@ export interface WalletError {
  *
  * @param xdr - The XDR string representing the transaction to be signed.
  * @param opts - Options for signing the transaction.
- *   @param opts.networkPassphrase - The network's passphrase on which the transaction is intended to be signed.
- *   @param opts.address - The public key of the account that should be used to sign.
- *   @param opts.submit - If set to true, submits the transaction immediately after signing.
- *   @param opts.submitUrl - The URL of the network to which the transaction should be submitted, if applicable.
+ *   - `networkPassphrase`: The network's passphrase on which the transaction is intended to be signed.
+ *   - `address`: The public key of the account that should be used to sign.
+ *   - `submit`: If set to true, submits the transaction immediately after signing.
+ *   - `submitUrl`: The URL of the network to which the transaction should be submitted, if applicable.
  *
  * @returns A promise resolving to an object with the signed transaction XDR and optional signer address and error.
  */
@@ -115,8 +103,8 @@ export type SignTransaction = (
  *
  * @param authEntry - The authorization entry preimage to be signed.
  * @param opts - Options for signing the authorization entry.
- *   @param opts.networkPassphrase - The network's passphrase on which the authorization entry is intended to be signed.
- *   @param opts.address - The public key of the account that should be used to sign.
+ *   - `networkPassphrase`: The network's passphrase on which the authorization entry is intended to be signed.
+ *   - `address`: The public key of the account that should be used to sign.
  *
  * @returns A promise resolving to an object with the signed authorization entry and optional signer address and error.
  */
@@ -135,7 +123,6 @@ export type SignAuthEntry = (
 
 /**
  * Options for a smart contract client.
- * @memberof module:contract
  */
 export type ClientOptions = {
   /**
@@ -149,7 +136,7 @@ export type ClientOptions = {
    * calls, which only need to be simulated. If you do not provide it during
    * initialization, you can provide it later, either when you initialize a
    * method (see {@link MethodOptions}) or when you call
-   * {@link module:contract.AssembledTransaction#signAndSend signAndSend}.
+   * {@link contract.AssembledTransaction.signAndSend | signAndSend}.
    *
    * Matches signature of `signTransaction` from Freighter.
    */
@@ -160,7 +147,7 @@ export type ClientOptions = {
    * for multi-auth transactions, in which one transaction is signed by
    * multiple parties. If you do not provide it during initialization, you can
    * provide it later either when you initialize a method (see {@link MethodOptions})
-   * or when you call {@link module:contract.AssembledTransaction#signAuthEntries signAuthEntries}.
+   * or when you call {@link contract.AssembledTransaction.signAuthEntries | signAuthEntries}.
    *
    * Matches signature of `signAuthEntry` from Freighter.
    */
@@ -180,7 +167,7 @@ export type ClientOptions = {
   /**
    * If true, will allow HTTP requests to the RPC. If false, will
    * only allow HTTPS requests.
-   * @default false
+   * @defaultValue false
    */
   allowHttp?: boolean;
   /** Optional headers to include in requests to the RPC. */
@@ -194,13 +181,13 @@ export type ClientOptions = {
    * on-chain XDR that also describes your contract's methods. Each error will
    * have a specific number.
    *
-   * A Client makes method calls with an {@link module:contract.AssembledTransaction AssembledTransaction}.
+   * A Client makes method calls with an {@link contract.AssembledTransaction | AssembledTransaction}.
    * When one of these method calls encounters an error, `AssembledTransaction`
    * will first attempt to parse the error as an "official" `contracterror`
-   * error, by using this passed-in `errorTypes` object. See
-   * {@link module:contract.AssembledTransaction#parseError parseError}. If `errorTypes` is blank or no
+   * error, by using this passed-in `errorTypes` object. See `parseError`
+   * on {@link contract.AssembledTransaction}. If `errorTypes` is blank or no
    * matching error is found, then it will throw the raw error.
-   * @default {}
+   * @defaultValue `{}`
    */
   errorTypes?: Record<number, { message: string }>;
   /**
@@ -212,33 +199,32 @@ export type ClientOptions = {
 
 /**
  * Options for a smart contract method invocation.
- * @memberof module:contract
  */
 export type MethodOptions = {
   /**
    * The fee to pay for the transaction.
-   * @default 100
+   * @defaultValue 100
    */
   fee?: string;
 
   /**
    * The timebounds which should be set for transactions generated by this
-   * contract client. {@link module:contract#.DEFAULT_TIMEOUT}
-   * @default 300
+   * contract client. {@link contract.DEFAULT_TIMEOUT}
+   * @defaultValue 300
    */
   timeoutInSeconds?: number;
 
   /**
    * Whether to automatically simulate the transaction when constructing the
    * AssembledTransaction.
-   * @default true
+   * @defaultValue true
    */
   simulate?: boolean;
 
   /**
    * If true, will automatically attempt to restore the transaction if there
    * are archived entries that need renewal.
-   * @default false
+   * @defaultValue false
    */
   restore?: boolean;
 
@@ -285,7 +271,7 @@ export type AssembledTransactionOptions<T = string> = MethodOptions &
 
     /**
      * This option will be passed through to the SEP43-compatible wallet extension. If true, and if the wallet supports it, the transaction will be signed and immediately submitted to the network by the wallet, bypassing the submit logic in {@link SentTransaction}.
-     * @default false
+     * @defaultValue false
      */
     submit?: boolean;
 
@@ -301,17 +287,13 @@ export type AssembledTransactionOptions<T = string> = MethodOptions &
  * This is attached to the transaction _before_ transaction simulation (it is
  * needed for simulation to succeed). It is also re-calculated and re-added
  * _before_ transaction signing.
- * @constant {number}
- * @default 300
- * @memberof module:contract
+ * @defaultValue 300
  */
 export const DEFAULT_TIMEOUT = 5 * 60;
 
 /**
  * An impossible account on the Stellar network
- * @constant {string}
- * @default GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF
- * @memberof module:contract
+ * @defaultValue GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF
  */
 export const NULL_ACCOUNT =
   "GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF";

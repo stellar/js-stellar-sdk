@@ -46,9 +46,7 @@ import type { HttpClient } from "../http-client/index.js";
 
 /**
  * Default transaction submission timeout for Horizon requests, in milliseconds
- * @constant {number}
- * @default 60000
- * @memberof module:Horizon.Server
+ * @defaultValue 60000
  */
 export const SUBMIT_TRANSACTION_TIMEOUT: number = 60 * 1000;
 
@@ -65,18 +63,15 @@ function getAmountInLumens(amt: BigNumber) {
 /**
  * Server handles the network connection to a [Horizon](https://developers.stellar.org/docs/data/horizon)
  * instance and exposes an interface for requests to that instance.
- * @class
- * @alias module:Horizon.Server
- * @memberof module:Horizon
  *
- * @param {string} serverURL Horizon Server URL (ex. `https://horizon-testnet.stellar.org`).
- * @param {module:Horizon.Server.Options} [opts] Options object
+ * @param serverURL - Horizon Server URL (ex. `https://horizon-testnet.stellar.org`).
+ * @param opts - (optional) Options object
  */
 export class HorizonServer {
   /**
    * Horizon Server URL (ex. `https://horizon-testnet.stellar.org`)
    *
-   * @todo Solve `this.serverURL`.
+   * TODO: Solve `this.serverURL`.
    */
   public readonly serverURL: URL;
 
@@ -85,6 +80,7 @@ export class HorizonServer {
    * Exposes interceptors, defaults, and other configuration options.
    *
    * @example
+   * ```ts
    * // Add authentication header
    * server.httpClient.defaults.headers['Authorization'] = 'Bearer token';
    *
@@ -93,6 +89,7 @@ export class HorizonServer {
    *   console.log('Request:', config.url);
    *   return config;
    * });
+   * ```
    */
   public readonly httpClient: HttpClient;
   constructor(serverURL: string, opts: HorizonServer.Options = {}) {
@@ -138,6 +135,7 @@ export class HorizonServer {
    * the transaction built and signed before submitting.
    *
    * @example
+   * ```ts
    * const transaction = new StellarSdk.TransactionBuilder(accountId, {
    *   fee: await StellarSdk.Server.fetchBaseFee(),
    *   timebounds: await StellarSdk.Server.fetchTimebounds(100)
@@ -146,11 +144,12 @@ export class HorizonServer {
    *   // normally we would need to call setTimeout here, but setting timebounds
    *   // earlier does the trick!
    *   .build();
+   * ```
    *
-   * @param {number} seconds Number of seconds past the current time to wait.
-   * @param {boolean} [_isRetry] True if this is a retry. Only set this internally!
+   * @param seconds - Number of seconds past the current time to wait.
+   * @param _isRetry - (optional) True if this is a retry. Only set this internally!
    * This is to avoid a scenario where Horizon is horking up the wrong date.
-   * @returns {Promise<module:HorizonServer.Timebounds>} Promise that resolves a `Timebounds` object
+   * @returns Promise that resolves a `Timebounds` object
    * (with the shape `{ minTime: 0, maxTime: N }`) that you can set the `timebounds` option to.
    */
   public async fetchTimebounds(
@@ -189,7 +188,7 @@ export class HorizonServer {
    * Fetch the base fee. Since this hits the server, if the server call fails,
    * you might get an error. You should be prepared to use a default value if
    * that happens!
-   * @returns {Promise<number>} Promise that resolves to the base fee.
+   * @returns Promise that resolves to the base fee.
    */
   public async fetchBaseFee(): Promise<number> {
     const response = await this.feeStats();
@@ -199,8 +198,8 @@ export class HorizonServer {
 
   /**
    * Fetch the fee stats endpoint.
-   * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/aggregations/fee-stats|Fee Stats}
-   * @returns {Promise<HorizonApi.FeeStatsResponse>} Promise that resolves to the fee stats returned by Horizon.
+   * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/aggregations/fee-stats | Fee Stats}
+   * @returns Promise that resolves to the fee stats returned by Horizon.
    */
   public async feeStats(): Promise<HorizonApi.FeeStatsResponse> {
     const cb = new CallBuilder<HorizonApi.FeeStatsResponse>(
@@ -213,7 +212,7 @@ export class HorizonServer {
 
   /**
    * Fetch the Horizon server's root endpoint.
-   * @returns {Promise<HorizonApi.RootResponse>} Promise that resolves to the root endpoint returned by Horizon.
+   * @returns Promise that resolves to the root endpoint returned by Horizon.
    */
   public async root(): Promise<HorizonApi.RootResponse> {
     const cb = new CallBuilder<HorizonApi.RootResponse>(
@@ -226,7 +225,7 @@ export class HorizonServer {
   /**
    * Submits a transaction to the network.
    *
-   * By default this function calls {@link Horizon.Server#checkMemoRequired}, you can
+   * By default this function calls {@link Horizon.Server.checkMemoRequired}, you can
    * skip this check by setting the option `skipMemoRequiredCheck` to `true`.
    *
    * If you submit any number of `manageOffer` operations, this will add an
@@ -247,6 +246,7 @@ export class HorizonServer {
    *   `amountBought` or `amountSold` have already been transferred.
    *
    * @example
+   * ```ts
    * const res = {
    *   ...response,
    *   offerResults: [
@@ -314,14 +314,15 @@ export class HorizonServer {
    *     }
    *   ]
    * }
+   * ```
    *
-   * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/resources/submit-a-transaction|Submit a Transaction}
-   * @param {Transaction|FeeBumpTransaction} transaction - The transaction to submit.
-   * @param {object} [opts] Options object
-   * @param {boolean} [opts.skipMemoRequiredCheck] - Allow skipping memo
+   * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/resources/submit-a-transaction | Submit a Transaction}
+   * @param transaction - The transaction to submit.
+   * @param opts - (optional) Options object
+   *   - `skipMemoRequiredCheck` (optional): Allow skipping memo
    * required check, default: `false`. See
    * [SEP0029](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0029.md).
-   * @returns {Promise} Promise that resolves or rejects with response from
+   * @returns Promise that resolves or rejects with response from
    * horizon.
    */
   public async submitTransaction(
@@ -543,16 +544,16 @@ export class HorizonServer {
    * and waits for the transaction to be ingested in Horizon, this endpoint relays the response from
    * core directly back to the user.
    *
-   * By default, this function calls {@link HorizonServer#checkMemoRequired}, you can
+   * By default, this function calls {@link HorizonServer.checkMemoRequired}, you can
    * skip this check by setting the option `skipMemoRequiredCheck` to `true`.
    *
    * @see [Submit-Async-Transaction](https://developers.stellar.org/docs/data/horizon/api-reference/resources/submit-async-transaction)
-   * @param {Transaction|FeeBumpTransaction} transaction - The transaction to submit.
-   * @param {object} [opts] Options object
-   * @param {boolean} [opts.skipMemoRequiredCheck] - Allow skipping memo
+   * @param transaction - The transaction to submit.
+   * @param opts - (optional) Options object
+   *   - `skipMemoRequiredCheck` (optional): Allow skipping memo
    * required check, default: `false`. See
    * [SEP0029](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0029.md).
-   * @returns {Promise} Promise that resolves or rejects with response from
+   * @returns Promise that resolves or rejects with response from
    * horizon.
    */
   public async submitAsyncTransaction(
@@ -595,28 +596,28 @@ export class HorizonServer {
   }
 
   /**
-   * @returns {AccountCallBuilder} New {@link AccountCallBuilder} object configured by a current Horizon server configuration.
+   * @returns New {@link AccountCallBuilder} object configured by a current Horizon server configuration.
    */
   public accounts(): AccountCallBuilder {
     return new AccountCallBuilder(this.serverURL, this.httpClient);
   }
 
   /**
-   * @returns {ClaimableBalanceCallBuilder} New {@link ClaimableBalanceCallBuilder} object configured by a current Horizon server configuration.
+   * @returns New {@link ClaimableBalanceCallBuilder} object configured by a current Horizon server configuration.
    */
   public claimableBalances(): ClaimableBalanceCallBuilder {
     return new ClaimableBalanceCallBuilder(this.serverURL, this.httpClient);
   }
 
   /**
-   * @returns {LedgerCallBuilder} New {@link LedgerCallBuilder} object configured by a current Horizon server configuration.
+   * @returns New {@link LedgerCallBuilder} object configured by a current Horizon server configuration.
    */
   public ledgers(): LedgerCallBuilder {
     return new LedgerCallBuilder(this.serverURL, this.httpClient);
   }
 
   /**
-   * @returns {TransactionCallBuilder} New {@link TransactionCallBuilder} object configured by a current Horizon server configuration.
+   * @returns New {@link TransactionCallBuilder} object configured by a current Horizon server configuration.
    */
   public transactions(): TransactionCallBuilder {
     return new TransactionCallBuilder(this.serverURL, this.httpClient);
@@ -628,22 +629,24 @@ export class HorizonServer {
    * You can query all offers for account using the function `.accountId`.
    *
    * @example
+   * ```ts
    * server.offers()
    *   .forAccount(accountId).call()
    *   .then(function(offers) {
    *     console.log(offers);
    *   });
+   * ```
    *
-   * @returns {OfferCallBuilder} New {@link OfferCallBuilder} object
+   * @returns New {@link OfferCallBuilder} object
    */
   public offers(): OfferCallBuilder {
     return new OfferCallBuilder(this.serverURL, this.httpClient);
   }
 
   /**
-   * @param {Asset} selling Asset being sold
-   * @param {Asset} buying Asset being bought
-   * @returns {OrderbookCallBuilder} New {@link OrderbookCallBuilder} object configured by a current Horizon server configuration.
+   * @param selling - Asset being sold
+   * @param buying - Asset being bought
+   * @returns New {@link OrderbookCallBuilder} object configured by a current Horizon server configuration.
    */
   public orderbook(selling: Asset, buying: Asset): OrderbookCallBuilder {
     return new OrderbookCallBuilder(
@@ -657,21 +660,21 @@ export class HorizonServer {
 
   /**
    * Returns
-   * @returns {TradesCallBuilder} New {@link TradesCallBuilder} object configured by a current Horizon server configuration.
+   * @returns New {@link TradesCallBuilder} object configured by a current Horizon server configuration.
    */
   public trades(): TradesCallBuilder {
     return new TradesCallBuilder(this.serverURL, this.httpClient);
   }
 
   /**
-   * @returns {OperationCallBuilder} New {@link OperationCallBuilder} object configured by a current Horizon server configuration.
+   * @returns New {@link OperationCallBuilder} object configured by a current Horizon server configuration.
    */
   public operations(): OperationCallBuilder {
     return new OperationCallBuilder(this.serverURL, this.httpClient);
   }
 
   /**
-   * @returns {LiquidityPoolCallBuilder} New {@link LiquidityPoolCallBuilder}
+   * @returns New {@link LiquidityPoolCallBuilder}
    *     object configured to the current Horizon server settings.
    */
   public liquidityPools(): LiquidityPoolCallBuilder {
@@ -699,10 +702,10 @@ export class HorizonServer {
    * If a list of assets is passed as the source, horizon will find any payment
    * paths from those source assets to the desired destination asset.
    *
-   * @param {string|Asset[]} source The sender's account ID or a list of assets. Any returned path will use a source that the sender can hold.
-   * @param {Asset} destinationAsset The destination asset.
-   * @param {string} destinationAmount The amount, denominated in the destination asset, that any returned path should be able to satisfy.
-   * @returns {StrictReceivePathCallBuilder} New {@link StrictReceivePathCallBuilder} object configured with the current Horizon server configuration.
+   * @param source - The sender's account ID or a list of assets. Any returned path will use a source that the sender can hold.
+   * @param destinationAsset - The destination asset.
+   * @param destinationAmount - The amount, denominated in the destination asset, that any returned path should be able to satisfy.
+   * @returns New {@link StrictReceivePathCallBuilder} object configured with the current Horizon server configuration.
    */
   public strictReceivePaths(
     source: string | Asset[],
@@ -728,10 +731,10 @@ export class HorizonServer {
    * The asset and amount that is being sent.
    * The destination account or the destination assets.
    *
-   * @param {Asset} sourceAsset The asset to be sent.
-   * @param {string} sourceAmount The amount, denominated in the source asset, that any returned path should be able to satisfy.
-   * @param {string|Asset[]} destination The destination account or the destination assets.
-   * @returns {StrictSendPathCallBuilder} New {@link StrictSendPathCallBuilder} object configured with the current Horizon server configuration.
+   * @param sourceAsset - The asset to be sent.
+   * @param sourceAmount - The amount, denominated in the source asset, that any returned path should be able to satisfy.
+   * @param destination - The destination account or the destination assets.
+   * @returns New {@link StrictSendPathCallBuilder} object configured with the current Horizon server configuration.
    */
   public strictSendPaths(
     sourceAsset: Asset,
@@ -748,7 +751,7 @@ export class HorizonServer {
   }
 
   /**
-   * @returns {PaymentCallBuilder} New {@link PaymentCallBuilder} instance configured with the current
+   * @returns New {@link PaymentCallBuilder} instance configured with the current
    * Horizon server configuration.
    */
   public payments(): PaymentCallBuilder {
@@ -756,7 +759,7 @@ export class HorizonServer {
   }
 
   /**
-   * @returns {EffectCallBuilder} New {@link EffectCallBuilder} instance configured with the current
+   * @returns New {@link EffectCallBuilder} instance configured with the current
    * Horizon server configuration
    */
   public effects(): EffectCallBuilder {
@@ -764,10 +767,10 @@ export class HorizonServer {
   }
 
   /**
-   * @param {string} address The Stellar ID that you want Friendbot to send lumens to
-   * @returns {FriendbotBuilder} New {@link FriendbotBuilder} instance configured with the current
+   * @param address - The Stellar ID that you want Friendbot to send lumens to
+   * @returns New {@link FriendbotBuilder} instance configured with the current
    * Horizon server configuration
-   * @private
+   * @internal
    */
   public friendbot(address: string): FriendbotBuilder {
     return new FriendbotBuilder(this.serverURL, this.httpClient, address);
@@ -776,7 +779,7 @@ export class HorizonServer {
   /**
    * Get a new {@link AssetsCallBuilder} instance configured with the current
    * Horizon server configuration.
-   * @returns {AssetsCallBuilder} New AssetsCallBuilder instance
+   * @returns New AssetsCallBuilder instance
    */
   public assets(): AssetsCallBuilder {
     return new AssetsCallBuilder(this.serverURL, this.httpClient);
@@ -786,9 +789,9 @@ export class HorizonServer {
    * Fetches an account's most current state in the ledger, then creates and
    * returns an {@link AccountResponse} object.
    *
-   * @param {string} accountId - The account to load.
+   * @param accountId - The account to load.
    *
-   * @returns {Promise} Returns a promise to the {@link AccountResponse} object
+   * @returns Returns a promise to the {@link AccountResponse} object
    * with populated sequence number.
    */
   public async loadAccount(accountId: string): Promise<AccountResponse> {
@@ -799,14 +802,14 @@ export class HorizonServer {
 
   /**
    *
-   * @param {Asset} base base asset
-   * @param {Asset} counter counter asset
-   * @param {number} start_time lower time boundary represented as millis since epoch
-   * @param {number} end_time upper time boundary represented as millis since epoch
-   * @param {number} resolution segment duration as millis since epoch. *Supported values are 5 minutes (300000), 15 minutes (900000), 1 hour (3600000), 1 day (86400000) and 1 week (604800000).
-   * @param {number} offset segments can be offset using this parameter. Expressed in milliseconds. *Can only be used if the resolution is greater than 1 hour. Value must be in whole hours, less than the provided resolution, and less than 24 hours.
+   * @param base - base asset
+   * @param counter - counter asset
+   * @param start_time - lower time boundary represented as millis since epoch
+   * @param end_time - upper time boundary represented as millis since epoch
+   * @param resolution - segment duration as millis since epoch. *Supported values are 5 minutes (300000), 15 minutes (900000), 1 hour (3600000), 1 day (86400000) and 1 week (604800000).
+   * @param offset - segments can be offset using this parameter. Expressed in milliseconds. *Can only be used if the resolution is greater than 1 hour. Value must be in whole hours, less than the provided resolution, and less than 24 hours.
    * Returns new {@link TradeAggregationCallBuilder} object configured with the current Horizon server configuration.
-   * @returns {TradeAggregationCallBuilder} New TradeAggregationCallBuilder instance
+   * @returns New TradeAggregationCallBuilder instance
    */
   public tradeAggregation(
     base: Asset,
@@ -839,12 +842,11 @@ export class HorizonServer {
    * Each account is checked sequentially instead of loading multiple accounts
    * at the same time from Horizon.
    *
-   * @see {@link https://stellar.org/protocol/sep-29|SEP-29: Account Memo Requirements}
-   * @param {Transaction} transaction - The transaction to check.
-   * @returns {Promise<void, Error>} - If any of the destination account
+   * @see {@link https://stellar.org/protocol/sep-29 | SEP-29: Account Memo Requirements}
+   * @param transaction - The transaction to check.
+   * @returns - If any of the destination account
    * requires a memo, the promise will throw {@link AccountRequiresMemoError}.
-   * @throws  {AccountRequiresMemoError}
-   */
+   * @throws    */
   public async checkMemoRequired(
     transaction: Transaction | FeeBumpTransaction,
   ): Promise<void> {
@@ -911,16 +913,15 @@ export class HorizonServer {
 export namespace HorizonServer {
   /**
    * Options for configuring connections to Horizon servers.
-   * @memberof module:Horizon.Server
-   * @property {boolean} [allowHttp] Allow connecting to http servers, default: `false`. This must be set to false in production deployments! You can also use {@link Config} class to set this globally.
-   * @property {string} [appName] Allow set custom header `X-App-Name`, default: `undefined`.
-   * @property {string} [appVersion] Allow set custom header `X-App-Version`, default: `undefined`.
-   * @property {string} [authToken] Allow set custom header `X-Auth-Token`, default: `undefined`.
    */
   export interface Options {
+    /** Allow connecting to http servers, default: `false`. This must be set to false in production deployments! You can also use {@link Config} class to set this globally. */
     allowHttp?: boolean;
+    /** Allow set custom header `X-App-Name`, default: `undefined`. */
     appName?: string;
+    /** Allow set custom header `X-App-Version`, default: `undefined`. */
     appVersion?: string;
+    /** Allow set custom header `X-Auth-Token`, default: `undefined`. */
     authToken?: string;
     headers?: Record<string, string>;
   }

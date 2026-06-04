@@ -92,7 +92,7 @@ export type InvocationWalker = (
  * Here, we show a browser modal after simulating an arbitrary transaction,
  * `tx`, which we assume has an `Operation.invokeHostFunction` inside of it:
  *
- * ```typescript
+ * ```ts
  * import { Server, buildInvocationTree } from '@stellar/stellar-sdk';
  *
  * const s = new Server("fill in accordingly");

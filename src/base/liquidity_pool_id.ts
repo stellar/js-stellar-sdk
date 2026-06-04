@@ -41,9 +41,9 @@ export class LiquidityPoolId {
   /**
    * Returns the `xdr.TrustLineAsset` object for this liquidity pool ID.
    *
-   * Note: To convert from {@link Asset `Asset`} to `xdr.TrustLineAsset` please
+   * Note: To convert from {@link Asset | `Asset`} to `xdr.TrustLineAsset` please
    * refer to the
-   * {@link Asset.toTrustLineXDRObject `Asset.toTrustLineXDRObject`} method.
+   * {@link Asset.toTrustLineXDRObject | `Asset.toTrustLineXDRObject`} method.
    */
   toXDRObject(): xdr.TrustLineAsset {
     const xdrPoolId = Buffer.from(

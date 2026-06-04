@@ -1,4 +1,4 @@
-/** Helper class to assist with formatting and parsing token amounts. */
+/** Helper class to assist with formatting and parsing token amounts.*/
 export class Soroban {
   /**
    * Given a whole number smart contract amount of a token and an amount of
@@ -10,11 +10,13 @@ export class Soroban {
    * @param amount - the token amount you want to display
    * @param decimals - specify how many decimal places a token has
    *
-   * @throws {TypeError} if the given amount has a decimal point already
+   * @throws if the given amount has a decimal point already
    * @example
+   * ```ts
    * formatTokenAmount("123000", 4) === "12.3";
    * formatTokenAmount("123000", 3) === "123.0";
    * formatTokenAmount("123", 3) === "0.123";
+   * ```
    */
   static formatTokenAmount(amount: string, decimals: number): string {
     if (amount.includes(".")) {
@@ -61,9 +63,11 @@ export class Soroban {
    *    might not be present)
    *
    * @example
+   * ```ts
    * const displayValueAmount = "123.4560"
    * const parsedAmtForSmartContract = parseTokenAmount(displayValueAmount, 5);
    * parsedAmtForSmartContract === "12345600"
+   * ```
    */
   static parseTokenAmount(value: string, decimals: number): string {
     const [whole, fraction, ...rest] = value.split(".").slice();

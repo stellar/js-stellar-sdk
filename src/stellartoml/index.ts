@@ -4,32 +4,28 @@ import { httpClient } from "../http-client/index.js";
 
 import { Config } from "../config.js";
 
-/** @module StellarToml */
-
 /**
  * The maximum size of stellar.toml file, in bytes
- * @constant {number}
- * @default 102400
+ * @defaultValue 102400
  */
 export const STELLAR_TOML_MAX_SIZE = 100 * 1024;
 
 /**
  * Resolver allows resolving `stellar.toml` files.
- * @memberof module:StellarToml
- * @hideconstructor
  */
 export class Resolver {
   /**
    * Returns a parsed `stellar.toml` file for a given domain.
    * @see {@link https://developers.stellar.org/docs/tokens/publishing-asset-info | Stellar.toml doc}
    *
-   * @param {string} domain Domain to get stellar.toml file for
-   * @param {object} [opts] Options object
-   * @param {boolean} [opts.allowHttp=false] - Allow connecting to http servers. This must be set to false in production deployments!
-   * @param {number} [opts.timeout=0] - Allow a timeout. Allows user to avoid nasty lag due to TOML resolve issue.
-   * @returns {Promise} A `Promise` that resolves to the parsed stellar.toml object
+   * @param domain - Domain to get stellar.toml file for
+   * @param opts - (optional) Options object
+   *   - `allowHttp` (optional): Allow connecting to http servers. This must be set to false in production deployments!
+   *   - `timeout` (optional): Allow a timeout. Allows user to avoid nasty lag due to TOML resolve issue.
+   * @returns A `Promise` that resolves to the parsed stellar.toml object
    *
    * @example
+   * ```ts
    * StellarSdk.StellarToml.Resolver.resolve('acme.com')
    *   .then(stellarToml => {
    *     // stellarToml in an object representing domain stellar.toml file.
@@ -37,6 +33,7 @@ export class Resolver {
    *   .catch(error => {
    *     // stellar.toml does not exist or is invalid
    *   });
+   * ```
    */
   public static async resolve(
     domain: string,

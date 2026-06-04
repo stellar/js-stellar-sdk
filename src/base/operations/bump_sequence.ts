@@ -10,8 +10,8 @@ import {
 /**
  * This operation bumps sequence number.
  * @param opts - Options object
- * @param opts.bumpTo - Sequence number to bump to.
- * @param opts.source - The optional source account.
+ *   - `bumpTo`: Sequence number to bump to.
+ *   - `source`: The optional source account.
  */
 export function bumpSequence(
   opts: BumpSequenceOpts,

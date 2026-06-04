@@ -11,7 +11,7 @@ import { encodeMuxedAccountToAddress } from "./util/decode_encode_muxed_account.
  * the transaction envelope XDR use {@link TransactionBuilder.fromXDR}.
  *
  * Once a {@link FeeBumpTransaction} has been created, its attributes and operations
- * should not be changed. You should only add signatures (using {@link FeeBumpTransaction#sign}) before
+ * should not be changed. You should only add signatures (using {@link FeeBumpTransaction.sign}) before
  * submitting to the network or forwarding on to additional signers.
  */
 export class FeeBumpTransaction extends TransactionBase<xdr.FeeBumpTransaction> {

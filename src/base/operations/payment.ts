@@ -14,10 +14,10 @@ import {
  * @see https://developers.stellar.org/docs/start/list-of-operations/#payment
  *
  * @param opts - options object
- * @param opts.destination - destination account ID
- * @param opts.asset - asset to send
- * @param opts.amount - amount to send
- * @param opts.source - The source account for the payment.
+ *   - `destination`: destination account ID
+ *   - `asset`: asset to send
+ *   - `amount`: amount to send
+ *   - `source`: The source account for the payment.
  *     Defaults to the transaction's source account.
  */
 export function payment(opts: PaymentOpts): xdr.Operation<PaymentResult> {

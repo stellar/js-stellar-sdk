@@ -7,7 +7,7 @@ import CustomBigNumber from "./bignumber.js";
 export const ONE = 10000000;
 const MAX_INT64 = "9223372036854775807";
 
-/** Sets the source account on the operation attributes from the opts. */
+/** Sets the source account on the operation attributes from the opts.*/
 export function setSourceAccount(
   opAttributes: OperationAttributes,
   opts: { source?: string },
@@ -169,7 +169,7 @@ export function isValidAmount(value: unknown, allowZero = false): boolean {
   return true;
 }
 
-/** Returns a standard error message for invalid amount arguments. */
+/** Returns a standard error message for invalid amount arguments.*/
 export function constructAmountRequirementsError(arg: string): string {
   return `${arg} argument must be of type String, represent a positive number and have at most 7 digits after the decimal`;
 }

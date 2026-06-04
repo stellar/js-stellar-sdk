@@ -98,7 +98,7 @@ export class XdrLargeInt {
   /**
    * Converts to a native JS number.
    *
-   * @throws {RangeError} if the value can't fit into a Number
+   * @throws if the value can't fit into a Number
    */
   toNumber(): number {
     const bi = this.int.toBigInt();
@@ -120,7 +120,7 @@ export class XdrLargeInt {
   /**
    * The integer encoded with `ScValType = I64`.
    *
-   * @throws {RangeError} if the value cannot fit in 64 bits
+   * @throws if the value cannot fit in 64 bits
    */
   toI64(): xdr.ScVal {
     this._sizeCheck(64);
@@ -159,7 +159,7 @@ export class XdrLargeInt {
   /**
    * The integer encoded with `ScValType = I128`.
    *
-   * @throws {RangeError} if the value cannot fit in 128 bits
+   * @throws if the value cannot fit in 128 bits
    */
   toI128(): xdr.ScVal {
     this._sizeCheck(128);
@@ -182,7 +182,7 @@ export class XdrLargeInt {
   /**
    * The integer encoded with `ScValType = U128`.
    *
-   * @throws {RangeError} if the value cannot fit in 128 bits
+   * @throws if the value cannot fit in 128 bits
    */
   toU128(): xdr.ScVal {
     this._sizeCheck(128);
@@ -199,7 +199,7 @@ export class XdrLargeInt {
   /**
    * The integer encoded with `ScValType = I256`
    *
-   * @throws {RangeError} if the value cannot fit in a signed 256-bit integer
+   * @throws if the value cannot fit in a signed 256-bit integer
    */
   toI256(): xdr.ScVal {
     const v = this.int.toBigInt();

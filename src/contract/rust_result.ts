@@ -8,8 +8,8 @@
  *
  * #### Why is this needed?
  *
- * This is used by {@link module:contract.Spec | `ContractSpec`} and
- * {@link module:contract.AssembledTransaction | `AssembledTransaction`} when
+ * This is used by {@link contract.Spec | `ContractSpec`} and
+ * {@link contract.AssembledTransaction | `AssembledTransaction`} when
  * parsing values return by contracts.
  *
  * Contract methods can be implemented to return simple values, in which case
@@ -32,7 +32,6 @@
  * remove this and flatten all JS calls to `try...catch`. Easier to remove this
  * logic later than it would be to add it.
  *
- * @memberof module:contract
  */
 export interface Result<T, E extends ErrorMessage = ErrorMessage> {
   unwrap(): T;
@@ -43,23 +42,22 @@ export interface Result<T, E extends ErrorMessage = ErrorMessage> {
 
 /**
  * Error interface containing the error message. Matches Rust's implementation.
- * Part of implementing {@link module:contract.Result | Result}, a minimal
+ * Part of implementing {@link contract.Result | Result}, a minimal
  * implementation of Rust's `Result` type. Used for contract methods that return
  * Results, to maintain their distinction from methods that simply either return
  * a value or throw.
  *
- * @memberof module:contract
  */
 export interface ErrorMessage {
   message: string;
 }
 
 /**
- * Part of implementing {@link module:contract.Result | Result}, a minimal
+ * Part of implementing {@link contract.Result | Result}, a minimal
  * implementation of Rust's `Result` type. Used for contract methods that return
  * Results, to maintain their distinction from methods that simply either return
  * a value or throw.
- * @private
+ * @internal
  */
 export class Ok<T> implements Result<T, never> {
   constructor(readonly value: T) {}
@@ -82,11 +80,11 @@ export class Ok<T> implements Result<T, never> {
 }
 
 /**
- * Part of implementing {@link module:contract.Result | Result}, a minimal
+ * Part of implementing {@link contract.Result | Result}, a minimal
  * implementation of Rust's `Result` type. Used for contract methods that return
  * Results, to maintain their distinction from methods that simply either return
  * a value or throw.
- * @private
+ * @internal
  */
 export class Err<E extends ErrorMessage> implements Result<never, E> {
   constructor(readonly error: E) {}

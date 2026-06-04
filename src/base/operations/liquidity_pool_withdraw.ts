@@ -17,11 +17,11 @@ import {
  * @see https://developers.stellar.org/docs/start/list-of-operations/#liquidity-pool-withdraw
  *
  * @param opts - Options object
- * @param opts.liquidityPoolId - The liquidity pool ID.
- * @param opts.amount - Amount of pool shares to withdraw.
- * @param opts.minAmountA - Minimum amount of first asset to withdraw.
- * @param opts.minAmountB - Minimum amount of second asset to withdraw.
- * @param opts.source - The source account for the operation. Defaults to the transaction's source account.
+ *   - `liquidityPoolId`: The liquidity pool ID.
+ *   - `amount`: Amount of pool shares to withdraw.
+ *   - `minAmountA`: Minimum amount of first asset to withdraw.
+ *   - `minAmountB`: Minimum amount of second asset to withdraw.
+ *   - `source`: The source account for the operation. Defaults to the transaction's source account.
  */
 export function liquidityPoolWithdraw(
   opts: LiquidityPoolWithdrawOpts = {} as LiquidityPoolWithdrawOpts,

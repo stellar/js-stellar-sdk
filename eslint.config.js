@@ -4,7 +4,7 @@ import { configs } from "eslint-config-airbnb-extended/legacy";
 import prettierConfigRules from "eslint-config-prettier/flat";
 import prettierPlugin from "eslint-plugin-prettier";
 import importPlugin from "eslint-plugin-import";
-import jsdoc from "eslint-plugin-jsdoc";
+import tsdoc from "eslint-plugin-tsdoc";
 import js from "@eslint/js";
 import globals from "globals";
 
@@ -35,10 +35,11 @@ const typescriptConfig = [
     files: ["**/*.ts", "**/*.tsx"],
     rules: {
       "@typescript-eslint/require-await": "error",
-      "@typescript-eslint/no-unused-vars": [
-        "error",
-        { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
-      ],
+      // Delegated to TypeScript's `noUnusedLocals` / `noUnusedParameters`
+      // (set in tsconfig.json) — TS understands JSDoc `{@link}` references,
+      // typescript-eslint's no-unused-vars does not.
+      "@typescript-eslint/no-unused-vars": "off",
+      "no-unused-vars": "off",
       "no-fallthrough": "off",
     },
   },
@@ -57,37 +58,12 @@ const prettierConfig = [
   },
 ];
 
-const jsDocConfig = [
-  // configuration included in plugin
-  jsdoc.configs["flat/recommended-typescript"],
-  // other configuration objects...
+const tsdocConfig = [
   {
+    name: "tsdoc/syntax",
     files: ["**/*.ts"],
-    // `plugins` here is not necessary if including the above config
-    plugins: {
-      jsdoc,
-    },
-    rules: {
-      "jsdoc/check-tag-names": [
-        "error",
-        { definedTags: ["warning", "category"] },
-      ],
-      "jsdoc/require-description": "warn",
-      "jsdoc/no-undefined-types": "warn",
-      "jsdoc/require-returns": "off",
-      "jsdoc/require-param": "off",
-      "jsdoc/require-param-type": "off",
-      "jsdoc/require-returns-type": "off",
-      "jsdoc/no-blank-blocks": "off",
-      "jsdoc/no-multi-asterisks": "off",
-      "jsdoc/tag-lines": "off",
-      "jsdoc/require-jsdoc": "off",
-      "jsdoc/no-defaults": "off",
-      "jsdoc/no-types": "off",
-      "jsdoc/reject-function-type": "off",
-      "jsdoc/reject-any-type": "off",
-      "jsdoc/require-description": "off",
-    },
+    plugins: { tsdoc },
+    rules: { "tsdoc/syntax": "warn" },
   },
 ];
 
@@ -108,6 +84,18 @@ const testConfig = [
   },
 ];
 
+const scriptsConfig = [
+  {
+    name: "scripts/typescript",
+    files: ["scripts/**/*.ts"],
+    languageOptions: {
+      parserOptions: {
+        project: "./scripts/tsconfig.json",
+      },
+    },
+  },
+];
+
 // The base XDR/SDK module preserves a public API shape (namespace+const merging,
 // XDR-string-literal type aliases, snake_case helpers like `best_r`, leading-_
 // internals) and uses a "public API at top, helpers below" file layout. Loosen
@@ -118,9 +106,27 @@ const baseSdkConfig = [
     files: ["src/base/**/*.ts"],
     rules: {
       "@typescript-eslint/no-redeclare": "off",
-      "@typescript-eslint/no-use-before-define": ["error", { functions: false }],
+      "@typescript-eslint/no-use-before-define": [
+        "error",
+        { functions: false },
+      ],
       "@typescript-eslint/naming-convention": "off",
-      "jsdoc/no-undefined-types": "off",
+    },
+  },
+];
+
+// scripts/build-docs.ts dispatches a discriminated-union renderer through
+// mutually recursive helpers; function-declaration hoisting handles the
+// runtime ordering. Match baseSdkConfig's `functions: false` loosening.
+const scriptsRulesConfig = [
+  {
+    name: "scripts/mutual-recursion",
+    files: ["scripts/**/*.ts"],
+    rules: {
+      "@typescript-eslint/no-use-before-define": [
+        "error",
+        { functions: false },
+      ],
     },
   },
 ];
@@ -140,6 +146,12 @@ ignoreFiles.ignores.push(
     "rollup.config.mjs",
     "config/**/*",
     "src/base/generated/**",
+    // Astro build-time configs — excluded from tsconfig.json (they
+    // import the virtual `astro:content` module), so the typescript-
+    // eslint parser can't resolve them via the SDK project. Lint
+    // coverage from prettier is sufficient for these small configs.
+    "src/content.config.ts",
+    "astro.config.mjs",
   ],
 );
 export default [
@@ -151,12 +163,16 @@ export default [
   ...javascriptConfig,
   // TypeScript Config
   ...typescriptConfig,
-  // JSDoc Config
-  ...jsDocConfig,
+  // TSDoc Config
+  ...tsdocConfig,
   // Test Config
   ...testConfig,
-  // Base SDK overrides (must come after typescriptConfig/jsDocConfig)
+  // Scripts Config (uses scripts/tsconfig.json for type-aware lint)
+  ...scriptsConfig,
+  // Base SDK overrides (must come after typescriptConfig/tsdocConfig)
   ...baseSdkConfig,
+  // Scripts overrides (must come after typescriptConfig/scriptsConfig)
+  ...scriptsRulesConfig,
   // Prettier Config
   ...prettierConfig,
 ];

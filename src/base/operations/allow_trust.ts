@@ -15,10 +15,10 @@ import { setSourceAccount } from "../util/operations.js";
  * account's credit for a given asset.
  *
  * @param opts - Options object
- * @param opts.trustor - The trusting account (the one being authorized)
- * @param opts.assetCode - The asset code being authorized.
- * @param opts.authorize - `1` to authorize, `2` to authorize to maintain liabilities, and `0` to deauthorize.
- * @param opts.source - The source account (defaults to transaction source).
+ *   - `trustor`: The trusting account (the one being authorized)
+ *   - `assetCode`: The asset code being authorized.
+ *   - `authorize`: `1` to authorize, `2` to authorize to maintain liabilities, and `0` to deauthorize.
+ *   - `source`: The source account (defaults to transaction source).
  */
 export function allowTrust(
   opts: AllowTrustOpts,
