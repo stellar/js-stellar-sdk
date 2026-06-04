@@ -40,7 +40,6 @@
       "TransactionCallBuilder": "#",
       "xdr.DiagnosticEvent": "#",
       "xdr.ExtendFootprintTtlOp": "#",
-      "xdr.HashIdPreimage": "#",
       "xdr.HashIdPreimageSorobanAuthorization": "#",
       "xdr.InvokeHostFunctionOp": "#",
       "xdr.LedgerCloseMeta": "#",
