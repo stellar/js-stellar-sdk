@@ -140,11 +140,11 @@
     "@types/sha.js": "^2.4.4",
     "@typescript-eslint/eslint-plugin": "^8.58.0",
     "@typescript-eslint/parser": "^8.58.0",
-    "@vitest/browser": "^4.1.2",
-    "@vitest/browser-playwright": "^4.1.2",
-    "@vitest/coverage-istanbul": "4.1.2",
-    "@vitest/coverage-v8": "^4.1.2",
-    "@vitest/ui": "^4.1.2",
+    "@vitest/browser": "^4.1.7",
+    "@vitest/browser-playwright": "^4.1.7",
+    "@vitest/coverage-istanbul": "4.1.7",
+    "@vitest/coverage-v8": "^4.1.7",
+    "@vitest/ui": "^4.1.7",
     "astro": "^6.3.0",
     "browserify-zlib": "^0.2.0",
     "cross-env": "^7.0.3",
@@ -171,7 +171,7 @@
     "tsx": "^4.21.0",
     "typedoc": "^0.28.19",
     "typescript": "5.9.3",
-    "vitest": "^4.1.2"
+    "vitest": "^4.1.7"
   },
   "dependencies": {
     "@noble/ed25519": "^3.1.0",
