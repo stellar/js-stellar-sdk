@@ -229,7 +229,7 @@ interface AuthorizeInvocationParams {
 
 - authorizeEntry
 
-**Source:** [src/base/auth.ts:231](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L231)
+**Source:** [src/base/auth.ts:272](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L272)
 
 ### `authorizeInvocationParams.invocation`
 
@@ -237,7 +237,7 @@ interface AuthorizeInvocationParams {
 invocation: SorobanAuthorizedInvocation;
 ```
 
-**Source:** [src/base/auth.ts:234](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L234)
+**Source:** [src/base/auth.ts:275](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L275)
 
 ### `authorizeInvocationParams.networkPassphrase`
 
@@ -245,7 +245,7 @@ invocation: SorobanAuthorizedInvocation;
 networkPassphrase: string;
 ```
 
-**Source:** [src/base/auth.ts:235](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L235)
+**Source:** [src/base/auth.ts:276](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L276)
 
 ### `authorizeInvocationParams.publicKey`
 
@@ -253,7 +253,7 @@ networkPassphrase: string;
 publicKey?: string;
 ```
 
-**Source:** [src/base/auth.ts:236](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L236)
+**Source:** [src/base/auth.ts:277](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L277)
 
 ### `authorizeInvocationParams.signer`
 
@@ -261,7 +261,7 @@ publicKey?: string;
 signer: Keypair | SigningCallback;
 ```
 
-**Source:** [src/base/auth.ts:232](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L232)
+**Source:** [src/base/auth.ts:273](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L273)
 
 ### `authorizeInvocationParams.validUntilLedgerSeq`
 
@@ -269,7 +269,65 @@ signer: Keypair | SigningCallback;
 validUntilLedgerSeq: number;
 ```
 
-**Source:** [src/base/auth.ts:233](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L233)
+**Source:** [src/base/auth.ts:274](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L274)
+
+## BuildWithDelegatesParams
+
+Parameters for `buildWithDelegatesEntry`.
+
+```ts
+interface BuildWithDelegatesParams {
+  delegates: DelegateSignature[];
+  entry: SorobanAuthorizationEntry;
+  signature?: ScVal;
+  validUntilLedgerSeq: number;
+}
+```
+
+**Source:** [src/base/auth.ts:408](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L408)
+
+### `buildWithDelegatesParams.delegates`
+
+the delegate signers to attach.
+
+```ts
+delegates: DelegateSignature[];
+```
+
+**Source:** [src/base/auth.ts:418](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L418)
+
+### `buildWithDelegatesParams.entry`
+
+an existing `SOROBAN_CREDENTIALS_ADDRESS` or
+`SOROBAN_CREDENTIALS_ADDRESS_V2` entry — typically one returned by
+simulation — whose address credentials should be wrapped.
+
+```ts
+entry: SorobanAuthorizationEntry;
+```
+
+**Source:** [src/base/auth.ts:414](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L414)
+
+### `buildWithDelegatesParams.signature`
+
+the top-level account's signature. Defaults to `scvVoid`, which is valid
+for accounts that authorize purely via delegated signers (CAP-71-01).
+
+```ts
+signature?: ScVal;
+```
+
+**Source:** [src/base/auth.ts:423](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L423)
+
+### `buildWithDelegatesParams.validUntilLedgerSeq`
+
+the expiration ledger sequence stored on the top-level credentials.
+
+```ts
+validUntilLedgerSeq: number;
+```
+
+**Source:** [src/base/auth.ts:416](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L416)
 
 ## Contract
 
@@ -415,6 +473,54 @@ wasm?: WasmCreateDetails;
 ```
 
 **Source:** [src/base/invocation.ts:26](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L26)
+
+## DelegateSignature
+
+A delegate signer to attach to a
+`SOROBAN_CREDENTIALS_ADDRESS_WITH_DELEGATES` entry via
+`buildWithDelegatesEntry`.
+
+```ts
+interface DelegateSignature {
+  address: string;
+  nestedDelegates?: DelegateSignature[];
+  signature?: ScVal;
+}
+```
+
+**Source:** [src/base/auth.ts:394](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L394)
+
+### `delegateSignature.address`
+
+the delegate's address (`G…` account or `C…` contract).
+
+```ts
+address: string;
+```
+
+**Source:** [src/base/auth.ts:396](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L396)
+
+### `delegateSignature.nestedDelegates`
+
+signers this delegate in turn delegates to (recursive).
+
+```ts
+nestedDelegates?: DelegateSignature[];
+```
+
+**Source:** [src/base/auth.ts:404](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L404)
+
+### `delegateSignature.signature`
+
+the delegate's signature value. Defaults to a `scvVoid` placeholder, which
+you can fill afterwards with `authorizeEntry` (passing this address
+as `forAddress`) or by editing the entry directly.
+
+```ts
+signature?: ScVal;
+```
+
+**Source:** [src/base/auth.ts:402](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L402)
 
 ## ExecuteInvocation
 
@@ -913,7 +1019,7 @@ anything with a `sign(Buffer): Buffer` method) or a callback function (see
 `SigningCallback`) to handle signing the envelope hash.
 
 ```ts
-authorizeEntry(entry: SorobanAuthorizationEntry, signer: Keypair | SigningCallback, validUntilLedgerSeq: number, networkPassphrase: string): Promise<SorobanAuthorizationEntry>
+authorizeEntry(entry: SorobanAuthorizationEntry, signer: Keypair | SigningCallback, validUntilLedgerSeq: number, networkPassphrase: string, forAddress?: string): Promise<SorobanAuthorizationEntry>
 ```
 
 **Parameters**
@@ -940,6 +1046,16 @@ authorizeEntry(entry: SorobanAuthorizationEntry, signer: Keypair | SigningCallba
   If using the `SigningCallback` variation, the signer is assumed to be
   the entry's credential address unless you use the variant that returns
   the object.
+- **`forAddress`** — `string` (optional) — which credential node the signature should be written
+     to. Only relevant for `SOROBAN_CREDENTIALS_ADDRESS_WITH_DELEGATES`, where
+     a single entry can be signed by the top-level account and/or any of its
+     (possibly nested) delegates. Per CAP-71-01 every one of these signers
+     signs the *same* payload (bound to the top-level address), so the
+     signature produced here is written to whichever node(s) carry
+     `forAddress`. When omitted, the signature is written to the top-level
+     credentials, which preserves the behavior for `SOROBAN_CREDENTIALS_ADDRESS`
+     / `SOROBAN_CREDENTIALS_ADDRESS_V2` and for accounts whose signing key
+     differs from the credential address (e.g. multisig).
 
 **Example**
 
@@ -989,7 +1105,7 @@ function multiPartyAuth(
 
 - authorizeInvocation
 
-**Source:** [src/base/auth.ts:123](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L123)
+**Source:** [src/base/auth.ts:134](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L134)
 
 ## authorizeInvocation
 
@@ -1001,7 +1117,42 @@ authorizeInvocation(params: AuthorizeInvocationParams): Promise<SorobanAuthoriza
 
 - **`params`** — `AuthorizeInvocationParams` (required)
 
-**Source:** [src/base/auth.ts:239](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L239)
+**Source:** [src/base/auth.ts:280](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L280)
+
+## buildAuthorizationEntryPreimage
+
+Builds the `xdr.HashIdPreimage` whose hash a signer must sign to
+authorize `entry`. This is the low-level signature payload used by
+`authorizeEntry`, exposed for callers that drive signing themselves —
+most notably for `SOROBAN_CREDENTIALS_ADDRESS_WITH_DELEGATES`, where the
+client (not simulation) decides which delegates sign and how.
+
+For `SOROBAN_CREDENTIALS_ADDRESS` this is the legacy, non-address-bound
+`ENVELOPE_TYPE_SOROBAN_AUTHORIZATION` preimage. For `SOROBAN_CREDENTIALS_ADDRESS_V2`
+and `SOROBAN_CREDENTIALS_ADDRESS_WITH_DELEGATES` it is the address-bound
+`ENVELOPE_TYPE_SOROBAN_AUTHORIZATION_WITH_ADDRESS` preimage (CAP-71). For the
+delegates variant this single payload — bound to the *top-level* address — is
+what the top-level account and every (nested) delegate each sign.
+
+To get the raw bytes to sign, hash the XDR: `hash(preimage.toXDR())`.
+
+```ts
+buildAuthorizationEntryPreimage(entry: SorobanAuthorizationEntry, validUntilLedgerSeq: number, networkPassphrase: string): HashIdPreimage
+```
+
+**Parameters**
+
+- **`entry`** — `SorobanAuthorizationEntry` (required) — the authorization entry to build the payload for
+- **`validUntilLedgerSeq`** — `number` (required) — the expiration ledger committed into the payload
+     (must match the `signatureExpirationLedger` on the credentials you submit)
+- **`networkPassphrase`** — `string` (required) — the network passphrase mixed into the payload
+
+**Throws**
+
+- if `entry` carries source-account or otherwise non-address
+   credentials
+
+**Source:** [src/base/auth.ts:340](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L340)
 
 ## buildInvocationTree
 
@@ -1055,6 +1206,42 @@ s.simulateTransaction(tx).then(
 ```
 
 **Source:** [src/base/invocation.ts:120](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L120)
+
+## buildWithDelegatesEntry
+
+Builds a `SOROBAN_CREDENTIALS_ADDRESS_WITH_DELEGATES` authorization entry by
+wrapping the address credentials of an existing `ADDRESS`/`ADDRESS_V2` entry
+(e.g. one returned by simulation) together with a caller-provided set of
+delegate signers.
+
+Simulation never emits the delegates variant on its own — which accounts use
+delegated authentication is account-specific policy known only to the client
+(much like a multisig policy). This helper just assembles the wrapper XDR;
+you supply the delegate tree (addresses and, optionally, signatures). To
+produce the signatures, build the shared payload with
+`buildAuthorizationEntryPreimage` on the returned entry and sign it,
+or fill each node afterwards with `authorizeEntry` (passing the
+signer's address as `forAddress`).
+
+Each delegates array (the top-level set and every `nestedDelegates`) is
+sorted by address in ascending order, and duplicate addresses within an array
+are rejected, as the protocol requires (CAP-71-01) — otherwise the host
+rejects the entry.
+
+```ts
+buildWithDelegatesEntry(params: BuildWithDelegatesParams): SorobanAuthorizationEntry
+```
+
+**Parameters**
+
+- **`params`** — `BuildWithDelegatesParams` (required) — see `BuildWithDelegatesParams`
+
+**Throws**
+
+- if `entry` is not an `ADDRESS`/`ADDRESS_V2` entry, or if any
+   delegates array contains a duplicate address.
+
+**Source:** [src/base/auth.ts:450](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L450)
 
 ## humanizeEvents
 
