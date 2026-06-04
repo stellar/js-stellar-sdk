@@ -138,7 +138,8 @@ function buildAuthEntry(address: any) {
     invocation: root,
     networkPassphrase,
   }).then((entry: any) => {
-    entry.credentials().address().nonce(new xdr.Int64(0xdeadbeef));
+    // authorizeInvocation builds SOROBAN_CREDENTIALS_ADDRESS_V2 entries
+    entry.credentials().addressV2().nonce(new xdr.Int64(0xdeadbeef));
     return authorizeEntry(entry, kp, 1, networkPassphrase); // overwrites signature w/ above nonce
   });
 }
