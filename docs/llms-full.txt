@@ -25,15 +25,15 @@ The library provides:
 
 **Jump to:**
 
-- [Installation](#installation): details on hitting the ground running
-- [Usage](#usage): links to documentation and a variety of workarounds for
+- [Installation](/js-stellar-sdk/#installation): details on hitting the ground running
+- [Usage](/js-stellar-sdk/#usage): links to documentation and a variety of workarounds for
   non-traditional JavaScript environments
-  - [...with React Native](#usage-with-react-native)
-  - [...with Expo](#usage-with-expo-managed-workflows)
-  - [...with CloudFlare Workers](#usage-with-cloudflare-workers)
-- [CLI](#cli): generate TypeScript bindings for Stellar smart contracts
-- [Developing](#developing): contribute to the project!
-- [License](#license)
+  - [...with React Native](/js-stellar-sdk/#usage-with-react-native)
+  - [...with Expo](/js-stellar-sdk/#usage-with-expo-managed-workflows)
+  - [...with CloudFlare Workers](/js-stellar-sdk/#usage-with-cloudflare-workers)
+- [CLI](/js-stellar-sdk/#cli): generate TypeScript bindings for Stellar smart contracts
+- [Developing](/js-stellar-sdk/#developing): contribute to the project!
+- [License](/js-stellar-sdk/#license)
 
 ## Installation
 
@@ -87,7 +87,7 @@ and include it in the browser:
 If you don't want to use or install Bower, you can copy the packaged JS files
 from the [Bower repo](https://github.com/stellar/bower-js-stellar-sdk), or just
 build the package yourself locally (see
-[Developing :arrow_right: Building](#building)) and copy the bundle.
+[Developing :arrow_right: Building](/js-stellar-sdk/#building)) and copy the bundle.
 
 | Always make sure that you are using the latest version number. They can be found on the [releases page](https://github.com/stellar/js-stellar-sdk/releases) in GitHub. |
 | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -122,7 +122,7 @@ there.
 To migrate:
 
 1. Install `@stellar/stellar-sdk` if you don't already (see
-   [Installation](#installation)).
+   [Installation](/js-stellar-sdk/#installation)).
 
 2. Update your imports. The symbols you import keep their names, so a
    project-wide find and replace of `"@stellar/stellar-base"` with
@@ -512,9 +512,9 @@ Currently `Keypair` only supports ed25519 but in a future this class can be abst
 public-key signature systems.
 
 Use more convenient methods to create `Keypair` object:
-* [`Keypair.fromPublicKey`](#keypairfrompublickeypublickey)
-* [`Keypair.fromSecret`](#keypairfromsecretsecret)
-* [`Keypair.random`](#keypairrandom)
+* [`Keypair.fromPublicKey`](/js-stellar-sdk/reference/core-keys/#keypairfrompublickeypublickey)
+* [`Keypair.fromSecret`](/js-stellar-sdk/reference/core-keys/#keypairfromsecretsecret)
+* [`Keypair.random`](/js-stellar-sdk/reference/core-keys/#keypairrandom)
 
 ```ts
 class Keypair {
@@ -2214,7 +2214,7 @@ sequenceNumber(): string;
 
 ## AuthClawbackEnabledFlag
 
-When set using [`Operation.setOptions`](#operationsetoptions) option, then any trustlines
+When set using [`Operation.setOptions`](/js-stellar-sdk/reference/core-transactions/#operationsetoptions) option, then any trustlines
 created by this account can have a ClawbackOp operation submitted for the
 corresponding asset.
 
@@ -2246,7 +2246,7 @@ type AuthFlag = typeof AuthFlag[keyof typeof AuthFlag]
 
 ## AuthImmutableFlag
 
-When set using [`Operation.setOptions`](#operationsetoptions) option, then none of the
+When set using [`Operation.setOptions`](/js-stellar-sdk/reference/core-transactions/#operationsetoptions) option, then none of the
 authorization flags can be set and the account can never be deleted.
 
 ```ts
@@ -2261,7 +2261,7 @@ const AuthImmutableFlag: number
 
 ## AuthRequiredFlag
 
-When set using [`Operation.setOptions`](#operationsetoptions) option, requires the issuing
+When set using [`Operation.setOptions`](/js-stellar-sdk/reference/core-transactions/#operationsetoptions) option, requires the issuing
 account to give other accounts permission before they can hold the issuing
 account’s credit.
 
@@ -2277,7 +2277,7 @@ const AuthRequiredFlag: number
 
 ## AuthRevocableFlag
 
-When set using [`Operation.setOptions`](#operationsetoptions) option, allows the issuing
+When set using [`Operation.setOptions`](/js-stellar-sdk/reference/core-transactions/#operationsetoptions) option, allows the issuing
 account to revoke its credit held by other accounts.
 
 ```ts
@@ -2468,9 +2468,9 @@ base64-encoded XDR string.
 transactions onto your account! Doing so will invalidate this pre-compiled
 transaction!
 - Send this XDR string to your other parties. They can use the instructions
-for [`getKeypairSignature`](#transactiongetkeypairsignaturekeypair) to sign the transaction.
+for [`getKeypairSignature`](/js-stellar-sdk/reference/core-transactions/#transactiongetkeypairsignaturekeypair) to sign the transaction.
 - They should send you back their `publicKey` and the `signature` string
-from [`getKeypairSignature`](#transactiongetkeypairsignaturekeypair), both of which you pass to
+from [`getKeypairSignature`](/js-stellar-sdk/reference/core-transactions/#transactiongetkeypairsignaturekeypair), both of which you pass to
 this function.
 
 ```ts
@@ -2488,7 +2488,7 @@ addSignature(publicKey: string = "", signature: string = ""): void;
 
 Signs a transaction with the given `Keypair`. Useful if someone sends
 you a transaction XDR for you to sign and return (see
-[`addSignature`](#transactionaddsignaturepublickey-signature) for more information).
+[`addSignature`](/js-stellar-sdk/reference/core-transactions/#transactionaddsignaturepublickey-signature) for more information).
 
 When you get a transaction XDR to sign....
 - Instantiate a `Transaction` object with the XDR
@@ -3333,44 +3333,44 @@ enum Networks
 Stellar network.
 
 Use one of static methods to create operations:
-* [`Operation.createAccount`](#operationcreateaccount)
-* [`Operation.payment`](#operationpayment)
-* [`Operation.pathPaymentStrictReceive`](#operationpathpaymentstrictreceive)
-* [`Operation.pathPaymentStrictSend`](#operationpathpaymentstrictsend)
-* [`Operation.manageSellOffer`](#operationmanageselloffer)
-* [`Operation.manageBuyOffer`](#operationmanagebuyoffer)
-* [`Operation.createPassiveSellOffer`](#operationcreatepassiveselloffer)
-* [`Operation.setOptions`](#operationsetoptions)
-* [`Operation.changeTrust`](#operationchangetrust)
-* [`Operation.allowTrust`](#operationallowtrust)
-* [`Operation.accountMerge`](#operationaccountmerge)
-* [`Operation.inflation`](#operationinflation)
-* [`Operation.manageData`](#operationmanagedata)
-* [`Operation.bumpSequence`](#operationbumpsequence)
-* [`Operation.createClaimableBalance`](#operationcreateclaimablebalance)
-* [`Operation.claimClaimableBalance`](#operationclaimclaimablebalance)
-* [`Operation.beginSponsoringFutureReserves`](#operationbeginsponsoringfuturereserves)
-* [`Operation.endSponsoringFutureReserves`](#operationendsponsoringfuturereserves)
-* [`Operation.revokeAccountSponsorship`](#operationrevokeaccountsponsorship)
-* [`Operation.revokeTrustlineSponsorship`](#operationrevoketrustlinesponsorship)
-* [`Operation.revokeOfferSponsorship`](#operationrevokeoffersponsorship)
-* [`Operation.revokeDataSponsorship`](#operationrevokedatasponsorship)
-* [`Operation.revokeClaimableBalanceSponsorship`](#operationrevokeclaimablebalancesponsorship)
-* [`Operation.revokeLiquidityPoolSponsorship`](#operationrevokeliquiditypoolsponsorship)
-* [`Operation.revokeSignerSponsorship`](#operationrevokesignersponsorship)
-* [`Operation.clawback`](#operationclawback)
-* [`Operation.clawbackClaimableBalance`](#operationclawbackclaimablebalance)
-* [`Operation.setTrustLineFlags`](#operationsettrustlineflags)
-* [`Operation.liquidityPoolDeposit`](#operationliquiditypooldeposit)
-* [`Operation.liquidityPoolWithdraw`](#operationliquiditypoolwithdraw)
-* [`Operation.invokeHostFunction`](#operationinvokehostfunction), which has the following additional
+* [`Operation.createAccount`](/js-stellar-sdk/reference/core-transactions/#operationcreateaccount)
+* [`Operation.payment`](/js-stellar-sdk/reference/core-transactions/#operationpayment)
+* [`Operation.pathPaymentStrictReceive`](/js-stellar-sdk/reference/core-transactions/#operationpathpaymentstrictreceive)
+* [`Operation.pathPaymentStrictSend`](/js-stellar-sdk/reference/core-transactions/#operationpathpaymentstrictsend)
+* [`Operation.manageSellOffer`](/js-stellar-sdk/reference/core-transactions/#operationmanageselloffer)
+* [`Operation.manageBuyOffer`](/js-stellar-sdk/reference/core-transactions/#operationmanagebuyoffer)
+* [`Operation.createPassiveSellOffer`](/js-stellar-sdk/reference/core-transactions/#operationcreatepassiveselloffer)
+* [`Operation.setOptions`](/js-stellar-sdk/reference/core-transactions/#operationsetoptions)
+* [`Operation.changeTrust`](/js-stellar-sdk/reference/core-transactions/#operationchangetrust)
+* [`Operation.allowTrust`](/js-stellar-sdk/reference/core-transactions/#operationallowtrust)
+* [`Operation.accountMerge`](/js-stellar-sdk/reference/core-transactions/#operationaccountmerge)
+* [`Operation.inflation`](/js-stellar-sdk/reference/core-transactions/#operationinflation)
+* [`Operation.manageData`](/js-stellar-sdk/reference/core-transactions/#operationmanagedata)
+* [`Operation.bumpSequence`](/js-stellar-sdk/reference/core-transactions/#operationbumpsequence)
+* [`Operation.createClaimableBalance`](/js-stellar-sdk/reference/core-transactions/#operationcreateclaimablebalance)
+* [`Operation.claimClaimableBalance`](/js-stellar-sdk/reference/core-transactions/#operationclaimclaimablebalance)
+* [`Operation.beginSponsoringFutureReserves`](/js-stellar-sdk/reference/core-transactions/#operationbeginsponsoringfuturereserves)
+* [`Operation.endSponsoringFutureReserves`](/js-stellar-sdk/reference/core-transactions/#operationendsponsoringfuturereserves)
+* [`Operation.revokeAccountSponsorship`](/js-stellar-sdk/reference/core-transactions/#operationrevokeaccountsponsorship)
+* [`Operation.revokeTrustlineSponsorship`](/js-stellar-sdk/reference/core-transactions/#operationrevoketrustlinesponsorship)
+* [`Operation.revokeOfferSponsorship`](/js-stellar-sdk/reference/core-transactions/#operationrevokeoffersponsorship)
+* [`Operation.revokeDataSponsorship`](/js-stellar-sdk/reference/core-transactions/#operationrevokedatasponsorship)
+* [`Operation.revokeClaimableBalanceSponsorship`](/js-stellar-sdk/reference/core-transactions/#operationrevokeclaimablebalancesponsorship)
+* [`Operation.revokeLiquidityPoolSponsorship`](/js-stellar-sdk/reference/core-transactions/#operationrevokeliquiditypoolsponsorship)
+* [`Operation.revokeSignerSponsorship`](/js-stellar-sdk/reference/core-transactions/#operationrevokesignersponsorship)
+* [`Operation.clawback`](/js-stellar-sdk/reference/core-transactions/#operationclawback)
+* [`Operation.clawbackClaimableBalance`](/js-stellar-sdk/reference/core-transactions/#operationclawbackclaimablebalance)
+* [`Operation.setTrustLineFlags`](/js-stellar-sdk/reference/core-transactions/#operationsettrustlineflags)
+* [`Operation.liquidityPoolDeposit`](/js-stellar-sdk/reference/core-transactions/#operationliquiditypooldeposit)
+* [`Operation.liquidityPoolWithdraw`](/js-stellar-sdk/reference/core-transactions/#operationliquiditypoolwithdraw)
+* [`Operation.invokeHostFunction`](/js-stellar-sdk/reference/core-transactions/#operationinvokehostfunction), which has the following additional
   "pseudo-operations" that make building host functions easier:
-  - [`Operation.createStellarAssetContract`](#operationcreatestellarassetcontract)
-  - [`Operation.invokeContractFunction`](#operationinvokecontractfunction)
-  - [`Operation.createCustomContract`](#operationcreatecustomcontract)
-  - [`Operation.uploadContractWasm`](#operationuploadcontractwasm)
+  - [`Operation.createStellarAssetContract`](/js-stellar-sdk/reference/core-transactions/#operationcreatestellarassetcontract)
+  - [`Operation.invokeContractFunction`](/js-stellar-sdk/reference/core-transactions/#operationinvokecontractfunction)
+  - [`Operation.createCustomContract`](/js-stellar-sdk/reference/core-transactions/#operationcreatecustomcontract)
+  - [`Operation.uploadContractWasm`](/js-stellar-sdk/reference/core-transactions/#operationuploadcontractwasm)
 * `Operation.extendFootprintTtlOp`
-* [`Operation.restoreFootprint`](#operationrestorefootprint)
+* [`Operation.restoreFootprint`](/js-stellar-sdk/reference/core-transactions/#operationrestorefootprint)
 
 ```ts
 class Operation {
@@ -5056,9 +5056,9 @@ base64-encoded XDR string.
 transactions onto your account! Doing so will invalidate this pre-compiled
 transaction!
 - Send this XDR string to your other parties. They can use the instructions
-for [`getKeypairSignature`](#transactiongetkeypairsignaturekeypair) to sign the transaction.
+for [`getKeypairSignature`](/js-stellar-sdk/reference/core-transactions/#transactiongetkeypairsignaturekeypair) to sign the transaction.
 - They should send you back their `publicKey` and the `signature` string
-from [`getKeypairSignature`](#transactiongetkeypairsignaturekeypair), both of which you pass to
+from [`getKeypairSignature`](/js-stellar-sdk/reference/core-transactions/#transactiongetkeypairsignaturekeypair), both of which you pass to
 this function.
 
 ```ts
@@ -5099,7 +5099,7 @@ getClaimableBalanceId(opIndex: number): string;
 
 Signs a transaction with the given `Keypair`. Useful if someone sends
 you a transaction XDR for you to sign and return (see
-[`addSignature`](#transactionaddsignaturepublickey-signature) for more information).
+[`addSignature`](/js-stellar-sdk/reference/core-transactions/#transactionaddsignaturepublickey-signature) for more information).
 
 When you get a transaction XDR to sign....
 - Instantiate a `Transaction` object with the XDR
@@ -5202,7 +5202,7 @@ toXDR(): string;
 
 ## TransactionBuilder
 
-<p>Transaction builder helps constructs a new [`Transaction`](#transaction) using the
+<p>Transaction builder helps constructs a new [`Transaction`](/js-stellar-sdk/reference/core-transactions/#transaction) using the
 given `Account` as the transaction's "source account". The transaction
 will use the current sequence number of the given account as its sequence
 number and increment the given account's sequence number by one. The given
@@ -30190,7 +30190,7 @@ edit that file and rebuild to change either.
 All three surfaces (bundles, `.md` siblings, robots.txt) are regenerated
 on every release deploy. They reflect the **current SDK major** only —
 older majors are not bundled (see the
-[Versioning & Compatibility](./guides/00-versioning.md) page for the
+[Versioning & Compatibility](/js-stellar-sdk/guides/00-versioning/) page for the
 rationale).
 
 The current SDK version is **15.0.1**, sourced from

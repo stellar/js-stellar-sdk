@@ -20,6 +20,17 @@ import { mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { DOCS_SOURCE_REF } from "./docs-source-ref.js";
+import {
+  collectLinks,
+  headingIds,
+  hrefToDocsRelPath,
+  isExternal,
+  isInternalAbsolute,
+  rewriteLinks,
+  routeForDocsRelPath,
+  splitAnchor,
+  withBase,
+} from "./doc-links.js";
 
 const REPO_ROOT = process.cwd();
 const DOCS_DIR = join(REPO_ROOT, "docs");
@@ -195,6 +206,90 @@ function renderLlmsTxt(opts: {
   return `${lines.join("\n")}\n`;
 }
 
+// === internal-link rewriting + validation ===
+
+// Rewrites a page's internal links to absolute, base-prefixed URLs for the
+// flat bundle, where same-page `#anchor` links would otherwise be ambiguous
+// (every page is concatenated into one file). Mirrors the rehype plugin that
+// base-prefixes links for the rendered site. External and relative links are
+// left untouched.
+function rewriteBodyForBundle(page: DocPage): string {
+  const route = routeForDocsRelPath(page.docsRelPath);
+  const pageBase = route === "/" ? "" : route;
+  return rewriteLinks(page.body, (href) => {
+    if (href.startsWith("#")) return withBase(`${pageBase}/${href}`);
+    if (isInternalAbsolute(href)) return withBase(href);
+    return null;
+  });
+}
+
+// Fails the build on dead internal links. Strict (throws) for the pages we
+// author by hand (guides/, reference/); warnings only for index.md (README)
+// and agents.md so pre-existing content can't break the bundle build.
+function validateLinks(pages: DocPage[]): void {
+  const idsByPath = new Map(
+    pages.map((p) => [p.docsRelPath, headingIds(p.body)]),
+  );
+  const known = new Set(pages.map((p) => p.docsRelPath));
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  for (const p of pages) {
+    const strict =
+      p.docsRelPath.startsWith("guides/") ||
+      p.docsRelPath.startsWith("reference/");
+    const report = (msg: string): void => {
+      (strict ? errors : warnings).push(`${p.docsRelPath}: ${msg}`);
+    };
+
+    for (const href of collectLinks(p.body)) {
+      if (isExternal(href)) continue;
+
+      if (href.startsWith("#")) {
+        if (!strict) continue; // same-page anchors only checked on authored pages
+        const anchor = href.slice(1);
+        if (anchor.length > 0 && !idsByPath.get(p.docsRelPath)?.has(anchor)) {
+          report(`dead same-page anchor "${href}"`);
+        }
+        continue;
+      }
+
+      if (isInternalAbsolute(href)) {
+        const { path, anchor } = splitAnchor(href);
+        const target = hrefToDocsRelPath(path);
+        if (target === null) continue; // non-doc absolute link, e.g. /llms.txt
+        if (!known.has(target)) {
+          report(`broken internal link "${href}" (no page ${target})`);
+          continue;
+        }
+        if (anchor.length > 0 && !idsByPath.get(target)?.has(anchor)) {
+          report(
+            `dead anchor "${href}" (no heading in ${target} for "${anchor}")`,
+          );
+        }
+        continue;
+      }
+
+      // Relative `.md` links break on the site (Astro does not rewrite them).
+      if (/\.md(#|$)/.test(href)) {
+        report(
+          `relative link "${href}" — use a root-absolute /guides/... or /reference/... link`,
+        );
+      }
+    }
+  }
+
+  for (const w of warnings) console.warn(`  ⚠ link check: ${w}`);
+  if (errors.length > 0) {
+    throw new Error(
+      `Link check failed (${errors.length}):\n${errors
+        .map((e) => `  ✗ ${e}`)
+        .join("\n")}`,
+    );
+  }
+  console.log(`Link check passed across ${pages.length} pages.`);
+}
+
 // === llms-full.txt rendering ===
 
 function renderSection(repoRelPath: string, body: string): string {
@@ -209,12 +304,16 @@ function renderLlmsFullTxt(opts: {
   changelog: string;
 }): string {
   const sections: string[] = [];
-  sections.push(renderSection(opts.index.repoRelPath, opts.index.body));
+  sections.push(
+    renderSection(opts.index.repoRelPath, rewriteBodyForBundle(opts.index)),
+  );
   for (const g of opts.guides)
-    sections.push(renderSection(g.repoRelPath, g.body));
+    sections.push(renderSection(g.repoRelPath, rewriteBodyForBundle(g)));
   for (const r of opts.reference)
-    sections.push(renderSection(r.repoRelPath, r.body));
-  sections.push(renderSection(opts.agents.repoRelPath, opts.agents.body));
+    sections.push(renderSection(r.repoRelPath, rewriteBodyForBundle(r)));
+  sections.push(
+    renderSection(opts.agents.repoRelPath, rewriteBodyForBundle(opts.agents)),
+  );
   sections.push(renderSection("CHANGELOG.md", opts.changelog));
   return `${sections.join("\n\n")}\n`;
 }
@@ -257,6 +356,8 @@ function main(): void {
   const agentsPage = readDoc("agents.md");
   const guidesPages = listGuideFiles().map(readDoc);
   const referencePages = listReferenceFiles().map(readDoc);
+
+  validateLinks([indexPage, agentsPage, ...guidesPages, ...referencePages]);
 
   const changelog = readFileSync(CHANGELOG_PATH, "utf8")
     .replace(/^\n+/, "")

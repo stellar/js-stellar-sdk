@@ -4,10 +4,41 @@ import sitemap from "@astrojs/sitemap";
 
 import { SITE_URL, BASE_PATH } from "./config/site.js";
 
+// Base-prefixes root-absolute internal links (e.g. `/reference/core-keys/`)
+// with the deploy base. Astro rewrites relative image refs but NOT cross-page
+// links, so without this an authored `/reference/...` link would 404 on a
+// based deploy. Authors write base-agnostic paths; the base lives only in
+// config/site.ts. Mirrors the bundle rewriting in scripts/build-llms.ts.
+function rehypeBaseInternalLinks() {
+  const prefix = (href) => {
+    if (typeof href !== "string") return href;
+    if (!href.startsWith("/") || href.startsWith("//")) return href;
+    if (href === BASE_PATH || href.startsWith(`${BASE_PATH}/`)) return href;
+    return `${BASE_PATH}${href}`;
+  };
+  const walk = (node) => {
+    if (
+      node.type === "element" &&
+      node.tagName === "a" &&
+      node.properties &&
+      typeof node.properties.href === "string"
+    ) {
+      node.properties.href = prefix(node.properties.href);
+    }
+    for (const child of node.children ?? []) walk(child);
+  };
+  return (tree) => {
+    walk(tree);
+  };
+}
+
 export default defineConfig({
   site: SITE_URL,
   base: BASE_PATH,
   outDir: "./dist/site",
+  markdown: {
+    rehypePlugins: [rehypeBaseInternalLinks],
+  },
   prefetch: { prefetchAll: true },
   fonts: [
     {

@@ -55,7 +55,7 @@ edit that file and rebuild to change either.
 All three surfaces (bundles, `.md` siblings, robots.txt) are regenerated
 on every release deploy. They reflect the **current SDK major** only —
 older majors are not bundled (see the
-[Versioning & Compatibility](./guides/00-versioning.md) page for the
+[Versioning & Compatibility](/guides/00-versioning/) page for the
 rationale).
 
 The current SDK version is **15.0.1**, sourced from
