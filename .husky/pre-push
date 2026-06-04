@@ -1,9 +1,19 @@
-echo "Verifying generated docs are up to date…"
+set -e
+
+echo ""
+echo "▶ Verifying generated docs are up to date…"
+echo ""
+
 pnpm run docs:reference
 pnpm run docs:llms
+
 if ! git diff --exit-code --stat -- docs/; then
-  echo
+  echo ""
   echo "✗ Generated docs are out of date. Run 'pnpm run docs', then stage & commit the changes."
+  echo ""
   exit 1
 fi
+
+echo ""
 echo "✓ Generated docs are up to date."
+echo ""
