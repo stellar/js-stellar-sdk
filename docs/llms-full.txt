@@ -107,6 +107,44 @@ pnpm run build:lib:axios
 This will create `stellar-sdk-axios.js` in `dist/`. Consumers can also import
 the axios-backed entry from Node via `@stellar/stellar-sdk/axios`.
 
+### Migrating from @stellar/stellar-base
+
+`@stellar/stellar-base` is now folded into `@stellar/stellar-sdk`. Its classes and
+functions are bundled in and re-exported from the top level, so the SDK is the
+only package you need.
+
+This only matters if you import `@stellar/stellar-base` directly. If you depend on
+`@stellar/stellar-sdk` and never installed the base package separately, skip this
+section. The fold-in landed in `@stellar/stellar-sdk` v16.0.0; on earlier versions
+the SDK still depends on the separate base package, so don't remove it there.
+
+To migrate:
+
+1. Install `@stellar/stellar-sdk` if you don't already (see
+   [Installation](#installation)).
+
+2. Update your imports. The symbols you import keep their names, so a project-wide
+   find and replace of `"@stellar/stellar-base"` with `"@stellar/stellar-sdk"`
+   usually does it:
+
+   ```js
+   // before
+   import { Keypair, TransactionBuilder, Asset } from "@stellar/stellar-base";
+
+   // after
+   import { Keypair, TransactionBuilder, Asset } from "@stellar/stellar-sdk";
+   ```
+
+3. Uninstall the base package:
+
+   ```shell
+   npm uninstall @stellar/stellar-base
+   ```
+
+Don't keep both packages installed. Two copies of the base library cause
+confusing runtime errors, such as `instanceof` checks failing on values that look
+correct.
+
 ## Usage
 
 The usage documentation for this library lives in a handful of places:
