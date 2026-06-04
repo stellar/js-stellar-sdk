@@ -11,6 +11,8 @@ import {
   authorizeEntry as stellarBaseAuthorizeEntry,
   xdr,
 } from "../base/index.js";
+// internal helper (not part of the public API), imported directly from auth.js
+import { getAddressCredentials } from "../base/auth.js";
 import type {
   AssembledTransactionOptions,
   ClientOptions,
@@ -948,18 +950,17 @@ export class AssembledTransaction<T> {
     return [
       ...new Set(
         (rawInvokeHostFunctionOp.auth ?? [])
+          .map((entry) => getAddressCredentials(entry.credentials()))
           .filter(
-            (entry) =>
-              entry.credentials().switch() ===
-                xdr.SorobanCredentialsType.sorobanCredentialsAddress() &&
+            (addrAuth): addrAuth is xdr.SorobanAddressCredentials =>
+              // skip source-account credentials (no address payload), which
+              // are covered by the envelope signature on the source account
+              addrAuth !== null &&
               (includeAlreadySigned ||
-                entry.credentials().address().signature().switch().name ===
-                  "scvVoid"),
+                addrAuth.signature().switch().name === "scvVoid"),
           )
-          .map((entry) =>
-            Address.fromScAddress(
-              entry.credentials().address().address(),
-            ).toString(),
+          .map((addrAuth) =>
+            Address.fromScAddress(addrAuth.address()).toString(),
           ),
       ),
     ];
@@ -1044,17 +1045,15 @@ export class AssembledTransaction<T> {
       const credentials = xdr.SorobanCredentials.fromXDR(
         entry.credentials().toXDR(),
       );
-      if (
-        credentials.switch() !==
-        xdr.SorobanCredentialsType.sorobanCredentialsAddress()
-      ) {
+      const addrAuth = getAddressCredentials(credentials);
+      if (addrAuth === null) {
         // if the invoker/source account, then the entry doesn't need explicit
         // signature, since the tx envelope is already signed by the source
-        // account, so only check for sorobanCredentialsAddress
+        // account, so only address-based credentials need signing here
         continue;
       }
       const authEntryAddress = Address.fromScAddress(
-        credentials.address().address(),
+        addrAuth.address(),
       ).toString();
 
       // this auth entry needs to be signed by a different account

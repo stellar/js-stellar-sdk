@@ -90,6 +90,7 @@ export namespace xdr {
     validateXDR(input: Buffer, format?: "raw"): boolean;
     validateXDR(input: string, format: "hex" | "base64"): boolean;
   }
+
   class Hyper {
     low: number;
 
@@ -98,7 +99,7 @@ export namespace xdr {
     unsigned: boolean;
 
     constructor(
-      values: string | bigint | number | Array<string | bigint | number>,
+      values: string | bigint | number | (string | bigint | number)[],
     );
 
     toXDR(format?: "raw"): Buffer;
@@ -464,9 +465,10 @@ export namespace xdr {
       | "envelopeTypeOpId"
       | "envelopeTypePoolRevokeOpId"
       | "envelopeTypeContractId"
-      | "envelopeTypeSorobanAuthorization";
+      | "envelopeTypeSorobanAuthorization"
+      | "envelopeTypeSorobanAuthorizationWithAddress";
 
-    readonly value: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
+    readonly value: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
 
     static envelopeTypeTxV0(): EnvelopeType;
 
@@ -487,6 +489,8 @@ export namespace xdr {
     static envelopeTypeContractId(): EnvelopeType;
 
     static envelopeTypeSorobanAuthorization(): EnvelopeType;
+
+    static envelopeTypeSorobanAuthorizationWithAddress(): EnvelopeType;
   }
 
   class BucketListType {
@@ -940,13 +944,19 @@ export namespace xdr {
   class SorobanCredentialsType {
     readonly name:
       | "sorobanCredentialsSourceAccount"
-      | "sorobanCredentialsAddress";
+      | "sorobanCredentialsAddress"
+      | "sorobanCredentialsAddressV2"
+      | "sorobanCredentialsAddressWithDelegates";
 
-    readonly value: 0 | 1;
+    readonly value: 0 | 1 | 2 | 3;
 
     static sorobanCredentialsSourceAccount(): SorobanCredentialsType;
 
     static sorobanCredentialsAddress(): SorobanCredentialsType;
+
+    static sorobanCredentialsAddressV2(): SorobanCredentialsType;
+
+    static sorobanCredentialsAddressWithDelegates(): SorobanCredentialsType;
   }
 
   class MemoType {
@@ -1502,9 +1512,10 @@ export namespace xdr {
       | "claimClaimableBalanceCannotClaim"
       | "claimClaimableBalanceLineFull"
       | "claimClaimableBalanceNoTrust"
-      | "claimClaimableBalanceNotAuthorized";
+      | "claimClaimableBalanceNotAuthorized"
+      | "claimClaimableBalanceTrustlineFrozen";
 
-    readonly value: 0 | -1 | -2 | -3 | -4 | -5;
+    readonly value: 0 | -1 | -2 | -3 | -4 | -5 | -6;
 
     static claimClaimableBalanceSuccess(): ClaimClaimableBalanceResultCode;
 
@@ -1517,6 +1528,8 @@ export namespace xdr {
     static claimClaimableBalanceNoTrust(): ClaimClaimableBalanceResultCode;
 
     static claimClaimableBalanceNotAuthorized(): ClaimClaimableBalanceResultCode;
+
+    static claimClaimableBalanceTrustlineFrozen(): ClaimClaimableBalanceResultCode;
   }
 
   class BeginSponsoringFutureReservesResultCode {
@@ -1645,9 +1658,10 @@ export namespace xdr {
       | "liquidityPoolDepositUnderfunded"
       | "liquidityPoolDepositLineFull"
       | "liquidityPoolDepositBadPrice"
-      | "liquidityPoolDepositPoolFull";
+      | "liquidityPoolDepositPoolFull"
+      | "liquidityPoolDepositTrustlineFrozen";
 
-    readonly value: 0 | -1 | -2 | -3 | -4 | -5 | -6 | -7;
+    readonly value: 0 | -1 | -2 | -3 | -4 | -5 | -6 | -7 | -8;
 
     static liquidityPoolDepositSuccess(): LiquidityPoolDepositResultCode;
 
@@ -1664,6 +1678,8 @@ export namespace xdr {
     static liquidityPoolDepositBadPrice(): LiquidityPoolDepositResultCode;
 
     static liquidityPoolDepositPoolFull(): LiquidityPoolDepositResultCode;
+
+    static liquidityPoolDepositTrustlineFrozen(): LiquidityPoolDepositResultCode;
   }
 
   class LiquidityPoolWithdrawResultCode {
@@ -1673,9 +1689,10 @@ export namespace xdr {
       | "liquidityPoolWithdrawNoTrust"
       | "liquidityPoolWithdrawUnderfunded"
       | "liquidityPoolWithdrawLineFull"
-      | "liquidityPoolWithdrawUnderMinimum";
+      | "liquidityPoolWithdrawUnderMinimum"
+      | "liquidityPoolWithdrawTrustlineFrozen";
 
-    readonly value: 0 | -1 | -2 | -3 | -4 | -5;
+    readonly value: 0 | -1 | -2 | -3 | -4 | -5 | -6;
 
     static liquidityPoolWithdrawSuccess(): LiquidityPoolWithdrawResultCode;
 
@@ -1688,6 +1705,8 @@ export namespace xdr {
     static liquidityPoolWithdrawLineFull(): LiquidityPoolWithdrawResultCode;
 
     static liquidityPoolWithdrawUnderMinimum(): LiquidityPoolWithdrawResultCode;
+
+    static liquidityPoolWithdrawTrustlineFrozen(): LiquidityPoolWithdrawResultCode;
   }
 
   class InvokeHostFunctionResultCode {
@@ -1797,7 +1816,8 @@ export namespace xdr {
       | "txBadSponsorship"
       | "txBadMinSeqAgeOrGap"
       | "txMalformed"
-      | "txSorobanInvalid";
+      | "txSorobanInvalid"
+      | "txFrozenKeyAccessed";
 
     readonly value:
       | 1
@@ -1818,7 +1838,8 @@ export namespace xdr {
       | -14
       | -15
       | -16
-      | -17;
+      | -17
+      | -18;
 
     static txFeeBumpInnerSuccess(): TransactionResultCode;
 
@@ -1857,6 +1878,8 @@ export namespace xdr {
     static txMalformed(): TransactionResultCode;
 
     static txSorobanInvalid(): TransactionResultCode;
+
+    static txFrozenKeyAccessed(): TransactionResultCode;
   }
 
   class CryptoKeyType {
@@ -2384,7 +2407,23 @@ export namespace xdr {
       | "bls12381FrAddSub"
       | "bls12381FrMul"
       | "bls12381FrPow"
-      | "bls12381FrInv";
+      | "bls12381FrInv"
+      | "bn254EncodeFp"
+      | "bn254DecodeFp"
+      | "bn254G1CheckPointOnCurve"
+      | "bn254G2CheckPointOnCurve"
+      | "bn254G2CheckPointInSubgroup"
+      | "bn254G1ProjectiveToAffine"
+      | "bn254G1Add"
+      | "bn254G1Mul"
+      | "bn254Pairing"
+      | "bn254FrFromU256"
+      | "bn254FrToU256"
+      | "bn254FrAddSub"
+      | "bn254FrMul"
+      | "bn254FrPow"
+      | "bn254FrInv"
+      | "bn254G1Msm";
 
     readonly value:
       | 0
@@ -2456,7 +2495,23 @@ export namespace xdr {
       | 66
       | 67
       | 68
-      | 69;
+      | 69
+      | 70
+      | 71
+      | 72
+      | 73
+      | 74
+      | 75
+      | 76
+      | 77
+      | 78
+      | 79
+      | 80
+      | 81
+      | 82
+      | 83
+      | 84
+      | 85;
 
     static wasmInsnExec(): ContractCostType;
 
@@ -2597,6 +2652,38 @@ export namespace xdr {
     static bls12381FrPow(): ContractCostType;
 
     static bls12381FrInv(): ContractCostType;
+
+    static bn254EncodeFp(): ContractCostType;
+
+    static bn254DecodeFp(): ContractCostType;
+
+    static bn254G1CheckPointOnCurve(): ContractCostType;
+
+    static bn254G2CheckPointOnCurve(): ContractCostType;
+
+    static bn254G2CheckPointInSubgroup(): ContractCostType;
+
+    static bn254G1ProjectiveToAffine(): ContractCostType;
+
+    static bn254G1Add(): ContractCostType;
+
+    static bn254G1Mul(): ContractCostType;
+
+    static bn254Pairing(): ContractCostType;
+
+    static bn254FrFromU256(): ContractCostType;
+
+    static bn254FrToU256(): ContractCostType;
+
+    static bn254FrAddSub(): ContractCostType;
+
+    static bn254FrMul(): ContractCostType;
+
+    static bn254FrPow(): ContractCostType;
+
+    static bn254FrInv(): ContractCostType;
+
+    static bn254G1Msm(): ContractCostType;
   }
 
   class ConfigSettingId {
@@ -2617,7 +2704,11 @@ export namespace xdr {
       | "configSettingEvictionIterator"
       | "configSettingContractParallelComputeV0"
       | "configSettingContractLedgerCostExtV0"
-      | "configSettingScpTiming";
+      | "configSettingScpTiming"
+      | "configSettingFrozenLedgerKeys"
+      | "configSettingFrozenLedgerKeysDelta"
+      | "configSettingFreezeBypassTxes"
+      | "configSettingFreezeBypassTxsDelta";
 
     readonly value:
       | 0
@@ -2636,7 +2727,11 @@ export namespace xdr {
       | 13
       | 14
       | 15
-      | 16;
+      | 16
+      | 17
+      | 18
+      | 19
+      | 20;
 
     static configSettingContractMaxSizeBytes(): ConfigSettingId;
 
@@ -2671,6 +2766,14 @@ export namespace xdr {
     static configSettingContractLedgerCostExtV0(): ConfigSettingId;
 
     static configSettingScpTiming(): ConfigSettingId;
+
+    static configSettingFrozenLedgerKeys(): ConfigSettingId;
+
+    static configSettingFrozenLedgerKeysDelta(): ConfigSettingId;
+
+    static configSettingFreezeBypassTxes(): ConfigSettingId;
+
+    static configSettingFreezeBypassTxsDelta(): ConfigSettingId;
   }
 
   const Value: VarOpaque;
@@ -2746,6 +2849,8 @@ export namespace xdr {
   const ScString: XDRString;
 
   const ScSymbol: XDRString;
+
+  const EncodedLedgerKey: VarOpaque;
 
   const ContractCostParams: XDRArray<ContractCostParamEntry>;
 
@@ -7705,6 +7810,87 @@ export namespace xdr {
     static validateXDR(input: string, format: "hex" | "base64"): boolean;
   }
 
+  class SorobanDelegateSignature {
+    constructor(attributes: {
+      address: ScAddress;
+      signature: ScVal;
+      nestedDelegates: SorobanDelegateSignature[];
+    });
+
+    address(value?: ScAddress): ScAddress;
+
+    signature(value?: ScVal): ScVal;
+
+    nestedDelegates(
+      value?: SorobanDelegateSignature[],
+    ): SorobanDelegateSignature[];
+
+    toXDR(format?: "raw"): Buffer;
+
+    toXDR(format: "hex" | "base64"): string;
+
+    static read(io: Buffer): SorobanDelegateSignature;
+
+    static write(value: SorobanDelegateSignature, io: Buffer): void;
+
+    static isValid(value: SorobanDelegateSignature): boolean;
+
+    static toXDR(value: SorobanDelegateSignature): Buffer;
+
+    static fromXDR(input: Buffer, format?: "raw"): SorobanDelegateSignature;
+
+    static fromXDR(
+      input: string,
+      format: "hex" | "base64",
+    ): SorobanDelegateSignature;
+
+    static validateXDR(input: Buffer, format?: "raw"): boolean;
+
+    static validateXDR(input: string, format: "hex" | "base64"): boolean;
+  }
+
+  class SorobanAddressCredentialsWithDelegates {
+    constructor(attributes: {
+      addressCredentials: SorobanAddressCredentials;
+      delegates: SorobanDelegateSignature[];
+    });
+
+    addressCredentials(
+      value?: SorobanAddressCredentials,
+    ): SorobanAddressCredentials;
+
+    delegates(value?: SorobanDelegateSignature[]): SorobanDelegateSignature[];
+
+    toXDR(format?: "raw"): Buffer;
+
+    toXDR(format: "hex" | "base64"): string;
+
+    static read(io: Buffer): SorobanAddressCredentialsWithDelegates;
+
+    static write(
+      value: SorobanAddressCredentialsWithDelegates,
+      io: Buffer,
+    ): void;
+
+    static isValid(value: SorobanAddressCredentialsWithDelegates): boolean;
+
+    static toXDR(value: SorobanAddressCredentialsWithDelegates): Buffer;
+
+    static fromXDR(
+      input: Buffer,
+      format?: "raw",
+    ): SorobanAddressCredentialsWithDelegates;
+
+    static fromXDR(
+      input: string,
+      format: "hex" | "base64",
+    ): SorobanAddressCredentialsWithDelegates;
+
+    static validateXDR(input: Buffer, format?: "raw"): boolean;
+
+    static validateXDR(input: string, format: "hex" | "base64"): boolean;
+  }
+
   class SorobanAuthorizationEntry {
     constructor(attributes: {
       credentials: SorobanCredentials;
@@ -7985,6 +8171,59 @@ export namespace xdr {
       input: string,
       format: "hex" | "base64",
     ): HashIdPreimageSorobanAuthorization;
+
+    static validateXDR(input: Buffer, format?: "raw"): boolean;
+
+    static validateXDR(input: string, format: "hex" | "base64"): boolean;
+  }
+
+  class HashIdPreimageSorobanAuthorizationWithAddress {
+    constructor(attributes: {
+      networkId: Buffer;
+      nonce: Int64;
+      signatureExpirationLedger: number;
+      address: ScAddress;
+      invocation: SorobanAuthorizedInvocation;
+    });
+
+    networkId(value?: Buffer): Buffer;
+
+    nonce(value?: Int64): Int64;
+
+    signatureExpirationLedger(value?: number): number;
+
+    address(value?: ScAddress): ScAddress;
+
+    invocation(
+      value?: SorobanAuthorizedInvocation,
+    ): SorobanAuthorizedInvocation;
+
+    toXDR(format?: "raw"): Buffer;
+
+    toXDR(format: "hex" | "base64"): string;
+
+    static read(io: Buffer): HashIdPreimageSorobanAuthorizationWithAddress;
+
+    static write(
+      value: HashIdPreimageSorobanAuthorizationWithAddress,
+      io: Buffer,
+    ): void;
+
+    static isValid(
+      value: HashIdPreimageSorobanAuthorizationWithAddress,
+    ): boolean;
+
+    static toXDR(value: HashIdPreimageSorobanAuthorizationWithAddress): Buffer;
+
+    static fromXDR(
+      input: Buffer,
+      format?: "raw",
+    ): HashIdPreimageSorobanAuthorizationWithAddress;
+
+    static fromXDR(
+      input: string,
+      format: "hex" | "base64",
+    ): HashIdPreimageSorobanAuthorizationWithAddress;
 
     static validateXDR(input: Buffer, format?: "raw"): boolean;
 
@@ -10054,7 +10293,7 @@ export namespace xdr {
       doc: string | Buffer;
       lib: string | Buffer;
       name: string | Buffer;
-      prefixTopics: Array<string | Buffer>;
+      prefixTopics: (string | Buffer)[];
       params: ScSpecEventParamV0[];
       dataFormat: ScSpecEventDataFormat;
     });
@@ -10065,7 +10304,7 @@ export namespace xdr {
 
     name(value?: string | Buffer): string | Buffer;
 
-    prefixTopics(value?: Array<string | Buffer>): Array<string | Buffer>;
+    prefixTopics(value?: (string | Buffer)[]): (string | Buffer)[];
 
     params(value?: ScSpecEventParamV0[]): ScSpecEventParamV0[];
 
@@ -10596,6 +10835,123 @@ export namespace xdr {
       input: string,
       format: "hex" | "base64",
     ): ConfigSettingScpTiming;
+
+    static validateXDR(input: Buffer, format?: "raw"): boolean;
+
+    static validateXDR(input: string, format: "hex" | "base64"): boolean;
+  }
+
+  class FrozenLedgerKeys {
+    constructor(attributes: { keys: Buffer[] });
+
+    keys(value?: Buffer[]): Buffer[];
+
+    toXDR(format?: "raw"): Buffer;
+
+    toXDR(format: "hex" | "base64"): string;
+
+    static read(io: Buffer): FrozenLedgerKeys;
+
+    static write(value: FrozenLedgerKeys, io: Buffer): void;
+
+    static isValid(value: FrozenLedgerKeys): boolean;
+
+    static toXDR(value: FrozenLedgerKeys): Buffer;
+
+    static fromXDR(input: Buffer, format?: "raw"): FrozenLedgerKeys;
+
+    static fromXDR(input: string, format: "hex" | "base64"): FrozenLedgerKeys;
+
+    static validateXDR(input: Buffer, format?: "raw"): boolean;
+
+    static validateXDR(input: string, format: "hex" | "base64"): boolean;
+  }
+
+  class FrozenLedgerKeysDelta {
+    constructor(attributes: {
+      keysToFreeze: Buffer[];
+      keysToUnfreeze: Buffer[];
+    });
+
+    keysToFreeze(value?: Buffer[]): Buffer[];
+
+    keysToUnfreeze(value?: Buffer[]): Buffer[];
+
+    toXDR(format?: "raw"): Buffer;
+
+    toXDR(format: "hex" | "base64"): string;
+
+    static read(io: Buffer): FrozenLedgerKeysDelta;
+
+    static write(value: FrozenLedgerKeysDelta, io: Buffer): void;
+
+    static isValid(value: FrozenLedgerKeysDelta): boolean;
+
+    static toXDR(value: FrozenLedgerKeysDelta): Buffer;
+
+    static fromXDR(input: Buffer, format?: "raw"): FrozenLedgerKeysDelta;
+
+    static fromXDR(
+      input: string,
+      format: "hex" | "base64",
+    ): FrozenLedgerKeysDelta;
+
+    static validateXDR(input: Buffer, format?: "raw"): boolean;
+
+    static validateXDR(input: string, format: "hex" | "base64"): boolean;
+  }
+
+  class FreezeBypassTxes {
+    constructor(attributes: { txHashes: Buffer[] });
+
+    txHashes(value?: Buffer[]): Buffer[];
+
+    toXDR(format?: "raw"): Buffer;
+
+    toXDR(format: "hex" | "base64"): string;
+
+    static read(io: Buffer): FreezeBypassTxes;
+
+    static write(value: FreezeBypassTxes, io: Buffer): void;
+
+    static isValid(value: FreezeBypassTxes): boolean;
+
+    static toXDR(value: FreezeBypassTxes): Buffer;
+
+    static fromXDR(input: Buffer, format?: "raw"): FreezeBypassTxes;
+
+    static fromXDR(input: string, format: "hex" | "base64"): FreezeBypassTxes;
+
+    static validateXDR(input: Buffer, format?: "raw"): boolean;
+
+    static validateXDR(input: string, format: "hex" | "base64"): boolean;
+  }
+
+  class FreezeBypassTxsDelta {
+    constructor(attributes: { addTxes: Buffer[]; removeTxes: Buffer[] });
+
+    addTxes(value?: Buffer[]): Buffer[];
+
+    removeTxes(value?: Buffer[]): Buffer[];
+
+    toXDR(format?: "raw"): Buffer;
+
+    toXDR(format: "hex" | "base64"): string;
+
+    static read(io: Buffer): FreezeBypassTxsDelta;
+
+    static write(value: FreezeBypassTxsDelta, io: Buffer): void;
+
+    static isValid(value: FreezeBypassTxsDelta): boolean;
+
+    static toXDR(value: FreezeBypassTxsDelta): Buffer;
+
+    static fromXDR(input: Buffer, format?: "raw"): FreezeBypassTxsDelta;
+
+    static fromXDR(
+      input: string,
+      format: "hex" | "base64",
+    ): FreezeBypassTxsDelta;
 
     static validateXDR(input: Buffer, format?: "raw"): boolean;
 
@@ -12766,13 +13122,30 @@ export namespace xdr {
 
     address(value?: SorobanAddressCredentials): SorobanAddressCredentials;
 
+    addressV2(value?: SorobanAddressCredentials): SorobanAddressCredentials;
+
+    addressWithDelegates(
+      value?: SorobanAddressCredentialsWithDelegates,
+    ): SorobanAddressCredentialsWithDelegates;
+
     static sorobanCredentialsSourceAccount(): SorobanCredentials;
 
     static sorobanCredentialsAddress(
       value: SorobanAddressCredentials,
     ): SorobanCredentials;
 
-    value(): SorobanAddressCredentials | void;
+    static sorobanCredentialsAddressV2(
+      value: SorobanAddressCredentials,
+    ): SorobanCredentials;
+
+    static sorobanCredentialsAddressWithDelegates(
+      value: SorobanAddressCredentialsWithDelegates,
+    ): SorobanCredentials;
+
+    value():
+      | SorobanAddressCredentials
+      | SorobanAddressCredentialsWithDelegates
+      | void;
 
     toXDR(format?: "raw"): Buffer;
 
@@ -12992,6 +13365,10 @@ export namespace xdr {
       value?: HashIdPreimageSorobanAuthorization,
     ): HashIdPreimageSorobanAuthorization;
 
+    sorobanAuthorizationWithAddress(
+      value?: HashIdPreimageSorobanAuthorizationWithAddress,
+    ): HashIdPreimageSorobanAuthorizationWithAddress;
+
     static envelopeTypeOpId(value: HashIdPreimageOperationId): HashIdPreimage;
 
     static envelopeTypePoolRevokeOpId(
@@ -13006,11 +13383,16 @@ export namespace xdr {
       value: HashIdPreimageSorobanAuthorization,
     ): HashIdPreimage;
 
+    static envelopeTypeSorobanAuthorizationWithAddress(
+      value: HashIdPreimageSorobanAuthorizationWithAddress,
+    ): HashIdPreimage;
+
     value():
       | HashIdPreimageOperationId
       | HashIdPreimageRevokeId
       | HashIdPreimageContractId
-      | HashIdPreimageSorobanAuthorization;
+      | HashIdPreimageSorobanAuthorization
+      | HashIdPreimageSorobanAuthorizationWithAddress;
 
     toXDR(format?: "raw"): Buffer;
 
@@ -14117,6 +14499,8 @@ export namespace xdr {
 
     static claimClaimableBalanceNotAuthorized(): ClaimClaimableBalanceResult;
 
+    static claimClaimableBalanceTrustlineFrozen(): ClaimClaimableBalanceResult;
+
     value(): void;
 
     toXDR(format?: "raw"): Buffer;
@@ -14396,6 +14780,8 @@ export namespace xdr {
 
     static liquidityPoolDepositPoolFull(): LiquidityPoolDepositResult;
 
+    static liquidityPoolDepositTrustlineFrozen(): LiquidityPoolDepositResult;
+
     value(): void;
 
     toXDR(format?: "raw"): Buffer;
@@ -14436,6 +14822,8 @@ export namespace xdr {
     static liquidityPoolWithdrawLineFull(): LiquidityPoolWithdrawResult;
 
     static liquidityPoolWithdrawUnderMinimum(): LiquidityPoolWithdrawResult;
+
+    static liquidityPoolWithdrawTrustlineFrozen(): LiquidityPoolWithdrawResult;
 
     value(): void;
 
@@ -14875,6 +15263,8 @@ export namespace xdr {
 
     static txSorobanInvalid(): InnerTransactionResultResult;
 
+    static txFrozenKeyAccessed(): InnerTransactionResultResult;
+
     value(): OperationResult[] | void;
 
     toXDR(format?: "raw"): Buffer;
@@ -14982,6 +15372,8 @@ export namespace xdr {
     static txMalformed(): TransactionResultResult;
 
     static txSorobanInvalid(): TransactionResultResult;
+
+    static txFrozenKeyAccessed(): TransactionResultResult;
 
     value(): InnerTransactionResultPair | OperationResult[] | void;
 
@@ -15755,6 +16147,14 @@ export namespace xdr {
 
     contractScpTiming(value?: ConfigSettingScpTiming): ConfigSettingScpTiming;
 
+    frozenLedgerKeys(value?: FrozenLedgerKeys): FrozenLedgerKeys;
+
+    frozenLedgerKeysDelta(value?: FrozenLedgerKeysDelta): FrozenLedgerKeysDelta;
+
+    freezeBypassTxes(value?: FreezeBypassTxes): FreezeBypassTxes;
+
+    freezeBypassTxsDelta(value?: FreezeBypassTxsDelta): FreezeBypassTxsDelta;
+
     static configSettingContractMaxSizeBytes(value: number): ConfigSettingEntry;
 
     static configSettingContractComputeV0(
@@ -15821,6 +16221,22 @@ export namespace xdr {
       value: ConfigSettingScpTiming,
     ): ConfigSettingEntry;
 
+    static configSettingFrozenLedgerKeys(
+      value: FrozenLedgerKeys,
+    ): ConfigSettingEntry;
+
+    static configSettingFrozenLedgerKeysDelta(
+      value: FrozenLedgerKeysDelta,
+    ): ConfigSettingEntry;
+
+    static configSettingFreezeBypassTxes(
+      value: FreezeBypassTxes,
+    ): ConfigSettingEntry;
+
+    static configSettingFreezeBypassTxsDelta(
+      value: FreezeBypassTxsDelta,
+    ): ConfigSettingEntry;
+
     value():
       | number
       | ConfigSettingContractComputeV0
@@ -15835,7 +16251,11 @@ export namespace xdr {
       | EvictionIterator
       | ConfigSettingContractParallelComputeV0
       | ConfigSettingContractLedgerCostExtV0
-      | ConfigSettingScpTiming;
+      | ConfigSettingScpTiming
+      | FrozenLedgerKeys
+      | FrozenLedgerKeysDelta
+      | FreezeBypassTxes
+      | FreezeBypassTxsDelta;
 
     toXDR(format?: "raw"): Buffer;
 
