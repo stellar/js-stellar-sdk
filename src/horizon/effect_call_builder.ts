@@ -8,7 +8,7 @@ import type { HttpClient } from "../http-client/index.js";
  *
  * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/resources/effects | All Effects}
  *
- * @internal
+ * @hidden
  * @param serverUrl - Horizon server URL.
  */
 export class EffectCallBuilder extends CallBuilder<

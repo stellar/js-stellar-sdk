@@ -9,7 +9,7 @@ import type { HttpClient } from "../http-client/index.js";
  *
  * Do not create this object directly, use {@link Horizon.Server.liquidityPools}.
  *
- * @internal
+ * @hidden
  * @param serverUrl - Horizon server URL.
  */
 export class LiquidityPoolCallBuilder extends CallBuilder<

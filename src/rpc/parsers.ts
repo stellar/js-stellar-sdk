@@ -3,7 +3,7 @@ import { Api } from "./api.js";
 
 /**
  * Parse the response from invoking the `submitTransaction` method of a RPC server.
- * @internal
+ * @hidden
  *
  * @param raw - the raw `submitTransaction` response from the RPC server to parse
  * @returns transaction response parsed from the RPC server's response
@@ -125,7 +125,7 @@ export function parseRawEvents(
 /**
  * Parse and return the retrieved ledger entries, if any, from a raw response
  * from a RPC server.
- * @internal
+ * @hidden
  *
  * @param raw - the raw `getLedgerEntries`
  *    response from the RPC server to parse
@@ -159,7 +159,7 @@ export function parseRawLedgerEntries(
 /**
  * Parse whether or not the transaction simulation was successful, returning the
  * relevant response.
- * @internal
+ * @hidden
  *
  * @param sim - a raw response from the
  *    `simulateTransaction` method of the RPC server to parse
