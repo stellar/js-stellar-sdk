@@ -500,6 +500,299 @@ the `docs/` directory at that ref on GitHub.
 See the [release notes](https://github.com/stellar/js-stellar-sdk/releases) for
 what changed in each release — breaking changes are clearly marked.
 
+# Source: docs/guides/01-connect-and-fund.md
+
+# Connect and Fund an Account
+
+This guide takes you from nothing to a funded testnet account you can build on.
+It is for anyone making their first call with `@stellar/stellar-sdk`. Everything
+here runs against testnet, so it costs nothing and is safe to repeat.
+
+## Create a keypair
+
+A [keypair](/js-stellar-sdk/reference/core-keys/#keypair) is an account's identity. The public
+key is the account's address (it starts with `G`) and the secret key signs
+transactions (it starts with `S`). Never share or commit a secret key.
+
+```ts
+import { Keypair } from "@stellar/stellar-sdk";
+
+const keypair = Keypair.random();
+
+keypair.publicKey(); // "G..." (share this)
+keypair.secret(); // "S..." (keep this private)
+```
+
+A keypair holds no funds and does not exist on the network until an account is
+funded for that public key (see [Fund a new account](/js-stellar-sdk/guides/01-connect-and-fund/#fund-a-new-account)).
+
+Store the secret, not the keypair object. Rebuild the keypair when you need it:
+
+```ts
+const keypair = Keypair.fromSecret(secret);
+```
+
+## Choose a network
+
+Every transaction is signed for exactly one
+[network](https://developers.stellar.org/docs/networks), identified by its
+passphrase. Use the passphrase that matches where you are submitting so a
+signature from one network cannot be replayed on another.
+
+```ts
+import { Networks } from "@stellar/stellar-sdk";
+
+Networks.TESTNET; // "Test SDF Network ; September 2015"
+Networks.PUBLIC; // "Public Global Stellar Network ; September 2015"
+```
+
+Start on `TESTNET`. Switch to `PUBLIC` only when you are ready to use real funds.
+
+## Connect to Horizon and RPC
+
+The SDK talks to two services, and which one you need depends on the task.
+
+- **[Horizon](https://developers.stellar.org/docs/data/apis/horizon)** serves
+  account, balance, payment, and history data and accepts classic transactions
+  (payments, trustlines, and other non-contract operations). Use it for
+  accounts, balances, and payments.
+- **[RPC](https://developers.stellar.org/docs/data/apis/rpc)** is the gateway for
+  smart contracts (Soroban): simulate and send contract calls. Use it when you
+  invoke contracts.
+
+```ts
+import { Horizon, rpc } from "@stellar/stellar-sdk";
+
+const horizon = new Horizon.Server("https://horizon-testnet.stellar.org");
+const rpcServer = new rpc.Server("https://soroban-testnet.stellar.org");
+```
+
+This guide only needs Horizon. The RPC connection is shown so you know where
+contract work begins. For the full client API, see
+[`Horizon.Server`](/js-stellar-sdk/reference/network-horizon/#horizonserver) and
+[`rpc.Server`](/js-stellar-sdk/reference/network-rpc/#rpcserver) in the reference.
+
+## Fund a new account
+
+On testnet, friendbot creates and funds a new account for free. There is no
+friendbot on the public network, where accounts are funded by an existing
+account.
+
+```ts
+await horizon.friendbot(keypair.publicKey()).call();
+```
+
+This call throws if the account already exists or friendbot is rate-limited.
+Funding a brand-new `Keypair.random()` avoids the "already exists" case, so wrap
+it in a `try/catch` to handle the rest.
+
+Once funded, the account exists on the ledger. Load it to read its balances.
+`loadAccount` throws `NotFoundError` if the account is not on the ledger yet,
+which is how the SDK signals that funding has not gone through:
+
+```ts
+const account = await horizon.loadAccount(keypair.publicKey());
+const xlm = account.balances.find((b) => b.asset_type === "native");
+
+account.accountId(); // the funded public key
+xlm?.balance; // its XLM balance, as a string
+```
+
+## Put it together
+
+The snippets above build on each other. Here is the whole flow as one runnable
+script. The blocks share the same `keypair` and `horizon`, and `console.log`
+prints the results so you can see them when you run the file:
+
+```ts
+import { Keypair, Horizon } from "@stellar/stellar-sdk";
+
+async function main() {
+  const keypair = Keypair.random();
+  const horizon = new Horizon.Server("https://horizon-testnet.stellar.org");
+
+  console.log("Public key:", keypair.publicKey());
+
+  // On testnet, friendbot creates and funds the account for free.
+  try {
+    await horizon.friendbot(keypair.publicKey()).call();
+  } catch (e) {
+    // Thrown if the account already exists or friendbot is rate-limited.
+    console.error("Funding failed:", e);
+    return;
+  }
+
+  // Throws NotFoundError if the account is not on the ledger yet.
+  const account = await horizon.loadAccount(keypair.publicKey());
+  const xlm = account.balances.find((b) => b.asset_type === "native");
+
+  console.log("XLM balance:", xlm?.balance);
+}
+
+main().catch(console.error);
+```
+
+You now have a funded account and a connection to the network. From here you can
+send your first payment.
+
+# Source: docs/guides/02-send-a-payment.md
+
+# Send a Payment
+
+This guide sends a payment from one account to another: build a transaction,
+sign it, and submit it to the network. It is the core write flow every app
+needs.
+
+## Prerequisites
+
+- A funded source account and its keypair. If you do not have one, see
+  [Connect and Fund an Account](/js-stellar-sdk/guides/01-connect-and-fund/).
+- The examples run on testnet, so they are free and safe to repeat.
+
+## Build the transaction
+
+A payment is one operation inside a transaction. Load the source account for its
+current sequence number (the per-account counter Stellar uses to order
+transactions), then build a transaction with a single
+[`Operation.payment`](/js-stellar-sdk/reference/core-transactions/#operationpayment). Here
+`source` is your funded keypair from the previous guide, and `destinationId` is
+the recipient's public key (a `G...` string):
+
+```ts
+import {
+  Horizon,
+  TransactionBuilder,
+  Operation,
+  Asset,
+  Networks,
+  BASE_FEE,
+} from "@stellar/stellar-sdk";
+
+const horizon = new Horizon.Server("https://horizon-testnet.stellar.org");
+const account = await horizon.loadAccount(source.publicKey());
+
+const tx = new TransactionBuilder(account, {
+  fee: BASE_FEE,
+  networkPassphrase: Networks.TESTNET,
+})
+  .addOperation(
+    Operation.payment({
+      destination: destinationId,
+      asset: Asset.native(),
+      amount: "100",
+    }),
+  )
+  .setTimeout(30)
+  .build();
+```
+
+`fee` is the per-operation fee in stroops (`BASE_FEE` is 100; one XLM is ten
+million stroops). `amount` is a string in whole units (`"100"` is 100 XLM). The
+destination must already exist on the network; to create and fund a brand-new
+account, use `Operation.createAccount` instead.
+
+## Sign and submit
+
+A built transaction is unsigned. Sign it with the source account's keypair, then
+submit it to Horizon:
+
+```ts
+tx.sign(source);
+const result = await horizon.submitTransaction(tx);
+
+result.hash; // the transaction hash
+result.successful; // true when it was applied
+```
+
+If submission fails, Horizon returns the error in the rejected promise, so wrap
+the call in `try/catch` to inspect the failure.
+
+## Add a memo
+
+Many services (exchanges, custodians) require a memo to route a payment. Add a
+[`Memo`](/js-stellar-sdk/reference/core-transactions/#memo) to the builder chain before
+`.build()`:
+
+```ts
+import { Memo } from "@stellar/stellar-sdk";
+
+// ...the same builder as above, with one more line in the chain:
+  .addMemo(Memo.text("invoice-42"))
+```
+
+## Send an issued asset
+
+To send an issued asset instead of XLM, pass an [`Asset`](/js-stellar-sdk/reference/core-assets/#asset)
+built from its code and the issuer account's public key (`issuerId`). Everything
+else is the same:
+
+```ts
+const usd = new Asset("USD", issuerId);
+
+Operation.payment({ destination: destinationId, asset: usd, amount: "100" });
+```
+
+The destination must already trust this asset, otherwise the payment fails.
+Setting up an issuer and trustlines is covered in the issue-an-asset guide.
+
+## Put it together
+
+The whole native-payment flow as one runnable script. It funds a throwaway
+`source` and `destination` with friendbot so the example runs end to end; in
+your app, `source` is your existing funded account and `destination` is any
+account that already exists:
+
+```ts
+import {
+  Keypair,
+  Horizon,
+  TransactionBuilder,
+  Operation,
+  Asset,
+  Memo,
+  Networks,
+  BASE_FEE,
+} from "@stellar/stellar-sdk";
+
+const horizon = new Horizon.Server("https://horizon-testnet.stellar.org");
+
+async function main() {
+  const source = Keypair.random();
+  const destination = Keypair.random();
+  await Promise.all([
+    horizon.friendbot(source.publicKey()).call(),
+    horizon.friendbot(destination.publicKey()).call(),
+  ]);
+
+  const account = await horizon.loadAccount(source.publicKey());
+
+  const tx = new TransactionBuilder(account, {
+    fee: BASE_FEE,
+    networkPassphrase: Networks.TESTNET,
+  })
+    .addOperation(
+      Operation.payment({
+        destination: destination.publicKey(),
+        asset: Asset.native(),
+        amount: "100",
+      }),
+    )
+    .addMemo(Memo.text("thanks!"))
+    .setTimeout(30)
+    .build();
+
+  tx.sign(source);
+  const result = await horizon.submitTransaction(tx);
+
+  console.log("Submitted:", result.hash, "successful:", result.successful);
+}
+
+main().catch(console.error);
+```
+
+You can now move value on the network. Next, learn to issue your own asset and
+set up trustlines.
+
 # Source: docs/reference/core-keys.md
 
 # Core / Keys

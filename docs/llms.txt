@@ -8,6 +8,8 @@
 ## Guides
 
 - [Versioning & Compatibility](guides/00-versioning)
+- [Connect and Fund an Account](guides/01-connect-and-fund)
+- [Send a Payment](guides/02-send-a-payment)
 
 ## Reference
 
