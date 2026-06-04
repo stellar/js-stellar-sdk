@@ -28,6 +28,12 @@ describe("federation-server.js tests", () => {
       ).toThrow(/Cannot connect to insecure federation server/);
     });
 
+    it("throws error for invalid domain", () => {
+      expect(
+        () => new Server("https://acme.com:1337/federation", "-stellar.org"),
+      ).toThrow(/The provided domain is invalid/);
+    });
+
     it("allow insecure server when opts.allowHttp flag is set", () => {
       expect(
         () =>
@@ -167,6 +173,13 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
       expect(federationServer["serverURL"].hostname).toEqual("api.stellar.org");
       expect(federationServer["serverURL"].pathname).toEqual("/federation");
       expect(federationServer["domain"]).toEqual("acme.com");
+    });
+
+    it("fails for invalid domain before requesting stellar.toml", async () => {
+      await expect(Server.createForDomain("-acme.com")).rejects.toThrow(
+        /The provided domain is invalid/,
+      );
+      expect(mockHttpClient).not.toHaveBeenCalled();
     });
 
     it("fails when stellar.toml does not contain federation server info", async () => {
