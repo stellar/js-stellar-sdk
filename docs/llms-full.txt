@@ -33,7 +33,6 @@ The library provides:
   - [...with CloudFlare Workers](#usage-with-cloudflare-workers)
 - [CLI](#cli): generate TypeScript bindings for Stellar smart contracts
 - [Developing](#developing): contribute to the project!
-- [Understanding `stellar-sdk` vs. `stellar-base`](#stellar-sdk-vs-stellar-base)
 - [License](#license)
 
 ## Installation
@@ -140,8 +139,8 @@ entry file:
    provide out of the box. Add a polyfill that registers it on the global
    scope, imported once before any SDK code runs.
 
-Modern React Native uses Metro with autolinking, so no manual native linking or
-custom resolver config is required — installing the packages above is enough.
+Modern React Native uses Metro with autolinking, so beyond adding the two
+polyfills above, no manual native linking or custom resolver config is required.
 
 If you use Horizon streaming (`server.…().stream()`), be aware it depends on an
 `EventSource` implementation; whether it works depends on your runtime providing
