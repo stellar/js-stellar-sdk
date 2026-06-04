@@ -109,23 +109,24 @@ the axios-backed entry from Node via `@stellar/stellar-sdk/axios`.
 
 ### Migrating from @stellar/stellar-base
 
-`@stellar/stellar-base` is now folded into `@stellar/stellar-sdk`. Its classes and
-functions are bundled in and re-exported from the top level, so the SDK is the
-only package you need.
+`@stellar/stellar-base` is now folded into `@stellar/stellar-sdk`. Its classes
+and functions are bundled in and re-exported from the top level, so the SDK is
+the only package you need.
 
-This only matters if you import `@stellar/stellar-base` directly. If you depend on
-`@stellar/stellar-sdk` and never installed the base package separately, skip this
-section. The fold-in landed in `@stellar/stellar-sdk` v16.0.0; on earlier versions
-the SDK still depends on the separate base package, so don't remove it there.
+This only matters if you import `@stellar/stellar-base` directly. If you depend
+on `@stellar/stellar-sdk` and never installed the base package separately, skip
+this section. The fold-in landed in `@stellar/stellar-sdk` v16.0.0; on earlier
+versions the SDK still depends on the separate base package, so don't remove it
+there.
 
 To migrate:
 
 1. Install `@stellar/stellar-sdk` if you don't already (see
    [Installation](#installation)).
 
-2. Update your imports. The symbols you import keep their names, so a project-wide
-   find and replace of `"@stellar/stellar-base"` with `"@stellar/stellar-sdk"`
-   usually does it:
+2. Update your imports. The symbols you import keep their names, so a
+   project-wide find and replace of `"@stellar/stellar-base"` with
+   `"@stellar/stellar-sdk"` usually does it:
 
    ```js
    // before
@@ -142,8 +143,8 @@ To migrate:
    ```
 
 Don't keep both packages installed. Two copies of the base library cause
-confusing runtime errors, such as `instanceof` checks failing on values that look
-correct.
+confusing runtime errors, such as `instanceof` checks failing on values that
+look correct.
 
 ## Usage
 
@@ -174,15 +175,21 @@ entry file:
    polyfill and assign it to `global.Buffer`.
 2. **A Web Crypto random source.** `Keypair.random()` and SEP-10 challenge
    generation call `crypto.getRandomValues()`, which React Native doesn't
-   provide out of the box. Add a polyfill that registers it on the global
-   scope, imported once before any SDK code runs.
+   provide out of the box. Add a polyfill that registers it on the global scope,
+   imported once before any SDK code runs.
 
 Modern React Native uses Metro with autolinking, so beyond adding the two
 polyfills above, no manual native linking or custom resolver config is required.
 
 If you use Horizon streaming (`server.…().stream()`), be aware it depends on an
-`EventSource` implementation; whether it works depends on your runtime providing
-one.
+`EventSource`, which is now an included dependency and will work in any runtimes
+that support [fetch](https://developer.mozilla.org/en-US/docs/Web/API/fetch),
+[ReadableStream](https://developer.mozilla.org/en-US/docs/Web/API/ReadableStream),
+[TextDecoder](https://developer.mozilla.org/en-US/docs/Web/API/TextDecoder),
+[URL](https://developer.mozilla.org/en-US/docs/Web/API/URL),
+[Event](https://developer.mozilla.org/en-US/docs/Web/API/Event),
+[MessageEvent](https://developer.mozilla.org/en-US/docs/Web/API/MessageEvent),
+[EventTarget](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget).
 
 #### Usage with Expo managed workflows
 
@@ -435,11 +442,6 @@ pnpm run test:node
 pnpm run test:browser
 pnpm run test:integration
 ```
-
-In order to have a faster test loop, these suite-specific commands **do not**
-build the bundles first (unlike `pnpm run test`). If you make code changes, you
-will need to run `pnpm run build` before running the tests again to see your
-changes.
 
 To generate and check the documentation site:
 
