@@ -819,31 +819,6 @@ const signAuthEntry = async (preimage) => ({
 })
 ```
 
-<!--
-AUTHOR NOTES — remove before publishing. Grounded in the master...modernization
-diff (14 PRs), not the prose guides.
-
-1. Version: package.json on the branch still reads 15.0.1; the README documents
-   the base fold-in as v16.0.0. Confirm the published version and replace the
-   "16.x.x" heading if it ships differently.
-2. Diff markers: viem's `[!code]` Shiki syntax is NOT supported by this site's
-   renderer (Expressive Code). Converted to its native fence syntax,
-   `ts del={lines} ins={lines}`. The line numbers are positional, so re-number
-   them if you edit a code block.
-3. Browser bundle: resolved against the PR descriptions. PR #1397 confirms a
-   browser-UMD bundle IS still built by Rollup (to dist/); PR #1396 removed the
-   package.json `browser` field, so automatic browser resolution is gone. Net:
-   the UMD artifact exists, but document the explicit <script>/dist path rather
-   than relying on the `browser` field. README Bower instructions are stale.
-4. P28 flip timing: this is the one claim NOT provable from the SDK. PR #1429
-   confirms the SDK supports P27 / AddressV2, but says nothing about when RPC
-   simulation changes its default credential. "Simulation default flips at P28"
-   comes from the protocol upgrade guide, not this repo. Confirm before publish.
-5. Changelog: the big v16 breaks (fetch default, ESM, base fold-in, Node 22) are
-   not all marked "breaking" in CHANGELOG.md Unreleased yet. Land them there with
-   a clear marker, since this guide mirrors the changelog's version sections.
--->
-
 # Source: docs/guides/01-connect-and-fund.md
 
 # Connect and Fund an Account
@@ -918,7 +893,8 @@ contract work begins. For the full client API, see
 
 ## Fund a new account
 
-On testnet, friendbot creates and funds a new account for free. There is no
+On testnet, friendbot creates and funds a new account for free, seeding it with
+10,000 XLM. There is no
 friendbot on the public network, where accounts are funded by an existing
 account.
 
@@ -1351,8 +1327,12 @@ const tx = new TransactionBuilder(account, {
   .build();
 ```
 
-`fee` is the per-operation fee in stroops (`BASE_FEE` is 100; one XLM is ten
-million stroops). `amount` is a string in whole units (`"100"` is 100 XLM). The
+`fee` is the *maximum* per-operation fee you're willing to pay, in stroops
+(`BASE_FEE` is 100; one XLM is ten million stroops). It's a cap, not a fixed
+charge — the network only deducts what it actually needs at submission time, so
+a high `fee` (say, 5 XLM) makes the transaction more likely to be included when
+the network is busy without meaning all 5 XLM gets spent. `amount` is a string
+in whole units (`"100"` is 100 XLM). The
 destination must already exist on the network; to create and fund a brand-new
 account, use `Operation.createAccount` instead.
 
@@ -1400,7 +1380,7 @@ Operation.payment({ destination: destinationId, asset: usd, amount: "100" });
 ```
 
 The destination must already trust this asset, otherwise the payment fails.
-Setting up an issuer and trustlines is covered in the issue-an-asset guide.
+Setting up an issuer and trustlines is covered in [Issue an Asset](/js-stellar-sdk/guides/03-issue-an-asset/).
 
 ## Put it together
 

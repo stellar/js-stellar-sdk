@@ -55,8 +55,12 @@ const tx = new TransactionBuilder(account, {
   .build();
 ```
 
-`fee` is the per-operation fee in stroops (`BASE_FEE` is 100; one XLM is ten
-million stroops). `amount` is a string in whole units (`"100"` is 100 XLM). The
+`fee` is the *maximum* per-operation fee you're willing to pay, in stroops
+(`BASE_FEE` is 100; one XLM is ten million stroops). It's a cap, not a fixed
+charge — the network only deducts what it actually needs at submission time, so
+a high `fee` (say, 5 XLM) makes the transaction more likely to be included when
+the network is busy without meaning all 5 XLM gets spent. `amount` is a string
+in whole units (`"100"` is 100 XLM). The
 destination must already exist on the network; to create and fund a brand-new
 account, use `Operation.createAccount` instead.
 
@@ -104,7 +108,7 @@ Operation.payment({ destination: destinationId, asset: usd, amount: "100" });
 ```
 
 The destination must already trust this asset, otherwise the payment fails.
-Setting up an issuer and trustlines is covered in the issue-an-asset guide.
+Setting up an issuer and trustlines is covered in [Issue an Asset](/guides/03-issue-an-asset/).
 
 ## Put it together
 

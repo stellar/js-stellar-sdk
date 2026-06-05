@@ -335,28 +335,3 @@ const signAuthEntry = async (preimage) => ({
   publicKey: keypair.publicKey(),
 })
 ```
-
-<!--
-AUTHOR NOTES — remove before publishing. Grounded in the master...modernization
-diff (14 PRs), not the prose guides.
-
-1. Version: package.json on the branch still reads 15.0.1; the README documents
-   the base fold-in as v16.0.0. Confirm the published version and replace the
-   "16.x.x" heading if it ships differently.
-2. Diff markers: viem's `[!code]` Shiki syntax is NOT supported by this site's
-   renderer (Expressive Code). Converted to its native fence syntax,
-   `ts del={lines} ins={lines}`. The line numbers are positional, so re-number
-   them if you edit a code block.
-3. Browser bundle: resolved against the PR descriptions. PR #1397 confirms a
-   browser-UMD bundle IS still built by Rollup (to dist/); PR #1396 removed the
-   package.json `browser` field, so automatic browser resolution is gone. Net:
-   the UMD artifact exists, but document the explicit <script>/dist path rather
-   than relying on the `browser` field. README Bower instructions are stale.
-4. P28 flip timing: this is the one claim NOT provable from the SDK. PR #1429
-   confirms the SDK supports P27 / AddressV2, but says nothing about when RPC
-   simulation changes its default credential. "Simulation default flips at P28"
-   comes from the protocol upgrade guide, not this repo. Confirm before publish.
-5. Changelog: the big v16 breaks (fetch default, ESM, base fold-in, Node 22) are
-   not all marked "breaking" in CHANGELOG.md Unreleased yet. Land them there with
-   a clear marker, since this guide mirrors the changelog's version sections.
--->

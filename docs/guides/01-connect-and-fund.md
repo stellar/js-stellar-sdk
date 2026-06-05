@@ -77,7 +77,8 @@ contract work begins. For the full client API, see
 
 ## Fund a new account
 
-On testnet, friendbot creates and funds a new account for free. There is no
+On testnet, friendbot creates and funds a new account for free, seeding it with
+10,000 XLM. There is no
 friendbot on the public network, where accounts are funded by an existing
 account.
 
