@@ -3,7 +3,7 @@ import { hash } from "./hashing.js";
 import { Keypair } from "./keypair.js";
 
 /**
- * @internal
+ * @ignore
  */
 export class TransactionBase<
   TTx extends xdr.FeeBumpTransaction | xdr.Transaction | xdr.TransactionV0,

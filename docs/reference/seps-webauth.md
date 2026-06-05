@@ -5,16 +5,6 @@ description: Wallet authentication via SEP-10 challenge transactions — build, 
 
 # SEPs / WebAuth
 
-## WebAuth.ChallengeTxDetails
-
-A parsed and validated challenge transaction, and some of its constituent details.
-
-```ts
-type ChallengeTxDetails = { clientAccountId: string; matchedHomeDomain: string; memo?: string; tx: Transaction }
-```
-
-**Source:** [src/webauth/utils.ts:104](https://github.com/stellar/js-stellar-sdk/blob/main/src/webauth/utils.ts#L104)
-
 ## WebAuth.buildChallengeTx
 
 Returns a valid `SEP-10`
@@ -391,3 +381,15 @@ WebAuth.verifyTxSignedBy(transaction, keypair.publicKey())
 ```
 
 **Source:** [src/webauth/utils.ts:94](https://github.com/stellar/js-stellar-sdk/blob/main/src/webauth/utils.ts#L94)
+
+## Types
+
+### WebAuth.ChallengeTxDetails
+
+A parsed and validated challenge transaction, and some of its constituent details.
+
+```ts
+type ChallengeTxDetails = { clientAccountId: string; matchedHomeDomain: string; memo?: string; tx: Transaction }
+```
+
+**Source:** [src/webauth/utils.ts:104](https://github.com/stellar/js-stellar-sdk/blob/main/src/webauth/utils.ts#L104)

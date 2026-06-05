@@ -5,7 +5,9 @@ description: Testnet account funding via Friendbot — request lumens for accoun
 
 # Network / Friendbot
 
-## Friendbot.Api.Response
+## Types
+
+### Friendbot.Api.Response
 
 ```ts
 interface Response {
@@ -16,7 +18,7 @@ interface Response {
 
 **Source:** [src/friendbot/index.ts:3](https://github.com/stellar/js-stellar-sdk/blob/main/src/friendbot/index.ts#L3)
 
-### `response.hash`
+#### `response.hash`
 
 ```ts
 hash: string;
@@ -24,7 +26,7 @@ hash: string;
 
 **Source:** [src/friendbot/index.ts:4](https://github.com/stellar/js-stellar-sdk/blob/main/src/friendbot/index.ts#L4)
 
-### `response.result_meta_xdr`
+#### `response.result_meta_xdr`
 
 ```ts
 result_meta_xdr: string;

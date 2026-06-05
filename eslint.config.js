@@ -118,6 +118,11 @@ const baseSdkConfig = [
 // scripts/build-docs.ts dispatches a discriminated-union renderer through
 // mutually recursive helpers; function-declaration hoisting handles the
 // runtime ordering. Match baseSdkConfig's `functions: false` loosening.
+//
+// The scripts are dev-only docs tooling, never bundled into the published
+// package, so importing devDependencies (e.g. github-slugger) is expected —
+// override airbnb's default that only allows devDeps in test/build-config
+// globs.
 const scriptsRulesConfig = [
   {
     name: "scripts/mutual-recursion",
@@ -127,6 +132,7 @@ const scriptsRulesConfig = [
         "error",
         { functions: false },
       ],
+      "import/no-extraneous-dependencies": ["error", { devDependencies: true }],
     },
   },
 ];

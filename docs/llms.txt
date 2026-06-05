@@ -15,6 +15,7 @@
 - [Handle Errors](guides/05-handle-errors)
 - [Invoke a Contract](guides/06-invoke-a-contract)
 - [Authorize a Contract Call](guides/07-contract-auth)
+- [Protocol 27 - Soroban authorization migration](guides/01-protocol-27-soroban-auth)
 
 ## Reference
 
@@ -26,7 +27,6 @@
 - [Network / Horizon](reference/network-horizon)
 - [Network / RPC](reference/network-rpc)
 - [Network / Friendbot](reference/network-friendbot)
-- [Network / HTTP](reference/network-http)
 - [Contracts / Client](reference/contracts-client)
 - [Contracts / Bindings](reference/contracts-bindings)
 - [SEPs / Toml](reference/seps-toml)

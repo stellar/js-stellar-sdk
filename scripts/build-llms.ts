@@ -69,7 +69,6 @@ const REFERENCE_SLUG_ORDER: readonly string[] = [
   "network-horizon",
   "network-rpc",
   "network-friendbot",
-  "network-http",
   "contracts-client",
   "contracts-bindings",
   "seps-toml",

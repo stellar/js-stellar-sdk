@@ -305,7 +305,7 @@ export class CallBuilder<
   }
 
   /**
-   * @internal
+   * @hidden
    * @returns    */
   private checkFilter(): void {
     if (this.filter.length >= 2) {
@@ -321,7 +321,7 @@ export class CallBuilder<
 
   /**
    * Convert a link object to a function that fetches that link.
-   * @internal
+   * @hidden
    * @param link - A link object
    *   - `href`: the URI of the link
    *   - `templated` (optional): Whether the link is templated
@@ -347,7 +347,7 @@ export class CallBuilder<
   /**
    * Given the json response, find and convert each link into a function that
    * calls that link.
-   * @internal
+   * @hidden
    * @param json - JSON response
    * @returns JSON response with string links replaced with functions
    */
@@ -399,7 +399,7 @@ export class CallBuilder<
   }
 
   /**
-   * @internal
+   * @hidden
    * @param json - Response object
    * @returns Extended response
    */
@@ -411,7 +411,7 @@ export class CallBuilder<
   }
 
   /**
-   * @internal
+   * @hidden
    * @param json - Response object
    * @returns Extended response object
    */
@@ -437,7 +437,7 @@ export class CallBuilder<
   }
 
   /**
-   * @internal
+   * @hidden
    * @param error - Network error object
    * @returns Promise that rejects with a human-readable error
    */
