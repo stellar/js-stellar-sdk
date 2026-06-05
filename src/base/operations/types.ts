@@ -435,6 +435,15 @@ export const AuthFlag = {
   clawbackEnabled: 8,
 } as const;
 export type AuthFlag = (typeof AuthFlag)[keyof typeof AuthFlag];
+// Namespace merge so `AuthFlag.required` etc. can be used in type positions,
+// matching the public API shape consumers depended on.
+export namespace AuthFlag {
+  export type required = 1;
+  export type revocable = 2;
+  export type immutable = 4;
+  export type clawbackEnabled = 8;
+}
+
 /**
  * A single {@link AuthFlag} or multiple flags combined with `|` (e.g. `AuthRequiredFlag | AuthRevocableFlag`).
  */
