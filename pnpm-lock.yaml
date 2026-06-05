@@ -144,6 +144,9 @@ importers:
       eslint-plugin-tsdoc:
         specifier: ^0.5.2
         version: 0.5.2(eslint@9.39.4)(typescript@5.9.3)
+      github-slugger:
+        specifier: 2.0.0
+        version: 2.0.0
       globals:
         specifier: ^17.5.0
         version: 17.5.0

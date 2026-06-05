@@ -26,8 +26,6 @@ import type { HttpClient } from "../http-client/index.js";
  *
  * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/aggregations/paths | Find Payment Paths}
  *
- * @internal
- *
  * @param serverUrl - Horizon server URL.
  * @param source - The sender's account ID or a list of Assets. Any returned path must use a source that the sender can hold.
  * @param destinationAsset - The destination asset.

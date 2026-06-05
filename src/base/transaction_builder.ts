@@ -5,6 +5,7 @@ import xdr from "./xdr.js";
 
 import { Account } from "./account.js";
 import { MuxedAccount } from "./muxed_account.js";
+import type { TransactionSource } from "./transaction_source.js";
 import {
   decodeAddressToMuxedAccount,
   extractBaseAddress,
@@ -150,7 +151,7 @@ export interface TransactionBuilderOptions {
  *
  */
 export class TransactionBuilder {
-  source: Account | MuxedAccount;
+  source: TransactionSource;
   operations: xdr.Operation[];
   baseFee: string;
   timebounds: {
@@ -171,7 +172,7 @@ export class TransactionBuilder {
    * @param opts - options object (see {@link TransactionBuilderOptions})
    */
   constructor(
-    sourceAccount: Account | MuxedAccount,
+    sourceAccount: TransactionSource,
     opts: TransactionBuilderOptions = {} as TransactionBuilderOptions,
   ) {
     if (!sourceAccount) {

@@ -2,6 +2,7 @@ import CustomBigNumber from "./util/bignumber.js";
 import type { BigNumber } from "./util/bignumber.js";
 
 import { StrKey } from "./strkey.js";
+import type { TransactionSource } from "./transaction_source.js";
 
 /**
  * Create a new Account object.
@@ -12,7 +13,7 @@ import { StrKey } from "./strkey.js";
  * [Accounts](https://developers.stellar.org/docs/glossary/accounts/) for
  * more information about how accounts work in Stellar.
  */
-export class Account {
+export class Account implements TransactionSource {
   private _accountId: string;
   private sequence: BigNumber;
 

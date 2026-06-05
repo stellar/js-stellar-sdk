@@ -5,83 +5,6 @@ description: Federation protocol (SEP-2) client — resolve user-friendly addres
 
 # SEPs / Federation
 
-## Federation.Api.Options
-
-Options for configuring connections to federation servers. You can also use `Config` class to set this globally.
-
-```ts
-interface Options {
-  allowHttp?: boolean;
-  timeout?: number;
-}
-```
-
-**Source:** [src/federation/api.ts:25](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/api.ts#L25)
-
-### `options.allowHttp`
-
-Allow connecting to http servers, default: `false`. This must be set to false in production deployments!
-
-```ts
-allowHttp?: boolean;
-```
-
-**Source:** [src/federation/api.ts:29](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/api.ts#L29)
-
-### `options.timeout`
-
-Allow a timeout, default: 0. Allows user to avoid nasty lag due to TOML resolve issue.
-
-```ts
-timeout?: number;
-```
-
-**Source:** [src/federation/api.ts:33](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/api.ts#L33)
-
-## Federation.Api.Record
-
-Record returned from a federation server.
-
-```ts
-interface Record {
-  account_id: string;
-  memo?: string;
-  memo_type?: string;
-}
-```
-
-**Source:** [src/federation/api.ts:7](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/api.ts#L7)
-
-### `record.account_id`
-
-The Stellar public key resolved from the federation lookup
-
-```ts
-account_id: string;
-```
-
-**Source:** [src/federation/api.ts:11](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/api.ts#L11)
-
-### `record.memo`
-
-The memo value, if any, required to send payments to this user
-
-```ts
-memo?: string;
-```
-
-**Source:** [src/federation/api.ts:19](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/api.ts#L19)
-
-### `record.memo_type`
-
-The type of memo, if any, required to send payments to this user
-
-```ts
-memo_type?: string;
-```
-
-**Source:** [src/federation/api.ts:15](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/api.ts#L15)
-
 ## Federation.FEDERATION_RESPONSE_MAX_SIZE
 
 The maximum size of response from a federation server
@@ -90,7 +13,7 @@ The maximum size of response from a federation server
 const FEDERATION_RESPONSE_MAX_SIZE: number
 ```
 
-**Source:** [src/federation/server.ts:14](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L14)
+**Source:** [src/federation/server.ts:15](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L15)
 
 ## Federation.Server
 
@@ -109,7 +32,7 @@ class Server {
 }
 ```
 
-**Source:** [src/federation/server.ts:25](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L25)
+**Source:** [src/federation/server.ts:26](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L26)
 
 ### `new Server(serverURL, domain, opts)`
 
@@ -123,7 +46,7 @@ constructor(serverURL: string, domain: string, opts: Options = {});
 - **`domain`** — `string` (required)
 - **`opts`** — `Options` (optional) (default: `{}`)
 
-**Source:** [src/federation/server.ts:145](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L145)
+**Source:** [src/federation/server.ts:137](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L137)
 
 ### `Server.createForDomain(domain, opts)`
 
@@ -167,7 +90,7 @@ StellarSdk.FederationServer.createForDomain('acme.com')
 
 - <a href="https://developers.stellar.org/docs/issuing-assets/publishing-asset-info" target="_blank">Stellar.toml doc</a>
 
-**Source:** [src/federation/server.ts:132](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L132)
+**Source:** [src/federation/server.ts:123](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L123)
 
 ### `Server.resolve(value, opts)`
 
@@ -216,7 +139,7 @@ StellarSdk.FederationServer.resolve('bob*stellar.org')
 - - <a href="https://developers.stellar.org/docs/learn/encyclopedia/federation" target="_blank">Federation doc</a>
  - <a href="https://developers.stellar.org/docs/issuing-assets/publishing-asset-info" target="_blank">Stellar.toml doc</a>
 
-**Source:** [src/federation/server.ts:71](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L71)
+**Source:** [src/federation/server.ts:72](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L72)
 
 ### `server.resolveAccountId(accountId)`
 
@@ -244,7 +167,7 @@ A promise that resolves to the federation record
 
 - <a href="https://developers.stellar.org/docs/encyclopedia/federation" target="_blank">Federation doc</a>
 
-**Source:** [src/federation/server.ts:202](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L202)
+**Source:** [src/federation/server.ts:195](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L195)
 
 ### `server.resolveAddress(address)`
 
@@ -270,7 +193,7 @@ A promise that resolves to the federation record
 
 - <a href="https://developers.stellar.org/docs/encyclopedia/federation" target="_blank">Federation doc</a>
 
-**Source:** [src/federation/server.ts:174](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L174)
+**Source:** [src/federation/server.ts:167](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L167)
 
 ### `server.resolveTransactionId(transactionId)`
 
@@ -298,4 +221,83 @@ A promise that resolves to the federation record
 
 - <a href="https://developers.stellar.org/docs/glossary/federation/" target="_blank">Federation doc</a>
 
-**Source:** [src/federation/server.ts:219](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L219)
+**Source:** [src/federation/server.ts:212](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L212)
+
+## Types
+
+### Federation.Api.Options
+
+Options for configuring connections to federation servers. You can also use `Config` class to set this globally.
+
+```ts
+interface Options {
+  allowHttp?: boolean;
+  timeout?: number;
+}
+```
+
+**Source:** [src/federation/api.ts:25](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/api.ts#L25)
+
+#### `options.allowHttp`
+
+Allow connecting to http servers, default: `false`. This must be set to false in production deployments!
+
+```ts
+allowHttp?: boolean;
+```
+
+**Source:** [src/federation/api.ts:29](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/api.ts#L29)
+
+#### `options.timeout`
+
+Allow a timeout, default: 0. Allows user to avoid nasty lag due to TOML resolve issue.
+
+```ts
+timeout?: number;
+```
+
+**Source:** [src/federation/api.ts:33](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/api.ts#L33)
+
+### Federation.Api.Record
+
+Record returned from a federation server.
+
+```ts
+interface Record {
+  account_id: string;
+  memo?: string;
+  memo_type?: string;
+}
+```
+
+**Source:** [src/federation/api.ts:7](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/api.ts#L7)
+
+#### `record.account_id`
+
+The Stellar public key resolved from the federation lookup
+
+```ts
+account_id: string;
+```
+
+**Source:** [src/federation/api.ts:11](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/api.ts#L11)
+
+#### `record.memo`
+
+The memo value, if any, required to send payments to this user
+
+```ts
+memo?: string;
+```
+
+**Source:** [src/federation/api.ts:19](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/api.ts#L19)
+
+#### `record.memo_type`
+
+The type of memo, if any, required to send payments to this user
+
+```ts
+memo_type?: string;
+```
+
+**Source:** [src/federation/api.ts:15](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/api.ts#L15)
