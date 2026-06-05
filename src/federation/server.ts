@@ -139,7 +139,6 @@ export class FederationServer {
     domain: string,
     opts: Api.Options = {},
   ) {
-    // TODO `domain` regexp
     this.serverURL = new URL(serverURL);
     this.domain = domain;
     validateDomain(domain);
