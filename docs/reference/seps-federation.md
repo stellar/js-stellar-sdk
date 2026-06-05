@@ -167,7 +167,7 @@ A promise that resolves to the federation record
 
 - <a href="https://developers.stellar.org/docs/encyclopedia/federation" target="_blank">Federation doc</a>
 
-**Source:** [src/federation/server.ts:195](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L195)
+**Source:** [src/federation/server.ts:194](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L194)
 
 ### `server.resolveAddress(address)`
 
@@ -193,7 +193,7 @@ A promise that resolves to the federation record
 
 - <a href="https://developers.stellar.org/docs/encyclopedia/federation" target="_blank">Federation doc</a>
 
-**Source:** [src/federation/server.ts:167](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L167)
+**Source:** [src/federation/server.ts:166](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L166)
 
 ### `server.resolveTransactionId(transactionId)`
 
@@ -221,7 +221,7 @@ A promise that resolves to the federation record
 
 - <a href="https://developers.stellar.org/docs/glossary/federation/" target="_blank">Federation doc</a>
 
-**Source:** [src/federation/server.ts:212](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L212)
+**Source:** [src/federation/server.ts:211](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L211)
 
 ## Types
 
