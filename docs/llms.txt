@@ -8,7 +8,7 @@
 ## Guides
 
 - [Versioning & Compatibility](guides/00-versioning)
-- ["Protocol 27: Soroban authorization migration"](guides/01-protocol-27-soroban-auth)
+- [Protocol 27 - Soroban authorization migration](guides/01-protocol-27-soroban-auth)
 
 ## Reference
 

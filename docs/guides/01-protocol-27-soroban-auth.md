@@ -1,5 +1,5 @@
 ---
-title: "Protocol 27: Soroban authorization migration"
+title: Protocol 27 - Soroban authorization migration
 description:
   What CAP-71 changes about Soroban authorization entries, and how to migrate
   code that hand-builds and signs auth entries to the address-bound payload and
