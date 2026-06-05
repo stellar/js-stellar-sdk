@@ -51,6 +51,7 @@ export type {
 export * from "./memo.js";
 export { Account } from "./account.js";
 export { MuxedAccount } from "./muxed_account.js";
+export type { TransactionSource } from "./transaction_source.js";
 export { Claimant } from "./claimant.js";
 export { Networks } from "./network.js";
 export { StrKey } from "./strkey.js";

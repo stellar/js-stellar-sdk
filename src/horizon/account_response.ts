@@ -1,7 +1,7 @@
 /* tslint:disable:variable-name */
 
 import { Account as BaseAccount } from "../base/index.js";
-import type { TransactionBuilder } from "../base/index.js";
+import type { TransactionBuilder, TransactionSource } from "../base/index.js";
 import { HorizonApi } from "./horizon_api.js";
 import { ServerApi } from "./server_api.js";
 
@@ -16,7 +16,7 @@ import { ServerApi } from "./server_api.js";
  * @param response - Response from horizon account endpoint.
  * @returns AccountResponse instance
  */
-export class AccountResponse {
+export class AccountResponse implements TransactionSource {
   public readonly id!: string;
   public readonly paging_token!: string;
   public readonly account_id!: string;
