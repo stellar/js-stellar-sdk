@@ -191,7 +191,7 @@ const PRIMITIVE_DEFINITONS: { [key: string]: JSONSchema7Definition } = {
  * Converts an XDR type definition to a JSON schema reference.
  * @param typeDef - type to convert to json schema reference
  * @returns a schema describing the type
- * @internal
+ * @hidden
  */
 function typeRef(typeDef: xdr.ScSpecTypeDef): JSONSchema7 {
   const t = typeDef.switch();

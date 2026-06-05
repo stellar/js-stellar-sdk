@@ -9,7 +9,6 @@ import type { HttpClient } from "../http-client/index.js";
  *
  * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/resources/list-all-accounts | All Accounts}
  *
- * @internal
  * @param serverUrl - Horizon server URL.
  */
 export class AccountCallBuilder extends CallBuilder<

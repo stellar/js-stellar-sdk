@@ -10,8 +10,10 @@
  */
 
 import { execSync } from "node:child_process";
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+
+import GithubSlugger from "github-slugger";
 
 import { DOCS_SOURCE_REF } from "./docs-source-ref.js";
 
@@ -19,6 +21,23 @@ const REPO_ROOT = process.cwd();
 const TYPEDOC_JSON = join(REPO_ROOT, "tmp/typedoc-json/api.json");
 const OUTPUT_DIR = join(REPO_ROOT, "docs/reference");
 const REPO_SLUG = "stellar/js-stellar-sdk";
+
+// Horizon call builders (e.g. AccountCallBuilder) are intentionally not
+// part of the package's public exports — callers obtain them only as
+// return values of `Server.*` accessor methods. The main typedoc pass
+// walks exports from src/index.ts, so it never sees them. To document
+// their fluent API where it is actually used, a secondary self-contained
+// typedoc pass (see `buildCallBuilderMembers`) recovers their members,
+// which are then inlined under each `Server.*` method instead of being
+// emitted as standalone symbols. Outputs land in the gitignored tmp dir.
+const CALL_BUILDER_JSON = join(
+  REPO_ROOT,
+  "tmp/typedoc-json/call-builders.json",
+);
+const CALL_BUILDER_OPTIONS = join(
+  REPO_ROOT,
+  "tmp/typedoc-json/call-builders.options.json",
+);
 
 const BUCKET_TO_SLUG = {
   "Core / Keys": "core-keys",
@@ -29,7 +48,6 @@ const BUCKET_TO_SLUG = {
   "Network / Horizon": "network-horizon",
   "Network / RPC": "network-rpc",
   "Network / Friendbot": "network-friendbot",
-  "Network / HTTP": "network-http",
   "Contracts / Client": "contracts-client",
   "Contracts / Bindings": "contracts-bindings",
   "SEPs / Toml": "seps-toml",
@@ -65,8 +83,6 @@ const BUCKET_DESCRIPTIONS: Record<BucketName, string> = {
     "Client for Soroban RPC — simulate, send, and poll Soroban smart-contract transactions.",
   "Network / Friendbot":
     "Testnet account funding via Friendbot — request lumens for accounts on test networks.",
-  "Network / HTTP":
-    "HTTP client primitives — timeouts, headers, and URL utilities shared by the Horizon and RPC clients.",
   "Contracts / Client":
     "High-level client for invoking Soroban smart contracts — assemble, simulate, sign, and submit calls.",
   "Contracts / Bindings":
@@ -88,7 +104,6 @@ const BUCKET_DESCRIPTIONS: Record<BucketName, string> = {
 // (e.g. src/webauth/errors.ts → Errors, not SEPs / WebAuth).
 const FILE_OVERRIDES: Record<string, BucketName> = {
   "src/utils.ts": "Cross-cutting",
-  "src/utils/url.ts": "Network / HTTP",
   "src/config.ts": "Cross-cutting",
   "src/webauth/errors.ts": "Errors",
   "src/base/util/bignumber.ts": "Cross-cutting",
@@ -124,7 +139,6 @@ const DIRECTORY_PREFIXES: ReadonlyArray<readonly [string, BucketName]> = [
   ["src/horizon/", "Network / Horizon"],
   ["src/rpc/", "Network / RPC"],
   ["src/friendbot/", "Network / Friendbot"],
-  ["src/http-client/", "Network / HTTP"],
   ["src/contract/", "Contracts / Client"],
   ["src/bindings/", "Contracts / Bindings"],
   ["src/cli/", "Contracts / Bindings"],
@@ -745,18 +759,16 @@ function renderSignature(refl: Reflection): string {
 
 // === Summary rendering ===
 
-// Slugifier matching Starlight's heading-id rule: lowercase, collapse
-// runs of whitespace into `-`, then strip everything that isn't
-// `[a-z0-9-]`. Verified against built `dist/site/reference/*.html`
-// anchor ids — must stay aligned with Starlight's behavior, since
-// `{@link}` resolution emits anchors that those rendered pages
-// expose.
-function slugifyHeading(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/\s+/g, "-")
-    .replace(/[^a-z0-9-]/g, "");
-}
+// Heading ids must match exactly what Starlight emits on the rendered
+// pages, since `{@link}` resolution links to those anchors. Starlight
+// (via Astro) derives them with `github-slugger`, which also appends
+// `-1`/`-2` suffixes to disambiguate repeated headings within a page.
+// We therefore slug with the same library, feeding each page's headings
+// through a fresh `GithubSlugger` in document order so the dedup
+// suffixes line up. A naive per-string slugifier cannot reproduce the
+// suffixing and silently mislinks the second of any duplicate heading
+// (e.g. two `accountResponse.account_id` headings) — see
+// `validateAnchors` and `buildLinkResolver`.
 
 interface RenderedFile {
   slug: string;
@@ -765,13 +777,13 @@ interface RenderedFile {
 
 // Post-render guard: every intra-page (`#anchor`) and cross-file
 // (`./slug.md#anchor`) markdown link must point at a heading that
-// actually exists. Heading ids are derived with `slugifyHeading`, so
-// they match the ids Starlight emits. This catches stale or mistyped
-// anchors — e.g. JSDoc links written against an older anchor scheme —
-// before they ship as dead links. Fails the build on any miss,
-// consistent with the unmapped-symbol gate in `main()`. External
-// (`http(s):`/`mailto:`) links and non-`.md` relative paths are out of
-// scope and skipped.
+// actually exists. Heading ids are derived with `github-slugger` — the
+// same library Starlight uses — so they match the ids the rendered pages
+// emit. This catches stale or mistyped anchors — e.g. JSDoc links written
+// against an older anchor scheme — before they ship as dead links. Fails
+// the build on any miss, consistent with the unmapped-symbol gate in
+// `main()`. External (`http(s):`/`mailto:`) links and non-`.md` relative
+// paths are out of scope and skipped.
 function validateAnchors(files: RenderedFile[]): void {
   // Strip fenced code blocks first: a ```ts``` declaration is not a
   // heading, and signatures must never be scanned for links.
@@ -780,9 +792,12 @@ function validateAnchors(files: RenderedFile[]): void {
 
   const anchorsBySlug = new Map<string, Set<string>>();
   for (const { slug, content } of files) {
+    // Fresh slugger per page, fed headings in document order, so the
+    // computed ids (including `-1`/`-2` dedup suffixes) match Starlight's.
+    const slugger = new GithubSlugger();
     const ids = new Set<string>();
     for (const m of stripFences(content).matchAll(/^#{1,6}\s+(.+?)\s*$/gm)) {
-      ids.add(slugifyHeading(m[1]));
+      ids.add(slugger.slug(m[1]));
     }
     anchorsBySlug.set(slug, ids);
   }
@@ -844,23 +859,49 @@ interface LinkResolver {
 
 function buildLinkResolver(records: SymbolRecord[]): LinkResolver {
   const map = new Map<string, ResolvedLink>();
+
+  // Group by bucket (one rendered file per bucket) so each file gets its
+  // own slugger and dedup namespace.
+  const byBucket = new Map<BucketName, SymbolRecord[]>();
   for (const record of records) {
-    const slug = BUCKET_TO_SLUG[record.bucket];
-    map.set(record.qname, {
-      bucket: record.bucket,
-      slug,
-      anchor: slugifyHeading(record.qname),
-    });
-    for (const m of record.members ?? []) {
-      const memberQname = `${record.qname}.${m.name}`;
-      const headingText = memberHeadingText(m, record.refl.name);
-      map.set(memberQname, {
-        bucket: record.bucket,
+    const list = byBucket.get(record.bucket);
+    if (list === undefined) byBucket.set(record.bucket, [record]);
+    else list.push(record);
+  }
+
+  for (const [bucket, bucketRecords] of byBucket) {
+    const slug = BUCKET_TO_SLUG[bucket];
+    // Replay the file's headings in the exact order `renderFile` emits
+    // them, slugging each through one GithubSlugger so anchors — and any
+    // `-1`/`-2` dedup suffixes — match the rendered page.
+    const slugger = new GithubSlugger();
+    slugger.slug(bucket); // the leading `# <bucket>` page heading
+
+    const register = (record: SymbolRecord): void => {
+      map.set(record.qname, {
+        bucket,
         slug,
-        anchor: slugifyHeading(headingText),
+        anchor: slugger.slug(record.qname),
       });
+      for (const m of sortMembers(record.members ?? [])) {
+        const memberQname = `${record.qname}.${m.name}`;
+        const headingText = memberHeadingText(m, record.refl.name);
+        map.set(memberQname, {
+          bucket,
+          slug,
+          anchor: slugger.slug(headingText),
+        });
+      }
+    };
+
+    const { primary, types } = partitionSymbols(bucketRecords);
+    for (const record of primary) register(record);
+    if (types.length > 0) {
+      slugger.slug("Types"); // the `## Types` section divider
+      for (const record of types) register(record);
     }
   }
+
   return {
     resolve(target, currentBucket) {
       const entry = map.get(target);
@@ -882,6 +923,20 @@ function buildLinkResolver(records: SymbolRecord[]): LinkResolver {
 // every render-function signature. Cleared after the pass for safety.
 let currentLinkResolver: LinkResolver | undefined;
 let currentRenderBucket: BucketName | undefined;
+
+// A single chainable method of a call builder, ready to render as one
+// compact bullet at a `Server.*` usage site.
+interface ChainableMethod {
+  signature: string;
+  summary: string;
+}
+
+// Module-level map of call-builder class name → its public chainable
+// methods, populated by `buildCallBuilderMembers` before rendering.
+// Module-level for the same reason as `currentLinkResolver`: it is read
+// from deep inside `renderMemberBlock` and threading it through every
+// caller would touch unrelated signatures. Cleared after the pass.
+let currentBuilderMembers: Map<string, ChainableMethod[]> | undefined;
 
 // Match `{@link Target}` or `{@link Target | display}` — used to
 // recover link references that TypeDoc emitted as code parts because
@@ -1115,8 +1170,51 @@ function memberHeadingText(m: Reflection, parentName: string): string {
   throw new Error(`memberHeadingText: unhandled kind ${m.kind} for ${m.name}`);
 }
 
-function renderMemberHeading(m: Reflection, parentName: string): string {
-  return `### \`${memberHeadingText(m, parentName)}\``;
+function renderMemberHeading(
+  m: Reflection,
+  parentName: string,
+  level: number,
+): string {
+  return `${"#".repeat(level)} \`${memberHeadingText(m, parentName)}\``;
+}
+
+// Collapse a multi-line/multi-sentence summary down to its first
+// sentence for the compact one-line bullets used in the chainable-method
+// list. Falls back to the whole (whitespace-collapsed) string when no
+// sentence terminator is found.
+function firstSentence(text: string): string {
+  const collapsed = text.replace(/\s+/g, " ").trim();
+  const match = collapsed.match(/^(.*?[.!?])(?:\s|$)/);
+  return match !== null ? match[1] : collapsed;
+}
+
+// Render a call builder's public methods as a compact `**Chainable
+// methods**` list, one bullet per method. Used to surface the fluent API
+// (forAccount, cursor, limit, call, stream, …) at each `Server.*` method
+// that returns the builder, so the builders need not be documented as
+// standalone symbols.
+function renderChainableMethods(methods: ChainableMethod[]): string {
+  const bullets = methods.map((m) =>
+    m.summary.length > 0
+      ? `- \`${m.signature}\` — ${m.summary}`
+      : `- \`${m.signature}\``,
+  );
+  return `**Chainable methods**\n\n${bullets.join("\n")}`;
+}
+
+// A property written as an assignment of a function (e.g.
+// `static pathPaymentStrictReceive = ops.pathPaymentStrictReceive` on
+// the Operation class) is classified by TypeDoc as a property (kind
+// 1024) whose `type` is a function reflection. The real comment,
+// parameters, and return type live on that nested call signature, not
+// on the property reflection itself. Return it so these members render
+// with the same detail as the methods they effectively are.
+function functionValuedPropertySignature(
+  m: Reflection,
+): Reflection | undefined {
+  if (m.kind !== KIND_PROPERTY) return undefined;
+  if (m.type?.type !== "reflection") return undefined;
+  return m.type.declaration.signatures?.[0];
 }
 
 // One H3 sub-block per public member: heading, summary, ts code fence
@@ -1126,14 +1224,19 @@ function renderMemberBlock(
   m: Reflection,
   parentName: string,
   sourceRef: string,
+  headingLevel: number,
 ): string {
-  const heading = renderMemberHeading(m, parentName);
+  const heading = renderMemberHeading(m, parentName, headingLevel);
+
+  const fnPropSig = functionValuedPropertySignature(m);
 
   // Comment lives on the member directly for properties, on the
-  // first signature for callable members.
+  // first signature for callable members, and on the nested call
+  // signature for function-valued properties.
   const comment =
     m.comment ??
     m.signatures?.[0]?.comment ??
+    fnPropSig?.comment ??
     m.getSignature?.comment ??
     m.setSignature?.comment;
   const tags = extractTags(comment);
@@ -1143,8 +1246,9 @@ function renderMemberBlock(
   const fence = `\`\`\`ts\n${renderMemberDeclarationLine(m)};\n\`\`\``;
 
   // For callable members, use signatures[0] for params/returns. For
+  // function-valued properties, use the nested call signature. For
   // accessors, use getSignature for return-shape.
-  const callable = m.signatures?.[0] ?? m.getSignature;
+  const callable = m.signatures?.[0] ?? fnPropSig ?? m.getSignature;
   const params =
     callable !== undefined ? renderParametersSection(callable) : "";
   const returnsTag =
@@ -1155,6 +1259,20 @@ function renderMemberBlock(
   const examples = renderExamplesSection(tags.examples);
   const see = renderSeeSection(tags.see);
   const warning = renderWarningSection(tags.warning);
+
+  // When this member returns a call builder (e.g. Server.operations()
+  // returns OperationCallBuilder), inline that builder's fluent API here
+  // rather than documenting the builder as a standalone symbol.
+  const returnTypeName =
+    callable?.type?.type === "reference" ? callable.type.name : undefined;
+  const chainableMethods =
+    returnTypeName !== undefined
+      ? currentBuilderMembers?.get(returnTypeName)
+      : undefined;
+  const chainable =
+    chainableMethods !== undefined && chainableMethods.length > 0
+      ? renderChainableMethods(chainableMethods)
+      : "";
 
   const memberSource = m.sources?.[0];
   const sourceLink =
@@ -1173,17 +1291,22 @@ function renderMemberBlock(
     examples,
     see,
     warning,
+    chainable,
     sourceLink,
   ];
   return sections.filter((s) => s.length > 0).join("\n\n");
 }
 
-function renderSymbolBlock(record: SymbolRecord, sourceRef: string): string {
+function renderSymbolBlock(
+  record: SymbolRecord,
+  sourceRef: string,
+  headingLevel = 2,
+): string {
   try {
     const comment = findComment(record.refl);
     const tags = extractTags(comment);
 
-    const heading = `## ${record.qname}`;
+    const heading = `${"#".repeat(headingLevel)} ${record.qname}`;
     const deprecated = renderDeprecatedParagraph(tags.deprecated);
     const summary = renderSummary(comment?.summary);
 
@@ -1214,7 +1337,7 @@ function renderSymbolBlock(record: SymbolRecord, sourceRef: string): string {
 
     const memberBlocks = isClassLike
       ? sortMembers(record.members ?? []).map((m) =>
-          renderMemberBlock(m, record.refl.name, sourceRef),
+          renderMemberBlock(m, record.refl.name, sourceRef, headingLevel + 1),
         )
       : [];
 
@@ -1251,12 +1374,29 @@ function compareSymbols(a: SymbolRecord, b: SymbolRecord): number {
   return a.sourceLine - b.sourceLine;
 }
 
+// Split a file's symbols into the primary API and the type declarations
+// that render under `## Types`, each sorted into emission order. Shared by
+// `renderFile` (which renders them) and `buildLinkResolver` (which slugs
+// them) so the two never drift in ordering — a drift would desync the
+// dedup suffixes between the rendered ids and the `{@link}` anchors.
+function partitionSymbols(symbols: SymbolRecord[]): {
+  primary: SymbolRecord[];
+  types: SymbolRecord[];
+} {
+  const isTypeDeclaration = (kind: number): boolean =>
+    kind === KIND_TYPE_ALIAS || kind === KIND_INTERFACE || kind === KIND_ENUM;
+  const sorted = [...symbols].sort(compareSymbols);
+  return {
+    primary: sorted.filter((s) => !isTypeDeclaration(s.kind)),
+    types: sorted.filter((s) => isTypeDeclaration(s.kind)),
+  };
+}
+
 function renderFile(
   bucketName: BucketName,
   symbols: SymbolRecord[],
   sourceRef: string,
 ): string {
-  const sorted = [...symbols].sort(compareSymbols);
   const header = [
     "---",
     `title: ${bucketName}`,
@@ -1265,22 +1405,114 @@ function renderFile(
     "",
     `# ${bucketName}`,
   ].join("\n");
-  if (sorted.length === 0) {
+  if (symbols.length === 0) {
     return `${header}\n`;
   }
   // Set the current bucket so `renderSummary` can decide same-file vs
   // cross-file `{@link}` resolution. Cleared in `main()` after all
   // files render.
   currentRenderBucket = bucketName;
-  const blocks = sorted
-    .map((s) => renderSymbolBlock(s, sourceRef))
-    .join("\n\n");
+
+  // Type declarations (aliases, interfaces, enums) dominate page length,
+  // so they are grouped under a single `## Types` section instead of
+  // sitting alongside the primary API (classes, functions, variables).
+  // The grouped symbols render one heading level deeper (### / ####) so
+  // they nest under `## Types`. Heading *text* is unchanged, so heading
+  // slugs — and therefore existing deep links and `{@link}` anchors —
+  // are preserved.
+  const { primary, types } = partitionSymbols(symbols);
+
+  const parts = primary.map((s) => renderSymbolBlock(s, sourceRef));
+  if (types.length > 0) {
+    parts.push("## Types");
+    for (const s of types) parts.push(renderSymbolBlock(s, sourceRef, 3));
+  }
+  const blocks = parts.join("\n\n");
   return `${header}\n\n${blocks}\n`;
+}
+
+// Recover the public members of the Horizon builders (every class that
+// extends `CallBuilder` — the `*CallBuilder` query builders plus
+// `FriendbotBuilder`) via a second, self-contained typedoc pass over just
+// their source files. These classes are not part of the package's public
+// exports, so the main pass (which walks exports from src/index.ts) never
+// sees them. We use a dedicated options file via `--options` so this pass
+// ignores the project typedoc.json entirely and cannot disturb the main
+// api.json or the committed docs/ output. Validation is relaxed because the
+// builders' `{@link Horizon.Server.x}` cross-references don't resolve in
+// isolation and would otherwise trip `treatWarningsAsErrors`.
+function buildCallBuilderMembers(): Map<string, ChainableMethod[]> {
+  const horizonDir = join(REPO_ROOT, "src/horizon");
+  // `*_builder.ts` covers both the `*_call_builder.ts` query builders and
+  // `friendbot_builder.ts`; `Server.friendbot()` returns a FriendbotBuilder
+  // whose inherited `.call()` is how the request is actually submitted.
+  // Absolute paths: typedoc resolves relative paths in an `--options` file
+  // against that file's directory (tmp/typedoc-json/), not the cwd.
+  const entryPoints = readdirSync(horizonDir)
+    .filter((f) => f.endsWith("_builder.ts"))
+    .sort()
+    .map((f) => join(horizonDir, f));
+
+  const options = {
+    entryPoints,
+    entryPointStrategy: "resolve",
+    tsconfig: join(REPO_ROOT, "tsconfig.json"),
+    json: CALL_BUILDER_JSON,
+    // Keep HTML emission inside the gitignored tmp dir; without an
+    // explicit `out`, typedoc would default to ./docs and clobber the
+    // committed content collection.
+    out: join(REPO_ROOT, "tmp/typedoc-json/call-builders-html"),
+    treatWarningsAsErrors: false,
+    validation: {
+      invalidLink: false,
+      notExported: false,
+      notDocumented: false,
+    },
+    skipErrorChecking: true,
+  };
+  mkdirSync(dirname(CALL_BUILDER_OPTIONS), { recursive: true });
+  writeFileSync(CALL_BUILDER_OPTIONS, JSON.stringify(options, null, 2), "utf8");
+
+  console.log("Running secondary typedoc pass for call builders...");
+  execSync(`pnpm exec typedoc --options ${CALL_BUILDER_OPTIONS}`, {
+    stdio: "inherit",
+    cwd: REPO_ROOT,
+  });
+
+  const project = JSON.parse(
+    readFileSync(CALL_BUILDER_JSON, "utf8"),
+  ) as Reflection;
+  // Capture every class that extends `CallBuilder` (its subclasses carry an
+  // `extendedTypes` reference to it; the base class itself does not and is
+  // skipped — it is never a documented method's return type). Keying on the
+  // base relationship rather than a `*CallBuilder` name also picks up
+  // FriendbotBuilder.
+  const extendsCallBuilder = (refl: Reflection): boolean =>
+    (refl.extendedTypes ?? []).some(
+      (t) => t.type === "reference" && t.name === "CallBuilder",
+    );
+  const map = new Map<string, ChainableMethod[]>();
+  const visit = (refl: Reflection): void => {
+    if (refl.kind === KIND_CLASS && extendsCallBuilder(refl)) {
+      const methods = collectPublicMembers(refl)
+        .filter((member) => member.kind === KIND_METHOD)
+        .map((member) => ({
+          signature: renderMemberDeclarationLine(member),
+          summary: firstSentence(renderSummary(findComment(member)?.summary)),
+        }));
+      map.set(refl.name, methods);
+    }
+    for (const child of refl.children ?? []) visit(child);
+  };
+  visit(project);
+  return map;
 }
 
 function main(): void {
   console.log("Running typedoc to refresh api.json...");
   execSync("pnpm exec typedoc", { stdio: "inherit", cwd: REPO_ROOT });
+
+  currentBuilderMembers = buildCallBuilderMembers();
 
   const pkg = JSON.parse(
     readFileSync(join(REPO_ROOT, "package.json"), "utf8"),
@@ -1353,8 +1585,9 @@ function main(): void {
   }
   currentLinkResolver = undefined;
   currentRenderBucket = undefined;
+  currentBuilderMembers = undefined;
   console.log(
-    `Wrote 16 reference files (${totalSymbols} symbols) to ${OUTPUT_DIR}.`,
+    `Wrote ${rendered.length} reference files (${totalSymbols} symbols) to ${OUTPUT_DIR}.`,
   );
 }
 

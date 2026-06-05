@@ -57,7 +57,7 @@ export interface ErrorMessage {
  * implementation of Rust's `Result` type. Used for contract methods that return
  * Results, to maintain their distinction from methods that simply either return
  * a value or throw.
- * @internal
+ * @hidden
  */
 export class Ok<T> implements Result<T, never> {
   constructor(readonly value: T) {}
@@ -84,7 +84,7 @@ export class Ok<T> implements Result<T, never> {
  * implementation of Rust's `Result` type. Used for contract methods that return
  * Results, to maintain their distinction from methods that simply either return
  * a value or throw.
- * @internal
+ * @hidden
  */
 export class Err<E extends ErrorMessage> implements Result<never, E> {
   constructor(readonly error: E) {}
