@@ -14,7 +14,7 @@ The balances section in the returned JSON will also list all the trust lines thi
 It also contains `BaseAccount` object and exposes it's methods so can be used in `TransactionBuilder`.
 
 ```ts
-class AccountResponse {
+class AccountResponse implements TransactionSource {
   constructor(response: AccountRecord);
   readonly account_id: string;
   readonly balances: (BalanceLineNative | BalanceLineLiquidityPool | BalanceLineAsset<"credit_alphanum4"> | BalanceLineAsset<"credit_alphanum12">)[];

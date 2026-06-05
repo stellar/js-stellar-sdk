@@ -2433,185 +2433,6 @@ valueOf(): unknown;
 
 **Source:** [src/base/numbers/xdr_large_int.ts:274](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L274)
 
-## ScIntType
-
-```ts
-type ScIntType = "duration" | "i64" | "i128" | "i256" | "timepoint" | "u64" | "u128" | "u256"
-```
-
-**Source:** [src/base/numbers/xdr_large_int.ts:18](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L18)
-
-## Signer
-
-```ts
-type Signer = Signer.Ed25519PublicKey | Signer.Ed25519SignedPayload | Signer.PreAuthTx | Signer.Sha256Hash
-```
-
-**Source:** [src/base/operations/types.ts:453](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L453)
-
-## Signer.Ed25519PublicKey
-
-```ts
-interface Ed25519PublicKey {
-  ed25519PublicKey: string;
-  weight?: number;
-}
-```
-
-**Source:** [src/base/operations/types.ts:454](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L454)
-
-### `ed25519PublicKey.ed25519PublicKey`
-
-```ts
-ed25519PublicKey: string;
-```
-
-**Source:** [src/base/operations/types.ts:455](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L455)
-
-### `ed25519PublicKey.weight`
-
-```ts
-weight?: number;
-```
-
-**Source:** [src/base/operations/types.ts:456](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L456)
-
-## Signer.Ed25519SignedPayload
-
-```ts
-interface Ed25519SignedPayload {
-  ed25519SignedPayload: string;
-  weight?: number;
-}
-```
-
-**Source:** [src/base/operations/types.ts:466](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L466)
-
-### `ed25519SignedPayload.ed25519SignedPayload`
-
-```ts
-ed25519SignedPayload: string;
-```
-
-**Source:** [src/base/operations/types.ts:467](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L467)
-
-### `ed25519SignedPayload.weight`
-
-```ts
-weight?: number;
-```
-
-**Source:** [src/base/operations/types.ts:468](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L468)
-
-## Signer.PreAuthTx
-
-```ts
-interface PreAuthTx {
-  preAuthTx: Buffer;
-  weight?: number;
-}
-```
-
-**Source:** [src/base/operations/types.ts:462](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L462)
-
-### `preAuthTx.preAuthTx`
-
-```ts
-preAuthTx: Buffer;
-```
-
-**Source:** [src/base/operations/types.ts:463](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L463)
-
-### `preAuthTx.weight`
-
-```ts
-weight?: number;
-```
-
-**Source:** [src/base/operations/types.ts:464](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L464)
-
-## Signer.Sha256Hash
-
-```ts
-interface Sha256Hash {
-  sha256Hash: Buffer;
-  weight?: number;
-}
-```
-
-**Source:** [src/base/operations/types.ts:458](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L458)
-
-### `sha256Hash.sha256Hash`
-
-```ts
-sha256Hash: Buffer;
-```
-
-**Source:** [src/base/operations/types.ts:459](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L459)
-
-### `sha256Hash.weight`
-
-```ts
-weight?: number;
-```
-
-**Source:** [src/base/operations/types.ts:460](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L460)
-
-## SorobanFees
-
-Soroban fee parameters for resource-limited transactions.
-
-```ts
-interface SorobanFees {
-  instructions: number;
-  readBytes: number;
-  resourceFee: bigint;
-  writeBytes: number;
-}
-```
-
-**Source:** [src/base/transaction_builder.ts:50](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L50)
-
-### `sorobanFees.instructions`
-
-The number of instructions executed by the transaction.
-
-```ts
-instructions: number;
-```
-
-**Source:** [src/base/transaction_builder.ts:52](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L52)
-
-### `sorobanFees.readBytes`
-
-The number of bytes read from the ledger by the transaction.
-
-```ts
-readBytes: number;
-```
-
-**Source:** [src/base/transaction_builder.ts:54](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L54)
-
-### `sorobanFees.resourceFee`
-
-The fee to be paid for the transaction, in stroops.
-
-```ts
-resourceFee: bigint;
-```
-
-**Source:** [src/base/transaction_builder.ts:58](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L58)
-
-### `sorobanFees.writeBytes`
-
-The number of bytes written to the ledger by the transaction.
-
-```ts
-writeBytes: number;
-```
-
-**Source:** [src/base/transaction_builder.ts:56](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L56)
-
 ## TimeoutInfinite
 
 ```ts
@@ -3132,11 +2953,11 @@ static buildFeeBumpTransaction(feeSource: string | Keypair, baseFee: string, inn
 - **`networkPassphrase`** — `string` (required) — passphrase of the target
       Stellar network (e.g. "Public Global Stellar Network ; September 2015",
       see `Networks`)
-
+  
   TODO: Alongside the next major version bump, this type signature can be
         changed to be less awkward: accept a MuxedAccount as the `feeSource`
         rather than a keypair or string.
-
+  
   Your fee-bump amount should be `>= 10x` the original fee.
 
 **See also**
@@ -3166,12 +2987,12 @@ static cloneFrom(tx: Transaction, opts: Partial<TransactionBuilderOptions> = {})
 - **`opts`** — `Partial<TransactionBuilderOptions>` (optional) (default: `{}`) — additional options to override the clone, e.g.
      `{fee: '1000'}` will override the existing base fee derived from `tx`
      (see the `TransactionBuilder` constructor for detailed options)
-
+  
   **Warning:** This does not clone the transaction's
   `xdr.SorobanTransactionData` (if applicable), use
   `SorobanDataBuilder` and `TransactionBuilder.setSorobanData`
   as needed, instead.
-
+  
   TODO: This cannot clone `FeeBumpTransaction`s, yet.
 
 **Source:** [src/base/transaction_builder.ts:281](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L281)
@@ -3604,66 +3425,6 @@ setTimeout(timeoutSeconds: number): TransactionBuilder;
  - https://developers.stellar.org/docs/tutorials/handling-errors/
 
 **Source:** [src/base/transaction_builder.ts:428](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L428)
-
-## TransactionSource
-
-The contract that `TransactionBuilder` requires of a transaction's
-source account: a way to read the account's address and sequence number, and
-to advance the sequence number in place (the builder calls
-`TransactionSource.incrementSequenceNumber` when it builds a
-transaction).
-
-Both the concrete `Account` and `MuxedAccount` classes implement
-this, as does Horizon's `AccountResponse`. Implement it yourself if you manage
-sequence numbers out-of-band (e.g. a server-side sequence pool) and want to
-pass a custom source to `TransactionBuilder`.
-
-This is intentionally a brand-free structural interface: assignability is by
-shape, not by class identity, so any account-like object that honors the
-contract is accepted.
-
-```ts
-interface TransactionSource {
-  accountId(): string;
-  incrementSequenceNumber(): void;
-  sequenceNumber(): string;
-}
-```
-
-**Source:** [src/base/transaction_source.ts:17](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_source.ts#L17)
-
-### `transactionSource.accountId()`
-
-The source account's address — a `G…` account address or, for a muxed
-source, its `M…` address.
-
-```ts
-accountId(): string;
-```
-
-**Source:** [src/base/transaction_source.ts:22](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_source.ts#L22)
-
-### `transactionSource.incrementSequenceNumber()`
-
-Increments the sequence number in place by one. `TransactionBuilder`
-calls this when building a transaction so that the next transaction built
-from the same source uses the next sequence number.
-
-```ts
-incrementSequenceNumber(): void;
-```
-
-**Source:** [src/base/transaction_source.ts:32](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_source.ts#L32)
-
-### `transactionSource.sequenceNumber()`
-
-The current sequence number, as a string.
-
-```ts
-sequenceNumber(): string;
-```
-
-**Source:** [src/base/transaction_source.ts:25](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_source.ts#L25)
 
 ## Uint128
 
@@ -5125,7 +4886,7 @@ interface SorobanFees {
 }
 ```
 
-**Source:** [src/base/transaction_builder.ts:49](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L49)
+**Source:** [src/base/transaction_builder.ts:50](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L50)
 
 #### `sorobanFees.instructions`
 
@@ -5135,7 +4896,7 @@ The number of instructions executed by the transaction.
 instructions: number;
 ```
 
-**Source:** [src/base/transaction_builder.ts:51](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L51)
+**Source:** [src/base/transaction_builder.ts:52](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L52)
 
 #### `sorobanFees.readBytes`
 
@@ -5145,7 +4906,7 @@ The number of bytes read from the ledger by the transaction.
 readBytes: number;
 ```
 
-**Source:** [src/base/transaction_builder.ts:53](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L53)
+**Source:** [src/base/transaction_builder.ts:54](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L54)
 
 #### `sorobanFees.resourceFee`
 
@@ -5155,7 +4916,7 @@ The fee to be paid for the transaction, in stroops.
 resourceFee: bigint;
 ```
 
-**Source:** [src/base/transaction_builder.ts:57](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L57)
+**Source:** [src/base/transaction_builder.ts:58](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L58)
 
 #### `sorobanFees.writeBytes`
 
@@ -5165,7 +4926,67 @@ The number of bytes written to the ledger by the transaction.
 writeBytes: number;
 ```
 
-**Source:** [src/base/transaction_builder.ts:55](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L55)
+**Source:** [src/base/transaction_builder.ts:56](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L56)
+
+### TransactionSource
+
+The contract that `TransactionBuilder` requires of a transaction's
+source account: a way to read the account's address and sequence number, and
+to advance the sequence number in place (the builder calls
+`TransactionSource.incrementSequenceNumber` when it builds a
+transaction).
+
+Both the concrete `Account` and `MuxedAccount` classes implement
+this, as does Horizon's `AccountResponse`. Implement it yourself if you manage
+sequence numbers out-of-band (e.g. a server-side sequence pool) and want to
+pass a custom source to `TransactionBuilder`.
+
+This is intentionally a brand-free structural interface: assignability is by
+shape, not by class identity, so any account-like object that honors the
+contract is accepted.
+
+```ts
+interface TransactionSource {
+  accountId(): string;
+  incrementSequenceNumber(): void;
+  sequenceNumber(): string;
+}
+```
+
+**Source:** [src/base/transaction_source.ts:17](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_source.ts#L17)
+
+#### `transactionSource.accountId()`
+
+The source account's address — a `G…` account address or, for a muxed
+source, its `M…` address.
+
+```ts
+accountId(): string;
+```
+
+**Source:** [src/base/transaction_source.ts:22](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_source.ts#L22)
+
+#### `transactionSource.incrementSequenceNumber()`
+
+Increments the sequence number in place by one. `TransactionBuilder`
+calls this when building a transaction so that the next transaction built
+from the same source uses the next sequence number.
+
+```ts
+incrementSequenceNumber(): void;
+```
+
+**Source:** [src/base/transaction_source.ts:32](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_source.ts#L32)
+
+#### `transactionSource.sequenceNumber()`
+
+The current sequence number, as a string.
+
+```ts
+sequenceNumber(): string;
+```
+
+**Source:** [src/base/transaction_source.ts:25](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_source.ts#L25)
 
 ### TrustLineFlag
 
