@@ -37,3 +37,6 @@ config/tsconfig.tmp.json
 .claude/
 .copilot/
 .codex/
+
+# scratch: per-guide tests, never shipped
+test-guides/

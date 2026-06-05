@@ -25,15 +25,15 @@ The library provides:
 
 **Jump to:**
 
-- [Installation](#installation): details on hitting the ground running
-- [Usage](#usage): links to documentation and a variety of workarounds for
+- [Installation](/js-stellar-sdk/#installation): details on hitting the ground running
+- [Usage](/js-stellar-sdk/#usage): links to documentation and a variety of workarounds for
   non-traditional JavaScript environments
-  - [...with React Native](#usage-with-react-native)
-  - [...with Expo](#usage-with-expo-managed-workflows)
-  - [...with CloudFlare Workers](#usage-with-cloudflare-workers)
-- [CLI](#cli): generate TypeScript bindings for Stellar smart contracts
-- [Developing](#developing): contribute to the project!
-- [License](#license)
+  - [...with React Native](/js-stellar-sdk/#usage-with-react-native)
+  - [...with Expo](/js-stellar-sdk/#usage-with-expo-managed-workflows)
+  - [...with CloudFlare Workers](/js-stellar-sdk/#usage-with-cloudflare-workers)
+- [CLI](/js-stellar-sdk/#cli): generate TypeScript bindings for Stellar smart contracts
+- [Developing](/js-stellar-sdk/#developing): contribute to the project!
+- [License](/js-stellar-sdk/#license)
 
 ## Installation
 
@@ -87,7 +87,7 @@ and include it in the browser:
 If you don't want to use or install Bower, you can copy the packaged JS files
 from the [Bower repo](https://github.com/stellar/bower-js-stellar-sdk), or just
 build the package yourself locally (see
-[Developing :arrow_right: Building](#building)) and copy the bundle.
+[Developing :arrow_right: Building](/js-stellar-sdk/#building)) and copy the bundle.
 
 | Always make sure that you are using the latest version number. They can be found on the [releases page](https://github.com/stellar/js-stellar-sdk/releases) in GitHub. |
 | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -122,7 +122,7 @@ there.
 To migrate:
 
 1. Install `@stellar/stellar-sdk` if you don't already (see
-   [Installation](#installation)).
+   [Installation](/js-stellar-sdk/#installation)).
 
 2. Update your imports. The symbols you import keep their names, so a
    project-wide find and replace of `"@stellar/stellar-base"` with
@@ -145,6 +145,21 @@ To migrate:
 Don't keep both packages installed. Two copies of the base library cause
 confusing runtime errors, such as `instanceof` checks failing on values that
 look correct.
+
+## Versioning and compatibility
+
+Always use the latest `@stellar/stellar-sdk`. The Stellar network upgrades its
+protocol periodically, and an older SDK may fail to decode newer data (for
+example, newer XDR). You can check the protocol a network currently runs in the
+`current_protocol_version` field of its Horizon root (for example
+[horizon.stellar.org](https://horizon.stellar.org/) for Mainnet; Testnet and
+Futurenet expose their own).
+
+These docs and the API reference cover the latest version only. To read docs for
+an older version, find its Git tag on the
+[releases page](https://github.com/stellar/js-stellar-sdk/releases) and browse the
+`docs/` directory at that ref on GitHub. The release notes there mark the breaking
+changes in each version.
 
 ## Usage
 
@@ -472,33 +487,642 @@ js-stellar-sdk is licensed under an Apache-2.0 license. See the
 [LICENSE](https://github.com/stellar/js-stellar-sdk/blob/master/LICENSE) file
 for details.
 
-# Source: docs/guides/00-versioning.md
+# Source: docs/guides/00-migration.md
 
-# Versioning & Compatibility
+# Migration Guide
 
-## Use the latest version
+If you are coming from an earlier version of `@stellar/stellar-sdk`, update the
+APIs listed below.
 
-We recommend always using the latest version of `@stellar/stellar-sdk` so your
-application keeps working as expected on the Stellar network. The network
-upgrades its protocol periodically, and an older SDK may not handle newer data —
-for example, newer XDR will fail to decode when an older SDK version is used.
+> **Versioning.** Always run the latest `@stellar/stellar-sdk`; an older SDK may
+> fail to decode newer network data as the protocol upgrades. These docs cover
+> the latest version only. See
+> [Versioning and compatibility](/js-stellar-sdk/#versioning-and-compatibility).
 
-You can check the protocol version a network currently runs from its Horizon
-root endpoint, in the `current_protocol_version` field — for example,
-[horizon.stellar.org](https://horizon.stellar.org/) for Mainnet. Each network
-(Testnet, Futurenet) exposes its own Horizon root.
+## 16.x.x Breaking changes
 
-## These docs cover the latest version only
+The 16.x.x release is a major modernization. `@stellar/stellar-base` is folded
+into the SDK, native `fetch` replaces axios as the default transport, the package
+is ESM-first, and Node 22 is required. It also lands
+[Protocol 27](https://stellar.org/blog/foundation-news/stellar-zipper-protocol-27-upgrade-guide)
+Soroban authorization (`AddressV2`).
 
-This site documents only the latest version of `@stellar/stellar-sdk`. To read
-docs for an older version, find its Git tag on the
-[releases page](https://github.com/stellar/js-stellar-sdk/releases) and browse
-the `docs/` directory at that ref on GitHub.
+Most apps only need the [Installation](/js-stellar-sdk/guides/00-migration/#installation-node-22-is-now-required),
+[Imports](/js-stellar-sdk/guides/00-migration/#imports-the-default-export-was-removed), and
+[Transport](/js-stellar-sdk/guides/00-migration/#transport-native-fetch-is-now-the-default) changes. Review the
+transaction, asset, and behavior sections if your code depends on lower-level
+base types or previously lenient validation. The
+[Auth](/js-stellar-sdk/guides/00-migration/#auth-protocol-27-readiness) changes only affect code that signs
+Soroban contract authorization entries.
 
-## What's new in each version
+### Installation: Node 22 is now required
 
-See the [release notes](https://github.com/stellar/js-stellar-sdk/releases) for
-what changed in each release — breaking changes are clearly marked.
+The minimum Node version is now `22` (up from `20`). Installing on older Node
+produces an `EBADENGINE` warning. Two runtime globals are now assumed and are
+built into Node 22: `fetch` (the default transport) and `crypto.getRandomValues`
+(used by SEP-10 `buildChallengeTx`, which dropped the `randombytes` dependency).
+Constrained runtimes such as React Native need polyfills for both.
+
+A `.nvmrc` pinned to `v22` is included:
+
+```shell
+nvm install && nvm use
+```
+
+### Installation: `@stellar/stellar-base` is folded into `@stellar/stellar-sdk`
+
+`@stellar/stellar-base` is now bundled into and re-exported from
+`@stellar/stellar-sdk`, and is no longer a separate dependency. Symbol names are
+unchanged. If you imported the base package directly, change the import source:
+
+```ts del={1} ins={2}
+import { Keypair, TransactionBuilder, Asset } from "@stellar/stellar-base"
+import { Keypair, TransactionBuilder, Asset } from "@stellar/stellar-sdk"
+```
+
+Then uninstall it. Keeping both installed causes `instanceof` checks to fail on
+values that look correct.
+
+```shell
+npm uninstall @stellar/stellar-base
+```
+
+### Imports: the default export was removed
+
+`export default module.exports` was removed from the entry points. Replace any
+default import with a namespace or named import.
+
+```ts del={1} ins={2,3}
+import StellarSdk from "@stellar/stellar-sdk"
+import * as StellarSdk from "@stellar/stellar-sdk"
+import { Keypair, rpc, contract } from "@stellar/stellar-sdk"
+```
+
+### Imports: build paths moved under `lib/esm`
+
+The package is now ESM-first and dual (`"type": "module"`). ESM resolves
+`lib/esm/`, CommonJS resolves `lib/cjs/`, axios variants resolve under
+`lib/axios/esm/` and `lib/axios/cjs/`, and type declarations live alongside the
+ESM output. `require()` still works. If you deep imported a raw build path, it
+moved. Use the subpath exports instead.
+
+```ts del={1} ins={2}
+import { Server } from "@stellar/stellar-sdk/lib/rpc/index.js"
+import { rpc } from "@stellar/stellar-sdk/rpc"
+```
+
+Available subpaths: `.`, `./rpc`, `./contract`, `./axios`, `./axios/rpc`,
+`./axios/contract`, `./http-client/axios`.
+
+### Imports: browser auto-resolution was removed
+
+The `package.json` `browser` field and browser export conditions were removed.
+Bundlers now resolve the package entry to ESM or CJS source instead of
+auto-substituting the prebuilt UMD bundle. If you need the standalone browser
+bundle, load it from the explicit `dist/` path. The UMD filenames are unchanged.
+
+### Transport: native `fetch` is now the default
+
+The default HTTP client switched from axios to native `fetch` (backed by
+`feaxios`). Normal Horizon and RPC use needs no change. Code that relied on
+axios-specific behavior (the axios `config` object, axios error shapes,
+interceptors, `httpClient.CancelToken`) now gets the fetch client instead.
+
+To opt back into axios, import the axios-backed build:
+
+```ts del={1} ins={2}
+import * as StellarSdk from "@stellar/stellar-sdk"
+import * as StellarSdk from "@stellar/stellar-sdk/axios"
+```
+
+Per module, use `@stellar/stellar-sdk/axios/rpc` and
+`@stellar/stellar-sdk/axios/contract`. For a self-built browser bundle, build with
+`USE_AXIOS=true` (`pnpm run build:lib:axios`).
+
+### Removed entrypoints
+
+The `no-axios`, `minimal`, and `no-eventsource` subpaths (and each one's
+`/contract` and `/rpc` variants) were removed. The plain `@stellar/stellar-sdk`
+import is now fetch-based, so it already provides what `no-axios` and `minimal`
+used to.
+
+```ts del={1-3} ins={4}
+import { Horizon } from "@stellar/stellar-sdk/no-axios"
+import { Horizon } from "@stellar/stellar-sdk/minimal"
+import { Horizon } from "@stellar/stellar-sdk/no-eventsource"
+import { Horizon } from "@stellar/stellar-sdk"
+```
+
+### Streaming: `eventsource` upgraded to v4
+
+The `eventsource` dependency jumped from v2 to v4 and is now always bundled (the
+`USE_EVENTSOURCE=false` build flag and the "Streaming requires eventsource" guard
+are gone). Re-test Horizon `.stream()` flows. v4 uses spec-compliant
+`EventTarget` behavior, so exceptions thrown inside `onmessage` or `onerror`
+handlers now surface as uncaught exceptions instead of being swallowed. Handle
+errors inside stream callbacks.
+
+### Utilities: `server.serverURL` is now a native `URL`
+
+The `serverURL` on [`Horizon.Server`](/js-stellar-sdk/reference/network-horizon/#horizonserver) and
+[`rpc.Server`](/js-stellar-sdk/reference/network-rpc/#rpcserver) changed from a `urijs` `URI` to the
+global `URL`. Method calls become property reads.
+
+```ts del={1} ins={2}
+const host = server.serverURL.hostname()
+const host = server.serverURL.hostname
+```
+
+`URL.protocol` returns the WHATWG form with a trailing colon, so update equality
+checks.
+
+```ts del={1} ins={2}
+if (server.serverURL.protocol === "https") { /* ... */ }
+if (server.serverURL.protocol === "https:") { /* ... */ }
+```
+
+The `Server` constructors now require an absolute URL with a scheme. A bare host
+or scheme-less string throws `TypeError: Invalid URL` at construction time. If you
+subclass `CallBuilder`, its constructor parameter and `protected url` field are
+now `URL`, and there is a new `protected setPath(...segments)` helper.
+
+### Transactions: min account sequence age is now `bigint`
+
+[`Transaction`](/js-stellar-sdk/reference/core-transactions/#transaction)'s
+`minAccountSequenceAge` is now a native `bigint`. It is no longer a `number` or
+an `xdr.UnsignedHyper` object.
+
+Search for `minAccountSequenceAge` and `setMinAccountSequenceAge` in your code.
+Change numeric seconds to `bigint` values when passing them to
+[`TransactionBuilder.setMinAccountSequenceAge`](/js-stellar-sdk/reference/core-transactions/)
+or `TransactionBuilderOptions.minAccountSequenceAge`. If you compare a
+transaction's `minAccountSequenceAge`, compare against a `bigint`.
+
+If you set `minAccountSequenceAge: 0n`, the builder now preserves that value
+instead of coercing it to `null`. Code that checks `hasV2Preconditions()` may see
+`true` when a zero-age precondition is present.
+
+Before:
+
+```ts
+const builder = new TransactionBuilder(account, {
+  fee,
+  networkPassphrase,
+  minAccountSequenceAge: 60,
+})
+
+builder.setMinAccountSequenceAge(120)
+```
+
+After:
+
+```ts
+const builder = new TransactionBuilder(account, {
+  fee,
+  networkPassphrase,
+  minAccountSequenceAge: 60n,
+})
+
+builder.setMinAccountSequenceAge(120n)
+```
+
+### Transactions: type and operation changes
+
+Update code that directly types transactions, reads transaction preconditions,
+mutates transaction internals, or switches on operation types:
+
+- Remove generic parameters from `Transaction` type annotations, such as
+  `Transaction<Memo<MemoType.Text>>`.
+- Convert `tx.extraSigners` to StrKey strings before treating it as `string[]`;
+  it is now typed as `xdr.SignerKey[]`.
+- Stop mutating `TransactionBase.tx`. It returns a defensive copy, so changes to
+  the returned XDR object no longer affect the transaction that will be signed or
+  serialized.
+- Delete calls to `Operation.isValidAmount()`,
+  `Operation.constructAmountRequirementsError()`, and
+  `Operation.setSourceAccount()`. They are no longer runtime methods on
+  `Operation`.
+- Replace `operation.type === "revokeSponsorship"` checks with the specific
+  revoke-sponsorship type strings:
+  `"revokeAccountSponsorship"`, `"revokeTrustlineSponsorship"`,
+  `"revokeOfferSponsorship"`, `"revokeDataSponsorship"`,
+  `"revokeClaimableBalanceSponsorship"`,
+  `"revokeLiquidityPoolSponsorship"`, and `"revokeSignerSponsorship"`.
+
+Before:
+
+```ts
+import { Memo, MemoType, Transaction } from "@stellar/stellar-sdk"
+
+type TextTransaction = Transaction<Memo<MemoType.Text>>
+
+const signerKeys: string[] = tx.extraSigners ?? []
+
+switch (operation.type) {
+  case "revokeSponsorship":
+    handleRevokeSponsorship(operation)
+    break
+}
+```
+
+After:
+
+```ts
+import { SignerKey, Transaction } from "@stellar/stellar-sdk"
+
+type TextTransaction = Transaction
+
+const signerKeys = tx.extraSigners?.map(SignerKey.encodeSignerKey) ?? []
+
+switch (operation.type) {
+  case "revokeAccountSponsorship":
+  case "revokeTrustlineSponsorship":
+  case "revokeOfferSponsorship":
+  case "revokeDataSponsorship":
+  case "revokeClaimableBalanceSponsorship":
+  case "revokeLiquidityPoolSponsorship":
+  case "revokeSignerSponsorship":
+    handleRevokeSponsorship(operation)
+    break
+}
+```
+
+### Assets, keys, and signing helpers
+
+[`Asset.code`](/js-stellar-sdk/reference/core-assets/#assetcode) and
+[`Asset.issuer`](/js-stellar-sdk/reference/core-assets/#assetissuer) are now `readonly`.
+Construct a new `Asset` instead of mutating either field. `Asset.issuer` is typed
+as `string | undefined`, because native assets do not have an issuer.
+
+[`Keypair.rawSecretKey()`](/js-stellar-sdk/reference/core-keys/#keypairrawsecretkey) now throws
+`Error("no secret seed available")` on public-key-only keypairs instead of
+returning `undefined`.
+
+Two exports were removed:
+
+- `FastSigning` was removed. Signing now goes through `@noble/ed25519`.
+- `TransactionI` was removed. Use `TransactionBase` instead.
+
+### Utilities: `BigNumber.DEBUG` removed
+
+`bignumber.js` was bumped from v9 to v11, and the SDK now exports a strict
+`.clone()`d instance. The introspection flag moved.
+
+```ts del={1} ins={2}
+if (BigNumber.DEBUG) { /* ... */ }
+if (BigNumber.config().STRICT) { /* ... */ }
+```
+
+Amount and price helpers (`fromXDRAmount`, `toXDRPrice`, `getAmountInLumens`)
+inherit upstream v10/v11 behavior. The v11 behavior that changed most for SDK
+callers is that a high-precision JavaScript `number` passed as an amount or
+price no longer throws for having more than 15 significant digits; it is rounded
+to floating-point precision. Pass such values as strings or `bigint` to avoid
+quiet precision loss. A `BigNumber` from your own `bignumber.js` install is a
+different class, so `instanceof` can fail across the boundary.
+
+### TypeScript: corrected declarations may affect compile-time checks
+
+The TypeScript declarations now match runtime behavior more closely:
+
+- `CreateInvocation.token` was renamed to `CreateInvocation.asset`.
+- `ScIntType` adds `"timepoint"` and `"duration"`; update exhaustive switches.
+- `XdrLargeInt.getType()` returns `ScIntType | undefined` instead of a raw
+  lowercased string. Non-integer types return `undefined`.
+- `SorobanDataBuilder.fromXDR` returns `xdr.SorobanTransactionData`.
+- `SetOptions.clearFlags` and `SetOptions.setFlags` accept arbitrary numeric
+  bitmasks through `AuthFlags`, so combined flags no longer need a cast.
+- The ignored `supportMuxing` parameter was removed from the
+  `decodeAddressToMuxedAccount` and `encodeMuxedAccountToAddress` declarations.
+
+### Behavior: stricter ed25519 verification
+
+The ed25519 backend swapped to `@noble/ed25519` v3.
+[`Keypair`](/js-stellar-sdk/reference/core-keys/#keypair)'s `random`, `sign`, `verify`, and
+`generate` keep the same API and `Buffer` return types, but v3
+verification is stricter about non-canonical and malleable signatures.
+Edge-case signatures that previously verified may now be rejected.
+
+### Behavior: stellar.toml parser swapped to `smol-toml`
+
+SEP-1 resolution now uses a stricter TOML 1.0 parser. The parsed shape is
+generally the same, but it accepts and rejects different inputs and throws
+different error messages, which propagate into the rejected promise /
+`StellarTomlResolveError`.
+
+### Behavior: stricter validation and parsing
+
+Several APIs now reject invalid input that older versions accepted or partially
+parsed:
+
+- `toXDRPrice` rejects zero, negative, `NaN`, and `Infinity` numeric prices
+  before reaching `best_r()`. Zero denominators are rejected too.
+- Constructors and operation builders validate more strictly: `MuxedAccount`
+  validates uint64 IDs, `Claimant` rejects falsy destinations, `Account` rejects
+  `NaN` sequences, `Memo` is immutable and throws on invalid types,
+  `Memo.id()` rejects non-plain-digit strings, `allow_trust` requires
+  `authorize`, `setTrustLineFlags` requires boolean flag values, and
+  `Asset.getAssetType()` throws for unknown types instead of returning
+  `"unknown"`.
+- `TransactionBuilder.build()` throws on total-fee overflow past `uint32` max,
+  `cloneFrom()` throws on zero-operation inputs, and the constructor rejects
+  negative or inverted `timebounds` and `ledgerbounds`.
+- `Operation.setOptions()` rejects malformed numeric strings such as `"123abc"`
+  for flag, weight, and threshold fields instead of parsing only the leading
+  digits.
+- `nativeToScVal` bounds-checks `u32` and `i32` values and rejects malformed
+  numeric strings. `XdrLargeInt.toI128()` and `toI256()` reject unsigned values
+  outside the signed range instead of silently flipping the sign bit.
+- `XdrLargeInt` and `ScInt` built from an array of limbs now decode correctly.
+  Code that relied on the old nested-array bug will see different values.
+
+### Behavior: recent RPC and simulation response fixes
+
+The following fixes landed shortly before v16. They are listed here because they
+are observable when upgrading from older 15.x releases to v16.
+
+Several fixes change observable behavior:
+
+- [`rpc.Server.getLatestLedger()`](/js-stellar-sdk/reference/network-rpc/#servergetlatestledger) now includes `closeTime`, `headerXdr`, and
+  `metadataXdr`, with the XDR fields parsed into objects rather than base64.
+- A `parseSuccessful` precedence bug that silently dropped simulation results and
+  state changes is fixed, so they now appear in the parsed response.
+- `pollTransaction` now runs the configured number of attempts (it previously ran
+  one fewer).
+- `maxRedirects` and `maxContentLength` are now enforced on the default client
+  (they were no-ops before), tightening the SSRF and DoS guards used by
+  `StellarToml.Resolver.resolve` and `FederationServer`.
+
+### Dependencies: removed transitive packages
+
+If your code reached through the SDK for any of these, declare them yourself now:
+`@stellar/stellar-base`, `urijs`, `@noble/curves`, `sha.js`, `randombytes`,
+`toml`.
+
+### Auth: Protocol 27 readiness
+
+Protocol 27 ([CAP-71](https://github.com/stellar/stellar-protocol/blob/master/core/cap-0071.md))
+adds two address-bound Soroban credential types, `AddressV2` and
+`AddressWithDelegates`. This only affects code that signs Soroban authorization
+entries or inspects their credential arms. Depending on the network and RPC
+simulation behavior, authorization entries may contain either the legacy
+`ADDRESS` credential or the newer `ADDRESS_V2` credential. Both are valid for SDK
+signing flows that use the helpers below.
+
+SDK-driven signing ([`contract.Client`](/js-stellar-sdk/reference/contracts-client/#contractclient),
+[`basicNodeSigner`](/js-stellar-sdk/reference/contracts-client/#contractbasicnodesigner),
+[`authorizeEntry`](/js-stellar-sdk/reference/core-soroban-primitives/#authorizeentry),
+[`signAuthEntries`](/js-stellar-sdk/reference/contracts-client/#contractassembledtransaction)) is
+forward-compatible with no code change: it signs whichever credential simulation
+returns. The entries below break only code that reads the credential arm or
+builds the signature payload by hand.
+
+For the full walkthrough of signing Soroban authorization entries, see
+[Authorize a Contract Call](/js-stellar-sdk/guides/07-contract-auth/).
+
+### Auth: `authorizeInvocation` now returns `AddressV2`
+
+[`authorizeInvocation`](/js-stellar-sdk/reference/core-soroban-primitives/#authorizeinvocation) now
+takes a single params object and builds `SOROBAN_CREDENTIALS_ADDRESS_V2` entries
+instead of legacy `ADDRESS`. Read the
+result with `.addressV2()`.
+
+```ts del={1-4} ins={5-8}
+const entry = await authorizeInvocation(
+  signer, validUntilLedgerSeq, invocation, publicKey, networkPassphrase,
+)
+const addr = entry.credentials().address()
+const entry = await authorizeInvocation({
+  signer, validUntilLedgerSeq, invocation, networkPassphrase, publicKey,
+})
+const addr = entry.credentials().addressV2()
+```
+
+### Auth: build the signing payload with `buildAuthorizationEntryPreimage`
+
+Code that reconstructs the authorization payload by hand hardcodes the legacy
+`ENVELOPE_TYPE_SOROBAN_AUTHORIZATION`. That is wrong for `AddressV2`, which signs
+the address-bound `ENVELOPE_TYPE_SOROBAN_AUTHORIZATION_WITH_ADDRESS`. Use the new
+[`buildAuthorizationEntryPreimage`](/js-stellar-sdk/reference/core-soroban-primitives/#buildauthorizationentrypreimage),
+which picks the right payload from the entry's
+own credential type, so the same code is correct on `ADDRESS` today and
+`AddressV2` when simulation returns the newer credential.
+
+```ts del={1-8} ins={9}
+const preimage = xdr.HashIdPreimage.envelopeTypeSorobanAuthorization(
+  new xdr.HashIdPreimageSorobanAuthorization({
+    networkId: hash(Buffer.from(networkPassphrase)),
+    nonce: credentials.nonce(),
+    invocation: entry.rootInvocation(),
+    signatureExpirationLedger: validUntil,
+  }),
+)
+const preimage = buildAuthorizationEntryPreimage(entry, validUntil, networkPassphrase)
+const signature = keypair.sign(hash(preimage.toXDR()))
+```
+
+Simpler still, hand the whole entry to `authorizeEntry`, which builds, signs,
+verifies, and writes the signature back:
+
+```ts
+const signed = await authorizeEntry(entry, keypair, validUntil, networkPassphrase)
+```
+
+### Auth: `authorizeEntry` is stricter and gains a `forAddress` parameter
+
+`authorizeEntry` now handles `ADDRESS`, `ADDRESS_V2`, and `ADDRESS_WITH_DELEGATES`,
+short-circuits only for an explicit source-account credential, and throws
+`unsupported credential type` for other non-address credentials. It no longer
+defaults `networkPassphrase` to `Networks.FUTURENET`, so pass the network
+passphrase explicitly at every call site.
+
+It also gained an optional 5th parameter, `forAddress`, that routes the
+signature to a specific node (the top-level account or a nested delegate) for
+delegated auth. Existing four-argument calls are unaffected if they already pass
+`networkPassphrase`.
+
+```ts ins={2}
+authorizeEntry(entry, signer, validUntilLedgerSeq, networkPassphrase) // unchanged
+authorizeEntry(entry, signer, validUntilLedgerSeq, networkPassphrase, forAddress)
+```
+
+For delegated authorization (`ADDRESS_WITH_DELEGATES`, CAP-71-01), build the
+wrapper with
+[`buildWithDelegatesEntry`](/js-stellar-sdk/reference/core-soroban-primitives/#buildwithdelegatesentry)
+(it sorts each delegate array by address
+and rejects duplicates, as the protocol requires), then route each signer's
+signature with `forAddress`. Every signer signs the same payload, bound to the
+top-level address.
+
+### Auth: closed export surface
+
+The auth module's wildcard re-export was replaced with an explicit allow-list. The
+package root now exports exactly `authorizeEntry`, `authorizeInvocation`,
+`buildAuthorizationEntryPreimage`, `buildWithDelegatesEntry`, and the types
+`SigningCallback`, `AuthorizeInvocationParams`, `DelegateSignature`,
+`BuildWithDelegatesParams`. Anything else imported from the auth module (notably
+`getAddressCredentials`, now internal) no longer resolves.
+
+### Earlier 15.x deprecation: `BalanceResponse.revocable`
+
+On [`BalanceResponse`](/js-stellar-sdk/reference/network-rpc/#rpcapibalanceresponse), use
+`authorizedToMaintainLiabilities`, which reflects the correct trustline flag
+semantics.
+
+```ts del={1} ins={2}
+const flag = balance.revocable
+const flag = balance.authorizedToMaintainLiabilities
+```
+
+### Deprecated: bare `Buffer` return from `SigningCallback`
+
+A custom [`SigningCallback`](/js-stellar-sdk/reference/core-soroban-primitives/#signingcallback)
+passed to `authorizeEntry` should return
+`{ signature, publicKey }`. The bare `Buffer` return is deprecated.
+
+```ts del={1} ins={2-5}
+const signAuthEntry = async (preimage) => keypair.sign(hash(preimage.toXDR()))
+const signAuthEntry = async (preimage) => ({
+  signature: keypair.sign(hash(preimage.toXDR())),
+  publicKey: keypair.publicKey(),
+})
+```
+
+# Source: docs/guides/01-connect-and-fund.md
+
+# Connect and Fund an Account
+
+This guide takes you from nothing to a funded testnet account you can build on.
+It is for anyone making their first call with `@stellar/stellar-sdk`. Everything
+here runs against testnet, so it costs nothing and is safe to repeat.
+
+## Create a keypair
+
+A [keypair](/js-stellar-sdk/reference/core-keys/#keypair) is an account's identity. The public
+key is the account's address (it starts with `G`) and the secret key signs
+transactions (it starts with `S`). Never share or commit a secret key.
+
+```ts
+import { Keypair } from "@stellar/stellar-sdk";
+
+const keypair = Keypair.random();
+
+keypair.publicKey(); // "G..." (share this)
+keypair.secret(); // "S..." (keep this private)
+```
+
+A keypair holds no funds and does not exist on the network until an account is
+funded for that public key (see [Fund a new account](/js-stellar-sdk/guides/01-connect-and-fund/#fund-a-new-account)).
+
+Store the secret, not the keypair object. Rebuild the keypair when you need it:
+
+```ts
+const keypair = Keypair.fromSecret(secret);
+```
+
+## Choose a network
+
+Every transaction is signed for exactly one
+[network](https://developers.stellar.org/docs/networks), identified by its
+passphrase. Use the passphrase that matches where you are submitting so a
+signature from one network cannot be replayed on another.
+
+```ts
+import { Networks } from "@stellar/stellar-sdk";
+
+Networks.TESTNET; // "Test SDF Network ; September 2015"
+Networks.PUBLIC; // "Public Global Stellar Network ; September 2015"
+```
+
+Start on `TESTNET`. Switch to `PUBLIC` only when you are ready to use real funds.
+
+## Connect to Horizon and RPC
+
+The SDK talks to two services, and which one you need depends on the task.
+
+- **[Horizon](https://developers.stellar.org/docs/data/apis/horizon)** serves
+  account, balance, payment, and history data and accepts classic transactions
+  (payments, trustlines, and other non-contract operations). Use it for
+  accounts, balances, and payments.
+- **[RPC](https://developers.stellar.org/docs/data/apis/rpc)** is the gateway for
+  smart contracts (Soroban): simulate and send contract calls. Use it when you
+  invoke contracts.
+
+```ts
+import { Horizon, rpc } from "@stellar/stellar-sdk";
+
+const horizon = new Horizon.Server("https://horizon-testnet.stellar.org");
+const rpcServer = new rpc.Server("https://soroban-testnet.stellar.org");
+```
+
+This guide only needs Horizon. The RPC connection is shown so you know where
+contract work begins. For the full client API, see
+[`Horizon.Server`](/js-stellar-sdk/reference/network-horizon/#horizonserver) and
+[`rpc.Server`](/js-stellar-sdk/reference/network-rpc/#rpcserver) in the reference.
+
+## Fund a new account
+
+On testnet, friendbot creates and funds a new account for free, seeding it with
+10,000 XLM. There is no
+friendbot on the public network, where accounts are funded by an existing
+account.
+
+```ts
+await horizon.friendbot(keypair.publicKey()).call();
+```
+
+This call throws if the account already exists or friendbot is rate-limited.
+Funding a brand-new `Keypair.random()` avoids the "already exists" case, so wrap
+it in a `try/catch` to handle the rest.
+
+Once funded, the account exists on the ledger. Load it to read its balances.
+`loadAccount` throws `NotFoundError` if the account is not on the ledger yet,
+which is how the SDK signals that funding has not gone through:
+
+```ts
+const account = await horizon.loadAccount(keypair.publicKey());
+const xlm = account.balances.find((b) => b.asset_type === "native");
+
+account.accountId(); // the funded public key
+xlm?.balance; // its XLM balance, as a string
+```
+
+## Put it together
+
+The snippets above build on each other. Here is the whole flow as one runnable
+script. The blocks share the same `keypair` and `horizon`, and `console.log`
+prints the results so you can see them when you run the file:
+
+```ts
+import { Keypair, Horizon } from "@stellar/stellar-sdk";
+
+async function main() {
+  const keypair = Keypair.random();
+  const horizon = new Horizon.Server("https://horizon-testnet.stellar.org");
+
+  console.log("Public key:", keypair.publicKey());
+
+  // On testnet, friendbot creates and funds the account for free.
+  try {
+    await horizon.friendbot(keypair.publicKey()).call();
+  } catch (e) {
+    // Thrown if the account already exists or friendbot is rate-limited.
+    console.error("Funding failed:", e);
+    return;
+  }
+
+  // Throws NotFoundError if the account is not on the ledger yet.
+  const account = await horizon.loadAccount(keypair.publicKey());
+  const xlm = account.balances.find((b) => b.asset_type === "native");
+
+  console.log("XLM balance:", xlm?.balance);
+}
+
+main().catch(console.error);
+```
+
+You now have a funded account and a connection to the network. From here you can
+send your first payment.
 
 # Source: docs/guides/01-protocol-27-soroban-auth.md
 
@@ -812,8 +1436,6 @@ hand.
       `buildAuthorizationEntryPreimage()` (or switch to
       `envelopeTypeSorobanAuthorizationWithAddress` and include `address`) for
       `ADDRESS_V2` entries.
-- [ ] Make sure the `signatureExpirationLedger` in the payload matches the value
-      on the credentials you submit.
 - [ ] Update reads of `credentials().address()` to handle the `addressV2()` and
       `addressWithDelegates()` arms.
 - [ ] Update `authorizeInvocation()` result reads from `.address()` to
@@ -821,6 +1443,1045 @@ hand.
 - [ ] For delegated auth, use `buildWithDelegatesEntry()` +
       `authorizeEntry(..., forAddress)` rather than building the wrapper XDR by
       hand.
+
+# Source: docs/guides/02-send-a-payment.md
+
+# Send a Payment
+
+This guide sends a payment from one account to another: build a transaction,
+sign it, and submit it to the network. It is the core write flow every app
+needs.
+
+## Prerequisites
+
+- A funded source account and its keypair. If you do not have one, see
+  [Connect and Fund an Account](/js-stellar-sdk/guides/01-connect-and-fund/).
+- The examples run on testnet, so they are free and safe to repeat.
+
+## Build the transaction
+
+A payment is one operation inside a transaction. Load the source account for its
+current sequence number (the per-account counter Stellar uses to order
+transactions), then build a transaction with a single
+[`Operation.payment`](/js-stellar-sdk/reference/core-transactions/#operationpayment). Here
+`source` is your funded keypair from
+[Connect and Fund an Account](/js-stellar-sdk/guides/01-connect-and-fund/), and `destinationId`
+is the recipient's public key (a `G...` string):
+
+```ts
+import {
+  Horizon,
+  TransactionBuilder,
+  Operation,
+  Asset,
+  Networks,
+  BASE_FEE,
+} from "@stellar/stellar-sdk";
+
+const horizon = new Horizon.Server("https://horizon-testnet.stellar.org");
+const account = await horizon.loadAccount(source.publicKey());
+
+const tx = new TransactionBuilder(account, {
+  fee: BASE_FEE,
+  networkPassphrase: Networks.TESTNET,
+})
+  .addOperation(
+    Operation.payment({
+      destination: destinationId,
+      asset: Asset.native(),
+      amount: "100",
+    }),
+  )
+  .setTimeout(30)
+  .build();
+```
+
+`fee` is the *maximum* per-operation fee you're willing to pay, in stroops
+(`BASE_FEE` is 100; one XLM is ten million stroops). It's a cap, not a fixed
+charge — the network only deducts what it actually needs at submission time, so
+a high `fee` (say, 5 XLM) makes the transaction more likely to be included when
+the network is busy without meaning all 5 XLM gets spent. `amount` is a string
+in whole units (`"100"` is 100 XLM). The
+destination must already exist on the network; to create and fund a brand-new
+account, use `Operation.createAccount` instead.
+
+## Sign and submit
+
+A built transaction is unsigned. Sign it with the source account's keypair, then
+submit it to Horizon:
+
+```ts
+tx.sign(source);
+const result = await horizon.submitTransaction(tx);
+
+result.hash; // the transaction hash
+result.successful; // true when it was applied
+```
+
+If submission fails, Horizon returns the error in the rejected promise, so wrap
+the call in `try/catch` to inspect the failure. See
+[Handle Errors](/js-stellar-sdk/guides/05-handle-errors/) for reading result codes and
+Horizon's error responses.
+
+## Add a memo
+
+Many services (exchanges, custodians) require a memo to route a payment. Add a
+[`Memo`](/js-stellar-sdk/reference/core-transactions/#memo) to the builder chain before
+`.build()`:
+
+```ts
+import { Memo } from "@stellar/stellar-sdk";
+
+// ...the same builder as above, with one more line in the chain:
+  .addMemo(Memo.text("invoice-42"))
+```
+
+## Send an issued asset
+
+To send an issued asset instead of XLM, pass an [`Asset`](/js-stellar-sdk/reference/core-assets/#asset)
+built from its code and the issuer account's public key (`issuerId`). Everything
+else is the same:
+
+```ts
+const usd = new Asset("USD", issuerId);
+
+Operation.payment({ destination: destinationId, asset: usd, amount: "100" });
+```
+
+The destination must already trust this asset, otherwise the payment fails.
+Setting up an issuer and trustlines is covered in [Issue an Asset](/js-stellar-sdk/guides/03-issue-an-asset/).
+
+## Put it together
+
+The whole native-payment flow as one runnable script. It funds a throwaway
+`source` and `destination` with friendbot so the example runs end to end; in
+your app, `source` is your existing funded account and `destination` is any
+account that already exists:
+
+```ts
+import {
+  Keypair,
+  Horizon,
+  TransactionBuilder,
+  Operation,
+  Asset,
+  Memo,
+  Networks,
+  BASE_FEE,
+} from "@stellar/stellar-sdk";
+
+const horizon = new Horizon.Server("https://horizon-testnet.stellar.org");
+
+async function main() {
+  const source = Keypair.random();
+  const destination = Keypair.random();
+  await Promise.all([
+    horizon.friendbot(source.publicKey()).call(),
+    horizon.friendbot(destination.publicKey()).call(),
+  ]);
+
+  const account = await horizon.loadAccount(source.publicKey());
+
+  const tx = new TransactionBuilder(account, {
+    fee: BASE_FEE,
+    networkPassphrase: Networks.TESTNET,
+  })
+    .addOperation(
+      Operation.payment({
+        destination: destination.publicKey(),
+        asset: Asset.native(),
+        amount: "100",
+      }),
+    )
+    .addMemo(Memo.text("thanks!"))
+    .setTimeout(30)
+    .build();
+
+  tx.sign(source);
+  const result = await horizon.submitTransaction(tx);
+
+  console.log("Submitted:", result.hash, "successful:", result.successful);
+}
+
+main().catch(console.error);
+```
+
+You can now move value on the network. Next, learn to issue your own asset and
+set up trustlines.
+
+# Source: docs/guides/03-issue-an-asset.md
+
+# Issue an Asset
+
+On Stellar a Stellar asset is just a code (like `ASTRO`) plus the public key of
+the account that issues it. There is no contract to deploy: you "create" it by
+sending it from its issuing account. This is one of two token types on Stellar:
+the ledger-native **Stellar asset** covered here, versus **contract tokens** built
+on Soroban smart contracts. See
+[Stellar Assets and Contract Tokens](https://developers.stellar.org/docs/tokens)
+for when to use which. This guide sets up the issuer/distributor pattern,
+establishes a trustline, and issues the asset.
+
+## Prerequisites
+
+- Two funded accounts: an **issuer** and a **distributor**. If you need them, see
+  [Connect and Fund an Account](/js-stellar-sdk/guides/01-connect-and-fund/).
+- Everything runs on testnet, so it is free and safe to repeat.
+
+## The issuer/distributor pattern
+
+Use two accounts. The **issuer** defines the asset and creates supply; the
+**distributor** holds the supply and hands it out to users. Keeping them separate
+is the standard practice: once issued, you can lock the issuer (remove its
+signing weight with
+[`Operation.setOptions`](/js-stellar-sdk/reference/core-transactions/#operationsetoptions)) to
+fix the supply permanently, while the distributor keeps operating.
+
+```ts
+import { Asset } from "@stellar/stellar-sdk";
+
+// The asset is its code plus the issuer's public key.
+const astro = new Asset("ASTRO", issuer.publicKey());
+```
+
+The code is 1 to 12 characters and the issuer is the account whose keypair you
+control. See [`Asset`](/js-stellar-sdk/reference/core-assets/#asset) in the reference.
+
+## Trust the asset
+
+An account can only hold an asset it has chosen to trust. The distributor adds a
+**trustline** with [`Operation.changeTrust`](/js-stellar-sdk/reference/core-transactions/#operationchangetrust),
+signed by the distributor:
+
+```ts
+import {
+  Horizon,
+  TransactionBuilder,
+  Operation,
+  Networks,
+  BASE_FEE,
+} from "@stellar/stellar-sdk";
+
+const horizon = new Horizon.Server("https://horizon-testnet.stellar.org");
+
+const account = await horizon.loadAccount(distributor.publicKey());
+const tx = new TransactionBuilder(account, {
+  fee: BASE_FEE,
+  networkPassphrase: Networks.TESTNET,
+})
+  .addOperation(Operation.changeTrust({ asset: astro }))
+  .setTimeout(30)
+  .build();
+
+tx.sign(distributor);
+await horizon.submitTransaction(tx);
+```
+
+Pass `limit` to cap how much the account will hold (`changeTrust({ asset: astro,
+limit: "5000" })`); amounts and limits are strings, and omitting `limit` defaults
+to the maximum. Setting `limit: "0"` removes the trustline. Each trustline also
+reserves about 0.5 XLM of the account's balance, so the distributor needs a
+little XLM beyond the reserve (friendbot-funded testnet accounts have plenty).
+
+## Issue it
+
+With the trustline in place, the issuer puts the asset into circulation by
+sending it to the distributor. That is an ordinary payment (see
+[Send a Payment](/js-stellar-sdk/guides/02-send-a-payment/)), signed by the issuer:
+
+```ts
+const issuerAccount = await horizon.loadAccount(issuer.publicKey());
+const issueTx = new TransactionBuilder(issuerAccount, {
+  fee: BASE_FEE,
+  networkPassphrase: Networks.TESTNET,
+})
+  .addOperation(
+    Operation.payment({
+      destination: distributor.publicKey(),
+      asset: astro,
+      amount: "1000",
+    }),
+  )
+  .setTimeout(30)
+  .build();
+
+issueTx.sign(issuer);
+await horizon.submitTransaction(issueTx);
+```
+
+The distributor now holds 1000 ASTRO, and 1000 ASTRO exists on the network. If a
+submission is rejected (for example the distributor never added the trustline),
+[Handle Errors](/js-stellar-sdk/guides/05-handle-errors/) shows how to read the result codes.
+
+## Put it together
+
+The whole flow as one runnable script. It funds a throwaway issuer and
+distributor so the example runs end to end; in your app, replace the
+`Keypair.random()` calls with your real keypairs and drop the friendbot funding:
+
+```ts
+import {
+  Keypair,
+  Horizon,
+  TransactionBuilder,
+  Operation,
+  Asset,
+  Networks,
+  BASE_FEE,
+} from "@stellar/stellar-sdk";
+
+const horizon = new Horizon.Server("https://horizon-testnet.stellar.org");
+
+async function submit(source: Keypair, build: (b: TransactionBuilder) => void) {
+  const account = await horizon.loadAccount(source.publicKey());
+  const builder = new TransactionBuilder(account, {
+    fee: BASE_FEE,
+    networkPassphrase: Networks.TESTNET,
+  });
+  build(builder);
+  const tx = builder.setTimeout(30).build();
+  tx.sign(source);
+  return horizon.submitTransaction(tx);
+}
+
+async function main() {
+  const issuer = Keypair.random();
+  const distributor = Keypair.random();
+  await Promise.all([
+    horizon.friendbot(issuer.publicKey()).call(),
+    horizon.friendbot(distributor.publicKey()).call(),
+  ]);
+
+  const astro = new Asset("ASTRO", issuer.publicKey());
+
+  // Distributor trusts the asset, then the issuer sends it.
+  await submit(distributor, (b) =>
+    b.addOperation(Operation.changeTrust({ asset: astro })),
+  );
+  await submit(issuer, (b) =>
+    b.addOperation(
+      Operation.payment({
+        destination: distributor.publicKey(),
+        asset: astro,
+        amount: "1000",
+      }),
+    ),
+  );
+
+  const account = await horizon.loadAccount(distributor.publicKey());
+  const line = account.balances.find(
+    (b) => "asset_code" in b && b.asset_code === "ASTRO",
+  );
+  console.log("ASTRO balance:", line?.balance);
+}
+
+main().catch(console.error);
+```
+
+You now have your own asset in circulation. From here you can distribute it to
+users, who each add their own trustline first.
+
+# Source: docs/guides/04-query-and-stream.md
+
+# Query and Stream
+
+This guide reads data from
+[Horizon](https://developers.stellar.org/docs/data/apis/horizon): query an
+account's payment history, page through large result sets, and stream new records
+as they happen. It is all read-only, so no keypairs or signing are involved.
+
+## Prerequisites
+
+- An account ID (a `G...` public key) with some history to look at. Any existing
+  account works; to make one, see
+  [Connect and Fund an Account](/js-stellar-sdk/guides/01-connect-and-fund/).
+- The examples use testnet.
+
+## Run a query
+
+Horizon data is reached through **call builders**. You start one from the server
+(for example [`server.payments()`](/js-stellar-sdk/reference/network-horizon/#serverpayments)),
+narrow it with filters, then call `.call()` to run the request. The result is a
+page of records:
+
+```ts
+import { Horizon } from "@stellar/stellar-sdk";
+
+const horizon = new Horizon.Server("https://horizon-testnet.stellar.org");
+
+const page = await horizon.payments().forAccount(accountId).call();
+
+for (const payment of page.records) {
+  console.log(payment.type, payment.id);
+}
+```
+
+The same pattern works for other endpoints on
+[`Horizon.Server`](/js-stellar-sdk/reference/network-horizon/#horizonserver):
+`horizon.operations()`, `horizon.effects()`, `horizon.transactions()`,
+`horizon.trades()`, and more. Most expose `.forAccount(id)` and similar filters.
+
+## Page through results
+
+Horizon returns results in pages. Control them with `.limit()` (page size, up to
+200), `.order()` (`"asc"` or `"desc"`), and `.cursor()` (start after a given
+paging token). Each page carries `.next()` and `.prev()` to fetch the adjacent
+page using the embedded cursor:
+
+```ts
+let page = await horizon
+  .payments()
+  .forAccount(accountId)
+  .order("desc")
+  .limit(20)
+  .call();
+
+while (page.records.length > 0) {
+  for (const payment of page.records) {
+    console.log(payment.id);
+  }
+  // next() returns an empty page once history is exhausted, ending the loop.
+  page = await page.next();
+}
+```
+
+Each record's `paging_token` is the cursor you would pass to `.cursor()` to
+resume later.
+
+## Stream live updates
+
+Instead of polling, open a
+[stream](https://developers.stellar.org/docs/data/apis/horizon/api-reference/structure/streaming).
+`.stream()` keeps a long-lived **Server-Sent Events (SSE)** connection open (the
+server pushes records over it) and calls `onmessage` for each record. Existing
+records are replayed first; pass `cursor("now")` to receive only new ones.
+`.stream()` returns a function that closes the connection:
+
+```ts
+const close = horizon
+  .payments()
+  .forAccount(accountId)
+  .cursor("now")
+  .stream({
+    onmessage: (payment) => console.log("new payment:", payment.type),
+    onerror: (e) => console.error("stream error:", e),
+  });
+
+// Later, stop listening:
+close();
+```
+
+## Put it together
+
+A runnable script: fund a throwaway account (which gives it one payment record),
+list its payments, then stream new ones for a while. Because the stream uses
+`cursor("now")`, it prints only when a *new* payment arrives, so you may see no
+stream output. To watch `onmessage` fire, send a payment to the account from
+another terminal (see [Send a Payment](/js-stellar-sdk/guides/02-send-a-payment/)). Either way
+the script exits after 30 seconds.
+
+```ts
+import { Keypair, Horizon } from "@stellar/stellar-sdk";
+
+const horizon = new Horizon.Server("https://horizon-testnet.stellar.org");
+
+async function main() {
+  const account = Keypair.random();
+  await horizon.friendbot(account.publicKey()).call();
+  const accountId = account.publicKey();
+
+  // Read recent payments.
+  const page = await horizon
+    .payments()
+    .forAccount(accountId)
+    .order("desc")
+    .limit(10)
+    .call();
+  for (const payment of page.records) {
+    console.log(payment.type, payment.id);
+  }
+
+  // Watch for new payments; stop after 30 seconds.
+  const close = horizon.payments().forAccount(accountId).cursor("now").stream({
+    onmessage: (payment) => console.log("new payment:", payment.type),
+    onerror: (e) => console.error("stream error:", e),
+  });
+  setTimeout(close, 30000);
+}
+
+main().catch(console.error);
+```
+
+You can now read history and react to it live. The same call builders back most
+of what an app needs to display from the network. Reads can still fail (a missing
+account, a malformed request); [Handle Errors](/js-stellar-sdk/guides/05-handle-errors/) covers
+catching those.
+
+# Source: docs/guides/05-handle-errors.md
+
+# Handle Errors
+
+Network calls fail: a transaction is rejected, an account does not exist, a
+request is malformed. This guide shows how to read those errors so you can react
+to them. It builds on [Send a Payment](/js-stellar-sdk/guides/02-send-a-payment/).
+
+## Prerequisites
+
+- A funded account to submit from. If you need one, see
+  [Connect and Fund an Account](/js-stellar-sdk/guides/01-connect-and-fund/).
+- The examples run on testnet, so they are free and safe to repeat.
+
+## Errors are rejected promises
+
+Every SDK call that hits the network returns a promise that rejects on failure,
+so wrap calls in `try/catch` (or use `.catch`):
+
+```ts
+try {
+  const result = await horizon.submitTransaction(tx);
+} catch (error) {
+  // inspect the error (below)
+}
+```
+
+## Read a transaction's result codes
+
+When a submission fails, Horizon explains why with **result codes**: one for the
+transaction and one per operation. A failed submission rejects with the
+underlying HTTP error, and the codes are under `response.data.extras`:
+
+```ts
+try {
+  await horizon.submitTransaction(tx);
+} catch (error: any) {
+  const codes = error.response?.data?.extras?.result_codes;
+  console.error("transaction:", codes?.transaction); // e.g. "tx_failed"
+  console.error("operations:", codes?.operations); // e.g. ["op_underfunded"]
+}
+```
+
+Common codes you will see (full list in
+[Result Codes](https://developers.stellar.org/docs/data/apis/horizon/api-reference/errors/result-codes)):
+
+- **Transaction-level:** `tx_failed` (an operation failed), `tx_bad_seq` (wrong
+  sequence number, often a stale loaded account), `tx_insufficient_fee`,
+  `tx_too_late` (the time bound passed).
+- **Operation-level:** `op_underfunded` (not enough balance), `op_no_destination`
+  (the destination account does not exist), `op_no_trust` (the destination has no
+  trustline for the asset), `op_low_reserve` (would drop below the minimum
+  balance).
+
+## Inspect the full error
+
+For debugging, log the whole error body. Horizon returns a
+[problem-details](https://developers.stellar.org/docs/data/apis/horizon/api-reference/errors)
+object at `response.data` with `type`, `title`, `status`, `detail`, and `extras`:
+
+```ts
+try {
+  await horizon.submitTransaction(tx);
+} catch (error: any) {
+  console.error(error.response?.data ?? error);
+}
+```
+
+## Catch a missing account
+
+Reads throw typed SDK errors. Loading an account that does not exist rejects with
+[`NotFoundError`](/js-stellar-sdk/reference/errors/#notfounderror), so you can branch on it:
+
+```ts
+import { NotFoundError } from "@stellar/stellar-sdk";
+
+try {
+  const account = await horizon.loadAccount(accountId);
+} catch (error) {
+  if (error instanceof NotFoundError) {
+    console.error("That account does not exist yet (fund it first).");
+  } else {
+    throw error;
+  }
+}
+```
+
+`NotFoundError` is one of the SDK's network errors; `BadRequestError` (malformed
+request) and `BadResponseError` are others, all extending `NetworkError`.
+
+## Put it together
+
+A runnable script that triggers both failures and handles them:
+
+```ts
+import {
+  Keypair,
+  Horizon,
+  TransactionBuilder,
+  Operation,
+  Asset,
+  Networks,
+  BASE_FEE,
+  NotFoundError,
+} from "@stellar/stellar-sdk";
+
+const horizon = new Horizon.Server("https://horizon-testnet.stellar.org");
+
+async function main() {
+  const sender = Keypair.random();
+  await horizon.friendbot(sender.publicKey()).call();
+  const account = await horizon.loadAccount(sender.publicKey());
+
+  // Pay an account that does not exist -> the transaction fails.
+  const tx = new TransactionBuilder(account, {
+    fee: BASE_FEE,
+    networkPassphrase: Networks.TESTNET,
+  })
+    .addOperation(
+      Operation.payment({
+        destination: Keypair.random().publicKey(),
+        asset: Asset.native(),
+        amount: "1",
+      }),
+    )
+    .setTimeout(30)
+    .build();
+  tx.sign(sender);
+
+  try {
+    await horizon.submitTransaction(tx);
+  } catch (error: any) {
+    const codes = error.response?.data?.extras?.result_codes;
+    console.error("failed:", codes?.transaction, codes?.operations);
+  }
+
+  // Loading a non-existent account throws NotFoundError.
+  try {
+    await horizon.loadAccount(Keypair.random().publicKey());
+  } catch (error) {
+    if (error instanceof NotFoundError) {
+      console.error("account not found");
+    }
+  }
+}
+
+main().catch(console.error);
+```
+
+With result codes and typed errors, you can tell the difference between a bad
+request, a missing resource, and a transaction the network rejected, and respond
+to each.
+
+# Source: docs/guides/06-invoke-a-contract.md
+
+# Invoke a Contract
+
+This guide calls a method on a deployed Soroban contract from JavaScript. You
+will connect over RPC, **preview** a call for free with simulation, then **sign
+and send** it to change on-chain state. Everything runs on testnet, so it is
+free and safe to repeat.
+
+## Prerequisites
+
+- A funded testnet account and its keypair. If you need one, see
+  [Connect and Fund an Account](/js-stellar-sdk/guides/01-connect-and-fund/).
+- A deployed contract and its contract ID (a `C...` string). This guide uses the
+  **increment** contract. Deploying is a one-time setup with a different toolchain
+  (the Stellar CLI and Rust): follow Stellar's
+  [Deploy the Increment Contract](https://developers.stellar.org/docs/build/smart-contracts/getting-started/deploy-increment-contract)
+  tutorial once (about 20 to 30 minutes), then paste the contract ID it prints
+  into `contractId` below. You will not touch the CLI again in this guide.
+  Generating a typed client from a contract is covered later in the series.
+- The examples use testnet RPC at `https://soroban-testnet.stellar.org`.
+
+## Connect and load the contract
+
+Contracts are reached over
+[Soroban RPC](https://developers.stellar.org/docs/data/apis/rpc), not Horizon, so
+this guide connects over RPC instead of using the `Horizon.Server` from earlier
+guides. Build a [`contract.Client`](/js-stellar-sdk/reference/contracts-client/#contractclient)
+from your deployed contract ID. The client reads the contract's interface from
+the network, which is what lets you call its methods by name:
+
+```ts
+import { contract, Keypair, Networks } from "@stellar/stellar-sdk";
+
+const rpcUrl = "https://soroban-testnet.stellar.org";
+const networkPassphrase = Networks.TESTNET;
+
+const { signTransaction } = contract.basicNodeSigner(keypair, networkPassphrase);
+
+const client = await contract.Client.from({
+  contractId,
+  rpcUrl,
+  networkPassphrase,
+  publicKey: keypair.publicKey(),
+  signTransaction,
+});
+```
+
+Here `keypair` is your funded account from
+[Connect and Fund an Account](/js-stellar-sdk/guides/01-connect-and-fund/) and `contractId` is
+your deployed contract's `C...` ID. Because the client is built from the live
+contract at runtime, its methods are **not typed**: TypeScript does not know
+`client.increment` exists, so calls below use `(client as any)`. A fully typed
+client comes from generating bindings, covered later in the series.
+
+## Preview a call with simulation
+
+Calling a contract method does not send anything yet: it builds a transaction and
+**simulates** it. The RPC server runs the call against the current ledger state
+and returns the result without committing anything, so a preview is free and needs
+no signature. Read the predicted return value from
+[`tx.result`](/js-stellar-sdk/reference/contracts-client/#contractassembledtransaction):
+
+```ts
+const tx = await (client as any).increment();
+
+tx.result; // the value the call would return; nothing has been sent
+```
+
+Nothing changed on-chain: simulate again and you get the same answer. A read-only
+method (one that does not change state) stops here. `tx.isReadCall` is `true`, and
+`tx.result` is your final answer with no signing or fee, because a read touches no
+state and needs no authorization. `increment` does change state, so `tx.isReadCall`
+is `false` and this is only a preview. To apply it, you sign and send.
+
+## Sign and send to apply it
+
+To apply the state change, sign and send the transaction. The signer is
+the [`basicNodeSigner`](/js-stellar-sdk/reference/contracts-client/#contractbasicnodesigner) you
+passed to the client (a simple Node signer for scripts and tests; a browser app
+swaps in a wallet such as Freighter). `signAndSend` submits the transaction and
+waits for the network, returning a
+[`SentTransaction`](/js-stellar-sdk/reference/contracts-client/#contractsenttransaction) whose
+`result` is the value the contract returned on-chain:
+
+```ts
+const sent = await tx.signAndSend();
+
+sent.result; // the applied result; send again and the counter advances
+```
+
+If a method depends on contract state that has expired, pass `restore: true` in
+the method options and simulation will restore it before the call; see
+[State Archival](https://developers.stellar.org/docs/learn/encyclopedia/storage/state-archival).
+
+## Put it together
+
+The whole flow as one runnable script. Set `contractId` to your deployed
+increment contract (see Prerequisites); the script funds a throwaway source
+account with friendbot so it runs end to end. In your app, replace the
+`Keypair.random()` call with your existing funded keypair.
+
+```ts
+import { contract, rpc, Keypair, Networks } from "@stellar/stellar-sdk";
+
+const rpcUrl = "https://soroban-testnet.stellar.org";
+const networkPassphrase = Networks.TESTNET;
+const contractId = "C..."; // your deployed increment contract (see Prerequisites)
+
+async function main() {
+  const server = new rpc.Server(rpcUrl);
+  const keypair = Keypair.random();
+  const { signTransaction } = contract.basicNodeSigner(
+    keypair,
+    networkPassphrase,
+  );
+
+  try {
+    // Fund a throwaway account to invoke from (the RPC-side friendbot).
+    await server.fundAddress(keypair.publicKey());
+
+    const client = await contract.Client.from({
+      contractId,
+      rpcUrl,
+      networkPassphrase,
+      publicKey: keypair.publicKey(),
+      signTransaction,
+    });
+
+    // Preview the call for free with simulation.
+    const tx = await (client as any).increment();
+    console.log("preview:", tx.result);
+
+    // Sign and send to apply it on-chain.
+    const sent = await tx.signAndSend();
+    console.log("applied:", sent.result);
+  } catch (e) {
+    console.error("Invocation failed:", e);
+  }
+}
+
+main().catch(console.error);
+```
+
+You can now read from and write to a deployed contract from JavaScript. Next,
+learn to [authorize calls that more than one account must sign](/js-stellar-sdk/guides/07-contract-auth/).
+
+# Source: docs/guides/07-contract-auth.md
+
+# Authorize a Contract Call
+
+Some contract calls must be authorized by an account other than the one sending
+the transaction: a token `transfer` the sender does not own, a withdrawal from a
+smart wallet, a payment routed through x402 or MPP. This guide signs that
+authorization, using the path that stays correct as Stellar moves to its new
+credential, **AddressV2**, which writes the signer's address into the signed
+bytes (it is "address-bound"). Everything runs on testnet, so it is free and safe
+to repeat.
+
+## What this guide is for
+
+This guide is for code that **signs Soroban contract authorization entries
+itself** by building the signature payload by hand: smart wallets, custom
+signers, and integrations like x402 or MPP. That is the one kind of code AddressV2
+affects.
+
+It is **not** for:
+
+- **Classic Stellar apps** (payments, trustlines, no contract calls). AddressV2
+  does not touch classic transaction signing, so nothing here applies to you.
+- **Apps that let the SDK sign their contract calls** (the
+  [`contract.Client`](/js-stellar-sdk/reference/contracts-client/#contractclient) flow from
+  [Invoke a Contract](/js-stellar-sdk/guides/06-invoke-a-contract/),
+  [`basicNodeSigner`](/js-stellar-sdk/reference/contracts-client/#contractbasicnodesigner),
+  [`authorizeEntry`](/js-stellar-sdk/reference/core-soroban-primitives/#authorizeentry), or
+  [`authorizeInvocation`](/js-stellar-sdk/reference/core-soroban-primitives/#authorizeinvocation)).
+  **Bump to the Protocol 27 SDK and change nothing.** Those paths build the
+  correct payload for whichever credential they are handed, so they sign `ADDRESS`
+  today and `AddressV2` after the flip with no code change.
+
+> **What Protocol 27 changes.** Protocol 27 introduces `AddressV2`, an
+> address-bound Soroban authorization credential
+> ([CAP-0071-02](https://github.com/stellar/stellar-protocol/blob/master/core/cap-0071-02.md)).
+> Once Protocol 27 is live on a network (testnet first), Stellar Core accepts
+> `AddressV2`. But RPC simulation still hands you the legacy `ADDRESS` credential
+> by default; that default flips to `AddressV2` at Protocol 28 (see the
+> [Protocol 27 upgrade guide](https://stellar.org/blog/foundation-news/stellar-zipper-protocol-27-upgrade-guide)).
+> The signing path here builds the correct payload from whichever credential an
+> entry carries, so the same code is right on today's `ADDRESS` and on `AddressV2`
+> after the flip, with no change from you. It is verified against the Protocol 27
+> SDK: unit tests prove the same call signs both credentials, and a live testnet
+> test runs the delegated path end to end.
+
+## Two signatures, not one
+
+An invoke transaction can carry two kinds of signature, and AddressV2 touches only
+one of them.
+
+The **envelope signature** is the transaction source signing the whole
+transaction hash with `tx.sign(keypair)`, the same call as in
+[Send a Payment](/js-stellar-sdk/guides/02-send-a-payment/). It authorizes the source to submit
+the transaction and pay its fee, and it covers the `InvokeHostFunction` operation
+itself. AddressV2 does not change it.
+
+The **authorization signature** is separate. Contracts mark the parts of a call
+that need consent by calling `require_auth()` on an address. Each such address
+gets its own authorization entry (a `SorobanAuthorizationEntry`): a small signed
+object that approves this one invocation. If that address is the transaction
+source, the envelope signature already covers it and there is nothing extra to do.
+If it is a different account, that account signs its own authorization entry, and
+that entry's payload is the only thing AddressV2 changes. This guide is about that
+second signature.
+
+| | Envelope signature | Authorization-entry signature |
+|---|---|---|
+| Who signs | the transaction source (plus classic multisig signers) | each address a contract calls `require_auth` on, when it is not the source |
+| What it signs | the transaction hash (the whole tx, including the invoke op) | one invocation, per authorizing address |
+| API | `tx.sign` / `signTransaction` | `signAuthEntries`, `authorizeEntry` |
+| AddressV2 | unchanged | payload becomes address-bound |
+
+AddressV2 lives only in the authorization-entry payload, and only for an address
+that is not the transaction source. A source-account authorization carries no
+separate signature, so it is unaffected.
+
+## Prerequisites
+
+- A funded testnet account and its keypair. If you need one, see
+  [Connect and Fund an Account](/js-stellar-sdk/guides/01-connect-and-fund/).
+- A second funded account whose authorization a call requires (the examples call
+  it `signer`).
+- A deployed contract with a method that calls `require_auth` on an address
+  argument. The examples use the Stellar
+  [Auth example contract](https://developers.stellar.org/docs/build/smart-contracts/example-contracts/auth)
+  (`increment(user, value)` calls `user.require_auth()`). Deploying is a one-time
+  setup with the Stellar CLI, the same path as
+  [Invoke a Contract](/js-stellar-sdk/guides/06-invoke-a-contract/).
+- You have read [Invoke a Contract](/js-stellar-sdk/guides/06-invoke-a-contract/); this guide
+  builds on its `contract.Client` flow and does not repeat it.
+
+## Sign a non-source authorization entry
+
+When a call requires another account's authorization, simulation returns an
+authorization entry that account must sign. Build the transaction as in
+[Invoke a Contract](/js-stellar-sdk/guides/06-invoke-a-contract/), then ask which accounts still
+need to sign:
+
+```ts
+const tx = await (client as any).increment({ user: signer.publicKey(), value: 1 });
+
+tx.needsNonInvokerSigningBy(); // [signer.publicKey()]
+```
+
+Awaiting the method call simulates it, which is what populates the authorization
+entries; `needsNonInvokerSigningBy` then reads them back, skipping source-account
+credentials because the envelope covers those. Delegate the signing to the SDK
+with
+[`signAuthEntries`](/js-stellar-sdk/reference/contracts-client/#contractassembledtransaction) and
+a `signAuthEntry` callback.
+[`basicNodeSigner`](/js-stellar-sdk/reference/contracts-client/#contractbasicnodesigner) is the
+simple Node signer (a browser app swaps in a wallet such as Freighter):
+
+```ts
+const { signAuthEntry } = contract.basicNodeSigner(signer, networkPassphrase);
+
+await tx.signAuthEntries({ address: signer.publicKey(), signAuthEntry });
+
+const sent = await tx.signAndSend();
+```
+
+`basicNodeSigner` signs the exact payload the SDK builds, so the same call is
+correct on either credential.
+
+## If you sign the payload yourself
+
+If you build and sign the authorization payload yourself, here is the one change
+to make. In the snippets below, `entry` is one of the authorization entries off
+the built transaction (the ones `needsNonInvokerSigningBy` flagged), `validUntil`
+is a future ledger sequence (for example
+`(await server.getLatestLedger()).sequence + 100`), and `hash`, `authorizeEntry`,
+and `buildAuthorizationEntryPreimage` import from `@stellar/stellar-sdk`.
+
+**Before.** Code that reconstructs the payload by hand hardcodes the legacy,
+non-address-bound credential. It is silently fine on today's `ADDRESS` entry, but
+the moment an entry is `AddressV2` (the Protocol 28 flip) it signs the wrong bytes
+and the network rejects it. A latent bug:
+
+```ts
+// ❌ Before: hardcodes the legacy ENVELOPE_TYPE_SOROBAN_AUTHORIZATION payload.
+const preimage = xdr.HashIdPreimage.envelopeTypeSorobanAuthorization(
+  new xdr.HashIdPreimageSorobanAuthorization({
+    networkId: hash(Buffer.from(networkPassphrase)),
+    nonce: credentials.nonce(),
+    invocation: entry.rootInvocation(),
+    signatureExpirationLedger: validUntil,
+  }),
+);
+const signature = keypair.sign(hash(preimage.toXDR()));
+```
+
+**After.** Swap the hand-built preimage for
+[`buildAuthorizationEntryPreimage`](/js-stellar-sdk/reference/core-soroban-primitives/#buildauthorizationentrypreimage),
+which reads the entry's credential type and builds the matching payload. The
+signing line is unchanged, and the same code is now correct on both `ADDRESS` and
+`AddressV2`:
+
+```ts
+// ✅ After: picks the right payload from the entry's own credential type.
+const preimage = buildAuthorizationEntryPreimage(entry, validUntil, networkPassphrase);
+const signature = keypair.sign(hash(preimage.toXDR()));
+```
+
+Better still, drop the preimage step entirely and hand the whole entry to
+[`authorizeEntry`](/js-stellar-sdk/reference/core-soroban-primitives/#authorizeentry), which
+builds the payload, signs it, verifies it, and writes the signature back:
+
+```ts
+// ✅ Even simpler: authorizeEntry does the whole thing.
+const signed = await authorizeEntry(entry, keypair, validUntil, networkPassphrase);
+```
+
+For a custom signer that is not a `Keypair`, pass a `SigningCallback` to
+`authorizeEntry`. It receives the full `xdr.HashIdPreimage`, so it can inspect
+what it signs, and it should return `{ signature, publicKey }` (the bare `Buffer`
+return is deprecated).
+
+## Why one call covers both
+
+`buildAuthorizationEntryPreimage` reads the entry's credential type and builds the
+matching payload: the legacy `ENVELOPE_TYPE_SOROBAN_AUTHORIZATION` for `ADDRESS`,
+and the address-bound `ENVELOPE_TYPE_SOROBAN_AUTHORIZATION_WITH_ADDRESS` for
+`AddressV2`. (AddressV2 is CAP-0071-02; it reuses the address-bound envelope
+introduced for custom accounts in
+[CAP-0071-01](https://github.com/stellar/stellar-protocol/blob/master/core/cap-0071-01.md),
+which is why both CAPs appear here.) You call one function either way, so the flip
+from `ADDRESS` to `AddressV2` needs no code change from you.
+
+AddressV2 exists to close a narrow gap. The legacy payload commits to the network,
+nonce, invocation, and expiration, but not to the signer's address. If two
+accounts share a private key, a signature made for one could be replayed against
+the other. AddressV2 binds the address into the signed bytes, which closes that
+gap. The gap is narrow (it needs accounts that share keys), which is why `ADDRESS`
+stays valid and Core accepts both.
+
+## Put it together
+
+The whole flow as one runnable script. It funds a throwaway source account and a
+separate `signer` account, builds a call that requires the signer's
+authorization, signs that entry with `basicNodeSigner`, and submits. Set
+`contractId` to your deployed Auth contract (see Prerequisites).
+
+```ts
+import { contract, rpc, Keypair, Networks } from "@stellar/stellar-sdk";
+
+const rpcUrl = "https://soroban-testnet.stellar.org";
+const networkPassphrase = Networks.TESTNET;
+const contractId = "C..."; // your deployed Auth contract (see Prerequisites)
+
+async function main() {
+  const server = new rpc.Server(rpcUrl);
+
+  // The transaction source (signs the envelope) and a separate account whose
+  // authorization the call requires.
+  const source = Keypair.random();
+  const signer = Keypair.random();
+
+  try {
+    await server.fundAddress(source.publicKey());
+    await server.fundAddress(signer.publicKey());
+
+    const { signTransaction } = contract.basicNodeSigner(
+      source,
+      networkPassphrase,
+    );
+    const client = await contract.Client.from({
+      contractId,
+      rpcUrl,
+      networkPassphrase,
+      publicKey: source.publicKey(),
+      signTransaction,
+    });
+
+    // A call that requires `signer` (not the source) to authorize it.
+    const tx = await (client as any).increment({
+      user: signer.publicKey(),
+      value: 1,
+    });
+    console.log("needs signing by:", tx.needsNonInvokerSigningBy());
+
+    // Sign that entry as `signer`. basicNodeSigner signs the payload the SDK
+    // builds, so this is correct on whichever credential the network returns.
+    const { signAuthEntry } = contract.basicNodeSigner(
+      signer,
+      networkPassphrase,
+    );
+    await tx.signAuthEntries({ address: signer.publicKey(), signAuthEntry });
+
+    const sent = await tx.signAndSend();
+    console.log("applied:", sent.result);
+  } catch (e) {
+    console.error("Authorized call failed:", e);
+  }
+}
+
+main().catch(console.error);
+```
+
+You can now authorize a contract call that more than one account must sign, and
+your signer is correct on both credentials, on today's `ADDRESS` and after the
+Protocol 28 flip to `AddressV2`. Custom accounts can also delegate authorization
+to a tree of signers (`ADDRESS_WITH_DELEGATES`, also from CAP-0071-01); that
+advanced flow is covered separately. Next, learn to convert between JavaScript
+values and Soroban types.
 
 # Source: docs/reference/core-keys.md
 
@@ -834,9 +2495,9 @@ Currently `Keypair` only supports ed25519 but in a future this class can be abst
 public-key signature systems.
 
 Use more convenient methods to create `Keypair` object:
-* [`Keypair.fromPublicKey`](#keypairfrompublickeypublickey)
-* [`Keypair.fromSecret`](#keypairfromsecretsecret)
-* [`Keypair.random`](#keypairrandom)
+* [`Keypair.fromPublicKey`](/js-stellar-sdk/reference/core-keys/#keypairfrompublickeypublickey)
+* [`Keypair.fromSecret`](/js-stellar-sdk/reference/core-keys/#keypairfromsecretsecret)
+* [`Keypair.random`](/js-stellar-sdk/reference/core-keys/#keypairrandom)
 
 ```ts
 class Keypair {
@@ -2538,7 +4199,7 @@ sequenceNumber(): string;
 
 ## AuthClawbackEnabledFlag
 
-When set using [`Operation.setOptions`](#operationsetoptions) option, then any trustlines
+When set using [`Operation.setOptions`](/js-stellar-sdk/reference/core-transactions/#operationsetoptions) option, then any trustlines
 created by this account can have a ClawbackOp operation submitted for the
 corresponding asset.
 
@@ -2554,7 +4215,7 @@ const AuthClawbackEnabledFlag: number
 
 ## AuthImmutableFlag
 
-When set using [`Operation.setOptions`](#operationsetoptions) option, then none of the
+When set using [`Operation.setOptions`](/js-stellar-sdk/reference/core-transactions/#operationsetoptions) option, then none of the
 authorization flags can be set and the account can never be deleted.
 
 ```ts
@@ -2569,7 +4230,7 @@ const AuthImmutableFlag: number
 
 ## AuthRequiredFlag
 
-When set using [`Operation.setOptions`](#operationsetoptions) option, requires the issuing
+When set using [`Operation.setOptions`](/js-stellar-sdk/reference/core-transactions/#operationsetoptions) option, requires the issuing
 account to give other accounts permission before they can hold the issuing
 account’s credit.
 
@@ -2585,7 +4246,7 @@ const AuthRequiredFlag: number
 
 ## AuthRevocableFlag
 
-When set using [`Operation.setOptions`](#operationsetoptions) option, allows the issuing
+When set using [`Operation.setOptions`](/js-stellar-sdk/reference/core-transactions/#operationsetoptions) option, allows the issuing
 account to revoke its credit held by other accounts.
 
 ```ts
@@ -2776,9 +4437,9 @@ base64-encoded XDR string.
 transactions onto your account! Doing so will invalidate this pre-compiled
 transaction!
 - Send this XDR string to your other parties. They can use the instructions
-for [`getKeypairSignature`](#transactiongetkeypairsignaturekeypair) to sign the transaction.
+for [`getKeypairSignature`](/js-stellar-sdk/reference/core-transactions/#transactiongetkeypairsignaturekeypair) to sign the transaction.
 - They should send you back their `publicKey` and the `signature` string
-from [`getKeypairSignature`](#transactiongetkeypairsignaturekeypair), both of which you pass to
+from [`getKeypairSignature`](/js-stellar-sdk/reference/core-transactions/#transactiongetkeypairsignaturekeypair), both of which you pass to
 this function.
 
 ```ts
@@ -2796,7 +4457,7 @@ addSignature(publicKey: string = "", signature: string = ""): void;
 
 Signs a transaction with the given `Keypair`. Useful if someone sends
 you a transaction XDR for you to sign and return (see
-[`addSignature`](#transactionaddsignaturepublickey-signature) for more information).
+[`addSignature`](/js-stellar-sdk/reference/core-transactions/#transactionaddsignaturepublickey-signature) for more information).
 
 When you get a transaction XDR to sign....
 - Instantiate a `Transaction` object with the XDR
@@ -3530,44 +5191,44 @@ toXDRObject(): MuxedAccount;
 Stellar network.
 
 Use one of static methods to create operations:
-* [`Operation.createAccount`](#operationcreateaccount)
-* [`Operation.payment`](#operationpayment)
-* [`Operation.pathPaymentStrictReceive`](#operationpathpaymentstrictreceive)
-* [`Operation.pathPaymentStrictSend`](#operationpathpaymentstrictsend)
-* [`Operation.manageSellOffer`](#operationmanageselloffer)
-* [`Operation.manageBuyOffer`](#operationmanagebuyoffer)
-* [`Operation.createPassiveSellOffer`](#operationcreatepassiveselloffer)
-* [`Operation.setOptions`](#operationsetoptions)
-* [`Operation.changeTrust`](#operationchangetrust)
-* [`Operation.allowTrust`](#operationallowtrust)
-* [`Operation.accountMerge`](#operationaccountmerge)
-* [`Operation.inflation`](#operationinflation)
-* [`Operation.manageData`](#operationmanagedata)
-* [`Operation.bumpSequence`](#operationbumpsequence)
-* [`Operation.createClaimableBalance`](#operationcreateclaimablebalance)
-* [`Operation.claimClaimableBalance`](#operationclaimclaimablebalance)
-* [`Operation.beginSponsoringFutureReserves`](#operationbeginsponsoringfuturereserves)
-* [`Operation.endSponsoringFutureReserves`](#operationendsponsoringfuturereserves)
-* [`Operation.revokeAccountSponsorship`](#operationrevokeaccountsponsorship)
-* [`Operation.revokeTrustlineSponsorship`](#operationrevoketrustlinesponsorship)
-* [`Operation.revokeOfferSponsorship`](#operationrevokeoffersponsorship)
-* [`Operation.revokeDataSponsorship`](#operationrevokedatasponsorship)
-* [`Operation.revokeClaimableBalanceSponsorship`](#operationrevokeclaimablebalancesponsorship)
-* [`Operation.revokeLiquidityPoolSponsorship`](#operationrevokeliquiditypoolsponsorship)
-* [`Operation.revokeSignerSponsorship`](#operationrevokesignersponsorship)
-* [`Operation.clawback`](#operationclawback)
-* [`Operation.clawbackClaimableBalance`](#operationclawbackclaimablebalance)
-* [`Operation.setTrustLineFlags`](#operationsettrustlineflags)
-* [`Operation.liquidityPoolDeposit`](#operationliquiditypooldeposit)
-* [`Operation.liquidityPoolWithdraw`](#operationliquiditypoolwithdraw)
-* [`Operation.invokeHostFunction`](#operationinvokehostfunction), which has the following additional
+* [`Operation.createAccount`](/js-stellar-sdk/reference/core-transactions/#operationcreateaccount)
+* [`Operation.payment`](/js-stellar-sdk/reference/core-transactions/#operationpayment)
+* [`Operation.pathPaymentStrictReceive`](/js-stellar-sdk/reference/core-transactions/#operationpathpaymentstrictreceive)
+* [`Operation.pathPaymentStrictSend`](/js-stellar-sdk/reference/core-transactions/#operationpathpaymentstrictsend)
+* [`Operation.manageSellOffer`](/js-stellar-sdk/reference/core-transactions/#operationmanageselloffer)
+* [`Operation.manageBuyOffer`](/js-stellar-sdk/reference/core-transactions/#operationmanagebuyoffer)
+* [`Operation.createPassiveSellOffer`](/js-stellar-sdk/reference/core-transactions/#operationcreatepassiveselloffer)
+* [`Operation.setOptions`](/js-stellar-sdk/reference/core-transactions/#operationsetoptions)
+* [`Operation.changeTrust`](/js-stellar-sdk/reference/core-transactions/#operationchangetrust)
+* [`Operation.allowTrust`](/js-stellar-sdk/reference/core-transactions/#operationallowtrust)
+* [`Operation.accountMerge`](/js-stellar-sdk/reference/core-transactions/#operationaccountmerge)
+* [`Operation.inflation`](/js-stellar-sdk/reference/core-transactions/#operationinflation)
+* [`Operation.manageData`](/js-stellar-sdk/reference/core-transactions/#operationmanagedata)
+* [`Operation.bumpSequence`](/js-stellar-sdk/reference/core-transactions/#operationbumpsequence)
+* [`Operation.createClaimableBalance`](/js-stellar-sdk/reference/core-transactions/#operationcreateclaimablebalance)
+* [`Operation.claimClaimableBalance`](/js-stellar-sdk/reference/core-transactions/#operationclaimclaimablebalance)
+* [`Operation.beginSponsoringFutureReserves`](/js-stellar-sdk/reference/core-transactions/#operationbeginsponsoringfuturereserves)
+* [`Operation.endSponsoringFutureReserves`](/js-stellar-sdk/reference/core-transactions/#operationendsponsoringfuturereserves)
+* [`Operation.revokeAccountSponsorship`](/js-stellar-sdk/reference/core-transactions/#operationrevokeaccountsponsorship)
+* [`Operation.revokeTrustlineSponsorship`](/js-stellar-sdk/reference/core-transactions/#operationrevoketrustlinesponsorship)
+* [`Operation.revokeOfferSponsorship`](/js-stellar-sdk/reference/core-transactions/#operationrevokeoffersponsorship)
+* [`Operation.revokeDataSponsorship`](/js-stellar-sdk/reference/core-transactions/#operationrevokedatasponsorship)
+* [`Operation.revokeClaimableBalanceSponsorship`](/js-stellar-sdk/reference/core-transactions/#operationrevokeclaimablebalancesponsorship)
+* [`Operation.revokeLiquidityPoolSponsorship`](/js-stellar-sdk/reference/core-transactions/#operationrevokeliquiditypoolsponsorship)
+* [`Operation.revokeSignerSponsorship`](/js-stellar-sdk/reference/core-transactions/#operationrevokesignersponsorship)
+* [`Operation.clawback`](/js-stellar-sdk/reference/core-transactions/#operationclawback)
+* [`Operation.clawbackClaimableBalance`](/js-stellar-sdk/reference/core-transactions/#operationclawbackclaimablebalance)
+* [`Operation.setTrustLineFlags`](/js-stellar-sdk/reference/core-transactions/#operationsettrustlineflags)
+* [`Operation.liquidityPoolDeposit`](/js-stellar-sdk/reference/core-transactions/#operationliquiditypooldeposit)
+* [`Operation.liquidityPoolWithdraw`](/js-stellar-sdk/reference/core-transactions/#operationliquiditypoolwithdraw)
+* [`Operation.invokeHostFunction`](/js-stellar-sdk/reference/core-transactions/#operationinvokehostfunction), which has the following additional
   "pseudo-operations" that make building host functions easier:
-  - [`Operation.createStellarAssetContract`](#operationcreatestellarassetcontract)
-  - [`Operation.invokeContractFunction`](#operationinvokecontractfunction)
-  - [`Operation.createCustomContract`](#operationcreatecustomcontract)
-  - [`Operation.uploadContractWasm`](#operationuploadcontractwasm)
+  - [`Operation.createStellarAssetContract`](/js-stellar-sdk/reference/core-transactions/#operationcreatestellarassetcontract)
+  - [`Operation.invokeContractFunction`](/js-stellar-sdk/reference/core-transactions/#operationinvokecontractfunction)
+  - [`Operation.createCustomContract`](/js-stellar-sdk/reference/core-transactions/#operationcreatecustomcontract)
+  - [`Operation.uploadContractWasm`](/js-stellar-sdk/reference/core-transactions/#operationuploadcontractwasm)
 * `Operation.extendFootprintTtlOp`
-* [`Operation.restoreFootprint`](#operationrestorefootprint)
+* [`Operation.restoreFootprint`](/js-stellar-sdk/reference/core-transactions/#operationrestorefootprint)
 
 ```ts
 class Operation {
@@ -4471,10 +6132,10 @@ const op = Operation.revokeTrustlineSponsorship({
 Returns an XDR SetOptionsOp. A "set options" operations set or clear account flags,
 set the account's inflation destination, and/or add new signers to the account.
 The flags used in `opts.clearFlags` and `opts.setFlags` can be the following:
-  - [`AuthRequiredFlag`](#authrequiredflag)
-  - [`AuthRevocableFlag`](#authrevocableflag)
-  - [`AuthImmutableFlag`](#authimmutableflag)
-  - [`AuthClawbackEnabledFlag`](#authclawbackenabledflag)
+  - [`AuthRequiredFlag`](/js-stellar-sdk/reference/core-transactions/#authrequiredflag)
+  - [`AuthRevocableFlag`](/js-stellar-sdk/reference/core-transactions/#authrevocableflag)
+  - [`AuthImmutableFlag`](/js-stellar-sdk/reference/core-transactions/#authimmutableflag)
+  - [`AuthClawbackEnabledFlag`](/js-stellar-sdk/reference/core-transactions/#authclawbackenabledflag)
 
 It's possible to set/clear multiple flags at once using logical or.
 
@@ -5152,9 +6813,9 @@ base64-encoded XDR string.
 transactions onto your account! Doing so will invalidate this pre-compiled
 transaction!
 - Send this XDR string to your other parties. They can use the instructions
-for [`getKeypairSignature`](#transactiongetkeypairsignaturekeypair) to sign the transaction.
+for [`getKeypairSignature`](/js-stellar-sdk/reference/core-transactions/#transactiongetkeypairsignaturekeypair) to sign the transaction.
 - They should send you back their `publicKey` and the `signature` string
-from [`getKeypairSignature`](#transactiongetkeypairsignaturekeypair), both of which you pass to
+from [`getKeypairSignature`](/js-stellar-sdk/reference/core-transactions/#transactiongetkeypairsignaturekeypair), both of which you pass to
 this function.
 
 ```ts
@@ -5195,7 +6856,7 @@ getClaimableBalanceId(opIndex: number): string;
 
 Signs a transaction with the given `Keypair`. Useful if someone sends
 you a transaction XDR for you to sign and return (see
-[`addSignature`](#transactionaddsignaturepublickey-signature) for more information).
+[`addSignature`](/js-stellar-sdk/reference/core-transactions/#transactionaddsignaturepublickey-signature) for more information).
 
 When you get a transaction XDR to sign....
 - Instantiate a `Transaction` object with the XDR
@@ -5298,7 +6959,7 @@ toXDR(): string;
 
 ## TransactionBuilder
 
-<p>Transaction builder helps constructs a new [`Transaction`](#transaction) using the
+<p>Transaction builder helps constructs a new [`Transaction`](/js-stellar-sdk/reference/core-transactions/#transaction) using the
 given `Account` as the transaction's "source account". The transaction
 will use the current sequence number of the given account as its sequence
 number and increment the given account's sequence number by one. The given
@@ -31794,8 +33455,8 @@ edit that file and rebuild to change either.
 
 All three surfaces (bundles, `.md` siblings, robots.txt) are regenerated
 on every release deploy. They reflect the **current SDK major** only —
-older majors are not bundled (see the
-[Versioning & Compatibility](./guides/00-versioning.md) page for the
+older majors are not bundled (see
+[Versioning and compatibility](/js-stellar-sdk/#versioning-and-compatibility) for the
 rationale).
 
 The current SDK version is **15.0.1**, sourced from

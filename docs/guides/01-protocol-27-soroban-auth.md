@@ -316,8 +316,6 @@ hand.
       `buildAuthorizationEntryPreimage()` (or switch to
       `envelopeTypeSorobanAuthorizationWithAddress` and include `address`) for
       `ADDRESS_V2` entries.
-- [ ] Make sure the `signatureExpirationLedger` in the payload matches the value
-      on the credentials you submit.
 - [ ] Update reads of `credentials().address()` to handle the `addressV2()` and
       `addressWithDelegates()` arms.
 - [ ] Update `authorizeInvocation()` result reads from `.address()` to

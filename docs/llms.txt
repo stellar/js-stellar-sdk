@@ -7,8 +7,15 @@
 
 ## Guides
 
-- [Versioning & Compatibility](guides/00-versioning)
+- [Migration Guide](guides/00-migration)
+- [Connect and Fund an Account](guides/01-connect-and-fund)
 - [Protocol 27 - Soroban authorization migration](guides/01-protocol-27-soroban-auth)
+- [Send a Payment](guides/02-send-a-payment)
+- [Issue an Asset](guides/03-issue-an-asset)
+- [Query and Stream](guides/04-query-and-stream)
+- [Handle Errors](guides/05-handle-errors)
+- [Invoke a Contract](guides/06-invoke-a-contract)
+- [Authorize a Contract Call](guides/07-contract-auth)
 
 ## Reference
 
