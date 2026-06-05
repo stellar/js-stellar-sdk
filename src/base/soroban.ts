@@ -39,10 +39,15 @@ export class Soroban {
       }
     }
 
-    formatted = formatted
-      .replace(/(\.\d*?)0+$/, "$1") // strip trailing zeroes
-      .replace(/\.$/, ".0") // but keep at least one
-      .replace(/^\./, "0."); // and a leading one
+    if (formatted.includes(".")) {
+      formatted = formatted.replace(/0+$/, ""); // strip trailing zeroes
+      if (formatted.endsWith(".")) {
+        formatted += "0"; // but keep at least one
+      }
+    }
+    if (formatted.startsWith(".")) {
+      formatted = `0${formatted}`; // and a leading one
+    }
 
     return negative ? `-${formatted}` : formatted;
   }
