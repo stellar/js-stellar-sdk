@@ -9,8 +9,6 @@ import type { HttpClient } from "../http-client/index.js";
  *
  * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/resources/list-all-transactions | All Transactions}
  *
- * @hidden
- *
  * @param serverUrl - Horizon server URL.
  */
 export class TransactionCallBuilder extends CallBuilder<

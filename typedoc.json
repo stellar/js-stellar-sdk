@@ -15,6 +15,7 @@
       "AssetsCallBuilder": "#",
       "ClaimableBalanceCallBuilder": "#",
       "EffectCallBuilder": "#",
+      "FriendbotBuilder": "#",
       "LedgerCallBuilder": "#",
       "LiquidityPoolCallBuilder": "#",
       "OfferCallBuilder": "#",

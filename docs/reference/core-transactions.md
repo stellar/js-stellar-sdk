@@ -1285,297 +1285,947 @@ constructor();
 
 ### `Operation.accountMerge`
 
+Transfers native balance to destination account.
+
 ```ts
 static accountMerge: (opts: AccountMergeOpts) => Operation2<AccountMergeResult>;
 ```
+
+**Parameters**
+
+- **`opts`** — `AccountMergeOpts` (required) — options object
+    - `destination`: destination to merge the source account into
+    - `source`: operation source account (defaults to
+      transaction source)
 
 **Source:** [src/base/operation.ts:436](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L436)
 
 ### `Operation.allowTrust`
 
+**Deprecated.** since v5.0
+
+An "allow trust" operation authorizes another account to hold your
+account's credit for a given asset.
+
 ```ts
 static allowTrust: (opts: AllowTrustOpts) => Operation2<AllowTrustResult>;
 ```
+
+**Parameters**
+
+- **`opts`** — `AllowTrustOpts` (required) — Options object
+    - `trustor`: The trusting account (the one being authorized)
+    - `assetCode`: The asset code being authorized.
+    - `authorize`: `1` to authorize, `2` to authorize to maintain liabilities, and `0` to deauthorize.
+    - `source`: The source account (defaults to transaction source).
 
 **Source:** [src/base/operation.ts:437](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L437)
 
 ### `Operation.beginSponsoringFutureReserves`
 
+Create a "begin sponsoring future reserves" operation.
+
 ```ts
 static beginSponsoringFutureReserves: (opts: BeginSponsoringFutureReservesOpts) => Operation2<BeginSponsoringFutureReservesResult>;
+```
+
+**Parameters**
+
+- **`opts`** — `BeginSponsoringFutureReservesOpts` (required) — Options object
+    - `sponsoredId`: The sponsored account id.
+    - `source`: The source account for the operation. Defaults to the transaction's source account.
+
+**Example**
+
+```ts
+const op = Operation.beginSponsoringFutureReserves({
+  sponsoredId: 'GDGU5OAPHNPU5UCLE5RDJHG7PXZFQYWKCFOEXSXNMR6KRQRI5T6XXCD7'
+});
 ```
 
 **Source:** [src/base/operation.ts:453](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L453)
 
 ### `Operation.bumpSequence`
 
+This operation bumps sequence number.
+
 ```ts
 static bumpSequence: (opts: BumpSequenceOpts) => Operation2<BumpSequenceResult>;
 ```
+
+**Parameters**
+
+- **`opts`** — `BumpSequenceOpts` (required) — Options object
+    - `bumpTo`: Sequence number to bump to.
+    - `source`: The optional source account.
 
 **Source:** [src/base/operation.ts:438](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L438)
 
 ### `Operation.changeTrust`
 
+A "change trust" operation adds, removes, or updates a trust line for a
+given asset from the source account to another.
+
 ```ts
 static changeTrust: (opts: ChangeTrustOpts) => Operation2<ChangeTrustResult>;
 ```
+
+**Parameters**
+
+- **`opts`** — `ChangeTrustOpts` (required) — Options object
+    - `asset`: The asset for the trust line.
+    - `limit`: The limit for the asset, defaults to max int64.
+                      If the limit is set to "0" it deletes the trustline.
+    - `source`: The source account (defaults to transaction source).
 
 **Source:** [src/base/operation.ts:439](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L439)
 
 ### `Operation.claimClaimableBalance`
 
+Create a new claim claimable balance operation.
+
 ```ts
 static claimClaimableBalance: (opts: ClaimClaimableBalanceOpts = ...) => Operation2<ClaimClaimableBalanceResult>;
+```
+
+**Parameters**
+
+- **`opts`** — `ClaimClaimableBalanceOpts` (optional) (default: `...`) — Options object
+    - `balanceId`: The claimable balance id to be claimed.
+    - `source`: The source account for the operation. Defaults to the transaction's source account.
+
+**Example**
+
+```ts
+const op = Operation.claimClaimableBalance({
+  balanceId: '00000000da0d57da7d4850e7fc10d2a9d0ebc731f7afb40574c03395b17d49149b91f5be',
+});
 ```
 
 **Source:** [src/base/operation.ts:442](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L442)
 
 ### `Operation.clawback`
 
+Creates a clawback operation.
+
 ```ts
 static clawback: (opts: ClawbackOpts) => Operation2<ClawbackResult>;
 ```
+
+**Parameters**
+
+- **`opts`** — `ClawbackOpts` (required) — Options object
+    - `asset`: The asset being clawed back.
+    - `amount`: The amount of the asset to claw back.
+    - `from`: The public key of the (optionally-muxed)
+      account to claw back from.
+    - `source`: The source account for the operation.
+      Defaults to the transaction's source account.
+
+**See also**
+
+- https://github.com/stellar/stellar-protocol/blob/master/core/cap-0035.md#clawback-operation
 
 **Source:** [src/base/operation.ts:463](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L463)
 
 ### `Operation.clawbackClaimableBalance`
 
+Creates a clawback operation for a claimable balance.
+
 ```ts
 static clawbackClaimableBalance: (opts: ClawbackClaimableBalanceOpts = ...) => Operation2<ClawbackClaimableBalanceResult>;
 ```
+
+**Parameters**
+
+- **`opts`** — `ClawbackClaimableBalanceOpts` (optional) (default: `...`) — Options object
+    - `balanceId`: The claimable balance ID to be clawed back.
+    - `source`: The source account for the operation. Defaults to the transaction's source account.
+
+**Example**
+
+```ts
+const op = Operation.clawbackClaimableBalance({
+  balanceId: '00000000da0d57da7d4850e7fc10d2a9d0ebc731f7afb40574c03395b17d49149b91f5be',
+});
+```
+
+**See also**
+
+- https://github.com/stellar/stellar-protocol/blob/master/core/cap-0035.md#clawback-claimable-balance-operation
 
 **Source:** [src/base/operation.ts:443](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L443)
 
 ### `Operation.createAccount`
 
+Create and fund a non-existent account.
+
 ```ts
 static createAccount: (opts: CreateAccountOpts) => Operation2<CreateAccountResult>;
 ```
+
+**Parameters**
+
+- **`opts`** — `CreateAccountOpts` (required) — Options object
+    - `destination`: Destination account ID to create an account for.
+    - `startingBalance`: Amount in XLM the account should be funded for. Must be greater
+      than the `reserve balance amount`.
+    - `source`: The source account for the payment. Defaults to the transaction's source account.
 
 **Source:** [src/base/operation.ts:440](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L440)
 
 ### `Operation.createClaimableBalance`
 
+Create a new claimable balance operation.
+
 ```ts
 static createClaimableBalance: (opts: CreateClaimableBalanceOpts) => Operation2<CreateClaimableBalanceResult>;
+```
+
+**Parameters**
+
+- **`opts`** — `CreateClaimableBalanceOpts` (required) — Options object
+    - `asset`: The asset for the claimable balance.
+    - `amount`: Amount.
+    - `claimants`: An array of Claimants
+    - `source`: The source account for the operation. Defaults to the transaction's source account.
+
+**Example**
+
+```ts
+const asset = new Asset(
+  'USD',
+  'GDGU5OAPHNPU5UCLE5RDJHG7PXZFQYWKCFOEXSXNMR6KRQRI5T6XXCD7'
+);
+const amount = '100.0000000';
+const claimants = [
+  new Claimant(
+    'GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGSNFHEYVXM3XOJMDS674JZ',
+     Claimant.predicateBeforeAbsoluteTime("4102444800000")
+  )
+];
+
+const op = Operation.createClaimableBalance({
+  asset,
+  amount,
+  claimants
+});
 ```
 
 **Source:** [src/base/operation.ts:441](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L441)
 
 ### `Operation.createCustomContract`
 
+Returns an operation that creates a custom WASM contract and atomically
+invokes its constructor.
+
 ```ts
 static createCustomContract: (opts: CreateCustomContractOpts) => Operation2<InvokeHostFunctionResult>;
 ```
+
+**Parameters**
+
+- **`opts`** — `CreateCustomContractOpts` (required) — the set of parameters
+    - `address`: the contract uploader address
+    - `wasmHash`: the SHA-256 hash of the contract WASM you're uploading
+    - `constructorArgs`: the optional parameters to pass to the constructor
+    - `salt`: an optional, 32-byte salt to distinguish deployment instances
+    - `auth`: an optional list outlining the tree of authorizations required for the call
+    - `source`: an optional source account
+
+**See also**
+
+- https://soroban.stellar.org/docs/fundamentals-and-concepts/invoking-contracts-with-transactions#function
 
 **Source:** [src/base/operation.ts:475](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L475)
 
 ### `Operation.createPassiveSellOffer`
 
+A "create passive offer" operation creates an offer that won't consume a
+counter offer that exactly matches this offer. This is useful for offers
+just used as 1:1 exchanges for path payments. Use manage offer to manage
+this offer after using this operation to create it.
+
 ```ts
 static createPassiveSellOffer: (opts: CreatePassiveSellOfferOpts) => Operation2<CreatePassiveSellOfferResult>;
 ```
+
+**Parameters**
+
+- **`opts`** — `CreatePassiveSellOfferOpts` (required) — Options object
+    - `selling`: What you're selling.
+    - `buying`: What you're buying.
+    - `amount`: The total amount you're selling. If 0, deletes the offer.
+    - `price`: Price of 1 unit of `selling` in terms of `buying`.
+    - `price.n`: If `opts.price` is an object: the price numerator
+    - `price.d`: If `opts.price` is an object: the price denominator
+    - `source`: The source account (defaults to transaction source).
+
+**Throws**
+
+- when the best rational approximation of `price` cannot be found.
 
 **Source:** [src/base/operation.ts:444](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L444)
 
 ### `Operation.createStellarAssetContract`
 
+Returns an operation that wraps a Stellar asset into a token contract.
+
 ```ts
 static createStellarAssetContract: (opts: CreateStellarAssetContractOpts) => Operation2<InvokeHostFunctionResult>;
 ```
+
+**Parameters**
+
+- **`opts`** — `CreateStellarAssetContractOpts` (required) — the set of parameters
+    - `asset`: the Stellar asset to wrap, either as an `Asset` object or in canonical form (SEP-11, `code:issuer`)
+    - `auth`: an optional list outlining the tree of authorizations required for the upload
+    - `source`: an optional source account
+
+**See also**
+
+- - https://stellar.org/protocol/sep-11#alphanum4-alphanum12
+ - https://soroban.stellar.org/docs/fundamentals-and-concepts/invoking-contracts-with-transactions
+ - https://soroban.stellar.org/docs/advanced-tutorials/stellar-asset-contract
+ - Operation.invokeHostFunction
 
 **Source:** [src/base/operation.ts:473](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L473)
 
 ### `Operation.endSponsoringFutureReserves`
 
+Create an "end sponsoring future reserves" operation.
+
 ```ts
 static endSponsoringFutureReserves: (opts: EndSponsoringFutureReservesOpts = {}) => Operation2<EndSponsoringFutureReservesResult>;
+```
+
+**Parameters**
+
+- **`opts`** — `EndSponsoringFutureReservesOpts` (optional) (default: `{}`) — Options object
+    - `source`: The source account for the operation. Defaults to the transaction's source account.
+
+**Example**
+
+```ts
+const op = Operation.endSponsoringFutureReserves();
 ```
 
 **Source:** [src/base/operation.ts:454](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L454)
 
 ### `Operation.extendFootprintTtl`
 
+Builds an operation to bump the time-to-live (TTL) of the ledger keys. The
+keys for extension have to be provided in the read-only footprint of
+the transaction.
+
+The only parameter of the operation itself is the new minimum TTL for
+all the provided entries. If an entry already has a higher TTL, then it
+will just be skipped.
+
+TTL is the number of ledgers from the current ledger (exclusive) until
+the last ledger the entry is still considered alive (inclusive). Thus
+the exact ledger until the entries will live will only be determined
+when transaction has been applied.
+
+The footprint has to be specified in the transaction. See
+`TransactionBuilder`'s `opts.sorobanData` parameter, which is a
+`xdr.SorobanTransactionData` instance that contains fee data & resource
+usage as part of `xdr.SorobanResources`.
+
 ```ts
 static extendFootprintTtl: (opts: ExtendFootprintTtlOpts) => Operation2<ExtendFootprintTTLResult>;
 ```
+
+**Parameters**
+
+- **`opts`** — `ExtendFootprintTtlOpts` (required) — object holding operation parameters
+    - `extendTo`: the minimum TTL that all the entries in
+     the read-only footprint will have
+    - `source`: an optional source account
 
 **Source:** [src/base/operation.ts:468](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L468)
 
 ### `Operation.inflation`
 
+This operation generates the inflation.
+
 ```ts
 static inflation: (opts: InflationOpts = {}) => Operation2<InflationResult>;
 ```
+
+**Parameters**
+
+- **`opts`** — `InflationOpts` (optional) (default: `{}`) — Options object
+    - `source`: The optional source account.
 
 **Source:** [src/base/operation.ts:445](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L445)
 
 ### `Operation.invokeContractFunction`
 
+Returns an operation that invokes a contract function.
+
 ```ts
 static invokeContractFunction: (opts: InvokeContractFunctionOpts) => Operation2<InvokeHostFunctionResult>;
 ```
+
+**Parameters**
+
+- **`opts`** — `InvokeContractFunctionOpts` (required) — the set of parameters
+    - `contract`: a strkey-fied contract address (`C...`)
+    - `function`: the name of the contract fn to invoke
+    - `args`: parameters to pass to the function invocation
+    - `auth`: an optional list outlining the tree of authorizations required for the call
+    - `source`: an optional source account
+
+**See also**
+
+- - Operation.invokeHostFunction
+ - Contract.call
+ - Address
 
 **Source:** [src/base/operation.ts:474](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L474)
 
 ### `Operation.invokeHostFunction`
 
+Invokes a single smart contract host function.
+
 ```ts
 static invokeHostFunction: (opts: InvokeHostFunctionOpts) => Operation2<InvokeHostFunctionResult>;
 ```
+
+**Parameters**
+
+- **`opts`** — `InvokeHostFunctionOpts` (required) — options object
+    - `func`: host function to execute (with its wrapped parameters)
+    - `auth`: list outlining the tree of authorizations required for the call
+    - `source`: an optional source account
+
+**See also**
+
+- - https://soroban.stellar.org/docs/fundamentals-and-concepts/invoking-contracts-with-transactions#function
+ - Operation.invokeContractFunction
+ - Operation.createCustomContract
+ - Operation.createStellarAssetContract
+ - Operation.uploadContractWasm
+ - Contract.call
 
 **Source:** [src/base/operation.ts:467](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L467)
 
 ### `Operation.liquidityPoolDeposit`
 
+Creates a liquidity pool deposit operation.
+
 ```ts
 static liquidityPoolDeposit: (opts: LiquidityPoolDepositOpts = ...) => Operation2<LiquidityPoolDepositResult>;
 ```
+
+**Parameters**
+
+- **`opts`** — `LiquidityPoolDepositOpts` (optional) (default: `...`) — Options object
+    - `liquidityPoolId`: The liquidity pool ID.
+    - `maxAmountA`: Maximum amount of first asset to deposit.
+    - `maxAmountB`: Maximum amount of second asset to deposit.
+    - `minPrice`: Minimum depositA/depositB price.
+    - `minPrice.n`: If `opts.minPrice` is an object: the price numerator
+    - `minPrice.d`: If `opts.minPrice` is an object: the price denominator
+    - `maxPrice`: Maximum depositA/depositB price.
+    - `maxPrice.n`: If `opts.maxPrice` is an object: the price numerator
+    - `maxPrice.d`: If `opts.maxPrice` is an object: the price denominator
+    - `source`: The source account for the operation. Defaults to the transaction's source account.
+
+**See also**
+
+- https://developers.stellar.org/docs/start/list-of-operations/#liquidity-pool-deposit
 
 **Source:** [src/base/operation.ts:465](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L465)
 
 ### `Operation.liquidityPoolWithdraw`
 
+Creates a liquidity pool withdraw operation.
+
 ```ts
 static liquidityPoolWithdraw: (opts: LiquidityPoolWithdrawOpts = ...) => Operation2<LiquidityPoolWithdrawResult>;
 ```
+
+**Parameters**
+
+- **`opts`** — `LiquidityPoolWithdrawOpts` (optional) (default: `...`) — Options object
+    - `liquidityPoolId`: The liquidity pool ID.
+    - `amount`: Amount of pool shares to withdraw.
+    - `minAmountA`: Minimum amount of first asset to withdraw.
+    - `minAmountB`: Minimum amount of second asset to withdraw.
+    - `source`: The source account for the operation. Defaults to the transaction's source account.
+
+**See also**
+
+- https://developers.stellar.org/docs/start/list-of-operations/#liquidity-pool-withdraw
 
 **Source:** [src/base/operation.ts:466](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L466)
 
 ### `Operation.manageBuyOffer`
 
+Returns a XDR ManageBuyOfferOp. A "manage buy offer" operation creates, updates, or
+deletes a buy offer.
+
 ```ts
 static manageBuyOffer: (opts: ManageBuyOfferOpts) => Operation2<ManageBuyOfferResult>;
 ```
+
+**Parameters**
+
+- **`opts`** — `ManageBuyOfferOpts` (required) — Options object
+    - `selling`: What you're selling.
+    - `buying`: What you're buying.
+    - `buyAmount`: The total amount you're buying. If 0, deletes the offer.
+    - `price`: Price of 1 unit of `buying` in terms of `selling`.
+    - `price.n`: If `opts.price` is an object: the price numerator
+    - `price.d`: If `opts.price` is an object: the price denominator
+    - `offerId`: If `0`, will create a new offer (default). Otherwise, edits an existing offer.
+    - `source`: The source account (defaults to transaction source).
+
+**Throws**
+
+- when the best rational approximation of `price` cannot be found.
 
 **Source:** [src/base/operation.ts:448](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L448)
 
 ### `Operation.manageData`
 
+This operation adds data entry to the ledger.
+
 ```ts
 static manageData: (opts: ManageDataOpts) => Operation2<ManageDataResult>;
 ```
+
+**Parameters**
+
+- **`opts`** — `ManageDataOpts` (required) — Options object
+    - `name`: The name of the data entry.
+    - `value`: The value of the data entry.
+    - `source`: The optional source account.
 
 **Source:** [src/base/operation.ts:446](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L446)
 
 ### `Operation.manageSellOffer`
 
+Returns a XDR ManageSellOfferOp. A "manage sell offer" operation creates, updates, or
+deletes an offer.
+
 ```ts
 static manageSellOffer: (opts: ManageSellOfferOpts) => Operation2<ManageSellOfferResult>;
 ```
+
+**Parameters**
+
+- **`opts`** — `ManageSellOfferOpts` (required) — Options object
+    - `selling`: What you're selling.
+    - `buying`: What you're buying.
+    - `amount`: The total amount you're selling. If 0, deletes the offer.
+    - `price`: Price of 1 unit of `selling` in terms of `buying`.
+    - `price.n`: If `opts.price` is an object: the price numerator
+    - `price.d`: If `opts.price` is an object: the price denominator
+    - `offerId`: If `0`, will create a new offer (default). Otherwise, edits an existing offer.
+    - `source`: The source account (defaults to transaction source).
+
+**Throws**
+
+- when the best rational approximation of `price` cannot be found.
 
 **Source:** [src/base/operation.ts:447](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L447)
 
 ### `Operation.pathPaymentStrictReceive`
 
+Creates a PathPaymentStrictReceive operation.
+
+A `PathPaymentStrictReceive` operation sends the specified amount to the
+destination account. It credits the destination with `destAmount` of
+`destAsset`, while debiting at most `sendMax` of `sendAsset` from the source.
+The transfer optionally occurs through a path. XLM payments create the
+destination account if it does not exist.
+
 ```ts
 static pathPaymentStrictReceive: (opts: PathPaymentStrictReceiveOpts) => Operation2<PathPaymentStrictReceiveResult>;
 ```
+
+**Parameters**
+
+- **`opts`** — `PathPaymentStrictReceiveOpts` (required) — Options object
+    - `sendAsset`: asset to pay with
+    - `sendMax`: maximum amount of sendAsset to send
+    - `destination`: destination account to send to
+    - `destAsset`: asset the destination will receive
+    - `destAmount`: amount the destination receives
+    - `path`: array of Asset objects to use as the path
+    - `source`: The source account for the payment.
+      Defaults to the transaction's source account.
+
+**See also**
+
+- https://developers.stellar.org/docs/start/list-of-operations/#path-payment-strict-receive
 
 **Source:** [src/base/operation.ts:449](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L449)
 
 ### `Operation.pathPaymentStrictSend`
 
+Creates a PathPaymentStrictSend operation.
+
+A `PathPaymentStrictSend` operation sends the specified amount to the
+destination account crediting at least `destMin` of `destAsset`, optionally
+through a path. XLM payments create the destination account if it does not
+exist.
+
 ```ts
 static pathPaymentStrictSend: (opts: PathPaymentStrictSendOpts) => Operation2<PathPaymentStrictSendResult>;
 ```
+
+**Parameters**
+
+- **`opts`** — `PathPaymentStrictSendOpts` (required) — Options object
+    - `sendAsset`: asset to pay with
+    - `sendAmount`: amount of sendAsset to send (excluding fees)
+    - `destination`: destination account to send to
+    - `destAsset`: asset the destination will receive
+    - `destMin`: minimum amount of destAsset to be received
+    - `path`: array of Asset objects to use as the path
+    - `source`: The source account for the payment. Defaults to the transaction's source account.
+
+**See also**
+
+- https://developers.stellar.org/docs/start/list-of-operations/#path-payment-strict-send
 
 **Source:** [src/base/operation.ts:450](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L450)
 
 ### `Operation.payment`
 
+Create a payment operation.
+
 ```ts
 static payment: (opts: PaymentOpts) => Operation2<PaymentResult>;
 ```
+
+**Parameters**
+
+- **`opts`** — `PaymentOpts` (required) — options object
+    - `destination`: destination account ID
+    - `asset`: asset to send
+    - `amount`: amount to send
+    - `source`: The source account for the payment.
+      Defaults to the transaction's source account.
+
+**See also**
+
+- https://developers.stellar.org/docs/start/list-of-operations/#payment
 
 **Source:** [src/base/operation.ts:451](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L451)
 
 ### `Operation.restoreFootprint`
 
+Builds an operation to restore the archived ledger entries specified
+by the ledger keys.
+
+The ledger keys to restore are specified separately from the operation
+in read-write footprint of the transaction.
+
+It takes no parameters because the relevant footprint is derived from the
+transaction itself. See `TransactionBuilder`'s `opts.sorobanData`
+parameter (or `TransactionBuilder.setSorobanData`), which is a
+`xdr.SorobanTransactionData` instance that contains fee data & resource
+usage as part of `xdr.SorobanTransactionData`.
+
 ```ts
 static restoreFootprint: (opts: RestoreFootprintOpts = {}) => Operation2<RestoreFootprintResult>;
 ```
+
+**Parameters**
+
+- **`opts`** — `RestoreFootprintOpts` (optional) (default: `{}`) — an optional set of parameters
+    - `source`: an optional source account
 
 **Source:** [src/base/operation.ts:469](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L469)
 
 ### `Operation.revokeAccountSponsorship`
 
+Create a "revoke sponsorship" operation for an account.
+
 ```ts
 static revokeAccountSponsorship: (opts: RevokeAccountSponsorshipOpts = ...) => Operation2<RevokeAccountSponsorshipResult>;
+```
+
+**Parameters**
+
+- **`opts`** — `RevokeAccountSponsorshipOpts` (optional) (default: `...`) — Options object
+    - `account`: The sponsored account ID.
+    - `source`: The source account for the operation. Defaults to the transaction's source account.
+
+**Example**
+
+```ts
+const op = Operation.revokeAccountSponsorship({
+  account: 'GDGU5OAPHNPU5UCLE5RDJHG7PXZFQYWKCFOEXSXNMR6KRQRI5T6XXCD7'
+});
 ```
 
 **Source:** [src/base/operation.ts:455](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L455)
 
 ### `Operation.revokeClaimableBalanceSponsorship`
 
+Create a "revoke sponsorship" operation for a claimable balance.
+
 ```ts
 static revokeClaimableBalanceSponsorship: (opts: RevokeClaimableBalanceSponsorshipOpts = ...) => Operation2<RevokeClaimableBalanceSponsorshipResult>;
+```
+
+**Parameters**
+
+- **`opts`** — `RevokeClaimableBalanceSponsorshipOpts` (optional) (default: `...`) — Options object
+    - `balanceId`: The sponsored claimable balance ID.
+    - `source`: The source account for the operation. Defaults to the transaction's source account.
+
+**Example**
+
+```ts
+const op = Operation.revokeClaimableBalanceSponsorship({
+  balanceId: '00000000da0d57da7d4850e7fc10d2a9d0ebc731f7afb40574c03395b17d49149b91f5be',
+});
 ```
 
 **Source:** [src/base/operation.ts:459](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L459)
 
 ### `Operation.revokeDataSponsorship`
 
+Create a "revoke sponsorship" operation for a data entry.
+
 ```ts
 static revokeDataSponsorship: (opts: RevokeDataSponsorshipOpts = ...) => Operation2<RevokeDataSponsorshipResult>;
+```
+
+**Parameters**
+
+- **`opts`** — `RevokeDataSponsorshipOpts` (optional) (default: `...`) — Options object
+    - `account`: The account ID which owns the data entry.
+    - `name`: The name of the data entry.
+    - `source`: The source account for the operation. Defaults to the transaction's source account.
+
+**Example**
+
+```ts
+const op = Operation.revokeDataSponsorship({
+  account: 'GDGU5OAPHNPU5UCLE5RDJHG7PXZFQYWKCFOEXSXNMR6KRQRI5T6XXCD7',
+  name: 'foo'
+});
 ```
 
 **Source:** [src/base/operation.ts:458](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L458)
 
 ### `Operation.revokeLiquidityPoolSponsorship`
 
+Creates a "revoke sponsorship" operation for a liquidity pool.
+
 ```ts
 static revokeLiquidityPoolSponsorship: (opts: RevokeLiquidityPoolSponsorshipOpts = ...) => Operation2<RevokeLiquidityPoolSponsorshipResult>;
+```
+
+**Parameters**
+
+- **`opts`** — `RevokeLiquidityPoolSponsorshipOpts` (optional) (default: `...`) — Options object.
+    - `liquidityPoolId`: The sponsored liquidity pool ID in 'hex' string.
+    - `source`: The source account for the operation. Defaults to the transaction's source account.
+
+**Example**
+
+```ts
+const op = Operation.revokeLiquidityPoolSponsorship({
+  liquidityPoolId: 'dd7b1ab831c273310ddbec6f97870aa83c2fbd78ce22aded37ecbf4f3380fac7',
+});
 ```
 
 **Source:** [src/base/operation.ts:461](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L461)
 
 ### `Operation.revokeOfferSponsorship`
 
+Create a "revoke sponsorship" operation for an offer.
+
 ```ts
 static revokeOfferSponsorship: (opts: RevokeOfferSponsorshipOpts = ...) => Operation2<RevokeOfferSponsorshipResult>;
+```
+
+**Parameters**
+
+- **`opts`** — `RevokeOfferSponsorshipOpts` (optional) (default: `...`) — Options object
+    - `seller`: The account ID which created the offer.
+    - `offerId`: The offer ID.
+    - `source`: The source account for the operation. Defaults to the transaction's source account.
+
+**Example**
+
+```ts
+const op = Operation.revokeOfferSponsorship({
+  seller: 'GDGU5OAPHNPU5UCLE5RDJHG7PXZFQYWKCFOEXSXNMR6KRQRI5T6XXCD7',
+  offerId: '1234'
+});
 ```
 
 **Source:** [src/base/operation.ts:457](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L457)
 
 ### `Operation.revokeSignerSponsorship`
 
+Create a "revoke sponsorship" operation for a signer.
+
 ```ts
 static revokeSignerSponsorship: (opts: RevokeSignerSponsorshipOpts = ...) => Operation2<RevokeSignerSponsorshipResult>;
+```
+
+**Parameters**
+
+- **`opts`** — `RevokeSignerSponsorshipOpts` (optional) (default: `...`) — Options object
+    - `account`: The account ID where the signer sponsorship is being removed from.
+    - `signer`: The signer whose sponsorship is being removed. Exactly one of the following must be set:
+    - `signer.ed25519PublicKey`: (optional) The ed25519 public key of the signer.
+    - `signer.sha256Hash`: (optional) sha256 hash (Buffer or hex string).
+    - `signer.preAuthTx`: (optional) Hash (Buffer or hex string) of transaction.
+    - `signer.ed25519SignedPayload`: (optional) Signed payload signer (StrKey P... address).
+    - `source`: The source account for the operation. Defaults to the transaction's source account.
+
+**Example**
+
+```ts
+const op = Operation.revokeSignerSponsorship({
+  account: 'GDGU5OAPHNPU5UCLE5RDJHG7PXZFQYWKCFOEXSXNMR6KRQRI5T6XXCD7',
+  signer: {
+    ed25519PublicKey: 'GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGSNFHEYVXM3XOJMDS674JZ'
+  }
+})
 ```
 
 **Source:** [src/base/operation.ts:462](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L462)
 
 ### `Operation.revokeTrustlineSponsorship`
 
+Create a "revoke sponsorship" operation for a trustline.
+
 ```ts
 static revokeTrustlineSponsorship: (opts: RevokeTrustlineSponsorshipOpts = ...) => Operation2<RevokeTrustlineSponsorshipResult>;
+```
+
+**Parameters**
+
+- **`opts`** — `RevokeTrustlineSponsorshipOpts` (optional) (default: `...`) — Options object
+    - `account`: The account ID which owns the trustline.
+    - `asset`: The trustline asset.
+    - `source`: The source account for the operation. Defaults to the transaction's source account.
+
+**Example**
+
+```ts
+const op = Operation.revokeTrustlineSponsorship({
+  account: 'GDGU5OAPHNPU5UCLE5RDJHG7PXZFQYWKCFOEXSXNMR6KRQRI5T6XXCD7',
+  asset: new StellarBase.LiquidityPoolId(
+    'USDUSD',
+    'GDGU5OAPHNPU5UCLE5RDJHG7PXZFQYWKCFOEXSXNMR6KRQRI5T6XXCD7'
+  )
+});
 ```
 
 **Source:** [src/base/operation.ts:456](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L456)
 
 ### `Operation.setOptions`
 
+Returns an XDR SetOptionsOp. A "set options" operations set or clear account flags,
+set the account's inflation destination, and/or add new signers to the account.
+The flags used in `opts.clearFlags` and `opts.setFlags` can be the following:
+  - [`AuthRequiredFlag`](#authrequiredflag)
+  - [`AuthRevocableFlag`](#authrevocableflag)
+  - [`AuthImmutableFlag`](#authimmutableflag)
+  - [`AuthClawbackEnabledFlag`](#authclawbackenabledflag)
+
+It's possible to set/clear multiple flags at once using logical or.
+
 ```ts
 static setOptions: <T extends SignerOpts = never>(opts: SetOptionsOpts<T>) => Operation2<SetOptionsResult<T>>;
 ```
+
+**Parameters**
+
+- **`opts`** — `SetOptionsOpts<T>` (required) — Options object
+    - `inflationDest`: Set this account ID as the account's inflation destination.
+    - `clearFlags`: Bitmap integer for which account flags to clear.
+    - `setFlags`: Bitmap integer for which account flags to set.
+    - `masterWeight`: The master key weight.
+    - `lowThreshold`: The sum weight for the low threshold.
+    - `medThreshold`: The sum weight for the medium threshold.
+    - `highThreshold`: The sum weight for the high threshold.
+    - `signer`: Add or remove a signer from the account. The signer is
+                                  deleted if the weight is 0. Only one of `ed25519PublicKey`, `sha256Hash`, `preAuthTx` should be defined.
+    - `signer.ed25519PublicKey`: The ed25519 public key of the signer.
+    - `signer.sha256Hash`: sha256 hash (Buffer or hex string) of preimage that will unlock funds. Preimage should be used as signature of future transaction.
+    - `signer.preAuthTx`: Hash (Buffer or hex string) of transaction that will unlock funds.
+    - `signer.ed25519SignedPayload`: Signed payload signer (ed25519 public key + raw payload) for atomic transaction signature disclosure.
+    - `signer.weight`: The weight of the new signer (0 to delete or 1-255)
+    - `homeDomain`: sets the home domain used for reverse federation lookup.
+    - `source`: The source account (defaults to transaction source).
+
+**See also**
+
+- [Account flags](https://developers.stellar.org/docs/glossary/accounts/#flags)
 
 **Source:** [src/base/operation.ts:452](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L452)
 
 ### `Operation.setTrustLineFlags`
 
+Creates a trustline flag configuring operation.
+
+For the flags, set them to true to enable them and false to disable them. Any
+unmodified operations will be marked `undefined` in the result.
+
+Note that you can only **clear** the clawbackEnabled flag set; it must be set
+account-wide via operations.SetOptions (setting
+xdr.AccountFlags.clawbackEnabled).
+
 ```ts
 static setTrustLineFlags: (opts: SetTrustLineFlagsOpts) => Operation2<SetTrustLineFlagsResult>;
 ```
+
+**Parameters**
+
+- **`opts`** — `SetTrustLineFlagsOpts` (required) — Options object
+    - `trustor`: the account whose trustline this is
+    - `asset`: the asset on the trustline
+    - `flags`: the set of flags to modify
+    - `flags.authorized`: authorize account to perform
+      transactions with its credit
+    - `flags.authorizedToMaintainLiabilities`: authorize
+      account to maintain and reduce liabilities for its credit
+    - `flags.clawbackEnabled`: stop claimable balances on
+      this trustlines from having clawbacks enabled (this flag can only be set
+      to false!)
+    - `source`: The source account for the operation.
+                                  Defaults to the transaction's source account.
+
+**See also**
+
+- - https://github.com/stellar/stellar-protocol/blob/master/core/cap-0035.md#set-trustline-flags-operation
+ - https://developers.stellar.org/docs/start/list-of-operations/#set-options
 
 **Source:** [src/base/operation.ts:464](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L464)
 
 ### `Operation.uploadContractWasm`
 
+Returns an operation that uploads WASM for a contract.
+
 ```ts
 static uploadContractWasm: (opts: UploadContractWasmOpts) => Operation2<InvokeHostFunctionResult>;
 ```
+
+**Parameters**
+
+- **`opts`** — `UploadContractWasmOpts` (required) — the set of parameters
+    - `wasm`: a WASM blob to upload to the ledger
+    - `auth`: an optional list outlining the tree of authorizations required for the upload
+    - `source`: an optional source account
+
+**See also**
+
+- https://soroban.stellar.org/docs/fundamentals-and-concepts/invoking-contracts-with-transactions#function
 
 **Source:** [src/base/operation.ts:476](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L476)
 

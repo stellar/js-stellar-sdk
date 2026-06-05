@@ -770,7 +770,6 @@ export class HorizonServer {
    * @param address - The Stellar ID that you want Friendbot to send lumens to
    * @returns New {@link FriendbotBuilder} instance configured with the current
    * Horizon server configuration
-   * @hidden
    */
   public friendbot(address: string): FriendbotBuilder {
     return new FriendbotBuilder(this.serverURL, this.httpClient, address);

@@ -15,8 +15,6 @@ const allowedResolutions = [
  *
  * Do not create this object directly, use {@link Horizon.Server.tradeAggregation}.
  *
- * @hidden
- *
  * @param serverUrl - serverUrl Horizon server URL.
  * @param base - base asset
  * @param counter - counter asset

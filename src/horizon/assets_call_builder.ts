@@ -7,7 +7,6 @@ import type { HttpClient } from "../http-client/index.js";
  *
  * Do not create this object directly, use {@link Horizon.Server.assets}.
  *
- * @hidden
  * @param serverUrl - Horizon server URL.
  */
 export class AssetsCallBuilder extends CallBuilder<

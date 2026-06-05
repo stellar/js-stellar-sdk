@@ -10,8 +10,8 @@
  */
 
 import { execSync } from "node:child_process";
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
 
 import { DOCS_SOURCE_REF } from "./docs-source-ref.js";
 
@@ -19,6 +19,23 @@ const REPO_ROOT = process.cwd();
 const TYPEDOC_JSON = join(REPO_ROOT, "tmp/typedoc-json/api.json");
 const OUTPUT_DIR = join(REPO_ROOT, "docs/reference");
 const REPO_SLUG = "stellar/js-stellar-sdk";
+
+// Horizon call builders (e.g. AccountCallBuilder) are intentionally not
+// part of the package's public exports — callers obtain them only as
+// return values of `Server.*` accessor methods. The main typedoc pass
+// walks exports from src/index.ts, so it never sees them. To document
+// their fluent API where it is actually used, a secondary self-contained
+// typedoc pass (see `buildCallBuilderMembers`) recovers their members,
+// which are then inlined under each `Server.*` method instead of being
+// emitted as standalone symbols. Outputs land in the gitignored tmp dir.
+const CALL_BUILDER_JSON = join(
+  REPO_ROOT,
+  "tmp/typedoc-json/call-builders.json",
+);
+const CALL_BUILDER_OPTIONS = join(
+  REPO_ROOT,
+  "tmp/typedoc-json/call-builders.options.json",
+);
 
 const BUCKET_TO_SLUG = {
   "Core / Keys": "core-keys",
@@ -883,6 +900,20 @@ function buildLinkResolver(records: SymbolRecord[]): LinkResolver {
 let currentLinkResolver: LinkResolver | undefined;
 let currentRenderBucket: BucketName | undefined;
 
+// A single chainable method of a call builder, ready to render as one
+// compact bullet at a `Server.*` usage site.
+interface ChainableMethod {
+  signature: string;
+  summary: string;
+}
+
+// Module-level map of call-builder class name → its public chainable
+// methods, populated by `buildCallBuilderMembers` before rendering.
+// Module-level for the same reason as `currentLinkResolver`: it is read
+// from deep inside `renderMemberBlock` and threading it through every
+// caller would touch unrelated signatures. Cleared after the pass.
+let currentBuilderMembers: Map<string, ChainableMethod[]> | undefined;
+
 // Match `{@link Target}` or `{@link Target | display}` — used to
 // recover link references that TypeDoc emitted as code parts because
 // the source TSDoc wrapped them in backticks. The captured groups are
@@ -1119,6 +1150,45 @@ function renderMemberHeading(m: Reflection, parentName: string): string {
   return `### \`${memberHeadingText(m, parentName)}\``;
 }
 
+// Collapse a multi-line/multi-sentence summary down to its first
+// sentence for the compact one-line bullets used in the chainable-method
+// list. Falls back to the whole (whitespace-collapsed) string when no
+// sentence terminator is found.
+function firstSentence(text: string): string {
+  const collapsed = text.replace(/\s+/g, " ").trim();
+  const match = collapsed.match(/^(.*?[.!?])(?:\s|$)/);
+  return match !== null ? match[1] : collapsed;
+}
+
+// Render a call builder's public methods as a compact `**Chainable
+// methods**` list, one bullet per method. Used to surface the fluent API
+// (forAccount, cursor, limit, call, stream, …) at each `Server.*` method
+// that returns the builder, so the builders need not be documented as
+// standalone symbols.
+function renderChainableMethods(methods: ChainableMethod[]): string {
+  const bullets = methods.map((m) =>
+    m.summary.length > 0
+      ? `- \`${m.signature}\` — ${m.summary}`
+      : `- \`${m.signature}\``,
+  );
+  return `**Chainable methods**\n\n${bullets.join("\n")}`;
+}
+
+// A property written as an assignment of a function (e.g.
+// `static pathPaymentStrictReceive = ops.pathPaymentStrictReceive` on
+// the Operation class) is classified by TypeDoc as a property (kind
+// 1024) whose `type` is a function reflection. The real comment,
+// parameters, and return type live on that nested call signature, not
+// on the property reflection itself. Return it so these members render
+// with the same detail as the methods they effectively are.
+function functionValuedPropertySignature(
+  m: Reflection,
+): Reflection | undefined {
+  if (m.kind !== KIND_PROPERTY) return undefined;
+  if (m.type?.type !== "reflection") return undefined;
+  return m.type.declaration.signatures?.[0];
+}
+
 // One H3 sub-block per public member: heading, summary, ts code fence
 // of the member's own signature, params/returns/throws/examples
 // sections, source link.
@@ -1129,11 +1199,15 @@ function renderMemberBlock(
 ): string {
   const heading = renderMemberHeading(m, parentName);
 
+  const fnPropSig = functionValuedPropertySignature(m);
+
   // Comment lives on the member directly for properties, on the
-  // first signature for callable members.
+  // first signature for callable members, and on the nested call
+  // signature for function-valued properties.
   const comment =
     m.comment ??
     m.signatures?.[0]?.comment ??
+    fnPropSig?.comment ??
     m.getSignature?.comment ??
     m.setSignature?.comment;
   const tags = extractTags(comment);
@@ -1143,8 +1217,9 @@ function renderMemberBlock(
   const fence = `\`\`\`ts\n${renderMemberDeclarationLine(m)};\n\`\`\``;
 
   // For callable members, use signatures[0] for params/returns. For
+  // function-valued properties, use the nested call signature. For
   // accessors, use getSignature for return-shape.
-  const callable = m.signatures?.[0] ?? m.getSignature;
+  const callable = m.signatures?.[0] ?? fnPropSig ?? m.getSignature;
   const params =
     callable !== undefined ? renderParametersSection(callable) : "";
   const returnsTag =
@@ -1155,6 +1230,20 @@ function renderMemberBlock(
   const examples = renderExamplesSection(tags.examples);
   const see = renderSeeSection(tags.see);
   const warning = renderWarningSection(tags.warning);
+
+  // When this member returns a call builder (e.g. Server.operations()
+  // returns OperationCallBuilder), inline that builder's fluent API here
+  // rather than documenting the builder as a standalone symbol.
+  const returnTypeName =
+    callable?.type?.type === "reference" ? callable.type.name : undefined;
+  const chainableMethods =
+    returnTypeName !== undefined
+      ? currentBuilderMembers?.get(returnTypeName)
+      : undefined;
+  const chainable =
+    chainableMethods !== undefined && chainableMethods.length > 0
+      ? renderChainableMethods(chainableMethods)
+      : "";
 
   const memberSource = m.sources?.[0];
   const sourceLink =
@@ -1173,6 +1262,7 @@ function renderMemberBlock(
     examples,
     see,
     warning,
+    chainable,
     sourceLink,
   ];
   return sections.filter((s) => s.length > 0).join("\n\n");
@@ -1278,9 +1368,75 @@ function renderFile(
   return `${header}\n\n${blocks}\n`;
 }
 
+// Recover the public members of the Horizon call builders via a second,
+// self-contained typedoc pass over just the call-builder source files.
+// These classes are not part of the package's public exports, so the main
+// pass (which walks exports from src/index.ts) never sees them. We use a
+// dedicated options file via `--options` so this pass ignores the project
+// typedoc.json entirely and cannot disturb the main api.json or the
+// committed docs/ output. Validation is relaxed because the builders'
+// `{@link Horizon.Server.x}` cross-references don't resolve in isolation
+// and would otherwise trip `treatWarningsAsErrors`.
+function buildCallBuilderMembers(): Map<string, ChainableMethod[]> {
+  const horizonDir = join(REPO_ROOT, "src/horizon");
+  // Absolute paths: typedoc resolves relative paths in an `--options`
+  // file against that file's directory (tmp/typedoc-json/), not the cwd.
+  const entryPoints = readdirSync(horizonDir)
+    .filter((f) => f.endsWith("call_builder.ts"))
+    .sort()
+    .map((f) => join(horizonDir, f));
+
+  const options = {
+    entryPoints,
+    entryPointStrategy: "resolve",
+    tsconfig: join(REPO_ROOT, "tsconfig.json"),
+    json: CALL_BUILDER_JSON,
+    // Keep HTML emission inside the gitignored tmp dir; without an
+    // explicit `out`, typedoc would default to ./docs and clobber the
+    // committed content collection.
+    out: join(REPO_ROOT, "tmp/typedoc-json/call-builders-html"),
+    treatWarningsAsErrors: false,
+    validation: {
+      invalidLink: false,
+      notExported: false,
+      notDocumented: false,
+    },
+    skipErrorChecking: true,
+  };
+  mkdirSync(dirname(CALL_BUILDER_OPTIONS), { recursive: true });
+  writeFileSync(CALL_BUILDER_OPTIONS, JSON.stringify(options, null, 2), "utf8");
+
+  console.log("Running secondary typedoc pass for call builders...");
+  execSync(`pnpm exec typedoc --options ${CALL_BUILDER_OPTIONS}`, {
+    stdio: "inherit",
+    cwd: REPO_ROOT,
+  });
+
+  const project = JSON.parse(
+    readFileSync(CALL_BUILDER_JSON, "utf8"),
+  ) as Reflection;
+  const map = new Map<string, ChainableMethod[]>();
+  const visit = (refl: Reflection): void => {
+    if (refl.kind === KIND_CLASS && /CallBuilder$/.test(refl.name)) {
+      const methods = collectPublicMembers(refl)
+        .filter((member) => member.kind === KIND_METHOD)
+        .map((member) => ({
+          signature: renderMemberDeclarationLine(member),
+          summary: firstSentence(renderSummary(findComment(member)?.summary)),
+        }));
+      map.set(refl.name, methods);
+    }
+    for (const child of refl.children ?? []) visit(child);
+  };
+  visit(project);
+  return map;
+}
+
 function main(): void {
   console.log("Running typedoc to refresh api.json...");
   execSync("pnpm exec typedoc", { stdio: "inherit", cwd: REPO_ROOT });
+
+  currentBuilderMembers = buildCallBuilderMembers();
 
   const pkg = JSON.parse(
     readFileSync(join(REPO_ROOT, "package.json"), "utf8"),
@@ -1353,6 +1509,7 @@ function main(): void {
   }
   currentLinkResolver = undefined;
   currentRenderBucket = undefined;
+  currentBuilderMembers = undefined;
   console.log(
     `Wrote 16 reference files (${totalSymbols} symbols) to ${OUTPUT_DIR}.`,
   );
