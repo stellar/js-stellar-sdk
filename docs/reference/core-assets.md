@@ -252,50 +252,10 @@ toXDRObject(): Asset;
 ## AssetType
 
 ```ts
-type AssetType = typeof AssetType[keyof typeof AssetType]
-```
-
-**Source:** [src/base/asset.ts:7](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L7)
-
-## AssetType
-
-```ts
 const AssetType: { readonly credit12: "credit_alphanum12"; readonly credit4: "credit_alphanum4"; readonly liquidityPoolShares: "liquidity_pool_shares"; readonly native: "native" }
 ```
 
 **Source:** [src/base/asset.ts:7](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L7)
-
-## AssetType.credit12
-
-```ts
-type credit12 = "credit_alphanum12"
-```
-
-**Source:** [src/base/asset.ts:20](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L20)
-
-## AssetType.credit4
-
-```ts
-type credit4 = "credit_alphanum4"
-```
-
-**Source:** [src/base/asset.ts:19](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L19)
-
-## AssetType.liquidityPoolShares
-
-```ts
-type liquidityPoolShares = "liquidity_pool_shares"
-```
-
-**Source:** [src/base/asset.ts:21](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L21)
-
-## AssetType.native
-
-```ts
-type native = "native"
-```
-
-**Source:** [src/base/asset.ts:18](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L18)
 
 ## Claimant
 
@@ -728,66 +688,6 @@ toXDRObject(): TrustLineAsset;
 
 **Source:** [src/base/liquidity_pool_id.ts:48](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/liquidity_pool_id.ts#L48)
 
-## LiquidityPoolParameters
-
-```ts
-type LiquidityPoolParameters = LiquidityPoolParameters.ConstantProduct
-```
-
-**Source:** [src/base/get_liquidity_pool_id.ts:12](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/get_liquidity_pool_id.ts#L12)
-
-## LiquidityPoolParameters.ConstantProduct
-
-```ts
-interface ConstantProduct {
-  assetA: Asset;
-  assetB: Asset;
-  fee: number;
-}
-```
-
-**Source:** [src/base/get_liquidity_pool_id.ts:13](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/get_liquidity_pool_id.ts#L13)
-
-### `constantProduct.assetA`
-
-```ts
-assetA: Asset;
-```
-
-**Source:** [src/base/get_liquidity_pool_id.ts:14](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/get_liquidity_pool_id.ts#L14)
-
-### `constantProduct.assetB`
-
-```ts
-assetB: Asset;
-```
-
-**Source:** [src/base/get_liquidity_pool_id.ts:15](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/get_liquidity_pool_id.ts#L15)
-
-### `constantProduct.fee`
-
-```ts
-fee: number;
-```
-
-**Source:** [src/base/get_liquidity_pool_id.ts:16](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/get_liquidity_pool_id.ts#L16)
-
-## LiquidityPoolType
-
-```ts
-type LiquidityPoolType = LiquidityPoolType.constantProduct
-```
-
-**Source:** [src/base/get_liquidity_pool_id.ts:7](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/get_liquidity_pool_id.ts#L7)
-
-## LiquidityPoolType.constantProduct
-
-```ts
-type constantProduct = "constant_product"
-```
-
-**Source:** [src/base/get_liquidity_pool_id.ts:8](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/get_liquidity_pool_id.ts#L8)
-
 ## getLiquidityPoolId
 
 Computes the Pool ID for the given assets, fee and pool type.
@@ -812,3 +712,105 @@ getLiquidityPoolId(liquidityPoolType: "constant_product", liquidityPoolParameter
 - [stellar-core getPoolID](https://github.com/stellar/stellar-core/blob/9f3a48c6a8f1aa77b6043a055d0638661f718080/src/ledger/test/LedgerTxnTests.cpp#L3746-L3751)
 
 **Source:** [src/base/get_liquidity_pool_id.ts:38](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/get_liquidity_pool_id.ts#L38)
+
+## Types
+
+### AssetType
+
+```ts
+type AssetType = typeof AssetType[keyof typeof AssetType]
+```
+
+**Source:** [src/base/asset.ts:7](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L7)
+
+### AssetType.credit12
+
+```ts
+type credit12 = "credit_alphanum12"
+```
+
+**Source:** [src/base/asset.ts:20](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L20)
+
+### AssetType.credit4
+
+```ts
+type credit4 = "credit_alphanum4"
+```
+
+**Source:** [src/base/asset.ts:19](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L19)
+
+### AssetType.liquidityPoolShares
+
+```ts
+type liquidityPoolShares = "liquidity_pool_shares"
+```
+
+**Source:** [src/base/asset.ts:21](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L21)
+
+### AssetType.native
+
+```ts
+type native = "native"
+```
+
+**Source:** [src/base/asset.ts:18](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L18)
+
+### LiquidityPoolParameters
+
+```ts
+type LiquidityPoolParameters = LiquidityPoolParameters.ConstantProduct
+```
+
+**Source:** [src/base/get_liquidity_pool_id.ts:12](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/get_liquidity_pool_id.ts#L12)
+
+### LiquidityPoolParameters.ConstantProduct
+
+```ts
+interface ConstantProduct {
+  assetA: Asset;
+  assetB: Asset;
+  fee: number;
+}
+```
+
+**Source:** [src/base/get_liquidity_pool_id.ts:13](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/get_liquidity_pool_id.ts#L13)
+
+#### `constantProduct.assetA`
+
+```ts
+assetA: Asset;
+```
+
+**Source:** [src/base/get_liquidity_pool_id.ts:14](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/get_liquidity_pool_id.ts#L14)
+
+#### `constantProduct.assetB`
+
+```ts
+assetB: Asset;
+```
+
+**Source:** [src/base/get_liquidity_pool_id.ts:15](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/get_liquidity_pool_id.ts#L15)
+
+#### `constantProduct.fee`
+
+```ts
+fee: number;
+```
+
+**Source:** [src/base/get_liquidity_pool_id.ts:16](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/get_liquidity_pool_id.ts#L16)
+
+### LiquidityPoolType
+
+```ts
+type LiquidityPoolType = LiquidityPoolType.constantProduct
+```
+
+**Source:** [src/base/get_liquidity_pool_id.ts:7](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/get_liquidity_pool_id.ts#L7)
+
+### LiquidityPoolType.constantProduct
+
+```ts
+type constantProduct = "constant_product"
+```
+
+**Source:** [src/base/get_liquidity_pool_id.ts:8](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/get_liquidity_pool_id.ts#L8)

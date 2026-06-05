@@ -19,7 +19,6 @@
 - [Network / Horizon](reference/network-horizon)
 - [Network / RPC](reference/network-rpc)
 - [Network / Friendbot](reference/network-friendbot)
-- [Network / HTTP](reference/network-http)
 - [Contracts / Client](reference/contracts-client)
 - [Contracts / Bindings](reference/contracts-bindings)
 - [SEPs / Toml](reference/seps-toml)

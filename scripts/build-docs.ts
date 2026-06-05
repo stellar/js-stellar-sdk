@@ -46,7 +46,6 @@ const BUCKET_TO_SLUG = {
   "Network / Horizon": "network-horizon",
   "Network / RPC": "network-rpc",
   "Network / Friendbot": "network-friendbot",
-  "Network / HTTP": "network-http",
   "Contracts / Client": "contracts-client",
   "Contracts / Bindings": "contracts-bindings",
   "SEPs / Toml": "seps-toml",
@@ -82,8 +81,6 @@ const BUCKET_DESCRIPTIONS: Record<BucketName, string> = {
     "Client for Soroban RPC — simulate, send, and poll Soroban smart-contract transactions.",
   "Network / Friendbot":
     "Testnet account funding via Friendbot — request lumens for accounts on test networks.",
-  "Network / HTTP":
-    "HTTP client primitives — timeouts, headers, and URL utilities shared by the Horizon and RPC clients.",
   "Contracts / Client":
     "High-level client for invoking Soroban smart contracts — assemble, simulate, sign, and submit calls.",
   "Contracts / Bindings":
@@ -105,7 +102,6 @@ const BUCKET_DESCRIPTIONS: Record<BucketName, string> = {
 // (e.g. src/webauth/errors.ts → Errors, not SEPs / WebAuth).
 const FILE_OVERRIDES: Record<string, BucketName> = {
   "src/utils.ts": "Cross-cutting",
-  "src/utils/url.ts": "Network / HTTP",
   "src/config.ts": "Cross-cutting",
   "src/webauth/errors.ts": "Errors",
   "src/base/util/bignumber.ts": "Cross-cutting",
@@ -141,7 +137,6 @@ const DIRECTORY_PREFIXES: ReadonlyArray<readonly [string, BucketName]> = [
   ["src/horizon/", "Network / Horizon"],
   ["src/rpc/", "Network / RPC"],
   ["src/friendbot/", "Network / Friendbot"],
-  ["src/http-client/", "Network / HTTP"],
   ["src/contract/", "Contracts / Client"],
   ["src/bindings/", "Contracts / Bindings"],
   ["src/cli/", "Contracts / Bindings"],
@@ -1146,8 +1141,12 @@ function memberHeadingText(m: Reflection, parentName: string): string {
   throw new Error(`memberHeadingText: unhandled kind ${m.kind} for ${m.name}`);
 }
 
-function renderMemberHeading(m: Reflection, parentName: string): string {
-  return `### \`${memberHeadingText(m, parentName)}\``;
+function renderMemberHeading(
+  m: Reflection,
+  parentName: string,
+  level: number,
+): string {
+  return `${"#".repeat(level)} \`${memberHeadingText(m, parentName)}\``;
 }
 
 // Collapse a multi-line/multi-sentence summary down to its first
@@ -1196,8 +1195,9 @@ function renderMemberBlock(
   m: Reflection,
   parentName: string,
   sourceRef: string,
+  headingLevel: number,
 ): string {
-  const heading = renderMemberHeading(m, parentName);
+  const heading = renderMemberHeading(m, parentName, headingLevel);
 
   const fnPropSig = functionValuedPropertySignature(m);
 
@@ -1268,12 +1268,16 @@ function renderMemberBlock(
   return sections.filter((s) => s.length > 0).join("\n\n");
 }
 
-function renderSymbolBlock(record: SymbolRecord, sourceRef: string): string {
+function renderSymbolBlock(
+  record: SymbolRecord,
+  sourceRef: string,
+  headingLevel = 2,
+): string {
   try {
     const comment = findComment(record.refl);
     const tags = extractTags(comment);
 
-    const heading = `## ${record.qname}`;
+    const heading = `${"#".repeat(headingLevel)} ${record.qname}`;
     const deprecated = renderDeprecatedParagraph(tags.deprecated);
     const summary = renderSummary(comment?.summary);
 
@@ -1304,7 +1308,7 @@ function renderSymbolBlock(record: SymbolRecord, sourceRef: string): string {
 
     const memberBlocks = isClassLike
       ? sortMembers(record.members ?? []).map((m) =>
-          renderMemberBlock(m, record.refl.name, sourceRef),
+          renderMemberBlock(m, record.refl.name, sourceRef, headingLevel + 1),
         )
       : [];
 
@@ -1362,9 +1366,25 @@ function renderFile(
   // cross-file `{@link}` resolution. Cleared in `main()` after all
   // files render.
   currentRenderBucket = bucketName;
-  const blocks = sorted
-    .map((s) => renderSymbolBlock(s, sourceRef))
-    .join("\n\n");
+
+  // Type declarations (aliases, interfaces, enums) dominate page length,
+  // so they are grouped under a single `## Types` section instead of
+  // sitting alongside the primary API (classes, functions, variables).
+  // The grouped symbols render one heading level deeper (### / ####) so
+  // they nest under `## Types`. Heading *text* is unchanged, so heading
+  // slugs — and therefore existing deep links and `{@link}` anchors —
+  // are preserved.
+  const isTypeDeclaration = (kind: number): boolean =>
+    kind === KIND_TYPE_ALIAS || kind === KIND_INTERFACE || kind === KIND_ENUM;
+  const primary = sorted.filter((s) => !isTypeDeclaration(s.kind));
+  const types = sorted.filter((s) => isTypeDeclaration(s.kind));
+
+  const parts = primary.map((s) => renderSymbolBlock(s, sourceRef));
+  if (types.length > 0) {
+    parts.push("## Types");
+    for (const s of types) parts.push(renderSymbolBlock(s, sourceRef, 3));
+  }
+  const blocks = parts.join("\n\n");
   return `${header}\n\n${blocks}\n`;
 }
 
@@ -1511,7 +1531,7 @@ function main(): void {
   currentRenderBucket = undefined;
   currentBuilderMembers = undefined;
   console.log(
-    `Wrote 16 reference files (${totalSymbols} symbols) to ${OUTPUT_DIR}.`,
+    `Wrote ${rendered.length} reference files (${totalSymbols} symbols) to ${OUTPUT_DIR}.`,
   );
 }
 

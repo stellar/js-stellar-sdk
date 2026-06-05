@@ -5,83 +5,6 @@ description: Federation protocol (SEP-2) client — resolve user-friendly addres
 
 # SEPs / Federation
 
-## Federation.Api.Options
-
-Options for configuring connections to federation servers. You can also use `Config` class to set this globally.
-
-```ts
-interface Options {
-  allowHttp?: boolean;
-  timeout?: number;
-}
-```
-
-**Source:** [src/federation/api.ts:25](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/api.ts#L25)
-
-### `options.allowHttp`
-
-Allow connecting to http servers, default: `false`. This must be set to false in production deployments!
-
-```ts
-allowHttp?: boolean;
-```
-
-**Source:** [src/federation/api.ts:29](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/api.ts#L29)
-
-### `options.timeout`
-
-Allow a timeout, default: 0. Allows user to avoid nasty lag due to TOML resolve issue.
-
-```ts
-timeout?: number;
-```
-
-**Source:** [src/federation/api.ts:33](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/api.ts#L33)
-
-## Federation.Api.Record
-
-Record returned from a federation server.
-
-```ts
-interface Record {
-  account_id: string;
-  memo?: string;
-  memo_type?: string;
-}
-```
-
-**Source:** [src/federation/api.ts:7](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/api.ts#L7)
-
-### `record.account_id`
-
-The Stellar public key resolved from the federation lookup
-
-```ts
-account_id: string;
-```
-
-**Source:** [src/federation/api.ts:11](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/api.ts#L11)
-
-### `record.memo`
-
-The memo value, if any, required to send payments to this user
-
-```ts
-memo?: string;
-```
-
-**Source:** [src/federation/api.ts:19](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/api.ts#L19)
-
-### `record.memo_type`
-
-The type of memo, if any, required to send payments to this user
-
-```ts
-memo_type?: string;
-```
-
-**Source:** [src/federation/api.ts:15](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/api.ts#L15)
-
 ## Federation.FEDERATION_RESPONSE_MAX_SIZE
 
 The maximum size of response from a federation server
@@ -299,3 +222,82 @@ A promise that resolves to the federation record
 - <a href="https://developers.stellar.org/docs/glossary/federation/" target="_blank">Federation doc</a>
 
 **Source:** [src/federation/server.ts:219](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L219)
+
+## Types
+
+### Federation.Api.Options
+
+Options for configuring connections to federation servers. You can also use `Config` class to set this globally.
+
+```ts
+interface Options {
+  allowHttp?: boolean;
+  timeout?: number;
+}
+```
+
+**Source:** [src/federation/api.ts:25](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/api.ts#L25)
+
+#### `options.allowHttp`
+
+Allow connecting to http servers, default: `false`. This must be set to false in production deployments!
+
+```ts
+allowHttp?: boolean;
+```
+
+**Source:** [src/federation/api.ts:29](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/api.ts#L29)
+
+#### `options.timeout`
+
+Allow a timeout, default: 0. Allows user to avoid nasty lag due to TOML resolve issue.
+
+```ts
+timeout?: number;
+```
+
+**Source:** [src/federation/api.ts:33](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/api.ts#L33)
+
+### Federation.Api.Record
+
+Record returned from a federation server.
+
+```ts
+interface Record {
+  account_id: string;
+  memo?: string;
+  memo_type?: string;
+}
+```
+
+**Source:** [src/federation/api.ts:7](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/api.ts#L7)
+
+#### `record.account_id`
+
+The Stellar public key resolved from the federation lookup
+
+```ts
+account_id: string;
+```
+
+**Source:** [src/federation/api.ts:11](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/api.ts#L11)
+
+#### `record.memo`
+
+The memo value, if any, required to send payments to this user
+
+```ts
+memo?: string;
+```
+
+**Source:** [src/federation/api.ts:19](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/api.ts#L19)
+
+#### `record.memo_type`
+
+The type of memo, if any, required to send payments to this user
+
+```ts
+memo_type?: string;
+```
+
+**Source:** [src/federation/api.ts:15](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/api.ts#L15)

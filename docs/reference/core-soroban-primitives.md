@@ -202,133 +202,6 @@ toString(): string;
 
 **Source:** [src/base/address.ts:147](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L147)
 
-## AuthorizeInvocationParams
-
-This builds an entry from scratch, allowing you to express authorization as a
-function of:
-  - a particular identity (i.e. signing `Keypair` or other signer)
-  - approving the execution of an invocation tree (i.e. a simulation-acquired
-    `xdr.SorobanAuthorizedInvocation` or otherwise built)
-  - on a particular network (uniquely identified by its passphrase, see
-    `Networks`)
-  - until a particular ledger sequence is reached.
-
-This is in contrast to `authorizeEntry`, which signs an existing entry.
-
-```ts
-interface AuthorizeInvocationParams {
-  invocation: SorobanAuthorizedInvocation;
-  networkPassphrase: string;
-  publicKey?: string;
-  signer: Keypair | SigningCallback;
-  validUntilLedgerSeq: number;
-}
-```
-
-**See also**
-
-- authorizeEntry
-
-**Source:** [src/base/auth.ts:272](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L272)
-
-### `authorizeInvocationParams.invocation`
-
-```ts
-invocation: SorobanAuthorizedInvocation;
-```
-
-**Source:** [src/base/auth.ts:275](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L275)
-
-### `authorizeInvocationParams.networkPassphrase`
-
-```ts
-networkPassphrase: string;
-```
-
-**Source:** [src/base/auth.ts:276](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L276)
-
-### `authorizeInvocationParams.publicKey`
-
-```ts
-publicKey?: string;
-```
-
-**Source:** [src/base/auth.ts:277](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L277)
-
-### `authorizeInvocationParams.signer`
-
-```ts
-signer: Keypair | SigningCallback;
-```
-
-**Source:** [src/base/auth.ts:273](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L273)
-
-### `authorizeInvocationParams.validUntilLedgerSeq`
-
-```ts
-validUntilLedgerSeq: number;
-```
-
-**Source:** [src/base/auth.ts:274](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L274)
-
-## BuildWithDelegatesParams
-
-Parameters for `buildWithDelegatesEntry`.
-
-```ts
-interface BuildWithDelegatesParams {
-  delegates: DelegateSignature[];
-  entry: SorobanAuthorizationEntry;
-  signature?: ScVal;
-  validUntilLedgerSeq: number;
-}
-```
-
-**Source:** [src/base/auth.ts:408](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L408)
-
-### `buildWithDelegatesParams.delegates`
-
-the delegate signers to attach.
-
-```ts
-delegates: DelegateSignature[];
-```
-
-**Source:** [src/base/auth.ts:418](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L418)
-
-### `buildWithDelegatesParams.entry`
-
-an existing `SOROBAN_CREDENTIALS_ADDRESS` or
-`SOROBAN_CREDENTIALS_ADDRESS_V2` entry — typically one returned by
-simulation — whose address credentials should be wrapped.
-
-```ts
-entry: SorobanAuthorizationEntry;
-```
-
-**Source:** [src/base/auth.ts:414](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L414)
-
-### `buildWithDelegatesParams.signature`
-
-the top-level account's signature. Defaults to `scvVoid`, which is valid
-for accounts that authorize purely via delegated signers (CAP-71-01).
-
-```ts
-signature?: ScVal;
-```
-
-**Source:** [src/base/auth.ts:423](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L423)
-
-### `buildWithDelegatesParams.validUntilLedgerSeq`
-
-the expiration ledger sequence stored on the top-level credentials.
-
-```ts
-validUntilLedgerSeq: number;
-```
-
-**Source:** [src/base/auth.ts:416](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L416)
-
 ## Contract
 
 Create a new Contract object.
@@ -429,235 +302,6 @@ toString(): string;
 ```
 
 **Source:** [src/base/contract.ts:39](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/contract.ts#L39)
-
-## CreateInvocation
-
-Details about a contract creation invocation.
-
-- `type` indicates if this creation was a custom contract (`'wasm'`) or a
-  wrapping of an existing Stellar asset (`'sac'`)
-- `asset` is set when `type=='sac'`, containing the canonical `Asset`
-  being wrapped by this Stellar Asset Contract
-- `wasm` is set when `type=='wasm'`, containing additional creation parameters
-
-```ts
-interface CreateInvocation {
-  asset?: string;
-  type: "sac" | "wasm";
-  wasm?: WasmCreateDetails;
-}
-```
-
-**Source:** [src/base/invocation.ts:23](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L23)
-
-### `createInvocation.asset`
-
-```ts
-asset?: string;
-```
-
-**Source:** [src/base/invocation.ts:25](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L25)
-
-### `createInvocation.type`
-
-```ts
-type: "sac" | "wasm";
-```
-
-**Source:** [src/base/invocation.ts:24](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L24)
-
-### `createInvocation.wasm`
-
-```ts
-wasm?: WasmCreateDetails;
-```
-
-**Source:** [src/base/invocation.ts:26](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L26)
-
-## DelegateSignature
-
-A delegate signer to attach to a
-`SOROBAN_CREDENTIALS_ADDRESS_WITH_DELEGATES` entry via
-`buildWithDelegatesEntry`.
-
-```ts
-interface DelegateSignature {
-  address: string;
-  nestedDelegates?: DelegateSignature[];
-  signature?: ScVal;
-}
-```
-
-**Source:** [src/base/auth.ts:394](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L394)
-
-### `delegateSignature.address`
-
-the delegate's address (`G…` account or `C…` contract).
-
-```ts
-address: string;
-```
-
-**Source:** [src/base/auth.ts:396](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L396)
-
-### `delegateSignature.nestedDelegates`
-
-signers this delegate in turn delegates to (recursive).
-
-```ts
-nestedDelegates?: DelegateSignature[];
-```
-
-**Source:** [src/base/auth.ts:404](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L404)
-
-### `delegateSignature.signature`
-
-the delegate's signature value. Defaults to a `scvVoid` placeholder, which
-you can fill afterwards with `authorizeEntry` (passing this address
-as `forAddress`) or by editing the entry directly.
-
-```ts
-signature?: ScVal;
-```
-
-**Source:** [src/base/auth.ts:402](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L402)
-
-## ExecuteInvocation
-
-Details about a contract function execution invocation.
-
-- `source` is the strkey of the contract (`C...`) being invoked
-- `function` is the name of the function being invoked
-- `args` are the natively-represented parameters to the function invocation
-  (see `scValToNative` for rules on how they're represented as JS types)
-
-```ts
-interface ExecuteInvocation {
-  args: any[];
-  function: string;
-  source: string;
-}
-```
-
-**Source:** [src/base/invocation.ts:37](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L37)
-
-### `executeInvocation.args`
-
-```ts
-args: any[];
-```
-
-**Source:** [src/base/invocation.ts:41](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L41)
-
-### `executeInvocation.function`
-
-```ts
-function: string;
-```
-
-**Source:** [src/base/invocation.ts:39](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L39)
-
-### `executeInvocation.source`
-
-```ts
-source: string;
-```
-
-**Source:** [src/base/invocation.ts:38](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L38)
-
-## IntLike
-
-```ts
-type IntLike = bigint | number | string
-```
-
-**Source:** [src/base/sorobandata_builder.ts:3](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L3)
-
-## InvocationTree
-
-A node in the invocation tree.
-
-- `type` is the type of invocation occurring, either contract creation or
-  host function execution
-- `args` are the parameters to the invocation, depending on the type
-- `invocations` are any sub-invocations that may occur as a result of this
-  invocation (i.e. a tree of call stacks)
-
-```ts
-interface InvocationTree {
-  args: CreateInvocation | ExecuteInvocation;
-  invocations: InvocationTree[];
-  type: "create" | "execute";
-}
-```
-
-**Source:** [src/base/invocation.ts:53](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L53)
-
-### `invocationTree.args`
-
-```ts
-args: CreateInvocation | ExecuteInvocation;
-```
-
-**Source:** [src/base/invocation.ts:55](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L55)
-
-### `invocationTree.invocations`
-
-```ts
-invocations: InvocationTree[];
-```
-
-**Source:** [src/base/invocation.ts:56](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L56)
-
-### `invocationTree.type`
-
-```ts
-type: "create" | "execute";
-```
-
-**Source:** [src/base/invocation.ts:54](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L54)
-
-## InvocationWalker
-
-A callback used when walking an invocation tree.
-
-Returning exactly `false` is a hint to stop exploring deeper from this node;
-other return values are ignored.
-
-```ts
-type InvocationWalker = (node: xdr.SorobanAuthorizedInvocation, depth: number, parent?: xdr.SorobanAuthorizedInvocation) => boolean | null | void
-```
-
-**Source:** [src/base/invocation.ts:71](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L71)
-
-## NativeToScValOpts
-
-```ts
-interface NativeToScValOpts {
-  type?: ScValType | ScValMapTypeSpec | ScValType | null[];
-}
-```
-
-**Source:** [src/base/scval.ts:18](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L18)
-
-### `nativeToScValOpts.type`
-
-```ts
-type?: ScValType | ScValMapTypeSpec | ScValType | null[];
-```
-
-**Source:** [src/base/scval.ts:19](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L19)
-
-## SigningCallback
-
-A callback for signing an XDR structure representing all of the details
-necessary to authorize an invocation tree.
-
-```ts
-type SigningCallback = (preimage: xdr.HashIdPreimage) => Promise<BufferLike | { publicKey: string; signature: BufferLike }>
-```
-
-**Source:** [src/base/auth.ts:35](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L35)
 
 ## Soroban
 
@@ -954,51 +598,6 @@ setResources(cpuInstrs: number, diskReadBytes: number, writeBytes: number): Soro
 - **`writeBytes`** — `number` (required) — number of bytes being written to disk/memory
 
 **Source:** [src/base/sorobandata_builder.ts:101](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L101)
-
-## WasmCreateDetails
-
-```ts
-interface WasmCreateDetails {
-  address: string;
-  constructorArgs?: any[];
-  hash: string;
-  salt: string;
-}
-```
-
-**Source:** [src/base/invocation.ts:6](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L6)
-
-### `wasmCreateDetails.address`
-
-```ts
-address: string;
-```
-
-**Source:** [src/base/invocation.ts:8](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L8)
-
-### `wasmCreateDetails.constructorArgs`
-
-```ts
-constructorArgs?: any[];
-```
-
-**Source:** [src/base/invocation.ts:11](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L11)
-
-### `wasmCreateDetails.hash`
-
-```ts
-hash: string;
-```
-
-**Source:** [src/base/invocation.ts:7](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L7)
-
-### `wasmCreateDetails.salt`
-
-```ts
-salt: string;
-```
-
-**Source:** [src/base/invocation.ts:9](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L9)
 
 ## authorizeEntry
 
@@ -1486,3 +1085,406 @@ walkInvocationTree(root: SorobanAuthorizedInvocation, callback: InvocationWalker
 - **`callback`** — `InvocationWalker` (required) — the callback to execute for each node
 
 **Source:** [src/base/invocation.ts:229](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L229)
+
+## Types
+
+### AuthorizeInvocationParams
+
+This builds an entry from scratch, allowing you to express authorization as a
+function of:
+  - a particular identity (i.e. signing `Keypair` or other signer)
+  - approving the execution of an invocation tree (i.e. a simulation-acquired
+    `xdr.SorobanAuthorizedInvocation` or otherwise built)
+  - on a particular network (uniquely identified by its passphrase, see
+    `Networks`)
+  - until a particular ledger sequence is reached.
+
+This is in contrast to `authorizeEntry`, which signs an existing entry.
+
+```ts
+interface AuthorizeInvocationParams {
+  invocation: SorobanAuthorizedInvocation;
+  networkPassphrase: string;
+  publicKey?: string;
+  signer: Keypair | SigningCallback;
+  validUntilLedgerSeq: number;
+}
+```
+
+**See also**
+
+- authorizeEntry
+
+**Source:** [src/base/auth.ts:272](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L272)
+
+#### `authorizeInvocationParams.invocation`
+
+```ts
+invocation: SorobanAuthorizedInvocation;
+```
+
+**Source:** [src/base/auth.ts:275](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L275)
+
+#### `authorizeInvocationParams.networkPassphrase`
+
+```ts
+networkPassphrase: string;
+```
+
+**Source:** [src/base/auth.ts:276](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L276)
+
+#### `authorizeInvocationParams.publicKey`
+
+```ts
+publicKey?: string;
+```
+
+**Source:** [src/base/auth.ts:277](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L277)
+
+#### `authorizeInvocationParams.signer`
+
+```ts
+signer: Keypair | SigningCallback;
+```
+
+**Source:** [src/base/auth.ts:273](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L273)
+
+#### `authorizeInvocationParams.validUntilLedgerSeq`
+
+```ts
+validUntilLedgerSeq: number;
+```
+
+**Source:** [src/base/auth.ts:274](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L274)
+
+### BuildWithDelegatesParams
+
+Parameters for `buildWithDelegatesEntry`.
+
+```ts
+interface BuildWithDelegatesParams {
+  delegates: DelegateSignature[];
+  entry: SorobanAuthorizationEntry;
+  signature?: ScVal;
+  validUntilLedgerSeq: number;
+}
+```
+
+**Source:** [src/base/auth.ts:408](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L408)
+
+#### `buildWithDelegatesParams.delegates`
+
+the delegate signers to attach.
+
+```ts
+delegates: DelegateSignature[];
+```
+
+**Source:** [src/base/auth.ts:418](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L418)
+
+#### `buildWithDelegatesParams.entry`
+
+an existing `SOROBAN_CREDENTIALS_ADDRESS` or
+`SOROBAN_CREDENTIALS_ADDRESS_V2` entry — typically one returned by
+simulation — whose address credentials should be wrapped.
+
+```ts
+entry: SorobanAuthorizationEntry;
+```
+
+**Source:** [src/base/auth.ts:414](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L414)
+
+#### `buildWithDelegatesParams.signature`
+
+the top-level account's signature. Defaults to `scvVoid`, which is valid
+for accounts that authorize purely via delegated signers (CAP-71-01).
+
+```ts
+signature?: ScVal;
+```
+
+**Source:** [src/base/auth.ts:423](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L423)
+
+#### `buildWithDelegatesParams.validUntilLedgerSeq`
+
+the expiration ledger sequence stored on the top-level credentials.
+
+```ts
+validUntilLedgerSeq: number;
+```
+
+**Source:** [src/base/auth.ts:416](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L416)
+
+### CreateInvocation
+
+Details about a contract creation invocation.
+
+- `type` indicates if this creation was a custom contract (`'wasm'`) or a
+  wrapping of an existing Stellar asset (`'sac'`)
+- `asset` is set when `type=='sac'`, containing the canonical `Asset`
+  being wrapped by this Stellar Asset Contract
+- `wasm` is set when `type=='wasm'`, containing additional creation parameters
+
+```ts
+interface CreateInvocation {
+  asset?: string;
+  type: "sac" | "wasm";
+  wasm?: WasmCreateDetails;
+}
+```
+
+**Source:** [src/base/invocation.ts:23](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L23)
+
+#### `createInvocation.asset`
+
+```ts
+asset?: string;
+```
+
+**Source:** [src/base/invocation.ts:25](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L25)
+
+#### `createInvocation.type`
+
+```ts
+type: "sac" | "wasm";
+```
+
+**Source:** [src/base/invocation.ts:24](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L24)
+
+#### `createInvocation.wasm`
+
+```ts
+wasm?: WasmCreateDetails;
+```
+
+**Source:** [src/base/invocation.ts:26](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L26)
+
+### DelegateSignature
+
+A delegate signer to attach to a
+`SOROBAN_CREDENTIALS_ADDRESS_WITH_DELEGATES` entry via
+`buildWithDelegatesEntry`.
+
+```ts
+interface DelegateSignature {
+  address: string;
+  nestedDelegates?: DelegateSignature[];
+  signature?: ScVal;
+}
+```
+
+**Source:** [src/base/auth.ts:394](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L394)
+
+#### `delegateSignature.address`
+
+the delegate's address (`G…` account or `C…` contract).
+
+```ts
+address: string;
+```
+
+**Source:** [src/base/auth.ts:396](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L396)
+
+#### `delegateSignature.nestedDelegates`
+
+signers this delegate in turn delegates to (recursive).
+
+```ts
+nestedDelegates?: DelegateSignature[];
+```
+
+**Source:** [src/base/auth.ts:404](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L404)
+
+#### `delegateSignature.signature`
+
+the delegate's signature value. Defaults to a `scvVoid` placeholder, which
+you can fill afterwards with `authorizeEntry` (passing this address
+as `forAddress`) or by editing the entry directly.
+
+```ts
+signature?: ScVal;
+```
+
+**Source:** [src/base/auth.ts:402](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L402)
+
+### ExecuteInvocation
+
+Details about a contract function execution invocation.
+
+- `source` is the strkey of the contract (`C...`) being invoked
+- `function` is the name of the function being invoked
+- `args` are the natively-represented parameters to the function invocation
+  (see `scValToNative` for rules on how they're represented as JS types)
+
+```ts
+interface ExecuteInvocation {
+  args: any[];
+  function: string;
+  source: string;
+}
+```
+
+**Source:** [src/base/invocation.ts:37](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L37)
+
+#### `executeInvocation.args`
+
+```ts
+args: any[];
+```
+
+**Source:** [src/base/invocation.ts:41](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L41)
+
+#### `executeInvocation.function`
+
+```ts
+function: string;
+```
+
+**Source:** [src/base/invocation.ts:39](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L39)
+
+#### `executeInvocation.source`
+
+```ts
+source: string;
+```
+
+**Source:** [src/base/invocation.ts:38](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L38)
+
+### IntLike
+
+```ts
+type IntLike = bigint | number | string
+```
+
+**Source:** [src/base/sorobandata_builder.ts:3](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L3)
+
+### InvocationTree
+
+A node in the invocation tree.
+
+- `type` is the type of invocation occurring, either contract creation or
+  host function execution
+- `args` are the parameters to the invocation, depending on the type
+- `invocations` are any sub-invocations that may occur as a result of this
+  invocation (i.e. a tree of call stacks)
+
+```ts
+interface InvocationTree {
+  args: CreateInvocation | ExecuteInvocation;
+  invocations: InvocationTree[];
+  type: "create" | "execute";
+}
+```
+
+**Source:** [src/base/invocation.ts:53](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L53)
+
+#### `invocationTree.args`
+
+```ts
+args: CreateInvocation | ExecuteInvocation;
+```
+
+**Source:** [src/base/invocation.ts:55](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L55)
+
+#### `invocationTree.invocations`
+
+```ts
+invocations: InvocationTree[];
+```
+
+**Source:** [src/base/invocation.ts:56](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L56)
+
+#### `invocationTree.type`
+
+```ts
+type: "create" | "execute";
+```
+
+**Source:** [src/base/invocation.ts:54](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L54)
+
+### InvocationWalker
+
+A callback used when walking an invocation tree.
+
+Returning exactly `false` is a hint to stop exploring deeper from this node;
+other return values are ignored.
+
+```ts
+type InvocationWalker = (node: xdr.SorobanAuthorizedInvocation, depth: number, parent?: xdr.SorobanAuthorizedInvocation) => boolean | null | void
+```
+
+**Source:** [src/base/invocation.ts:71](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L71)
+
+### NativeToScValOpts
+
+```ts
+interface NativeToScValOpts {
+  type?: ScValType | ScValMapTypeSpec | ScValType | null[];
+}
+```
+
+**Source:** [src/base/scval.ts:18](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L18)
+
+#### `nativeToScValOpts.type`
+
+```ts
+type?: ScValType | ScValMapTypeSpec | ScValType | null[];
+```
+
+**Source:** [src/base/scval.ts:19](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L19)
+
+### SigningCallback
+
+A callback for signing an XDR structure representing all of the details
+necessary to authorize an invocation tree.
+
+```ts
+type SigningCallback = (preimage: xdr.HashIdPreimage) => Promise<BufferLike | { publicKey: string; signature: BufferLike }>
+```
+
+**Source:** [src/base/auth.ts:35](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L35)
+
+### WasmCreateDetails
+
+```ts
+interface WasmCreateDetails {
+  address: string;
+  constructorArgs?: any[];
+  hash: string;
+  salt: string;
+}
+```
+
+**Source:** [src/base/invocation.ts:6](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L6)
+
+#### `wasmCreateDetails.address`
+
+```ts
+address: string;
+```
+
+**Source:** [src/base/invocation.ts:8](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L8)
+
+#### `wasmCreateDetails.constructorArgs`
+
+```ts
+constructorArgs?: any[];
+```
+
+**Source:** [src/base/invocation.ts:11](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L11)
+
+#### `wasmCreateDetails.hash`
+
+```ts
+hash: string;
+```
+
+**Source:** [src/base/invocation.ts:7](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L7)
+
+#### `wasmCreateDetails.salt`
+
+```ts
+salt: string;
+```
+
+**Source:** [src/base/invocation.ts:9](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L9)

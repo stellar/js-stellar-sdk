@@ -90,3 +90,25 @@ main > .content-panel:has(> .sl-container > #_top:only-child) + .content-panel {
 .badges img {
   vertical-align: middle;
 }
+
+/* Clickable anchor links on content headings (added by the
+   rehypeHeadingAnchors plugin in astro.config.mjs). Hidden until the
+   heading is hovered or the link itself is focused, to avoid clutter. */
+.heading-anchor {
+  margin-inline-start: 0.4em;
+  text-decoration: none;
+  opacity: 0;
+  transition: opacity 0.15s ease-in-out;
+}
+/* The `#` glyph is supplied here (not as DOM text) so it stays out of the
+   heading text Starlight reads for the on-this-page TOC. */
+.heading-anchor::after {
+  content: "#";
+}
+:is(h1, h2, h3, h4, h5, h6):hover > .heading-anchor,
+.heading-anchor:focus {
+  opacity: 0.6;
+}
+.heading-anchor:hover {
+  opacity: 1;
+}
