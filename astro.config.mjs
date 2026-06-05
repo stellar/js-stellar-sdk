@@ -1,51 +1,50 @@
 import { defineConfig, fontProviders } from "astro/config";
 import starlight from "@astrojs/starlight";
 import sitemap from "@astrojs/sitemap";
+import GithubSlugger from "github-slugger";
 
 import { SITE_URL, BASE_PATH } from "./config/site.js";
 
+const headingText = (node) =>
+  node.type === "text"
+    ? node.value
+    : (node.children ?? []).map(headingText).join("");
+
 /**
- * Append a clickable anchor link to every content heading (h2–h6) so
- * readers can copy a deep link to any section. Inline (no dependency) to
- * keep the docs pipeline self-contained.
+ * Assign each content heading (h2–h6) a slug id and append a clickable
+ * anchor link so readers can copy a deep link to any section.
  *
- * Astro injects heading `id`s downstream of user rehype plugins, so the
- * id isn't available here yet. Instead we derive the slug from the
- * heading text using the same rule Astro/Starlight applies (lowercase,
- * spaces → `-`, drop everything else), so the generated href matches the
- * `id` Astro sets and the anchors in the on-this-page TOC. This rule
- * mirrors `slugifyHeading` in scripts/build-docs.ts (which produces the
- * `{@link}` anchors) — keep the two in sync.
+ * This runs before Astro's heading-id collector, which defers to any id
+ * already set (see @astrojs/markdown-remark's rehype-collect-headings:
+ * `if (typeof node.properties.id !== "string")`). So the id we set here
+ * wins and is reused by the on-this-page TOC. We slug with `github-slugger`
+ * — the same library that collector uses, and the same one
+ * scripts/build-docs.ts uses for `{@link}` anchors — making it the single
+ * source of truth for every heading id. A fresh slugger per page, fed
+ * headings in document order, reproduces the `-1`/`-2` suffixes that
+ * disambiguate repeated headings.
  */
 function rehypeHeadingAnchors() {
-  const slugify = (text) =>
-    text
-      .toLowerCase()
-      .replace(/\s+/g, "-")
-      .replace(/[^a-z0-9-]/g, "");
-  const textOf = (node) => {
-    if (node.type === "text") return node.value;
-    return (node.children ?? []).map(textOf).join("");
-  };
   return (tree) => {
+    const slugger = new GithubSlugger();
     const visit = (node) => {
       if (node.type === "element" && /^h[2-6]$/.test(node.tagName)) {
-        const id = slugify(textOf(node));
-        if (id.length > 0) {
-          // The visible `#` is rendered via CSS (`.heading-anchor::after`),
-          // not as a text node, so it does not leak into the heading text
-          // that Starlight extracts for the on-this-page TOC.
-          node.children.push({
-            type: "element",
-            tagName: "a",
-            properties: {
-              href: `#${id}`,
-              className: ["heading-anchor"],
-              "aria-label": "Link to this section",
-            },
-            children: [],
-          });
-        }
+        const id = slugger.slug(headingText(node));
+        node.properties = node.properties ?? {};
+        node.properties.id = id;
+        // The visible `#` is rendered via CSS (`.heading-anchor::after`),
+        // not as a text node, so it does not leak into the heading text
+        // that Starlight extracts for the on-this-page TOC.
+        node.children.push({
+          type: "element",
+          tagName: "a",
+          properties: {
+            href: `#${id}`,
+            className: ["heading-anchor"],
+            "aria-label": "Link to this section",
+          },
+          children: [],
+        });
       }
       for (const child of node.children ?? []) visit(child);
     };

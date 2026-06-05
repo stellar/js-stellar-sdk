@@ -748,7 +748,7 @@ buildAuthorizationEntryPreimage(entry: SorobanAuthorizationEntry, validUntilLedg
 
 **Throws**
 
-- if `entry` carries source-account or otherwise non-address
+- `Error` if `entry` carries source-account or otherwise non-address
    credentials
 
 **Source:** [src/base/auth.ts:340](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L340)
@@ -837,7 +837,7 @@ buildWithDelegatesEntry(params: BuildWithDelegatesParams): SorobanAuthorizationE
 
 **Throws**
 
-- if `entry` is not an `ADDRESS`/`ADDRESS_V2` entry, or if any
+- `Error` if `entry` is not an `ADDRESS`/`ADDRESS_V2` entry, or if any
    delegates array contains a duplicate address.
 
 **Source:** [src/base/auth.ts:450](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L450)

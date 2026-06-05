@@ -13,6 +13,8 @@ import { execSync } from "node:child_process";
 import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
+import GithubSlugger from "github-slugger";
+
 import { DOCS_SOURCE_REF } from "./docs-source-ref.js";
 
 const REPO_ROOT = process.cwd();
@@ -757,18 +759,16 @@ function renderSignature(refl: Reflection): string {
 
 // === Summary rendering ===
 
-// Slugifier matching Starlight's heading-id rule: lowercase, collapse
-// runs of whitespace into `-`, then strip everything that isn't
-// `[a-z0-9-]`. Verified against built `dist/site/reference/*.html`
-// anchor ids — must stay aligned with Starlight's behavior, since
-// `{@link}` resolution emits anchors that those rendered pages
-// expose.
-function slugifyHeading(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/\s+/g, "-")
-    .replace(/[^a-z0-9-]/g, "");
-}
+// Heading ids must match exactly what Starlight emits on the rendered
+// pages, since `{@link}` resolution links to those anchors. Starlight
+// (via Astro) derives them with `github-slugger`, which also appends
+// `-1`/`-2` suffixes to disambiguate repeated headings within a page.
+// We therefore slug with the same library, feeding each page's headings
+// through a fresh `GithubSlugger` in document order so the dedup
+// suffixes line up. A naive per-string slugifier cannot reproduce the
+// suffixing and silently mislinks the second of any duplicate heading
+// (e.g. two `accountResponse.account_id` headings) — see
+// `validateAnchors` and `buildLinkResolver`.
 
 interface RenderedFile {
   slug: string;
@@ -777,13 +777,13 @@ interface RenderedFile {
 
 // Post-render guard: every intra-page (`#anchor`) and cross-file
 // (`./slug.md#anchor`) markdown link must point at a heading that
-// actually exists. Heading ids are derived with `slugifyHeading`, so
-// they match the ids Starlight emits. This catches stale or mistyped
-// anchors — e.g. JSDoc links written against an older anchor scheme —
-// before they ship as dead links. Fails the build on any miss,
-// consistent with the unmapped-symbol gate in `main()`. External
-// (`http(s):`/`mailto:`) links and non-`.md` relative paths are out of
-// scope and skipped.
+// actually exists. Heading ids are derived with `github-slugger` — the
+// same library Starlight uses — so they match the ids the rendered pages
+// emit. This catches stale or mistyped anchors — e.g. JSDoc links written
+// against an older anchor scheme — before they ship as dead links. Fails
+// the build on any miss, consistent with the unmapped-symbol gate in
+// `main()`. External (`http(s):`/`mailto:`) links and non-`.md` relative
+// paths are out of scope and skipped.
 function validateAnchors(files: RenderedFile[]): void {
   // Strip fenced code blocks first: a ```ts``` declaration is not a
   // heading, and signatures must never be scanned for links.
@@ -792,9 +792,12 @@ function validateAnchors(files: RenderedFile[]): void {
 
   const anchorsBySlug = new Map<string, Set<string>>();
   for (const { slug, content } of files) {
+    // Fresh slugger per page, fed headings in document order, so the
+    // computed ids (including `-1`/`-2` dedup suffixes) match Starlight's.
+    const slugger = new GithubSlugger();
     const ids = new Set<string>();
     for (const m of stripFences(content).matchAll(/^#{1,6}\s+(.+?)\s*$/gm)) {
-      ids.add(slugifyHeading(m[1]));
+      ids.add(slugger.slug(m[1]));
     }
     anchorsBySlug.set(slug, ids);
   }
@@ -856,23 +859,49 @@ interface LinkResolver {
 
 function buildLinkResolver(records: SymbolRecord[]): LinkResolver {
   const map = new Map<string, ResolvedLink>();
+
+  // Group by bucket (one rendered file per bucket) so each file gets its
+  // own slugger and dedup namespace.
+  const byBucket = new Map<BucketName, SymbolRecord[]>();
   for (const record of records) {
-    const slug = BUCKET_TO_SLUG[record.bucket];
-    map.set(record.qname, {
-      bucket: record.bucket,
-      slug,
-      anchor: slugifyHeading(record.qname),
-    });
-    for (const m of record.members ?? []) {
-      const memberQname = `${record.qname}.${m.name}`;
-      const headingText = memberHeadingText(m, record.refl.name);
-      map.set(memberQname, {
-        bucket: record.bucket,
+    const list = byBucket.get(record.bucket);
+    if (list === undefined) byBucket.set(record.bucket, [record]);
+    else list.push(record);
+  }
+
+  for (const [bucket, bucketRecords] of byBucket) {
+    const slug = BUCKET_TO_SLUG[bucket];
+    // Replay the file's headings in the exact order `renderFile` emits
+    // them, slugging each through one GithubSlugger so anchors — and any
+    // `-1`/`-2` dedup suffixes — match the rendered page.
+    const slugger = new GithubSlugger();
+    slugger.slug(bucket); // the leading `# <bucket>` page heading
+
+    const register = (record: SymbolRecord): void => {
+      map.set(record.qname, {
+        bucket,
         slug,
-        anchor: slugifyHeading(headingText),
+        anchor: slugger.slug(record.qname),
       });
+      for (const m of sortMembers(record.members ?? [])) {
+        const memberQname = `${record.qname}.${m.name}`;
+        const headingText = memberHeadingText(m, record.refl.name);
+        map.set(memberQname, {
+          bucket,
+          slug,
+          anchor: slugger.slug(headingText),
+        });
+      }
+    };
+
+    const { primary, types } = partitionSymbols(bucketRecords);
+    for (const record of primary) register(record);
+    if (types.length > 0) {
+      slugger.slug("Types"); // the `## Types` section divider
+      for (const record of types) register(record);
     }
   }
+
   return {
     resolve(target, currentBucket) {
       const entry = map.get(target);
@@ -1345,12 +1374,29 @@ function compareSymbols(a: SymbolRecord, b: SymbolRecord): number {
   return a.sourceLine - b.sourceLine;
 }
 
+// Split a file's symbols into the primary API and the type declarations
+// that render under `## Types`, each sorted into emission order. Shared by
+// `renderFile` (which renders them) and `buildLinkResolver` (which slugs
+// them) so the two never drift in ordering — a drift would desync the
+// dedup suffixes between the rendered ids and the `{@link}` anchors.
+function partitionSymbols(symbols: SymbolRecord[]): {
+  primary: SymbolRecord[];
+  types: SymbolRecord[];
+} {
+  const isTypeDeclaration = (kind: number): boolean =>
+    kind === KIND_TYPE_ALIAS || kind === KIND_INTERFACE || kind === KIND_ENUM;
+  const sorted = [...symbols].sort(compareSymbols);
+  return {
+    primary: sorted.filter((s) => !isTypeDeclaration(s.kind)),
+    types: sorted.filter((s) => isTypeDeclaration(s.kind)),
+  };
+}
+
 function renderFile(
   bucketName: BucketName,
   symbols: SymbolRecord[],
   sourceRef: string,
 ): string {
-  const sorted = [...symbols].sort(compareSymbols);
   const header = [
     "---",
     `title: ${bucketName}`,
@@ -1359,7 +1405,7 @@ function renderFile(
     "",
     `# ${bucketName}`,
   ].join("\n");
-  if (sorted.length === 0) {
+  if (symbols.length === 0) {
     return `${header}\n`;
   }
   // Set the current bucket so `renderSummary` can decide same-file vs
@@ -1374,10 +1420,7 @@ function renderFile(
   // they nest under `## Types`. Heading *text* is unchanged, so heading
   // slugs — and therefore existing deep links and `{@link}` anchors —
   // are preserved.
-  const isTypeDeclaration = (kind: number): boolean =>
-    kind === KIND_TYPE_ALIAS || kind === KIND_INTERFACE || kind === KIND_ENUM;
-  const primary = sorted.filter((s) => !isTypeDeclaration(s.kind));
-  const types = sorted.filter((s) => isTypeDeclaration(s.kind));
+  const { primary, types } = partitionSymbols(symbols);
 
   const parts = primary.map((s) => renderSymbolBlock(s, sourceRef));
   if (types.length > 0) {
