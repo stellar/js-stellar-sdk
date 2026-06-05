@@ -1,57 +1,54 @@
-import { Asset } from "@stellar/stellar-base";
+import { Asset } from "../base/index.js";
 
-import { CallBuilder } from "./call_builder";
-import { ServerApi } from "./server_api";
-import { HttpClient } from "../http-client";
+import { CallBuilder } from "./call_builder.js";
+import { ServerApi } from "./server_api.js";
+import type { HttpClient } from "../http-client/index.js";
 
 /**
  * Creates a new {@link LiquidityPoolCallBuilder} pointed to server defined by serverUrl.
  *
- * Do not create this object directly, use {@link Horizon.Server#liquidityPools}.
+ * Do not create this object directly, use {@link Horizon.Server.liquidityPools}.
  *
- * @augments CallBuilder
- * @private
- * @class
- * @param {string} serverUrl Horizon server URL.
+ * @param serverUrl - Horizon server URL.
  */
 export class LiquidityPoolCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.LiquidityPoolRecord>
 > {
-  constructor(serverUrl: URI, httpClient: HttpClient) {
+  constructor(serverUrl: URL, httpClient: HttpClient) {
     super(serverUrl, httpClient);
-    this.url.segment("liquidity_pools");
+    this.setPath("liquidity_pools");
   }
 
   /**
    * Filters out pools whose reserves don't exactly match these assets.
    *
    * @see Asset
-   * @returns {LiquidityPoolCallBuilder} current LiquidityPoolCallBuilder instance
+   * @returns current LiquidityPoolCallBuilder instance
    */
   public forAssets(...assets: Asset[]): this {
     const assetList: string = assets
       .map((asset: Asset) => asset.toString())
       .join(",");
-    this.url.setQuery("reserves", assetList);
+    this.url.searchParams.set("reserves", assetList);
     return this;
   }
 
   /**
    * Retrieves all pools an account is participating in.
    *
-   * @param {string} id   the participant account to filter by
-   * @returns {LiquidityPoolCallBuilder} current LiquidityPoolCallBuilder instance
+   * @param id - the participant account to filter by
+   * @returns current LiquidityPoolCallBuilder instance
    */
   public forAccount(id: string): this {
-    this.url.setQuery("account", id);
+    this.url.searchParams.set("account", id);
     return this;
   }
 
   /**
    * Retrieves a specific liquidity pool by ID.
    *
-   * @param {string} id   the hash/ID of the liquidity pool
-   * @returns {CallBuilder} a new CallBuilder instance for the /liquidity_pools/:id endpoint
+   * @param id - the hash/ID of the liquidity pool
+   * @returns a new CallBuilder instance for the /liquidity_pools/:id endpoint
    */
   public liquidityPoolId(
     id: string,
@@ -61,7 +58,7 @@ export class LiquidityPoolCallBuilder extends CallBuilder<
     }
 
     const builder = new CallBuilder<ServerApi.LiquidityPoolRecord>(
-      this.url.clone(),
+      new URL(this.url),
       this.httpClient,
     );
     builder.filter.push([id.toLowerCase()]);

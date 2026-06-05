@@ -2,11 +2,11 @@ import * as fs from "fs/promises";
 import * as path from "path";
 import {
   BindingGenerator,
-  GeneratedBindings,
-  GenerateOptions,
-} from "../bindings/generator";
-import { WasmFetchError } from "../bindings";
-import { RpcServer } from "../rpc/server";
+  type GeneratedBindings,
+  type GenerateOptions,
+} from "../bindings/generator.js";
+import { WasmFetchError } from "../bindings/index.js";
+import { RpcServer } from "../rpc/server.js";
 
 export type GenerateAndWriteOptions = GenerateOptions & {
   outputDir: string;

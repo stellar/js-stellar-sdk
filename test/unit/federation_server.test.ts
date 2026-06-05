@@ -2,7 +2,8 @@
 import { describe, it, beforeEach, afterEach, expect, vi } from "vitest";
 import http from "http";
 import { AddressInfo } from "net";
-import { StellarSdk, httpClient } from "../test-utils/stellar-sdk-import";
+import * as StellarSdk from "../../src/index.js";
+import { httpClient } from "../../src/http-client/index.js";
 
 const { Server, FEDERATION_RESPONSE_MAX_SIZE } = StellarSdk.Federation;
 
@@ -58,7 +59,7 @@ describe("federation-server.js tests", () => {
       mockHttpClient.mockImplementation((url: string) => {
         if (
           url.includes(
-            "https://acme.com:1337/federation?type=name&q=bob%2Astellar.org",
+            "https://acme.com:1337/federation?type=name&q=bob*stellar.org",
           )
         ) {
           return Promise.resolve({
@@ -168,11 +169,9 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
       });
 
       const federationServer = await Server.createForDomain("acme.com");
-      expect(federationServer["serverURL"].protocol()).toEqual("https");
-      expect(federationServer["serverURL"].hostname()).toEqual(
-        "api.stellar.org",
-      );
-      expect(federationServer["serverURL"].path()).toEqual("/federation");
+      expect(federationServer["serverURL"].protocol).toEqual("https:");
+      expect(federationServer["serverURL"].hostname).toEqual("api.stellar.org");
+      expect(federationServer["serverURL"].pathname).toEqual("/federation");
       expect(federationServer["domain"]).toEqual("acme.com");
     });
 
@@ -229,7 +228,7 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
         }
         if (
           url.includes(
-            "https://api.stellar.org/federation?type=name&q=bob%2Astellar.org",
+            "https://api.stellar.org/federation?type=name&q=bob*stellar.org",
           )
         ) {
           return Promise.resolve({
@@ -264,7 +263,7 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
       mockHttpClient.mockImplementation((url: string) => {
         if (
           url.includes(
-            "https://acme.com:1337/federation?type=name&q=bob%2Astellar.org",
+            "https://acme.com:1337/federation?type=name&q=bob*stellar.org",
           )
         ) {
           return Promise.resolve({

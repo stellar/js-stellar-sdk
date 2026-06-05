@@ -2,7 +2,7 @@ name: Code Formatting
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
 
 jobs:
@@ -12,21 +12,27 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Use Node.js 20
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Use Node.js 22
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
 
-      # Workaround for some `yarn` nonsense, see:
-      # https://github.com/yarnpkg/yarn/issues/6312#issuecomment-429685210
+      - name: Enable Corepack
+        run: corepack enable
+
       - name: Install Dependencies
-        run: yarn install --network-concurrency 1
+        run: pnpm install --frozen-lockfile --network-concurrency 1
 
       - name: Run Linter Checks
         run: |
-          yarn fmt
+          pnpm run fmt
           if ! git diff-index --quiet HEAD; then
-            echo "::error::Formatting issues detected. Please run 'yarn fmt' locally and commit the changes."
+            echo "::error::Formatting issues detected. Please run 'pnpm run fmt' locally and commit the changes."
             git diff --stat
             git diff
             exit 1

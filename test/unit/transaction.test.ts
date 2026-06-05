@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { StellarSdk } from "../test-utils/stellar-sdk-import";
+import * as StellarSdk from "../../src/index.js";
 
 const { xdr, rpc } = StellarSdk;
 

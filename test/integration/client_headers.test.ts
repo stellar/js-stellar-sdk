@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import * as http from "http";
 import * as url from "url";
-import { StellarSdk } from "../test-utils/stellar-sdk-import";
+import * as StellarSdk from "../../src/index.js";
 
 const { Horizon } = StellarSdk;
 const versionPattern = /^[0-9]+\.[0-9]+\.[0-9]+(-[a-z]+(\.[0-9])?)?$/;
@@ -89,8 +89,12 @@ describe("integration tests: client headers", () => {
     })
       .operations()
       .stream({
-        onerror: (err) => {
-          throw err;
+        // Server sends `event: close` and tears down. The SDK reconnects per
+        // Horizon protocol; that reconnect races with server.close() and will
+        // surface as ECONNREFUSED. Close the stream on error so the reconnect
+        // loop terminates instead of throwing into the uncaught-exception handler.
+        onerror: () => {
+          closeStream();
         },
       });
   });
@@ -288,8 +292,8 @@ describe("integration tests: client headers", () => {
     })
       .operations()
       .stream({
-        onerror: (err) => {
-          throw err;
+        onerror: () => {
+          closeStream();
         },
       });
   });

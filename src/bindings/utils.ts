@@ -1,4 +1,4 @@
-import { xdr } from "@stellar/stellar-base";
+import { xdr } from "../base/index.js";
 export function isNameReserved(name: string): boolean {
   const reservedNames = [
     // Keywords

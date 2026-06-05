@@ -1,7 +1,7 @@
-import { Asset } from "@stellar/stellar-base";
-import { CallBuilder } from "./call_builder";
-import { ServerApi } from "./server_api";
-import { HttpClient } from "../http-client";
+import { Asset } from "../base/index.js";
+import { CallBuilder } from "./call_builder.js";
+import { ServerApi } from "./server_api.js";
+import type { HttpClient } from "../http-client/index.js";
 
 /**
  * The Stellar Network allows payments to be made across assets through path
@@ -22,34 +22,30 @@ import { HttpClient } from "../http-client";
  * If a list of assets is passed as the source, horizon will find any payment
  * paths from those source assets to the desired destination asset.
  *
- * Do not create this object directly, use {@link Horizon.Server#strictReceivePaths}.
+ * Do not create this object directly, use {@link Horizon.Server.strictReceivePaths}.
  *
- * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/aggregations/paths|Find Payment Paths}
+ * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/aggregations/paths | Find Payment Paths}
  *
- * @augments CallBuilder
- * @private
- * @class
- *
- * @param {string} serverUrl Horizon server URL.
- * @param {string|Asset[]} source The sender's account ID or a list of Assets. Any returned path must use a source that the sender can hold.
- * @param {Asset} destinationAsset The destination asset.
- * @param {string} destinationAmount The amount, denominated in the destination asset, that any returned path should be able to satisfy.
+ * @param serverUrl - Horizon server URL.
+ * @param source - The sender's account ID or a list of Assets. Any returned path must use a source that the sender can hold.
+ * @param destinationAsset - The destination asset.
+ * @param destinationAmount - The amount, denominated in the destination asset, that any returned path should be able to satisfy.
  */
 export class StrictReceivePathCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.PaymentPathRecord>
 > {
   constructor(
-    serverUrl: URI,
+    serverUrl: URL,
     httpClient: HttpClient,
     source: string | Asset[],
     destinationAsset: Asset,
     destinationAmount: string,
   ) {
     super(serverUrl, httpClient);
-    this.url.segment("paths/strict-receive");
+    this.setPath("paths/strict-receive");
 
     if (typeof source === "string") {
-      this.url.setQuery("source_account", source);
+      this.url.searchParams.set("source_account", source);
     } else {
       const assets = source
         .map((asset) => {
@@ -60,23 +56,23 @@ export class StrictReceivePathCallBuilder extends CallBuilder<
           return `${asset.getCode()}:${asset.getIssuer()}`;
         })
         .join(",");
-      this.url.setQuery("source_assets", assets);
+      this.url.searchParams.set("source_assets", assets);
     }
 
-    this.url.setQuery("destination_amount", destinationAmount);
-
-    if (!destinationAsset.isNative()) {
-      this.url.setQuery(
+    this.url.searchParams.set("destination_amount", destinationAmount);
+    const issuer = destinationAsset.getIssuer();
+    if (!destinationAsset.isNative() && issuer !== undefined) {
+      this.url.searchParams.set(
         "destination_asset_type",
         destinationAsset.getAssetType(),
       );
-      this.url.setQuery("destination_asset_code", destinationAsset.getCode());
-      this.url.setQuery(
-        "destination_asset_issuer",
-        destinationAsset.getIssuer(),
+      this.url.searchParams.set(
+        "destination_asset_code",
+        destinationAsset.getCode(),
       );
+      this.url.searchParams.set("destination_asset_issuer", issuer);
     } else {
-      this.url.setQuery("destination_asset_type", "native");
+      this.url.searchParams.set("destination_asset_type", "native");
     }
   }
 }

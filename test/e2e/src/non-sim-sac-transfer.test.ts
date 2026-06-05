@@ -6,8 +6,8 @@ import {
   Operation,
   TransactionBuilder,
   rpc,
-} from "../../../lib";
-import { generateFundedKeypair, networkPassphrase, server } from "./util";
+} from "../../../lib/esm/index.js";
+import { generateFundedKeypair, networkPassphrase, server } from "./util.js";
 
 const TRANSFER_AMOUNT = 1_0000000n; // 1 token with 7 decimals
 

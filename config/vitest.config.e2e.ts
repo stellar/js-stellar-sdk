@@ -8,8 +8,8 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html', 'lcov'],
-      include: ['lib/**/*.js'],
-      exclude: ['test/**', 'dist/**', 'coverage/**', '**/*.d.ts', 'lib/**/*.d.ts', 'lib/minimal', 'lib/no-axios', 'lib/no-eventsource', '**/*/browser.js'],
+      include: ['lib/esm/**/*.js'],
+      exclude: ['test/**', 'dist/**', 'coverage/**', '**/*.d.ts', 'lib/**/*.d.ts', 'lib/axios', '**/*/browser.js'],
       all: true,
     },
     testTimeout: 120000, // 2 minutes timeout for e2e tests (same as original Mocha config)
@@ -38,8 +38,6 @@ export default defineConfig({
     include: ['axios'],
   },
   define: {
-    __USE_AXIOS__: true,
-    __USE_EVENTSOURCE__: true,
     __PACKAGE_VERSION__: JSON.stringify(process.env.npm_package_version),
   },
 })

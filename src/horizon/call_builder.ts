@@ -1,20 +1,20 @@
-import URI from "urijs";
-import URITemplate from "urijs/src/URITemplate";
+import { EventSource } from "eventsource";
 
-import { BadRequestError, NetworkError, NotFoundError } from "../errors";
-
-import { HorizonApi } from "./horizon_api";
-import { version } from "./horizon_axios_client";
-import { HttpClient } from "../http-client";
-import { ServerApi } from "./server_api";
-import type { Server } from "../federation";
+import {
+  BadRequestError,
+  NetworkError,
+  NotFoundError,
+} from "../errors/index.js";
+import { HorizonApi } from "./horizon_api.js";
+import { version } from "./horizon_axios_client.js";
+import type { HttpClient } from "../http-client/index.js";
+import { ServerApi } from "./server_api.js";
+import type { Server } from "../federation/index.js";
+import { expandUriTemplate } from "../utils/url.js";
 
 // Resources which can be included in the Horizon response via the `join`
 // query-param.
 const JOINABLE = ["transaction"];
-
-// eslint-disable-next-line @typescript-eslint/naming-convention
-declare const __USE_EVENTSOURCE__: boolean;
 
 export interface EventSourceOptions<T> {
   onmessage?: (
@@ -24,26 +24,11 @@ export interface EventSourceOptions<T> {
   reconnectTimeout?: number;
 }
 
-const anyGlobal = global as any;
-type Constructable<T> = new (e: string) => T;
-
-// Declare EventSource as a potentially undefined variable
-let EventSource: Constructable<EventSource> | undefined;
-
-// Only define EventSource if __USE_EVENTSOURCE__ is true
-if (typeof __USE_EVENTSOURCE__ !== "undefined" && __USE_EVENTSOURCE__) {
-  EventSource =
-    anyGlobal.EventSource ??
-    anyGlobal.window?.EventSource ??
-    require("eventsource");
-}
-
 /**
  * Creates a new {@link CallBuilder} pointed to server defined by serverUrl.
  *
  * This is an **abstract** class. Do not create this object directly, use {@link Server} class.
- * @param {string} serverUrl URL of Horizon server
- * @class CallBuilder
+ * @param serverUrl - URL of Horizon server
  */
 export class CallBuilder<
   T extends
@@ -52,7 +37,7 @@ export class CallBuilder<
     | HorizonApi.RootResponse
     | ServerApi.CollectionPage<HorizonApi.BaseResponse>,
 > {
-  protected url: URI;
+  protected url: URL;
 
   public filter: string[][];
 
@@ -63,20 +48,32 @@ export class CallBuilder<
   protected httpClient: HttpClient;
 
   constructor(
-    serverUrl: URI,
+    serverUrl: URL,
     httpClient: HttpClient,
     neighborRoot: string = "",
   ) {
-    this.url = serverUrl.clone();
+    this.url = new URL(serverUrl);
     this.filter = [];
-    this.originalSegments = this.url.segment() || [];
+
+    this.originalSegments = this.url.pathname
+      .split("/")
+      .filter((s) => s.length > 0);
     this.neighborRoot = neighborRoot;
     this.httpClient = httpClient;
   }
 
+  protected setPath(...segments: string[]): void {
+    const endpointSegments = segments.flatMap((segment) =>
+      segment.split("/").filter((s) => s.length > 0),
+    );
+    this.url.pathname = this.originalSegments
+      .concat(endpointSegments)
+      .join("/");
+  }
+
   /**
    * Triggers a HTTP request using this builder's current configuration.
-   * @returns {Promise} a Promise that resolves to the server's response.
+   * @returns a Promise that resolves to the server's response.
    */
   public call(): Promise<T> {
     this.checkFilter();
@@ -106,29 +103,22 @@ export class CallBuilder<
    * events call the function returned by this method.
    * @see [Horizon Response Format](https://developers.stellar.org/api/introduction/response-format/)
    * @see [MDN EventSource](https://developer.mozilla.org/en-US/docs/Web/API/EventSource)
-   * @param {object} [options] EventSource options.
-   * @param {Function} [options.onmessage] Callback function to handle incoming messages.
-   * @param {Function} [options.onerror] Callback function to handle errors.
-   * @param {number} [options.reconnectTimeout] Custom stream connection timeout in ms, default is 15 seconds.
-   * @returns {Function} Close function. Run to close the connection and stop listening for new events.
+   * @param options - (optional) EventSource options.
+   *   - `onmessage` (optional): Callback function to handle incoming messages.
+   *   - `onerror` (optional): Callback function to handle errors.
+   *   - `reconnectTimeout` (optional): Custom stream connection timeout in ms, default is 15 seconds.
+   * @returns Close function. Run to close the connection and stop listening for new events.
    */
   public stream(
     options: EventSourceOptions<
       T extends ServerApi.CollectionPage<infer U> ? U : T
     > = {},
   ): () => void {
-    // Check if EventSource use is enabled
-    if (EventSource === undefined) {
-      throw new Error(
-        "Streaming requires eventsource to be enabled. If you need this functionality, compile with USE_EVENTSOURCE=true.",
-      );
-    }
-
     this.checkFilter();
 
-    const streamUrl = this.url.clone();
-    streamUrl.setQuery("X-Client-Name", "js-stellar-sdk");
-    streamUrl.setQuery("X-Client-Version", version);
+    const streamUrl = new URL(this.url);
+    streamUrl.searchParams.set("X-Client-Name", "js-stellar-sdk");
+    streamUrl.searchParams.set("X-Client-Version", version);
 
     // Extract custom app headers from httpClient defaults and add as query params
     // (EventSource doesn't support custom headers, so we use query params)
@@ -146,7 +136,7 @@ export class CallBuilder<
           value = headers[name];
         }
         if (value) {
-          streamUrl.setQuery(name, value);
+          streamUrl.searchParams.set(name, value);
         }
       });
     }
@@ -209,7 +199,7 @@ export class CallBuilder<
           ? this._parseRecord(JSON.parse(message.data))
           : message;
         if (result.paging_token) {
-          streamUrl.setQuery("cursor", result.paging_token);
+          streamUrl.searchParams.set("cursor", result.paging_token);
         }
         clearTimeout(timeout);
         createTimeout();
@@ -246,32 +236,32 @@ export class CallBuilder<
   /**
    * Sets `cursor` parameter for the current call. Returns the CallBuilder object on which this method has been called.
    * @see [Paging](https://developers.stellar.org/api/introduction/pagination/)
-   * @param {string} cursor A cursor is a value that points to a specific location in a collection of resources.
-   * @returns {object} current CallBuilder instance
+   * @param cursor - A cursor is a value that points to a specific location in a collection of resources.
+   * @returns current CallBuilder instance
    */
   public cursor(cursor: string): this {
-    this.url.setQuery("cursor", cursor);
+    this.url.searchParams.set("cursor", cursor);
     return this;
   }
 
   /**
    * Sets `limit` parameter for the current call. Returns the CallBuilder object on which this method has been called.
    * @see [Paging](https://developers.stellar.org/api/introduction/pagination/)
-   * @param {number} recordsNumber Number of records the server should return.
-   * @returns {object} current CallBuilder instance
+   * @param recordsNumber - Number of records the server should return.
+   * @returns current CallBuilder instance
    */
   public limit(recordsNumber: number): this {
-    this.url.setQuery("limit", recordsNumber.toString());
+    this.url.searchParams.set("limit", recordsNumber.toString());
     return this;
   }
 
   /**
    * Sets `order` parameter for the current call. Returns the CallBuilder object on which this method has been called.
-   * @param {"asc"|"desc"} direction Sort direction
-   * @returns {object} current CallBuilder instance
+   * @param direction - Sort direction
+   * @returns current CallBuilder instance
    */
   public order(direction: "asc" | "desc"): this {
-    this.url.setQuery("order", direction);
+    this.url.searchParams.set("order", direction);
     return this;
   }
 
@@ -283,11 +273,11 @@ export class CallBuilder<
    * will include a `transaction` field for each operation in the
    * response.
    *
-   * @param "include" join Records to be included in the response.
-   * @returns {object} current CallBuilder instance.
+   * @param include - join Records to be included in the response.
+   * @returns current CallBuilder instance.
    */
   public join(include: "transactions"): this {
-    this.url.setQuery("join", include);
+    this.url.searchParams.set("join", include);
     return this;
   }
 
@@ -299,12 +289,12 @@ export class CallBuilder<
    *  it's helpful to be able to conveniently create queries to the
    *  `/accounts/:id/effects` endpoint:
    *
-   *    this.forEndpoint("accounts", accountId)`.
+   *    `this.forEndpoint("accounts", accountId)`.
    *
-   * @param  {string} endpoint neighbor endpoint in question, like /operations
-   * @param  {string} param    filter parameter, like an operation ID
+   * @param endpoint - neighbor endpoint in question, like /operations
+   * @param param - filter parameter, like an operation ID
    *
-   * @returns {CallBuilder} this CallBuilder instance
+   * @returns this CallBuilder instance
    */
   protected forEndpoint(endpoint: string, param: string): this {
     if (this.neighborRoot === "") {
@@ -315,9 +305,8 @@ export class CallBuilder<
   }
 
   /**
-   * @private
-   * @returns {void}
-   */
+   * @hidden
+   * @returns    */
   private checkFilter(): void {
     if (this.filter.length >= 2) {
       throw new BadRequestError("Too many filters specified", this.filter);
@@ -326,17 +315,17 @@ export class CallBuilder<
     if (this.filter.length === 1) {
       // append filters to original segments
       const newSegment = this.originalSegments.concat(this.filter[0]);
-      this.url.segment(newSegment);
+      this.url.pathname = newSegment.join("/");
     }
   }
 
   /**
    * Convert a link object to a function that fetches that link.
-   * @private
-   * @param {object} link A link object
-   * @param {boolean} link.href the URI of the link
-   * @param {boolean} [link.templated] Whether the link is templated
-   * @returns {Function} A function that requests the link
+   * @hidden
+   * @param link - A link object
+   *   - `href`: the URI of the link
+   *   - `templated` (optional): Whether the link is templated
+   * @returns A function that requests the link
    */
   private _requestFnForLink(
     link: HorizonApi.ResponseLink,
@@ -345,10 +334,9 @@ export class CallBuilder<
       let uri;
 
       if (link.templated) {
-        const template = URITemplate(link.href);
-        uri = URI(template.expand(opts) as any); // TODO: fix upstream types.
+        uri = new URL(expandUriTemplate(link.href, opts), this.url);
       } else {
-        uri = URI(link.href);
+        uri = new URL(link.href, this.url);
       }
 
       const r = await this._sendNormalRequest(uri);
@@ -359,9 +347,9 @@ export class CallBuilder<
   /**
    * Given the json response, find and convert each link into a function that
    * calls that link.
-   * @private
-   * @param {object} json JSON response
-   * @returns {object} JSON response with string links replaced with functions
+   * @hidden
+   * @param json - JSON response
+   * @returns JSON response with string links replaced with functions
    */
   private _parseRecord(json: any): any {
     if (!json._links) {
@@ -396,12 +384,13 @@ export class CallBuilder<
     return json;
   }
 
-  private async _sendNormalRequest(initialUrl: URI) {
-    let url = initialUrl;
+  private async _sendNormalRequest(initialUrl: URL) {
+    const url = new URL(initialUrl);
 
     // Always use the configured server's authority and protocol.
     // Horizon returns absolute URLs in _links that would bypass reverse proxies.
-    url = url.authority(this.url.authority()).protocol(this.url.protocol());
+    url.protocol = this.url.protocol;
+    url.host = this.url.host;
 
     return this.httpClient
       .get(url.toString())
@@ -410,9 +399,9 @@ export class CallBuilder<
   }
 
   /**
-   * @private
-   * @param {object} json Response object
-   * @returns {object} Extended response
+   * @hidden
+   * @param json - Response object
+   * @returns Extended response
    */
   private _parseResponse(json: any) {
     if (json._embedded && json._embedded.records) {
@@ -422,9 +411,9 @@ export class CallBuilder<
   }
 
   /**
-   * @private
-   * @param {object} json Response object
-   * @returns {object} Extended response object
+   * @hidden
+   * @param json - Response object
+   * @returns Extended response object
    */
   private _toCollectionPage(json: any): any {
     for (let i = 0; i < json._embedded.records.length; i += 1) {
@@ -433,20 +422,24 @@ export class CallBuilder<
     return {
       records: json._embedded.records,
       next: async () => {
-        const r = await this._sendNormalRequest(URI(json._links.next.href));
+        const r = await this._sendNormalRequest(
+          new URL(json._links.next.href, this.url),
+        );
         return this._toCollectionPage(r);
       },
       prev: async () => {
-        const r = await this._sendNormalRequest(URI(json._links.prev.href));
+        const r = await this._sendNormalRequest(
+          new URL(json._links.prev.href, this.url),
+        );
         return this._toCollectionPage(r);
       },
     };
   }
 
   /**
-   * @private
-   * @param {object} error Network error object
-   * @returns {Promise<Error>} Promise that rejects with a human-readable error
+   * @hidden
+   * @param error - Network error object
+   * @returns Promise that rejects with a human-readable error
    */
   private async _handleNetworkError(error: NetworkError): Promise<void> {
     if (error.response && error.response.status) {

@@ -5,7 +5,7 @@
 // https://docs.google.com/document/d/1pXL8kr1a2vfYSap9T67R-g72B_WWbaE1YsLMa04OgoU/edit
 import { describe, it, expect } from "vitest";
 import * as _ from "lodash";
-import { StellarSdk } from "../test-utils/stellar-sdk-import";
+import * as StellarSdk from "../../src/index.js";
 
 const { Horizon } = StellarSdk;
 

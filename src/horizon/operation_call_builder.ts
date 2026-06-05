@@ -1,39 +1,36 @@
-import { CallBuilder } from "./call_builder";
-import { ServerApi } from "./server_api";
-import { HttpClient } from "../http-client";
+import { CallBuilder } from "./call_builder.js";
+import { ServerApi } from "./server_api.js";
+import type { HttpClient } from "../http-client/index.js";
 
 /**
  * Creates a new {@link OperationCallBuilder} pointed to server defined by serverUrl.
  *
- * Do not create this object directly, use {@link Horizon.Server#operations}.
+ * Do not create this object directly, use {@link Horizon.Server.operations}.
  *
- * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/resources/operations|All Operations}
+ * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/resources/operations | All Operations}
  *
- * @augments CallBuilder
- * @private
- * @class
- * @param {string} serverUrl Horizon server URL.
+ * @param serverUrl - Horizon server URL.
  */
 export class OperationCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.OperationRecord>
 > {
-  constructor(serverUrl: URI, httpClient: HttpClient) {
+  constructor(serverUrl: URL, httpClient: HttpClient) {
     super(serverUrl, httpClient, "operations");
-    this.url.segment("operations");
+    this.setPath("operations");
   }
 
   /**
    * The operation details endpoint provides information on a single operation. The operation ID provided in the id
    * argument specifies which operation to load.
-   * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/resources/retrieve-an-operation|Operation Details}
-   * @param {number} operationId Operation ID
-   * @returns {CallBuilder} this OperationCallBuilder instance
+   * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/resources/retrieve-an-operation | Operation Details}
+   * @param operationId - Operation ID
+   * @returns this OperationCallBuilder instance
    */
   public operation(
     operationId: string,
   ): CallBuilder<ServerApi.OperationRecord> {
     const builder = new CallBuilder<ServerApi.OperationRecord>(
-      this.url.clone(),
+      new URL(this.url),
       this.httpClient,
     );
     builder.filter.push([operationId]);
@@ -42,9 +39,9 @@ export class OperationCallBuilder extends CallBuilder<
 
   /**
    * This endpoint represents all operations that were included in valid transactions that affected a particular account.
-   * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/resources/get-operations-by-account-id|Operations for Account}
-   * @param {string} accountId For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
-   * @returns {OperationCallBuilder} this OperationCallBuilder instance
+   * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/resources/get-operations-by-account-id | Operations for Account}
+   * @param accountId - For example: `GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD`
+   * @returns this OperationCallBuilder instance
    */
   public forAccount(accountId: string): this {
     return this.forEndpoint("accounts", accountId);
@@ -52,9 +49,9 @@ export class OperationCallBuilder extends CallBuilder<
 
   /**
    * This endpoint represents all operations that reference a given claimable_balance.
-   * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/resources/cb-retrieve-related-operations|Operations for Claimable Balance}
-   * @param {string} claimableBalanceId Claimable Balance ID
-   * @returns {OperationCallBuilder} this OperationCallBuilder instance
+   * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/resources/cb-retrieve-related-operations | Operations for Claimable Balance}
+   * @param claimableBalanceId - Claimable Balance ID
+   * @returns this OperationCallBuilder instance
    */
   public forClaimableBalance(claimableBalanceId: string): this {
     return this.forEndpoint("claimable_balances", claimableBalanceId);
@@ -63,9 +60,9 @@ export class OperationCallBuilder extends CallBuilder<
   /**
    * This endpoint returns all operations that occurred in a given ledger.
    *
-   * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/resources/retrieve-a-ledgers-operations|Operations for Ledger}
-   * @param {number|string} sequence Ledger sequence
-   * @returns {OperationCallBuilder} this OperationCallBuilder instance
+   * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/resources/retrieve-a-ledgers-operations | Operations for Ledger}
+   * @param sequence - Ledger sequence
+   * @returns this OperationCallBuilder instance
    */
   public forLedger(sequence: number | string): this {
     return this.forEndpoint("ledgers", sequence.toString());
@@ -73,9 +70,9 @@ export class OperationCallBuilder extends CallBuilder<
 
   /**
    * This endpoint represents all operations that are part of a given transaction.
-   * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/resources/retrieve-a-transactions-operations|Operations for Transaction}
-   * @param {string} transactionId Transaction ID
-   * @returns {OperationCallBuilder} this OperationCallBuilder instance
+   * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/resources/retrieve-a-transactions-operations | Operations for Transaction}
+   * @param transactionId - Transaction ID
+   * @returns this OperationCallBuilder instance
    */
   public forTransaction(transactionId: string): this {
     return this.forEndpoint("transactions", transactionId);
@@ -84,8 +81,8 @@ export class OperationCallBuilder extends CallBuilder<
   /**
    * This endpoint represents all operations involving a particular liquidity pool.
    *
-   * @param {string} poolId   liquidity pool ID
-   * @returns {OperationCallBuilder} this OperationCallBuilder instance
+   * @param poolId - liquidity pool ID
+   * @returns this OperationCallBuilder instance
    */
   public forLiquidityPool(poolId: string): this {
     return this.forEndpoint("liquidity_pools", poolId);
@@ -95,11 +92,11 @@ export class OperationCallBuilder extends CallBuilder<
    * Adds a parameter defining whether to include failed transactions.
    *   By default, only operations of successful transactions are returned.
    *
-   * @param {boolean} value Set to `true` to include operations of failed transactions.
-   * @returns {OperationCallBuilder} this OperationCallBuilder instance
+   * @param value - Set to `true` to include operations of failed transactions.
+   * @returns this OperationCallBuilder instance
    */
   public includeFailed(value: boolean): this {
-    this.url.setQuery("include_failed", value.toString());
+    this.url.searchParams.set("include_failed", value.toString());
     return this;
   }
 }

@@ -1,12 +1,12 @@
-import { xdr } from "@stellar/stellar-base";
-import { Spec } from "../contract";
+import { xdr } from "../base/index.js";
+import { Spec } from "../contract/index.js";
 import {
   parseTypeFromTypeDef,
   generateTypeImports,
   sanitizeIdentifier,
   formatJSDocComment,
   formatImports,
-} from "./utils";
+} from "./utils.js";
 
 /**
  * Generates TypeScript client class for contract methods

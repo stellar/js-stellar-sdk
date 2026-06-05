@@ -1,12 +1,12 @@
-import { xdr, cereal, Account } from "@stellar/stellar-base";
-import { Server } from "../rpc";
-import { type AssembledTransaction } from "./assembled_transaction";
-import { NULL_ACCOUNT, AssembledTransactionOptions } from "./types";
+import { xdr, cereal, Account } from "../base/index.js";
+import { Server } from "../rpc/index.js";
+import { type AssembledTransaction } from "./assembled_transaction.js";
+import { NULL_ACCOUNT, type AssembledTransactionOptions } from "./types.js";
 
 /**
  * Keep calling a `fn` for `timeoutInSeconds` seconds, if `keepWaitingIf` is
  * true. Returns an array of all attempts to call the function.
- * @private
+ * @hidden
  */
 export async function withExponentialBackoff<T>(
   /** Function to call repeatedly */
@@ -80,15 +80,13 @@ export async function withExponentialBackoff<T>(
  * matches these "expected error types" that a contract may throw, and helps
  * {@link AssembledTransaction} parse these errors.
  *
- * @constant {RegExp}
- * @default "/Error\(Contract, #(\d+)\)/"
- * @memberof module:contract.Client
+ * @defaultValue `/Error\(Contract, #(\d+)\)/`
  */
 export const contractErrorPattern = /Error\(Contract, #(\d+)\)/;
 
 /**
  * A TypeScript type guard that checks if an object has a `toString` method.
- * @private
+ * @hidden
  */
 export function implementsToString(
   /** some object that may or may not have a `toString` method */
@@ -125,7 +123,7 @@ export function parseWasmCustomSections(
    * - Values are stored with the least significant bytes first
    *
    * @returns The decoded 32-bit unsigned integer
-   * @throws {Error} If the encoding is invalid or exceeds 32 bits
+   * @throws If the encoding is invalid or exceeds 32 bits
    */
   function readVarUint32(): number {
     let value = 0;
@@ -178,7 +176,7 @@ export function parseWasmCustomSections(
 
 /**
  * Reads a binary stream of ScSpecEntries into an array for processing by ContractSpec
- * @private
+ * @hidden
  */
 export function processSpecEntryStream(buffer: Buffer) {
   const reader = new cereal.XdrReader(buffer);

@@ -1,6 +1,6 @@
 import { spawnSync } from "node:child_process";
 import path from "node:path";
-import { contract, Keypair, rpc } from "../../../lib";
+import { contract, Keypair, rpc } from "../../../lib/esm/index.js";
 
 /*
  * Run a Bash command, returning stdout, stderr, and status code.

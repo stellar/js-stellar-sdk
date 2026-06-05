@@ -1,4 +1,4 @@
-import { BaseEffectRecord, EffectType } from "./effects";
+import { type BaseEffectRecord, EffectType } from "./effects.js";
 
 export interface Trade extends BaseEffectRecord<"trade"> {
   type_i: EffectType.trade;

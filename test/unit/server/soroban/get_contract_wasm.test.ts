@@ -7,7 +7,7 @@ import {
   vi,
   assert,
 } from "vitest";
-import { StellarSdk } from "../../../test-utils/stellar-sdk-import";
+import * as StellarSdk from "../../../../src/index.js";
 
 import { serverUrl } from "../../../constants";
 

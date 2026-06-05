@@ -1,26 +1,22 @@
 /**
  * Stellar Web Authentication
- * @module WebAuth
  * @see {@link https://stellar.org/protocol-10 | SEP-10 Specification}
  */
 
-import {
-  FeeBumpTransaction,
-  Keypair,
-  Transaction,
-} from "@stellar/stellar-base";
-import { InvalidChallengeError } from "./errors";
+import { FeeBumpTransaction, Keypair, Transaction } from "../base/index.js";
+import { InvalidChallengeError } from "./errors.js";
 /**
  * Checks if a transaction has been signed by one or more of the given signers,
  * returning a list of non-repeated signers that were found to have signed the
  * given transaction.
  *
- * @param {Transaction | FeeBumpTransaction} transaction The signed transaction.
- * @param {Array.<string>} signers The signer's public keys.
- * @returns {Array.<string>} A list of signers that were found to have signed
+ * @param transaction - The signed transaction.
+ * @param signers - The signer's public keys.
+ * @returns A list of signers that were found to have signed
  *    the transaction.
  *
  * @example
+ * ```ts
  * let keypair1 = Keypair.random();
  * let keypair2 = Keypair.random();
  * const account = new StellarSdk.Account(keypair1.publicKey(), "-1");
@@ -31,6 +27,7 @@ import { InvalidChallengeError } from "./errors";
  *
  * transaction.sign(keypair1, keypair2)
  * WebAuth.gatherTxSigners(transaction, [keypair1.publicKey(), keypair2.publicKey()])
+ * ```
  */
 export function gatherTxSigners(
   transaction: FeeBumpTransaction | Transaction,
@@ -76,12 +73,13 @@ export function gatherTxSigners(
 /**
  * Verifies if a transaction was signed by the given account id.
  *
- * @param {Transaction | FeeBumpTransaction} transaction The signed transaction.
- * @param {string} accountID The signer's public key.
- * @returns {boolean} Whether or not `accountID` was found to have signed the
+ * @param transaction - The signed transaction.
+ * @param accountID - The signer's public key.
+ * @returns Whether or not `accountID` was found to have signed the
  *    transaction.
  *
  * @example
+ * ```ts
  * let keypair = Keypair.random();
  * const account = new StellarSdk.Account(keypair.publicKey(), "-1");
  *
@@ -91,6 +89,7 @@ export function gatherTxSigners(
  *
  * transaction.sign(keypair)
  * WebAuth.verifyTxSignedBy(transaction, keypair.publicKey())
+ * ```
  */
 export function verifyTxSignedBy(
   transaction: FeeBumpTransaction | Transaction,

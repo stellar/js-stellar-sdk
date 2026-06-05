@@ -1,5 +1,8 @@
-import URI from "urijs";
-import { create, HttpClient, HttpResponseHeaders } from "../http-client";
+import {
+  create,
+  type HttpClient,
+  type HttpResponseHeaders,
+} from "../http-client/index.js";
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 declare const __PACKAGE_VERSION__: string;
@@ -18,14 +21,14 @@ export interface ServerTime {
  * time it was recorded, ex:
  *
  * @example
+ * ```ts
  * "horizon-testnet.stellar.org": {
  *   serverTime: 1552513039,
  *   localTimeRecorded: 1552513052
  * }
+ * ```
  *
- * @constant {Record.<string, ServerTime>}
- * @default {}
- * @memberof module:Horizon
+ * @defaultValue `{}`
  */
 export const SERVER_TIME_MAP: Record<string, ServerTime> = {};
 
@@ -43,10 +46,14 @@ export function createHttpClient(headers?: Record<string, string>): HttpClient {
   });
 
   httpClient.interceptors.response.use((response) => {
-    const uri = URI(response.config.url!);
-    const hostname = uri.port()
-      ? `${uri.hostname()}:${uri.port()}`
-      : uri.hostname();
+    const responeUrl = response.config.url;
+    if (!responeUrl) {
+      return response;
+    }
+
+    const url = new URL(responeUrl);
+    const port = url.port;
+    const hostname = port ? `${url.hostname}:${port}` : url.hostname;
     let serverTime = 0;
     if (response.headers instanceof Headers) {
       const dateHeader = response.headers.get("date");
@@ -80,10 +87,9 @@ export function createHttpClient(headers?: Record<string, string>): HttpClient {
  * Given a hostname, get the current time of that server (i.e., use the last-
  * recorded server time and offset it by the time since then.) If there IS no
  * recorded server time, or it's been 5 minutes since the last, return null.
- * @memberof module:Horizon
  *
- * @param {string} hostname Hostname of a Horizon server.
- * @returns {number} The UNIX timestamp (in seconds, not milliseconds)
+ * @param hostname - Hostname of a Horizon server.
+ * @returns The UNIX timestamp (in seconds, not milliseconds)
  * representing the current time on that server, or `null` if we don't have
  * a record of that time.
  */

@@ -1,14 +1,14 @@
 import { Command } from "commander";
 import * as path from "path";
 
-import { WasmFetchError } from "../bindings/wasm_fetcher";
+import { WasmFetchError } from "../bindings/wasm_fetcher.js";
 import {
   createGenerator,
   generateAndWrite,
   logSourceInfo,
   deriveContractName,
-} from "./util";
-import { Networks } from "@stellar/stellar-base";
+} from "./util.js";
+import { Networks } from "../base/index.js";
 
 // Default RPC URLs for each network
 const NETWORK_CONFIG: Record<

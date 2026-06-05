@@ -1,7 +1,7 @@
-import { Asset } from "@stellar/stellar-base";
-import { CallBuilder } from "./call_builder";
-import { ServerApi } from "./server_api";
-import { HttpClient } from "../http-client";
+import { Asset } from "../base/index.js";
+import { CallBuilder } from "./call_builder.js";
+import { ServerApi } from "./server_api.js";
+import type { HttpClient } from "../http-client/index.js";
 
 /**
  * The Stellar Network allows payments to be made across assets through path payments. A path payment specifies a
@@ -18,25 +18,21 @@ import { HttpClient } from "../http-client";
  * payment paths from those source assets to the desired destination asset. The search's amount parameter will be
  * used to determine if there a given path can satisfy a payment of the desired amount.
  *
- * Do not create this object directly, use {@link Horizon.Server#paths}.
+ * Do not create this object directly, use {@link Horizon.Server.paths}.
  *
- * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/aggregations/paths|Find Payment Paths}
+ * @see {@link https://developers.stellar.org/docs/data/horizon/api-reference/aggregations/paths | Find Payment Paths}
  *
- * @augments CallBuilder
- * @private
- * @class
- *
- * @param {string} serverUrl Horizon server URL.
- * @param {string} source The sender's account ID. Any returned path must use a source that the sender can hold.
- * @param {string} destination The destination account ID that any returned path should use.
- * @param {Asset} destinationAsset The destination asset.
- * @param {string} destinationAmount The amount, denominated in the destination asset, that any returned path should be able to satisfy.
+ * @param serverUrl - Horizon server URL.
+ * @param source - The sender's account ID. Any returned path must use a source that the sender can hold.
+ * @param destination - The destination account ID that any returned path should use.
+ * @param destinationAsset - The destination asset.
+ * @param destinationAmount - The amount, denominated in the destination asset, that any returned path should be able to satisfy.
  */
 export class PathCallBuilder extends CallBuilder<
   ServerApi.CollectionPage<ServerApi.PaymentPathRecord>
 > {
   constructor(
-    serverUrl: URI,
+    serverUrl: URL,
     httpClient: HttpClient,
     source: string,
     destination: string,
@@ -44,23 +40,23 @@ export class PathCallBuilder extends CallBuilder<
     destinationAmount: string,
   ) {
     super(serverUrl, httpClient);
-    this.url.segment("paths");
-    this.url.setQuery("destination_account", destination);
-    this.url.setQuery("source_account", source);
-    this.url.setQuery("destination_amount", destinationAmount);
-
-    if (!destinationAsset.isNative()) {
-      this.url.setQuery(
+    this.setPath("paths");
+    this.url.searchParams.set("destination_account", destination);
+    this.url.searchParams.set("source_account", source);
+    this.url.searchParams.set("destination_amount", destinationAmount);
+    const issuer = destinationAsset.getIssuer();
+    if (!destinationAsset.isNative() && issuer !== undefined) {
+      this.url.searchParams.set(
         "destination_asset_type",
         destinationAsset.getAssetType(),
       );
-      this.url.setQuery("destination_asset_code", destinationAsset.getCode());
-      this.url.setQuery(
-        "destination_asset_issuer",
-        destinationAsset.getIssuer(),
+      this.url.searchParams.set(
+        "destination_asset_code",
+        destinationAsset.getCode(),
       );
+      this.url.searchParams.set("destination_asset_issuer", issuer);
     } else {
-      this.url.setQuery("destination_asset_type", "native");
+      this.url.searchParams.set("destination_asset_type", "native");
     }
   }
 }

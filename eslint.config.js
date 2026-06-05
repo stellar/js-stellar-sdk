@@ -1,17 +1,18 @@
-const path = require("node:path");
+import path from "node:path";
+import { includeIgnoreFile } from "@eslint/compat";
+import { configs } from "eslint-config-airbnb-extended/legacy";
+import prettierConfigRules from "eslint-config-prettier/flat";
+import prettierPlugin from "eslint-plugin-prettier";
+import importPlugin from "eslint-plugin-import";
+import tsdoc from "eslint-plugin-tsdoc";
+import js from "@eslint/js";
+import globals from "globals";
 
-const { includeIgnoreFile } = require("@eslint/compat");
-const { configs } = require("eslint-config-airbnb-extended/legacy");
-const prettierConfigRules = require("eslint-config-prettier/flat");
-const prettierPlugin = require("eslint-plugin-prettier");
-const importPlugin = require("eslint-plugin-import");
-const jsdoc = require("eslint-plugin-jsdoc");
 const gitignorePath = path.resolve(".", ".gitignore");
-const js = require("@eslint/js");
-const globals = require("globals");
+
 configs.base.typescript[0].languageOptions.parserOptions.projectService = false;
 configs.base.typescript[0].languageOptions.parserOptions.project = [
-  "./config/tsconfig.json",
+  "./tsconfig.json",
 ];
 
 const javascriptConfig = [
@@ -34,10 +35,11 @@ const typescriptConfig = [
     files: ["**/*.ts", "**/*.tsx"],
     rules: {
       "@typescript-eslint/require-await": "error",
-      "@typescript-eslint/no-unused-vars": [
-        "error",
-        { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
-      ],
+      // Delegated to TypeScript's `noUnusedLocals` / `noUnusedParameters`
+      // (set in tsconfig.json) — TS understands JSDoc `{@link}` references,
+      // typescript-eslint's no-unused-vars does not.
+      "@typescript-eslint/no-unused-vars": "off",
+      "no-unused-vars": "off",
       "no-fallthrough": "off",
     },
   },
@@ -56,37 +58,12 @@ const prettierConfig = [
   },
 ];
 
-const jsDocConfig = [
-  // configuration included in plugin
-  jsdoc.configs["flat/recommended-typescript"],
-  // other configuration objects...
+const tsdocConfig = [
   {
+    name: "tsdoc/syntax",
     files: ["**/*.ts"],
-    // `plugins` here is not necessary if including the above config
-    plugins: {
-      jsdoc,
-    },
-    rules: {
-      "jsdoc/check-tag-names": [
-        "error",
-        { definedTags: ["warning", "category"] },
-      ],
-      "jsdoc/require-description": "warn",
-      "jsdoc/no-undefined-types": "warn",
-      "jsdoc/require-returns": "off",
-      "jsdoc/require-param": "off",
-      "jsdoc/require-param-type": "off",
-      "jsdoc/require-returns-type": "off",
-      "jsdoc/no-blank-blocks": "off",
-      "jsdoc/no-multi-asterisks": "off",
-      "jsdoc/tag-lines": "off",
-      "jsdoc/require-jsdoc": "off",
-      "jsdoc/no-defaults": "off",
-      "jsdoc/no-types": "off",
-      "jsdoc/reject-function-type": "off",
-      "jsdoc/reject-any-type": "off",
-      "jsdoc/require-description": "off",
-    },
+    plugins: { tsdoc },
+    rules: { "tsdoc/syntax": "warn" },
   },
 ];
 
@@ -107,6 +84,59 @@ const testConfig = [
   },
 ];
 
+const scriptsConfig = [
+  {
+    name: "scripts/typescript",
+    files: ["scripts/**/*.ts"],
+    languageOptions: {
+      parserOptions: {
+        project: "./scripts/tsconfig.json",
+      },
+    },
+  },
+];
+
+// The base XDR/SDK module preserves a public API shape (namespace+const merging,
+// XDR-string-literal type aliases, snake_case helpers like `best_r`, leading-_
+// internals) and uses a "public API at top, helpers below" file layout. Loosen
+// rules that would otherwise force breaking renames or large reorders.
+const baseSdkConfig = [
+  {
+    name: "base/sdk-public-api",
+    files: ["src/base/**/*.ts"],
+    rules: {
+      "@typescript-eslint/no-redeclare": "off",
+      "@typescript-eslint/no-use-before-define": [
+        "error",
+        { functions: false },
+      ],
+      "@typescript-eslint/naming-convention": "off",
+    },
+  },
+];
+
+// scripts/build-docs.ts dispatches a discriminated-union renderer through
+// mutually recursive helpers; function-declaration hoisting handles the
+// runtime ordering. Match baseSdkConfig's `functions: false` loosening.
+//
+// The scripts are dev-only docs tooling, never bundled into the published
+// package, so importing devDependencies (e.g. github-slugger) is expected —
+// override airbnb's default that only allows devDeps in test/build-config
+// globs.
+const scriptsRulesConfig = [
+  {
+    name: "scripts/mutual-recursion",
+    files: ["scripts/**/*.ts"],
+    rules: {
+      "@typescript-eslint/no-use-before-define": [
+        "error",
+        { functions: false },
+      ],
+      "import/no-extraneous-dependencies": ["error", { devDependencies: true }],
+    },
+  },
+];
+
 const importConfig = [
   {
     name: "import/plugin/config",
@@ -116,8 +146,21 @@ const importConfig = [
   },
 ];
 const ignoreFiles = includeIgnoreFile(gitignorePath);
-ignoreFiles.ignores.push(...["eslint.config.js", "config/**/*"]);
-module.exports = [
+ignoreFiles.ignores.push(
+  ...[
+    "eslint.config.js",
+    "rollup.config.mjs",
+    "config/**/*",
+    "src/base/generated/**",
+    // Astro build-time configs — excluded from tsconfig.json (they
+    // import the virtual `astro:content` module), so the typescript-
+    // eslint parser can't resolve them via the SDK project. Lint
+    // coverage from prettier is sufficient for these small configs.
+    "src/content.config.ts",
+    "astro.config.mjs",
+  ],
+);
+export default [
   // Ignore .gitignore files/folder in eslint
   ignoreFiles,
   // Import Plugin Config
@@ -126,10 +169,16 @@ module.exports = [
   ...javascriptConfig,
   // TypeScript Config
   ...typescriptConfig,
-  // JSDoc Config
-  ...jsDocConfig,
+  // TSDoc Config
+  ...tsdocConfig,
   // Test Config
   ...testConfig,
+  // Scripts Config (uses scripts/tsconfig.json for type-aware lint)
+  ...scriptsConfig,
+  // Base SDK overrides (must come after typescriptConfig/tsdocConfig)
+  ...baseSdkConfig,
+  // Scripts overrides (must come after typescriptConfig/scriptsConfig)
+  ...scriptsRulesConfig,
   // Prettier Config
   ...prettierConfig,
 ];

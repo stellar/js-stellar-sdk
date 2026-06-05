@@ -1,5 +1,5 @@
-import { expect } from "vitest";
-import { clientFor } from "./util";
+import { expect, describe, it } from "vitest";
+import { clientFor } from "./util.js";
 
 // this test checks that apps can pass methods as arguments to other methods and have them still work
 const callMethod = (method: (arg0: any) => any, args: { hello: string }) =>
