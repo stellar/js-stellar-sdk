@@ -1431,21 +1431,25 @@ function renderFile(
   return `${header}\n\n${blocks}\n`;
 }
 
-// Recover the public members of the Horizon call builders via a second,
-// self-contained typedoc pass over just the call-builder source files.
-// These classes are not part of the package's public exports, so the main
-// pass (which walks exports from src/index.ts) never sees them. We use a
-// dedicated options file via `--options` so this pass ignores the project
-// typedoc.json entirely and cannot disturb the main api.json or the
-// committed docs/ output. Validation is relaxed because the builders'
-// `{@link Horizon.Server.x}` cross-references don't resolve in isolation
-// and would otherwise trip `treatWarningsAsErrors`.
+// Recover the public members of the Horizon builders (every class that
+// extends `CallBuilder` — the `*CallBuilder` query builders plus
+// `FriendbotBuilder`) via a second, self-contained typedoc pass over just
+// their source files. These classes are not part of the package's public
+// exports, so the main pass (which walks exports from src/index.ts) never
+// sees them. We use a dedicated options file via `--options` so this pass
+// ignores the project typedoc.json entirely and cannot disturb the main
+// api.json or the committed docs/ output. Validation is relaxed because the
+// builders' `{@link Horizon.Server.x}` cross-references don't resolve in
+// isolation and would otherwise trip `treatWarningsAsErrors`.
 function buildCallBuilderMembers(): Map<string, ChainableMethod[]> {
   const horizonDir = join(REPO_ROOT, "src/horizon");
-  // Absolute paths: typedoc resolves relative paths in an `--options`
-  // file against that file's directory (tmp/typedoc-json/), not the cwd.
+  // `*_builder.ts` covers both the `*_call_builder.ts` query builders and
+  // `friendbot_builder.ts`; `Server.friendbot()` returns a FriendbotBuilder
+  // whose inherited `.call()` is how the request is actually submitted.
+  // Absolute paths: typedoc resolves relative paths in an `--options` file
+  // against that file's directory (tmp/typedoc-json/), not the cwd.
   const entryPoints = readdirSync(horizonDir)
-    .filter((f) => f.endsWith("call_builder.ts"))
+    .filter((f) => f.endsWith("_builder.ts"))
     .sort()
     .map((f) => join(horizonDir, f));
 
@@ -1478,9 +1482,18 @@ function buildCallBuilderMembers(): Map<string, ChainableMethod[]> {
   const project = JSON.parse(
     readFileSync(CALL_BUILDER_JSON, "utf8"),
   ) as Reflection;
+  // Capture every class that extends `CallBuilder` (its subclasses carry an
+  // `extendedTypes` reference to it; the base class itself does not and is
+  // skipped — it is never a documented method's return type). Keying on the
+  // base relationship rather than a `*CallBuilder` name also picks up
+  // FriendbotBuilder.
+  const extendsCallBuilder = (refl: Reflection): boolean =>
+    (refl.extendedTypes ?? []).some(
+      (t) => t.type === "reference" && t.name === "CallBuilder",
+    );
   const map = new Map<string, ChainableMethod[]>();
   const visit = (refl: Reflection): void => {
-    if (refl.kind === KIND_CLASS && /CallBuilder$/.test(refl.name)) {
+    if (refl.kind === KIND_CLASS && extendsCallBuilder(refl)) {
       const methods = collectPublicMembers(refl)
         .filter((member) => member.kind === KIND_METHOD)
         .map((member) => ({

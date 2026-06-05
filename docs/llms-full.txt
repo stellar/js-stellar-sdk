@@ -9322,6 +9322,15 @@ friendbot(address: string): FriendbotBuilder;
 New `FriendbotBuilder` instance configured with the current
 Horizon server configuration
 
+**Chainable methods**
+
+- `call(): Promise<any>` — Triggers a HTTP request using this builder's current configuration.
+- `cursor(cursor: string): this` — Sets `cursor` parameter for the current call.
+- `join(include: "transactions"): this` — Sets `join` parameter for the current call.
+- `limit(recordsNumber: number): this` — Sets `limit` parameter for the current call.
+- `order(direction: "asc" | "desc"): this` — Sets `order` parameter for the current call.
+- `stream(options: EventSourceOptions<any> = {}): () => void` — Creates an EventSource that listens for incoming messages from the server.
+
 **Source:** [src/horizon/server.ts:774](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L774)
 
 ### `server.ledgers()`
