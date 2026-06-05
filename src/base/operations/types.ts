@@ -443,6 +443,7 @@ export namespace AuthFlag {
   export type immutable = 4;
   export type clawbackEnabled = 8;
 }
+
 /**
  * A single {@link AuthFlag} or multiple flags combined with `|` (e.g. `AuthRequiredFlag | AuthRevocableFlag`).
  */
