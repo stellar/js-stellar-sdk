@@ -149,6 +149,21 @@ Don't keep both packages installed. Two copies of the base library cause
 confusing runtime errors, such as `instanceof` checks failing on values that
 look correct.
 
+## Versioning and compatibility
+
+Always use the latest `@stellar/stellar-sdk`. The Stellar network upgrades its
+protocol periodically, and an older SDK may fail to decode newer data (for
+example, newer XDR). You can check the protocol a network currently runs in the
+`current_protocol_version` field of its Horizon root (for example
+[horizon.stellar.org](https://horizon.stellar.org/) for Mainnet; Testnet and
+Futurenet expose their own).
+
+These docs and the API reference cover the latest version only. To read docs for
+an older version, find its Git tag on the
+[releases page](https://github.com/stellar/js-stellar-sdk/releases) and browse the
+`docs/` directory at that ref on GitHub. The release notes there mark the breaking
+changes in each version.
+
 ## Usage
 
 The usage documentation for this library lives in a handful of places:

@@ -146,6 +146,21 @@ Don't keep both packages installed. Two copies of the base library cause
 confusing runtime errors, such as `instanceof` checks failing on values that
 look correct.
 
+## Versioning and compatibility
+
+Always use the latest `@stellar/stellar-sdk`. The Stellar network upgrades its
+protocol periodically, and an older SDK may fail to decode newer data (for
+example, newer XDR). You can check the protocol a network currently runs in the
+`current_protocol_version` field of its Horizon root (for example
+[horizon.stellar.org](https://horizon.stellar.org/) for Mainnet; Testnet and
+Futurenet expose their own).
+
+These docs and the API reference cover the latest version only. To read docs for
+an older version, find its Git tag on the
+[releases page](https://github.com/stellar/js-stellar-sdk/releases) and browse the
+`docs/` directory at that ref on GitHub. The release notes there mark the breaking
+changes in each version.
+
 ## Usage
 
 The usage documentation for this library lives in a handful of places:
@@ -471,34 +486,6 @@ For information on how to contribute or publish new versions of this software to
 js-stellar-sdk is licensed under an Apache-2.0 license. See the
 [LICENSE](https://github.com/stellar/js-stellar-sdk/blob/master/LICENSE) file
 for details.
-
-# Source: docs/guides/00-versioning.md
-
-# Versioning & Compatibility
-
-## Use the latest version
-
-We recommend always using the latest version of `@stellar/stellar-sdk` so your
-application keeps working as expected on the Stellar network. The network
-upgrades its protocol periodically, and an older SDK may not handle newer data —
-for example, newer XDR will fail to decode when an older SDK version is used.
-
-You can check the protocol version a network currently runs from its Horizon
-root endpoint, in the `current_protocol_version` field — for example,
-[horizon.stellar.org](https://horizon.stellar.org/) for Mainnet. Each network
-(Testnet, Futurenet) exposes its own Horizon root.
-
-## These docs cover the latest version only
-
-This site documents only the latest version of `@stellar/stellar-sdk`. To read
-docs for an older version, find its Git tag on the
-[releases page](https://github.com/stellar/js-stellar-sdk/releases) and browse
-the `docs/` directory at that ref on GitHub.
-
-## What's new in each version
-
-See the [release notes](https://github.com/stellar/js-stellar-sdk/releases) for
-what changed in each release — breaking changes are clearly marked.
 
 # Source: docs/guides/01-connect-and-fund.md
 
@@ -31359,8 +31346,8 @@ edit that file and rebuild to change either.
 
 All three surfaces (bundles, `.md` siblings, robots.txt) are regenerated
 on every release deploy. They reflect the **current SDK major** only —
-older majors are not bundled (see the
-[Versioning & Compatibility](/js-stellar-sdk/guides/00-versioning/) page for the
+older majors are not bundled (see
+[Versioning and compatibility](/js-stellar-sdk/#versioning-and-compatibility) for the
 rationale).
 
 The current SDK version is **15.0.1**, sourced from
