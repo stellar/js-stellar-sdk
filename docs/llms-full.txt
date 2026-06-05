@@ -612,8 +612,9 @@ stream error (for example `ECONNREFUSED`) rather than an uncaught throw, so an
 
 ### Utilities: `server.serverURL` is now a native `URL`
 
-`Horizon.Server.serverURL` and `rpc.Server.serverURL` changed from a `urijs`
-`URI` to the global `URL`. Method calls become property reads.
+The `serverURL` on [`Horizon.Server`](/js-stellar-sdk/reference/network-horizon/#horizonserver) and
+[`rpc.Server`](/js-stellar-sdk/reference/network-rpc/#rpcserver) changed from a `urijs` `URI` to the
+global `URL`. Method calls become property reads.
 
 ```ts del={1} ins={2}
 const host = server.serverURL.hostname()
@@ -649,8 +650,9 @@ install is a different class, so `instanceof` can fail across the boundary.
 
 ### Behavior: stricter ed25519 verification
 
-The ed25519 backend swapped to `@noble/ed25519` v3. `Keypair.random`, `sign`,
-`verify`, and `generate` keep the same API and `Buffer` return types, but v3
+The ed25519 backend swapped to `@noble/ed25519` v3.
+[`Keypair`](/js-stellar-sdk/reference/core-keys/#keypair)'s `random`, `sign`, `verify`, and
+`generate` keep the same API and `Buffer` return types, but v3
 verification is stricter about non-canonical and malleable signatures.
 Edge-case signatures that previously verified may now be rejected.
 
@@ -665,7 +667,7 @@ different error messages, which propagate into the rejected promise /
 
 Several fixes change observable behavior:
 
-- `rpc.Server.getLatestLedger()` now includes `closeTime`, `headerXdr`, and
+- [`rpc.Server.getLatestLedger()`](/js-stellar-sdk/reference/network-rpc/#servergetlatestledger) now includes `closeTime`, `headerXdr`, and
   `metadataXdr`, with the XDR fields parsed into objects rather than base64.
 - A `parseSuccessful` precedence bug that silently dropped simulation results and
   state changes is fixed, so they now appear in the parsed response.
@@ -693,8 +695,11 @@ entries. The timeline matters:
 - **At Protocol 28:** the simulation default flips to `AddressV2`. Both remain
   valid on-chain.
 
-SDK-driven signing (`contract.Client`, `basicNodeSigner`, `authorizeEntry`,
-`signAuthEntries`) is forward-compatible across the flip with no code change: it
+SDK-driven signing ([`contract.Client`](/js-stellar-sdk/reference/contracts-client/#contractclient),
+[`basicNodeSigner`](/js-stellar-sdk/reference/contracts-client/#contractbasicnodesigner),
+[`authorizeEntry`](/js-stellar-sdk/reference/core-soroban-primitives/#authorizeentry),
+[`signAuthEntries`](/js-stellar-sdk/reference/contracts-client/#contractassembledtransaction)) is
+forward-compatible across the flip with no code change: it
 signs whichever credential simulation returns. The entries below break only code
 that reads the credential arm or builds the signature payload by hand.
 
@@ -703,8 +708,9 @@ For the full walkthrough of signing Soroban authorization entries, see
 
 ### Auth: `authorizeInvocation` now returns `AddressV2`
 
-`authorizeInvocation` now takes a single params object and builds
-`SOROBAN_CREDENTIALS_ADDRESS_V2` entries instead of legacy `ADDRESS`. Read the
+[`authorizeInvocation`](/js-stellar-sdk/reference/core-soroban-primitives/#authorizeinvocation) now
+takes a single params object and builds `SOROBAN_CREDENTIALS_ADDRESS_V2` entries
+instead of legacy `ADDRESS`. Read the
 result with `.addressV2()`.
 
 ```ts del={1-4} ins={5-8}
@@ -723,7 +729,8 @@ const addr = entry.credentials().addressV2()
 Code that reconstructs the authorization payload by hand hardcodes the legacy
 `ENVELOPE_TYPE_SOROBAN_AUTHORIZATION`. That is wrong for `AddressV2`, which signs
 the address-bound `ENVELOPE_TYPE_SOROBAN_AUTHORIZATION_WITH_ADDRESS`. Use the new
-`buildAuthorizationEntryPreimage`, which picks the right payload from the entry's
+[`buildAuthorizationEntryPreimage`](/js-stellar-sdk/reference/core-soroban-primitives/#buildauthorizationentrypreimage),
+which picks the right payload from the entry's
 own credential type, so the same code is correct on `ADDRESS` today and
 `AddressV2` after the flip.
 
@@ -762,7 +769,9 @@ authorizeEntry(entry, signer, validUntilLedgerSeq, networkPassphrase, forAddress
 ```
 
 For delegated authorization (`ADDRESS_WITH_DELEGATES`, CAP-71-01), build the
-wrapper with `buildWithDelegatesEntry` (it sorts each delegate array by address
+wrapper with
+[`buildWithDelegatesEntry`](/js-stellar-sdk/reference/core-soroban-primitives/#buildwithdelegatesentry)
+(it sorts each delegate array by address
 and rejects duplicates, as the protocol requires), then route each signer's
 signature with `forAddress`. Every signer signs the same payload, bound to the
 top-level address.
@@ -778,7 +787,8 @@ package root now exports exactly `authorizeEntry`, `authorizeInvocation`,
 
 ### Deprecated: `BalanceResponse.revocable`
 
-Use `authorizedToMaintainLiabilities`, which reflects the correct trustline flag
+On [`BalanceResponse`](/js-stellar-sdk/reference/network-rpc/#rpcapibalanceresponse), use
+`authorizedToMaintainLiabilities`, which reflects the correct trustline flag
 semantics.
 
 ```ts del={1} ins={2}
@@ -797,7 +807,8 @@ await server.fundAddress(publicKey)
 
 ### Deprecated: bare `Buffer` return from `SigningCallback`
 
-A custom `SigningCallback` passed to `authorizeEntry` should return
+A custom [`SigningCallback`](/js-stellar-sdk/reference/core-soroban-primitives/#signingcallback)
+passed to `authorizeEntry` should return
 `{ signature, publicKey }`. The bare `Buffer` return is deprecated.
 
 ```ts del={1} ins={2-5}
