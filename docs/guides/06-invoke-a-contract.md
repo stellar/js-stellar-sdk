@@ -52,7 +52,8 @@ const client = await contract.Client.from({
 });
 ```
 
-Here `keypair` is your funded account from the previous guide and `contractId` is
+Here `keypair` is your funded account from
+[Connect and Fund an Account](/guides/01-connect-and-fund/) and `contractId` is
 your deployed contract's `C...` ID. Because the client is built from the live
 contract at runtime, its methods are **not typed**: TypeScript does not know
 `client.increment` exists, so calls below use `(client as any)`. A fully typed
@@ -148,4 +149,4 @@ main().catch(console.error);
 ```
 
 You can now read from and write to a deployed contract from JavaScript. Next,
-learn to authorize calls that more than one account must sign.
+learn to [authorize calls that more than one account must sign](/guides/07-contract-auth/).

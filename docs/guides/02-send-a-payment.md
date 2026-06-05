@@ -23,8 +23,9 @@ A payment is one operation inside a transaction. Load the source account for its
 current sequence number (the per-account counter Stellar uses to order
 transactions), then build a transaction with a single
 [`Operation.payment`](/reference/core-transactions/#operationpayment). Here
-`source` is your funded keypair from the previous guide, and `destinationId` is
-the recipient's public key (a `G...` string):
+`source` is your funded keypair from
+[Connect and Fund an Account](/guides/01-connect-and-fund/), and `destinationId`
+is the recipient's public key (a `G...` string):
 
 ```ts
 import {
