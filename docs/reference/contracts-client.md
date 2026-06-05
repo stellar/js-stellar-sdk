@@ -619,14 +619,6 @@ toXDR(): string;
 
 **Source:** [src/contract/assembled_transaction.ts:480](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L480)
 
-## contract.AssembledTransactionOptions
-
-```ts
-type AssembledTransactionOptions<T = string> = MethodOptions & ClientOptions & { address?: string; args?: any[]; method: string; parseResultXdr: (xdr: xdr.ScVal) => T; submit?: boolean; submitUrl?: string }
-```
-
-**Source:** [src/contract/types.ts:260](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L260)
-
 ## contract.Client
 
 Generate a class from the contract spec that where each contract method
@@ -788,16 +780,6 @@ txFromXDR<T>(xdrBase64: string): AssembledTransaction<T>;
 
 **Source:** [src/contract/client.ts:214](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L214)
 
-## contract.ClientOptions
-
-Options for a smart contract client.
-
-```ts
-type ClientOptions = { allowHttp?: boolean; contractId: string; errorTypes?: Record<number, { message: string }>; headers?: Record<string, string>; networkPassphrase: string; publicKey?: string; rpcUrl: string; server?: Server; signAuthEntry?: SignAuthEntry; signTransaction?: SignTransaction }
-```
-
-**Source:** [src/contract/types.ts:127](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L127)
-
 ## contract.DEFAULT_TIMEOUT
 
 The default timebounds, in seconds, during which a transaction will be valid.
@@ -811,50 +793,6 @@ const DEFAULT_TIMEOUT: number
 
 **Source:** [src/contract/types.ts:292](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L292)
 
-## contract.Duration
-
-An unsigned 64-bit integer.
-
-```ts
-type Duration = bigint
-```
-
-**Source:** [src/contract/types.ts:53](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L53)
-
-## contract.ErrorMessage
-
-Error interface containing the error message. Matches Rust's implementation.
-Part of implementing `Result`, a minimal
-implementation of Rust's `Result` type. Used for contract methods that return
-Results, to maintain their distinction from methods that simply either return
-a value or throw.
-
-```ts
-interface ErrorMessage {
-  message: string;
-}
-```
-
-**Source:** [src/contract/rust_result.ts:51](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/rust_result.ts#L51)
-
-### `errorMessage.message`
-
-```ts
-message: string;
-```
-
-**Source:** [src/contract/rust_result.ts:52](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/rust_result.ts#L52)
-
-## contract.MethodOptions
-
-Options for a smart contract method invocation.
-
-```ts
-type MethodOptions = { fee?: string; publicKey?: string; restore?: boolean; signAuthEntry?: SignAuthEntry; signTransaction?: SignTransaction; simulate?: boolean; timeoutInSeconds?: number }
-```
-
-**Source:** [src/contract/types.ts:203](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L203)
-
 ## contract.NULL_ACCOUNT
 
 An impossible account on the Stellar network
@@ -864,89 +802,6 @@ const NULL_ACCOUNT: "GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF"
 ```
 
 **Source:** [src/contract/types.ts:298](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L298)
-
-## contract.Option
-
-```ts
-type Option<T> = T | undefined
-```
-
-**Source:** [src/contract/types.ts:41](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L41)
-
-## contract.Result
-
-A minimal implementation of Rust's `Result` type. Used for contract
-methods that return Results, to maintain their distinction from methods
-that simply either return a value or throw.
-
-#### Why is this needed?
-
-This is used by ``ContractSpec`` and
-``AssembledTransaction`` when
-parsing values return by contracts.
-
-Contract methods can be implemented to return simple values, in which case
-they can also throw errors. This matches JavaScript's most idiomatic
-workflow, using `try...catch` blocks.
-
-But Rust also gives the flexibility of returning `Result` types. And Soroban
-contracts further support this with the `#[contracterror]` macro. Should
-JavaScript calls to such methods ignore all of that, and just flatten this
-extra info down to the same `try...catch` flow as other methods? We're not
-sure.
-
-For now, we've added this minimal implementation of Rust's `Result` logic,
-which exports the `Result` interface and its associated implementations,
-`Ok` and `Err`. This allows `ContractSpec` and `AssembledTransaction` to
-work together to duplicate the contract's Rust logic, always returning
-`Result` types for contract methods that are implemented to do so.
-
-In the future, if this feels too un-idiomatic for JavaScript, we can always
-remove this and flatten all JS calls to `try...catch`. Easier to remove this
-logic later than it would be to add it.
-
-```ts
-interface Result<T, E extends ErrorMessage = ErrorMessage> {
-  isErr(): boolean;
-  isOk(): boolean;
-  unwrap(): T;
-  unwrapErr(): E;
-}
-```
-
-**Source:** [src/contract/rust_result.ts:36](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/rust_result.ts#L36)
-
-### `result.isErr()`
-
-```ts
-isErr(): boolean;
-```
-
-**Source:** [src/contract/rust_result.ts:40](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/rust_result.ts#L40)
-
-### `result.isOk()`
-
-```ts
-isOk(): boolean;
-```
-
-**Source:** [src/contract/rust_result.ts:39](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/rust_result.ts#L39)
-
-### `result.unwrap()`
-
-```ts
-unwrap(): T;
-```
-
-**Source:** [src/contract/rust_result.ts:37](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/rust_result.ts#L37)
-
-### `result.unwrapErr()`
-
-```ts
-unwrapErr(): E;
-```
-
-**Source:** [src/contract/rust_result.ts:38](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/rust_result.ts#L38)
 
 ## contract.SentTransaction
 
@@ -1074,34 +929,6 @@ readonly result: T;
 ```
 
 **Source:** [src/contract/sent_transaction.ts:132](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/sent_transaction.ts#L132)
-
-## contract.SignAuthEntry
-
-A function to request a wallet to sign an authorization entry preimage.
-
-Similar to signing a transaction, this function takes an authorization entry preimage provided by the
-requester and applies a signature to it.
-It returns a signed hash of the same authorization entry and the signer address back to the requester.
-
-```ts
-type SignAuthEntry = (authEntry: string, opts?: { address?: string; networkPassphrase?: string }) => Promise<{ signedAuthEntry: string; signerAddress?: string } & { error?: WalletError }>
-```
-
-**Source:** [src/contract/types.ts:111](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L111)
-
-## contract.SignTransaction
-
-A function to request a wallet to sign a built transaction
-
-This function takes an XDR provided by the requester and applies a signature to it.
-It returns a base64-encoded string XDR-encoded Transaction Envelope with Decorated Signatures
-and the signer address back to the requester.
-
-```ts
-type SignTransaction = (xdr: string, opts?: { address?: string; networkPassphrase?: string; submit?: boolean; submitUrl?: string }) => Promise<{ signedTxXdr: string; signerAddress?: string } & { error?: WalletError }>
-```
-
-**Source:** [src/contract/types.ts:82](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L82)
 
 ## contract.Spec
 
@@ -1439,99 +1266,6 @@ the converted native JS value
 
 **Source:** [src/contract/spec.ts:985](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L985)
 
-## contract.Timepoint
-
-An unsigned 64-bit integer.
-
-```ts
-type Timepoint = bigint
-```
-
-**Source:** [src/contract/types.ts:49](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L49)
-
-## contract.Tx
-
-A "regular" transaction, as opposed to a FeeBumpTransaction.
-
-```ts
-type Tx = Transaction
-```
-
-**Source:** [src/contract/types.ts:58](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L58)
-
-## contract.Typepoint
-
-**Deprecated.** Use `Timepoint` instead.
-
-```ts
-type Typepoint = bigint
-```
-
-**Source:** [src/contract/types.ts:45](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L45)
-
-## contract.Union
-
-```ts
-interface Union<T> {
-  tag: string;
-  values?: T;
-}
-```
-
-**Source:** [src/contract/spec.ts:14](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L14)
-
-### `union.tag`
-
-```ts
-tag: string;
-```
-
-**Source:** [src/contract/spec.ts:15](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L15)
-
-### `union.values`
-
-```ts
-values?: T;
-```
-
-**Source:** [src/contract/spec.ts:16](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L16)
-
-## contract.WalletError
-
-```ts
-interface WalletError {
-  code: number;
-  ext?: string[];
-  message: string;
-}
-```
-
-**Source:** [src/contract/types.ts:60](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L60)
-
-### `walletError.code`
-
-```ts
-code: number;
-```
-
-**Source:** [src/contract/types.ts:62](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L62)
-
-### `walletError.ext`
-
-```ts
-ext?: string[];
-```
-
-**Source:** [src/contract/types.ts:63](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L63)
-
-### `walletError.message`
-
-```ts
-message: string;
-```
-
-**Source:** [src/contract/types.ts:61](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L61)
-
 ## contract.Watcher
 
 ```ts
@@ -1580,14 +1314,6 @@ onSubmitted(response?: SendTransactionResponse): void;
 
 **Source:** [src/contract/sent_transaction.ts:172](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/sent_transaction.ts#L172)
 
-## contract.XDR_BASE64
-
-```ts
-type XDR_BASE64 = string
-```
-
-**Source:** [src/contract/types.ts:8](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L8)
-
 ## contract.basicNodeSigner
 
 For use with `Client` and `contract.AssembledTransaction`.
@@ -1607,7 +1333,283 @@ basicNodeSigner(keypair: Keypair, networkPassphrase: string): { signAuthEntry: S
 
 **Source:** [src/contract/basic_node_signer.ts:16](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/basic_node_signer.ts#L16)
 
-## contract.i128
+## Types
+
+### contract.AssembledTransactionOptions
+
+```ts
+type AssembledTransactionOptions<T = string> = MethodOptions & ClientOptions & { address?: string; args?: any[]; method: string; parseResultXdr: (xdr: xdr.ScVal) => T; submit?: boolean; submitUrl?: string }
+```
+
+**Source:** [src/contract/types.ts:260](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L260)
+
+### contract.ClientOptions
+
+Options for a smart contract client.
+
+```ts
+type ClientOptions = { allowHttp?: boolean; contractId: string; errorTypes?: Record<number, { message: string }>; headers?: Record<string, string>; networkPassphrase: string; publicKey?: string; rpcUrl: string; server?: Server; signAuthEntry?: SignAuthEntry; signTransaction?: SignTransaction }
+```
+
+**Source:** [src/contract/types.ts:127](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L127)
+
+### contract.Duration
+
+An unsigned 64-bit integer.
+
+```ts
+type Duration = bigint
+```
+
+**Source:** [src/contract/types.ts:53](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L53)
+
+### contract.ErrorMessage
+
+Error interface containing the error message. Matches Rust's implementation.
+Part of implementing `Result`, a minimal
+implementation of Rust's `Result` type. Used for contract methods that return
+Results, to maintain their distinction from methods that simply either return
+a value or throw.
+
+```ts
+interface ErrorMessage {
+  message: string;
+}
+```
+
+**Source:** [src/contract/rust_result.ts:51](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/rust_result.ts#L51)
+
+#### `errorMessage.message`
+
+```ts
+message: string;
+```
+
+**Source:** [src/contract/rust_result.ts:52](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/rust_result.ts#L52)
+
+### contract.MethodOptions
+
+Options for a smart contract method invocation.
+
+```ts
+type MethodOptions = { fee?: string; publicKey?: string; restore?: boolean; signAuthEntry?: SignAuthEntry; signTransaction?: SignTransaction; simulate?: boolean; timeoutInSeconds?: number }
+```
+
+**Source:** [src/contract/types.ts:203](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L203)
+
+### contract.Option
+
+```ts
+type Option<T> = T | undefined
+```
+
+**Source:** [src/contract/types.ts:41](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L41)
+
+### contract.Result
+
+A minimal implementation of Rust's `Result` type. Used for contract
+methods that return Results, to maintain their distinction from methods
+that simply either return a value or throw.
+
+#### Why is this needed?
+
+This is used by ``ContractSpec`` and
+``AssembledTransaction`` when
+parsing values return by contracts.
+
+Contract methods can be implemented to return simple values, in which case
+they can also throw errors. This matches JavaScript's most idiomatic
+workflow, using `try...catch` blocks.
+
+But Rust also gives the flexibility of returning `Result` types. And Soroban
+contracts further support this with the `#[contracterror]` macro. Should
+JavaScript calls to such methods ignore all of that, and just flatten this
+extra info down to the same `try...catch` flow as other methods? We're not
+sure.
+
+For now, we've added this minimal implementation of Rust's `Result` logic,
+which exports the `Result` interface and its associated implementations,
+`Ok` and `Err`. This allows `ContractSpec` and `AssembledTransaction` to
+work together to duplicate the contract's Rust logic, always returning
+`Result` types for contract methods that are implemented to do so.
+
+In the future, if this feels too un-idiomatic for JavaScript, we can always
+remove this and flatten all JS calls to `try...catch`. Easier to remove this
+logic later than it would be to add it.
+
+```ts
+interface Result<T, E extends ErrorMessage = ErrorMessage> {
+  isErr(): boolean;
+  isOk(): boolean;
+  unwrap(): T;
+  unwrapErr(): E;
+}
+```
+
+**Source:** [src/contract/rust_result.ts:36](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/rust_result.ts#L36)
+
+#### `result.isErr()`
+
+```ts
+isErr(): boolean;
+```
+
+**Source:** [src/contract/rust_result.ts:40](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/rust_result.ts#L40)
+
+#### `result.isOk()`
+
+```ts
+isOk(): boolean;
+```
+
+**Source:** [src/contract/rust_result.ts:39](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/rust_result.ts#L39)
+
+#### `result.unwrap()`
+
+```ts
+unwrap(): T;
+```
+
+**Source:** [src/contract/rust_result.ts:37](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/rust_result.ts#L37)
+
+#### `result.unwrapErr()`
+
+```ts
+unwrapErr(): E;
+```
+
+**Source:** [src/contract/rust_result.ts:38](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/rust_result.ts#L38)
+
+### contract.SignAuthEntry
+
+A function to request a wallet to sign an authorization entry preimage.
+
+Similar to signing a transaction, this function takes an authorization entry preimage provided by the
+requester and applies a signature to it.
+It returns a signed hash of the same authorization entry and the signer address back to the requester.
+
+```ts
+type SignAuthEntry = (authEntry: string, opts?: { address?: string; networkPassphrase?: string }) => Promise<{ signedAuthEntry: string; signerAddress?: string } & { error?: WalletError }>
+```
+
+**Source:** [src/contract/types.ts:111](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L111)
+
+### contract.SignTransaction
+
+A function to request a wallet to sign a built transaction
+
+This function takes an XDR provided by the requester and applies a signature to it.
+It returns a base64-encoded string XDR-encoded Transaction Envelope with Decorated Signatures
+and the signer address back to the requester.
+
+```ts
+type SignTransaction = (xdr: string, opts?: { address?: string; networkPassphrase?: string; submit?: boolean; submitUrl?: string }) => Promise<{ signedTxXdr: string; signerAddress?: string } & { error?: WalletError }>
+```
+
+**Source:** [src/contract/types.ts:82](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L82)
+
+### contract.Timepoint
+
+An unsigned 64-bit integer.
+
+```ts
+type Timepoint = bigint
+```
+
+**Source:** [src/contract/types.ts:49](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L49)
+
+### contract.Tx
+
+A "regular" transaction, as opposed to a FeeBumpTransaction.
+
+```ts
+type Tx = Transaction
+```
+
+**Source:** [src/contract/types.ts:58](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L58)
+
+### contract.Typepoint
+
+**Deprecated.** Use `Timepoint` instead.
+
+```ts
+type Typepoint = bigint
+```
+
+**Source:** [src/contract/types.ts:45](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L45)
+
+### contract.Union
+
+```ts
+interface Union<T> {
+  tag: string;
+  values?: T;
+}
+```
+
+**Source:** [src/contract/spec.ts:14](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L14)
+
+#### `union.tag`
+
+```ts
+tag: string;
+```
+
+**Source:** [src/contract/spec.ts:15](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L15)
+
+#### `union.values`
+
+```ts
+values?: T;
+```
+
+**Source:** [src/contract/spec.ts:16](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L16)
+
+### contract.WalletError
+
+```ts
+interface WalletError {
+  code: number;
+  ext?: string[];
+  message: string;
+}
+```
+
+**Source:** [src/contract/types.ts:60](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L60)
+
+#### `walletError.code`
+
+```ts
+code: number;
+```
+
+**Source:** [src/contract/types.ts:62](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L62)
+
+#### `walletError.ext`
+
+```ts
+ext?: string[];
+```
+
+**Source:** [src/contract/types.ts:63](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L63)
+
+#### `walletError.message`
+
+```ts
+message: string;
+```
+
+**Source:** [src/contract/types.ts:61](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L61)
+
+### contract.XDR_BASE64
+
+```ts
+type XDR_BASE64 = string
+```
+
+**Source:** [src/contract/types.ts:8](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L8)
+
+### contract.i128
 
 A signed 128-bit integer.
 
@@ -1617,7 +1619,7 @@ type i128 = bigint
 
 **Source:** [src/contract/types.ts:32](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L32)
 
-## contract.i256
+### contract.i256
 
 A signed 256-bit integer.
 
@@ -1627,7 +1629,7 @@ type i256 = bigint
 
 **Source:** [src/contract/types.ts:40](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L40)
 
-## contract.i32
+### contract.i32
 
 A signed 32-bit integer.
 
@@ -1637,7 +1639,7 @@ type i32 = number
 
 **Source:** [src/contract/types.ts:16](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L16)
 
-## contract.i64
+### contract.i64
 
 A signed 64-bit integer.
 
@@ -1647,7 +1649,7 @@ type i64 = bigint
 
 **Source:** [src/contract/types.ts:24](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L24)
 
-## contract.u128
+### contract.u128
 
 An unsigned 128-bit integer.
 
@@ -1657,7 +1659,7 @@ type u128 = bigint
 
 **Source:** [src/contract/types.ts:28](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L28)
 
-## contract.u256
+### contract.u256
 
 An unsigned 256-bit integer.
 
@@ -1667,7 +1669,7 @@ type u256 = bigint
 
 **Source:** [src/contract/types.ts:36](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L36)
 
-## contract.u32
+### contract.u32
 
 An unsigned 32-bit integer.
 
@@ -1677,7 +1679,7 @@ type u32 = number
 
 **Source:** [src/contract/types.ts:12](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L12)
 
-## contract.u64
+### contract.u64
 
 An unsigned 64-bit integer.
 

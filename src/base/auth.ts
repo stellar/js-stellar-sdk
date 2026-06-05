@@ -334,7 +334,7 @@ export function authorizeInvocation(
  * @param validUntilLedgerSeq - the expiration ledger committed into the payload
  *    (must match the `signatureExpirationLedger` on the credentials you submit)
  * @param networkPassphrase - the network passphrase mixed into the payload
- * @throws {Error} if `entry` carries source-account or otherwise non-address
+ * @throws `Error` if `entry` carries source-account or otherwise non-address
  *    credentials
  */
 export function buildAuthorizationEntryPreimage(
@@ -444,7 +444,7 @@ export interface BuildWithDelegatesParams {
  * rejects the entry.
  *
  * @param params - see {@link BuildWithDelegatesParams}
- * @throws {Error} if `entry` is not an `ADDRESS`/`ADDRESS_V2` entry, or if any
+ * @throws `Error` if `entry` is not an `ADDRESS`/`ADDRESS_V2` entry, or if any
  *    delegates array contains a duplicate address.
  */
 export function buildWithDelegatesEntry(
