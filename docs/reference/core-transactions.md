@@ -103,6 +103,38 @@ type AuthFlag = typeof AuthFlag[keyof typeof AuthFlag]
 
 **Source:** [src/base/operations/types.ts:431](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L431)
 
+## AuthFlag.clawbackEnabled
+
+```ts
+type clawbackEnabled = 8
+```
+
+**Source:** [src/base/operations/types.ts:444](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L444)
+
+## AuthFlag.immutable
+
+```ts
+type immutable = 4
+```
+
+**Source:** [src/base/operations/types.ts:443](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L443)
+
+## AuthFlag.required
+
+```ts
+type required = 1
+```
+
+**Source:** [src/base/operations/types.ts:441](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L441)
+
+## AuthFlag.revocable
+
+```ts
+type revocable = 2
+```
+
+**Source:** [src/base/operations/types.ts:442](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L442)
+
 ## AuthImmutableFlag
 
 When set using [`Operation.setOptions`](#operationsetoptions) option, then none of the
@@ -1882,7 +1914,7 @@ Union of all possible operation objects returned by Operation.fromXDRObject.
 type OperationRecord = AccountMergeResult | AllowTrustResult | BeginSponsoringFutureReservesResult | BumpSequenceResult | ChangeTrustResult | ClaimClaimableBalanceResult | ClawbackClaimableBalanceResult | ClawbackResult | CreateAccountResult | CreateClaimableBalanceResult | CreatePassiveSellOfferResult | EndSponsoringFutureReservesResult | ExtendFootprintTTLResult | InflationResult | InvokeHostFunctionResult | LiquidityPoolDepositResult | LiquidityPoolWithdrawResult | ManageBuyOfferResult | ManageDataResult | ManageSellOfferResult | PathPaymentStrictReceiveResult | PathPaymentStrictSendResult | PaymentResult | RestoreFootprintResult | RevokeAccountSponsorshipResult | RevokeClaimableBalanceSponsorshipResult | RevokeDataSponsorshipResult | RevokeLiquidityPoolSponsorshipResult | RevokeOfferSponsorshipResult | RevokeSignerSponsorshipResult | RevokeTrustlineSponsorshipResult | SetOptionsResult<SignerOpts> | SetTrustLineFlagsResult
 ```
 
-**Source:** [src/base/operations/types.ts:677](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L677)
+**Source:** [src/base/operations/types.ts:686](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L686)
 
 ## OperationType
 
@@ -2496,7 +2528,7 @@ type ScIntType = "duration" | "i64" | "i128" | "i256" | "timepoint" | "u64" | "u
 type Signer = Signer.Ed25519PublicKey | Signer.Ed25519SignedPayload | Signer.PreAuthTx | Signer.Sha256Hash
 ```
 
-**Source:** [src/base/operations/types.ts:453](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L453)
+**Source:** [src/base/operations/types.ts:462](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L462)
 
 ## Signer.Ed25519PublicKey
 
@@ -2507,7 +2539,7 @@ interface Ed25519PublicKey {
 }
 ```
 
-**Source:** [src/base/operations/types.ts:454](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L454)
+**Source:** [src/base/operations/types.ts:463](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L463)
 
 ### `ed25519PublicKey.ed25519PublicKey`
 
@@ -2515,7 +2547,7 @@ interface Ed25519PublicKey {
 ed25519PublicKey: string;
 ```
 
-**Source:** [src/base/operations/types.ts:455](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L455)
+**Source:** [src/base/operations/types.ts:464](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L464)
 
 ### `ed25519PublicKey.weight`
 
@@ -2523,7 +2555,7 @@ ed25519PublicKey: string;
 weight?: number;
 ```
 
-**Source:** [src/base/operations/types.ts:456](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L456)
+**Source:** [src/base/operations/types.ts:465](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L465)
 
 ## Signer.Ed25519SignedPayload
 
@@ -2534,7 +2566,7 @@ interface Ed25519SignedPayload {
 }
 ```
 
-**Source:** [src/base/operations/types.ts:466](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L466)
+**Source:** [src/base/operations/types.ts:475](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L475)
 
 ### `ed25519SignedPayload.ed25519SignedPayload`
 
@@ -2542,7 +2574,7 @@ interface Ed25519SignedPayload {
 ed25519SignedPayload: string;
 ```
 
-**Source:** [src/base/operations/types.ts:467](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L467)
+**Source:** [src/base/operations/types.ts:476](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L476)
 
 ### `ed25519SignedPayload.weight`
 
@@ -2550,7 +2582,7 @@ ed25519SignedPayload: string;
 weight?: number;
 ```
 
-**Source:** [src/base/operations/types.ts:468](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L468)
+**Source:** [src/base/operations/types.ts:477](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L477)
 
 ## Signer.PreAuthTx
 
@@ -2561,7 +2593,7 @@ interface PreAuthTx {
 }
 ```
 
-**Source:** [src/base/operations/types.ts:462](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L462)
+**Source:** [src/base/operations/types.ts:471](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L471)
 
 ### `preAuthTx.preAuthTx`
 
@@ -2569,7 +2601,7 @@ interface PreAuthTx {
 preAuthTx: Buffer;
 ```
 
-**Source:** [src/base/operations/types.ts:463](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L463)
+**Source:** [src/base/operations/types.ts:472](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L472)
 
 ### `preAuthTx.weight`
 
@@ -2577,7 +2609,7 @@ preAuthTx: Buffer;
 weight?: number;
 ```
 
-**Source:** [src/base/operations/types.ts:464](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L464)
+**Source:** [src/base/operations/types.ts:473](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L473)
 
 ## Signer.Sha256Hash
 
@@ -2588,7 +2620,7 @@ interface Sha256Hash {
 }
 ```
 
-**Source:** [src/base/operations/types.ts:458](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L458)
+**Source:** [src/base/operations/types.ts:467](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L467)
 
 ### `sha256Hash.sha256Hash`
 
@@ -2596,7 +2628,7 @@ interface Sha256Hash {
 sha256Hash: Buffer;
 ```
 
-**Source:** [src/base/operations/types.ts:459](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L459)
+**Source:** [src/base/operations/types.ts:468](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L468)
 
 ### `sha256Hash.weight`
 
@@ -2604,7 +2636,7 @@ sha256Hash: Buffer;
 weight?: number;
 ```
 
-**Source:** [src/base/operations/types.ts:460](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L460)
+**Source:** [src/base/operations/types.ts:469](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L469)
 
 ## SorobanFees
 
@@ -3660,7 +3692,7 @@ setTimeout(timeoutSeconds: number): TransactionBuilder;
 type TrustLineFlag = TrustLineFlag.authorize | TrustLineFlag.authorizeToMaintainLiabilities | TrustLineFlag.deauthorize
 ```
 
-**Source:** [src/base/operations/types.ts:442](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L442)
+**Source:** [src/base/operations/types.ts:451](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L451)
 
 ## TrustLineFlag.authorize
 
@@ -3668,7 +3700,7 @@ type TrustLineFlag = TrustLineFlag.authorize | TrustLineFlag.authorizeToMaintain
 type authorize = 1
 ```
 
-**Source:** [src/base/operations/types.ts:444](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L444)
+**Source:** [src/base/operations/types.ts:453](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L453)
 
 ## TrustLineFlag.authorizeToMaintainLiabilities
 
@@ -3676,7 +3708,7 @@ type authorize = 1
 type authorizeToMaintainLiabilities = 2
 ```
 
-**Source:** [src/base/operations/types.ts:445](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L445)
+**Source:** [src/base/operations/types.ts:454](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L454)
 
 ## TrustLineFlag.deauthorize
 
@@ -3684,7 +3716,7 @@ type authorizeToMaintainLiabilities = 2
 type deauthorize = 0
 ```
 
-**Source:** [src/base/operations/types.ts:443](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L443)
+**Source:** [src/base/operations/types.ts:452](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L452)
 
 ## Uint128
 
