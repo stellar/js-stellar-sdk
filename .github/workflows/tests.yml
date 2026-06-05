@@ -58,3 +58,15 @@ jobs:
 
       - name: Browser Tests (Axios)
         run: pnpm run test:browser:axios
+
+  # Placeholder to satisfy the `build_and_test (20)` required status check in
+  # the `protect-master` ruleset. Node 20 was dropped from the test matrix
+  # (engines.node is now >=22), but the ruleset still requires that context by
+  # name, so without this every PR would stay "Expected" and block merge.
+  # Remove this job once the ruleset is repointed to `build_and_test (22)`.
+  build_and_test_node20_placeholder:
+    name: build_and_test (20)
+    runs-on: ubuntu-latest
+    steps:
+      - name: No-op
+        run: echo "Node 20 is no longer supported; placeholder for the required status check."
