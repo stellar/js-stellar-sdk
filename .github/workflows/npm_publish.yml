@@ -42,4 +42,4 @@ jobs:
         run: pnpm run preversion
 
       - name: Publish npm package
-        run: npm publish --access public --provenance
+        run: npm publish --access public --provenance --tag "p27"
