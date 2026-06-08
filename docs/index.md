@@ -176,9 +176,9 @@ The usage documentation for this library lives in a handful of places:
   for AI tools. The site's URL, base path, and AI policy values live in
   [`config/site.ts`](config/site.ts).
 
-### AI and agent documentation
+### AI agent documentation
 
-Agents can use the documentation bundles published with the website:
+Agents can use the documentation bundles published on the website:
 
 - [`llms.txt`](https://stellar.github.io/js-stellar-sdk/llms.txt) — an index of
   the guides, reference pages, and other agent-facing docs.
