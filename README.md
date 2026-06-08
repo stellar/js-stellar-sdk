@@ -64,31 +64,8 @@ You can use a CDN:
 <script src="https://cdnjs.cloudflare.com/ajax/libs/stellar-sdk/{version}/stellar-sdk.js"></script>
 ```
 
-<!-- TODO: Bower is end-of-life. The `bower install` / `bower_components` instructions below (and the bower-js-stellar-sdk repo reference) are likely obsolete. Review for removal or replacement with a current self-hosting approach. -->
-
-Note that this method relies on using a third party to host the JS library. This
-may not be entirely secure. You can self-host it via [Bower](http://bower.io):
-
-```shell
-bower install @stellar/stellar-sdk
-```
-
-and include it in the browser:
-
-```html
-<script src="./bower_components/stellar-sdk/stellar-sdk.js"></script>
-<script>
-  console.log(StellarSdk);
-</script>
-```
-
-If you don't want to use or install Bower, you can copy the packaged JS files
-from the [Bower repo](https://github.com/stellar/bower-js-stellar-sdk), or just
-build the package yourself locally (see
-[Developing :arrow_right: Building](#building)) and copy the bundle.
-
-| Always make sure that you are using the latest version number. They can be found on the [releases page](https://github.com/stellar/js-stellar-sdk/releases) in GitHub. |
-| ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+> [!NOTE]
+> Always make sure that you are using the latest version number. They can be found on the [releases page](https://github.com/stellar/js-stellar-sdk/releases) in GitHub.
 
 ### Custom Installation
 
@@ -155,9 +132,9 @@ Futurenet expose their own).
 
 These docs and the API reference cover the latest version only. To read docs for
 an older version, find its Git tag on the
-[releases page](https://github.com/stellar/js-stellar-sdk/releases) and browse the
-`docs/` directory at that ref on GitHub. The release notes there mark the breaking
-changes in each version.
+[releases page](https://github.com/stellar/js-stellar-sdk/releases) and browse
+the `docs/` directory at that ref on GitHub. The release notes there mark the
+breaking changes in each version.
 
 ## Usage
 
@@ -203,6 +180,11 @@ that support [fetch](https://developer.mozilla.org/en-US/docs/Web/API/fetch),
 [Event](https://developer.mozilla.org/en-US/docs/Web/API/Event),
 [MessageEvent](https://developer.mozilla.org/en-US/docs/Web/API/MessageEvent),
 [EventTarget](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget).
+
+React Native apps using the Hermes engine must polyfill broken typed array
+methods such as `subarray`; this compatibility is no longer provided by
+`@stellar/js-xdr`. One option is `@exodus/patch-broken-hermes-typed-arrays`. If
+needed, please review and consider manually adding it to your project.
 
 #### Usage with Expo managed workflows
 
