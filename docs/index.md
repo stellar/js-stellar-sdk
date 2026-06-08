@@ -160,9 +160,9 @@ Futurenet expose their own).
 
 These docs and the API reference cover the latest version only. To read docs for
 an older version, find its Git tag on the
-[releases page](https://github.com/stellar/js-stellar-sdk/releases) and browse the
-`docs/` directory at that ref on GitHub. The release notes there mark the breaking
-changes in each version.
+[releases page](https://github.com/stellar/js-stellar-sdk/releases) and browse
+the `docs/` directory at that ref on GitHub. The release notes there mark the
+breaking changes in each version.
 
 ## Usage
 
@@ -175,6 +175,19 @@ The usage documentation for this library lives in a handful of places:
   [agent-friendly bundles, raw markdown siblings, and a crawler policy](https://stellar.github.io/js-stellar-sdk/agents/)
   for AI tools. The site's URL, base path, and AI policy values live in
   [`config/site.ts`](config/site.ts).
+
+### AI and agent documentation
+
+Agents can use the documentation bundles published with the website:
+
+- [`llms.txt`](https://stellar.github.io/js-stellar-sdk/llms.txt) — an index of
+  the guides, reference pages, and other agent-facing docs.
+- [`llms-full.txt`](https://stellar.github.io/js-stellar-sdk/llms-full.txt) —
+  the full documentation corpus plus the changelog in one text file.
+
+These generated bundles are not committed to the repo. To inspect bundles for a
+local branch, run `pnpm docs:llms`; the generated files are written under
+`public/` for the website build.
 
 You can also refer to:
 
