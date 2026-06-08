@@ -8,8 +8,8 @@
 ## Guides
 
 - [Migration Guide](guides/00-migration)
+- [Protocol 27 - Soroban authorization migration](guides/00-protocol-27-soroban-auth)
 - [Connect and Fund an Account](guides/01-connect-and-fund)
-- [Protocol 27 - Soroban authorization migration](guides/01-protocol-27-soroban-auth)
 - [Send a Payment](guides/02-send-a-payment)
 - [Issue an Asset](guides/03-issue-an-asset)
 - [Query and Stream](guides/04-query-and-stream)
