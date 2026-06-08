@@ -66,31 +66,7 @@ You can use a CDN:
 <script src="https://cdnjs.cloudflare.com/ajax/libs/stellar-sdk/{version}/stellar-sdk.js"></script>
 ```
 
-<!-- TODO: Bower is end-of-life. The `bower install` / `bower_components` instructions below (and the bower-js-stellar-sdk repo reference) are likely obsolete. Review for removal or replacement with a current self-hosting approach. -->
-
-Note that this method relies on using a third party to host the JS library. This
-may not be entirely secure. You can self-host it via [Bower](http://bower.io):
-
-```shell
-bower install @stellar/stellar-sdk
-```
-
-and include it in the browser:
-
-```html
-<script src="./bower_components/stellar-sdk/stellar-sdk.js"></script>
-<script>
-  console.log(StellarSdk);
-</script>
-```
-
-If you don't want to use or install Bower, you can copy the packaged JS files
-from the [Bower repo](https://github.com/stellar/bower-js-stellar-sdk), or just
-build the package yourself locally (see
-[Developing :arrow_right: Building](/js-stellar-sdk/#building)) and copy the bundle.
-
-| Always make sure that you are using the latest version number. They can be found on the [releases page](https://github.com/stellar/js-stellar-sdk/releases) in GitHub. |
-| ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+> **Note:** Always make sure that you are using the latest version number. They can be found on the [releases page](https://github.com/stellar/js-stellar-sdk/releases) in GitHub.
 
 ### Custom Installation
 
@@ -157,9 +133,9 @@ Futurenet expose their own).
 
 These docs and the API reference cover the latest version only. To read docs for
 an older version, find its Git tag on the
-[releases page](https://github.com/stellar/js-stellar-sdk/releases) and browse the
-`docs/` directory at that ref on GitHub. The release notes there mark the breaking
-changes in each version.
+[releases page](https://github.com/stellar/js-stellar-sdk/releases) and browse
+the `docs/` directory at that ref on GitHub. The release notes there mark the
+breaking changes in each version.
 
 ## Usage
 
@@ -205,6 +181,11 @@ that support [fetch](https://developer.mozilla.org/en-US/docs/Web/API/fetch),
 [Event](https://developer.mozilla.org/en-US/docs/Web/API/Event),
 [MessageEvent](https://developer.mozilla.org/en-US/docs/Web/API/MessageEvent),
 [EventTarget](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget).
+
+React Native apps using the Hermes engine may need to polyfill broken typed
+array methods such as `subarray`, since this compatibility is no longer
+provided by `@stellar/js-xdr`. If you run into issues, consider a polyfill such
+as `@exodus/patch-broken-hermes-typed-arrays`.
 
 #### Usage with Expo managed workflows
 
@@ -988,143 +969,7 @@ const signAuthEntry = async (preimage) => ({
 })
 ```
 
-# Source: docs/guides/01-connect-and-fund.md
-
-# Connect and Fund an Account
-
-This guide takes you from nothing to a funded testnet account you can build on.
-It is for anyone making their first call with `@stellar/stellar-sdk`. Everything
-here runs against testnet, so it costs nothing and is safe to repeat.
-
-## Create a keypair
-
-A [keypair](/js-stellar-sdk/reference/core-keys/#keypair) is an account's identity. The public
-key is the account's address (it starts with `G`) and the secret key signs
-transactions (it starts with `S`). Never share or commit a secret key.
-
-```ts
-import { Keypair } from "@stellar/stellar-sdk";
-
-const keypair = Keypair.random();
-
-keypair.publicKey(); // "G..." (share this)
-keypair.secret(); // "S..." (keep this private)
-```
-
-A keypair holds no funds and does not exist on the network until an account is
-funded for that public key (see [Fund a new account](/js-stellar-sdk/guides/01-connect-and-fund/#fund-a-new-account)).
-
-Store the secret, not the keypair object. Rebuild the keypair when you need it:
-
-```ts
-const keypair = Keypair.fromSecret(secret);
-```
-
-## Choose a network
-
-Every transaction is signed for exactly one
-[network](https://developers.stellar.org/docs/networks), identified by its
-passphrase. Use the passphrase that matches where you are submitting so a
-signature from one network cannot be replayed on another.
-
-```ts
-import { Networks } from "@stellar/stellar-sdk";
-
-Networks.TESTNET; // "Test SDF Network ; September 2015"
-Networks.PUBLIC; // "Public Global Stellar Network ; September 2015"
-```
-
-Start on `TESTNET`. Switch to `PUBLIC` only when you are ready to use real funds.
-
-## Connect to Horizon and RPC
-
-The SDK talks to two services, and which one you need depends on the task.
-
-- **[Horizon](https://developers.stellar.org/docs/data/apis/horizon)** serves
-  account, balance, payment, and history data and accepts classic transactions
-  (payments, trustlines, and other non-contract operations). Use it for
-  accounts, balances, and payments.
-- **[RPC](https://developers.stellar.org/docs/data/apis/rpc)** is the gateway for
-  smart contracts (Soroban): simulate and send contract calls. Use it when you
-  invoke contracts.
-
-```ts
-import { Horizon, rpc } from "@stellar/stellar-sdk";
-
-const horizon = new Horizon.Server("https://horizon-testnet.stellar.org");
-const rpcServer = new rpc.Server("https://soroban-testnet.stellar.org");
-```
-
-This guide only needs Horizon. The RPC connection is shown so you know where
-contract work begins. For the full client API, see
-[`Horizon.Server`](/js-stellar-sdk/reference/network-horizon/#horizonserver) and
-[`rpc.Server`](/js-stellar-sdk/reference/network-rpc/#rpcserver) in the reference.
-
-## Fund a new account
-
-On testnet, friendbot creates and funds a new account for free, seeding it with
-10,000 XLM. There is no
-friendbot on the public network, where accounts are funded by an existing
-account.
-
-```ts
-await horizon.friendbot(keypair.publicKey()).call();
-```
-
-This call throws if the account already exists or friendbot is rate-limited.
-Funding a brand-new `Keypair.random()` avoids the "already exists" case, so wrap
-it in a `try/catch` to handle the rest.
-
-Once funded, the account exists on the ledger. Load it to read its balances.
-`loadAccount` throws `NotFoundError` if the account is not on the ledger yet,
-which is how the SDK signals that funding has not gone through:
-
-```ts
-const account = await horizon.loadAccount(keypair.publicKey());
-const xlm = account.balances.find((b) => b.asset_type === "native");
-
-account.accountId(); // the funded public key
-xlm?.balance; // its XLM balance, as a string
-```
-
-## Put it together
-
-The snippets above build on each other. Here is the whole flow as one runnable
-script. The blocks share the same `keypair` and `horizon`, and `console.log`
-prints the results so you can see them when you run the file:
-
-```ts
-import { Keypair, Horizon } from "@stellar/stellar-sdk";
-
-async function main() {
-  const keypair = Keypair.random();
-  const horizon = new Horizon.Server("https://horizon-testnet.stellar.org");
-
-  console.log("Public key:", keypair.publicKey());
-
-  // On testnet, friendbot creates and funds the account for free.
-  try {
-    await horizon.friendbot(keypair.publicKey()).call();
-  } catch (e) {
-    // Thrown if the account already exists or friendbot is rate-limited.
-    console.error("Funding failed:", e);
-    return;
-  }
-
-  // Throws NotFoundError if the account is not on the ledger yet.
-  const account = await horizon.loadAccount(keypair.publicKey());
-  const xlm = account.balances.find((b) => b.asset_type === "native");
-
-  console.log("XLM balance:", xlm?.balance);
-}
-
-main().catch(console.error);
-```
-
-You now have a funded account and a connection to the network. From here you can
-send your first payment.
-
-# Source: docs/guides/01-protocol-27-soroban-auth.md
+# Source: docs/guides/00-protocol-27-soroban-auth.md
 
 # Protocol 27: Soroban authorization migration
 
@@ -1443,6 +1288,142 @@ hand.
 - [ ] For delegated auth, use `buildWithDelegatesEntry()` +
       `authorizeEntry(..., forAddress)` rather than building the wrapper XDR by
       hand.
+
+# Source: docs/guides/01-connect-and-fund.md
+
+# Connect and Fund an Account
+
+This guide takes you from nothing to a funded testnet account you can build on.
+It is for anyone making their first call with `@stellar/stellar-sdk`. Everything
+here runs against testnet, so it costs nothing and is safe to repeat.
+
+## Create a keypair
+
+A [keypair](/js-stellar-sdk/reference/core-keys/#keypair) is an account's identity. The public
+key is the account's address (it starts with `G`) and the secret key signs
+transactions (it starts with `S`). Never share or commit a secret key.
+
+```ts
+import { Keypair } from "@stellar/stellar-sdk";
+
+const keypair = Keypair.random();
+
+keypair.publicKey(); // "G..." (share this)
+keypair.secret(); // "S..." (keep this private)
+```
+
+A keypair holds no funds and does not exist on the network until an account is
+funded for that public key (see [Fund a new account](/js-stellar-sdk/guides/01-connect-and-fund/#fund-a-new-account)).
+
+Store the secret, not the keypair object. Rebuild the keypair when you need it:
+
+```ts
+const keypair = Keypair.fromSecret(secret);
+```
+
+## Choose a network
+
+Every transaction is signed for exactly one
+[network](https://developers.stellar.org/docs/networks), identified by its
+passphrase. Use the passphrase that matches where you are submitting so a
+signature from one network cannot be replayed on another.
+
+```ts
+import { Networks } from "@stellar/stellar-sdk";
+
+Networks.TESTNET; // "Test SDF Network ; September 2015"
+Networks.PUBLIC; // "Public Global Stellar Network ; September 2015"
+```
+
+Start on `TESTNET`. Switch to `PUBLIC` only when you are ready to use real funds.
+
+## Connect to Horizon and RPC
+
+The SDK talks to two services, and which one you need depends on the task.
+
+- **[Horizon](https://developers.stellar.org/docs/data/apis/horizon)** serves
+  account, balance, payment, and history data and accepts classic transactions
+  (payments, trustlines, and other non-contract operations). Use it for
+  accounts, balances, and payments.
+- **[RPC](https://developers.stellar.org/docs/data/apis/rpc)** is the gateway for
+  smart contracts (Soroban): simulate and send contract calls. Use it when you
+  invoke contracts.
+
+```ts
+import { Horizon, rpc } from "@stellar/stellar-sdk";
+
+const horizon = new Horizon.Server("https://horizon-testnet.stellar.org");
+const rpcServer = new rpc.Server("https://soroban-testnet.stellar.org");
+```
+
+This guide only needs Horizon. The RPC connection is shown so you know where
+contract work begins. For the full client API, see
+[`Horizon.Server`](/js-stellar-sdk/reference/network-horizon/#horizonserver) and
+[`rpc.Server`](/js-stellar-sdk/reference/network-rpc/#rpcserver) in the reference.
+
+## Fund a new account
+
+On testnet, friendbot creates and funds a new account for free, seeding it with
+10,000 XLM. There is no
+friendbot on the public network, where accounts are funded by an existing
+account.
+
+```ts
+await horizon.friendbot(keypair.publicKey()).call();
+```
+
+This call throws if the account already exists or friendbot is rate-limited.
+Funding a brand-new `Keypair.random()` avoids the "already exists" case, so wrap
+it in a `try/catch` to handle the rest.
+
+Once funded, the account exists on the ledger. Load it to read its balances.
+`loadAccount` throws `NotFoundError` if the account is not on the ledger yet,
+which is how the SDK signals that funding has not gone through:
+
+```ts
+const account = await horizon.loadAccount(keypair.publicKey());
+const xlm = account.balances.find((b) => b.asset_type === "native");
+
+account.accountId(); // the funded public key
+xlm?.balance; // its XLM balance, as a string
+```
+
+## Put it together
+
+The snippets above build on each other. Here is the whole flow as one runnable
+script. The blocks share the same `keypair` and `horizon`, and `console.log`
+prints the results so you can see them when you run the file:
+
+```ts
+import { Keypair, Horizon } from "@stellar/stellar-sdk";
+
+async function main() {
+  const keypair = Keypair.random();
+  const horizon = new Horizon.Server("https://horizon-testnet.stellar.org");
+
+  console.log("Public key:", keypair.publicKey());
+
+  // On testnet, friendbot creates and funds the account for free.
+  try {
+    await horizon.friendbot(keypair.publicKey()).call();
+  } catch (e) {
+    // Thrown if the account already exists or friendbot is rate-limited.
+    console.error("Funding failed:", e);
+    return;
+  }
+
+  // Throws NotFoundError if the account is not on the ledger yet.
+  const account = await horizon.loadAccount(keypair.publicKey());
+  const xlm = account.balances.find((b) => b.asset_type === "native");
+
+  console.log("XLM balance:", xlm?.balance);
+}
+
+main().catch(console.error);
+```
+
+You now have a funded account and a connection to the network. From here you can
+send your first payment.
 
 # Source: docs/guides/02-send-a-payment.md
 
