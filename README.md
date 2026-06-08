@@ -64,8 +64,7 @@ You can use a CDN:
 <script src="https://cdnjs.cloudflare.com/ajax/libs/stellar-sdk/{version}/stellar-sdk.js"></script>
 ```
 
-> [!NOTE]
-> Always make sure that you are using the latest version number. They can be found on the [releases page](https://github.com/stellar/js-stellar-sdk/releases) in GitHub.
+> **Note:** Always make sure that you are using the latest version number. They can be found on the [releases page](https://github.com/stellar/js-stellar-sdk/releases) in GitHub.
 
 ### Custom Installation
 
@@ -181,10 +180,10 @@ that support [fetch](https://developer.mozilla.org/en-US/docs/Web/API/fetch),
 [MessageEvent](https://developer.mozilla.org/en-US/docs/Web/API/MessageEvent),
 [EventTarget](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget).
 
-React Native apps using the Hermes engine must polyfill broken typed array
-methods such as `subarray`; this compatibility is no longer provided by
-`@stellar/js-xdr`. One option is `@exodus/patch-broken-hermes-typed-arrays`. If
-needed, please review and consider manually adding it to your project.
+React Native apps using the Hermes engine may need to polyfill broken typed
+array methods such as `subarray`, since this compatibility is no longer
+provided by `@stellar/js-xdr`. If you run into issues, consider a polyfill such
+as `@exodus/patch-broken-hermes-typed-arrays`.
 
 #### Usage with Expo managed workflows
 
