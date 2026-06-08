@@ -152,6 +152,19 @@ The usage documentation for this library lives in a handful of places:
   for AI tools. The site's URL, base path, and AI policy values live in
   [`config/site.ts`](config/site.ts).
 
+### AI agent documentation
+
+Agents can use the documentation bundles published on the website:
+
+- [`llms.txt`](https://stellar.github.io/js-stellar-sdk/llms.txt) — an index of
+  the guides, reference pages, and other agent-facing docs.
+- [`llms-full.txt`](https://stellar.github.io/js-stellar-sdk/llms-full.txt) —
+  the full documentation corpus plus the changelog in one text file.
+
+These generated bundles are not committed to the repo. To inspect bundles for a
+local branch, run `pnpm docs:llms`; the generated files are written under
+`public/` for the website build.
+
 You can also refer to:
 
 - the [documentation](https://developers.stellar.org/docs/data/horizon) for the

@@ -42,7 +42,7 @@ jobs:
         run: pnpm docs:llms
 
       - name: Verify generated docs are up to date
-        run: git diff --exit-code -- docs/
+        run: git diff --exit-code -- docs/index.md docs/reference/
 
       - name: Generate robots.txt from config
         run: pnpm docs:robots

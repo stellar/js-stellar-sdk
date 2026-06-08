@@ -6,14 +6,13 @@
  *      frontmatter block. Title is derived from README's first H1;
  *      description is hardcoded below.
  *
- *   2. Reads `docs/`, emits `docs/llms.txt` (compact index) and
- *      `docs/llms-full.txt` (full corpus + appended CHANGELOG.md). The
- *      llms.txt schema is locked in `.claude/notes/docs-plan.md` →
- *      "`llms.txt` schema" subsection.
+ *   2. Reads `docs/`, emits `public/llms.txt` (compact index) and
+ *      `public/llms-full.txt` (full corpus + appended CHANGELOG.md) so
+ *      Astro publishes them at the site root. The llms.txt schema is locked
+ *      in `.claude/notes/docs-plan.md` → "`llms.txt` schema" subsection.
  *
- * Both outputs are committed in `docs/`; CI's `git diff --exit-code -- docs/`
- * step catches drift. Sibling to scripts/build-docs.ts; both feed the docs
- * pipeline (`pnpm docs`).
+ * The bundle outputs are build artifacts, not committed source files. Sibling
+ * to scripts/build-docs.ts; both feed the docs pipeline (`pnpm docs`).
  */
 
 import { mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
@@ -37,11 +36,6 @@ const DOCS_DIR = join(REPO_ROOT, "docs");
 const PUBLIC_DIR = join(REPO_ROOT, "public");
 const README_PATH = join(REPO_ROOT, "README.md");
 const INDEX_OUT = join(DOCS_DIR, "index.md");
-const LLMS_OUT = join(DOCS_DIR, "llms.txt");
-const LLMS_FULL_OUT = join(DOCS_DIR, "llms-full.txt");
-// Mirrored copies under public/ so Astro publishes them at the site
-// root (`<site>/llms.txt`, `<site>/llms-full.txt`). The canonical
-// committed copy lives at docs/; public/ is gitignored and rebuilt.
 const PUBLIC_LLMS_OUT = join(PUBLIC_DIR, "llms.txt");
 const PUBLIC_LLMS_FULL_OUT = join(PUBLIC_DIR, "llms-full.txt");
 const CHANGELOG_PATH = join(REPO_ROOT, "CHANGELOG.md");
@@ -379,16 +373,12 @@ function main(): void {
     changelog,
   });
 
-  writeFileSync(LLMS_OUT, llmsTxt, "utf8");
-  writeFileSync(LLMS_FULL_OUT, llmsFullTxt, "utf8");
-
   mkdirSync(PUBLIC_DIR, { recursive: true });
   writeFileSync(PUBLIC_LLMS_OUT, llmsTxt, "utf8");
   writeFileSync(PUBLIC_LLMS_FULL_OUT, llmsFullTxt, "utf8");
 
-  console.log(`Wrote ${LLMS_OUT} (${llmsTxt.length}B).`);
-  console.log(`Wrote ${LLMS_FULL_OUT} (${llmsFullTxt.length}B).`);
-  console.log(`Mirrored to ${PUBLIC_DIR} for Astro site-root serving.`);
+  console.log(`Wrote ${PUBLIC_LLMS_OUT} (${llmsTxt.length}B).`);
+  console.log(`Wrote ${PUBLIC_LLMS_FULL_OUT} (${llmsFullTxt.length}B).`);
 }
 
 main();
