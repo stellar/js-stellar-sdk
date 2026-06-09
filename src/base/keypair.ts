@@ -125,7 +125,7 @@ export class Keypair {
    * Create a random `Keypair` object.
    */
   static random(): Keypair {
-    const { secretKey } = ed.keygen();
+    const secretKey = ed.utils.randomSecretKey();
     return this.fromRawEd25519Seed(Buffer.from(secretKey));
   }
 
