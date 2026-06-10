@@ -654,7 +654,12 @@ export class AssembledTransaction<T> {
     // need to force re-calculation of simulationData for new simulation
     delete this.simulationResult;
     delete this.simulationTransactionData;
-    this.simulation = await this.server.simulateTransaction(this.built);
+    this.simulation = await this.server.simulateTransaction(
+      this.built,
+      undefined,
+      undefined,
+      this.options.authV2,
+    );
 
     if (restore && Api.isSimulationRestore(this.simulation)) {
       const account = await getAccount(this.options, this.server);

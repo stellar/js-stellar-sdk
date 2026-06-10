@@ -238,6 +238,22 @@ export async function authorizeEntry(
   return clone;
 }
 
+export interface AuthorizeInvocationParams {
+  signer: Keypair | SigningCallback;
+  validUntilLedgerSeq: number;
+  invocation: xdr.SorobanAuthorizedInvocation;
+  networkPassphrase: string;
+  publicKey?: string;
+  /**
+   * Build `SOROBAN_CREDENTIALS_ADDRESS_V2` (CAP-71) credentials instead of the
+   * legacy `SOROBAN_CREDENTIALS_ADDRESS`. V2 credentials bind the address into
+   * the signed payload but are only valid on networks that have activated
+   * CAP-71, so leave this off until the activation vote passes for your target
+   * network. The default flips to `true` once V2 becomes mandatory.
+   * @defaultValue false
+   */
+  authV2?: boolean;
+}
 /**
  * This builds an entry from scratch, allowing you to express authorization as a
  * function of:
@@ -266,17 +282,12 @@ export async function authorizeEntry(
  *   - `publicKey`: the public identity of the signer (when providing a
  *    {@link Keypair} to `signer`, this can be omitted, as it just uses
  *    {@link Keypair.publicKey})
+ *   - `authV2`: build `SOROBAN_CREDENTIALS_ADDRESS_V2` (CAP-71) credentials
+ *    rather than the legacy `SOROBAN_CREDENTIALS_ADDRESS`. Defaults to `false`;
+ *    only enable it for networks that have activated CAP-71.
  *
  * @see authorizeEntry
  */
-export interface AuthorizeInvocationParams {
-  signer: Keypair | SigningCallback;
-  validUntilLedgerSeq: number;
-  invocation: xdr.SorobanAuthorizedInvocation;
-  networkPassphrase: string;
-  publicKey?: string;
-}
-
 export function authorizeInvocation(
   params: AuthorizeInvocationParams,
 ): Promise<xdr.SorobanAuthorizationEntry> {
@@ -286,6 +297,7 @@ export function authorizeInvocation(
     invocation,
     networkPassphrase,
     publicKey = "",
+    authV2 = false,
   } = params;
   // We use keypairs as a source of randomness for the nonce to avoid mucking
   // with any crypto dependencies. Note that this just has to be random and
@@ -299,16 +311,21 @@ export function authorizeInvocation(
     throw new Error(`authorizeInvocation requires publicKey parameter`);
   }
 
+  // V1 and V2 carry the identical SorobanAddressCredentials payload; only the
+  // credential union arm differs. authorizeEntry picks the matching signature
+  // preimage (legacy vs. address-bound) off whichever arm we build here.
+  const addressCredentials = new xdr.SorobanAddressCredentials({
+    address: new Address(pk).toScAddress(),
+    nonce,
+    signatureExpirationLedger: 0, // replaced
+    signature: xdr.ScVal.scvVec([]), // replaced
+  });
+
   const entry = new xdr.SorobanAuthorizationEntry({
     rootInvocation: invocation,
-    credentials: xdr.SorobanCredentials.sorobanCredentialsAddressV2(
-      new xdr.SorobanAddressCredentials({
-        address: new Address(pk).toScAddress(),
-        nonce,
-        signatureExpirationLedger: 0, // replaced
-        signature: xdr.ScVal.scvVec([]), // replaced
-      }),
-    ),
+    credentials: authV2
+      ? xdr.SorobanCredentials.sorobanCredentialsAddressV2(addressCredentials)
+      : xdr.SorobanCredentials.sorobanCredentialsAddress(addressCredentials),
   });
 
   return authorizeEntry(entry, signer, validUntilLedgerSeq, networkPassphrase);

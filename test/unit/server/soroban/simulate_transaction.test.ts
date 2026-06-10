@@ -138,8 +138,8 @@ function buildAuthEntry(address: any) {
     invocation: root,
     networkPassphrase,
   }).then((entry: any) => {
-    // authorizeInvocation builds SOROBAN_CREDENTIALS_ADDRESS_V2 entries
-    entry.credentials().addressV2().nonce(new xdr.Int64(0xdeadbeef));
+    // authorizeInvocation defaults to legacy SOROBAN_CREDENTIALS_ADDRESS entries
+    entry.credentials().address().nonce(new xdr.Int64(0xdeadbeef));
     return authorizeEntry(entry, kp, 1, networkPassphrase); // overwrites signature w/ above nonce
   });
 }
@@ -435,6 +435,36 @@ describe("Server#simulateTransaction", () => {
         transaction: blob,
         resourceConfig: { instructionLeeway: 100 },
         authMode: undefined,
+      },
+    });
+  });
+
+  it("omits authV2 by default and requests it when opted in", async () => {
+    const mockResponse = { data: { id: 1, result: simulationResponse } };
+    mockPost.mockResolvedValue(mockResponse);
+
+    // default: no authV2 field on the wire (legacy ADDRESS credentials)
+    await server.simulateTransaction(transaction);
+    expect(mockPost).toHaveBeenLastCalledWith(serverUrl, {
+      jsonrpc: "2.0",
+      id: 1,
+      method: "simulateTransaction",
+      params: {
+        transaction: blob,
+        authMode: undefined,
+      },
+    });
+
+    // opt-in: authV2: true requests CAP-71 ADDRESS_V2 credentials
+    await server.simulateTransaction(transaction, undefined, undefined, true);
+    expect(mockPost).toHaveBeenLastCalledWith(serverUrl, {
+      jsonrpc: "2.0",
+      id: 1,
+      method: "simulateTransaction",
+      params: {
+        transaction: blob,
+        authMode: undefined,
+        authV2: true,
       },
     });
   });
