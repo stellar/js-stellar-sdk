@@ -6,6 +6,8 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+## [v16.0.0-rc.2](https://github.com/stellar/js-stellar-sdk/compare/v16.0.0-rc.1...v16.0.0-rc.2)
+
 ### Changed
 
 - Soroban auth defaults back to the legacy `SOROBAN_CREDENTIALS_ADDRESS` (V1)
@@ -24,8 +26,11 @@ A breaking change will get clearly marked in this log.
   - `contract.Client` / `AssembledTransaction` accept `authV2` in
     `MethodOptions`, threaded through to simulation.
 
+### Fixed
+ - Resolved a performance regression in Keypair.random() [#1449](https://github.com/stellar/js-stellar-sdk/pull/1449).
 
-## v16.0.0-rc.1
+
+## [v16.0.0-rc.1](https://github.com/stellar/js-stellar-sdk/compare/v15.0.1...v16.0.0-rc.1)
 
 There are a few major updates in this release:
 
