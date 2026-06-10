@@ -548,8 +548,12 @@ describe("building authorization entries", () => {
         authEntry.rootInvocation().toXDR(),
       );
 
-      // authorizeInvocation builds SOROBAN_CREDENTIALS_ADDRESS_V2 entries
-      const signedAddr = signedEntry.credentials().addressV2();
+      // authorizeInvocation defaults to legacy SOROBAN_CREDENTIALS_ADDRESS
+      // entries (CAP-71 V2 is opt-in via `authV2`).
+      expect(signedEntry.credentials().switch().name).toBe(
+        "sorobanCredentialsAddress",
+      );
+      const signedAddr = signedEntry.credentials().address();
       expect(signedAddr.signatureExpirationLedger()).toBe(10);
 
       const addrStr = Address.fromScAddress(signedAddr.address()).toString();
@@ -571,6 +575,28 @@ describe("building authorization entries", () => {
         publicKey: kp.publicKey(),
       });
 
+      expect(signedEntry.credentials().switch().name).toBe(
+        "sorobanCredentialsAddress",
+      );
+      const signedAddr = signedEntry.credentials().address();
+      expect(signedAddr.signatureExpirationLedger()).toBe(10);
+
+      const addrStr = Address.fromScAddress(signedAddr.address()).toString();
+      expect(addrStr).toBe(kp.publicKey());
+    });
+
+    it("builds SOROBAN_CREDENTIALS_ADDRESS_V2 entries when authV2 is set", async () => {
+      const signedEntry = await authorizeInvocation({
+        signer: kp,
+        validUntilLedgerSeq: 10,
+        invocation: authEntry.rootInvocation(),
+        networkPassphrase: Networks.TESTNET,
+        authV2: true,
+      });
+
+      expect(signedEntry.credentials().switch().name).toBe(
+        "sorobanCredentialsAddressV2",
+      );
       const signedAddr = signedEntry.credentials().addressV2();
       expect(signedAddr.signatureExpirationLedger()).toBe(10);
 
@@ -620,7 +646,7 @@ describe("building authorization entries", () => {
         invocation: authEntry.rootInvocation(),
         networkPassphrase: Networks.TESTNET,
       });
-      expect(entry.credentials().addressV2().nonce().toBigInt()).toBe(
+      expect(entry.credentials().address().nonce().toBigInt()).toBe(
         4294967296n,
       ); // 2^32
     });
@@ -633,7 +659,7 @@ describe("building authorization entries", () => {
         invocation: authEntry.rootInvocation(),
         networkPassphrase: Networks.TESTNET,
       });
-      expect(entry.credentials().addressV2().nonce().toBigInt()).toBe(-1n);
+      expect(entry.credentials().address().nonce().toBigInt()).toBe(-1n);
     });
 
     it("high bit set produces Int64 minimum value", async () => {
@@ -644,7 +670,7 @@ describe("building authorization entries", () => {
         invocation: authEntry.rootInvocation(),
         networkPassphrase: Networks.TESTNET,
       });
-      expect(entry.credentials().addressV2().nonce().toBigInt()).toBe(
+      expect(entry.credentials().address().nonce().toBigInt()).toBe(
         -9223372036854775808n,
       ); // -(2^63), Int64 minimum
     });
@@ -657,7 +683,7 @@ describe("building authorization entries", () => {
         invocation: authEntry.rootInvocation(),
         networkPassphrase: Networks.TESTNET,
       });
-      expect(entry.credentials().addressV2().nonce().toBigInt()).toBe(0n);
+      expect(entry.credentials().address().nonce().toBigInt()).toBe(0n);
     });
 
     it("throws if fewer than 8 bytes are available", () => {

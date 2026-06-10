@@ -6,6 +6,25 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Changed
+
+- Soroban auth defaults back to the legacy `SOROBAN_CREDENTIALS_ADDRESS` (V1)
+  credential, with the CAP-71 `SOROBAN_CREDENTIALS_ADDRESS_V2` credential now
+  available behind an opt-in instead of forced on. `ADDRESS_V2` is only valid on
+  networks that have activated CAP-71, so emitting it before activation would
+  fail submission; the opt-in keeps the default safe while letting you exercise
+  V2 against networks that already support it. The default will flip to V2 once
+  the protocol makes it mandatory. ([#1450](https://github.com/stellar/js-stellar-sdk/pull/1450))
+  - `rpc.Server.simulateTransaction` gained a 4th optional argument,
+    `authV2` (default `false`). When `true`, the `authV2` request flag is sent so
+    simulation returns `ADDRESS_V2` auth entries; otherwise the flag is omitted
+    and legacy `ADDRESS` entries are returned.
+  - `authorizeInvocation` gained an optional `authV2` field on its params object
+    (default `false`) selecting between `ADDRESS` and `ADDRESS_V2` credentials.
+  - `contract.Client` / `AssembledTransaction` accept `authV2` in
+    `MethodOptions`, threaded through to simulation.
+
+
 ## v16.0.0-rc.1
 
 There are a few major updates in this release:
