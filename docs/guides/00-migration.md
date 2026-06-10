@@ -381,36 +381,56 @@ If your code reached through the SDK for any of these, declare them yourself now
 Protocol 27 ([CAP-71](https://github.com/stellar/stellar-protocol/blob/master/core/cap-0071.md))
 adds two address-bound Soroban credential types, `AddressV2` and
 `AddressWithDelegates`. This only affects code that signs Soroban authorization
-entries or inspects their credential arms. Depending on the network and RPC
-simulation behavior, authorization entries may contain either the legacy
-`ADDRESS` credential or the newer `ADDRESS_V2` credential. Both are valid for SDK
-signing flows that use the helpers below.
+entries or inspects their credential arms.
+
+By default the SDK still uses the legacy `ADDRESS` credential: simulation is
+asked for `ADDRESS` entries and `authorizeInvocation` builds them. `ADDRESS_V2`
+is only valid on networks that have upgraded to protocol 27, so it is **opt-in** until
+the protocol makes it mandatory (at which point the default flips). Opt in with
+the `authV2` flag — on
+`rpc.Server.simulateTransaction`,
+on `authorizeInvocation`'s params, or via `authV2` in
+[`contract.Client`](/reference/contracts-client/#contractclient) /
+`MethodOptions` — when your target network supports it.
 
 SDK-driven signing ([`contract.Client`](/reference/contracts-client/#contractclient),
 [`basicNodeSigner`](/reference/contracts-client/#contractbasicnodesigner),
 [`authorizeEntry`](/reference/core-soroban-primitives/#authorizeentry),
 [`signAuthEntries`](/reference/contracts-client/#contractassembledtransaction)) is
-forward-compatible with no code change: it signs whichever credential simulation
-returns. The entries below break only code that reads the credential arm or
-builds the signature payload by hand.
+forward-compatible with no code change: it signs whichever credential the entry
+carries, `ADDRESS` or `ADDRESS_V2`. The entries below break only code that reads
+the credential arm or builds the signature payload by hand.
 
 For the full walkthrough of signing Soroban authorization entries, see
 [Authorize a Contract Call](/guides/07-contract-auth/).
 
-### Auth: `authorizeInvocation` now returns `AddressV2`
+### Auth: `authorizeInvocation` takes a params object
 
 [`authorizeInvocation`](/reference/core-soroban-primitives/#authorizeinvocation) now
-takes a single params object and builds `SOROBAN_CREDENTIALS_ADDRESS_V2` entries
-instead of legacy `ADDRESS`. Read the
-result with `.addressV2()`.
+takes a single params object instead of positional arguments. It still builds a
+legacy `SOROBAN_CREDENTIALS_ADDRESS` entry by default, so keep reading the result
+with `.address()`.
 
-```ts del={1-4} ins={5-8}
+```ts del={1-4} ins={5-7}
 const entry = await authorizeInvocation(
   signer, validUntilLedgerSeq, invocation, publicKey, networkPassphrase,
 )
-const addr = entry.credentials().address()
 const entry = await authorizeInvocation({
   signer, validUntilLedgerSeq, invocation, networkPassphrase, publicKey,
+})
+const addr = entry.credentials().address()
+```
+
+To build a CAP-71 `ADDRESS_V2` entry instead, pass `authV2: true` and read the
+result with `.addressV2()`. Only do this on networks that have upgraded to protocol 27.
+
+```ts ins={6}
+const entry = await authorizeInvocation({
+  signer,
+  validUntilLedgerSeq,
+  invocation,
+  networkPassphrase,
+  authV2: true,
 })
 const addr = entry.credentials().addressV2()
 ```
@@ -470,15 +490,6 @@ wrapper with
 and rejects duplicates, as the protocol requires), then route each signer's
 signature with `forAddress`. Every signer signs the same payload, bound to the
 top-level address.
-
-### Auth: closed export surface
-
-The auth module's wildcard re-export was replaced with an explicit allow-list. The
-package root now exports exactly `authorizeEntry`, `authorizeInvocation`,
-`buildAuthorizationEntryPreimage`, `buildWithDelegatesEntry`, and the types
-`SigningCallback`, `AuthorizeInvocationParams`, `DelegateSignature`,
-`BuildWithDelegatesParams`. Anything else imported from the auth module (notably
-`getAddressCredentials`, now internal) no longer resolves.
 
 ### Earlier 15.x deprecation: `BalanceResponse.revocable`
 
