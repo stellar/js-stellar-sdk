@@ -386,7 +386,7 @@ entries or inspects their credential arms.
 By default the SDK still uses the legacy `ADDRESS` credential: simulation is
 asked for `ADDRESS` entries and `authorizeInvocation` builds them. `ADDRESS_V2`
 is only valid on networks that have upgraded to protocol 27, so it is **opt-in** until
-the protocol makes it mandatory (at which point the default flips). Opt in with
+ protocol 28 makes it mandatory (at which point the default flips). Opt in with
 the `authV2` flag — on
 `rpc.Server.simulateTransaction`,
 on `authorizeInvocation`'s params, or via `authV2` in
