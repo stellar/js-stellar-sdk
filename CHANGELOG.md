@@ -27,7 +27,7 @@ A breaking change will get clearly marked in this log.
     `MethodOptions`, threaded through to simulation.
 
 ### Fixed
- - Resolved a performance regression in Keypair.random() [#1449](https://github.com/stellar/js-stellar-sdk/pull/1449).
+- Resolved a performance regression in Keypair.random() [#1449](https://github.com/stellar/js-stellar-sdk/pull/1449).
 
 
 ## [v16.0.0-rc.1](https://github.com/stellar/js-stellar-sdk/compare/v15.0.1...v16.0.0-rc.1)
