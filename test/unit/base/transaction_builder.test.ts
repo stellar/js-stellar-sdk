@@ -1704,6 +1704,56 @@ describe("TransactionBuilder.cloneFrom", () => {
     );
   });
 
+  it("excludes the resource fee when deriving the base fee", () => {
+    const resourceFee = "50000";
+    const tx = new TransactionBuilder(source, {
+      fee: "150",
+      timebounds: { minTime: 0, maxTime: 0 },
+      networkPassphrase,
+    })
+      .addOperation(op)
+      .setSorobanData(
+        new SorobanDataBuilder().setResourceFee(resourceFee).build(),
+      )
+      .build();
+
+    // total fee = baseFee * ops + resourceFee
+    expect(tx.fee).toBe("50150");
+
+    const builder = TransactionBuilder.cloneFrom(tx);
+    // base fee must be derived from the inclusion fee only
+    expect(builder.baseFee).toBe("150");
+
+    const cloneTx = builder.build();
+    expect(cloneTx.fee).toBe(tx.fee);
+    expect(
+      expectDefined(cloneTx.toEnvelope().v1().tx().ext().value())
+        .resourceFee()
+        .toString(),
+    ).toBe(resourceFee);
+  });
+
+  it("skips the resource fee subtraction when it would zero out the fee", () => {
+    const tx = new TransactionBuilder(source, {
+      fee: "150",
+      timebounds: { minTime: 0, maxTime: 0 },
+      networkPassphrase,
+    })
+      .addOperation(op)
+      .setSorobanData(new SorobanDataBuilder().setResourceFee("50000").build())
+      .build();
+
+    // simulate a malformed tx whose declared resource fee exceeds the total
+    // fee by patching the XDR fee field directly
+    const envelope = tx.toEnvelope();
+    envelope.v1().tx().fee(100);
+    const malformedTx = new Transaction(envelope, networkPassphrase);
+
+    const builder = TransactionBuilder.cloneFrom(malformedTx);
+    // subtraction would go negative, so the full fee is used instead
+    expect(builder.baseFee).toBe("100");
+  });
+
   it("preserves extraSigners", () => {
     const extraSigner =
       "GA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJVSGZ";
