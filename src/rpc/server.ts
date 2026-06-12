@@ -310,10 +310,10 @@ export class RpcServer {
   ): Promise<xdr.ClaimableBalanceEntry> {
     let balanceId;
     if (StrKey.isValidClaimableBalance(id)) {
-      let buffer = StrKey.decodeClaimableBalance(id);
+      const buffer = StrKey.decodeClaimableBalance(id);
 
       // Pad the version byte to be a full int32 like in the XDR spec
-      let v = Buffer.concat([
+      const v = Buffer.concat([
         Buffer.from("\x00\x00\x00"),
         buffer.subarray(0, 1),
       ]);

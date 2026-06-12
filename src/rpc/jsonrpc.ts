@@ -28,6 +28,7 @@ export interface Error<E = any> {
 
 // Check if the given object X has a field Y, and make that available to
 // typescript typing.
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type -- `{}` is the intended constraint (any non-nullish value with own properties)
 function hasOwnProperty<X extends {}, Y extends PropertyKey>(
   obj: X,
   prop: Y,

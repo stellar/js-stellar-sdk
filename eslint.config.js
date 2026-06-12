@@ -1,6 +1,6 @@
 import path from "node:path";
 import { includeIgnoreFile } from "@eslint/compat";
-import { configs } from "eslint-config-airbnb-extended/legacy";
+import tseslint from "typescript-eslint";
 import prettierConfigRules from "eslint-config-prettier/flat";
 import prettierPlugin from "eslint-plugin-prettier";
 import importPlugin from "eslint-plugin-import";
@@ -9,11 +9,6 @@ import js from "@eslint/js";
 import globals from "globals";
 
 const gitignorePath = path.resolve(".", ".gitignore");
-
-configs.base.typescript[0].languageOptions.parserOptions.projectService = false;
-configs.base.typescript[0].languageOptions.parserOptions.project = [
-  "./tsconfig.json",
-];
 
 const javascriptConfig = [
   js.configs.recommended,
@@ -28,8 +23,18 @@ const javascriptConfig = [
   },
 ];
 const typescriptConfig = [
-  // Airbnb Base TypeScript Config
-  ...configs.base.typescript,
+  // typescript-eslint recommended (registers the parser + plugin)
+  ...tseslint.configs.recommended,
+  {
+    name: "typescript/parser-options",
+    files: ["**/*.ts", "**/*.tsx"],
+    languageOptions: {
+      parserOptions: {
+        projectService: false,
+        project: ["./tsconfig.json"],
+      },
+    },
+  },
   {
     name: "typescript/custom-rules",
     files: ["**/*.ts", "**/*.tsx"],
@@ -41,6 +46,14 @@ const typescriptConfig = [
       "@typescript-eslint/no-unused-vars": "off",
       "no-unused-vars": "off",
       "no-fallthrough": "off",
+      // `any` is used deliberately at dynamic boundaries — XDR decoding,
+      // JSON-RPC payloads, and Horizon response shaping — across ~125 sites,
+      // too many to annotate individually. Tightening these is tracked as
+      // separate, incremental work.
+      "@typescript-eslint/no-explicit-any": "off",
+      // `namespace` declarations are part of the published public API
+      // (e.g. Horizon, rpc `Api`, stellartoml), not an organizational crutch.
+      "@typescript-eslint/no-namespace": "off",
     },
   },
 ];

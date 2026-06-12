@@ -64,7 +64,7 @@ export function buildChallengeTx(
   serverKeypair: Keypair,
   clientAccountID: string,
   homeDomain: string,
-  // eslint-disable-next-line @typescript-eslint/default-param-last
+
   timeout: number = 300,
   networkPassphrase: string,
   webAuthDomain: string,

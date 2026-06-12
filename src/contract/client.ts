@@ -127,7 +127,7 @@ export class Client {
             spec.funcResToNative(method, result),
         });
 
-      // @ts-ignore error TS7053: Element implicitly has an 'any' type
+      // @ts-expect-error error TS7053: Element implicitly has an 'any' type
       this[sanitizeIdentifier(method)] =
         spec.getFunc(method).inputs().length === 0
           ? (opts?: MethodOptions) => assembleTransaction(undefined, opts)

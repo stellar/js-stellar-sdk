@@ -3,7 +3,7 @@
 // failed at runtime in deeper build outputs (e.g. lib/axios) because the
 // relative path `../../package.json` resolved into the output tree rather
 // than the project root.
-// eslint-disable-next-line @typescript-eslint/naming-convention
+
 declare const __PACKAGE_VERSION__: string;
 
 export interface ConfigGenerateOptions {
