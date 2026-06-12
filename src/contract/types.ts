@@ -1,4 +1,5 @@
-/* disable PascalCase naming convention, to avoid breaking change */
+/* Type aliases below intentionally use non-PascalCase names (e.g. `XDR_BASE64`,
+   `u32`) to preserve the public API — renaming them would be a breaking change. */
 
 import { Transaction, xdr } from "../base/index.js";
 import type { SentTransaction } from "./sent_transaction.js";
