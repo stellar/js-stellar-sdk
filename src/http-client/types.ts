@@ -20,6 +20,7 @@ export interface HttpClientResponse<T = any> {
   statusText: string;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging -- intentionally merged with the CancelToken class below to declare its members
 export interface CancelToken {
   promise: Promise<void>;
   throwIfRequested(): void;
@@ -118,6 +119,7 @@ export interface InterceptorManager<V> {
   handlers: Array<Interceptor<V> | null>;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging -- intentionally merged with the CancelToken interface above
 export class CancelToken {
   promise: Promise<void>;
   reason?: string;

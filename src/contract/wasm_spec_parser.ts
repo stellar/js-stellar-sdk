@@ -7,7 +7,7 @@ import { parseWasmCustomSections } from "./utils.js";
  */
 export function specFromWasm(wasm: Buffer) {
   const customData = parseWasmCustomSections(wasm);
-  let xdrSections = customData.get("contractspecv0");
+  const xdrSections = customData.get("contractspecv0");
 
   if (!xdrSections || xdrSections.length === 0) {
     throw new Error("Could not obtain contract spec from wasm");

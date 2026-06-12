@@ -1,5 +1,5 @@
 /* disable PascalCase naming convention, to avoid breaking change */
-/* eslint-disable @typescript-eslint/naming-convention */
+
 import { Transaction, xdr } from "../base/index.js";
 import type { SentTransaction } from "./sent_transaction.js";
 import type { Client } from "./client.js";

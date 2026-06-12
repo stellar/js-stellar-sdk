@@ -4,7 +4,6 @@ import {
   type HttpResponseHeaders,
 } from "../http-client/index.js";
 
-// eslint-disable-next-line @typescript-eslint/naming-convention
 declare const __PACKAGE_VERSION__: string;
 export const version = __PACKAGE_VERSION__;
 

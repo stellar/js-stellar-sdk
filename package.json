@@ -138,8 +138,6 @@
     "@types/json-schema": "^7.0.15",
     "@types/node": "^22.19.17",
     "@types/sha.js": "^2.4.4",
-    "@typescript-eslint/eslint-plugin": "^8.60.0",
-    "@typescript-eslint/parser": "^8.60.0",
     "@vitest/browser": "^4.1.7",
     "@vitest/browser-playwright": "^4.1.7",
     "@vitest/coverage-istanbul": "4.1.7",
@@ -151,7 +149,6 @@
     "dotenv": "^17.4.2",
     "esbuild": "^0.27.7",
     "eslint": "^9.39.1",
-    "eslint-config-airbnb-extended": "^3.1.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-import-resolver-typescript": "^4.4.4",
     "eslint-plugin-import": "^2.32.0",
@@ -172,6 +169,7 @@
     "tsx": "^4.22.3",
     "typedoc": "^0.28.19",
     "typescript": "5.9.3",
+    "typescript-eslint": "^8.60.0",
     "vitest": "^4.1.7"
   },
   "dependencies": {

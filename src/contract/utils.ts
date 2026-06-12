@@ -43,7 +43,7 @@ export async function withExponentialBackoff<T>(
         }ms)`,
       );
     }
-    // eslint-disable-next-line
+
     await new Promise((res) => setTimeout(res, waitTime));
     // Exponential backoff
     waitTime *= exponentialFactor;
@@ -182,7 +182,7 @@ export function processSpecEntryStream(buffer: Buffer) {
   const reader = new cereal.XdrReader(buffer);
   const res: xdr.ScSpecEntry[] = [];
   while (!reader.eof) {
-    // @ts-ignore
+    // @ts-expect-error ScSpecEntry.read expects the generated XdrReader type; reader is cereal.XdrReader
     res.push(xdr.ScSpecEntry.read(reader));
   }
   return res;

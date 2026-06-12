@@ -722,11 +722,11 @@ export class Spec {
                   `expected ${bytesN.n()} bytes, but got ${copy.length}`,
                 );
               }
-              //@ts-ignore
+              //@ts-expect-error scvBytes' generated type expects Buffer; copy is a Uint8Array accepted at runtime
               return xdr.ScVal.scvBytes(copy);
             }
             case xdr.ScSpecType.scSpecTypeBytes().value:
-              //@ts-ignore
+              //@ts-expect-error scvBytes' generated type expects Buffer; copy is a Uint8Array accepted at runtime
               return xdr.ScVal.scvBytes(copy);
             default:
               throw new TypeError(
@@ -1221,7 +1221,6 @@ export class Spec {
           const fn = entry.functionV0();
           const fnName = fn.name().toString();
           const { input } = functionToJsonSchema(fn);
-          // @ts-ignore
           definitions[fnName] = input;
           break;
         }

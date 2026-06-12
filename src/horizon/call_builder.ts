@@ -153,7 +153,7 @@ export class CallBuilder<
       timeout = setTimeout(
         () => {
           es?.close();
-          // eslint-disable-next-line @typescript-eslint/no-use-before-define
+
           es = createEventSource();
         },
         options.reconnectTimeout || 15 * 1000,

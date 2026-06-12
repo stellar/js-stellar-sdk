@@ -99,7 +99,7 @@ async function fetchWasmFromContract(
     }
 
     const wasmHash = instance.executable().wasmHash();
-    let wasmBytes = await getRemoteWasmFromHash(server, wasmHash);
+    const wasmBytes = await getRemoteWasmFromHash(server, wasmHash);
     return { type: "wasm", wasmBytes };
   } catch (error) {
     if (error instanceof WasmFetchError) {
