@@ -284,7 +284,7 @@ so the change is part of what you sign:
 
 ```ts del={2} ins={3}
 const built = new TransactionBuilder(account, opts).addOperation(op).build()
-built.tx.fee("200") // no-op in v16
+built.tx.fee(200) // no-op in v16
 const tx = TransactionBuilder.cloneFrom(built, { fee: "200" }).build()
 ```
 
