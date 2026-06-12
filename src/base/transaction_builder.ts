@@ -306,15 +306,37 @@ export class TransactionBuilder {
       );
     }
 
+    // if this is a Soroban transaction, the resource fee is folded into the
+    // total fee and gets re-added on build(), so it has to be excluded before
+    // deriving the per-operation base fee
+    let sorobanData: xdr.SorobanTransactionData | undefined;
+    const envelope = tx.toEnvelope();
+    if (envelope.switch() === xdr.EnvelopeType.envelopeTypeTx()) {
+      sorobanData = envelope.v1().tx().ext().value() ?? undefined;
+    }
+    let totalFee = parseInt(tx.fee, 10);
+    if (sorobanData) {
+      const resourceFee = Number(sorobanData.resourceFee().toBigInt());
+      // only subtract if it leaves a positive inclusion fee: a malformed tx
+      // can declare a resource fee that eats the entire fee (or more)
+      if (totalFee - resourceFee > 0) {
+        totalFee -= resourceFee;
+      }
+    }
+
     // the initial fee passed to the builder gets scaled up based on the number
     // of operations at the end, so we have to down-scale first
-    const unscaledFee = Math.floor(parseInt(tx.fee, 10) / tx.operations.length);
+    const unscaledFee = Math.floor(totalFee / tx.operations.length);
 
     const builderOpts: TransactionBuilderOptions = {
       fee: (unscaledFee || BASE_FEE).toString(),
       memo: tx.memo,
       networkPassphrase: tx.networkPassphrase,
     };
+
+    if (sorobanData) {
+      builderOpts.sorobanData = sorobanData;
+    }
 
     if (tx.timeBounds) {
       builderOpts.timebounds = tx.timeBounds;

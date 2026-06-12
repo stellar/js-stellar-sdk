@@ -6,6 +6,15 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Fixed
+- `TransactionBuilder.cloneFrom` now accounts for Soroban transactions: the
+  resource fee is excluded from the total fee before deriving the per-operation
+  base fee (previously it was treated as part of the inclusion fee and re-added
+  on `build()`, doubling it), and the transaction's `sorobanData` is carried
+  over into the new builder. If the declared resource fee equals or exceeds the
+  total fee (a malformed transaction), the subtraction is skipped and the full
+  fee is used as-is.
+
 ## [v16.0.0-rc.2](https://github.com/stellar/js-stellar-sdk/compare/v16.0.0-rc.1...v16.0.0-rc.2)
 
 ### Changed
