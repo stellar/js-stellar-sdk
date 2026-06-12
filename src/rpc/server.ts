@@ -988,6 +988,11 @@ export class RpcServer {
    *    auth mode to use for simulation: `enforce` for enforcement mode,
    *    `record` for recording mode, or `record_allow_nonroot` for recording
    *    mode that allows non-root authorization
+   * @param authV2 - (optional) request `SOROBAN_CREDENTIALS_ADDRESS_V2`
+   *    (CAP-71) auth credentials from simulation instead of the legacy
+   *    `SOROBAN_CREDENTIALS_ADDRESS`. Defaults to `false`; only enable it for
+   *    networks that have activated CAP-71, as V2 credentials are otherwise
+   *    rejected.
    *
    * @returns An object with the
    *    cost, footprint, result/auth requirements (if applicable), and error of
@@ -1032,8 +1037,9 @@ export class RpcServer {
     tx: Transaction | FeeBumpTransaction,
     addlResources?: RpcServer.ResourceLeeway,
     authMode?: Api.SimulationAuthMode,
+    authV2: boolean = false,
   ): Promise<Api.SimulateTransactionResponse> {
-    return this._simulateTransaction(tx, addlResources, authMode).then(
+    return this._simulateTransaction(tx, addlResources, authMode, authV2).then(
       parseRawSimulation,
     );
   }
@@ -1042,6 +1048,7 @@ export class RpcServer {
     transaction: Transaction | FeeBumpTransaction,
     addlResources?: RpcServer.ResourceLeeway,
     authMode?: Api.SimulationAuthMode,
+    authV2: boolean = false,
   ): Promise<Api.RawSimulateTransactionResponse> {
     return jsonrpc.postObject(
       this.httpClient,
@@ -1055,6 +1062,10 @@ export class RpcServer {
             instructionLeeway: addlResources.cpuInstructions,
           },
         }),
+        // CAP-71: only request ADDRESS_V2 auth credentials when explicitly
+        // opted in. They are rejected by networks that have not activated
+        // CAP-71, so default to omitting the flag (legacy ADDRESS credentials).
+        ...(authV2 && { authV2: true }),
       },
     );
   }

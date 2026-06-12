@@ -230,6 +230,16 @@ export type MethodOptions = {
   restore?: boolean;
 
   /**
+   * Request `SOROBAN_CREDENTIALS_ADDRESS_V2` (CAP-71) auth credentials from
+   * simulation instead of the legacy `SOROBAN_CREDENTIALS_ADDRESS`. V2
+   * credentials are only valid on networks that have activated CAP-71, so leave
+   * this off until the activation vote passes for your target network. The
+   * default flips to `true` once V2 becomes mandatory.
+   * @defaultValue false
+   */
+  authV2?: boolean;
+
+  /**
    * The public key of the source account for this transaction.
    *
    * Default: the one provided to the {@link Client} in {@link ClientOptions}
