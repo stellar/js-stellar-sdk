@@ -72,9 +72,6 @@ importers:
       '@rollup/plugin-terser':
         specifier: ^1.0.0
         version: 1.0.0(rollup@4.60.4)
-      '@stellar/tsconfig':
-        specifier: ^1.0.2
-        version: 1.0.2
       '@types/detect-node':
         specifier: ^2.0.2
         version: 2.0.2
@@ -1439,9 +1436,6 @@ packages:
   '@stellar/js-xdr@4.0.0':
     resolution: {integrity: sha512-+NmNa7Tk5BI5XFdy/6xGTqAN4J9a9KgCrCGhj2uEUTCBhLkch0M+QbKzNH8zEnejWe0p8w+0q5hUVX6L3OzoVA==}
     engines: {node: '>=20.0.0', pnpm: '>=9.0.0'}
-
-  '@stellar/tsconfig@1.0.2':
-    resolution: {integrity: sha512-lC51QSlYRM8K3oGe0/WGPq+p9+u+yPzwZXSKrZXKOe4sq79vzfiqFbQyp5enOffFzXlahcDyTgY67mBOkJytfw==}
 
   '@tybys/wasm-util@0.10.1':
     resolution: {integrity: sha512-9tTaPJLSiejZKx+Bmog4uSubteqTvFrVrURwkmHixBo0G4seD0zUxp98E1DzUBJxLQ3NPwXrGKDiVjwx/DpPsg==}
@@ -5884,8 +5878,6 @@ snapshots:
   '@standard-schema/spec@1.1.0': {}
 
   '@stellar/js-xdr@4.0.0': {}
-
-  '@stellar/tsconfig@1.0.2': {}
 
   '@tybys/wasm-util@0.10.1':
     dependencies:

@@ -133,7 +133,6 @@
     "@rollup/plugin-node-resolve": "^16.0.1",
     "@rollup/plugin-replace": "^6.0.2",
     "@rollup/plugin-terser": "^1.0.0",
-    "@stellar/tsconfig": "^1.0.2",
     "@types/detect-node": "^2.0.2",
     "@types/json-schema": "^7.0.15",
     "@types/node": "^22.19.17",

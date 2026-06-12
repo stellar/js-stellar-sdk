@@ -1,0 +1,29 @@
+{
+  // Shared TypeScript compiler options for the SDK. Inlined from the former
+  // `@stellar/tsconfig` dependency (unmaintained since 2020); the values below
+  // are a verbatim copy of what that package provided.
+  "compilerOptions": {
+    "allowJs": true,
+    "emitDecoratorMetadata": false,
+    "experimentalDecorators": false,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "importHelpers": true,
+    "isolatedModules": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "pretty": true,
+    "preserveWatchOutput": false,
+    "removeComments": true,
+    "resolveJsonModule": true,
+    "sourceMap": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "strictNullChecks": true,
+    "stripInternal": true
+  }
+}
