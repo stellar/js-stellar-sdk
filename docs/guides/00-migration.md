@@ -212,9 +212,6 @@ mutates transaction internals, or switches on operation types:
   `Transaction<Memo<MemoType.Text>>`.
 - Convert `tx.extraSigners` to StrKey strings before treating it as `string[]`;
   it is now typed as `xdr.SignerKey[]`.
-- Stop mutating `TransactionBase.tx`. It returns a defensive copy, so changes to
-  the returned XDR object no longer affect the transaction that will be signed or
-  serialized.
 - Delete calls to `Operation.isValidAmount()`,
   `Operation.constructAmountRequirementsError()`, and
   `Operation.setSourceAccount()`. They are no longer runtime methods on
@@ -263,6 +260,35 @@ switch (operation.type) {
     break
 }
 ```
+
+### Transactions: mutating `.tx` is now a silent no-op
+
+**This is a silent behavior change — it does not throw, and no types change.**
+`TransactionBase.tx` now returns a fresh defensive copy on every access. The old
+pattern of setting fields _through_ it mutates that throwaway copy and has **no
+effect** on the transaction that gets signed or serialized:
+
+```ts
+const tx = new TransactionBuilder(account, opts).addOperation(op).build()
+
+tx.tx.fee("200") // silently discarded
+tx.tx.operations(newOps) // silently discarded
+tx.tx.cond(newCond) // silently discarded
+```
+
+Because nothing throws, code that relied on this keeps compiling and running
+while signing and submitting the **unmodified** transaction — a payment can go
+out with the wrong fee, operations, or preconditions, and the only signal is the
+on-chain result. If you were patching a built transaction this way, rebuild it
+so the change is part of what you sign:
+
+```ts del={2} ins={3}
+const built = new TransactionBuilder(account, opts).addOperation(op).build()
+built.tx.fee("200") // no-op in v16
+const tx = TransactionBuilder.cloneFrom(built, { fee: "200" }).build()
+```
+
+Reading `.tx` to inspect a transaction is unaffected.
 
 ### Assets, keys, and signing helpers
 
