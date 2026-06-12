@@ -166,9 +166,14 @@ depending on how you use the API.
 
 - **`Keypair.rawSecretKey()` throws on public-key-only instances** with
   `Error("no secret seed available")` instead of returning `undefined`. ([#1399])
-- **`TransactionBase.tx` returns a defensive copy.** External mutation no longer
-  affects the transaction that will be signed or serialized. If you were
-  intentionally mutating `tx`, you'll need a different approach. ([#1399])
+- **`TransactionBase.tx` returns a defensive copy — mutating it is now a SILENT
+  no-op.** `tx` no longer returns the live XDR object, so setting fields through
+  it (`tx.tx.fee(…)`, `tx.tx.operations(…)`, `tx.tx.cond(…)`, etc.) mutates a
+  throwaway copy and has **no effect** on the transaction that gets signed or
+  serialized. It does **not** throw and no types change, so code that relied on
+  in-place mutation keeps compiling and running while silently signing the
+  unmodified transaction. Rebuild instead via `TransactionBuilder` /
+  `TransactionBuilder.cloneFrom`. ([#1399])
 - **`TransactionBuilder` constructor preserves `0n` for
   `minAccountSequenceAge`** instead of coercing falsy values to `null`. This may
   flip `hasV2Preconditions()` to `true` when the field is set to `0n`. ([#1399])
