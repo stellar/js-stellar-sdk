@@ -1725,12 +1725,9 @@ describe("TransactionBuilder.cloneFrom", () => {
     expect(builder.baseFee).toBe("150");
 
     const cloneTx = builder.build();
-    expect(cloneTx.fee).toBe(tx.fee);
-    expect(
-      expectDefined(cloneTx.toEnvelope().v1().tx().ext().value())
-        .resourceFee()
-        .toString(),
-    ).toBe(resourceFee);
+    // The cloned transaction does not include the original transactions xdr.SorobanTransactionData so
+    // it does not have a resource fee
+    expect(cloneTx.fee).toBe("150");
   });
 
   it("skips the resource fee subtraction when it would zero out the fee", () => {

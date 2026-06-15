@@ -334,10 +334,6 @@ export class TransactionBuilder {
       networkPassphrase: tx.networkPassphrase,
     };
 
-    if (sorobanData) {
-      builderOpts.sorobanData = sorobanData;
-    }
-
     if (tx.timeBounds) {
       builderOpts.timebounds = tx.timeBounds;
     }

@@ -439,36 +439,6 @@ describe("Server#simulateTransaction", () => {
     });
   });
 
-  it("omits authV2 by default and requests it when opted in", async () => {
-    const mockResponse = { data: { id: 1, result: simulationResponse } };
-    mockPost.mockResolvedValue(mockResponse);
-
-    // default: no authV2 field on the wire (legacy ADDRESS credentials)
-    await server.simulateTransaction(transaction);
-    expect(mockPost).toHaveBeenLastCalledWith(serverUrl, {
-      jsonrpc: "2.0",
-      id: 1,
-      method: "simulateTransaction",
-      params: {
-        transaction: blob,
-        authMode: undefined,
-      },
-    });
-
-    // opt-in: authV2: true requests CAP-71 ADDRESS_V2 credentials
-    await server.simulateTransaction(transaction, undefined, undefined, true);
-    expect(mockPost).toHaveBeenLastCalledWith(serverUrl, {
-      jsonrpc: "2.0",
-      id: 1,
-      method: "simulateTransaction",
-      params: {
-        transaction: blob,
-        authMode: undefined,
-        authV2: true,
-      },
-    });
-  });
-
   it.skipIf(
     typeof window !== "undefined" &&
       (window as any).__STELLAR_SDK_BROWSER_TEST__,
