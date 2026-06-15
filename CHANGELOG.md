@@ -205,17 +205,9 @@ depending on how you use the API.
 - **CAP-71 `SOROBAN_CREDENTIALS_ADDRESS_V2` auth is opt-in; the default stays
   legacy `SOROBAN_CREDENTIALS_ADDRESS` (V1).** `ADDRESS_V2` entries are only
   valid on networks that have activated CAP-71, so the default keeps submissions
-  safe before activation. Opt in with the new `authV2` flag (default `false`),
-  threaded through:
-  - `rpc.Server.simulateTransaction` — a 4th optional argument; when `true`, the
-    `authV2` request flag is sent so simulation returns `ADDRESS_V2` entries,
-    otherwise the flag is omitted and legacy `ADDRESS` entries are returned.
-  - `authorizeInvocation` — an optional `authV2` field on its params object,
-    selecting between `ADDRESS` and `ADDRESS_V2` credentials.
-  - `contract.Client` / `AssembledTransaction` — `authV2` in `MethodOptions`,
-    threaded through to simulation.
-
-  The default will flip to V2 once the protocol makes it mandatory. ([#1429], [#1450])
+  safe before activation. `authorizeInvocation` gained an optional `authV2`
+  field (default `false`) on its params object, selecting between `ADDRESS` and
+  `ADDRESS_V2` credentials. The default will flip to V2 in protocol 28 ([#1429], [#1450])
 
 #### Internal-detail shifts (low likelihood of impact)
 
