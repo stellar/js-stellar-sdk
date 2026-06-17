@@ -316,7 +316,7 @@ if (BigNumber.DEBUG) { /* ... */ }
 if (BigNumber.config().STRICT) { /* ... */ }
 ```
 
-Internal amount and price conversion inherits upstream v10/v11 behavior. The v11
+Internal amount and price conversion logic inherits upstream v10/v11 behavior. The v11
 behavior that changed most for SDK callers is that a high-precision JavaScript
 `number` passed as an amount or price no longer throws for having more than 15 significant digits; it is rounded
 to floating-point precision. Pass such values as strings or `bigint` to avoid
