@@ -28,7 +28,9 @@ and two new credential types that use it: `SOROBAN_CREDENTIALS_ADDRESS_V2`
 `SOROBAN_CREDENTIALS_ADDRESS_WITH_DELEGATES` (an account plus a tree of delegate
 signers, all signing that same shared, address-bound payload). The old
 `SOROBAN_CREDENTIALS_ADDRESS` type and its non-address-bound payload still exist
-for backwards compatibility, but new entries should use `ADDRESS_V2`.
+for backwards compatibility, and remain what `authorizeInvocation()` builds by
+default; opt new entries into `ADDRESS_V2` once CAP-71 is active on your target
+network.
 
 ## The four credential types
 
@@ -36,7 +38,7 @@ for backwards compatibility, but new entries should use `ADDRESS_V2`.
 |------|-------|-------------------|-------|
 | `SOROBAN_CREDENTIALS_SOURCE_ACCOUNT` | 0 | — (covered by tx envelope) | unchanged |
 | `SOROBAN_CREDENTIALS_ADDRESS` | 1 | `ENVELOPE_TYPE_SOROBAN_AUTHORIZATION` (legacy, **not** address-bound) | still valid; pre-P27 behavior |
-| `SOROBAN_CREDENTIALS_ADDRESS_V2` | 2 | `ENVELOPE_TYPE_SOROBAN_AUTHORIZATION_WITH_ADDRESS` (**address-bound**) | new default for `authorizeInvocation()` |
+| `SOROBAN_CREDENTIALS_ADDRESS_V2` | 2 | `ENVELOPE_TYPE_SOROBAN_AUTHORIZATION_WITH_ADDRESS` (**address-bound**) | opt-in via `authorizeInvocation({ authV2: true })` |
 | `SOROBAN_CREDENTIALS_ADDRESS_WITH_DELEGATES` | 3 | `ENVELOPE_TYPE_SOROBAN_AUTHORIZATION_WITH_ADDRESS` (bound to the **top-level** address) | account + delegate tree |
 
 `ADDRESS_V2` carries exactly the same fields as `ADDRESS`
@@ -219,37 +221,49 @@ function addressCredentials(credentials) {
 unwrapped it the `.address()`, `.nonce()`, `.signatureExpirationLedger()`, and
 `.signature()` accessors work identically.
 
-## `authorizeInvocation()` now produces `ADDRESS_V2`
+## `authorizeInvocation()` and `ADDRESS_V2`
 
-`authorizeInvocation()` builds `SOROBAN_CREDENTIALS_ADDRESS_V2` instead of the
-legacy `SOROBAN_CREDENTIALS_ADDRESS`. The signing is transparent — you still
-pass a `Keypair` or a `SigningCallback` — but two things follow:
+By default, `authorizeInvocation()` still builds legacy
+`SOROBAN_CREDENTIALS_ADDRESS` entries — the same shape as before P27. `ADDRESS_V2`
+credentials are only valid on networks that have activated CAP-71, so V2 is
+**opt-in** via the `authV2` flag and stays off until you enable it. (The default
+flips to `true` once V2 becomes mandatory.)
 
-- **Read the result with `.addressV2()`**, not `.address()`:
+Pass `authV2: true` to build `SOROBAN_CREDENTIALS_ADDRESS_V2`. The signing is
+transparent either way — you still pass a `Keypair` or a `SigningCallback` — but
+the credential arm, and therefore the accessor you read it back with, follows
+the flag:
 
-  ```js
-  const entry = await authorizeInvocation({
-    signer,
-    validUntilLedgerSeq,
-    invocation,
-    networkPassphrase,
-    publicKey, // required when `signer` is a callback
-  });
+```js
+// Default: legacy ADDRESS — read the result with `.address()`
+const legacy = await authorizeInvocation({
+  signer,
+  validUntilLedgerSeq,
+  invocation,
+  networkPassphrase,
+  publicKey, // required when `signer` is a callback
+});
+const addr = legacy.credentials().address();
 
-  const addr = entry.credentials().addressV2(); // ← was .address()
-  ```
+// Opt in to ADDRESS_V2 — read the result with `.addressV2()`
+const v2 = await authorizeInvocation({
+  signer,
+  validUntilLedgerSeq,
+  invocation,
+  networkPassphrase,
+  publicKey,
+  authV2: true, // ← build ADDRESS_V2 (CAP-71-active networks only)
+});
+const v2addr = v2.credentials().addressV2();
+```
 
-- **The entries are only valid on protocol 27+.** If you assert on the
-  credential type, or target a pre-P27 network, account for the new type.
-
-If you specifically need a legacy `ADDRESS` entry, build it by hand with
-`xdr.SorobanCredentials.sorobanCredentialsAddress(...)` and sign the legacy
-payload (or just call `buildAuthorizationEntryPreimage()`, which detects the
-`ADDRESS` arm and returns the legacy preimage).
+When you enable `authV2`, **the resulting entries are only valid on protocol
+27+.** If you assert on the credential type, or target a pre-P27 network, account
+for the new type.
 
 `authorizeEntry()` already handles all three credential types and selects the
 correct payload internally, so existing `authorizeEntry()` call sites keep
-working unchanged.
+working unchanged regardless of which arm the entry uses.
 
 ## New: delegated signing (`ADDRESS_WITH_DELEGATES`)
 
@@ -318,8 +332,9 @@ hand.
       `ADDRESS_V2` entries.
 - [ ] Update reads of `credentials().address()` to handle the `addressV2()` and
       `addressWithDelegates()` arms.
-- [ ] Update `authorizeInvocation()` result reads from `.address()` to
-      `.addressV2()`, and confirm you're targeting a protocol 27+ network.
+- [ ] `authorizeInvocation()` still returns legacy `ADDRESS` (read with
+      `.address()`) by default. Only pass `authV2: true` — and read the result
+      with `.addressV2()` — when targeting a CAP-71-active (protocol 27+) network.
 - [ ] For delegated auth, use `buildWithDelegatesEntry()` +
       `authorizeEntry(..., forAddress)` rather than building the wrapper XDR by
       hand.
