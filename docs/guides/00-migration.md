@@ -316,10 +316,9 @@ if (BigNumber.DEBUG) { /* ... */ }
 if (BigNumber.config().STRICT) { /* ... */ }
 ```
 
-Amount and price helpers (`fromXDRAmount`, `toXDRPrice`, `getAmountInLumens`)
-inherit upstream v10/v11 behavior. The v11 behavior that changed most for SDK
-callers is that a high-precision JavaScript `number` passed as an amount or
-price no longer throws for having more than 15 significant digits; it is rounded
+Internal amount and price conversion inherits upstream v10/v11 behavior. The v11
+behavior that changed most for SDK callers is that a high-precision JavaScript
+`number` passed as an amount or price no longer throws for having more than 15 significant digits; it is rounded
 to floating-point precision. Pass such values as strings or `bigint` to avoid
 quiet precision loss. A `BigNumber` from your own `bignumber.js` install is a
 different class, so `instanceof` can fail across the boundary.
@@ -350,8 +349,8 @@ Edge-case signatures that previously verified may now be rejected.
 
 SEP-1 resolution now uses a stricter TOML 1.0 parser. The parsed shape is
 generally the same, but it accepts and rejects different inputs and throws
-different error messages, which propagate into the rejected promise /
-`StellarTomlResolveError`.
+different error messages, which propagate into the rejected promise as a plain
+`Error`.
 
 ### Behavior: stricter validation and parsing
 
