@@ -1,6 +1,7 @@
 import type { JSONSchema7, JSONSchema7Definition } from "json-schema";
 import {
   type ScIntType,
+  ScInt,
   XdrLargeInt,
   xdr,
   Address,
@@ -677,6 +678,126 @@ export class Spec {
       }
       return this.nativeToScVal(val, opt.valueType());
     }
+
+    // Handle scSpecTypeVal - any raw JS value that doesn't have a
+    // specific type constraint. Converts native JS primitives and common
+    // ScVal-representable objects directly.
+    if (value === xdr.ScSpecType.scSpecTypeVal().value) {
+      switch (typeof val) {
+        case "string": {
+          // Attempt to parse as any valid Stellar address (G, C, M, B, L, etc.);
+          // fall back to scvString if the checksum is invalid so non-address
+          // strings don't unexpectedly error.
+          try {
+            return Address.fromString(val).toScVal();
+          } catch {
+            // not a valid address, treat as a plain string
+          }
+          return xdr.ScVal.scvString(val);
+        }
+        case "number":
+        case "bigint": {
+          if (typeof val === "number" && !Number.isInteger(val)) {
+            throw new TypeError(
+              `expected an integer for scSpecTypeVal, got ${val}`,
+            );
+          }
+          // Use ScInt to pick the smallest fitting ScVal integer type
+          // (u64/i64/u128/i128/u256/i256). This matches the generic
+          // nativeToScVal behavior and supports wide values beyond i128.
+          return new ScInt(val).toScVal();
+        }
+        case "boolean":
+          return xdr.ScVal.scvBool(val);
+        case "undefined":
+          // Val can carry void, so treat explicit undefined as scvVoid
+          return xdr.ScVal.scvVoid();
+        case "object": {
+          if (val === null) {
+            return xdr.ScVal.scvVoid();
+          }
+          // Return pre-built ScVals as-is
+          if (val instanceof xdr.ScVal) {
+            return val;
+          }
+          // Convert Address/Contract to address ScVals
+          if (val instanceof Address) {
+            return val.toScVal();
+          }
+          if (val instanceof Contract) {
+            return val.address().toScVal();
+          }
+          // Convert byte buffers
+          if (val instanceof Uint8Array || Buffer.isBuffer(val)) {
+            //@ts-expect-error scvBytes' generated type expects Buffer; Uint8Array accepted at runtime
+            return xdr.ScVal.scvBytes(Uint8Array.from(val));
+          }
+          // Recursively convert arrays as scvVec (each element scSpecTypeVal)
+          if (Array.isArray(val)) {
+            return xdr.ScVal.scvVec(
+              val.map((v: any) => this.nativeToScVal(v, ty)),
+            );
+          }
+          // Convert Map to scvMap
+          if (val.constructor === Map) {
+            const entries: xdr.ScMapEntry[] = [];
+            for (const [k, v] of val as Map<any, any>) {
+              entries.push(
+                new xdr.ScMapEntry({
+                  key: this.nativeToScVal(k, ty),
+                  val: this.nativeToScVal(v, ty),
+                }),
+              );
+            }
+            return xdr.scvSortedMap(entries);
+          }
+          // Convert plain objects to scvMap, using string keys to
+          // maintain compatibility with arbitrary-length object keys.
+          // ScSymbol is capped at 32 bytes, so we use scvString for the
+          // key type (via ScSpecTypeDef.scSpecTypeString()) to avoid
+          // rejecting long object keys. Users who need symbol-keyed maps
+          // can use Map explicitly, which recursively converts with
+          // scSpecTypeVal for both keys and values.
+          //
+          // We guard with both Object.prototype.toString and a prototype
+          // check to exclude class instances (e.g. Keypair) whose
+          // enumerable fields could otherwise leak private key material.
+          if (
+            Object.prototype.toString.call(val) === "[object Object]" &&
+            (Object.getPrototypeOf(val) === Object.prototype ||
+              Object.getPrototypeOf(val) === null)
+          ) {
+            return xdr.ScVal.scvMap(
+              Object.entries(val as Record<string, any>)
+                .sort(([key1], [key2]) =>
+                  key1 < key2 ? -1 : key1 > key2 ? 1 : 0,
+                )
+                .map(
+                  ([k, v]) =>
+                    new xdr.ScMapEntry({
+                      key: this.nativeToScVal(
+                        k,
+                        xdr.ScSpecTypeDef.scSpecTypeString(),
+                      ),
+                      val: this.nativeToScVal(v, ty),
+                    }),
+                ),
+            );
+          }
+          // Unknown types can't be converted for Val
+          throw new TypeError(
+            `cannot convert ${typeof val} to ScVal for scSpecTypeVal: ${
+              val.constructor?.name ?? typeof val
+            }`,
+          );
+        }
+        default:
+          // function — fall through to the general handler below
+          // which knows how to deal with them (or throw a good error)
+          break;
+      }
+    }
+
     switch (typeof val) {
       case "object": {
         if (val === null) {
@@ -793,7 +914,7 @@ export class Spec {
           return xdr.ScVal.scvMap(entries);
         }
 
-        if ((val.constructor?.name ?? "") !== "Object") {
+        if (Object.prototype.toString.call(val) !== "[object Object]") {
           throw new TypeError(
             `cannot interpret ${
               val.constructor?.name
