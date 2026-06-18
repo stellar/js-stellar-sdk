@@ -42,3 +42,7 @@ config/tsconfig.tmp.json
 # scratch: per-guide tests, never shipped
 test-guides/
 .vuln-hunt/
+
+# Gesserit scan runtime artifacts; rebuildable per checkout/session.
+/ai-summary/
+/sessions/

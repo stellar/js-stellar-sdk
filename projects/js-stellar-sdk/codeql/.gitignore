@@ -1,0 +1,6 @@
+db/
+out/
+*.bqrs
+*.csv
+*.log
+*.sqlite.tmp
