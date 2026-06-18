@@ -125,7 +125,13 @@ function runCli() {
         let timeout: number | undefined;
         if (options.timeout) {
           timeout = parseInt(options.timeout, 10);
-          if (Number.isNaN(timeout) || timeout <= 0) {
+          // strict: reject trailing garbage / decimals that parseInt would
+          // otherwise silently truncate (e.g. "10abc" -> 10, "10.9" -> 10)
+          if (
+            Number.isNaN(timeout) ||
+            timeout <= 0 ||
+            String(timeout) !== options.timeout.trim()
+          ) {
             throw new Error(
               `Invalid timeout value: ${options.timeout}. Must be a positive integer.`,
             );
