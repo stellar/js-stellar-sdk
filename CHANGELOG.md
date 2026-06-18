@@ -6,6 +6,18 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+## [v16.0.1](https://github.com/stellar/js-stellar-sdk/compare/v16.0.0...v16.0.1)
+
+### Fixed
+- Fixed the ESM library build so the inlined `@stellar/js-xdr` source resolves
+  correctly under Yarn PnP (and Node's native ESM resolver). Because the build
+  preserves modules, Rollup emits js-xdr's source into a nested package scope,
+  but js-xdr does not declare `type: "module"`, so Node and Yarn PnP parsed those
+  preserved files as CommonJS and failed to resolve them. Rollup now marks the
+  emitted js-xdr package as `type: "module"` so its source is parsed as ESM
+  [#1484](https://github.com/stellar/js-stellar-sdk/pull/1484).
+
+
 ## [v16.0.0](https://github.com/stellar/js-stellar-sdk/compare/v15.1.0...v16.0.0)
 
 There are a few major updates in this release:
