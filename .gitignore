@@ -44,5 +44,4 @@ test-guides/
 .vuln-hunt/
 
 # Gesserit scan runtime artifacts; rebuildable per checkout/session.
-/ai-summary/
-/sessions/
+

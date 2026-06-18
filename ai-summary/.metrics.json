@@ -1,0 +1,218 @@
+{
+  "dispatch_paths": 0,
+  "hypothesis_viable": 0,
+  "hypothesis_not_viable": 0,
+  "review_viable": 0,
+  "review_not_viable": 0,
+  "poc_viable": 0,
+  "poc_not_viable": 0,
+  "final_review_viable": 0,
+  "final_review_not_viable": 0,
+  "final_review_revisions": 0,
+  "condensations": 0,
+  "publishes": 0,
+  "agent_failures": 0,
+  "agent_timeouts": 0,
+  "total_spawned": 2,
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "cache_read_tokens": 0,
+  "per_subsystem": {},
+  "per_model": {},
+  "tokens_by_stage": {},
+  "tokens_by_model": {},
+  "by_phase": {},
+  "agent_durations": [],
+  "costs": {
+    "providers": {},
+    "total_cost": 0.0
+  },
+  "frontier": {
+    "subsystems": [
+      "bindings",
+      "cli",
+      "contract",
+      "core-utils",
+      "federation",
+      "friendbot",
+      "horizon",
+      "http-client",
+      "rpc",
+      "stellartoml",
+      "webauth"
+    ],
+    "quorum": 3,
+    "total_paths": 674,
+    "visited_paths": 0,
+    "locked_paths": 0,
+    "visited_pct": 0.0,
+    "locked_pct": 0.0,
+    "by_priority": {
+      "5": {
+        "total": 131,
+        "visited": 0,
+        "locked": 0,
+        "visited_pct": 0.0,
+        "locked_pct": 0.0
+      },
+      "3": {
+        "total": 543,
+        "visited": 0,
+        "locked": 0,
+        "visited_pct": 0.0,
+        "locked_pct": 0.0
+      }
+    },
+    "by_subsystem": {
+      "bindings": {
+        "total": 44,
+        "visited": 0,
+        "locked": 0,
+        "visited_pct": 0.0,
+        "locked_pct": 0.0
+      },
+      "cli": {
+        "total": 13,
+        "visited": 0,
+        "locked": 0,
+        "visited_pct": 0.0,
+        "locked_pct": 0.0
+      },
+      "contract": {
+        "total": 154,
+        "visited": 0,
+        "locked": 0,
+        "visited_pct": 0.0,
+        "locked_pct": 0.0
+      },
+      "core-utils": {
+        "total": 314,
+        "visited": 0,
+        "locked": 0,
+        "visited_pct": 0.0,
+        "locked_pct": 0.0
+      },
+      "federation": {
+        "total": 4,
+        "visited": 0,
+        "locked": 0,
+        "visited_pct": 0.0,
+        "locked_pct": 0.0
+      },
+      "horizon": {
+        "total": 37,
+        "visited": 0,
+        "locked": 0,
+        "visited_pct": 0.0,
+        "locked_pct": 0.0
+      },
+      "http-client": {
+        "total": 18,
+        "visited": 0,
+        "locked": 0,
+        "visited_pct": 0.0,
+        "locked_pct": 0.0
+      },
+      "rpc": {
+        "total": 62,
+        "visited": 0,
+        "locked": 0,
+        "visited_pct": 0.0,
+        "locked_pct": 0.0
+      },
+      "stellartoml": {
+        "total": 5,
+        "visited": 0,
+        "locked": 0,
+        "visited_pct": 0.0,
+        "locked_pct": 0.0
+      },
+      "webauth": {
+        "total": 23,
+        "visited": 0,
+        "locked": 0,
+        "visited_pct": 0.0,
+        "locked_pct": 0.0
+      }
+    },
+    "by_sink_role": {
+      "bounded_response_read": {
+        "total": 2,
+        "visited": 0,
+        "locked": 0,
+        "visited_pct": 0.0,
+        "locked_pct": 0.0
+      },
+      "buffer_decode": {
+        "total": 169,
+        "visited": 0,
+        "locked": 0,
+        "visited_pct": 0.0,
+        "locked_pct": 0.0
+      },
+      "code_generation": {
+        "total": 27,
+        "visited": 0,
+        "locked": 0,
+        "visited_pct": 0.0,
+        "locked_pct": 0.0
+      },
+      "contract_spec_conversion": {
+        "total": 42,
+        "visited": 0,
+        "locked": 0,
+        "visited_pct": 0.0,
+        "locked_pct": 0.0
+      },
+      "contract_wasm_parse": {
+        "total": 25,
+        "visited": 0,
+        "locked": 0,
+        "visited_pct": 0.0,
+        "locked_pct": 0.0
+      },
+      "json_deserialization": {
+        "total": 20,
+        "visited": 0,
+        "locked": 0,
+        "visited_pct": 0.0,
+        "locked_pct": 0.0
+      },
+      "network_request": {
+        "total": 55,
+        "visited": 0,
+        "locked": 0,
+        "visited_pct": 0.0,
+        "locked_pct": 0.0
+      },
+      "transaction_serialization": {
+        "total": 161,
+        "visited": 0,
+        "locked": 0,
+        "visited_pct": 0.0,
+        "locked_pct": 0.0
+      },
+      "transaction_signing": {
+        "total": 34,
+        "visited": 0,
+        "locked": 0,
+        "visited_pct": 0.0,
+        "locked_pct": 0.0
+      },
+      "transaction_submission": {
+        "total": 8,
+        "visited": 0,
+        "locked": 0,
+        "visited_pct": 0.0,
+        "locked_pct": 0.0
+      },
+      "xdr_decode": {
+        "total": 131,
+        "visited": 0,
+        "locked": 0,
+        "visited_pct": 0.0,
+        "locked_pct": 0.0
+      }
+    }
+  }
+}
