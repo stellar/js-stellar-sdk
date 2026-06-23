@@ -1,1 +1,4 @@
 minimumReleaseAge: 10080
+# Temporary security pin: forces all transitive vite to a patched release (server.fs.deny bypass / arbitrary file read). Remove once astro + vitest resolve a fixed vite themselves.
+overrides:
+  vite: "^7.3.5"
