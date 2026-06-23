@@ -137,11 +137,11 @@
     "@types/json-schema": "^7.0.15",
     "@types/node": "^22.19.17",
     "@types/sha.js": "^2.4.4",
-    "@vitest/browser": "^4.1.7",
-    "@vitest/browser-playwright": "^4.1.7",
-    "@vitest/coverage-istanbul": "4.1.7",
-    "@vitest/coverage-v8": "^4.1.7",
-    "@vitest/ui": "^4.1.7",
+    "@vitest/browser": "^4.1.9",
+    "@vitest/browser-playwright": "^4.1.9",
+    "@vitest/coverage-istanbul": "4.1.9",
+    "@vitest/coverage-v8": "^4.1.9",
+    "@vitest/ui": "^4.1.9",
     "astro": "^6.4.2",
     "browserify-zlib": "^0.2.0",
     "cross-env": "^10.1.0",
@@ -169,7 +169,7 @@
     "typedoc": "^0.28.19",
     "typescript": "5.9.3",
     "typescript-eslint": "^8.60.0",
-    "vitest": "^4.1.7"
+    "vitest": "^4.1.9"
   },
   "dependencies": {
     "@noble/ed25519": "^3.1.0",
