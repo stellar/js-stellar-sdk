@@ -175,7 +175,7 @@
     "@noble/ed25519": "^3.1.0",
     "@noble/hashes": "^2.2.0",
     "@stellar/js-xdr": "4.0.0",
-    "axios": "1.16.1",
+    "axios": "1.18.0",
     "base32.js": "^0.1.0",
     "bignumber.js": "^11.1.1",
     "buffer": "^6.0.3",
