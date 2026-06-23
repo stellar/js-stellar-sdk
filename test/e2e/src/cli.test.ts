@@ -347,6 +347,30 @@ describe("CLI generate command", () => {
       expect(result.stderr).toContain("Invalid timeout");
     });
 
+    it("fails with trailing garbage in timeout value", () => {
+      const wasmPath = contracts.customTypes.path;
+      const testOutputDir = path.join(outputDir, "trailing-garbage-timeout");
+
+      const result = runCli(
+        `generate --wasm ${wasmPath} --output-dir ${testOutputDir} --timeout 10abc`,
+      );
+
+      expect(result.status).toBe(1);
+      expect(result.stderr).toContain("Invalid timeout");
+    });
+
+    it("fails with decimal timeout value", () => {
+      const wasmPath = contracts.customTypes.path;
+      const testOutputDir = path.join(outputDir, "decimal-timeout");
+
+      const result = runCli(
+        `generate --wasm ${wasmPath} --output-dir ${testOutputDir} --timeout 10.9`,
+      );
+
+      expect(result.status).toBe(1);
+      expect(result.stderr).toContain("Invalid timeout");
+    });
+
     it("fails with invalid JSON for --headers", () => {
       const wasmPath = contracts.customTypes.path;
       const testOutputDir = path.join(outputDir, "invalid-headers");
