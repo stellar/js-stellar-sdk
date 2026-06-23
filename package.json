@@ -184,11 +184,5 @@
     "feaxios": "^0.0.23",
     "smol-toml": "^1.6.1",
     "uint8array-extras": "^1.5.0"
-  },
-  "overrides": {
-    "chalk": "5.3.0",
-    "strip-ansi": "7.1.0",
-    "color-convert": "2.0.1",
-    "color-name": "1.1.4"
   }
 }
