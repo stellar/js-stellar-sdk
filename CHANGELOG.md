@@ -6,6 +6,14 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Added
+- Protocol 28 (CAP-0084): muxed contract addresses. The vendored XDR now
+  includes the `SC_ADDRESS_TYPE_MUXED_CONTRACT` arm and `MuxedContract` struct,
+  and `Address` gains `Address.muxedContract(contractId, id)` plus
+  `contractId()` / `muxedId()` accessors. These addresses have no canonical
+  StrKey yet, so they round-trip via `ScAddress`/`ScVal` (not via a string);
+  `toString()` renders the display-only `<C-strkey>:<id>` form.
+
 ## [v16.0.1](https://github.com/stellar/js-stellar-sdk/compare/v16.0.0...v16.0.1)
 
 ### Fixed

@@ -4,6 +4,7 @@
 /libdocs/
 /dist/
 /coverage/
+*.tgz
 /jsdoc/
 /.astro/
 

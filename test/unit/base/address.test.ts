@@ -309,4 +309,80 @@ describe("Address", () => {
       );
     });
   });
+
+  describe("muxed-contract addresses (CAP-0084)", () => {
+    // 2^64 - 1: a uint64 well above Number.MAX_SAFE_INTEGER, used to prove the
+    // muxing id survives a fromScAddress -> toScAddress round-trip and the
+    // muxedId() accessor without precision loss.
+    const MUXED_CONTRACT_ID = "18446744073709551615";
+    const CONTRACT_RAW = StrKey.decodeContract(CONTRACT);
+
+    function muxedContractScAddress(id: string): xdr.ScAddress {
+      return xdr.ScAddress.scAddressTypeMuxedContract(
+        new xdr.MuxedContract({
+          id: new xdr.Uint64(id),
+          contractId: CONTRACT_RAW as unknown as xdr.ContractId,
+        }),
+      );
+    }
+
+    it(".muxedContract factory exposes its components", () => {
+      const a = Address.muxedContract(CONTRACT_RAW, MUXED_CONTRACT_ID);
+      expect(a.contractId()).toEqual(CONTRACT_RAW);
+      expect(a.muxedId().toString()).toBe(MUXED_CONTRACT_ID);
+      expect(a.type).toBe("muxedContract");
+    });
+
+    it("renders the display form <C-strkey>:<id>", () => {
+      const a = Address.muxedContract(CONTRACT_RAW, MUXED_CONTRACT_ID);
+      expect(a.toString()).toBe(`${CONTRACT}:${MUXED_CONTRACT_ID}`);
+    });
+
+    it("fromScAddress decodes the arm without precision loss", () => {
+      const sc = muxedContractScAddress(MUXED_CONTRACT_ID);
+      const a = Address.fromScAddress(sc);
+      expect(a.contractId()).toEqual(CONTRACT_RAW);
+      expect(a.muxedId().toString()).toBe(MUXED_CONTRACT_ID);
+      expect(a.toString()).toBe(`${CONTRACT}:${MUXED_CONTRACT_ID}`);
+    });
+
+    it("round-trips Address -> ScAddress byte-for-byte", () => {
+      const sc = muxedContractScAddress(MUXED_CONTRACT_ID);
+      const out = Address.fromScAddress(sc).toScAddress();
+      expect(out.switch()).toBe(
+        xdr.ScAddressType.scAddressTypeMuxedContract(),
+      );
+      expect(out.toXDR()).toEqual(sc.toXDR());
+      expect(xdr.ScAddress.fromXDR(out.toXDR())).toEqual(sc);
+    });
+
+    it("round-trips through ScVal", () => {
+      const scVal = Address.muxedContract(
+        CONTRACT_RAW,
+        MUXED_CONTRACT_ID,
+      ).toScVal();
+      const back = Address.fromScVal(scVal);
+      expect(back.toString()).toBe(`${CONTRACT}:${MUXED_CONTRACT_ID}`);
+      expect(back.muxedId().toString()).toBe(MUXED_CONTRACT_ID);
+    });
+
+    it("toBuffer throws (no canonical single-buffer encoding)", () => {
+      const a = Address.muxedContract(CONTRACT_RAW, MUXED_CONTRACT_ID);
+      expect(() => a.toBuffer()).toThrow(
+        /toBuffer is not supported for muxed-contract addresses/,
+      );
+    });
+
+    it("constructor cannot parse the display string (no strkey yet)", () => {
+      expect(
+        () => new Address(`${CONTRACT}:${MUXED_CONTRACT_ID}`),
+      ).toThrow(/Unsupported address type/);
+    });
+
+    it("contractId/muxedId throw for non-muxed-contract addresses", () => {
+      const c = new Address(CONTRACT);
+      expect(() => c.muxedId()).toThrow(/only valid for muxed-contract/);
+      expect(() => c.contractId()).toThrow(/only valid for muxed-contract/);
+    });
+  });
 });
