@@ -170,8 +170,12 @@ export class Address {
         return Address.liquidityPool(
           scAddress.liquidityPoolId() as unknown as Buffer,
         );
-      case xdr.ScAddressType.scAddressTypeMuxedContract().value: {
-        const muxed = scAddress.muxedContract();
+      // CAP-0084 muxed contract addresses are gated to the `next` channel, so
+      // these members are absent from the curr-bound codec. Guard the case
+      // label with optional chaining (it resolves to `undefined` and never
+      // matches a real switch value) and reach the gated members via a cast.
+      case (xdr.ScAddressType as any).scAddressTypeMuxedContract?.()?.value: {
+        const muxed = (scAddress as any).muxedContract();
         return Address.muxedContract(
           muxed.contractId() as unknown as Buffer,
           muxed.id(),
@@ -248,10 +252,11 @@ export class Address {
         );
 
       case "muxedContract":
-        return xdr.ScAddress.scAddressTypeMuxedContract(
-          new xdr.MuxedContract({
+        // Gated to the `next` channel; unavailable on the curr-bound codec.
+        return (xdr.ScAddress as any).scAddressTypeMuxedContract(
+          new (xdr as any).MuxedContract({
             id: this._muxId,
-            contractId: this._key as unknown as xdr.ContractId,
+            contractId: this._key,
           }),
         );
 

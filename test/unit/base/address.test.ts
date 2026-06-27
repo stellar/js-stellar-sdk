@@ -317,11 +317,20 @@ describe("Address", () => {
     const MUXED_CONTRACT_ID = "18446744073709551615";
     const CONTRACT_RAW = StrKey.decodeContract(CONTRACT);
 
+    // CAP-0084's SC_ADDRESS_TYPE_MUXED_CONTRACT arm is gated to the `next`
+    // channel, so the curr-bound default codec cannot construct or encode it
+    // yet. Codec round-trip coverage runs only once the arm lands in the
+    // active codec; the Address-level assertions below are codec-agnostic.
+    const codecHasMuxedContract =
+      typeof (xdr.ScAddressType as any).scAddressTypeMuxedContract ===
+      "function";
+    const itCodec = codecHasMuxedContract ? it : it.skip;
+
     function muxedContractScAddress(id: string): xdr.ScAddress {
-      return xdr.ScAddress.scAddressTypeMuxedContract(
-        new xdr.MuxedContract({
+      return (xdr.ScAddress as any).scAddressTypeMuxedContract(
+        new (xdr as any).MuxedContract({
           id: new xdr.Uint64(id),
-          contractId: CONTRACT_RAW as unknown as xdr.ContractId,
+          contractId: CONTRACT_RAW,
         }),
       );
     }
@@ -338,7 +347,7 @@ describe("Address", () => {
       expect(a.toString()).toBe(`${CONTRACT}:${MUXED_CONTRACT_ID}`);
     });
 
-    it("fromScAddress decodes the arm without precision loss", () => {
+    itCodec("fromScAddress decodes the arm without precision loss", () => {
       const sc = muxedContractScAddress(MUXED_CONTRACT_ID);
       const a = Address.fromScAddress(sc);
       expect(a.contractId()).toEqual(CONTRACT_RAW);
@@ -346,17 +355,17 @@ describe("Address", () => {
       expect(a.toString()).toBe(`${CONTRACT}:${MUXED_CONTRACT_ID}`);
     });
 
-    it("round-trips Address -> ScAddress byte-for-byte", () => {
+    itCodec("round-trips Address -> ScAddress byte-for-byte", () => {
       const sc = muxedContractScAddress(MUXED_CONTRACT_ID);
       const out = Address.fromScAddress(sc).toScAddress();
       expect(out.switch()).toBe(
-        xdr.ScAddressType.scAddressTypeMuxedContract(),
+        (xdr.ScAddressType as any).scAddressTypeMuxedContract(),
       );
       expect(out.toXDR()).toEqual(sc.toXDR());
       expect(xdr.ScAddress.fromXDR(out.toXDR())).toEqual(sc);
     });
 
-    it("round-trips through ScVal", () => {
+    itCodec("round-trips through ScVal", () => {
       const scVal = Address.muxedContract(
         CONTRACT_RAW,
         MUXED_CONTRACT_ID,
@@ -374,9 +383,9 @@ describe("Address", () => {
     });
 
     it("constructor cannot parse the display string (no strkey yet)", () => {
-      expect(
-        () => new Address(`${CONTRACT}:${MUXED_CONTRACT_ID}`),
-      ).toThrow(/Unsupported address type/);
+      expect(() => new Address(`${CONTRACT}:${MUXED_CONTRACT_ID}`)).toThrow(
+        /Unsupported address type/,
+      );
     });
 
     it("contractId/muxedId throw for non-muxed-contract addresses", () => {
