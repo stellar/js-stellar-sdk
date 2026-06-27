@@ -9359,7 +9359,8 @@ var types = XDR.config((xdr) => {
   //       SC_ADDRESS_TYPE_CONTRACT = 1,
   //       SC_ADDRESS_TYPE_MUXED_ACCOUNT = 2,
   //       SC_ADDRESS_TYPE_CLAIMABLE_BALANCE = 3,
-  //       SC_ADDRESS_TYPE_LIQUIDITY_POOL = 4
+  //       SC_ADDRESS_TYPE_LIQUIDITY_POOL = 4,
+  //       SC_ADDRESS_TYPE_MUXED_CONTRACT = 5
   //   };
   //
   // ===========================================================================
@@ -9369,6 +9370,7 @@ var types = XDR.config((xdr) => {
     scAddressTypeMuxedAccount: 2,
     scAddressTypeClaimableBalance: 3,
     scAddressTypeLiquidityPool: 4,
+    scAddressTypeMuxedContract: 5,
   });
 
   // === xdr source ============================================================
@@ -9387,6 +9389,20 @@ var types = XDR.config((xdr) => {
 
   // === xdr source ============================================================
   //
+  //   struct MuxedContract
+  //   {
+  //       uint64 id;
+  //       ContractID contractId;
+  //   };
+  //
+  // ===========================================================================
+  xdr.struct("MuxedContract", [
+    ["id", xdr.lookup("Uint64")],
+    ["contractId", xdr.lookup("ContractId")],
+  ]);
+
+  // === xdr source ============================================================
+  //
   //   union SCAddress switch (SCAddressType type)
   //   {
   //   case SC_ADDRESS_TYPE_ACCOUNT:
@@ -9399,6 +9415,8 @@ var types = XDR.config((xdr) => {
   //       ClaimableBalanceID claimableBalanceId;
   //   case SC_ADDRESS_TYPE_LIQUIDITY_POOL:
   //       PoolID liquidityPoolId;
+  //   case SC_ADDRESS_TYPE_MUXED_CONTRACT:
+  //       MuxedContract muxedContract;
   //   };
   //
   // ===========================================================================
@@ -9411,6 +9429,7 @@ var types = XDR.config((xdr) => {
       ["scAddressTypeMuxedAccount", "muxedAccount"],
       ["scAddressTypeClaimableBalance", "claimableBalanceId"],
       ["scAddressTypeLiquidityPool", "liquidityPoolId"],
+      ["scAddressTypeMuxedContract", "muxedContract"],
     ],
     arms: {
       accountId: xdr.lookup("AccountId"),
@@ -9418,6 +9437,7 @@ var types = XDR.config((xdr) => {
       muxedAccount: xdr.lookup("MuxedEd25519Account"),
       claimableBalanceId: xdr.lookup("ClaimableBalanceId"),
       liquidityPoolId: xdr.lookup("PoolId"),
+      muxedContract: xdr.lookup("MuxedContract"),
     },
   });
 
