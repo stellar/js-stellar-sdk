@@ -47,7 +47,7 @@ rules are emitted for every major AI crawler so the policy is auditable
 on inspection.
 
 The full bot list and the policy values are kept in
-[`config/site.ts`](https://github.com/stellar/js-stellar-sdk/blob/master/config/site.ts);
+[`config/site.ts`](https://github.com/stellar/js-stellar-sdk/blob/main/config/site.ts);
 edit that file and rebuild to change either.
 
 ## Refresh cadence
