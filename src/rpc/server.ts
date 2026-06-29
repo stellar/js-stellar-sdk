@@ -526,16 +526,53 @@ export class RpcServer {
   }
 
   /**
+   * Retrieves the deployed contract instance for a given contract ID.
+   *
+   * The instance describes the contract's executable — either a Wasm hash or
+   * the built-in Stellar Asset Contract — along with its instance storage.
+   *
+   * @param contractId - The contract ID (`C...`) to look up
+   * @returns The contract's `xdr.ScContractInstance`
+   * @throws If the contract instance cannot be found on the network.
+   *
+   * @example
+   * ```ts
+   * const instance = await server.getContractInstance(
+   *   "CCJZ5DGASBWQXR5MPFCJXMBI333XE5U3FSJTNQU7RIKE3P5GN2K2WYD5",
+   * );
+   * console.log(instance.executable().switch().name);
+   * ```
+   */
+  public async getContractInstance(
+    contractId: string,
+  ): Promise<xdr.ScContractInstance> {
+    const contractLedgerKey = new Contract(contractId).getFootprint();
+    const response = await this.getLedgerEntries(contractLedgerKey);
+    if (!response.entries.length || !response.entries[0]?.val) {
+      return Promise.reject({
+        code: 404,
+        message: "Could not obtain contract instance from server",
+      });
+    }
+
+    return response.entries[0].val.contractData().val().instance();
+  }
+
+  /**
    * Retrieves the WASM bytecode for a given contract.
    *
    * This method allows you to fetch the WASM bytecode associated with a contract
    * deployed on the Soroban network. The WASM bytecode represents the executable
    * code of the contract.
    *
+   * This only works for Wasm-based contracts. A built-in Stellar Asset Contract
+   * (SAC) has no Wasm bytecode on-chain, so this throws for a SAC; use
+   * {@link contract.Client.from} to build a client from the embedded SAC spec.
+   *
    * @param contractId - The contract ID containing the WASM bytecode to retrieve
    * @returns A Buffer containing the WASM bytecode
    * @throws If the contract or its associated WASM bytecode cannot be
-   * found on the network.
+   * found on the network, or if the contract is a Stellar Asset Contract (SAC).
    *
    * @example
    * ```ts
@@ -551,23 +588,22 @@ export class RpcServer {
   public async getContractWasmByContractId(
     contractId: string,
   ): Promise<Buffer> {
-    const contractLedgerKey = new Contract(contractId).getFootprint();
-    const response = await this.getLedgerEntries(contractLedgerKey);
-    if (!response.entries.length || !response.entries[0]?.val) {
+    const instance = await this.getContractInstance(contractId);
+
+    if (
+      instance.executable().switch() ===
+      xdr.ContractExecutableType.contractExecutableStellarAsset()
+    ) {
       return Promise.reject({
-        code: 404,
-        message: `Could not obtain contract hash from server`,
+        code: 400,
+        message:
+          `Contract ${contractId} is a Stellar Asset Contract (SAC), which has ` +
+          `no Wasm bytecode. Use contract.Client.from() to build a client from ` +
+          `the built-in SAC spec instead.`,
       });
     }
 
-    const wasmHash = response.entries[0].val
-      .contractData()
-      .val()
-      .instance()
-      .executable()
-      .wasmHash();
-
-    return this.getContractWasmByHash(wasmHash);
+    return this.getContractWasmByHash(instance.executable().wasmHash());
   }
 
   /**

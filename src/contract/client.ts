@@ -181,6 +181,10 @@ export class Client {
   /**
    * Generates a Client instance from the provided ClientOptions, which must include the contractId and rpcUrl.
    *
+   * If the contract is a built-in Stellar Asset Contract (SAC), the embedded
+   * SAC spec is used instead of downloading Wasm, since a SAC has no Wasm
+   * executable on-chain.
+   *
    * @param options - The ClientOptions object containing the necessary configuration, including the contractId and rpcUrl.
    * @returns A Promise that resolves to a Client instance.
    * @throws If the provided options object does not contain both rpcUrl and contractId.
@@ -189,12 +193,29 @@ export class Client {
     if (!options || !options.rpcUrl || !options.contractId) {
       throw new TypeError("options must contain rpcUrl and contractId");
     }
+
     const { rpcUrl, contractId, allowHttp, headers } = options;
     const server = new Server(rpcUrl, {
       allowHttp,
       headers,
     });
-    const wasm = await server.getContractWasmByContractId(contractId);
+
+    const instance = await server.getContractInstance(contractId);
+
+    if (
+      instance.executable().switch() ===
+      xdr.ContractExecutableType.contractExecutableStellarAsset()
+    ) {
+      // Lazily load the (large) embedded SAC spec so bundlers can code-split
+      // it out of the common path; it's only needed for built-in SACs.
+      const { SAC_SPEC } = await import("../bindings/sac-spec.js");
+      return new Client(new Spec(SAC_SPEC), options);
+    }
+
+    const wasm = await server.getContractWasmByHash(
+      instance.executable().wasmHash(),
+    );
+
     return Client.fromWasm(wasm, options);
   }
 

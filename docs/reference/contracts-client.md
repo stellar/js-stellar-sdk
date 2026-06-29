@@ -674,6 +674,10 @@ static deploy<T = Client>(args: Record<string, any> | null, options: MethodOptio
 
 Generates a Client instance from the provided ClientOptions, which must include the contractId and rpcUrl.
 
+If the contract is a built-in Stellar Asset Contract (SAC), the embedded
+SAC spec is used instead of downloading Wasm, since a SAC has no Wasm
+executable on-chain.
+
 ```ts
 static from(options: ClientOptions): Promise<Client>;
 ```
@@ -690,7 +694,7 @@ A Promise that resolves to a Client instance.
 
 - If the provided options object does not contain both rpcUrl and contractId.
 
-**Source:** [src/contract/client.ts:188](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L188)
+**Source:** [src/contract/client.ts:192](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L192)
 
 ### `Client.fromWasm(wasm, options)`
 
@@ -766,7 +770,7 @@ txFromJSON<T>(json: string): AssembledTransaction<T>;
 
 - **`json`** — `string` (required)
 
-**Source:** [src/contract/client.ts:201](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L201)
+**Source:** [src/contract/client.ts:222](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L222)
 
 ### `client.txFromXDR(xdrBase64)`
 
@@ -778,7 +782,7 @@ txFromXDR<T>(xdrBase64: string): AssembledTransaction<T>;
 
 - **`xdrBase64`** — `string` (required)
 
-**Source:** [src/contract/client.ts:214](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L214)
+**Source:** [src/contract/client.ts:235](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L235)
 
 ## contract.DEFAULT_TIMEOUT
 
