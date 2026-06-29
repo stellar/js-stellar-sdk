@@ -261,11 +261,15 @@ describe("Server#getContractWasm", () => {
 
     mockPost.mockResolvedValueOnce(response);
 
-    // A SAC has no Wasm to fetch, so this must fail with a clear message
-    // instead of crashing while encoding a ledger key from an undefined hash.
+    // A SAC has no Wasm to fetch, so this must fail with the same structured
+    // { code, message } rejection shape as the method's other errors, instead
+    // of crashing while encoding a ledger key from an undefined hash.
     await expect(
       server.getContractWasmByContractId(contractId),
-    ).rejects.toThrow(/Stellar Asset Contract/);
+    ).rejects.toMatchObject({
+      code: 400,
+      message: expect.stringContaining("Stellar Asset Contract"),
+    });
     expect(mockPost).toHaveBeenCalledTimes(1);
   });
 });

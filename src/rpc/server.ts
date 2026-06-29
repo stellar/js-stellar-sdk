@@ -594,11 +594,13 @@ export class RpcServer {
       instance.executable().switch() ===
       xdr.ContractExecutableType.contractExecutableStellarAsset()
     ) {
-      throw new Error(
-        `Contract ${contractId} is a Stellar Asset Contract (SAC), which has ` +
+      return Promise.reject({
+        code: 400,
+        message:
+          `Contract ${contractId} is a Stellar Asset Contract (SAC), which has ` +
           `no Wasm bytecode. Use contract.Client.from() to build a client from ` +
           `the built-in SAC spec instead.`,
-      );
+      });
     }
 
     return this.getContractWasmByHash(instance.executable().wasmHash());
