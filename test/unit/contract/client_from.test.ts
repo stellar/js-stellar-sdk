@@ -1,12 +1,7 @@
-import { readFileSync } from "fs";
-import { fileURLToPath } from "url";
-import { dirname, join } from "path";
 import { describe, it, afterEach, expect, vi } from "vitest";
 import * as StellarSdk from "../../../src/index.js";
 
 import { serverUrl } from "../../constants";
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // `Client.from` constructs its own `Server` internally, so we cannot spy on a
 // server instance we create here. Instead we mock the http-client factory that
@@ -27,6 +22,45 @@ const { xdr, hash, Contract } = StellarSdk;
 const { Client } = StellarSdk.contract;
 
 const networkPassphrase = "Test SDF Network ; September 2015";
+
+// LEB128 unsigned varint, as used for WASM section lengths.
+function leb128(value: number): Buffer {
+  const bytes: number[] = [];
+  let n = value;
+  do {
+    let byte = n & 0x7f;
+    n >>>= 7;
+    if (n !== 0) byte |= 0x80;
+    bytes.push(byte);
+  } while (n !== 0);
+  return Buffer.from(bytes);
+}
+
+// Builds a minimal valid WASM binary whose only content is a `contractspecv0`
+// custom section carrying the given spec entries. This is browser-safe (pure
+// Buffer ops, no filesystem) and is enough for `Spec.fromWasm` to parse, which
+// only scans for that custom section.
+function wasmWithSpec(entries: StellarSdk.xdr.ScSpecEntry[]): Buffer {
+  const name = Buffer.from("contractspecv0", "utf8");
+  const payload = Buffer.concat(entries.map((e) => e.toXDR()));
+  const sectionBody = Buffer.concat([leb128(name.length), name, payload]);
+  const customSection = Buffer.concat([
+    Buffer.from([0x00]), // custom section id
+    leb128(sectionBody.length),
+    sectionBody,
+  ]);
+  const header = Buffer.from([
+    0x00,
+    0x61,
+    0x73,
+    0x6d, // "\0asm" magic
+    0x01,
+    0x00,
+    0x00,
+    0x00, // version 1
+  ]);
+  return Buffer.concat([header, customSection]);
+}
 
 describe("contract.Client.from", () => {
   afterEach(() => {
@@ -62,12 +96,19 @@ describe("contract.Client.from", () => {
   }
 
   describe("wasm contract (baseline)", () => {
-    // A real compiled contract with an embedded `contractspecv0` section so
-    // `Spec.fromWasm` can parse it. The wasm hash is arbitrary for the mock;
-    // it only has to match between the instance executable and the code entry.
-    const wasmBuffer = readFileSync(
-      join(__dirname, "../../e2e/wasm-fixtures/custom_types.wasm"),
-    );
+    // A synthetic wasm exposing a single `hello` function, so `Spec.fromWasm`
+    // can parse it. The wasm hash is arbitrary for the mock; it only has to
+    // match between the instance executable and the code entry.
+    const wasmBuffer = wasmWithSpec([
+      xdr.ScSpecEntry.scSpecEntryFunctionV0(
+        new xdr.ScSpecFunctionV0({
+          doc: "",
+          name: "hello",
+          inputs: [],
+          outputs: [],
+        }),
+      ),
+    ]);
     const wasmHash = hash(wasmBuffer);
 
     const instanceEntry = xdr.LedgerEntryData.contractData(
