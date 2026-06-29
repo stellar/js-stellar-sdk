@@ -226,4 +226,46 @@ describe("Server#getContractWasm", () => {
     });
     expect(mockPost).toHaveBeenCalledTimes(2);
   });
+
+  it("throws a clear error for a Stellar Asset Contract (SAC)", async () => {
+    const sacInstanceEntry = xdr.LedgerEntryData.contractData(
+      new xdr.ContractDataEntry({
+        ext: new (xdr.ExtensionPoint as any)(0),
+        contract: address.toScAddress(),
+        durability: xdr.ContractDataDurability.persistent(),
+        key: xdr.ScVal.scvLedgerKeyContractInstance(),
+        val: xdr.ScVal.scvContractInstance(
+          new xdr.ScContractInstance({
+            executable: xdr.ContractExecutable.contractExecutableStellarAsset(),
+            storage: null,
+          }),
+        ),
+      }),
+    );
+
+    const response = {
+      data: {
+        result: {
+          latestLedger: 18039,
+          entries: [
+            {
+              liveUntilLedgerSeq: 1000,
+              lastModifiedLedgerSeq: 1,
+              xdr: sacInstanceEntry.toXDR("base64"),
+              key: contractLedgerKey.toXDR("base64"),
+            },
+          ],
+        },
+      },
+    };
+
+    mockPost.mockResolvedValueOnce(response);
+
+    // A SAC has no Wasm to fetch, so this must fail with a clear message
+    // instead of crashing while encoding a ledger key from an undefined hash.
+    await expect(
+      server.getContractWasmByContractId(contractId),
+    ).rejects.toThrow(/Stellar Asset Contract/);
+    expect(mockPost).toHaveBeenCalledTimes(1);
+  });
 });

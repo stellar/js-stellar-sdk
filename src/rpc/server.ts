@@ -532,10 +532,14 @@ export class RpcServer {
    * deployed on the Soroban network. The WASM bytecode represents the executable
    * code of the contract.
    *
+   * This only works for Wasm-based contracts. A built-in Stellar Asset Contract
+   * (SAC) has no Wasm bytecode on-chain, so this throws for a SAC; use
+   * {@link contract.Client.from} to build a client from the embedded SAC spec.
+   *
    * @param contractId - The contract ID containing the WASM bytecode to retrieve
    * @returns A Buffer containing the WASM bytecode
    * @throws If the contract or its associated WASM bytecode cannot be
-   * found on the network.
+   * found on the network, or if the contract is a Stellar Asset Contract (SAC).
    *
    * @example
    * ```ts
@@ -560,12 +564,20 @@ export class RpcServer {
       });
     }
 
-    const wasmHash = response.entries[0].val
-      .contractData()
-      .val()
-      .instance()
-      .executable()
-      .wasmHash();
+    const instance = response.entries[0].val.contractData().val().instance();
+
+    if (
+      instance.executable().switch() ===
+      xdr.ContractExecutableType.contractExecutableStellarAsset()
+    ) {
+      throw new Error(
+        `Contract ${contractId} is a Stellar Asset Contract (SAC), which has ` +
+          `no Wasm bytecode. Use contract.Client.from() to build a client from ` +
+          `the built-in SAC spec instead.`,
+      );
+    }
+
+    const wasmHash = instance.executable().wasmHash();
 
     return this.getContractWasmByHash(wasmHash);
   }

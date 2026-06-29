@@ -4,6 +4,8 @@ import { Server } from "../rpc/index.js";
 import { AssembledTransaction } from "./assembled_transaction.js";
 import type { ClientOptions, MethodOptions } from "./types.js";
 import { sanitizeIdentifier } from "../bindings/utils.js";
+import { fetchFromContractId } from "../bindings/wasm_fetcher.js";
+import { SAC_SPEC } from "../bindings/sac-spec.js";
 
 const CONSTRUCTOR_FUNC = "__constructor";
 
@@ -181,6 +183,10 @@ export class Client {
   /**
    * Generates a Client instance from the provided ClientOptions, which must include the contractId and rpcUrl.
    *
+   * If the contract is a built-in Stellar Asset Contract (SAC), the embedded
+   * SAC spec is used instead of downloading Wasm, since a SAC has no Wasm
+   * executable on-chain.
+   *
    * @param options - The ClientOptions object containing the necessary configuration, including the contractId and rpcUrl.
    * @returns A Promise that resolves to a Client instance.
    * @throws If the provided options object does not contain both rpcUrl and contractId.
@@ -189,13 +195,20 @@ export class Client {
     if (!options || !options.rpcUrl || !options.contractId) {
       throw new TypeError("options must contain rpcUrl and contractId");
     }
+
     const { rpcUrl, contractId, allowHttp, headers } = options;
     const server = new Server(rpcUrl, {
       allowHttp,
       headers,
     });
-    const wasm = await server.getContractWasmByContractId(contractId);
-    return Client.fromWasm(wasm, options);
+
+    const result = await fetchFromContractId(contractId, server);
+
+    if (result.type === "stellar-asset-contract") {
+      return new Client(new Spec(SAC_SPEC), options);
+    }
+
+    return Client.fromWasm(result.wasmBytes, options);
   }
 
   txFromJSON = <T>(json: string): AssembledTransaction<T> => {
