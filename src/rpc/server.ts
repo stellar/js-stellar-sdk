@@ -551,7 +551,7 @@ export class RpcServer {
     if (!response.entries.length || !response.entries[0]?.val) {
       return Promise.reject({
         code: 404,
-        message: `Could not obtain contract hash from server`,
+        message: "Could not obtain contract instance from server",
       });
     }
 

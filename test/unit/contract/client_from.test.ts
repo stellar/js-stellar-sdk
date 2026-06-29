@@ -5,8 +5,9 @@ import { serverUrl } from "../../constants";
 
 // `Client.from` constructs its own `Server` internally, so we cannot spy on a
 // server instance we create here. Instead we mock the http-client factory that
-// the internal `Server` uses, which lets the real `getContractWasmByContractId`
-// code path run against controlled JSON-RPC responses.
+// the internal `Server` uses, which lets the real code path
+// (`getContractInstance`, then `getContractWasmByHash` for Wasm contracts) run
+// against controlled JSON-RPC responses.
 const { mockPost } = vi.hoisted(() => ({ mockPost: vi.fn() }));
 
 vi.mock("../../../src/rpc/axios.js", async (importActual) => {
