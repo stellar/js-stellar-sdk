@@ -325,6 +325,10 @@ const distConfig = {
       name: "StellarSdk",
       exports: "named",
       sourcemap: true,
+      // Single-file UMD output can hold only one chunk. Inline dynamic
+      // imports (e.g. the lazily-loaded SAC spec in contract/client) so the
+      // build stays a single bundle regardless of Rollup's default behavior.
+      inlineDynamicImports: true,
     },
     {
       file: `dist/${distBaseName}.min.js`,
@@ -332,6 +336,7 @@ const distConfig = {
       name: "StellarSdk",
       exports: "named",
       sourcemap: true,
+      inlineDynamicImports: true,
       plugins: [
         terser({
           format: { ascii_only: true },
