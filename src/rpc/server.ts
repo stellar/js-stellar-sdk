@@ -532,7 +532,7 @@ export class RpcServer {
    * the built-in Stellar Asset Contract — along with its instance storage.
    *
    * @param contractId - The contract ID (`C...`) to look up
-   * @returns The contract's {@link xdr.ScContractInstance}
+   * @returns The contract's `xdr.ScContractInstance`
    * @throws If the contract instance cannot be found on the network.
    *
    * @example

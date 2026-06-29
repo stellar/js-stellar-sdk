@@ -642,7 +642,7 @@ class Client {
 }
 ```
 
-**Source:** [src/contract/client.ts:39](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L39)
+**Source:** [src/contract/client.ts:37](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L37)
 
 ### `new Client(spec, options)`
 
@@ -655,7 +655,7 @@ constructor(spec: Spec, options: ClientOptions);
 - **`spec`** — `Spec` (required)
 - **`options`** — `ClientOptions` (required)
 
-**Source:** [src/contract/client.ts:94](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L94)
+**Source:** [src/contract/client.ts:92](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L92)
 
 ### `Client.deploy(args, options)`
 
@@ -668,7 +668,7 @@ static deploy<T = Client>(args: Record<string, any> | null, options: MethodOptio
 - **`args`** — `Record<string, any> | null` (required) — Constructor/Initialization Args for the contract's `__constructor` method
 - **`options`** — `MethodOptions & Omit<ClientOptions, "contractId"> & { address?: string; format?: "base64" | "hex"; salt?: Uint8Array<ArrayBufferLike> | Buffer<ArrayBufferLike>; wasmHash: string | Buffer<ArrayBufferLike> }` (required) — Options for initializing a Client as well as for calling a method, with extras specific to deploying.
 
-**Source:** [src/contract/client.ts:40](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L40)
+**Source:** [src/contract/client.ts:38](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L38)
 
 ### `Client.from(options)`
 
@@ -694,7 +694,7 @@ A Promise that resolves to a Client instance.
 
 - If the provided options object does not contain both rpcUrl and contractId.
 
-**Source:** [src/contract/client.ts:194](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L194)
+**Source:** [src/contract/client.ts:192](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L192)
 
 ### `Client.fromWasm(wasm, options)`
 
@@ -717,7 +717,7 @@ A Promise that resolves to a Client instance.
 
 - If the contract spec cannot be obtained from the provided wasm binary.
 
-**Source:** [src/contract/client.ts:178](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L178)
+**Source:** [src/contract/client.ts:176](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L176)
 
 ### `Client.fromWasmHash(wasmHash, options, format)`
 
@@ -742,7 +742,7 @@ A Promise that resolves to a Client instance.
 
 - If the provided options object does not contain an rpcUrl.
 
-**Source:** [src/contract/client.ts:150](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L150)
+**Source:** [src/contract/client.ts:148](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L148)
 
 ### `client.options`
 
@@ -750,7 +750,7 @@ A Promise that resolves to a Client instance.
 readonly options: ClientOptions;
 ```
 
-**Source:** [src/contract/client.ts:96](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L96)
+**Source:** [src/contract/client.ts:94](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L94)
 
 ### `client.spec`
 
@@ -758,7 +758,7 @@ readonly options: ClientOptions;
 readonly spec: Spec;
 ```
 
-**Source:** [src/contract/client.ts:95](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L95)
+**Source:** [src/contract/client.ts:93](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L93)
 
 ### `client.txFromJSON(json)`
 
@@ -770,7 +770,7 @@ txFromJSON<T>(json: string): AssembledTransaction<T>;
 
 - **`json`** — `string` (required)
 
-**Source:** [src/contract/client.ts:214](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L214)
+**Source:** [src/contract/client.ts:222](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L222)
 
 ### `client.txFromXDR(xdrBase64)`
 
@@ -782,7 +782,7 @@ txFromXDR<T>(xdrBase64: string): AssembledTransaction<T>;
 
 - **`xdrBase64`** — `string` (required)
 
-**Source:** [src/contract/client.ts:227](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L227)
+**Source:** [src/contract/client.ts:235](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L235)
 
 ## contract.DEFAULT_TIMEOUT
 
