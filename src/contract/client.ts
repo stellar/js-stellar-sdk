@@ -4,8 +4,6 @@ import { Server } from "../rpc/index.js";
 import { AssembledTransaction } from "./assembled_transaction.js";
 import type { ClientOptions, MethodOptions } from "./types.js";
 import { sanitizeIdentifier } from "../bindings/utils.js";
-import { fetchFromContractId } from "../bindings/wasm_fetcher.js";
-import { SAC_SPEC } from "../bindings/sac-spec.js";
 
 const CONSTRUCTOR_FUNC = "__constructor";
 
@@ -202,13 +200,23 @@ export class Client {
       headers,
     });
 
-    const result = await fetchFromContractId(contractId, server);
+    const instance = await server.getContractInstance(contractId);
 
-    if (result.type === "stellar-asset-contract") {
+    if (
+      instance.executable().switch() ===
+      xdr.ContractExecutableType.contractExecutableStellarAsset()
+    ) {
+      // Lazily load the (large) embedded SAC spec so bundlers can code-split
+      // it out of the common path; it's only needed for built-in SACs.
+      const { SAC_SPEC } = await import("../bindings/sac-spec.js");
       return new Client(new Spec(SAC_SPEC), options);
     }
 
-    return Client.fromWasm(result.wasmBytes, options);
+    const wasm = await server.getContractWasmByHash(
+      instance.executable().wasmHash(),
+    );
+
+    return Client.fromWasm(wasm, options);
   }
 
   txFromJSON = <T>(json: string): AssembledTransaction<T> => {
