@@ -6,6 +6,23 @@ import { serverUrl } from "../../../constants";
 const { Server } = StellarSdk.rpc;
 const { Client } = StellarSdk.contract;
 
+/**
+ * Build a fake `contract.Client`: `spec.funcs()` reports the declared on-chain
+ * method names, and `attached` holds the dynamically-attached method functions
+ * (keyed by their sanitized identifiers, exactly as the real Client does).
+ */
+function fakeClient(opts: {
+  specNames: string[];
+  attached?: Record<string, any>;
+}) {
+  return {
+    spec: {
+      funcs: () => opts.specNames.map((name) => ({ name: () => name })),
+    },
+    ...(opts.attached ?? {}),
+  };
+}
+
 describe("Server#queryContract", () => {
   let server: any;
   const contractId = "CCJZ5DGASBWQXR5MPFCJXMBI333XE5U3FSJTNQU7RIKE3P5GN2K2WYD5";
@@ -23,9 +40,12 @@ describe("Server#queryContract", () => {
     const getNetwork = vi
       .spyOn(server, "getNetwork")
       .mockResolvedValue({ passphrase: networkPassphrase } as any);
-    const from = vi.spyOn(Client, "from").mockResolvedValue({
-      decimals: vi.fn().mockResolvedValue({ result: 7 }),
-    } as any);
+    const from = vi.spyOn(Client, "from").mockResolvedValue(
+      fakeClient({
+        specNames: ["decimals"],
+        attached: { decimals: vi.fn().mockResolvedValue({ result: 7 }) },
+      }) as any,
+    );
 
     const result = await server.queryContract(contractId, "decimals");
 
@@ -43,9 +63,12 @@ describe("Server#queryContract", () => {
 
   it("uses the provided networkPassphrase and skips getNetwork()", async () => {
     const getNetwork = vi.spyOn(server, "getNetwork");
-    const from = vi.spyOn(Client, "from").mockResolvedValue({
-      decimals: vi.fn().mockResolvedValue({ result: 7 }),
-    } as any);
+    const from = vi.spyOn(Client, "from").mockResolvedValue(
+      fakeClient({
+        specNames: ["decimals"],
+        attached: { decimals: vi.fn().mockResolvedValue({ result: 7 }) },
+      }) as any,
+    );
 
     await server.queryContract(
       contractId,
@@ -65,7 +88,9 @@ describe("Server#queryContract", () => {
     vi.spyOn(server, "getNetwork").mockResolvedValue({
       passphrase: networkPassphrase,
     } as any);
-    vi.spyOn(Client, "from").mockResolvedValue({ balance } as any);
+    vi.spyOn(Client, "from").mockResolvedValue(
+      fakeClient({ specNames: ["balance"], attached: { balance } }) as any,
+    );
 
     const args = {
       id: "GA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJVSGZ",
@@ -77,12 +102,18 @@ describe("Server#queryContract", () => {
   });
 
   it("resolves methods whose names are sanitized by Client (e.g. reserved words)", async () => {
-    // `Client` attaches a contract method named `delete` under `delete_`.
+    // A contract method named `delete` is declared as `delete` in the spec but
+    // attached on the Client under the sanitized key `delete_`.
     const deleteFn = vi.fn().mockResolvedValue({ result: true });
     vi.spyOn(server, "getNetwork").mockResolvedValue({
       passphrase: networkPassphrase,
     } as any);
-    vi.spyOn(Client, "from").mockResolvedValue({ delete_: deleteFn } as any);
+    vi.spyOn(Client, "from").mockResolvedValue(
+      fakeClient({
+        specNames: ["delete"],
+        attached: { delete_: deleteFn },
+      }) as any,
+    );
 
     const result = await server.queryContract(contractId, "delete");
 
@@ -90,11 +121,36 @@ describe("Server#queryContract", () => {
     expect(result).toBe(true);
   });
 
+  it("does not invoke built-in Client members that aren't contract methods", async () => {
+    // `txFromJSON` is a real Client method but not a contract method; passing it
+    // must throw, not call the built-in.
+    const txFromJSON = vi.fn();
+    vi.spyOn(server, "getNetwork").mockResolvedValue({
+      passphrase: networkPassphrase,
+    } as any);
+    vi.spyOn(Client, "from").mockResolvedValue(
+      fakeClient({
+        specNames: ["balance"],
+        attached: { balance: vi.fn(), txFromJSON },
+      }) as any,
+    );
+
+    await expect(
+      server.queryContract(contractId, "txFromJSON"),
+    ).rejects.toThrow(/no method 'txFromJSON'/);
+    expect(txFromJSON).not.toHaveBeenCalled();
+  });
+
   it("throws a TypeError when the contract has no such method", async () => {
     vi.spyOn(server, "getNetwork").mockResolvedValue({
       passphrase: networkPassphrase,
     } as any);
-    vi.spyOn(Client, "from").mockResolvedValue({} as any);
+    vi.spyOn(Client, "from").mockResolvedValue(
+      fakeClient({
+        specNames: ["decimals"],
+        attached: { decimals: vi.fn().mockResolvedValue({ result: 7 }) },
+      }) as any,
+    );
 
     await expect(server.queryContract(contractId, "missing")).rejects.toThrow(
       TypeError,

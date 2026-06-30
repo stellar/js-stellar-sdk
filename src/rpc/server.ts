@@ -718,16 +718,25 @@ export class RpcServer {
       server: this,
     });
 
+    // Validate against the contract spec (keyed by the real on-chain name)
+    // first, so a `method` that collides with a built-in `Client`/prototype
+    // member (e.g. `txFromJSON`, `toString`) is rejected rather than silently
+    // invoking the wrong function.
+    const isContractMethod = client.spec
+      .funcs()
+      .some((fn) => fn.name().toString() === method);
+
     // Methods are attached dynamically from the spec, so they aren't on the
     // static `Client` type — hence the cast. The `Client` constructor attaches
     // each method under a sanitized identifier (e.g. a contract method named
-    // `delete` becomes `delete_`), so resolve the key the same way before
-    // looking it up; the method still invokes under its real on-chain name.
+    // `delete` becomes `delete_`), so resolve the key the same way; the method
+    // still invokes under its real on-chain name.
     const { sanitizeIdentifier } = await import("../bindings/utils.js");
     const invoke = (client as unknown as Record<string, unknown>)[
       sanitizeIdentifier(method)
     ];
-    if (typeof invoke !== "function") {
+
+    if (!isContractMethod || typeof invoke !== "function") {
       throw new TypeError(`Contract ${contractId} has no method '${method}'`);
     }
 
