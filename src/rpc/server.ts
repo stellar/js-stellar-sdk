@@ -719,8 +719,14 @@ export class RpcServer {
     });
 
     // Methods are attached dynamically from the spec, so they aren't on the
-    // static `Client` type — hence the cast.
-    const invoke = (client as unknown as Record<string, unknown>)[method];
+    // static `Client` type — hence the cast. The `Client` constructor attaches
+    // each method under a sanitized identifier (e.g. a contract method named
+    // `delete` becomes `delete_`), so resolve the key the same way before
+    // looking it up; the method still invokes under its real on-chain name.
+    const { sanitizeIdentifier } = await import("../bindings/utils.js");
+    const invoke = (client as unknown as Record<string, unknown>)[
+      sanitizeIdentifier(method)
+    ];
     if (typeof invoke !== "function") {
       throw new TypeError(`Contract ${contractId} has no method '${method}'`);
     }

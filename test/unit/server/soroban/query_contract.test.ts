@@ -76,6 +76,20 @@ describe("Server#queryContract", () => {
     expect(result).toBe(100n);
   });
 
+  it("resolves methods whose names are sanitized by Client (e.g. reserved words)", async () => {
+    // `Client` attaches a contract method named `delete` under `delete_`.
+    const deleteFn = vi.fn().mockResolvedValue({ result: true });
+    vi.spyOn(server, "getNetwork").mockResolvedValue({
+      passphrase: networkPassphrase,
+    } as any);
+    vi.spyOn(Client, "from").mockResolvedValue({ delete_: deleteFn } as any);
+
+    const result = await server.queryContract(contractId, "delete");
+
+    expect(deleteFn).toHaveBeenCalledOnce();
+    expect(result).toBe(true);
+  });
+
   it("throws a TypeError when the contract has no such method", async () => {
     vi.spyOn(server, "getNetwork").mockResolvedValue({
       passphrase: networkPassphrase,
