@@ -139,17 +139,31 @@ export class Client {
    * Generates a Client instance from the provided ClientOptions and the contract's wasm hash.
    * The wasmHash can be provided in either hex or base64 format.
    *
+   * @typeParam T - An interface describing the contract's methods, used to type
+   * the returned client. Defaults to `unknown`, so calling without a type
+   * argument yields a plain `Client` (backward compatible). Provide it to get
+   * typed, autocompleted contract methods without code generation.
+   *
    * @param wasmHash - The hash of the contract's wasm binary, in either hex or base64 format.
    * @param options - The ClientOptions object containing the necessary configuration, including the rpcUrl.
    * @param format - (optional) The format of the provided wasmHash, either "hex" or "base64". Defaults to "hex".
    * @returns A Promise that resolves to a Client instance.
    * @throws If the provided options object does not contain an rpcUrl.
+   *
+   * @example
+   * ```ts
+   * interface MyContract {
+   *   increment: (opts?: MethodOptions) => Promise<AssembledTransaction<number>>;
+   * }
+   * const client = await contract.Client.fromWasmHash<MyContract>(hash, options);
+   * const tx = await client.increment(); // typed
+   * ```
    */
-  static async fromWasmHash(
+  static async fromWasmHash<T = unknown>(
     wasmHash: Buffer | string,
     options: ClientOptions,
     format: "hex" | "base64" = "hex",
-  ): Promise<Client> {
+  ): Promise<Client & T> {
     if (!options || !options.rpcUrl) {
       throw new TypeError("options must contain rpcUrl");
     }
@@ -162,20 +176,37 @@ export class Client {
       });
     const wasm = await server.getContractWasmByHash(wasmHash, format);
 
-    return Client.fromWasm(wasm, options);
+    return Client.fromWasm<T>(wasm, options);
   }
 
   /**
    * Generates a Client instance from the provided ClientOptions and the contract's wasm binary.
    *
+   * @typeParam T - An interface describing the contract's methods, used to type
+   * the returned client. Defaults to `unknown`, so calling without a type
+   * argument yields a plain `Client` (backward compatible). Provide it to get
+   * typed, autocompleted contract methods without code generation.
+   *
    * @param wasm - The contract's wasm binary as a Buffer.
    * @param options - The ClientOptions object containing the necessary configuration.
    * @returns A Promise that resolves to a Client instance.
    * @throws If the contract spec cannot be obtained from the provided wasm binary.
+   *
+   * @example
+   * ```ts
+   * interface MyContract {
+   *   increment: (opts?: MethodOptions) => Promise<AssembledTransaction<number>>;
+   * }
+   * const client = await contract.Client.fromWasm<MyContract>(wasm, options);
+   * const tx = await client.increment(); // typed
+   * ```
    */
-  static async fromWasm(wasm: Buffer, options: ClientOptions): Promise<Client> {
+  static async fromWasm<T = unknown>(
+    wasm: Buffer,
+    options: ClientOptions,
+  ): Promise<Client & T> {
     const spec = await Spec.fromWasm(wasm);
-    return new Client(spec, options);
+    return new Client(spec, options) as unknown as Client & T;
   }
 
   /**
@@ -185,11 +216,25 @@ export class Client {
    * SAC spec is used instead of downloading Wasm, since a SAC has no Wasm
    * executable on-chain.
    *
+   * @typeParam T - An interface describing the contract's methods, used to type
+   * the returned client. Defaults to `unknown`, so calling without a type
+   * argument yields a plain `Client` (backward compatible). Provide it to get
+   * typed, autocompleted contract methods without code generation.
+   *
    * @param options - The ClientOptions object containing the necessary configuration, including the contractId and rpcUrl.
    * @returns A Promise that resolves to a Client instance.
    * @throws If the provided options object does not contain both rpcUrl and contractId.
+   *
+   * @example
+   * ```ts
+   * interface MyContract {
+   *   increment: (opts?: MethodOptions) => Promise<AssembledTransaction<number>>;
+   * }
+   * const client = await contract.Client.from<MyContract>(options);
+   * const tx = await client.increment(); // typed
+   * ```
    */
-  static async from(options: ClientOptions): Promise<Client> {
+  static async from<T = unknown>(options: ClientOptions): Promise<Client & T> {
     if (!options || !options.rpcUrl || !options.contractId) {
       throw new TypeError("options must contain rpcUrl and contractId");
     }
@@ -211,14 +256,14 @@ export class Client {
       // Lazily load the (large) embedded SAC spec so bundlers can code-split
       // it out of the common path; it's only needed for built-in SACs.
       const { SAC_SPEC } = await import("../bindings/sac-spec.js");
-      return new Client(new Spec(SAC_SPEC), options);
+      return new Client(new Spec(SAC_SPEC), options) as unknown as Client & T;
     }
 
     const wasm = await server.getContractWasmByHash(
       instance.executable().wasmHash(),
     );
 
-    return Client.fromWasm(wasm, options);
+    return Client.fromWasm<T>(wasm, options);
   }
 
   txFromJSON = <T>(json: string): AssembledTransaction<T> => {
