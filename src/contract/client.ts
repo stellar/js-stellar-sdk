@@ -195,10 +195,12 @@ export class Client {
     }
 
     const { rpcUrl, contractId, allowHttp, headers } = options;
-    const server = new Server(rpcUrl, {
-      allowHttp,
-      headers,
-    });
+    const server =
+      options.server ??
+      new Server(rpcUrl, {
+        allowHttp,
+        headers,
+      });
 
     const instance = await server.getContractInstance(contractId);
 

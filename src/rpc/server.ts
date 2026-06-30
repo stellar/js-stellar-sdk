@@ -657,6 +657,96 @@ export class RpcServer {
   }
 
   /**
+   * Performs a read-only call to a contract method and returns the decoded result.
+   *
+   * This is a convenience wrapper for one-line contract state queries: it builds
+   * a {@link contract.Client} for the contract, simulates the method call, and
+   * returns the spec-decoded return value — no manual transaction assembly,
+   * signing, or submission required.
+   *
+   * Works for both Wasm contracts and built-in Stellar Asset Contracts (SACs):
+   * the embedded SAC spec is used automatically for SACs (see
+   * {@link contract.Client.from}). The query reuses this server's transport
+   * (headers, interceptors, `allowHttp`).
+   *
+   * @typeParam T - the expected (decoded) return type of the method
+   * @param contractId - the contract to query (`C...`)
+   * @param method - the contract method to call
+   * @param args - named arguments for the method, keyed by parameter name
+   *    (omit for methods that take no arguments)
+   * @param networkPassphrase - (optional) the network passphrase. If omitted, a
+   *    request about network information will be made (see {@link getNetwork}).
+   *    You can refer to {@link Networks} for a list of built-in passphrases,
+   *    e.g., `Networks.TESTNET`.
+   * @returns The method's decoded return value
+   * @throws If the contract has no such method, or if the simulation fails.
+   *
+   * @example
+   * ```ts
+   * const decimals = await server.queryContract<number>(
+   *   "CCJZ5DGASBWQXR5MPFCJXMBI333XE5U3FSJTNQU7RIKE3P5GN2K2WYD5",
+   *   "decimals",
+   * );
+   * const balance = await server.queryContract<bigint>(
+   *   "CCJZ5DGASBWQXR5MPFCJXMBI333XE5U3FSJTNQU7RIKE3P5GN2K2WYD5",
+   *   "balance",
+   *   { id: "GA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJVSGZ" },
+   * );
+   * ```
+   */
+  public async queryContract<T = any>(
+    contractId: string,
+    method: string,
+    args: Record<string, unknown> = {},
+    networkPassphrase?: string,
+  ): Promise<T> {
+    const passphrase =
+      networkPassphrase ?? (await this.getNetwork()).passphrase;
+
+    // Dynamically import to avoid a static circular dependency: the contract
+    // module imports this rpc module. The import resolves at call time, by
+    // which point this module has finished loading.
+    const { Client } = await import("../contract/client.js");
+
+    // `Client.from` is SAC-aware: it uses the embedded SAC spec for built-in
+    // Stellar Asset Contracts and downloads Wasm otherwise. We pass
+    // `server: this` so the call reuses this server's transport.
+    const client = await Client.from({
+      contractId,
+      rpcUrl: this.serverURL.toString(),
+      networkPassphrase: passphrase,
+      server: this,
+    });
+
+    // Validate against the contract spec (keyed by the real on-chain name)
+    // first, so a `method` that collides with a built-in `Client`/prototype
+    // member (e.g. `txFromJSON`, `toString`) is rejected rather than silently
+    // invoking the wrong function.
+    const isContractMethod = client.spec
+      .funcs()
+      .some((fn) => fn.name().toString() === method);
+
+    // Methods are attached dynamically from the spec, so they aren't on the
+    // static `Client` type — hence the cast. The `Client` constructor attaches
+    // each method under a sanitized identifier (e.g. a contract method named
+    // `delete` becomes `delete_`), so resolve the key the same way; the method
+    // still invokes under its real on-chain name.
+    const { sanitizeIdentifier } = await import("../bindings/utils.js");
+    const invoke = (client as unknown as Record<string, unknown>)[
+      sanitizeIdentifier(method)
+    ];
+
+    if (!isContractMethod || typeof invoke !== "function") {
+      throw new TypeError(`Contract ${contractId} has no method '${method}'`);
+    }
+
+    // Awaiting builds + simulates the read-only call (`simulate` defaults to
+    // true); `.result` is the spec-decoded return value.
+    const assembled = await invoke(args);
+    return assembled.result as T;
+  }
+
+  /**
    * Reads the current value of arbitrary ledger entries directly.
    *
    * Allows you to directly inspect the current state of contracts, contract's
