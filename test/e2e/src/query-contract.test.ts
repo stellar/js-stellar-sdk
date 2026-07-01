@@ -68,6 +68,18 @@ describe("Server#queryContract", () => {
       );
       expect(result).toBe(1);
     });
+
+    it("lists the contract's methods and signatures", async () => {
+      const methods = await server.getContractMethods(contractId);
+      const byName = new Map(methods.map((m) => [m.name, m]));
+
+      // The same methods exercised by queryContract above must show up.
+      expect(byName.get("get_count")).toMatchObject({ inputs: [] });
+      expect(byName.get("multi_args")?.inputs.map((i) => i.name)).toEqual([
+        "a",
+        "b",
+      ]);
+    });
   });
 
   describe("Stellar Asset Contract (SAC)", () => {
@@ -91,6 +103,14 @@ describe("Server#queryContract", () => {
     it("reads name from the embedded SAC spec", async () => {
       expect(await server.queryContract<string>(sacId, "name")).toBe(
         `TST:${issuer.publicKey()}`,
+      );
+    });
+
+    it("lists the built-in SAC methods from the embedded spec", async () => {
+      const names = (await server.getContractMethods(sacId)).map((m) => m.name);
+      // A representative subset of the well-known SAC interface.
+      expect(names).toEqual(
+        expect.arrayContaining(["decimals", "name", "balance", "transfer"]),
       );
     });
   });

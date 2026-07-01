@@ -701,4 +701,27 @@ export namespace Api {
     /** a base-64 encoded {@link xdr.LedgerCloseMeta} instance */
     metadataXdr: string;
   }
+
+  /** A single input parameter of a {@link ContractMethod}. */
+  export interface ContractMethodInput {
+    /** the declared parameter name */
+    name: string;
+    /** a human-readable type name, e.g. `U32`, `Address`, or a UDT's name */
+    type: string;
+  }
+
+  /**
+   * A callable method declared in a contract's spec, as returned by
+   * `RpcServer.getContractMethods`.
+   */
+  export interface ContractMethod {
+    /** the on-chain method name */
+    name: string;
+    /** the method's parameters, in declaration order */
+    inputs: ContractMethodInput[];
+    /** human-readable return type name(s); empty when the method returns void */
+    outputs: string[];
+    /** the method's spec doc string, when the contract declares one */
+    doc?: string;
+  }
 }
