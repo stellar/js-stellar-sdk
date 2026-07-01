@@ -23,7 +23,8 @@ free and safe to repeat.
   [Deploy the Increment Contract](https://developers.stellar.org/docs/build/smart-contracts/getting-started/deploy-increment-contract)
   tutorial once (about 20 to 30 minutes), then paste the contract ID it prints
   into `contractId` below. You will not touch the CLI again in this guide.
-  Generating a typed client from a contract is covered later in the series.
+  This guide types the client with a small hand-written interface; generating one
+  from a contract's spec is covered later in the series.
 - The examples use testnet RPC at `https://soroban-testnet.stellar.org`.
 
 ## Connect and load the contract
@@ -41,9 +42,18 @@ import { contract, Keypair, Networks } from "@stellar/stellar-sdk";
 const rpcUrl = "https://soroban-testnet.stellar.org";
 const networkPassphrase = Networks.TESTNET;
 
+// Describe just the methods you call. `Client.from<T>()` uses this to type the
+// returned client, so the calls below are checked and autocompleted — no code
+// generation needed.
+interface IncrementContract {
+  increment: (
+    options?: contract.MethodOptions,
+  ) => Promise<contract.AssembledTransaction<number>>;
+}
+
 const { signTransaction } = contract.basicNodeSigner(keypair, networkPassphrase);
 
-const client = await contract.Client.from({
+const client = await contract.Client.from<IncrementContract>({
   contractId,
   rpcUrl,
   networkPassphrase,
@@ -54,10 +64,12 @@ const client = await contract.Client.from({
 
 Here `keypair` is your funded account from
 [Connect and Fund an Account](/guides/01-connect-and-fund/) and `contractId` is
-your deployed contract's `C...` ID. Because the client is built from the live
-contract at runtime, its methods are **not typed**: TypeScript does not know
-`client.increment` exists, so calls below use `(client as any)`. A fully typed
-client comes from generating bindings, covered later in the series.
+your deployed contract's `C...` ID. The client is built from the live contract at
+runtime, so TypeScript cannot infer its methods on its own. Passing an interface
+to [`Client.from<T>()`](/reference/contracts-client/#contractclient) types them:
+`client.increment()` below is fully typed and autocompleted, with no code
+generation. For a contract with many methods, generate that interface from its
+spec (covered later in the series) rather than writing it by hand.
 
 ## Query contract state
 
@@ -108,7 +120,7 @@ no signature. Read the predicted return value from
 [`tx.result`](/reference/contracts-client/#contractassembledtransaction):
 
 ```ts
-const tx = await (client as any).increment();
+const tx = await client.increment();
 
 tx.result; // the value the call would return; nothing has been sent
 ```
@@ -153,6 +165,12 @@ const rpcUrl = "https://soroban-testnet.stellar.org";
 const networkPassphrase = Networks.TESTNET;
 const contractId = "C..."; // your deployed increment contract (see Prerequisites)
 
+interface IncrementContract {
+  increment: (
+    options?: contract.MethodOptions,
+  ) => Promise<contract.AssembledTransaction<number>>;
+}
+
 async function main() {
   const server = new rpc.Server(rpcUrl);
   const keypair = Keypair.random();
@@ -165,7 +183,7 @@ async function main() {
     // Fund a throwaway account to invoke from (the RPC-side friendbot).
     await server.fundAddress(keypair.publicKey());
 
-    const client = await contract.Client.from({
+    const client = await contract.Client.from<IncrementContract>({
       contractId,
       rpcUrl,
       networkPassphrase,
@@ -174,7 +192,7 @@ async function main() {
     });
 
     // Preview the call for free with simulation.
-    const tx = await (client as any).increment();
+    const tx = await client.increment();
     console.log("preview:", tx.result);
 
     // Sign and send to apply it on-chain.
