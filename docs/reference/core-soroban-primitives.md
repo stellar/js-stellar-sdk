@@ -18,7 +18,10 @@ class Address {
   static fromString(address: string): Address;
   static liquidityPool(buffer: Buffer): Address;
   static muxedAccount(buffer: Buffer): Address;
+  static muxedContract(contractId: Buffer, id: string | number | bigint | Uint64): Address;
   readonly type: AddressType;
+  contractId(): Buffer;
+  muxedId(): Uint64;
   toBuffer(): Buffer;
   toScAddress(): ScAddress;
   toScVal(): ScVal;
@@ -26,7 +29,7 @@ class Address {
 }
 ```
 
-**Source:** [src/base/address.ts:20](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L20)
+**Source:** [src/base/address.ts:25](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L25)
 
 ### `new Address(address)`
 
@@ -38,7 +41,7 @@ constructor(address: string);
 
 - **`address`** — `string` (required) — a `StrKey` of the address value
 
-**Source:** [src/base/address.ts:27](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L27)
+**Source:** [src/base/address.ts:35](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L35)
 
 ### `Address.account(buffer)`
 
@@ -52,7 +55,7 @@ static account(buffer: Buffer): Address;
 
 - **`buffer`** — `Buffer` (required) — The bytes of an address to parse.
 
-**Source:** [src/base/address.ts:62](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L62)
+**Source:** [src/base/address.ts:70](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L70)
 
 ### `Address.claimableBalance(buffer)`
 
@@ -66,7 +69,7 @@ static claimableBalance(buffer: Buffer): Address;
 
 - **`buffer`** — `Buffer` (required) — The bytes of a claimable balance ID to parse.
 
-**Source:** [src/base/address.ts:80](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L80)
+**Source:** [src/base/address.ts:88](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L88)
 
 ### `Address.contract(buffer)`
 
@@ -80,7 +83,7 @@ static contract(buffer: Buffer): Address;
 
 - **`buffer`** — `Buffer` (required) — The bytes of an address to parse.
 
-**Source:** [src/base/address.ts:71](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L71)
+**Source:** [src/base/address.ts:79](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L79)
 
 ### `Address.fromScAddress(scAddress)`
 
@@ -94,7 +97,7 @@ static fromScAddress(scAddress: ScAddress): Address;
 
 - **`scAddress`** — `ScAddress` (required) — The xdr.ScAddress type to parse
 
-**Source:** [src/base/address.ts:116](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L116)
+**Source:** [src/base/address.ts:150](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L150)
 
 ### `Address.fromScVal(scVal)`
 
@@ -108,7 +111,7 @@ static fromScVal(scVal: ScVal): Address;
 
 - **`scVal`** — `ScVal` (required) — The xdr.ScVal type to parse
 
-**Source:** [src/base/address.ts:107](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L107)
+**Source:** [src/base/address.ts:141](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L141)
 
 ### `Address.fromString(address)`
 
@@ -122,7 +125,7 @@ static fromString(address: string): Address;
 
 - **`address`** — `string` (required) — The address to parse. ex. `GB3KJPLFUYN5VL6R3GU3EGCGVCKFDSD7BEDX42HWG5BWFKB3KQGJJRMA`
 
-**Source:** [src/base/address.ts:53](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L53)
+**Source:** [src/base/address.ts:61](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L61)
 
 ### `Address.liquidityPool(buffer)`
 
@@ -136,7 +139,7 @@ static liquidityPool(buffer: Buffer): Address;
 
 - **`buffer`** — `Buffer` (required) — The bytes of an LP ID to parse.
 
-**Source:** [src/base/address.ts:89](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L89)
+**Source:** [src/base/address.ts:97](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L97)
 
 ### `Address.muxedAccount(buffer)`
 
@@ -150,7 +153,31 @@ static muxedAccount(buffer: Buffer): Address;
 
 - **`buffer`** — `Buffer` (required) — The bytes of an address to parse.
 
-**Source:** [src/base/address.ts:98](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L98)
+**Source:** [src/base/address.ts:106](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L106)
+
+### `Address.muxedContract(contractId, id)`
+
+Creates a new muxed-contract Address object (CAP-0084).
+
+A muxed-contract address (`SC_ADDRESS_TYPE_MUXED_CONTRACT`) pairs a
+32-byte contract ID with a `uint64` multiplexing ID. There is no canonical
+StrKey form for it yet, so unlike the other factories it does not route
+through the `Address` constructor and the resulting address cannot be
+parsed back out of a string. Round-trip it through
+`Address.fromScAddress` / `Address#toScAddress` instead;
+`Address#toString` renders the display-only form `<C-strkey>:<id>`.
+
+```ts
+static muxedContract(contractId: Buffer, id: string | number | bigint | Uint64): Address;
+```
+
+**Parameters**
+
+- **`contractId`** — `Buffer` (required) — the raw 32 bytes of the contract ID
+- **`id`** — `string | number | bigint | Uint64` (required) — the uint64 multiplexing ID; pass a string or `xdr.Uint64`
+      for values above `Number.MAX_SAFE_INTEGER` to avoid precision loss
+
+**Source:** [src/base/address.ts:125](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L125)
 
 ### `address.type`
 
@@ -160,7 +187,35 @@ Return the type of this address.
 readonly type: AddressType;
 ```
 
-**Source:** [src/base/address.ts:219](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L219)
+**Source:** [src/base/address.ts:310](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L310)
+
+### `address.contractId()`
+
+For a muxed-contract address, returns the raw 32-byte contract ID.
+
+```ts
+contractId(): Buffer;
+```
+
+**Throws**
+
+- if this is not a muxed-contract address
+
+**Source:** [src/base/address.ts:286](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L286)
+
+### `address.muxedId()`
+
+For a muxed-contract address, returns the `uint64` multiplexing ID.
+
+```ts
+muxedId(): Uint64;
+```
+
+**Throws**
+
+- if this is not a muxed-contract address
+
+**Source:** [src/base/address.ts:300](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L300)
 
 ### `address.toBuffer()`
 
@@ -170,7 +225,12 @@ Return the raw public key bytes for this address.
 toBuffer(): Buffer;
 ```
 
-**Source:** [src/base/address.ts:212](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L212)
+**Throws**
+
+- for muxed-contract addresses, which have no single-buffer encoding
+    (use `Address#contractId` / `Address#muxedId`)
+
+**Source:** [src/base/address.ts:274](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L274)
 
 ### `address.toScAddress()`
 
@@ -180,7 +240,7 @@ Convert this Address to an xdr.ScAddress type.
 toScAddress(): ScAddress;
 ```
 
-**Source:** [src/base/address.ts:174](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L174)
+**Source:** [src/base/address.ts:224](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L224)
 
 ### `address.toScVal()`
 
@@ -190,7 +250,7 @@ Convert this Address to an xdr.ScVal type.
 toScVal(): ScVal;
 ```
 
-**Source:** [src/base/address.ts:167](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L167)
+**Source:** [src/base/address.ts:217](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L217)
 
 ### `address.toString()`
 
@@ -200,7 +260,7 @@ Serialize an address to string.
 toString(): string;
 ```
 
-**Source:** [src/base/address.ts:147](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L147)
+**Source:** [src/base/address.ts:192](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L192)
 
 ## Contract
 
