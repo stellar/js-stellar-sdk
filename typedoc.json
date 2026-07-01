@@ -46,7 +46,8 @@
       "xdr.SorobanAuthorizedInvocation": "#",
       "xdr.SorobanResources": "#",
       "xdr.SorobanTransactionData": "#",
-      "xdr.TransactionResult": "#"
+      "xdr.TransactionResult": "#",
+      "xdr.Uint64": "#"
     }
   },
   "treatWarningsAsErrors": true,
