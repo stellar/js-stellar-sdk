@@ -59,6 +59,46 @@ contract at runtime, its methods are **not typed**: TypeScript does not know
 `client.increment` exists, so calls below use `(client as any)`. A fully typed
 client comes from generating bindings, covered later in the series.
 
+## Query contract state
+
+Sometimes you only want to **inspect** a contract or **read** a value from it, not
+change anything. For that, `rpc.Server` has two one-line shortcuts that build the
+contract's interface for you — including the built-in spec for Stellar Asset
+Contracts (SACs) — so they work from just a contract ID, with no client setup.
+
+[`getContractMethods`](/reference/network-rpc/#servergetcontractmethodscontractid-networkpassphrase)
+lists a contract's callable methods and their signatures, which is handy when you
+are inspecting a contract you did not write.
+[`queryContract`](/reference/network-rpc/#serverquerycontractcontractid-method-args-networkpassphrase)
+runs a **read-only**
+call and returns the decoded result. It simulates the call the same way the preview
+below does, so it needs no signing or fee, but it hands you the value directly. Here
+both run against a token contract — discover its methods, then read one:
+
+```ts
+import { rpc } from "@stellar/stellar-sdk";
+
+const server = new rpc.Server(rpcUrl);
+
+// Discover what the contract exposes, from just its ID.
+const methods = await server.getContractMethods(tokenId);
+// [
+//   { name: "decimals", inputs: [], outputs: ["U32"] },
+//   { name: "balance", inputs: [{ name: "id", type: "Address" }], outputs: ["I128"] },
+//   { name: "transfer", inputs: [...], outputs: [] },
+// ]
+
+// Read one of its read-only methods in a single line.
+const decimals = await server.queryContract<number>(tokenId, "decimals");
+
+const balance = await server.queryContract<bigint>(tokenId, "balance", {
+  id: "G...", // named arguments, keyed by the method's parameter names
+});
+```
+
+`queryContract` is for reads only. To **change** state you build a client and sign a
+transaction, as shown next.
+
 ## Preview a call with simulation
 
 Calling a contract method does not send anything yet: it builds a transaction and
