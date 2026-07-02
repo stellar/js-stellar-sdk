@@ -6,6 +6,18 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Added
+- `rpc.Server.queryContract<T>(contractId, method, args?, networkPassphrase?)`: a one-line read-only contract call that builds a client, simulates the method, and returns the spec-decoded result — no manual transaction assembly, signing, or submission. Works for both Wasm contracts and built-in Stellar Asset Contracts (SACs) ([#1502](https://github.com/stellar/js-stellar-sdk/pull/1502)).
+- `rpc.Server.getContractMethods(contractId, networkPassphrase?)`: lists a contract's callable methods and their signatures (name, inputs, outputs, and doc string) for discovery and tooling, without invoking or simulating anything. Adds the `Api.ContractMethod` and `Api.ContractMethodInput` types ([#1502](https://github.com/stellar/js-stellar-sdk/pull/1502)).
+- `rpc.Server.getContractInstance(contractId)`: returns a contract's `xdr.ScContractInstance` (its executable and instance storage) ([#1501](https://github.com/stellar/js-stellar-sdk/pull/1501)).
+- `contract.Client.from`, `fromWasm`, and `fromWasmHash` are now generic (`<T>`) and return `Client & T`, giving typed, autocompleted contract methods without code generation. The type parameter defaults to `unknown`, so existing untyped calls are unchanged ([#1502](https://github.com/stellar/js-stellar-sdk/pull/1502)).
+- `ClientOptions.server`: pass an existing `rpc.Server` to `contract.Client.from` to reuse its transport (headers, interceptors, `allowHttp`) instead of constructing a new one ([#1502](https://github.com/stellar/js-stellar-sdk/pull/1502)).
+
+### Changed
+- `contract.Client.from` now supports built-in Stellar Asset Contracts (SACs): when the contract's executable is a SAC, the client is built from the embedded SAC spec (lazily imported so bundlers can code-split it out of the common path) instead of downloading Wasm, which a SAC has none of on-chain ([#1501](https://github.com/stellar/js-stellar-sdk/pull/1501)).
+- `rpc.Server.getContractWasmByContractId` now rejects a SAC with a structured `{ code: 400 }` error pointing to `contract.Client.from`, instead of failing while decoding a nonexistent Wasm hash; the not-found rejection is now `{ code: 404, message: "Could not obtain contract instance from server" }` ([#1501](https://github.com/stellar/js-stellar-sdk/pull/1501)).
+- The UMD (`dist/`) build now sets `inlineDynamicImports` so the single-file bundle stays whole despite the SAC spec's lazy `import()` ([#1501](https://github.com/stellar/js-stellar-sdk/pull/1501)).
+
 ## [v16.0.1](https://github.com/stellar/js-stellar-sdk/compare/v16.0.0...v16.0.1)
 
 ### Fixed
