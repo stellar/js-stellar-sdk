@@ -135,6 +135,18 @@ function findCreatedAccountSequenceInTransactionMeta(
 }
 
 /**
+ * Best-effort, human-readable name for a contract spec type, e.g.
+ * `scSpecTypeU32` becomes `U32` and `scSpecTypeAddress` becomes `Address`.
+ * User-defined types (structs/enums/unions) are shown by their declared name.
+ */
+function contractSpecTypeName(td: xdr.ScSpecTypeDef): string {
+  if (td.switch().value === xdr.ScSpecType.scSpecTypeUdt().value) {
+    return td.udt().name().toString();
+  }
+  return td.switch().name.replace(/^scSpecType/, "");
+}
+
+/**
  * Handles the network connection to a Soroban RPC instance, exposing an
  * interface for requests to that instance.
  *
@@ -654,6 +666,167 @@ export class RpcServer {
     const wasmBuffer = responseWasm.entries[0].val.contractCode().code();
 
     return wasmBuffer;
+  }
+
+  /**
+   * Performs a read-only call to a contract method and returns the decoded result.
+   *
+   * This is a convenience wrapper for one-line contract state queries: it builds
+   * a {@link contract.Client} for the contract, simulates the method call, and
+   * returns the spec-decoded return value — no manual transaction assembly,
+   * signing, or submission required.
+   *
+   * Works for both Wasm contracts and built-in Stellar Asset Contracts (SACs):
+   * the embedded SAC spec is used automatically for SACs (see
+   * {@link contract.Client.from}). The query reuses this server's transport
+   * (headers, interceptors, `allowHttp`).
+   *
+   * @typeParam T - the expected (decoded) return type of the method
+   * @param contractId - the contract to query (`C...`)
+   * @param method - the contract method to call
+   * @param args - named arguments for the method, keyed by parameter name
+   *    (omit for methods that take no arguments)
+   * @param networkPassphrase - (optional) the network passphrase. If omitted, a
+   *    request about network information will be made (see {@link getNetwork}).
+   *    You can refer to {@link Networks} for a list of built-in passphrases,
+   *    e.g., `Networks.TESTNET`.
+   * @returns The method's decoded return value
+   * @throws If the contract has no such method, or if the simulation fails.
+   *
+   * @example
+   * ```ts
+   * const decimals = await server.queryContract<number>(
+   *   "CCJZ5DGASBWQXR5MPFCJXMBI333XE5U3FSJTNQU7RIKE3P5GN2K2WYD5",
+   *   "decimals",
+   * );
+   * const balance = await server.queryContract<bigint>(
+   *   "CCJZ5DGASBWQXR5MPFCJXMBI333XE5U3FSJTNQU7RIKE3P5GN2K2WYD5",
+   *   "balance",
+   *   { id: "GA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJVSGZ" },
+   * );
+   * ```
+   */
+  public async queryContract<T = any>(
+    contractId: string,
+    method: string,
+    args: Record<string, unknown> = {},
+    networkPassphrase?: string,
+  ): Promise<T> {
+    const passphrase =
+      networkPassphrase ?? (await this.getNetwork()).passphrase;
+
+    // Dynamically import to avoid a static circular dependency: the contract
+    // module imports this rpc module. The import resolves at call time, by
+    // which point this module has finished loading.
+    const { Client } = await import("../contract/client.js");
+
+    // `Client.from` is SAC-aware: it uses the embedded SAC spec for built-in
+    // Stellar Asset Contracts and downloads Wasm otherwise. We pass
+    // `server: this` so the call reuses this server's transport.
+    const client = await Client.from({
+      contractId,
+      rpcUrl: this.serverURL.toString(),
+      networkPassphrase: passphrase,
+      server: this,
+    });
+
+    // Validate against the contract spec (keyed by the real on-chain name)
+    // first, so a `method` that collides with a built-in `Client`/prototype
+    // member (e.g. `txFromJSON`, `toString`) is rejected rather than silently
+    // invoking the wrong function.
+    const isContractMethod = client.spec
+      .funcs()
+      .some((fn) => fn.name().toString() === method);
+
+    // Methods are attached dynamically from the spec, so they aren't on the
+    // static `Client` type — hence the cast. The `Client` constructor attaches
+    // each method under a sanitized identifier (e.g. a contract method named
+    // `delete` becomes `delete_`), so resolve the key the same way; the method
+    // still invokes under its real on-chain name.
+    const { sanitizeIdentifier } = await import("../bindings/utils.js");
+    const invoke = (client as unknown as Record<string, unknown>)[
+      sanitizeIdentifier(method)
+    ];
+
+    if (!isContractMethod || typeof invoke !== "function") {
+      throw new TypeError(`Contract ${contractId} has no method '${method}'`);
+    }
+
+    // Awaiting builds + simulates the read-only call (`simulate` defaults to
+    // true); `.result` is the spec-decoded return value.
+    const assembled = await invoke(args);
+    return assembled.result as T;
+  }
+
+  /**
+   * Lists a contract's callable methods and their signatures.
+   *
+   * A discovery helper for tooling, dapps, and agents that need to inspect an
+   * arbitrary contract without knowing its interface up front. It resolves the
+   * contract's spec (embedded in the Wasm for regular contracts, or the
+   * built-in spec for Stellar Asset Contracts — see {@link contract.Client.from})
+   * and reports each declared function's name, inputs, and outputs. No method
+   * is invoked or simulated; this performs only the spec lookup.
+   *
+   * The complement to {@link queryContract}: list methods here, then call a
+   * read-only one with `server.queryContract(contractId, method, args?)`.
+   *
+   * @param contractId - the contract to inspect (`C...`)
+   * @param networkPassphrase - (optional) the network passphrase. If omitted, a
+   *    request about network information will be made (see {@link getNetwork}).
+   *    You can refer to {@link Networks} for a list of built-in passphrases,
+   *    e.g., `Networks.TESTNET`.
+   * @returns The contract's methods, in the order they appear in the spec
+   *
+   * @example
+   * ```ts
+   * const methods = await server.getContractMethods(
+   *   "CCJZ5DGASBWQXR5MPFCJXMBI333XE5U3FSJTNQU7RIKE3P5GN2K2WYD5",
+   * );
+   * // [
+   * //   { name: "decimals", inputs: [], outputs: ["U32"] },
+   * //   { name: "balance", inputs: [{ name: "id", type: "Address" }], outputs: ["I128"] },
+   * //   { name: "transfer", inputs: [...], outputs: [] },
+   * // ]
+   * ```
+   */
+  public async getContractMethods(
+    contractId: string,
+    networkPassphrase?: string,
+  ): Promise<Api.ContractMethod[]> {
+    const passphrase =
+      networkPassphrase ?? (await this.getNetwork()).passphrase;
+
+    // Dynamically import to avoid a static circular dependency: the contract
+    // module imports this rpc module. The import resolves at call time, by
+    // which point this module has finished loading.
+    const { Client } = await import("../contract/client.js");
+
+    // `Client.from` is SAC-aware: it uses the embedded SAC spec for built-in
+    // Stellar Asset Contracts and downloads Wasm otherwise. We pass
+    // `server: this` so the call reuses this server's transport.
+    const client = await Client.from({
+      contractId,
+      rpcUrl: this.serverURL.toString(),
+      networkPassphrase: passphrase,
+      server: this,
+    });
+
+    return client.spec.funcs().map((fn) => {
+      const doc = fn.doc().toString();
+      const method: Api.ContractMethod = {
+        name: fn.name().toString(),
+        inputs: fn.inputs().map((input) => ({
+          name: input.name().toString(),
+          type: contractSpecTypeName(input.type()),
+        })),
+        outputs: fn.outputs().map(contractSpecTypeName),
+      };
+      if (doc) {
+        method.doc = doc;
+      }
+      return method;
+    });
   }
 
   /**

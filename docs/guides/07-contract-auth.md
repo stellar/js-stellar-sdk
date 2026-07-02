@@ -108,7 +108,7 @@ authorization entry that account must sign. Build the transaction as in
 need to sign:
 
 ```ts
-const tx = await (client as any).increment({ user: signer.publicKey(), value: 1 });
+const tx = await client.increment({ user: signer.publicKey(), value: 1 });
 
 tx.needsNonInvokerSigningBy(); // [signer.publicKey()]
 ```
@@ -218,6 +218,13 @@ const rpcUrl = "https://soroban-testnet.stellar.org";
 const networkPassphrase = Networks.TESTNET;
 const contractId = "C..."; // your deployed Auth contract (see Prerequisites)
 
+interface AuthContract {
+  increment: (
+    args: { user: string; value: number },
+    options?: contract.MethodOptions,
+  ) => Promise<contract.AssembledTransaction<number>>;
+}
+
 async function main() {
   const server = new rpc.Server(rpcUrl);
 
@@ -234,7 +241,7 @@ async function main() {
       source,
       networkPassphrase,
     );
-    const client = await contract.Client.from({
+    const client = await contract.Client.from<AuthContract>({
       contractId,
       rpcUrl,
       networkPassphrase,
@@ -243,7 +250,7 @@ async function main() {
     });
 
     // A call that requires `signer` (not the source) to authorize it.
-    const tx = await (client as any).increment({
+    const tx = await client.increment({
       user: signer.publicKey(),
       value: 1,
     });
