@@ -43,13 +43,19 @@ describe("Server#queryContract", () => {
     const from = vi.spyOn(Client, "from").mockResolvedValue(
       fakeClient({
         specNames: ["decimals"],
-        attached: { decimals: vi.fn().mockResolvedValue({ result: 7 }) },
+        attached: {
+          decimals: vi.fn().mockResolvedValue({ result: 7, isReadCall: true }),
+        },
       }) as any,
     );
 
-    const result = await server.queryContract(contractId, "decimals");
+    const { result, isReadCall } = await server.queryContract(
+      contractId,
+      "decimals",
+    );
 
     expect(result).toBe(7);
+    expect(isReadCall).toBe(true);
     expect(getNetwork).toHaveBeenCalledOnce();
     expect(from).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -84,7 +90,9 @@ describe("Server#queryContract", () => {
   });
 
   it("forwards named args to the contract method and returns the decoded result", async () => {
-    const balance = vi.fn().mockResolvedValue({ result: 100n });
+    const balance = vi
+      .fn()
+      .mockResolvedValue({ result: 100n, isReadCall: true });
     vi.spyOn(server, "getNetwork").mockResolvedValue({
       passphrase: networkPassphrase,
     } as any);
@@ -95,16 +103,40 @@ describe("Server#queryContract", () => {
     const args = {
       id: "GA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJVSGZ",
     };
-    const result = await server.queryContract(contractId, "balance", args);
+    const { result } = await server.queryContract(contractId, "balance", args);
 
     expect(balance).toHaveBeenCalledWith(args);
     expect(result).toBe(100n);
   });
 
+  it("surfaces isReadCall:false for a call that would change state", async () => {
+    // `queryContract` still simulates and decodes a write method, but the
+    // returned value is only a preview — isReadCall flags that.
+    const transfer = vi
+      .fn()
+      .mockResolvedValue({ result: null, isReadCall: false });
+    vi.spyOn(server, "getNetwork").mockResolvedValue({
+      passphrase: networkPassphrase,
+    } as any);
+    vi.spyOn(Client, "from").mockResolvedValue(
+      fakeClient({ specNames: ["transfer"], attached: { transfer } }) as any,
+    );
+
+    const { result, isReadCall } = await server.queryContract(
+      contractId,
+      "transfer",
+    );
+
+    expect(result).toBeNull();
+    expect(isReadCall).toBe(false);
+  });
+
   it("resolves methods whose names are sanitized by Client (e.g. reserved words)", async () => {
     // A contract method named `delete` is declared as `delete` in the spec but
     // attached on the Client under the sanitized key `delete_`.
-    const deleteFn = vi.fn().mockResolvedValue({ result: true });
+    const deleteFn = vi
+      .fn()
+      .mockResolvedValue({ result: true, isReadCall: true });
     vi.spyOn(server, "getNetwork").mockResolvedValue({
       passphrase: networkPassphrase,
     } as any);
@@ -115,7 +147,7 @@ describe("Server#queryContract", () => {
       }) as any,
     );
 
-    const result = await server.queryContract(contractId, "delete");
+    const { result } = await server.queryContract(contractId, "delete");
 
     expect(deleteFn).toHaveBeenCalledOnce();
     expect(result).toBe(true);

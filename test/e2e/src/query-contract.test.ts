@@ -56,12 +56,16 @@ describe("Server#queryContract", () => {
     });
 
     it("reads a zero-arg method and decodes the result", async () => {
-      const count = await server.queryContract<number>(contractId, "get_count");
+      const { result: count, isReadCall } = await server.queryContract<number>(
+        contractId,
+        "get_count",
+      );
       expect(count).toBe(0);
+      expect(isReadCall).toBe(true);
     });
 
     it("reads a method that takes arguments", async () => {
-      const result = await server.queryContract<number>(
+      const { result } = await server.queryContract<number>(
         contractId,
         "multi_args",
         { a: 1, b: true },
@@ -93,17 +97,22 @@ describe("Server#queryContract", () => {
     });
 
     it("reads decimals from the embedded SAC spec", async () => {
-      expect(await server.queryContract<number>(sacId, "decimals")).toBe(7);
+      const { result, isReadCall } = await server.queryContract<number>(
+        sacId,
+        "decimals",
+      );
+      expect(result).toBe(7);
+      expect(isReadCall).toBe(true);
     });
 
     it("reads symbol from the embedded SAC spec", async () => {
-      expect(await server.queryContract<string>(sacId, "symbol")).toBe("TST");
+      const { result } = await server.queryContract<string>(sacId, "symbol");
+      expect(result).toBe("TST");
     });
 
     it("reads name from the embedded SAC spec", async () => {
-      expect(await server.queryContract<string>(sacId, "name")).toBe(
-        `TST:${issuer.publicKey()}`,
-      );
+      const { result } = await server.queryContract<string>(sacId, "name");
+      expect(result).toBe(`TST:${issuer.publicKey()}`);
     });
 
     it("lists the built-in SAC methods from the embedded spec", async () => {
