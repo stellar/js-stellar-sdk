@@ -80,7 +80,9 @@ Contracts (SACs) — so they work from just a contract ID, with no client setup.
 
 [`getContractMethods`](/reference/network-rpc/#servergetcontractmethodscontractid-networkpassphrase)
 lists a contract's callable methods and their signatures, which is handy when you
-are inspecting a contract you did not write.
+are inspecting a contract you did not write. The spec it reports carries no
+read/write flag, so to learn whether a *specific* call would change state, invoke
+it with `queryContract` and read its `isReadCall` (see below).
 [`queryContract`](/reference/network-rpc/#serverquerycontractcontractid-method-args-networkpassphrase)
 runs a **read-only**
 call and returns the decoded result. It simulates the call the same way the preview
@@ -101,15 +103,26 @@ const methods = await server.getContractMethods(tokenId);
 // ]
 
 // Read one of its read-only methods in a single line.
-const decimals = await server.queryContract<number>(tokenId, "decimals");
+const { result: decimals, isReadCall } = await server.queryContract<number>(
+  tokenId,
+  "decimals",
+);
 
-const balance = await server.queryContract<bigint>(tokenId, "balance", {
-  id: "G...", // named arguments, keyed by the method's parameter names
-});
+const { result: balance } = await server.queryContract<bigint>(
+  tokenId,
+  "balance",
+  {
+    id: "G...", // named arguments, keyed by the method's parameter names
+  },
+);
 ```
 
-`queryContract` is for reads only. To **change** state you build a client and sign a
-transaction, as shown next.
+Alongside the decoded `result`, `queryContract` returns `isReadCall`: whether
+*this* call — for the exact arguments given — wrote no state and needed no
+signature. It is per-call, not a fixed property of the method. Since
+`queryContract` never signs or sends, `isReadCall: false` means the `result` is
+only a simulation preview of a call that would change state; to apply such a
+change you build a client and sign a transaction, as shown next.
 
 ## Preview a call with simulation
 

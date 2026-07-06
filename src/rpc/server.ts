@@ -690,16 +690,21 @@ export class RpcServer {
    *    request about network information will be made (see {@link getNetwork}).
    *    You can refer to {@link Networks} for a list of built-in passphrases,
    *    e.g., `Networks.TESTNET`.
-   * @returns The method's decoded return value
+   * @returns An object with the method's decoded return value (`result`) and
+   *    `isReadCall`: whether this specific call is a side-effect-free read that
+   *    needs no signature (it wrote no state and required no authorization).
+   *    `isReadCall` is per-call, not per-method: it reflects the given `args`.
+   *    Since `queryContract` never signs or sends, `isReadCall: false` means the
+   *    `result` is a simulation preview of a call that would change state.
    * @throws If the contract has no such method, or if the simulation fails.
    *
    * @example
    * ```ts
-   * const decimals = await server.queryContract<number>(
+   * const { result: decimals, isReadCall } = await server.queryContract<number>(
    *   "CCJZ5DGASBWQXR5MPFCJXMBI333XE5U3FSJTNQU7RIKE3P5GN2K2WYD5",
    *   "decimals",
    * );
-   * const balance = await server.queryContract<bigint>(
+   * const { result: balance } = await server.queryContract<bigint>(
    *   "CCJZ5DGASBWQXR5MPFCJXMBI333XE5U3FSJTNQU7RIKE3P5GN2K2WYD5",
    *   "balance",
    *   { id: "GA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJVSGZ" },
@@ -711,7 +716,7 @@ export class RpcServer {
     method: string,
     args: Record<string, unknown> = {},
     networkPassphrase?: string,
-  ): Promise<T> {
+  ): Promise<{ result: T; isReadCall: boolean }> {
     const passphrase =
       networkPassphrase ?? (await this.getNetwork()).passphrase;
 
@@ -753,9 +758,10 @@ export class RpcServer {
     }
 
     // Awaiting builds + simulates the read-only call (`simulate` defaults to
-    // true); `.result` is the spec-decoded return value.
+    // true); `.result` is the spec-decoded return value and `.isReadCall`
+    // reports whether this call wrote no state and needed no auth.
     const assembled = await invoke(args);
-    return assembled.result as T;
+    return { result: assembled.result as T, isReadCall: assembled.isReadCall };
   }
 
   /**
