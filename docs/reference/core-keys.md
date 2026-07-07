@@ -243,7 +243,7 @@ signDecorated(data: Buffer): DecoratedSignature;
 
 - TransactionBase.addDecoratedSignature
 
-**Source:** [src/base/keypair.ts:309](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/keypair.ts#L309)
+**Source:** [src/base/keypair.ts:314](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/keypair.ts#L314)
 
 ### `keypair.signMessage(message)`
 
@@ -295,7 +295,7 @@ signPayloadDecorated(data: Buffer): DecoratedSignature;
 - - https://github.com/stellar/stellar-protocol/blob/master/core/cap-0040.md#signature-hint
  - TransactionBase.addDecoratedSignature
 
-**Source:** [src/base/keypair.ts:327](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/keypair.ts#L327)
+**Source:** [src/base/keypair.ts:332](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/keypair.ts#L332)
 
 ### `keypair.verify(data, signature)`
 
