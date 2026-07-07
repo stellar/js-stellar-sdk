@@ -284,7 +284,12 @@ export class Keypair {
    * @see https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0053.md
    */
   verifyMessage(message: string | Buffer, signature: Buffer): boolean {
-    return this.verify(this._hashMessage(message), signature);
+    try {
+      return this.verify(this._hashMessage(message), signature);
+    } catch {
+      // Mirror `verify`: never throw on bad input, just report invalid.
+      return false;
+    }
   }
 
   /**

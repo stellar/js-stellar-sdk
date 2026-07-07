@@ -435,6 +435,13 @@ describe("Keypair.signMessage / verifyMessage (SEP-53)", () => {
     expect(kp.verifyMessage("Hello, World!", Buffer.alloc(64))).toBe(false);
   });
 
+  it("returns false (does not throw) for a malformed message, like verify()", () => {
+    const kp = Keypair.fromPublicKey(address);
+    const sig = Buffer.alloc(64);
+    expect(kp.verifyMessage(null as unknown as string, sig)).toBe(false);
+    expect(kp.verifyMessage(123 as unknown as string, sig)).toBe(false);
+  });
+
   it("throws when signing without a secret key", () => {
     const kp = Keypair.fromPublicKey(address);
     expect(() => kp.signMessage("Hello, World!")).toThrow(
