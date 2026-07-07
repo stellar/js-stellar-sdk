@@ -7,6 +7,10 @@ import { hash } from "./hashing.js";
 import xdr from "./xdr.js";
 
 ed.hashes.sha512 = sha512;
+
+// SEP-53: fixed prefix prepended to a message before hashing and signing.
+const MESSAGE_PREFIX = Buffer.from("Stellar Signed Message:\n", "utf8");
+
 /**
  * `Keypair` represents public (and secret) keys of the account.
  *
@@ -253,6 +257,49 @@ export class Keypair {
     } catch {
       return false;
     }
+  }
+
+  /**
+   * Signs an arbitrary message per SEP-53.
+   *
+   * The message is UTF-8 encoded (if a string), prefixed with the fixed
+   * `"Stellar Signed Message:\n"` marker, hashed with SHA-256, and that hash is
+   * signed with this keypair's ed25519 secret key.
+   *
+   * @param message - the message to sign (a UTF-8 string or raw bytes)
+   * @returns the 64-byte ed25519 signature
+   * @throws if no secret key is available
+   * @see https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0053.md
+   */
+  signMessage(message: string | Buffer): Buffer {
+    return this.sign(this._hashMessage(message));
+  }
+
+  /**
+   * Verifies a SEP-53 signed message against this keypair's public key.
+   *
+   * @param message - the original message (a UTF-8 string or raw bytes)
+   * @param signature - the 64-byte signature to verify
+   * @returns `true` if `signature` is valid for `message` and this key
+   * @see https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0053.md
+   */
+  verifyMessage(message: string | Buffer, signature: Buffer): boolean {
+    try {
+      return this.verify(this._hashMessage(message), signature);
+    } catch {
+      // Mirror `verify`: never throw on bad input, just report invalid.
+      return false;
+    }
+  }
+
+  /**
+   * Computes the SEP-53 message hash:
+   * `SHA-256("Stellar Signed Message:\n" + message)`.
+   */
+  private _hashMessage(message: string | Buffer): Buffer {
+    const messageBytes =
+      typeof message === "string" ? Buffer.from(message, "utf8") : message;
+    return hash(Buffer.concat([MESSAGE_PREFIX, messageBytes]));
   }
 
   /**

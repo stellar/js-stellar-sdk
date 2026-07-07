@@ -35,6 +35,29 @@ Store the secret, not the keypair object. Rebuild the keypair when you need it:
 const keypair = Keypair.fromSecret(secret);
 ```
 
+## Sign and verify a message
+
+A keypair can also sign an arbitrary message — not a transaction — to prove it
+controls an address, entirely off-chain. This follows
+[SEP-53](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0053.md),
+so signatures interoperate with the other Stellar SDKs and the CLI, and it is the
+basis for proof-of-ownership flows like "Sign in with Stellar".
+
+```ts
+// Sign a string (or raw bytes); returns a 64-byte signature.
+const signature = keypair.signMessage("Hello, World!");
+
+// Anyone holding the public key can verify it — no secret key needed.
+const verifier = Keypair.fromPublicKey(keypair.publicKey());
+verifier.verifyMessage("Hello, World!", signature); // true
+```
+
+Only the secret-key holder can produce a valid signature; verification needs just
+the public key. See
+[`signMessage`](/reference/core-keys/#keypairsignmessagemessage) and
+[`verifyMessage`](/reference/core-keys/#keypairverifymessagemessage-signature) in
+the reference.
+
 ## Choose a network
 
 Every transaction is signed for exactly one
