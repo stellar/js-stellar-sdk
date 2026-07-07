@@ -35,6 +35,9 @@ jobs:
           path: .astro
           key: astro-${{ hashFiles('astro.config.mjs', 'pnpm-lock.yaml') }}
 
+      - name: Check guide snippet markers
+        run: pnpm docs:snippets:check
+
       - name: Build reference docs
         run: pnpm docs:reference
 

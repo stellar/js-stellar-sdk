@@ -4,6 +4,7 @@ import sitemap from "@astrojs/sitemap";
 import GithubSlugger from "github-slugger";
 
 import { SITE_URL, BASE_PATH } from "./config/site.js";
+import { snippetsIntegration } from "./config/snippets.js";
 
 const headingText = (node) =>
   node.type === "text"
@@ -107,6 +108,7 @@ export default defineConfig({
     },
   ],
   integrations: [
+    snippetsIntegration(),
     starlight({
       title: "@stellar/stellar-sdk",
       components: {
@@ -140,16 +142,18 @@ export default defineConfig({
       sidebar: [
         {
           label: "Guides",
-          // The `docs/` prefix is required because Starlight's autogenerate
-          // filter strips a hardcoded `src/content/docs/` prefix from each
-          // route's `filePath` before matching `directory`. With our custom
-          // content collection rooted at `./docs/`, that strip is a no-op,
-          // so paths still start with `docs/` at filter time.
-          items: [{ autogenerate: { directory: "docs/guides" } }],
+          // The `.docs-build/` prefix is required because Starlight's
+          // autogenerate filter strips a hardcoded `src/content/docs/`
+          // prefix from each route's `filePath` before matching
+          // `directory`. With our content collection rooted at
+          // `./.docs-build/` (the snippet-expanded mirror of docs/, see
+          // config/snippets.ts), that strip is a no-op, so paths still
+          // start with `.docs-build/` at filter time.
+          items: [{ autogenerate: { directory: ".docs-build/guides" } }],
         },
         {
           label: "Reference",
-          items: [{ autogenerate: { directory: "docs/reference" } }],
+          items: [{ autogenerate: { directory: ".docs-build/reference" } }],
         },
         { slug: "agents" },
       ],

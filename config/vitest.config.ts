@@ -32,13 +32,26 @@ export default defineConfig({
       all: true,
     },
     testTimeout: 20000,
+    // GUIDES_TARGET=local reruns the guide snippets against a local
+    // quickstart network instead of live testnet (see guides-local-setup.ts).
+    setupFiles:
+      process.env.GUIDES_TARGET === "local"
+        ? [resolve(__dirname, "guides-local-setup.ts")]
+        : [],
     // Only include non-browser tests in Node.js test runs
-    include: ["test/unit/**/*.test.ts", "test/integration/**/*.test.ts"],
+    include: [
+      "test/unit/**/*.test.ts",
+      "test/integration/**/*.test.ts",
+      "test/guides/**/*.test.ts",
+    ],
     exclude: ["**/browser.test.ts"],
   },
   resolve: {
     alias: {
       "@": resolve(__dirname, "../src"),
+      // Guide snippets (examples/guides) import the package the way
+      // readers would; resolve that to src/ so they run against current code.
+      "@stellar/stellar-sdk": resolve(__dirname, "../src/index.ts"),
     },
     extensions: [".ts", ".tsx", ".js", ".jsx", ".json"],
   },

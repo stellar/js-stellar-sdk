@@ -35,16 +35,25 @@ from the Actions tab — no need to cut a new tag.
 
 ## Documentation
 
-The docs system has three parts:
+The docs system has four parts:
 
 1. **TSDoc comments in `src/`** — the source of truth for API reference. Edited
    inline alongside code.
 2. **Markdown guides in `docs/guides/`** — task-oriented prose, hand-written.
-3. **Generated reference and LLM bundles** — produced by build scripts; never
+   Guides contain no code blocks for tested examples; they reference snippets
+   with `<!-- snippet: file.ts#region -->` markers.
+3. **Guide snippets in `examples/guides/`** — runnable TypeScript scripts that
+   are the single source for every code block in the guides. They are
+   typechecked against `src/` and executed in CI, so an SDK change that breaks a
+   documented example fails the build. See `examples/guides/README.md` for the
+   authoring workflow.
+4. **Generated reference and LLM bundles** — produced by build scripts; never
    edited by hand.
 
 Authored and generated content are strictly separated: every file is either
-fully authored or fully generated. They never mix.
+fully authored or fully generated. They never mix. (Guide sources stay fully
+authored; the code-injected copies exist only in build output — the gitignored
+`.docs-build/` mirror, the LLM bundles, and the published site.)
 
 ### Renderer portability
 
@@ -68,10 +77,21 @@ pipeline, do not introduce platform-specific syntax in the generated output:
 Renderer-specific configuration belongs in `astro.config.mjs` and
 `src/content.config.ts`, not in the markdown.
 
+Snippet markers keep this portability: they are inert HTML comments in any
+renderer, and every emitted artifact (the site, the `.md` siblings, the LLM
+bundles) carries the injected code, not the marker. The only surface that shows
+markers instead of code is the raw `docs/guides/` source itself; the code lives
+one hop away in `examples/guides/`.
+
 ### Layout
 
 - `src/**/*.ts` — TSDoc comments here drive the API reference.
-- `docs/guides/*.md` — task-oriented guides (authored).
+- `docs/guides/*.md` — task-oriented guides (authored; code via snippet
+  markers).
+- `examples/guides/*.ts` — tested guide snippets (authored; single source for
+  guide code blocks).
+- `.docs-build/` — snippet-expanded mirror of `docs/` that the site builds from
+  (generated; gitignored; do not edit).
 - `docs/reference/*.md` — API reference (generated; do not edit).
 - `public/llms.txt`, `public/llms-full.txt` — LLM-targeted bundles generated for
   the website; ignored by git.
@@ -93,12 +113,13 @@ Don't add new TSDoc tags to influence frontmatter — the generator handles it.
 
 ### Build commands
 
-| Command               | Purpose                                          |
-| --------------------- | ------------------------------------------------ |
-| `pnpm docs:reference` | Regenerate API reference markdown from TSDoc.    |
-| `pnpm docs:llms`      | Regenerate site-root `llms.txt` bundles.         |
-| `pnpm docs:site`      | Build the static Starlight site to `dist/site/`. |
-| `pnpm docs`           | Run all three in order.                          |
+| Command                    | Purpose                                             |
+| -------------------------- | --------------------------------------------------- |
+| `pnpm docs:snippets:check` | Validate snippet markers, typecheck guide snippets. |
+| `pnpm docs:reference`      | Regenerate API reference markdown from TSDoc.       |
+| `pnpm docs:llms`           | Regenerate site-root `llms.txt` bundles.            |
+| `pnpm docs:site`           | Build the static Starlight site to `dist/site/`.    |
+| `pnpm docs`                | Run all of the above in order.                      |
 
 ### Local preview
 
@@ -118,7 +139,9 @@ Don't add new TSDoc tags to influence frontmatter — the generator handles it.
 ### Adding a new guide
 
 1. Create `docs/guides/<slug>.md` with the frontmatter shown above.
-2. The sidebar picks up the new file automatically — no config change needed.
+2. Put code examples in a tested snippet file, not inline — follow
+   [examples/guides/README.md](examples/guides/README.md).
+3. The sidebar picks up the new file automatically — no config change needed.
 
 ### Images
 

@@ -17,23 +17,14 @@ A [keypair](/reference/core-keys/#keypair) is an account's identity. The public
 key is the account's address (it starts with `G`) and the secret key signs
 transactions (it starts with `S`). Never share or commit a secret key.
 
-```ts
-import { Keypair } from "@stellar/stellar-sdk";
-
-const keypair = Keypair.random();
-
-keypair.publicKey(); // "G..." (share this)
-keypair.secret(); // "S..." (keep this private)
-```
+<!-- snippet: connect-and-fund.ts#create-keypair -->
 
 A keypair holds no funds and does not exist on the network until an account is
 funded for that public key (see [Fund a new account](#fund-a-new-account)).
 
 Store the secret, not the keypair object. Rebuild the keypair when you need it:
 
-```ts
-const keypair = Keypair.fromSecret(secret);
-```
+<!-- snippet: connect-and-fund.ts#rebuild-keypair -->
 
 ## Sign and verify a message
 
@@ -43,14 +34,7 @@ controls an address, entirely off-chain. This follows
 so signatures interoperate with the other Stellar SDKs and the CLI, and it is the
 basis for proof-of-ownership flows like "Sign in with Stellar".
 
-```ts
-// Sign a string (or raw bytes); returns a 64-byte signature.
-const signature = keypair.signMessage("Hello, World!");
-
-// Anyone holding the public key can verify it — no secret key needed.
-const verifier = Keypair.fromPublicKey(keypair.publicKey());
-verifier.verifyMessage("Hello, World!", signature); // true
-```
+<!-- snippet: connect-and-fund.ts#sign-message -->
 
 Only the secret-key holder can produce a valid signature; verification needs just
 the public key. See
@@ -65,12 +49,7 @@ Every transaction is signed for exactly one
 passphrase. Use the passphrase that matches where you are submitting so a
 signature from one network cannot be replayed on another.
 
-```ts
-import { Networks } from "@stellar/stellar-sdk";
-
-Networks.TESTNET; // "Test SDF Network ; September 2015"
-Networks.PUBLIC; // "Public Global Stellar Network ; September 2015"
-```
+<!-- snippet: connect-and-fund.ts#networks -->
 
 Start on `TESTNET`. Switch to `PUBLIC` only when you are ready to use real funds.
 
@@ -86,12 +65,7 @@ The SDK talks to two services, and which one you need depends on the task.
   smart contracts (Soroban): simulate and send contract calls. Use it when you
   invoke contracts.
 
-```ts
-import { Horizon, rpc } from "@stellar/stellar-sdk";
-
-const horizon = new Horizon.Server("https://horizon-testnet.stellar.org");
-const rpcServer = new rpc.Server("https://soroban-testnet.stellar.org");
-```
+<!-- snippet: connect-and-fund.ts#connect -->
 
 This guide only needs Horizon. The RPC connection is shown so you know where
 contract work begins. For the full client API, see
@@ -105,9 +79,7 @@ On testnet, friendbot creates and funds a new account for free, seeding it with
 friendbot on the public network, where accounts are funded by an existing
 account.
 
-```ts
-await horizon.friendbot(keypair.publicKey()).call();
-```
+<!-- snippet: connect-and-fund.ts#fund -->
 
 This call throws if the account already exists or friendbot is rate-limited.
 Funding a brand-new `Keypair.random()` avoids the "already exists" case, so wrap
@@ -117,13 +89,7 @@ Once funded, the account exists on the ledger. Load it to read its balances.
 `loadAccount` throws `NotFoundError` if the account is not on the ledger yet,
 which is how the SDK signals that funding has not gone through:
 
-```ts
-const account = await horizon.loadAccount(keypair.publicKey());
-const xlm = account.balances.find((b) => b.asset_type === "native");
-
-account.accountId(); // the funded public key
-xlm?.balance; // its XLM balance, as a string
-```
+<!-- snippet: connect-and-fund.ts#load-account -->
 
 ## Put it together
 
@@ -131,33 +97,7 @@ The snippets above build on each other. Here is the whole flow as one runnable
 script. The blocks share the same `keypair` and `horizon`, and `console.log`
 prints the results so you can see them when you run the file:
 
-```ts
-import { Keypair, Horizon } from "@stellar/stellar-sdk";
-
-async function main() {
-  const keypair = Keypair.random();
-  const horizon = new Horizon.Server("https://horizon-testnet.stellar.org");
-
-  console.log("Public key:", keypair.publicKey());
-
-  // On testnet, friendbot creates and funds the account for free.
-  try {
-    await horizon.friendbot(keypair.publicKey()).call();
-  } catch (e) {
-    // Thrown if the account already exists or friendbot is rate-limited.
-    console.error("Funding failed:", e);
-    return;
-  }
-
-  // Throws NotFoundError if the account is not on the ledger yet.
-  const account = await horizon.loadAccount(keypair.publicKey());
-  const xlm = account.balances.find((b) => b.asset_type === "native");
-
-  console.log("XLM balance:", xlm?.balance);
-}
-
-main().catch(console.error);
-```
+<!-- snippet: connect-and-fund.full.ts#main -->
 
 You now have a funded account and a connection to the network. From here you can
 send your first payment.

@@ -43,3 +43,4 @@ config/tsconfig.tmp.json
 test-guides/
 .vuln-hunt/
 scratch/
+.docs-build/
