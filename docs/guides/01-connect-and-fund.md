@@ -94,10 +94,11 @@ which is how the SDK signals that funding has not gone through:
 ## Put it together
 
 The snippets above build on each other. Here is the whole flow as one runnable
-script. The blocks share the same `keypair` and `horizon`, and `console.log`
-prints the results so you can see them when you run the file:
+script — the same code as the steps, assembled. The blocks share the same
+`keypair` and `horizon`, and `console.log` prints the results so you can see
+them when you run the file:
 
-<!-- snippet: connect-and-fund.full.ts#main -->
+<!-- snippet: connect-and-fund.ts#full -->
 
 You now have a funded account and a connection to the network. From here you can
 send your first payment.

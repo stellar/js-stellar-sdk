@@ -71,12 +71,13 @@ Setting up an issuer and trustlines is covered in [Issue an Asset](/guides/03-is
 
 ## Put it together
 
-The whole native-payment flow as one runnable script. It funds a throwaway
-`source` and `destination` with friendbot so the example runs end to end; in
-your app, `source` is your existing funded account and `destination` is any
-account that already exists:
+The whole native-payment flow as one runnable script — the same code as the
+steps above, assembled. It funds a throwaway `source` and `destinationId` with
+friendbot so the example runs end to end; in your app, `source` is your
+existing funded account and `destinationId` is any account that already
+exists:
 
-<!-- snippet: send-a-payment.full.ts#main -->
+<!-- snippet: send-a-payment.ts#full -->
 
 You can now move value on the network. Next, learn to issue your own asset and
 set up trustlines.

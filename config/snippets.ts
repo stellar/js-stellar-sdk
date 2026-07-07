@@ -55,7 +55,7 @@ export const MARKER = /^<!--\s*snippet:\s*([\w./-]+)#([\w-]+)\s*-->\s*$/;
 const MARKER_NEAR_MISS = /<!--[^>]*\bsnippets?\b/i;
 
 const REGION_START = /^\s*\/\/\s*#region\s+([\w-]+)\s*$/;
-const REGION_END = /^\s*\/\/\s*#endregion\b/;
+const REGION_END = /^\s*\/\/\s*#endregion(?:\s+([\w-]+))?\s*$/;
 
 // Keyed by file, invalidated on mtime change so a long-lived `astro dev`
 // process picks up snippet edits.
@@ -64,7 +64,16 @@ const regionCache = new Map<
   { mtimeMs: number; regions: Map<string, string> }
 >();
 
-/** Parses every `#region` in a snippet file into name → joined content. */
+/**
+ * Parses every `#region` in a snippet file into name → joined content.
+ *
+ * Regions may overlap: a line belongs to every region open at that point,
+ * which lets a `full` region span a whole program while step regions carve
+ * views out of the same lines (this is what makes a guide's "Put it
+ * together" block a view of the one program instead of a duplicated second
+ * file). `#endregion` must be named whenever more than one region is open.
+ * Region marker lines themselves never appear in any region's content.
+ */
 function regionsOf(file: string): Map<string, string> {
   const fullPath = join(SNIPPETS_DIR, file);
   const { mtimeMs } = statSync(fullPath);
@@ -73,39 +82,63 @@ function regionsOf(file: string): Map<string, string> {
 
   const source = readFileSync(fullPath, "utf8");
   const parts = new Map<string, string[]>();
-  let open: string | null = null;
-  let buf: string[] = [];
+  const open = new Map<string, string[]>();
 
   for (const line of source.split("\n")) {
     const start = line.match(REGION_START);
     if (start) {
-      if (open !== null) {
-        throw new Error(`${file}: nested #region ${start[1]} inside ${open}`);
+      const name = start[1];
+      if (open.has(name)) {
+        throw new Error(`${file}: #region ${name} reopened before closing`);
       }
-      open = start[1];
-      buf = [];
-    } else if (REGION_END.test(line)) {
-      if (open === null) {
-        throw new Error(`${file}: #endregion without an open #region`);
-      }
-      const existing = parts.get(open) ?? [];
-      existing.push(buf.join("\n").replace(/^\n+|\n+$/g, ""));
-      parts.set(open, existing);
-      open = null;
-    } else if (open !== null) {
-      buf.push(line);
+      open.set(name, []);
+      continue;
     }
+    const end = line.match(REGION_END);
+    if (end) {
+      const name = end[1] ?? (open.size === 1 ? [...open.keys()][0] : null);
+      if (name === null) {
+        throw new Error(
+          `${file}: bare #endregion is ambiguous with ${open.size} regions ` +
+            `open (${[...open.keys()].join(", ")}) — name it, e.g. ` +
+            `\`// #endregion ${[...open.keys()][0]}\``,
+        );
+      }
+      const buf = open.get(name);
+      if (buf === undefined) {
+        throw new Error(`${file}: #endregion ${name} without open #region`);
+      }
+      const existing = parts.get(name) ?? [];
+      existing.push(buf.join("\n").replace(/^\n+|\n+$/g, ""));
+      parts.set(name, existing);
+      open.delete(name);
+      continue;
+    }
+    for (const buf of open.values()) buf.push(line);
   }
-  if (open !== null) {
-    throw new Error(`${file}: #region ${open} is never closed`);
+  if (open.size > 0) {
+    throw new Error(
+      `${file}: #region ${[...open.keys()].join(", ")} never closed`,
+    );
   }
 
   const regions = new Map<string, string>();
   for (const [name, chunks] of parts) {
-    regions.set(name, dedent(chunks.join("\n\n")));
+    regions.set(name, dedent(joinParts(chunks)));
   }
   regionCache.set(file, { mtimeMs, regions });
   return regions;
+}
+
+/**
+ * Joins a region's parts. Parts are separated by a blank line, except when
+ * the next part continues an indented expression (a builder-chain fragment
+ * whose middle lines belong to another region), which joins seamlessly.
+ */
+function joinParts(chunks: string[]): string {
+  return chunks.reduce((joined, chunk) =>
+    /^[ \t]/.test(chunk) ? `${joined}\n${chunk}` : `${joined}\n\n${chunk}`,
+  );
 }
 
 /**

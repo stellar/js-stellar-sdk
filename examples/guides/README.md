@@ -70,8 +70,18 @@ executes it. If an SDK change breaks a guide example, CI fails.
    - Add assertions outside regions so execution proves the flow worked, not
      just that it did not crash.
    - A region name can appear multiple times. The parts are joined with a blank
-     line in the rendered block. Use this to show a fragment (one line of a
-     builder chain plus its import) while the full chain still compiles.
+     line in the rendered block, or seamlessly when the next part continues an
+     indented expression (a builder-chain fragment). Use this to show a fragment
+     while the full chain still compiles.
+   - Regions can overlap: a line belongs to every region open at that point.
+     `#endregion` must be named (`// #endregion build`) whenever more than one
+     region is open.
+   - For a "Put it together" recap block, do not write a second program. Open a
+     `full` region spanning the display-worthy code and let the step regions
+     overlap inside it — the recap is then a view of the same lines, and nothing
+     is duplicated. Lines only the steps show (bare annotation expressions) sit
+     outside `full`; lines only the recap shows (`console.log`s) sit outside the
+     step regions.
    - Prefer regions at module scope. A region carved from inside a block (a
      try/catch body, a function) renders dedented to the left margin. A region
      mixing column-0 lines with indented ones keeps its indentation as authored.
@@ -106,9 +116,10 @@ tested. Prefer markers for anything a reader might copy.
 
 - Snippet file names are shared across guides in a flat directory. Keep them
   topic based and unique.
-- Two blocks that redeclare the same imports or variables cannot live in one
-  module. Use a second file (see `send-a-payment.full.ts` for the payment
-  guide's standalone script).
+- Two blocks that redeclare the same variables cannot live in one module scope.
+  A nested `{ }` block usually solves it (see the rebuild-keypair region in
+  `connect-and-fund.ts`); a second snippet file is the last resort, only for
+  genuinely incompatible alternative programs.
 - Snippets that need contract infrastructure can deploy their own contract (from
   a checked-in wasm fixture) in hidden setup, the same way the payment snippet
   funds its own accounts. The quickstart tier runs Soroban RPC, so this works on
