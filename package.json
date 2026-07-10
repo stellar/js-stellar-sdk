@@ -160,6 +160,7 @@
     "eslint-plugin-prettier": "^5.5.5",
     "globals": "^17.5.0",
     "husky": "^9.1.7",
+    "js-xdr-v4": "npm:@stellar/js-xdr@4.0.0",
     "jsdoc": "^4.0.4",
     "jsdom": "^27.0.0",
     "lint-staged": "^15.5.1",
@@ -179,7 +180,7 @@
   "dependencies": {
     "@noble/ed25519": "^3.1.0",
     "@noble/hashes": "^2.2.0",
-    "@stellar/js-xdr": "4.0.0",
+    "@stellar/js-xdr": "^5.0.0-rc.1",
     "axios": "1.15.0",
     "base32.js": "^0.1.0",
     "bignumber.js": "^11.0.0",

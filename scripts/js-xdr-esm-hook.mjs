@@ -11,7 +11,7 @@
 import { createRequire } from "node:module";
 import { pathToFileURL } from "node:url";
 
-const ALIAS = "@stellar/js-xdr";
+const ALIAS = "js-xdr-v4";
 const require = createRequire(import.meta.url);
 const SHIM_URL =
   pathToFileURL(require.resolve(ALIAS)).href + "?js-xdr-esm-shim";

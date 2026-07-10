@@ -21,19 +21,14 @@ const packageJson = JSON.parse(
 
 const useAxios = process.env.USE_AXIOS === "true";
 
-// Bundle these dependencies into the lib output instead of leaving bare
-// imports. `@stellar/js-xdr` ships a webpack UMD bundle as `main`, which
-// hides its named exports from Node ESM's cjs-module-lexer; inlining it
-// at build time sidesteps the interop entirely.
-// TODO: remove this once js-xdr ships an ESM build with proper named exports. Until then, it converts js-xdr's UMD export into a shape rollup can analyze and re-export from our ESM output.
-const inlinedDependencies = new Set(["@stellar/js-xdr"]);
-
-const externalPackages = new Set(
-  [
-    ...Object.keys(packageJson.dependencies ?? {}),
-    ...Object.keys(packageJson.peerDependencies ?? {}),
-  ].filter((name) => !inlinedDependencies.has(name)),
-);
+// All dependencies (including `@stellar/js-xdr` v5, which ships a proper
+// dual ESM/CJS build) stay as bare imports in the lib output. (`js-xdr-v4`,
+// the published v4 package, is a test-only devDependency and never reaches
+// the build.)
+const externalPackages = new Set([
+  ...Object.keys(packageJson.dependencies ?? {}),
+  ...Object.keys(packageJson.peerDependencies ?? {}),
+]);
 
 const builtinPackageIds = new Set([
   ...builtinModules,
@@ -170,7 +165,6 @@ function createOutput(dir, format) {
     preserveModules: true,
     preserveModulesRoot: "src",
     sourcemap: true,
-    entryFileNames: "[name].js",
   };
 }
 
@@ -186,16 +180,6 @@ const libSharedPlugins = [
   // the original relative specifier (e.g. "../http-client/index.js").
   ...(useAxios ? [aliasHttpClientToAxios()] : []),
   resolveJsSourceSpecifier(),
-
-  // TODO: remove this plugin once js-xdr ships an ESM build with proper named exports. Until then, it converts js-xdr's UMD export into a shape rollup can analyze and re-export from our ESM output.
-  // resolve + commonjs are needed to pull `@stellar/js-xdr` into the bundle.
-  // External deps short-circuit before reaching these plugins, so other
-  // dependencies remain bare imports.
-  resolve({
-    extensions: [".ts", ".mjs", ".js", ".json"],
-  }),
-  // TODO: remove this plugin once js-xdr ships an ESM build with proper named exports. Until then, it converts js-xdr's UMD export into a shape rollup can analyze and re-export from our ESM output.
-  commonjs(),
   esbuild({
     sourceMap: true,
     target: "es2022",
@@ -218,11 +202,39 @@ const libBaseDir = useAxios ? "lib/axios" : "lib";
 // exports: the `exports` map in package.json references `http-client/axios`
 // as a public subpath, and tests import `http-client` directly. Listing them
 // as entries guarantees emission without relying on graph reachability.
+//
+// The second group ("orphan barrels") forces emission of pure re-export
+// barrels and type-only modules that rollup would otherwise elide. tsc
+// emits matching `.d.ts` for these regardless; without their `.js`
+// counterparts the type graph has broken links — tools that walk it
+// (dnt, TypeScript NodeNext resolution) error on "module not found".
 const libEntries = {
   index: "src/index.ts",
   "http-client/index": "src/http-client/index.ts",
   "http-client/axios": "src/http-client/axios.ts",
   "cli/index": "src/cli/index.ts",
+
+  "base/index": "src/base/index.ts",
+  "base/operations/index": "src/base/operations/index.ts",
+  "base/operations/types": "src/base/operations/types.ts",
+  "bindings/index": "src/bindings/index.ts",
+  "errors/index": "src/errors/index.ts",
+  "federation/api": "src/federation/api.ts",
+  "horizon/path_call_builder": "src/horizon/path_call_builder.ts",
+  "horizon/types/trade": "src/horizon/types/trade.ts",
+  "horizon/types/account": "src/horizon/types/account.ts",
+  "horizon/types/assets": "src/horizon/types/assets.ts",
+  "horizon/types/offer": "src/horizon/types/offer.ts",
+  "rpc/utils": "src/rpc/utils.ts",
+  "rpc/browser": "src/rpc/browser.ts",
+  "xdr/generated/index": "src/xdr/generated/index.ts",
+  "xdr/generated/sc-spec-type-result": "src/xdr/generated/sc-spec-type-result.ts",
+  "xdr/generated/sc-spec-type-vec": "src/xdr/generated/sc-spec-type-vec.ts",
+  "xdr/generated/sc-spec-type-option": "src/xdr/generated/sc-spec-type-option.ts",
+  "xdr/generated/sc-spec-type-tuple": "src/xdr/generated/sc-spec-type-tuple.ts",
+  "xdr/generated/sc-spec-type-map": "src/xdr/generated/sc-spec-type-map.ts",
+  "xdr/generated/sc-map-entry": "src/xdr/generated/sc-map-entry.ts",
+  "xdr/generated/sc-contract-instance": "src/xdr/generated/sc-contract-instance.ts",
 };
 
 /** Library build — preserves modules, externalizes dependencies. */
