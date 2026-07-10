@@ -654,3 +654,33 @@ xdr.AlphaNum4.fromJson({ assetCode: "USD", issuer: "GAAQ…" }); // legacy
   explicitly.
 
 ---
+
+## 14. Removed: v4 `Reader` / `Writer` exports
+
+The XDR layer now consumes its runtime from `@stellar/js-xdr` v5 rather than a
+vendored in-tree copy. As part of this, the SDK **no longer exports the v4
+`Reader` and `Writer`**.
+
+The `Reader` and `Writer` re-exported from the SDK are now the **v5**
+implementations, sourced from `@stellar/js-xdr` v5:
+
+```ts
+// These now resolve to the js-xdr v5 Reader/Writer:
+import { Reader, Writer } from "@stellar/stellar-sdk";
+import xdr from "@stellar/stellar-sdk";
+xdr.Reader; // v5
+xdr.Writer; // v5
+```
+
+If you depended on the **v4** `Reader`/`Writer` — either imported directly from
+`@stellar/js-xdr@4` or obtained through the SDK — you must migrate to the v5
+API. The wire format is unchanged; only the class API differs. If you still need
+the v4 runtime for legacy code, install it under an alias (the SDK itself only
+uses it for its own legacy test fixtures):
+
+```jsonc
+// package.json
+"devDependencies": {
+  "js-xdr-v4": "npm:@stellar/js-xdr@4.0.0"
+}
+```

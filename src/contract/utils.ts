@@ -1,9 +1,8 @@
 import { Account } from "../base/index.js";
 import { Server } from "../rpc/index.js";
-import { type AssembledTransaction } from "./assembled_transaction.js";
 import { NULL_ACCOUNT, type AssembledTransactionOptions } from "./types.js";
 import { ScSpecEntry } from "../xdr/index.js";
-import { Reader } from "../xdr/core/reader.js";
+import { Reader } from "@stellar/js-xdr";
 
 /**
  * Keep calling a `fn` for `timeoutInSeconds` seconds, if `keepWaitingIf` is

@@ -1,4 +1,3 @@
-import { UnsignedHyper } from "@stellar/js-xdr";
 import CustomBigNumber from "./util/bignumber.js";
 import type { BigNumber } from "./util/bignumber.js";
 import { Hash as XdrHash, Memo as XdrMemo, Uint64 } from "../xdr/index.js";
@@ -277,11 +276,7 @@ export class Memo<T extends MemoType = MemoType> {
       case MemoNone:
         return XdrMemo.memoNone();
       case MemoID:
-        return XdrMemo.memoId(
-          Uint64.fromString(
-            UnsignedHyper.fromString(this._value as string).toString(),
-          ),
-        );
+        return XdrMemo.memoId(Uint64.fromString(this._value as string));
       case MemoText:
         // The XDR `string<28>` type accepts either a JS string (UTF-8 encoded)
         // or a Uint8Array (byte-exact). Memo.text may have been constructed

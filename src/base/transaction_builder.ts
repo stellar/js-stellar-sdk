@@ -1,4 +1,3 @@
-import { Hyper } from "@stellar/js-xdr";
 import BigNumber from "./util/bignumber.js";
 
 import {
@@ -56,7 +55,6 @@ import { Operation } from "./operation.js";
 import { Address } from "./address.js";
 import { Keypair } from "./keypair.js";
 
-const HYPER_MAX_VALUE = Hyper.MAX_VALUE as unknown as bigint;
 const UINT32_MAX = 4294967295; // 2^32 - 1
 
 /**
@@ -738,7 +736,7 @@ export class TransactionBuilder {
   ): TransactionBuilder {
     if (BigInt(amount) <= 0n) {
       throw new Error("Amount must be a positive integer");
-    } else if (BigInt(amount) > HYPER_MAX_VALUE) {
+    } else if (BigInt(amount) > Uint64.MAX_VALUE) {
       // The largest supported value for SAC is i64 however the contract interface uses i128 which is why we convert it to i128
       throw new Error("Amount exceeds maximum value for i64");
     }
@@ -762,7 +760,7 @@ export class TransactionBuilder {
           `writeBytes must be greater than 0 and at most ${U32_MAX}`,
         );
       }
-      if (resourceFee <= 0n || resourceFee > HYPER_MAX_VALUE) {
+      if (resourceFee <= 0n || resourceFee > Uint64.MAX_VALUE) {
         throw new Error(
           "resourceFee must be greater than 0 and at most i64 max",
         );

@@ -6,6 +6,9 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Breaking Changes
+* The XDR layer now consumes the runtime from `@stellar/js-xdr` v5 instead of the vendored in-tree copy. The v4 `Reader` and `Writer` classes are no longer re-exported from the SDK; the `Reader`/`Writer` re-exported from `xdr` are now the v5 implementations. Code that imported the v4 `Reader`/`Writer` (directly from `@stellar/js-xdr@4` or via the SDK) must migrate to the v5 API. See [`docs/XDR_MIGRATION.md`](./docs/XDR_MIGRATION.md#14-removed-v4-reader--writer-exports).
+
 ### Fixed
 * `RpcServer.pollTransaction` off-by-one: the polling loop used `<` instead of `<=`, causing one fewer attempt than configured([#1373](https://github.com/stellar/js-stellar-sdk/pull/1373)).
 * `requestAirdrop` error path: fixed incorrect property access (`error.response.detail` instead of `error.response.data.detail`) when checking for `createAccountAlreadyExist` ([#1373](https://github.com/stellar/js-stellar-sdk/pull/1373)).

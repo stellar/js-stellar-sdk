@@ -1,12 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { Soroban } from "../../../src/base/soroban.js";
-import cereal from "../../../src/base/jsxdr.js";
 
 describe("Soroban", () => {
-  it("should have XDR serialization", () => {
-    expect(cereal).toBeDefined();
-  });
-
   describe("formatTokenAmount", () => {
     const SUCCESS_TEST_CASES = [
       { amount: "1000000001", decimals: 7, expected: "100.0000001" },
