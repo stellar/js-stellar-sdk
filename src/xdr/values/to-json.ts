@@ -9,8 +9,15 @@
 import { uint8ArrayToHex, hexToUint8Array } from "uint8array-extras";
 import { Buffer } from "buffer";
 
-import { XdrError } from "../core/error.js";
-import type { XdrType } from "../core/xdr-type.js";
+import { XdrError } from "@stellar/js-xdr";
+import type {
+  AnySchema,
+  EnumSchema,
+  Field,
+  UnionArm,
+  UnionSchema,
+  XdrType,
+} from "@stellar/js-xdr";
 import type { JsonValue } from "./xdr-value.js";
 import { XdrString } from "./xdr-string.js";
 import {
@@ -29,55 +36,13 @@ import {
 } from "./bigint-parts.js";
 import { StrKey } from "../../base/strkey.js";
 
-type SchemaView<Extras> = XdrType<unknown> & Extras;
-
-interface StructView {
-  readonly entries: ReadonlyArray<readonly [string, XdrType<unknown>]>;
-}
-
-interface UnionView {
-  readonly switchOn: XdrType<unknown>;
-  readonly cases: ReadonlyArray<{
-    readonly name: string;
-    readonly discriminant: unknown;
-    readonly arm: UnionArmView;
-  }>;
-  readonly defaultArm: UnionArmView | undefined;
-  readonly switchKey: string;
-}
-
-type UnionArmView =
-  | XdrType<void>
-  | {
-      readonly kind: "field";
-      readonly name: string;
-      readonly schema: XdrType<unknown>;
-    };
-
-interface EnumView {
-  readonly nameByValue: ReadonlyMap<number, string>;
-  // The enum's camelized `member_prefix`, stripped before snake_casing to
-  // recover the SEP-0051 JSON name (attached by `withMemberPrefix` in the value
-  // layer). Absent for enums without a prefix.
+// The enum's camelized `member_prefix`, stripped before snake_casing to
+// recover the SEP-0051 JSON name. `memberPrefix` is attached by
+// `withMemberPrefix` in this values layer — it is not a js-xdr concept, so it
+// is layered onto the exported `EnumSchema` here.
+type EnumWithPrefix = EnumSchema<string, Record<string, number>> & {
   readonly memberPrefix?: string;
-}
-
-interface ArrayView {
-  readonly element: XdrType<unknown>;
-}
-
-interface FixedArrayView {
-  readonly element: XdrType<unknown>;
-  readonly length: number;
-}
-
-interface OptionView {
-  readonly element: XdrType<unknown>;
-}
-
-interface LazyView {
-  readonly getSchema: () => XdrType<unknown>;
-}
+};
 
 interface JsonOverride {
   toJson(wire: unknown): JsonValue;
@@ -87,10 +52,13 @@ interface JsonOverride {
 const OVERRIDES = new Map<string, JsonOverride>();
 
 export function walkToJson(wire: unknown, schema: XdrType<unknown>): JsonValue {
+  // The override lookup runs before the AnySchema cast: overrides also cover
+  // SDK-custom schema kinds that are outside js-xdr's closed union.
   const override = schema.name ? OVERRIDES.get(schema.name) : undefined;
   if (override) return override.toJson(wire);
 
-  switch (schema.kind) {
+  const s = schema as AnySchema;
+  switch (s.kind) {
     case "bool":
       return wire as boolean;
     case "void":
@@ -111,28 +79,23 @@ export function walkToJson(wire: unknown, schema: XdrType<unknown>): JsonValue {
       // SEP-0051: both fixed and variable opaque are hex-encoded strings.
       return uint8ArrayToHex(wire as Uint8Array);
     case "enum": {
-      const s = schema as SchemaView<EnumView>;
-      const name = s.nameByValue.get(wire as number);
+      const e = s as EnumWithPrefix;
+      const name = e.nameByValue.get(wire as number);
       if (name === undefined) {
         throw new XdrError(
           `${schema.name ?? "enum"}: unknown enum value ${String(wire)}`,
         );
       }
       return (
-        enumJsonNames(s.memberPrefix, s.nameByValue).bySource.get(name) ?? name
+        enumJsonNames(e.memberPrefix, e.nameByValue).bySource.get(name) ?? name
       );
     }
-    case "option": {
-      const s = schema as SchemaView<OptionView>;
+    case "option":
       return wire === null ? null : walkToJson(wire, s.element);
-    }
     case "array":
-    case "fixedArray": {
-      const s = schema as SchemaView<ArrayView>;
+    case "fixedArray":
       return (wire as unknown[]).map((v) => walkToJson(v, s.element));
-    }
     case "struct": {
-      const s = schema as SchemaView<StructView>;
       const rec = wire as Record<string, unknown>;
       const out: Record<string, JsonValue> = {};
       // SEP-0051: struct field keys are snake_case in JSON. Codegen produces
@@ -143,7 +106,6 @@ export function walkToJson(wire: unknown, schema: XdrType<unknown>): JsonValue {
       return out;
     }
     case "union": {
-      const s = schema as SchemaView<UnionView>;
       const rec = wire as Record<string, unknown>;
       const disc = rec[s.switchKey];
       const matched = s.cases.find((c) => c.discriminant === disc);
@@ -163,10 +125,8 @@ export function walkToJson(wire: unknown, schema: XdrType<unknown>): JsonValue {
       }
       return jsonKey;
     }
-    case "lazy": {
-      const s = schema as SchemaView<LazyView>;
+    case "lazy":
       return walkToJson(wire, s.getSchema());
-    }
     default:
       throw new XdrError(
         `${schema.name ?? schema.kind}: toJson unsupported for kind ${schema.kind}`,
@@ -178,10 +138,12 @@ export function walkFromJson(
   json: JsonValue,
   schema: XdrType<unknown>,
 ): unknown {
+  // Override lookup first, as in `walkToJson` — see the note there.
   const override = schema.name ? OVERRIDES.get(schema.name) : undefined;
   if (override) return override.fromJson(json);
 
-  switch (schema.kind) {
+  const s = schema as AnySchema;
+  switch (s.kind) {
     case "bool":
       assertJsonType(json, "boolean", schema);
       return json;
@@ -201,34 +163,38 @@ export function walkFromJson(
       assertJsonType(json, "string", schema);
       return XdrString.fromJson(json as string);
     case "opaque":
-    case "varOpaque":
+    case "varOpaque": {
       assertJsonType(json, "string", schema);
-      return hexToUint8Array(json as string);
+      const bytes = hexToUint8Array(json as string);
+      if (s.kind === "opaque" && bytes.length !== s.length) {
+        throw new XdrError(
+          `${schema.name ?? "opaque"}: expected ${s.length} byte(s), got ${bytes.length}`,
+        );
+      }
+      return bytes;
+    }
     case "enum": {
-      const s = schema as SchemaView<EnumView>;
+      const e = s as EnumWithPrefix;
       assertJsonType(json, "string", schema);
       const target = json as string;
-      const names = enumJsonNames(s.memberPrefix, s.nameByValue);
+      const names = enumJsonNames(e.memberPrefix, e.nameByValue);
       const sourceName = names.byJson.get(target);
       if (sourceName !== undefined) {
-        for (const [value, name] of s.nameByValue) {
+        for (const [value, name] of e.nameByValue) {
           if (name === sourceName) return value;
         }
       }
       // Tolerate the raw (camelCase) source name as well.
-      for (const [value, name] of s.nameByValue) {
+      for (const [value, name] of e.nameByValue) {
         if (name === target) return value;
       }
       throw new XdrError(
         `${schema.name ?? "enum"}: unknown enum name ${target}`,
       );
     }
-    case "option": {
-      const s = schema as SchemaView<OptionView>;
+    case "option":
       return json === null ? null : walkFromJson(json, s.element);
-    }
     case "array": {
-      const s = schema as SchemaView<ArrayView>;
       if (!Array.isArray(json)) {
         throw new XdrError(
           `${schema.name ?? "array"}: expected JSON array, got ${typeof json}`,
@@ -237,7 +203,6 @@ export function walkFromJson(
       return json.map((v) => walkFromJson(v, s.element));
     }
     case "fixedArray": {
-      const s = schema as SchemaView<FixedArrayView>;
       if (!Array.isArray(json)) {
         throw new XdrError(
           `${schema.name ?? "fixedArray"}: expected JSON array, got ${typeof json}`,
@@ -251,7 +216,6 @@ export function walkFromJson(
       return json.map((v) => walkFromJson(v, s.element));
     }
     case "struct": {
-      const s = schema as SchemaView<StructView>;
       if (!isPlainObject(json)) {
         throw new XdrError(`${schema.name ?? "struct"}: expected JSON object`);
       }
@@ -273,11 +237,9 @@ export function walkFromJson(
       return out;
     }
     case "union":
-      return unionFromJson(json, schema as SchemaView<UnionView>);
-    case "lazy": {
-      const s = schema as SchemaView<LazyView>;
+      return unionFromJson(json, s);
+    case "lazy":
       return walkFromJson(json, s.getSchema());
-    }
     default:
       throw new XdrError(
         `${schema.name ?? schema.kind}: fromJson unsupported for kind ${schema.kind}`,
@@ -285,10 +247,7 @@ export function walkFromJson(
   }
 }
 
-function unionFromJson(
-  json: JsonValue,
-  schema: SchemaView<UnionView>,
-): unknown {
+function unionFromJson(json: JsonValue, schema: UnionSchema<unknown>): unknown {
   let jsonKey: string;
   let payload: JsonValue | undefined;
   if (typeof json === "string") {
@@ -340,9 +299,7 @@ function unionFromJson(
   return out;
 }
 
-function isFieldArm(
-  arm: UnionArmView,
-): arm is Extract<UnionArmView, { kind: "field" }> {
+function isFieldArm(arm: UnionArm): arm is Field<string, XdrType<unknown>> {
   return typeof arm === "object" && arm !== null && "schema" in arm;
 }
 

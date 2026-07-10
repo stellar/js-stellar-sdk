@@ -3,7 +3,7 @@ import {
   base64ToUint8Array,
   stringToUint8Array,
 } from "uint8array-extras";
-import { XdrError } from "../core/error.js";
+import { XdrError } from "@stellar/js-xdr";
 import { XdrValue } from "./xdr-value.js";
 
 export type BytesEncoding = "hex" | "base64" | "ascii";

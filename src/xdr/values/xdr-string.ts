@@ -1,7 +1,7 @@
-import type { Reader } from "../core/reader.js";
-import type { Writer } from "../core/writer.js";
-import { BaseType, type XdrType } from "../core/xdr-type.js";
-import { string as stringBytes } from "../types/string.js";
+import type { Reader } from "@stellar/js-xdr";
+import type { Writer } from "@stellar/js-xdr";
+import { BaseType, XdrError, type XdrType } from "@stellar/js-xdr";
+import { string as stringBytes } from "@stellar/js-xdr";
 
 // Wrapper for XDR `string<N>` values.
 //
@@ -221,6 +221,15 @@ class XdrStringType extends BaseType<XdrString> {
     writer: Writer,
     path: string,
   ): void {
+    // Invalid inputs must surface as XdrError so `validate` reports them as
+    // invalid values rather than rethrowing a bare TypeError.
+    if (
+      !(value instanceof XdrString) &&
+      typeof value !== "string" &&
+      !(value instanceof Uint8Array)
+    ) {
+      throw new XdrError(`${path}: expected string, Uint8Array, or XdrString`);
+    }
     const xs = value instanceof XdrString ? value : new XdrString(value);
     this.#inner._write(xs.bytes, writer, path);
   }

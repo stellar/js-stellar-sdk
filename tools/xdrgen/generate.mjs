@@ -438,7 +438,7 @@ function refTsType(name, ctx) {
  * @typedef {{
  *   builders: Set<string>;     // schema builder fns used (int32, struct, …)
  *   classImports: Set<string>; // named types imported from sibling files
- *   coreImports: Set<string>;  // names from core/xdr-type.js (Infer, etc.)
+ *   coreImports: Set<string>;  // names from @stellar/js-xdr (Infer, etc.)
  *   valueImports: Set<string>; // names from values/xdr-value.js
  *   needsXdrError: boolean;
  * }} EmitContext
@@ -465,24 +465,24 @@ function addExternal(ctx, pkg, name) {
 }
 
 const BUILDER_TO_PATH = {
-  int32: "../types/int32.js",
-  uint32: "../types/uint32.js",
-  int64: "../types/int64.js",
-  uint64: "../types/uint64.js",
-  bool: "../types/bool.js",
-  string_: "../types/string.js",
-  opaque: "../types/opaque.js",
-  varOpaque: "../types/var-opaque.js",
-  array: "../types/array.js",
-  fixedArray: "../types/fixed-array.js",
-  option: "../types/option.js",
-  struct: "../types/struct.js",
-  union: "../types/union.js",
-  case_: "../types/union.js",
-  field: "../types/union.js",
-  voidType: "../types/void.js",
-  enumType: "../types/enum.js",
-  lazy: "../types/lazy.js",
+  int32: "@stellar/js-xdr",
+  uint32: "@stellar/js-xdr",
+  int64: "@stellar/js-xdr",
+  uint64: "@stellar/js-xdr",
+  bool: "@stellar/js-xdr",
+  string_: "@stellar/js-xdr",
+  opaque: "@stellar/js-xdr",
+  varOpaque: "@stellar/js-xdr",
+  array: "@stellar/js-xdr",
+  fixedArray: "@stellar/js-xdr",
+  option: "@stellar/js-xdr",
+  struct: "@stellar/js-xdr",
+  union: "@stellar/js-xdr",
+  case_: "@stellar/js-xdr",
+  field: "@stellar/js-xdr",
+  voidType: "@stellar/js-xdr",
+  enumType: "@stellar/js-xdr",
+  lazy: "@stellar/js-xdr",
 };
 
 const BUILDER_IMPORT_NAME = {
@@ -523,11 +523,11 @@ function renderImports(ctx, opts = {}) {
   if (opts.needsInfer) coreNames.add("type Infer");
   if (opts.needsUnbounded) coreNames.add("UNBOUNDED_MAX_LENGTH");
   if (coreNames.size > 0) {
-    lines.push(renderImport("../core/xdr-type.js", [...coreNames]));
+    lines.push(renderImport("@stellar/js-xdr", [...coreNames]));
   }
   // XdrError
   if (ctx.needsXdrError) {
-    lines.push(`import { XdrError } from "../core/error.js";`);
+    lines.push(`import { XdrError } from "@stellar/js-xdr";`);
   }
   // Value imports (XdrValue, BytesValue, EnumValue, enumFromName,
   // enumFromValue, JsonValue, XdrString)

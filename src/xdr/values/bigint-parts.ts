@@ -9,7 +9,7 @@
 // not depend on `core/`'s internal `assert*Range` helpers, which belong to the
 // to-be-extracted js-xdr runtime and won't be part of its public surface.
 
-import { XdrError } from "../core/error.js";
+import { XdrError } from "@stellar/js-xdr";
 
 const MASK_64 = (1n << 64n) - 1n;
 const MASK_HI_SIGNED_128 = 1n << 127n;

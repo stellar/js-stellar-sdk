@@ -4,8 +4,8 @@ import {
   base64ToUint8Array,
   uint8ArrayToBase64,
 } from "uint8array-extras";
-import type { XdrType } from "../core/xdr-type.js";
-import { XdrError } from "../core/error.js";
+import type { XdrType } from "@stellar/js-xdr";
+import { XdrError } from "@stellar/js-xdr";
 import { walkToJson, walkFromJson } from "./to-json.js";
 
 export type XdrFormat = "raw" | "hex" | "base64";

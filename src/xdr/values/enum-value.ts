@@ -1,5 +1,5 @@
-import { XdrError } from "../core/error.js";
-import type { XdrType } from "../core/xdr-type.js";
+import { XdrError } from "@stellar/js-xdr";
+import type { XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "./xdr-value.js";
 
 /**
