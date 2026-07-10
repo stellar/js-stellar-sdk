@@ -1,7 +1,5 @@
-import { struct } from "../types/struct.js";
-import { array } from "../types/array.js";
-import { uint32 } from "../types/uint32.js";
-import { UNBOUNDED_MAX_LENGTH, type XdrType } from "../core/xdr-type.js";
+import { array, struct, uint32 } from "@stellar/js-xdr";
+import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 
 export interface SorobanResourcesExtV0Wire {

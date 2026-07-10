@@ -35,7 +35,7 @@
     },
     {
       "name": "xdr/Stellar-ledger-entries.x",
-      "sha256": "f3407720eb6348b141cf1d03993c9ef2a8896521fc711bdc212bf32ba92e63c9"
+      "sha256": "3e212dab2177c86c0a0a439dd870f4e71dda70472930f17096f48b9507e4ef1a"
     },
     {
       "name": "xdr/Stellar-ledger.x",
@@ -47,7 +47,7 @@
     },
     {
       "name": "xdr/Stellar-transaction.x",
-      "sha256": "52815125acb35d8aa7bfe979df1f6028a81c25cef13d2f7645b23b299792bede"
+      "sha256": "840ee5f5216c8e35ded4590e2976d246fa5f8b4e60670051b8373e7282c20278"
     },
     {
       "name": "xdr/Stellar-types.x",
@@ -6764,7 +6764,7 @@
     {
       "kind": "enum",
       "name": "EnvelopeType",
-      "source": "enum EnvelopeType\n{\n    ENVELOPE_TYPE_TX_V0 = 0,\n    ENVELOPE_TYPE_SCP = 1,\n    ENVELOPE_TYPE_TX = 2,\n    ENVELOPE_TYPE_AUTH = 3,\n    ENVELOPE_TYPE_SCPVALUE = 4,\n    ENVELOPE_TYPE_TX_FEE_BUMP = 5,\n    ENVELOPE_TYPE_OP_ID = 6,\n    ENVELOPE_TYPE_POOL_REVOKE_OP_ID = 7,\n    ENVELOPE_TYPE_CONTRACT_ID = 8,\n    ENVELOPE_TYPE_SOROBAN_AUTHORIZATION = 9\n#ifdef CAP_0071\n    ,\n    ENVELOPE_TYPE_SOROBAN_AUTHORIZATION_WITH_ADDRESS = 10\n#endif\n};",
+      "source": "enum EnvelopeType\n{\n    ENVELOPE_TYPE_TX_V0 = 0,\n    ENVELOPE_TYPE_SCP = 1,\n    ENVELOPE_TYPE_TX = 2,\n    ENVELOPE_TYPE_AUTH = 3,\n    ENVELOPE_TYPE_SCPVALUE = 4,\n    ENVELOPE_TYPE_TX_FEE_BUMP = 5,\n    ENVELOPE_TYPE_OP_ID = 6,\n    ENVELOPE_TYPE_POOL_REVOKE_OP_ID = 7,\n    ENVELOPE_TYPE_CONTRACT_ID = 8,\n    ENVELOPE_TYPE_SOROBAN_AUTHORIZATION = 9,\n    ENVELOPE_TYPE_SOROBAN_AUTHORIZATION_WITH_ADDRESS = 10\n};",
       "file_index": 8,
       "member_prefix": "ENVELOPE_TYPE_",
       "members": [
@@ -6807,6 +6807,10 @@
         {
           "name": "ENVELOPE_TYPE_SOROBAN_AUTHORIZATION",
           "value": 9
+        },
+        {
+          "name": "ENVELOPE_TYPE_SOROBAN_AUTHORIZATION_WITH_ADDRESS",
+          "value": 10
         }
       ]
     },
@@ -7058,7 +7062,7 @@
     {
       "kind": "enum",
       "name": "StellarValueType",
-      "source": "enum StellarValueType\n{\n    STELLAR_VALUE_BASIC = 0,\n    STELLAR_VALUE_SIGNED = 1\n};",
+      "source": "enum StellarValueType\n{\n    STELLAR_VALUE_BASIC = 0,\n    STELLAR_VALUE_SIGNED = 1\n#ifdef CAP_0083\n    ,\n    STELLAR_VALUE_EMPTY_TX_SET = 2\n#endif\n};",
       "file_index": 9,
       "member_prefix": "STELLAR_VALUE_",
       "members": [
@@ -7099,7 +7103,7 @@
       "kind": "union",
       "name": "StellarValueExt",
       "fixed_size": null,
-      "source": "union switch (StellarValueType v)\n    {\n    case STELLAR_VALUE_BASIC:\n        void;\n    case STELLAR_VALUE_SIGNED:\n        LedgerCloseValueSignature lcValueSignature;\n    }",
+      "source": "union switch (StellarValueType v)\n    {\n    case STELLAR_VALUE_BASIC:\n        void;\n    case STELLAR_VALUE_SIGNED:\n        LedgerCloseValueSignature lcValueSignature;\n#ifdef CAP_0083\n    case STELLAR_VALUE_EMPTY_TX_SET:\n        struct\n        {\n            Hash txSetHash;\n            Hash previousLedgerHash;\n            uint32 previousLedgerVersion;\n            LedgerCloseValueSignature lcValueSignature;\n        } proposedValue;\n#endif\n    }",
       "file_index": 9,
       "discriminant": {
         "name": "v",
@@ -7137,7 +7141,7 @@
       "kind": "struct",
       "name": "StellarValue",
       "fixed_size": null,
-      "source": "struct StellarValue\n{\n    Hash txSetHash;      // transaction set to apply to previous ledger\n    TimePoint closeTime; // network close time\n\n    // upgrades to apply to the previous ledger (usually empty)\n    // this is a vector of encoded 'LedgerUpgrade' so that nodes can drop\n    // unknown steps during consensus if needed.\n    // see notes below on 'LedgerUpgrade' for more detail\n    // max size is dictated by number of upgrade types (+ room for future)\n    UpgradeType upgrades<6>;\n\n    // reserved for future use\n    union switch (StellarValueType v)\n    {\n    case STELLAR_VALUE_BASIC:\n        void;\n    case STELLAR_VALUE_SIGNED:\n        LedgerCloseValueSignature lcValueSignature;\n    }\n    ext;\n};",
+      "source": "struct StellarValue\n{\n    Hash txSetHash;      // transaction set to apply to previous ledger\n    TimePoint closeTime; // network close time\n\n    // upgrades to apply to the previous ledger (usually empty)\n    // this is a vector of encoded 'LedgerUpgrade' so that nodes can drop\n    // unknown steps during consensus if needed.\n    // see notes below on 'LedgerUpgrade' for more detail\n    // max size is dictated by number of upgrade types (+ room for future)\n    UpgradeType upgrades<6>;\n\n    // reserved for future use\n    union switch (StellarValueType v)\n    {\n    case STELLAR_VALUE_BASIC:\n        void;\n    case STELLAR_VALUE_SIGNED:\n        LedgerCloseValueSignature lcValueSignature;\n#ifdef CAP_0083\n    case STELLAR_VALUE_EMPTY_TX_SET:\n        struct\n        {\n            Hash txSetHash;\n            Hash previousLedgerHash;\n            uint32 previousLedgerVersion;\n            LedgerCloseValueSignature lcValueSignature;\n        } proposedValue;\n#endif\n    }\n    ext;\n};",
       "file_index": 9,
       "fields": [
         {
@@ -12302,9 +12306,68 @@
       ]
     },
     {
+      "kind": "struct",
+      "name": "SorobanDelegateSignature",
+      "fixed_size": null,
+      "source": "struct SorobanDelegateSignature\n{\n    SCAddress address;\n    SCVal signature;\n    SorobanDelegateSignature nestedDelegates<>;\n};",
+      "file_index": 11,
+      "fields": [
+        {
+          "name": "address",
+          "type": {
+            "kind": "ref",
+            "name": "SCAddress"
+          }
+        },
+        {
+          "name": "signature",
+          "type": {
+            "kind": "ref",
+            "name": "SCVal"
+          }
+        },
+        {
+          "name": "nestedDelegates",
+          "type": {
+            "kind": "var_array",
+            "element": {
+              "kind": "ref",
+              "name": "SorobanDelegateSignature"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "kind": "struct",
+      "name": "SorobanAddressCredentialsWithDelegates",
+      "fixed_size": null,
+      "source": "struct SorobanAddressCredentialsWithDelegates\n{\n    SorobanAddressCredentials addressCredentials;\n    SorobanDelegateSignature delegates<>;\n};",
+      "file_index": 11,
+      "fields": [
+        {
+          "name": "addressCredentials",
+          "type": {
+            "kind": "ref",
+            "name": "SorobanAddressCredentials"
+          }
+        },
+        {
+          "name": "delegates",
+          "type": {
+            "kind": "var_array",
+            "element": {
+              "kind": "ref",
+              "name": "SorobanDelegateSignature"
+            }
+          }
+        }
+      ]
+    },
+    {
       "kind": "enum",
       "name": "SorobanCredentialsType",
-      "source": "enum SorobanCredentialsType\n{\n    SOROBAN_CREDENTIALS_SOURCE_ACCOUNT = 0,\n    SOROBAN_CREDENTIALS_ADDRESS = 1\n#ifdef CAP_0071\n    ,\n    SOROBAN_CREDENTIALS_ADDRESS_V2 = 2,\n    SOROBAN_CREDENTIALS_ADDRESS_WITH_DELEGATES = 3\n#endif\n};",
+      "source": "enum SorobanCredentialsType\n{\n    SOROBAN_CREDENTIALS_SOURCE_ACCOUNT = 0,\n    SOROBAN_CREDENTIALS_ADDRESS = 1,\n    SOROBAN_CREDENTIALS_ADDRESS_V2 = 2,\n    SOROBAN_CREDENTIALS_ADDRESS_WITH_DELEGATES = 3\n};",
       "file_index": 11,
       "member_prefix": "SOROBAN_CREDENTIALS_",
       "members": [
@@ -12315,6 +12378,14 @@
         {
           "name": "SOROBAN_CREDENTIALS_ADDRESS",
           "value": 1
+        },
+        {
+          "name": "SOROBAN_CREDENTIALS_ADDRESS_V2",
+          "value": 2
+        },
+        {
+          "name": "SOROBAN_CREDENTIALS_ADDRESS_WITH_DELEGATES",
+          "value": 3
         }
       ]
     },
@@ -12322,7 +12393,7 @@
       "kind": "union",
       "name": "SorobanCredentials",
       "fixed_size": null,
-      "source": "union SorobanCredentials switch (SorobanCredentialsType type)\n{\ncase SOROBAN_CREDENTIALS_SOURCE_ACCOUNT:\n    void;\ncase SOROBAN_CREDENTIALS_ADDRESS:\n    SorobanAddressCredentials address;\n#ifdef CAP_0071\ncase SOROBAN_CREDENTIALS_ADDRESS_V2:\n    SorobanAddressCredentials addressV2;\ncase SOROBAN_CREDENTIALS_ADDRESS_WITH_DELEGATES:\n    SorobanAddressCredentialsWithDelegates addressWithDelegates;\n#endif\n};",
+      "source": "union SorobanCredentials switch (SorobanCredentialsType type)\n{\ncase SOROBAN_CREDENTIALS_SOURCE_ACCOUNT:\n    void;\ncase SOROBAN_CREDENTIALS_ADDRESS:\n    SorobanAddressCredentials address;\ncase SOROBAN_CREDENTIALS_ADDRESS_V2:\n    SorobanAddressCredentials addressV2;\ncase SOROBAN_CREDENTIALS_ADDRESS_WITH_DELEGATES:\n    SorobanAddressCredentialsWithDelegates addressWithDelegates;\n};",
       "file_index": 11,
       "discriminant": {
         "name": "type",
@@ -12352,6 +12423,32 @@
           "type": {
             "kind": "ref",
             "name": "SorobanAddressCredentials"
+          }
+        },
+        {
+          "cases": [
+            {
+              "value": 2,
+              "name": "SOROBAN_CREDENTIALS_ADDRESS_V2"
+            }
+          ],
+          "name": "addressV2",
+          "type": {
+            "kind": "ref",
+            "name": "SorobanAddressCredentials"
+          }
+        },
+        {
+          "cases": [
+            {
+              "value": 3,
+              "name": "SOROBAN_CREDENTIALS_ADDRESS_WITH_DELEGATES"
+            }
+          ],
+          "name": "addressWithDelegates",
+          "type": {
+            "kind": "ref",
+            "name": "SorobanAddressCredentialsWithDelegates"
           }
         }
       ]
@@ -12977,10 +13074,54 @@
       ]
     },
     {
+      "kind": "struct",
+      "name": "HashIDPreimageSorobanAuthorizationWithAddress",
+      "fixed_size": null,
+      "source": "struct\n    {\n        Hash networkID;\n        int64 nonce;\n        uint32 signatureExpirationLedger;\n        SCAddress address;\n        SorobanAuthorizedInvocation invocation;\n    }",
+      "file_index": 11,
+      "fields": [
+        {
+          "name": "networkID",
+          "type": {
+            "kind": "ref",
+            "name": "Hash"
+          }
+        },
+        {
+          "name": "nonce",
+          "type": {
+            "kind": "ref",
+            "name": "int64"
+          }
+        },
+        {
+          "name": "signatureExpirationLedger",
+          "type": {
+            "kind": "ref",
+            "name": "uint32"
+          }
+        },
+        {
+          "name": "address",
+          "type": {
+            "kind": "ref",
+            "name": "SCAddress"
+          }
+        },
+        {
+          "name": "invocation",
+          "type": {
+            "kind": "ref",
+            "name": "SorobanAuthorizedInvocation"
+          }
+        }
+      ]
+    },
+    {
       "kind": "union",
       "name": "HashIDPreimage",
       "fixed_size": null,
-      "source": "union HashIDPreimage switch (EnvelopeType type)\n{\ncase ENVELOPE_TYPE_OP_ID:\n    struct\n    {\n        AccountID sourceAccount;\n        SequenceNumber seqNum;\n        uint32 opNum;\n    } operationID;\ncase ENVELOPE_TYPE_POOL_REVOKE_OP_ID:\n    struct\n    {\n        AccountID sourceAccount;\n        SequenceNumber seqNum; \n        uint32 opNum;\n        PoolID liquidityPoolID;\n        Asset asset;\n    } revokeID;\ncase ENVELOPE_TYPE_CONTRACT_ID:\n    struct\n    {\n        Hash networkID;\n        ContractIDPreimage contractIDPreimage;\n    } contractID;\ncase ENVELOPE_TYPE_SOROBAN_AUTHORIZATION:\n    struct\n    {\n        Hash networkID;\n        int64 nonce;\n        uint32 signatureExpirationLedger;\n        SorobanAuthorizedInvocation invocation;\n    } sorobanAuthorization;\n#ifdef CAP_0071\ncase ENVELOPE_TYPE_SOROBAN_AUTHORIZATION_WITH_ADDRESS:\n    struct\n    {\n        Hash networkID;\n        int64 nonce;\n        uint32 signatureExpirationLedger;\n        SCAddress address;\n        SorobanAuthorizedInvocation invocation;\n    } sorobanAuthorizationWithAddress;\n#endif\n};",
+      "source": "union HashIDPreimage switch (EnvelopeType type)\n{\ncase ENVELOPE_TYPE_OP_ID:\n    struct\n    {\n        AccountID sourceAccount;\n        SequenceNumber seqNum;\n        uint32 opNum;\n    } operationID;\ncase ENVELOPE_TYPE_POOL_REVOKE_OP_ID:\n    struct\n    {\n        AccountID sourceAccount;\n        SequenceNumber seqNum; \n        uint32 opNum;\n        PoolID liquidityPoolID;\n        Asset asset;\n    } revokeID;\ncase ENVELOPE_TYPE_CONTRACT_ID:\n    struct\n    {\n        Hash networkID;\n        ContractIDPreimage contractIDPreimage;\n    } contractID;\ncase ENVELOPE_TYPE_SOROBAN_AUTHORIZATION:\n    struct\n    {\n        Hash networkID;\n        int64 nonce;\n        uint32 signatureExpirationLedger;\n        SorobanAuthorizedInvocation invocation;\n    } sorobanAuthorization;\ncase ENVELOPE_TYPE_SOROBAN_AUTHORIZATION_WITH_ADDRESS:\n    struct\n    {\n        Hash networkID;\n        int64 nonce;\n        uint32 signatureExpirationLedger;\n        SCAddress address;\n        SorobanAuthorizedInvocation invocation;\n    } sorobanAuthorizationWithAddress;\n};",
       "file_index": 11,
       "discriminant": {
         "name": "type",
@@ -13040,6 +13181,19 @@
           "type": {
             "kind": "ref",
             "name": "HashIDPreimageSorobanAuthorization"
+          }
+        },
+        {
+          "cases": [
+            {
+              "value": 10,
+              "name": "ENVELOPE_TYPE_SOROBAN_AUTHORIZATION_WITH_ADDRESS"
+            }
+          ],
+          "name": "sorobanAuthorizationWithAddress",
+          "type": {
+            "kind": "ref",
+            "name": "HashIDPreimageSorobanAuthorizationWithAddress"
           }
         }
       ]

@@ -1,10 +1,5 @@
-import { struct } from "../types/struct.js";
-import { opaque } from "../types/opaque.js";
-import { uint32 } from "../types/uint32.js";
-import { int64 } from "../types/int64.js";
-import { option } from "../types/option.js";
-import { array } from "../types/array.js";
-import { UNBOUNDED_MAX_LENGTH, type XdrType } from "../core/xdr-type.js";
+import { array, int64, opaque, option, struct, uint32 } from "@stellar/js-xdr";
+import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import { TimeBounds, type TimeBoundsWire } from "./time-bounds.js";
 import { Memo, type MemoWire } from "./memo.js";

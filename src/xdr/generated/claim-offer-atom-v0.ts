@@ -1,7 +1,5 @@
-import { struct } from "../types/struct.js";
-import { opaque } from "../types/opaque.js";
-import { int64 } from "../types/int64.js";
-import type { XdrType } from "../core/xdr-type.js";
+import { int64, opaque, struct } from "@stellar/js-xdr";
+import type { XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import { Asset, type AssetWire } from "./asset.js";
 

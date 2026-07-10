@@ -1,4 +1,4 @@
-import { enumType } from "../types/enum.js";
+import { enumType } from "@stellar/js-xdr";
 import {
   EnumValue,
   enumFromName,
@@ -16,6 +16,10 @@ export type StellarValueTypeName = "stellarValueBasic" | "stellarValueSigned";
  * {
  *     STELLAR_VALUE_BASIC = 0,
  *     STELLAR_VALUE_SIGNED = 1
+ * #ifdef CAP_0083
+ *     ,
+ *     STELLAR_VALUE_EMPTY_TX_SET = 2
+ * #endif
  * };
  * ```
  */

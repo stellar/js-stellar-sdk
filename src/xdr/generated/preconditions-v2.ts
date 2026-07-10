@@ -1,10 +1,5 @@
-import { struct } from "../types/struct.js";
-import { option } from "../types/option.js";
-import { int64 } from "../types/int64.js";
-import { uint64 } from "../types/uint64.js";
-import { uint32 } from "../types/uint32.js";
-import { array } from "../types/array.js";
-import { UNBOUNDED_MAX_LENGTH, type XdrType } from "../core/xdr-type.js";
+import { array, int64, option, struct, uint32, uint64 } from "@stellar/js-xdr";
+import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import { TimeBounds, type TimeBoundsWire } from "./time-bounds.js";
 import { LedgerBounds, type LedgerBoundsWire } from "./ledger-bounds.js";

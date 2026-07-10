@@ -1,4 +1,4 @@
-import { varOpaque } from "../types/var-opaque.js";
+import { varOpaque } from "@stellar/js-xdr";
 import { BytesValue } from "../values/bytes-value.js";
 
 export type UpgradeTypeWire = Uint8Array;

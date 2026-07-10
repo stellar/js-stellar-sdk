@@ -1,7 +1,5 @@
-import { struct } from "../types/struct.js";
-import { int64 } from "../types/int64.js";
-import { uint64 } from "../types/uint64.js";
-import type { XdrType } from "../core/xdr-type.js";
+import { int64, struct, uint64 } from "@stellar/js-xdr";
+import type { XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 
 export interface Int128PartsWire {

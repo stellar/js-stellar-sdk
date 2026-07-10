@@ -2,8 +2,8 @@
 // Abstract base ↔ concrete subclass references below are intentional and safe
 // under class hoisting — every reference site runs after both classes are fully
 // initialized.
-import { case as case_, field, union } from "../types/union.js";
-import type { XdrType } from "../core/xdr-type.js";
+import { case as case_, field, union } from "@stellar/js-xdr";
+import type { XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import { EnvelopeType } from "./envelope-type.js";
 import {
@@ -22,18 +22,27 @@ import {
   HashIdPreimageSorobanAuthorization,
   type HashIdPreimageSorobanAuthorizationWire,
 } from "./hash-id-preimage-soroban-authorization.js";
+import {
+  HashIdPreimageSorobanAuthorizationWithAddress,
+  type HashIdPreimageSorobanAuthorizationWithAddressWire,
+} from "./hash-id-preimage-soroban-authorization-with-address.js";
 
 export type HashIdPreimageWire =
   | { type: 6; operationId: HashIdPreimageOperationIdWire }
   | { type: 7; revokeId: HashIdPreimageRevokeIdWire }
   | { type: 8; contractId: HashIdPreimageContractIdWire }
-  | { type: 9; sorobanAuthorization: HashIdPreimageSorobanAuthorizationWire };
+  | { type: 9; sorobanAuthorization: HashIdPreimageSorobanAuthorizationWire }
+  | {
+      type: 10;
+      sorobanAuthorizationWithAddress: HashIdPreimageSorobanAuthorizationWithAddressWire;
+    };
 
 export type HashIdPreimageVariantName =
   | "envelopeTypeOpId"
   | "envelopeTypePoolRevokeOpId"
   | "envelopeTypeContractId"
-  | "envelopeTypeSorobanAuthorization";
+  | "envelopeTypeSorobanAuthorization"
+  | "envelopeTypeSorobanAuthorizationWithAddress";
 
 /**
  * ```xdr
@@ -69,7 +78,6 @@ export type HashIdPreimageVariantName =
  *         uint32 signatureExpirationLedger;
  *         SorobanAuthorizedInvocation invocation;
  *     } sorobanAuthorization;
- * #ifdef CAP_0071
  * case ENVELOPE_TYPE_SOROBAN_AUTHORIZATION_WITH_ADDRESS:
  *     struct
  *     {
@@ -79,7 +87,6 @@ export type HashIdPreimageVariantName =
  *         SCAddress address;
  *         SorobanAuthorizedInvocation invocation;
  *     } sorobanAuthorizationWithAddress;
- * #endif
  * };
  * ```
  */
@@ -114,6 +121,14 @@ abstract class HashIdPreimageBase extends XdrValue {
             HashIdPreimageSorobanAuthorization.schema,
           ),
         ),
+        case_(
+          "envelopeTypeSorobanAuthorizationWithAddress",
+          10,
+          field(
+            "sorobanAuthorizationWithAddress",
+            HashIdPreimageSorobanAuthorizationWithAddress.schema,
+          ),
+        ),
       ],
     },
   );
@@ -142,6 +157,14 @@ abstract class HashIdPreimageBase extends XdrValue {
     return new HashIdPreimageSorobanAuthorizationArm(sorobanAuthorization);
   }
 
+  static envelopeTypeSorobanAuthorizationWithAddress(
+    sorobanAuthorizationWithAddress: HashIdPreimageSorobanAuthorizationWithAddress,
+  ): HashIdPreimageSorobanAuthorizationWithAddressArm {
+    return new HashIdPreimageSorobanAuthorizationWithAddressArm(
+      sorobanAuthorizationWithAddress,
+    );
+  }
+
   static fromXdrObject(wire: HashIdPreimageWire): HashIdPreimage {
     switch (wire.type) {
       case 6:
@@ -160,6 +183,12 @@ abstract class HashIdPreimageBase extends XdrValue {
         return new HashIdPreimageSorobanAuthorizationArm(
           HashIdPreimageSorobanAuthorization.fromXdrObject(
             wire.sorobanAuthorization,
+          ),
+        );
+      case 10:
+        return new HashIdPreimageSorobanAuthorizationWithAddressArm(
+          HashIdPreimageSorobanAuthorizationWithAddress.fromXdrObject(
+            wire.sorobanAuthorizationWithAddress,
           ),
         );
     }
@@ -253,9 +282,34 @@ export class HashIdPreimageSorobanAuthorizationArm extends HashIdPreimageBase {
   }
 }
 
+export class HashIdPreimageSorobanAuthorizationWithAddressArm extends HashIdPreimageBase {
+  readonly type = "envelopeTypeSorobanAuthorizationWithAddress" as const;
+  readonly sorobanAuthorizationWithAddress: HashIdPreimageSorobanAuthorizationWithAddress;
+
+  constructor(
+    sorobanAuthorizationWithAddress: HashIdPreimageSorobanAuthorizationWithAddress,
+  ) {
+    super();
+    this.sorobanAuthorizationWithAddress = sorobanAuthorizationWithAddress;
+  }
+
+  get value(): HashIdPreimageSorobanAuthorizationWithAddress {
+    return this.sorobanAuthorizationWithAddress;
+  }
+
+  toXdrObject(): Extract<HashIdPreimageWire, { type: 10 }> {
+    return {
+      type: 10,
+      sorobanAuthorizationWithAddress:
+        this.sorobanAuthorizationWithAddress.toXdrObject(),
+    };
+  }
+}
+
 export type HashIdPreimage =
   | HashIdPreimageOpId
   | HashIdPreimagePoolRevokeOpId
   | HashIdPreimageContractIdArm
-  | HashIdPreimageSorobanAuthorizationArm;
+  | HashIdPreimageSorobanAuthorizationArm
+  | HashIdPreimageSorobanAuthorizationWithAddressArm;
 export const HashIdPreimage = HashIdPreimageBase;

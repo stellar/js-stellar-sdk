@@ -1,6 +1,5 @@
-import { struct } from "../types/struct.js";
-import { array } from "../types/array.js";
-import { UNBOUNDED_MAX_LENGTH, type XdrType } from "../core/xdr-type.js";
+import { array, struct } from "@stellar/js-xdr";
+import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import { TransactionV0, type TransactionV0Wire } from "./transaction-v0.js";
 import {

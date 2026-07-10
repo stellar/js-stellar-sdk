@@ -1,8 +1,5 @@
-import { struct } from "../types/struct.js";
-import { uint32 } from "../types/uint32.js";
-import { int32 } from "../types/int32.js";
-import { opaque } from "../types/opaque.js";
-import type { XdrType } from "../core/xdr-type.js";
+import { int32, opaque, struct, uint32 } from "@stellar/js-xdr";
+import type { XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import { XdrString, xdrString } from "../values/xdr-string.js";
 import { Hash, type HashWire } from "./hash.js";

@@ -1,9 +1,5 @@
-import { struct } from "../types/struct.js";
-import { int64 } from "../types/int64.js";
-import { uint32 } from "../types/uint32.js";
-import { option } from "../types/option.js";
-import { array } from "../types/array.js";
-import { UNBOUNDED_MAX_LENGTH, type XdrType } from "../core/xdr-type.js";
+import { array, int64, option, struct, uint32 } from "@stellar/js-xdr";
+import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import { XdrString, xdrString } from "../values/xdr-string.js";
 import { PublicKey, type PublicKeyWire } from "./public-key.js";

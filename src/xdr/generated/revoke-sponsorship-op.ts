@@ -2,8 +2,8 @@
 // Abstract base ↔ concrete subclass references below are intentional and safe
 // under class hoisting — every reference site runs after both classes are fully
 // initialized.
-import { case as case_, field, union } from "../types/union.js";
-import type { XdrType } from "../core/xdr-type.js";
+import { case as case_, field, union } from "@stellar/js-xdr";
+import type { XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import { RevokeSponsorshipType } from "./revoke-sponsorship-type.js";
 import { LedgerKey, type LedgerKeyWire } from "./ledger-key.js";

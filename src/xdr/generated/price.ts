@@ -1,6 +1,5 @@
-import { struct } from "../types/struct.js";
-import { int32 } from "../types/int32.js";
-import type { XdrType } from "../core/xdr-type.js";
+import { int32, struct } from "@stellar/js-xdr";
+import type { XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 
 export interface PriceWire {

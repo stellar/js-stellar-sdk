@@ -1,7 +1,5 @@
-import { struct } from "../types/struct.js";
-import { array } from "../types/array.js";
-import { uint64 } from "../types/uint64.js";
-import { UNBOUNDED_MAX_LENGTH, type XdrType } from "../core/xdr-type.js";
+import { array, struct, uint64 } from "@stellar/js-xdr";
+import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import {
   LedgerCloseMetaExt,

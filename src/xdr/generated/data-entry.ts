@@ -1,5 +1,5 @@
-import { struct } from "../types/struct.js";
-import type { XdrType } from "../core/xdr-type.js";
+import { struct } from "@stellar/js-xdr";
+import type { XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import { XdrString, xdrString } from "../values/xdr-string.js";
 import { PublicKey, type PublicKeyWire } from "./public-key.js";

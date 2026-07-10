@@ -2,9 +2,8 @@
 // Abstract base ↔ concrete subclass references below are intentional and safe
 // under class hoisting — every reference site runs after both classes are fully
 // initialized.
-import { case as case_, field, union } from "../types/union.js";
-import { void as voidType } from "../types/void.js";
-import type { XdrType } from "../core/xdr-type.js";
+import { case as case_, field, union, void as voidType } from "@stellar/js-xdr";
+import type { XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import { StellarValueType } from "./stellar-value-type.js";
 import {
@@ -28,6 +27,16 @@ export type StellarValueExtVariantName =
  *         void;
  *     case STELLAR_VALUE_SIGNED:
  *         LedgerCloseValueSignature lcValueSignature;
+ * #ifdef CAP_0083
+ *     case STELLAR_VALUE_EMPTY_TX_SET:
+ *         struct
+ *         {
+ *             Hash txSetHash;
+ *             Hash previousLedgerHash;
+ *             uint32 previousLedgerVersion;
+ *             LedgerCloseValueSignature lcValueSignature;
+ *         } proposedValue;
+ * #endif
  *     }
  * ```
  */

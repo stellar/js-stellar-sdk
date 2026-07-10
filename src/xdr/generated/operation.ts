@@ -1,6 +1,5 @@
-import { struct } from "../types/struct.js";
-import { option } from "../types/option.js";
-import type { XdrType } from "../core/xdr-type.js";
+import { option, struct } from "@stellar/js-xdr";
+import type { XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import { MuxedAccount, type MuxedAccountWire } from "./muxed-account.js";
 import { OperationBody, type OperationBodyWire } from "./operation-body.js";

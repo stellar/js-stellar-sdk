@@ -1,7 +1,5 @@
-import { struct } from "../types/struct.js";
-import { option } from "../types/option.js";
-import { uint32 } from "../types/uint32.js";
-import type { XdrType } from "../core/xdr-type.js";
+import { option, struct, uint32 } from "@stellar/js-xdr";
+import type { XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import { Hash, type HashWire } from "./hash.js";
 import { ScpBallot, type ScpBallotWire } from "./scp-ballot.js";

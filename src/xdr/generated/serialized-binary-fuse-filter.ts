@@ -1,7 +1,5 @@
-import { struct } from "../types/struct.js";
-import { uint32 } from "../types/uint32.js";
-import { varOpaque } from "../types/var-opaque.js";
-import { UNBOUNDED_MAX_LENGTH, type XdrType } from "../core/xdr-type.js";
+import { struct, uint32, varOpaque } from "@stellar/js-xdr";
+import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import {
   BinaryFuseFilterType,

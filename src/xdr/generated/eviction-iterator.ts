@@ -1,8 +1,5 @@
-import { struct } from "../types/struct.js";
-import { uint32 } from "../types/uint32.js";
-import { bool } from "../types/bool.js";
-import { uint64 } from "../types/uint64.js";
-import type { XdrType } from "../core/xdr-type.js";
+import { bool, struct, uint32, uint64 } from "@stellar/js-xdr";
+import type { XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 
 export interface EvictionIteratorWire {

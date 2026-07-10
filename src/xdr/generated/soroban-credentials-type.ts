@@ -1,4 +1,4 @@
-import { enumType } from "../types/enum.js";
+import { enumType } from "@stellar/js-xdr";
 import {
   EnumValue,
   enumFromName,
@@ -10,19 +10,18 @@ export type SorobanCredentialsTypeWire = number;
 
 export type SorobanCredentialsTypeName =
   | "sorobanCredentialsSourceAccount"
-  | "sorobanCredentialsAddress";
+  | "sorobanCredentialsAddress"
+  | "sorobanCredentialsAddressV2"
+  | "sorobanCredentialsAddressWithDelegates";
 
 /**
  * ```xdr
  * enum SorobanCredentialsType
  * {
  *     SOROBAN_CREDENTIALS_SOURCE_ACCOUNT = 0,
- *     SOROBAN_CREDENTIALS_ADDRESS = 1
- * #ifdef CAP_0071
- *     ,
+ *     SOROBAN_CREDENTIALS_ADDRESS = 1,
  *     SOROBAN_CREDENTIALS_ADDRESS_V2 = 2,
  *     SOROBAN_CREDENTIALS_ADDRESS_WITH_DELEGATES = 3
- * #endif
  * };
  * ```
  */
@@ -35,11 +34,19 @@ export class SorobanCredentialsType extends EnumValue<SorobanCredentialsTypeName
     "sorobanCredentialsAddress",
     1,
   );
+  static readonly sorobanCredentialsAddressV2 = new SorobanCredentialsType(
+    "sorobanCredentialsAddressV2",
+    2,
+  );
+  static readonly sorobanCredentialsAddressWithDelegates =
+    new SorobanCredentialsType("sorobanCredentialsAddressWithDelegates", 3);
 
   static readonly schema = withMemberPrefix(
     enumType("SorobanCredentialsType", {
       sorobanCredentialsSourceAccount: 0,
       sorobanCredentialsAddress: 1,
+      sorobanCredentialsAddressV2: 2,
+      sorobanCredentialsAddressWithDelegates: 3,
     }),
     "sorobanCredentials",
   );

@@ -1,7 +1,5 @@
-import { struct } from "../types/struct.js";
-import { array } from "../types/array.js";
-import { int64 } from "../types/int64.js";
-import { UNBOUNDED_MAX_LENGTH, type XdrType } from "../core/xdr-type.js";
+import { array, int64, struct } from "@stellar/js-xdr";
+import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import {
   ClaimableBalanceId,

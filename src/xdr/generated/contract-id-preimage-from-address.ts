@@ -1,6 +1,5 @@
-import { struct } from "../types/struct.js";
-import { opaque } from "../types/opaque.js";
-import type { XdrType } from "../core/xdr-type.js";
+import { opaque, struct } from "@stellar/js-xdr";
+import type { XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import { ScAddress, type ScAddressWire } from "./sc-address.js";
 

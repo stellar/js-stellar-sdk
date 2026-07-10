@@ -1,6 +1,5 @@
-import { struct } from "../types/struct.js";
-import { array } from "../types/array.js";
-import { UNBOUNDED_MAX_LENGTH, type XdrType } from "../core/xdr-type.js";
+import { array, struct } from "@stellar/js-xdr";
+import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import { ScpEnvelope, type ScpEnvelopeWire } from "./scp-envelope.js";
 import { ScpQuorumSet, type ScpQuorumSetWire } from "./scp-quorum-set.js";

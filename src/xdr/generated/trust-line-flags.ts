@@ -1,4 +1,4 @@
-import { enumType } from "../types/enum.js";
+import { enumType } from "@stellar/js-xdr";
 import {
   EnumValue,
   enumFromName,

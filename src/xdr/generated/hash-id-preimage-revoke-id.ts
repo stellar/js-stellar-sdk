@@ -1,7 +1,5 @@
-import { struct } from "../types/struct.js";
-import { int64 } from "../types/int64.js";
-import { uint32 } from "../types/uint32.js";
-import type { XdrType } from "../core/xdr-type.js";
+import { int64, struct, uint32 } from "@stellar/js-xdr";
+import type { XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import { PublicKey, type PublicKeyWire } from "./public-key.js";
 import { PoolId, type PoolIdWire } from "./pool-id.js";

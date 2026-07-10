@@ -1,7 +1,5 @@
-import { struct } from "../types/struct.js";
-import { uint64 } from "../types/uint64.js";
-import { array } from "../types/array.js";
-import { UNBOUNDED_MAX_LENGTH, type XdrType } from "../core/xdr-type.js";
+import { array, struct, uint64 } from "@stellar/js-xdr";
+import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import { Hash, type HashWire } from "./hash.js";
 import { UpgradeType, type UpgradeTypeWire } from "./upgrade-type.js";
@@ -38,6 +36,16 @@ export interface StellarValueWire {
  *         void;
  *     case STELLAR_VALUE_SIGNED:
  *         LedgerCloseValueSignature lcValueSignature;
+ * #ifdef CAP_0083
+ *     case STELLAR_VALUE_EMPTY_TX_SET:
+ *         struct
+ *         {
+ *             Hash txSetHash;
+ *             Hash previousLedgerHash;
+ *             uint32 previousLedgerVersion;
+ *             LedgerCloseValueSignature lcValueSignature;
+ *         } proposedValue;
+ * #endif
  *     }
  *     ext;
  * };

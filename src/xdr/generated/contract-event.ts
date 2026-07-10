@@ -1,6 +1,5 @@
-import { struct } from "../types/struct.js";
-import { option } from "../types/option.js";
-import type { XdrType } from "../core/xdr-type.js";
+import { option, struct } from "@stellar/js-xdr";
+import type { XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import { ExtensionPoint, type ExtensionPointWire } from "./extension-point.js";
 import { ContractId, type ContractIdWire } from "./contract-id.js";

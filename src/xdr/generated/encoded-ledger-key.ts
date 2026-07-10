@@ -1,5 +1,5 @@
-import { varOpaque } from "../types/var-opaque.js";
-import { UNBOUNDED_MAX_LENGTH } from "../core/xdr-type.js";
+import { varOpaque } from "@stellar/js-xdr";
+import { UNBOUNDED_MAX_LENGTH } from "@stellar/js-xdr";
 import { BytesValue } from "../values/bytes-value.js";
 
 export type EncodedLedgerKeyWire = Uint8Array;

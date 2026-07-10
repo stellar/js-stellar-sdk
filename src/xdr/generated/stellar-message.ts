@@ -2,11 +2,15 @@
 // Abstract base ↔ concrete subclass references below are intentional and safe
 // under class hoisting — every reference site runs after both classes are fully
 // initialized.
-import { case as case_, field, union } from "../types/union.js";
-import { array } from "../types/array.js";
-import { opaque } from "../types/opaque.js";
-import { uint32 } from "../types/uint32.js";
-import { UNBOUNDED_MAX_LENGTH, type XdrType } from "../core/xdr-type.js";
+import {
+  array,
+  case as case_,
+  field,
+  opaque,
+  uint32,
+  union,
+} from "@stellar/js-xdr";
+import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import { MessageType } from "./message-type.js";
 import { Error, type ErrorWire } from "./error.js";

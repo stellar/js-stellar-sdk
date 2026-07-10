@@ -1,6 +1,5 @@
-import { struct } from "../types/struct.js";
-import { varOpaque } from "../types/var-opaque.js";
-import { UNBOUNDED_MAX_LENGTH, type XdrType } from "../core/xdr-type.js";
+import { struct, varOpaque } from "@stellar/js-xdr";
+import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import {
   ContractCodeEntryExt,

@@ -1,4 +1,4 @@
-import { opaque } from "../types/opaque.js";
+import { opaque } from "@stellar/js-xdr";
 import { BytesValue } from "../values/bytes-value.js";
 
 export type AssetCode12Wire = Uint8Array;

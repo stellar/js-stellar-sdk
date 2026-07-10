@@ -1,4 +1,4 @@
-import { enumType } from "../types/enum.js";
+import { enumType } from "@stellar/js-xdr";
 import {
   EnumValue,
   enumFromName,
@@ -18,7 +18,8 @@ export type EnvelopeTypeName =
   | "envelopeTypeOpId"
   | "envelopeTypePoolRevokeOpId"
   | "envelopeTypeContractId"
-  | "envelopeTypeSorobanAuthorization";
+  | "envelopeTypeSorobanAuthorization"
+  | "envelopeTypeSorobanAuthorizationWithAddress";
 
 /**
  * ```xdr
@@ -33,11 +34,8 @@ export type EnvelopeTypeName =
  *     ENVELOPE_TYPE_OP_ID = 6,
  *     ENVELOPE_TYPE_POOL_REVOKE_OP_ID = 7,
  *     ENVELOPE_TYPE_CONTRACT_ID = 8,
- *     ENVELOPE_TYPE_SOROBAN_AUTHORIZATION = 9
- * #ifdef CAP_0071
- *     ,
+ *     ENVELOPE_TYPE_SOROBAN_AUTHORIZATION = 9,
  *     ENVELOPE_TYPE_SOROBAN_AUTHORIZATION_WITH_ADDRESS = 10
- * #endif
  * };
  * ```
  */
@@ -67,6 +65,8 @@ export class EnvelopeType extends EnumValue<EnvelopeTypeName> {
     "envelopeTypeSorobanAuthorization",
     9,
   );
+  static readonly envelopeTypeSorobanAuthorizationWithAddress =
+    new EnvelopeType("envelopeTypeSorobanAuthorizationWithAddress", 10);
 
   static readonly schema = withMemberPrefix(
     enumType("EnvelopeType", {
@@ -80,6 +80,7 @@ export class EnvelopeType extends EnumValue<EnvelopeTypeName> {
       envelopeTypePoolRevokeOpId: 7,
       envelopeTypeContractId: 8,
       envelopeTypeSorobanAuthorization: 9,
+      envelopeTypeSorobanAuthorizationWithAddress: 10,
     }),
     "envelopeType",
   );

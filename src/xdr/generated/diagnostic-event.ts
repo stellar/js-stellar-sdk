@@ -1,6 +1,5 @@
-import { struct } from "../types/struct.js";
-import { bool } from "../types/bool.js";
-import type { XdrType } from "../core/xdr-type.js";
+import { bool, struct } from "@stellar/js-xdr";
+import type { XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import { ContractEvent, type ContractEventWire } from "./contract-event.js";
 
