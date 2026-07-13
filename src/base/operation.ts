@@ -12,6 +12,7 @@ import {
   TrustLineFlags,
 } from "../xdr/index.js";
 
+import { uint8ArrayToString } from "uint8array-extras";
 import { trimEnd } from "./util/util.js";
 import { encodeMuxedAccountToAddress } from "./util/decode_encode_muxed_account.js";
 
@@ -213,8 +214,10 @@ export class Operation {
       case "allowTrust": {
         result.type = "allowTrust";
         result.trustor = accountIdtoAddress(attrs.trustor);
-        result.assetCode = new TextDecoder().decode(attrs.asset.value.value);
-        result.assetCode = trimEnd(result.assetCode as string, "\0");
+        result.assetCode = trimEnd(
+          uint8ArrayToString(attrs.asset.value.value),
+          "\0",
+        );
         result.authorize = attrs.authorize;
         break;
       }

@@ -155,8 +155,9 @@ export async function authorizeEntry(
     return entry;
   }
 
-  const clone = SorobanAuthorizationEntry.fromXdr(entry.toXdr());
-  const credentials = clone.credentials;
+  // XDR values are immutable, so the input entry can be read directly — the
+  // result below is always a freshly-built entry, never a mutation of it.
+  const credentials = entry.credentials;
   const addrAuth = getAddressCredentials(credentials);
   if (addrAuth === null) {
     // We should have already returned if the credentials were source account
@@ -171,12 +172,12 @@ export async function authorizeEntry(
   // sync. Otherwise the network reconstructs the preimage from the updated
   // credentials and the signature no longer matches.
   const preimage = buildAuthorizationEntryPreimage(
-    clone,
+    entry,
     validUntilLedgerSeq,
     networkPassphrase,
   );
 
-  const payload = hash(Buffer.from(preimage.toXdr()));
+  const payload = hash(preimage.toXdr());
 
   let signature: Buffer;
   let publicKey: string;
@@ -247,7 +248,7 @@ export async function authorizeEntry(
 
   return new SorobanAuthorizationEntry({
     credentials: signedCredentials,
-    rootInvocation: clone.rootInvocation,
+    rootInvocation: entry.rootInvocation,
   });
 }
 

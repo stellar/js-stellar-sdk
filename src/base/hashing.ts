@@ -5,7 +5,7 @@ import { sha256 } from "@noble/hashes/sha2.js";
  *
  * @param data - the data to hash
  */
-export function hash(data: Buffer | string): Buffer {
+export function hash(data: Uint8Array | string): Buffer {
   // Preserve the current UTF-8 string handling while returning a Buffer.
   const bytes = typeof data === "string" ? Buffer.from(data, "utf8") : data;
   return Buffer.from(sha256(bytes));

@@ -3,9 +3,10 @@ import {
   uint8ArrayToHex,
   base64ToUint8Array,
   uint8ArrayToBase64,
+  areUint8ArraysEqual,
 } from "uint8array-extras";
 import type { XdrType } from "@stellar/js-xdr";
-import { XdrError } from "@stellar/js-xdr";
+import { Reader, XdrError } from "@stellar/js-xdr";
 import { walkToJson, walkFromJson } from "./to-json.js";
 
 export type XdrFormat = "raw" | "hex" | "base64";
@@ -74,11 +75,7 @@ export abstract class XdrValue {
     if (this === other) return true;
     if (other == null || !(other instanceof XdrValue)) return false;
     if (this.constructor !== other.constructor) return false;
-    const a = this.toXdr();
-    const b = other.toXdr();
-    if (a.length !== b.length) return false;
-    for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return false;
-    return true;
+    return areUint8ArraysEqual(this.toXdr(), other.toXdr());
   }
 
   static fromXdr<Wire, Instance extends XdrValue>(
@@ -105,6 +102,34 @@ export abstract class XdrValue {
   ): Instance {
     return this.fromXdrObject(walkFromJson(json, this.schema) as Wire);
   }
+}
+
+/**
+ * Decode a buffer containing several XDR values of one type, concatenated
+ * back-to-back (e.g. a contract spec's `ScSpecEntry` stream). Throws
+ * `XdrError` if the buffer ends mid-value.
+ */
+export function decodeStream<Wire, Instance extends XdrValue>(
+  type: XdrValueConstructor<Wire, Instance>,
+  input: Uint8Array,
+): Instance[];
+export function decodeStream<Wire, Instance extends XdrValue>(
+  type: XdrValueConstructor<Wire, Instance>,
+  input: string,
+  format: "hex" | "base64",
+): Instance[];
+export function decodeStream<Wire, Instance extends XdrValue>(
+  type: XdrValueConstructor<Wire, Instance>,
+  input: Uint8Array | string,
+  format?: "hex" | "base64",
+): Instance[] {
+  const reader = new Reader(decodeBytes(input, format));
+  const path = type.schema.name ?? type.name;
+  const out: Instance[] = [];
+  while (reader.remaining > 0) {
+    out.push(type.fromXdrObject(type.schema._read(reader, path)));
+  }
+  return out;
 }
 
 export function encodeBytes(

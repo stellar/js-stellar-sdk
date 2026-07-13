@@ -335,6 +335,49 @@ function asUint8Array(buf: Buffer): Uint8Array {
 // ---------- overrides ----------
 // StrKey-encoded addresses.
 
+// Shared wire ↔ strkey codecs for shapes that appear in several overrides.
+
+interface Med25519Wire {
+  id: bigint;
+  ed25519: Uint8Array;
+}
+
+function med25519ToStrkey(w: Med25519Wire): string {
+  const payload = Buffer.alloc(40);
+  payload.set(w.ed25519, 0);
+  payload.writeBigUInt64BE(w.id, 32);
+  return StrKey.encodeMed25519PublicKey(payload);
+}
+
+function med25519FromStrkey(json: string): Med25519Wire {
+  const raw = StrKey.decodeMed25519PublicKey(json);
+  return {
+    id: raw.readBigUInt64BE(32),
+    ed25519: asUint8Array(raw.subarray(0, 32)),
+  };
+}
+
+interface SignedPayloadWire {
+  ed25519: Uint8Array;
+  payload: Uint8Array;
+}
+
+function signedPayloadToStrkey(w: SignedPayloadWire): string {
+  const buf = Buffer.alloc(32 + 4 + roundUp4(w.payload.length));
+  buf.set(w.ed25519, 0);
+  buf.writeUInt32BE(w.payload.length, 32);
+  buf.set(w.payload, 36);
+  return StrKey.encodeSignedPayload(buf);
+}
+
+function signedPayloadFromStrkey(json: string): SignedPayloadWire {
+  const raw = StrKey.decodeSignedPayload(json);
+  return {
+    ed25519: asUint8Array(raw.subarray(0, 32)),
+    payload: asUint8Array(raw.subarray(36, 36 + raw.readUInt32BE(32))),
+  };
+}
+
 OVERRIDES.set("PublicKey", {
   toJson(wire) {
     const w = wire as { type: number; ed25519: Uint8Array };
@@ -364,10 +407,7 @@ OVERRIDES.set("MuxedAccount", {
     if (w.type === 0) {
       return StrKey.encodeEd25519PublicKey(asBuffer(w.ed25519));
     }
-    const payload = Buffer.alloc(40);
-    payload.set(w.med25519.ed25519, 0);
-    payload.writeBigUInt64BE(w.med25519.id, 32);
-    return StrKey.encodeMed25519PublicKey(payload);
+    return med25519ToStrkey(w.med25519);
   },
   fromJson(json) {
     if (typeof json !== "string") {
@@ -380,57 +420,31 @@ OVERRIDES.set("MuxedAccount", {
       };
     }
     if (json.startsWith("M")) {
-      const raw = StrKey.decodeMed25519PublicKey(json);
-      const ed25519 = asUint8Array(raw.subarray(0, 32));
-      const id = raw.readBigUInt64BE(32);
-      return { type: 256, med25519: { id, ed25519 } };
+      return { type: 256, med25519: med25519FromStrkey(json) };
     }
     throw new XdrError(`MuxedAccount: unsupported strkey prefix in ${json}`);
   },
 });
 
-OVERRIDES.set("MuxedEd25519Account", {
+// Standalone med25519-shaped structs render as an M-address in the reference,
+// so each named schema gets the shared codec as its own override. This covers
+// `MuxedEd25519Account` and the `MuxedAccount.med25519` arm struct
+// (`MuxedAccountMed25519`), which is normally rendered through the
+// `MuxedAccount` override above but also string-encodes when standalone.
+const MED25519_OVERRIDE: JsonOverride = {
   toJson(wire) {
-    const w = wire as { id: bigint; ed25519: Uint8Array };
-    const payload = Buffer.alloc(40);
-    payload.set(w.ed25519, 0);
-    payload.writeBigUInt64BE(w.id, 32);
-    return StrKey.encodeMed25519PublicKey(payload);
+    return med25519ToStrkey(wire as Med25519Wire);
   },
   fromJson(json) {
     if (typeof json !== "string") {
-      throw new XdrError("MuxedEd25519Account: expected M-strkey string");
+      throw new XdrError("med25519 account: expected M-strkey string");
     }
-    const raw = StrKey.decodeMed25519PublicKey(json);
-    return {
-      id: raw.readBigUInt64BE(32),
-      ed25519: asUint8Array(raw.subarray(0, 32)),
-    };
+    return med25519FromStrkey(json);
   },
-});
+};
 
-// The `MuxedAccount.med25519` arm struct. Normally rendered through the
-// `MuxedAccount` override above, but the reference also string-encodes it (as
-// an M-address) when serialized standalone, so it needs its own override.
-OVERRIDES.set("MuxedAccountMed25519", {
-  toJson(wire) {
-    const w = wire as { id: bigint; ed25519: Uint8Array };
-    const payload = Buffer.alloc(40);
-    payload.set(w.ed25519, 0);
-    payload.writeBigUInt64BE(w.id, 32);
-    return StrKey.encodeMed25519PublicKey(payload);
-  },
-  fromJson(json) {
-    if (typeof json !== "string") {
-      throw new XdrError("MuxedAccountMed25519: expected M-strkey string");
-    }
-    const raw = StrKey.decodeMed25519PublicKey(json);
-    return {
-      id: raw.readBigUInt64BE(32),
-      ed25519: asUint8Array(raw.subarray(0, 32)),
-    };
-  },
-});
+OVERRIDES.set("MuxedEd25519Account", MED25519_OVERRIDE);
+OVERRIDES.set("MuxedAccountMed25519", MED25519_OVERRIDE);
 
 OVERRIDES.set("SignerKey", {
   toJson(wire) {
@@ -449,14 +463,8 @@ OVERRIDES.set("SignerKey", {
         return StrKey.encodePreAuthTx(asBuffer(w.preAuthTx));
       case 2:
         return StrKey.encodeSha256Hash(asBuffer(w.hashX));
-      case 3: {
-        const sp = w.ed25519SignedPayload;
-        const buf = Buffer.alloc(32 + 4 + roundUp4(sp.payload.length));
-        buf.set(sp.ed25519, 0);
-        buf.writeUInt32BE(sp.payload.length, 32);
-        buf.set(sp.payload, 36);
-        return StrKey.encodeSignedPayload(buf);
-      }
+      case 3:
+        return signedPayloadToStrkey(w.ed25519SignedPayload);
     }
   },
   fromJson(json) {
@@ -479,11 +487,7 @@ OVERRIDES.set("SignerKey", {
       return { type: 2, hashX: asUint8Array(StrKey.decodeSha256Hash(json)) };
     }
     if (json.startsWith("P")) {
-      const raw = StrKey.decodeSignedPayload(json);
-      const ed25519 = asUint8Array(raw.subarray(0, 32));
-      const payloadLen = raw.readUInt32BE(32);
-      const payload = asUint8Array(raw.subarray(36, 36 + payloadLen));
-      return { type: 3, ed25519SignedPayload: { ed25519, payload } };
+      return { type: 3, ed25519SignedPayload: signedPayloadFromStrkey(json) };
     }
     throw new XdrError(`SignerKey: unsupported strkey prefix in ${json}`);
   },
@@ -494,12 +498,7 @@ OVERRIDES.set("SignerKey", {
 // standalone, so it needs its own override in addition to the `SignerKey` one.
 OVERRIDES.set("SignerKeyEd25519SignedPayload", {
   toJson(wire) {
-    const w = wire as { ed25519: Uint8Array; payload: Uint8Array };
-    const buf = Buffer.alloc(32 + 4 + roundUp4(w.payload.length));
-    buf.set(w.ed25519, 0);
-    buf.writeUInt32BE(w.payload.length, 32);
-    buf.set(w.payload, 36);
-    return StrKey.encodeSignedPayload(buf);
+    return signedPayloadToStrkey(wire as SignedPayloadWire);
   },
   fromJson(json) {
     if (typeof json !== "string") {
@@ -507,11 +506,7 @@ OVERRIDES.set("SignerKeyEd25519SignedPayload", {
         "SignerKeyEd25519SignedPayload: expected P-strkey string",
       );
     }
-    const raw = StrKey.decodeSignedPayload(json);
-    return {
-      ed25519: asUint8Array(raw.subarray(0, 32)),
-      payload: asUint8Array(raw.subarray(36, 36 + raw.readUInt32BE(32))),
-    };
+    return signedPayloadFromStrkey(json);
   },
 });
 
@@ -534,12 +529,8 @@ OVERRIDES.set("ScAddress", {
         return StrKey.encodeEd25519PublicKey(asBuffer(w.accountId.ed25519));
       case 1:
         return StrKey.encodeContract(asBuffer(w.contractId));
-      case 2: {
-        const payload = Buffer.alloc(40);
-        payload.set(w.muxedAccount.ed25519, 0);
-        payload.writeBigUInt64BE(w.muxedAccount.id, 32);
-        return StrKey.encodeMed25519PublicKey(payload);
-      }
+      case 2:
+        return med25519ToStrkey(w.muxedAccount);
       case 3: {
         const cb = w.claimableBalanceId;
         // CLAIMABLE_BALANCE_ID_TYPE_V0 (=0) prefix-byte
@@ -569,14 +560,7 @@ OVERRIDES.set("ScAddress", {
       return { type: 1, contractId: asUint8Array(StrKey.decodeContract(json)) };
     }
     if (json.startsWith("M")) {
-      const raw = StrKey.decodeMed25519PublicKey(json);
-      return {
-        type: 2,
-        muxedAccount: {
-          id: raw.readBigUInt64BE(32),
-          ed25519: asUint8Array(raw.subarray(0, 32)),
-        },
-      };
+      return { type: 2, muxedAccount: med25519FromStrkey(json) };
     }
     if (json.startsWith("B")) {
       const raw = StrKey.decodeClaimableBalance(json);

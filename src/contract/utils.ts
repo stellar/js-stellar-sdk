@@ -1,8 +1,7 @@
 import { Account } from "../base/index.js";
 import { Server } from "../rpc/index.js";
 import { NULL_ACCOUNT, type AssembledTransactionOptions } from "./types.js";
-import { ScSpecEntry } from "../xdr/index.js";
-import { Reader } from "@stellar/js-xdr";
+import { ScSpecEntry, decodeStream } from "../xdr/index.js";
 
 /**
  * Keep calling a `fn` for `timeoutInSeconds` seconds, if `keepWaitingIf` is
@@ -180,13 +179,7 @@ export function parseWasmCustomSections(
  * @hidden
  */
 export function processSpecEntryStream(buffer: Buffer) {
-  const reader = new Reader(new Uint8Array(buffer));
-  const res: ScSpecEntry[] = [];
-  while (reader.remaining > 0) {
-    const wire = (ScSpecEntry as any).schema._read(reader, "ScSpecEntry");
-    res.push(ScSpecEntry.fromXdrObject(wire));
-  }
-  return res;
+  return decodeStream(ScSpecEntry, new Uint8Array(buffer));
 }
 
 export async function getAccount<T>(

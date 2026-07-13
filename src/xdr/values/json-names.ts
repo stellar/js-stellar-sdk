@@ -66,6 +66,12 @@ export function structFieldJsonName(field: string): string {
   return RUST_KEYWORD_FIELDS.has(name) ? `${name}_` : name;
 }
 
+// Name maps are derived purely from the (immutable) schema, and the walker
+// asks for them on every enum/union node it visits — memoize per schema so
+// large values (transaction metas) don't rebuild the same maps repeatedly.
+const ENUM_NAME_CACHE = new WeakMap<object, JsonNameMap>();
+const UNION_NAME_CACHE = new WeakMap<object, JsonNameMap>();
+
 /**
  * Canonical JSON names for an enum's members. Strips the enum's camelized
  * `member_prefix` (attached as `memberPrefix` for enums with one, e.g.
@@ -76,6 +82,8 @@ export function enumJsonNames(
   memberPrefix: string | undefined,
   nameByValue: ReadonlyMap<number, string>,
 ): JsonNameMap {
+  const cached = ENUM_NAME_CACHE.get(nameByValue);
+  if (cached) return cached;
   const bySource = new Map<string, string>();
   const byJson = new Map<string, string>();
   for (const member of nameByValue.values()) {
@@ -87,7 +95,9 @@ export function enumJsonNames(
     bySource.set(member, jsonName);
     byJson.set(jsonName, member);
   }
-  return { bySource, byJson };
+  const result = { bySource, byJson };
+  ENUM_NAME_CACHE.set(nameByValue, result);
+  return result;
 }
 
 interface UnionView {
@@ -107,6 +117,14 @@ interface UnionView {
  * Int-switched ext/version unions use `v<discriminant>` (`v0`/`v1`).
  */
 export function unionCaseNames(schema: UnionView): JsonNameMap {
+  const cached = UNION_NAME_CACHE.get(schema);
+  if (cached) return cached;
+  const result = buildUnionCaseNames(schema);
+  UNION_NAME_CACHE.set(schema, result);
+  return result;
+}
+
+function buildUnionCaseNames(schema: UnionView): JsonNameMap {
   const switchOn = schema.switchOn as {
     kind: string;
     nameByValue?: ReadonlyMap<number, string>;

@@ -1,3 +1,4 @@
+import { areUint8ArraysEqual } from "uint8array-extras";
 import type { Reader } from "@stellar/js-xdr";
 import type { Writer } from "@stellar/js-xdr";
 import { BaseType, XdrError, type XdrType } from "@stellar/js-xdr";
@@ -182,11 +183,7 @@ export class XdrString {
   equals(other: XdrString): boolean {
     if (this === other) return true;
     if (!(other instanceof XdrString)) return false;
-    if (this.bytes.length !== other.bytes.length) return false;
-    for (let i = 0; i < this.bytes.length; i += 1) {
-      if (this.bytes[i] !== other.bytes[i]) return false;
-    }
-    return true;
+    return areUint8ArraysEqual(this.bytes, other.bytes);
   }
 }
 

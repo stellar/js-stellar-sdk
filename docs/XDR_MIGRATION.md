@@ -668,7 +668,15 @@ xdr.AlphaNum4.fromJson({ assetCode: "USD", issuer: "GAAQ…" }); // legacy
 The SDK's XDR runtime is now `@stellar/js-xdr` v5 (previously v4), and the SDK
 **no longer exports `Reader` or `Writer`** — they are internal runtime details.
 For decoding and encoding, use `Type.fromXdr(...)` and `value.toXdr(...)` (see §
-7).
+7). For the main legacy `Reader` use case — several values of one type
+concatenated in a single buffer — use the new `xdr.decodeStream` helper:
+
+```ts
+import { xdr } from "@stellar/stellar-sdk";
+
+// Uint8Array containing N back-to-back ScSpecEntry values:
+const entries = xdr.decodeStream(xdr.ScSpecEntry, bytes);
+```
 
 If you depended on the `Reader`/`Writer` previously obtained through the SDK,
 depend on `@stellar/js-xdr` directly instead. Note that v5's `Reader`/`Writer`
