@@ -1,4 +1,7 @@
-# XDR Architecture
+---
+title: XDR Architecture
+description: Internal architecture of the in-tree XDR layer for SDK contributors.
+---
 
 This document describes the internal architecture of the in-tree XDR layer
 under `src/xdr/`. It's intended for SDK contributors — people fixing bugs,

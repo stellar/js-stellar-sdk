@@ -1,4 +1,7 @@
-# Migration Guide
+---
+title: XDR Migration Guide
+description: How to migrate existing code to the class-based XDR API in @stellar/stellar-sdk.
+---
 
 This release replaces the `@stellar/js-xdr`-backed XDR layer with an in-tree,
 class-based one (`src/base/xdr/`). The wire format is unchanged, but **every XDR
