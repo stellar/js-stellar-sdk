@@ -7,12 +7,11 @@ import {
 } from "../../../../src/base/numbers/index.js";
 import * as xdr from "../../../../src/xdr/index.js";
 
-// XdrLargeInt accepts slices in big-endian order (parts[0] = most
-// significant). The legacy `new Int128(lo, hi).toBigInt()` constructor used
-// the same big-endian convention via spread args, so we mirror it here as
-// helpers for the existing test assertions.
+// XdrLargeInt accepts slices in little-endian order (parts[0] = least
+// significant), matching the legacy `new Int128(lo, hi).toBigInt()` spread-arg
+// convention. Mirrored here as helpers for the existing test assertions.
 const combine128 = (lo: bigint, hi: bigint, signed: boolean): bigint =>
-  new XdrLargeInt(signed ? "i128" : "u128", [hi, lo]).toBigInt();
+  new XdrLargeInt(signed ? "i128" : "u128", [lo, hi]).toBigInt();
 const combine256 = (
   loLo: bigint,
   loHi: bigint,
@@ -21,10 +20,10 @@ const combine256 = (
   signed: boolean,
 ): bigint =>
   new XdrLargeInt(signed ? "i256" : "u256", [
-    hiHi,
-    hiLo,
-    loHi,
     loLo,
+    loHi,
+    hiLo,
+    hiHi,
   ]).toBigInt();
 
 describe("ScInt", () => {

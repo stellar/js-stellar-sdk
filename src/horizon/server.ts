@@ -43,7 +43,7 @@ import {
 } from "./horizon_axios_client.js";
 import type { HttpClient } from "../http-client/index.js";
 import { OperationResult, TransactionResult } from "../xdr/index.js";
-import { isUnionVarient } from "../xdr/util.js";
+import { isUnionVariant } from "../xdr/util.js";
 
 /**
  * Default transaction submission timeout for Horizon requests, in milliseconds
@@ -365,8 +365,8 @@ export class HorizonServer {
         let results: OperationResult[] | undefined;
 
         if (
-          isUnionVarient(responseXDR.result, "txSuccess") ||
-          isUnionVarient(responseXDR.result, "txFailed")
+          isUnionVariant(responseXDR.result, "txSuccess") ||
+          isUnionVariant(responseXDR.result, "txFailed")
         ) {
           results = responseXDR.result.results;
         }

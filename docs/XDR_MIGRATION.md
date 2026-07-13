@@ -128,12 +128,12 @@ variant when a full `switch`/`if` on `.type` is overkill:
 import { xdr } from "@stellar/stellar-sdk";
 
 // Assert-and-narrow — throws TypeError on mismatch
-const v1 = xdr.expectUnionVarient(tx.toEnvelope(), "envelopeTypeTx").v1;
-const cond = xdr.expectUnionVarient(v1.tx.cond, "precondV2").v2;
+const v1 = xdr.expectUnionVariant(tx.toEnvelope(), "envelopeTypeTx").v1;
+const cond = xdr.expectUnionVariant(v1.tx.cond, "precondV2").v2;
 // cond is fully typed PreconditionsV2 here
 
 // Type-guard form — narrows inside the branch
-if (xdr.isUnionVarient(scv, "scvU32")) {
+if (xdr.isUnionVariant(scv, "scvU32")) {
   scv.u32; // number
 }
 ```
@@ -184,9 +184,10 @@ const fee = 100;                       // number
 new xdr.SorobanAddressCredentials({ nonce: 0n, … });
 ```
 
-For backward compatibility, `new xdr.Int64(v)` is still supported (via a `Proxy`
-`construct` trap that returns a boxed bigint), but the call form `xdr.Int64(v)`
-is preferred.
+The `new xdr.Int64(v)` form is **not** supported — it throws a `TypeError`
+telling you to use the call form. (JavaScript can't return a primitive from a
+constructor, and a boxed bigint would fail deep inside serialization instead of
+at the call site.)
 
 ---
 
@@ -215,19 +216,20 @@ Int128.fromJson("42"); // JSON deserialize
 ```
 
 To reconstruct a bigint from XDR parts (the old `new Int128(lo, hi).toBigInt()`
-pattern), use `XdrLargeInt` directly. It accepts slices in **big-endian** order
-(parts[0] is most significant):
+pattern), use `XdrLargeInt` directly. As in the legacy SDK, it accepts slices in
+**little-endian** order (parts[0] is least significant):
 
 ```ts
 import { XdrLargeInt } from "@stellar/stellar-sdk";
 
-new XdrLargeInt("i128", [i128.hi, i128.lo]).toBigInt();
-new XdrLargeInt("u256", [hiHi, hiLo, loHi, loLo]).toBigInt();
+new XdrLargeInt("i128", [i128.lo, i128.hi]).toBigInt();
+new XdrLargeInt("u256", [loLo, loHi, hiLo, hiHi]).toBigInt();
 ```
 
-`XdrLargeInt` also **range-checks at construction** for single-value form
-(legacy `LargeInt` did this; the new bigint-direct impl preserves the behavior).
-`new XdrLargeInt("u64", 1n << 64n)` throws a `RangeError`.
+`XdrLargeInt` also **range-checks at construction** (legacy `LargeInt` did this;
+the new bigint-direct impl preserves the behavior).
+`new XdrLargeInt("u64", 1n << 64n)` throws a `RangeError`, as does a slice that
+doesn't fit its width (e.g. `new XdrLargeInt("u128", [0n, 2n ** 80n])`).
 
 `ScInt` is unchanged.
 
@@ -450,8 +452,8 @@ scvString.str (was string)   →   scvString.str.bytes (or scvString.value: stri
                                  Type.fromJson(json)      // SEP-0051 decode
 
 // ============== WIDE INTS ==============
-new Int128(lo, hi)           →   new XdrLargeInt("i128", [hi, lo])
-new Int256(loLo, …, hiHi)    →   new XdrLargeInt("i256", [hiHi, …, loLo])
+new Int128(lo, hi)           →   new XdrLargeInt("i128", [lo, hi])
+new Int256(loLo, …, hiHi)    →   new XdrLargeInt("i256", [loLo, …, hiHi])
 new Int128(42n).toBigInt()   →   new Int128(42n).value
 i128.size, i128.unsigned     →   (no longer exposed — pick the right class)
 
@@ -468,7 +470,7 @@ These come up over and over when migrating tests against the new layer:
 
 ```ts
 // Narrow a union for typed access
-const v2 = xdr.expectUnionVarient(cond, "precondV2").v2;
+const v2 = xdr.expectUnionVariant(cond, "precondV2").v2;
 
 // Compare bytes when Buffer/Uint8Array deep-equal fails
 expect(Array.from(actualBytes)).toEqual(Array.from(expectedBytes));
@@ -665,8 +667,8 @@ xdr.AlphaNum4.fromJson({ assetCode: "USD", issuer: "GAAQ…" }); // legacy
 
 The SDK's XDR runtime is now `@stellar/js-xdr` v5 (previously v4), and the SDK
 **no longer exports `Reader` or `Writer`** — they are internal runtime details.
-For decoding and encoding, use `Type.fromXdr(...)` and `value.toXdr(...)`
-(see § 7).
+For decoding and encoding, use `Type.fromXdr(...)` and `value.toXdr(...)` (see §
+7).
 
 If you depended on the `Reader`/`Writer` previously obtained through the SDK,
 depend on `@stellar/js-xdr` directly instead. Note that v5's `Reader`/`Writer`

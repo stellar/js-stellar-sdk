@@ -18,8 +18,18 @@ export {
 export abstract class BigIntValue extends XdrValue {
   readonly value: bigint;
 
-  constructor(value: bigint | number | string) {
+  constructor(value: bigint | number | string, ...legacySlices: never[]) {
     super();
+    // The legacy LargeInt classes accepted multiple slice arguments
+    // (`new Uint128(lo, hi)`). Silently ignoring the extras would encode a
+    // wrong value, so reject them with a pointer to the supported path.
+    if (legacySlices.length > 0) {
+      throw new TypeError(
+        `${this.constructor.name} takes a single value; to combine ` +
+          `little-endian 64-bit slices use ` +
+          `new XdrLargeInt("<type>", [lo, hi, …]).toBigInt()`,
+      );
+    }
     const ctor = this.constructor as typeof BigIntValue & {
       readonly signed: boolean;
       readonly bits: 128 | 256;

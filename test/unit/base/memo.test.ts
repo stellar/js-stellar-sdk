@@ -32,6 +32,15 @@ describe("Memo", () => {
   });
 
   describe(".text()", () => {
+    it("accepts a plain Uint8Array for byte-exact content", () => {
+      const bytes = new Uint8Array([0xe2, 0x82, 0xac]);
+      const memo = Memo.text(bytes);
+      expect(memo.type).toBe(MemoText);
+      const xdrMemo = memo.toXdrObject();
+      if (xdrMemo.type !== "memoText") throw new Error("expected memoText");
+      expect(Array.from(xdrMemo.text.bytes)).toEqual(Array.from(bytes));
+    });
+
     it("returns a value for a correct argument", () => {
       const memo = Memo.text("test");
       expect(memo.type).toBe(MemoText);

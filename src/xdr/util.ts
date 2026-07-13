@@ -5,7 +5,7 @@
  * @throws {TypeError} if `value.type !== type`
  * @returns the same value, but with its type narrowed to the expected variant
  */
-export function expectUnionVarient<
+export function expectUnionVariant<
   U extends { readonly type: string },
   K extends U["type"],
 >(value: U, type: K): Extract<U, { readonly type: K }> {
@@ -26,7 +26,7 @@ export function expectUnionVarient<
  * @param type the expected type discriminant
  * @returns `true` if `value.type === type`, and narrows the type of `value` to that variant; otherwise `false`
  */
-export function isUnionVarient<
+export function isUnionVariant<
   U extends { readonly type: string },
   K extends U["type"],
 >(value: U, type: K): value is Extract<U, { readonly type: K }> {

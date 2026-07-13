@@ -62,11 +62,12 @@ export class XdrLargeInt {
    * @param type - specifies a data type to use to represent the integer, one
    *    of: 'i64', 'u64', 'i128', 'u128', 'i256', 'u256', 'timepoint', and 'duration'
    *    (see {@link XdrLargeInt.isType})
-   * @param values - a list of integer-like values interpreted as 64-bit slices
-   *    in **big-endian** order (i.e. earlier elements are higher bits). Most
-   *    callers pass a single bigint/number/string. Multi-element arrays are
-   *    accepted for legacy compatibility — they're combined as
-   *    `(v[0] << 64*(n-1)) | (v[1] << 64*(n-2)) | …`.
+   * @param values - a single integer-like value, or a list of slices in
+   *    **little-endian** order (parts[0] is the least-significant slice),
+   *    matching the legacy `LargeInt` contract — e.g.
+   *    `new XdrLargeInt("i128", [parts.lo, parts.hi])`. Slice width is
+   *    `SIZE[type] / values.length`; each slice must fit its width or a
+   *    `RangeError` is thrown.
    */
   constructor(type: ScIntType, values: XdrLargeIntValues) {
     if (!XdrLargeInt.isType(type)) {
@@ -92,9 +93,10 @@ export class XdrLargeInt {
     // total width and the number of parts (matching legacy `LargeInt`):
     //   - 1 part:           pass through (no shifting)
     //   - N>1 parts:        sliceBits = SIZE[type] / N, with parts in
-    //                       big-endian order (parts[0] is most significant)
-    //                       to match the legacy `LargeInt(...args)` contract.
-    // The most-significant slice is sign-extended for signed types.
+    //                       little-endian order (parts[0] is least
+    //                       significant) to match the legacy
+    //                       `LargeInt(...args)` contract.
+    // For signed types the combined value is interpreted as two's complement.
     const value = combineParts(parts, SIZE[type], SIGNED[type]);
 
     // Range-check the final value against the declared type width. The legacy
@@ -286,6 +288,14 @@ export class XdrLargeInt {
     };
   }
 
+  /**
+   * JavaScript-standard `JSON.stringify` hook. Without it, stringify would
+   * enumerate the bigint `value` field and throw a TypeError.
+   */
+  toJSON(): { value: string; type: string } {
+    return this.toJson();
+  }
+
   private _sizeCheck(bits: number): void {
     if (SIZE[this.type] > bits) {
       throw RangeError(`value too large for ${bits} bits (${this.type})`);
@@ -330,9 +340,15 @@ export class XdrLargeInt {
  * Combine an array of slices into a single bigint. Slice width is
  * `totalBits / parts.length` (matching the legacy `LargeInt(...args)` behavior
  * — `Int128(lo, hi)` used 64-bit slices, `Int128(a, b, c, d)` used 32-bit
- * slices). Parts are interpreted in **big-endian** order: parts[0] is the
- * most-significant slice, parts[n-1] the least. For signed types the
- * most-significant slice is sign-extended (two's complement).
+ * slices). Parts are interpreted in **little-endian** order: parts[0] is the
+ * least-significant slice, parts[n-1] the most — the same order the legacy
+ * runtime used (`new Hyper(low, high)`). For signed types the combined value
+ * is interpreted as two's complement.
+ *
+ * Each slice must fit its width (negative slices are accepted as the two's-
+ * complement form of their width and masked); an oversize slice throws a
+ * `RangeError` rather than being silently truncated, matching the legacy
+ * runtime's slice checks.
  *
  * Single-element input is passed through unchanged so callers that supply a
  * whole bigint (the common case) work as expected.
@@ -352,11 +368,18 @@ function combineParts(
   }
   const sliceBits = totalBits / parts.length;
   const width = BigInt(sliceBits);
-  const mask = (1n << width) - 1n;
-  const top = parts[0];
-  let value = signed ? BigInt.asIntN(sliceBits, top) : top & mask;
-  for (let i = 1; i < parts.length; i++) {
-    value = (value << width) | (parts[i] & mask);
+  let value = 0n;
+  for (let i = parts.length - 1; i >= 0; i--) {
+    const p = parts[i];
+    if (
+      BigInt.asUintN(sliceBits, p) !== p &&
+      BigInt.asIntN(sliceBits, p) !== p
+    ) {
+      throw new RangeError(
+        `slice value ${p} does not fit in ${sliceBits} bits`,
+      );
+    }
+    value = (value << width) | BigInt.asUintN(sliceBits, p);
   }
-  return value;
+  return signed ? BigInt.asIntN(totalBits, value) : value;
 }

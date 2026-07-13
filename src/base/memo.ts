@@ -189,7 +189,8 @@ export class Memo<T extends MemoType = MemoType> {
       if (Buffer.byteLength(value, "utf8") > 28) {
         throw new Error("Expects string, array or buffer, max 28 bytes");
       }
-    } else if (Buffer.isBuffer(value)) {
+    } else if (value instanceof Uint8Array) {
+      // Covers Buffer too — it's a Uint8Array subclass.
       if (value.length > 28) {
         throw new Error("Expects string, array or buffer, max 28 bytes");
       }

@@ -192,10 +192,13 @@ export function nativeToScVal(
         switch ((opts?.type as string) ?? "bytes") {
           case "bytes":
             return ScVal.scvBytes(new ScBytes(copy));
+          // Pass the bytes through unchanged — the string factories accept
+          // Uint8Array, and decoding to a JS string first would mangle
+          // non-UTF-8 content into U+FFFD replacement characters.
           case "symbol":
-            return ScVal.scvSymbol(new TextDecoder().decode(copy));
+            return ScVal.scvSymbol(copy);
           case "string":
-            return ScVal.scvString(new TextDecoder().decode(copy));
+            return ScVal.scvString(copy);
           default:
             throw new TypeError(
               `invalid type (${JSON.stringify(opts.type)}) specified for bytes-like value`,

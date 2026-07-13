@@ -7,7 +7,7 @@
 //   - Base classes and primitives consumers may reach for (XdrValue,
 //     BytesValue, EnumValue, BigIntValue, XdrError, …)
 //   - Thin Int64/Uint64/Int32/Uint32 shims that let legacy
-//     `new xdr.Int64(v)` / `Int64.MAX_VALUE` / `Int64.fromXdr(...)` call
+//     `xdr.Int64(v)` / `Int64.MAX_VALUE` / `Int64.fromXdr(...)` call
 //     sites keep working over native bigint/number primitives.
 //
 // `import * as xdr from "./xdr/index.js"` gives you a namespace object
@@ -20,6 +20,7 @@ import {
   assertIntFits,
   intRange,
 } from "./values/bigint-parts.js";
+import { decodeBytes } from "./values/xdr-value.js";
 
 // Bases (XdrValue, BytesValue, …) and the schema-builder primitives.
 //
@@ -68,10 +69,10 @@ export { Uint256 } from "./dx/uint256.js";
 //
 // Legacy `@stellar/js-xdr` exposed these as class wrappers. The new layer
 // uses native primitives (bigint / number); these shims accept the same
-// constructor args, expose `MIN_VALUE`/`MAX_VALUE`/`fromString`/`fromXdr`,
-// and let `new Int64(v)` continue to work (via a `Proxy` whose `construct`
-// trap returns a boxed bigint, since `new` would otherwise discard the
-// primitive return value).
+// constructor args and expose `MIN_VALUE`/`MAX_VALUE`/`fromString`/`fromXdr`.
+// Calling with `new` throws a descriptive TypeError (a construct trap can
+// only return an object, and a boxed bigint fails the runtime's typeof
+// checks at encode time — better to fail at the call site).
 // -----------------------------------------------------------------------------
 
 export type Int64 = bigint;
@@ -108,10 +109,7 @@ function makeBigIntShim(signed: boolean, bits: 64) {
     input: Uint8Array | string,
     format: "raw" | "hex" | "base64" = "raw",
   ): bigint => {
-    const bytes =
-      typeof input === "string"
-        ? Buffer.from(input, format === "hex" ? "hex" : "base64")
-        : input;
+    const bytes = decodeBytes(input, format);
     let value = 0n;
     for (const byte of bytes) {
       value = (value << 8n) + BigInt(byte);
@@ -127,14 +125,20 @@ function makeBigIntShim(signed: boolean, bits: 64) {
   Shim.MIN_VALUE = min;
   return new Proxy(Shim, {
     construct(_target, args) {
-      // `new Shim(...)` would otherwise discard the primitive return; box it
-      // so callers can `.valueOf()` / `BigInt(...)` it back to a bigint.
-      return Object(Shim(args[0]));
+      // A construct trap must return an object, and a boxed bigint fails the
+      // runtime's `typeof value === "bigint"` checks at encode time — a
+      // confusing failure far from the mistake. Fail fast here instead.
+      Shim(args[0]); // still surface range/parse errors first
+      throw new TypeError(
+        `new xdr.${name}(...) is not supported: XDR ${name.toLowerCase()} ` +
+          `values are native bigints. Call xdr.${name}(value) (no \`new\`) ` +
+          `or pass a bigint literal instead.`,
+      );
     },
   });
 }
 
-export { expectUnionVarient, isUnionVarient } from "./util.js";
+export { expectUnionVariant, isUnionVariant } from "./util.js";
 
 function makeIntShim(signed: boolean, bits: 32) {
   const max = signed ? 2 ** (bits - 1) - 1 : 2 ** bits - 1;

@@ -549,6 +549,15 @@ describe("nativeToScVal", () => {
     expect(scv.type).toBe("scvString");
   });
 
+  it("passes non-UTF-8 bytes through byte-exactly for string/symbol", () => {
+    const binary = new Uint8Array([0xff, 0xfe, 0x00, 0x01]);
+    for (const type of ["string", "symbol"] as const) {
+      const scv = nativeToScVal(binary, { type });
+      const arm = scv.type === "scvString" ? scv.str : (scv as any).sym;
+      expect(Array.from(arm.bytes)).toEqual(Array.from(binary));
+    }
+  });
+
   it("throws on invalid type hint", () => {
     expect(() =>
       nativeToScVal(Buffer.from("abc"), { type: "notatype" } as any),

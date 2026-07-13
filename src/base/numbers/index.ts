@@ -54,8 +54,8 @@ export function scValToBigInt(scv: ScVal): bigint {
         throw TypeError(`invalid integer type for ${switchName}`);
       }
       const parts = value as { hi: bigint; lo: bigint };
-      // XdrLargeInt arrays are big-endian (parts[0] = most significant).
-      return new XdrLargeInt(scIntType, [parts.hi, parts.lo]).toBigInt();
+      // XdrLargeInt arrays are little-endian (parts[0] = least significant).
+      return new XdrLargeInt(scIntType, [parts.lo, parts.hi]).toBigInt();
     }
 
     case "scvU256":
@@ -69,12 +69,12 @@ export function scValToBigInt(scv: ScVal): bigint {
         loHi: bigint;
         loLo: bigint;
       };
-      // Big-endian: hiHi (most significant) first, loLo (least significant) last.
+      // Little-endian: loLo (least significant) first, hiHi (most significant) last.
       return new XdrLargeInt(scIntType, [
-        parts.hiHi,
-        parts.hiLo,
-        parts.loHi,
         parts.loLo,
+        parts.loHi,
+        parts.hiLo,
+        parts.hiHi,
       ]).toBigInt();
     }
 

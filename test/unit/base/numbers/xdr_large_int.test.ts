@@ -54,6 +54,30 @@ describe("XdrLargeInt", () => {
         const xdrInt = new XdrLargeInt("i64", [1, 2n]);
         expect(xdrInt).toBeInstanceOf(XdrLargeInt);
       });
+
+      it("combines slices in little-endian order (legacy contract)", () => {
+        // parts[0] is the least-significant slice: [lo, hi]
+        expect(new XdrLargeInt("i64", [5n, 0n]).toBigInt()).toBe(5n);
+        expect(new XdrLargeInt("i64", [0n, 5n]).toBigInt()).toBe(5n << 32n);
+        expect(new XdrLargeInt("i128", [5n, 0n]).toBigInt()).toBe(5n);
+        expect(new XdrLargeInt("u128", [0n, 1n]).toBigInt()).toBe(1n << 64n);
+      });
+
+      it("sign-extends the most-significant slice for signed types", () => {
+        // hi = -1 → all-ones upper half → value is just lo
+        expect(new XdrLargeInt("i128", [5n, -1n]).toBigInt()).toBe(
+          BigInt.asIntN(128, (0xffffffffffffffffn << 64n) | 5n),
+        );
+      });
+
+      it("throws RangeError when a slice does not fit its width", () => {
+        expect(() => new XdrLargeInt("u128", [0n, 2n ** 80n])).toThrow(
+          RangeError,
+        );
+        expect(() => new XdrLargeInt("i64", [2n ** 40n, 0n])).toThrow(
+          RangeError,
+        );
+      });
     });
 
     describe("type variations", () => {
@@ -394,10 +418,10 @@ describe("XdrLargeInt", () => {
 
         // Reconstruct via XdrLargeInt to handle sign extension. The hi slice
         // is already in two's-complement form on the wire, so re-combining
-        // [hi, lo] via the signed-aware combiner recovers the original value.
+        // [lo, hi] via the signed-aware combiner recovers the original value.
         const reconstructed = new XdrLargeInt("i128", [
-          scVal.i128.hi,
           scVal.i128.lo,
+          scVal.i128.hi,
         ]).toBigInt();
         expect(reconstructed).toBe(value);
       });
@@ -467,8 +491,8 @@ describe("XdrLargeInt", () => {
 
         const u128 = scVal.u128;
         const reconstructed = new XdrLargeInt("u128", [
-          u128.hi,
           u128.lo,
+          u128.hi,
         ]).toBigInt();
         expect(reconstructed).toBe(maxU128);
       });
@@ -674,10 +698,16 @@ describe("XdrLargeInt", () => {
       const i128 = scVal.i128;
 
       const reconstructed = new XdrLargeInt("i128", [
-        i128.hi,
         i128.lo,
+        i128.hi,
       ]).toBigInt();
       expect(reconstructed).toBe(value);
+    });
+
+    it("supports JSON.stringify via the toJSON hook", () => {
+      expect(JSON.stringify(new XdrLargeInt("i64", 1234n))).toBe(
+        '{"value":"1234","type":"i64"}',
+      );
     });
 
     it("preserves value and type through toJson", () => {

@@ -13,7 +13,7 @@ import { hash } from "../../../src/base/hashing.js";
 import { scValToNative } from "../../../src/base/scval.js";
 import { expectDefined } from "./support/expect_defined.js";
 import { Networks } from "../../../src/base/network.js";
-import { expectUnionVarient } from "../../../src/xdr/index.js";
+import { expectUnionVariant } from "../../../src/xdr/index.js";
 import * as xdr from "../../../src/xdr/index.js";
 
 describe("building authorization entries", () => {
@@ -668,7 +668,7 @@ describe("building authorization entries", () => {
         invocation: authEntry.rootInvocation,
         networkPassphrase: Networks.TESTNET,
       });
-      const credentials = expectUnionVarient(
+      const credentials = expectUnionVariant(
         entry.credentials,
         "sorobanCredentialsAddress",
       );
@@ -683,7 +683,7 @@ describe("building authorization entries", () => {
         invocation: authEntry.rootInvocation,
         networkPassphrase: Networks.TESTNET,
       });
-      const credentials = expectUnionVarient(
+      const credentials = expectUnionVariant(
         entry.credentials,
         "sorobanCredentialsAddress",
       );
@@ -698,7 +698,7 @@ describe("building authorization entries", () => {
         invocation: authEntry.rootInvocation,
         networkPassphrase: Networks.TESTNET,
       });
-      const credentials = expectUnionVarient(
+      const credentials = expectUnionVariant(
         entry.credentials,
         "sorobanCredentialsAddress",
       );
@@ -713,7 +713,7 @@ describe("building authorization entries", () => {
         invocation: authEntry.rootInvocation,
         networkPassphrase: Networks.TESTNET,
       });
-      const credentials = expectUnionVarient(
+      const credentials = expectUnionVariant(
         entry.credentials,
         "sorobanCredentialsAddress",
       );

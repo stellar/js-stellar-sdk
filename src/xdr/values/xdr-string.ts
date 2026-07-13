@@ -72,7 +72,10 @@ export class XdrString {
    */
   asStringOrBytes(): string | Uint8Array {
     try {
-      return this.toString();
+      // Must be the strict decode — the lenient toString() never throws, it
+      // silently substitutes U+FFFD, which would make the bytes fallback
+      // unreachable and corrupt binary payloads.
+      return this.toStringStrict();
     } catch {
       return this.bytes;
     }
