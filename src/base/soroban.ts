@@ -38,8 +38,13 @@ export class Soroban {
     }
 
     formatted = formatted
-      .replace(/(\.\d*?)0+$/, "$1") // strip trailing zeroes
-      .replace(/\.$/, ".0") // but keep at least one
+      // Strip trailing fractional zeroes. Written to avoid polynomial
+      // backtracking (ReDoS): the lazy `\.\d*?` + `0+$` form is O(n^2) on
+      // inputs like ".000…01". `\d*[1-9]` fails fast (never reaching `0+`)
+      // when the fraction is all zeroes, which the next replace handles.
+      .replace(/(\.\d*[1-9])0+$/, "$1") // strip trailing zeroes after the last non-zero digit
+      .replace(/\.0+$/, ".0") // collapse an all-zero fraction to a single zero
+      .replace(/\.$/, ".0") // keep at least one digit after the dot
       .replace(/^\./, "0."); // and a leading one
 
     return negative ? `-${formatted}` : formatted;
