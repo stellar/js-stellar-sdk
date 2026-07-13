@@ -1,6 +1,7 @@
 import { MuxedAccount as XdrMuxedAccount } from "../xdr/index.js";
 import { Account } from "./account.js";
 import { StrKey } from "./strkey.js";
+import type { TransactionSource } from "./transaction_source.js";
 import {
   decodeAddressToMuxedAccount,
   encodeMuxedAccountToAddress,
@@ -56,7 +57,7 @@ function validateUint64Id(id: string): void {
  *
  * @see https://developers.stellar.org/docs/glossary/muxed-accounts/
  */
-export class MuxedAccount {
+export class MuxedAccount implements TransactionSource {
   private account: Account;
   private _muxedXdr: XdrMuxedAccount;
   private _mAddress: string;

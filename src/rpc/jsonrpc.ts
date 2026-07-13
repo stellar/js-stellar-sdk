@@ -28,6 +28,7 @@ export interface Error<E = any> {
 
 // Check if the given object X has a field Y, and make that available to
 // typescript typing.
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type -- `{}` is the intended constraint (any non-nullish value with own properties)
 function hasOwnProperty<X extends {}, Y extends PropertyKey>(
   obj: X,
   prop: Y,
@@ -38,12 +39,12 @@ function hasOwnProperty<X extends {}, Y extends PropertyKey>(
 /**
  * Sends the jsonrpc 'params' as a single 'param' object (no array support).
  *
- * @param {HttpClient} client HttpClient instance to use for the request
- * @param {string} url URL to the RPC instance
- * @param {string} method RPC method name that should be called
- * @param {(any | null)} [param=null] params that should be supplied to the method
- * @returns {Promise} Promise that resolves to the result of type T
- * @private
+ * @param client - HttpClient instance to use for the request
+ * @param url - URL to the RPC instance
+ * @param method - RPC method name that should be called
+ * @param param - (optional) params that should be supplied to the method
+ * @returns Promise that resolves to the result of type T
+ * @hidden
  */
 export async function postObject<T>(
   client: HttpClient,

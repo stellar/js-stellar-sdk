@@ -1,7 +1,8 @@
-// Node ESM hooks that make `import * as XDR from "@stellar/js-xdr"` expose the
-// package's named exports (`config`, `XdrReader`, …) under plain node/tsx.
+// Node ESM hooks that make `import * as XDR from "js-xdr-v4"` (the aliased
+// published `@stellar/js-xdr@4`, used only for legacy round-trip parity) expose
+// the package's named exports (`config`, `XdrReader`, …) under plain node/tsx.
 //
-// `@stellar/js-xdr`'s `main` is a babel/webpack CJS bundle. `require()` returns
+// js-xdr v4's `main` is a babel/webpack CJS bundle. `require()` returns
 // every export, but node's static CJS-named-export detection can't see them, so
 // ESM `import * as XDR` yields a namespace where `XDR.config` is undefined —
 // which breaks the legacy fixture (`test/fixtures/legacy-xdr/curr_generated.js`,

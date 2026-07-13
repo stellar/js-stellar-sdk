@@ -51,6 +51,7 @@ export type {
 export * from "./memo.js";
 export { Account } from "./account.js";
 export { MuxedAccount } from "./muxed_account.js";
+export type { TransactionSource } from "./transaction_source.js";
 export { Claimant } from "./claimant.js";
 export { Networks } from "./network.js";
 export { StrKey } from "./strkey.js";
@@ -73,6 +74,19 @@ export { Address } from "./address.js";
 export * from "./scval.js";
 export * from "./events.js";
 export * from "./sorobandata_builder.js";
-export * from "./auth.js";
+// Explicit (not `export *`) so `getAddressCredentials` stays internal: it's
+// shared with the contract package but intentionally excluded from the public API.
+export {
+  authorizeEntry,
+  authorizeInvocation,
+  buildAuthorizationEntryPreimage,
+  buildWithDelegatesEntry,
+} from "./auth.js";
+export type {
+  SigningCallback,
+  AuthorizeInvocationParams,
+  DelegateSignature,
+  BuildWithDelegatesParams,
+} from "./auth.js";
 export * from "./invocation.js";
 export * from "./numbers/index.js";

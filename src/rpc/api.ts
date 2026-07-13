@@ -45,7 +45,7 @@ export namespace Api {
     liveUntilLedgerSeq?: number;
   }
 
-  /** An XDR-parsed version of {@link this.RawLedgerEntryResult} */
+  /** An XDR-parsed version of {@link RawLedgerEntryResult} */
   export interface GetLedgerEntriesResponse {
     entries: LedgerEntryResult[];
     latestLedger: number;
@@ -262,6 +262,7 @@ export namespace Api {
    * - **Cursor pagination mode**: Use `cursor` (startLedger and endLedger must be omitted)
    *
    * @example
+   * ```ts
    * // ✅ Correct: Ledger range mode
    * const rangeRequest: GetEventsRequest = {
    *   filters: [],
@@ -269,16 +270,20 @@ export namespace Api {
    *   endLedger: 2000,
    *   limit: 100
    * };
+   * ```
    *
    * @example
+   * ```ts
    * // ✅ Correct: Cursor pagination mode
    * const cursorRequest: GetEventsRequest = {
    *   filters: [],
    *   cursor: "some-cursor-value",
    *   limit: 100
    * };
+   * ```
    *
    * @example
+   * ```ts
    * // ❌ Invalid: Cannot mix cursor with ledger range
    * const invalidRequest = {
    *   filters: [],
@@ -287,6 +292,7 @@ export namespace Api {
    *   cursor: "cursor",   // ❌ Cannot use with ledger range
    *   limit: 100
    * };
+   * ```
    *
    * @see {@link https://developers.stellar.org/docs/data/rpc/api-reference/methods/getEvents | getEvents API reference}
    */
@@ -472,7 +478,7 @@ export namespace Api {
 
   /**
    * Checks if a simulation response indicates an error.
-   * @param sim The simulation response to check.
+   * @param sim - The simulation response to check.
    * @returns True if the response indicates an error, false otherwise.
    */
   export function isSimulationError(
@@ -483,7 +489,7 @@ export namespace Api {
 
   /**
    * Checks if a simulation response indicates success.
-   * @param sim The simulation response to check.
+   * @param sim - The simulation response to check.
    * @returns True if the response indicates success, false otherwise.
    */
   export function isSimulationSuccess(
@@ -494,7 +500,7 @@ export namespace Api {
 
   /**
    * Checks if a simulation response indicates that a restoration is needed.
-   * @param sim The simulation response to check.
+   * @param sim - The simulation response to check.
    * @returns True if the response indicates a restoration is needed, false otherwise.
    */
   export function isSimulationRestore(
@@ -509,7 +515,7 @@ export namespace Api {
 
   /**
    * Checks if a simulation response is in raw (unparsed) form.
-   * @param sim The simulation response to check.
+   * @param sim - The simulation response to check.
    * @returns True if the response is raw, false otherwise.
    */
   export function isSimulationRaw(
@@ -616,17 +622,8 @@ export namespace Api {
    * - **Ledger-based pagination**: Use `startLedger` to begin fetching from a specific ledger sequence
    * - **Cursor-based pagination**: Use `cursor` to continue from a previous response's pagination token
    *
-   * @typedef {object} GetLedgersRequest
-   * @property {number} [startLedger] - Ledger sequence number to start fetching from (inclusive).
-   *   Must be omitted if cursor is provided. Cannot be less than the oldest ledger or greater
-   *   than the latest ledger stored on the RPC node.
-   * @property {object} [pagination] - Pagination configuration for the request.
-   * @property {string} [pagination.cursor] - Page cursor for continuing pagination from a previous
-   *   response. Must be omitted if startLedger is provided.
-   * @property {number} [pagination.limit=100] - Maximum number of ledgers to return per page.
-   *   Valid range: 1-10000. Defaults to 100 if not specified.
-   *
    * @example
+   * ```ts
    * // Ledger-based pagination - start from specific ledger
    * const ledgerRequest: GetLedgersRequest = {
    *   startLedger: 36233,
@@ -634,8 +631,10 @@ export namespace Api {
    *     limit: 10
    *   }
    * };
+   * ```
    *
    * @example
+   * ```ts
    * // Cursor-based pagination - continue from previous response
    * const cursorRequest: GetLedgersRequest = {
    *   pagination: {
@@ -643,21 +642,41 @@ export namespace Api {
    *     limit: 5
    *   }
    * };
+   * ```
    *
    * @see {@link https://developers.stellar.org/docs/data/rpc/api-reference/methods/getLedgers | getLedgers API reference}
    */
   export type GetLedgersRequest =
     | {
+        /**
+         * Ledger sequence number to start fetching from (inclusive).
+         * Must be omitted if cursor is provided. Cannot be less than the oldest ledger or greater
+         * than the latest ledger stored on the RPC node.
+         */
         startLedger: number;
+        /** Pagination configuration for the request. */
         pagination?: {
           cursor?: never;
+          /**
+           * Maximum number of ledgers to return per page.
+           * Valid range: 1-10000. Defaults to 100 if not specified.
+           */
           limit?: number;
         };
       }
     | {
         startLedger?: never;
+        /** Pagination configuration for the request. */
         pagination: {
+          /**
+           * Page cursor for continuing pagination from a previous
+           * response. Must be omitted if startLedger is provided.
+           */
           cursor: string;
+          /**
+           * Maximum number of ledgers to return per page.
+           * Valid range: 1-10000. Defaults to 100 if not specified.
+           */
           limit?: number;
         };
       };
@@ -697,5 +716,28 @@ export namespace Api {
     headerXdr: string;
     /** a base-64 encoded {@link LedgerCloseMeta} instance */
     metadataXdr: string;
+  }
+
+  /** A single input parameter of a {@link ContractMethod}. */
+  export interface ContractMethodInput {
+    /** the declared parameter name */
+    name: string;
+    /** a human-readable type name, e.g. `U32`, `Address`, or a UDT's name */
+    type: string;
+  }
+
+  /**
+   * A callable method declared in a contract's spec, as returned by
+   * `RpcServer.getContractMethods`.
+   */
+  export interface ContractMethod {
+    /** the on-chain method name */
+    name: string;
+    /** the method's parameters, in declaration order */
+    inputs: ContractMethodInput[];
+    /** human-readable return type name(s); empty when the method returns void */
+    outputs: string[];
+    /** the method's spec doc string, when the contract declares one */
+    doc?: string;
   }
 }

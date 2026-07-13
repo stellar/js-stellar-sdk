@@ -5,40 +5,35 @@ import { HorizonApi } from "../horizon/horizon_api.js";
 /**
  * NetworkError is raised when an interaction with a Horizon server has caused
  * some kind of problem.
- * @category Errors
  *
- * @param {string} message Human-readable error message
- * @param {any} response Response details, received from the Horizon server.
- * @param {HorizonApi.ErrorResponseData} [response.data] The data returned by Horizon as part of the error: {@link https://developers.stellar.org/docs/data/horizon/api-reference/errors/response | Error Response}
- * @param {number} [response.status] HTTP status code describing the basic issue with a submitted transaction {@link https://developers.stellar.org/docs/data/horizon/api-reference/errors/http-status-codes/standard | Standard Status Codes}
- * @param {string} [response.statusText] A human-readable description of what the status code means: {@link https://developers.stellar.org/docs/data/horizon/api-reference/errors/http-status-codes/horizon-specific | Horizon-Specific Status Codes}
- * @param {string} [response.url] URL which can provide more information about the problem that occurred.
+ * @param message - Human-readable error message
+ * @param response - Response details, received from the Horizon server.
+ *   - `data` (optional): The data returned by Horizon as part of the error: {@link https://developers.stellar.org/docs/data/horizon/api-reference/errors/response | Error Response}
+ *   - `status` (optional): HTTP status code describing the basic issue with a submitted transaction {@link https://developers.stellar.org/docs/data/horizon/api-reference/errors/http-status-codes/standard | Standard Status Codes}
+ *   - `statusText` (optional): A human-readable description of what the status code means: {@link https://developers.stellar.org/docs/data/horizon/api-reference/errors/http-status-codes/horizon-specific | Horizon-Specific Status Codes}
+ *   - `url` (optional): URL which can provide more information about the problem that occurred.
  */
 export class NetworkError extends Error {
+  /** Response details, received from the Horizon server. */
   public response: {
+    /** The data returned by Horizon as part of the error: {@link https://developers.stellar.org/docs/data/horizon/api-reference/errors/response | Error Response} */
     data?: HorizonApi.ErrorResponseData;
+    /** HTTP status code describing the basic issue with a submitted transaction {@link https://developers.stellar.org/docs/data/horizon/api-reference/errors/http-status-codes/standard | Standard Status Codes} */
     status?: number;
+    /** A human-readable description of what the status code means: {@link https://developers.stellar.org/docs/data/horizon/api-reference/errors/http-status-codes/horizon-specific | Horizon-Specific Status Codes} */
     statusText?: string;
+    /** URL which can provide more information about the problem that occurred. */
     url?: string;
   };
 
   constructor(message: string, response: any) {
     super(message);
-    /**
-     * The response sent by the Horizon server.
-     * @type {object} Response details, received from the Horizon server
-     * @property {object} response Response details, received from the Horizon server
-     * @property {HorizonApi.ErrorResponseData} [response.data] The data returned by Horizon as part of the error: {@link https://developers.stellar.org/docs/data/horizon/api-reference/errors/response | Error Response}
-     * @property {number} [response.status] HTTP status code describing the basic issue with a submitted transaction {@link https://developers.stellar.org/docs/data/horizon/api-reference/errors/http-status-codes/standard | Standard Status Codes}
-     * @property {string} [response.statusText] A human-readable description of what the status code means: {@link https://developers.stellar.org/docs/data/horizon/api-reference/errors/http-status-codes/horizon-specific | Horizon-Specific Status Codes}
-     * @property {string} [response.url] URL which can provide more information about the problem that occurred.
-     */
     this.response = response;
   }
 
   /**
    * Returns the error response sent by the Horizon server.
-   * @returns {any} Response details, received from the Horizon server.
+   * @returns Response details, received from the Horizon server.
    */
   public getResponse() {
     return this.response;

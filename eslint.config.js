@@ -1,19 +1,14 @@
 import path from "node:path";
 import { includeIgnoreFile } from "@eslint/compat";
-import { configs } from "eslint-config-airbnb-extended/legacy";
+import tseslint from "typescript-eslint";
 import prettierConfigRules from "eslint-config-prettier/flat";
 import prettierPlugin from "eslint-plugin-prettier";
 import importPlugin from "eslint-plugin-import";
-import jsdoc from "eslint-plugin-jsdoc";
+import tsdoc from "eslint-plugin-tsdoc";
 import js from "@eslint/js";
 import globals from "globals";
 
 const gitignorePath = path.resolve(".", ".gitignore");
-
-configs.base.typescript[0].languageOptions.parserOptions.projectService = false;
-configs.base.typescript[0].languageOptions.parserOptions.project = [
-  "./tsconfig.json",
-];
 
 const javascriptConfig = [
   js.configs.recommended,
@@ -28,22 +23,37 @@ const javascriptConfig = [
   },
 ];
 const typescriptConfig = [
-  // Airbnb Base TypeScript Config
-  ...configs.base.typescript,
+  // typescript-eslint recommended (registers the parser + plugin)
+  ...tseslint.configs.recommended,
+  {
+    name: "typescript/parser-options",
+    files: ["**/*.ts", "**/*.tsx"],
+    languageOptions: {
+      parserOptions: {
+        projectService: false,
+        project: ["./tsconfig.json"],
+      },
+    },
+  },
   {
     name: "typescript/custom-rules",
     files: ["**/*.ts", "**/*.tsx"],
     rules: {
       "@typescript-eslint/require-await": "error",
-      "@typescript-eslint/no-unused-vars": [
-        "error",
-        { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
-      ],
+      // Delegated to TypeScript's `noUnusedLocals` / `noUnusedParameters`
+      // (set in tsconfig.json) — TS understands JSDoc `{@link}` references,
+      // typescript-eslint's no-unused-vars does not.
+      "@typescript-eslint/no-unused-vars": "off",
+      "no-unused-vars": "off",
       "no-fallthrough": "off",
-      "@typescript-eslint/no-use-before-define": [
-        "error",
-        { functions: false },
-      ],
+      // `any` is used deliberately at dynamic boundaries — XDR decoding,
+      // JSON-RPC payloads, and Horizon response shaping — across ~125 sites,
+      // too many to annotate individually. Tightening these is tracked as
+      // separate, incremental work.
+      "@typescript-eslint/no-explicit-any": "off",
+      // `namespace` declarations are part of the published public API
+      // (e.g. Horizon, rpc `Api`, stellartoml), not an organizational crutch.
+      "@typescript-eslint/no-namespace": "off",
     },
   },
 ];
@@ -61,37 +71,12 @@ const prettierConfig = [
   },
 ];
 
-const jsDocConfig = [
-  // configuration included in plugin
-  jsdoc.configs["flat/recommended-typescript"],
-  // other configuration objects...
+const tsdocConfig = [
   {
+    name: "tsdoc/syntax",
     files: ["**/*.ts"],
-    // `plugins` here is not necessary if including the above config
-    plugins: {
-      jsdoc,
-    },
-    rules: {
-      "jsdoc/check-tag-names": [
-        "error",
-        { definedTags: ["warning", "category"] },
-      ],
-      "jsdoc/require-description": "warn",
-      "jsdoc/no-undefined-types": "warn",
-      "jsdoc/require-returns": "off",
-      "jsdoc/require-param": "off",
-      "jsdoc/require-param-type": "off",
-      "jsdoc/require-returns-type": "off",
-      "jsdoc/no-blank-blocks": "off",
-      "jsdoc/no-multi-asterisks": "off",
-      "jsdoc/tag-lines": "off",
-      "jsdoc/require-jsdoc": "off",
-      "jsdoc/no-defaults": "off",
-      "jsdoc/no-types": "off",
-      "jsdoc/reject-function-type": "off",
-      "jsdoc/reject-any-type": "off",
-      "jsdoc/require-description": "off",
-    },
+    plugins: { tsdoc },
+    rules: { "tsdoc/syntax": "warn" },
   },
 ];
 
@@ -112,6 +97,18 @@ const testConfig = [
   },
 ];
 
+const scriptsConfig = [
+  {
+    name: "scripts/typescript",
+    files: ["scripts/**/*.ts"],
+    languageOptions: {
+      parserOptions: {
+        project: "./scripts/tsconfig.json",
+      },
+    },
+  },
+];
+
 // The base XDR/SDK module preserves a public API shape (namespace+const merging,
 // XDR-string-literal type aliases, snake_case helpers like `best_r`, leading-_
 // internals) and uses a "public API at top, helpers below" file layout. Loosen
@@ -127,10 +124,13 @@ const baseSdkConfig = [
         { functions: false },
       ],
       "@typescript-eslint/naming-convention": "off",
-      "jsdoc/no-undefined-types": "off",
     },
   },
 ];
+
+// The generated class-XDR layer relies on abstract-base ↔ concrete-subclass
+// references that are only safe under class hoisting, and preserves generated
+// naming/redeclaration shapes. Loosen the rules that would otherwise flag them.
 const xdrGenConfig = [
   {
     name: "src/xdr",
@@ -138,9 +138,36 @@ const xdrGenConfig = [
     rules: {
       "@typescript-eslint/no-redeclare": "off",
       "@typescript-eslint/naming-convention": "off",
+      "@typescript-eslint/no-use-before-define": [
+        "error",
+        { functions: false },
+      ],
     },
   },
 ];
+
+// scripts/build-docs.ts dispatches a discriminated-union renderer through
+// mutually recursive helpers; function-declaration hoisting handles the
+// runtime ordering. Match baseSdkConfig's `functions: false` loosening.
+//
+// The scripts are dev-only docs tooling, never bundled into the published
+// package, so importing devDependencies (e.g. github-slugger) is expected —
+// override airbnb's default that only allows devDeps in test/build-config
+// globs.
+const scriptsRulesConfig = [
+  {
+    name: "scripts/mutual-recursion",
+    files: ["scripts/**/*.ts"],
+    rules: {
+      "@typescript-eslint/no-use-before-define": [
+        "error",
+        { functions: false },
+      ],
+      "import/no-extraneous-dependencies": ["error", { devDependencies: true }],
+    },
+  },
+];
+
 const importConfig = [
   {
     name: "import/plugin/config",
@@ -155,9 +182,14 @@ ignoreFiles.ignores.push(
     "eslint.config.js",
     "rollup.config.mjs",
     "config/**/*",
-    "scripts/**",
     "src/base/generated/**",
     "tools/**",
+    // Astro build-time configs — excluded from tsconfig.json (they
+    // import the virtual `astro:content` module), so the typescript-
+    // eslint parser can't resolve them via the SDK project. Lint
+    // coverage from prettier is sufficient for these small configs.
+    "src/content.config.ts",
+    "astro.config.mjs",
   ],
 );
 export default [
@@ -169,14 +201,18 @@ export default [
   ...javascriptConfig,
   // TypeScript Config
   ...typescriptConfig,
-  // XDR Gen Config (must come after baseSdkConfig to allow overrides)
+  // XDR Gen Config (must come after typescriptConfig to allow overrides)
   ...xdrGenConfig,
-  // JSDoc Config
-  ...jsDocConfig,
+  // TSDoc Config
+  ...tsdocConfig,
   // Test Config
   ...testConfig,
-  // Base SDK overrides (must come after typescriptConfig/jsDocConfig)
+  // Scripts Config (uses scripts/tsconfig.json for type-aware lint)
+  ...scriptsConfig,
+  // Base SDK overrides (must come after typescriptConfig/tsdocConfig)
   ...baseSdkConfig,
+  // Scripts overrides (must come after typescriptConfig/scriptsConfig)
+  ...scriptsRulesConfig,
   // Prettier Config
   ...prettierConfig,
 ];

@@ -127,7 +127,7 @@ export class Asset {
         ) as string;
         return new this(code, issuer);
       default:
-        // @ts-ignore this should be unreachable if the XDR types are correct, but we throw just in case
+        // @ts-expect-error this should be unreachable if the XDR types are correct, but we throw just in case
         throw new Error("Invalid asset type received: " + assetXdr.type);
     }
   }
@@ -161,7 +161,8 @@ export class Asset {
    *    ID should refer to, since every network will have a unique ID for the
    *    same contract (see {@link Networks} for options)
    *
-   * @warning This makes no guarantee that this contract actually *exists*.
+   * @remarks
+   * **Warning:** This makes no guarantee that this contract actually *exists*.
    */
   contractId(networkPassphrase: string): string {
     const networkId = hash(Buffer.from(networkPassphrase));

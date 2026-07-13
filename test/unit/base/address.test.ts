@@ -3,8 +3,8 @@ import { Address } from "../../../src/base/address.js";
 import { StrKey } from "../../../src/base/strkey.js";
 import * as xdr from "../../../src/xdr/index.js";
 import type {
-  SCAddressMuxedAccount,
-  SCValAddress,
+  ScAddressMuxedAccount,
+  ScValAddress,
 } from "../../../src/xdr/index.js";
 
 describe("Address", () => {
@@ -220,7 +220,7 @@ describe("Address", () => {
       const s = m.toScAddress();
       expect(s).toBeInstanceOf(xdr.ScAddress);
       expect(s.type).toBe("scAddressTypeMuxedAccount");
-      const muxed = (s as SCAddressMuxedAccount).muxedAccount;
+      const muxed = (s as ScAddressMuxedAccount).muxedAccount;
       expect(muxed.ed25519).toEqual(
         StrKey.decodeEd25519PublicKey(MUXED_ADDRESS_BASE),
       );
@@ -252,28 +252,28 @@ describe("Address", () => {
   describe(".toScVal", () => {
     it("wraps account ScAddress types", () => {
       const a = new Address(ACCOUNT);
-      expect((a.toScVal() as SCValAddress).address.type).toBe(
+      expect((a.toScVal() as ScValAddress).address.type).toBe(
         "scAddressTypeAccount",
       );
     });
 
     it("wraps contract ScAddress types", () => {
       const c = new Address(CONTRACT);
-      expect((c.toScVal() as SCValAddress).address.type).toBe(
+      expect((c.toScVal() as ScValAddress).address.type).toBe(
         "scAddressTypeContract",
       );
     });
 
     it("wraps muxed-account ScAddress types", () => {
       const m = new Address(MUXED_ADDRESS);
-      expect((m.toScVal() as SCValAddress).address.type).toBe(
+      expect((m.toScVal() as ScValAddress).address.type).toBe(
         "scAddressTypeMuxedAccount",
       );
     });
 
     it("wraps liquidity-pool ScAddress types", () => {
       const lp = new Address(LIQUIDITY_POOL_ZERO);
-      expect((lp.toScVal() as SCValAddress).address.type).toBe(
+      expect((lp.toScVal() as ScValAddress).address.type).toBe(
         "scAddressTypeLiquidityPool",
       );
     });
@@ -282,7 +282,7 @@ describe("Address", () => {
       const cb = new Address(CLAIMABLE_BALANCE_ZERO);
       const val = cb.toScVal();
       expect(val).toBeInstanceOf(xdr.ScVal);
-      expect((val as SCValAddress).address.type).toBe(
+      expect((val as ScValAddress).address.type).toBe(
         "scAddressTypeClaimableBalance",
       );
     });

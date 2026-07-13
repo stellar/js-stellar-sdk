@@ -114,7 +114,7 @@ async function fetchWasmFromContract(
       throw new WasmFetchError("Contract is not a wasm executable");
     }
     const wasmHash = Buffer.from(instance.executable.value.value);
-    let wasmBytes = await getRemoteWasmFromHash(server, wasmHash);
+    const wasmBytes = await getRemoteWasmFromHash(server, wasmHash);
     return { type: "wasm", wasmBytes };
   } catch (error) {
     if (error instanceof WasmFetchError) {

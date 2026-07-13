@@ -366,3 +366,86 @@ describe("Keypair.signatureHint", () => {
     );
   });
 });
+
+describe("Keypair.signMessage / verifyMessage (SEP-53)", () => {
+  // Verbatim SEP-53 test vectors:
+  // https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0053.md
+  const seed = "SAKICEVQLYWGSOJS4WW7HZJWAHZVEEBS527LHK5V4MLJALYKICQCJXMW";
+  const address = "GBXFXNDLV4LSWA4VB7YIL5GBD7BVNR22SGBTDKMO2SBZZHDXSKZYCP7L";
+
+  const CASES = [
+    {
+      name: "ASCII",
+      message: "Hello, World!",
+      signature:
+        "fO5dbYhXUhBMhe6kId/cuVq/AfEnHRHEvsP8vXh03M1uLpi5e46yO2Q8rEBzu3feXQewcQE5GArp88u6ePK6BA==",
+    },
+    {
+      name: "Japanese",
+      message: "こんにちは、世界！",
+      signature:
+        "CDU265Xs8y3OWbB/56H9jPgUss5G9A0qFuTqH2zs2YDgTm+++dIfmAEceFqB7bhfN3am59lCtDXrCtwH2k1GBA==",
+    },
+    {
+      name: "binary",
+      message: Buffer.from(
+        "2zZDP1sa1BVBfLP7TeeMk3sUbaxAkUhBhDiNdrksaFo=",
+        "base64",
+      ),
+      signature:
+        "VA1+7hefNwv2NKScH6n+Sljj15kLAge+M2wE7fzFOf+L0MMbssA1mwfJZRyyrhBORQRle10X1Dxpx+UOI4EbDQ==",
+    },
+  ];
+
+  CASES.forEach(({ name, message, signature }) => {
+    it(`signs the ${name} test vector to the SEP-53 signature`, () => {
+      const kp = Keypair.fromSecret(seed);
+      expect(kp.signMessage(message).toString("base64")).toBe(signature);
+    });
+
+    it(`verifies the ${name} test vector with a public-key-only keypair`, () => {
+      const kp = Keypair.fromPublicKey(address);
+      expect(kp.verifyMessage(message, Buffer.from(signature, "base64"))).toBe(
+        true,
+      );
+    });
+  });
+
+  it("round-trips an arbitrary message", () => {
+    const kp = Keypair.random();
+    const message = "arbitrary message";
+    expect(kp.verifyMessage(message, kp.signMessage(message))).toBe(true);
+  });
+
+  it("treats an equivalent string and Buffer message identically", () => {
+    const kp = Keypair.fromSecret(seed);
+    const fromString = kp.signMessage("Hello, World!");
+    const fromBuffer = kp.signMessage(Buffer.from("Hello, World!", "utf8"));
+    expect(fromString.equals(fromBuffer)).toBe(true);
+  });
+
+  it("returns false for a tampered message", () => {
+    const kp = Keypair.fromSecret(seed);
+    const signature = kp.signMessage("Hello, World!");
+    expect(kp.verifyMessage("Hello, World?", signature)).toBe(false);
+  });
+
+  it("returns false for an invalid signature", () => {
+    const kp = Keypair.fromPublicKey(address);
+    expect(kp.verifyMessage("Hello, World!", Buffer.alloc(64))).toBe(false);
+  });
+
+  it("returns false (does not throw) for a malformed message, like verify()", () => {
+    const kp = Keypair.fromPublicKey(address);
+    const sig = Buffer.alloc(64);
+    expect(kp.verifyMessage(null as unknown as string, sig)).toBe(false);
+    expect(kp.verifyMessage(123 as unknown as string, sig)).toBe(false);
+  });
+
+  it("throws when signing without a secret key", () => {
+    const kp = Keypair.fromPublicKey(address);
+    expect(() => kp.signMessage("Hello, World!")).toThrow(
+      /cannot sign: no secret key available/,
+    );
+  });
+});

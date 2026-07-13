@@ -19,7 +19,9 @@ export * as Horizon from "./horizon/index.js";
  * `/rpc` entrypoint, if your version of Node and your TypeScript configuration
  * allow it:
  * @example
+ * ```ts
  * import { Server } from '@stellar/stellar-sdk/rpc';
+ * ```
  */
 export * as rpc from "./rpc/index.js";
 
@@ -29,7 +31,9 @@ export * as rpc from "./rpc/index.js";
  * entrypoint, if your version of Node and your TypeScript configuration allow
  * it:
  * @example
+ * ```ts
  * import { Client } from '@stellar/stellar-sdk/contract';
+ * ```
  */
 export * as contract from "./contract/index.js";
 export { BindingGenerator } from "./bindings/index.js";

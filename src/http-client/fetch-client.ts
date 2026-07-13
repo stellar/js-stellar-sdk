@@ -14,6 +14,7 @@ import {
   type Interceptor,
 } from "./types.js";
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type -- named extension point for additional response properties
 export interface HttpResponse<T = any> extends AxiosResponse<T> {
   // You can add any additional properties here if needed
 }
@@ -581,7 +582,7 @@ function createFetchClient(
         // The chain is built as [fulfilled, rejected, fulfilled, rejected, ...]
         // and wired via .then(onFulfilled, onRejected) so each pair can
         // recover from an upstream error (matching Axios interceptor semantics).
-        let modifiedConfig = config;
+        const modifiedConfig = config;
         if (requestInterceptors.handlers.length > 0) {
           const chain = requestInterceptors.handlers
             .filter(

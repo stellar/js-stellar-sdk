@@ -13,6 +13,10 @@ const coverageExclude = [
   "lib/**/*.d.ts",
   "lib/**",
   "**/*/browser.js",
+  // Astro content collection schema for the docs site; imports the
+  // virtual `astro:content` module that only resolves inside Astro's
+  // runtime. Not SDK code, not in scope for SDK coverage.
+  "src/content.config.ts",
 ];
 
 export default defineConfig({
@@ -22,9 +26,10 @@ export default defineConfig({
     environment: "node",
     coverage: {
       provider: "v8",
-      reporter: ["text-summary", "html", "lcov"],
+      reporter: ["text", "html", "lcov"],
       include: ["src/**/*.ts"],
       exclude: coverageExclude,
+      all: true,
     },
     testTimeout: 20000,
     // Only include non-browser tests in Node.js test runs

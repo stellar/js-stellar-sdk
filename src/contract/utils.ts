@@ -7,7 +7,7 @@ import { Reader } from "@stellar/js-xdr";
 /**
  * Keep calling a `fn` for `timeoutInSeconds` seconds, if `keepWaitingIf` is
  * true. Returns an array of all attempts to call the function.
- * @private
+ * @hidden
  */
 export async function withExponentialBackoff<T>(
   /** Function to call repeatedly */
@@ -44,7 +44,7 @@ export async function withExponentialBackoff<T>(
         }ms)`,
       );
     }
-    // eslint-disable-next-line
+
     await new Promise((res) => setTimeout(res, waitTime));
     // Exponential backoff
     waitTime *= exponentialFactor;
@@ -81,15 +81,13 @@ export async function withExponentialBackoff<T>(
  * matches these "expected error types" that a contract may throw, and helps
  * {@link AssembledTransaction} parse these errors.
  *
- * @constant {RegExp}
- * @default "/Error\(Contract, #(\d+)\)/"
- * @memberof module:contract.Client
+ * @defaultValue `/Error\(Contract, #(\d+)\)/`
  */
 export const contractErrorPattern = /Error\(Contract, #(\d+)\)/;
 
 /**
  * A TypeScript type guard that checks if an object has a `toString` method.
- * @private
+ * @hidden
  */
 export function implementsToString(
   /** some object that may or may not have a `toString` method */
@@ -126,7 +124,7 @@ export function parseWasmCustomSections(
    * - Values are stored with the least significant bytes first
    *
    * @returns The decoded 32-bit unsigned integer
-   * @throws {Error} If the encoding is invalid or exceeds 32 bits
+   * @throws If the encoding is invalid or exceeds 32 bits
    */
   function readVarUint32(): number {
     let value = 0;
@@ -179,7 +177,7 @@ export function parseWasmCustomSections(
 
 /**
  * Reads a binary stream of ScSpecEntries into an array for processing by ContractSpec
- * @private
+ * @hidden
  */
 export function processSpecEntryStream(buffer: Buffer) {
   const reader = new Reader(new Uint8Array(buffer));

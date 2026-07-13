@@ -1,5 +1,3 @@
 minimumReleaseAge: 10080
 minimumReleaseAgeExclude:
   - "@stellar/js-xdr"
-packages:
-  - packages/*

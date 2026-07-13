@@ -153,7 +153,7 @@ export interface NativeToScValOpts {
  * };
  *
  * // then, simply:
- * let scv = nativeToScVal(gigaMap);    // scv.switch() == xdr.ScValType.scvMap()
+ * let scv = nativeToScVal(gigaMap);    // scv.type === "scvMap"
  *
  * // then...
  * someContract.call("method", scv);
@@ -459,7 +459,7 @@ export function scValToNative(scv: ScVal): any {
       return undefined;
 
     default:
-      // @ts-ignore this should be unreachable if the XDR types are correct, but we return the underlying value just in case
+      // @ts-expect-error this should be unreachable if the XDR types are correct, but we return the underlying value just in case
       return scv.value;
   }
 }

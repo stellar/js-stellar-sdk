@@ -9,7 +9,614 @@ A breaking change will get clearly marked in this log.
 ### Breaking Changes
 * The XDR layer now consumes the runtime from `@stellar/js-xdr` v5 instead of the vendored in-tree copy. The v4 `Reader` and `Writer` classes are no longer re-exported from the SDK; the `Reader`/`Writer` re-exported from `xdr` are now the v5 implementations. Code that imported the v4 `Reader`/`Writer` (directly from `@stellar/js-xdr@4` or via the SDK) must migrate to the v5 API. See [`docs/XDR_MIGRATION.md`](./docs/XDR_MIGRATION.md#14-removed-v4-reader--writer-exports).
 
+### Added
+- `rpc.Server.queryContract<T>(contractId, method, args?, networkPassphrase?)`: a one-line read-only contract call that builds a client, simulates the method, and returns `{ result, isReadCall }` — the spec-decoded return value plus whether this specific call is a signature-free read that wrote no state (per-call, reflecting the given `args`). No manual transaction assembly, signing, or submission. Works for both Wasm contracts and built-in Stellar Asset Contracts (SACs) ([#1502](https://github.com/stellar/js-stellar-sdk/pull/1502)).
+- `rpc.Server.getContractMethods(contractId, networkPassphrase?)`: lists a contract's callable methods and their signatures (name, inputs, outputs, and doc string) for discovery and tooling, without invoking or simulating anything. Adds the `Api.ContractMethod` and `Api.ContractMethodInput` types ([#1502](https://github.com/stellar/js-stellar-sdk/pull/1502)).
+- `rpc.Server.getContractInstance(contractId)`: returns a contract's `xdr.ScContractInstance` (its executable and instance storage) ([#1501](https://github.com/stellar/js-stellar-sdk/pull/1501)).
+- `contract.Client.from`, `fromWasm`, and `fromWasmHash` are now generic (`<T>`) and return `Client & T`, giving typed, autocompleted contract methods without code generation. The type parameter defaults to `unknown`, so existing untyped calls are unchanged ([#1502](https://github.com/stellar/js-stellar-sdk/pull/1502)).
+- `ClientOptions.server`: pass an existing `rpc.Server` to `contract.Client.from` to reuse its transport (headers, interceptors, `allowHttp`) instead of constructing a new one ([#1502](https://github.com/stellar/js-stellar-sdk/pull/1502)).
+- `Keypair.signMessage(message)` and `Keypair.verifyMessage(message, signature)`: sign and verify arbitrary messages per [SEP-53](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0053.md), for proving Stellar address ownership off-chain. The message (a UTF-8 string or `Buffer`) is prefixed with `"Stellar Signed Message:\n"`, SHA-256 hashed, and signed/verified with the keypair's ed25519 key — parity with the Python/Java SDKs and stellar-cli ([#1513](https://github.com/stellar/js-stellar-sdk/pull/1513)).
+
+### Changed
+- `contract.Client.from` now supports built-in Stellar Asset Contracts (SACs): when the contract's executable is a SAC, the client is built from the embedded SAC spec (lazily imported so bundlers can code-split it out of the common path) instead of downloading Wasm, which a SAC has none of on-chain ([#1501](https://github.com/stellar/js-stellar-sdk/pull/1501)).
+- `rpc.Server.getContractWasmByContractId` now rejects a SAC with a structured `{ code: 400 }` error pointing to `contract.Client.from`, instead of failing while decoding a nonexistent Wasm hash; the not-found rejection is now `{ code: 404, message: "Could not obtain contract instance from server" }` ([#1501](https://github.com/stellar/js-stellar-sdk/pull/1501)).
+- The UMD (`dist/`) build now sets `inlineDynamicImports` so the single-file bundle stays whole despite the SAC spec's lazy `import()` ([#1501](https://github.com/stellar/js-stellar-sdk/pull/1501)).
+
+## [v16.0.1](https://github.com/stellar/js-stellar-sdk/compare/v16.0.0...v16.0.1)
+
 ### Fixed
+- Fixed the ESM library build so the inlined `@stellar/js-xdr` source resolves
+  correctly under Yarn PnP (and Node's native ESM resolver). Because the build
+  preserves modules, Rollup emits js-xdr's source into a nested package scope,
+  but js-xdr does not declare `type: "module"`, so Node and Yarn PnP parsed those
+  preserved files as CommonJS and failed to resolve them. Rollup now marks the
+  emitted js-xdr package as `type: "module"` so its source is parsed as ESM
+  [#1484](https://github.com/stellar/js-stellar-sdk/pull/1484).
+
+## [v16.0.0](https://github.com/stellar/js-stellar-sdk/compare/v15.1.0...v16.0.0)
+
+There are a few major updates in this release:
+
+- JS Stellar Base (`@stellar/stellar-base`) was rewritten
+  in TypeScript, which provides proper type definitions and fixes
+  inconsistencies caused by manual type declarations. ([#1399])
+- JS Stellar Base is now merged into the JS Stellar SDK. Everything lives in one
+  place now. ([#1399])
+- The JS SDK now has better tree-shaking, which should result in a lighter
+  bundle size. ([#1397])
+- Protocol 27 support: the XDR was regenerated for CAP-71, and the Soroban
+  authorization helpers can build and sign the new address-bound
+  (`SOROBAN_CREDENTIALS_ADDRESS_V2`) and delegated
+  (`SOROBAN_CREDENTIALS_ADDRESS_WITH_DELEGATES`) credential types. The legacy
+  `SOROBAN_CREDENTIALS_ADDRESS` (V1) credential remains the default;
+  `ADDRESS_V2` is opt-in (see below), as it is only valid on networks that have
+  activated CAP-71. ([#1429], [#1450])
+
+### 1. Breaking Changes
+
+These break code, builds, or installs until you change something.
+
+#### Install & runtime
+
+- **Drop `@stellar/stellar-base` from your dependencies** if you were importing
+  it manually. It is now bundled into `@stellar/stellar-sdk`. Remove the package
+  and switch all imports from `@stellar/stellar-base` to `@stellar/stellar-sdk`.
+  ([#1399])
+- **Upgrade to Node 22 or later.** `engines.node` is now `>=22.0.0`; CI tests
+  against `[22, 24]`. ([#1408])
+- **Stop using the default import.**
+  `import StellarBase from '@stellar/stellar-sdk'` no longer works. Use
+  `import * as StellarBase` or named imports. ([#1396])
+- **Adjust deep `lib/` imports.** Library output paths moved:
+  - ESM at `lib/esm/`,
+  - CJS at `lib/cjs/`,
+  - axios variants at `lib/axios/esm/` and `lib/axios/cjs/`,
+  - type declarations alongside the ESM output at `lib/esm/` (e.g.
+    `lib/esm/index.d.ts`).
+
+  The `dist/` UMD bundle filenames are unchanged. ([#1397])
+- **The package.json `browser` field and browser export conditions were
+  removed.** Bundlers no longer auto-substitute the prebuilt UMD bundle for the
+  package entry — they bundle the ESM/CJS source directly. Load the UMD build
+  from its explicit `dist/` path if you need it. ([#1396], [#1397])
+
+#### HTTP client
+
+- **Default HTTP client switched from axios to fetch.** If you rely on axios
+  behavior (interceptors, adapters, regression fallback), import from the
+  alternative entry point `@stellar/stellar-sdk/axios` instead. ([#1394])
+- **The `no-eventsource` build variant is gone.** `eventsource` was upgraded to
+  v4, which uses `fetch` internally and works in every supported runtime (Node
+  22+, browsers, Deno, Bun, `workerd`). Remove any `no-eventsource`
+  build/import; the default build covers all environments. ([#1395])
+- **The `/no-axios` and `/minimal` subpath exports are removed**, along with
+  their `/contract` and `/rpc` variants. Axios is now opt-in through the
+  `@stellar/stellar-sdk/axios` family (`/axios`, `/axios/contract`,
+  `/axios/rpc`, and `@stellar/stellar-sdk/http-client/axios`); the minimal build
+  no longer exists. ([#1394])
+- **`Horizon.Server.serverURL` and `rpc.Server.serverURL` are now native `URL`
+  objects** (and `readonly`) instead of `urijs` `URI` instances. Code that called
+  urijs methods on them (`server.serverURL.protocol()`, `.clone()`, `.segment()`,
+  `.query()`) must move to the WHATWG `URL` API (e.g.
+  `serverURL.protocol === "https:"`, `serverURL.hostname`). ([#1402])
+
+#### `Transaction` & `TransactionBuilder`
+
+- **`Transaction.minAccountSequenceAge` is now `bigint`.** The underlying XDR
+  type is 64-bit; consuming code must switch from `number` to native `bigint`
+  (the runtime value is no longer an `xdr.UnsignedHyper` object either). ([#1399])
+
+- **`TransactionBuilder.setMinAccountSequenceAge` requires `bigint`.** Pass
+  `60n` instead of `60`. `TransactionBuilderOptions.minAccountSequenceAge` is
+  also `bigint`. ([#1399])
+- **`Transaction.extraSigners` is now `xdr.SignerKey[]`.** It always was at
+  runtime — only the type was wrong. Use `SignerKey.encodeSignerKey()` to get
+  StrKey strings. ([#1399])
+- **`Transaction` is no longer generic.** Remove `<TMemo, TOps>` parameters
+  (e.g., `Transaction<Memo<MemoType.Text>>` no longer compiles). ([#1399])
+- **`Operation.isValidAmount()`, `Operation.constructAmountRequirementsError()`,
+  and `Operation.setSourceAccount()` are no longer on the runtime `Operation`
+  class.** JavaScript callers that reached for these need to drop them — they
+  remain only as internal helpers in `src/base/util/operations.ts`. ([#1399])
+- **Revoke-sponsorship operation `type` is split into seven strings.**
+  `"revokeSponsorship"` is replaced by `"revokeAccountSponsorship"`,
+  `"revokeTrustlineSponsorship"`, `"revokeOfferSponsorship"`,
+  `"revokeDataSponsorship"`, `"revokeClaimableBalanceSponsorship"`,
+  `"revokeLiquidityPoolSponsorship"`, `"revokeSignerSponsorship"`. The runtime
+  always returned the specific strings; consumers that switched on `type` should
+  update their cases. ([#1399])
+
+#### `Asset`, `Keypair`, signing helpers
+
+- **`Asset.code` and `Asset.issuer` are now `readonly`.** Stop mutating them in
+  place — construct a new `Asset` instead. ([#1399])
+- **`Asset.issuer` is typed as `string | undefined`.** Native assets have no
+  issuer; add nullish checks. ([#1399])
+- **`FastSigning` constant removed.** Signing now goes through
+  `@noble/ed25519` exclusively — drop the import. ([#1401])
+- **`TransactionI` removed.** Use `TransactionBase` instead. ([#1399])
+- **`authorizeInvocation()` takes a single object parameter.** Switch from
+  `authorizeInvocation(signer, validUntilLedgerSeq, invocation, publicKey, networkPassphrase)`
+  to
+  `authorizeInvocation({ signer, validUntilLedgerSeq, invocation, networkPassphrase, publicKey })`.
+  ([#1399])
+- **`authorizeEntry()` no longer defaults `networkPassphrase` to
+  `Networks.FUTURENET`.** Pass the network passphrase explicitly at every call
+  site. ([#1399])
+
+### 2. Should know (type-only or behavior changes that may surface)
+
+Won't fail at install. May fail at compile time, or change behavior at runtime,
+depending on how you use the API.
+
+#### TypeScript-only
+
+- **`CreateInvocation.token` renamed to `CreateInvocation.asset`** in the type
+  declarations — runtime was already `.asset`. ([#1399])
+- **`ScIntType` adds `'timepoint'` and `'duration'`.** Exhaustive switches on
+  `ScIntType` need new cases. ([#1399])
+- **`XdrLargeInt.getType()` returns `ScIntType | undefined`** instead of a raw
+  lowercased string; non-integer types yield `undefined`. ([#1399])
+- **`SorobanDataBuilder.fromXDR` return type corrected** to
+  `xdr.SorobanTransactionData`. Runtime always returned this — only the type was
+  wrong. ([#1399])
+- **`SetOptions.clearFlags` / `setFlags` accept arbitrary numeric bitmasks.**
+  The type was widened from `AuthFlag` to `AuthFlags` (`AuthFlag | (number & {})`),
+  so you can now pass combined flag values without a cast. This is a widening —
+  existing code keeps compiling. ([#1399])
+- **`supportMuxing` parameter removed** from `decodeAddressToMuxedAccount` /
+  `encodeMuxedAccountToAddress` type declarations. It was silently ignored at
+  runtime. ([#1399])
+
+#### Runtime behavior
+
+- **`Keypair.rawSecretKey()` throws on public-key-only instances** with
+  `Error("no secret seed available")` instead of returning `undefined`. ([#1399])
+- **`TransactionBase.tx` returns a defensive copy — mutating it is now a SILENT
+  no-op.** `tx` no longer returns the live XDR object, so setting fields through
+  it (`tx.tx.fee(…)`, `tx.tx.operations(…)`, `tx.tx.cond(…)`, etc.) mutates a
+  throwaway copy and has **no effect** on the transaction that gets signed or
+  serialized. It does **not** throw and no types change, so code that relied on
+  in-place mutation keeps compiling and running while silently signing the
+  unmodified transaction. Rebuild instead via `TransactionBuilder` /
+  `TransactionBuilder.cloneFrom`. ([#1399])
+- **`TransactionBuilder` constructor preserves `0n` for
+  `minAccountSequenceAge`** instead of coercing falsy values to `null`. This may
+  flip `hasV2Preconditions()` to `true` when the field is set to `0n`. ([#1399])
+- **`toXDRPrice` rejects more bad input earlier.** Zero/negative/`NaN`/
+  `Infinity` numeric prices now throw `"price must be positive"` before reaching
+  `best_r()`. Zero denominators also rejected (`d <= 0`). ([#1399])
+- **Constructor and input validation now throw where the SDK was previously
+  lenient.** `MuxedAccount` validates uint64 IDs; `Claimant` rejects falsy
+  destinations; `Account` rejects `NaN` sequences; `Memo` is fully immutable and
+  throws on invalid types instead of returning `null`; `Memo.id()` rejects
+  non-plain-digit strings; `allow_trust` throws when `authorize` is missing;
+  `setTrustLineFlags` rejects non-boolean flag values; `Asset.getAssetType()`
+  throws for unknown types instead of returning `"unknown"`. (`set_options` also
+  no longer mutates the caller's signer fields.) ([#1399])
+- **`TransactionBuilder` now validates and throws.** `build()` throws on
+  total-fee overflow past `uint32` max; `cloneFrom()` throws on zero-operation
+  inputs; the constructor rejects negative or inverted `timebounds` /
+  `ledgerbounds`. ([#1399])
+- **`TransactionBuilder.cloneFrom` excludes the Soroban resource fee when
+  deriving the per-operation base fee.** Previously the resource fee was treated
+  as part of the inclusion fee and re-added on `build()`, doubling it (or
+  overflowing `uint32` and throwing). If a malformed transaction declares a
+  resource fee that meets or exceeds its total fee, the subtraction is skipped
+  and the full fee is used as-is. ([#1478])
+- **`Operation.setOptions()` rejects malformed numeric strings.** Flag, weight,
+  and threshold fields (`setFlags`, `clearFlags`, `masterWeight`, the signer
+  weight, and the `*Threshold` options) now reject values like `"123abc"` that
+  `parseFloat()` previously accepted by reading only the leading digits. ([#1399])
+- **`XdrLargeInt` / `ScInt` built from an array of limbs now decode correctly.**
+  Passing multiple big-endian integer parts (for `i128`/`u128`/`i256`/`u256`)
+  previously wrapped them in a nested array and produced wrong values; the limbs
+  are now passed through correctly. ([#1399])
+- **Large-integer conversions reject out-of-range / malformed input.**
+  `nativeToScVal` bounds-checks `u32`/`i32` values and rejects non-numeric
+  strings like `"123abc"`; `XdrLargeInt.toI128()` / `toI256()` reject unsigned
+  values exceeding the signed range instead of silently flipping the sign bit.
+  ([#1399])
+- **`bignumber.js` upgraded to v11; v9's `DEBUG` guard replaced by `STRICT`
+  mode.** Invalid values (non-numeric strings, unsupported types) still throw, as
+  before. The behavior that changed: v11 dropped v9's "more than 15 significant
+  digits" check, so a high-precision JS `number` passed as an amount or price no
+  longer throws — it is silently rounded to floating-point precision instead.
+  Pass such values as strings or `bigint` to avoid quiet precision loss.
+  ([#1401])
+- **`eventsource` v4 no longer swallows exceptions thrown inside stream
+  callbacks.** A throw inside a `CallBuilder.stream()` `onmessage`/`onerror`
+  handler now surfaces as an uncaught exception (v4's spec-compliant
+  `EventTarget` no longer discards it); make those callbacks handle their own
+  errors. ([#1395])
+- **CAP-71 `SOROBAN_CREDENTIALS_ADDRESS_V2` auth is opt-in; the default stays
+  legacy `SOROBAN_CREDENTIALS_ADDRESS` (V1).** `ADDRESS_V2` entries are only
+  valid on networks that have activated CAP-71, so the default keeps submissions
+  safe before activation. `authorizeInvocation` gained an optional `authV2`
+  field (default `false`) on its params object, selecting between `ADDRESS` and
+  `ADDRESS_V2` credentials. The default will flip to V2 in protocol 28 ([#1429], [#1450])
+
+#### Internal-detail shifts (low likelihood of impact)
+
+- `uri.js` replaced with native `URL` / `URLSearchParams` for internal request
+  building (the consumer-visible part is the `serverURL` type change noted under
+  Breaking Changes → HTTP client). ([#1402])
+- Root `tsconfig.json` moved from `config/tsconfig.json` to project root —
+  matters if your tooling references the old path. ([#1401])
+
+### 3. Quietly improved (no caller action needed)
+
+These are robustness and correctness gains rolled up by theme.
+
+- **`nativeToScVal` robustness.** Plain-object detection, per-key type lookups,
+  prefixed numeric inputs, and map-key sorting are more predictable.
+  (Caller-visible new throws are listed under Should know → Runtime behavior.)
+  ([#1399])
+- **`TransactionBuilder.addSacTransferOperation` accepts muxed addresses.** Both
+  the destination and source may now be muxed (`M...`) addresses. ([#1399])
+- **`ScInt` auto-type classification fixed for negative boundary values.**
+  `-(2^63)` is now classified as `i64`, not `i128`. (The related `toI128()` /
+  `toI256()` range rejections are listed under Should know → Runtime behavior.)
+  ([#1399])
+- **Round-trip fidelity with `Operation.fromXDRObject`.** `changeTrust` accepts
+  `line` as a fallback for `asset`; `manageData` accepts `undefined` for
+  `opts.value` as a delete; `ed25519SignedPayload` signer keys are now decoded
+  instead of throwing in the default case. ([#1399])
+- **Soroban-specific fixes.** Token amount formatting, custom-contract errors,
+  claimable-balance addresses, sorted-map comparisons, and `best_r` edge cases
+  are more reliable. ([#1399])
+- **Horizon call builders.** Asset-filtered queries (offers, order book, paths,
+  trade aggregations) no longer emit `*_asset_code`/`*_asset_issuer` parameters
+  for issuerless assets, avoiding `undefined` values in the outgoing request.
+  ([#1402])
+- **Misc.** `Transaction` construction avoids unnecessary copy overhead,
+  `authorizeInvocation` has a clearer missing-`publicKey` error, and a `signHashX`
+  error-message typo was fixed. ([#1399])
+
+#### Newly typed / newly available (the `Added` section, summarized)
+
+`Address`, `hash`, `sign`, `verify`, `Keypair.xdrMuxedAccount(id)`,
+`SorobanDataBuilder`, `Memo.return()`, `revokeSignerSponsorship`, and
+`Operation.fromXDRObject` have more complete types or signer support.
+`scvSortedMap` is now exported. New type exports: `NativeToScValOpts`,
+`WasmCreateDetails`, and `OperationRecord`. Contract-create/upload operations now
+accept an `auth` array. ([#1399])
+
+For protocol 27 / CAP-71 Soroban authorization, `authorizeEntry()` now signs the
+new address-bound and delegated credential types, accepts `forAddress`, and
+exports `buildAuthorizationEntryPreimage()`, `buildWithDelegatesEntry()`,
+`DelegateSignature`, and `BuildWithDelegatesParams`. ([#1429])
+
+### 4. Internal / FYI (no consumer-visible effect)
+
+Toolchain modernization that consumers won't notice but is worth knowing if you
+build the SDK from source or maintain forks.
+
+- **Build switched from Webpack + Babel to Rollup.** One `rollup.config.mjs`
+  now produces library + UMD output, with a single `tsc` types pass. ([#1397])
+- **Dual ESM + CJS package layout.** `package.json` declares `"type": "module"`;
+  CJS output lives under `lib/cjs/`, and internal relative imports now use
+  explicit `.js` extensions. ([#1396])
+- **Dependency swaps for smaller footprint.** `randombytes` removed (randomness
+  now comes from `crypto.getRandomValues` / `@noble/ed25519`); `sha.js` →
+  `@noble/hashes`; `@noble/curves` Ed25519 → `@noble/ed25519`; `toml` →
+  `smol-toml`. ([#1401])
+- **`eventsource` v2 → v4.** Native `fetch` transport under the hood; the
+  dependency contributes well under 2 KB to bundles. ([#1395])
+
+[#1394]: https://github.com/stellar/js-stellar-sdk/pull/1394
+[#1395]: https://github.com/stellar/js-stellar-sdk/pull/1395
+[#1396]: https://github.com/stellar/js-stellar-sdk/pull/1396
+[#1397]: https://github.com/stellar/js-stellar-sdk/pull/1397
+[#1399]: https://github.com/stellar/js-stellar-sdk/pull/1399
+[#1401]: https://github.com/stellar/js-stellar-sdk/pull/1401
+[#1402]: https://github.com/stellar/js-stellar-sdk/pull/1402
+[#1408]: https://github.com/stellar/js-stellar-sdk/pull/1408
+[#1429]: https://github.com/stellar/js-stellar-sdk/pull/1429
+[#1450]: https://github.com/stellar/js-stellar-sdk/pull/1450
+[#1478]: https://github.com/stellar/js-stellar-sdk/pull/1478
+
+## [v16.0.0-rc.2](https://github.com/stellar/js-stellar-sdk/compare/v16.0.0-rc.1...v16.0.0-rc.2)
+
+### Changed
+
+- Soroban auth defaults back to the legacy `SOROBAN_CREDENTIALS_ADDRESS` (V1)
+  credential, with the CAP-71 `SOROBAN_CREDENTIALS_ADDRESS_V2` credential now
+  available behind an opt-in instead of forced on. `ADDRESS_V2` is only valid on
+  networks that have activated CAP-71, so emitting it before activation would
+  fail submission; the opt-in keeps the default safe while letting you exercise
+  V2 against networks that already support it. The default will flip to V2 once
+  the protocol makes it mandatory. ([#1450](https://github.com/stellar/js-stellar-sdk/pull/1450))
+  - `rpc.Server.simulateTransaction` gained a 4th optional argument,
+    `authV2` (default `false`). When `true`, the `authV2` request flag is sent so
+    simulation returns `ADDRESS_V2` auth entries; otherwise the flag is omitted
+    and legacy `ADDRESS` entries are returned.
+  - `authorizeInvocation` gained an optional `authV2` field on its params object
+    (default `false`) selecting between `ADDRESS` and `ADDRESS_V2` credentials.
+  - `contract.Client` / `AssembledTransaction` accept `authV2` in
+    `MethodOptions`, threaded through to simulation.
+
+### Fixed
+- Resolved a performance regression in Keypair.random() [#1449](https://github.com/stellar/js-stellar-sdk/pull/1449).
+
+
+## [v16.0.0-rc.1](https://github.com/stellar/js-stellar-sdk/compare/v15.0.1...v16.0.0-rc.1)
+
+There are a few major updates in this release:
+
+- JS Stellar Base (`@stellar/stellar-base`) was rewritten
+  in TypeScript, which provides proper type definitions and fixes
+  inconsistencies caused by manual type declarations. ([#1399])
+- JS Stellar Base is now merged into the JS Stellar SDK. Everything lives in one
+  place now. ([#1399])
+- The JS SDK now has better tree-shaking, which should result in a lighter
+  bundle size. ([#1397])
+- Protocol 27 support: the XDR was regenerated for CAP-71, and the Soroban
+  authorization helpers now build and sign the new address-bound
+  (`SOROBAN_CREDENTIALS_ADDRESS_V2`) and delegated
+  (`SOROBAN_CREDENTIALS_ADDRESS_WITH_DELEGATES`) credential types. ([#1429])
+
+### 1. Breaking Changes
+
+These break code, builds, or installs until you change something.
+
+#### Install & runtime
+
+- **Drop `@stellar/stellar-base` from your dependencies** if you were importing
+  it manually. It is now bundled into `@stellar/stellar-sdk`. Remove the package
+  and switch all imports from `@stellar/stellar-base` to `@stellar/stellar-sdk`.
+  ([#1399])
+- **Upgrade to Node 22 or later.** `engines.node` is now `>=22.0.0`; CI tests
+  against `[22, 24]`. ([#1408])
+- **Stop using the default import.**
+  `import StellarBase from '@stellar/stellar-sdk'` no longer works. Use
+  `import * as StellarBase` or named imports. ([#1396])
+- **Adjust deep `lib/` imports.** Library output paths moved:
+  - ESM at `lib/esm/`,
+  - CJS at `lib/cjs/`,
+  - axios variants at `lib/axios/esm/` and `lib/axios/cjs/`,
+  - type declarations alongside the ESM output at `lib/esm/` (e.g.
+    `lib/esm/index.d.ts`).
+
+  The `dist/` UMD bundle filenames are unchanged. ([#1397])
+- **The package.json `browser` field and browser export conditions were
+  removed.** Bundlers no longer auto-substitute the prebuilt UMD bundle for the
+  package entry — they bundle the ESM/CJS source directly. Load the UMD build
+  from its explicit `dist/` path if you need it. ([#1396], [#1397])
+
+#### HTTP client
+
+- **Default HTTP client switched from axios to fetch.** If you rely on axios
+  behavior (interceptors, adapters, regression fallback), import from the
+  alternative entry point `@stellar/stellar-sdk/axios` instead. ([#1394])
+- **The `no-eventsource` build variant is gone.** `eventsource` was upgraded to
+  v4, which uses `fetch` internally and works in every supported runtime (Node
+  22+, browsers, Deno, Bun, `workerd`). Remove any `no-eventsource`
+  build/import; the default build covers all environments. ([#1395])
+- **The `/no-axios` and `/minimal` subpath exports are removed**, along with
+  their `/contract` and `/rpc` variants. Axios is now opt-in through the
+  `@stellar/stellar-sdk/axios` family (`/axios`, `/axios/contract`,
+  `/axios/rpc`, and `@stellar/stellar-sdk/http-client/axios`); the minimal build
+  no longer exists. ([#1394])
+- **`Horizon.Server.serverURL` and `rpc.Server.serverURL` are now native `URL`
+  objects** (and `readonly`) instead of `urijs` `URI` instances. Code that called
+  urijs methods on them (`server.serverURL.protocol()`, `.clone()`, `.segment()`,
+  `.query()`) must move to the WHATWG `URL` API (e.g.
+  `serverURL.protocol === "https:"`, `serverURL.hostname`). ([#1402])
+
+#### `Transaction` & `TransactionBuilder`
+
+- **`Transaction.minAccountSequenceAge` is now `bigint`.** The underlying XDR
+  type is 64-bit; consuming code must switch from `number` to native `bigint`
+  (the runtime value is no longer an `xdr.UnsignedHyper` object either). ([#1399])
+
+- **`TransactionBuilder.setMinAccountSequenceAge` requires `bigint`.** Pass
+  `60n` instead of `60`. `TransactionBuilderOptions.minAccountSequenceAge` is
+  also `bigint`. ([#1399])
+- **`Transaction.extraSigners` is now `xdr.SignerKey[]`.** It always was at
+  runtime — only the type was wrong. Use `SignerKey.encodeSignerKey()` to get
+  StrKey strings. ([#1399])
+- **`Transaction` is no longer generic.** Remove `<TMemo, TOps>` parameters
+  (e.g., `Transaction<Memo<MemoType.Text>>` no longer compiles). ([#1399])
+- **`Operation.isValidAmount()`, `Operation.constructAmountRequirementsError()`,
+  and `Operation.setSourceAccount()` are no longer on the runtime `Operation`
+  class.** JavaScript callers that reached for these need to drop them — they
+  remain only as internal helpers in `src/base/util/operations.ts`. ([#1399])
+- **Revoke-sponsorship operation `type` is split into seven strings.**
+  `"revokeSponsorship"` is replaced by `"revokeAccountSponsorship"`,
+  `"revokeTrustlineSponsorship"`, `"revokeOfferSponsorship"`,
+  `"revokeDataSponsorship"`, `"revokeClaimableBalanceSponsorship"`,
+  `"revokeLiquidityPoolSponsorship"`, `"revokeSignerSponsorship"`. The runtime
+  always returned the specific strings; consumers that switched on `type` should
+  update their cases. ([#1399])
+
+#### `Asset`, `Keypair`, signing helpers
+
+- **`Asset.code` and `Asset.issuer` are now `readonly`.** Stop mutating them in
+  place — construct a new `Asset` instead. ([#1399])
+- **`Asset.issuer` is typed as `string | undefined`.** Native assets have no
+  issuer; add nullish checks. ([#1399])
+- **`FastSigning` constant removed.** Signing now goes through
+  `@noble/ed25519` exclusively — drop the import. ([#1401])
+- **`TransactionI` removed.** Use `TransactionBase` instead. ([#1399])
+- **`authorizeInvocation()` takes a single object parameter.** Switch from
+  `authorizeInvocation(signer, validUntilLedgerSeq, invocation, publicKey, networkPassphrase)`
+  to
+  `authorizeInvocation({ signer, validUntilLedgerSeq, invocation, networkPassphrase, publicKey })`.
+  ([#1399])
+- **`authorizeEntry()` no longer defaults `networkPassphrase` to
+  `Networks.FUTURENET`.** Pass the network passphrase explicitly at every call
+  site. ([#1399])
+
+### 2. Should know (type-only or behavior changes that may surface)
+
+Won't fail at install. May fail at compile time, or change behavior at runtime,
+depending on how you use the API.
+
+#### TypeScript-only
+
+- **`CreateInvocation.token` renamed to `CreateInvocation.asset`** in the type
+  declarations — runtime was already `.asset`. ([#1399])
+- **`ScIntType` adds `'timepoint'` and `'duration'`.** Exhaustive switches on
+  `ScIntType` need new cases. ([#1399])
+- **`XdrLargeInt.getType()` returns `ScIntType | undefined`** instead of a raw
+  lowercased string; non-integer types yield `undefined`. ([#1399])
+- **`SorobanDataBuilder.fromXDR` return type corrected** to
+  `xdr.SorobanTransactionData`. Runtime always returned this — only the type was
+  wrong. ([#1399])
+- **`SetOptions.clearFlags` / `setFlags` accept arbitrary numeric bitmasks.**
+  The type was widened from `AuthFlag` to `AuthFlags` (`AuthFlag | (number & {})`),
+  so you can now pass combined flag values without a cast. This is a widening —
+  existing code keeps compiling. ([#1399])
+- **`supportMuxing` parameter removed** from `decodeAddressToMuxedAccount` /
+  `encodeMuxedAccountToAddress` type declarations. It was silently ignored at
+  runtime. ([#1399])
+
+#### Runtime behavior
+
+- **`Keypair.rawSecretKey()` throws on public-key-only instances** with
+  `Error("no secret seed available")` instead of returning `undefined`. ([#1399])
+- **`TransactionBase.tx` returns a defensive copy — mutating it is now a SILENT
+  no-op.** `tx` no longer returns the live XDR object, so setting fields through
+  it (`tx.tx.fee(…)`, `tx.tx.operations(…)`, `tx.tx.cond(…)`, etc.) mutates a
+  throwaway copy and has **no effect** on the transaction that gets signed or
+  serialized. It does **not** throw and no types change, so code that relied on
+  in-place mutation keeps compiling and running while silently signing the
+  unmodified transaction. Rebuild instead via `TransactionBuilder` /
+  `TransactionBuilder.cloneFrom`. ([#1399])
+- **`TransactionBuilder` constructor preserves `0n` for
+  `minAccountSequenceAge`** instead of coercing falsy values to `null`. This may
+  flip `hasV2Preconditions()` to `true` when the field is set to `0n`. ([#1399])
+- **`toXDRPrice` rejects more bad input earlier.** Zero/negative/`NaN`/
+  `Infinity` numeric prices now throw `"price must be positive"` before reaching
+  `best_r()`. Zero denominators also rejected (`d <= 0`). ([#1399])
+- **Constructor and input validation now throw where the SDK was previously
+  lenient.** `MuxedAccount` validates uint64 IDs; `Claimant` rejects falsy
+  destinations; `Account` rejects `NaN` sequences; `Memo` is fully immutable and
+  throws on invalid types instead of returning `null`; `Memo.id()` rejects
+  non-plain-digit strings; `allow_trust` throws when `authorize` is missing;
+  `setTrustLineFlags` rejects non-boolean flag values; `Asset.getAssetType()`
+  throws for unknown types instead of returning `"unknown"`. (`set_options` also
+  no longer mutates the caller's signer fields.) ([#1399])
+- **`TransactionBuilder` now validates and throws.** `build()` throws on
+  total-fee overflow past `uint32` max; `cloneFrom()` throws on zero-operation
+  inputs; the constructor rejects negative or inverted `timebounds` /
+  `ledgerbounds`. ([#1399])
+- **`Operation.setOptions()` rejects malformed numeric strings.** Flag, weight,
+  and threshold fields (`setFlags`, `clearFlags`, `masterWeight`, the signer
+  weight, and the `*Threshold` options) now reject values like `"123abc"` that
+  `parseFloat()` previously accepted by reading only the leading digits. ([#1399])
+- **`XdrLargeInt` / `ScInt` built from an array of limbs now decode correctly.**
+  Passing multiple big-endian integer parts (for `i128`/`u128`/`i256`/`u256`)
+  previously wrapped them in a nested array and produced wrong values; the limbs
+  are now passed through correctly. ([#1399])
+- **Large-integer conversions reject out-of-range / malformed input.**
+  `nativeToScVal` bounds-checks `u32`/`i32` values and rejects non-numeric
+  strings like `"123abc"`; `XdrLargeInt.toI128()` / `toI256()` reject unsigned
+  values exceeding the signed range instead of silently flipping the sign bit.
+  ([#1399])
+- **`bignumber.js` upgraded to v11; v9's `DEBUG` guard replaced by `STRICT`
+  mode.** Invalid values (non-numeric strings, unsupported types) still throw, as
+  before. The behavior that changed: v11 dropped v9's "more than 15 significant
+  digits" check, so a high-precision JS `number` passed as an amount or price no
+  longer throws — it is silently rounded to floating-point precision instead.
+  Pass such values as strings or `bigint` to avoid quiet precision loss.
+  ([#1401])
+- **`eventsource` v4 no longer swallows exceptions thrown inside stream
+  callbacks.** A throw inside a `CallBuilder.stream()` `onmessage`/`onerror`
+  handler now surfaces as an uncaught exception (v4's spec-compliant
+  `EventTarget` no longer discards it); make those callbacks handle their own
+  errors. ([#1395])
+- **`authorizeInvocation()` now builds `SOROBAN_CREDENTIALS_ADDRESS_V2`
+  credentials** instead of legacy `SOROBAN_CREDENTIALS_ADDRESS` (CAP-71-02), so
+  the signature payload is now address-bound
+  (`ENVELOPE_TYPE_SOROBAN_AUTHORIZATION_WITH_ADDRESS`). This is transparent if
+  you sign and submit through the SDK, but the entries it produces are only
+  valid on protocol 27+; code that asserts on the credential type, or targets a
+  pre-protocol-27 network, must account for the new type. ([#1429])
+
+#### Internal-detail shifts (low likelihood of impact)
+
+- `uri.js` replaced with native `URL` / `URLSearchParams` for internal request
+  building (the consumer-visible part is the `serverURL` type change noted under
+  Breaking Changes → HTTP client). ([#1402])
+- Root `tsconfig.json` moved from `config/tsconfig.json` to project root —
+  matters if your tooling references the old path. ([#1401])
+
+### 3. Quietly improved (no caller action needed)
+
+These are robustness and correctness gains rolled up by theme.
+
+- **`nativeToScVal` robustness.** Plain-object detection, per-key type lookups,
+  prefixed numeric inputs, and map-key sorting are more predictable.
+  (Caller-visible new throws are listed under Should know → Runtime behavior.)
+  ([#1399])
+- **`TransactionBuilder.addSacTransferOperation` accepts muxed addresses.** Both
+  the destination and source may now be muxed (`M...`) addresses. ([#1399])
+- **`ScInt` auto-type classification fixed for negative boundary values.**
+  `-(2^63)` is now classified as `i64`, not `i128`. (The related `toI128()` /
+  `toI256()` range rejections are listed under Should know → Runtime behavior.)
+  ([#1399])
+- **Round-trip fidelity with `Operation.fromXDRObject`.** `changeTrust` accepts
+  `line` as a fallback for `asset`; `manageData` accepts `undefined` for
+  `opts.value` as a delete; `ed25519SignedPayload` signer keys are now decoded
+  instead of throwing in the default case. ([#1399])
+- **Soroban-specific fixes.** Token amount formatting, custom-contract errors,
+  claimable-balance addresses, sorted-map comparisons, and `best_r` edge cases
+  are more reliable. ([#1399])
+- **Horizon call builders.** Asset-filtered queries (offers, order book, paths,
+  trade aggregations) no longer emit `*_asset_code`/`*_asset_issuer` parameters
+  for issuerless assets, avoiding `undefined` values in the outgoing request.
+  ([#1402])
+- **Misc.** `Transaction` construction avoids unnecessary copy overhead,
+  `authorizeInvocation` has a clearer missing-`publicKey` error, and a `signHashX`
+  error-message typo was fixed. ([#1399])
+
+#### Newly typed / newly available (the `Added` section, summarized)
+
+`Address`, `hash`, `sign`, `verify`, `Keypair.xdrMuxedAccount(id)`,
+`SorobanDataBuilder`, `Memo.return()`, `revokeSignerSponsorship`, and
+`Operation.fromXDRObject` have more complete types or signer support.
+`scvSortedMap` is now exported. New type exports: `NativeToScValOpts`,
+`WasmCreateDetails`, and `OperationRecord`. Contract-create/upload operations now
+accept an `auth` array. ([#1399])
+
+For protocol 27 / CAP-71 Soroban authorization, `authorizeEntry()` now signs the
+new address-bound and delegated credential types, accepts `forAddress`, and
+exports `buildAuthorizationEntryPreimage()`, `buildWithDelegatesEntry()`,
+`DelegateSignature`, and `BuildWithDelegatesParams`. ([#1429])
+
+### 4. Internal / FYI (no consumer-visible effect)
+
+Toolchain modernization that consumers won't notice but is worth knowing if you
+build the SDK from source or maintain forks.
+
+- **Build switched from Webpack + Babel to Rollup.** One `rollup.config.mjs`
+  now produces library + UMD output, with a single `tsc` types pass. ([#1397])
+- **Dual ESM + CJS package layout.** `package.json` declares `"type": "module"`;
+  CJS output lives under `lib/cjs/`, and internal relative imports now use
+  explicit `.js` extensions. ([#1396])
+- **Dependency swaps for smaller footprint.** `randombytes` removed (randomness
+  now comes from `crypto.getRandomValues` / `@noble/ed25519`); `sha.js` →
+  `@noble/hashes`; `@noble/curves` Ed25519 → `@noble/ed25519`; `toml` →
+  `smol-toml`. ([#1401])
+- **`eventsource` v2 → v4.** Native `fetch` transport under the hood; the
+  dependency contributes well under 2 KB to bundles. ([#1395])
+
+[#1394]: https://github.com/stellar/js-stellar-sdk/pull/1394
+[#1395]: https://github.com/stellar/js-stellar-sdk/pull/1395
+[#1396]: https://github.com/stellar/js-stellar-sdk/pull/1396
+[#1397]: https://github.com/stellar/js-stellar-sdk/pull/1397
+[#1399]: https://github.com/stellar/js-stellar-sdk/pull/1399
+[#1401]: https://github.com/stellar/js-stellar-sdk/pull/1401
+[#1402]: https://github.com/stellar/js-stellar-sdk/pull/1402
+[#1408]: https://github.com/stellar/js-stellar-sdk/pull/1408
+[#1429]: https://github.com/stellar/js-stellar-sdk/pull/1429
+
+## [v15.1.0](https://github.com/stellar/js-stellar-sdk/compare/v15.0.1...v15.1.0)
+
+### Fixed
+* Security: `FederationServer.createForDomain` and the `FederationServer` constructor now validate domains per RFC 1035, rejecting malformed domains before issuing federation or `stellar.toml` requests. Port numbers are also accepted ([#1393](https://github.com/stellar/js-stellar-sdk/pull/1393)).
 * `RpcServer.pollTransaction` off-by-one: the polling loop used `<` instead of `<=`, causing one fewer attempt than configured([#1373](https://github.com/stellar/js-stellar-sdk/pull/1373)).
 * `requestAirdrop` error path: fixed incorrect property access (`error.response.detail` instead of `error.response.data.detail`) when checking for `createAccountAlreadyExist` ([#1373](https://github.com/stellar/js-stellar-sdk/pull/1373)).
 * Operator precedence bug in `parseSuccessful`: `sim.results?.length ?? 0 > 0` was parsed as `?? (0 > 0)`, causing simulation results and state changes to never be included in the parsed response ([#1373](https://github.com/stellar/js-stellar-sdk/pull/1373)).
@@ -18,7 +625,6 @@ A breaking change will get clearly marked in this log.
 * Fixed bigint-to-U32/I32 conversion in `Spec` using `Number(val)` instead of `val as number` (a no-op for bigints) ([#1373](https://github.com/stellar/js-stellar-sdk/pull/1373)).
 * Fixed missing template literal `$` in two `Spec` error messages that were not interpolated ([#1373](https://github.com/stellar/js-stellar-sdk/pull/1373)).
 * WASM custom section parser: when a section was skipped (invalid name length), the offset was not advanced, causing an infinite loop or incorrect parsing of subsequent sections ([#1373](https://github.com/stellar/js-stellar-sdk/pull/1373)).
-* `FederationServer.resolve` now validates domains per RFC 1035, rejecting malformed domains. Port numbers are also accepted in the domain ([#1373](https://github.com/stellar/js-stellar-sdk/pull/1373)).
 * `FederationServer` URL mutation: `resolveAddress`, `resolveAccountId`, and `resolveTransactionId` mutated the shared `serverURL` by appending query params on each call. Fixed by cloning the URL before modifying ([#1373](https://github.com/stellar/js-stellar-sdk/pull/1373)).
 * `CallBuilder.stream()` URL mutation: `stream()` mutated the shared `this.url` by adding query params, corrupting the builder for subsequent calls. Fixed by cloning the URL ([#1373](https://github.com/stellar/js-stellar-sdk/pull/1373)).
 * `AssembledTransaction` restore path: when `buildWithOp` was used and automatic state restoration was needed, the rebuild incorrectly reconstructed the operation via `contract.call()` instead of reusing the original operation ([#1373](https://github.com/stellar/js-stellar-sdk/pull/1373)).
@@ -29,17 +635,18 @@ A breaking change will get clearly marked in this log.
 * `AssembledTransaction.simulate` did not clear `this.built` before re-simulating after a state restoration rebuild, causing it to assemble stale transaction data ([#1372](https://github.com/stellar/js-stellar-sdk/pull/1372)).
 * `AssembledTransaction.signAndSend` mutated the shared `this.options.submit` flag to prevent double submission. Replaced with a wrapper around `signTransaction` that injects `submit: false` without mutating shared state ([#1372](https://github.com/stellar/js-stellar-sdk/pull/1372)).
 * Fetch HTTP client: async request interceptors were not awaited — the synchronous `try/catch` loop passed unresolved promise objects as the config. Replaced with a proper `.then()` chain matching Axios interceptor semantics ([#1372](https://github.com/stellar/js-stellar-sdk/pull/1372)).
+* Fetch HTTP client: cancellation now preserves custom cancel reasons and `isCancel` no longer depends on exact error-message text ([#1390](https://github.com/stellar/js-stellar-sdk/pull/1390)).
+* Fetch HTTP client: instance default headers and params now merge correctly with per-request overrides on the no-axios / minimal builds, including requests that use bounded options ([#1390](https://github.com/stellar/js-stellar-sdk/pull/1390)).
 * Fetch HTTP client: `maxRedirects` and `maxContentLength` were silently ignored on the no-axios / minimal builds, turning SDK-set SSRF and DoS guards (`StellarToml.Resolver.resolve`, `FederationServer`) into no-ops. A new bounded adapter activates when either option is set, refusing redirects past `maxRedirects` and streaming the response body with a running-total check so oversized responses abort mid-stream ([#1390](https://github.com/stellar/js-stellar-sdk/pull/1390)).
+* Fetch HTTP client: the no-axios bounded path now more closely matches Axios behavior for object request bodies, `baseURL`, timeout errors, redirect method/body handling, and stripping credential-bearing headers on cross-origin redirects ([#1390](https://github.com/stellar/js-stellar-sdk/pull/1390)).
 * `src/bindings/config.ts` imported `../../package.json` with a relative path that resolved incorrectly for the `lib/no-axios/` and `lib/minimal/` build outputs, making those libs unloadable. Replaced with the `__PACKAGE_VERSION__` compile-time define ([#1390](https://github.com/stellar/js-stellar-sdk/pull/1390)).
+* Updated the production `axios` dependency from `1.14.0` to `1.15.0` ([#1381](https://github.com/stellar/js-stellar-sdk/pull/1381)).
 
 ### Added
 * `AccountResponse` constructor now uses explicit field-by-field assignment instead of `Object.entries` dynamic assignment for type safety ([#1373](https://github.com/stellar/js-stellar-sdk/pull/1373)).
 * Added `transactions` collection to `Api.AccountRecord` and `AccountResponse` ([#1373](https://github.com/stellar/js-stellar-sdk/pull/1373)).
 * Added range checks for U32/I32 values in `Spec`: bigint values are now validated against min/max bounds before conversion, throwing a `RangeError` instead of silently truncating ([#1373](https://github.com/stellar/js-stellar-sdk/pull/1373)).
-* `rpc.Server.getLatestLedger()` now includes `closeTime`, `headerXdr`, and `metadataXdr` in the typed response, with `headerXdr`/`metadataXdr` parsed into XDR objects instead of raw base64 strings ([#1389
-](https://github.com/stellar/js-stellar-sdk/pull/1389)).
-
-
+* `rpc.Server.getLatestLedger()` now includes `closeTime`, `headerXdr`, and `metadataXdr` in the typed response, with `headerXdr`/`metadataXdr` parsed into XDR objects instead of raw base64 strings ([#1389](https://github.com/stellar/js-stellar-sdk/pull/1389)).
 
 ### Deprecated
 * `BalanceResponse.revocable` is deprecated in favor of `authorizedToMaintainLiabilities`, which correctly reflects the trustline flag semantics ([#1372](https://github.com/stellar/js-stellar-sdk/pull/1372)).

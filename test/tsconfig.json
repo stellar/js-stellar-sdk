@@ -1,5 +1,5 @@
 {
-  "extends": "@stellar/tsconfig",
+  "extends": "../tsconfig.base.json",
   "compilerOptions": {
     "target": "ES2022",
     "module": "node16",

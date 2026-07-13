@@ -125,7 +125,9 @@ function runCli() {
         let timeout: number | undefined;
         if (options.timeout) {
           timeout = parseInt(options.timeout, 10);
-          if (Number.isNaN(timeout) || timeout <= 0) {
+          // require digits only, so values parseInt would otherwise silently
+          // truncate ("10abc" -> 10, "10.9" -> 10) are rejected
+          if (!/^\d+$/.test(options.timeout.trim()) || timeout <= 0) {
             throw new Error(
               `Invalid timeout value: ${options.timeout}. Must be a positive integer.`,
             );

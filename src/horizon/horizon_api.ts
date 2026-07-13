@@ -419,6 +419,7 @@ export namespace HorizonApi {
   > {
     into: string;
   }
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type -- empty interface names a public API response type
   export interface InflationOperationResponse extends BaseOperationResponse<
     OperationResponseType.inflation,
     OperationResponseTypeI.inflation
@@ -586,6 +587,7 @@ export namespace HorizonApi {
     ledgers_to_expire: number;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type -- empty interface names a public API response type
   export interface RestoreFootprintOperationResponse extends BaseOperationResponse<
     OperationResponseType.restoreFootprint,
     OperationResponseTypeI.restoreFootprint
@@ -601,6 +603,7 @@ export namespace HorizonApi {
       records: T[];
     };
   }
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type -- empty interface names a public API response type
   export interface TransactionResponseCollection extends ResponseCollection<TransactionResponse> {}
 
   export interface FeeDistribution {

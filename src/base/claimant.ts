@@ -136,7 +136,7 @@ export class Claimant {
           value.predicate,
         );
       default:
-        throw new Error("Invalid claimant type");
+        throw new Error(`Invalid claimant type: ${claimantXdr.type}`);
     }
   }
 

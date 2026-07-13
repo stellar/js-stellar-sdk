@@ -60,9 +60,9 @@ const UINT32_MAX = 4294967295; // 2^32 - 1
 /**
  * Minimum base fee for transactions. If this fee is below the network
  * minimum, the transaction will fail. The more operations in the
- * transaction, the greater the required fee. Use {@link
- * Server#fetchBaseFee} to get an accurate value of minimum transaction
- * fee on the network.
+ * transaction, the greater the required fee. Use
+ * `Horizon.Server.fetchBaseFee()` to get an accurate value of minimum
+ * transaction fee on the network.
  *
  * @see [Fees](https://developers.stellar.org/docs/glossary/fees/)
  */
@@ -301,12 +301,13 @@ export class TransactionBuilder {
    *    {fee: '1000'} will override the existing base fee derived from `tx` (see
    *    the {@link TransactionBuilder} constructor for detailed options)
    *
-   * @warning This does not clone the transaction's
+   * @remarks
+   * **Warning:** This does not clone the transaction's
    *    {@link xdr.SorobanTransactionData} (if applicable), use
    *    {@link SorobanDataBuilder} and {@link TransactionBuilder.setSorobanData}
    *    as needed, instead..
    *
-   * @todo This cannot clone {@link FeeBumpTransaction}s, yet.
+   * **TODO:** This cannot clone {@link FeeBumpTransaction}s, yet.
    */
   static cloneFrom(
     tx: Transaction,
@@ -336,9 +337,28 @@ export class TransactionBuilder {
       );
     }
 
+    // if this is a Soroban transaction, the resource fee is folded into the
+    // total fee and gets re-added on build(), so it has to be excluded before
+    // deriving the per-operation base fee
+    let sorobanData: SorobanTransactionData | undefined;
+    const envelope = tx.toEnvelope();
+    if (envelope.type === "envelopeTypeTx") {
+      const ext = envelope.value.tx.ext;
+      sorobanData = ext.type === "sorobanData" ? ext.value : undefined;
+    }
+    let totalFee = parseInt(tx.fee, 10);
+    if (sorobanData) {
+      const resourceFee = Number(sorobanData.resourceFee.toString());
+      // only subtract if it leaves a positive inclusion fee: a malformed tx
+      // can declare a resource fee that eats the entire fee (or more)
+      if (totalFee - resourceFee > 0) {
+        totalFee -= resourceFee;
+      }
+    }
+
     // the initial fee passed to the builder gets scaled up based on the number
     // of operations at the end, so we have to down-scale first
-    const unscaledFee = Math.floor(parseInt(tx.fee, 10) / tx.operations.length);
+    const unscaledFee = Math.floor(totalFee / tx.operations.length);
 
     const builderOpts: TransactionBuilderOptions = {
       fee: (unscaledFee || BASE_FEE).toString(),
@@ -432,8 +452,8 @@ export class TransactionBuilder {
    *  Because of the distributed nature of the Stellar network it is possible
    *  that the status of your transaction will be determined after a long time
    *  if the network is highly congested. If you want to be sure to receive the
-   *  status of the transaction within a given period you should set the {@link
-   *  TimeBounds} with `maxTime` on the transaction (this is what `setTimeout`
+   *  status of the transaction within a given period you should set the
+   *  {@link xdr.TimeBounds} with `maxTime` on the transaction (this is what `setTimeout`
    *  does internally; if there's `minTime` set but no `maxTime` it will be
    *  added).
    *
@@ -736,7 +756,7 @@ export class TransactionBuilder {
   ): TransactionBuilder {
     if (BigInt(amount) <= 0n) {
       throw new Error("Amount must be a positive integer");
-    } else if (BigInt(amount) > Uint64.MAX_VALUE) {
+    } else if (BigInt(amount) > Int64.MAX_VALUE) {
       // The largest supported value for SAC is i64 however the contract interface uses i128 which is why we convert it to i128
       throw new Error("Amount exceeds maximum value for i64");
     }
@@ -760,7 +780,7 @@ export class TransactionBuilder {
           `writeBytes must be greater than 0 and at most ${U32_MAX}`,
         );
       }
-      if (resourceFee <= 0n || resourceFee > Uint64.MAX_VALUE) {
+      if (resourceFee <= 0n || resourceFee > Int64.MAX_VALUE) {
         throw new Error(
           "resourceFee must be greater than 0 and at most i64 max",
         );
@@ -1112,7 +1132,8 @@ export class TransactionBuilder {
    *     Stellar network (e.g. "Public Global Stellar Network ; September 2015",
    *     see {@link Networks})
    *
-   * @todo Alongside the next major version bump, this type signature can be
+   * @remarks
+   * **TODO:** Alongside the next major version bump, this type signature can be
    *       changed to be less awkward: accept a MuxedAccount as the `feeSource`
    *       rather than a keypair or string.
    *

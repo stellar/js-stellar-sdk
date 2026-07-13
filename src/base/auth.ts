@@ -1,18 +1,20 @@
 import {
   HashIdPreimage,
   HashIdPreimageSorobanAuthorization,
+  HashIdPreimageSorobanAuthorizationWithAddress,
   Int64,
   ScVal,
   SorobanAddressCredentials,
+  SorobanAddressCredentialsWithDelegates,
   SorobanAuthorizationEntry,
   SorobanAuthorizedInvocation,
   SorobanCredentials,
+  SorobanDelegateSignature,
 } from "../xdr/index.js";
 
 import { Keypair } from "./keypair.js";
 import { StrKey } from "./strkey.js";
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { Networks } from "./network.js";
 import { hash } from "./hashing.js";
 
@@ -86,6 +88,17 @@ export type SigningCallback = (
  * the entry's credential address unless you use the variant that returns
  * the object.
  *
+ * @param forAddress - which credential node the signature should be written
+ *    to. Only relevant for `SOROBAN_CREDENTIALS_ADDRESS_WITH_DELEGATES`, where
+ *    a single entry can be signed by the top-level account and/or any of its
+ *    (possibly nested) delegates. Per CAP-71-01 every one of these signers
+ *    signs the *same* payload (bound to the top-level address), so the
+ *    signature produced here is written to whichever node(s) carry
+ *    `forAddress`. When omitted, the signature is written to the top-level
+ *    credentials, which preserves the behavior for `SOROBAN_CREDENTIALS_ADDRESS`
+ *    / `SOROBAN_CREDENTIALS_ADDRESS_V2` and for accounts whose signing key
+ *    differs from the credential address (e.g. multisig).
+ *
  * @see authorizeInvocation
  * @example
  * ```ts
@@ -135,34 +148,34 @@ export async function authorizeEntry(
   signer: Keypair | SigningCallback,
   validUntilLedgerSeq: number,
   networkPassphrase: string,
+  forAddress?: string,
 ): Promise<SorobanAuthorizationEntry> {
   // no-op if it's source account auth
-  if (entry.credentials.type !== "sorobanCredentialsAddress") {
+  if (entry.credentials.type === "sorobanCredentialsSourceAccount") {
     return entry;
   }
 
   const clone = SorobanAuthorizationEntry.fromXdr(entry.toXdr());
-  if (clone.credentials.type !== "sorobanCredentialsAddress") {
-    return clone;
+  const credentials = clone.credentials;
+  const addrAuth = getAddressCredentials(credentials);
+  if (addrAuth === null) {
+    // We should have already returned if the credentials were source account
+    // credentials, so if we can't get address credentials out of this, it's an
+    // unsupported credential type.
+    throw new Error(`unsupported credential type ${credentials.type}`);
   }
 
-  const addrAuth: SorobanAddressCredentials = clone.credentials.value;
-  const unsignedAddrAuth = new SorobanAddressCredentials({
-    address: addrAuth.address,
-    nonce: addrAuth.nonce,
-    signatureExpirationLedger: validUntilLedgerSeq,
-    signature: addrAuth.signature,
-  });
-
-  const networkId = hash(Buffer.from(networkPassphrase));
-  const preimage = HashIdPreimage.envelopeTypeSorobanAuthorization(
-    new HashIdPreimageSorobanAuthorization({
-      networkId: networkId,
-      nonce: unsignedAddrAuth.nonce,
-      invocation: clone.rootInvocation,
-      signatureExpirationLedger: unsignedAddrAuth.signatureExpirationLedger,
-    }),
+  // The preimage commits to the (updated) expiration ledger, so build it with
+  // `validUntilLedgerSeq` directly; the same value gets written back onto the
+  // credentials below, keeping the signed hash and the stored expiration in
+  // sync. Otherwise the network reconstructs the preimage from the updated
+  // credentials and the signature no longer matches.
+  const preimage = buildAuthorizationEntryPreimage(
+    clone,
+    validUntilLedgerSeq,
+    networkPassphrase,
   );
+
   const payload = hash(Buffer.from(preimage.toXdr()));
 
   let signature: Buffer;
@@ -179,7 +192,7 @@ export async function authorizeEntry(
     } else {
       // if using the deprecated form, assume it's for the entry
       signature = toBuffer(sigResult);
-      publicKey = Address.fromScAddress(unsignedAddrAuth.address).toString();
+      publicKey = Address.fromScAddress(addrAuth.address).toString();
     }
   } else {
     signature = toBuffer(signer.sign(payload));
@@ -208,15 +221,32 @@ export async function authorizeEntry(
     },
   );
 
+  const signatureScVal = ScVal.scvVec([sigScVal]);
+
+  // CAP-71-01: the signature payload is shared across the top-level address and
+  // every (possibly nested) delegate, so this signer's signature is written to
+  // whichever credential node(s) carry `forAddress`. When no `forAddress` is
+  // given we fall back to the top-level credentials, which preserves the
+  // behavior for ADDRESS / ADDRESS_V2 and for accounts whose signing key
+  // differs from the credential address (e.g. multisig). Because the class-XDR
+  // types are immutable, the updated expiration and signature are folded into a
+  // freshly-built credential tree.
+  const { credentials: signedCredentials, matched } =
+    applyExpirationAndSignature(
+      credentials,
+      validUntilLedgerSeq,
+      signatureScVal,
+      forAddress,
+    );
+
+  if (matched === 0) {
+    throw new Error(
+      `the authorization entry has no credential node for address ${forAddress}`,
+    );
+  }
+
   return new SorobanAuthorizationEntry({
-    credentials: SorobanCredentials.sorobanCredentialsAddress(
-      new SorobanAddressCredentials({
-        address: unsignedAddrAuth.address,
-        nonce: unsignedAddrAuth.nonce,
-        signatureExpirationLedger: unsignedAddrAuth.signatureExpirationLedger,
-        signature: ScVal.scvVec([sigScVal]),
-      }),
-    ),
+    credentials: signedCredentials,
     rootInvocation: clone.rootInvocation,
   });
 }
@@ -234,21 +264,24 @@ export async function authorizeEntry(
  * This is in contrast to {@link authorizeEntry}, which signs an existing entry.
  *
  * @param params - the parameters for building and signing the authorization
- * @param params.signer - either a {@link Keypair} instance (or anything with a
+ *   - `signer`: either a {@link Keypair} instance (or anything with a
  *    `.sign(buf): Buffer-like` method) or a function which takes a payload (a
  *    {@link xdr.HashIdPreimageSorobanAuthorization} instance) input and returns
  *    the signature of the hash of the raw payload bytes (where the signing key
  *    should correspond to the address in the `entry`)
- * @param params.validUntilLedgerSeq - the (exclusive) future ledger sequence
+ *   - `validUntilLedgerSeq`: the (exclusive) future ledger sequence
  *    number until which this authorization entry should be valid (if
  *    `currentLedgerSeq==validUntilLedgerSeq`, this is expired)
- * @param params.invocation - the invocation tree that we're authorizing
+ *   - `invocation`: the invocation tree that we're authorizing
  *    (likely, this comes from transaction simulation)
- * @param params.networkPassphrase - the network passphrase is incorporated into
+ *   - `networkPassphrase`: the network passphrase is incorporated into
  *    the signature (see {@link Networks} for options)
- * @param params.publicKey - the public identity of the signer (when providing a
+ *   - `publicKey`: the public identity of the signer (when providing a
  *    {@link Keypair} to `signer`, this can be omitted, as it just uses
  *    {@link Keypair.publicKey})
+ *   - `authV2`: build `SOROBAN_CREDENTIALS_ADDRESS_V2` (CAP-71) credentials
+ *    rather than the legacy `SOROBAN_CREDENTIALS_ADDRESS`. Defaults to `false`;
+ *    only enable it for networks that have activated CAP-71.
  *
  * @see authorizeEntry
  */
@@ -258,6 +291,15 @@ export interface AuthorizeInvocationParams {
   invocation: SorobanAuthorizedInvocation;
   networkPassphrase: string;
   publicKey?: string;
+  /**
+   * Build `SOROBAN_CREDENTIALS_ADDRESS_V2` (CAP-71) credentials instead of the
+   * legacy `SOROBAN_CREDENTIALS_ADDRESS`. V2 credentials bind the address into
+   * the signed payload but are only valid on networks that have activated
+   * CAP-71, so leave this off until the activation vote passes for your target
+   * network. The default flips to `true` once V2 becomes mandatory.
+   * @defaultValue false
+   */
+  authV2?: boolean;
 }
 
 export function authorizeInvocation(
@@ -269,6 +311,7 @@ export function authorizeInvocation(
     invocation,
     networkPassphrase,
     publicKey = "",
+    authV2 = false,
   } = params;
   // We use keypairs as a source of randomness for the nonce to avoid mucking
   // with any crypto dependencies. Note that this just has to be random and
@@ -282,19 +325,364 @@ export function authorizeInvocation(
     throw new Error(`authorizeInvocation requires publicKey parameter`);
   }
 
+  // V1 and V2 carry the identical SorobanAddressCredentials payload; only the
+  // credential union arm differs. authorizeEntry picks the matching signature
+  // preimage (legacy vs. address-bound) off whichever arm we build here.
+  const addressCredentials = new SorobanAddressCredentials({
+    address: new Address(pk).toScAddress(),
+    nonce,
+    signatureExpirationLedger: 0, // replaced
+    signature: ScVal.scvVec([]), // replaced
+  });
+
   const entry = new SorobanAuthorizationEntry({
     rootInvocation: invocation,
-    credentials: SorobanCredentials.sorobanCredentialsAddress(
-      new SorobanAddressCredentials({
-        address: new Address(pk).toScAddress(),
-        nonce,
-        signatureExpirationLedger: 0, // replaced
-        signature: ScVal.scvVec([]), // replaced
-      }),
-    ),
+    credentials: authV2
+      ? SorobanCredentials.sorobanCredentialsAddressV2(addressCredentials)
+      : SorobanCredentials.sorobanCredentialsAddress(addressCredentials),
   });
 
   return authorizeEntry(entry, signer, validUntilLedgerSeq, networkPassphrase);
+}
+
+/**
+ * Builds the {@link xdr.HashIdPreimage} whose hash a signer must sign to
+ * authorize `entry`. This is the low-level signature payload used by
+ * {@link authorizeEntry}, exposed for callers that drive signing themselves —
+ * most notably for `SOROBAN_CREDENTIALS_ADDRESS_WITH_DELEGATES`, where the
+ * client (not simulation) decides which delegates sign and how.
+ *
+ * For `SOROBAN_CREDENTIALS_ADDRESS` this is the legacy, non-address-bound
+ * `ENVELOPE_TYPE_SOROBAN_AUTHORIZATION` preimage. For `SOROBAN_CREDENTIALS_ADDRESS_V2`
+ * and `SOROBAN_CREDENTIALS_ADDRESS_WITH_DELEGATES` it is the address-bound
+ * `ENVELOPE_TYPE_SOROBAN_AUTHORIZATION_WITH_ADDRESS` preimage (CAP-71). For the
+ * delegates variant this single payload — bound to the *top-level* address — is
+ * what the top-level account and every (nested) delegate each sign.
+ *
+ * To get the raw bytes to sign, hash the XDR: `hash(preimage.toXdr())`.
+ *
+ * @param entry - the authorization entry to build the payload for
+ * @param validUntilLedgerSeq - the expiration ledger committed into the payload
+ *    (must match the `signatureExpirationLedger` on the credentials you submit)
+ * @param networkPassphrase - the network passphrase mixed into the payload
+ * @throws `Error` if `entry` carries source-account or otherwise non-address
+ *    credentials
+ */
+export function buildAuthorizationEntryPreimage(
+  entry: SorobanAuthorizationEntry,
+  validUntilLedgerSeq: number,
+  networkPassphrase: string,
+): HashIdPreimage {
+  const credentials = entry.credentials;
+  const addrAuth = getAddressCredentials(credentials);
+  if (addrAuth === null) {
+    throw new Error(
+      `cannot build a signature payload for credential type ${credentials.type}`,
+    );
+  }
+
+  const networkId = hash(Buffer.from(networkPassphrase));
+
+  switch (credentials.type) {
+    // legacy address credentials are not address-bound
+    case "sorobanCredentialsAddress":
+      return HashIdPreimage.envelopeTypeSorobanAuthorization(
+        new HashIdPreimageSorobanAuthorization({
+          networkId,
+          nonce: addrAuth.nonce,
+          invocation: entry.rootInvocation,
+          signatureExpirationLedger: validUntilLedgerSeq,
+        }),
+      );
+
+    // ADDRESS_V2 and ADDRESS_WITH_DELEGATES bind the address into the signed
+    // payload via the WithAddress preimage (CAP-71)
+    case "sorobanCredentialsAddressV2":
+    case "sorobanCredentialsAddressWithDelegates":
+      return HashIdPreimage.envelopeTypeSorobanAuthorizationWithAddress(
+        new HashIdPreimageSorobanAuthorizationWithAddress({
+          networkId,
+          nonce: addrAuth.nonce,
+          invocation: entry.rootInvocation,
+          address: addrAuth.address,
+          signatureExpirationLedger: validUntilLedgerSeq,
+        }),
+      );
+
+    default:
+      throw new Error(`unsupported credential type ${credentials.type}`);
+  }
+}
+
+/**
+ * A delegate signer to attach to a
+ * `SOROBAN_CREDENTIALS_ADDRESS_WITH_DELEGATES` entry via
+ * {@link buildWithDelegatesEntry}.
+ */
+export interface DelegateSignature {
+  /** the delegate's address (`G…` account or `C…` contract). */
+  address: string;
+  /**
+   * the delegate's signature value. Defaults to a `scvVoid` placeholder, which
+   * you can fill afterwards with {@link authorizeEntry} (passing this address
+   * as `forAddress`) or by editing the entry directly.
+   */
+  signature?: ScVal;
+  /** signers this delegate in turn delegates to (recursive). */
+  nestedDelegates?: DelegateSignature[];
+}
+
+/** Parameters for {@link buildWithDelegatesEntry}. */
+export interface BuildWithDelegatesParams {
+  /**
+   * an existing `SOROBAN_CREDENTIALS_ADDRESS` or
+   * `SOROBAN_CREDENTIALS_ADDRESS_V2` entry — typically one returned by
+   * simulation — whose address credentials should be wrapped.
+   */
+  entry: SorobanAuthorizationEntry;
+  /** the expiration ledger sequence stored on the top-level credentials. */
+  validUntilLedgerSeq: number;
+  /** the delegate signers to attach. */
+  delegates: DelegateSignature[];
+  /**
+   * the top-level account's signature. Defaults to `scvVoid`, which is valid
+   * for accounts that authorize purely via delegated signers (CAP-71-01).
+   */
+  signature?: ScVal;
+}
+
+/**
+ * Builds a `SOROBAN_CREDENTIALS_ADDRESS_WITH_DELEGATES` authorization entry by
+ * wrapping the address credentials of an existing `ADDRESS`/`ADDRESS_V2` entry
+ * (e.g. one returned by simulation) together with a caller-provided set of
+ * delegate signers.
+ *
+ * Simulation never emits the delegates variant on its own — which accounts use
+ * delegated authentication is account-specific policy known only to the client
+ * (much like a multisig policy). This helper just assembles the wrapper XDR;
+ * you supply the delegate tree (addresses and, optionally, signatures). To
+ * produce the signatures, build the shared payload with
+ * {@link buildAuthorizationEntryPreimage} on the returned entry and sign it,
+ * or fill each node afterwards with {@link authorizeEntry} (passing the
+ * signer's address as `forAddress`).
+ *
+ * Each delegates array (the top-level set and every `nestedDelegates`) is
+ * sorted by address in ascending order, and duplicate addresses within an array
+ * are rejected, as the protocol requires (CAP-71-01) — otherwise the host
+ * rejects the entry.
+ *
+ * @param params - see {@link BuildWithDelegatesParams}
+ * @throws `Error` if `entry` is not an `ADDRESS`/`ADDRESS_V2` entry, or if any
+ *    delegates array contains a duplicate address.
+ */
+export function buildWithDelegatesEntry(
+  params: BuildWithDelegatesParams,
+): SorobanAuthorizationEntry {
+  const { entry, validUntilLedgerSeq, delegates, signature } = params;
+  const credentials = entry.credentials;
+  const addrAuth = getAddressCredentials(credentials);
+  if (
+    addrAuth === null ||
+    credentials.type === "sorobanCredentialsAddressWithDelegates"
+  ) {
+    throw new Error(
+      `buildWithDelegatesEntry expects ADDRESS or ADDRESS_V2 credentials, got ${credentials.type}`,
+    );
+  }
+
+  return new SorobanAuthorizationEntry({
+    rootInvocation: entry.rootInvocation,
+    credentials: SorobanCredentials.sorobanCredentialsAddressWithDelegates(
+      new SorobanAddressCredentialsWithDelegates({
+        addressCredentials: new SorobanAddressCredentials({
+          address: addrAuth.address,
+          nonce: addrAuth.nonce,
+          signatureExpirationLedger: validUntilLedgerSeq,
+          signature: signature ?? ScVal.scvVoid(),
+        }),
+        delegates: buildDelegateNodes(delegates),
+      }),
+    ),
+  });
+}
+
+/**
+ * Recursively converts {@link DelegateSignature} descriptors into
+ * {@link xdr.SorobanDelegateSignature} nodes, sorting each level by address and
+ * rejecting duplicates (CAP-71-01).
+ */
+function buildDelegateNodes(
+  delegates: DelegateSignature[],
+): SorobanDelegateSignature[] {
+  const nodes = delegates.map(
+    (delegate) =>
+      new SorobanDelegateSignature({
+        address: new Address(delegate.address).toScAddress(),
+        signature: delegate.signature ?? ScVal.scvVoid(),
+        nestedDelegates: buildDelegateNodes(delegate.nestedDelegates ?? []),
+      }),
+  );
+
+  nodes.sort((a, b) => Buffer.compare(a.address.toXdr(), b.address.toXdr()));
+
+  for (let i = 1; i < nodes.length; i++) {
+    if (
+      Buffer.compare(nodes[i - 1].address.toXdr(), nodes[i].address.toXdr()) ===
+      0
+    ) {
+      throw new Error(
+        `duplicate delegate address ${Address.fromScAddress(
+          nodes[i].address,
+        ).toString()}`,
+      );
+    }
+  }
+
+  return nodes;
+}
+
+/**
+ * Internal helper — intentionally NOT re-exported from `base/index.js`, so it
+ * is not part of the public SDK API. Shared with the contract package, which
+ * imports it directly from this module. If a public need arises, add it to the
+ * explicit auth re-exports in `base/index.ts`.
+ *
+ * Extracts the {@link xdr.SorobanAddressCredentials} from any address-based
+ * Soroban credential, regardless of which credential type variant is used.
+ *
+ * This unifies access across `SOROBAN_CREDENTIALS_ADDRESS`,
+ * `SOROBAN_CREDENTIALS_ADDRESS_V2` (which carries identical fields but binds
+ * the address into the signature payload), and
+ * `SOROBAN_CREDENTIALS_ADDRESS_WITH_DELEGATES` (which wraps the same address
+ * credentials alongside a set of delegate signatures).
+ *
+ * @param credentials - the credentials to inspect
+ * @returns the inner address credentials, or `null` for source-account
+ *    credentials (which carry no address payload)
+ */
+export function getAddressCredentials(
+  credentials: SorobanCredentials,
+): SorobanAddressCredentials | null {
+  switch (credentials.type) {
+    case "sorobanCredentialsAddress":
+      return credentials.address;
+    case "sorobanCredentialsAddressV2":
+      return credentials.addressV2;
+    case "sorobanCredentialsAddressWithDelegates":
+      return credentials.addressWithDelegates.addressCredentials;
+    default:
+      return null;
+  }
+}
+
+/**
+ * Internal helper. Rebuilds an address-based credential with the signature
+ * expiration ledger set on its top-level address credentials and this signer's
+ * signature written onto whichever node(s) match `forAddress`.
+ *
+ * Because the class-XDR types are immutable, this constructs a fresh credential
+ * tree rather than mutating in place. Per CAP-71-01 every signature-bearing
+ * node commits to the same payload (bound to the top-level address), so the
+ * caller can fill any of them with a signature produced from that shared
+ * payload. When `forAddress` is omitted, only the top-level address credentials
+ * receive the signature.
+ *
+ * @returns the rebuilt credentials and the number of nodes that received the
+ *    signature (`0` means `forAddress` matched no node).
+ */
+function applyExpirationAndSignature(
+  credentials: SorobanCredentials,
+  validUntilLedgerSeq: number,
+  signature: ScVal,
+  forAddress: string | undefined,
+): { credentials: SorobanCredentials; matched: number } {
+  const topAddr = getAddressCredentials(credentials);
+  if (topAddr === null) {
+    return { credentials, matched: 0 };
+  }
+
+  let matched = 0;
+  const topIsTarget =
+    forAddress === undefined ||
+    Address.fromScAddress(topAddr.address).toString() === forAddress;
+  if (topIsTarget) {
+    matched++;
+  }
+
+  const newTopAddr = new SorobanAddressCredentials({
+    address: topAddr.address,
+    nonce: topAddr.nonce,
+    signatureExpirationLedger: validUntilLedgerSeq,
+    signature: topIsTarget ? signature : topAddr.signature,
+  });
+
+  switch (credentials.type) {
+    case "sorobanCredentialsAddress":
+      return {
+        credentials: SorobanCredentials.sorobanCredentialsAddress(newTopAddr),
+        matched,
+      };
+    case "sorobanCredentialsAddressV2":
+      return {
+        credentials: SorobanCredentials.sorobanCredentialsAddressV2(newTopAddr),
+        matched,
+      };
+    case "sorobanCredentialsAddressWithDelegates": {
+      const withDelegates = credentials.addressWithDelegates;
+      const newDelegates =
+        forAddress === undefined
+          ? withDelegates.delegates
+          : rebuildDelegatesWithSignature(
+              withDelegates.delegates,
+              forAddress,
+              signature,
+              () => {
+                matched++;
+              },
+            );
+      return {
+        credentials: SorobanCredentials.sorobanCredentialsAddressWithDelegates(
+          new SorobanAddressCredentialsWithDelegates({
+            addressCredentials: newTopAddr,
+            delegates: newDelegates,
+          }),
+        ),
+        matched,
+      };
+    }
+    default:
+      return { credentials, matched };
+  }
+}
+
+/**
+ * Internal helper. Recursively rebuilds a delegate tree, writing `signature`
+ * onto every (possibly nested) node whose address matches `forAddress` and
+ * invoking `onMatch` for each one, leaving all other nodes untouched.
+ */
+function rebuildDelegatesWithSignature(
+  delegates: SorobanDelegateSignature[],
+  forAddress: string,
+  signature: ScVal,
+  onMatch: () => void,
+): SorobanDelegateSignature[] {
+  return delegates.map((delegate) => {
+    const isMatch =
+      Address.fromScAddress(delegate.address).toString() === forAddress;
+    if (isMatch) {
+      onMatch();
+    }
+    return new SorobanDelegateSignature({
+      address: delegate.address,
+      signature: isMatch ? signature : delegate.signature,
+      nestedDelegates: rebuildDelegatesWithSignature(
+        delegate.nestedDelegates,
+        forAddress,
+        signature,
+        onMatch,
+      ),
+    });
+  });
 }
 
 function bytesToInt64(bytes: Uint8Array): bigint {

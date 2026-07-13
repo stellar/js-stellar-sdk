@@ -211,9 +211,9 @@ const PRIMITIVE_DEFINITONS: { [key: string]: JSONSchema7Definition } = {
 
 /**
  * Converts an XDR type definition to a JSON schema reference.
- * @param typeDef type to convert to json schema reference
- * @returns {JSONSchema7} a schema describing the type
- * @private
+ * @param typeDef - type to convert to json schema reference
+ * @returns a schema describing the type
+ * @hidden
  */
 function typeRef(typeDef: ScSpecTypeDef): JSONSchema7 {
   let ref;
@@ -485,11 +485,11 @@ function unionToJsonSchema(udt: ScSpecUdtUnionV0): any {
  *
  * Constructs a new ContractSpec from an array of XDR spec entries.
  *
- * @memberof module:contract
- * @param {ScSpecEntry[] | string[]} entries the XDR spec entries
+ * @param entries - the XDR spec entries
  * @throws {Error} if entries is invalid
  *
  * @example
+ * ```ts
  * const specEntries = [...]; // XDR spec entries of a smart contract
  * const contractSpec = new ContractSpec(specEntries);
  *
@@ -507,6 +507,7 @@ function unionToJsonSchema(udt: ScSpecUdtUnionV0): any {
  * const result = contractSpec.funcResToNative('funcName', resultScv);
  *
  * console.log(result); // {success: true}
+ * ```
  */
 export class Spec {
   /**
@@ -517,9 +518,9 @@ export class Spec {
   /**
    * Generates a Spec instance from the contract's wasm binary.
    *
-   * @param {Buffer} wasm The contract's wasm binary as a Buffer.
-   * @returns {Promise<module:contract.Spec>} A Promise that resolves to a Spec instance.
-   * @throws {Error} If the contract spec cannot be obtained from the provided wasm binary.
+   * @param wasm - The contract's wasm binary as a Buffer.
+   * @returns A Promise that resolves to a Spec instance.
+   * @throws If the contract spec cannot be obtained from the provided wasm binary.
    */
   static fromWasm(wasm: Buffer): Spec {
     const spec = specFromWasm(wasm);
@@ -534,8 +535,8 @@ export class Spec {
    * - An array of ScSpecEntry.
    * - An array of base64 XDR encoded ScSpecEntry.
    *
-   * @returns {Promise<module:contract.Client>} A Promise that resolves to a Client instance.
-   * @throws {Error} If the contract spec cannot be obtained from the provided wasm binary.
+   * @returns A Promise that resolves to a Client instance.
+   * @throws If the contract spec cannot be obtained from the provided wasm binary.
    */
   constructor(entries: Buffer | string | ScSpecEntry[] | string[]) {
     if (Buffer.isBuffer(entries)) {
@@ -559,7 +560,7 @@ export class Spec {
 
   /**
    * Gets the XDR functions from the spec.
-   * @returns {ScSpecFunctionV0[]} all contract functions
+   * @returns all contract functions
    */
   funcs(): ScSpecFunctionV0[] {
     return this.entries
@@ -570,10 +571,10 @@ export class Spec {
   /**
    * Gets the XDR function spec for the given function name.
    *
-   * @param {string} name the name of the function
-   * @returns {ScSpecFunctionV0} the function spec
+   * @param name - the name of the function
+   * @returns the function spec
    *
-   * @throws {Error} if no function with the given name exists
+   * @throws if no function with the given name exists
    */
   getFunc(name: string): ScSpecFunctionV0 {
     const entry = this.findEntry(name);
@@ -586,18 +587,20 @@ export class Spec {
   /**
    * Converts native JS arguments to ScVals for calling a contract function.
    *
-   * @param {string} name the name of the function
-   * @param {object} args the arguments object
-   * @returns {ScVal[]} the converted arguments
+   * @param name - the name of the function
+   * @param args - the arguments object
+   * @returns the converted arguments
    *
-   * @throws {Error} if argument is missing or incorrect type
+   * @throws if argument is missing or incorrect type
    *
    * @example
+   * ```ts
    * const args = {
    *   arg1: 'value1',
    *   arg2: 1234
    * };
    * const scArgs = contractSpec.funcArgsToScVals('funcName', args);
+   * ```
    */
   funcArgsToScVals(name: string, args: object): ScVal[] {
     const fn = this.getFunc(name);
@@ -609,15 +612,17 @@ export class Spec {
   /**
    * Converts the result ScVal of a function call to a native JS value.
    *
-   * @param {string} name the name of the function
-   * @param {ScVal | string} val_or_base64 the result ScVal or base64 encoded string
-   * @returns {any} the converted native value
+   * @param name - the name of the function
+   * @param val_or_base64 - the result ScVal or base64 encoded string
+   * @returns the converted native value
    *
-   * @throws {Error} if return type mismatch or invalid input
+   * @throws if return type mismatch or invalid input
    *
    * @example
+   * ```ts
    * const resultScv = 'AAA=='; // Base64 encoded ScVal
    * const result = contractSpec.funcResToNative('funcName', resultScv);
+   * ```
    */
   funcResToNative(name: string, val_or_base64: ScVal | string): any {
     const val =
@@ -650,10 +655,10 @@ export class Spec {
   /**
    * Finds the XDR spec entry for the given name.
    *
-   * @param {string} name the name to find
-   * @returns {ScSpecEntry} the entry
+   * @param name - the name to find
+   * @returns the entry
    *
-   * @throws {Error} if no entry with the given name exists
+   * @throws if no entry with the given name exists
    */
   findEntry(name: string): ScSpecEntry {
     const entry = this.entries.find((e) => {
@@ -672,11 +677,11 @@ export class Spec {
   /**
    * Converts a native JS value to an ScVal based on the given type.
    *
-   * @param {any} val the native JS value
-   * @param {ScSpecTypeDef} [ty] the expected type
-   * @returns {ScVal} the converted ScVal
+   * @param val - the native JS value
+   * @param ty - the expected type
+   * @returns the converted ScVal
    *
-   * @throws {Error} if value cannot be converted to the given type
+   * @throws if value cannot be converted to the given type
    */
   nativeToScVal(val: any, ty: ScSpecTypeDef): ScVal {
     const tyType = ty.type;
@@ -971,11 +976,11 @@ export class Spec {
   /**
    * Converts an base64 encoded ScVal back to a native JS value based on the given type.
    *
-   * @param {string} scv the base64 encoded ScVal
-   * @param {ScSpecTypeDef} typeDef the expected type
-   * @returns {any} the converted native JS value
+   * @param scv - the base64 encoded ScVal
+   * @param typeDef - the expected type
+   * @returns the converted native JS value
    *
-   * @throws {Error} if ScVal cannot be converted to the given type
+   * @throws if ScVal cannot be converted to the given type
    */
   scValStrToNative<T>(scv: string, typeDef: ScSpecTypeDef): T {
     return this.scValToNative<T>(ScVal.fromXdr(scv, "base64"), typeDef);
@@ -984,11 +989,11 @@ export class Spec {
   /**
    * Converts an ScVal back to a native JS value based on the given type.
    *
-   * @param {ScVal} scv the ScVal
-   * @param {ScSpecTypeDef} typeDef the expected type
-   * @returns {any} the converted native JS value
+   * @param scv - the ScVal
+   * @param typeDef - the expected type
+   * @returns the converted native JS value
    *
-   * @throws {Error} if ScVal cannot be converted to the given type
+   * @throws if ScVal cannot be converted to the given type
    */
   scValToNative<T>(scv: ScVal, typeDef: ScSpecTypeDef): T {
     const tyType = typeDef.type;
@@ -1197,10 +1202,10 @@ export class Spec {
    *
    * If `funcName` is provided, the schema will be a reference to the function schema.
    *
-   * @param {string} [funcName] the name of the function to convert
-   * @returns {JSONSchema7} the converted JSON schema
+   * @param funcName - (optional) the name of the function to convert
+   * @returns the converted JSON schema
    *
-   * @throws {Error} if the contract spec is invalid
+   * @throws if the contract spec is invalid
    */
   jsonSchema(funcName?: string): JSONSchema7 {
     const definitions: { [key: string]: JSONSchema7Definition } = {};
@@ -1226,7 +1231,6 @@ export class Spec {
           const fn = entry.value;
           const fnName = fn.name.toString();
           const { input } = functionToJsonSchema(fn);
-          // @ts-ignore
           definitions[fnName] = input;
           break;
         }

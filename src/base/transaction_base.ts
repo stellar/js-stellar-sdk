@@ -112,7 +112,7 @@ export class TransactionBase<
   /**
    * Signs a transaction with the given {@link Keypair}. Useful if someone sends
    * you a transaction XDR for you to sign and return (see
-   * [addSignature](#addSignature) for more information).
+   * {@link addSignature} for more information).
    *
    * When you get a transaction XDR to sign....
    * - Instantiate a `Transaction` object with the XDR
@@ -151,9 +151,9 @@ export class TransactionBase<
    * transactions onto your account! Doing so will invalidate this pre-compiled
    * transaction!
    * - Send this XDR string to your other parties. They can use the instructions
-   * for [getKeypairSignature](#getKeypairSignature) to sign the transaction.
+   * for {@link getKeypairSignature} to sign the transaction.
    * - They should send you back their `publicKey` and the `signature` string
-   * from [getKeypairSignature](#getKeypairSignature), both of which you pass to
+   * from {@link getKeypairSignature}, both of which you pass to
    * this function.
    *
    * @param publicKey - the public key of the signer
