@@ -384,7 +384,7 @@ const parsedAmtForSmartContract = parseTokenAmount(displayValueAmount, 5);
 parsedAmtForSmartContract === "12345600"
 ```
 
-**Source:** [src/base/soroban.ts:68](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/soroban.ts#L68)
+**Source:** [src/base/soroban.ts:73](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/soroban.ts#L73)
 
 ## SorobanDataBuilder
 
