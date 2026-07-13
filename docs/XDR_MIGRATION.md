@@ -1,12 +1,15 @@
 ---
 title: XDR Migration Guide
-description: How to migrate existing code to the class-based XDR API in @stellar/stellar-sdk.
+description:
+  How to migrate existing code to the class-based XDR API in
+  @stellar/stellar-sdk.
 ---
 
-This release replaces the `@stellar/js-xdr`-backed XDR layer with an in-tree,
-class-based one (`src/base/xdr/`). The wire format is unchanged, but **every XDR
-value now exposes a different API** — discriminated-union classes with property
-access instead of method-call-style getters and setters.
+This release replaces the method-call-style XDR API (backed by `@stellar/js-xdr`
+v4) with a class-based one built on `@stellar/js-xdr` v5. The wire format is
+unchanged, but **every XDR value now exposes a different API** —
+discriminated-union classes with property access instead of method-call-style
+getters and setters.
 
 This guide documents every user-visible change so you can update existing code.
 
@@ -34,10 +37,10 @@ do; they're brand-new capabilities):
 | `value.toXdrObject()` / `Class.fromXdrObject(wire)` | Bridges instance ↔ wire-shape object. Legacy types directly held their wire shape, so this distinction wasn't meaningful. |
 | `value.toJson()` / `Class.fromJson(json)`           | [SEP-51](https://stellar.org/protocol/sep-51)-compliant JSON serialization. See § 13.                                     |
 
-`toJSON()` (capital JSON) is **kept as-is** — it's a JavaScript standard called
-automatically by `JSON.stringify()`, and renaming it would break that
-integration. The new SDK's `toJson()` (lowercase) is the SEP-0051 serializer;
-the two are intentionally separate methods.
+Note that `toJson()` (lowercase) is distinct from the JavaScript-standard
+`toJSON()` hook called by `JSON.stringify()`. The XDR classes do not implement
+`toJSON()` — if you want SEP-0051 output through `JSON.stringify`, call
+`.toJson()` explicitly (see § 13).
 
 > **Note on type/field names.** The PascalCase-with-collapsed-acronyms rule
 > (`AccountId`, `ScVal`, `Uint128Parts`, `TtlEntry`, `HashIdPreimage`,
@@ -116,18 +119,23 @@ xdr.TransactionMeta.v2(transactionMetaV2);
 xdr.ExtensionPoint.v0();
 ```
 
-### `expectVariant` helper
+### Narrowing helpers
 
-A test helper for narrowing a union to a specific variant lives at
-`test/unit/base/support/xdr.ts` (and is the recommended pattern in application
-code too):
+Two helpers ship on the `xdr` namespace for narrowing a union to a specific
+variant when a full `switch`/`if` on `.type` is overkill:
 
 ```ts
-import { expectVariant } from "@stellar/stellar-sdk/.../xdr.js";
+import { xdr } from "@stellar/stellar-sdk";
 
-const v1 = expectVariant(tx.toEnvelope(), "envelopeTypeTx").v1;
-const cond = expectVariant(v1.tx.cond, "precondV2").v2;
+// Assert-and-narrow — throws TypeError on mismatch
+const v1 = xdr.expectUnionVarient(tx.toEnvelope(), "envelopeTypeTx").v1;
+const cond = xdr.expectUnionVarient(v1.tx.cond, "precondV2").v2;
 // cond is fully typed PreconditionsV2 here
+
+// Type-guard form — narrows inside the branch
+if (xdr.isUnionVarient(scv, "scvU32")) {
+  scv.u32; // number
+}
 ```
 
 ---
@@ -338,38 +346,35 @@ post-build mutation.
 
 ---
 
-## 9. Class-XDR layer: imports, exports, generated docs
+## 9. Imports and generated docs
 
 ### Where to import from
 
-Two import styles work, both pulling from the same canonical layer:
+Exactly as in the legacy SDK, all XDR types live on the named `xdr` namespace
+export. They are deliberately **not** exported top-level — names like `Asset`,
+`Memo`, and `Operation` at the top level are the SDK wrapper classes, which
+would collide:
 
 ```ts
-// Default namespace — best for hand-typed code
-import xdr from "@stellar/stellar-sdk";
+import { xdr } from "@stellar/stellar-sdk";
+
 xdr.Asset.assetTypeNative();
 xdr.ScVal.scvU32(42);
 
-// Named imports — best for migrated code where you want types directly
-import { Asset, ScVal, AccountId } from "@stellar/stellar-sdk";
-Asset.assetTypeNative();
+import { Asset } from "@stellar/stellar-sdk";
+// ⚠ This is the SDK's Asset wrapper class, NOT xdr.Asset — same as before.
 ```
 
 ### Variant-class types
 
-Each union variant ships as its own class (and TS type). Import named variant
-types when you need them in annotations or `as` casts (the default `xdr.X`
-runtime namespace does not carry variant types):
+Each union variant ships as its own class (and TS type) on the same `xdr`
+namespace. Use the qualified name in annotations or `as` casts:
 
 ```ts
-import type {
-  ScValAddress,
-  SCAddressMuxedAccount,
-  TransactionEnvelopeTx,
-  ScSpecEntryUdtUnionV0,
-} from "@stellar/stellar-sdk";
+import { xdr } from "@stellar/stellar-sdk";
 
-const v1 = (env as TransactionEnvelopeTx).v1;
+const v1 = (env as xdr.TransactionEnvelopeTx).v1;
+const addr: xdr.ScValAddress = xdr.ScVal.scvAddress(scAddress);
 ```
 
 ### Generated TSDoc
@@ -463,8 +468,7 @@ These come up over and over when migrating tests against the new layer:
 
 ```ts
 // Narrow a union for typed access
-import { expectVariant } from ".../support/xdr.js";
-const v2 = expectVariant(cond, "precondV2").v2;
+const v2 = xdr.expectUnionVarient(cond, "precondV2").v2;
 
 // Compare bytes when Buffer/Uint8Array deep-equal fails
 expect(Array.from(actualBytes)).toEqual(Array.from(expectedBytes));
@@ -473,9 +477,8 @@ expect(actual.toXdr("base64")).toBe(expected.toXdr("base64"));
 // Round-trip a fixture to normalize Buffer → Uint8Array internals
 const normalized = xdr.LedgerKey.fromXdr(legacyKey.toXdr());
 
-// Variant types for casts
-import type { ScValAddress } from "@stellar/stellar-sdk";
-const addr = (scv as ScValAddress).address;
+// Variant types for casts (qualified via the xdr namespace)
+const addr = (scv as xdr.ScValAddress).address;
 ```
 
 ---
@@ -559,8 +562,8 @@ The SDK-level `Memo` class (in `src/base/memo.ts`) now surfaces decoded
 might not be valid UTF-8:
 
 ```ts
-const memo = xdr.Memo.memoText("hi").toXdr();
-const back = Memo.fromXdr(memo);
+const wire = xdr.Memo.memoText("hi").toXdr();
+const back = Memo.fromXdrObject(xdr.Memo.fromXdr(wire));
 back.value; // Buffer "hi" (was: string "hi")
 back.value.toString("utf8"); // "hi" — explicit decode at the boundary
 ```
@@ -658,32 +661,21 @@ xdr.AlphaNum4.fromJson({ assetCode: "USD", issuer: "GAAQ…" }); // legacy
 
 ---
 
-## 14. Removed: v4 `Reader` / `Writer` exports
+## 14. Removed: `Reader` / `Writer` exports
 
-The XDR layer now consumes its runtime from `@stellar/js-xdr` v5 rather than a
-vendored in-tree copy. As part of this, the SDK **no longer exports the v4
-`Reader` and `Writer`**.
+The SDK's XDR runtime is now `@stellar/js-xdr` v5 (previously v4), and the SDK
+**no longer exports `Reader` or `Writer`** — they are internal runtime details.
+For decoding and encoding, use `Type.fromXdr(...)` and `value.toXdr(...)`
+(see § 7).
 
-The `Reader` and `Writer` re-exported from the SDK are now the **v5**
-implementations, sourced from `@stellar/js-xdr` v5:
-
-```ts
-// These now resolve to the js-xdr v5 Reader/Writer:
-import { Reader, Writer } from "@stellar/stellar-sdk";
-import xdr from "@stellar/stellar-sdk";
-xdr.Reader; // v5
-xdr.Writer; // v5
-```
-
-If you depended on the **v4** `Reader`/`Writer` — either imported directly from
-`@stellar/js-xdr@4` or obtained through the SDK — you must migrate to the v5
-API. The wire format is unchanged; only the class API differs. If you still need
-the v4 runtime for legacy code, install it under an alias (the SDK itself only
-uses it for its own legacy test fixtures):
+If you depended on the `Reader`/`Writer` previously obtained through the SDK,
+depend on `@stellar/js-xdr` directly instead. Note that v5's `Reader`/`Writer`
+API differs from v4's (the wire format is unchanged); if you still need the v4
+runtime for legacy code, install it under an alias:
 
 ```jsonc
 // package.json
-"devDependencies": {
+"dependencies": {
   "js-xdr-v4": "npm:@stellar/js-xdr@4.0.0"
 }
 ```

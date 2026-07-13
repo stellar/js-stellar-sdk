@@ -24,12 +24,12 @@ import {
 // Bases (XdrValue, BytesValue, …) and the schema-builder primitives.
 //
 // Curated re-exports of the js-xdr runtime surface consumers need to work
-// with SDK schemas (streaming multiple values from one buffer, writing
-// custom types, typing schema-generic helpers). Re-exported here so
+// with SDK schemas (typing schema-generic helpers). Re-exported here so
 // consumers get the exact copy the SDK's schemas were built against —
-// the schema-builder factories (struct, union, enumType, …) are an
-// authoring API and are deliberately not re-exported.
-export { XdrError, Reader, Writer, BaseType } from "@stellar/js-xdr";
+// Reader/Writer and the schema-builder factories (struct, union,
+// enumType, …) are internal runtime/authoring APIs and are deliberately
+// not re-exported.
+export { XdrError, BaseType } from "@stellar/js-xdr";
 export type { XdrType, DecodeOptions, EncodeOptions } from "@stellar/js-xdr";
 export {
   XdrValue,
