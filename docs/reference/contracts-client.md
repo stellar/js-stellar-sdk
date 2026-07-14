@@ -1050,7 +1050,7 @@ errorCases(): ScSpecUdtErrorEnumCaseV0[];
 
 all contract functions
 
-**Source:** [src/contract/spec.ts:1301](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1301)
+**Source:** [src/contract/spec.ts:1191](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1191)
 
 ### `spec.findEntry(name)`
 
@@ -1195,7 +1195,7 @@ the converted JSON schema
 
 - if the contract spec is invalid
 
-**Source:** [src/contract/spec.ts:1321](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1321)
+**Source:** [src/contract/spec.ts:1211](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1211)
 
 ### `spec.nativeToScVal(val, ty)`
 
@@ -1241,7 +1241,7 @@ the converted native JS value
 
 - if ScVal cannot be converted to the given type
 
-**Source:** [src/contract/spec.ts:1093](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1093)
+**Source:** [src/contract/spec.ts:983](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L983)
 
 ### `spec.scValToNative(scv, typeDef)`
 
@@ -1264,7 +1264,7 @@ the converted native JS value
 
 - if ScVal cannot be converted to the given type
 
-**Source:** [src/contract/spec.ts:1106](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1106)
+**Source:** [src/contract/spec.ts:996](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L996)
 
 ## contract.Watcher
 
