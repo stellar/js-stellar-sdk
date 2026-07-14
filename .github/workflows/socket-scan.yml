@@ -1,6 +1,6 @@
 # Socket reachability scan for js-stellar-sdk.
 # For general Socket reachability documentation, see https://docs.socket.dev/docs/full-application-reachability
-# Node project that uses yarn (has yarn.lock).
+# Node project that uses pnpm (has pnpm-lock.yaml).
 #
 # Schedule: Sat 13:36 UTC weekly. Use workflow_dispatch to run on demand.
 #
@@ -51,7 +51,8 @@ jobs:
         run: corepack enable
 
       - name: Install Socket CLI
-        run: npm install -g socket
+        # Pinned so scheduled runs are reproducible; bump deliberately.
+        run: npm install -g socket@1.1.143
 
       - name: Run Socket reachability scan
         env:
@@ -64,8 +65,13 @@ jobs:
           # annotation that GitHub Actions renders as a yellow run-level
           # warning without failing the job.
           set +e
+          # --repo/--branch tie the scan to this repository in the Socket
+          # dashboard; without them the CLI files results under the org-wide
+          # default project, where other repos' scans can overwrite them.
           socket scan create --reach \
             --org=stellar \
+            --repo="${{ github.event.repository.name }}" \
+            --branch="${{ github.ref_name }}" \
             --no-interactive \
             --reach-continue-on-no-source-files \
             --reach-continue-on-analysis-errors \
@@ -73,7 +79,7 @@ jobs:
             --reach-continue-on-missing-lock-files \
             . 2>&1 | tee /tmp/scan.log
           rc=${PIPESTATUS[0]}
-          if [ $rc -eq 0 ] && grep -qE "Reachability falls back to Tier 2|fallback to the results from the pre-computed|Reachability falls back to precomputed" /tmp/scan.log; then
+          if [ "$rc" -eq 0 ] && grep -qE "Reachability falls back to Tier 2|fallback to the results from the pre-computed|Reachability falls back to precomputed" /tmp/scan.log; then
             echo "::warning::Socket scan completed with Tier 2 fallbacks - some vulnerabilities used precomputed reachability instead of full Tier 1"
           fi
           exit $rc
