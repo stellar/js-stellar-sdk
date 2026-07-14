@@ -6,6 +6,7 @@ import {
   Address,
   Contract,
   scValToBigInt,
+  nativeToScVal,
 } from "../base/index.js";
 import { Ok, Err } from "./rust_result.js";
 import { processSpecEntryStream } from "./utils.js";
@@ -677,6 +678,16 @@ export class Spec {
       }
       return this.nativeToScVal(val, opt.valueType());
     }
+
+    // Delegate scSpecTypeVal to the base nativeToScVal helper, which handles
+    // strings, numbers/bigints (via ScInt), booleans, null/undefined, arrays,
+    // plain objects (sorted), Map, Address, Contract, Uint8Array, and xdr.ScVal
+    // passthroughs — keeping this in one place so the two code paths can't
+    // drift apart over time.
+    if (value === xdr.ScSpecType.scSpecTypeVal().value) {
+      return nativeToScVal(val);
+    }
+
     switch (typeof val) {
       case "object": {
         if (val === null) {
@@ -774,7 +785,7 @@ export class Spec {
               );
           }
         }
-        if (val.constructor === Map) {
+        if (val instanceof Map) {
           if (value !== xdr.ScSpecType.scSpecTypeMap().value) {
             throw new TypeError(`Type ${ty} was not map, but value was Map`);
           }
@@ -793,7 +804,8 @@ export class Spec {
           return xdr.ScVal.scvMap(entries);
         }
 
-        if ((val.constructor?.name ?? "") !== "Object") {
+        const proto = Object.getPrototypeOf(val);
+        if (proto !== Object.prototype && proto !== null) {
           throw new TypeError(
             `cannot interpret ${
               val.constructor?.name

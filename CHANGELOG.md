@@ -7,6 +7,12 @@ A breaking change will get clearly marked in this log.
 ## Unreleased
 
 ### Added
+- `Spec.nativeToScVal` now supports contract parameters typed as `Val`
+  (`scSpecTypeVal`) by delegating to the generic `nativeToScVal` converter, so
+  raw JS values (strings, numbers, bigints, booleans, arrays, `Map`s, plain
+  objects, `Address`/`Contract`, byte arrays, `undefined`/`null`) can be passed
+  to `Val`-typed contract arguments without manually constructing `xdr.ScVal`
+  objects. ([#1485])
 - `rpc.Server.queryContract<T>(contractId, method, args?, networkPassphrase?)`: a one-line read-only contract call that builds a client, simulates the method, and returns `{ result, isReadCall }` — the spec-decoded return value plus whether this specific call is a signature-free read that wrote no state (per-call, reflecting the given `args`). No manual transaction assembly, signing, or submission. Works for both Wasm contracts and built-in Stellar Asset Contracts (SACs) ([#1502](https://github.com/stellar/js-stellar-sdk/pull/1502)).
 - `rpc.Server.getContractMethods(contractId, networkPassphrase?)`: lists a contract's callable methods and their signatures (name, inputs, outputs, and doc string) for discovery and tooling, without invoking or simulating anything. Adds the `Api.ContractMethod` and `Api.ContractMethodInput` types ([#1502](https://github.com/stellar/js-stellar-sdk/pull/1502)).
 - `rpc.Server.getContractInstance(contractId)`: returns a contract's `xdr.ScContractInstance` (its executable and instance storage) ([#1501](https://github.com/stellar/js-stellar-sdk/pull/1501)).
@@ -19,6 +25,12 @@ A breaking change will get clearly marked in this log.
 - `rpc.Server.getContractWasmByContractId` now rejects a SAC with a structured `{ code: 400 }` error pointing to `contract.Client.from`, instead of failing while decoding a nonexistent Wasm hash; the not-found rejection is now `{ code: 404, message: "Could not obtain contract instance from server" }` ([#1501](https://github.com/stellar/js-stellar-sdk/pull/1501)).
 - The UMD (`dist/`) build now sets `inlineDynamicImports` so the single-file bundle stays whole despite the SAC spec's lazy `import()` ([#1501](https://github.com/stellar/js-stellar-sdk/pull/1501)).
 
+### Fixed
+- `Spec.nativeToScVal` no longer misclassifies plain objects that have a
+  `constructor` key, and handles null-prototype objects
+  (`Object.create(null)`); non-plain class instances now consistently get the
+  descriptive `cannot interpret ... value as ScVal` error. ([#1485])
+
 ## [v16.0.1](https://github.com/stellar/js-stellar-sdk/compare/v16.0.0...v16.0.1)
 
 ### Fixed
@@ -29,7 +41,6 @@ A breaking change will get clearly marked in this log.
   preserved files as CommonJS and failed to resolve them. Rollup now marks the
   emitted js-xdr package as `type: "module"` so its source is parsed as ESM
   [#1484](https://github.com/stellar/js-stellar-sdk/pull/1484).
-
 
 ## [v16.0.0](https://github.com/stellar/js-stellar-sdk/compare/v15.1.0...v16.0.0)
 
@@ -312,6 +323,7 @@ build the SDK from source or maintain forks.
 [#1408]: https://github.com/stellar/js-stellar-sdk/pull/1408
 [#1429]: https://github.com/stellar/js-stellar-sdk/pull/1429
 [#1450]: https://github.com/stellar/js-stellar-sdk/pull/1450
+[#1485]: https://github.com/stellar/js-stellar-sdk/pull/1485
 [#1478]: https://github.com/stellar/js-stellar-sdk/pull/1478
 
 ## [v16.0.0-rc.2](https://github.com/stellar/js-stellar-sdk/compare/v16.0.0-rc.1...v16.0.0-rc.2)
