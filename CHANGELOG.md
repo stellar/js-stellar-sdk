@@ -39,6 +39,11 @@ A breaking change will get clearly marked in this log.
   `isAxiosError`) now live on the original error, which is preserved as
   `err.cause`. Genuine network errors (DNS, timeout, socket) still pass through
   unwrapped ([#1526](https://github.com/stellar/js-stellar-sdk/pull/1526)).
+- `Federation.Server` resolution methods (`resolveAddress`, `resolveAccountId`,
+  `resolveTransactionId`, `forDomain`) had the same unreachable wrapping branch
+  and now also reject HTTP failures with `BadResponseError` (original client
+  error preserved as `err.cause`) instead of the raw HTTP-client error
+  ([#1526](https://github.com/stellar/js-stellar-sdk/pull/1526)).
 - `HorizonApi.TransactionFailedResultCodes` gained the transaction result
   codes it was missing: `tx_bad_sponsorship`, `tx_bad_min_seq_age_or_gap`,
   `tx_malformed`, `tx_soroban_invalid`, and `tx_frozen_key_accessed`

@@ -235,23 +235,36 @@ export class FederationServer {
         }
         return response.data;
       })
-      .catch((response) => {
-        if (response instanceof Error) {
-          if (response.message.match(/^maxContentLength size/)) {
-            throw new Error(
-              `federation response exceeds allowed size of ${FEDERATION_RESPONSE_MAX_SIZE}`,
-            );
-          } else {
-            return Promise.reject(response);
-          }
-        } else {
-          return Promise.reject(
-            new BadResponseError(
-              `Server query failed. Server responded: ${response.status} ${response.statusText}`,
-              response.data,
-            ),
+      .catch((error) => {
+        if (
+          error instanceof Error &&
+          error.message.match(/^maxContentLength size/)
+        ) {
+          throw new Error(
+            `federation response exceeds allowed size of ${FEDERATION_RESPONSE_MAX_SIZE}`,
           );
         }
+        // HTTP-level failures from the http client are Error instances
+        // carrying a `.response`, so an instanceof check alone would leak
+        // them through raw.
+        const response = error?.response ?? error;
+        if (response && typeof response.status === "number") {
+          const wrapped = new BadResponseError(
+            `Server query failed. Server responded: ${response.status} ${response.statusText}`,
+            {
+              data: response.data,
+              status: response.status,
+              statusText: response.statusText,
+            },
+          );
+          if (error instanceof Error) {
+            wrapped.cause = error;
+          }
+          return Promise.reject(wrapped);
+        }
+        return Promise.reject(
+          error instanceof Error ? error : new Error(String(error)),
+        );
       });
   }
 }
