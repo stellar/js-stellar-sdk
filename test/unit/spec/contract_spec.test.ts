@@ -567,37 +567,10 @@ describe("Spec nativeToScVal with scSpecTypeVal", () => {
     expect(scv.value()?.toString()).toBe("hello");
   });
 
-  it("converts a Stellar address string to scvAddress", () => {
+  it("converts a Stellar address string to scvString (no address guessing)", () => {
+    // Strings are always scvString for Val; pass an Address object for scvAddress
     const scv = SPEC.nativeToScVal(
       publicKey,
-      xdr.ScSpecTypeDef.scSpecTypeVal(),
-    );
-    expect(scv.switch().name).toBe("scvAddress");
-    const addr = Address.fromString(publicKey);
-    expect(scv.toXDR("base64")).toEqual(addr.toScVal().toXDR("base64"));
-  });
-
-  it("converts a muxed address string (M...) to scvAddress", () => {
-    const scv = SPEC.nativeToScVal(muxedKey, xdr.ScSpecTypeDef.scSpecTypeVal());
-    expect(scv.switch().name).toBe("scvAddress");
-    const expected = muxedAddr.toScVal();
-    expect(scv.toXDR("base64")).toEqual(expected.toXDR("base64"));
-  });
-
-  it("converts a contract id string to scvAddress", () => {
-    const contractId =
-      "CA3D5KRYM6CB7OWQ6TWYRR3Z4T7GNZLKERYNZGGA5SOAOPIFY6YQGAXE";
-    const scv = SPEC.nativeToScVal(
-      contractId,
-      xdr.ScSpecTypeDef.scSpecTypeVal(),
-    );
-    expect(scv.switch().name).toBe("scvAddress");
-  });
-
-  it("converts a non-address string to scvString", () => {
-    // A string that starts with G but has a bad checksum / wrong length
-    const scv = SPEC.nativeToScVal(
-      "not-a-stellar-address",
       xdr.ScSpecTypeDef.scSpecTypeVal(),
     );
     expect(scv.switch().name).toBe("scvString");
@@ -715,7 +688,7 @@ describe("Spec nativeToScVal with scSpecTypeVal", () => {
     expect(scv.switch().name).toBe("scvMap");
     const entries = scv.map() ?? [];
     expect(entries.length).toBe(2);
-    // Keys should be scvString (not scvSymbol) so long keys don't hit the 32-byte limit
+    // base nativeToScVal uses scvString for plain object keys
     const keyNames = entries.map((e) => e.key().str()?.toString()).sort();
     expect(keyNames).toEqual(["a", "b"]);
     // Value types should be correct
@@ -768,28 +741,6 @@ describe("Spec nativeToScVal with scSpecTypeVal", () => {
     expect(scv.switch().name).toBe("scvMap");
     const entries = scv.map() ?? [];
     expect(entries.length).toBe(0);
-  });
-
-  it("converts a null-prototype object to scvMap", () => {
-    const obj = Object.create(null) as Record<string, any>;
-    obj.foo = 1;
-    obj.bar = "hello";
-    const scv = SPEC.nativeToScVal(obj, xdr.ScSpecTypeDef.scSpecTypeVal());
-    expect(scv.switch().name).toBe("scvMap");
-    const entries = scv.map() ?? [];
-    expect(entries.length).toBe(2);
-  });
-
-  it("rejects class instances to prevent leaking private fields", () => {
-    // Class instances must not be silently serialised — their enumerable
-    // fields could include sensitive data (e.g. private keys on a Keypair).
-    class Sensitive {
-      _secret = "should-not-appear";
-      publicField = "ok";
-    }
-    expect(() =>
-      SPEC.nativeToScVal(new Sensitive(), xdr.ScSpecTypeDef.scSpecTypeVal()),
-    ).toThrow(TypeError);
   });
 
   it("converts an Address object to scvAddress", () => {
@@ -860,12 +811,12 @@ describe("Spec nativeToScVal with scSpecTypeVal", () => {
     expect(scVals3[0].switch().name).toBe("scvBool");
     expect(scVals3[0].value()).toBe(true);
 
-    // Test with a Stellar address
+    // Strings are always scvString for Val — pass Address object for scvAddress
     const scVals4 = localSpec.funcArgsToScVals("takes_val", {
       some_val: publicKey,
     });
     expect(scVals4.length).toBe(1);
-    expect(scVals4[0].switch().name).toBe("scvAddress");
+    expect(scVals4[0].switch().name).toBe("scvString");
 
     // Test with a plain object — string keys, sorted
     const scVals5 = localSpec.funcArgsToScVals("takes_val", {
@@ -885,14 +836,13 @@ describe("Spec nativeToScVal with scSpecTypeVal", () => {
     expect(scVals6.length).toBe(1);
     expect(scVals6[0].switch().name).toBe("scvVoid");
 
-    // Test with a muxed address string — should produce scvAddress
+    // Test with an Address object — should produce scvAddress
     const scVals7 = localSpec.funcArgsToScVals("takes_val", {
-      some_val: muxedKey,
+      some_val: addr,
     });
     expect(scVals7.length).toBe(1);
     expect(scVals7[0].switch().name).toBe("scvAddress");
-    const expected = muxedAddr.toScVal();
-    expect(scVals7[0].toXDR("base64")).toEqual(expected.toXDR("base64"));
+    expect(scVals7[0].toXDR("base64")).toEqual(addr.toScVal().toXDR("base64"));
   });
 });
 

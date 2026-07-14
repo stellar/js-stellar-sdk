@@ -224,6 +224,19 @@ export function nativeToScVal(
         );
       }
 
+      if (val instanceof Map) {
+        const entries: xdr.ScMapEntry[] = [];
+        for (const [k, v] of val) {
+          entries.push(
+            new xdr.ScMapEntry({
+              key: nativeToScVal(k),
+              val: nativeToScVal(v),
+            }),
+          );
+        }
+        return xdr.scvSortedMap(entries);
+      }
+
       if (Object.getPrototypeOf(val) !== Object.prototype) {
         throw new TypeError(
           `cannot interpret ${
