@@ -7,6 +7,7 @@ A breaking change will get clearly marked in this log.
 ## Unreleased
 
 ### Added
+- Protocol 28 (CAP-0085): externally managed contract executables. The vendored `next`-channel XDR now includes the `SCV_EXECUTABLE_TAG` `SCVal` arm, the `CONTRACT_EXECUTABLE_EXTERNAL_REF` `ContractExecutable` variant, and the `ContractExecutableExternalRef` struct. Encode/decode support is via the generated codec; no new hand-written SDK helpers were added.
 - `rpc.Server.queryContract<T>(contractId, method, args?, networkPassphrase?)`: a one-line read-only contract call that builds a client, simulates the method, and returns `{ result, isReadCall }` — the spec-decoded return value plus whether this specific call is a signature-free read that wrote no state (per-call, reflecting the given `args`). No manual transaction assembly, signing, or submission. Works for both Wasm contracts and built-in Stellar Asset Contracts (SACs) ([#1502](https://github.com/stellar/js-stellar-sdk/pull/1502)).
 - `rpc.Server.getContractMethods(contractId, networkPassphrase?)`: lists a contract's callable methods and their signatures (name, inputs, outputs, and doc string) for discovery and tooling, without invoking or simulating anything. Adds the `Api.ContractMethod` and `Api.ContractMethodInput` types ([#1502](https://github.com/stellar/js-stellar-sdk/pull/1502)).
 - `rpc.Server.getContractInstance(contractId)`: returns a contract's `xdr.ScContractInstance` (its executable and instance storage) ([#1501](https://github.com/stellar/js-stellar-sdk/pull/1501)).

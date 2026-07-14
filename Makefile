@@ -1,5 +1,13 @@
+# Protocol 28 / CAP-0085 (externally managed contract executables) pre-release.
+# The `next` channel pins stellar-xdr#308 head (76218a99) and enables
+# CAP_0085_EXECUTABLE_REF via `stellar-xdr xfile preprocess` before xdrgen
+# (the Ruby xdrgen used here does not understand #ifdef). CAP_0085_EXECUTABLE_REF
+# is gated to `next` only: the new SCVal/ContractExecutable arms are not enabled
+# on `curr` until protocol 28 ships, so `curr` deliberately stays pinned at
+# 68fa1ac5 with no features.
 XDR_BASE_URL_CURR=https://github.com/stellar/stellar-xdr/raw/68fa1ac55692f68ad2a2ca549d0a283273554439
 XDR_BASE_LOCAL_CURR=xdr/curr
+XDR_FEATURES_CURR=
 XDR_FILES_CURR= \
 	Stellar-SCP.x \
 	Stellar-ledger-entries.x \
@@ -15,8 +23,9 @@ XDR_FILES_CURR= \
 	Stellar-exporter.x
 XDR_FILES_LOCAL_CURR=$(addprefix xdr/curr/,$(XDR_FILES_CURR))
 
-XDR_BASE_URL_NEXT=https://github.com/stellar/stellar-xdr/raw/68fa1ac55692f68ad2a2ca549d0a283273554439
+XDR_BASE_URL_NEXT=https://github.com/stellar/stellar-xdr/raw/76218a994f8c5ba752cba368080fb2f89843ad3c
 XDR_BASE_LOCAL_NEXT=xdr/next
+XDR_FEATURES_NEXT=CAP_0085_EXECUTABLE_REF
 XDR_FILES_NEXT= \
 	Stellar-SCP.x \
 	Stellar-ledger-entries.x \
@@ -48,6 +57,7 @@ src/base/generated/curr_generated.js: $(XDR_FILES_LOCAL_CURR)
 		gem specific_install https://github.com/stellar/xdrgen.git -b $(XDRGEN_COMMIT) && \
 		xdrgen --language javascript --namespace curr --output src/base/generated $^ \
 		'
+	python3 scripts/post-process-generated.py $@
 
 src/base/generated/next_generated.js: $(XDR_FILES_LOCAL_NEXT)
 	mkdir -p $(dir $@)
@@ -57,6 +67,7 @@ src/base/generated/next_generated.js: $(XDR_FILES_LOCAL_NEXT)
 		gem specific_install https://github.com/stellar/xdrgen.git -b $(XDRGEN_COMMIT) && \
 		xdrgen --language javascript --namespace next --output src/base/generated $^ \
 		'
+	python3 scripts/post-process-generated.py $@
 
 src/base/generated/curr.d.ts: src/base/generated/curr_generated.js
 	docker run -it --rm -v $$PWD:/wd -w / --entrypoint /bin/sh node:22-alpine -c '\
@@ -92,12 +103,12 @@ clean:
 $(XDR_FILES_LOCAL_CURR):
 	mkdir -p $(dir $@)
 	curl -L -o $@ $(XDR_BASE_URL_CURR)/$(notdir $@)
-	stellar-xdr xfile preprocess --features "$(XDR_FEATURES)" $@ > $@.pp && mv -f $@.pp $@
+	stellar-xdr xfile preprocess --features "$(XDR_FEATURES_CURR)" $@ > $@.pp && mv -f $@.pp $@
 
 $(XDR_FILES_LOCAL_NEXT):
 	mkdir -p $(dir $@)
 	curl -L -o $@ $(XDR_BASE_URL_NEXT)/$(notdir $@)
-	stellar-xdr xfile preprocess --features "$(XDR_FEATURES)" $@ > $@.pp && mv -f $@.pp $@
+	stellar-xdr xfile preprocess --features "$(XDR_FEATURES_NEXT)" $@ > $@.pp && mv -f $@.pp $@
 reset-xdr:
 	rm -f xdr/*/*.x
 	rm -f src/base/generated/*.js
