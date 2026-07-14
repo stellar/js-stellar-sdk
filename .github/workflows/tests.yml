@@ -2,7 +2,7 @@ name: Tests
 
 on:
   push:
-    branches: [master]
+    branches: [main]
   pull_request:
 
 jobs:
@@ -17,13 +17,13 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v6
 
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node-version }}
           cache: pnpm
@@ -60,7 +60,7 @@ jobs:
         run: pnpm run test:browser:axios
 
   # Placeholder to satisfy the `build_and_test (20)` required status check in
-  # the `protect-master` ruleset. Node 20 was dropped from the test matrix
+  # the `protect-main` ruleset. Node 20 was dropped from the test matrix
   # (engines.node is now >=22), but the ruleset still requires that context by
   # name, so without this every PR would stay "Expected" and block merge.
   # Remove this job once the ruleset is repointed to `build_and_test (22)`.

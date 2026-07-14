@@ -474,12 +474,12 @@ pnpm docs:dev
 
 For information on how to contribute or publish new versions of this software to
 `npm`, please refer to our
-[contribution guide](https://github.com/stellar/js-stellar-sdk/blob/master/CONTRIBUTING.md).
+[contribution guide](https://github.com/stellar/js-stellar-sdk/blob/main/CONTRIBUTING.md).
 
 ## Miscellaneous
 
 ### License
 
 js-stellar-sdk is licensed under an Apache-2.0 license. See the
-[LICENSE](https://github.com/stellar/js-stellar-sdk/blob/master/LICENSE) file
+[LICENSE](https://github.com/stellar/js-stellar-sdk/blob/main/LICENSE) file
 for details.

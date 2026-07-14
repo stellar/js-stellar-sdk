@@ -25,7 +25,7 @@ const useAxios = process.env.USE_AXIOS === "true";
 // imports. `@stellar/js-xdr` ships a webpack UMD bundle as `main`, which
 // hides its named exports from Node ESM's cjs-module-lexer; inlining it
 // at build time sidesteps the interop entirely.
-// TODO: remove this once js-xdr ships an ESM build with proper named exports. Until then, it converts js-xdr's UMD export into a shape rollup can analyze and re-export from our ESM output.
+// TODO: remove this once js-xdr ships an ESM build with proper named exports.
 const inlinedDependencies = new Set(["@stellar/js-xdr"]);
 
 const externalPackages = new Set(
@@ -161,6 +161,54 @@ function aliasZlibToBrowserifyZlib() {
   };
 }
 
+// Library ESM only: `@stellar/js-xdr@4.0.0` exposes ESM source files via its
+// `module` field, but its package does not declare `type: "module"`. Because
+// the library build preserves modules, Rollup emits those files under a nested
+// `node_modules/.pnpm/.../@stellar/js-xdr` package scope. Add an ESM marker to
+// that emitted package so Node and Yarn PnP parse the preserved js-xdr source as
+// ESM until js-xdr ships first-class ESM packaging.
+function markInlinedJsXdrAsEsm() {
+  return {
+    name: "mark-inlined-js-xdr-as-esm",
+    writeBundle(outputOptions) {
+      if (
+        (outputOptions.format !== "esm" && outputOptions.format !== "es") ||
+        !outputOptions.dir
+      ) {
+        return;
+      }
+
+      const pnpmDir = path.join(outputOptions.dir, "node_modules", ".pnpm");
+      if (!fs.existsSync(pnpmDir)) {
+        return;
+      }
+
+      for (const entry of fs.readdirSync(pnpmDir, { withFileTypes: true })) {
+        if (!entry.isDirectory() || !/^@stellar[+_]js-xdr@/.test(entry.name)) {
+          continue;
+        }
+
+        const packageRoot = path.join(
+          pnpmDir,
+          entry.name,
+          "node_modules",
+          "@stellar",
+          "js-xdr",
+        );
+
+        if (!fs.existsSync(packageRoot)) {
+          continue;
+        }
+
+        fs.writeFileSync(
+          path.join(packageRoot, "package.json"),
+          `${JSON.stringify({ type: "module" }, null, 2)}\n`,
+        );
+      }
+    },
+  };
+}
+
 function createOutput(dir, format) {
   return {
     dir,
@@ -187,14 +235,12 @@ const libSharedPlugins = [
   ...(useAxios ? [aliasHttpClientToAxios()] : []),
   resolveJsSourceSpecifier(),
 
-  // TODO: remove this plugin once js-xdr ships an ESM build with proper named exports. Until then, it converts js-xdr's UMD export into a shape rollup can analyze and re-export from our ESM output.
-  // resolve + commonjs are needed to pull `@stellar/js-xdr` into the bundle.
+  // resolve + commonjs are needed to pull inlined dependencies into the bundle.
   // External deps short-circuit before reaching these plugins, so other
   // dependencies remain bare imports.
   resolve({
     extensions: [".ts", ".mjs", ".js", ".json"],
   }),
-  // TODO: remove this plugin once js-xdr ships an ESM build with proper named exports. Until then, it converts js-xdr's UMD export into a shape rollup can analyze and re-export from our ESM output.
   commonjs(),
   esbuild({
     sourceMap: true,
@@ -209,6 +255,7 @@ const libSharedPlugins = [
     Buffer: ["buffer", "Buffer"],
   }),
   replaceVersion,
+  markInlinedJsXdrAsEsm(),
 ];
 
 const libBaseDir = useAxios ? "lib/axios" : "lib";
@@ -278,6 +325,10 @@ const distConfig = {
       name: "StellarSdk",
       exports: "named",
       sourcemap: true,
+      // Single-file UMD output can hold only one chunk. Inline dynamic
+      // imports (e.g. the lazily-loaded SAC spec in contract/client) so the
+      // build stays a single bundle regardless of Rollup's default behavior.
+      inlineDynamicImports: true,
     },
     {
       file: `dist/${distBaseName}.min.js`,
@@ -285,6 +336,7 @@ const distConfig = {
       name: "StellarSdk",
       exports: "named",
       sourcemap: true,
+      inlineDynamicImports: true,
       plugins: [
         terser({
           format: { ascii_only: true },

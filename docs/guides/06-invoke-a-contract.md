@@ -23,7 +23,8 @@ free and safe to repeat.
   [Deploy the Increment Contract](https://developers.stellar.org/docs/build/smart-contracts/getting-started/deploy-increment-contract)
   tutorial once (about 20 to 30 minutes), then paste the contract ID it prints
   into `contractId` below. You will not touch the CLI again in this guide.
-  Generating a typed client from a contract is covered later in the series.
+  This guide types the client with a small hand-written interface; generating one
+  from a contract's spec is covered later in the series.
 - The examples use testnet RPC at `https://soroban-testnet.stellar.org`.
 
 ## Connect and load the contract
@@ -41,9 +42,18 @@ import { contract, Keypair, Networks } from "@stellar/stellar-sdk";
 const rpcUrl = "https://soroban-testnet.stellar.org";
 const networkPassphrase = Networks.TESTNET;
 
+// Describe just the methods you call. `Client.from<T>()` uses this to type the
+// returned client, so the calls below are checked and autocompleted — no code
+// generation needed.
+interface IncrementContract {
+  increment: (
+    options?: contract.MethodOptions,
+  ) => Promise<contract.AssembledTransaction<number>>;
+}
+
 const { signTransaction } = contract.basicNodeSigner(keypair, networkPassphrase);
 
-const client = await contract.Client.from({
+const client = await contract.Client.from<IncrementContract>({
   contractId,
   rpcUrl,
   networkPassphrase,
@@ -54,10 +64,65 @@ const client = await contract.Client.from({
 
 Here `keypair` is your funded account from
 [Connect and Fund an Account](/guides/01-connect-and-fund/) and `contractId` is
-your deployed contract's `C...` ID. Because the client is built from the live
-contract at runtime, its methods are **not typed**: TypeScript does not know
-`client.increment` exists, so calls below use `(client as any)`. A fully typed
-client comes from generating bindings, covered later in the series.
+your deployed contract's `C...` ID. The client is built from the live contract at
+runtime, so TypeScript cannot infer its methods on its own. Passing an interface
+to [`Client.from<T>()`](/reference/contracts-client/#contractclient) types them:
+`client.increment()` below is fully typed and autocompleted, with no code
+generation. For a contract with many methods, generate that interface from its
+spec (covered later in the series) rather than writing it by hand.
+
+## Query contract state
+
+Sometimes you only want to **inspect** a contract or **read** a value from it, not
+change anything. For that, `rpc.Server` has two one-line shortcuts that build the
+contract's interface for you — including the built-in spec for Stellar Asset
+Contracts (SACs) — so they work from just a contract ID, with no client setup.
+
+[`getContractMethods`](/reference/network-rpc/#servergetcontractmethodscontractid-networkpassphrase)
+lists a contract's callable methods and their signatures, which is handy when you
+are inspecting a contract you did not write. The spec it reports carries no
+read/write flag, so to learn whether a *specific* call would change state, invoke
+it with `queryContract` and read its `isReadCall` (see below).
+[`queryContract`](/reference/network-rpc/#serverquerycontractcontractid-method-args-networkpassphrase)
+runs a **read-only**
+call and returns the decoded result. It simulates the call the same way the preview
+below does, so it needs no signing or fee, but it hands you the value directly. Here
+both run against a token contract — discover its methods, then read one:
+
+```ts
+import { rpc } from "@stellar/stellar-sdk";
+
+const server = new rpc.Server(rpcUrl);
+
+// Discover what the contract exposes, from just its ID.
+const methods = await server.getContractMethods(tokenId);
+// [
+//   { name: "decimals", inputs: [], outputs: ["U32"] },
+//   { name: "balance", inputs: [{ name: "id", type: "Address" }], outputs: ["I128"] },
+//   { name: "transfer", inputs: [...], outputs: [] },
+// ]
+
+// Read one of its read-only methods in a single line.
+const { result: decimals, isReadCall } = await server.queryContract<number>(
+  tokenId,
+  "decimals",
+);
+
+const { result: balance } = await server.queryContract<bigint>(
+  tokenId,
+  "balance",
+  {
+    id: "G...", // named arguments, keyed by the method's parameter names
+  },
+);
+```
+
+Alongside the decoded `result`, `queryContract` returns `isReadCall`: whether
+*this* call — for the exact arguments given — wrote no state and needed no
+signature. It is per-call, not a fixed property of the method. Since
+`queryContract` never signs or sends, `isReadCall: false` means the `result` is
+only a simulation preview of a call that would change state; to apply such a
+change you build a client and sign a transaction, as shown next.
 
 ## Preview a call with simulation
 
@@ -68,7 +133,7 @@ no signature. Read the predicted return value from
 [`tx.result`](/reference/contracts-client/#contractassembledtransaction):
 
 ```ts
-const tx = await (client as any).increment();
+const tx = await client.increment();
 
 tx.result; // the value the call would return; nothing has been sent
 ```
@@ -113,6 +178,12 @@ const rpcUrl = "https://soroban-testnet.stellar.org";
 const networkPassphrase = Networks.TESTNET;
 const contractId = "C..."; // your deployed increment contract (see Prerequisites)
 
+interface IncrementContract {
+  increment: (
+    options?: contract.MethodOptions,
+  ) => Promise<contract.AssembledTransaction<number>>;
+}
+
 async function main() {
   const server = new rpc.Server(rpcUrl);
   const keypair = Keypair.random();
@@ -125,7 +196,7 @@ async function main() {
     // Fund a throwaway account to invoke from (the RPC-side friendbot).
     await server.fundAddress(keypair.publicKey());
 
-    const client = await contract.Client.from({
+    const client = await contract.Client.from<IncrementContract>({
       contractId,
       rpcUrl,
       networkPassphrase,
@@ -134,7 +205,7 @@ async function main() {
     });
 
     // Preview the call for free with simulation.
-    const tx = await (client as any).increment();
+    const tx = await client.increment();
     console.log("preview:", tx.result);
 
     // Sign and send to apply it on-chain.

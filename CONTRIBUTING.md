@@ -3,7 +3,7 @@
 ## How to contribute
 
 Please read the
-[Contribution Guide](https://github.com/stellar/docs/blob/master/CONTRIBUTING.md).
+[Contribution Guide](https://github.com/stellar/docs/blob/main/CONTRIBUTING.md).
 
 ## Releasing
 
@@ -26,7 +26,7 @@ To cut a release:
 4. **Open a release PR** with the changelog and version bump.
 5. **After it merges,** draft a GitHub release at
    <https://github.com/stellar/js-stellar-sdk/releases/new> with tag `vX.Y.Z`
-   targeting `master`. Paste the new changelog section into the release notes.
+   targeting `main`. Paste the new changelog section into the release notes.
    Publishing the release triggers
    [`npm_publish.yml`](.github/workflows/npm_publish.yml).
 
@@ -159,7 +159,7 @@ field in `llms.txt` are pinned to a configurable ref so local builds, PR-check
 builds, and release deploys can each produce the right URLs without churning
 each other:
 
-- **Default**: trunk branch (`master`). Set in
+- **Default**: trunk branch (`main`). Set in
   [scripts/docs-source-ref.ts](scripts/docs-source-ref.ts) — update there if the
   trunk branch is renamed.
 - **Override** via the `DOCS_SOURCE_REF` env var. Release deploys set it to the

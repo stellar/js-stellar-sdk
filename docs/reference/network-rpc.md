@@ -117,6 +117,8 @@ class Server {
   getAssetBalance(address: string | Address | Contract, asset: Asset, networkPassphrase?: string): Promise<BalanceResponse>;
   getClaimableBalance(id: string): Promise<ClaimableBalanceEntry>;
   getContractData(contract: string | Address | Contract, key: ScVal, durability: Durability = Durability.Persistent): Promise<LedgerEntryResult>;
+  getContractInstance(contractId: string): Promise<ScContractInstance>;
+  getContractMethods(contractId: string, networkPassphrase?: string): Promise<ContractMethod[]>;
   getContractWasmByContractId(contractId: string): Promise<Buffer<ArrayBufferLike>>;
   getContractWasmByHash(wasmHash: string | Buffer<ArrayBufferLike>, format: "base64" | "hex" | undefined = undefined): Promise<Buffer<ArrayBufferLike>>;
   getEvents(request: GetEventsRequest): Promise<GetEventsResponse>;
@@ -134,6 +136,7 @@ class Server {
   getVersionInfo(): Promise<GetVersionInfoResponse>;
   pollTransaction(hash: string, opts?: PollingOptions): Promise<GetTransactionResponse>;
   prepareTransaction(tx: Transaction | FeeBumpTransaction): Promise<Transaction>;
+  queryContract<T = any>(contractId: string, method: string, args: Record<string, unknown> = {}, networkPassphrase?: string): Promise<{ isReadCall: boolean; result: T }>;
   requestAirdrop(address: string | Pick<Account, "accountId">, friendbotUrl?: string): Promise<Account>;
   sendTransaction(transaction: Transaction | FeeBumpTransaction): Promise<SendTransactionResponse>;
   simulateTransaction(tx: Transaction | FeeBumpTransaction, addlResources?: ResourceLeeway, authMode?: SimulationAuthMode): Promise<SimulateTransactionResponse>;
@@ -157,7 +160,7 @@ constructor(serverURL: string, opts: Options = {});
 - **`serverURL`** — `string` (required)
 - **`opts`** — `Options` (optional) (default: `{}`)
 
-**Source:** [src/rpc/server.ts:170](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L170)
+**Source:** [src/rpc/server.ts:182](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L182)
 
 ### `server.httpClient`
 
@@ -181,7 +184,7 @@ server.httpClient.interceptors.request.use((config) => {
 });
 ```
 
-**Source:** [src/rpc/server.ts:169](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L169)
+**Source:** [src/rpc/server.ts:181](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L181)
 
 ### `server.serverURL`
 
@@ -189,7 +192,7 @@ server.httpClient.interceptors.request.use((config) => {
 readonly serverURL: URL;
 ```
 
-**Source:** [src/rpc/server.ts:152](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L152)
+**Source:** [src/rpc/server.ts:164](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L164)
 
 ### `server._getEvents(request)`
 
@@ -201,7 +204,7 @@ _getEvents(request: GetEventsRequest): Promise<RawGetEventsResponse>;
 
 - **`request`** — `GetEventsRequest` (required)
 
-**Source:** [src/rpc/server.ts:896](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L896)
+**Source:** [src/rpc/server.ts:1111](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1111)
 
 ### `server._getLatestLedger()`
 
@@ -209,7 +212,7 @@ _getEvents(request: GetEventsRequest): Promise<RawGetEventsResponse>;
 _getLatestLedger(): Promise<RawGetLatestLedgerResponse>;
 ```
 
-**Source:** [src/rpc/server.ts:967](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L967)
+**Source:** [src/rpc/server.ts:1182](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1182)
 
 ### `server._getLedgerEntries(keys)`
 
@@ -221,7 +224,7 @@ _getLedgerEntries(...keys: LedgerKey[]): Promise<RawGetLedgerEntriesResponse>;
 
 - **`...keys`** — `LedgerKey[]` (required)
 
-**Source:** [src/rpc/server.ts:661](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L661)
+**Source:** [src/rpc/server.ts:876](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L876)
 
 ### `server._getLedgers(request)`
 
@@ -233,7 +236,7 @@ _getLedgers(request: GetLedgersRequest): Promise<RawGetLedgersResponse>;
 
 - **`request`** — `GetLedgersRequest` (required)
 
-**Source:** [src/rpc/server.ts:1558](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1558)
+**Source:** [src/rpc/server.ts:1773](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1773)
 
 ### `server._getTransaction(hash)`
 
@@ -245,7 +248,7 @@ _getTransaction(hash: string): Promise<RawGetTransactionResponse>;
 
 - **`hash`** — `string` (required)
 
-**Source:** [src/rpc/server.ts:784](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L784)
+**Source:** [src/rpc/server.ts:999](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L999)
 
 ### `server._getTransactions(request)`
 
@@ -257,7 +260,7 @@ _getTransactions(request: GetTransactionsRequest): Promise<RawGetTransactionsRes
 
 - **`request`** — `GetTransactionsRequest` (required)
 
-**Source:** [src/rpc/server.ts:835](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L835)
+**Source:** [src/rpc/server.ts:1050](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1050)
 
 ### `server._sendTransaction(transaction)`
 
@@ -269,7 +272,7 @@ _sendTransaction(transaction: Transaction | FeeBumpTransaction): Promise<RawSend
 
 - **`transaction`** — `Transaction | FeeBumpTransaction` (required)
 
-**Source:** [src/rpc/server.ts:1194](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1194)
+**Source:** [src/rpc/server.ts:1409](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1409)
 
 ### `server._simulateTransaction(transaction, addlResources, authMode)`
 
@@ -283,7 +286,7 @@ _simulateTransaction(transaction: Transaction | FeeBumpTransaction, addlResource
 - **`addlResources`** — `ResourceLeeway` (optional)
 - **`authMode`** — `SimulationAuthMode` (optional)
 
-**Source:** [src/rpc/server.ts:1041](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1041)
+**Source:** [src/rpc/server.ts:1256](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1256)
 
 ### `server.fundAddress(address, friendbotUrl)`
 
@@ -336,7 +339,7 @@ console.log("Contract funded! Hash:", tx.txHash);
 
 - `Friendbot docs`
 
-**Source:** [src/rpc/server.ts:1317](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1317)
+**Source:** [src/rpc/server.ts:1532](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1532)
 
 ### `server.getAccount(address)`
 
@@ -371,7 +374,7 @@ server.getAccount(accountId).then((account) => {
 
 - `getLedgerEntries docs`
 
-**Source:** [src/rpc/server.ts:203](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L203)
+**Source:** [src/rpc/server.ts:215](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L215)
 
 ### `server.getAccountEntry(address)`
 
@@ -403,7 +406,7 @@ server.getAccountEntry(accountId).then((account) => {
 
 - `getLedgerEntries docs`
 
-**Source:** [src/rpc/server.ts:226](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L226)
+**Source:** [src/rpc/server.ts:238](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L238)
 
 ### `server.getAssetBalance(address, asset, networkPassphrase)`
 
@@ -449,7 +452,7 @@ const balance = await server.getAssetBalance("GD...", usdc);
 console.log(balance.balanceEntry?.amount);
 ```
 
-**Source:** [src/rpc/server.ts:376](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L376)
+**Source:** [src/rpc/server.ts:388](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L388)
 
 ### `server.getClaimableBalance(id)`
 
@@ -485,7 +488,7 @@ server.getClaimableBalance(id).then((entry) => {
 
 - `getLedgerEntries docs`
 
-**Source:** [src/rpc/server.ts:308](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L308)
+**Source:** [src/rpc/server.ts:320](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L320)
 
 ### `server.getContractData(contract, key, durability)`
 
@@ -533,7 +536,86 @@ server.getContractData(contractId, key, Durability.Temporary).then(data => {
 
 - `getLedgerEntries docs`
 
-**Source:** [src/rpc/server.ts:477](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L477)
+**Source:** [src/rpc/server.ts:489](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L489)
+
+### `server.getContractInstance(contractId)`
+
+Retrieves the deployed contract instance for a given contract ID.
+
+The instance describes the contract's executable — either a Wasm hash or
+the built-in Stellar Asset Contract — along with its instance storage.
+
+```ts
+getContractInstance(contractId: string): Promise<ScContractInstance>;
+```
+
+**Parameters**
+
+- **`contractId`** — `string` (required) — The contract ID (`C...`) to look up
+
+**Returns**
+
+The contract's `xdr.ScContractInstance`
+
+**Throws**
+
+- If the contract instance cannot be found on the network.
+
+**Example**
+
+```ts
+const instance = await server.getContractInstance(
+  "CCJZ5DGASBWQXR5MPFCJXMBI333XE5U3FSJTNQU7RIKE3P5GN2K2WYD5",
+);
+console.log(instance.executable().switch().name);
+```
+
+**Source:** [src/rpc/server.ts:558](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L558)
+
+### `server.getContractMethods(contractId, networkPassphrase)`
+
+Lists a contract's callable methods and their signatures.
+
+A discovery helper for tooling, dapps, and agents that need to inspect an
+arbitrary contract without knowing its interface up front. It resolves the
+contract's spec (embedded in the Wasm for regular contracts, or the
+built-in spec for Stellar Asset Contracts — see `contract.Client.from`)
+and reports each declared function's name, inputs, and outputs. No method
+is invoked or simulated; this performs only the spec lookup.
+
+The complement to `queryContract`: list methods here, then call a
+read-only one with `server.queryContract(contractId, method, args?)`.
+
+```ts
+getContractMethods(contractId: string, networkPassphrase?: string): Promise<ContractMethod[]>;
+```
+
+**Parameters**
+
+- **`contractId`** — `string` (required) — the contract to inspect (`C...`)
+- **`networkPassphrase`** — `string` (optional) — (optional) the network passphrase. If omitted, a
+     request about network information will be made (see `getNetwork`).
+     You can refer to `Networks` for a list of built-in passphrases,
+     e.g., `Networks.TESTNET`.
+
+**Returns**
+
+The contract's methods, in the order they appear in the spec
+
+**Example**
+
+```ts
+const methods = await server.getContractMethods(
+  "CCJZ5DGASBWQXR5MPFCJXMBI333XE5U3FSJTNQU7RIKE3P5GN2K2WYD5",
+);
+// [
+//   { name: "decimals", inputs: [], outputs: ["U32"] },
+//   { name: "balance", inputs: [{ name: "id", type: "Address" }], outputs: ["I128"] },
+//   { name: "transfer", inputs: [...], outputs: [] },
+// ]
+```
+
+**Source:** [src/rpc/server.ts:799](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L799)
 
 ### `server.getContractWasmByContractId(contractId)`
 
@@ -542,6 +624,10 @@ Retrieves the WASM bytecode for a given contract.
 This method allows you to fetch the WASM bytecode associated with a contract
 deployed on the Soroban network. The WASM bytecode represents the executable
 code of the contract.
+
+This only works for Wasm-based contracts. A built-in Stellar Asset Contract
+(SAC) has no Wasm bytecode on-chain, so this throws for a SAC; use
+`contract.Client.from` to build a client from the embedded SAC spec.
 
 ```ts
 getContractWasmByContractId(contractId: string): Promise<Buffer<ArrayBufferLike>>;
@@ -558,7 +644,7 @@ A Buffer containing the WASM bytecode
 **Throws**
 
 - If the contract or its associated WASM bytecode cannot be
-found on the network.
+found on the network, or if the contract is a Stellar Asset Contract (SAC).
 
 **Example**
 
@@ -572,7 +658,7 @@ server.getContractWasmByContractId(contractId).then(wasmBuffer => {
 });
 ```
 
-**Source:** [src/rpc/server.ts:551](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L551)
+**Source:** [src/rpc/server.ts:600](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L600)
 
 ### `server.getContractWasmByHash(wasmHash, format)`
 
@@ -612,7 +698,7 @@ server.getContractWasmByHash(wasmHash).then(wasmBuffer => {
 });
 ```
 
-**Source:** [src/rpc/server.ts:596](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L596)
+**Source:** [src/rpc/server.ts:644](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L644)
 
 ### `server.getEvents(request)`
 
@@ -670,7 +756,7 @@ server.getEvents({
 
 - `getEvents docs`
 
-**Source:** [src/rpc/server.ts:890](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L890)
+**Source:** [src/rpc/server.ts:1105](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1105)
 
 ### `server.getFeeStats()`
 
@@ -689,7 +775,7 @@ the fee stats
 
 - https://developers.stellar.org/docs/data/rpc/api-reference/methods/getFeeStats
 
-**Source:** [src/rpc/server.ts:1363](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1363)
+**Source:** [src/rpc/server.ts:1578](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1578)
 
 ### `server.getHealth()`
 
@@ -717,7 +803,7 @@ server.getHealth().then((health) => {
 
 - `getLedgerEntries docs`
 
-**Source:** [src/rpc/server.ts:435](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L435)
+**Source:** [src/rpc/server.ts:447](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L447)
 
 ### `server.getLatestLedger()`
 
@@ -747,7 +833,7 @@ server.getLatestLedger().then((response) => {
 
 - `getLatestLedger docs`
 
-**Source:** [src/rpc/server.ts:963](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L963)
+**Source:** [src/rpc/server.ts:1178](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1178)
 
 ### `server.getLedgerEntries(keys)`
 
@@ -797,7 +883,7 @@ server.getLedgerEntries([key]).then(response => {
 - - `getLedgerEntries docs`
  - RpcServer._getLedgerEntries
 
-**Source:** [src/rpc/server.ts:657](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L657)
+**Source:** [src/rpc/server.ts:872](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L872)
 
 ### `server.getLedgerEntry(key)`
 
@@ -809,7 +895,7 @@ getLedgerEntry(key: LedgerKey): Promise<LedgerEntryResult>;
 
 - **`key`** — `LedgerKey` (required)
 
-**Source:** [src/rpc/server.ts:672](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L672)
+**Source:** [src/rpc/server.ts:887](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L887)
 
 ### `server.getLedgers(request)`
 
@@ -875,7 +961,7 @@ const nextPage = await server.getLedgers({
 
 - `getLedgers docs`
 
-**Source:** [src/rpc/server.ts:1542](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1542)
+**Source:** [src/rpc/server.ts:1757](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1757)
 
 ### `server.getNetwork()`
 
@@ -904,7 +990,7 @@ server.getNetwork().then((network) => {
 
 - `getNetwork docs`
 
-**Source:** [src/rpc/server.ts:937](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L937)
+**Source:** [src/rpc/server.ts:1152](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1152)
 
 ### `server.getSACBalance(address, sac, networkPassphrase)`
 
@@ -963,7 +1049,7 @@ console.log(
 - - getLedgerEntries
  - https://developers.stellar.org/docs/tokens/stellar-asset-contract
 
-**Source:** [src/rpc/server.ts:1427](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1427)
+**Source:** [src/rpc/server.ts:1642](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1642)
 
 ### `server.getTransaction(hash)`
 
@@ -1001,7 +1087,7 @@ server.getTransaction(transactionHash).then((tx) => {
 
 - `getTransaction docs`
 
-**Source:** [src/rpc/server.ts:757](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L757)
+**Source:** [src/rpc/server.ts:972](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L972)
 
 ### `server.getTransactions(request)`
 
@@ -1037,7 +1123,7 @@ server.getTransactions({
 
 - https://developers.stellar.org/docs/data/rpc/api-reference/methods/getTransactions
 
-**Source:** [src/rpc/server.ts:817](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L817)
+**Source:** [src/rpc/server.ts:1032](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1032)
 
 ### `server.getTrustline(account, asset)`
 
@@ -1076,7 +1162,7 @@ server.getTrustline(accountId, asset).then((entry) => {
 
 - `getLedgerEntries docs`
 
-**Source:** [src/rpc/server.ts:265](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L265)
+**Source:** [src/rpc/server.ts:277](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L277)
 
 ### `server.getVersionInfo()`
 
@@ -1094,7 +1180,7 @@ the version info
 
 - https://developers.stellar.org/docs/data/rpc/api-reference/methods/getVersionInfo
 
-**Source:** [src/rpc/server.ts:1377](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1377)
+**Source:** [src/rpc/server.ts:1592](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1592)
 
 ### `server.pollTransaction(hash, opts)`
 
@@ -1134,7 +1220,7 @@ const txStatus = await server.pollTransaction(h, {
 }); // this will take 5,050 seconds to complete
 ```
 
-**Source:** [src/rpc/server.ts:710](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L710)
+**Source:** [src/rpc/server.ts:925](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L925)
 
 ### `server.prepareTransaction(tx)`
 
@@ -1223,7 +1309,65 @@ server.sendTransaction(transaction).then(result => {
 - - module:rpc.assembleTransaction
  - `simulateTransaction docs`
 
-**Source:** [src/rpc/server.ts:1133](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1133)
+**Source:** [src/rpc/server.ts:1348](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1348)
+
+### `server.queryContract(contractId, method, args, networkPassphrase)`
+
+Performs a read-only call to a contract method and returns the decoded result.
+
+This is a convenience wrapper for one-line contract state queries: it builds
+a `contract.Client` for the contract, simulates the method call, and
+returns the spec-decoded return value — no manual transaction assembly,
+signing, or submission required.
+
+Works for both Wasm contracts and built-in Stellar Asset Contracts (SACs):
+the embedded SAC spec is used automatically for SACs (see
+`contract.Client.from`). The query reuses this server's transport
+(headers, interceptors, `allowHttp`).
+
+```ts
+queryContract<T = any>(contractId: string, method: string, args: Record<string, unknown> = {}, networkPassphrase?: string): Promise<{ isReadCall: boolean; result: T }>;
+```
+
+**Parameters**
+
+- **`contractId`** — `string` (required) — the contract to query (`C...`)
+- **`method`** — `string` (required) — the contract method to call
+- **`args`** — `Record<string, unknown>` (optional) (default: `{}`) — named arguments for the method, keyed by parameter name
+     (omit for methods that take no arguments)
+- **`networkPassphrase`** — `string` (optional) — (optional) the network passphrase. If omitted, a
+     request about network information will be made (see `getNetwork`).
+     You can refer to `Networks` for a list of built-in passphrases,
+     e.g., `Networks.TESTNET`.
+
+**Returns**
+
+An object with the method's decoded return value (`result`) and
+   `isReadCall`: whether this specific call is a side-effect-free read that
+   needs no signature (it wrote no state and required no authorization).
+   `isReadCall` is per-call, not per-method: it reflects the given `args`.
+   Since `queryContract` never signs or sends, `isReadCall: false` means the
+   `result` is a simulation preview of a call that would change state.
+
+**Throws**
+
+- If the contract has no such method, or if the simulation fails.
+
+**Example**
+
+```ts
+const { result: decimals, isReadCall } = await server.queryContract<number>(
+  "CCJZ5DGASBWQXR5MPFCJXMBI333XE5U3FSJTNQU7RIKE3P5GN2K2WYD5",
+  "decimals",
+);
+const { result: balance } = await server.queryContract<bigint>(
+  "CCJZ5DGASBWQXR5MPFCJXMBI333XE5U3FSJTNQU7RIKE3P5GN2K2WYD5",
+  "balance",
+  { id: "GA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJVSGZ" },
+);
+```
+
+**Source:** [src/rpc/server.ts:714](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L714)
 
 ### `server.requestAirdrop(address, friendbotUrl)`
 
@@ -1273,7 +1417,7 @@ server
 - - `Friendbot docs`
  - `Friendbot.Api.Response`
 
-**Source:** [src/rpc/server.ts:1239](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1239)
+**Source:** [src/rpc/server.ts:1454](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1454)
 
 ### `server.sendTransaction(transaction)`
 
@@ -1334,7 +1478,7 @@ server.sendTransaction(transaction).then((result) => {
 - - `transaction docs`
  - `sendTransaction docs`
 
-**Source:** [src/rpc/server.ts:1188](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1188)
+**Source:** [src/rpc/server.ts:1403](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1403)
 
 ### `server.simulateTransaction(tx, addlResources, authMode)`
 
@@ -1400,7 +1544,7 @@ server.simulateTransaction(transaction).then((sim) => {
  - module:rpc.Server#prepareTransaction
  - module:rpc.assembleTransaction
 
-**Source:** [src/rpc/server.ts:1031](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1031)
+**Source:** [src/rpc/server.ts:1246](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1246)
 
 ## rpc.assembleTransaction
 
@@ -1605,6 +1749,95 @@ latestLedger: number;
 ```
 
 **Source:** [src/rpc/api.ts:415](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L415)
+
+### rpc.Api.ContractMethod
+
+A callable method declared in a contract's spec, as returned by
+`RpcServer.getContractMethods`.
+
+```ts
+interface ContractMethod {
+  doc?: string;
+  inputs: ContractMethodInput[];
+  name: string;
+  outputs: string[];
+}
+```
+
+**Source:** [src/rpc/api.ts:717](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L717)
+
+#### `contractMethod.doc`
+
+the method's spec doc string, when the contract declares one
+
+```ts
+doc?: string;
+```
+
+**Source:** [src/rpc/api.ts:725](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L725)
+
+#### `contractMethod.inputs`
+
+the method's parameters, in declaration order
+
+```ts
+inputs: ContractMethodInput[];
+```
+
+**Source:** [src/rpc/api.ts:721](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L721)
+
+#### `contractMethod.name`
+
+the on-chain method name
+
+```ts
+name: string;
+```
+
+**Source:** [src/rpc/api.ts:719](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L719)
+
+#### `contractMethod.outputs`
+
+human-readable return type name(s); empty when the method returns void
+
+```ts
+outputs: string[];
+```
+
+**Source:** [src/rpc/api.ts:723](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L723)
+
+### rpc.Api.ContractMethodInput
+
+A single input parameter of a `ContractMethod`.
+
+```ts
+interface ContractMethodInput {
+  name: string;
+  type: string;
+}
+```
+
+**Source:** [src/rpc/api.ts:706](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L706)
+
+#### `contractMethodInput.name`
+
+the declared parameter name
+
+```ts
+name: string;
+```
+
+**Source:** [src/rpc/api.ts:708](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L708)
+
+#### `contractMethodInput.type`
+
+a human-readable type name, e.g. `U32`, `Address`, or a UDT's name
+
+```ts
+type: string;
+```
+
+**Source:** [src/rpc/api.ts:710](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L710)
 
 ### rpc.Api.EventFilter
 

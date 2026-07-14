@@ -30,12 +30,18 @@ It is **not** for:
 - **Apps that let the SDK sign their contract calls** (the
   [`contract.Client`](/reference/contracts-client/#contractclient) flow from
   [Invoke a Contract](/guides/06-invoke-a-contract/),
-  [`basicNodeSigner`](/reference/contracts-client/#contractbasicnodesigner),
-  [`authorizeEntry`](/reference/core-soroban-primitives/#authorizeentry), or
-  [`authorizeInvocation`](/reference/core-soroban-primitives/#authorizeinvocation)).
+  [`basicNodeSigner`](/reference/contracts-client/#contractbasicnodesigner), or
+  [`authorizeEntry`](/reference/core-soroban-primitives/#authorizeentry)).
   **Bump to the Protocol 27 SDK and change nothing.** Those paths build the
   correct payload for whichever credential they are handed, so they sign `ADDRESS`
   today and `AddressV2` after the flip with no code change.
+- **Apps that build entries from scratch with
+  [`authorizeInvocation`](/reference/core-soroban-primitives/#authorizeinvocation).**
+  This is the exception: it *constructs* the credential rather than being handed
+  one, so it does not auto-flip. It builds legacy `ADDRESS` by default and emits
+  `AddressV2` only when you pass `authV2: true` (valid on Protocol 27+ networks).
+  See the [Protocol 27 auth guide](/guides/00-protocol-27-soroban-auth/) for the
+  opt-in flag.
 
 > **What Protocol 27 changes.** Protocol 27 introduces `AddressV2`, an
 > address-bound Soroban authorization credential
@@ -46,9 +52,7 @@ It is **not** for:
 > [Protocol 27 upgrade guide](https://stellar.org/blog/foundation-news/stellar-zipper-protocol-27-upgrade-guide)).
 > The signing path here builds the correct payload from whichever credential an
 > entry carries, so the same code is right on today's `ADDRESS` and on `AddressV2`
-> after the flip, with no change from you. It is verified against the Protocol 27
-> SDK: unit tests prove the same call signs both credentials, and a live testnet
-> test runs the delegated path end to end.
+> after the flip, with no change from you.
 
 ## Two signatures, not one
 
@@ -104,7 +108,7 @@ authorization entry that account must sign. Build the transaction as in
 need to sign:
 
 ```ts
-const tx = await (client as any).increment({ user: signer.publicKey(), value: 1 });
+const tx = await client.increment({ user: signer.publicKey(), value: 1 });
 
 tx.needsNonInvokerSigningBy(); // [signer.publicKey()]
 ```
@@ -214,6 +218,13 @@ const rpcUrl = "https://soroban-testnet.stellar.org";
 const networkPassphrase = Networks.TESTNET;
 const contractId = "C..."; // your deployed Auth contract (see Prerequisites)
 
+interface AuthContract {
+  increment: (
+    args: { user: string; value: number },
+    options?: contract.MethodOptions,
+  ) => Promise<contract.AssembledTransaction<number>>;
+}
+
 async function main() {
   const server = new rpc.Server(rpcUrl);
 
@@ -230,7 +241,7 @@ async function main() {
       source,
       networkPassphrase,
     );
-    const client = await contract.Client.from({
+    const client = await contract.Client.from<AuthContract>({
       contractId,
       rpcUrl,
       networkPassphrase,
@@ -239,7 +250,7 @@ async function main() {
     });
 
     // A call that requires `signer` (not the source) to authorize it.
-    const tx = await (client as any).increment({
+    const tx = await client.increment({
       user: signer.publicKey(),
       value: 1,
     });
