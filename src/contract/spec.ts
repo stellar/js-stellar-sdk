@@ -804,7 +804,8 @@ export class Spec {
           return xdr.ScVal.scvMap(entries);
         }
 
-        if (Object.prototype.toString.call(val) !== "[object Object]") {
+        const proto = Object.getPrototypeOf(val);
+        if (proto !== Object.prototype && proto !== null) {
           throw new TypeError(
             `cannot interpret ${
               val.constructor?.name
