@@ -24,7 +24,7 @@ A breaking change will get clearly marked in this log.
   `getResultCodes().operations` is always an array: Horizon omits the field
   for transaction-level failures (e.g. `tx_bad_seq`), and the accessor
   normalizes that to `[]`
-  ([#413](https://github.com/stellar/js-stellar-sdk/issues/413)).
+  ([#1526](https://github.com/stellar/js-stellar-sdk/pull/1526)).
 
 ### Changed
 - `Horizon.Server.submitTransaction` and `submitAsyncTransaction` now actually
@@ -38,13 +38,13 @@ A breaking change will get clearly marked in this log.
   message text differs and HTTP-client-specific fields (`headers`, `config`,
   `isAxiosError`) now live on the original error, which is preserved as
   `err.cause`. Genuine network errors (DNS, timeout, socket) still pass through
-  unwrapped ([#413](https://github.com/stellar/js-stellar-sdk/issues/413)).
+  unwrapped ([#1526](https://github.com/stellar/js-stellar-sdk/pull/1526)).
 - `HorizonApi.TransactionFailedExtras`: `result_codes.operations` is now typed
   as optional (`operations?: string[]`), matching what Horizon actually sends —
   it omits the field for transaction-level failures. TypeScript consumers
   reading it unguarded off the raw response may need a `?.`/default; use
   `TransactionFailedError.getResultCodes()` for an always-present array
-  ([#413](https://github.com/stellar/js-stellar-sdk/issues/413)).
+  ([#1526](https://github.com/stellar/js-stellar-sdk/pull/1526)).
 - `contract.Client.from` now supports built-in Stellar Asset Contracts (SACs): when the contract's executable is a SAC, the client is built from the embedded SAC spec (lazily imported so bundlers can code-split it out of the common path) instead of downloading Wasm, which a SAC has none of on-chain ([#1501](https://github.com/stellar/js-stellar-sdk/pull/1501)).
 - `rpc.Server.getContractWasmByContractId` now rejects a SAC with a structured `{ code: 400 }` error pointing to `contract.Client.from`, instead of failing while decoding a nonexistent Wasm hash; the not-found rejection is now `{ code: 404, message: "Could not obtain contract instance from server" }` ([#1501](https://github.com/stellar/js-stellar-sdk/pull/1501)).
 - The UMD (`dist/`) build now sets `inlineDynamicImports` so the single-file bundle stays whole despite the SAC spec's lazy `import()` ([#1501](https://github.com/stellar/js-stellar-sdk/pull/1501)).
