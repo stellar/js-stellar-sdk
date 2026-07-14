@@ -681,7 +681,9 @@ export namespace HorizonApi {
     envelope_xdr: string; // base64
     result_codes: {
       transaction: TransactionFailedResultCodes;
-      operations: string[];
+      /** Omitted by Horizon when the transaction failed a transaction-level
+       * check (e.g. `tx_bad_seq`) and no operations were evaluated. */
+      operations?: string[];
     };
     result_xdr: string;
   }

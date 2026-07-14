@@ -14,7 +14,37 @@ A breaking change will get clearly marked in this log.
 - `ClientOptions.server`: pass an existing `rpc.Server` to `contract.Client.from` to reuse its transport (headers, interceptors, `allowHttp`) instead of constructing a new one ([#1502](https://github.com/stellar/js-stellar-sdk/pull/1502)).
 - `Keypair.signMessage(message)` and `Keypair.verifyMessage(message, signature)`: sign and verify arbitrary messages per [SEP-53](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0053.md), for proving Stellar address ownership off-chain. The message (a UTF-8 string or `Buffer`) is prefixed with `"Stellar Signed Message:\n"`, SHA-256 hashed, and signed/verified with the keypair's ed25519 key — parity with the Python/Java SDKs and stellar-cli ([#1513](https://github.com/stellar/js-stellar-sdk/pull/1513)).
 
+- `TransactionFailedError`: raised by `Horizon.Server.submitTransaction` and
+  `submitAsyncTransaction` when Horizon rejects a transaction with result codes.
+  It extends `BadResponseError` and adds `getResultCodes()` (the
+  `{ transaction, operations }` codes, previously only reachable at
+  `err.response.data.extras.result_codes`) and `getTransactionResult()` (the
+  decoded `xdr.TransactionResult` from `extras.result_xdr`, or `null` if
+  absent), matching the Go SDK's `horizonclient.Error` ergonomics.
+  `getResultCodes().operations` is always an array: Horizon omits the field
+  for transaction-level failures (e.g. `tx_bad_seq`), and the accessor
+  normalizes that to `[]`
+  ([#413](https://github.com/stellar/js-stellar-sdk/issues/413)).
+
 ### Changed
+- `Horizon.Server.submitTransaction` and `submitAsyncTransaction` now actually
+  reject with SDK error types on HTTP failures, as long documented: a rejection
+  carrying Horizon result codes becomes a `TransactionFailedError`, and any
+  other HTTP error response (rate limit, server error, etc.) becomes a
+  `BadResponseError` with the standard `{ data, status, statusText }` response
+  shape. Previously the wrapping branch was unreachable — HTTP failures leaked
+  through as raw HTTP-client errors. Note for code inspecting these rejections:
+  `err.response.data` and `err.response.status` are unchanged, but the error
+  message text differs and HTTP-client-specific fields (`headers`, `config`,
+  `isAxiosError`) now live on the original error, which is preserved as
+  `err.cause`. Genuine network errors (DNS, timeout, socket) still pass through
+  unwrapped ([#413](https://github.com/stellar/js-stellar-sdk/issues/413)).
+- `HorizonApi.TransactionFailedExtras`: `result_codes.operations` is now typed
+  as optional (`operations?: string[]`), matching what Horizon actually sends —
+  it omits the field for transaction-level failures. TypeScript consumers
+  reading it unguarded off the raw response may need a `?.`/default; use
+  `TransactionFailedError.getResultCodes()` for an always-present array
+  ([#413](https://github.com/stellar/js-stellar-sdk/issues/413)).
 - `contract.Client.from` now supports built-in Stellar Asset Contracts (SACs): when the contract's executable is a SAC, the client is built from the embedded SAC spec (lazily imported so bundlers can code-split it out of the common path) instead of downloading Wasm, which a SAC has none of on-chain ([#1501](https://github.com/stellar/js-stellar-sdk/pull/1501)).
 - `rpc.Server.getContractWasmByContractId` now rejects a SAC with a structured `{ code: 400 }` error pointing to `contract.Client.from`, instead of failing while decoding a nonexistent Wasm hash; the not-found rejection is now `{ code: 404, message: "Could not obtain contract instance from server" }` ([#1501](https://github.com/stellar/js-stellar-sdk/pull/1501)).
 - The UMD (`dist/`) build now sets `inlineDynamicImports` so the single-file bundle stays whole despite the SAC spec's lazy `import()` ([#1501](https://github.com/stellar/js-stellar-sdk/pull/1501)).

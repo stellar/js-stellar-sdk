@@ -380,4 +380,141 @@ describe("server.js transaction tests", () => {
       skipMemoRequiredCheck: true,
     });
   });
+
+  describe("submission failures", () => {
+    const { xdr } = StellarSdk;
+
+    function failedTxResult() {
+      return new xdr.TransactionResult({
+        feeCharged: new xdr.Int64(100),
+        result: xdr.TransactionResultResult.txFailed([
+          xdr.OperationResult.opInner(
+            xdr.OperationResultTr.payment(
+              xdr.PaymentResult.paymentUnderfunded(),
+            ),
+          ),
+        ]),
+        ext: new (xdr.TransactionResultExt as any)(0),
+      });
+    }
+
+    function httpError(status: number, statusText: string, data: any) {
+      // shape produced by the http client for non-2xx responses
+      return Object.assign(
+        new Error(`Request failed with status code ${status}`),
+        { response: { status, statusText, data } },
+      );
+    }
+
+    it("rejects with TransactionFailedError exposing result codes and decoded result", async () => {
+      const txResult = failedTxResult();
+      mockPost.mockImplementation(() =>
+        Promise.reject(
+          httpError(400, "Bad Request", {
+            status: 400,
+            title: "Transaction Failed",
+            extras: {
+              envelope_xdr: "AAAA...",
+              result_codes: {
+                transaction: "tx_failed",
+                operations: ["op_underfunded"],
+              },
+              result_xdr: txResult.toXDR("base64"),
+            },
+          }),
+        ),
+      );
+
+      const err = await server
+        .submitTransaction(transaction, { skipMemoRequiredCheck: true })
+        .then(
+          () => Promise.reject(new Error("expected rejection")),
+          (e: any) => e,
+        );
+
+      expect(err).toBeInstanceOf(StellarSdk.TransactionFailedError);
+      expect(err).toBeInstanceOf(StellarSdk.BadResponseError);
+      expect(err.getResultCodes()).toEqual({
+        transaction: "tx_failed",
+        operations: ["op_underfunded"],
+      });
+
+      const decoded = err.getTransactionResult();
+      expect(decoded).toBeInstanceOf(xdr.TransactionResult);
+      expect(decoded.result().switch().name).toEqual("txFailed");
+      expect(
+        decoded.result().results()[0].tr().paymentResult().switch().name,
+      ).toEqual("paymentUnderfunded");
+      expect(err.response.status).toEqual(400);
+      expect(err.cause).toBeInstanceOf(Error);
+      expect(err.cause.response.statusText).toEqual("Bad Request");
+    });
+
+    it("rejects with BadResponseError for HTTP errors without result codes", async () => {
+      mockPost.mockImplementation(() =>
+        Promise.reject(
+          httpError(429, "Too Many Requests", {
+            status: 429,
+            title: "Rate Limit Exceeded",
+          }),
+        ),
+      );
+
+      const err = await server
+        .submitTransaction(transaction, { skipMemoRequiredCheck: true })
+        .then(
+          () => Promise.reject(new Error("expected rejection")),
+          (e: any) => e,
+        );
+
+      expect(err).toBeInstanceOf(StellarSdk.BadResponseError);
+      expect(err).not.toBeInstanceOf(StellarSdk.TransactionFailedError);
+      expect(err.response.status).toEqual(429);
+      expect(err.response.data.title).toEqual("Rate Limit Exceeded");
+    });
+
+    it("passes through non-HTTP errors untouched", async () => {
+      const netErr = new Error("socket hang up");
+      mockPost.mockImplementation(() => Promise.reject(netErr));
+
+      const err = await server
+        .submitTransaction(transaction, { skipMemoRequiredCheck: true })
+        .then(
+          () => Promise.reject(new Error("expected rejection")),
+          (e: any) => e,
+        );
+
+      expect(err).toBe(netErr);
+    });
+
+    it("wraps async submission failures the same way", async () => {
+      mockPost.mockImplementation(() =>
+        Promise.reject(
+          httpError(400, "Bad Request", {
+            status: 400,
+            title: "Transaction Failed",
+            extras: {
+              envelope_xdr: "AAAA...",
+              // Horizon omits `operations` for transaction-level failures
+              result_codes: { transaction: "tx_bad_seq" },
+              result_xdr: failedTxResult().toXDR("base64"),
+            },
+          }),
+        ),
+      );
+
+      const err = await server
+        .submitAsyncTransaction(transaction, { skipMemoRequiredCheck: true })
+        .then(
+          () => Promise.reject(new Error("expected rejection")),
+          (e: any) => e,
+        );
+
+      expect(err).toBeInstanceOf(StellarSdk.TransactionFailedError);
+      expect(err.getResultCodes()).toEqual({
+        transaction: "tx_bad_seq",
+        operations: [],
+      });
+    });
+  });
 });
