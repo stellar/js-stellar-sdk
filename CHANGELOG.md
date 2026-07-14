@@ -6,6 +6,22 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Added
+
+- `Spec.nativeToScVal` now supports contract parameters typed as `Val`
+  (`scSpecTypeVal`) by delegating to the generic `nativeToScVal` converter, so
+  raw JS values (strings, numbers, bigints, booleans, arrays, `Map`s, plain
+  objects, `Address`/`Contract`, byte arrays, `undefined`/`null`) can be passed
+  to `Val`-typed contract arguments without manually constructing `xdr.ScVal`
+  objects. ([#1485])
+
+### Fixed
+
+- `Spec.nativeToScVal` no longer misclassifies plain objects that have a
+  `constructor` key, and handles null-prototype objects
+  (`Object.create(null)`); non-plain class instances now consistently get the
+  descriptive `cannot interpret ... value as ScVal` error. ([#1485])
+
 ## [v16.0.0](https://github.com/stellar/js-stellar-sdk/compare/v15.1.0...v16.0.0)
 
 There are a few major updates in this release:
@@ -287,6 +303,7 @@ build the SDK from source or maintain forks.
 [#1408]: https://github.com/stellar/js-stellar-sdk/pull/1408
 [#1429]: https://github.com/stellar/js-stellar-sdk/pull/1429
 [#1450]: https://github.com/stellar/js-stellar-sdk/pull/1450
+[#1485]: https://github.com/stellar/js-stellar-sdk/pull/1485
 [#1478]: https://github.com/stellar/js-stellar-sdk/pull/1478
 
 ## [v16.0.0-rc.2](https://github.com/stellar/js-stellar-sdk/compare/v16.0.0-rc.1...v16.0.0-rc.2)
