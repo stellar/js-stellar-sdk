@@ -954,6 +954,10 @@ nativeToScVal(val: unknown, opts: NativeToScValOpts = {}): ScVal
         for the key and the value), where `null` (or a missing entry) indicates
         the default interpretation(s) (refer to the examples, below)
   
+      - when `val` is a `Map`, this can be a `[keyType, valType]` pair applied
+        to every entry, or (when all keys are strings) the same per-key spec
+        object used for plain objects
+  
       - when `val` is a string type, this can be 'string' or 'symbol' to force
         a particular interpretation of `val`.
   
@@ -1050,7 +1054,7 @@ scValToNative(scv) == gigaMap;       // true
 
 - scValToNative
 
-**Source:** [src/base/scval.ts:161](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L161)
+**Source:** [src/base/scval.ts:165](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L165)
 
 ## scValToNative
 
@@ -1084,7 +1088,7 @@ scValToNative(scv: ScVal): any
 
 - nativeToScVal
 
-**Source:** [src/base/scval.ts:388](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L388)
+**Source:** [src/base/scval.ts:424](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L424)
 
 ## scvSortedMap
 
@@ -1098,7 +1102,7 @@ scvSortedMap(items: ScMapEntry[]): ScVal
 
 - **`items`** — `ScMapEntry[]` (required) — the unsorted map entries
 
-**Source:** [src/base/scval.ts:500](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L500)
+**Source:** [src/base/scval.ts:536](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L536)
 
 ## walkInvocationTree
 

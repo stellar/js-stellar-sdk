@@ -69,6 +69,10 @@ export interface NativeToScValOpts {
  *       for the key and the value), where `null` (or a missing entry) indicates
  *       the default interpretation(s) (refer to the examples, below)
  *
+ *     - when `val` is a `Map`, this can be a `[keyType, valType]` pair applied
+ *       to every entry, or (when all keys are strings) the same per-key spec
+ *       object used for plain objects
+ *
  *     - when `val` is a string type, this can be 'string' or 'symbol' to force
  *       a particular interpretation of `val`.
  *
@@ -225,12 +229,44 @@ export function nativeToScVal(
       }
 
       if (val instanceof Map) {
+        // For Maps, `opts.type` can take two forms:
+        //  - a `[keyType, valType]` pair applied to every entry (keys need not
+        //    be strings, so a per-key spec can't address them), or
+        //  - a per-key spec object (like the plain-object form below), which
+        //    only makes sense when the Map's keys are strings.
+        let uniformKeyType: ScValType | null = null;
+        let uniformValType: ScValType | null = null;
+        let perKeySpec: ScValMapTypeSpec | null = null;
+        if (Array.isArray(opts.type)) {
+          if (opts.type.length > 2) {
+            throw new TypeError(
+              `expected a [keyType, valType] pair for a Map, got ${JSON.stringify(opts.type)}`,
+            );
+          }
+          [uniformKeyType = null, uniformValType = null] = opts.type;
+        } else if (typeof opts.type === "object" && opts.type !== null) {
+          perKeySpec = opts.type;
+        } else if (opts.type !== undefined) {
+          throw new TypeError(
+            `invalid type (${JSON.stringify(opts.type)}) specified for a Map`,
+          );
+        }
+
         const entries: xdr.ScMapEntry[] = [];
         for (const [k, v] of val) {
+          let keyType = uniformKeyType;
+          let valType = uniformValType;
+          if (
+            perKeySpec &&
+            typeof k === "string" &&
+            Object.hasOwn(perKeySpec, k)
+          ) {
+            [keyType = null, valType = null] = perKeySpec[k] ?? [];
+          }
           entries.push(
             new xdr.ScMapEntry({
-              key: nativeToScVal(k),
-              val: nativeToScVal(v),
+              key: nativeToScVal(k, keyType ? { type: keyType } : {}),
+              val: nativeToScVal(v, valType ? { type: valType } : {}),
             }),
           );
         }

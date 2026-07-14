@@ -365,6 +365,84 @@ describe("parsing and building ScVals - from scval_test.js", () => {
 // ---------------------------------------------------------------------------
 // nativeToScVal
 // ---------------------------------------------------------------------------
+describe("nativeToScVal with Maps", () => {
+  it("converts a string-keyed Map to a sorted scvMap", () => {
+    const scv = nativeToScVal(
+      new Map([
+        ["b", 2],
+        ["a", 1],
+      ]),
+    );
+    expect(scv.switch().name).toBe("scvMap");
+    const entries = scv.map()!;
+    expect(entries.map((e) => e.key().str().toString())).toEqual(["a", "b"]);
+    expect(entries.map((e) => Number(e.val().u64()))).toEqual([1, 2]);
+  });
+
+  it("converts an empty Map", () => {
+    const scv = nativeToScVal(new Map());
+    expect(scv.switch().name).toBe("scvMap");
+    expect(scv.map()).toEqual([]);
+  });
+
+  it("converts a Map subclass", () => {
+    class MyMap extends Map {}
+    const scv = nativeToScVal(new MyMap([["a", 1]]));
+    expect(scv.switch().name).toBe("scvMap");
+  });
+
+  it("applies a uniform [keyType, valType] pair", () => {
+    const scv = nativeToScVal(
+      new Map([
+        ["a", 1],
+        ["b", 2],
+      ]),
+      { type: ["symbol", "u32"] },
+    );
+    const entries = scv.map()!;
+    entries.forEach((e) => {
+      expect(e.key().switch().name).toBe("scvSymbol");
+      expect(e.val().switch().name).toBe("scvU32");
+    });
+  });
+
+  it("allows a partial pair", () => {
+    const scv = nativeToScVal(new Map([["a", 1]]), { type: ["symbol"] });
+    const entries = scv.map()!;
+    expect(entries[0].key().switch().name).toBe("scvSymbol");
+    expect(entries[0].val().switch().name).toBe("scvU64");
+  });
+
+  it("applies a per-key spec for string-keyed Maps", () => {
+    const scv = nativeToScVal(
+      new Map<string, number>([
+        ["a", 1],
+        ["b", 2],
+      ]),
+      { type: { a: ["symbol", "u32"] } },
+    );
+    const entries = scv.map()!;
+    const a = entries.find((e) => e.key().switch().name === "scvSymbol")!;
+    const b = entries.find((e) => e.key().switch().name === "scvString")!;
+    expect(a.val().switch().name).toBe("scvU32");
+    expect(b.val().switch().name).toBe("scvU64");
+  });
+
+  it("throws on a string type spec for a Map", () => {
+    expect(() =>
+      nativeToScVal(new Map([["a", 1]]), { type: "symbol" }),
+    ).toThrow(/invalid type/i);
+  });
+
+  it("throws on a too-long tuple spec", () => {
+    expect(() =>
+      nativeToScVal(new Map([["a", 1]]), {
+        type: ["symbol", "u32", "u32"],
+      }),
+    ).toThrow(/keyType, valType/);
+  });
+});
+
 describe("nativeToScVal", () => {
   it("converts number to u32", () => {
     const scv = nativeToScVal(42, { type: "u32" });
@@ -1075,10 +1153,6 @@ describe("nativeToScVal", () => {
       expect(() => nativeToScVal(new Date() as any)).toThrow(
         /cannot interpret/,
       );
-    });
-
-    it("throws on Map objects", () => {
-      expect(() => nativeToScVal(new Map() as any)).toThrow(/cannot interpret/);
     });
 
     it("throws on Set objects", () => {
