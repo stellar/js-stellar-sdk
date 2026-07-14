@@ -376,7 +376,7 @@ class Server {
 }
 ```
 
-**Source:** [src/horizon/server.ts:70](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L70)
+**Source:** [src/horizon/server.ts:95](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L95)
 
 ### `new Server(serverURL, opts)`
 
@@ -389,7 +389,7 @@ constructor(serverURL: string, opts: Options = {});
 - **`serverURL`** — `string` (required)
 - **`opts`** — `Options` (optional) (default: `{}`)
 
-**Source:** [src/horizon/server.ts:95](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L95)
+**Source:** [src/horizon/server.ts:120](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L120)
 
 ### `server.httpClient`
 
@@ -413,7 +413,7 @@ server.httpClient.interceptors.request.use((config) => {
 });
 ```
 
-**Source:** [src/horizon/server.ts:94](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L94)
+**Source:** [src/horizon/server.ts:119](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L119)
 
 ### `server.serverURL`
 
@@ -425,7 +425,7 @@ TODO: Solve `this.serverURL`.
 readonly serverURL: URL;
 ```
 
-**Source:** [src/horizon/server.ts:76](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L76)
+**Source:** [src/horizon/server.ts:101](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L101)
 
 ### `server.accounts()`
 
@@ -451,7 +451,7 @@ New `AccountCallBuilder` object configured by a current Horizon server configura
 - `sponsor(id: string): this` — This endpoint filters accounts where the given account is sponsoring the account or any of its sub-entries..
 - `stream(options: EventSourceOptions<AccountRecord> = {}): () => void` — Creates an EventSource that listens for incoming messages from the server.
 
-**Source:** [src/horizon/server.ts:601](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L601)
+**Source:** [src/horizon/server.ts:606](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L606)
 
 ### `server.assets()`
 
@@ -477,7 +477,7 @@ New AssetsCallBuilder instance
 - `order(direction: "asc" | "desc"): this` — Sets `order` parameter for the current call.
 - `stream(options: EventSourceOptions<AssetRecord> = {}): () => void` — Creates an EventSource that listens for incoming messages from the server.
 
-**Source:** [src/horizon/server.ts:783](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L783)
+**Source:** [src/horizon/server.ts:788](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L788)
 
 ### `server.checkMemoRequired(transaction)`
 
@@ -508,7 +508,7 @@ requires a memo, the promise will throw `AccountRequiresMemoError`.
 
 - `SEP-29: Account Memo Requirements`
 
-**Source:** [src/horizon/server.ts:849](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L849)
+**Source:** [src/horizon/server.ts:854](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L854)
 
 ### `server.claimableBalances()`
 
@@ -533,7 +533,7 @@ New `ClaimableBalanceCallBuilder` object configured by a current Horizon server 
 - `sponsor(sponsor: string): this` — Returns all claimable balances which are sponsored by the given account ID.
 - `stream(options: EventSourceOptions<ClaimableBalanceRecord> = {}): () => void` — Creates an EventSource that listens for incoming messages from the server.
 
-**Source:** [src/horizon/server.ts:608](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L608)
+**Source:** [src/horizon/server.ts:613](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L613)
 
 ### `server.effects()`
 
@@ -560,7 +560,7 @@ Horizon server configuration
 - `order(direction: "asc" | "desc"): this` — Sets `order` parameter for the current call.
 - `stream(options: EventSourceOptions<EffectRecord> = {}): () => void` — Creates an EventSource that listens for incoming messages from the server.
 
-**Source:** [src/horizon/server.ts:765](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L765)
+**Source:** [src/horizon/server.ts:770](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L770)
 
 ### `server.feeStats()`
 
@@ -578,7 +578,7 @@ Promise that resolves to the fee stats returned by Horizon.
 
 - `Fee Stats`
 
-**Source:** [src/horizon/server.ts:204](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L204)
+**Source:** [src/horizon/server.ts:229](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L229)
 
 ### `server.fetchBaseFee()`
 
@@ -594,7 +594,7 @@ fetchBaseFee(): Promise<number>;
 
 Promise that resolves to the base fee.
 
-**Source:** [src/horizon/server.ts:193](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L193)
+**Source:** [src/horizon/server.ts:218](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L218)
 
 ### `server.fetchTimebounds(seconds, _isRetry)`
 
@@ -637,7 +637,7 @@ const transaction = new StellarSdk.TransactionBuilder(accountId, {
   .build();
 ```
 
-**Source:** [src/horizon/server.ts:155](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L155)
+**Source:** [src/horizon/server.ts:180](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L180)
 
 ### `server.friendbot(address)`
 
@@ -663,7 +663,7 @@ Horizon server configuration
 - `order(direction: "asc" | "desc"): this` — Sets `order` parameter for the current call.
 - `stream(options: EventSourceOptions<any> = {}): () => void` — Creates an EventSource that listens for incoming messages from the server.
 
-**Source:** [src/horizon/server.ts:774](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L774)
+**Source:** [src/horizon/server.ts:779](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L779)
 
 ### `server.ledgers()`
 
@@ -685,7 +685,7 @@ New `LedgerCallBuilder` object configured by a current Horizon server configurat
 - `order(direction: "asc" | "desc"): this` — Sets `order` parameter for the current call.
 - `stream(options: EventSourceOptions<LedgerRecord> = {}): () => void` — Creates an EventSource that listens for incoming messages from the server.
 
-**Source:** [src/horizon/server.ts:615](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L615)
+**Source:** [src/horizon/server.ts:620](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L620)
 
 ### `server.liquidityPools()`
 
@@ -710,7 +710,7 @@ New `LiquidityPoolCallBuilder`
 - `order(direction: "asc" | "desc"): this` — Sets `order` parameter for the current call.
 - `stream(options: EventSourceOptions<LiquidityPoolRecord> = {}): () => void` — Creates an EventSource that listens for incoming messages from the server.
 
-**Source:** [src/horizon/server.ts:680](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L680)
+**Source:** [src/horizon/server.ts:685](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L685)
 
 ### `server.loadAccount(accountId)`
 
@@ -730,7 +730,7 @@ loadAccount(accountId: string): Promise<AccountResponse>;
 Returns a promise to the `AccountResponse` object
 with populated sequence number.
 
-**Source:** [src/horizon/server.ts:796](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L796)
+**Source:** [src/horizon/server.ts:801](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L801)
 
 ### `server.offers()`
 
@@ -771,7 +771,7 @@ server.offers()
 - `sponsor(id: string): this` — This endpoint filters offers where the given account is sponsoring the offer entry.
 - `stream(options: EventSourceOptions<OfferRecord> = {}): () => void` — Creates an EventSource that listens for incoming messages from the server.
 
-**Source:** [src/horizon/server.ts:642](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L642)
+**Source:** [src/horizon/server.ts:647](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L647)
 
 ### `server.operations()`
 
@@ -799,7 +799,7 @@ New `OperationCallBuilder` object configured by a current Horizon server configu
 - `order(direction: "asc" | "desc"): this` — Sets `order` parameter for the current call.
 - `stream(options: EventSourceOptions<OperationRecord> = {}): () => void` — Creates an EventSource that listens for incoming messages from the server.
 
-**Source:** [src/horizon/server.ts:672](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L672)
+**Source:** [src/horizon/server.ts:677](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L677)
 
 ### `server.orderbook(selling, buying)`
 
@@ -825,7 +825,7 @@ New `OrderbookCallBuilder` object configured by a current Horizon server configu
 - `order(direction: "asc" | "desc"): this` — Sets `order` parameter for the current call.
 - `stream(options: EventSourceOptions<OrderbookRecord> = {}): () => void` — Creates an EventSource that listens for incoming messages from the server.
 
-**Source:** [src/horizon/server.ts:651](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L651)
+**Source:** [src/horizon/server.ts:656](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L656)
 
 ### `server.payments()`
 
@@ -851,7 +851,7 @@ Horizon server configuration.
 - `order(direction: "asc" | "desc"): this` — Sets `order` parameter for the current call.
 - `stream(options: EventSourceOptions<CreateAccountOperationRecord | PaymentOperationRecord | PathPaymentOperationRecord | AccountMergeOperationRecord | PathPaymentStrictSendOperationRecord | InvokeHostFunctionOperationRecord> = {}): () => void` — Creates an EventSource that listens for incoming messages from the server.
 
-**Source:** [src/horizon/server.ts:757](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L757)
+**Source:** [src/horizon/server.ts:762](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L762)
 
 ### `server.root()`
 
@@ -865,7 +865,7 @@ root(): Promise<RootResponse>;
 
 Promise that resolves to the root endpoint returned by Horizon.
 
-**Source:** [src/horizon/server.ts:217](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L217)
+**Source:** [src/horizon/server.ts:242](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L242)
 
 ### `server.strictReceivePaths(source, destinationAsset, destinationAmount)`
 
@@ -912,7 +912,7 @@ New `StrictReceivePathCallBuilder` object configured with the current Horizon se
 - `order(direction: "asc" | "desc"): this` — Sets `order` parameter for the current call.
 - `stream(options: EventSourceOptions<PaymentPathRecord> = {}): () => void` — Creates an EventSource that listens for incoming messages from the server.
 
-**Source:** [src/horizon/server.ts:710](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L710)
+**Source:** [src/horizon/server.ts:715](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L715)
 
 ### `server.strictSendPaths(sourceAsset, sourceAmount, destination)`
 
@@ -948,7 +948,7 @@ New `StrictSendPathCallBuilder` object configured with the current Horizon serve
 - `order(direction: "asc" | "desc"): this` — Sets `order` parameter for the current call.
 - `stream(options: EventSourceOptions<PaymentPathRecord> = {}): () => void` — Creates an EventSource that listens for incoming messages from the server.
 
-**Source:** [src/horizon/server.ts:739](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L739)
+**Source:** [src/horizon/server.ts:744](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L744)
 
 ### `server.submitAsyncTransaction(transaction, opts)`
 
@@ -980,7 +980,7 @@ horizon.
 
 - [Submit-Async-Transaction](https://developers.stellar.org/docs/data/horizon/api-reference/resources/submit-async-transaction)
 
-**Source:** [src/horizon/server.ts:559](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L559)
+**Source:** [src/horizon/server.ts:574](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L574)
 
 ### `server.submitTransaction(transaction, opts)`
 
@@ -1099,7 +1099,7 @@ const res = {
 
 - `Submit a Transaction`
 
-**Source:** [src/horizon/server.ts:328](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L328)
+**Source:** [src/horizon/server.ts:353](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L353)
 
 ### `server.tradeAggregation(base, counter, start_time, end_time, resolution, offset)`
 
@@ -1130,7 +1130,7 @@ New TradeAggregationCallBuilder instance
 - `order(direction: "asc" | "desc"): this` — Sets `order` parameter for the current call.
 - `stream(options: EventSourceOptions<TradeAggregationRecord> = {}): () => void` — Creates an EventSource that listens for incoming messages from the server.
 
-**Source:** [src/horizon/server.ts:813](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L813)
+**Source:** [src/horizon/server.ts:818](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L818)
 
 ### `server.trades()`
 
@@ -1158,7 +1158,7 @@ New `TradesCallBuilder` object configured by a current Horizon server configurat
 - `order(direction: "asc" | "desc"): this` — Sets `order` parameter for the current call.
 - `stream(options: EventSourceOptions<TradeRecord> = {}): () => void` — Creates an EventSource that listens for incoming messages from the server.
 
-**Source:** [src/horizon/server.ts:665](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L665)
+**Source:** [src/horizon/server.ts:670](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L670)
 
 ### `server.transactions()`
 
@@ -1185,7 +1185,7 @@ New `TransactionCallBuilder` object configured by a current Horizon server confi
 - `stream(options: EventSourceOptions<TransactionRecord> = {}): () => void` — Creates an EventSource that listens for incoming messages from the server.
 - `transaction(transactionId: string): CallBuilder<TransactionRecord>` — The transaction details endpoint provides information on a single transaction.
 
-**Source:** [src/horizon/server.ts:622](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L622)
+**Source:** [src/horizon/server.ts:627](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L627)
 
 ## Horizon.ServerApi.EffectType
 
@@ -5849,7 +5849,7 @@ interface RootResponse {
 }
 ```
 
-**Source:** [src/horizon/horizon_api.ts:689](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L689)
+**Source:** [src/horizon/horizon_api.ts:691](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L691)
 
 #### `rootResponse.core_latest_ledger`
 
@@ -5857,7 +5857,7 @@ interface RootResponse {
 core_latest_ledger: number;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:696](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L696)
+**Source:** [src/horizon/horizon_api.ts:698](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L698)
 
 #### `rootResponse.core_supported_protocol_version`
 
@@ -5865,7 +5865,7 @@ core_latest_ledger: number;
 core_supported_protocol_version: number;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:700](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L700)
+**Source:** [src/horizon/horizon_api.ts:702](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L702)
 
 #### `rootResponse.core_version`
 
@@ -5873,7 +5873,7 @@ core_supported_protocol_version: number;
 core_version: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:691](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L691)
+**Source:** [src/horizon/horizon_api.ts:693](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L693)
 
 #### `rootResponse.current_protocol_version`
 
@@ -5881,7 +5881,7 @@ core_version: string;
 current_protocol_version: number;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:698](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L698)
+**Source:** [src/horizon/horizon_api.ts:700](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L700)
 
 #### `rootResponse.history_elder_ledger`
 
@@ -5889,7 +5889,7 @@ current_protocol_version: number;
 history_elder_ledger: number;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:695](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L695)
+**Source:** [src/horizon/horizon_api.ts:697](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L697)
 
 #### `rootResponse.history_latest_ledger`
 
@@ -5897,7 +5897,7 @@ history_elder_ledger: number;
 history_latest_ledger: number;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:693](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L693)
+**Source:** [src/horizon/horizon_api.ts:695](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L695)
 
 #### `rootResponse.history_latest_ledger_closed_at`
 
@@ -5905,7 +5905,7 @@ history_latest_ledger: number;
 history_latest_ledger_closed_at: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:694](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L694)
+**Source:** [src/horizon/horizon_api.ts:696](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L696)
 
 #### `rootResponse.horizon_version`
 
@@ -5913,7 +5913,7 @@ history_latest_ledger_closed_at: string;
 horizon_version: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:690](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L690)
+**Source:** [src/horizon/horizon_api.ts:692](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L692)
 
 #### `rootResponse.ingest_latest_ledger`
 
@@ -5921,7 +5921,7 @@ horizon_version: string;
 ingest_latest_ledger: number;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:692](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L692)
+**Source:** [src/horizon/horizon_api.ts:694](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L694)
 
 #### `rootResponse.network_passphrase`
 
@@ -5929,7 +5929,7 @@ ingest_latest_ledger: number;
 network_passphrase: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:697](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L697)
+**Source:** [src/horizon/horizon_api.ts:699](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L699)
 
 #### `rootResponse.supported_protocol_version`
 
@@ -5937,7 +5937,7 @@ network_passphrase: string;
 supported_protocol_version: number;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:699](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L699)
+**Source:** [src/horizon/horizon_api.ts:701](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L701)
 
 ### Horizon.HorizonApi.SetOptionsOperationResponse
 
@@ -6385,7 +6385,7 @@ successful: boolean;
 ```ts
 interface TransactionFailedExtras {
   envelope_xdr: string;
-  result_codes: { operations: string[]; transaction: TransactionFailedResultCodes };
+  result_codes: { operations?: string[]; transaction: TransactionFailedResultCodes };
   result_xdr: string;
 }
 ```
@@ -6403,7 +6403,7 @@ envelope_xdr: string;
 #### `transactionFailedExtras.result_codes`
 
 ```ts
-result_codes: { operations: string[]; transaction: TransactionFailedResultCodes };
+result_codes: { operations?: string[]; transaction: TransactionFailedResultCodes };
 ```
 
 **Source:** [src/horizon/horizon_api.ts:682](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L682)
@@ -6414,7 +6414,7 @@ result_codes: { operations: string[]; transaction: TransactionFailedResultCodes 
 result_xdr: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:686](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L686)
+**Source:** [src/horizon/horizon_api.ts:688](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L688)
 
 ### Horizon.HorizonApi.TransactionFailedResultCodes
 
@@ -6879,7 +6879,7 @@ interface Options {
 }
 ```
 
-**Source:** [src/horizon/server.ts:916](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L916)
+**Source:** [src/horizon/server.ts:921](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L921)
 
 #### `options.allowHttp`
 
@@ -6889,7 +6889,7 @@ Allow connecting to http servers, default: `false`. This must be set to false in
 allowHttp?: boolean;
 ```
 
-**Source:** [src/horizon/server.ts:918](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L918)
+**Source:** [src/horizon/server.ts:923](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L923)
 
 #### `options.appName`
 
@@ -6899,7 +6899,7 @@ Allow set custom header `X-App-Name`, default: `undefined`.
 appName?: string;
 ```
 
-**Source:** [src/horizon/server.ts:920](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L920)
+**Source:** [src/horizon/server.ts:925](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L925)
 
 #### `options.appVersion`
 
@@ -6909,7 +6909,7 @@ Allow set custom header `X-App-Version`, default: `undefined`.
 appVersion?: string;
 ```
 
-**Source:** [src/horizon/server.ts:922](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L922)
+**Source:** [src/horizon/server.ts:927](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L927)
 
 #### `options.authToken`
 
@@ -6919,7 +6919,7 @@ Allow set custom header `X-Auth-Token`, default: `undefined`.
 authToken?: string;
 ```
 
-**Source:** [src/horizon/server.ts:924](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L924)
+**Source:** [src/horizon/server.ts:929](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L929)
 
 #### `options.headers`
 
@@ -6927,7 +6927,7 @@ authToken?: string;
 headers?: Record<string, string>;
 ```
 
-**Source:** [src/horizon/server.ts:925](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L925)
+**Source:** [src/horizon/server.ts:930](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L930)
 
 ### Horizon.Server.SubmitTransactionOptions
 
@@ -6937,7 +6937,7 @@ interface SubmitTransactionOptions {
 }
 ```
 
-**Source:** [src/horizon/server.ts:933](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L933)
+**Source:** [src/horizon/server.ts:938](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L938)
 
 #### `submitTransactionOptions.skipMemoRequiredCheck`
 
@@ -6945,7 +6945,7 @@ interface SubmitTransactionOptions {
 skipMemoRequiredCheck?: boolean;
 ```
 
-**Source:** [src/horizon/server.ts:934](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L934)
+**Source:** [src/horizon/server.ts:939](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L939)
 
 ### Horizon.Server.Timebounds
 
@@ -6956,7 +6956,7 @@ interface Timebounds {
 }
 ```
 
-**Source:** [src/horizon/server.ts:928](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L928)
+**Source:** [src/horizon/server.ts:933](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L933)
 
 #### `timebounds.maxTime`
 
@@ -6964,7 +6964,7 @@ interface Timebounds {
 maxTime: number;
 ```
 
-**Source:** [src/horizon/server.ts:930](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L930)
+**Source:** [src/horizon/server.ts:935](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L935)
 
 #### `timebounds.minTime`
 
@@ -6972,7 +6972,7 @@ maxTime: number;
 minTime: number;
 ```
 
-**Source:** [src/horizon/server.ts:929](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L929)
+**Source:** [src/horizon/server.ts:934](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L934)
 
 ### Horizon.ServerApi.AccountMergeOperationRecord
 
