@@ -450,6 +450,31 @@ describe("server.js transaction tests", () => {
       expect(err.cause.response.statusText).toEqual("Bad Request");
     });
 
+    it("getTransactionResult() returns null when result_xdr is absent", async () => {
+      mockPost.mockImplementation(() =>
+        Promise.reject(
+          httpError(400, "Bad Request", {
+            status: 400,
+            title: "Transaction Failed",
+            extras: {
+              envelope_xdr: "AAAA...",
+              result_codes: { transaction: "tx_bad_seq" },
+            },
+          }),
+        ),
+      );
+
+      const err = await server
+        .submitTransaction(transaction, { skipMemoRequiredCheck: true })
+        .then(
+          () => Promise.reject(new Error("expected rejection")),
+          (e: any) => e,
+        );
+
+      expect(err).toBeInstanceOf(StellarSdk.TransactionFailedError);
+      expect(err.getTransactionResult()).toBeNull();
+    });
+
     it("rejects with BadResponseError for HTTP errors without result codes", async () => {
       mockPost.mockImplementation(() =>
         Promise.reject(

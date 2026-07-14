@@ -39,11 +39,9 @@ A breaking change will get clearly marked in this log.
   `isAxiosError`) now live on the original error, which is preserved as
   `err.cause`. Genuine network errors (DNS, timeout, socket) still pass through
   unwrapped ([#1526](https://github.com/stellar/js-stellar-sdk/pull/1526)).
-- `HorizonApi.TransactionFailedExtras`: `result_codes.operations` is now typed
-  as optional (`operations?: string[]`), matching what Horizon actually sends —
-  it omits the field for transaction-level failures. TypeScript consumers
-  reading it unguarded off the raw response may need a `?.`/default; use
-  `TransactionFailedError.getResultCodes()` for an always-present array
+- `HorizonApi.TransactionFailedResultCodes` gained the transaction result
+  codes it was missing: `tx_bad_sponsorship`, `tx_bad_min_seq_age_or_gap`,
+  `tx_malformed`, `tx_soroban_invalid`, and `tx_frozen_key_accessed`
   ([#1526](https://github.com/stellar/js-stellar-sdk/pull/1526)).
 - `contract.Client.from` now supports built-in Stellar Asset Contracts (SACs): when the contract's executable is a SAC, the client is built from the embedded SAC spec (lazily imported so bundlers can code-split it out of the common path) instead of downloading Wasm, which a SAC has none of on-chain ([#1501](https://github.com/stellar/js-stellar-sdk/pull/1501)).
 - `rpc.Server.getContractWasmByContractId` now rejects a SAC with a structured `{ code: 400 }` error pointing to `contract.Client.from`, instead of failing while decoding a nonexistent Wasm hash; the not-found rejection is now `{ code: 404, message: "Could not obtain contract instance from server" }` ([#1501](https://github.com/stellar/js-stellar-sdk/pull/1501)).

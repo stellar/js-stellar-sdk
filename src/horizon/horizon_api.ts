@@ -675,6 +675,11 @@ export namespace HorizonApi {
     TX_NO_SOURCE_ACCOUNT = "tx_no_source_account",
     TX_INSUFFICIENT_FEE = "tx_insufficient_fee",
     TX_INTERNAL_ERROR = "tx_internal_error",
+    TX_BAD_SPONSORSHIP = "tx_bad_sponsorship",
+    TX_BAD_MIN_SEQ_AGE_OR_GAP = "tx_bad_min_seq_age_or_gap",
+    TX_MALFORMED = "tx_malformed",
+    TX_SOROBAN_INVALID = "tx_soroban_invalid",
+    TX_FROZEN_KEY_ACCESSED = "tx_frozen_key_accessed",
   }
 
   export interface TransactionFailedExtras {
@@ -682,8 +687,12 @@ export namespace HorizonApi {
     result_codes: {
       transaction: TransactionFailedResultCodes;
       /** Omitted by Horizon when the transaction failed a transaction-level
-       * check (e.g. `tx_bad_seq`) and no operations were evaluated. */
-      operations?: string[];
+       * check (e.g. `tx_bad_seq`) and no operations were evaluated. Typed as
+       * required for backwards compatibility; treat as possibly undefined
+       * when reading the raw response, or use
+       * `TransactionFailedError.getResultCodes()` which normalizes it.
+       * TODO(next major): make this `operations?: string[]`. */
+      operations: string[];
     };
     result_xdr: string;
   }

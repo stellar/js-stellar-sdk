@@ -347,8 +347,11 @@ export class HorizonServer {
    *   - `skipMemoRequiredCheck` (optional): Allow skipping memo
    * required check, default: `false`. See
    * [SEP0029](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0029.md).
-   * @returns Promise that resolves or rejects with response from
-   * horizon.
+   * @returns Promise that resolves with the response from Horizon. Rejects
+   * with a {@link TransactionFailedError} when Horizon reports transaction
+   * result codes, a {@link BadResponseError} for any other HTTP error
+   * response (the underlying client error is preserved as `cause` on both),
+   * or the original error for network-level failures.
    */
   public async submitTransaction(
     transaction: Transaction | FeeBumpTransaction,
@@ -568,8 +571,11 @@ export class HorizonServer {
    *   - `skipMemoRequiredCheck` (optional): Allow skipping memo
    * required check, default: `false`. See
    * [SEP0029](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0029.md).
-   * @returns Promise that resolves or rejects with response from
-   * horizon.
+   * @returns Promise that resolves with the response from Horizon. Rejects
+   * with a {@link TransactionFailedError} when Horizon reports transaction
+   * result codes, a {@link BadResponseError} for any other HTTP error
+   * response (the underlying client error is preserved as `cause` on both),
+   * or the original error for network-level failures.
    */
   public async submitAsyncTransaction(
     transaction: Transaction | FeeBumpTransaction,
