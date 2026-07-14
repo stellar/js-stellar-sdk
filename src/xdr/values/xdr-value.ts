@@ -71,6 +71,17 @@ export abstract class XdrValue {
     return walkToJson(this.toXdrObject(), ctor.schema);
   }
 
+  /**
+   * JavaScript-standard `JSON.stringify` hook — delegates to {@link toJson};
+   * call that instead. Without this hook, stringify would throw on bigint
+   * fields (`int64`/`uint64`) and dump raw byte internals. To substitute a
+   * custom encoding, pass a replacer to `JSON.stringify` (its `this[key]` is
+   * the original instance).
+   */
+  toJSON(): JsonValue {
+    return this.toJson();
+  }
+
   equals(other: this): boolean {
     if (this === other) return true;
     if (other == null || !(other instanceof XdrValue)) return false;

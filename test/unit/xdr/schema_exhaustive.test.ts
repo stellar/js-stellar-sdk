@@ -19,14 +19,13 @@
 
 import { describe, it, expect } from "vitest";
 import { Buffer } from "buffer";
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 import legacyTypes from "../../fixtures/legacy-xdr/curr_generated.js";
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 import * as classXdr from "../../../src/xdr/index.js";
 import type { XdrType } from "../../../src/xdr/core/xdr-type.js";
 import { XdrString } from "../../../src/xdr/index.js";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const legacy = legacyTypes as any;
 
 // Types we intentionally skip from the exhaustive sweep. Each needs a one-
@@ -41,7 +40,7 @@ const SKIP: ReadonlyMap<string, string> = new Map([
 
 // Build the sample wire value for a schema. Returns the wire shape the new
 // SDK's `_write` expects (which is also what `toXdrObject()` returns).
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 function defaultWire(schema: XdrType<unknown>): any {
   const s = schema as XdrType<unknown> & {
     readonly kind: string;
@@ -65,14 +64,12 @@ function defaultWire(schema: XdrType<unknown>): any {
       // accepts XdrString | string | Uint8Array on write.
       return new XdrString("");
     case "opaque": {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const t = s as any;
       return new Uint8Array(t.length as number);
     }
     case "varOpaque":
       return new Uint8Array(0);
     case "enum": {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const t = s as any;
       // Pick the first enum value (typically 0 / first declared member).
       return [...(t.nameByValue as Map<number, string>).keys()][0];
@@ -80,20 +77,17 @@ function defaultWire(schema: XdrType<unknown>): any {
     case "option":
       return null;
     case "array": {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const t = s as any;
       // varArray — empty array is a valid value for every union type.
       return [];
     }
     case "fixedArray": {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const t = s as any;
       return new Array(t.length as number)
         .fill(null)
         .map(() => defaultWire(t.element));
     }
     case "struct": {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const t = s as any;
       const out: Record<string, unknown> = {};
       for (const [k, fs] of t.entries as ReadonlyArray<
@@ -104,7 +98,6 @@ function defaultWire(schema: XdrType<unknown>): any {
       return out;
     }
     case "union": {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const t = s as any;
       const firstCase = t.cases[0];
       const wire: Record<string, unknown> = {
@@ -117,7 +110,6 @@ function defaultWire(schema: XdrType<unknown>): any {
       return wire;
     }
     case "lazy": {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const t = s as any;
       return defaultWire(t.getSchema());
     }
@@ -129,10 +121,9 @@ function defaultWire(schema: XdrType<unknown>): any {
 // Discover every class with a `schema` field on the public xdr export.
 function discoverClasses(): Array<{
   name: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   cls: any;
 }> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const ns = classXdr as Record<string, any>;
   const out: Array<{ name: string; cls: unknown }> = [];
   for (const [name, value] of Object.entries(ns)) {
@@ -143,7 +134,7 @@ function discoverClasses(): Array<{
   }
   // Stable order so failures are reproducible.
   out.sort((a, b) => a.name.localeCompare(b.name));
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   return out as any;
 }
 
@@ -171,6 +162,18 @@ describe("schema-exhaustive: every generated class round-trips a default wire", 
       expect(redecoded.toXdr()).toEqual(bytes);
     });
 
+    it(`${name}: JSON.stringify fires the toJSON hook (=== toJson output)`, () => {
+      const instance = cls.fromXdrObject(defaultWire(cls.schema));
+      // Must not throw (bigint fields would, without the hook) and must be
+      // exactly the SEP-0051 form toJson() produces.
+      expect(JSON.stringify(instance)).toBe(JSON.stringify(instance.toJson()));
+      // And nested inside a plain object, since that's the implicit-
+      // serialization case (loggers, res.json) the hook exists for.
+      expect(JSON.parse(JSON.stringify({ v: instance })).v).toEqual(
+        instance.toJson(),
+      );
+    });
+
     it(`${name}: legacy SDK accepts new SDK bytes`, () => {
       if (typeof legacy[name]?.fromXDR !== "function") {
         // Legacy doesn't expose this class — that's a coverage gap, not
@@ -193,7 +196,7 @@ describe("schema-exhaustive: every generated class round-trips a default wire", 
       // directly (no wrapper class with `.toXDR()`). In that case there's
       // no re-encode step — decoding succeeding IS the wire-equality proof,
       // since the buffer is the bytes verbatim.
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
       const decoded = lgcyDecoded as any;
       if (typeof decoded?.toXDR === "function") {
         const lgcyReencoded = decoded.toXDR();

@@ -1199,3 +1199,34 @@ describe("XDR object → JSON → XDR object round-trip with field validation", 
     expect(r.text.bytes).toEqual(bytes);
   });
 });
+
+describe("toJSON — JSON.stringify hook", () => {
+  it("delegates to toJson, including on bigint-bearing values", () => {
+    const scv = ScVal.scvI64(123n);
+    expect(JSON.stringify(scv)).toBe(JSON.stringify(scv.toJson()));
+    expect(JSON.stringify(scv)).toBe('{"i64":"123"}');
+  });
+
+  it("serializes XDR values nested in plain objects", () => {
+    const out = JSON.stringify({ asset: Asset.assetTypeNative(), n: 1 });
+    expect(out).toBe('{"asset":"native","n":1}');
+  });
+
+  it("uses subclass toJson overrides (bytes → hex, strings → escape form)", () => {
+    expect(JSON.stringify(new Hash(ED))).toBe(
+      JSON.stringify(new Hash(ED).toJson()),
+    );
+    const scvStr = ScVal.scvString(new Uint8Array([0x68, 0x69, 0x00]));
+    expect(JSON.stringify(scvStr)).toBe('{"string":"hi\\\\0"}');
+  });
+
+  it("a replacer can recover the original instance via this[key]", () => {
+    const holder = { v: ScVal.scvU32(7) };
+    let sawInstance = false;
+    JSON.stringify(holder, function replacer(key, value) {
+      if (key === "v") sawInstance = this[key] instanceof ScVal;
+      return value;
+    });
+    expect(sawInstance).toBe(true);
+  });
+});

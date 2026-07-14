@@ -118,6 +118,15 @@ export class XdrString {
     return out;
   }
 
+  /**
+   * JavaScript-standard `JSON.stringify` hook — delegates to {@link toJson};
+   * call that instead. (Duplicated from `XdrValue` because `XdrString` does
+   * not extend it.)
+   */
+  toJSON(): string {
+    return this.toJson();
+  }
+
   /** Inverse of `toJson` — parse a SEP-0051 escape string to an XdrString. */
   static fromJson(escaped: string): XdrString {
     const out: number[] = [];

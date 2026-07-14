@@ -37,10 +37,10 @@ do; they're brand-new capabilities):
 | `value.toXdrObject()` / `Class.fromXdrObject(wire)` | Bridges instance ↔ wire-shape object. Legacy types directly held their wire shape, so this distinction wasn't meaningful. |
 | `value.toJson()` / `Class.fromJson(json)`           | [SEP-51](https://stellar.org/protocol/sep-51)-compliant JSON serialization. See § 13.                                     |
 
-Note that `toJson()` (lowercase) is distinct from the JavaScript-standard
-`toJSON()` hook called by `JSON.stringify()`. The XDR classes do not implement
-`toJSON()` — if you want SEP-0051 output through `JSON.stringify`, call
-`.toJson()` explicitly (see § 13).
+Note that `toJson()` (lowercase) is the API to call; the JavaScript-standard
+`toJSON()` hook is also implemented as a thin delegate to it, so
+`JSON.stringify()` produces SEP-0051 output for any XDR value (including ones
+nested inside plain objects). See § 13.
 
 > **Note on type/field names.** The PascalCase-with-collapsed-acronyms rule
 > (`AccountId`, `ScVal`, `Uint128Parts`, `TtlEntry`, `HashIdPreimage`,
@@ -657,9 +657,12 @@ xdr.AlphaNum4.fromJson({ assetCode: "USD", issuer: "GAAQ…" }); // legacy
 - `Type.fromJson(json)` — JSON-decode. Accepts the same shape `toJson` produces;
   throws on malformed structure.
 - `value.toJSON()` (capital JSON) is the JavaScript-standard hook called by
-  `JSON.stringify`; it's separate from `toJson()` and _not_ SEP-0051. We haven't
-  wired it; if you need SEP-0051 via `JSON.stringify`, call `.toJson()`
-  explicitly.
+  `JSON.stringify`; it delegates to `toJson()`, so
+  `JSON.stringify(value) === JSON.stringify(value.toJson())`. Call `toJson()` in
+  your own code — the hook exists for implicit serialization (loggers,
+  `res.json`, snapshots). To substitute a custom encoding under
+  `JSON.stringify`, use a replacer function (its `this[key]` is the original
+  instance, before the hook fired).
 
 ---
 
