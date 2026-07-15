@@ -955,8 +955,12 @@ export class AssembledTransaction<T> {
           .filter(
             (info) =>
               // skip source-account credentials (no address payload), which
-              // are covered by the envelope signature on the source account
-              info.address !== null && (includeAlreadySigned || !info.signed),
+              // are covered by the envelope signature on the source account.
+              // Only the top-level credentials (signers[0]) matter here — this
+              // method reports (and signAuthEntries signs) the top-level
+              // address, so unsigned delegate nodes must not keep it listed.
+              info.address !== null &&
+              (includeAlreadySigned || !info.signers[0].signed),
           )
           .map((info) => info.address as string),
       ),

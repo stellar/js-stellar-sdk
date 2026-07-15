@@ -657,7 +657,10 @@ export interface AuthEntrySigner {
    * the signature payload parsed as the SDK's standard ed25519 format (a vec
    * of `{public_key, signature}` maps, see {@link authorizeEntry}), or `null`
    * when the payload has some other, signer-defined shape (as custom accounts
-   * such as WebAuthn/passkey wallets use). An unsigned node parses as `[]`.
+   * such as WebAuthn/passkey wallets use). Of the two unsigned placeholder
+   * forms, an empty `scvVec` parses as `[]` while `scvVoid` (not a vec at all)
+   * parses as `null` — check `signed` rather than this field to tell whether a
+   * node is unsigned.
    */
   signatures: AuthEntrySignature[] | null;
   /** the raw signature value, whatever its shape. */
@@ -815,11 +818,24 @@ export function inspectAuthEntry(
  *    (exclusively) against the entry's `signatureExpirationLedger`
  * @returns a {@link AuthEntryReadiness}: `ready`, `expired`, and which
  *    addresses are still `unsignedBy`
+ * @throws `Error` if `currentLedgerSeq` cannot represent a uint32 ledger
+ *    sequence (non-integer, negative, or above 2^32 - 1), which would make the
+ *    expiration comparison unreliable
  */
 export function checkAuthEntryReadiness(
   entry: xdr.SorobanAuthorizationEntry,
   currentLedgerSeq: number,
 ): AuthEntryReadiness {
+  if (
+    !Number.isInteger(currentLedgerSeq) ||
+    currentLedgerSeq < 0 ||
+    currentLedgerSeq > 0xffffffff
+  ) {
+    throw new Error(
+      `currentLedgerSeq must be a uint32 ledger sequence, got ${currentLedgerSeq}`,
+    );
+  }
+
   const info = inspectAuthEntry(entry);
   if (info.credentialType === "sourceAccount") {
     return { ready: true, expired: false, unsignedBy: [] };
@@ -889,7 +905,12 @@ function parseEd25519Signatures(
           return null;
       }
     }
-    if (publicKey === null || sig === null || publicKey.length !== 32) {
+    if (
+      publicKey === null ||
+      sig === null ||
+      publicKey.length !== 32 ||
+      sig.length !== 64
+    ) {
       return null;
     }
     parsed.push({

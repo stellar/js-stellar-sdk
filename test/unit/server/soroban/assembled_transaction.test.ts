@@ -495,6 +495,26 @@ describe("AssembledTransaction auth entry credential types (CAP-71)", () => {
       expect(assembled.needsNonInvokerSigningBy()).toEqual([kpA.publicKey()]);
     });
 
+    it("keeps top-level semantics for delegate entries: a signed top level is excluded even with unsigned delegates", () => {
+      const entry = authEntry(
+        xdr.SorobanCredentials.sorobanCredentialsAddressWithDelegates(
+          new xdr.SorobanAddressCredentialsWithDelegates({
+            addressCredentials: addrCreds(kpB.publicKey(), true),
+            delegates: [
+              new xdr.SorobanDelegateSignature({
+                address: new Address(kpC.publicKey()).toScAddress(),
+                signature: xdr.ScVal.scvVoid(), // unsigned delegate
+                nestedDelegates: [],
+              }),
+            ],
+          }),
+        ),
+      );
+      const assembled = assembledWith([entry]);
+
+      expect(assembled.needsNonInvokerSigningBy()).toEqual([]);
+    });
+
     it("deduplicates repeated addresses across credential types", () => {
       const assembled = assembledWith([
         authEntry(addressV2Cred(kpA.publicKey())),

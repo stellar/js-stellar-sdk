@@ -1069,6 +1069,30 @@ describe("inspecting authorization entries", () => {
       expect(info.signers[0].rawSignature.switch().name).toBe("scvBytes");
     });
 
+    it("rejects non-64-byte signatures as non-standard payloads", () => {
+      const malformed = xdr.ScVal.scvVec([
+        xdr.ScVal.scvMap([
+          new xdr.ScMapEntry({
+            key: xdr.ScVal.scvSymbol("public_key"),
+            val: xdr.ScVal.scvBytes(Buffer.alloc(32)),
+          }),
+          new xdr.ScMapEntry({
+            key: xdr.ScVal.scvSymbol("signature"),
+            val: xdr.ScVal.scvBytes(Buffer.alloc(1)),
+          }),
+        ]),
+      ]);
+      const entry = makeEntry(
+        xdr.SorobanCredentials.sorobanCredentialsAddress(
+          makeAddressCredentials(malformed),
+        ),
+      );
+
+      const info = inspectAuthEntry(entry);
+      expect(info.signed).toBe(true);
+      expect(info.signers[0].signatures).toBeNull();
+    });
+
     it("treats scvVoid as unsigned", () => {
       const entry = makeEntry(
         xdr.SorobanCredentials.sorobanCredentialsAddress(
@@ -1120,6 +1144,18 @@ describe("inspecting authorization entries", () => {
       const readiness = checkAuthEntryReadiness(entry, 1);
       expect(readiness.ready).toBe(false);
       expect(readiness.unsignedBy).toEqual([kp.publicKey()]);
+    });
+
+    it("rejects a currentLedgerSeq that is not a uint32", () => {
+      const entry = makeEntry(
+        xdr.SorobanCredentials.sorobanCredentialsAddress(
+          makeAddressCredentials(xdr.ScVal.scvVec([])),
+        ),
+      );
+
+      [NaN, -1, 1.5, 2 ** 32].forEach((bad) => {
+        expect(() => checkAuthEntryReadiness(entry, bad)).toThrow(/uint32/);
+      });
     });
 
     it("source-account entries are always ready", () => {
