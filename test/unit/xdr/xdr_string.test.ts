@@ -15,4 +15,14 @@ describe("XdrString", () => {
       expect(Array.from(out as Uint8Array)).toEqual(Array.from(binary));
     });
   });
+
+  describe("copy construction", () => {
+    it("copies the bytes instead of aliasing the original", () => {
+      const original = new XdrString("A");
+      const copy = new XdrString(original);
+      original.bytes[0] = "B".charCodeAt(0);
+      expect(copy.toString()).toBe("A");
+      expect(original.toString()).toBe("B");
+    });
+  });
 });

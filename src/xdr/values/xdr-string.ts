@@ -31,7 +31,9 @@ export class XdrString {
 
   constructor(input: string | Uint8Array | XdrString) {
     if (input instanceof XdrString) {
-      this.bytes = input.bytes;
+      // The migration guide documents this branch as a copy — don't alias
+      // the original's bytes.
+      this.bytes = input.bytes.slice();
     } else if (typeof input === "string") {
       this.bytes = new TextEncoder().encode(input);
     } else if (input instanceof Uint8Array) {
