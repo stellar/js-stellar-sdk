@@ -358,7 +358,11 @@ function combineParts(
   totalBits: 64 | 128 | 256,
   signed: boolean,
 ): bigint {
-  if (parts.length === 0) return 0n;
+  if (parts.length === 0) {
+    // Matches the legacy `LargeInt` constructors, which reject an empty
+    // slice layout instead of silently producing zero.
+    throw new RangeError("expected at least one slice value, got none");
+  }
   if (parts.length === 1) return parts[0];
 
   if (totalBits % parts.length !== 0) {

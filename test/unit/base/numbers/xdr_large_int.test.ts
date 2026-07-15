@@ -70,6 +70,11 @@ describe("XdrLargeInt", () => {
         );
       });
 
+      it("throws RangeError on an empty parts array (legacy contract)", () => {
+        expect(() => new XdrLargeInt("i64", [])).toThrow(RangeError);
+        expect(() => new XdrLargeInt("u256", [])).toThrow(/at least one slice/);
+      });
+
       it("throws RangeError when a slice does not fit its width", () => {
         expect(() => new XdrLargeInt("u128", [0n, 2n ** 80n])).toThrow(
           RangeError,
