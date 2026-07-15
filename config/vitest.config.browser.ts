@@ -43,6 +43,9 @@ export default defineConfig({
     exclude: [
       "test/unit/call_builders.test.ts",
       "test/unit/server/horizon/server.test.ts",
+      // Tests the docs snippet-expansion machinery (config/snippets.ts),
+      // which reads snippet files with node:fs — Node-only, not SDK code.
+      "test/unit/guide-snippets.test.ts",
     ],
     // Setup files to load the browser bundle
     setupFiles: [resolve(__dirname, "../test/setup-browser.ts")],
