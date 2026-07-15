@@ -176,6 +176,9 @@ function walkAndNormalizeTypeNames(definitions) {
     }
   };
   for (const def of definitions) {
+    // Constant names (MAX_OPS_PER_TX, …) are canonical SCREAMING_SNAKE
+    // identifiers from the .x sources, not type names — leave them alone.
+    if (def.kind === "const") continue;
     if (typeof def.name === "string") {
       def.name = normalizeTypeName(def.name);
     }
