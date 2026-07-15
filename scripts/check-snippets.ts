@@ -19,7 +19,7 @@
  * (`preversion` runs `pnpm test:guides`); see examples/guides/README.md.
  */
 
-import { readFileSync, readdirSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -27,20 +27,11 @@ import {
   nearMissError,
   scanMarkdown,
   snippetRegion,
+  walkMarkdown,
 } from "../config/snippets.js";
 
 const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const DOCS_DIR = join(REPO_ROOT, "docs");
-
-function walkMarkdown(root: string): string[] {
-  const out: string[] = [];
-  for (const entry of readdirSync(root, { withFileTypes: true })) {
-    const full = join(root, entry.name);
-    if (entry.isDirectory()) out.push(...walkMarkdown(full));
-    else if (entry.isFile() && entry.name.endsWith(".md")) out.push(full);
-  }
-  return out;
-}
 
 const problems: string[] = [];
 let markers = 0;

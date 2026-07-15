@@ -37,7 +37,7 @@ import {
   statSync,
   writeFileSync,
 } from "node:fs";
-import { dirname, join, relative } from "node:path";
+import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -75,12 +75,32 @@ const regionCache = new Map<
  * Region marker lines themselves never appear in any region's content.
  */
 function regionsOf(file: string): Map<string, string> {
-  const fullPath = join(SNIPPETS_DIR, file);
+  const fullPath = resolve(SNIPPETS_DIR, file);
+  // Markers may contain `/` and `.` for readability, but guide code must
+  // live in examples/guides/ — reject a reference that escapes it.
+  if (relative(SNIPPETS_DIR, fullPath).startsWith("..")) {
+    throw new Error(
+      `snippet reference "${file}" resolves outside examples/guides/`,
+    );
+  }
   const { mtimeMs } = statSync(fullPath);
   const cached = regionCache.get(file);
   if (cached && cached.mtimeMs === mtimeMs) return cached.regions;
 
-  const source = readFileSync(fullPath, "utf8");
+  const regions = parseRegions(readFileSync(fullPath, "utf8"), file);
+  regionCache.set(file, { mtimeMs, regions });
+  return regions;
+}
+
+/**
+ * Parses `#region` markers out of a snippet file's source. Pure — separated
+ * from regionsOf's fs/cache concerns so it is unit-testable. `file` only
+ * labels error messages.
+ */
+export function parseRegions(
+  source: string,
+  file: string,
+): Map<string, string> {
   const parts = new Map<string, string[]>();
   const open = new Map<string, string[]>();
 
@@ -96,6 +116,12 @@ function regionsOf(file: string): Map<string, string> {
     }
     const end = line.match(REGION_END);
     if (end) {
+      if (open.size === 0) {
+        throw new Error(
+          `${file}: #endregion${end[1] ? ` ${end[1]}` : ""} without an ` +
+            `open #region`,
+        );
+      }
       const name = end[1] ?? (open.size === 1 ? [...open.keys()][0] : null);
       if (name === null) {
         throw new Error(
@@ -126,7 +152,6 @@ function regionsOf(file: string): Map<string, string> {
   for (const [name, chunks] of parts) {
     regions.set(name, dedent(joinParts(chunks)));
   }
-  regionCache.set(file, { mtimeMs, regions });
   return regions;
 }
 
@@ -276,7 +301,8 @@ export function expandSnippetMarkers(markdown: string): string {
     .join("\n");
 }
 
-function walkMarkdown(root: string): string[] {
+/** All .md files under root, recursively (shared with check-snippets). */
+export function walkMarkdown(root: string): string[] {
   const out: string[] = [];
   for (const entry of readdirSync(root, { withFileTypes: true })) {
     const full = join(root, entry.name);
