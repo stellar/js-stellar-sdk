@@ -7,6 +7,8 @@ A breaking change will get clearly marked in this log.
 ## Unreleased
 
 ### Added
+- `inspectAuthEntry(entry)`: decodes a `xdr.SorobanAuthorizationEntry` into a typed summary — credential type (`sourceAccount`/`address`/`addressV2`/`addressWithDelegates`), authorizing address, nonce, `signatureExpirationLedger`, and a `signers` list covering the top-level credentials plus any CAP-71 delegates (depth-first), each reporting whether it's signed and, when the payload uses the SDK's standard ed25519 format, the parsed `{publicKey, signature}` pairs (custom-account payloads are surfaced raw). Adds the `AuthEntryInfo`, `AuthEntrySigner`, `AuthEntrySignature`, and `AuthEntryCredentialType` types ([#1468](https://github.com/stellar/js-stellar-sdk/issues/1468)).
+- `checkAuthEntryReadiness(entry, currentLedgerSeq)`: reports whether an auth entry is ready to submit — `{ ready, expired, unsignedBy }` — comparing the entry's expiration (exclusively) against a caller-supplied current ledger, so it stays a pure decode with no network dependency. Source-account entries are always ready ([#1468](https://github.com/stellar/js-stellar-sdk/issues/1468)).
 - `Spec.nativeToScVal` now supports contract parameters typed as `Val`
   (`scSpecTypeVal`) by delegating to the generic `nativeToScVal` converter, so
   raw JS values (strings, numbers, bigints, booleans, arrays, `Map`s, plain
