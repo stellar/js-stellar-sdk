@@ -77,10 +77,10 @@
       "default": "./lib/esm/http-client/axios.js"
     },
     "./xdr": {
-      "types": "./lib/esm/xdr.d.ts",
-      "import": "./lib/esm/xdr.js",
-      "require": "./lib/cjs/xdr.js",
-      "default": "./lib/esm/xdr.js"
+      "types": "./lib/esm/xdr/index.d.ts",
+      "import": "./lib/esm/xdr/index.js",
+      "require": "./lib/cjs/xdr/index.js",
+      "default": "./lib/esm/xdr/index.js"
     }
   },
   "scripts": {
