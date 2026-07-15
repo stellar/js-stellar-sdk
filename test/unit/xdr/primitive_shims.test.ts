@@ -31,6 +31,18 @@ describe("Int64/Uint64 shims", () => {
         Int64.fromXdr(Buffer.from(bytes).toString("base64"), "base64"),
       ).toBe(5n);
     });
+
+    it("requires exactly 8 bytes", () => {
+      for (const len of [0, 1, 7, 9, 16]) {
+        expect(() => Int64.fromXdr(new Uint8Array(len))).toThrow(
+          /expected exactly 8 bytes/,
+        );
+        expect(() => Uint64.fromXdr(new Uint8Array(len))).toThrow(
+          /expected exactly 8 bytes/,
+        );
+      }
+      expect(Int64.fromXdr(new Uint8Array(8))).toBe(0n);
+    });
   });
 });
 

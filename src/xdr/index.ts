@@ -15,6 +15,7 @@
 // the `xdr` namespace from this module, so users only ever see one entry
 // point.
 
+import { XdrError } from "@stellar/js-xdr";
 import {
   assertBigIntFits,
   assertIntFits,
@@ -111,6 +112,11 @@ function makeBigIntShim(signed: boolean, bits: 64) {
     format: "raw" | "hex" | "base64" = "raw",
   ): bigint => {
     const bytes = decodeBytes(input, format);
+    if (bytes.length !== 8) {
+      throw new XdrError(
+        `${name}.fromXdr: expected exactly 8 bytes, got ${bytes.length}`,
+      );
+    }
     let value = 0n;
     for (const byte of bytes) {
       value = (value << 8n) + BigInt(byte);
