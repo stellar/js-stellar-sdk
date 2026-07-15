@@ -1,6 +1,13 @@
 import { describe, it, expect } from "vitest";
 
-import { Int64, Uint64, Int128, Uint128 } from "../../../src/xdr/index.js";
+import {
+  Int32,
+  Uint32,
+  Int64,
+  Uint64,
+  Int128,
+  Uint128,
+} from "../../../src/xdr/index.js";
 
 describe("Int64/Uint64 shims", () => {
   it("call form returns a native bigint", () => {
@@ -42,6 +49,36 @@ describe("Int64/Uint64 shims", () => {
         );
       }
       expect(Int64.fromXdr(new Uint8Array(8))).toBe(0n);
+    });
+  });
+});
+
+describe("Int32/Uint32 shims", () => {
+  describe("fromXdr", () => {
+    it("decodes raw, hex, and base64", () => {
+      const bytes = new Uint8Array([0, 0, 0, 5]);
+      expect(Int32.fromXdr(bytes)).toBe(5);
+      expect(Int32.fromXdr("00000005", "hex")).toBe(5);
+      expect(
+        Int32.fromXdr(Buffer.from(bytes).toString("base64"), "base64"),
+      ).toBe(5);
+    });
+
+    it("respects signedness", () => {
+      const allOnes = new Uint8Array([0xff, 0xff, 0xff, 0xff]);
+      expect(Int32.fromXdr(allOnes)).toBe(-1);
+      expect(Uint32.fromXdr(allOnes)).toBe(0xffffffff);
+    });
+
+    it("requires exactly 4 bytes", () => {
+      for (const len of [0, 1, 3, 5, 8]) {
+        expect(() => Int32.fromXdr(new Uint8Array(len))).toThrow(
+          /expected exactly 4 bytes/,
+        );
+        expect(() => Uint32.fromXdr(new Uint8Array(len))).toThrow(
+          /expected exactly 4 bytes/,
+        );
+      }
     });
   });
 });

@@ -156,6 +156,20 @@ function makeIntShim(signed: boolean, bits: 32) {
     assertIntFits(value, signed, bits, name);
     return value;
   }
+  Shim.fromXdr = (
+    input: Uint8Array | string,
+    format: "raw" | "hex" | "base64" = "raw",
+  ): number => {
+    const bytes = decodeBytes(input, format);
+    if (bytes.length !== 4) {
+      throw new XdrError(
+        `${name}.fromXdr: expected exactly 4 bytes, got ${bytes.length}`,
+      );
+    }
+    const value =
+      (bytes[0] << 24) | (bytes[1] << 16) | (bytes[2] << 8) | bytes[3];
+    return signed ? value : value >>> 0;
+  };
   Shim.fromString = (s: string): number => {
     const value = Number(s);
     assertIntFits(value, signed, bits, name);
