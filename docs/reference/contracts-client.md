@@ -236,7 +236,7 @@ class AssembledTransaction<T> {
 }
 ```
 
-**Source:** [src/contract/assembled_transaction.ts:257](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L257)
+**Source:** [src/contract/assembled_transaction.ts:258](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L258)
 
 ### `AssembledTransaction.Errors`
 
@@ -248,7 +248,7 @@ logic.
 static Errors: { ExpiredState: typeof ExpiredStateError; ExternalServiceError: typeof ExternalServiceError; FakeAccount: typeof FakeAccountError; InternalWalletError: typeof InternalWalletError; InvalidClientRequest: typeof InvalidClientRequestError; NeedsMoreSignatures: typeof NeedsMoreSignaturesError; NoSignatureNeeded: typeof NoSignatureNeededError; NoSigner: typeof NoSignerError; NotYetSimulated: typeof NotYetSimulatedError; NoUnsignedNonInvokerAuthEntries: typeof NoUnsignedNonInvokerAuthEntriesError; RestorationFailure: typeof RestoreFailureError; SimulationFailed: typeof SimulationFailedError; UserRejected: typeof UserRejectedError };
 ```
 
-**Source:** [src/contract/assembled_transaction.ts:338](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L338)
+**Source:** [src/contract/assembled_transaction.ts:339](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L339)
 
 ### `AssembledTransaction.build(options)`
 
@@ -284,7 +284,7 @@ const tx = await AssembledTransaction.build({
 })
 ```
 
-**Source:** [src/contract/assembled_transaction.ts:572](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L572)
+**Source:** [src/contract/assembled_transaction.ts:573](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L573)
 
 ### `AssembledTransaction.buildWithOp(operation, options)`
 
@@ -316,7 +316,7 @@ const tx = await AssembledTransaction.buildWithOp(
 )
 ```
 
-**Source:** [src/contract/assembled_transaction.ts:601](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L601)
+**Source:** [src/contract/assembled_transaction.ts:602](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L602)
 
 ### `AssembledTransaction.fromJSON(options, __namedParameters)`
 
@@ -329,7 +329,7 @@ static fromJSON<T>(options: Omit<AssembledTransactionOptions<T>, "args">, __name
 - **`options`** — `Omit<AssembledTransactionOptions<T>, "args">` (required)
 - **`__namedParameters`** — `{ simulationResult: { auth: string[]; retval: string }; simulationTransactionData: string; tx: string }` (required)
 
-**Source:** [src/contract/assembled_transaction.ts:433](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L433)
+**Source:** [src/contract/assembled_transaction.ts:434](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L434)
 
 ### `AssembledTransaction.fromXDR(options, encodedXDR, spec)`
 
@@ -345,7 +345,7 @@ static fromXDR<T>(options: Omit<AssembledTransactionOptions<T>, "args" | "method
 - **`encodedXDR`** — `string` (required)
 - **`spec`** — `Spec` (required)
 
-**Source:** [src/contract/assembled_transaction.ts:492](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L492)
+**Source:** [src/contract/assembled_transaction.ts:493](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L493)
 
 ### `assembledTransaction.built`
 
@@ -357,7 +357,7 @@ you call `tx.simulate()` again.
 built?: Transaction;
 ```
 
-**Source:** [src/contract/assembled_transaction.ts:285](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L285)
+**Source:** [src/contract/assembled_transaction.ts:286](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L286)
 
 ### `assembledTransaction.options`
 
@@ -365,7 +365,7 @@ built?: Transaction;
 options: AssembledTransactionOptions<T>;
 ```
 
-**Source:** [src/contract/assembled_transaction.ts:542](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L542)
+**Source:** [src/contract/assembled_transaction.ts:543](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L543)
 
 ### `assembledTransaction.raw`
 
@@ -386,7 +386,7 @@ await tx.simulate();
 raw?: TransactionBuilder;
 ```
 
-**Source:** [src/contract/assembled_transaction.ts:272](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L272)
+**Source:** [src/contract/assembled_transaction.ts:273](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L273)
 
 ### `assembledTransaction.signed`
 
@@ -396,7 +396,7 @@ The signed transaction.
 signed?: Transaction;
 ```
 
-**Source:** [src/contract/assembled_transaction.ts:331](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L331)
+**Source:** [src/contract/assembled_transaction.ts:332](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L332)
 
 ### `assembledTransaction.simulation`
 
@@ -410,7 +410,7 @@ logic.
 simulation?: SimulateTransactionResponse;
 ```
 
-**Source:** [src/contract/assembled_transaction.ts:294](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L294)
+**Source:** [src/contract/assembled_transaction.ts:295](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L295)
 
 ### `assembledTransaction.isReadCall`
 
@@ -423,7 +423,7 @@ returns `false`, then you need to call `signAndSend` on this transaction.
 readonly isReadCall: boolean;
 ```
 
-**Source:** [src/contract/assembled_transaction.ts:1089](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L1089)
+**Source:** [src/contract/assembled_transaction.ts:1086](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L1086)
 
 ### `assembledTransaction.result`
 
@@ -431,7 +431,7 @@ readonly isReadCall: boolean;
 readonly result: T;
 ```
 
-**Source:** [src/contract/assembled_transaction.ts:738](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L738)
+**Source:** [src/contract/assembled_transaction.ts:739](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L739)
 
 ### `assembledTransaction.simulationData`
 
@@ -439,7 +439,7 @@ readonly result: T;
 readonly simulationData: { result: SimulateHostFunctionResult; transactionData: SorobanTransactionData };
 ```
 
-**Source:** [src/contract/assembled_transaction.ts:695](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L695)
+**Source:** [src/contract/assembled_transaction.ts:696](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L696)
 
 ### `assembledTransaction.needsNonInvokerSigningBy(__namedParameters)`
 
@@ -469,7 +469,7 @@ needsNonInvokerSigningBy(__namedParameters: { includeAlreadySigned?: boolean } =
 
 - **`__namedParameters`** — `{ includeAlreadySigned?: boolean }` (optional) (default: `{}`)
 
-**Source:** [src/contract/assembled_transaction.ts:924](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L924)
+**Source:** [src/contract/assembled_transaction.ts:925](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L925)
 
 ### `assembledTransaction.restoreFootprint(restorePreamble, account)`
 
@@ -504,7 +504,7 @@ Client initialization.
 - - Throws a custom error if the
 restore transaction fails, providing the details of the failure.
 
-**Source:** [src/contract/assembled_transaction.ts:1118](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L1118)
+**Source:** [src/contract/assembled_transaction.ts:1115](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L1115)
 
 ### `assembledTransaction.send(watcher)`
 
@@ -521,7 +521,7 @@ send(watcher?: Watcher): Promise<SentTransaction<T>>;
 
 - **`watcher`** — `Watcher` (optional)
 
-**Source:** [src/contract/assembled_transaction.ts:853](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L853)
+**Source:** [src/contract/assembled_transaction.ts:854](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L854)
 
 ### `assembledTransaction.sign(__namedParameters)`
 
@@ -536,7 +536,7 @@ sign(__namedParameters: { force?: boolean; signTransaction?: SignTransaction } =
 
 - **`__namedParameters`** — `{ force?: boolean; signTransaction?: SignTransaction }` (optional) (default: `{}`)
 
-**Source:** [src/contract/assembled_transaction.ts:766](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L766)
+**Source:** [src/contract/assembled_transaction.ts:767](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L767)
 
 ### `assembledTransaction.signAndSend(__namedParameters)`
 
@@ -555,7 +555,7 @@ signAndSend(__namedParameters: { force?: boolean; signTransaction?: SignTransact
 
 - **`__namedParameters`** — `{ force?: boolean; signTransaction?: SignTransaction; watcher?: Watcher }` (optional) (default: `{}`)
 
-**Source:** [src/contract/assembled_transaction.ts:871](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L871)
+**Source:** [src/contract/assembled_transaction.ts:872](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L872)
 
 ### `assembledTransaction.signAuthEntries(__namedParameters)`
 
@@ -582,7 +582,7 @@ signAuthEntries(__namedParameters: { address?: string; authorizeEntry?: (entry: 
 
 - **`__namedParameters`** — `{ address?: string; authorizeEntry?: (entry: SorobanAuthorizationEntry, signer: Keypair | SigningCallback, validUntilLedgerSeq: number, networkPassphrase: string, forAddress?: string) => Promise<SorobanAuthorizationEntry>; expiration?: number | Promise<number>; signAuthEntry?: SignAuthEntry }` (optional) (default: `{}`)
 
-**Source:** [src/contract/assembled_transaction.ts:985](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L985)
+**Source:** [src/contract/assembled_transaction.ts:982](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L982)
 
 ### `assembledTransaction.simulate(__namedParameters)`
 
@@ -594,7 +594,7 @@ simulate(__namedParameters: { restore?: boolean } = {}): Promise<AssembledTransa
 
 - **`__namedParameters`** — `{ restore?: boolean }` (optional) (default: `{}`)
 
-**Source:** [src/contract/assembled_transaction.ts:642](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L642)
+**Source:** [src/contract/assembled_transaction.ts:643](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L643)
 
 ### `assembledTransaction.toJSON()`
 
@@ -607,7 +607,7 @@ transaction. This only works with transactions that have been simulated.
 toJSON(): string;
 ```
 
-**Source:** [src/contract/assembled_transaction.ts:360](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L360)
+**Source:** [src/contract/assembled_transaction.ts:361](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L361)
 
 ### `assembledTransaction.toXDR()`
 
@@ -617,7 +617,7 @@ Serialize the AssembledTransaction to a base64-encoded XDR string.
 toXDR(): string;
 ```
 
-**Source:** [src/contract/assembled_transaction.ts:480](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L480)
+**Source:** [src/contract/assembled_transaction.ts:481](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L481)
 
 ## contract.Client
 

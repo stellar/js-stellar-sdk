@@ -875,6 +875,42 @@ buildWithDelegatesEntry(params: BuildWithDelegatesParams): SorobanAuthorizationE
 
 **Source:** [src/base/auth.ts:467](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L467)
 
+## checkAuthEntryReadiness
+
+Reports whether an authorization entry is ready to submit at a given ledger:
+fully signed and not yet expired.
+
+Source-account entries are always ready — they carry no signature or
+expiration of their own and are instead covered by the transaction envelope
+signature.
+
+The current ledger sequence is taken as a parameter (fetch it from a source
+you trust, e.g. `rpc.Server.getLatestLedger`) rather than looked up here, so
+this stays a pure decode with no network dependency.
+
+For `SOROBAN_CREDENTIALS_ADDRESS_WITH_DELEGATES`, this conservatively
+requires *every* node (top-level and all delegates) to be signed. An
+account's policy may accept an unsigned top-level node when its delegates
+have signed (CAP-71-01); if you support that, check
+`inspectAuthEntry`'s `signers` yourself.
+
+```ts
+checkAuthEntryReadiness(entry: SorobanAuthorizationEntry, currentLedgerSeq: number): AuthEntryReadiness
+```
+
+**Parameters**
+
+- **`entry`** — `SorobanAuthorizationEntry` (required) — the authorization entry to check
+- **`currentLedgerSeq`** — `number` (required) — the network's current ledger sequence, compared
+     (exclusively) against the entry's `signatureExpirationLedger`
+
+**Returns**
+
+a `AuthEntryReadiness`: `ready`, `expired`, and which
+   addresses are still `unsignedBy`
+
+**Source:** [src/base/auth.ts:819](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L819)
+
 ## humanizeEvents
 
 Converts raw diagnostic or contract events into something with a flatter,
@@ -896,6 +932,47 @@ humanizeEvents(events: ContractEvent[] | DiagnosticEvent[]): SorobanEvent[]
      friendly format
 
 **Source:** [src/base/events.ts:48](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/events.ts#L48)
+
+## inspectAuthEntry
+
+Decodes a `xdr.SorobanAuthorizationEntry` into a plain, typed summary:
+which credential variant it uses, which address authorizes it, its nonce and
+expiration ledger, and — for every node that can carry a signature (the
+top-level credentials plus any CAP-71 delegates) — whether it is signed and,
+when the payload uses the SDK's standard ed25519 format, by which keys.
+
+This is the read-side complement to `authorizeEntry` /
+`authorizeInvocation`: those fill entries with signatures, this
+inspects what an entry (e.g. one returned by transaction simulation, or
+received from a counterparty in a multi-party signing flow) requires and
+already carries, without reaching into raw XDR accessors.
+
+```ts
+inspectAuthEntry(entry: SorobanAuthorizationEntry): AuthEntryInfo
+```
+
+**Parameters**
+
+- **`entry`** — `SorobanAuthorizationEntry` (required) — the authorization entry to inspect
+
+**Returns**
+
+a `AuthEntryInfo` summary of the entry
+
+**Example**
+
+```ts
+const info = inspectAuthEntry(entry);
+if (!info.signed && info.address !== null) {
+  console.log(`${info.address} still needs to sign`, info.signers);
+}
+```
+
+**See also**
+
+- checkAuthEntryReadiness
+
+**Source:** [src/base/auth.ts:741](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L741)
 
 ## nativeToScVal
 
@@ -1124,6 +1201,255 @@ walkInvocationTree(root: SorobanAuthorizedInvocation, callback: InvocationWalker
 **Source:** [src/base/invocation.ts:229](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L229)
 
 ## Types
+
+### AuthEntryCredentialType
+
+The credential arm of a `xdr.SorobanAuthorizationEntry`.
+
+```ts
+type AuthEntryCredentialType = "sourceAccount" | "address" | "addressV2" | "addressWithDelegates"
+```
+
+**Source:** [src/base/auth.ts:624](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L624)
+
+### AuthEntryInfo
+
+A structured, read-only view of a `xdr.SorobanAuthorizationEntry`,
+returned by `inspectAuthEntry`.
+
+```ts
+interface AuthEntryInfo {
+  address: string | null;
+  credentialType: AuthEntryCredentialType;
+  invocation: SorobanAuthorizedInvocation;
+  nonce: bigint | null;
+  signatureExpirationLedger: number | null;
+  signed: boolean;
+  signers: AuthEntrySigner[];
+}
+```
+
+**Source:** [src/base/auth.ts:671](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L671)
+
+#### `authEntryInfo.address`
+
+the authorizing address, or `null` for source-account credentials.
+
+```ts
+address: string | null;
+```
+
+**Source:** [src/base/auth.ts:674](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L674)
+
+#### `authEntryInfo.credentialType`
+
+```ts
+credentialType: AuthEntryCredentialType;
+```
+
+**Source:** [src/base/auth.ts:672](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L672)
+
+#### `authEntryInfo.invocation`
+
+the invocation tree this entry authorizes.
+
+```ts
+invocation: SorobanAuthorizedInvocation;
+```
+
+**Source:** [src/base/auth.ts:700](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L700)
+
+#### `authEntryInfo.nonce`
+
+the credential nonce, or `null` for source-account credentials.
+
+```ts
+nonce: bigint | null;
+```
+
+**Source:** [src/base/auth.ts:676](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L676)
+
+#### `authEntryInfo.signatureExpirationLedger`
+
+the (exclusive) ledger sequence until which the signature is valid, or
+`null` for source-account credentials. Note that unsigned entries commonly
+carry a placeholder (often `0`) until `authorizeEntry` sets it.
+
+```ts
+signatureExpirationLedger: number | null;
+```
+
+**Source:** [src/base/auth.ts:682](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L682)
+
+#### `authEntryInfo.signed`
+
+whether every signer node carries a signature payload. Always `false` for
+source-account credentials (which have no signature nodes — they are
+instead covered by the transaction envelope signature; use
+`checkAuthEntryReadiness` for a submit check). For the delegates
+variant note that an account's policy may accept an unsigned top-level
+node when its delegates have signed (CAP-71-01) — consult `signers` if you
+support that.
+
+```ts
+signed: boolean;
+```
+
+**Source:** [src/base/auth.ts:698](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L698)
+
+#### `authEntryInfo.signers`
+
+every node that can carry a signature: the top-level credentials first,
+then (for the delegates variant) each delegate, depth-first. Empty for
+source-account credentials.
+
+```ts
+signers: AuthEntrySigner[];
+```
+
+**Source:** [src/base/auth.ts:688](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L688)
+
+### AuthEntryReadiness
+
+The result of `checkAuthEntryReadiness`.
+
+```ts
+interface AuthEntryReadiness {
+  expired: boolean;
+  ready: boolean;
+  unsignedBy: string[];
+}
+```
+
+**Source:** [src/base/auth.ts:704](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L704)
+
+#### `authEntryReadiness.expired`
+
+`true` when `currentLedgerSeq >= signatureExpirationLedger` (expiration is
+exclusive). Always `false` for source-account credentials.
+
+```ts
+expired: boolean;
+```
+
+**Source:** [src/base/auth.ts:711](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L711)
+
+#### `authEntryReadiness.ready`
+
+`true` when the entry is fully signed and not expired.
+
+```ts
+ready: boolean;
+```
+
+**Source:** [src/base/auth.ts:706](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L706)
+
+#### `authEntryReadiness.unsignedBy`
+
+addresses of signer nodes that carry no signature payload.
+
+```ts
+unsignedBy: string[];
+```
+
+**Source:** [src/base/auth.ts:713](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L713)
+
+### AuthEntrySignature
+
+A single ed25519 signature parsed out of a credential node's signature
+value, in the map format written by `authorizeEntry`.
+
+```ts
+interface AuthEntrySignature {
+  publicKey: string;
+  signature: Buffer;
+}
+```
+
+**Source:** [src/base/auth.ts:634](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L634)
+
+#### `authEntrySignature.publicKey`
+
+the signer's public key, as a `G…` strkey.
+
+```ts
+publicKey: string;
+```
+
+**Source:** [src/base/auth.ts:636](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L636)
+
+#### `authEntrySignature.signature`
+
+the raw 64-byte ed25519 signature.
+
+```ts
+signature: Buffer;
+```
+
+**Source:** [src/base/auth.ts:638](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L638)
+
+### AuthEntrySigner
+
+One node of an authorization entry that can carry a signature: the top-level
+address credentials and, for `SOROBAN_CREDENTIALS_ADDRESS_WITH_DELEGATES`,
+each (possibly nested) delegate.
+
+```ts
+interface AuthEntrySigner {
+  address: string;
+  rawSignature: ScVal;
+  signatures: AuthEntrySignature[] | null;
+  signed: boolean;
+}
+```
+
+**Source:** [src/base/auth.ts:646](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L646)
+
+#### `authEntrySigner.address`
+
+the node's address (`G…` account or `C…` contract).
+
+```ts
+address: string;
+```
+
+**Source:** [src/base/auth.ts:648](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L648)
+
+#### `authEntrySigner.rawSignature`
+
+the raw signature value, whatever its shape.
+
+```ts
+rawSignature: ScVal;
+```
+
+**Source:** [src/base/auth.ts:664](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L664)
+
+#### `authEntrySigner.signatures`
+
+the signature payload parsed as the SDK's standard ed25519 format (a vec
+of `{public_key, signature}` maps, see `authorizeEntry`), or `null`
+when the payload has some other, signer-defined shape (as custom accounts
+such as WebAuthn/passkey wallets use). An unsigned node parses as `[]`.
+
+```ts
+signatures: AuthEntrySignature[] | null;
+```
+
+**Source:** [src/base/auth.ts:662](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L662)
+
+#### `authEntrySigner.signed`
+
+whether a signature payload is present on this node (i.e. its signature is
+neither `scvVoid` nor an empty `scvVec`). For contract (`C…`) addresses
+this only means *something* is attached — whether it satisfies the
+contract's `__check_auth` cannot be verified client-side.
+
+```ts
+signed: boolean;
+```
+
+**Source:** [src/base/auth.ts:655](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L655)
 
 ### AuthorizeInvocationParams
 
