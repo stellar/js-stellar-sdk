@@ -423,7 +423,7 @@ returns `false`, then you need to call `signAndSend` on this transaction.
 readonly isReadCall: boolean;
 ```
 
-**Source:** [src/contract/assembled_transaction.ts:1086](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L1086)
+**Source:** [src/contract/assembled_transaction.ts:1090](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L1090)
 
 ### `assembledTransaction.result`
 
@@ -504,7 +504,7 @@ Client initialization.
 - - Throws a custom error if the
 restore transaction fails, providing the details of the failure.
 
-**Source:** [src/contract/assembled_transaction.ts:1115](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L1115)
+**Source:** [src/contract/assembled_transaction.ts:1119](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L1119)
 
 ### `assembledTransaction.send(watcher)`
 
@@ -582,7 +582,7 @@ signAuthEntries(__namedParameters: { address?: string; authorizeEntry?: (entry: 
 
 - **`__namedParameters`** — `{ address?: string; authorizeEntry?: (entry: SorobanAuthorizationEntry, signer: Keypair | SigningCallback, validUntilLedgerSeq: number, networkPassphrase: string, forAddress?: string) => Promise<SorobanAuthorizationEntry>; expiration?: number | Promise<number>; signAuthEntry?: SignAuthEntry }` (optional) (default: `{}`)
 
-**Source:** [src/contract/assembled_transaction.ts:982](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L982)
+**Source:** [src/contract/assembled_transaction.ts:986](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L986)
 
 ### `assembledTransaction.simulate(__namedParameters)`
 
