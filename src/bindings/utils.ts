@@ -126,7 +126,9 @@ export function parseTypeFromTypeDef(
       return "bigint";
     case "scSpecTypeBytes":
     case "scSpecTypeBytesN":
-      return "Buffer";
+      // scValToNative returns plain Uint8Array (ScBytes.value); Buffer is a
+      // Uint8Array subclass, so inputs typed this way still accept Buffers.
+      return "Uint8Array";
     case "scSpecTypeString":
       return "string";
     case "scSpecTypeSymbol":
@@ -206,8 +208,6 @@ export interface BindingImports {
   stellarContractImports: Set<string>;
   /** Imports needed from Stellar SDK in the global namespace */
   stellarImports: Set<string>;
-  /** Whether Buffer import is needed */
-  needsBufferImport: boolean;
 }
 
 /**
@@ -259,7 +259,7 @@ function visitTypeDef(
 
     case "scSpecTypeBytes":
     case "scSpecTypeBytesN":
-      accumulator.needsBufferImport = true;
+      // Emitted as the global Uint8Array — no import needed.
       return;
 
     case "scSpecTypeVal":
@@ -303,7 +303,6 @@ export function generateTypeImports(typeDefs: ScSpecTypeDef[]): BindingImports {
     typeFileImports: new Set<string>(),
     stellarContractImports: new Set<string>(),
     stellarImports: new Set<string>(),
-    needsBufferImport: false,
   };
 
   // Visit each type definition
@@ -363,11 +362,6 @@ export function formatImports(
     importLines.push(
       `import {${uniqueStellarImports.join(", ")}} from '@stellar/stellar-sdk';`,
     );
-  }
-
-  // Buffer import
-  if (imports.needsBufferImport) {
-    importLines.push(`import { Buffer } from 'buffer';`);
   }
 
   return importLines.join("\n");

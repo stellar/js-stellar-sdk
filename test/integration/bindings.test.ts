@@ -183,16 +183,16 @@ describe("BindingGenerator", () => {
         {
           name: "bytes",
           type: xdr.ScSpecTypeDef.scSpecTypeBytes(),
-          expectedOutput: "Buffer",
-          expectedInput: "Buffer",
+          expectedOutput: "Uint8Array",
+          expectedInput: "Uint8Array",
         },
         {
           name: "bytesN",
           type: xdr.ScSpecTypeDef.scSpecTypeBytesN(
             new xdr.ScSpecTypeBytesN({ n: 32 }),
           ),
-          expectedOutput: "Buffer",
-          expectedInput: "Buffer",
+          expectedOutput: "Uint8Array",
+          expectedInput: "Uint8Array",
         },
         {
           name: "duration",
@@ -556,7 +556,7 @@ describe("BindingGenerator", () => {
       expect(result.client).toContain("Result");
     });
 
-    it("includes Buffer import when bytes type used", () => {
+    it("emits bytes as Uint8Array with no Buffer import", () => {
       const funcSpec = createFunctionSpec(
         "get_bytes",
         [],
@@ -565,8 +565,8 @@ describe("BindingGenerator", () => {
       const spec = new contract.Spec([funcSpec.toXdr("base64")]);
       const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
 
-      expect(result.client).toContain("Buffer");
-      expect(result.client).toContain("from 'buffer'");
+      expect(result.client).toContain("Uint8Array");
+      expect(result.client).not.toContain("from 'buffer'");
     });
 
     it("includes UDT type imports from types.js", () => {
