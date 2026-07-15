@@ -28,6 +28,7 @@ A breaking change will get clearly marked in this log.
 - The UMD (`dist/`) build now sets `inlineDynamicImports` so the single-file bundle stays whole despite the SAC spec's lazy `import()` ([#1501](https://github.com/stellar/js-stellar-sdk/pull/1501)).
 
 ### Fixed
+- `contract.AssembledTransaction.needsNonInvokerSigningBy` now treats an empty `scvVec` signature — the placeholder `authorizeInvocation` writes on unsigned entries — as unsigned, matching the existing `scvVoid` check. Previously such entries were wrongly considered already signed and omitted from the list ([#1468](https://github.com/stellar/js-stellar-sdk/issues/1468)).
 - `Spec.nativeToScVal` no longer misclassifies plain objects that have a
   `constructor` key, and handles null-prototype objects
   (`Object.create(null)`); non-plain class instances now consistently get the

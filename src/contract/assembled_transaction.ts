@@ -9,6 +9,7 @@ import {
   SorobanDataBuilder,
   TransactionBuilder,
   authorizeEntry as stellarBaseAuthorizeEntry,
+  inspectAuthEntry,
   xdr,
 } from "../base/index.js";
 // internal helper (not part of the public API), imported directly from auth.js
@@ -950,18 +951,14 @@ export class AssembledTransaction<T> {
     return [
       ...new Set(
         (rawInvokeHostFunctionOp.auth ?? [])
-          .map((entry) => getAddressCredentials(entry.credentials()))
+          .map((entry) => inspectAuthEntry(entry))
           .filter(
-            (addrAuth): addrAuth is xdr.SorobanAddressCredentials =>
+            (info) =>
               // skip source-account credentials (no address payload), which
               // are covered by the envelope signature on the source account
-              addrAuth !== null &&
-              (includeAlreadySigned ||
-                addrAuth.signature().switch().name === "scvVoid"),
+              info.address !== null && (includeAlreadySigned || !info.signed),
           )
-          .map((addrAuth) =>
-            Address.fromScAddress(addrAuth.address()).toString(),
-          ),
+          .map((info) => info.address as string),
       ),
     ];
   };
