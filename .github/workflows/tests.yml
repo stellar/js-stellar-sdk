@@ -13,6 +13,9 @@ jobs:
       fail-fast: false
       max-parallel: 4
       matrix:
+        # Keep these numeric: the Guide Snippets Check step below is gated
+        # on `matrix.node-version == 22`, which silently never matches if
+        # these become strings like "22.x".
         node-version: [22, 24]
 
     steps:
@@ -52,6 +55,15 @@ jobs:
 
       - name: Integration Tests
         run: pnpm run test:integration
+
+      # Hermetic guide-snippet gate: validates docs snippet markers and
+      # typechecks examples/guides against src/, so an SDK API change that
+      # breaks documented example code fails the PR. Execution of the
+      # snippets runs in the guides_pr.yml quickstart job, not here.
+      # tsc output does not vary by Node version, so run once.
+      - name: Guide Snippets Check
+        if: matrix.node-version == 22
+        run: pnpm run docs:snippets:check
 
       - name: Browser Tests
         run: pnpm run test:browser

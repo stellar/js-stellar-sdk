@@ -18,6 +18,9 @@ jobs:
         job: ["test:e2e"]
     services:
       rpc:
+        # This image's core supports up to protocol 25. guides_pr.yml pins a
+        # newer digest running protocol 27 (the guides document protocol-27
+        # behavior) — when bumping either workflow's image, check the other.
         image: stellar/quickstart:testing@sha256:e09b46445243c966557073e4947642153e515bb3fa0c8b26d92ed3b7cdce3ba2
         ports:
           - 8000:8000

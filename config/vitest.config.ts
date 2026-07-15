@@ -32,7 +32,10 @@ export default defineConfig({
       all: true,
     },
     testTimeout: 20000,
-    // Only include non-browser tests in Node.js test runs
+    // Only include non-browser tests in Node.js test runs. The guide
+    // snippets suite (test/guides) is deliberately NOT here: it submits
+    // real testnet transactions unless redirected, so it only runs via
+    // vitest.config.guides.ts, never as part of a default run.
     include: ["test/unit/**/*.test.ts", "test/integration/**/*.test.ts"],
     exclude: ["**/browser.test.ts"],
   },
