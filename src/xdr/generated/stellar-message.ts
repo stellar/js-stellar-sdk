@@ -10,7 +10,7 @@ import {
   uint32,
   union,
 } from "@stellar/js-xdr";
-import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
+import type { XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import { MessageType } from "./message-type.js";
 import { Error, type ErrorWire } from "./error.js";
@@ -183,11 +183,7 @@ abstract class StellarMessageBase extends XdrValue {
         case_("hello", 13, field("hello", Hello.schema)),
         case_("auth", 2, field("auth", Auth.schema)),
         case_("dontHave", 3, field("dontHave", DontHave.schema)),
-        case_(
-          "peers",
-          5,
-          field("peers", array(PeerAddress.schema, UNBOUNDED_MAX_LENGTH)),
-        ),
+        case_("peers", 5, field("peers", array(PeerAddress.schema, 100))),
         case_("getTxSet", 6, field("txSetHash", opaque(32))),
         case_("txSet", 7, field("txSet", TransactionSet.schema)),
         case_(

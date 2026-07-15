@@ -1,5 +1,5 @@
 import { array, option, struct, uint32 } from "@stellar/js-xdr";
-import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
+import type { XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import { PublicKey, type PublicKeyWire } from "./public-key.js";
 import {
@@ -44,10 +44,7 @@ export class AccountEntryExtensionV2 extends XdrValue {
     {
       numSponsored: uint32(),
       numSponsoring: uint32(),
-      signerSponsoringIDs: array(
-        option(PublicKey.schema),
-        UNBOUNDED_MAX_LENGTH,
-      ),
+      signerSponsoringIDs: array(option(PublicKey.schema), 20),
       ext: AccountEntryExtensionV2Ext.schema,
     },
   );

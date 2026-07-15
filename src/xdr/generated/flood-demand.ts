@@ -1,5 +1,5 @@
 import { array, struct } from "@stellar/js-xdr";
-import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
+import type { XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import { Hash, type HashWire } from "./hash.js";
 
@@ -19,7 +19,7 @@ export class FloodDemand extends XdrValue {
   readonly txHashes: Hash[];
 
   static readonly schema: XdrType<FloodDemandWire> = struct("FloodDemand", {
-    txHashes: array(Hash.schema, UNBOUNDED_MAX_LENGTH),
+    txHashes: array(Hash.schema, 1000),
   });
 
   constructor(input: { txHashes: Hash[] }) {

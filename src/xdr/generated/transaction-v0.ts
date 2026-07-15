@@ -1,5 +1,5 @@
 import { array, int64, opaque, option, struct, uint32 } from "@stellar/js-xdr";
-import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
+import type { XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import { TimeBounds, type TimeBoundsWire } from "./time-bounds.js";
 import { Memo, type MemoWire } from "./memo.js";
@@ -53,7 +53,7 @@ export class TransactionV0 extends XdrValue {
     seqNum: int64(),
     timeBounds: option(TimeBounds.schema),
     memo: Memo.schema,
-    operations: array(Operation.schema, UNBOUNDED_MAX_LENGTH),
+    operations: array(Operation.schema, 100),
     ext: TransactionV0Ext.schema,
   });
 

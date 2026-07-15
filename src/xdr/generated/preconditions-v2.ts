@@ -1,5 +1,5 @@
 import { array, int64, option, struct, uint32, uint64 } from "@stellar/js-xdr";
-import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
+import type { XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import { TimeBounds, type TimeBoundsWire } from "./time-bounds.js";
 import { LedgerBounds, type LedgerBoundsWire } from "./ledger-bounds.js";
@@ -66,7 +66,7 @@ export class PreconditionsV2 extends XdrValue {
       minSeqNum: option(int64()),
       minSeqAge: uint64(),
       minSeqLedgerGap: uint32(),
-      extraSigners: array(SignerKey.schema, UNBOUNDED_MAX_LENGTH),
+      extraSigners: array(SignerKey.schema, 2),
     },
   );
 

@@ -45,7 +45,7 @@ export class ScSpecEventV0 extends XdrValue {
     doc: xdrString(1024),
     lib: xdrString(80),
     name: xdrString(32),
-    prefixTopics: array(xdrString(32), UNBOUNDED_MAX_LENGTH),
+    prefixTopics: array(xdrString(32), 2),
     params: array(ScSpecEventParamV0.schema, UNBOUNDED_MAX_LENGTH),
     dataFormat: ScSpecEventDataFormat.schema,
   });

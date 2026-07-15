@@ -243,7 +243,7 @@ abstract class ConfigSettingEntryBase extends XdrValue {
           6,
           field(
             "contractCostParamsCpuInsns",
-            array(ContractCostParamEntry.schema, UNBOUNDED_MAX_LENGTH),
+            array(ContractCostParamEntry.schema, 1024),
           ),
         ),
         case_(
@@ -251,7 +251,7 @@ abstract class ConfigSettingEntryBase extends XdrValue {
           7,
           field(
             "contractCostParamsMemBytes",
-            array(ContractCostParamEntry.schema, UNBOUNDED_MAX_LENGTH),
+            array(ContractCostParamEntry.schema, 1024),
           ),
         ),
         case_(

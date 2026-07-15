@@ -1,5 +1,5 @@
 import { array, struct, uint64 } from "@stellar/js-xdr";
-import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
+import type { XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import { Hash, type HashWire } from "./hash.js";
 import { UpgradeType, type UpgradeTypeWire } from "./upgrade-type.js";
@@ -60,7 +60,7 @@ export class StellarValue extends XdrValue {
   static readonly schema: XdrType<StellarValueWire> = struct("StellarValue", {
     txSetHash: Hash.schema,
     closeTime: uint64(),
-    upgrades: array(UpgradeType.schema, UNBOUNDED_MAX_LENGTH),
+    upgrades: array(UpgradeType.schema, 6),
     ext: StellarValueExt.schema,
   });
 

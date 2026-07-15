@@ -12,7 +12,7 @@ import {
   union,
   void as voidType,
 } from "@stellar/js-xdr";
-import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
+import type { XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import { ClaimPredicateType } from "./claim-predicate-type.js";
 
@@ -68,7 +68,7 @@ abstract class ClaimPredicateBase extends XdrValue {
             "andPredicates",
             array(
               lazy(() => ClaimPredicate.schema),
-              UNBOUNDED_MAX_LENGTH,
+              2,
             ),
           ),
         ),
@@ -79,7 +79,7 @@ abstract class ClaimPredicateBase extends XdrValue {
             "orPredicates",
             array(
               lazy(() => ClaimPredicate.schema),
-              UNBOUNDED_MAX_LENGTH,
+              2,
             ),
           ),
         ),

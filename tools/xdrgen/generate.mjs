@@ -332,7 +332,7 @@ function schemaExpr(t, ctx) {
     case "var_array": {
       ctx.builders.add("array");
       const inner = schemaExpr(t.element, ctx);
-      if (t.max_size != null) return `array(${inner}, ${t.max_size})`;
+      if (t.max_count != null) return `array(${inner}, ${t.max_count})`;
       ctx.coreImports.add("UNBOUNDED_MAX_LENGTH");
       return `array(${inner}, UNBOUNDED_MAX_LENGTH)`;
     }

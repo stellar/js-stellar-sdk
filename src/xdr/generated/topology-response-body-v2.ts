@@ -1,5 +1,5 @@
 import { array, struct } from "@stellar/js-xdr";
-import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
+import type { XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import {
   TimeSlicedPeerData,
@@ -34,8 +34,8 @@ export class TopologyResponseBodyV2 extends XdrValue {
   static readonly schema: XdrType<TopologyResponseBodyV2Wire> = struct(
     "TopologyResponseBodyV2",
     {
-      inboundPeers: array(TimeSlicedPeerData.schema, UNBOUNDED_MAX_LENGTH),
-      outboundPeers: array(TimeSlicedPeerData.schema, UNBOUNDED_MAX_LENGTH),
+      inboundPeers: array(TimeSlicedPeerData.schema, 25),
+      outboundPeers: array(TimeSlicedPeerData.schema, 25),
       nodeData: TimeSlicedNodeData.schema,
     },
   );

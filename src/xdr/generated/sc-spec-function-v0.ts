@@ -38,7 +38,7 @@ export class ScSpecFunctionV0 extends XdrValue {
       doc: xdrString(1024),
       name: xdrString(32),
       inputs: array(ScSpecFunctionInputV0.schema, UNBOUNDED_MAX_LENGTH),
-      outputs: array(ScSpecTypeDef.schema, UNBOUNDED_MAX_LENGTH),
+      outputs: array(ScSpecTypeDef.schema, 1),
     },
   );
 

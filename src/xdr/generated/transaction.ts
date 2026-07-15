@@ -1,5 +1,5 @@
 import { array, int64, struct, uint32 } from "@stellar/js-xdr";
-import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
+import type { XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import { MuxedAccount, type MuxedAccountWire } from "./muxed-account.js";
 import { Preconditions, type PreconditionsWire } from "./preconditions.js";
@@ -63,7 +63,7 @@ export class Transaction extends XdrValue {
     seqNum: int64(),
     cond: Preconditions.schema,
     memo: Memo.schema,
-    operations: array(Operation.schema, UNBOUNDED_MAX_LENGTH),
+    operations: array(Operation.schema, 100),
     ext: TransactionExt.schema,
   });
 

@@ -1,5 +1,5 @@
 import { array, int64, struct } from "@stellar/js-xdr";
-import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
+import type { XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import {
   ClaimableBalanceId,
@@ -59,7 +59,7 @@ export class ClaimableBalanceEntry extends XdrValue {
     "ClaimableBalanceEntry",
     {
       balanceId: ClaimableBalanceId.schema,
-      claimants: array(Claimant.schema, UNBOUNDED_MAX_LENGTH),
+      claimants: array(Claimant.schema, 10),
       asset: Asset.schema,
       amount: int64(),
       ext: ClaimableBalanceEntryExt.schema,

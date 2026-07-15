@@ -1,5 +1,5 @@
 import { array, int64, struct } from "@stellar/js-xdr";
-import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
+import type { XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import { Asset, type AssetWire } from "./asset.js";
 import { MuxedAccount, type MuxedAccountWire } from "./muxed-account.js";
@@ -46,7 +46,7 @@ export class PathPaymentStrictSendOp extends XdrValue {
       destination: MuxedAccount.schema,
       destAsset: Asset.schema,
       destMin: int64(),
-      path: array(Asset.schema, UNBOUNDED_MAX_LENGTH),
+      path: array(Asset.schema, 5),
     },
   );
 

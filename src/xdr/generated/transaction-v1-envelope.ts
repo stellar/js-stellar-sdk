@@ -1,5 +1,5 @@
 import { array, struct } from "@stellar/js-xdr";
-import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
+import type { XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import { Transaction, type TransactionWire } from "./transaction.js";
 import {
@@ -31,7 +31,7 @@ export class TransactionV1Envelope extends XdrValue {
     "TransactionV1Envelope",
     {
       tx: Transaction.schema,
-      signatures: array(DecoratedSignature.schema, UNBOUNDED_MAX_LENGTH),
+      signatures: array(DecoratedSignature.schema, 20),
     },
   );
 
