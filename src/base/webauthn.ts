@@ -74,7 +74,7 @@ export interface WebAuthnSignatureParts {
  *   const response = assertion.response as AuthenticatorAssertionResponse;
  *   return {
  *     signatureScVal: buildWebAuthnSignatureScVal({
- *       signature: normalizeSecp256r1Signature(response.signature),
+ *       signature: normalizeSecp256r1Signature(response.signature, "der"),
  *       authenticatorData: response.authenticatorData,
  *       clientDataJSON: response.clientDataJSON,
  *     }),
@@ -104,7 +104,7 @@ export function buildWebAuthnSignatureScVal(
   // can never be smuggled into the credentials even when the caller skipped
   // normalizeSecp256r1Signature. Normalization is idempotent, so already-good
   // signatures pass through byte-identical.
-  const signature = normalizeSecp256r1Signature(raw);
+  const signature = normalizeSecp256r1Signature(raw, "compact");
 
   // Contract struct field names are symbols; the keys here are already in the
   // ascending order the ScMap encoding requires.
@@ -136,56 +136,37 @@ export function buildWebAuthnSignatureScVal(
  * malleability normalization. A 64-byte compact input is also accepted and
  * just has its `s` half normalized.
  *
- * The encoding is autodetected by default: 64-byte inputs that parse as
- * well-formed DER are treated as DER (a degenerate short-scalar DER signature
- * can be exactly 64 bytes), everything else 64-byte as compact. In the
- * astronomically unlikely event a genuine compact signature also happens to be
- * well-formed DER, autodetection would misread it — pass `format` when the
- * encoding is known to make the behavior fully deterministic.
+ * The encoding must be declared explicitly: the two formats genuinely overlap
+ * (a degenerate short-scalar DER signature is exactly 64 bytes, and a compact
+ * signature can begin with DER's 0x30 tag), so guessing could silently
+ * misread a signature. WebAuthn's `AuthenticatorAssertionResponse.signature`
+ * is always `"der"`.
  *
- * @param signature - the DER-encoded (or 64-byte compact) signature
- * @param format - the input encoding; omit to autodetect
+ * @param signature - the signature bytes
+ * @param format - the input encoding: `"der"` for ASN.1 DER (what WebAuthn
+ *    authenticators produce), `"compact"` for 64-byte `r || s`
  * @returns the 64-byte low-S compact signature
- * @throws `Error` if the input does not match the (declared or detected)
- *    encoding, or if `r`/`s` fall outside the valid scalar range
+ * @throws `Error` if the input does not match the declared encoding, or if
+ *    `r`/`s` fall outside the valid scalar range
  */
 export function normalizeSecp256r1Signature(
   signature: BytesLike,
-  format?: "der" | "compact",
+  format: "der" | "compact",
 ): Uint8Array {
   const sig = toBytes(signature);
 
-  // Length alone can't disambiguate: a compact signature may start with 0x30
-  // (whenever r's top byte is 0x30), and a DER signature with unusually short
-  // scalars may be exactly 64 bytes. So for 64-byte inputs, prefer a
-  // well-formed DER parse and fall back to compact; other lengths must be DER.
-  // An explicit `format` skips the guessing entirely.
   let r: bigint;
   let s: bigint;
-  if (format === "compact" || (format === undefined && sig.length === 64)) {
+  if (format === "compact") {
     if (sig.length !== 64) {
       throw new Error(
         `compact secp256r1 signature must be 64 bytes, got ${sig.length}`,
       );
     }
-    let der: [bigint, bigint] | null = null;
-    if (format === undefined && sig[0] === 0x30) {
-      try {
-        der = parseDerSignature(sig);
-      } catch {
-        // not valid DER: treat as compact r||s
-      }
-    }
-    [r, s] = der ?? [
-      bytesToScalar(sig.subarray(0, 32)),
-      bytesToScalar(sig.subarray(32, 64)),
-    ];
-  } else if (format === "der" || sig[0] === 0x30) {
-    [r, s] = parseDerSignature(sig);
+    r = bytesToScalar(sig.subarray(0, 32));
+    s = bytesToScalar(sig.subarray(32, 64));
   } else {
-    throw new Error(
-      `expected a DER-encoded or 64-byte compact secp256r1 signature, got ${sig.length} bytes`,
-    );
+    [r, s] = parseDerSignature(sig);
   }
 
   if (s > SECP256R1_HALF_ORDER) {

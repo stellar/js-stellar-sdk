@@ -36,7 +36,7 @@ describe("normalizeSecp256r1Signature", () => {
   it("converts a low-S DER signature to 64-byte compact form", () => {
     const r = 0x1234n;
     const s = 0x5678n;
-    const compact = normalizeSecp256r1Signature(derEncode(r, s));
+    const compact = normalizeSecp256r1Signature(derEncode(r, s), "der");
 
     expect(compact).toHaveLength(64);
     expect(compact.subarray(0, 32)).toEqual(scalarBytes(r));
@@ -46,7 +46,7 @@ describe("normalizeSecp256r1Signature", () => {
   it("normalizes a high-S DER signature to low-S", () => {
     const r = 42n;
     const s = SECP256R1_ORDER - 1n; // maximally high S
-    const compact = normalizeSecp256r1Signature(derEncode(r, s));
+    const compact = normalizeSecp256r1Signature(derEncode(r, s), "der");
 
     expect(compact.subarray(0, 32)).toEqual(scalarBytes(r));
     // n - (n - 1) = 1
@@ -54,7 +54,10 @@ describe("normalizeSecp256r1Signature", () => {
   });
 
   it("leaves an exactly-half-order S untouched (boundary)", () => {
-    const compact = normalizeSecp256r1Signature(derEncode(7n, HALF_ORDER));
+    const compact = normalizeSecp256r1Signature(
+      derEncode(7n, HALF_ORDER),
+      "der",
+    );
     expect(compact.subarray(32)).toEqual(scalarBytes(HALF_ORDER));
   });
 
@@ -63,7 +66,7 @@ describe("normalizeSecp256r1Signature", () => {
     // that prefix is stripped and the value still occupies all 32 bytes
     const r = BigInt(`0x80${"11".repeat(31)}`);
     const s = 3n;
-    const compact = normalizeSecp256r1Signature(derEncode(r, s));
+    const compact = normalizeSecp256r1Signature(derEncode(r, s), "der");
 
     expect(compact.subarray(0, 32)).toEqual(scalarBytes(r));
     expect(compact.subarray(32)).toEqual(scalarBytes(s));
@@ -74,7 +77,7 @@ describe("normalizeSecp256r1Signature", () => {
     const highS = SECP256R1_ORDER - 5n;
     const compactIn = Buffer.concat([scalarBytes(r), scalarBytes(highS)]);
 
-    const compact = normalizeSecp256r1Signature(compactIn);
+    const compact = normalizeSecp256r1Signature(compactIn, "compact");
     expect(compact.subarray(0, 32)).toEqual(scalarBytes(r));
     expect(compact.subarray(32)).toEqual(scalarBytes(5n));
   });
@@ -85,12 +88,15 @@ describe("normalizeSecp256r1Signature", () => {
       der.byteOffset,
       der.byteOffset + der.byteLength,
     );
-    expect(normalizeSecp256r1Signature(ab)).toEqual(
-      normalizeSecp256r1Signature(der),
+    expect(normalizeSecp256r1Signature(ab, "der")).toEqual(
+      normalizeSecp256r1Signature(der, "der"),
     );
   });
 
-  it("parses a legitimate 64-byte DER signature as DER, not compact", () => {
+  // the two format-overlap cases that motivated making `format` required: the
+  // same 64 bytes are both a legitimate DER encoding and a plausible compact
+  // signature, and only the declared format decides how they're read
+  it("reads a 64-byte DER signature per the declared format", () => {
     // short scalars make the DER encoding exactly 64 bytes: 2 (SEQUENCE hdr)
     // + 2 + 29 (INTEGER r) + 2 + 29 (INTEGER s)
     const r = BigInt(`0x11${"22".repeat(28)}`); // 29 minimal bytes
@@ -98,41 +104,30 @@ describe("normalizeSecp256r1Signature", () => {
     const der = derEncode(r, s);
     expect(der).toHaveLength(64);
 
-    const compact = normalizeSecp256r1Signature(der);
-    expect(compact.subarray(0, 32)).toEqual(scalarBytes(r));
-    expect(compact.subarray(32)).toEqual(scalarBytes(s));
+    const asDer = normalizeSecp256r1Signature(der, "der");
+    expect(asDer.subarray(0, 32)).toEqual(scalarBytes(r));
+    expect(asDer.subarray(32)).toEqual(scalarBytes(s));
+
+    // declared compact, the same bytes are read literally as r || s
+    const asCompact = normalizeSecp256r1Signature(der, "compact");
+    expect(asCompact.subarray(0, 32)).toEqual(
+      Uint8Array.from(der.subarray(0, 32)),
+    );
+    expect(asCompact.subarray(32)).toEqual(Uint8Array.from(der.subarray(32)));
   });
 
-  it("still accepts a compact signature whose r starts with 0x30", () => {
+  it("accepts a compact signature whose r starts with DER's 0x30 tag", () => {
     const r = BigInt(`0x30${"11".repeat(31)}`);
     const s = 5n;
     const compactIn = Buffer.concat([scalarBytes(r), scalarBytes(s)]);
 
-    const compact = normalizeSecp256r1Signature(compactIn);
+    const compact = normalizeSecp256r1Signature(compactIn, "compact");
     expect(compact.subarray(0, 32)).toEqual(scalarBytes(r));
     expect(compact.subarray(32)).toEqual(scalarBytes(s));
   });
 
-  it("honors an explicit format: a 64-byte DER-shaped input read as compact", () => {
-    // the same 64-byte legitimate-DER fixture as above, but the caller
-    // declares it compact — the DER autodetection must be skipped
-    const r = BigInt(`0x11${"22".repeat(28)}`);
-    const s = BigInt(`0x33${"44".repeat(28)}`);
-    const der = derEncode(r, s);
-    expect(der).toHaveLength(64);
-
-    const compact = normalizeSecp256r1Signature(der, "compact");
-    expect(compact.subarray(0, 32)).toEqual(
-      Uint8Array.from(der.subarray(0, 32)),
-    );
-    expect(compact.subarray(32)).toEqual(Uint8Array.from(der.subarray(32)));
-  });
-
-  it("honors an explicit der format for 64-byte input without falling back", () => {
-    const r = 9n;
-    const s = 5n;
-    const compactIn = Buffer.concat([scalarBytes(r), scalarBytes(s)]);
-    // 64 bytes but declared DER: must throw instead of parsing as compact
+  it("rejects a 64-byte compact input declared der", () => {
+    const compactIn = Buffer.concat([scalarBytes(9n), scalarBytes(5n)]);
     expect(() => normalizeSecp256r1Signature(compactIn, "der")).toThrow(
       /invalid DER signature/,
     );
@@ -157,28 +152,22 @@ describe("normalizeSecp256r1Signature", () => {
     const truncated = Buffer.from([
       0x30, 0x06, 0x02, 0x03, 0x01, 0x02, 0x03, 0x02,
     ]);
-    expect(() => normalizeSecp256r1Signature(truncated)).toThrow(
+    expect(() => normalizeSecp256r1Signature(truncated, "der")).toThrow(
       /truncated INTEGER header/,
-    );
-  });
-
-  it("rejects input that is neither DER nor 64 bytes", () => {
-    expect(() => normalizeSecp256r1Signature(Buffer.alloc(10, 1))).toThrow(
-      /expected a DER-encoded or 64-byte compact/,
     );
   });
 
   it("rejects malformed DER", () => {
     const der = derEncode(1n, 2n);
     der[1] += 1; // corrupt the SEQUENCE length
-    expect(() => normalizeSecp256r1Signature(der)).toThrow(
+    expect(() => normalizeSecp256r1Signature(der, "der")).toThrow(
       /bad SEQUENCE header/,
     );
   });
 
   it("rejects out-of-range scalars", () => {
     const zeroR = Buffer.concat([scalarBytes(0n), scalarBytes(1n)]);
-    expect(() => normalizeSecp256r1Signature(zeroR)).toThrow(
+    expect(() => normalizeSecp256r1Signature(zeroR, "compact")).toThrow(
       /scalar out of range/,
     );
 
@@ -186,7 +175,7 @@ describe("normalizeSecp256r1Signature", () => {
       scalarBytes(1n),
       scalarBytes(SECP256R1_ORDER),
     ]);
-    expect(() => normalizeSecp256r1Signature(overOrder)).toThrow(
+    expect(() => normalizeSecp256r1Signature(overOrder, "compact")).toThrow(
       /scalar out of range/,
     );
   });
@@ -214,11 +203,11 @@ describe("normalizeSecp256r1Signature vs @noble/curves (differential)", () => {
       );
 
       expect(
-        normalizeSecp256r1Signature(Buffer.from(sig.toBytes("der"))),
+        normalizeSecp256r1Signature(Buffer.from(sig.toBytes("der")), "der"),
         `DER mismatch on round ${i}`,
       ).toEqual(expected);
       expect(
-        normalizeSecp256r1Signature(Buffer.from(compact)),
+        normalizeSecp256r1Signature(Buffer.from(compact), "compact"),
         `compact mismatch on round ${i}`,
       ).toEqual(expected);
     }
@@ -232,7 +221,7 @@ describe("normalizeSecp256r1Signature vs @noble/curves (differential)", () => {
       const compact = p256.sign(msg, priv, { prehash: false, lowS: false });
       const der = p256.Signature.fromBytes(compact, "compact").toBytes("der");
 
-      const normalized = normalizeSecp256r1Signature(Buffer.from(der));
+      const normalized = normalizeSecp256r1Signature(Buffer.from(der), "der");
       const out = p256.Signature.fromBytes(normalized, "compact");
       expect(out.hasHighS()).toBe(false);
       // (r, s) and (r, n-s) verify the same message, so normalization must
@@ -264,7 +253,7 @@ describe("normalizeSecp256r1Signature vs WebCrypto (round-trip)", () => {
         payload,
       );
 
-      const normalized = normalizeSecp256r1Signature(raw);
+      const normalized = normalizeSecp256r1Signature(raw, "compact");
       expect(normalized).toHaveLength(64);
       expect(p256.Signature.fromBytes(normalized, "compact").hasHighS()).toBe(
         false,
