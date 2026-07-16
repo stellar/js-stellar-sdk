@@ -40,6 +40,12 @@
       "require": "./lib/cjs/index.js",
       "default": "./lib/esm/index.js"
     },
+    "./base": {
+      "types": "./lib/esm/base/index.d.ts",
+      "import": "./lib/esm/base/index.js",
+      "require": "./lib/cjs/base/index.js",
+      "default": "./lib/esm/base/index.js"
+    },
     "./contract": {
       "types": "./lib/esm/contract/index.d.ts",
       "import": "./lib/esm/contract/index.js",
