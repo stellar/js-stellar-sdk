@@ -52,6 +52,8 @@ export class TransactionFailedError extends BadResponseError {
    *
    * @returns The decoded transaction result, or `null` if the response did not
    *   include a `result_xdr`.
+   * @throws If the server returned a `result_xdr` that is not valid base64-encoded
+   *   {@link xdr.TransactionResult} XDR.
    */
   public getTransactionResult(): xdr.TransactionResult | null {
     const resultXdr = this.extras().result_xdr;
