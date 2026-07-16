@@ -1164,7 +1164,12 @@ getTransactionResult(): TransactionResult | null;
 The decoded transaction result, or `null` if the response did not
   include a `result_xdr`.
 
-**Source:** [src/errors/transaction_failed.ts:56](https://github.com/stellar/js-stellar-sdk/blob/main/src/errors/transaction_failed.ts#L56)
+**Throws**
+
+- If the server returned a `result_xdr` that is not valid base64-encoded
+  `xdr.TransactionResult` XDR.
+
+**Source:** [src/errors/transaction_failed.ts:58](https://github.com/stellar/js-stellar-sdk/blob/main/src/errors/transaction_failed.ts#L58)
 
 ## WebAuth.InvalidChallengeError
 
