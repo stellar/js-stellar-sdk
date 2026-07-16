@@ -846,6 +846,164 @@ describe("Spec nativeToScVal with scSpecTypeVal", () => {
   });
 });
 
+describe("Spec scValToNative with scSpecTypeVal", () => {
+  const valType = xdr.ScSpecTypeDef.scSpecTypeVal();
+
+  it("converts scvString to string", () => {
+    const native = SPEC.scValToNative(xdr.ScVal.scvString("hello"), valType);
+    expect(native).toBe("hello");
+  });
+
+  it("converts scvSymbol to string", () => {
+    const native = SPEC.scValToNative(xdr.ScVal.scvSymbol("transfer"), valType);
+    expect(native).toBe("transfer");
+  });
+
+  it("converts scvU32 to number", () => {
+    const native = SPEC.scValToNative(xdr.ScVal.scvU32(42), valType);
+    expect(native).toBe(42);
+  });
+
+  it("converts scvU64 to bigint", () => {
+    const native = SPEC.scValToNative(
+      xdr.ScVal.scvU64(new xdr.Uint64(42n)),
+      valType,
+    );
+    expect(native).toBe(42n);
+  });
+
+  it("converts scvBool to boolean", () => {
+    expect(SPEC.scValToNative(xdr.ScVal.scvBool(true), valType)).toBe(true);
+    expect(SPEC.scValToNative(xdr.ScVal.scvBool(false), valType)).toBe(false);
+  });
+
+  it("converts scvVoid to null", () => {
+    expect(SPEC.scValToNative(xdr.ScVal.scvVoid(), valType)).toBe(null);
+  });
+
+  it("converts scvAddress to address string", () => {
+    const native = SPEC.scValToNative(addr.toScVal(), valType);
+    expect(native).toBe(publicKey);
+  });
+
+  it("converts scvBytes to Uint8Array", () => {
+    const native: Uint8Array = SPEC.scValToNative(
+      xdr.ScVal.scvBytes(Buffer.from([0, 1, 2, 3])),
+      valType,
+    );
+    expect(Uint8Array.from(native)).toEqual(new Uint8Array([0, 1, 2, 3]));
+  });
+
+  it("converts scvVec with mixed elements to a mixed array", () => {
+    const scv = xdr.ScVal.scvVec([
+      addr.toScVal(),
+      xdr.ScVal.scvU32(7),
+      xdr.ScVal.scvSymbol("do_thing"),
+    ]);
+    const native = SPEC.scValToNative(scv, valType);
+    expect(native).toEqual([publicKey, 7, "do_thing"]);
+  });
+
+  it("converts scvMap to a plain object", () => {
+    const scv = xdr.ScVal.scvMap([
+      new xdr.ScMapEntry({
+        key: xdr.ScVal.scvSymbol("a"),
+        val: xdr.ScVal.scvU32(1),
+      }),
+      new xdr.ScMapEntry({
+        key: xdr.ScVal.scvSymbol("b"),
+        val: xdr.ScVal.scvString("two"),
+      }),
+    ]);
+    const native = SPEC.scValToNative(scv, valType);
+    expect(native).toEqual({ a: 1, b: "two" });
+  });
+
+  it("decodes a Vec<Val> typed as scSpecTypeVec(Val) element-by-element", () => {
+    // This is the exact shape from issue #1498: a Vec<Val> field whose
+    // elements are heterogeneous (e.g. an Address and a u32)
+    const vecOfVal = xdr.ScSpecTypeDef.scSpecTypeVec(
+      new xdr.ScSpecTypeVec({ elementType: valType }),
+    );
+    const scv = xdr.ScVal.scvVec([
+      addr.toScVal(),
+      xdr.ScVal.scvU32(3),
+      xdr.ScVal.scvSymbol("execute"),
+    ]);
+    const native = SPEC.scValToNative(scv, vecOfVal);
+    expect(native).toEqual([publicKey, 3, "execute"]);
+  });
+
+  it("decodes a struct containing a Vec<Val> field (issue #1498)", () => {
+    // Mirrors the OutcomeContract struct from the issue:
+    //   struct OutcomeContract { address: Address, execute_fn: Symbol, args: Vec<Val> }
+    const structEntry = xdr.ScSpecEntry.scSpecEntryUdtStructV0(
+      new xdr.ScSpecUdtStructV0({
+        doc: "",
+        lib: "",
+        name: "OutcomeContract",
+        fields: [
+          new xdr.ScSpecUdtStructFieldV0({
+            doc: "",
+            name: "address",
+            type: xdr.ScSpecTypeDef.scSpecTypeAddress(),
+          }),
+          new xdr.ScSpecUdtStructFieldV0({
+            doc: "",
+            name: "args",
+            type: xdr.ScSpecTypeDef.scSpecTypeVec(
+              new xdr.ScSpecTypeVec({ elementType: valType }),
+            ),
+          }),
+          new xdr.ScSpecUdtStructFieldV0({
+            doc: "",
+            name: "execute_fn",
+            type: xdr.ScSpecTypeDef.scSpecTypeSymbol(),
+          }),
+        ],
+      }),
+    );
+    const funcEntry = xdr.ScSpecEntry.scSpecEntryFunctionV0(
+      new xdr.ScSpecFunctionV0({
+        doc: "",
+        name: "get_outcome",
+        inputs: [],
+        outputs: [
+          xdr.ScSpecTypeDef.scSpecTypeUdt(
+            new xdr.ScSpecTypeUdt({ name: "OutcomeContract" }),
+          ),
+        ],
+      }),
+    );
+    const localSpec = new contract.Spec([
+      structEntry.toXDR("base64"),
+      funcEntry.toXDR("base64"),
+    ]);
+
+    const scv = xdr.ScVal.scvMap([
+      new xdr.ScMapEntry({
+        key: xdr.ScVal.scvSymbol("address"),
+        val: addr.toScVal(),
+      }),
+      new xdr.ScMapEntry({
+        key: xdr.ScVal.scvSymbol("args"),
+        val: xdr.ScVal.scvVec([addr.toScVal(), xdr.ScVal.scvU32(5)]),
+      }),
+      new xdr.ScMapEntry({
+        key: xdr.ScVal.scvSymbol("execute_fn"),
+        val: xdr.ScVal.scvSymbol("release_funds"),
+      }),
+    ]);
+
+    const native = localSpec.funcResToNative("get_outcome", scv);
+    expect(native).toEqual({
+      address: publicKey,
+      args: [publicKey, 5],
+      execute_fn: "release_funds",
+    });
+  });
+});
+
 describe.skip("Print contract spec", () => {
   it("print", () => {
     const res = JSON.stringify(SPEC.jsonSchema("complex"), null, 2);
