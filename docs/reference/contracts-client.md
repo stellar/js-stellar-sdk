@@ -1011,7 +1011,7 @@ const result = contractSpec.funcResToNative('funcName', resultScv);
 console.log(result); // {success: true}
 ```
 
-**Source:** [src/contract/spec.ts:492](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L492)
+**Source:** [src/contract/spec.ts:493](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L493)
 
 ### `new Spec(entries)`
 
@@ -1038,7 +1038,7 @@ A Promise that resolves to a Client instance.
 
 - If the contract spec cannot be obtained from the provided wasm binary.
 
-**Source:** [src/contract/spec.ts:521](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L521)
+**Source:** [src/contract/spec.ts:522](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L522)
 
 ### `Spec.fromWasm(wasm)`
 
@@ -1060,7 +1060,7 @@ A Promise that resolves to a Spec instance.
 
 - If the contract spec cannot be obtained from the provided wasm binary.
 
-**Source:** [src/contract/spec.ts:505](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L505)
+**Source:** [src/contract/spec.ts:506](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L506)
 
 ### `spec.entries`
 
@@ -1070,7 +1070,7 @@ The XDR spec entries.
 entries: ScSpecEntry[];
 ```
 
-**Source:** [src/contract/spec.ts:496](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L496)
+**Source:** [src/contract/spec.ts:497](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L497)
 
 ### `spec.errorCases()`
 
@@ -1084,7 +1084,7 @@ errorCases(): ScSpecUdtErrorEnumCaseV0[];
 
 all contract functions
 
-**Source:** [src/contract/spec.ts:1192](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1192)
+**Source:** [src/contract/spec.ts:1200](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1200)
 
 ### `spec.findEntry(name)`
 
@@ -1106,7 +1106,7 @@ the entry
 
 - if no entry with the given name exists
 
-**Source:** [src/contract/spec.ts:648](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L648)
+**Source:** [src/contract/spec.ts:649](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L649)
 
 ### `spec.funcArgsToScVals(name, args)`
 
@@ -1139,7 +1139,7 @@ const args = {
 const scArgs = contractSpec.funcArgsToScVals('funcName', args);
 ```
 
-**Source:** [src/contract/spec.ts:591](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L591)
+**Source:** [src/contract/spec.ts:592](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L592)
 
 ### `spec.funcResToNative(name, val_or_base64)`
 
@@ -1169,7 +1169,7 @@ const resultScv = 'AAA=='; // Base64 encoded ScVal
 const result = contractSpec.funcResToNative('funcName', resultScv);
 ```
 
-**Source:** [src/contract/spec.ts:613](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L613)
+**Source:** [src/contract/spec.ts:614](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L614)
 
 ### `spec.funcs()`
 
@@ -1183,7 +1183,7 @@ funcs(): ScSpecFunctionV0[];
 
 all contract functions
 
-**Source:** [src/contract/spec.ts:545](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L545)
+**Source:** [src/contract/spec.ts:546](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L546)
 
 ### `spec.getFunc(name)`
 
@@ -1205,7 +1205,7 @@ the function spec
 
 - if no function with the given name exists
 
-**Source:** [src/contract/spec.ts:563](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L563)
+**Source:** [src/contract/spec.ts:564](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L564)
 
 ### `spec.jsonSchema(funcName)`
 
@@ -1229,7 +1229,7 @@ the converted JSON schema
 
 - if the contract spec is invalid
 
-**Source:** [src/contract/spec.ts:1212](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1212)
+**Source:** [src/contract/spec.ts:1220](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1220)
 
 ### `spec.nativeToScVal(val, ty)`
 
@@ -1252,7 +1252,7 @@ the converted ScVal
 
 - if value cannot be converted to the given type
 
-**Source:** [src/contract/spec.ts:667](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L667)
+**Source:** [src/contract/spec.ts:668](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L668)
 
 ### `spec.scValStrToNative(scv, typeDef)`
 
@@ -1275,7 +1275,7 @@ the converted native JS value
 
 - if ScVal cannot be converted to the given type
 
-**Source:** [src/contract/spec.ts:984](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L984)
+**Source:** [src/contract/spec.ts:985](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L985)
 
 ### `spec.scValToNative(scv, typeDef)`
 
@@ -1298,7 +1298,7 @@ the converted native JS value
 
 - if ScVal cannot be converted to the given type
 
-**Source:** [src/contract/spec.ts:997](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L997)
+**Source:** [src/contract/spec.ts:998](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L998)
 
 ## contract.Watcher
 
@@ -1581,7 +1581,7 @@ interface Union<T> {
 }
 ```
 
-**Source:** [src/contract/spec.ts:15](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L15)
+**Source:** [src/contract/spec.ts:16](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L16)
 
 #### `union.tag`
 
@@ -1589,7 +1589,7 @@ interface Union<T> {
 tag: string;
 ```
 
-**Source:** [src/contract/spec.ts:16](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L16)
+**Source:** [src/contract/spec.ts:17](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L17)
 
 #### `union.values`
 
@@ -1597,7 +1597,7 @@ tag: string;
 values?: T;
 ```
 
-**Source:** [src/contract/spec.ts:17](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L17)
+**Source:** [src/contract/spec.ts:18](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L18)
 
 ### contract.WalletError
 
