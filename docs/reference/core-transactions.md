@@ -3941,6 +3941,71 @@ valueOf(): unknown;
 
 **Source:** [src/base/numbers/xdr_large_int.ts:274](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L274)
 
+## buildWebAuthnSignatureScVal
+
+Builds the signature `xdr.ScVal` map that passkey/WebAuthn smart
+wallet contracts expect in their `__check_auth`, in the layout the ecosystem
+has converged on (e.g. `passkey-kit`):
+
+```text
+{
+  authenticator_data: Bytes,
+  client_data_json:   Bytes,
+  signature:          BytesN<64>,
+}
+```
+
+The 64-byte signature is defensively re-normalized (low-S enforced) before
+being embedded, so a malleable high-S signature never reaches the
+credentials even if the caller skipped `normalizeSecp256r1Signature`.
+
+Pass the result to `authorizeEntry` via the `signatureScVal` return
+variant of `SigningCallback`:
+
+```ts
+buildWebAuthnSignatureScVal(parts: WebAuthnSignatureParts): ScVal
+```
+
+**Parameters**
+
+- **`parts`** — `WebAuthnSignatureParts` (required) — the WebAuthn assertion pieces (see
+     `WebAuthnSignatureParts`)
+
+**Returns**
+
+the `scvMap` signature value to place in the entry's credentials
+
+**Throws**
+
+- `Error` if `signature` is not exactly 64 bytes (i.e. still DER), or
+   if its `r`/`s` scalars are out of range
+
+**Example**
+
+```ts
+import { authorizeEntry, buildWebAuthnSignatureScVal, normalizeSecp256r1Signature } from "@stellar/stellar-sdk";
+
+const signed = await authorizeEntry(entry, async (_preimage, payload) => {
+  const assertion = await navigator.credentials.get({
+    publicKey: { challenge: payload, ... },
+  });
+  const response = assertion.response as AuthenticatorAssertionResponse;
+  return {
+    signatureScVal: buildWebAuthnSignatureScVal({
+      signature: normalizeSecp256r1Signature(response.signature),
+      authenticatorData: response.authenticatorData,
+      clientDataJSON: response.clientDataJSON,
+    }),
+  };
+}, validUntilLedgerSeq, networkPassphrase);
+```
+
+**See also**
+
+- normalizeSecp256r1Signature
+
+**Source:** [src/base/webauthn.ts:84](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/webauthn.ts#L84)
+
 ## cereal
 
 ```ts
@@ -4016,6 +4081,38 @@ extractBaseAddress(address: string): string
 - **`address`** — `string` (required) — an account address (either M... or G...)
 
 **Source:** [src/base/util/decode_encode_muxed_account.ts:74](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/util/decode_encode_muxed_account.ts#L74)
+
+## normalizeSecp256r1Signature
+
+Converts a secp256r1 (P-256) ECDSA signature into the 64-byte compact
+`r || s` form with a normalized (low) `s`, which is what Soroban contracts
+verify against.
+
+WebAuthn authenticators return signatures ASN.1 DER-encoded
+(`SEQUENCE { INTEGER r, INTEGER s }`) with a possibly-high `s`; on-chain
+verification requires fixed 32-byte big-endian `r` and `s` with
+`s <= n/2` (low-S), so this handles both the re-encoding and the
+malleability normalization. A 64-byte compact input is also accepted and
+just has its `s` half normalized.
+
+```ts
+normalizeSecp256r1Signature(signature: BytesLike): Uint8Array
+```
+
+**Parameters**
+
+- **`signature`** — `BytesLike` (required) — the DER-encoded (or 64-byte compact) signature
+
+**Returns**
+
+the 64-byte low-S compact signature
+
+**Throws**
+
+- `Error` if the input is neither valid DER nor 64 bytes long, or if
+   `r`/`s` fall outside the valid scalar range
+
+**Source:** [src/base/webauthn.ts:136](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/webauthn.ts#L136)
 
 ## scValToBigInt
 
@@ -5051,3 +5148,49 @@ type deauthorize = 0
 ```
 
 **Source:** [src/base/operations/types.ts:452](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L452)
+
+### WebAuthnSignatureParts
+
+The pieces of a WebAuthn assertion needed to authorize a Soroban entry.
+
+```ts
+interface WebAuthnSignatureParts {
+  authenticatorData: BytesLike;
+  clientDataJSON: BytesLike;
+  signature: BytesLike;
+}
+```
+
+**Source:** [src/base/webauthn.ts:25](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/webauthn.ts#L25)
+
+#### `webAuthnSignatureParts.authenticatorData`
+
+`AuthenticatorAssertionResponse.authenticatorData`.
+
+```ts
+authenticatorData: BytesLike;
+```
+
+**Source:** [src/base/webauthn.ts:33](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/webauthn.ts#L33)
+
+#### `webAuthnSignatureParts.clientDataJSON`
+
+`AuthenticatorAssertionResponse.clientDataJSON`.
+
+```ts
+clientDataJSON: BytesLike;
+```
+
+**Source:** [src/base/webauthn.ts:35](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/webauthn.ts#L35)
+
+#### `webAuthnSignatureParts.signature`
+
+the secp256r1 signature in 64-byte compact form (`r || s`, low-S). WebAuthn
+authenticators return DER — run it through
+`normalizeSecp256r1Signature` first.
+
+```ts
+signature: BytesLike;
+```
+
+**Source:** [src/base/webauthn.ts:31](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/webauthn.ts#L31)
