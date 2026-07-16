@@ -90,6 +90,40 @@ describe("normalizeSecp256r1Signature", () => {
     );
   });
 
+  it("parses a legitimate 64-byte DER signature as DER, not compact", () => {
+    // short scalars make the DER encoding exactly 64 bytes: 2 (SEQUENCE hdr)
+    // + 2 + 29 (INTEGER r) + 2 + 29 (INTEGER s)
+    const r = BigInt(`0x11${"22".repeat(28)}`); // 29 minimal bytes
+    const s = BigInt(`0x33${"44".repeat(28)}`);
+    const der = derEncode(r, s);
+    expect(der).toHaveLength(64);
+
+    const compact = normalizeSecp256r1Signature(der);
+    expect(compact.subarray(0, 32)).toEqual(scalarBytes(r));
+    expect(compact.subarray(32)).toEqual(scalarBytes(s));
+  });
+
+  it("still accepts a compact signature whose r starts with 0x30", () => {
+    const r = BigInt(`0x30${"11".repeat(31)}`);
+    const s = 5n;
+    const compactIn = Buffer.concat([scalarBytes(r), scalarBytes(s)]);
+
+    const compact = normalizeSecp256r1Signature(compactIn);
+    expect(compact.subarray(0, 32)).toEqual(scalarBytes(r));
+    expect(compact.subarray(32)).toEqual(scalarBytes(s));
+  });
+
+  it("rejects a truncated INTEGER header with a clear error", () => {
+    // valid SEQUENCE and first INTEGER, but the second INTEGER's tag is the
+    // final byte: there is no room for its length byte
+    const truncated = Buffer.from([
+      0x30, 0x06, 0x02, 0x03, 0x01, 0x02, 0x03, 0x02,
+    ]);
+    expect(() => normalizeSecp256r1Signature(truncated)).toThrow(
+      /truncated INTEGER header/,
+    );
+  });
+
   it("rejects input that is neither DER nor 64 bytes", () => {
     expect(() => normalizeSecp256r1Signature(Buffer.alloc(10, 1))).toThrow(
       /expected a DER-encoded or 64-byte compact/,
@@ -247,6 +281,31 @@ describe("buildWebAuthnSignatureScVal", () => {
     });
     const native = scValToNative(scVal) as Record<string, Buffer>;
     expect(native.signature).toEqual(signature);
+  });
+
+  it("re-normalizes a high-S signature instead of embedding it", () => {
+    const r = 9n;
+    const highS = SECP256R1_ORDER - 5n;
+    const scVal = buildWebAuthnSignatureScVal({
+      signature: Buffer.concat([scalarBytes(r), scalarBytes(highS)]),
+      authenticatorData,
+      clientDataJSON,
+    });
+
+    const native = scValToNative(scVal) as Record<string, Buffer>;
+    expect(Uint8Array.from(native.signature)).toEqual(
+      Uint8Array.from(Buffer.concat([scalarBytes(r), scalarBytes(5n)])),
+    );
+  });
+
+  it("rejects out-of-range scalars", () => {
+    expect(() =>
+      buildWebAuthnSignatureScVal({
+        signature: Buffer.concat([scalarBytes(0n), scalarBytes(1n)]),
+        authenticatorData,
+        clientDataJSON,
+      }),
+    ).toThrow(/scalar out of range/);
   });
 
   it("rejects non-64-byte (e.g. still-DER) signatures", () => {

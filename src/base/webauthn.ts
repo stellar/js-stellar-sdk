@@ -48,6 +48,10 @@ export interface WebAuthnSignatureParts {
  * }
  * ```
  *
+ * The 64-byte signature is defensively re-normalized (low-S enforced) before
+ * being embedded, so a malleable high-S signature never reaches the
+ * credentials even if the caller skipped {@link normalizeSecp256r1Signature}.
+ *
  * Pass the result to {@link authorizeEntry} via the `signatureScVal` return
  * variant of {@link SigningCallback}:
  *
@@ -73,19 +77,26 @@ export interface WebAuthnSignatureParts {
  * @param parts - the WebAuthn assertion pieces (see
  *    {@link WebAuthnSignatureParts})
  * @returns the `scvMap` signature value to place in the entry's credentials
- * @throws `Error` if `signature` is not exactly 64 bytes (i.e. still DER)
+ * @throws `Error` if `signature` is not exactly 64 bytes (i.e. still DER), or
+ *    if its `r`/`s` scalars are out of range
  * @see normalizeSecp256r1Signature
  */
 export function buildWebAuthnSignatureScVal(
   parts: WebAuthnSignatureParts,
 ): xdr.ScVal {
-  const signature = toBytes(parts.signature);
-  if (signature.length !== 64) {
+  const raw = toBytes(parts.signature);
+  if (raw.length !== 64) {
     throw new Error(
-      `signature must be 64 bytes in compact r||s form, got ${signature.length}` +
+      `signature must be 64 bytes in compact r||s form, got ${raw.length}` +
         ` (WebAuthn authenticators return DER: convert it with normalizeSecp256r1Signature)`,
     );
   }
+  // Re-normalize rather than trusting the caller to have done it: this both
+  // range-checks r/s and guarantees low-S, so a high-S (malleable) signature
+  // can never be smuggled into the credentials even when the caller skipped
+  // normalizeSecp256r1Signature. Normalization is idempotent, so already-good
+  // signatures pass through byte-identical.
+  const signature = normalizeSecp256r1Signature(raw);
 
   // Contract struct field names are symbols; the keys here are already in the
   // ascending order the ScMap encoding requires.
@@ -125,15 +136,25 @@ export function buildWebAuthnSignatureScVal(
 export function normalizeSecp256r1Signature(signature: BytesLike): Uint8Array {
   const sig = toBytes(signature);
 
-  // A 64-byte input is compact r||s: a compact signature can start with 0x30
-  // (whenever r's top byte happens to be 0x30), so length — not the leading
-  // byte — has to decide. P-256 DER is 70-72 bytes except for degenerate
-  // short-scalar signatures, which never collide with exactly 64 in practice.
+  // Length alone can't disambiguate: a compact signature may start with 0x30
+  // (whenever r's top byte is 0x30), and a DER signature with unusually short
+  // scalars may be exactly 64 bytes. So for 64-byte inputs, prefer a
+  // well-formed DER parse and fall back to compact; other lengths must be DER.
   let r: bigint;
   let s: bigint;
   if (sig.length === 64) {
-    r = bytesToScalar(sig.subarray(0, 32));
-    s = bytesToScalar(sig.subarray(32, 64));
+    let der: [bigint, bigint] | null = null;
+    if (sig[0] === 0x30) {
+      try {
+        der = parseDerSignature(sig);
+      } catch {
+        // not valid DER: treat as compact r||s
+      }
+    }
+    [r, s] = der ?? [
+      bytesToScalar(sig.subarray(0, 32)),
+      bytesToScalar(sig.subarray(32, 64)),
+    ];
   } else if (sig[0] === 0x30) {
     [r, s] = parseDerSignature(sig);
   } else {
@@ -165,10 +186,20 @@ function parseDerSignature(sig: Uint8Array): [bigint, bigint] {
   return [r, s];
 }
 
-/** Parses one DER INTEGER at `offset`, returning its value and the next offset. */
+/**
+ * Parses one DER INTEGER at `offset`, returning its value and the next offset.
+ *
+ * Deliberately lenient about DER's minimal-encoding rules (redundant 0x00
+ * padding is accepted, top-bit-set values are read as unsigned rather than
+ * negative): the scalars are re-canonicalized into fixed 32-byte form anyway,
+ * so strictness here would only reject inputs without improving the output.
+ */
 function parseDerInteger(sig: Uint8Array, offset: number): [bigint, number] {
   if (sig[offset] !== 0x02) {
     throw new Error("invalid DER signature: expected INTEGER");
+  }
+  if (offset + 2 > sig.length) {
+    throw new Error("invalid DER signature: truncated INTEGER header");
   }
   const length = sig[offset + 1];
   const start = offset + 2;
