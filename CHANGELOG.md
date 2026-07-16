@@ -7,6 +7,8 @@ A breaking change will get clearly marked in this log.
 ## Unreleased
 
 ### Added
+- `authorizeEntry` / `authorizeInvocation` signing callbacks now receive the 32-byte signing payload (`hash(preimage.toXDR())`) as a second argument alongside the preimage, so signers — including HSMs and remote signers that only accept a digest — never have to re-derive it. Existing single-argument callbacks are unaffected ([#1532](https://github.com/stellar/js-stellar-sdk/issues/1532)).
+- `authorizeEntry` / `authorizeInvocation` now support non-Ed25519 signers: the signing callback may return `{ signatureScVal: xdr.ScVal, address?: string }`, and the given `ScVal` is written verbatim as the credentials' signature — no Ed25519 verification, no `{public_key, signature}` map, no `scvVec` wrapping. This lets smart-wallet / custom-account contracts (whose `__check_auth` expects its own signature structure) use the helper instead of hand-rolling preimage construction and credential assembly. The optional `address` routes the signature to a specific credential node, like `forAddress` ([#1530](https://github.com/stellar/js-stellar-sdk/issues/1530)).
 - `Spec.nativeToScVal` now supports contract parameters typed as `Val`
   (`scSpecTypeVal`) by delegating to the generic `nativeToScVal` converter, so
   raw JS values (strings, numbers, bigints, booleans, arrays, `Map`s, plain
