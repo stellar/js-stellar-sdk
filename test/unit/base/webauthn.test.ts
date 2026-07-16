@@ -113,6 +113,44 @@ describe("normalizeSecp256r1Signature", () => {
     expect(compact.subarray(32)).toEqual(scalarBytes(s));
   });
 
+  it("honors an explicit format: a 64-byte DER-shaped input read as compact", () => {
+    // the same 64-byte legitimate-DER fixture as above, but the caller
+    // declares it compact — the DER autodetection must be skipped
+    const r = BigInt(`0x11${"22".repeat(28)}`);
+    const s = BigInt(`0x33${"44".repeat(28)}`);
+    const der = derEncode(r, s);
+    expect(der).toHaveLength(64);
+
+    const compact = normalizeSecp256r1Signature(der, "compact");
+    expect(compact.subarray(0, 32)).toEqual(
+      Uint8Array.from(der.subarray(0, 32)),
+    );
+    expect(compact.subarray(32)).toEqual(Uint8Array.from(der.subarray(32)));
+  });
+
+  it("honors an explicit der format for 64-byte input without falling back", () => {
+    const r = 9n;
+    const s = 5n;
+    const compactIn = Buffer.concat([scalarBytes(r), scalarBytes(s)]);
+    // 64 bytes but declared DER: must throw instead of parsing as compact
+    expect(() => normalizeSecp256r1Signature(compactIn, "der")).toThrow(
+      /invalid DER signature/,
+    );
+  });
+
+  it("rejects non-64-byte input declared compact", () => {
+    expect(() =>
+      normalizeSecp256r1Signature(Buffer.alloc(63, 1), "compact"),
+    ).toThrow(/must be 64 bytes/);
+  });
+
+  it("rejects a declared-DER input whose tag is not SEQUENCE", () => {
+    const bogus = Buffer.alloc(70, 1); // first byte 0x01, not 0x30
+    expect(() => normalizeSecp256r1Signature(bogus, "der")).toThrow(
+      /bad SEQUENCE header/,
+    );
+  });
+
   it("rejects a truncated INTEGER header with a clear error", () => {
     // valid SEQUENCE and first INTEGER, but the second INTEGER's tag is the
     // final byte: there is no room for its length byte

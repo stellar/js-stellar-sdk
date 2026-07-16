@@ -36,9 +36,8 @@ export interface WebAuthnSignatureParts {
 }
 
 /**
- * Builds the signature {@link xdr.ScVal} map that passkey/WebAuthn smart
- * wallet contracts expect in their `__check_auth`, in the layout the ecosystem
- * has converged on (e.g. `passkey-kit`):
+ * Builds the inner secp256r1 signature struct {@link xdr.ScVal} map used by
+ * passkey/WebAuthn smart wallet contracts:
  *
  * ```text
  * {
@@ -48,12 +47,21 @@ export interface WebAuthnSignatureParts {
  * }
  * ```
  *
+ * Note that this is only the inner signature struct: contracts define their
+ * own outer container for it, and the caller is responsible for that wrapping.
+ * `passkey-kit`'s smart wallet, for instance, expects a `Signatures` map of
+ * `SignerKey` to a `Signature` enum wrapping this struct, so this value must
+ * be placed inside that map before being used as the credential signature.
+ * Only a contract whose `__check_auth` takes this struct directly can consume
+ * the result as-is.
+ *
  * The 64-byte signature is defensively re-normalized (low-S enforced) before
  * being embedded, so a malleable high-S signature never reaches the
  * credentials even if the caller skipped {@link normalizeSecp256r1Signature}.
  *
- * Pass the result to {@link authorizeEntry} via the `signatureScVal` return
- * variant of {@link SigningCallback}:
+ * Pass the (appropriately wrapped) result to {@link authorizeEntry} via the
+ * `signatureScVal` return variant of {@link SigningCallback}. For a contract
+ * that takes the struct directly:
  *
  * @example
  * ```ts
@@ -128,23 +136,40 @@ export function buildWebAuthnSignatureScVal(
  * malleability normalization. A 64-byte compact input is also accepted and
  * just has its `s` half normalized.
  *
+ * The encoding is autodetected by default: 64-byte inputs that parse as
+ * well-formed DER are treated as DER (a degenerate short-scalar DER signature
+ * can be exactly 64 bytes), everything else 64-byte as compact. In the
+ * astronomically unlikely event a genuine compact signature also happens to be
+ * well-formed DER, autodetection would misread it — pass `format` when the
+ * encoding is known to make the behavior fully deterministic.
+ *
  * @param signature - the DER-encoded (or 64-byte compact) signature
+ * @param format - the input encoding; omit to autodetect
  * @returns the 64-byte low-S compact signature
- * @throws `Error` if the input is neither valid DER nor 64 bytes long, or if
- *    `r`/`s` fall outside the valid scalar range
+ * @throws `Error` if the input does not match the (declared or detected)
+ *    encoding, or if `r`/`s` fall outside the valid scalar range
  */
-export function normalizeSecp256r1Signature(signature: BytesLike): Uint8Array {
+export function normalizeSecp256r1Signature(
+  signature: BytesLike,
+  format?: "der" | "compact",
+): Uint8Array {
   const sig = toBytes(signature);
 
   // Length alone can't disambiguate: a compact signature may start with 0x30
   // (whenever r's top byte is 0x30), and a DER signature with unusually short
   // scalars may be exactly 64 bytes. So for 64-byte inputs, prefer a
   // well-formed DER parse and fall back to compact; other lengths must be DER.
+  // An explicit `format` skips the guessing entirely.
   let r: bigint;
   let s: bigint;
-  if (sig.length === 64) {
+  if (format === "compact" || (format === undefined && sig.length === 64)) {
+    if (sig.length !== 64) {
+      throw new Error(
+        `compact secp256r1 signature must be 64 bytes, got ${sig.length}`,
+      );
+    }
     let der: [bigint, bigint] | null = null;
-    if (sig[0] === 0x30) {
+    if (format === undefined && sig[0] === 0x30) {
       try {
         der = parseDerSignature(sig);
       } catch {
@@ -155,7 +180,7 @@ export function normalizeSecp256r1Signature(signature: BytesLike): Uint8Array {
       bytesToScalar(sig.subarray(0, 32)),
       bytesToScalar(sig.subarray(32, 64)),
     ];
-  } else if (sig[0] === 0x30) {
+  } else if (format === "der" || sig[0] === 0x30) {
     [r, s] = parseDerSignature(sig);
   } else {
     throw new Error(
@@ -174,7 +199,12 @@ export function normalizeSecp256r1Signature(signature: BytesLike): Uint8Array {
 function parseDerSignature(sig: Uint8Array): [bigint, bigint] {
   // P-256 signatures are at most ~72 bytes, so the DER lengths always use the
   // short (single-byte) form.
-  if (sig.length < 8 || (sig[1] & 0x80) !== 0 || sig[1] !== sig.length - 2) {
+  if (
+    sig.length < 8 ||
+    sig[0] !== 0x30 ||
+    (sig[1] & 0x80) !== 0 ||
+    sig[1] !== sig.length - 2
+  ) {
     throw new Error("invalid DER signature: bad SEQUENCE header");
   }
 
