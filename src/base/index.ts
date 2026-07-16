@@ -88,5 +88,10 @@ export type {
   DelegateSignature,
   BuildWithDelegatesParams,
 } from "./auth.js";
+export {
+  buildWebAuthnSignatureScVal,
+  normalizeSecp256r1Signature,
+} from "./webauthn.js";
+export type { WebAuthnSignatureParts } from "./webauthn.js";
 export * from "./invocation.js";
 export * from "./numbers/index.js";
