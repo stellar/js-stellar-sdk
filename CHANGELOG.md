@@ -26,6 +26,15 @@ A breaking change will get clearly marked in this log.
 - The UMD (`dist/`) build now sets `inlineDynamicImports` so the single-file bundle stays whole despite the SAC spec's lazy `import()` ([#1501](https://github.com/stellar/js-stellar-sdk/pull/1501)).
 
 ### Fixed
+- `Spec.scValToNative` now handles contract values typed as `Val`
+  (`scSpecTypeVal`) by delegating to the generic `scValToNative` converter,
+  mirroring the encoding-side support added in [#1485]. Decoding a response
+  containing a `Val`-typed string, symbol, vec, or map — e.g. a struct with a
+  `Vec<Val>` field — no longer throws
+  `ScSpecType scSpecTypeVal was not string or symbol`; each value decodes to
+  its natural native representation (`Address` → string, `u32` → number,
+  `Symbol` → string, vecs/maps recurse).
+  ([#1551](https://github.com/stellar/js-stellar-sdk/pull/1551))
 - `Spec.nativeToScVal` no longer misclassifies plain objects that have a
   `constructor` key, and handles null-prototype objects
   (`Object.create(null)`); non-plain class instances now consistently get the
