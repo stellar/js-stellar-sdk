@@ -19,6 +19,7 @@ import {
   NotFoundError,
   TransactionFailedError,
 } from "../errors/index.js";
+import { wrapHttpError } from "../errors/wrap_http_error.js";
 
 import { AccountCallBuilder } from "./account_call_builder.js";
 import { AccountResponse } from "./account_response.js";
@@ -61,28 +62,14 @@ function getAmountInLumens(amt: BigNumber) {
   return new CustomBigNumber(amt).div(STROOPS_IN_LUMEN).toString();
 }
 
-// Maps a transaction submission rejection to an SDK error. HTTP-level
-// failures from the http client are Error instances carrying a `.response`,
-// so an instanceof check alone would leak them through raw.
+// Maps a transaction submission rejection to an SDK error.
 function toSubmissionError(error: any): Error {
-  const response = error?.response ?? error;
-  if (response && typeof response.status === "number") {
-    const message = `Transaction submission failed. Server responded: ${response.status} ${response.statusText}`;
-    const details = {
-      data: response.data,
-      status: response.status,
-      statusText: response.statusText,
-    };
-    const wrapped = response.data?.extras?.result_codes
+  return wrapHttpError(error, (details) => {
+    const message = `Transaction submission failed. Server responded: ${details.status} ${details.statusText}`;
+    return details.data?.extras?.result_codes
       ? new TransactionFailedError(message, details)
       : new BadResponseError(message, details);
-    // keep the underlying http client error (headers, config, etc.) reachable
-    if (error instanceof Error) {
-      wrapped.cause = error;
-    }
-    return wrapped;
-  }
-  return error instanceof Error ? error : new Error(String(error));
+  });
 }
 
 /**

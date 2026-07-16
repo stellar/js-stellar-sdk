@@ -2,6 +2,7 @@ import { StrKey } from "../base/index.js";
 
 import { Config } from "../config.js";
 import { BadResponseError } from "../errors/index.js";
+import { wrapHttpError } from "../errors/wrap_http_error.js";
 import { Resolver } from "../stellartoml/index.js";
 
 import type { Api } from "./api.js";
@@ -244,26 +245,15 @@ export class FederationServer {
             `federation response exceeds allowed size of ${FEDERATION_RESPONSE_MAX_SIZE}`,
           );
         }
-        // HTTP-level failures from the http client are Error instances
-        // carrying a `.response`, so an instanceof check alone would leak
-        // them through raw.
-        const response = error?.response ?? error;
-        if (response && typeof response.status === "number") {
-          const wrapped = new BadResponseError(
-            `Server query failed. Server responded: ${response.status} ${response.statusText}`,
-            {
-              data: response.data,
-              status: response.status,
-              statusText: response.statusText,
-            },
-          );
-          if (error instanceof Error) {
-            wrapped.cause = error;
-          }
-          return Promise.reject(wrapped);
-        }
         return Promise.reject(
-          error instanceof Error ? error : new Error(String(error)),
+          wrapHttpError(
+            error,
+            (details) =>
+              new BadResponseError(
+                `Server query failed. Server responded: ${details.status} ${details.statusText}`,
+                details,
+              ),
+          ),
         );
       });
   }
