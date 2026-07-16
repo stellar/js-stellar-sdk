@@ -202,7 +202,10 @@ export async function authorizeEntry(
   let targetAddress = forAddress;
   let sigResult: Awaited<ReturnType<SigningCallback>> | null = null;
   if (typeof signer === "function") {
-    sigResult = await signer(preimage, payload);
+    // Hand the callback its own copy of the payload: `payload` is what the
+    // Ed25519 signature is verified against below, so a callback mutating the
+    // buffer it received must not be able to shift what "valid" means.
+    sigResult = await signer(preimage, Buffer.from(payload));
   }
 
   if (

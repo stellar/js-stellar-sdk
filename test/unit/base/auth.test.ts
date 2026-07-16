@@ -952,6 +952,26 @@ describe("building authorization entries", () => {
         kp.publicKey(),
       );
     });
+
+    it("gives the callback a copy, so mutating it cannot skew verification", async () => {
+      await expect(
+        authorizeEntry(
+          authEntry,
+          (_preimage, payload) => {
+            // sign a doctored payload, then rely on the mutation sticking: if
+            // the callback shared the verification buffer, this would wrongly
+            // pass and emit an on-chain-invalid signature
+            payload[0] ^= 0xff;
+            return Promise.resolve({
+              signature: kp.sign(payload),
+              publicKey: kp.publicKey(),
+            });
+          },
+          10,
+          Networks.TESTNET,
+        ),
+      ).rejects.toThrow(/signature doesn't match payload/);
+    });
   });
 
   describe("custom signature ScVal (non-Ed25519 signers)", () => {
