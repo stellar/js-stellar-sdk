@@ -402,7 +402,16 @@ describe("server.js transaction tests", () => {
       // shape produced by the http client for non-2xx responses
       return Object.assign(
         new Error(`Request failed with status code ${status}`),
-        { response: { status, statusText, data } },
+        {
+          response: {
+            status,
+            statusText,
+            data,
+            headers: { "content-type": "application/problem+json" },
+          },
+          config: { url: "https://horizon.example.org/transactions" },
+          isAxiosError: true,
+        },
       );
     }
 
@@ -448,6 +457,10 @@ describe("server.js transaction tests", () => {
       expect(err.response.status).toEqual(400);
       expect(err.cause).toBeInstanceOf(Error);
       expect(err.cause.response.statusText).toEqual("Bad Request");
+      // http-client-specific fields must remain reachable via `cause`
+      expect(err.cause.response.headers).toBeDefined();
+      expect(err.cause.config).toBeDefined();
+      expect(err.cause.isAxiosError).toBe(true);
     });
 
     it("getTransactionResult() returns null when result_xdr is absent", async () => {
