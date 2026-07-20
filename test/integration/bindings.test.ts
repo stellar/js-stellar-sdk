@@ -1412,8 +1412,11 @@ describe("BindingGenerator", () => {
         "mintEventFilter(topicValues?: { to?: string })",
       );
 
-      // Metadata UDT should be imported into client.ts since it's used by an event
-      expect(result.client).toMatch(
+      // Metadata is only used by a data-located param, so it appears in
+      // types.ts but is NOT imported into client.ts (filter helpers only
+      // reference topic-list param types)
+      expect(result.types).toContain("export interface Metadata");
+      expect(result.client).not.toMatch(
         /import\s*\{[^}]*Metadata[^}]*\}\s*from\s*'\.\/types\.js'/,
       );
     });

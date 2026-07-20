@@ -276,7 +276,7 @@ ${members}
   }
 
   /**
-   * Compute the exported TS interface name for an event, e.g. "transfer" -> "TransferEvent"
+   * Compute the exported TS interface name for an event, e.g. "transfer" becomes "TransferEvent"
    */
   private eventInterfaceName(event: xdr.ScSpecEventV0): string {
     return `${toPascalCase(sanitizeIdentifier(event.name().toString()))}Event`;
@@ -309,19 +309,35 @@ ${members}
           xdr.ScSpecEventParamLocationV0.scSpecEventParamLocationData().value,
       );
 
-    const formatParamFields = (params: xdr.ScSpecEventParamV0[]): string =>
+    // parseEvent keys its output by the raw param names, so the interface
+    // must use them too — quoted when they aren't valid identifiers.
+    const fieldKey = (rawParamName: string): string =>
+      /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(rawParamName)
+        ? rawParamName
+        : `"${escapeStringLiteral(rawParamName)}"`;
+
+    const formatParamFields = (
+      params: xdr.ScSpecEventParamV0[],
+      optional = false,
+    ): string =>
       params
         .map((param) => {
-          const fieldName = sanitizeIdentifier(param.name().toString());
+          const fieldName = fieldKey(param.name().toString());
           const fieldType = parseTypeFromTypeDef(param.type());
           const fieldDoc = formatJSDocComment(param.doc().toString(), 4);
 
-          return `${fieldDoc}    ${fieldName}: ${fieldType};`;
+          return `${fieldDoc}    ${fieldName}${optional ? "?" : ""}: ${fieldType};`;
         })
         .join("\n");
 
+    // Map-format data entries may be absent from an emitted event's map, in
+    // which case parseEvent omits the key — so those fields are optional.
+    const dataIsMapFormat =
+      event.dataFormat().value ===
+      xdr.ScSpecEventDataFormat.scSpecEventDataFormatMap().value;
+
     const topicsFields = formatParamFields(topicParams);
-    const dataFields = formatParamFields(dataParams);
+    const dataFields = formatParamFields(dataParams, dataIsMapFormat);
 
     return `${doc}export interface ${name} {
   name: "${escapeStringLiteral(rawName)}";

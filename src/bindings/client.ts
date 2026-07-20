@@ -4,6 +4,7 @@ import {
   parseTypeFromTypeDef,
   generateTypeImports,
   sanitizeIdentifier,
+  escapeStringLiteral,
   formatJSDocComment,
   formatImports,
   toCamelCase,
@@ -97,9 +98,18 @@ ${eventMethods}
       imports.typeFileImports.add("ContractEvent");
       // parseEvent()'s topics/data parameters are typed using xdr.ScVal
       imports.stellarImports.add("xdr");
-      // Event filter helpers reference topic param types
+      // Event filter helpers reference topic-list param types only; data
+      // param types appear only in types.ts
       events.forEach((event) => {
-        event.params().forEach((param) => {
+        const topicParams = event
+          .params()
+          .filter(
+            (param) =>
+              param.location().value ===
+              xdr.ScSpecEventParamLocationV0.scSpecEventParamLocationTopicList()
+                .value,
+          );
+        topicParams.forEach((param) => {
           const nested = generateTypeImports([param.type()]);
           nested.typeFileImports.forEach((t) => imports.typeFileImports.add(t));
           nested.stellarContractImports.forEach((t) =>
@@ -153,15 +163,20 @@ ${eventMethods}
             .value,
       );
 
+    // eventTopicFilter looks values up by the raw param names, so the
+    // parameter type must use them too — quoted when they aren't valid
+    // identifiers.
     const fields = topicParams
       .map((param) => {
-        const fieldName = sanitizeIdentifier(param.name().toString());
+        const rawParamName = param.name().toString();
+        const fieldName = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(rawParamName)
+          ? rawParamName
+          : `"${escapeStringLiteral(rawParamName)}"`;
         const fieldType = parseTypeFromTypeDef(param.type());
         return `${fieldName}?: ${fieldType}`;
       })
       .join("; ");
 
-    const topicValuesType = `{ ${fields} }`;
     const doc = formatJSDocComment(
       `Build a topics filter row for the "${rawName}" event, for use in ` +
         `\`Api.EventFilter.topics\` when calling \`server.getEvents\`. ` +
@@ -169,7 +184,13 @@ ${eventMethods}
       2,
     );
 
-    return `${doc}  ${methodName}(topicValues?: ${topicValuesType}): string[] {
+    if (topicParams.length === 0) {
+      return `${doc}  ${methodName}(): string[] {
+    return this.spec.eventTopicFilter("${rawName}");
+  }`;
+    }
+
+    return `${doc}  ${methodName}(topicValues?: { ${fields} }): string[] {
     return this.spec.eventTopicFilter("${rawName}", topicValues);
   }`;
   }
