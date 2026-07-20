@@ -201,6 +201,36 @@ describe("Spec events", () => {
     expect(spec.parseEvent(wrongCount, xdr.ScVal.scvVoid())).toBeUndefined();
   });
 
+  it("returns undefined instead of throwing on malformed base64 XDR input", () => {
+    const event = new xdr.ScSpecEventV0({
+      doc: "",
+      lib: "",
+      name: "transfer",
+      prefixTopics: ["transfer"],
+      params: [param("from", addrType, TOPIC)],
+      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatSingleValue(),
+    });
+    const spec = new Spec([entryFor(event)]);
+
+    expect(() =>
+      spec.parseEvent(["not valid base64 xdr!!"], xdr.ScVal.scvVoid()),
+    ).not.toThrow();
+    expect(
+      spec.parseEvent(["not valid base64 xdr!!"], xdr.ScVal.scvVoid()),
+    ).toBeUndefined();
+
+    const validTopics = [
+      xdr.ScVal.scvSymbol("transfer").toXDR("base64"),
+      addr.toScVal().toXDR("base64"),
+    ];
+    expect(() =>
+      spec.parseEvent(validTopics, "also not valid base64 xdr!!"),
+    ).not.toThrow();
+    expect(
+      spec.parseEvent(validTopics, "also not valid base64 xdr!!"),
+    ).toBeUndefined();
+  });
+
   it("returns undefined instead of throwing on malformed event data", () => {
     const vecEvent = new xdr.ScSpecEventV0({
       doc: "",

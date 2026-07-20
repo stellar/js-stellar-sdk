@@ -139,11 +139,17 @@ export function parseEvent(
   topics: xdr.ScVal[] | string[],
   data: xdr.ScVal | string,
 ): ParsedEvent | undefined {
-  const topicVals: xdr.ScVal[] = topics.map((t) =>
-    typeof t === "string" ? xdr.ScVal.fromXDR(t, "base64") : t,
-  );
-  const dataVal: xdr.ScVal =
-    typeof data === "string" ? xdr.ScVal.fromXDR(data, "base64") : data;
+  let topicVals: xdr.ScVal[];
+  let dataVal: xdr.ScVal;
+  try {
+    topicVals = topics.map((t) =>
+      typeof t === "string" ? xdr.ScVal.fromXDR(t, "base64") : t,
+    );
+    dataVal =
+      typeof data === "string" ? xdr.ScVal.fromXDR(data, "base64") : data;
+  } catch {
+    return undefined;
+  }
 
   const specEvents = events(entries);
   for (const event of specEvents) {
