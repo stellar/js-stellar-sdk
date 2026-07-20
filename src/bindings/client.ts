@@ -184,14 +184,16 @@ ${eventMethods}
       2,
     );
 
+    const escapedName = escapeStringLiteral(rawName);
+
     if (topicParams.length === 0) {
       return `${doc}  ${methodName}(): string[] {
-    return this.spec.eventTopicFilter("${rawName}");
+    return this.spec.eventTopicFilter("${escapedName}");
   }`;
     }
 
     return `${doc}  ${methodName}(topicValues?: { ${fields} }): string[] {
-    return this.spec.eventTopicFilter("${rawName}", topicValues);
+    return this.spec.eventTopicFilter("${escapedName}", topicValues);
   }`;
   }
 

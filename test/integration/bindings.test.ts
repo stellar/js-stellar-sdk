@@ -1420,5 +1420,25 @@ describe("BindingGenerator", () => {
         /import\s*\{[^}]*Metadata[^}]*\}\s*from\s*'\.\/types\.js'/,
       );
     });
+
+    it("escapes an event name that would otherwise break out of the generated string literal", () => {
+      const maliciousEvent = createEventSpec('x"); malicious(); //', [
+        {
+          name: "to",
+          type: xdr.ScSpecTypeDef.scSpecTypeAddress(),
+          location: "topic_list",
+        },
+      ]);
+
+      const spec = new contract.Spec([maliciousEvent.toXDR("base64")]);
+      const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
+
+      // The unescaped quote must not appear, i.e. it can't break out of the
+      // string literal; the payload survives only as inert escaped text.
+      expect(result.client).toContain(
+        'eventTopicFilter("x\\"); malicious(); //"',
+      );
+      expect(result.client).not.toContain('eventTopicFilter("x");');
+    });
   });
 });
