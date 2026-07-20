@@ -13,7 +13,7 @@ The maximum size of response from a federation server
 const FEDERATION_RESPONSE_MAX_SIZE: number
 ```
 
-**Source:** [src/federation/server.ts:15](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L15)
+**Source:** [src/federation/server.ts:16](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L16)
 
 ## Federation.Server
 
@@ -32,7 +32,7 @@ class Server {
 }
 ```
 
-**Source:** [src/federation/server.ts:26](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L26)
+**Source:** [src/federation/server.ts:27](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L27)
 
 ### `new Server(serverURL, domain, opts)`
 
@@ -46,7 +46,7 @@ constructor(serverURL: string, domain: string, opts: Options = {});
 - **`domain`** — `string` (required)
 - **`opts`** — `Options` (optional) (default: `{}`)
 
-**Source:** [src/federation/server.ts:137](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L137)
+**Source:** [src/federation/server.ts:138](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L138)
 
 ### `Server.createForDomain(domain, opts)`
 
@@ -90,7 +90,7 @@ StellarSdk.FederationServer.createForDomain('acme.com')
 
 - <a href="https://developers.stellar.org/docs/issuing-assets/publishing-asset-info" target="_blank">Stellar.toml doc</a>
 
-**Source:** [src/federation/server.ts:123](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L123)
+**Source:** [src/federation/server.ts:124](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L124)
 
 ### `Server.resolve(value, opts)`
 
@@ -139,7 +139,7 @@ StellarSdk.FederationServer.resolve('bob*stellar.org')
 - - <a href="https://developers.stellar.org/docs/learn/encyclopedia/federation" target="_blank">Federation doc</a>
  - <a href="https://developers.stellar.org/docs/issuing-assets/publishing-asset-info" target="_blank">Stellar.toml doc</a>
 
-**Source:** [src/federation/server.ts:72](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L72)
+**Source:** [src/federation/server.ts:73](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L73)
 
 ### `server.resolveAccountId(accountId)`
 
@@ -167,7 +167,7 @@ A promise that resolves to the federation record
 
 - <a href="https://developers.stellar.org/docs/encyclopedia/federation" target="_blank">Federation doc</a>
 
-**Source:** [src/federation/server.ts:194](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L194)
+**Source:** [src/federation/server.ts:195](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L195)
 
 ### `server.resolveAddress(address)`
 
@@ -193,7 +193,7 @@ A promise that resolves to the federation record
 
 - <a href="https://developers.stellar.org/docs/encyclopedia/federation" target="_blank">Federation doc</a>
 
-**Source:** [src/federation/server.ts:166](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L166)
+**Source:** [src/federation/server.ts:167](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L167)
 
 ### `server.resolveTransactionId(transactionId)`
 
@@ -221,7 +221,7 @@ A promise that resolves to the federation record
 
 - <a href="https://developers.stellar.org/docs/glossary/federation/" target="_blank">Federation doc</a>
 
-**Source:** [src/federation/server.ts:211](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L211)
+**Source:** [src/federation/server.ts:212](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L212)
 
 ## Types
 
