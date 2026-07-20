@@ -1,7 +1,7 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`Bindings Snapshot Test > generates bindings that match snapshot for custom-types contract > custom-types-client.ts 1`] = `
-"import {Test, SimpleEnum, ComplexEnum, RecursiveEnum, RoyalCard, TupleStruct} from './types.js';
+"import {Test, SimpleEnum, ComplexEnum, RecursiveEnum, RoyalCard, TupleStruct, ContractEvent} from './types.js';
 import {Result, Spec, AssembledTransaction, Client as ContractClient, ClientOptions as ContractClientOptions, MethodOptions} from '@stellar/stellar-sdk/contract';
 import {Address, xdr} from '@stellar/stellar-sdk';
 import { Buffer } from 'buffer';
@@ -67,6 +67,19 @@ export class Client extends ContractClient {
   public readonly fromJSON = {
     hello : this.txFromJSON<string>,  auth : this.txFromJSON<string>,  get_count : this.txFromJSON<number>,  inc : this.txFromJSON<number>,  woid : this.txFromJSON<void>,  val : this.txFromJSON<any>,  u32_fail_on_even : this.txFromJSON<Result<number, Error>>,  u32_ : this.txFromJSON<number>,  i32_ : this.txFromJSON<number>,  i64_ : this.txFromJSON<bigint>,  strukt_hel : this.txFromJSON<Array<string>>,  strukt : this.txFromJSON<Test>,  simple : this.txFromJSON<SimpleEnum>,  complex : this.txFromJSON<ComplexEnum>,  recursive_enum : this.txFromJSON<RecursiveEnum>,  addresse : this.txFromJSON<string>,  bytes : this.txFromJSON<Buffer>,  bytes_n : this.txFromJSON<Buffer>,  card : this.txFromJSON<RoyalCard>,  boolean : this.txFromJSON<boolean>,  not : this.txFromJSON<boolean>,  i128 : this.txFromJSON<bigint>,  u128 : this.txFromJSON<bigint>,  multi_args : this.txFromJSON<number>,  map : this.txFromJSON<Map<number, boolean>>,  vec : this.txFromJSON<Array<number>>,  tuple : this.txFromJSON<[string, number]>,  option : this.txFromJSON<number | null>,  get_object_vec_option : this.txFromJSON<Array<Test> | null>,  u256 : this.txFromJSON<bigint>,  i256 : this.txFromJSON<bigint>,  string : this.txFromJSON<string>,  tuple_strukt : this.txFromJSON<TupleStruct>,  timepoint : this.txFromJSON<bigint>,  duration : this.txFromJSON<bigint>
   };
+
+  /**
+   * Parse a raw contract event (topics + data) into a typed {@link ContractEvent}.
+   */
+  parseEvent(topics: xdr.ScVal[] | string[], data: xdr.ScVal | string): ContractEvent | undefined {
+    return this.spec.parseEvent(topics, data) as ContractEvent | undefined;
+  }
+  /**
+   * Build a topics filter row for the "AuthEvent" event, for use in \`Api.EventFilter.topics\` when calling \`server.getEvents\`. Omitted fields match any value.
+   */
+  authEventEventFilter(): string[] {
+    return this.spec.eventTopicFilter("AuthEvent");
+  }
 }"
 `;
 
@@ -136,6 +149,19 @@ export type TupleStruct = readonly [Test, SimpleEnum];
   { tag: "Void"; values: void };
 
 /**
+ * Event: AuthEvent
+ */
+export interface AuthEventEvent {
+  name: "AuthEvent";
+  topics: {
+
+  };
+  data: {
+    world: string;
+  };
+}
+
+/**
  * Error Enum: Error
  */
 export const Error = {
@@ -155,5 +181,6 @@ export const Erroneous = {
    */
   100 : { message: "HowCouldYou" }
 }
+    export type ContractEvent = AuthEventEvent;
     "
 `;
