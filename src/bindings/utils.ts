@@ -415,6 +415,29 @@ export function formatJSDocComment(comment: string, indentLevel = 0): string {
   return `${indent}/**\n${lines.join("\n")}\n${indent} */\n`;
 }
 
+/**
+ * Convert a sanitized identifier (snake_case, kebab-case, etc.) to PascalCase.
+ * Intended to be applied after {@link sanitizeIdentifier}.
+ */
+export function toPascalCase(identifier: string): string {
+  const pascal = identifier
+    .split(/[_$]+/)
+    .filter((part) => part.length > 0)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join("");
+
+  return pascal === "" ? "Unnamed" : pascal;
+}
+
+/**
+ * Convert a sanitized identifier (snake_case, kebab-case, etc.) to camelCase.
+ * Intended to be applied after {@link sanitizeIdentifier}.
+ */
+export function toCamelCase(identifier: string): string {
+  const pascal = toPascalCase(identifier);
+  return pascal.charAt(0).toLowerCase() + pascal.slice(1);
+}
+
 export function isTupleStruct(udtStruct: xdr.ScSpecUdtStructV0): boolean {
   const fields = udtStruct.fields();
   // A tuple struct has unnamed fields

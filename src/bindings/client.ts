@@ -6,6 +6,7 @@ import {
   sanitizeIdentifier,
   formatJSDocComment,
   formatImports,
+  toCamelCase,
 } from "./utils.js";
 
 /**
@@ -50,6 +51,14 @@ export class ClientGenerator {
       .map((func) => this.generateFromJSONMethod(func))
       .join(",");
 
+    const events = this.spec.events();
+    const eventMethods =
+      events.length > 0
+        ? `\n${this.generateParseEventMethod()}\n${events
+            .map((event) => this.generateEventFilterMethod(event))
+            .join("\n")}`
+        : "";
+
     return `${imports}
 
 export interface Client {
@@ -68,6 +77,7 @@ export class Client extends ContractClient {
   public readonly fromJSON = {
   ${fromJSON}
   };
+${eventMethods}
 }`;
   }
 
@@ -81,6 +91,27 @@ export class Client extends ContractClient {
       }),
     );
 
+    const events = this.spec.events();
+    if (events.length > 0) {
+      // parseEvent()'s return type is the ContractEvent union
+      imports.typeFileImports.add("ContractEvent");
+      // parseEvent()'s topics/data parameters are typed using xdr.ScVal
+      imports.stellarImports.add("xdr");
+      // Event filter helpers reference topic param types
+      events.forEach((event) => {
+        event.params().forEach((param) => {
+          const nested = generateTypeImports([param.type()]);
+          nested.typeFileImports.forEach((t) => imports.typeFileImports.add(t));
+          nested.stellarContractImports.forEach((t) =>
+            imports.stellarContractImports.add(t),
+          );
+          nested.stellarImports.forEach((t) => imports.stellarImports.add(t));
+          imports.needsBufferImport =
+            imports.needsBufferImport || nested.needsBufferImport;
+        });
+      });
+    }
+
     return formatImports(imports, {
       includeTypeFileImports: true, // Client imports types
       additionalStellarContractImports: [
@@ -91,6 +122,56 @@ export class Client extends ContractClient {
         "MethodOptions",
       ],
     });
+  }
+
+  /**
+   * Generate the parseEvent method, which delegates to the underlying Spec
+   * to decode a raw event's topics/data into a typed ContractEvent.
+   */
+  private generateParseEventMethod(): string {
+    return `  /**
+   * Parse a raw contract event (topics + data) into a typed {@link ContractEvent}.
+   */
+  parseEvent(topics: xdr.ScVal[] | string[], data: xdr.ScVal | string): ContractEvent | undefined {
+    return this.spec.parseEvent(topics, data) as ContractEvent | undefined;
+  }`;
+  }
+
+  /**
+   * Generate a per-event helper that builds a topics-filter row for
+   * `Api.EventFilter.topics`, suitable for passing to server.getEvents.
+   */
+  private generateEventFilterMethod(event: xdr.ScSpecEventV0): string {
+    const rawName = event.name().toString();
+    const methodName = `${toCamelCase(sanitizeIdentifier(rawName))}EventFilter`;
+    const topicParams = event
+      .params()
+      .filter(
+        (param) =>
+          param.location().value ===
+          xdr.ScSpecEventParamLocationV0.scSpecEventParamLocationTopicList()
+            .value,
+      );
+
+    const fields = topicParams
+      .map((param) => {
+        const fieldName = sanitizeIdentifier(param.name().toString());
+        const fieldType = parseTypeFromTypeDef(param.type());
+        return `${fieldName}?: ${fieldType}`;
+      })
+      .join("; ");
+
+    const topicValuesType = `{ ${fields} }`;
+    const doc = formatJSDocComment(
+      `Build a topics filter row for the "${rawName}" event, for use in ` +
+        `\`Api.EventFilter.topics\` when calling \`server.getEvents\`. ` +
+        `Omitted fields match any value.`,
+      2,
+    );
+
+    return `${doc}  ${methodName}(topicValues?: ${topicValuesType}): string[] {
+    return this.spec.eventTopicFilter("${rawName}", topicValues);
+  }`;
   }
 
   /**

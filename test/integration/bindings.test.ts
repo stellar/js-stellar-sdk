@@ -1245,4 +1245,177 @@ describe("BindingGenerator", () => {
       expect(result.packageJson).toContain('"name": "my-token"');
     });
   });
+
+  describe("generate - events", () => {
+    // Helper to create an event spec entry
+    const createEventSpec = (
+      name: string,
+      params: Array<{
+        name: string;
+        type: any;
+        location: "topic_list" | "data";
+        doc?: string;
+      }>,
+      opts: {
+        doc?: string;
+        prefixTopics?: string[];
+        dataFormat?: any;
+      } = {},
+    ) =>
+      xdr.ScSpecEntry.scSpecEntryEventV0(
+        new xdr.ScSpecEventV0({
+          doc: opts.doc || "",
+          lib: "",
+          name,
+          prefixTopics: opts.prefixTopics || [],
+          params: params.map(
+            (p) =>
+              new xdr.ScSpecEventParamV0({
+                doc: p.doc || "",
+                name: p.name,
+                type: p.type,
+                location:
+                  p.location === "topic_list"
+                    ? xdr.ScSpecEventParamLocationV0.scSpecEventParamLocationTopicList()
+                    : xdr.ScSpecEventParamLocationV0.scSpecEventParamLocationData(),
+              }),
+          ),
+          dataFormat:
+            opts.dataFormat ||
+            xdr.ScSpecEventDataFormat.scSpecEventDataFormatSingleValue(),
+        }),
+      );
+
+    it("generates no event code for an event-less spec", () => {
+      const spec = createMinimalSpec();
+      const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
+
+      expect(result.types).not.toContain("Event");
+      expect(result.client).not.toContain("parseEvent");
+      expect(result.client).not.toContain("EventFilter");
+    });
+
+    it("generates a typed interface, union, parseEvent and filter method for a single event", () => {
+      const eventSpec = createEventSpec(
+        "transfer",
+        [
+          {
+            name: "from",
+            type: xdr.ScSpecTypeDef.scSpecTypeAddress(),
+            location: "topic_list",
+          },
+          {
+            name: "to",
+            type: xdr.ScSpecTypeDef.scSpecTypeAddress(),
+            location: "topic_list",
+          },
+          {
+            name: "amount",
+            type: xdr.ScSpecTypeDef.scSpecTypeI128(),
+            location: "data",
+          },
+        ],
+        { doc: "Emitted when tokens move between accounts" },
+      );
+
+      const spec = new contract.Spec([eventSpec.toXDR("base64")]);
+      const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
+
+      // Types file: event interface
+      expect(result.types).toContain("export interface TransferEvent");
+      expect(result.types).toContain('name: "transfer";');
+      expect(result.types).toContain("from: string;");
+      expect(result.types).toContain("to: string;");
+      expect(result.types).toContain("amount: bigint;");
+      expect(result.types).toContain(
+        "Emitted when tokens move between accounts",
+      );
+
+      // Types file: discriminated union
+      expect(result.types).toContain(
+        "export type ContractEvent = TransferEvent;",
+      );
+
+      // Client: parseEvent method
+      expect(result.client).toContain(
+        "parseEvent(topics: xdr.ScVal[] | string[], data: xdr.ScVal | string): ContractEvent | undefined",
+      );
+      expect(result.client).toContain(
+        "return this.spec.parseEvent(topics, data)",
+      );
+
+      // Client: filter method
+      expect(result.client).toContain("transferEventFilter(topicValues?:");
+      expect(result.client).toContain("from?: string");
+      expect(result.client).toContain("to?: string");
+      expect(result.client).toContain(
+        'return this.spec.eventTopicFilter("transfer", topicValues);',
+      );
+
+      // Client imports ContractEvent from types.js and xdr from stellar-sdk
+      expect(result.client).toContain("ContractEvent");
+      expect(result.client).toMatch(
+        /import\s*\{[^}]*xdr[^}]*\}\s*from\s*'@stellar\/stellar-sdk'/,
+      );
+    });
+
+    it("generates multiple events with a combined union, and imports referenced UDTs", () => {
+      const structSpec = createStructSpec("Metadata", [
+        { name: "memo", type: xdr.ScSpecTypeDef.scSpecTypeString() },
+      ]);
+
+      const structType = xdr.ScSpecTypeDef.scSpecTypeUdt(
+        new xdr.ScSpecTypeUdt({ name: "Metadata" }),
+      );
+
+      const transferEvent = createEventSpec("transfer", [
+        {
+          name: "to",
+          type: xdr.ScSpecTypeDef.scSpecTypeAddress(),
+          location: "topic_list",
+        },
+        {
+          name: "info",
+          type: structType,
+          location: "data",
+        },
+      ]);
+
+      const mintEvent = createEventSpec("mint", [
+        {
+          name: "to",
+          type: xdr.ScSpecTypeDef.scSpecTypeAddress(),
+          location: "topic_list",
+        },
+        {
+          name: "amount",
+          type: xdr.ScSpecTypeDef.scSpecTypeI128(),
+          location: "data",
+        },
+      ]);
+
+      const spec = new contract.Spec(
+        [structSpec, transferEvent, mintEvent].map((s) => s.toXDR("base64")),
+      );
+      const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
+
+      expect(result.types).toContain("export interface TransferEvent");
+      expect(result.types).toContain("export interface MintEvent");
+      expect(result.types).toContain(
+        "export type ContractEvent = TransferEvent | MintEvent;",
+      );
+      expect(result.types).toContain("info: Metadata;");
+
+      expect(result.client).toContain("transferEventFilter(");
+      expect(result.client).toContain("mintEventFilter(");
+      expect(result.client).toContain(
+        "mintEventFilter(topicValues?: { to?: string })",
+      );
+
+      // Metadata UDT should be imported into client.ts since it's used by an event
+      expect(result.client).toMatch(
+        /import\s*\{[^}]*Metadata[^}]*\}\s*from\s*'\.\/types\.js'/,
+      );
+    });
+  });
 });
