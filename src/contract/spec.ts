@@ -11,6 +11,15 @@ import {
 import { Ok, Err } from "./rust_result.js";
 import { processSpecEntryStream } from "./utils.js";
 import { specFromWasm } from "./wasm_spec_parser.js";
+import {
+  events as eventsImpl,
+  findEvent as findEventImpl,
+  parseEvent as parseEventImpl,
+  eventTopicFilter as eventTopicFilterImpl,
+  type ParsedEvent,
+} from "./event_spec.js";
+
+export type { ParsedEvent };
 
 export interface Union<T> {
   tag: string;
@@ -1197,6 +1206,78 @@ export class Spec {
           xdr.ScSpecEntryKind.scSpecEntryUdtErrorEnumV0().value,
       )
       .flatMap((entry) => (entry.value() as xdr.ScSpecUdtErrorEnumV0).cases());
+  }
+
+  /**
+   * Gets the CAP-67 event spec entries from the spec.
+   *
+   * @returns all contract events
+   */
+  events(): xdr.ScSpecEventV0[] {
+    return eventsImpl(this.entries);
+  }
+
+  /**
+   * Finds the XDR event spec for the given event name.
+   *
+   * @param name - the name of the event
+   * @returns the event spec
+   *
+   * @throws if no event with the given name exists
+   */
+  findEvent(name: string): xdr.ScSpecEventV0 {
+    return findEventImpl(this.entries, name);
+  }
+
+  /**
+   * Attempts to parse an emitted contract event (its topics and data) using
+   * the event specs (CAP-67) declared in this contract's spec.
+   *
+   * An event's topics are `[...prefixTopics, ...topicListParamValues]` (in
+   * that order), and its data is decoded according to the event's
+   * `dataFormat` (`singleValue`, `vec`, or `map`).
+   *
+   * @param topics - the event's topics, as `xdr.ScVal[]` or base64 XDR strings
+   * @param data - the event's data, as an `xdr.ScVal` or a base64 XDR string
+   * @returns the parsed event (name, decoded topics, decoded data), or
+   *          `undefined` if no event spec matches (e.g. when filtering a
+   *          mixed stream of events from multiple contracts/specs)
+   *
+   * @example
+   * ```ts
+   * const parsed = contractSpec.parseEvent(response.topic, response.value);
+   * if (parsed) {
+   *   console.log(parsed.name, parsed.topics, parsed.data);
+   * }
+   * ```
+   */
+  parseEvent(
+    topics: xdr.ScVal[] | string[],
+    data: xdr.ScVal | string,
+  ): ParsedEvent | undefined {
+    return parseEventImpl(this, this.entries, topics, data);
+  }
+
+  /**
+   * Builds a `getEvents` topic filter (a single row of `Api.EventFilter.topics`)
+   * for the named event: base64-encoded `scvSymbol`s for the event's prefix
+   * topics, followed by one entry per topic-list param — either the
+   * base64-encoded ScVal for a value supplied in `topicValues`, or the
+   * wildcard `"*"`.
+   *
+   * @param name - the name of the event
+   * @param topicValues - (optional) native values for topic-list params, keyed by param name
+   * @returns a single topic filter row
+   *
+   * @throws if no event with the given name exists
+   *
+   * @example
+   * ```ts
+   * const topics = contractSpec.eventTopicFilter('transfer', { to: someAddress });
+   * ```
+   */
+  eventTopicFilter(name: string, topicValues?: Record<string, any>): string[] {
+    return eventTopicFilterImpl(this, this.entries, name, topicValues);
   }
 
   /**
