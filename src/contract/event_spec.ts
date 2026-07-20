@@ -126,6 +126,11 @@ function matchesTopics(
  * @param topics - the event's topics, as `xdr.ScVal[]` or base64 XDR strings
  * @param data - the event's data, as an `xdr.ScVal` or a base64 XDR string
  * @returns the parsed event, or `undefined` if no event spec matches
+ *
+ * Matching compares only the prefix topics and the topic count, so if two
+ * event specs share both (in particular, events with no prefix topics match
+ * on arity alone), the first declared spec whose values decode successfully
+ * wins.
  * @hidden
  */
 export function parseEvent(
@@ -147,58 +152,73 @@ export function parseEvent(
       continue;
     }
 
-    const prefixLen = event.prefixTopics().length;
-    const topicsOut: Record<string, any> = {};
-    tlParams.forEach((param, i) => {
-      const val = topicVals[prefixLen + i];
-      topicsOut[param.name().toString()] = spec.scValToNative(
-        val,
-        param.type(),
-      );
-    });
-
-    const dParams = dataParams(event);
-    const dataOut: Record<string, any> = {};
-    const format = event.dataFormat().value;
-    if (
-      format ===
-      xdr.ScSpecEventDataFormat.scSpecEventDataFormatSingleValue().value
-    ) {
-      const param = dParams[0];
-      if (param) {
-        dataOut[param.name().toString()] = spec.scValToNative(
-          dataVal,
-          param.type(),
-        );
-      }
-    } else if (
-      format === xdr.ScSpecEventDataFormat.scSpecEventDataFormatVec().value
-    ) {
-      const vec = dataVal.vec() ?? [];
-      dParams.forEach((param, i) => {
-        dataOut[param.name().toString()] = spec.scValToNative(
-          vec[i],
+    // Topic matching is fuzzy (prefix symbols + arity only), so a candidate
+    // event may still turn out not to fit once its values are decoded — e.g.
+    // an unrelated contract's event sharing the same prefix and topic count.
+    // Treat any decode failure as a non-match and try the next candidate.
+    try {
+      const prefixLen = event.prefixTopics().length;
+      const topicsOut: Record<string, any> = {};
+      tlParams.forEach((param, i) => {
+        const val = topicVals[prefixLen + i];
+        topicsOut[param.name().toString()] = spec.scValToNative(
+          val,
           param.type(),
         );
       });
-    } else if (
-      format === xdr.ScSpecEventDataFormat.scSpecEventDataFormatMap().value
-    ) {
-      const map = dataVal.map() ?? [];
-      dParams.forEach((param) => {
-        const name = param.name().toString();
-        const entry = map.find((e) => e.key().sym().toString() === name);
-        if (entry) {
-          dataOut[name] = spec.scValToNative(entry.val(), param.type());
+
+      const dParams = dataParams(event);
+      const dataOut: Record<string, any> = {};
+      const format = event.dataFormat().value;
+      if (
+        format ===
+        xdr.ScSpecEventDataFormat.scSpecEventDataFormatSingleValue().value
+      ) {
+        const param = dParams[0];
+        if (param) {
+          dataOut[param.name().toString()] = spec.scValToNative(
+            dataVal,
+            param.type(),
+          );
         }
-      });
-    }
+      } else if (
+        format === xdr.ScSpecEventDataFormat.scSpecEventDataFormatVec().value
+      ) {
+        const vec = dataVal.vec() ?? [];
+        if (vec.length < dParams.length) {
+          continue;
+        }
+        dParams.forEach((param, i) => {
+          dataOut[param.name().toString()] = spec.scValToNative(
+            vec[i],
+            param.type(),
+          );
+        });
+      } else if (
+        format === xdr.ScSpecEventDataFormat.scSpecEventDataFormatMap().value
+      ) {
+        const map = dataVal.map() ?? [];
+        dParams.forEach((param) => {
+          const name = param.name().toString();
+          const entry = map.find(
+            (e) =>
+              e.key().switch().value === xdr.ScValType.scvSymbol().value &&
+              e.key().sym().toString() === name,
+          );
+          if (entry) {
+            dataOut[name] = spec.scValToNative(entry.val(), param.type());
+          }
+        });
+      }
 
-    return {
-      name: event.name().toString(),
-      topics: topicsOut,
-      data: dataOut,
-    };
+      return {
+        name: event.name().toString(),
+        topics: topicsOut,
+        data: dataOut,
+      };
+    } catch {
+      continue;
+    }
   }
 
   return undefined;

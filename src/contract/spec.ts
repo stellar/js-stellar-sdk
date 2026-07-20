@@ -1243,6 +1243,11 @@ export class Spec {
    *          `undefined` if no event spec matches (e.g. when filtering a
    *          mixed stream of events from multiple contracts/specs)
    *
+   * Note that matching compares only the prefix topics and the topic count;
+   * if two event specs share both (in particular, events with no prefix
+   * topics match on arity alone), the first declared spec whose values
+   * decode successfully wins.
+   *
    * @example
    * ```ts
    * const parsed = contractSpec.parseEvent(response.topic, response.value);

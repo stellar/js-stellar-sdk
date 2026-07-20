@@ -201,6 +201,82 @@ describe("Spec events", () => {
     expect(spec.parseEvent(wrongCount, xdr.ScVal.scvVoid())).toBeUndefined();
   });
 
+  it("returns undefined instead of throwing on malformed event data", () => {
+    const vecEvent = new xdr.ScSpecEventV0({
+      doc: "",
+      lib: "",
+      name: "swap",
+      prefixTopics: ["swap"],
+      params: [
+        param("who", addrType, TOPIC),
+        param("sell_amount", u32Type, DATA),
+        param("buy_amount", u32Type, DATA),
+      ],
+      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatVec(),
+    });
+    const mapEvent = new xdr.ScSpecEventV0({
+      doc: "",
+      lib: "",
+      name: "mint",
+      prefixTopics: ["mint"],
+      params: [param("to", addrType, TOPIC), param("amount", u32Type, DATA)],
+      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatMap(),
+    });
+    const spec = new Spec([entryFor(vecEvent), entryFor(mapEvent)]);
+
+    // vec data shorter than the declared data params
+    const swapTopics = [xdr.ScVal.scvSymbol("swap"), addr.toScVal()];
+    const shortVec = xdr.ScVal.scvVec([xdr.ScVal.scvU32(10)]);
+    expect(spec.parseEvent(swapTopics, shortVec)).toBeUndefined();
+
+    // vec data of entirely the wrong ScVal type
+    expect(spec.parseEvent(swapTopics, xdr.ScVal.scvU32(1))).toBeUndefined();
+
+    // map data with a non-symbol key does not throw; the param is omitted
+    const mintTopics = [xdr.ScVal.scvSymbol("mint"), addr.toScVal()];
+    const weirdMap = xdr.ScVal.scvMap([
+      new xdr.ScMapEntry({
+        key: xdr.ScVal.scvU32(0),
+        val: xdr.ScVal.scvU32(7),
+      }),
+    ]);
+    const parsed = spec.parseEvent(mintTopics, weirdMap);
+    expect(parsed).toBeDefined();
+    expect(parsed!.name).toBe("mint");
+    expect(parsed!.data).toEqual({});
+  });
+
+  it("falls through to a later matching event when the first fails to decode", () => {
+    // Two events with identical prefix topics and topic arity; the first
+    // declares vec data, the second singleValue. A non-vec data payload
+    // should skip the first and match the second.
+    const first = new xdr.ScSpecEventV0({
+      doc: "",
+      lib: "",
+      name: "first",
+      prefixTopics: ["evt"],
+      params: [param("a", u32Type, DATA), param("b", u32Type, DATA)],
+      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatVec(),
+    });
+    const second = new xdr.ScSpecEventV0({
+      doc: "",
+      lib: "",
+      name: "second",
+      prefixTopics: ["evt"],
+      params: [param("value", u32Type, DATA)],
+      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatSingleValue(),
+    });
+    const spec = new Spec([entryFor(first), entryFor(second)]);
+
+    const parsed = spec.parseEvent(
+      [xdr.ScVal.scvSymbol("evt")],
+      xdr.ScVal.scvU32(9),
+    );
+    expect(parsed).toBeDefined();
+    expect(parsed!.name).toBe("second");
+    expect(parsed!.data.value).toBe(9);
+  });
+
   it("accepts base64 XDR strings for topics and data", () => {
     const event = new xdr.ScSpecEventV0({
       doc: "",
