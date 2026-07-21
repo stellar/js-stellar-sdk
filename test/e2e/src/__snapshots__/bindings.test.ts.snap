@@ -153,9 +153,6 @@ export type TupleStruct = readonly [Test, SimpleEnum];
  */
 export interface AuthEventEvent {
   name: "AuthEvent";
-  topics: {
-
-  };
   data: {
     world: string;
   };

@@ -1239,9 +1239,10 @@ export class Spec {
    *
    * @param topics - the event's topics, as `xdr.ScVal[]` or base64 XDR strings
    * @param data - the event's data, as an `xdr.ScVal` or a base64 XDR string
-   * @returns the parsed event (name, decoded topics, decoded data), or
-   *          `undefined` if no event spec matches (e.g. when filtering a
-   *          mixed stream of events from multiple contracts/specs)
+   * @returns the parsed event (its name plus all decoded params — topic-list
+   *          and data-located alike — merged into `data`), or `undefined` if
+   *          no event spec matches (e.g. when filtering a mixed stream of
+   *          events from multiple contracts/specs)
    *
    * Note that matching compares only the prefix topics and the topic count;
    * if two event specs share both (in particular, events with no prefix
@@ -1252,7 +1253,7 @@ export class Spec {
    * ```ts
    * const parsed = contractSpec.parseEvent(response.topic, response.value);
    * if (parsed) {
-   *   console.log(parsed.name, parsed.topics, parsed.data);
+   *   console.log(parsed.name, parsed.data);
    * }
    * ```
    */

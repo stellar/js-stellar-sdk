@@ -92,8 +92,8 @@ describe("Spec events", () => {
     const parsed = spec.parseEvent(topics, data);
     expect(parsed).toBeDefined();
     expect(parsed!.name).toBe("transfer");
-    expect(parsed!.topics.from).toBe(from.toString());
-    expect(parsed!.topics.to).toBe(to.toString());
+    expect(parsed!.data.from).toBe(from.toString());
+    expect(parsed!.data.to).toBe(to.toString());
     expect(parsed!.data.amount).toBe(12345n);
   });
 
@@ -118,7 +118,7 @@ describe("Spec events", () => {
 
     const parsed = spec.parseEvent(topics, data);
     expect(parsed).toBeDefined();
-    expect(parsed!.topics.who).toBe(who.toString());
+    expect(parsed!.data.who).toBe(who.toString());
     expect(parsed!.data.sell_amount).toBe(10);
     expect(parsed!.data.buy_amount).toBe(20);
   });
@@ -178,7 +178,7 @@ describe("Spec events", () => {
     const parsed = spec.parseEvent(topics, data);
     expect(parsed).toBeDefined();
     expect(parsed!.name).toBe("nested_event");
-    expect(parsed!.topics.value).toBe(5);
+    expect(parsed!.data.value).toBe(5);
   });
 
   it("returns undefined for non-matching topics", () => {
@@ -273,7 +273,7 @@ describe("Spec events", () => {
     const parsed = spec.parseEvent(mintTopics, weirdMap);
     expect(parsed).toBeDefined();
     expect(parsed!.name).toBe("mint");
-    expect(parsed!.data).toEqual({});
+    expect(parsed!.data).toEqual({ to: addr.toString() });
   });
 
   it("falls through to a later matching event when the first fails to decode", () => {
@@ -326,7 +326,7 @@ describe("Spec events", () => {
 
     const parsed = spec.parseEvent(topics, data);
     expect(parsed).toBeDefined();
-    expect(parsed!.topics.from).toBe(addr.toString());
+    expect(parsed!.data.from).toBe(addr.toString());
     expect(parsed!.data.amount).toBe(42);
   });
 

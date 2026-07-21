@@ -1135,7 +1135,7 @@ a single topic filter row
 const topics = contractSpec.eventTopicFilter('transfer', { to: someAddress });
 ```
 
-**Source:** [src/contract/spec.ts:1284](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1284)
+**Source:** [src/contract/spec.ts:1285](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1285)
 
 ### `spec.findEntry(name)`
 
@@ -1302,7 +1302,7 @@ the converted JSON schema
 
 - if the contract spec is invalid
 
-**Source:** [src/contract/spec.ts:1298](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1298)
+**Source:** [src/contract/spec.ts:1299](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1299)
 
 ### `spec.nativeToScVal(val, ty)`
 
@@ -1347,9 +1347,10 @@ parseEvent(topics: string[] | ScVal[], data: string | ScVal): ParsedEvent | unde
 
 **Returns**
 
-the parsed event (name, decoded topics, decoded data), or
-         `undefined` if no event spec matches (e.g. when filtering a
-         mixed stream of events from multiple contracts/specs)
+the parsed event (its name plus all decoded params — topic-list
+         and data-located alike — merged into `data`), or `undefined` if
+         no event spec matches (e.g. when filtering a mixed stream of
+         events from multiple contracts/specs)
 
 Note that matching compares only the prefix topics and the topic count;
 if two event specs share both (in particular, events with no prefix
@@ -1361,11 +1362,11 @@ decode successfully wins.
 ```ts
 const parsed = contractSpec.parseEvent(response.topic, response.value);
 if (parsed) {
-  console.log(parsed.name, parsed.topics, parsed.data);
+  console.log(parsed.name, parsed.data);
 }
 ```
 
-**Source:** [src/contract/spec.ts:1259](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1259)
+**Source:** [src/contract/spec.ts:1260](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1260)
 
 ### `spec.scValStrToNative(scv, typeDef)`
 
@@ -1561,7 +1562,6 @@ of the event specs (`xdr.ScSpecEventV0`) defined in a `Spec`.
 interface ParsedEvent {
   data: Record<string, any>;
   name: string;
-  topics: Record<string, any>;
 }
 ```
 
@@ -1573,15 +1573,16 @@ interface ParsedEvent {
 
 #### `parsedEvent.data`
 
-The decoded data-located param(s), keyed by param name. For a
-`singleValue` data format this still has a single key: the name of
-that lone data param.
+All decoded event params, keyed by param name — both the
+`topicList`-located params and the data-located ones. Once an event is
+parsed, where a param was carried (topic vs data) no longer matters;
+the topic list is just a way to mark which fields are indexed.
 
 ```ts
 data: Record<string, any>;
 ```
 
-**Source:** [src/contract/event_spec.ts:23](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/event_spec.ts#L23)
+**Source:** [src/contract/event_spec.ts:19](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/event_spec.ts#L19)
 
 #### `parsedEvent.name`
 
@@ -1592,17 +1593,6 @@ name: string;
 ```
 
 **Source:** [src/contract/event_spec.ts:12](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/event_spec.ts#L12)
-
-#### `parsedEvent.topics`
-
-The decoded `topicList`-located params, keyed by param name, in the
-order they appear after the event's prefix topics.
-
-```ts
-topics: Record<string, any>;
-```
-
-**Source:** [src/contract/event_spec.ts:17](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/event_spec.ts#L17)
 
 ### contract.Result
 

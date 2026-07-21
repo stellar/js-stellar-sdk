@@ -11,14 +11,10 @@ export interface ParsedEvent {
   /** The name of the matched event (the event spec's declared name). */
   name: string;
   /**
-   * The decoded `topicList`-located params, keyed by param name, in the
-   * order they appear after the event's prefix topics.
-   */
-  topics: Record<string, any>;
-  /**
-   * The decoded data-located param(s), keyed by param name. For a
-   * `singleValue` data format this still has a single key: the name of
-   * that lone data param.
+   * All decoded event params, keyed by param name — both the
+   * `topicList`-located params and the data-located ones. Once an event is
+   * parsed, where a param was carried (topic vs data) no longer matters;
+   * the topic list is just a way to mark which fields are indexed.
    */
   data: Record<string, any>;
 }
@@ -164,17 +160,16 @@ export function parseEvent(
     // Treat any decode failure as a non-match and try the next candidate.
     try {
       const prefixLen = event.prefixTopics().length;
-      const topicsOut: Record<string, any> = {};
+      const dataOut: Record<string, any> = {};
       tlParams.forEach((param, i) => {
         const val = topicVals[prefixLen + i];
-        topicsOut[param.name().toString()] = spec.scValToNative(
+        dataOut[param.name().toString()] = spec.scValToNative(
           val,
           param.type(),
         );
       });
 
       const dParams = dataParams(event);
-      const dataOut: Record<string, any> = {};
       const format = event.dataFormat().value;
       if (
         format ===
@@ -219,7 +214,6 @@ export function parseEvent(
 
       return {
         name: event.name().toString(),
-        topics: topicsOut,
         data: dataOut,
       };
     } catch {

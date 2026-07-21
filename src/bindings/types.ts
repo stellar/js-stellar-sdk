@@ -293,22 +293,6 @@ ${members}
       0,
     );
 
-    const topicParams = event
-      .params()
-      .filter(
-        (param) =>
-          param.location().value ===
-          xdr.ScSpecEventParamLocationV0.scSpecEventParamLocationTopicList()
-            .value,
-      );
-    const dataParams = event
-      .params()
-      .filter(
-        (param) =>
-          param.location().value ===
-          xdr.ScSpecEventParamLocationV0.scSpecEventParamLocationData().value,
-      );
-
     // parseEvent keys its output by the raw param names, so the interface
     // must use them too — quoted when they aren't valid identifiers.
     const fieldKey = (rawParamName: string): string =>
@@ -316,34 +300,31 @@ ${members}
         ? rawParamName
         : `"${escapeStringLiteral(rawParamName)}"`;
 
-    const formatParamFields = (
-      params: xdr.ScSpecEventParamV0[],
-      optional = false,
-    ): string =>
-      params
-        .map((param) => {
-          const fieldName = fieldKey(param.name().toString());
-          const fieldType = parseTypeFromTypeDef(param.type());
-          const fieldDoc = formatJSDocComment(param.doc().toString(), 4);
-
-          return `${fieldDoc}    ${fieldName}${optional ? "?" : ""}: ${fieldType};`;
-        })
-        .join("\n");
-
     // Map-format data entries may be absent from an emitted event's map, in
     // which case parseEvent omits the key — so those fields are optional.
     const dataIsMapFormat =
       event.dataFormat().value ===
       xdr.ScSpecEventDataFormat.scSpecEventDataFormatMap().value;
 
-    const topicsFields = formatParamFields(topicParams);
-    const dataFields = formatParamFields(dataParams, dataIsMapFormat);
+    // parseEvent merges topic-list and data-located params into a single
+    // flat `data` record; generate one field per param in declaration order.
+    const dataFields = event
+      .params()
+      .map((param) => {
+        const fieldName = fieldKey(param.name().toString());
+        const fieldType = parseTypeFromTypeDef(param.type());
+        const fieldDoc = formatJSDocComment(param.doc().toString(), 4);
+        const optional =
+          dataIsMapFormat &&
+          param.location().value ===
+            xdr.ScSpecEventParamLocationV0.scSpecEventParamLocationData().value;
+
+        return `${fieldDoc}    ${fieldName}${optional ? "?" : ""}: ${fieldType};`;
+      })
+      .join("\n");
 
     return `${doc}export interface ${name} {
   name: "${escapeStringLiteral(rawName)}";
-  topics: {
-${topicsFields}
-  };
   data: {
 ${dataFields}
   };
