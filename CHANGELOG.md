@@ -4,7 +4,7 @@
 A breaking change will get clearly marked in this log.
 
 
-## Unreleased
+## [v16.1.0](https://github.com/stellar/js-stellar-sdk/compare/v16.0.1...v16.1.0)
 
 ### Added
 - `inspectAuthEntry(entry)`: decodes a `xdr.SorobanAuthorizationEntry` into a typed summary — credential type (`sourceAccount`/`address`/`addressV2`/`addressWithDelegates`), authorizing address, nonce, `signatureExpirationLedger`, and a `signers` list covering the top-level credentials plus any CAP-71 delegates (depth-first), each reporting whether it's signed and, when the payload uses the SDK's standard ed25519 format, the parsed `{publicKey, signature}` pairs (custom-account payloads are surfaced raw). Adds the `AuthEntryInfo`, `AuthEntrySigner`, `AuthEntrySignature`, and `AuthEntryCredentialType` types ([#1529](https://github.com/stellar/js-stellar-sdk/pull/1529)).
@@ -35,6 +35,15 @@ A breaking change will get clearly marked in this log.
   ([#1526](https://github.com/stellar/js-stellar-sdk/pull/1526)).
 
 ### Changed
+- `HorizonApi.TransactionFailedResultCodes` gained the transaction result
+  codes it was missing: `tx_bad_sponsorship`, `tx_bad_min_seq_age_or_gap`,
+  `tx_malformed`, `tx_soroban_invalid`, and `tx_frozen_key_accessed`
+  ([#1526](https://github.com/stellar/js-stellar-sdk/pull/1526)).
+- `contract.Client.from` now supports built-in Stellar Asset Contracts (SACs): when the contract's executable is a SAC, the client is built from the embedded SAC spec (lazily imported so bundlers can code-split it out of the common path) instead of downloading Wasm, which a SAC has none of on-chain ([#1501](https://github.com/stellar/js-stellar-sdk/pull/1501)).
+- `rpc.Server.getContractWasmByContractId` now rejects a SAC with a structured `{ code: 400 }` error pointing to `contract.Client.from`, instead of failing while decoding a nonexistent Wasm hash; the not-found rejection is now `{ code: 404, message: "Could not obtain contract instance from server" }` ([#1501](https://github.com/stellar/js-stellar-sdk/pull/1501)).
+- The UMD (`dist/`) build now sets `inlineDynamicImports` so the single-file bundle stays whole despite the SAC spec's lazy `import()` ([#1501](https://github.com/stellar/js-stellar-sdk/pull/1501)).
+
+### Fixed
 - `Horizon.Server.submitTransaction` and `submitAsyncTransaction` now actually
   reject with SDK error types on HTTP failures, as long documented: a rejection
   carrying Horizon result codes becomes a `TransactionFailedError`, and any
@@ -52,15 +61,6 @@ A breaking change will get clearly marked in this log.
   and now also reject HTTP failures with `BadResponseError` (original client
   error preserved as `err.cause`) instead of the raw HTTP-client error
   ([#1526](https://github.com/stellar/js-stellar-sdk/pull/1526)).
-- `HorizonApi.TransactionFailedResultCodes` gained the transaction result
-  codes it was missing: `tx_bad_sponsorship`, `tx_bad_min_seq_age_or_gap`,
-  `tx_malformed`, `tx_soroban_invalid`, and `tx_frozen_key_accessed`
-  ([#1526](https://github.com/stellar/js-stellar-sdk/pull/1526)).
-- `contract.Client.from` now supports built-in Stellar Asset Contracts (SACs): when the contract's executable is a SAC, the client is built from the embedded SAC spec (lazily imported so bundlers can code-split it out of the common path) instead of downloading Wasm, which a SAC has none of on-chain ([#1501](https://github.com/stellar/js-stellar-sdk/pull/1501)).
-- `rpc.Server.getContractWasmByContractId` now rejects a SAC with a structured `{ code: 400 }` error pointing to `contract.Client.from`, instead of failing while decoding a nonexistent Wasm hash; the not-found rejection is now `{ code: 404, message: "Could not obtain contract instance from server" }` ([#1501](https://github.com/stellar/js-stellar-sdk/pull/1501)).
-- The UMD (`dist/`) build now sets `inlineDynamicImports` so the single-file bundle stays whole despite the SAC spec's lazy `import()` ([#1501](https://github.com/stellar/js-stellar-sdk/pull/1501)).
-
-### Fixed
 - `contract.AssembledTransaction.needsNonInvokerSigningBy` now treats an empty `scvVec` signature — the placeholder `authorizeInvocation` writes on unsigned entries — as unsigned, matching the existing `scvVoid` check. Previously such entries were wrongly considered already signed and omitted from the list ([#1529](https://github.com/stellar/js-stellar-sdk/pull/1529)).
 - `Spec.nativeToScVal` no longer misclassifies plain objects that have a
   `constructor` key, and handles null-prototype objects
