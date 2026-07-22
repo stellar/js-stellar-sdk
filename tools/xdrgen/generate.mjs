@@ -7,8 +7,10 @@
 //   node tools/xdrgen/generate.mjs --out=out/xdrgen [TypeName ...]
 //   node tools/xdrgen/generate.mjs --out=out/xdrgen --all
 //
-// If type names are passed, only those (and their dependencies that are
-// also classes) are emitted. With --all, every named definition is emitted.
+// If type names are passed, those plus their transitive class dependencies
+// are emitted (so every import in the output resolves). With --all, every
+// named definition is emitted. --clean removes the output directory first,
+// so renamed/removed upstream types don't leave orphaned files.
 
 import { readFileSync, writeFileSync, mkdirSync, rmSync } from "node:fs";
 import { dirname, resolve } from "node:path";
@@ -1712,6 +1714,17 @@ function main() {
     ? [...registry.keys()].filter((n) => emitsClass(n))
     : explicitNames;
   for (const n of seed) queue.add(n);
+
+  // Explicit-name mode: chase dependencies so every import in the emitted
+  // files resolves. Set iteration visits entries added mid-loop, so this is
+  // the transitive closure. SCC co-members are pulled in too — they share
+  // the root's output file, and their deps must exist as well.
+  if (!all) {
+    for (const n of queue) {
+      for (const m of sccGroups.get(sccRoot(n)) ?? [n]) queue.add(m);
+      for (const dep of depGraph.get(n) ?? []) queue.add(dep);
+    }
+  }
 
   // Group classes by SCC root. Members of a multi-class SCC share one output
   // file (named after the most-referenced member); each non-root member gets
