@@ -222,10 +222,12 @@ function hexDigit(code: number): number {
  */
 class XdrStringType extends BaseType<XdrString> {
   readonly kind = "string";
+  readonly maxLength: number;
   readonly #inner: XdrType<Uint8Array>;
 
   constructor(maxLength: number) {
     super();
+    this.maxLength = maxLength;
     this.#inner = stringBytes(maxLength);
   }
 

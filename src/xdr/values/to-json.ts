@@ -150,25 +150,64 @@ export function walkFromJson(
     case "void":
       return undefined;
     case "int32":
-    case "uint32":
+    case "uint32": {
+      assertJsonType(json, "number", schema);
+      const value = json as number;
+      const signed = s.kind === "int32";
+      const min = signed ? -(2 ** 31) : 0;
+      const max = signed ? 2 ** 31 - 1 : 2 ** 32 - 1;
+      if (!Number.isInteger(value) || value < min || value > max) {
+        throw new XdrError(
+          `${schema.name ?? s.kind}: value ${value} is not a valid ${s.kind}`,
+        );
+      }
+      return value;
+    }
     case "float":
     case "double":
       assertJsonType(json, "number", schema);
       return json;
     case "int64":
-    case "uint64":
+    case "uint64": {
       assertJsonType(json, "string", schema);
-      return BigInt(json as string);
-    case "string":
+      let value: bigint;
+      try {
+        value = BigInt(json as string);
+      } catch {
+        throw new XdrError(
+          `${schema.name ?? s.kind}: "${json as string}" is not a valid ${s.kind}`,
+        );
+      }
+      assertBigIntFits(value, s.kind === "int64", 64, schema.name ?? s.kind);
+      return value;
+    }
+    case "string": {
       assertJsonType(json, "string", schema);
-      return XdrString.fromJson(json as string);
+      const str = XdrString.fromJson(json as string);
+      if (str.length > s.maxLength) {
+        throw new XdrError(
+          `${schema.name ?? "string"}: length ${str.length} exceeds max ${s.maxLength}`,
+        );
+      }
+      return str;
+    }
     case "opaque":
     case "varOpaque": {
       assertJsonType(json, "string", schema);
-      const bytes = hexToUint8Array(json as string);
+      let bytes: Uint8Array;
+      try {
+        bytes = hexToUint8Array(json as string);
+      } catch {
+        throw new XdrError(`${schema.name ?? s.kind}: expected a hex string`);
+      }
       if (s.kind === "opaque" && bytes.length !== s.length) {
         throw new XdrError(
           `${schema.name ?? "opaque"}: expected ${s.length} byte(s), got ${bytes.length}`,
+        );
+      }
+      if (s.kind === "varOpaque" && bytes.length > s.maxLength) {
+        throw new XdrError(
+          `${schema.name ?? "varOpaque"}: length ${bytes.length} exceeds max ${s.maxLength}`,
         );
       }
       return bytes;
@@ -198,6 +237,11 @@ export function walkFromJson(
       if (!Array.isArray(json)) {
         throw new XdrError(
           `${schema.name ?? "array"}: expected JSON array, got ${typeof json}`,
+        );
+      }
+      if (json.length > s.maxLength) {
+        throw new XdrError(
+          `${schema.name ?? "array"}: length ${json.length} exceeds max ${s.maxLength}`,
         );
       }
       return json.map((v) => walkFromJson(v, s.element));

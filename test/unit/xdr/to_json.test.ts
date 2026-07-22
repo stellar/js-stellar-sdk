@@ -523,6 +523,44 @@ describe("walker — union fromJson error cases", () => {
   });
 });
 
+describe("walker — fromJson input validation", () => {
+  it("rejects out-of-range and non-integer int32/uint32", () => {
+    expect(() => ScVal.fromJson({ i32: 2147483648 })).toThrow(/not a valid/);
+    expect(() => ScVal.fromJson({ i32: 1.5 })).toThrow(/not a valid/);
+    expect(() => ScVal.fromJson({ u32: -1 })).toThrow(/not a valid/);
+    expect(() => ScVal.fromJson({ u32: 4294967296 })).toThrow(/not a valid/);
+    expect(ScVal.fromJson({ i32: -2147483648 }).value).toBe(-2147483648);
+  });
+
+  it("rejects out-of-range int64/uint64", () => {
+    expect(() => ScVal.fromJson({ i64: "9223372036854775808" })).toThrow();
+    expect(() => ScVal.fromJson({ u64: "18446744073709551616" })).toThrow();
+    expect(() => ScVal.fromJson({ u64: "-1" })).toThrow();
+    expect(ScVal.fromJson({ i64: "-9223372036854775808" }).value).toBe(
+      -9223372036854775808n,
+    );
+  });
+
+  it("rejects malformed int64 strings with an XdrError, not SyntaxError", () => {
+    expect(() => ScVal.fromJson({ i64: "1.5" })).toThrow(/not a valid/);
+    expect(() => ScVal.fromJson({ i64: "12x" })).toThrow(/not a valid/);
+  });
+
+  it("rejects strings over the schema max length", () => {
+    expect(() => Memo.fromJson({ text: "x".repeat(29) })).toThrow(
+      /exceeds max/,
+    );
+    expect(Memo.fromJson({ text: "x".repeat(28) }).value?.toString()).toBe(
+      "x".repeat(28),
+    );
+  });
+
+  it("rejects invalid hex for opaque fields with an XdrError", () => {
+    expect(() => ScVal.fromJson({ bytes: "zz" })).toThrow(/hex/);
+    expect(() => ScVal.fromJson({ bytes: "abc" })).toThrow(/hex/);
+  });
+});
+
 // SEP-0051 spec rules — one pinning test per encoding rule the spec defines.
 // Some rules already pass through existing coverage above; the tests below
 // fill the explicit-pinning gap and serve as the spec-conformance checklist.
