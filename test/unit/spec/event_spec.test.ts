@@ -181,6 +181,60 @@ describe("Spec events", () => {
     expect(parsed!.data.value).toBe(5);
   });
 
+  it("tolerates string prefix topics (SEP-48)", () => {
+    // Some contracts emit prefix topics as scvString rather than scvSymbol;
+    // SEP-48 says parsers should accept both.
+    const event = new xdr.ScSpecEventV0({
+      doc: "",
+      lib: "",
+      name: "swap",
+      prefixTopics: ["SoroswapPair", "swap"],
+      params: [param("amount", u32Type, DATA)],
+      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatSingleValue(),
+    });
+    const spec = new Spec([entryFor(event)]);
+
+    const topics = [
+      xdr.ScVal.scvString("SoroswapPair"),
+      xdr.ScVal.scvSymbol("swap"),
+    ];
+    const parsed = spec.parseEvent(topics, xdr.ScVal.scvU32(5));
+    expect(parsed).toBeDefined();
+    expect(parsed!.name).toBe("swap");
+    expect(parsed!.data.amount).toBe(5);
+  });
+
+  it("tolerates trailing undeclared topics (SAC asset topic)", () => {
+    // SAC events carry a trailing SEP-11 asset topic that the token event
+    // declarations deliberately leave undeclared, so the emitted topic count
+    // exceeds the declared count.
+    const event = new xdr.ScSpecEventV0({
+      doc: "",
+      lib: "",
+      name: "transfer",
+      prefixTopics: ["transfer"],
+      params: [param("from", addrType, TOPIC), param("to", addrType, TOPIC)],
+      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatSingleValue(),
+    });
+    const spec = new Spec([entryFor(event)]);
+
+    const from = Address.fromString(publicKey);
+    const to = Address.fromString(
+      "GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD",
+    );
+    const topics = [
+      xdr.ScVal.scvSymbol("transfer"),
+      from.toScVal(),
+      to.toScVal(),
+      xdr.ScVal.scvString("native"), // trailing undeclared asset topic
+    ];
+    const parsed = spec.parseEvent(topics, xdr.ScVal.scvVoid());
+    expect(parsed).toBeDefined();
+    expect(parsed!.name).toBe("transfer");
+    expect(parsed!.data.from).toBe(from.toString());
+    expect(parsed!.data.to).toBe(to.toString());
+  });
+
   it("returns undefined for non-matching topics", () => {
     const event = new xdr.ScSpecEventV0({
       doc: "",

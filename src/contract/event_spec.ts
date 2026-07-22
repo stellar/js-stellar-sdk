@@ -86,9 +86,30 @@ function dataParams(event: xdr.ScSpecEventV0): xdr.ScSpecEventParamV0[] {
 }
 
 /**
+ * Reads the text of a prefix topic ScVal. Prefix topics are declared as
+ * symbols, but SEP-48 says parsers should also tolerate contracts that emit
+ * them as strings, so we accept both `scvSymbol` and `scvString`.
+ * @hidden
+ */
+function prefixTopicText(topic: xdr.ScVal): string | undefined {
+  switch (topic.switch().value) {
+    case xdr.ScValType.scvSymbol().value:
+      return topic.sym().toString();
+    case xdr.ScValType.scvString().value:
+      return topic.str().toString();
+    default:
+      return undefined;
+  }
+}
+
+/**
  * Checks whether the given topics ScVals match an event's prefix topics +
- * topic-list params (matching against structure/length + symbol equality of
- * the prefix, not the topic-list values).
+ * topic-list params (matching against the prefix text and a minimum topic
+ * count, not the topic-list values).
+ *
+ * The topic count must be at least `prefixTopics + topicListParams`, not an
+ * exact match: some contracts emit trailing topics that the spec deliberately
+ * leaves undeclared — e.g. SAC events carry a trailing SEP-11 asset topic.
  * @hidden
  */
 function matchesTopics(
@@ -97,16 +118,11 @@ function matchesTopics(
 ): xdr.ScSpecEventParamV0[] | undefined {
   const prefixTopics = event.prefixTopics();
   const tlParams = topicListParams(event);
-  if (topics.length !== prefixTopics.length + tlParams.length) {
+  if (topics.length < prefixTopics.length + tlParams.length) {
     return undefined;
   }
   for (let i = 0; i < prefixTopics.length; i++) {
-    const topic = topics[i];
-    if (topic.switch().value !== xdr.ScValType.scvSymbol().value) {
-      return undefined;
-    }
-    const expected = prefixTopics[i].toString();
-    if (topic.sym().toString() !== expected) {
+    if (prefixTopicText(topics[i]) !== prefixTopics[i].toString()) {
       return undefined;
     }
   }
@@ -123,10 +139,10 @@ function matchesTopics(
  * @param data - the event's data, as an `xdr.ScVal` or a base64 XDR string
  * @returns the parsed event, or `undefined` if no event spec matches
  *
- * Matching compares only the prefix topics and the topic count, so if two
- * event specs share both (in particular, events with no prefix topics match
- * on arity alone), the first declared spec whose values decode successfully
- * wins.
+ * Matching compares only the prefix topics and a minimum topic count, so if
+ * two event specs share both (in particular, events with no prefix topics
+ * match on arity alone), the first declared spec whose values decode
+ * successfully wins.
  * @hidden
  */
 export function parseEvent(
