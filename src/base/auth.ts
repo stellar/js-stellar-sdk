@@ -671,6 +671,308 @@ function collectSignatureNodes(
   }
 }
 
+/** The credential arm of a {@link xdr.SorobanAuthorizationEntry}. */
+export type AuthEntryCredentialType =
+  | "sourceAccount"
+  | "address"
+  | "addressV2"
+  | "addressWithDelegates";
+
+/**
+ * A single ed25519 signature parsed out of a credential node's signature
+ * value, in the map format written by {@link authorizeEntry}.
+ */
+export interface AuthEntrySignature {
+  /** the signer's public key, as a `G…` strkey. */
+  publicKey: string;
+  /** the raw 64-byte ed25519 signature. */
+  signature: Buffer;
+}
+
+/**
+ * One node of an authorization entry that can carry a signature: the top-level
+ * address credentials and, for `SOROBAN_CREDENTIALS_ADDRESS_WITH_DELEGATES`,
+ * each (possibly nested) delegate.
+ */
+export interface AuthEntrySigner {
+  /** the node's address (`G…` account or `C…` contract). */
+  address: string;
+  /**
+   * whether a signature payload is present on this node (i.e. its signature is
+   * neither `scvVoid` nor an empty `scvVec`). For contract (`C…`) addresses
+   * this only means *something* is attached — whether it satisfies the
+   * contract's `__check_auth` cannot be verified client-side.
+   */
+  signed: boolean;
+  /**
+   * the signature payload parsed as the SDK's standard ed25519 format (a vec
+   * of `{public_key, signature}` maps, see {@link authorizeEntry}), or `null`
+   * when the payload has some other, signer-defined shape (as custom accounts
+   * such as WebAuthn/passkey wallets use). Of the two unsigned placeholder
+   * forms, an empty `scvVec` parses as `[]` while `scvVoid` (not a vec at all)
+   * parses as `null` — check `signed` rather than this field to tell whether a
+   * node is unsigned.
+   */
+  signatures: AuthEntrySignature[] | null;
+  /** the raw signature value, whatever its shape. */
+  rawSignature: xdr.ScVal;
+}
+
+/**
+ * A structured, read-only view of a {@link xdr.SorobanAuthorizationEntry},
+ * returned by {@link inspectAuthEntry}.
+ */
+export interface AuthEntryInfo {
+  credentialType: AuthEntryCredentialType;
+  /** the authorizing address, or `null` for source-account credentials. */
+  address: string | null;
+  /** the credential nonce, or `null` for source-account credentials. */
+  nonce: bigint | null;
+  /**
+   * the (exclusive) ledger sequence until which the signature is valid, or
+   * `null` for source-account credentials. Note that unsigned entries commonly
+   * carry a placeholder (often `0`) until {@link authorizeEntry} sets it.
+   */
+  signatureExpirationLedger: number | null;
+  /**
+   * every node that can carry a signature: the top-level credentials first,
+   * then (for the delegates variant) each delegate, depth-first. Empty for
+   * source-account credentials.
+   */
+  signers: AuthEntrySigner[];
+  /**
+   * whether every signer node carries a signature payload. Always `false` for
+   * source-account credentials (which have no signature nodes — they are
+   * instead covered by the transaction envelope signature; use
+   * {@link checkAuthEntryReadiness} for a submit check). For the delegates
+   * variant note that an account's policy may accept an unsigned top-level
+   * node when its delegates have signed (CAP-71-01) — consult `signers` if you
+   * support that.
+   */
+  signed: boolean;
+  /** the invocation tree this entry authorizes. */
+  invocation: xdr.SorobanAuthorizedInvocation;
+}
+
+/** The result of {@link checkAuthEntryReadiness}. */
+export interface AuthEntryReadiness {
+  /** `true` when the entry is fully signed and not expired. */
+  ready: boolean;
+  /**
+   * `true` when `currentLedgerSeq >= signatureExpirationLedger` (expiration is
+   * exclusive). Always `false` for source-account credentials.
+   */
+  expired: boolean;
+  /** addresses of signer nodes that carry no signature payload. */
+  unsignedBy: string[];
+}
+
+/**
+ * Decodes a {@link xdr.SorobanAuthorizationEntry} into a plain, typed summary:
+ * which credential variant it uses, which address authorizes it, its nonce and
+ * expiration ledger, and — for every node that can carry a signature (the
+ * top-level credentials plus any CAP-71 delegates) — whether it is signed and,
+ * when the payload uses the SDK's standard ed25519 format, by which keys.
+ *
+ * This is the read-side complement to {@link authorizeEntry} /
+ * {@link authorizeInvocation}: those fill entries with signatures, this
+ * inspects what an entry (e.g. one returned by transaction simulation, or
+ * received from a counterparty in a multi-party signing flow) requires and
+ * already carries, without reaching into raw XDR accessors.
+ *
+ * @param entry - the authorization entry to inspect
+ * @returns a {@link AuthEntryInfo} summary of the entry
+ *
+ * @see checkAuthEntryReadiness
+ * @example
+ * ```ts
+ * const info = inspectAuthEntry(entry);
+ * if (!info.signed && info.address !== null) {
+ *   console.log(`${info.address} still needs to sign`, info.signers);
+ * }
+ * ```
+ */
+export function inspectAuthEntry(
+  entry: xdr.SorobanAuthorizationEntry,
+): AuthEntryInfo {
+  const credentials = entry.credentials();
+  const addrAuth = getAddressCredentials(credentials);
+
+  let credentialType: AuthEntryCredentialType;
+  switch (credentials.switch().value) {
+    case xdr.SorobanCredentialsType.sorobanCredentialsSourceAccount().value:
+      credentialType = "sourceAccount";
+      break;
+    case xdr.SorobanCredentialsType.sorobanCredentialsAddress().value:
+      credentialType = "address";
+      break;
+    case xdr.SorobanCredentialsType.sorobanCredentialsAddressV2().value:
+      credentialType = "addressV2";
+      break;
+    case xdr.SorobanCredentialsType.sorobanCredentialsAddressWithDelegates()
+      .value:
+      credentialType = "addressWithDelegates";
+      break;
+    default:
+      throw new Error(
+        `unsupported credential type ${credentials.switch().name}`,
+      );
+  }
+
+  const signers = collectSignatureNodes(credentials).map(
+    (node): AuthEntrySigner => {
+      const rawSignature = node.signature();
+      return {
+        address: Address.fromScAddress(node.address()).toString(),
+        signed: signaturePresent(rawSignature),
+        signatures: parseEd25519Signatures(rawSignature),
+        rawSignature,
+      };
+    },
+  );
+
+  return {
+    credentialType,
+    address:
+      addrAuth === null
+        ? null
+        : Address.fromScAddress(addrAuth.address()).toString(),
+    nonce: addrAuth === null ? null : addrAuth.nonce().toBigInt(),
+    signatureExpirationLedger:
+      addrAuth === null ? null : addrAuth.signatureExpirationLedger(),
+    signers,
+    signed: signers.length > 0 && signers.every((signer) => signer.signed),
+    invocation: entry.rootInvocation(),
+  };
+}
+
+/**
+ * Reports whether an authorization entry is ready to submit at a given ledger:
+ * fully signed and not yet expired.
+ *
+ * Source-account entries are always ready — they carry no signature or
+ * expiration of their own and are instead covered by the transaction envelope
+ * signature.
+ *
+ * The current ledger sequence is taken as a parameter (fetch it from a source
+ * you trust, e.g. `rpc.Server.getLatestLedger`) rather than looked up here, so
+ * this stays a pure decode with no network dependency.
+ *
+ * For `SOROBAN_CREDENTIALS_ADDRESS_WITH_DELEGATES`, this conservatively
+ * requires *every* node (top-level and all delegates) to be signed. An
+ * account's policy may accept an unsigned top-level node when its delegates
+ * have signed (CAP-71-01); if you support that, check
+ * {@link inspectAuthEntry}'s `signers` yourself.
+ *
+ * @param entry - the authorization entry to check
+ * @param currentLedgerSeq - the network's current ledger sequence, compared
+ *    (exclusively) against the entry's `signatureExpirationLedger`
+ * @returns a {@link AuthEntryReadiness}: `ready`, `expired`, and which
+ *    addresses are still `unsignedBy`
+ * @throws `Error` if `currentLedgerSeq` cannot represent a uint32 ledger
+ *    sequence (non-integer, negative, or above 2^32 - 1), which would make the
+ *    expiration comparison unreliable
+ */
+export function checkAuthEntryReadiness(
+  entry: xdr.SorobanAuthorizationEntry,
+  currentLedgerSeq: number,
+): AuthEntryReadiness {
+  if (
+    !Number.isInteger(currentLedgerSeq) ||
+    currentLedgerSeq < 0 ||
+    currentLedgerSeq > 0xffffffff
+  ) {
+    throw new Error(
+      `currentLedgerSeq must be a uint32 ledger sequence, got ${currentLedgerSeq}`,
+    );
+  }
+
+  const info = inspectAuthEntry(entry);
+  if (info.credentialType === "sourceAccount") {
+    return { ready: true, expired: false, unsignedBy: [] };
+  }
+
+  const expired = currentLedgerSeq >= (info.signatureExpirationLedger ?? 0);
+  const unsignedBy = info.signers
+    .filter((signer) => !signer.signed)
+    .map((signer) => signer.address);
+
+  return { ready: !expired && unsignedBy.length === 0, expired, unsignedBy };
+}
+
+/**
+ * Internal helper. A node counts as unsigned when its signature is `scvVoid`
+ * (the delegate/CAP-71 placeholder) or an empty `scvVec` (the placeholder
+ * {@link authorizeInvocation} writes); anything else is a signature payload.
+ */
+function signaturePresent(signature: xdr.ScVal): boolean {
+  switch (signature.switch().value) {
+    case xdr.ScValType.scvVoid().value:
+      return false;
+    case xdr.ScValType.scvVec().value:
+      return (signature.vec() ?? []).length > 0;
+    default:
+      return true;
+  }
+}
+
+/**
+ * Internal helper. Parses a signature value in the SDK's standard format — an
+ * `scvVec` of `scvMap`s with symbol keys `public_key` (32 raw ed25519 key
+ * bytes) and `signature` — back into typed pairs. Returns `null` when the
+ * value has any other shape (e.g. a custom account's signer-defined payload).
+ */
+function parseEd25519Signatures(
+  signature: xdr.ScVal,
+): AuthEntrySignature[] | null {
+  if (signature.switch().value !== xdr.ScValType.scvVec().value) {
+    return null;
+  }
+
+  const parsed: AuthEntrySignature[] = [];
+  for (const element of signature.vec() ?? []) {
+    if (element.switch().value !== xdr.ScValType.scvMap().value) {
+      return null;
+    }
+    let publicKey: Buffer | null = null;
+    let sig: Buffer | null = null;
+    for (const mapEntry of element.map() ?? []) {
+      const key = mapEntry.key();
+      const val = mapEntry.val();
+      if (
+        key.switch().value !== xdr.ScValType.scvSymbol().value ||
+        val.switch().value !== xdr.ScValType.scvBytes().value
+      ) {
+        return null;
+      }
+      switch (key.sym().toString()) {
+        case "public_key":
+          publicKey = val.bytes();
+          break;
+        case "signature":
+          sig = val.bytes();
+          break;
+        default:
+          return null;
+      }
+    }
+    if (
+      publicKey === null ||
+      sig === null ||
+      publicKey.length !== 32 ||
+      sig.length !== 64
+    ) {
+      return null;
+    }
+    parsed.push({
+      publicKey: StrKey.encodeEd25519PublicKey(publicKey),
+      signature: sig,
+    });
+  }
+
+  return parsed;
+}
+
 function bytesToInt64(bytes: Uint8Array): bigint {
   const buf = bytes.subarray(0, 8);
   if (buf.length < 8) {

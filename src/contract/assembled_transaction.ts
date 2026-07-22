@@ -9,6 +9,7 @@ import {
   SorobanDataBuilder,
   TransactionBuilder,
   authorizeEntry as stellarBaseAuthorizeEntry,
+  inspectAuthEntry,
   xdr,
 } from "../base/index.js";
 // internal helper (not part of the public API), imported directly from auth.js
@@ -950,18 +951,18 @@ export class AssembledTransaction<T> {
     return [
       ...new Set(
         (rawInvokeHostFunctionOp.auth ?? [])
-          .map((entry) => getAddressCredentials(entry.credentials()))
+          .map((entry) => inspectAuthEntry(entry))
           .filter(
-            (addrAuth): addrAuth is xdr.SorobanAddressCredentials =>
+            (info) =>
               // skip source-account credentials (no address payload), which
-              // are covered by the envelope signature on the source account
-              addrAuth !== null &&
-              (includeAlreadySigned ||
-                addrAuth.signature().switch().name === "scvVoid"),
+              // are covered by the envelope signature on the source account.
+              // Only the top-level credentials (signers[0]) matter here — this
+              // method reports (and signAuthEntries signs) the top-level
+              // address, so unsigned delegate nodes must not keep it listed.
+              info.address !== null &&
+              (includeAlreadySigned || !info.signers[0].signed),
           )
-          .map((addrAuth) =>
-            Address.fromScAddress(addrAuth.address()).toString(),
-          ),
+          .map((info) => info.address as string),
       ),
     ];
   };
