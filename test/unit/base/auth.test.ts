@@ -4,6 +4,8 @@ import {
   authorizeInvocation,
   buildAuthorizationEntryPreimage,
   buildWithDelegatesEntry,
+  inspectAuthEntry,
+  checkAuthEntryReadiness,
   SigningCallback,
 } from "../../../src/base/auth.js";
 import { Keypair } from "../../../src/base/keypair.js";
@@ -909,6 +911,261 @@ describe("building authorization entries", () => {
         expect(StrKey.encodeEd25519PublicKey(sig.public_key)).toBe(
           delegate.publicKey(),
         );
+      });
+    });
+  });
+});
+
+describe("inspecting authorization entries", () => {
+  const kp = Keypair.random();
+  const contractId = "CA3D5KRYM6CB7OWQ6TWYRR3Z4T7GNZLKERYNZGGA5SOAOPIFY6YQGAXE";
+
+  const invocation = new xdr.SorobanAuthorizedInvocation({
+    function:
+      xdr.SorobanAuthorizedFunction.sorobanAuthorizedFunctionTypeContractFn(
+        new xdr.InvokeContractArgs({
+          contractAddress: new Address(contractId).toScAddress(),
+          functionName: "hello",
+          args: [xdr.ScVal.scvU64(new xdr.Uint64(1234n))],
+        }),
+      ),
+    subInvocations: [],
+  });
+
+  const makeEntry = (
+    credentials: xdr.SorobanCredentials,
+  ): xdr.SorobanAuthorizationEntry =>
+    new xdr.SorobanAuthorizationEntry({
+      rootInvocation: invocation,
+      credentials,
+    });
+
+  const makeAddressCredentials = (signature: xdr.ScVal) =>
+    new xdr.SorobanAddressCredentials({
+      address: new Address(kp.publicKey()).toScAddress(),
+      nonce: new xdr.Int64(123456789101112n),
+      signatureExpirationLedger: 100,
+      signature,
+    });
+
+  describe("inspectAuthEntry", () => {
+    it("decodes an unsigned ADDRESS entry", () => {
+      const entry = makeEntry(
+        xdr.SorobanCredentials.sorobanCredentialsAddress(
+          makeAddressCredentials(xdr.ScVal.scvVec([])),
+        ),
+      );
+
+      const info = inspectAuthEntry(entry);
+      expect(info.credentialType).toBe("address");
+      expect(info.address).toBe(kp.publicKey());
+      expect(info.nonce).toBe(123456789101112n);
+      expect(info.signatureExpirationLedger).toBe(100);
+      expect(info.signed).toBe(false);
+      expect(info.signers).toHaveLength(1);
+      expect(info.signers[0]).toMatchObject({
+        address: kp.publicKey(),
+        signed: false,
+        signatures: [],
+      });
+      expect(info.invocation.toXDR()).toEqual(invocation.toXDR());
+    });
+
+    it("decodes a signed entry, parsing the ed25519 signature format", async () => {
+      const entry = makeEntry(
+        xdr.SorobanCredentials.sorobanCredentialsAddress(
+          makeAddressCredentials(xdr.ScVal.scvVec([])),
+        ),
+      );
+      const signed = await authorizeEntry(entry, kp, 424242, Networks.TESTNET);
+
+      const info = inspectAuthEntry(signed);
+      expect(info.signed).toBe(true);
+      expect(info.signatureExpirationLedger).toBe(424242);
+      const sigs = expectDefined(info.signers[0].signatures);
+      expect(sigs).toHaveLength(1);
+      expect(sigs[0].publicKey).toBe(kp.publicKey());
+      expect(sigs[0].signature).toHaveLength(64);
+    });
+
+    it("decodes ADDRESS_V2 entries", () => {
+      const entry = makeEntry(
+        xdr.SorobanCredentials.sorobanCredentialsAddressV2(
+          makeAddressCredentials(xdr.ScVal.scvVec([])),
+        ),
+      );
+      expect(inspectAuthEntry(entry).credentialType).toBe("addressV2");
+    });
+
+    it("decodes source-account entries", () => {
+      const entry = makeEntry(
+        xdr.SorobanCredentials.sorobanCredentialsSourceAccount(),
+      );
+
+      const info = inspectAuthEntry(entry);
+      expect(info.credentialType).toBe("sourceAccount");
+      expect(info.address).toBeNull();
+      expect(info.nonce).toBeNull();
+      expect(info.signatureExpirationLedger).toBeNull();
+      expect(info.signers).toHaveLength(0);
+      expect(info.signed).toBe(false);
+    });
+
+    it("enumerates delegate signers depth-first", async () => {
+      const delegate = Keypair.random();
+      const nested = Keypair.random();
+
+      const base = makeEntry(
+        xdr.SorobanCredentials.sorobanCredentialsAddressV2(
+          makeAddressCredentials(xdr.ScVal.scvVec([])),
+        ),
+      );
+      const entry = buildWithDelegatesEntry({
+        entry: base,
+        validUntilLedgerSeq: 100,
+        delegates: [
+          {
+            address: delegate.publicKey(),
+            nestedDelegates: [{ address: nested.publicKey() }],
+          },
+        ],
+      });
+      const signed = await authorizeEntry(
+        entry,
+        delegate,
+        100,
+        Networks.TESTNET,
+        delegate.publicKey(),
+      );
+
+      const info = inspectAuthEntry(signed);
+      expect(info.credentialType).toBe("addressWithDelegates");
+      expect(info.address).toBe(kp.publicKey());
+      expect(info.signers.map((s) => s.address)).toEqual([
+        kp.publicKey(),
+        delegate.publicKey(),
+        nested.publicKey(),
+      ]);
+      // top-level (scvVoid) and nested delegate are unsigned; delegate signed
+      expect(info.signers.map((s) => s.signed)).toEqual([false, true, false]);
+      expect(info.signed).toBe(false);
+      expect(expectDefined(info.signers[1].signatures)[0].publicKey).toBe(
+        delegate.publicKey(),
+      );
+    });
+
+    it("returns null signatures (but signed=true) for non-standard payloads", () => {
+      const entry = makeEntry(
+        xdr.SorobanCredentials.sorobanCredentialsAddress(
+          makeAddressCredentials(
+            xdr.ScVal.scvBytes(Buffer.alloc(64)), // e.g. a custom-account payload
+          ),
+        ),
+      );
+
+      const info = inspectAuthEntry(entry);
+      expect(info.signed).toBe(true);
+      expect(info.signers[0].signatures).toBeNull();
+      expect(info.signers[0].rawSignature.switch().name).toBe("scvBytes");
+    });
+
+    it("rejects non-64-byte signatures as non-standard payloads", () => {
+      const malformed = xdr.ScVal.scvVec([
+        xdr.ScVal.scvMap([
+          new xdr.ScMapEntry({
+            key: xdr.ScVal.scvSymbol("public_key"),
+            val: xdr.ScVal.scvBytes(Buffer.alloc(32)),
+          }),
+          new xdr.ScMapEntry({
+            key: xdr.ScVal.scvSymbol("signature"),
+            val: xdr.ScVal.scvBytes(Buffer.alloc(1)),
+          }),
+        ]),
+      ]);
+      const entry = makeEntry(
+        xdr.SorobanCredentials.sorobanCredentialsAddress(
+          makeAddressCredentials(malformed),
+        ),
+      );
+
+      const info = inspectAuthEntry(entry);
+      expect(info.signed).toBe(true);
+      expect(info.signers[0].signatures).toBeNull();
+    });
+
+    it("treats scvVoid as unsigned", () => {
+      const entry = makeEntry(
+        xdr.SorobanCredentials.sorobanCredentialsAddress(
+          makeAddressCredentials(xdr.ScVal.scvVoid()),
+        ),
+      );
+      const info = inspectAuthEntry(entry);
+      expect(info.signed).toBe(false);
+      expect(info.signers[0].signatures).toBeNull();
+    });
+  });
+
+  describe("checkAuthEntryReadiness", () => {
+    it("is ready when signed and unexpired", async () => {
+      const entry = makeEntry(
+        xdr.SorobanCredentials.sorobanCredentialsAddress(
+          makeAddressCredentials(xdr.ScVal.scvVec([])),
+        ),
+      );
+      const signed = await authorizeEntry(entry, kp, 1000, Networks.TESTNET);
+
+      expect(checkAuthEntryReadiness(signed, 999)).toEqual({
+        ready: true,
+        expired: false,
+        unsignedBy: [],
+      });
+    });
+
+    it("expires exclusively at signatureExpirationLedger", async () => {
+      const entry = makeEntry(
+        xdr.SorobanCredentials.sorobanCredentialsAddress(
+          makeAddressCredentials(xdr.ScVal.scvVec([])),
+        ),
+      );
+      const signed = await authorizeEntry(entry, kp, 1000, Networks.TESTNET);
+
+      const atExpiry = checkAuthEntryReadiness(signed, 1000);
+      expect(atExpiry.expired).toBe(true);
+      expect(atExpiry.ready).toBe(false);
+    });
+
+    it("reports unsigned addresses", () => {
+      const entry = makeEntry(
+        xdr.SorobanCredentials.sorobanCredentialsAddress(
+          makeAddressCredentials(xdr.ScVal.scvVec([])),
+        ),
+      );
+
+      const readiness = checkAuthEntryReadiness(entry, 1);
+      expect(readiness.ready).toBe(false);
+      expect(readiness.unsignedBy).toEqual([kp.publicKey()]);
+    });
+
+    it("rejects a currentLedgerSeq that is not a uint32", () => {
+      const entry = makeEntry(
+        xdr.SorobanCredentials.sorobanCredentialsAddress(
+          makeAddressCredentials(xdr.ScVal.scvVec([])),
+        ),
+      );
+
+      [NaN, -1, 1.5, 2 ** 32].forEach((bad) => {
+        expect(() => checkAuthEntryReadiness(entry, bad)).toThrow(/uint32/);
+      });
+    });
+
+    it("source-account entries are always ready", () => {
+      const entry = makeEntry(
+        xdr.SorobanCredentials.sorobanCredentialsSourceAccount(),
+      );
+      expect(checkAuthEntryReadiness(entry, 999999999)).toEqual({
+        ready: true,
+        expired: false,
+        unsignedBy: [],
       });
     });
   });

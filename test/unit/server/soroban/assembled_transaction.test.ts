@@ -87,7 +87,6 @@ describe("AssembledTransaction", () => {
       .mockResolvedValueOnce({ data: { result: getTransactionResponse } }); // getTransaction
 
     const txn = await contract.AssembledTransaction[
-      // eslint-disable-next-line @typescript-eslint/dot-notation
       "buildFootprintRestoreTransaction"
     ](
       options,
@@ -366,8 +365,8 @@ describe("AssembledTransaction auth entry credential types (CAP-71)", () => {
     ).toXDR("base64"),
   ]);
 
-  // unsigned auth entries carry an scvVoid signature; an scvVec signature
-  // marks an entry as already signed
+  // unsigned auth entries carry an scvVoid (or empty scvVec) signature; a
+  // non-empty scvVec signature marks an entry as already signed
   function addrCreds(
     pk: string,
     signed = false,
@@ -376,7 +375,9 @@ describe("AssembledTransaction auth entry credential types (CAP-71)", () => {
       address: new Address(pk).toScAddress(),
       nonce: new xdr.Int64(1),
       signatureExpirationLedger: 0,
-      signature: signed ? xdr.ScVal.scvVec([]) : xdr.ScVal.scvVoid(),
+      signature: signed
+        ? xdr.ScVal.scvVec([xdr.ScVal.scvBytes(Buffer.alloc(64))])
+        : xdr.ScVal.scvVoid(),
     });
   }
 
@@ -482,6 +483,36 @@ describe("AssembledTransaction auth entry credential types (CAP-71)", () => {
           .needsNonInvokerSigningBy({ includeAlreadySigned: true })
           .sort(),
       ).toEqual([kpA.publicKey(), kpB.publicKey()].sort());
+    });
+
+    it("treats an empty scvVec signature (authorizeInvocation's placeholder) as unsigned", () => {
+      const creds = addrCreds(kpA.publicKey());
+      creds.signature(xdr.ScVal.scvVec([]));
+      const assembled = assembledWith([
+        authEntry(xdr.SorobanCredentials.sorobanCredentialsAddress(creds)),
+      ]);
+
+      expect(assembled.needsNonInvokerSigningBy()).toEqual([kpA.publicKey()]);
+    });
+
+    it("keeps top-level semantics for delegate entries: a signed top level is excluded even with unsigned delegates", () => {
+      const entry = authEntry(
+        xdr.SorobanCredentials.sorobanCredentialsAddressWithDelegates(
+          new xdr.SorobanAddressCredentialsWithDelegates({
+            addressCredentials: addrCreds(kpB.publicKey(), true),
+            delegates: [
+              new xdr.SorobanDelegateSignature({
+                address: new Address(kpC.publicKey()).toScAddress(),
+                signature: xdr.ScVal.scvVoid(), // unsigned delegate
+                nestedDelegates: [],
+              }),
+            ],
+          }),
+        ),
+      );
+      const assembled = assembledWith([entry]);
+
+      expect(assembled.needsNonInvokerSigningBy()).toEqual([]);
     });
 
     it("deduplicates repeated addresses across credential types", () => {

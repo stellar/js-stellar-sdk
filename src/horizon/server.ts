@@ -17,7 +17,9 @@ import {
   AccountRequiresMemoError,
   BadResponseError,
   NotFoundError,
+  TransactionFailedError,
 } from "../errors/index.js";
+import { wrapHttpError } from "../errors/wrap_http_error.js";
 
 import { AccountCallBuilder } from "./account_call_builder.js";
 import { AccountResponse } from "./account_response.js";
@@ -58,6 +60,16 @@ const ACCOUNT_REQUIRES_MEMO = "MQ==";
 
 function getAmountInLumens(amt: BigNumber) {
   return new CustomBigNumber(amt).div(STROOPS_IN_LUMEN).toString();
+}
+
+// Maps a transaction submission rejection to an SDK error.
+function toSubmissionError(error: any): Error {
+  return wrapHttpError(error, (details) => {
+    const message = `Transaction submission failed. Server responded: ${details.status} ${details.statusText}`;
+    return details.data?.extras?.result_codes
+      ? new TransactionFailedError(message, details)
+      : new BadResponseError(message, details);
+  });
 }
 
 /**
@@ -322,8 +334,11 @@ export class HorizonServer {
    *   - `skipMemoRequiredCheck` (optional): Allow skipping memo
    * required check, default: `false`. See
    * [SEP0029](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0029.md).
-   * @returns Promise that resolves or rejects with response from
-   * horizon.
+   * @returns Promise that resolves with the response from Horizon. Rejects
+   * with a {@link TransactionFailedError} when Horizon reports transaction
+   * result codes, a {@link BadResponseError} for any other HTTP error
+   * response (the underlying client error is preserved as `cause` on both),
+   * or the original error for network-level failures.
    */
   public async submitTransaction(
     transaction: Transaction | FeeBumpTransaction,
@@ -526,17 +541,7 @@ export class HorizonServer {
           offerResults: hasManageOffer ? offerResults : undefined,
         };
       })
-      .catch((response) => {
-        if (response instanceof Error) {
-          return Promise.reject(response);
-        }
-        return Promise.reject(
-          new BadResponseError(
-            `Transaction submission failed. Server responded: ${response.status} ${response.statusText}`,
-            response.data,
-          ),
-        );
-      });
+      .catch((error) => Promise.reject(toSubmissionError(error)));
   }
 
   /**
@@ -553,8 +558,11 @@ export class HorizonServer {
    *   - `skipMemoRequiredCheck` (optional): Allow skipping memo
    * required check, default: `false`. See
    * [SEP0029](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0029.md).
-   * @returns Promise that resolves or rejects with response from
-   * horizon.
+   * @returns Promise that resolves with the response from Horizon. Rejects
+   * with a {@link TransactionFailedError} when Horizon reports transaction
+   * result codes, a {@link BadResponseError} for any other HTTP error
+   * response (the underlying client error is preserved as `cause` on both),
+   * or the original error for network-level failures.
    */
   public async submitAsyncTransaction(
     transaction: Transaction | FeeBumpTransaction,
@@ -582,17 +590,7 @@ export class HorizonServer {
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
       })
       .then((response) => response.data)
-      .catch((response) => {
-        if (response instanceof Error) {
-          return Promise.reject(response);
-        }
-        return Promise.reject(
-          new BadResponseError(
-            `Transaction submission failed. Server responded: ${response.status} ${response.statusText}`,
-            response.data,
-          ),
-        );
-      });
+      .catch((error) => Promise.reject(toSubmissionError(error)));
   }
 
   /**
