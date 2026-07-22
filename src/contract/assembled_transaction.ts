@@ -234,14 +234,14 @@ import {
  * deserialize it:
  *
  * ```ts
- * const tx = swapClient.txFromJSON(json)
+ * const tx = swapClient.txFromJson(json)
  * ```
  *
  * Or, if you're using a client generated with
  * `soroban contract bindings typescript`, this deserialization will look like:
  *
  * ```ts
- * const tx = swapClient.fromJSON.swap(json)
+ * const tx = swapClient.fromJson.swap(json)
  * ```
  *
  * Then you can have Bob sign it. What Bob will actually need to sign is some
@@ -298,7 +298,7 @@ export class AssembledTransaction<T> {
   /**
    * The result of the transaction simulation. This is set after the first call
    * to `simulate`. It is difficult to serialize and deserialize, so it is not
-   * included in the `toJson` and `fromJSON` methods. See `simulationData`
+   * included in the `toJson` and `fromJson` methods. See `simulationData`
    * cached, serializable access to the data needed by AssembledTransaction
    * logic.
    */
@@ -365,7 +365,7 @@ export class AssembledTransaction<T> {
   /**
    * Serialize the AssembledTransaction to a JSON string. This is useful for
    * saving the transaction to a database or sending it over the wire for
-   * multi-auth workflows. `fromJSON` can be used to deserialize the
+   * multi-auth workflows. `fromJson` can be used to deserialize the
    * transaction. This only works with transactions that have been simulated.
    */
   toJson() {
@@ -379,6 +379,14 @@ export class AssembledTransaction<T> {
       simulationTransactionData:
         this.simulationData.transactionData.toXdr("base64"),
     });
+  }
+
+  /**
+   * @deprecated Use {@link toJson} instead. Kept so existing callers and the
+   * `JSON.stringify` protocol hook keep working.
+   */
+  toJSON() {
+    return this.toJson();
   }
 
   /**
@@ -441,7 +449,7 @@ export class AssembledTransaction<T> {
     return invokeContractArgs;
   }
 
-  static fromJSON<T>(
+  static fromJson<T>(
     options: Omit<AssembledTransactionOptions<T>, "args">,
     {
       tx,
@@ -483,6 +491,15 @@ export class AssembledTransaction<T> {
       "base64",
     );
     return txn;
+  }
+
+  /**
+   * @deprecated Use {@link fromJson} instead.
+   */
+  static fromJSON<T>(
+    ...args: Parameters<typeof AssembledTransaction.fromJson<T>>
+  ): AssembledTransaction<T> {
+    return AssembledTransaction.fromJson(...args);
   }
 
   /**
@@ -983,7 +1000,7 @@ export class AssembledTransaction<T> {
    * If {@link AssembledTransaction#needsNonInvokerSigningBy} returns a
    * non-empty list, you can serialize the transaction with `toJson`, send it to
    * the owner of one of the public keys in the map, deserialize with
-   * `txFromJSON`, and call this method on their machine. Internally, this will
+   * `txFromJson`, and call this method on their machine. Internally, this will
    * use `signAuthEntry` function from connected `wallet` for each.
    *
    * Then, re-serialize the transaction and either send to the next

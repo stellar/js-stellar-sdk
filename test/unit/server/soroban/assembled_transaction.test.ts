@@ -240,7 +240,7 @@ describe("Contract ID validation on deserialization", () => {
     );
   });
 
-  it("fromJSON() accepts a transaction targeting the configured contract", () => {
+  it("fromJson() accepts a transaction targeting the configured contract", () => {
     const tx = buildInvokeTx(victimContractId, "test");
     const spec = createSpec("test");
     const simulationResult = {
@@ -259,7 +259,7 @@ describe("Contract ID validation on deserialization", () => {
     });
 
     const { method, ...txData } = JSON.parse(json);
-    const assembled = contract.AssembledTransaction.fromJSON(
+    const assembled = contract.AssembledTransaction.fromJson(
       {
         contractId: victimContractId,
         networkPassphrase,
@@ -272,7 +272,7 @@ describe("Contract ID validation on deserialization", () => {
     expect(assembled.built).toBeDefined();
   });
 
-  it("fromJSON() rejects a transaction targeting a different contract", () => {
+  it("fromJson() rejects a transaction targeting a different contract", () => {
     const tx = buildInvokeTx(attackerContractId, "drain");
     const simulationResult = {
       auth: [],
@@ -292,7 +292,7 @@ describe("Contract ID validation on deserialization", () => {
     const { method, ...txData } = JSON.parse(json);
 
     expect(() =>
-      contract.AssembledTransaction.fromJSON(
+      contract.AssembledTransaction.fromJson(
         {
           contractId: victimContractId,
           networkPassphrase,
@@ -307,7 +307,7 @@ describe("Contract ID validation on deserialization", () => {
     );
   });
 
-  it("fromJSON() rejects a transaction with a spoofed method name", () => {
+  it("fromJson() rejects a transaction with a spoofed method name", () => {
     const tx = buildInvokeTx(victimContractId, "transfer");
     const simulationResult = {
       auth: [],
@@ -327,7 +327,7 @@ describe("Contract ID validation on deserialization", () => {
     const { method, ...txData } = JSON.parse(json);
 
     expect(() =>
-      contract.AssembledTransaction.fromJSON(
+      contract.AssembledTransaction.fromJson(
         {
           contractId: victimContractId,
           networkPassphrase,

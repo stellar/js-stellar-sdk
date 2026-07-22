@@ -481,8 +481,8 @@ describe("BindingGenerator", () => {
     });
   });
 
-  describe("generate - fromJSON methods", () => {
-    it("generates fromJSON for each function", () => {
+  describe("generate - fromJson methods", () => {
+    it("generates fromJson for each function", () => {
       const funcSpec = createFunctionSpec(
         "my_method",
         [],
@@ -491,11 +491,14 @@ describe("BindingGenerator", () => {
       const spec = new contract.Spec([funcSpec.toXdr("base64")]);
       const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
 
-      expect(result.client).toContain("public readonly fromJSON = {");
-      expect(result.client).toContain("my_method : this.txFromJSON<boolean>");
+      expect(result.client).toContain("public readonly fromJson = {");
+      expect(result.client).toContain(
+        "public readonly fromJSON = this.fromJson;",
+      );
+      expect(result.client).toContain("my_method : this.txFromJson<boolean>");
     });
 
-    it("excludes __constructor from fromJSON", () => {
+    it("excludes __constructor from fromJson", () => {
       const constructorSpec = createFunctionSpec("__constructor", []);
       const funcSpec = createFunctionSpec(
         "hello",
@@ -508,8 +511,8 @@ describe("BindingGenerator", () => {
       ]);
       const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
 
-      expect(result.client).toContain("hello : this.txFromJSON<string>");
-      expect(result.client).not.toContain("__constructor : this.txFromJSON");
+      expect(result.client).toContain("hello : this.txFromJson<string>");
+      expect(result.client).not.toContain("__constructor : this.txFromJson");
     });
   });
 

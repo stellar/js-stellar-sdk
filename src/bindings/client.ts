@@ -44,10 +44,10 @@ export class ClientGenerator {
       (entry) => `"${entry.toXdr("base64")}"`,
     );
 
-    const fromJSON = this.spec
+    const fromJson = this.spec
       .funcs()
       .filter((func) => func.name.toString() !== "__constructor")
-      .map((func) => this.generateFromJSONMethod(func))
+      .map((func) => this.generateFromJsonMethod(func))
       .join(",");
 
     return `${imports}
@@ -65,9 +65,12 @@ export class Client extends ContractClient {
   }
 
  ${deployMethod}
-  public readonly fromJSON = {
-  ${fromJSON}
+  public readonly fromJson = {
+  ${fromJson}
   };
+
+  /** @deprecated Use fromJson instead. */
+  public readonly fromJSON = this.fromJson;
 }`;
   }
 
@@ -110,12 +113,12 @@ export class Client extends ContractClient {
     return `${docs}  ${name}(${params}): Promise<AssembledTransaction<${outputType}>>;`;
   }
 
-  private generateFromJSONMethod(func: ScSpecFunctionV0): string {
+  private generateFromJsonMethod(func: ScSpecFunctionV0): string {
     const name = sanitizeIdentifier(func.name.toString());
     const outputType =
       func.outputs.length > 0 ? parseTypeFromTypeDef(func.outputs[0]) : "void";
 
-    return `  ${name} : this.txFromJSON<${outputType}>`;
+    return `  ${name} : this.txFromJson<${outputType}>`;
   }
   /**
    * Generate deploy method

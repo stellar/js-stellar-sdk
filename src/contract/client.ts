@@ -267,9 +267,9 @@ export class Client {
     return Client.fromWasm<T>(wasm, options);
   }
 
-  txFromJSON = <T>(json: string): AssembledTransaction<T> => {
+  txFromJson = <T>(json: string): AssembledTransaction<T> => {
     const { method, ...tx } = JSON.parse(json);
-    return AssembledTransaction.fromJSON(
+    return AssembledTransaction.fromJson(
       {
         ...this.options,
         method,
@@ -279,6 +279,11 @@ export class Client {
       tx,
     );
   };
+
+  /**
+   * @deprecated Use {@link txFromJson} instead.
+   */
+  txFromJSON = this.txFromJson;
 
   txFromXDR = <T>(xdrBase64: string): AssembledTransaction<T> =>
     AssembledTransaction.fromXdr(this.options, xdrBase64, this.spec);

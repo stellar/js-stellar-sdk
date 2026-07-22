@@ -793,7 +793,7 @@ export class RpcServer {
 
     // Validate against the contract spec (keyed by the real on-chain name)
     // first, so a `method` that collides with a built-in `Client`/prototype
-    // member (e.g. `txFromJSON`, `toString`) is rejected rather than silently
+    // member (e.g. `txFromJson`, `toString`) is rejected rather than silently
     // invoking the wrong function.
     const isContractMethod = client.spec
       .funcs()
