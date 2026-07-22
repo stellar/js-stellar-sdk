@@ -2,6 +2,7 @@ import { StrKey } from "../base/index.js";
 
 import { Config } from "../config.js";
 import { BadResponseError } from "../errors/index.js";
+import { wrapHttpError } from "../errors/wrap_http_error.js";
 import { Resolver } from "../stellartoml/index.js";
 
 import type { Api } from "./api.js";
@@ -235,23 +236,25 @@ export class FederationServer {
         }
         return response.data;
       })
-      .catch((response) => {
-        if (response instanceof Error) {
-          if (response.message.match(/^maxContentLength size/)) {
-            throw new Error(
-              `federation response exceeds allowed size of ${FEDERATION_RESPONSE_MAX_SIZE}`,
-            );
-          } else {
-            return Promise.reject(response);
-          }
-        } else {
-          return Promise.reject(
-            new BadResponseError(
-              `Server query failed. Server responded: ${response.status} ${response.statusText}`,
-              response.data,
-            ),
+      .catch((error) => {
+        if (
+          error instanceof Error &&
+          error.message.match(/^maxContentLength size/)
+        ) {
+          throw new Error(
+            `federation response exceeds allowed size of ${FEDERATION_RESPONSE_MAX_SIZE}`,
           );
         }
+        return Promise.reject(
+          wrapHttpError(
+            error,
+            (details) =>
+              new BadResponseError(
+                `Server query failed. Server responded: ${details.status} ${details.statusText}`,
+                details,
+              ),
+          ),
+        );
       });
   }
 }
