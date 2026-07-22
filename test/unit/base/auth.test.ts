@@ -914,6 +914,161 @@ describe("building authorization entries", () => {
       });
     });
   });
+
+  describe("signing payload passed to the callback", () => {
+    it("equals hash(preimage.toXDR())", async () => {
+      let captured: { preimage?: xdr.HashIdPreimage; payload?: Buffer } = {};
+      await authorizeEntry(
+        authEntry,
+        (preimage, payload) => {
+          captured = { preimage, payload };
+          return Promise.resolve(kp.sign(payload));
+        },
+        10,
+        Networks.TESTNET,
+      );
+
+      expect(expectDefined(captured.payload)).toEqual(
+        hash(expectDefined(captured.preimage).toXDR()),
+      );
+    });
+
+    it("lets the callback sign the payload directly without re-deriving it", async () => {
+      const signed = await authorizeEntry(
+        authEntry,
+        (_preimage, payload) =>
+          Promise.resolve({
+            signature: kp.sign(payload),
+            publicKey: kp.publicKey(),
+          }),
+        10,
+        Networks.TESTNET,
+      );
+
+      // internal verification passing proves the payload is the signing hash
+      const sigArgs = expectDefined(
+        signed.credentials().address().signature().vec(),
+      ).map((v) => scValToNative(v));
+      const sig = sigArgs[0] as { public_key: Buffer; signature: Buffer };
+      expect(StrKey.encodeEd25519PublicKey(sig.public_key)).toBe(
+        kp.publicKey(),
+      );
+    });
+
+    it("gives the callback a copy, so mutating it cannot skew verification", async () => {
+      await expect(
+        authorizeEntry(
+          authEntry,
+          (_preimage, payload) => {
+            // sign a doctored payload, then rely on the mutation sticking: if
+            // the callback shared the verification buffer, this would wrongly
+            // pass and emit an on-chain-invalid signature
+            payload[0] ^= 0xff;
+            return Promise.resolve({
+              signature: kp.sign(payload),
+              publicKey: kp.publicKey(),
+            });
+          },
+          10,
+          Networks.TESTNET,
+        ),
+      ).rejects.toThrow(/signature doesn't match payload/);
+    });
+  });
+
+  describe("custom signature ScVal (non-Ed25519 signers)", () => {
+    // an opaque signature structure like a smart-wallet __check_auth expects;
+    // deliberately NOT a valid Ed25519 signature map
+    const customSig = xdr.ScVal.scvMap([
+      new xdr.ScMapEntry({
+        key: xdr.ScVal.scvSymbol("blob"),
+        val: xdr.ScVal.scvBytes(Buffer.alloc(17, 0xab)),
+      }),
+    ]);
+
+    it("writes the ScVal verbatim, skipping Ed25519 verification", async () => {
+      const signed = await authorizeEntry(
+        authEntry,
+        () => Promise.resolve({ signatureScVal: customSig }),
+        10,
+        Networks.TESTNET,
+      );
+
+      const addr = signed.credentials().address();
+      expect(addr.signatureExpirationLedger()).toBe(10);
+      // verbatim: not wrapped in an scvVec, byte-identical to what we returned
+      expect(addr.signature().toXDR("hex")).toBe(customSig.toXDR("hex"));
+    });
+
+    it("works with ADDRESS_V2 credentials", async () => {
+      const entry = new xdr.SorobanAuthorizationEntry({
+        rootInvocation: authEntry.rootInvocation(),
+        credentials: xdr.SorobanCredentials.sorobanCredentialsAddressV2(
+          new xdr.SorobanAddressCredentials({
+            address: new Address(contractId).toScAddress(),
+            nonce: new xdr.Int64(1n),
+            signatureExpirationLedger: 0,
+            signature: xdr.ScVal.scvVoid(),
+          }),
+        ),
+      });
+
+      const signed = await authorizeEntry(
+        entry,
+        () => Promise.resolve({ signatureScVal: customSig }),
+        10,
+        Networks.TESTNET,
+      );
+
+      expect(signed.credentials().addressV2().signature().toXDR("hex")).toBe(
+        customSig.toXDR("hex"),
+      );
+    });
+
+    it("routes the signature via the returned address, like forAddress", async () => {
+      const delegate = Keypair.random();
+      const wrapped = buildWithDelegatesEntry({
+        entry: authEntry,
+        validUntilLedgerSeq: 10,
+        delegates: [{ address: delegate.publicKey() }],
+      });
+
+      const signed = await authorizeEntry(
+        wrapped,
+        () =>
+          Promise.resolve({
+            signatureScVal: customSig,
+            address: delegate.publicKey(),
+          }),
+        10,
+        Networks.TESTNET,
+      );
+
+      const wd = signed.credentials().addressWithDelegates();
+      // top-level untouched (still the Void placeholder), delegate node
+      // carries the custom ScVal
+      expect(wd.addressCredentials().signature().switch().name).toBe("scvVoid");
+      expect(wd.delegates()[0].signature().toXDR("hex")).toBe(
+        customSig.toXDR("hex"),
+      );
+    });
+
+    it("throws when the returned address matches no node", async () => {
+      const stranger = Keypair.random();
+      await expect(
+        authorizeEntry(
+          authEntry,
+          () =>
+            Promise.resolve({
+              signatureScVal: customSig,
+              address: stranger.publicKey(),
+            }),
+          10,
+          Networks.TESTNET,
+        ),
+      ).rejects.toThrow(/no credential node for address/);
+    });
+  });
 });
 
 describe("inspecting authorization entries", () => {

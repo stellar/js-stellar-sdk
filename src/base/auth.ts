@@ -25,16 +25,38 @@ function toBuffer(value: BufferLike): Buffer {
  * @param preimage - the entire authorization envelope whose hash you should
  *    sign, so that you can inspect the entire structure if necessary (rather
  *    than blindly signing a hash)
+ * @param payload - the 32-byte signing payload, i.e. the sha256 hash of the
+ *    preimage bytes (`hash(preimage.toXDR())`), provided as a convenience so
+ *    you never have to re-derive it (e.g. for HSMs or remote signers that only
+ *    accept a digest)
  *
- * @returns the signature of the raw payload (which is the sha256 hash of the
- *    preimage bytes, so `hash(preimage.toXDR())`) either naked, implying it is
- *    signed by the key corresponding to the public key in the entry you pass to
+ * @returns one of the following:
+ *
+ *  - the signature of the payload as a naked buffer, implying it is signed by
+ *    the key corresponding to the public key in the entry you pass to
  *    {@link authorizeEntry} (decipherable from its
- *    `credentials().address().address()`), or alongside an explicit `publicKey`.
+ *    `credentials().address().address()`),
+ *  - an object with the `signature` alongside an explicit `publicKey` string
+ *    identifying the Ed25519 signer, or
+ *  - an object with a `signatureScVal`: an arbitrary, caller-built
+ *    {@link xdr.ScVal} that is placed verbatim into the credentials'
+ *    `signature` field. Use this for custom account contracts (smart wallets,
+ *    passkey/WebAuthn signers, etc.) whose `__check_auth` expects a signature
+ *    structure other than the built-in Stellar account
+ *    `{public_key, signature}` vector. No Ed25519 verification is performed on
+ *    this variant, and no `scvVec` wrapping is applied — you own the exact
+ *    shape. The optional `address` selects which credential node receives the
+ *    signature (like `forAddress` on {@link authorizeEntry}, which takes
+ *    precedence if both are given).
  */
 export type SigningCallback = (
   preimage: xdr.HashIdPreimage,
-) => Promise<BufferLike | { signature: BufferLike; publicKey: string }>;
+  payload: Buffer,
+) => Promise<
+  | BufferLike
+  | { signature: BufferLike; publicKey: string }
+  | { signatureScVal: xdr.ScVal; address?: string }
+>;
 
 /**
  * Actually authorizes an existing authorization entry using the given
@@ -54,17 +76,22 @@ export type SigningCallback = (
  * {@link SigningCallback}) to handle signing the envelope hash.
  *
  * @param entry - an unsigned authorization entry
- * @param signer - either a {@link Keypair} instance or a function which takes a
- *    {@link xdr.HashIdPreimageSorobanAuthorization} input payload and returns
- *    EITHER
+ * @param signer - either a {@link Keypair} instance or a function (see
+ *    {@link SigningCallback}) which receives the
+ *    {@link xdr.HashIdPreimage} input payload plus its 32-byte signing hash
+ *    and returns EITHER
  *
  *      (a) an object containing a `signature` of the hash of the raw payload
  *          bytes as a Buffer-like and a `publicKey` string representing who just
- *          created this signature, or
+ *          created this signature,
  *      (b) just the naked signature of the hash of the raw payload bytes (where
- *          the signing key is implied to be the address in the `entry`).
+ *          the signing key is implied to be the address in the `entry`), or
+ *      (c) an object containing a `signatureScVal` — an arbitrary, caller-built
+ *          {@link xdr.ScVal} written verbatim as the credentials' signature,
+ *          for custom account contracts (smart wallets, passkey/WebAuthn
+ *          signers) whose `__check_auth` expects a non-Ed25519 signature shape.
  *
- *    The latter option (b) is JUST for backwards compatibility and will be
+ *    Option (b) is JUST for backwards compatibility and will be
  *    removed in the future.
  * @param validUntilLedgerSeq - the (exclusive) future ledger sequence number
  *    until which this authorization entry should be valid (if
@@ -102,8 +129,10 @@ export type SigningCallback = (
  * // It might, for example, pop up a modal from a browser extension, send the
  * // transaction to a third-party service for signing, or just do simple
  * // signing via Keypair like it does here:
- * function signPayloadCallback(payload) {
- *    return signer.sign(hash(payload.toXDR()));
+ * function signPayloadCallback(preimage, payload) {
+ *    // `payload` is hash(preimage.toXDR()) — inspect `preimage` if you want
+ *    // to display/verify what is being authorized before signing.
+ *    return signer.sign(payload);
  * }
  *
  * function multiPartyAuth(
@@ -169,50 +198,72 @@ export async function authorizeEntry(
 
   const payload = hash(preimage.toXDR());
 
-  let signature: Buffer;
-  let publicKey: string;
+  let signatureScVal: xdr.ScVal;
+  let targetAddress = forAddress;
+  let sigResult: Awaited<ReturnType<SigningCallback>> | null = null;
   if (typeof signer === "function") {
-    const sigResult = await signer(preimage);
-    if (
-      sigResult !== null &&
-      typeof sigResult === "object" &&
-      "signature" in sigResult
-    ) {
-      signature = toBuffer(sigResult.signature);
-      publicKey = sigResult.publicKey;
-    } else {
-      // if using the deprecated form, assume it's for the entry
-      signature = toBuffer(sigResult);
-      publicKey = Address.fromScAddress(addrAuth.address()).toString();
-    }
+    // Hand the callback its own copy of the payload: `payload` is what the
+    // Ed25519 signature is verified against below, so a callback mutating the
+    // buffer it received must not be able to shift what "valid" means.
+    sigResult = await signer(preimage, Buffer.from(payload));
+  }
+
+  if (
+    sigResult !== null &&
+    typeof sigResult === "object" &&
+    "signatureScVal" in sigResult
+  ) {
+    // Custom-credential path (smart wallets, passkeys/WebAuthn, etc.): the
+    // caller owns the exact ScVal their account contract's `__check_auth`
+    // expects, so it is written verbatim — no Ed25519 verification and no
+    // scvVec wrapping.
+    signatureScVal = sigResult.signatureScVal;
+    targetAddress ??= sigResult.address;
   } else {
-    signature = toBuffer(signer.sign(payload));
-    publicKey = signer.publicKey();
-  }
+    let signature: Buffer;
+    let publicKey: string;
+    if (typeof signer === "function") {
+      if (
+        sigResult !== null &&
+        typeof sigResult === "object" &&
+        "signature" in sigResult
+      ) {
+        signature = toBuffer(sigResult.signature);
+        publicKey = sigResult.publicKey;
+      } else {
+        // if using the deprecated form, assume it's for the entry
+        signature = toBuffer(sigResult as BufferLike);
+        publicKey = Address.fromScAddress(addrAuth.address()).toString();
+      }
+    } else {
+      signature = toBuffer(signer.sign(payload));
+      publicKey = signer.publicKey();
+    }
 
-  if (!Keypair.fromPublicKey(publicKey).verify(payload, signature)) {
-    throw new Error(`signature doesn't match payload`);
-  }
+    if (!Keypair.fromPublicKey(publicKey).verify(payload, signature)) {
+      throw new Error(`signature doesn't match payload`);
+    }
 
-  // This structure is defined here:
-  // https://soroban.stellar.org/docs/fundamentals-and-concepts/invoking-contracts-with-transactions#stellar-account-signatures
-  //
-  // Encoding a contract structure as an ScVal means the map keys are supposed
-  // to be symbols, hence the forced typing here.
-  const sigScVal = nativeToScVal(
-    {
-      public_key: StrKey.decodeEd25519PublicKey(publicKey),
-      signature,
-    },
-    {
-      type: {
-        public_key: ["symbol", null],
-        signature: ["symbol", null],
+    // This structure is defined here:
+    // https://soroban.stellar.org/docs/fundamentals-and-concepts/invoking-contracts-with-transactions#stellar-account-signatures
+    //
+    // Encoding a contract structure as an ScVal means the map keys are supposed
+    // to be symbols, hence the forced typing here.
+    const sigScVal = nativeToScVal(
+      {
+        public_key: StrKey.decodeEd25519PublicKey(publicKey),
+        signature,
       },
-    },
-  );
+      {
+        type: {
+          public_key: ["symbol", null],
+          signature: ["symbol", null],
+        },
+      },
+    );
 
-  const signatureScVal = xdr.ScVal.scvVec([sigScVal]);
+    signatureScVal = xdr.ScVal.scvVec([sigScVal]);
+  }
 
   // CAP-71-01: the signature payload is shared across the top-level address
   // and every (possibly nested) delegate, so this signer's signature is
@@ -221,16 +272,16 @@ export async function authorizeEntry(
   // preserves the behavior for ADDRESS / ADDRESS_V2 and for accounts whose
   // signing key differs from the credential address (e.g. multisig).
   const targets: SignableCredential[] =
-    forAddress === undefined
+    targetAddress === undefined
       ? [addrAuth]
       : collectSignatureNodes(credentials).filter(
           (node) =>
-            Address.fromScAddress(node.address()).toString() === forAddress,
+            Address.fromScAddress(node.address()).toString() === targetAddress,
         );
 
   if (targets.length === 0) {
     throw new Error(
-      `the authorization entry has no credential node for address ${forAddress}`,
+      `the authorization entry has no credential node for address ${targetAddress}`,
     );
   }
 
