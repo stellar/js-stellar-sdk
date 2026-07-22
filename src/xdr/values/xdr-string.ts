@@ -56,7 +56,11 @@ export class XdrString {
    * (e.g. template literals call this implicitly).
    */
   toStringStrict(): string {
-    return new TextDecoder("utf-8", { fatal: true }).decode(this.bytes);
+    // ignoreBOM keeps a leading EF BB BF in the output — without it the
+    // decoder drops those bytes and re-encoding changes the wire bytes.
+    return new TextDecoder("utf-8", { fatal: true, ignoreBOM: true }).decode(
+      this.bytes,
+    );
   }
 
   /**
@@ -65,7 +69,9 @@ export class XdrString {
    * original intended string.
    */
   toString(): string {
-    return new TextDecoder("utf-8", { fatal: false }).decode(this.bytes);
+    return new TextDecoder("utf-8", { fatal: false, ignoreBOM: true }).decode(
+      this.bytes,
+    );
   }
 
   /**

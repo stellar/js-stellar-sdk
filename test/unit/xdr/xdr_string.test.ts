@@ -16,6 +16,23 @@ describe("XdrString", () => {
     });
   });
 
+  describe("BOM handling", () => {
+    const withBom = new Uint8Array([0xef, 0xbb, 0xbf, 0x68, 0x69]);
+
+    it("keeps a leading BOM in the strict decode", () => {
+      expect(new XdrString(withBom).toStringStrict()).toBe("﻿hi");
+    });
+
+    it("keeps a leading BOM in the lenient decode", () => {
+      expect(new XdrString(withBom).toString()).toBe("﻿hi");
+    });
+
+    it("round-trips a BOM-prefixed payload byte for byte", () => {
+      const out = new XdrString(withBom).asStringOrBytes();
+      expect(new XdrString(out as string).bytes).toEqual(withBom);
+    });
+  });
+
   describe("copy construction", () => {
     it("copies the bytes instead of aliasing the original", () => {
       const original = new XdrString("A");
