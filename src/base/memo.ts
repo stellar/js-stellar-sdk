@@ -187,15 +187,15 @@ export class Memo<T extends MemoType = MemoType> {
   private static _validateTextValue(value: MemoValue): void {
     if (typeof value === "string") {
       if (Buffer.byteLength(value, "utf8") > 28) {
-        throw new Error("Expects string, array or buffer, max 28 bytes");
+        throw new Error("Expects string or Uint8Array, max 28 bytes");
       }
     } else if (value instanceof Uint8Array) {
       // Covers Buffer too — it's a Uint8Array subclass.
       if (value.length > 28) {
-        throw new Error("Expects string, array or buffer, max 28 bytes");
+        throw new Error("Expects string or Uint8Array, max 28 bytes");
       }
     } else {
-      throw new Error("Expects string, array or buffer, max 28 bytes");
+      throw new Error("Expects string or Uint8Array, max 28 bytes");
     }
   }
 

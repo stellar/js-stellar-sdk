@@ -116,32 +116,32 @@ describe("Memo", () => {
     it("throws an error when invalid argument was passed", () => {
       // @ts-expect-error testing missing arg
       expect(() => Memo.text()).toThrow(
-        /Expects string, array or buffer, max 28 bytes/,
+        /Expects string or Uint8Array, max 28 bytes/,
       );
       // @ts-expect-error testing invalid input
       expect(() => Memo.text({})).toThrow(
-        /Expects string, array or buffer, max 28 bytes/,
+        /Expects string or Uint8Array, max 28 bytes/,
       );
       // @ts-expect-error testing invalid input
       expect(() => Memo.text(10)).toThrow(
-        /Expects string, array or buffer, max 28 bytes/,
+        /Expects string or Uint8Array, max 28 bytes/,
       );
       // @ts-expect-error testing invalid input
       expect(() => Memo.text(Infinity)).toThrow(
-        /Expects string, array or buffer, max 28 bytes/,
+        /Expects string or Uint8Array, max 28 bytes/,
       );
       // @ts-expect-error testing invalid input
       expect(() => Memo.text(NaN)).toThrow(
-        /Expects string, array or buffer, max 28 bytes/,
+        /Expects string or Uint8Array, max 28 bytes/,
       );
     });
 
     it("throws an error when string is longer than 28 bytes", () => {
       expect(() => Memo.text("12345678901234567890123456789")).toThrow(
-        /Expects string, array or buffer, max 28 bytes/,
+        /Expects string or Uint8Array, max 28 bytes/,
       );
       expect(() => Memo.text("三代之時三代之時三代之時")).toThrow(
-        /Expects string, array or buffer, max 28 bytes/,
+        /Expects string or Uint8Array, max 28 bytes/,
       );
     });
   });
