@@ -429,9 +429,9 @@ export function scValToNative(scv: ScVal): any {
     // encodings, you should probably use bytes anyway. If it cannot be decoded,
     // the raw bytes are returned.
     case "scvSymbol":
-      // Reach the raw XdrString wrapper (the `.value` getter would do a
-      // strict UTF-8 decode that throws on invalid bytes; we want a best-
-      // effort decode that falls back to raw bytes for binary content).
+      // Reach the raw XdrString wrapper (the `.value` getter does a lenient
+      // UTF-8 decode that replaces invalid bytes with U+FFFD; we want a
+      // best-effort decode that falls back to raw bytes for binary content).
       return scv.sym.asStringOrBytes();
     case "scvString":
       return scv.str.asStringOrBytes();

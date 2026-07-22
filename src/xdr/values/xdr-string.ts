@@ -52,8 +52,8 @@ export class XdrString {
   /**
    * Strict UTF-8 decode. Throws if the bytes aren't valid UTF-8.
    * Use this when you know the content is text and want to fail loudly
-   * if a binary payload sneaks in. Also the default JS string coercion
-   * (e.g. template literals call this implicitly).
+   * if a binary payload sneaks in. Note that implicit JS string coercion
+   * (e.g. template literals) calls the lenient `toString()` instead.
    */
   toStringStrict(): string {
     // ignoreBOM keeps a leading EF BB BF in the output — without it the
