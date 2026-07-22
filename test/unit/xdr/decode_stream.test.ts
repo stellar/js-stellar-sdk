@@ -30,3 +30,16 @@ describe("decodeStream", () => {
     expect(v.value).toBe(7);
   });
 });
+
+describe("format guards", () => {
+  it("toXdr throws on an unknown format instead of returning undefined", () => {
+    expect(() => ScVal.scvU32(1).toXdr("base-64" as any)).toThrow(
+      /unknown format/,
+    );
+  });
+
+  it("fromXdr throws on an unknown format instead of assuming base64", () => {
+    const hex = ScVal.scvU32(1).toXdr("hex");
+    expect(() => ScVal.fromXdr(hex, "Hex" as any)).toThrow(/unknown format/);
+  });
+});

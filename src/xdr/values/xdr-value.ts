@@ -154,6 +154,10 @@ export function encodeBytes(
       return uint8ArrayToHex(bytes);
     case "base64":
       return uint8ArrayToBase64(bytes);
+    default:
+      // Plain-JS callers get no TS checking; without this a typo like
+      // "base-64" would silently return undefined.
+      throw new XdrError(`toXdr: unknown format "${String(format)}"`);
   }
 }
 
@@ -168,5 +172,8 @@ export function decodeBytes(
     );
   }
   if (format === "hex") return hexToUint8Array(input);
-  return base64ToUint8Array(input);
+  if (format === "base64") return base64ToUint8Array(input);
+  // Plain-JS callers get no TS checking; treating an unknown format as
+  // base64 would silently decode garbage bytes.
+  throw new XdrError(`fromXdr: unknown format "${String(format)}"`);
 }
