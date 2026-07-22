@@ -54,6 +54,21 @@ describe("Int64/Uint64 shims", () => {
 });
 
 describe("Int32/Uint32 shims", () => {
+  it("call form returns a native number", () => {
+    expect(Int32("123")).toBe(123);
+    expect(Uint32(0)).toBe(0);
+  });
+
+  it("throws a descriptive TypeError on `new`", () => {
+    expect(() => new (Int32 as any)(5)).toThrow(TypeError);
+    expect(() => new (Int32 as any)(5)).toThrow(/not supported/);
+    expect(() => new (Uint32 as any)("7")).toThrow(/xdr\.Uint32\(value\)/);
+  });
+
+  it("still surfaces range errors before the `new` error", () => {
+    expect(() => new (Uint32 as any)(-1)).toThrow(/Uint32/);
+  });
+
   describe("fromXdr", () => {
     it("decodes raw, hex, and base64", () => {
       const bytes = new Uint8Array([0, 0, 0, 5]);

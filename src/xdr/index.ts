@@ -177,5 +177,17 @@ function makeIntShim(signed: boolean, bits: 32) {
   };
   Shim.MAX_VALUE = max;
   Shim.MIN_VALUE = min;
-  return Shim;
+  return new Proxy(Shim, {
+    construct(_target, args) {
+      // Without this trap, `new` would discard the primitive return value
+      // and hand back a useless empty object that only fails deep inside a
+      // later toXdr(). Fail fast here instead.
+      Shim(args[0]); // still surface range/parse errors first
+      throw new TypeError(
+        `new xdr.${name}(...) is not supported: XDR ${name.toLowerCase()} ` +
+          `values are native numbers. Call xdr.${name}(value) (no \`new\`) ` +
+          `or pass a number literal instead.`,
+      );
+    },
+  });
 }
