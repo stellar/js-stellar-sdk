@@ -479,8 +479,8 @@ Resolves to the full on-chain
 const id = "00000000178826fbfe339e1f5c53417c6fedfe2c05e8bec14303143ec46b38981b09c3f9";
 server.getClaimableBalance(id).then((entry) => {
   console.log(`Claimable balance {id.substr(0, 12)} has:`);
-  console.log(`  asset:  ${Asset.fromXdrObject(entry.asset()).toString()}`;
-  console.log(`  amount: ${entry.amount().toString()}`;
+  console.log(`  asset:  ${Asset.fromOperation(entry.asset).toString()}`);
+  console.log(`  amount: ${entry.amount.toString()}`);
 });
 ```
 
