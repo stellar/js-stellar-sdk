@@ -4,6 +4,9 @@
 // through `fromJson(toJson(...))`.
 import { describe, it, expect } from "vitest";
 import { stringToUint8Array } from "uint8array-extras";
+import * as jsxdr from "@stellar/js-xdr";
+
+import { walkToJson, walkFromJson } from "../../../src/xdr/values/to-json.js";
 
 import {
   Asset,
@@ -558,6 +561,33 @@ describe("walker — fromJson input validation", () => {
   it("rejects invalid hex for opaque fields with an XdrError", () => {
     expect(() => ScVal.fromJson({ bytes: "zz" })).toThrow(/hex/);
     expect(() => ScVal.fromJson({ bytes: "abc" })).toThrow(/hex/);
+  });
+});
+
+describe("walker — union default arms are rejected", () => {
+  // No Stellar schema declares a default arm; pin the walker's stance with a
+  // hand-built schema so the first schema that gains one fails loudly.
+  const defaulted = jsxdr.union("Defaulted", {
+    switchOn: jsxdr.int32(),
+    cases: [jsxdr.case("known", 0, jsxdr.field("val", jsxdr.int32()))],
+    defaultArm: jsxdr.field("other", jsxdr.int32()),
+  });
+
+  it("toJson throws for a defaulted case", () => {
+    expect(() => walkToJson({ type: 7, other: 1 }, defaulted)).toThrow(
+      /default arms are not supported/,
+    );
+  });
+
+  it("fromJson throws for the default key", () => {
+    expect(() => walkFromJson({ default: 1 }, defaulted)).toThrow(
+      /default arms are not supported/,
+    );
+  });
+
+  it("declared cases still round-trip", () => {
+    const wire = { type: 0, val: 5 };
+    expect(walkFromJson(walkToJson(wire, defaulted), defaulted)).toEqual(wire);
   });
 });
 

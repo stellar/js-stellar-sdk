@@ -1311,6 +1311,14 @@ function bodyOfUnion(rawDef, ctx) {
   const armsMeta = def.arms.flatMap((arm) => {
     const isVoid = arm.name == null;
     return arm.cases.map((c) => {
+      // An XDR `default:` arm has no case value. Neither this generator nor
+      // the JSON walker supports one, and no Stellar schema declares one —
+      // fail generation loudly rather than emitting an undefined case_.
+      if (c.value == null) {
+        throw new Error(
+          `${def.name}: union default arms are not supported (case without a value)`,
+        );
+      }
       // Discriminant case identifier (the string passed to case_).
       let discCamel;
       let variantCls;

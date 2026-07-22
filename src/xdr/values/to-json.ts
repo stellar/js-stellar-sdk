@@ -109,15 +109,22 @@ export function walkToJson(wire: unknown, schema: XdrType<unknown>): JsonValue {
       const rec = wire as Record<string, unknown>;
       const disc = rec[s.switchKey];
       const matched = s.cases.find((c) => c.discriminant === disc);
-      const arm = matched?.arm ?? s.defaultArm;
-      if (arm === undefined) {
+      if (matched === undefined) {
+        // A defaulted case would have to emit a lossy "default" key that
+        // fromJson can't reverse. No Stellar schema declares a default arm;
+        // fail loudly if one ever appears instead of corrupting JSON.
+        if (s.defaultArm !== undefined) {
+          throw new XdrError(
+            `${schema.name ?? "union"}: default arms are not supported in JSON`,
+          );
+        }
         throw new XdrError(
           `${schema.name ?? "union"}: no case for discriminator ${String(disc)}`,
         );
       }
-      const sourceName = matched?.name ?? "default";
+      const arm = matched.arm;
       const names = unionCaseNames(s);
-      const jsonKey = names.bySource.get(sourceName) ?? sourceName;
+      const jsonKey = names.bySource.get(matched.name) ?? matched.name;
       if (isFieldArm(arm)) {
         return {
           [jsonKey]: walkToJson(rec[arm.name], arm.schema),
@@ -312,21 +319,22 @@ function unionFromJson(json: JsonValue, schema: UnionSchema<unknown>): unknown {
   }
 
   // Accept either the SEP-0051 form (snake_case, prefix stripped) or the
-  // raw camelCase source name; fall back to literal for "default".
+  // raw camelCase source name.
   const names = unionCaseNames(schema);
   const sourceName = names.byJson.get(jsonKey) ?? jsonKey;
   const matched = schema.cases.find((c) => c.name === sourceName);
-  const arm =
-    matched?.arm ??
-    (sourceName === "default" || jsonKey === "default"
-      ? schema.defaultArm
-      : undefined);
-  if (arm === undefined) {
+  if (matched === undefined) {
+    // See the walkToJson union case: default arms are deliberately
+    // unsupported — the "default" JSON key would discard the discriminant.
+    if (schema.defaultArm !== undefined) {
+      throw new XdrError(
+        `${schema.name ?? "union"}: default arms are not supported in JSON`,
+      );
+    }
     throw new XdrError(`${schema.name ?? "union"}: unknown case ${jsonKey}`);
   }
-  const discriminant = matched
-    ? matched.discriminant
-    : walkFromJson(jsonKey, schema.switchOn);
+  const arm = matched.arm;
+  const discriminant = matched.discriminant;
   const out: Record<string, unknown> = { [schema.switchKey]: discriminant };
   if (isFieldArm(arm)) {
     if (payload === undefined) {
