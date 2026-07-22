@@ -26,7 +26,9 @@ function decodeBytesInput(
 /**
  * Shared base for fixed-length and variable-length byte aliases (Hash, Signature, AssetCode4, ...).
  * Subclasses set `static readonly byteLength` (or override `validateLength`) and
- * `static readonly encoding` to control the `toJson()` representation.
+ * `static readonly encoding` to control how string constructor inputs decode.
+ * Subclasses may also set `static readonly padTo` to right-pad short string
+ * inputs with zero bytes (asset codes: `"USD"` → 4-byte `USD\0`).
  *
  * The `Tag` type parameter is a nominal-typing brand: subclasses pass a unique
  * string so structurally-identical aliases (e.g. `AssetCode4` vs `AssetCode12`)
@@ -41,8 +43,20 @@ export abstract class BytesValue<Tag extends string = string> extends XdrValue {
     const ctor = this.constructor as typeof BytesValue & {
       readonly byteLength?: number;
       readonly encoding: BytesEncoding;
+      readonly padTo?: number;
     };
-    const bytes = decodeBytesInput(value, ctor.encoding);
+    let bytes = decodeBytesInput(value, ctor.encoding);
+    // Padding applies only to string inputs — byte inputs are wire data and
+    // stay exact.
+    if (
+      typeof value === "string" &&
+      ctor.padTo !== undefined &&
+      bytes.length < ctor.padTo
+    ) {
+      const padded = new Uint8Array(ctor.padTo);
+      padded.set(bytes);
+      bytes = padded;
+    }
     if (ctor.byteLength !== undefined && bytes.length !== ctor.byteLength) {
       throw new XdrError(
         `${ctor.name}: expected ${ctor.byteLength} byte(s), got ${bytes.length}`,

@@ -618,6 +618,25 @@ describe("walker — union default arms are rejected", () => {
   });
 });
 
+describe("asset-code classes — ASCII string construction", () => {
+  it("accepts a human-readable code and pads with zero bytes", () => {
+    expect(Array.from(new AssetCode4("USD").value)).toEqual([85, 83, 68, 0]);
+    expect(new AssetCode4("USDC").toJson()).toBe("USDC");
+    expect(new AssetCode12("USDTether").value).toHaveLength(12);
+  });
+
+  it("still rejects over-long codes loudly", () => {
+    expect(() => new AssetCode4("TOOLONG")).toThrow(/expected 4 byte/);
+    expect(() => new AssetCode12("THIRTEENCHARS")).toThrow(/expected 12 byte/);
+  });
+
+  it("byte inputs stay exact (no padding)", () => {
+    expect(() => new AssetCode4(new Uint8Array([85, 83, 68]))).toThrow(
+      /expected 4 byte/,
+    );
+  });
+});
+
 // SEP-0051 spec rules — one pinning test per encoding rule the spec defines.
 // Some rules already pass through existing coverage above; the tests below
 // fill the explicit-pinning gap and serve as the spec-conformance checklist.

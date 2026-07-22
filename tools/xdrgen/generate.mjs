@@ -1579,6 +1579,11 @@ export type ${def.name}Wire = ${current}Wire;
  *  gets a distinct class identity so the JSON walker can dispatch overrides
  *  on its name. `sourceDef` carries the TSDoc source from the original
  *  declaration, even if `inner` came from a chased target. */
+/** Opaque typedefs whose string constructor input is ASCII text padded with
+ *  zero bytes to the fixed width (SEP-0051 renders these as text, and every
+ *  producer of them holds a human-readable code, not hex). */
+const ASCII_PADDED_OPAQUES = new Set(["AssetCode4", "AssetCode12"]);
+
 function emitWrappedOpaque(name, inner, sourceDef) {
   const ctx = newCtx();
   ctx.valueImports.add("BytesValue");
@@ -1594,17 +1599,25 @@ function emitWrappedOpaque(name, inner, sourceDef) {
         : (ctx.coreImports.add("UNBOUNDED_MAX_LENGTH"), "UNBOUNDED_MAX_LENGTH");
     schemaText = `varOpaque(${lenArg}, "${name}")`;
   }
-  const encoding = "hex"; // canonical default — DX layer can override
+  // Canonical default is hex. Asset codes are ASCII text per SEP-0051
+  // ("USDC", not "55534443") and pad right with zero bytes to their fixed
+  // width, so string construction matches the JSON layer's semantics.
+  const asciiPadded = ASCII_PADDED_OPAQUES.has(name);
+  const encoding = asciiPadded ? "ascii" : "hex";
   const byteLengthDecl =
     inner.kind === "opaque_fixed"
       ? `  static readonly byteLength = ${inner.size};\n`
+      : "";
+  const padToDecl =
+    asciiPadded && inner.kind === "opaque_fixed"
+      ? `  static readonly padTo = ${inner.size};\n`
       : "";
   const imports = renderImports(ctx);
   return `${imports}\n
 export type ${name}Wire = Uint8Array;
 
 ${sourceDoc(sourceDef)}export class ${name} extends BytesValue<"${name}"> {
-${byteLengthDecl}  static readonly encoding = "${encoding}" as const;
+${byteLengthDecl}${padToDecl}  static readonly encoding = "${encoding}" as const;
   static readonly schema = ${schemaText};
 
   static fromXdrObject(wire: Uint8Array): ${name} {

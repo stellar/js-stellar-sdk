@@ -10,7 +10,8 @@ export type AssetCode12Wire = Uint8Array;
  */
 export class AssetCode12 extends BytesValue<"AssetCode12"> {
   static readonly byteLength = 12;
-  static readonly encoding = "hex" as const;
+  static readonly padTo = 12;
+  static readonly encoding = "ascii" as const;
   static readonly schema = opaque(12, "AssetCode12");
 
   static fromXdrObject(wire: Uint8Array): AssetCode12 {
