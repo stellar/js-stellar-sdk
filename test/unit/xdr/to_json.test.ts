@@ -564,6 +564,33 @@ describe("walker — fromJson input validation", () => {
   });
 });
 
+describe("walker — omitted option fields parse as null", () => {
+  it("accepts JSON that skips null optional fields (serde interop)", () => {
+    // PreconditionsV2's timeBounds/ledgerBounds/minSeqNum are `option` fields.
+    const full = PreconditionsV2.fromJson({
+      time_bounds: null,
+      ledger_bounds: null,
+      min_seq_num: null,
+      min_seq_age: "0",
+      min_seq_ledger_gap: 0,
+      extra_signers: [],
+    });
+    const sparse = PreconditionsV2.fromJson({
+      min_seq_age: "0",
+      min_seq_ledger_gap: 0,
+      extra_signers: [],
+    });
+    expect(sparse.toXdr("base64")).toBe(full.toXdr("base64"));
+    expect(sparse.timeBounds).toBeNull();
+  });
+
+  it("still rejects omitted required fields", () => {
+    expect(() => PreconditionsV2.fromJson({ min_seq_age: "0" })).toThrow(
+      /missing field/,
+    );
+  });
+});
+
 describe("walker — union default arms are rejected", () => {
   // No Stellar schema declares a default arm; pin the walker's stance with a
   // hand-built schema so the first schema that gains one fails loudly.

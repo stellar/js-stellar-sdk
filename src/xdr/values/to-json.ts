@@ -279,6 +279,12 @@ export function walkFromJson(
         const snake = structFieldJsonName(k);
         const lookupKey = snake in rec ? snake : k in rec ? k : undefined;
         if (lookupKey === undefined) {
+          // Match the serde-based Rust reference: an omitted optional field
+          // is None, so JSON from tooling that skips nulls still parses.
+          if (unwrapLazy(fieldSchema).kind === "option") {
+            out[k] = null;
+            continue;
+          }
           throw new XdrError(
             `${schema.name ?? "struct"}: missing field ${snake}`,
           );
@@ -353,6 +359,14 @@ function unionFromJson(json: JsonValue, schema: UnionSchema<unknown>): unknown {
 
 function isFieldArm(arm: UnionArm): arm is Field<string, XdrType<unknown>> {
   return typeof arm === "object" && arm !== null && "schema" in arm;
+}
+
+function unwrapLazy(schema: XdrType<unknown>): AnySchema {
+  let s = schema as AnySchema;
+  while (s.kind === "lazy") {
+    s = s.getSchema() as AnySchema;
+  }
+  return s;
 }
 
 function assertJsonType(
