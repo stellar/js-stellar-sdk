@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import { stringToUint8Array } from "uint8array-extras";
 
 import {
   ScInt,
@@ -122,11 +123,11 @@ describe("parsing and building ScVals - from scval_test.js", () => {
         [xdr.ScVal.scvTimepoint(BigInt(44n)), 44n],
         [xdr.ScVal.scvDuration(BigInt(55n)), 55n],
         [
-          xdr.ScVal.scvBytes(new xdr.ScBytes(Buffer.alloc(32, 123))),
-          Buffer.from("{".repeat(32)),
+          xdr.ScVal.scvBytes(new xdr.ScBytes(new Uint8Array(32).fill(123))),
+          stringToUint8Array("{".repeat(32)),
         ],
         [
-          xdr.ScVal.scvBytes(new xdr.ScBytes(Buffer.alloc(32, 123))),
+          xdr.ScVal.scvBytes(new xdr.ScBytes(new Uint8Array(32).fill(123))),
           (actual: any) => actual instanceof Uint8Array && actual[0] === 123,
         ],
         [xdr.ScVal.scvString("hello there!"), "hello there!"],
@@ -186,9 +187,9 @@ describe("parsing and building ScVals - from scval_test.js", () => {
         ["a", "symbol", "scvSymbol"],
         ["a", undefined, "scvString"],
         [Keypair.random(), undefined, "scvAddress"],
-        [Buffer.from("abcdefg"), undefined, "scvBytes"],
-        [Buffer.from("abcdefg"), "string", "scvString"],
-        [Buffer.from("abcdefg"), "symbol", "scvSymbol"],
+        [stringToUint8Array("abcdefg"), undefined, "scvBytes"],
+        [stringToUint8Array("abcdefg"), "string", "scvString"],
+        [stringToUint8Array("abcdefg"), "symbol", "scvSymbol"],
       ] as const
     ).forEach(([input, typeSpec, outType]) => {
       const scv = nativeToScVal(input, { type: typeSpec });
@@ -535,17 +536,17 @@ describe("nativeToScVal", () => {
   });
 
   it("converts to scvBytes explicitly", () => {
-    const scv = nativeToScVal(Buffer.from("abc"), { type: "bytes" });
+    const scv = nativeToScVal(stringToUint8Array("abc"), { type: "bytes" });
     expect(scv.type).toBe("scvBytes");
   });
 
   it("converts to scvSymbol", () => {
-    const scv = nativeToScVal(Buffer.from("abc"), { type: "symbol" });
+    const scv = nativeToScVal(stringToUint8Array("abc"), { type: "symbol" });
     expect(scv.type).toBe("scvSymbol");
   });
 
   it("converts to scvString", () => {
-    const scv = nativeToScVal(Buffer.from("abc"), { type: "string" });
+    const scv = nativeToScVal(stringToUint8Array("abc"), { type: "string" });
     expect(scv.type).toBe("scvString");
   });
 
@@ -560,7 +561,7 @@ describe("nativeToScVal", () => {
 
   it("throws on invalid type hint", () => {
     expect(() =>
-      nativeToScVal(Buffer.from("abc"), { type: "notatype" } as any),
+      nativeToScVal(stringToUint8Array("abc"), { type: "notatype" } as any),
     ).toThrow(/invalid type/);
   });
 
@@ -570,7 +571,7 @@ describe("nativeToScVal", () => {
   });
 
   it("makes a copy of the input buffer", () => {
-    const original = Buffer.from([1, 2, 3]);
+    const original = new Uint8Array([1, 2, 3]);
     const scv = nativeToScVal(original, { type: "bytes" });
     // Mutate original — the ScVal should be unaffected
     original[0] = 99;
@@ -794,24 +795,28 @@ describe("nativeToScVal", () => {
     });
   });
 
-  describe("Uint8Array / Buffer", () => {
+  describe("byte arrays", () => {
     it("converts Uint8Array to scvBytes by default", () => {
       const scv = nativeToScVal(new Uint8Array([1, 2, 3]));
       expect(scv.type).toBe("scvBytes");
     });
 
-    it("converts Buffer to scvBytes by default", () => {
-      const scv = nativeToScVal(Buffer.from("hello"));
+    it("converts a second byte array to scvBytes by default", () => {
+      const scv = nativeToScVal(stringToUint8Array("hello"));
       expect(scv.type).toBe("scvBytes");
     });
 
-    it("converts Buffer to scvString with hint", () => {
-      const scv = nativeToScVal(Buffer.from("hello"), { type: "string" });
+    it("converts bytes to scvString with hint", () => {
+      const scv = nativeToScVal(stringToUint8Array("hello"), {
+        type: "string",
+      });
       expect(scv.type).toBe("scvString");
     });
 
-    it("converts Buffer to scvSymbol with hint", () => {
-      const scv = nativeToScVal(Buffer.from("hello"), { type: "symbol" });
+    it("converts bytes to scvSymbol with hint", () => {
+      const scv = nativeToScVal(stringToUint8Array("hello"), {
+        type: "symbol",
+      });
       expect(scv.type).toBe("scvSymbol");
     });
 
@@ -1210,16 +1215,16 @@ describe("scValToNative", () => {
       expect(scValToNative(xdr.ScVal.scvSymbol("sym"))).toBe("sym");
     });
 
-    it("converts scvString from Buffer to string", () => {
-      expect(scValToNative(xdr.ScVal.scvString(Buffer.from("hello")))).toBe(
-        "hello",
-      );
+    it("converts scvString from bytes to string", () => {
+      expect(
+        scValToNative(xdr.ScVal.scvString(stringToUint8Array("hello"))),
+      ).toBe("hello");
     });
 
-    it("converts scvSymbol from Buffer to string", () => {
-      expect(scValToNative(xdr.ScVal.scvSymbol(Buffer.from("sym")))).toBe(
-        "sym",
-      );
+    it("converts scvSymbol from bytes to string", () => {
+      expect(
+        scValToNative(xdr.ScVal.scvSymbol(stringToUint8Array("sym"))),
+      ).toBe("sym");
     });
 
     it("converts empty scvString", () => {
@@ -1238,7 +1243,7 @@ describe("scValToNative", () => {
 
   describe("bytes", () => {
     it("converts scvBytes to Uint8Array", () => {
-      const bytes = Buffer.from([1, 2, 3]);
+      const bytes = new Uint8Array([1, 2, 3]);
       const result = scValToNative(xdr.ScVal.scvBytes(new xdr.ScBytes(bytes)));
       expect(result).toBeInstanceOf(Uint8Array);
       expect(Array.from(result as Uint8Array)).toEqual([1, 2, 3]);
@@ -1246,7 +1251,7 @@ describe("scValToNative", () => {
 
     it("converts empty scvBytes", () => {
       const result = scValToNative(
-        xdr.ScVal.scvBytes(new xdr.ScBytes(Buffer.alloc(0))),
+        xdr.ScVal.scvBytes(new xdr.ScBytes(new Uint8Array(0))),
       );
       expect(result).toBeInstanceOf(Uint8Array);
       expect((result as Uint8Array).length).toBe(0);
@@ -1661,12 +1666,12 @@ describe("round-trip: nativeToScVal -> scValToNative", () => {
     expect(result.nothing).toBe(null);
   });
 
-  it("round-trips bytes (Buffer input, Uint8Array output)", () => {
-    const buf = Buffer.from([10, 20, 30]);
+  it("round-trips bytes (Uint8Array input and output)", () => {
+    const buf = new Uint8Array([10, 20, 30]);
     const scv = nativeToScVal(buf);
     const result = scValToNative(scv);
     expect(result).toBeInstanceOf(Uint8Array);
-    expect(Buffer.from(result as Uint8Array)).toEqual(buf);
+    expect(result as Uint8Array).toEqual(buf);
   });
 
   it("round-trips Keypair through address", () => {

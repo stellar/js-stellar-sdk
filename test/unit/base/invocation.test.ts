@@ -119,7 +119,7 @@ describe("buildInvocationTree", () => {
                 xdr.ContractIdPreimage.contractIdPreimageFromAddress(
                   new xdr.ContractIdPreimageFromAddress({
                     address: nftContract.address().toScAddress(),
-                    salt: Buffer.alloc(32, 0),
+                    salt: new Uint8Array(32),
                   }),
                 ),
               constructorArgs: [1, "2", 3].map((arg, i) => {
@@ -128,7 +128,7 @@ describe("buildInvocationTree", () => {
                 });
               }),
               executable: xdr.ContractExecutable.contractExecutableWasm(
-                new xdr.Hash(Buffer.alloc(32, "\x20")),
+                new xdr.Hash(new Uint8Array(32).fill(0x20)),
               ),
             }),
           ),
@@ -258,8 +258,8 @@ describe("buildInvocationTree", () => {
 
   it("handles a WASM V1 creation invocation (no constructorArgs)", () => {
     const contract = randomContract();
-    const wasmHash = new xdr.Hash(Buffer.alloc(32, "\x42"));
-    const salt = Buffer.alloc(32, "\x01");
+    const wasmHash = new xdr.Hash(new Uint8Array(32).fill(0x42));
+    const salt = new Uint8Array(32).fill(0x01);
     const inv = new xdr.SorobanAuthorizedInvocation({
       function:
         xdr.SorobanAuthorizedFunction.sorobanAuthorizedFunctionTypeCreateContractHostFn(
@@ -297,12 +297,12 @@ describe("buildInvocationTree", () => {
               xdr.ContractIdPreimage.contractIdPreimageFromAddress(
                 new xdr.ContractIdPreimageFromAddress({
                   address: contract.address().toScAddress(),
-                  salt: Buffer.alloc(32, 0),
+                  salt: new Uint8Array(32),
                 }),
               ),
             constructorArgs: [],
             executable: xdr.ContractExecutable.contractExecutableWasm(
-              new xdr.Hash(Buffer.alloc(32, "\x10")),
+              new xdr.Hash(new Uint8Array(32).fill(0x10)),
             ),
           }),
         ),
@@ -327,7 +327,7 @@ describe("buildInvocationTree", () => {
                 new Asset("USD", issuer).toXdrObject(),
               ),
             executable: xdr.ContractExecutable.contractExecutableWasm(
-              new xdr.Hash(Buffer.alloc(32, "\x01")),
+              new xdr.Hash(new Uint8Array(32).fill(0x01)),
             ),
           }),
         ),
@@ -455,7 +455,7 @@ describe("walkInvocationTree", () => {
                   xdr.ContractIdPreimage.contractIdPreimageFromAddress(
                     new xdr.ContractIdPreimageFromAddress({
                       address: nftContract.address().toScAddress(),
-                      salt: Buffer.alloc(32, 0),
+                      salt: new Uint8Array(32),
                     }),
                   ),
                 constructorArgs: [1, "2", 3].map((arg, i) => {
@@ -464,7 +464,7 @@ describe("walkInvocationTree", () => {
                   });
                 }),
                 executable: xdr.ContractExecutable.contractExecutableWasm(
-                  new xdr.Hash(Buffer.alloc(32, "\x20")),
+                  new xdr.Hash(new Uint8Array(32).fill(0x20)),
                 ),
               }),
             ),

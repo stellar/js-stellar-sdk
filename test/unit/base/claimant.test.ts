@@ -148,7 +148,7 @@ describe("Claimant", () => {
       const v0 = expectVariant(xdrClaimant, "claimantTypeV0");
       const inner = v0.v0;
       const dest = expectVariant(inner.destination, "publicKeyTypeEd25519");
-      expect(StrKey.encodeEd25519PublicKey(Buffer.from(dest.ed25519))).toBe(
+      expect(StrKey.encodeEd25519PublicKey(new Uint8Array(dest.ed25519))).toBe(
         DESTINATION,
       );
       expect(inner.predicate.type).toBe("claimPredicateUnconditional");

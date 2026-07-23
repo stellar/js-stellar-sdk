@@ -12,7 +12,7 @@ describe("Operation.createAccount()", () => {
     const startingBalance = "1000.0000000";
     const op = Operation.createAccount({ destination, startingBalance });
     const xdrHex = op.toXdr("hex");
-    const operation = xdr.Operation.fromXdr(Buffer.from(xdrHex, "hex"));
+    const operation = xdr.Operation.fromXdr(xdrHex, "hex");
     const obj = expectOperationType(
       Operation.fromXdrObject(operation),
       "createAccount",
@@ -46,7 +46,7 @@ describe("Operation.createAccount()", () => {
       source,
     });
     const xdrHex = op.toXdr("hex");
-    const operation = xdr.Operation.fromXdr(Buffer.from(xdrHex, "hex"));
+    const operation = xdr.Operation.fromXdr(xdrHex, "hex");
     const obj = expectOperationType(
       Operation.fromXdrObject(operation),
       "createAccount",

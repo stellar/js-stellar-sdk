@@ -1,4 +1,9 @@
 import { describe, it, beforeEach, afterEach, expect, vi } from "vitest";
+import {
+  base64ToUint8Array,
+  concatUint8Arrays,
+  stringToUint8Array,
+} from "uint8array-extras";
 import * as StellarSdk from "../../../../src/index.js";
 
 import { serverUrl } from "../../../constants";
@@ -122,7 +127,7 @@ describe("Server#getAccountEntry", () => {
     inflationDest: null,
     flags: 0,
     homeDomain: "",
-    thresholds: Buffer.from("AQAAAA==", "base64"),
+    thresholds: base64ToUint8Array("AQAAAA=="),
     signers: [],
     ext: xdr.AccountEntryExt.v0(),
   });
@@ -267,7 +272,7 @@ describe("Server#getClaimableBalance", () => {
 
   const claimantAccount =
     "GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI";
-  const balanceIdBytes = hash(Buffer.from("claimable-balance-test"));
+  const balanceIdBytes = hash(stringToUint8Array("claimable-balance-test"));
   const balanceId = xdr.ClaimableBalanceId.claimableBalanceIdTypeV0(
     new xdr.Hash(balanceIdBytes),
   );
@@ -294,7 +299,7 @@ describe("Server#getClaimableBalance", () => {
   const ledgerEntryXDR = ledgerEntry.toXdr("base64");
   const balanceIdHex = balanceId.toXdr("hex");
   const balanceIdStrKey = StrKey.encodeClaimableBalance(
-    Buffer.concat([Buffer.from([0]), Buffer.from(balanceId.v0.value)]),
+    concatUint8Arrays([Uint8Array.of(0), balanceId.v0.value]),
   );
 
   it("returns the claimable balance entry when found", () =>

@@ -1,5 +1,9 @@
 import { describe, it, beforeEach, afterEach, expect, vi } from "vitest";
-import { uint8ArrayToBase64 } from "uint8array-extras";
+import {
+  base64ToUint8Array,
+  uint8ArrayToBase64,
+  uint8ArrayToString,
+} from "uint8array-extras";
 import * as StellarSdk from "../../src/index.js";
 import type { TransactionBuilderOptions } from "../../src/base/transaction_builder.js";
 
@@ -137,20 +141,23 @@ describe("Utils", () => {
       expect(operation1!.type).toEqual("manageData");
       expect((operation1 as any).value.length).toEqual(64);
       expect(
-        Buffer.from((operation1 as any).value.toString(), "base64").length,
+        base64ToUint8Array(uint8ArrayToString((operation1 as any).value))
+          .length,
       ).toEqual(48);
 
       expect((operation2 as any).name).toBe("web_auth_domain");
       expect(operation2!.source).toEqual(keypair.publicKey());
       expect(operation2!.type).toEqual("manageData");
-      expect((operation2 as any).value.toString()).toEqual(
+      expect(uint8ArrayToString((operation2 as any).value)).toEqual(
         "testanchor.stellar.org",
       );
 
       expect((operation3 as any).name).toEqual("client_domain");
       expect(operation3!.source).toEqual(clientSigningKeypair.publicKey());
       expect(operation3!.type).toEqual("manageData");
-      expect((operation3 as any).value.toString()).toEqual("testdomain");
+      expect(uint8ArrayToString((operation3 as any).value)).toEqual(
+        "testdomain",
+      );
     });
 
     it("uses the passed-in timeout", () => {
@@ -659,7 +666,7 @@ describe("Utils", () => {
         .addOperation(
           Operation.manageData({
             name: "SDF auth",
-            value: Buffer.from(crypto.getRandomValues(new Uint8Array(64))),
+            value: crypto.getRandomValues(new Uint8Array(64)),
             source: "GBDIT5GUJ7R5BXO3GJHFXJ6AZ5UQK6MNOIDMPQUSMXLIHTUNR2Q5CFNF",
           }),
         )

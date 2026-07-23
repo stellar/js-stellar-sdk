@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach } from "vitest";
+import { concatUint8Arrays } from "uint8array-extras";
 import {
   TransactionBuilder,
   BASE_FEE,
@@ -1341,7 +1342,7 @@ describe("TransactionBuilder", () => {
         "keyTypeEd25519",
       ).ed25519;
       const sourceAccountEd25519 = Keypair.fromPublicKey(
-        StrKey.encodeEd25519PublicKey(Buffer.from(ed25519Bytes)),
+        StrKey.encodeEd25519PublicKey(new Uint8Array(ed25519Bytes)),
       ).xdrAccountId().value;
       const v0Tx = new xdr.TransactionV0({
         sourceAccountEd25519: sourceAccountEd25519,
@@ -1604,8 +1605,8 @@ describe("TransactionBuilder", () => {
       const tx = builder.build();
       let cloneTx = TransactionBuilder.cloneFrom(tx).build();
 
-      // Compare via XDR bytes — Buffer vs Uint8Array would otherwise break
-      // structural deep-equal even though the wire bytes are identical.
+      // Compare via XDR bytes — differing byte-view wrappers would otherwise
+      // break structural deep-equal even though the wire bytes are identical.
       expect(cloneTx.toXdr()).toEqual(tx.toXdr());
 
       cloneTx = TransactionBuilder.cloneFrom(tx, {
@@ -2548,9 +2549,9 @@ describe("addSacTransferOperation with invalid destination", () => {
   it("succeeds with a muxed (M...) destination for native asset transfer", () => {
     const destKp = Keypair.random();
     const muxedDest = StrKey.encodeMed25519PublicKey(
-      Buffer.concat([
+      concatUint8Arrays([
         StrKey.decodeEd25519PublicKey(destKp.publicKey()),
-        Buffer.alloc(8),
+        new Uint8Array(8),
       ]),
     );
 
@@ -2569,9 +2570,9 @@ describe("addSacTransferOperation with invalid destination", () => {
   it("succeeds with a muxed (M...) destination for non-native asset transfer", () => {
     const destKp = Keypair.random();
     const muxedDest = StrKey.encodeMed25519PublicKey(
-      Buffer.concat([
+      concatUint8Arrays([
         StrKey.decodeEd25519PublicKey(destKp.publicKey()),
-        Buffer.alloc(8),
+        new Uint8Array(8),
       ]),
     );
     const asset = new Asset(
@@ -2594,9 +2595,9 @@ describe("addSacTransferOperation with invalid destination", () => {
   it("succeeds with a MuxedAccount source for native asset transfer", () => {
     const muxedSource = MuxedAccount.fromAddress(
       StrKey.encodeMed25519PublicKey(
-        Buffer.concat([
+        concatUint8Arrays([
           StrKey.decodeEd25519PublicKey(source.accountId()),
-          Buffer.alloc(8),
+          new Uint8Array(8),
         ]),
       ),
       source.sequenceNumber(),

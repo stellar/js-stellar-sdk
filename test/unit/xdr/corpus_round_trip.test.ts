@@ -17,12 +17,15 @@
 // Tests skip cleanly if a corpus file is missing (so adding new corpus
 // files later doesn't require updating this test file).
 import { describe, it, expect } from "vitest";
-import { Buffer } from "buffer";
+// Legacy js-xdr v4's `fromXDR` genuinely takes/returns Buffers; this file is
+// Node-only (excluded from the browser suite), so Buffer here is fine — but
+// only for the legacy side.
+import { Buffer } from "node:buffer";
+import { base64ToUint8Array, uint8ArrayToHex } from "uint8array-extras";
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 import legacyTypes from "../../fixtures/legacy-xdr/curr_generated.js";
 const legacy = legacyTypes as any;
 
@@ -46,8 +49,8 @@ function loadCorpus<T>(filename: string): T[] | null {
   return json.records as T[];
 }
 
-function asHex(buf: Uint8Array | Buffer): string {
-  return Buffer.from(buf).toString("hex");
+function asHex(buf: Uint8Array): string {
+  return uint8ArrayToHex(Uint8Array.from(buf));
 }
 
 interface TransactionRecord {
@@ -68,19 +71,19 @@ interface LedgerRecord {
 function assertRoundTrip(
   name: string,
   b64: string,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   newCtor: any,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   legacyCtor: any,
 ): void {
-  const inputBytes = Buffer.from(b64, "base64");
+  const inputBytes = base64ToUint8Array(b64);
   const inputHex = asHex(inputBytes);
 
   // New SDK: decode → encode → bytes match input
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   let newDecoded: any;
   try {
-    newDecoded = newCtor.fromXdr(new Uint8Array(inputBytes));
+    newDecoded = newCtor.fromXdr(inputBytes);
   } catch (err) {
     throw new Error(
       `${name}: new SDK fromXdr threw — ${(err as Error).message}`,
@@ -90,10 +93,10 @@ function assertRoundTrip(
   expect(newReencoded, `${name}: new SDK lossy round-trip`).toBe(inputHex);
 
   // Legacy SDK: same dance, as a sanity check
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   let lgcyDecoded: any;
   try {
-    lgcyDecoded = legacyCtor.fromXDR(inputBytes);
+    lgcyDecoded = legacyCtor.fromXDR(Buffer.from(inputBytes));
   } catch (err) {
     throw new Error(
       `${name}: legacy SDK fromXDR threw — ${(err as Error).message}`,
@@ -135,8 +138,12 @@ describe("corpus round-trip: TransactionEnvelope (mainnet)", () => {
       // carries only the outer-tx fee-processing changes — wire-equivalent
       // to a bare `LedgerEntryChanges` / `OperationMeta`. The inner-tx meta
       // lives on the inner tx's separate record. Detect and dispatch.
-      const envBytes = Buffer.from(r.envelope_xdr, "base64");
-      const envDiscriminator = envBytes.readUInt32BE(0);
+      const envBytes = base64ToUint8Array(r.envelope_xdr);
+      const envDiscriminator = new DataView(
+        envBytes.buffer,
+        envBytes.byteOffset,
+        envBytes.byteLength,
+      ).getUint32(0);
       const isFeeBump = envDiscriminator === 5; // envelopeTypeTxFeeBump
       if (isFeeBump) {
         assertRoundTrip(

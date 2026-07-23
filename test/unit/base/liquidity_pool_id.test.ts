@@ -1,4 +1,9 @@
 import { describe, expect, it } from "vitest";
+import {
+  hexToUint8Array,
+  stringToUint8Array,
+  uint8ArrayToHex,
+} from "uint8array-extras";
 import { LiquidityPoolId } from "../../../src/base/liquidity_pool_id.js";
 import { StrKey } from "../../../src/base/strkey.js";
 import * as xdr from "../../../src/xdr/index.js";
@@ -61,10 +66,10 @@ describe("LiquidityPoolId", () => {
         throw new Error("expected assetTypePoolShare");
       }
       expect(
-        Buffer.from(tlAsset.liquidityPoolId.toBytes()).toString("hex"),
+        uint8ArrayToHex(new Uint8Array(tlAsset.liquidityPoolId.toBytes())),
       ).toBe(POOL_ID);
       expect(
-        Buffer.from(tlAsset.liquidityPoolId.toBytes()).toString("hex"),
+        uint8ArrayToHex(new Uint8Array(tlAsset.liquidityPoolId.toBytes())),
       ).toBe(asset.getLiquidityPoolId());
     });
   });
@@ -82,7 +87,7 @@ describe("LiquidityPoolId", () => {
         StrKey.decodeEd25519PublicKey(ISSUER),
       );
       const assetXdr = new xdr.AlphaNum4({
-        assetCode: Buffer.from("KHL\0"),
+        assetCode: stringToUint8Array("KHL\0"),
         issuer: issuerKey,
       });
       const tlAsset = xdr.TrustLineAsset.assetTypeCreditAlphanum4(assetXdr);
@@ -96,7 +101,7 @@ describe("LiquidityPoolId", () => {
         StrKey.decodeEd25519PublicKey(ISSUER),
       );
       const assetXdr = new xdr.AlphaNum12({
-        assetCode: Buffer.from("KHLTOKEN\0\0\0\0"),
+        assetCode: stringToUint8Array("KHLTOKEN\0\0\0\0"),
         issuer: issuerKey,
       });
       const tlAsset = xdr.TrustLineAsset.assetTypeCreditAlphanum12(assetXdr);
@@ -106,7 +111,7 @@ describe("LiquidityPoolId", () => {
     });
 
     it("parses a liquidityPoolId asset XDR", () => {
-      const xdrPoolId = new xdr.PoolId(Buffer.from(POOL_ID, "hex"));
+      const xdrPoolId = new xdr.PoolId(hexToUint8Array(POOL_ID));
       const tlAsset = xdr.TrustLineAsset.assetTypePoolShare(xdrPoolId);
 
       const asset = LiquidityPoolId.fromOperation(tlAsset);

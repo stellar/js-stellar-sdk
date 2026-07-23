@@ -18,10 +18,9 @@ describe("SorobanTransactionData can be built", () => {
     resourceFee: 5n,
   });
 
-  // Round-trip the key through encode/decode so its internals are Uint8Array
-  // (StrKey decode returns Buffer, but SorobanDataBuilder.build round-trips
-  // through bytes and produces Uint8Array — comparing the raw Buffer-backed
-  // key against a Uint8Array-backed roundtrip fails deep equality).
+  // Round-trip the key through encode/decode so its internals are plain
+  // Uint8Array views (SorobanDataBuilder.build round-trips through bytes, so
+  // comparing against a freshly-decoded key keeps deep equality stable).
   const key = xdr.LedgerKey.fromXdr(c.getFootprint().toXdr());
 
   // Migrated tests
@@ -90,7 +89,7 @@ describe("SorobanTransactionData can be built", () => {
   // Additional tests
   it("constructs from raw Uint8Array", () => {
     const raw = sentinel.toXdr();
-    const fromBuf = new SorobanDataBuilder(Buffer.from(raw)).build();
+    const fromBuf = new SorobanDataBuilder(new Uint8Array(raw)).build();
     const fromUint8 = new SorobanDataBuilder(new Uint8Array(raw)).build();
 
     expect(fromBuf).toEqual(sentinel);

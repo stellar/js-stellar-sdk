@@ -16,11 +16,11 @@ describe("Address", () => {
   const MUXED_ADDRESS_BASE =
     "GA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJVSGZ";
 
-  const MUXED_ZERO = StrKey.encodeMed25519PublicKey(Buffer.alloc(40));
+  const MUXED_ZERO = StrKey.encodeMed25519PublicKey(new Uint8Array(40));
   const CLAIMABLE_BALANCE_ZERO = StrKey.encodeClaimableBalance(
-    Buffer.alloc(33),
+    new Uint8Array(33),
   );
-  const LIQUIDITY_POOL_ZERO = StrKey.encodeLiquidityPool(Buffer.alloc(32));
+  const LIQUIDITY_POOL_ZERO = StrKey.encodeLiquidityPool(new Uint8Array(32));
 
   describe(".constructor", () => {
     it("fails to create Address object from an invalid address", () => {
@@ -48,31 +48,31 @@ describe("Address", () => {
     });
 
     it(".account", () => {
-      const a = Address.account(Buffer.alloc(32));
+      const a = Address.account(new Uint8Array(32));
       expect(a.toString()).toBe(
         "GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF",
       );
     });
 
     it(".contract", () => {
-      const c = Address.contract(Buffer.alloc(32));
+      const c = Address.contract(new Uint8Array(32));
       expect(c.toString()).toBe(
         "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABSC4",
       );
     });
 
     it(".muxedAccount", () => {
-      const m = Address.muxedAccount(Buffer.alloc(40));
+      const m = Address.muxedAccount(new Uint8Array(40));
       expect(m.toString()).toBe(MUXED_ZERO);
     });
 
     it(".claimableBalance", () => {
-      const cb = Address.claimableBalance(Buffer.alloc(33));
+      const cb = Address.claimableBalance(new Uint8Array(33));
       expect(cb.toString()).toBe(CLAIMABLE_BALANCE_ZERO);
     });
 
     it(".liquidityPool", () => {
-      const lp = Address.liquidityPool(Buffer.alloc(32));
+      const lp = Address.liquidityPool(new Uint8Array(32));
       expect(lp.toString()).toBe(LIQUIDITY_POOL_ZERO);
     });
 
@@ -109,7 +109,7 @@ describe("Address", () => {
       it("parses claimable-balance addresses", () => {
         const sc = xdr.ScAddress.scAddressTypeClaimableBalance(
           xdr.ClaimableBalanceId.claimableBalanceIdTypeV0(
-            new xdr.Hash(Buffer.alloc(32)),
+            new xdr.Hash(new Uint8Array(32)),
           ),
         );
         const cb = Address.fromScAddress(sc);
@@ -129,7 +129,7 @@ describe("Address", () => {
 
       it("parses liquidity-pool addresses", () => {
         const sc = xdr.ScAddress.scAddressTypeLiquidityPool(
-          new xdr.Hash(Buffer.alloc(32)),
+          new xdr.Hash(new Uint8Array(32)),
         );
         const lp = Address.fromScAddress(sc);
         expect(lp.toString()).toBe(LIQUIDITY_POOL_ZERO);
@@ -176,7 +176,7 @@ describe("Address", () => {
         const scVal = xdr.ScVal.scvAddress(
           xdr.ScAddress.scAddressTypeClaimableBalance(
             xdr.ClaimableBalanceId.claimableBalanceIdTypeV0(
-              new xdr.Hash(Buffer.alloc(32)),
+              new xdr.Hash(new Uint8Array(32)),
             ),
           ),
         );
@@ -187,7 +187,7 @@ describe("Address", () => {
       it("parses liquidity-pool ScVals", () => {
         const scVal = xdr.ScVal.scvAddress(
           xdr.ScAddress.scAddressTypeLiquidityPool(
-            new xdr.Hash(Buffer.alloc(32)),
+            new xdr.Hash(new Uint8Array(32)),
           ),
         );
         const lp = Address.fromScVal(scVal);
