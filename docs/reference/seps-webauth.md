@@ -215,11 +215,11 @@ const challenge = WebAuth.buildChallengeTx(
 // clock.tick(200);  // Simulates a 200 ms delay when communicating from server to client
 
 // Transaction gathered from a challenge, possibly from the client side
-const transaction = TransactionBuilder.fromXDR(challenge, Networks.TESTNET);
+const transaction = TransactionBuilder.fromXdr(challenge, Networks.TESTNET);
 transaction.sign(clientKP1, clientKP2);
 const signedChallenge = transaction
         .toEnvelope()
-        .toXDR("base64")
+        .toXdr("base64")
         .toString();
 
 // The result below should be equal to [clientKP1.publicKey(), clientKP2.publicKey()]
@@ -312,11 +312,11 @@ const challenge = WebAuth.buildChallengeTx(
 // clock.tick(200);  // Simulates a 200 ms delay when communicating from server to client
 
 // Transaction gathered from a challenge, possibly from the client side
-const transaction = TransactionBuilder.fromXDR(challenge, Networks.TESTNET);
+const transaction = TransactionBuilder.fromXdr(challenge, Networks.TESTNET);
 transaction.sign(clientKP1, clientKP2);
 const signedChallenge = transaction
         .toEnvelope()
-        .toXDR("base64")
+        .toXdr("base64")
         .toString();
 
 // Defining the threshold and signerSummary
@@ -353,17 +353,17 @@ WebAuth.verifyChallengeTxThreshold(
 Verifies if a transaction was signed by the given account id.
 
 ```ts
-verifyTxSignedBy(transaction: Transaction | FeeBumpTransaction, accountID: string): boolean
+verifyTxSignedBy(transaction: Transaction | FeeBumpTransaction, accountId: string): boolean
 ```
 
 **Parameters**
 
 - **`transaction`** — `Transaction | FeeBumpTransaction` (required) — The signed transaction.
-- **`accountID`** — `string` (required) — The signer's public key.
+- **`accountId`** — `string` (required) — The signer's public key.
 
 **Returns**
 
-Whether or not `accountID` was found to have signed the
+Whether or not `accountId` was found to have signed the
    transaction.
 
 **Example**
@@ -380,7 +380,7 @@ transaction.sign(keypair)
 WebAuth.verifyTxSignedBy(transaction, keypair.publicKey())
 ```
 
-**Source:** [src/webauth/utils.ts:94](https://github.com/stellar/js-stellar-sdk/blob/main/src/webauth/utils.ts#L94)
+**Source:** [src/webauth/utils.ts:99](https://github.com/stellar/js-stellar-sdk/blob/main/src/webauth/utils.ts#L99)
 
 ## Types
 
@@ -392,4 +392,4 @@ A parsed and validated challenge transaction, and some of its constituent detail
 type ChallengeTxDetails = { clientAccountId: string; matchedHomeDomain: string; memo?: string; tx: Transaction }
 ```
 
-**Source:** [src/webauth/utils.ts:104](https://github.com/stellar/js-stellar-sdk/blob/main/src/webauth/utils.ts#L104)
+**Source:** [src/webauth/utils.ts:109](https://github.com/stellar/js-stellar-sdk/blob/main/src/webauth/utils.ts#L109)

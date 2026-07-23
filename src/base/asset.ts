@@ -1,5 +1,16 @@
+import { stringToUint8Array } from "uint8array-extras";
 import { trimEnd } from "./util/util.js";
-import xdr from "./xdr.js";
+import {
+  AlphaNum12,
+  AlphaNum4,
+  Asset as XdrAsset,
+  AssetType as XdrAssetType,
+  ChangeTrustAsset,
+  ContractIdPreimage,
+  HashIdPreimage,
+  HashIdPreimageContractId,
+  TrustLineAsset,
+} from "../xdr/index.js";
 import { Keypair } from "./keypair.js";
 import { StrKey } from "./strkey.js";
 import { hash } from "./hashing.js";
@@ -21,9 +32,10 @@ export namespace AssetType {
   export type liquidityPoolShares = "liquidity_pool_shares";
 }
 
-interface XdrAssetConstructor<T> {
-  assetTypeNative(): T;
-  new (type: string, value: xdr.AlphaNum4 | xdr.AlphaNum12): T;
+interface XdrAssetConstructor<TNative, TAlpha4, TAlpha12> {
+  assetTypeNative(): TNative;
+  assetTypeCreditAlphanum4(value: AlphaNum4): TAlpha4;
+  assetTypeCreditAlphanum12(value: AlphaNum12): TAlpha12;
 }
 
 /**
@@ -87,47 +99,58 @@ export class Asset {
    * Returns an asset object from its XDR object representation.
    * @param assetXdr - The asset xdr object.
    */
-  static fromOperation(assetXdr: xdr.Asset): Asset {
+  static fromOperation(assetXdr: XdrAsset): Asset {
     let anum;
     let code: string;
     let issuer: string;
-    switch (assetXdr.switch()) {
-      case xdr.AssetType.assetTypeNative():
+    switch (assetXdr.type) {
+      case "assetTypeNative":
         return this.native();
-      case xdr.AssetType.assetTypeCreditAlphanum4():
-        anum = assetXdr.alphaNum4();
-        issuer = StrKey.encodeEd25519PublicKey(anum.issuer().ed25519());
-        code = trimEnd(anum.assetCode().toString(), "\0") as string;
+      case "assetTypeCreditAlphanum4":
+        anum = assetXdr.alphaNum4;
+        issuer = StrKey.encodeEd25519PublicKey(
+          Buffer.from(anum.issuer.ed25519),
+        );
+        code = trimEnd(
+          Buffer.from(anum.assetCode.toBytes()).toString(),
+          "\0",
+        ) as string;
         return new this(code, issuer);
-      case xdr.AssetType.assetTypeCreditAlphanum12():
-        anum = assetXdr.alphaNum12();
-        issuer = StrKey.encodeEd25519PublicKey(anum.issuer().ed25519());
-        code = trimEnd(anum.assetCode().toString(), "\0") as string;
+      case "assetTypeCreditAlphanum12":
+        anum = assetXdr.alphaNum12;
+        issuer = StrKey.encodeEd25519PublicKey(
+          Buffer.from(anum.issuer.ed25519),
+        );
+        code = trimEnd(
+          Buffer.from(anum.assetCode.toBytes()).toString(),
+          "\0",
+        ) as string;
         return new this(code, issuer);
       default:
-        throw new Error(`Invalid asset type: ${assetXdr.switch().name}`);
+        // @ts-expect-error this should be unreachable if the XDR types are correct, but we throw just in case
+        throw new Error("Invalid asset type received: " + assetXdr.type);
     }
   }
 
   /**
    * Returns the xdr.Asset object for this asset.
    */
-  toXDRObject(): xdr.Asset {
-    return this._toXDRObject(xdr.Asset);
+  toXdrObject(): XdrAsset {
+    return this._toXdrObject(XdrAsset);
   }
 
   /**
    * Returns the xdr.ChangeTrustAsset object for this asset.
    */
-  toChangeTrustXDRObject(): xdr.ChangeTrustAsset {
-    return this._toXDRObject(xdr.ChangeTrustAsset);
+  toChangeTrustXdrObject(): ChangeTrustAsset {
+    return this._toXdrObject(ChangeTrustAsset);
   }
 
   /**
    * Returns the xdr.TrustLineAsset object for this asset.
    */
-  toTrustLineXDRObject(): xdr.TrustLineAsset {
-    return this._toXDRObject(xdr.TrustLineAsset);
+  toTrustLineXdrObject(): TrustLineAsset {
+    return this._toXdrObject(TrustLineAsset);
   }
 
   /**
@@ -138,27 +161,30 @@ export class Asset {
    *    ID should refer to, since every network will have a unique ID for the
    *    same contract (see {@link Networks} for options)
    *
+   * @remarks
    * **Warning:** This makes no guarantee that this contract actually *exists*.
    */
   contractId(networkPassphrase: string): string {
     const networkId = hash(Buffer.from(networkPassphrase));
-    const preimage = xdr.HashIdPreimage.envelopeTypeContractId(
-      new xdr.HashIdPreimageContractId({
+    const preimage = HashIdPreimage.envelopeTypeContractId(
+      new HashIdPreimageContractId({
         networkId,
-        contractIdPreimage: xdr.ContractIdPreimage.contractIdPreimageFromAsset(
-          this.toXDRObject(),
+        contractIdPreimage: ContractIdPreimage.contractIdPreimageFromAsset(
+          this.toXdrObject(),
         ),
       }),
     );
 
-    return StrKey.encodeContract(hash(preimage.toXDR()));
+    return StrKey.encodeContract(hash(Buffer.from(preimage.toXdr())));
   }
 
   /**
    * Returns the xdr object for this asset.
    * @param xdrAsset - The xdr asset constructor.
    */
-  private _toXDRObject<T>(xdrAsset: XdrAssetConstructor<T>): T {
+  private _toXdrObject<TNative, TAlpha4, TAlpha12>(
+    xdrAsset: XdrAssetConstructor<TNative, TAlpha4, TAlpha12>,
+  ): TNative | TAlpha4 | TAlpha12 {
     if (this.isNative()) {
       return xdrAsset.assetTypeNative();
     }
@@ -168,26 +194,19 @@ export class Asset {
       throw new Error("Issuer cannot be null for non-native asset");
     }
 
-    let xdrType;
-    let xdrTypeString: string;
     if (this.code.length <= 4) {
-      xdrType = xdr.AlphaNum4;
-      xdrTypeString = "assetTypeCreditAlphanum4";
-    } else {
-      xdrType = xdr.AlphaNum12;
-      xdrTypeString = "assetTypeCreditAlphanum12";
+      const assetType = new AlphaNum4({
+        assetCode: stringToUint8Array(this.code.padEnd(4, "\0")),
+        issuer: Keypair.fromPublicKey(this.issuer).xdrAccountId(),
+      });
+      return xdrAsset.assetTypeCreditAlphanum4(assetType);
     }
 
-    // pad code with null bytes if necessary
-    const padLength = this.code.length <= 4 ? 4 : 12;
-    const paddedCode = this.code.padEnd(padLength, "\0");
-
-    const assetType = new xdrType({
-      assetCode: paddedCode,
+    const assetType = new AlphaNum12({
+      assetCode: stringToUint8Array(this.code.padEnd(12, "\0")),
       issuer: Keypair.fromPublicKey(this.issuer).xdrAccountId(),
     });
-
-    return new xdrAsset(xdrTypeString, assetType);
+    return xdrAsset.assetTypeCreditAlphanum12(assetType);
   }
 
   /**
@@ -214,19 +233,20 @@ export class Asset {
    *  - `native`,
    *  - `credit_alphanum4`,
    *  - `credit_alphanum12`
-   * @throws Throws `Error` if asset type is unsupported.
+   * @throws {Error} Throws `Error` if asset type is unsupported.
    */
   getAssetType(): AssetType {
     switch (this.getRawAssetType().value) {
-      case xdr.AssetType.assetTypeNative().value:
+      case XdrAssetType.assetTypeNative.value:
         return AssetType.native;
-      case xdr.AssetType.assetTypeCreditAlphanum4().value:
+      case XdrAssetType.assetTypeCreditAlphanum4.value:
         return AssetType.credit4;
-      case xdr.AssetType.assetTypeCreditAlphanum12().value:
+      case XdrAssetType.assetTypeCreditAlphanum12.value:
         return AssetType.credit12;
       default:
         throw new Error(
-          "Supported asset types are: native, credit_alphanum4, credit_alphanum12",
+          "Supported asset types are: native, credit_alphanum4, credit_alphanum12. received: " +
+            this.getRawAssetType().name,
         );
     }
   }
@@ -234,16 +254,16 @@ export class Asset {
   /**
    * Returns the raw XDR representation of the asset type
    */
-  getRawAssetType(): xdr.AssetType {
+  getRawAssetType(): XdrAssetType {
     if (this.isNative()) {
-      return xdr.AssetType.assetTypeNative();
+      return XdrAssetType.assetTypeNative;
     }
 
     if (this.code.length <= 4) {
-      return xdr.AssetType.assetTypeCreditAlphanum4();
+      return XdrAssetType.assetTypeCreditAlphanum4;
     }
 
-    return xdr.AssetType.assetTypeCreditAlphanum12();
+    return XdrAssetType.assetTypeCreditAlphanum12;
   }
 
   /**
@@ -278,7 +298,7 @@ export class Asset {
   /**
    * Compares two assets according to the criteria:
    *
-   *  1. First compare the type (`native < alphanum4 < alphanum12`).
+   *  1. First compare the type (native < alphanum4 < alphanum12).
    *  2. If the types are equal, compare the assets codes.
    *  3. If the asset codes are equal, compare the issuers.
    *

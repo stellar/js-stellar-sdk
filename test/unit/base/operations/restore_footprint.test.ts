@@ -1,24 +1,24 @@
 import { describe, it, expect } from "vitest";
 import { Operation } from "../../../../src/base/operation.js";
-import xdr from "../../../../src/base/xdr.js";
+import * as xdr from "../../../../src/xdr/index.js";
 import { expectOperationType } from "../support/operation.js";
 
 describe("Operation.restoreFootprint()", () => {
   it("creates a restoreFootprint operation", () => {
     const op = Operation.restoreFootprint();
-    const xdrHex = op.toXDR("hex");
-    const operation = xdr.Operation.fromXDR(xdrHex, "hex");
-    expect(operation.body().switch().name).toBe("restoreFootprint");
-    expectOperationType(Operation.fromXDRObject(operation), "restoreFootprint");
+    const xdrHex = op.toXdr("hex");
+    const operation = xdr.Operation.fromXdr(xdrHex, "hex");
+    expect(operation.body.type).toBe("restoreFootprint");
+    expectOperationType(Operation.fromXdrObject(operation), "restoreFootprint");
   });
 
   it("creates a restoreFootprint operation with source account", () => {
     const source = "GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGSNFHEYVXM3XOJMDS674JZ";
     const op = Operation.restoreFootprint({ source });
-    const xdrHex = op.toXDR("hex");
-    const operation = xdr.Operation.fromXDR(xdrHex, "hex");
+    const xdrHex = op.toXdr("hex");
+    const operation = xdr.Operation.fromXdr(xdrHex, "hex");
     const obj = expectOperationType(
-      Operation.fromXDRObject(operation),
+      Operation.fromXdrObject(operation),
       "restoreFootprint",
     );
     expect(obj.source).toBe(source);
@@ -26,10 +26,10 @@ describe("Operation.restoreFootprint()", () => {
 
   it("creates a restoreFootprint operation with empty opts", () => {
     const op = Operation.restoreFootprint({});
-    const xdrHex = op.toXDR("hex");
-    const operation = xdr.Operation.fromXDR(xdrHex, "hex");
+    const xdrHex = op.toXdr("hex");
+    const operation = xdr.Operation.fromXdr(xdrHex, "hex");
     const obj = expectOperationType(
-      Operation.fromXDRObject(operation),
+      Operation.fromXdrObject(operation),
       "restoreFootprint",
     );
     expect(obj.source).toBeUndefined();
@@ -48,8 +48,8 @@ describe("Operation.restoreFootprint()", () => {
 
   it("roundtrips through XDR hex encoding", () => {
     const op = Operation.restoreFootprint();
-    const hex = op.toXDR("hex");
-    const roundtripped = xdr.Operation.fromXDR(hex, "hex");
-    expect(roundtripped.body().switch().name).toBe("restoreFootprint");
+    const hex = op.toXdr("hex");
+    const roundtripped = xdr.Operation.fromXdr(hex, "hex");
+    expect(roundtripped.body.type).toBe("restoreFootprint");
   });
 });

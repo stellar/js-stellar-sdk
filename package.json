@@ -75,6 +75,12 @@
       "import": "./lib/esm/http-client/axios.js",
       "require": "./lib/cjs/http-client/axios.js",
       "default": "./lib/esm/http-client/axios.js"
+    },
+    "./xdr": {
+      "types": "./lib/esm/xdr/index.d.ts",
+      "import": "./lib/esm/xdr/index.js",
+      "require": "./lib/cjs/xdr/index.js",
+      "default": "./lib/esm/xdr/index.js"
     }
   },
   "scripts": {
@@ -84,8 +90,8 @@
     "build:lib": "rollup -c",
     "build:lib:axios": "cross-env USE_AXIOS=true rollup -c",
     "build:lib:all": "pnpm run build:lib && pnpm run build:lib:axios",
-    "build:types": "tsc -p tsconfig.json && mkdir -p lib/esm/base/generated && cp src/base/generated/*.d.ts lib/esm/base/generated/",
-    "build:types:axios": "tsc -p config/tsconfig.axios.json && mkdir -p lib/axios/esm/base/generated && cp src/base/generated/*.d.ts lib/axios/esm/base/generated/",
+    "build:types": "tsc -p tsconfig.json",
+    "build:types:axios": "tsc -p config/tsconfig.axios.json",
     "build:types:all": "pnpm run build:types && pnpm run build:types:axios",
     "postbuild:lib": "node config/write-module-type.js lib/cjs commonjs",
     "postbuild:lib:axios": "node config/write-module-type.js lib/axios/cjs commonjs",
@@ -112,6 +118,9 @@
     "preversion": "pnpm run clean && pnpm run _prettier && pnpm run build:prod && pnpm run test",
     "prepare": "pnpm run build:prod && pnpm run setup && husky",
     "download-sac-spec": "node scripts/download-sac-spec.js",
+    "xdrgen": "node tools/xdrgen/generate.mjs --out=src/xdr/generated --all --clean",
+    "xdr:roundtrip": "node --import ./scripts/tsx-with-js-xdr.mjs scripts/xdr-roundtrip-monitor.ts",
+    "xdr:json-parity": "tsx scripts/xdr-json-parity-monitor.ts",
     "_build": "pnpm run clean && pnpm run build:lib:all && pnpm run build:types:all",
     "_prettier": "prettier --ignore-path config/.prettierignore --write './src/**/*.ts' './test/**/*.{js,ts}'"
   },
@@ -133,6 +142,7 @@
     "@rollup/plugin-node-resolve": "^16.0.1",
     "@rollup/plugin-replace": "^6.0.2",
     "@rollup/plugin-terser": "^1.0.0",
+    "@stellar/stellar-xdr-json": "^26.0.0",
     "@types/detect-node": "^2.0.2",
     "@types/json-schema": "^7.0.15",
     "@types/node": "^22.19.17",
@@ -156,6 +166,7 @@
     "github-slugger": "2.0.0",
     "globals": "^17.5.0",
     "husky": "^9.1.7",
+    "js-xdr-v4": "npm:@stellar/js-xdr@4.0.0",
     "jsdom": "^29.1.1",
     "lint-staged": "^15.5.1",
     "lodash": "^4.18.1",
@@ -174,7 +185,7 @@
   "dependencies": {
     "@noble/ed25519": "^3.1.0",
     "@noble/hashes": "^2.2.0",
-    "@stellar/js-xdr": "4.0.0",
+    "@stellar/js-xdr": "^5.0.0-rc.1",
     "axios": "1.18.0",
     "base32.js": "^0.1.0",
     "bignumber.js": "^11.1.4",

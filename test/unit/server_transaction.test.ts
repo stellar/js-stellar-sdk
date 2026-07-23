@@ -4,7 +4,16 @@ import * as StellarSdk from "../../src/index.js";
 
 const { NotFoundError } = StellarSdk;
 
-const { Horizon } = StellarSdk;
+const {
+  Horizon,
+  Keypair,
+  Account,
+  TransactionBuilder,
+  Operation,
+  Asset,
+  Networks,
+  TimeoutInfinite,
+} = StellarSdk;
 
 describe("server.js transaction tests", () => {
   let server: any;
@@ -13,32 +22,30 @@ describe("server.js transaction tests", () => {
   let transaction: any;
   let blob: string;
 
-  const keypair = StellarSdk.Keypair.random();
-  const account = new StellarSdk.Account(keypair.publicKey(), "56199647068161");
+  const keypair = Keypair.random();
+  const account = new Account(keypair.publicKey(), "56199647068161");
 
   beforeEach(() => {
     server = new Horizon.Server("https://horizon-live.stellar.org:1337");
     mockPost = vi.spyOn(server.httpClient, "post");
     mockGet = vi.spyOn(server.httpClient, "get");
-    transaction = new StellarSdk.TransactionBuilder(account, {
+    transaction = new TransactionBuilder(account, {
       fee: "100",
-      networkPassphrase: StellarSdk.Networks.TESTNET,
+      networkPassphrase: Networks.TESTNET,
     })
       .addOperation(
-        StellarSdk.Operation.payment({
+        Operation.payment({
           destination:
             "GASOCNHNNLYFNMDJYQ3XFMI7BYHIOCFW3GJEOWRPEGK2TDPGTG2E5EDW",
-          asset: StellarSdk.Asset.native(),
+          asset: Asset.native(),
           amount: "100.50",
         }),
       )
-      .setTimeout(StellarSdk.TimeoutInfinite)
+      .setTimeout(TimeoutInfinite)
       .build();
     transaction.sign(keypair);
 
-    blob = encodeURIComponent(
-      transaction.toEnvelope().toXDR().toString("base64"),
-    );
+    blob = encodeURIComponent(transaction.toEnvelope().toXdr("base64"));
   });
 
   afterEach(() => {
@@ -336,16 +343,14 @@ describe("server.js transaction tests", () => {
     });
   });
   it("submits fee bump transactions", async () => {
-    const feeBumpTx = StellarSdk.TransactionBuilder.buildFeeBumpTransaction(
+    const feeBumpTx = TransactionBuilder.buildFeeBumpTransaction(
       keypair,
       "200",
       transaction,
-      StellarSdk.Networks.TESTNET,
+      Networks.TESTNET,
     );
 
-    blob = encodeURIComponent(
-      feeBumpTx.toEnvelope().toXDR().toString("base64"),
-    );
+    blob = encodeURIComponent(feeBumpTx.toEnvelope().toXdr("base64"));
 
     mockPost.mockImplementation((url: string, data: string) => {
       if (

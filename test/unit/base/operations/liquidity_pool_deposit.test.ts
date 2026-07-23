@@ -1,8 +1,9 @@
 import { describe, it, expect } from "vitest";
 import BigNumber from "bignumber.js";
 import { Operation } from "../../../../src/base/operation.js";
-import xdr from "../../../../src/base/xdr.js";
+import * as xdr from "../../../../src/xdr/index.js";
 import { expectOperationType } from "../support/operation.js";
+import { expectVariant } from "../support/xdr.js";
 
 const liquidityPoolId =
   "dd7b1ab831c273310ddbec6f97870aa83c2fbd78ce22aded37ecbf4f3380fac7";
@@ -98,15 +99,18 @@ describe("Operation.liquidityPoolDeposit()", () => {
       maxPrice: "0.55",
     };
     const op = Operation.liquidityPoolDeposit(opts);
-    const xdrHex = op.toXDR("hex");
-    const xdrOp = xdr.Operation.fromXDR(xdrHex, "hex");
-    const body = xdrOp.body().value() as xdr.LiquidityPoolDepositOp;
+    const xdrHex = op.toXdr("hex");
+    const xdrOp = xdr.Operation.fromXdr(xdrHex, "hex");
+    const body = expectVariant(
+      xdrOp.body,
+      "liquidityPoolDeposit",
+    ).liquidityPoolDepositOp;
 
-    expect(body.maxAmountA().toString()).toBe("100000000");
-    expect(body.maxAmountB().toString()).toBe("200000000");
+    expect(body.maxAmountA.toString()).toBe("100000000");
+    expect(body.maxAmountB.toString()).toBe("200000000");
 
     const obj = expectOperationType(
-      Operation.fromXDRObject(xdrOp),
+      Operation.fromXdrObject(xdrOp),
       "liquidityPoolDeposit",
     );
 
@@ -127,7 +131,7 @@ describe("Operation.liquidityPoolDeposit()", () => {
     };
     const op = Operation.liquidityPoolDeposit(opts);
     const obj = expectOperationType(
-      Operation.fromXDRObject(xdr.Operation.fromXDR(op.toXDR("hex"), "hex")),
+      Operation.fromXdrObject(xdr.Operation.fromXdr(op.toXdr("hex"), "hex")),
       "liquidityPoolDeposit",
     );
 
@@ -148,7 +152,7 @@ describe("Operation.liquidityPoolDeposit()", () => {
     };
     const op = Operation.liquidityPoolDeposit(opts);
     const obj = expectOperationType(
-      Operation.fromXDRObject(xdr.Operation.fromXDR(op.toXDR("hex"), "hex")),
+      Operation.fromXdrObject(xdr.Operation.fromXdr(op.toXdr("hex"), "hex")),
       "liquidityPoolDeposit",
     );
 
@@ -169,7 +173,7 @@ describe("Operation.liquidityPoolDeposit()", () => {
     };
     const op = Operation.liquidityPoolDeposit(opts);
     const obj = expectOperationType(
-      Operation.fromXDRObject(xdr.Operation.fromXDR(op.toXDR("hex"), "hex")),
+      Operation.fromXdrObject(xdr.Operation.fromXdr(op.toXdr("hex"), "hex")),
       "liquidityPoolDeposit",
     );
 
@@ -191,7 +195,7 @@ describe("Operation.liquidityPoolDeposit()", () => {
       source,
     });
     const obj = expectOperationType(
-      Operation.fromXDRObject(xdr.Operation.fromXDR(op.toXDR("hex"), "hex")),
+      Operation.fromXdrObject(xdr.Operation.fromXdr(op.toXdr("hex"), "hex")),
       "liquidityPoolDeposit",
     );
     expect(obj.source).toBe(source);
@@ -205,8 +209,8 @@ describe("Operation.liquidityPoolDeposit()", () => {
       minPrice: "0.45",
       maxPrice: "0.55",
     });
-    const hex = op.toXDR("hex");
-    const roundtripped = xdr.Operation.fromXDR(hex, "hex");
-    expect(roundtripped.body().switch().name).toBe("liquidityPoolDeposit");
+    const hex = op.toXdr("hex");
+    const roundtripped = xdr.Operation.fromXdr(hex, "hex");
+    expect(roundtripped.body.type).toBe("liquidityPoolDeposit");
   });
 });

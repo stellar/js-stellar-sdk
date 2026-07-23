@@ -1,4 +1,3 @@
-import { xdr } from "../base/index.js";
 import { Spec } from "../contract/index.js";
 import {
   parseTypeFromTypeDef,
@@ -7,6 +6,7 @@ import {
   formatJSDocComment,
   formatImports,
 } from "./utils.js";
+import { ScSpecFunctionV0 } from "../xdr/index.js";
 
 /**
  * Generates TypeScript client class for contract methods
@@ -34,20 +34,20 @@ export class ClientGenerator {
     // Generate interface methods
     const interfaceMethods = this.spec
       .funcs()
-      .filter((func) => func.name().toString() !== "__constructor")
+      .filter((func) => func.name.toString() !== "__constructor")
       .map((func) => this.generateInterfaceMethod(func))
       .join("\n");
 
     const imports = this.generateImports();
 
     const specEntries = this.spec.entries.map(
-      (entry) => `"${entry.toXDR("base64")}"`,
+      (entry) => `"${entry.toXdr("base64")}"`,
     );
 
-    const fromJSON = this.spec
+    const fromJson = this.spec
       .funcs()
-      .filter((func) => func.name().toString() !== "__constructor")
-      .map((func) => this.generateFromJSONMethod(func))
+      .filter((func) => func.name.toString() !== "__constructor")
+      .map((func) => this.generateFromJsonMethod(func))
       .join(",");
 
     return `${imports}
@@ -65,18 +65,21 @@ export class Client extends ContractClient {
   }
 
  ${deployMethod}
-  public readonly fromJSON = {
-  ${fromJSON}
+  public readonly fromJson = {
+  ${fromJson}
   };
+
+  /** @deprecated Use fromJson instead. */
+  public readonly fromJSON = this.fromJson;
 }`;
   }
 
   private generateImports(): string {
     const imports = generateTypeImports(
       this.spec.funcs().flatMap((func) => {
-        const inputs = func.inputs();
-        const outputs = func.outputs();
-        const defs = inputs.map((input) => input.type()).concat(outputs);
+        const inputs = func.inputs;
+        const outputs = func.outputs;
+        const defs = inputs.map((input) => input.type).concat(outputs);
         return defs;
       }),
     );
@@ -96,36 +99,32 @@ export class Client extends ContractClient {
   /**
    * Generate interface method signature
    */
-  private generateInterfaceMethod(func: xdr.ScSpecFunctionV0): string {
-    const name = sanitizeIdentifier(func.name().toString());
-    const inputs = func.inputs().map((input: any) => ({
-      name: sanitizeIdentifier(input.name().toString()),
-      type: parseTypeFromTypeDef(input.type(), true),
+  private generateInterfaceMethod(func: ScSpecFunctionV0): string {
+    const name = sanitizeIdentifier(func.name.toString());
+    const inputs = func.inputs.map((input: any) => ({
+      name: sanitizeIdentifier(input.name.toString()),
+      type: parseTypeFromTypeDef(input.type, true),
     }));
     const outputType =
-      func.outputs().length > 0
-        ? parseTypeFromTypeDef(func.outputs()[0])
-        : "void";
-    const docs = formatJSDocComment(func.doc().toString(), 2);
+      func.outputs.length > 0 ? parseTypeFromTypeDef(func.outputs[0]) : "void";
+    const docs = formatJSDocComment(func.doc.toString(), 2);
     const params = this.formatMethodParameters(inputs);
 
     return `${docs}  ${name}(${params}): Promise<AssembledTransaction<${outputType}>>;`;
   }
 
-  private generateFromJSONMethod(func: xdr.ScSpecFunctionV0): string {
-    const name = sanitizeIdentifier(func.name().toString());
+  private generateFromJsonMethod(func: ScSpecFunctionV0): string {
+    const name = sanitizeIdentifier(func.name.toString());
     const outputType =
-      func.outputs().length > 0
-        ? parseTypeFromTypeDef(func.outputs()[0])
-        : "void";
+      func.outputs.length > 0 ? parseTypeFromTypeDef(func.outputs[0]) : "void";
 
-    return `  ${name} : this.txFromJSON<${outputType}>`;
+    return `  ${name} : this.txFromJson<${outputType}>`;
   }
   /**
    * Generate deploy method
    */
   private generateDeployMethod(
-    constructorFunc: xdr.ScSpecFunctionV0 | undefined,
+    constructorFunc: ScSpecFunctionV0 | undefined,
   ): string {
     // If no constructor, generate deploy with no params
     if (!constructorFunc) {
@@ -134,9 +133,9 @@ export class Client extends ContractClient {
     return ContractClient.deploy(null, options);
   }`;
     }
-    const inputs = constructorFunc.inputs().map((input) => ({
-      name: sanitizeIdentifier(input.name().toString()),
-      type: parseTypeFromTypeDef(input.type(), true),
+    const inputs = constructorFunc.inputs.map((input) => ({
+      name: sanitizeIdentifier(input.name.toString()),
+      type: parseTypeFromTypeDef(input.type, true),
     }));
 
     const params = this.formatConstructorParameters(inputs);

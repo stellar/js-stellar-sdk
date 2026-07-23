@@ -3,10 +3,8 @@ import {
   ScIntType,
   XdrLargeInt,
 } from "../../../../src/base/numbers/xdr_large_int.js";
-import { Int128 } from "../../../../src/base/numbers/int128.js";
-import { Uint128 } from "../../../../src/base/numbers/uint128.js";
 
-import xdr from "../../../../src/base/xdr.js";
+import * as xdr from "../../../../src/xdr/index.js";
 
 describe("XdrLargeInt", () => {
   describe("constructor", () => {
@@ -55,6 +53,35 @@ describe("XdrLargeInt", () => {
       it("accepts mixed types in array", () => {
         const xdrInt = new XdrLargeInt("i64", [1, 2n]);
         expect(xdrInt).toBeInstanceOf(XdrLargeInt);
+      });
+
+      it("combines slices in little-endian order (legacy contract)", () => {
+        // parts[0] is the least-significant slice: [lo, hi]
+        expect(new XdrLargeInt("i64", [5n, 0n]).toBigInt()).toBe(5n);
+        expect(new XdrLargeInt("i64", [0n, 5n]).toBigInt()).toBe(5n << 32n);
+        expect(new XdrLargeInt("i128", [5n, 0n]).toBigInt()).toBe(5n);
+        expect(new XdrLargeInt("u128", [0n, 1n]).toBigInt()).toBe(1n << 64n);
+      });
+
+      it("sign-extends the most-significant slice for signed types", () => {
+        // hi = -1 → all-ones upper half → value is just lo
+        expect(new XdrLargeInt("i128", [5n, -1n]).toBigInt()).toBe(
+          BigInt.asIntN(128, (0xffffffffffffffffn << 64n) | 5n),
+        );
+      });
+
+      it("throws RangeError on an empty parts array (legacy contract)", () => {
+        expect(() => new XdrLargeInt("i64", [])).toThrow(RangeError);
+        expect(() => new XdrLargeInt("u256", [])).toThrow(/at least one slice/);
+      });
+
+      it("throws RangeError when a slice does not fit its width", () => {
+        expect(() => new XdrLargeInt("u128", [0n, 2n ** 80n])).toThrow(
+          RangeError,
+        );
+        expect(() => new XdrLargeInt("i64", [2n ** 40n, 0n])).toThrow(
+          RangeError,
+        );
       });
     });
 
@@ -237,30 +264,31 @@ describe("XdrLargeInt", () => {
     });
   });
 
-  describe("toJSON()", () => {
+  describe("toJson()", () => {
     it("returns object with value and type", () => {
-      const json = new XdrLargeInt("i128", 42).toJSON();
+      const json = new XdrLargeInt("i128", 42).toJson();
       expect(json).toEqual({ value: "42", type: "i128" });
     });
 
     it("preserves type information", () => {
-      expect(new XdrLargeInt("u64", 100).toJSON().type).toBe("u64");
-      expect(new XdrLargeInt("timepoint", 100).toJSON().type).toBe("timepoint");
-      expect(new XdrLargeInt("duration", 100).toJSON().type).toBe("duration");
+      expect(new XdrLargeInt("u64", 100).toJson().type).toBe("u64");
+      expect(new XdrLargeInt("timepoint", 100).toJson().type).toBe("timepoint");
+      expect(new XdrLargeInt("duration", 100).toJson().type).toBe("duration");
     });
 
     it("converts value to string", () => {
       const large = 1n << 100n;
-      const json = new XdrLargeInt("i256", large).toJSON();
+      const json = new XdrLargeInt("i256", large).toJson();
       expect(json.value).toBe(large.toString());
     });
   });
 
   describe("valueOf()", () => {
-    it("returns the underlying int value", () => {
+    it("returns the underlying bigint value", () => {
       const xdrInt = new XdrLargeInt("i128", 42);
       const value = xdrInt.valueOf();
-      expect(value).toBeInstanceOf(Int128);
+      expect(typeof value).toBe("bigint");
+      expect(value).toBe(42n);
     });
   });
 
@@ -269,15 +297,17 @@ describe("XdrLargeInt", () => {
       it("encodes positive i64 values", () => {
         const xdrInt = new XdrLargeInt("i64", 42);
         const scVal = xdrInt.toI64();
-        expect(scVal.switch()).toEqual(xdr.ScValType.scvI64());
-        expect(scVal.i64().toBigInt()).toBe(42n);
+        expect(scVal.type).toBe("scvI64");
+        if (scVal.type !== "scvI64") throw new Error("expected scvI64");
+        expect(scVal.i64).toBe(42n);
       });
 
       it("encodes negative i64 values", () => {
         const xdrInt = new XdrLargeInt("i64", -42);
         const scVal = xdrInt.toI64();
-        expect(scVal.switch()).toEqual(xdr.ScValType.scvI64());
-        expect(scVal.i64().toBigInt()).toBe(-42n);
+        expect(scVal.type).toBe("scvI64");
+        if (scVal.type !== "scvI64") throw new Error("expected scvI64");
+        expect(scVal.i64).toBe(-42n);
       });
 
       it("throws RangeError when size exceeds 64 bits", () => {
@@ -298,10 +328,12 @@ describe("XdrLargeInt", () => {
         const minI64 = -(1n << 63n);
 
         const maxVal = new XdrLargeInt("i64", maxI64).toI64();
-        expect(maxVal.i64().toBigInt()).toBe(maxI64);
+        if (maxVal.type !== "scvI64") throw new Error("expected scvI64");
+        expect(maxVal.i64).toBe(maxI64);
 
         const minVal = new XdrLargeInt("i64", minI64).toI64();
-        expect(minVal.i64().toBigInt()).toBe(minI64);
+        if (minVal.type !== "scvI64") throw new Error("expected scvI64");
+        expect(minVal.i64).toBe(minI64);
       });
     });
 
@@ -309,15 +341,17 @@ describe("XdrLargeInt", () => {
       it("encodes u64 values", () => {
         const xdrInt = new XdrLargeInt("u64", 42);
         const scVal = xdrInt.toU64();
-        expect(scVal.switch()).toEqual(xdr.ScValType.scvU64());
-        expect(scVal.u64().toBigInt()).toBe(42n);
+        expect(scVal.type).toBe("scvU64");
+        if (scVal.type !== "scvU64") throw new Error("expected scvU64");
+        expect(scVal.u64).toBe(42n);
       });
 
       it("reinterprets negative signed value as unsigned via toU64", () => {
         // Create as i64 type, then convert to u64 which reinterprets as unsigned
         const xdrInt = new XdrLargeInt("i64", -1);
         const scVal = xdrInt.toU64();
-        expect(scVal.u64().toBigInt()).toBe(BigInt.asUintN(64, -1n));
+        if (scVal.type !== "scvU64") throw new Error("expected scvU64");
+        expect(scVal.u64).toBe(BigInt.asUintN(64, -1n));
       });
 
       it("throws RangeError when size exceeds 64 bits", () => {
@@ -329,7 +363,8 @@ describe("XdrLargeInt", () => {
       it("handles maximum u64 value", () => {
         const maxU64 = (1n << 64n) - 1n;
         const scVal = new XdrLargeInt("u64", maxU64).toU64();
-        expect(scVal.u64().toBigInt()).toBe(maxU64);
+        if (scVal.type !== "scvU64") throw new Error("expected scvU64");
+        expect(scVal.u64).toBe(maxU64);
       });
     });
 
@@ -337,8 +372,10 @@ describe("XdrLargeInt", () => {
       it("encodes timepoint values", () => {
         const xdrInt = new XdrLargeInt("timepoint", 1234567890);
         const scVal = xdrInt.toTimepoint();
-        expect(scVal.switch()).toEqual(xdr.ScValType.scvTimepoint());
-        expect(scVal.timepoint().toBigInt()).toBe(1234567890n);
+        expect(scVal.type).toBe("scvTimepoint");
+        if (scVal.type !== "scvTimepoint")
+          throw new Error("expected scvTimepoint");
+        expect(scVal.timepoint).toBe(1234567890n);
       });
 
       it("throws RangeError when size exceeds 64 bits", () => {
@@ -351,8 +388,10 @@ describe("XdrLargeInt", () => {
       it("encodes duration values", () => {
         const xdrInt = new XdrLargeInt("duration", 3600);
         const scVal = xdrInt.toDuration();
-        expect(scVal.switch()).toEqual(xdr.ScValType.scvDuration());
-        expect(scVal.duration().toBigInt()).toBe(3600n);
+        expect(scVal.type).toBe("scvDuration");
+        if (scVal.type !== "scvDuration")
+          throw new Error("expected scvDuration");
+        expect(scVal.duration).toBe(3600n);
       });
 
       it("throws RangeError when size exceeds 64 bits", () => {
@@ -368,12 +407,11 @@ describe("XdrLargeInt", () => {
         const value = 1234567890n;
         const xdrInt = new XdrLargeInt("i128", value);
         const scVal = xdrInt.toI128();
-        expect(scVal.switch()).toEqual(xdr.ScValType.scvI128());
+        expect(scVal.type).toBe("scvI128");
+        if (scVal.type !== "scvI128") throw new Error("expected scvI128");
 
-        const i128 = scVal.i128();
-        const hi = i128.hi().toBigInt();
-        const lo = i128.lo().toBigInt();
-        const reconstructed = (hi << 64n) | lo;
+        const i128 = scVal.i128;
+        const reconstructed = (i128.hi << 64n) | i128.lo;
         expect(reconstructed).toBe(value);
       });
 
@@ -381,13 +419,15 @@ describe("XdrLargeInt", () => {
         const value = -1234567890n;
         const xdrInt = new XdrLargeInt("i128", value);
         const scVal = xdrInt.toI128();
+        if (scVal.type !== "scvI128") throw new Error("expected scvI128");
 
-        const i128 = scVal.i128();
-        const hi = i128.hi().toBigInt();
-        const lo = i128.lo().toBigInt();
-
-        // Reconstruct using Int128 to handle sign extension
-        const reconstructed = new Int128(lo, hi).toBigInt();
+        // Reconstruct via XdrLargeInt to handle sign extension. The hi slice
+        // is already in two's-complement form on the wire, so re-combining
+        // [lo, hi] via the signed-aware combiner recovers the original value.
+        const reconstructed = new XdrLargeInt("i128", [
+          scVal.i128.lo,
+          scVal.i128.hi,
+        ]).toBigInt();
         expect(reconstructed).toBe(value);
       });
 
@@ -410,21 +450,21 @@ describe("XdrLargeInt", () => {
         const minI128 = -(1n << 127n);
 
         const maxVal = new XdrLargeInt("i128", maxI128).toI128();
-        expect(maxVal.switch()).toEqual(xdr.ScValType.scvI128());
+        expect(maxVal.type).toBe("scvI128");
 
         const minVal = new XdrLargeInt("i128", minI128).toI128();
-        expect(minVal.switch()).toEqual(xdr.ScValType.scvI128());
+        expect(minVal.type).toBe("scvI128");
       });
 
       it("encodes large positive value correctly", () => {
         const large = 1n << 100n;
         const xdrInt = new XdrLargeInt("i128", large);
         const scVal = xdrInt.toI128();
+        if (scVal.type !== "scvI128") throw new Error("expected scvI128");
 
-        const i128 = scVal.i128();
-        const hi = BigInt.asIntN(64, i128.hi().toBigInt());
-        const lo = i128.lo().toBigInt();
-        const reconstructed = (hi << 64n) | lo;
+        const i128 = scVal.i128;
+        const hi = BigInt.asIntN(64, i128.hi);
+        const reconstructed = (hi << 64n) | i128.lo;
         expect(reconstructed).toBe(large);
       });
     });
@@ -434,12 +474,11 @@ describe("XdrLargeInt", () => {
         const value = 1234567890n;
         const xdrInt = new XdrLargeInt("u128", value);
         const scVal = xdrInt.toU128();
-        expect(scVal.switch()).toEqual(xdr.ScValType.scvU128());
+        expect(scVal.type).toBe("scvU128");
+        if (scVal.type !== "scvU128") throw new Error("expected scvU128");
 
-        const u128 = scVal.u128();
-        const hi = u128.hi().toBigInt();
-        const lo = u128.lo().toBigInt();
-        const reconstructed = (hi << 64n) | lo;
+        const u128 = scVal.u128;
+        const reconstructed = (u128.hi << 64n) | u128.lo;
         expect(reconstructed).toBe(value);
       });
 
@@ -452,13 +491,14 @@ describe("XdrLargeInt", () => {
       it("handles maximum u128 value", () => {
         const maxU128 = (1n << 128n) - 1n;
         const scVal = new XdrLargeInt("u128", maxU128).toU128();
-        expect(scVal.switch()).toEqual(xdr.ScValType.scvU128());
+        expect(scVal.type).toBe("scvU128");
+        if (scVal.type !== "scvU128") throw new Error("expected scvU128");
 
-        const u128 = scVal.u128();
-        const reconstructed = new Uint128(
-          u128.lo().toBigInt(),
-          u128.hi().toBigInt(),
-        ).toBigInt();
+        const u128 = scVal.u128;
+        const reconstructed = new XdrLargeInt("u128", [
+          u128.lo,
+          u128.hi,
+        ]).toBigInt();
         expect(reconstructed).toBe(maxU128);
       });
     });
@@ -470,22 +510,23 @@ describe("XdrLargeInt", () => {
         const value = 1234567890n;
         const xdrInt = new XdrLargeInt("i256", value);
         const scVal = xdrInt.toI256();
-        expect(scVal.switch()).toEqual(xdr.ScValType.scvI256());
+        expect(scVal.type).toBe("scvI256");
+        if (scVal.type !== "scvI256") throw new Error("expected scvI256");
 
-        const i256 = scVal.i256();
-        expect(i256.loLo().toBigInt()).toBe(value);
-        expect(i256.loHi().toBigInt()).toBe(0n);
-        expect(i256.hiLo().toBigInt()).toBe(0n);
-        expect(i256.hiHi().toBigInt()).toBe(0n);
+        const i256 = scVal.i256;
+        expect(i256.loLo).toBe(value);
+        expect(i256.loHi).toBe(0n);
+        expect(i256.hiLo).toBe(0n);
+        expect(i256.hiHi).toBe(0n);
       });
 
       it("encodes negative i256 values", () => {
         const value = -42n;
         const xdrInt = new XdrLargeInt("i256", value);
         const scVal = xdrInt.toI256();
+        if (scVal.type !== "scvI256") throw new Error("expected scvI256");
 
-        const i256 = scVal.i256();
-        expect(i256.hiHi().toBigInt()).toBe(-1n);
+        expect(scVal.i256.hiHi).toBe(-1n);
       });
 
       it("does not throw for large values within signed range", () => {
@@ -506,12 +547,13 @@ describe("XdrLargeInt", () => {
         const large = 1n << 200n;
         const xdrInt = new XdrLargeInt("i256", large);
         const scVal = xdrInt.toI256();
+        if (scVal.type !== "scvI256") throw new Error("expected scvI256");
 
-        const i256 = scVal.i256();
-        const loLo = i256.loLo().toBigInt();
-        const loHi = i256.loHi().toBigInt();
-        const hiLo = i256.hiLo().toBigInt();
-        const hiHi = BigInt.asIntN(64, i256.hiHi().toBigInt());
+        const i256 = scVal.i256;
+        const loLo = i256.loLo;
+        const loHi = i256.loHi;
+        const hiLo = i256.hiLo;
+        const hiHi = BigInt.asIntN(64, i256.hiHi);
 
         const reconstructed =
           (hiHi << 192n) | (hiLo << 128n) | (loHi << 64n) | loLo;
@@ -524,13 +566,14 @@ describe("XdrLargeInt", () => {
         const value = 1234567890n;
         const xdrInt = new XdrLargeInt("u256", value);
         const scVal = xdrInt.toU256();
-        expect(scVal.switch()).toEqual(xdr.ScValType.scvU256());
+        expect(scVal.type).toBe("scvU256");
+        if (scVal.type !== "scvU256") throw new Error("expected scvU256");
 
-        const u256 = scVal.u256();
-        expect(u256.loLo().toBigInt()).toBe(value);
-        expect(u256.loHi().toBigInt()).toBe(0n);
-        expect(u256.hiLo().toBigInt()).toBe(0n);
-        expect(u256.hiHi().toBigInt()).toBe(0n);
+        const u256 = scVal.u256;
+        expect(u256.loLo).toBe(value);
+        expect(u256.loHi).toBe(0n);
+        expect(u256.hiLo).toBe(0n);
+        expect(u256.hiHi).toBe(0n);
       });
 
       it("does not throw for large values (no size check)", () => {
@@ -543,12 +586,13 @@ describe("XdrLargeInt", () => {
         const large = 1n << 200n;
         const xdrInt = new XdrLargeInt("u256", large);
         const scVal = xdrInt.toU256();
+        if (scVal.type !== "scvU256") throw new Error("expected scvU256");
 
-        const u256 = scVal.u256();
-        const loLo = u256.loLo().toBigInt();
-        const loHi = u256.loHi().toBigInt();
-        const hiLo = u256.hiLo().toBigInt();
-        const hiHi = u256.hiHi().toBigInt();
+        const u256 = scVal.u256;
+        const loLo = u256.loLo;
+        const loHi = u256.loHi;
+        const hiLo = u256.hiLo;
+        const hiHi = u256.hiHi;
 
         const reconstructed =
           (hiHi << 192n) | (hiLo << 128n) | (loHi << 64n) | loLo;
@@ -561,49 +605,49 @@ describe("XdrLargeInt", () => {
     it("dispatches to toI64 for i64 type", () => {
       const xdrInt = new XdrLargeInt("i64", 42);
       const scVal = xdrInt.toScVal();
-      expect(scVal.switch()).toEqual(xdr.ScValType.scvI64());
+      expect(scVal.type).toBe("scvI64");
     });
 
     it("dispatches to toI128 for i128 type", () => {
       const xdrInt = new XdrLargeInt("i128", 42);
       const scVal = xdrInt.toScVal();
-      expect(scVal.switch()).toEqual(xdr.ScValType.scvI128());
+      expect(scVal.type).toBe("scvI128");
     });
 
     it("dispatches to toI256 for i256 type", () => {
       const xdrInt = new XdrLargeInt("i256", 42);
       const scVal = xdrInt.toScVal();
-      expect(scVal.switch()).toEqual(xdr.ScValType.scvI256());
+      expect(scVal.type).toBe("scvI256");
     });
 
     it("dispatches to toU64 for u64 type", () => {
       const xdrInt = new XdrLargeInt("u64", 42);
       const scVal = xdrInt.toScVal();
-      expect(scVal.switch()).toEqual(xdr.ScValType.scvU64());
+      expect(scVal.type).toBe("scvU64");
     });
 
     it("dispatches to toU128 for u128 type", () => {
       const xdrInt = new XdrLargeInt("u128", 42);
       const scVal = xdrInt.toScVal();
-      expect(scVal.switch()).toEqual(xdr.ScValType.scvU128());
+      expect(scVal.type).toBe("scvU128");
     });
 
     it("dispatches to toU256 for u256 type", () => {
       const xdrInt = new XdrLargeInt("u256", 42);
       const scVal = xdrInt.toScVal();
-      expect(scVal.switch()).toEqual(xdr.ScValType.scvU256());
+      expect(scVal.type).toBe("scvU256");
     });
 
     it("dispatches to toTimepoint for timepoint type", () => {
       const xdrInt = new XdrLargeInt("timepoint", 42);
       const scVal = xdrInt.toScVal();
-      expect(scVal.switch()).toEqual(xdr.ScValType.scvTimepoint());
+      expect(scVal.type).toBe("scvTimepoint");
     });
 
     it("dispatches to toDuration for duration type", () => {
       const xdrInt = new XdrLargeInt("duration", 42);
       const scVal = xdrInt.toScVal();
-      expect(scVal.switch()).toEqual(xdr.ScValType.scvDuration());
+      expect(scVal.type).toBe("scvDuration");
     });
   });
 
@@ -647,25 +691,33 @@ describe("XdrLargeInt", () => {
     it("preserves value through toScVal for i64", () => {
       const original = new XdrLargeInt("i64", 12345);
       const scVal = original.toScVal();
-      expect(scVal.i64().toBigInt()).toBe(12345n);
+      if (scVal.type !== "scvI64") throw new Error("expected scvI64");
+      expect(scVal.i64).toBe(12345n);
     });
 
     it("preserves value through toScVal for i128", () => {
       const value = 1n << 100n;
       const original = new XdrLargeInt("i128", value);
       const scVal = original.toScVal();
-      const i128 = scVal.i128();
+      if (scVal.type !== "scvI128") throw new Error("expected scvI128");
+      const i128 = scVal.i128;
 
-      const reconstructed = new Int128(
-        i128.lo().toBigInt(),
-        i128.hi().toBigInt(),
-      ).toBigInt();
+      const reconstructed = new XdrLargeInt("i128", [
+        i128.lo,
+        i128.hi,
+      ]).toBigInt();
       expect(reconstructed).toBe(value);
     });
 
-    it("preserves value and type through toJSON", () => {
+    it("supports JSON.stringify via the toJSON hook", () => {
+      expect(JSON.stringify(new XdrLargeInt("i64", 1234n))).toBe(
+        '{"value":"1234","type":"i64"}',
+      );
+    });
+
+    it("preserves value and type through toJson", () => {
       const original = new XdrLargeInt("i128", 42);
-      const json = original.toJSON();
+      const json = original.toJson();
       expect(json.value).toBe("42");
       expect(json.type).toBe("i128");
     });

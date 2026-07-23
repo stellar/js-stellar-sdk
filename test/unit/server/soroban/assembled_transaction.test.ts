@@ -2,9 +2,6 @@ import { describe, it, beforeEach, afterEach, expect, vi } from "vitest";
 
 import { serverUrl } from "../../../constants";
 import * as StellarSdk from "../../../../src/index.js";
-// imported as a namespace default (usable as both value and type) so XDR
-// types can be referenced in type positions below
-import xdr from "../../../../src/base/xdr.js";
 
 const {
   Account,
@@ -16,10 +13,11 @@ const {
   contract,
   SorobanDataBuilder,
   Address,
+  xdr,
 } = StellarSdk;
-const { Server } = StellarSdk.rpc;
+const { Server } = rpc;
 
-const restoreTxnData = StellarSdk.SorobanDataBuilder.fromXDR(
+const restoreTxnData = SorobanDataBuilder.fromXdr(
   "AAAAAAAAAAAAAAAEAAAABgAAAAHZ4Y4l0GNoS97QH0fa5Jbbm61Ou3t9McQ09l7wREKJYwAAAA8AAAAJUEVSU19DTlQxAAAAAAAAAQAAAAYAAAAB2eGOJdBjaEve0B9H2uSW25utTrt7fTHENPZe8ERCiWMAAAAPAAAACVBFUlNfQ05UMgAAAAAAAAEAAAAGAAAAAdnhjiXQY2hL3tAfR9rkltubrU67e30xxDT2XvBEQoljAAAAFAAAAAEAAAAH+BoQswzzGTKRzrdC6axxKaM4qnyDP8wgQv8Id3S4pbsAAAAAAAAGNAAABjQAAAAAAADNoQ==",
 );
 
@@ -87,7 +85,6 @@ describe("AssembledTransaction", () => {
       .mockResolvedValueOnce({ data: { result: getTransactionResponse } }); // getTransaction
 
     const txn = await contract.AssembledTransaction[
-      // eslint-disable-next-line @typescript-eslint/dot-notation
       "buildFootprintRestoreTransaction"
     ](
       options,
@@ -143,12 +140,12 @@ describe("AssembledTransaction", () => {
             new xdr.LedgerKeyContractData({
               contract: Address.fromString(contractId).toScAddress(),
               key: xdr.ScVal.scvU32(0),
-              durability: xdr.ContractDataDurability.persistent(),
+              durability: xdr.ContractDataDurability.persistent,
             }),
           ),
         ])
         .build(),
-      results: [{ auth: [], xdr: xdr.ScVal.scvU32(0).toXDR("base64") }],
+      results: [{ auth: [], xdr: xdr.ScVal.scvU32(0).toXdr("base64") }],
       stateChanges: [],
     };
 
@@ -187,7 +184,7 @@ describe("Contract ID validation on deserialization", () => {
         outputs: [xdr.ScSpecTypeDef.scSpecTypeU32()],
       }),
     );
-    return new contract.Spec([funcSpec.toXDR("base64")]);
+    return new contract.Spec([funcSpec.toXdr("base64")]);
   };
 
   function buildInvokeTx(targetContractId: string, methodName: string) {
@@ -206,12 +203,12 @@ describe("Contract ID validation on deserialization", () => {
       .build();
   }
 
-  it("fromXDR() accepts a transaction targeting the configured contract", () => {
+  it("fromXdr() accepts a transaction targeting the configured contract", () => {
     const tx = buildInvokeTx(victimContractId, "test");
-    const xdrBase64 = tx.toEnvelope().toXDR("base64");
+    const xdrBase64 = tx.toEnvelope().toXdr("base64");
     const spec = createSpec("test");
 
-    const assembled = contract.AssembledTransaction.fromXDR(
+    const assembled = contract.AssembledTransaction.fromXdr(
       {
         contractId: victimContractId,
         networkPassphrase,
@@ -223,13 +220,13 @@ describe("Contract ID validation on deserialization", () => {
     expect(assembled.built).toBeDefined();
   });
 
-  it("fromXDR() rejects a transaction targeting a different contract", () => {
+  it("fromXdr() rejects a transaction targeting a different contract", () => {
     const tx = buildInvokeTx(attackerContractId, "drain");
-    const xdrBase64 = tx.toEnvelope().toXDR("base64");
+    const xdrBase64 = tx.toEnvelope().toXdr("base64");
     const spec = createSpec("drain");
 
     expect(() =>
-      contract.AssembledTransaction.fromXDR(
+      contract.AssembledTransaction.fromXdr(
         {
           contractId: victimContractId,
           networkPassphrase,
@@ -243,26 +240,26 @@ describe("Contract ID validation on deserialization", () => {
     );
   });
 
-  it("fromJSON() accepts a transaction targeting the configured contract", () => {
+  it("fromJson() accepts a transaction targeting the configured contract", () => {
     const tx = buildInvokeTx(victimContractId, "test");
     const spec = createSpec("test");
     const simulationResult = {
       auth: [],
-      retval: xdr.ScVal.scvU32(0).toXDR("base64"),
+      retval: xdr.ScVal.scvU32(0).toXdr("base64"),
     };
     const simulationTransactionData = new SorobanDataBuilder()
       .build()
-      .toXDR("base64");
+      .toXdr("base64");
 
     const json = JSON.stringify({
       method: "test",
-      tx: tx.toEnvelope().toXDR("base64"),
+      tx: tx.toEnvelope().toXdr("base64"),
       simulationResult,
       simulationTransactionData,
     });
 
     const { method, ...txData } = JSON.parse(json);
-    const assembled = contract.AssembledTransaction.fromJSON(
+    const assembled = contract.AssembledTransaction.fromJson(
       {
         contractId: victimContractId,
         networkPassphrase,
@@ -275,19 +272,19 @@ describe("Contract ID validation on deserialization", () => {
     expect(assembled.built).toBeDefined();
   });
 
-  it("fromJSON() rejects a transaction targeting a different contract", () => {
+  it("fromJson() rejects a transaction targeting a different contract", () => {
     const tx = buildInvokeTx(attackerContractId, "drain");
     const simulationResult = {
       auth: [],
-      retval: xdr.ScVal.scvU32(0).toXDR("base64"),
+      retval: xdr.ScVal.scvU32(0).toXdr("base64"),
     };
     const simulationTransactionData = new SorobanDataBuilder()
       .build()
-      .toXDR("base64");
+      .toXdr("base64");
 
     const json = JSON.stringify({
       method: "drain",
-      tx: tx.toEnvelope().toXDR("base64"),
+      tx: tx.toEnvelope().toXdr("base64"),
       simulationResult,
       simulationTransactionData,
     });
@@ -295,7 +292,7 @@ describe("Contract ID validation on deserialization", () => {
     const { method, ...txData } = JSON.parse(json);
 
     expect(() =>
-      contract.AssembledTransaction.fromJSON(
+      contract.AssembledTransaction.fromJson(
         {
           contractId: victimContractId,
           networkPassphrase,
@@ -310,19 +307,19 @@ describe("Contract ID validation on deserialization", () => {
     );
   });
 
-  it("fromJSON() rejects a transaction with a spoofed method name", () => {
+  it("fromJson() rejects a transaction with a spoofed method name", () => {
     const tx = buildInvokeTx(victimContractId, "transfer");
     const simulationResult = {
       auth: [],
-      retval: xdr.ScVal.scvU32(0).toXDR("base64"),
+      retval: xdr.ScVal.scvU32(0).toXdr("base64"),
     };
     const simulationTransactionData = new SorobanDataBuilder()
       .build()
-      .toXDR("base64");
+      .toXdr("base64");
 
     const json = JSON.stringify({
       method: "safe_operation",
-      tx: tx.toEnvelope().toXDR("base64"),
+      tx: tx.toEnvelope().toXdr("base64"),
       simulationResult,
       simulationTransactionData,
     });
@@ -330,7 +327,7 @@ describe("Contract ID validation on deserialization", () => {
     const { method, ...txData } = JSON.parse(json);
 
     expect(() =>
-      contract.AssembledTransaction.fromJSON(
+      contract.AssembledTransaction.fromJson(
         {
           contractId: victimContractId,
           networkPassphrase,
@@ -363,7 +360,7 @@ describe("AssembledTransaction auth entry credential types (CAP-71)", () => {
         inputs: [],
         outputs: [xdr.ScSpecTypeDef.scSpecTypeU32()],
       }),
-    ).toXDR("base64"),
+    ).toXdr("base64"),
   ]);
 
   // unsigned auth entries carry an scvVoid signature; an scvVec signature
@@ -374,7 +371,7 @@ describe("AssembledTransaction auth entry credential types (CAP-71)", () => {
   ): xdr.SorobanAddressCredentials {
     return new xdr.SorobanAddressCredentials({
       address: new Address(pk).toScAddress(),
-      nonce: new xdr.Int64(1),
+      nonce: 1n,
       signatureExpirationLedger: 0,
       signature: signed ? xdr.ScVal.scvVec([]) : xdr.ScVal.scvVoid(),
     });
@@ -432,28 +429,28 @@ describe("AssembledTransaction auth entry credential types (CAP-71)", () => {
       )
       .build();
 
-    return contract.AssembledTransaction.fromXDR(
+    return contract.AssembledTransaction.fromXdr(
       {
         contractId,
         networkPassphrase,
         rpcUrl: "https://example.com",
         ...extraOptions,
       },
-      tx.toEnvelope().toXDR("base64"),
+      tx.toEnvelope().toXdr("base64"),
       spec,
     );
   }
 
   // independent extractor (does not reuse the SDK's getAddressCredentials)
   function credAddress(entry: xdr.SorobanAuthorizationEntry): string {
-    const c = entry.credentials();
+    const c = entry.credentials;
     const inner =
-      c.switch().name === "sorobanCredentialsAddressWithDelegates"
-        ? c.addressWithDelegates().addressCredentials()
-        : c.switch().name === "sorobanCredentialsAddressV2"
-          ? c.addressV2()
-          : c.address();
-    return Address.fromScAddress(inner.address()).toString();
+      c.type === "sorobanCredentialsAddressWithDelegates"
+        ? c.addressWithDelegates.addressCredentials
+        : c.type === "sorobanCredentialsAddressV2"
+          ? c.addressV2
+          : c.address;
+    return Address.fromScAddress(inner.address).toString();
   }
 
   describe("needsNonInvokerSigningBy", () => {
@@ -530,13 +527,12 @@ describe("AssembledTransaction auth entry credential types (CAP-71)", () => {
         address: signer.publicKey(),
       });
 
-      const signed = (assembled.built as any).operations[0].auth[0]
-        .credentials()
-        .addressV2();
-      expect(signed.signatureExpirationLedger()).toBe(1000);
+      const signed = (assembled.built as any).operations[0].auth[0].credentials
+        .addressV2;
+      expect(signed.signatureExpirationLedger).toBe(1000);
       // signature was filled in (no longer the scvVoid placeholder)
-      expect(signed.signature().switch().name).toBe("scvVec");
-      expect(signed.signature().vec()).toHaveLength(1);
+      expect(signed.signature.type).toBe("scvVec");
+      expect(signed.signature.vec).toHaveLength(1);
     });
   });
 });

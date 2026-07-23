@@ -43,6 +43,10 @@ export default defineConfig({
     exclude: [
       "test/unit/call_builders.test.ts",
       "test/unit/server/horizon/server.test.ts",
+      // Node-only class-XDR tests: they read corpus/fixture files from disk
+      // via `node:fs`, which isn't available in the browser environment.
+      "test/unit/xdr/corpus_round_trip.test.ts",
+      "test/unit/xdr/schema_exhaustive.test.ts",
     ],
     // Setup files to load the browser bundle
     setupFiles: [resolve(__dirname, "../test/setup-browser.ts")],
@@ -50,20 +54,10 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": resolve(__dirname, "../src"),
-      // js-xdr ships a `browser` field pointing at a webpack UMD that embeds
-      // its own copy of `buffer`. When Vite picks that up, every value js-xdr
-      // produces (e.g. xdr struct `_value` fields) becomes an instance of the
-      // embedded Buffer class — different from the npm `Buffer` the SDK uses
-      // everywhere else. Round-trip tests like
-      // `expect(xdr.X.fromXDR(s.toXDR())).toEqual(s)` then fail with two
-      // structurally-identical objects because their nested `Buffer`s have
-      // different constructors. Force resolution to js-xdr's ESM source so
-      // bare `Buffer` references resolve to the same global Buffer the rest
-      // of the test environment sees.
-      "@stellar/js-xdr": resolve(
-        __dirname,
-        "../node_modules/@stellar/js-xdr/src/index.js",
-      ),
+      // Note: js-xdr v5 ships a proper dual ESM/CJS build (no `browser`-field
+      // UMD embedding its own `buffer`), so the v4-era alias forcing resolution
+      // to js-xdr's source is no longer needed — Vite resolves it via the
+      // package `exports` map to the ESM build.
     },
   },
   define: {

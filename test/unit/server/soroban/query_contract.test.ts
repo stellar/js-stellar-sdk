@@ -17,7 +17,7 @@ function fakeClient(opts: {
 }) {
   return {
     spec: {
-      funcs: () => opts.specNames.map((name) => ({ name: () => name })),
+      funcs: () => opts.specNames.map((name) => ({ name })),
     },
     ...(opts.attached ?? {}),
   };

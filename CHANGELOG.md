@@ -6,6 +6,9 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Breaking Changes
+* The XDR layer now consumes the runtime from `@stellar/js-xdr` v5 instead of the vendored in-tree copy. The v4 `Reader` and `Writer` classes are no longer re-exported from the SDK; the `Reader`/`Writer` re-exported from `xdr` are now the v5 implementations. Code that imported the v4 `Reader`/`Writer` (directly from `@stellar/js-xdr@4` or via the SDK) must migrate to the v5 API. See [`docs/XDR_MIGRATION.md`](./docs/XDR_MIGRATION.md#14-removed-v4-reader--writer-exports).
+
 ### Added
 - `rpc.Server.queryContract<T>(contractId, method, args?, networkPassphrase?)`: a one-line read-only contract call that builds a client, simulates the method, and returns `{ result, isReadCall }` — the spec-decoded return value plus whether this specific call is a signature-free read that wrote no state (per-call, reflecting the given `args`). No manual transaction assembly, signing, or submission. Works for both Wasm contracts and built-in Stellar Asset Contracts (SACs) ([#1502](https://github.com/stellar/js-stellar-sdk/pull/1502)).
 - `rpc.Server.getContractMethods(contractId, networkPassphrase?)`: lists a contract's callable methods and their signatures (name, inputs, outputs, and doc string) for discovery and tooling, without invoking or simulating anything. Adds the `Api.ContractMethod` and `Api.ContractMethodInput` types ([#1502](https://github.com/stellar/js-stellar-sdk/pull/1502)).
@@ -29,7 +32,6 @@ A breaking change will get clearly marked in this log.
   preserved files as CommonJS and failed to resolve them. Rollup now marks the
   emitted js-xdr package as `type: "module"` so its source is parsed as ESM
   [#1484](https://github.com/stellar/js-stellar-sdk/pull/1484).
-
 
 ## [v16.0.0](https://github.com/stellar/js-stellar-sdk/compare/v15.1.0...v16.0.0)
 

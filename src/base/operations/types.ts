@@ -3,19 +3,33 @@ import { Address } from "../address.js";
 import { Claimant } from "../claimant.js";
 import { LiquidityPoolAsset } from "../liquidity_pool_asset.js";
 import { LiquidityPoolId } from "../liquidity_pool_id.js";
-import xdr from "../xdr.js";
+import {
+  HostFunction,
+  MuxedAccount,
+  OperationBody,
+  ScVal,
+  SorobanAuthorizationEntry,
+} from "../../xdr/index.js";
 import type { BigNumber } from "../util/bignumber.js";
 
 export interface OperationAttributes {
-  body: xdr.OperationBody;
-  sourceAccount: xdr.MuxedAccount | null;
+  body: OperationBody;
+  sourceAccount: MuxedAccount | null;
 }
 
-export interface ChangeTrustOpts {
-  asset: Asset | LiquidityPoolAsset;
-  limit?: string;
-  source?: string;
-}
+export type ChangeTrustOpts =
+  | {
+      asset: Asset | LiquidityPoolAsset;
+      line?: never; // `line` is accepted as an alias for `asset` but is not included in the type definition since it's not intended to be used directly by users
+      limit?: string;
+      source?: string;
+    }
+  | {
+      line: Asset | LiquidityPoolAsset;
+      asset?: never;
+      limit?: string;
+      source?: string;
+    };
 
 export interface RestoreFootprintOpts {
   source?: string;
@@ -239,37 +253,37 @@ export interface LiquidityPoolDepositOpts {
 }
 
 export interface InvokeHostFunctionOpts {
-  func: xdr.HostFunction;
-  auth?: xdr.SorobanAuthorizationEntry[];
+  func: HostFunction;
+  auth?: SorobanAuthorizationEntry[];
   source?: string;
 }
 
 export interface InvokeContractFunctionOpts {
   contract: string;
   function: string;
-  args: xdr.ScVal[];
-  auth?: xdr.SorobanAuthorizationEntry[];
+  args: ScVal[];
+  auth?: SorobanAuthorizationEntry[];
   source?: string;
 }
 
 export interface CreateCustomContractOpts {
   address: Address;
   wasmHash: Buffer | Uint8Array;
-  constructorArgs?: xdr.ScVal[];
+  constructorArgs?: ScVal[];
   salt?: Buffer | Uint8Array;
-  auth?: xdr.SorobanAuthorizationEntry[];
+  auth?: SorobanAuthorizationEntry[];
   source?: string;
 }
 
 export interface CreateStellarAssetContractOpts {
   asset: Asset | string;
-  auth?: xdr.SorobanAuthorizationEntry[];
+  auth?: SorobanAuthorizationEntry[];
   source?: string;
 }
 
 export interface UploadContractWasmOpts {
   wasm: Buffer | Uint8Array;
-  auth?: xdr.SorobanAuthorizationEntry[];
+  auth?: SorobanAuthorizationEntry[];
   source?: string;
 }
 
@@ -348,7 +362,7 @@ export type OperationOptions =
   | UploadContractWasmOpts;
 
 // ─── Operation Result Types ───────────────────────────────────────────────────
-// These are the shapes returned by Operation.fromXDRObject, mirroring the
+// These are the shapes returned by Operation.fromXdrObject, mirroring the
 // namespace Operation interfaces in types/index.d.ts.
 
 export namespace OperationType {
@@ -370,7 +384,7 @@ export namespace OperationType {
   export type ClaimClaimableBalance = "claimClaimableBalance";
   export type BeginSponsoringFutureReserves = "beginSponsoringFutureReserves";
   export type EndSponsoringFutureReserves = "endSponsoringFutureReserves";
-  /** @deprecated Never emitted by fromXDRObject — use the specific Revoke* types instead. */
+  /** @deprecated Never emitted by fromXdrObject — use the specific Revoke* types instead. */
   export type RevokeSponsorship = "revokeSponsorship";
   export type RevokeAccountSponsorship = "revokeAccountSponsorship";
   export type RevokeTrustlineSponsorship = "revokeTrustlineSponsorship";
@@ -669,8 +683,8 @@ export interface LiquidityPoolWithdrawResult extends BaseOperation<OperationType
 }
 
 export interface InvokeHostFunctionResult extends BaseOperation<OperationType.InvokeHostFunction> {
-  func: xdr.HostFunction;
-  auth?: xdr.SorobanAuthorizationEntry[];
+  func: HostFunction;
+  auth?: SorobanAuthorizationEntry[];
 }
 
 export interface ExtendFootprintTTLResult extends BaseOperation<OperationType.ExtendFootprintTTL> {
@@ -681,7 +695,7 @@ export type RestoreFootprintResult =
   BaseOperation<OperationType.RestoreFootprint>;
 
 /**
- * Union of all possible operation objects returned by Operation.fromXDRObject.
+ * Union of all possible operation objects returned by Operation.fromXdrObject.
  */
 export type OperationRecord =
   | AccountMergeResult

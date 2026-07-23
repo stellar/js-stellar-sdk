@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { Operation } from "../../../../src/base/operation.js";
 import { Asset } from "../../../../src/base/asset.js";
-import xdr from "../../../../src/base/xdr.js";
+import * as xdr from "../../../../src/xdr/index.js";
 import {
   encodeMuxedAccountToAddress,
   encodeMuxedAccount,
@@ -20,10 +20,10 @@ describe("Operation.payment()", () => {
       "GDGU5OAPHNPU5UCLE5RDJHG7PXZFQYWKCFOEXSXNMR6KRQRI5T6XXCD7",
     );
     const op = Operation.payment({ destination, asset, amount });
-    const xdrHex = op.toXDR("hex");
-    const operation = xdr.Operation.fromXDR(xdrHex, "hex");
+    const xdrHex = op.toXdr("hex");
+    const operation = xdr.Operation.fromXdr(xdrHex, "hex");
     const obj = expectOperationType(
-      Operation.fromXDRObject(operation),
+      Operation.fromXdrObject(operation),
       "payment",
     );
     expect(obj.destination).toBe(destination);
@@ -33,10 +33,10 @@ describe("Operation.payment()", () => {
     const amount = "200.0000000";
     const asset = Asset.native();
     const op = Operation.payment({ destination, asset, amount });
-    const xdrHex = op.toXDR("hex");
-    const operation = xdr.Operation.fromXDR(xdrHex, "hex");
+    const xdrHex = op.toXdr("hex");
+    const operation = xdr.Operation.fromXdr(xdrHex, "hex");
     const obj = expectOperationType(
-      Operation.fromXDRObject(operation),
+      Operation.fromXdrObject(operation),
       "payment",
     );
     expect(obj.destination).toBe(destination);
@@ -58,9 +58,9 @@ describe("Operation.payment()", () => {
       source: muxedSource,
     });
 
-    const packed = xdr.Operation.fromXDR(op.toXDR("hex"), "hex");
+    const packed = xdr.Operation.fromXdr(op.toXdr("hex"), "hex");
     const unpacked = expectOperationType(
-      Operation.fromXDRObject(packed),
+      Operation.fromXdrObject(packed),
       "payment",
     );
     expect(unpacked.destination).toBe(muxedDest);
@@ -75,9 +75,9 @@ describe("Operation.payment()", () => {
       source: base,
     });
 
-    const packed = xdr.Operation.fromXDR(op.toXDR("hex"), "hex");
+    const packed = xdr.Operation.fromXdr(op.toXdr("hex"), "hex");
     const unpacked = expectOperationType(
-      Operation.fromXDRObject(packed),
+      Operation.fromXdrObject(packed),
       "payment",
     );
     expect(unpacked.destination).toBe(base);
@@ -96,9 +96,9 @@ describe("Operation.payment()", () => {
       source: base,
     });
 
-    const packed = xdr.Operation.fromXDR(op.toXDR("hex"), "hex");
+    const packed = xdr.Operation.fromXdr(op.toXdr("hex"), "hex");
     const unpacked = expectOperationType(
-      Operation.fromXDRObject(packed),
+      Operation.fromXdrObject(packed),
       "payment",
     );
     expect(unpacked.destination).toBe(muxedDest);
@@ -149,8 +149,8 @@ describe("Operation.payment()", () => {
       asset: Asset.native(),
       amount: "50.0000000",
     });
-    const hex = op.toXDR("hex");
-    const roundtripped = xdr.Operation.fromXDR(hex, "hex");
-    expect(roundtripped.body().switch().name).toBe("payment");
+    const hex = op.toXdr("hex");
+    const roundtripped = xdr.Operation.fromXdr(hex, "hex");
+    expect(roundtripped.body.type).toBe("payment");
   });
 });

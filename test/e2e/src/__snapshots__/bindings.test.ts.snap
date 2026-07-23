@@ -4,7 +4,6 @@ exports[`Bindings Snapshot Test > generates bindings that match snapshot for cus
 "import {Test, SimpleEnum, ComplexEnum, RecursiveEnum, RoyalCard, TupleStruct} from './types.js';
 import {Result, Spec, AssembledTransaction, Client as ContractClient, ClientOptions as ContractClientOptions, MethodOptions} from '@stellar/stellar-sdk/contract';
 import {Address, xdr} from '@stellar/stellar-sdk';
-import { Buffer } from 'buffer';
 
 export interface Client {
   hello({ hello }: { hello: string }, options?: MethodOptions): Promise<AssembledTransaction<string>>;
@@ -26,8 +25,8 @@ export interface Client {
   complex({ complex }: { complex: ComplexEnum }, options?: MethodOptions): Promise<AssembledTransaction<ComplexEnum>>;
   recursive_enum({ recursive }: { recursive: RecursiveEnum }, options?: MethodOptions): Promise<AssembledTransaction<RecursiveEnum>>;
   addresse({ addresse }: { addresse: string | Address }, options?: MethodOptions): Promise<AssembledTransaction<string>>;
-  bytes({ bytes }: { bytes: Buffer }, options?: MethodOptions): Promise<AssembledTransaction<Buffer>>;
-  bytes_n({ bytes_n }: { bytes_n: Buffer }, options?: MethodOptions): Promise<AssembledTransaction<Buffer>>;
+  bytes({ bytes }: { bytes: Uint8Array }, options?: MethodOptions): Promise<AssembledTransaction<Uint8Array>>;
+  bytes_n({ bytes_n }: { bytes_n: Uint8Array }, options?: MethodOptions): Promise<AssembledTransaction<Uint8Array>>;
   card({ card }: { card: RoyalCard }, options?: MethodOptions): Promise<AssembledTransaction<RoyalCard>>;
   boolean({ boolean }: { boolean: boolean }, options?: MethodOptions): Promise<AssembledTransaction<boolean>>;
   /**
@@ -64,9 +63,12 @@ export class Client extends ContractClient {
    static deploy<T = Client>(options: MethodOptions & Omit<ContractClientOptions, 'contractId'> & { wasmHash: Buffer | string; salt?: Buffer | Uint8Array; format?: "hex" | "base64"; address?: string; }): Promise<AssembledTransaction<T>> {
     return ContractClient.deploy(null, options);
   }
-  public readonly fromJSON = {
-    hello : this.txFromJSON<string>,  auth : this.txFromJSON<string>,  get_count : this.txFromJSON<number>,  inc : this.txFromJSON<number>,  woid : this.txFromJSON<void>,  val : this.txFromJSON<any>,  u32_fail_on_even : this.txFromJSON<Result<number, Error>>,  u32_ : this.txFromJSON<number>,  i32_ : this.txFromJSON<number>,  i64_ : this.txFromJSON<bigint>,  strukt_hel : this.txFromJSON<Array<string>>,  strukt : this.txFromJSON<Test>,  simple : this.txFromJSON<SimpleEnum>,  complex : this.txFromJSON<ComplexEnum>,  recursive_enum : this.txFromJSON<RecursiveEnum>,  addresse : this.txFromJSON<string>,  bytes : this.txFromJSON<Buffer>,  bytes_n : this.txFromJSON<Buffer>,  card : this.txFromJSON<RoyalCard>,  boolean : this.txFromJSON<boolean>,  not : this.txFromJSON<boolean>,  i128 : this.txFromJSON<bigint>,  u128 : this.txFromJSON<bigint>,  multi_args : this.txFromJSON<number>,  map : this.txFromJSON<Map<number, boolean>>,  vec : this.txFromJSON<Array<number>>,  tuple : this.txFromJSON<[string, number]>,  option : this.txFromJSON<number | null>,  get_object_vec_option : this.txFromJSON<Array<Test> | null>,  u256 : this.txFromJSON<bigint>,  i256 : this.txFromJSON<bigint>,  string : this.txFromJSON<string>,  tuple_strukt : this.txFromJSON<TupleStruct>,  timepoint : this.txFromJSON<bigint>,  duration : this.txFromJSON<bigint>
+  public readonly fromJson = {
+    hello : this.txFromJson<string>,  auth : this.txFromJson<string>,  get_count : this.txFromJson<number>,  inc : this.txFromJson<number>,  woid : this.txFromJson<void>,  val : this.txFromJson<any>,  u32_fail_on_even : this.txFromJson<Result<number, Error>>,  u32_ : this.txFromJson<number>,  i32_ : this.txFromJson<number>,  i64_ : this.txFromJson<bigint>,  strukt_hel : this.txFromJson<Array<string>>,  strukt : this.txFromJson<Test>,  simple : this.txFromJson<SimpleEnum>,  complex : this.txFromJson<ComplexEnum>,  recursive_enum : this.txFromJson<RecursiveEnum>,  addresse : this.txFromJson<string>,  bytes : this.txFromJson<Uint8Array>,  bytes_n : this.txFromJson<Uint8Array>,  card : this.txFromJson<RoyalCard>,  boolean : this.txFromJson<boolean>,  not : this.txFromJson<boolean>,  i128 : this.txFromJson<bigint>,  u128 : this.txFromJson<bigint>,  multi_args : this.txFromJson<number>,  map : this.txFromJson<Map<number, boolean>>,  vec : this.txFromJson<Array<number>>,  tuple : this.txFromJson<[string, number]>,  option : this.txFromJson<number | null>,  get_object_vec_option : this.txFromJson<Array<Test> | null>,  u256 : this.txFromJson<bigint>,  i256 : this.txFromJson<bigint>,  string : this.txFromJson<string>,  tuple_strukt : this.txFromJson<TupleStruct>,  timepoint : this.txFromJson<bigint>,  duration : this.txFromJson<bigint>
   };
+
+  /** @deprecated Use fromJson instead. */
+  public readonly fromJSON = this.fromJson;
 }"
 `;
 

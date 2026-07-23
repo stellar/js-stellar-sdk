@@ -1,45 +1,44 @@
 import { setSourceAccount } from "../util/operations.js";
-import xdr from "../xdr.js";
 import {
-  ClaimClaimableBalanceResult,
-  ClaimClaimableBalanceOpts,
-  OperationAttributes,
-} from "./types.js";
+  ClaimableBalanceId,
+  ClaimClaimableBalanceOp,
+  Operation,
+  OperationBody,
+} from "../../xdr/index.js";
+import { ClaimClaimableBalanceOpts, OperationAttributes } from "./types.js";
 
 /**
  * Create a new claim claimable balance operation.
  * @param opts - Options object
- *   - `balanceId`: The claimable balance id to be claimed.
- *   - `source`: The source account for the operation. Defaults to the transaction's source account.
+ * @param opts.balanceId - The claimable balance id to be claimed.
+ * @param opts.source - The source account for the operation. Defaults to the transaction's source account.
  *
  * @example
- * ```ts
  * const op = Operation.claimClaimableBalance({
  *   balanceId: '00000000da0d57da7d4850e7fc10d2a9d0ebc731f7afb40574c03395b17d49149b91f5be',
  * });
- * ```
  */
 export function claimClaimableBalance(
   opts: ClaimClaimableBalanceOpts = {} as ClaimClaimableBalanceOpts,
-): xdr.Operation<ClaimClaimableBalanceResult> {
+): Operation {
   validateClaimableBalanceId(opts.balanceId);
 
-  const balanceId: xdr.ClaimableBalanceId = xdr.ClaimableBalanceId.fromXDR(
+  const balanceId: ClaimableBalanceId = ClaimableBalanceId.fromXdr(
     opts.balanceId,
     "hex",
   );
-  const claimClaimableBalanceOp = new xdr.ClaimClaimableBalanceOp({
-    balanceId,
+  const claimClaimableBalanceOp = new ClaimClaimableBalanceOp({
+    balanceId: balanceId,
   });
 
   const opAttributes: OperationAttributes = {
     sourceAccount: null,
-    body: xdr.OperationBody.claimClaimableBalance(claimClaimableBalanceOp),
+    body: OperationBody.claimClaimableBalance(claimClaimableBalanceOp),
   };
 
   setSourceAccount(opAttributes, opts);
 
-  return new xdr.Operation(opAttributes);
+  return new Operation(opAttributes);
 }
 
 /**

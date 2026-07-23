@@ -1,9 +1,10 @@
 import { describe, it, expect } from "vitest";
+import { stringToUint8Array } from "uint8array-extras";
 import { Asset } from "../../../src/base/asset.js";
 import { LiquidityPoolAsset } from "../../../src/base/liquidity_pool_asset.js";
 import { LiquidityPoolFeeV18 } from "../../../src/base/get_liquidity_pool_id.js";
 import { Keypair } from "../../../src/base/keypair.js";
-import xdr from "../../../src/base/xdr.js";
+import * as xdr from "../../../src/xdr/index.js";
 
 const assetA = new Asset(
   "ARST",
@@ -77,13 +78,13 @@ describe("LiquidityPoolAsset", () => {
     });
   });
 
-  describe("toXDRObject()", () => {
+  describe("toXdrObject()", () => {
     it("parses a liquidity pool trustline asset object", () => {
       const asset = new LiquidityPoolAsset(assetA, assetB, fee);
-      const ctAsset = asset.toXDRObject();
+      const ctAsset = asset.toXdrObject();
 
       expect(ctAsset).toBeInstanceOf(xdr.ChangeTrustAsset);
-      expect(ctAsset.switch()).toBe(xdr.AssetType.assetTypePoolShare());
+      expect(ctAsset.type).toBe("assetTypePoolShare");
 
       const gotPoolParams = asset.getLiquidityPoolParameters();
       expect(gotPoolParams.assetA).toBe(assetA);
@@ -104,7 +105,7 @@ describe("LiquidityPoolAsset", () => {
       const issuer = "GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGSNFHEYVXM3XOJMDS674JZ";
       const assetCode = "KHL";
       const assetXdr = new xdr.AlphaNum4({
-        assetCode: assetCode + "\0",
+        assetCode: stringToUint8Array(assetCode + "\0"),
         issuer: Keypair.fromPublicKey(issuer).xdrAccountId(),
       });
       const ctAsset = xdr.ChangeTrustAsset.assetTypeCreditAlphanum4(assetXdr);
@@ -117,7 +118,7 @@ describe("LiquidityPoolAsset", () => {
       const issuer = "GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGSNFHEYVXM3XOJMDS674JZ";
       const assetCode = "KHLTOKEN";
       const assetXdr = new xdr.AlphaNum12({
-        assetCode: assetCode + "\0\0\0\0",
+        assetCode: stringToUint8Array(assetCode + "\0\0\0\0"),
         issuer: Keypair.fromPublicKey(issuer).xdrAccountId(),
       });
       const ctAsset = xdr.ChangeTrustAsset.assetTypeCreditAlphanum12(assetXdr);
@@ -129,8 +130,8 @@ describe("LiquidityPoolAsset", () => {
     it("parses a liquidityPool asset XDR", () => {
       const lpConstantProductParamsXdr =
         new xdr.LiquidityPoolConstantProductParameters({
-          assetA: assetA.toXDRObject(),
-          assetB: assetB.toXDRObject(),
+          assetA: assetA.toXdrObject(),
+          assetB: assetB.toXdrObject(),
           fee,
         });
       const lpParamsXdr =
@@ -140,7 +141,7 @@ describe("LiquidityPoolAsset", () => {
       const ctAsset = xdr.ChangeTrustAsset.assetTypePoolShare(lpParamsXdr);
 
       expect(ctAsset).toBeInstanceOf(xdr.ChangeTrustAsset);
-      expect(ctAsset.switch()).toBe(xdr.AssetType.assetTypePoolShare());
+      expect(ctAsset.type).toBe("assetTypePoolShare");
 
       const asset = LiquidityPoolAsset.fromOperation(ctAsset);
       expect(asset).toBeInstanceOf(LiquidityPoolAsset);

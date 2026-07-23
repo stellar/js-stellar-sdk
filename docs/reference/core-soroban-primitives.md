@@ -26,7 +26,7 @@ class Address {
 }
 ```
 
-**Source:** [src/base/address.ts:20](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L20)
+**Source:** [src/base/address.ts:31](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L31)
 
 ### `new Address(address)`
 
@@ -38,7 +38,7 @@ constructor(address: string);
 
 - **`address`** — `string` (required) — a `StrKey` of the address value
 
-**Source:** [src/base/address.ts:27](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L27)
+**Source:** [src/base/address.ts:38](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L38)
 
 ### `Address.account(buffer)`
 
@@ -52,7 +52,7 @@ static account(buffer: Buffer): Address;
 
 - **`buffer`** — `Buffer` (required) — The bytes of an address to parse.
 
-**Source:** [src/base/address.ts:62](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L62)
+**Source:** [src/base/address.ts:73](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L73)
 
 ### `Address.claimableBalance(buffer)`
 
@@ -66,7 +66,7 @@ static claimableBalance(buffer: Buffer): Address;
 
 - **`buffer`** — `Buffer` (required) — The bytes of a claimable balance ID to parse.
 
-**Source:** [src/base/address.ts:80](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L80)
+**Source:** [src/base/address.ts:91](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L91)
 
 ### `Address.contract(buffer)`
 
@@ -80,7 +80,7 @@ static contract(buffer: Buffer): Address;
 
 - **`buffer`** — `Buffer` (required) — The bytes of an address to parse.
 
-**Source:** [src/base/address.ts:71](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L71)
+**Source:** [src/base/address.ts:82](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L82)
 
 ### `Address.fromScAddress(scAddress)`
 
@@ -94,7 +94,7 @@ static fromScAddress(scAddress: ScAddress): Address;
 
 - **`scAddress`** — `ScAddress` (required) — The xdr.ScAddress type to parse
 
-**Source:** [src/base/address.ts:116](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L116)
+**Source:** [src/base/address.ts:130](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L130)
 
 ### `Address.fromScVal(scVal)`
 
@@ -108,7 +108,7 @@ static fromScVal(scVal: ScVal): Address;
 
 - **`scVal`** — `ScVal` (required) — The xdr.ScVal type to parse
 
-**Source:** [src/base/address.ts:107](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L107)
+**Source:** [src/base/address.ts:118](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L118)
 
 ### `Address.fromString(address)`
 
@@ -122,7 +122,7 @@ static fromString(address: string): Address;
 
 - **`address`** — `string` (required) — The address to parse. ex. `GB3KJPLFUYN5VL6R3GU3EGCGVCKFDSD7BEDX42HWG5BWFKB3KQGJJRMA`
 
-**Source:** [src/base/address.ts:53](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L53)
+**Source:** [src/base/address.ts:64](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L64)
 
 ### `Address.liquidityPool(buffer)`
 
@@ -136,7 +136,7 @@ static liquidityPool(buffer: Buffer): Address;
 
 - **`buffer`** — `Buffer` (required) — The bytes of an LP ID to parse.
 
-**Source:** [src/base/address.ts:89](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L89)
+**Source:** [src/base/address.ts:100](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L100)
 
 ### `Address.muxedAccount(buffer)`
 
@@ -150,7 +150,7 @@ static muxedAccount(buffer: Buffer): Address;
 
 - **`buffer`** — `Buffer` (required) — The bytes of an address to parse.
 
-**Source:** [src/base/address.ts:98](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L98)
+**Source:** [src/base/address.ts:109](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L109)
 
 ### `address.type`
 
@@ -160,7 +160,7 @@ Return the type of this address.
 readonly type: AddressType;
 ```
 
-**Source:** [src/base/address.ts:219](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L219)
+**Source:** [src/base/address.ts:233](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L233)
 
 ### `address.toBuffer()`
 
@@ -170,7 +170,7 @@ Return the raw public key bytes for this address.
 toBuffer(): Buffer;
 ```
 
-**Source:** [src/base/address.ts:212](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L212)
+**Source:** [src/base/address.ts:226](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L226)
 
 ### `address.toScAddress()`
 
@@ -180,7 +180,7 @@ Convert this Address to an xdr.ScAddress type.
 toScAddress(): ScAddress;
 ```
 
-**Source:** [src/base/address.ts:174](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L174)
+**Source:** [src/base/address.ts:194](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L194)
 
 ### `address.toScVal()`
 
@@ -190,7 +190,7 @@ Convert this Address to an xdr.ScVal type.
 toScVal(): ScVal;
 ```
 
-**Source:** [src/base/address.ts:167](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L167)
+**Source:** [src/base/address.ts:187](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L187)
 
 ### `address.toString()`
 
@@ -200,7 +200,7 @@ Serialize an address to string.
 toString(): string;
 ```
 
-**Source:** [src/base/address.ts:147](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L147)
+**Source:** [src/base/address.ts:167](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L167)
 
 ## Contract
 
@@ -215,14 +215,14 @@ for more information about how contracts work in Stellar.
 class Contract {
   constructor(contractId: string);
   address(): Address;
-  call(method: string, ...params: ScVal[]): Operation2<InvokeHostFunctionResult>;
+  call(method: string, ...params: ScVal[]): Operation;
   contractId(): string;
   getFootprint(): LedgerKey;
   toString(): string;
 }
 ```
 
-**Source:** [src/base/contract.ts:14](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/contract.ts#L14)
+**Source:** [src/base/contract.ts:20](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/contract.ts#L20)
 
 ### `new Contract(contractId)`
 
@@ -235,7 +235,7 @@ constructor(contractId: string);
 - **`contractId`** — `string` (required) — ID of the contract (ex.
       `CA3D5KRYM6CB7OWQ6TWYRR3Z4T7GNZLKERYNZGGA5SOAOPIFY6YQGAXE`).
 
-**Source:** [src/base/contract.ts:21](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/contract.ts#L21)
+**Source:** [src/base/contract.ts:27](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/contract.ts#L27)
 
 ### `contract.address()`
 
@@ -245,14 +245,14 @@ Returns the wrapped address of this contract.
 address(): Address;
 ```
 
-**Source:** [src/base/contract.ts:44](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/contract.ts#L44)
+**Source:** [src/base/contract.ts:50](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/contract.ts#L50)
 
 ### `contract.call(method, params)`
 
 Returns an operation that will invoke this contract call.
 
 ```ts
-call(method: string, ...params: ScVal[]): Operation2<InvokeHostFunctionResult>;
+call(method: string, ...params: ScVal[]): Operation;
 ```
 
 **Parameters**
@@ -268,7 +268,7 @@ call(method: string, ...params: ScVal[]): Operation2<InvokeHostFunctionResult>;
  - Operation.createStellarAssetContract
  - Operation.uploadContractWasm
 
-**Source:** [src/base/contract.ts:60](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/contract.ts#L60)
+**Source:** [src/base/contract.ts:66](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/contract.ts#L66)
 
 ### `contract.contractId()`
 
@@ -279,7 +279,7 @@ Returns Stellar contract ID as a strkey, ex.
 contractId(): string;
 ```
 
-**Source:** [src/base/contract.ts:34](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/contract.ts#L34)
+**Source:** [src/base/contract.ts:40](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/contract.ts#L40)
 
 ### `contract.getFootprint()`
 
@@ -291,7 +291,7 @@ transaction's overall footprint or doing bump/restore operations.
 getFootprint(): LedgerKey;
 ```
 
-**Source:** [src/base/contract.ts:76](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/contract.ts#L76)
+**Source:** [src/base/contract.ts:79](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/contract.ts#L79)
 
 ### `contract.toString()`
 
@@ -301,7 +301,7 @@ Returns the ID as a strkey (C...).
 toString(): string;
 ```
 
-**Source:** [src/base/contract.ts:39](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/contract.ts#L39)
+**Source:** [src/base/contract.ts:45](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/contract.ts#L45)
 
 ## Soroban
 
@@ -352,7 +352,7 @@ formatTokenAmount("123000", 3) === "123.0";
 formatTokenAmount("123", 3) === "0.123";
 ```
 
-**Source:** [src/base/soroban.ts:21](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/soroban.ts#L21)
+**Source:** [src/base/soroban.ts:19](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/soroban.ts#L19)
 
 ### `Soroban.parseTokenAmount(value, decimals)`
 
@@ -384,7 +384,7 @@ const parsedAmtForSmartContract = parseTokenAmount(displayValueAmount, 5);
 parsedAmtForSmartContract === "12345600"
 ```
 
-**Source:** [src/base/soroban.ts:77](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/soroban.ts#L77)
+**Source:** [src/base/soroban.ts:73](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/soroban.ts#L73)
 
 ## SorobanDataBuilder
 
@@ -399,7 +399,7 @@ operations and need to `TransactionBuilder.setSorobanData` to avoid
 ```ts
 class SorobanDataBuilder {
   constructor(sorobanData?: string | Uint8Array<ArrayBufferLike> | Buffer<ArrayBufferLike> | SorobanTransactionData);
-  static fromXDR(data: string | Uint8Array<ArrayBufferLike> | Buffer<ArrayBufferLike>): SorobanTransactionData;
+  static fromXdr(data: string | Uint8Array<ArrayBufferLike> | Buffer<ArrayBufferLike>): SorobanTransactionData;
   appendFootprint(readOnly: LedgerKey[], readWrite: LedgerKey[]): SorobanDataBuilder;
   build(): SorobanTransactionData;
   getFootprint(): LedgerFootprint;
@@ -429,7 +429,7 @@ const newData = new SorobanDataBuilder()
   .build();
 ```
 
-**Source:** [src/base/sorobandata_builder.ts:29](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L29)
+**Source:** [src/base/sorobandata_builder.ts:34](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L34)
 
 ### `new SorobanDataBuilder(sorobanData)`
 
@@ -444,21 +444,21 @@ constructor(sorobanData?: string | Uint8Array<ArrayBufferLike> | Buffer<ArrayBuf
        (it will be copied); if omitted or "falsy" (e.g. an empty string), it
        starts with an empty instance
 
-**Source:** [src/base/sorobandata_builder.ts:38](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L38)
+**Source:** [src/base/sorobandata_builder.ts:43](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L43)
 
-### `SorobanDataBuilder.fromXDR(data)`
+### `SorobanDataBuilder.fromXdr(data)`
 
 Decodes and builds a `xdr.SorobanTransactionData` instance.
 
 ```ts
-static fromXDR(data: string | Uint8Array<ArrayBufferLike> | Buffer<ArrayBufferLike>): SorobanTransactionData;
+static fromXdr(data: string | Uint8Array<ArrayBufferLike> | Buffer<ArrayBufferLike>): SorobanTransactionData;
 ```
 
 **Parameters**
 
 - **`data`** — `string | Uint8Array<ArrayBufferLike> | Buffer<ArrayBufferLike>` (required) — raw input to decode
 
-**Source:** [src/base/sorobandata_builder.ts:71](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L71)
+**Source:** [src/base/sorobandata_builder.ts:76](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L76)
 
 ### `sorobanDataBuilder.appendFootprint(readOnly, readWrite)`
 
@@ -473,7 +473,7 @@ appendFootprint(readOnly: LedgerKey[], readWrite: LedgerKey[]): SorobanDataBuild
 - **`readOnly`** — `LedgerKey[]` (required) — read-only keys to add
 - **`readWrite`** — `LedgerKey[]` (required) — read-write keys to add
 
-**Source:** [src/base/sorobandata_builder.ts:119](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L119)
+**Source:** [src/base/sorobandata_builder.ts:139](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L139)
 
 ### `sorobanDataBuilder.build()`
 
@@ -483,7 +483,7 @@ Returns a copy of the final data structure.
 build(): SorobanTransactionData;
 ```
 
-**Source:** [src/base/sorobandata_builder.ts:186](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L186)
+**Source:** [src/base/sorobandata_builder.ts:220](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L220)
 
 ### `sorobanDataBuilder.getFootprint()`
 
@@ -493,7 +493,7 @@ Returns the storage access pattern.
 getFootprint(): LedgerFootprint;
 ```
 
-**Source:** [src/base/sorobandata_builder.ts:205](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L205)
+**Source:** [src/base/sorobandata_builder.ts:239](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L239)
 
 ### `sorobanDataBuilder.getReadOnly()`
 
@@ -503,7 +503,7 @@ Returns the read-only storage access pattern.
 getReadOnly(): LedgerKey[];
 ```
 
-**Source:** [src/base/sorobandata_builder.ts:195](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L195)
+**Source:** [src/base/sorobandata_builder.ts:229](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L229)
 
 ### `sorobanDataBuilder.getReadWrite()`
 
@@ -513,7 +513,7 @@ Returns the read-write storage access pattern.
 getReadWrite(): LedgerKey[];
 ```
 
-**Source:** [src/base/sorobandata_builder.ts:200](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L200)
+**Source:** [src/base/sorobandata_builder.ts:234](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L234)
 
 ### `sorobanDataBuilder.setFootprint(readOnly, readWrite)`
 
@@ -536,7 +536,7 @@ setFootprint(readOnly?: LedgerKey[] | null, readWrite?: LedgerKey[] | null): Sor
 - **`readOnly`** — `LedgerKey[] | null` (optional) — the set of ledger keys to set in the read-only portion of the transaction's `sorobanData`, or `null | undefined` to keep the existing keys
 - **`readWrite`** — `LedgerKey[] | null` (optional) — the set of ledger keys to set in the read-write portion of the transaction's `sorobanData`, or `null | undefined` to keep the existing keys
 
-**Source:** [src/base/sorobandata_builder.ts:143](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L143)
+**Source:** [src/base/sorobandata_builder.ts:163](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L163)
 
 ### `sorobanDataBuilder.setReadOnly(readOnly)`
 
@@ -550,7 +550,7 @@ setReadOnly(readOnly?: LedgerKey[]): SorobanDataBuilder;
 
 - **`readOnly`** — `LedgerKey[]` (optional) — read-only keys in the access footprint
 
-**Source:** [src/base/sorobandata_builder.ts:162](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L162)
+**Source:** [src/base/sorobandata_builder.ts:182](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L182)
 
 ### `sorobanDataBuilder.setReadWrite(readWrite)`
 
@@ -564,7 +564,7 @@ setReadWrite(readWrite?: LedgerKey[]): SorobanDataBuilder;
 
 - **`readWrite`** — `LedgerKey[]` (optional) — read-write keys in the access footprint
 
-**Source:** [src/base/sorobandata_builder.ts:175](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L175)
+**Source:** [src/base/sorobandata_builder.ts:202](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L202)
 
 ### `sorobanDataBuilder.setResourceFee(fee)`
 
@@ -578,7 +578,7 @@ setResourceFee(fee: IntLike): SorobanDataBuilder;
 
 - **`fee`** — `IntLike` (required) — the resource fee to set (int64)
 
-**Source:** [src/base/sorobandata_builder.ts:86](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L86)
+**Source:** [src/base/sorobandata_builder.ts:97](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L97)
 
 ### `sorobanDataBuilder.setResources(cpuInstrs, diskReadBytes, writeBytes)`
 
@@ -597,7 +597,7 @@ setResources(cpuInstrs: number, diskReadBytes: number, writeBytes: number): Soro
 - **`diskReadBytes`** — `number` (required) — number of bytes being read from disk
 - **`writeBytes`** — `number` (required) — number of bytes being written to disk/memory
 
-**Source:** [src/base/sorobandata_builder.ts:101](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L101)
+**Source:** [src/base/sorobandata_builder.ts:116](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L116)
 
 ## authorizeEntry
 
@@ -672,7 +672,7 @@ import {
 // transaction to a third-party service for signing, or just do simple
 // signing via Keypair like it does here:
 function signPayloadCallback(payload) {
-   return signer.sign(hash(payload.toXDR()));
+   return signer.sign(hash(payload.toXdr()));
 }
 
 function multiPartyAuth(
@@ -704,20 +704,9 @@ function multiPartyAuth(
 
 - authorizeInvocation
 
-**Source:** [src/base/auth.ts:134](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L134)
+**Source:** [src/base/auth.ts:146](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L146)
 
 ## authorizeInvocation
-
-This builds an entry from scratch, allowing you to express authorization as a
-function of:
-  - a particular identity (i.e. signing `Keypair` or other signer)
-  - approving the execution of an invocation tree (i.e. a simulation-acquired
-    `xdr.SorobanAuthorizedInvocation` or otherwise built)
-  - on a particular network (uniquely identified by its passphrase, see
-    `Networks`)
-  - until a particular ledger sequence is reached.
-
-This is in contrast to `authorizeEntry`, which signs an existing entry.
 
 ```ts
 authorizeInvocation(params: AuthorizeInvocationParams): Promise<SorobanAuthorizationEntry>
@@ -725,31 +714,9 @@ authorizeInvocation(params: AuthorizeInvocationParams): Promise<SorobanAuthoriza
 
 **Parameters**
 
-- **`params`** — `AuthorizeInvocationParams` (required) — the parameters for building and signing the authorization
-    - `signer`: either a `Keypair` instance (or anything with a
-     `.sign(buf): Buffer-like` method) or a function which takes a payload (a
-     `xdr.HashIdPreimageSorobanAuthorization` instance) input and returns
-     the signature of the hash of the raw payload bytes (where the signing key
-     should correspond to the address in the `entry`)
-    - `validUntilLedgerSeq`: the (exclusive) future ledger sequence
-     number until which this authorization entry should be valid (if
-     `currentLedgerSeq==validUntilLedgerSeq`, this is expired)
-    - `invocation`: the invocation tree that we're authorizing
-     (likely, this comes from transaction simulation)
-    - `networkPassphrase`: the network passphrase is incorporated into
-     the signature (see `Networks` for options)
-    - `publicKey`: the public identity of the signer (when providing a
-     `Keypair` to `signer`, this can be omitted, as it just uses
-     `Keypair.publicKey`)
-    - `authV2`: build `SOROBAN_CREDENTIALS_ADDRESS_V2` (CAP-71) credentials
-     rather than the legacy `SOROBAN_CREDENTIALS_ADDRESS`. Defaults to `false`;
-     only enable it for networks that have activated CAP-71.
+- **`params`** — `AuthorizeInvocationParams` (required)
 
-**See also**
-
-- authorizeEntry
-
-**Source:** [src/base/auth.ts:291](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L291)
+**Source:** [src/base/auth.ts:306](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L306)
 
 ## buildAuthorizationEntryPreimage
 
@@ -766,7 +733,7 @@ and `SOROBAN_CREDENTIALS_ADDRESS_WITH_DELEGATES` it is the address-bound
 delegates variant this single payload — bound to the *top-level* address — is
 what the top-level account and every (nested) delegate each sign.
 
-To get the raw bytes to sign, hash the XDR: `hash(preimage.toXDR())`.
+To get the raw bytes to sign, hash the XDR: `hash(preimage.toXdr())`.
 
 ```ts
 buildAuthorizationEntryPreimage(entry: SorobanAuthorizationEntry, validUntilLedgerSeq: number, networkPassphrase: string): HashIdPreimage
@@ -784,7 +751,7 @@ buildAuthorizationEntryPreimage(entry: SorobanAuthorizationEntry, validUntilLedg
 - `Error` if `entry` carries source-account or otherwise non-address
    credentials
 
-**Source:** [src/base/auth.ts:357](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L357)
+**Source:** [src/base/auth.ts:372](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L372)
 
 ## buildInvocationTree
 
@@ -812,7 +779,7 @@ buildInvocationTree(root: SorobanAuthorizedInvocation): InvocationTree
 Here, we show a browser modal after simulating an arbitrary transaction,
 `tx`, which we assume has an `Operation.invokeHostFunction` inside of it:
 
-```ts
+```typescript
 import { Server, buildInvocationTree } from '@stellar/stellar-sdk';
 
 const s = new Server("fill in accordingly");
@@ -837,7 +804,7 @@ s.simulateTransaction(tx).then(
 );
 ```
 
-**Source:** [src/base/invocation.ts:120](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L120)
+**Source:** [src/base/invocation.ts:124](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L124)
 
 ## buildWithDelegatesEntry
 
@@ -873,7 +840,7 @@ buildWithDelegatesEntry(params: BuildWithDelegatesParams): SorobanAuthorizationE
 - `Error` if `entry` is not an `ADDRESS`/`ADDRESS_V2` entry, or if any
    delegates array contains a duplicate address.
 
-**Source:** [src/base/auth.ts:467](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L467)
+**Source:** [src/base/auth.ts:479](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L479)
 
 ## humanizeEvents
 
@@ -895,7 +862,7 @@ humanizeEvents(events: ContractEvent[] | DiagnosticEvent[]): SorobanEvent[]
 - **`events`** — `ContractEvent[] | DiagnosticEvent[]` (required) — either contract events or diagnostic events to parse into a
      friendly format
 
-**Source:** [src/base/events.ts:48](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/events.ts#L48)
+**Source:** [src/base/events.ts:44](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/events.ts#L44)
 
 ## nativeToScVal
 
@@ -907,23 +874,23 @@ native JavaScript types.
 
 The conversions are as follows:
 
- - `xdr.ScVal` → passthrough
- - `null` / `undefined` → `scvVoid`
- - `string` → `scvString` (a copy is made)
- - `UintArray8` → `scvBytes` (a copy is made)
- - `boolean` → `scvBool`
+ - xdr.ScVal -> passthrough
+ - null/undefined -> scvVoid
+ - string -> scvString (a copy is made)
+ - UintArray8 -> scvBytes (a copy is made)
+ - boolean -> scvBool
 
- - `number` / `bigint` → the smallest possible XDR integer type that will fit
-   the input value (if you want a specific type, use `ScInt`)
+ - number/bigint -> the smallest possible XDR integer type that will fit the
+   input value (if you want a specific type, use `ScInt`)
 
- - `Address` or `Contract` → `scvAddress` (for contracts and
+ - `Address` or `Contract` -> scvAddress (for contracts and
    public keys)
 
- - `Array<T>` → `scvVec` after attempting to convert each item of type `T` to
-   an `xdr.ScVal` (recursively). note that all values must be the same type!
+ - Array<T> -> scvVec after attempting to convert each item of type `T` to an
+   xdr.ScVal (recursively). note that all values must be the same type!
 
- - `object` → `scvMap` after attempting to convert each key and value to an
-   `xdr.ScVal` (recursively). note that there is no restriction on types
+ - object -> scvMap after attempting to convert each key and value to an
+   xdr.ScVal (recursively). note that there is no restriction on types
    matching anywhere (unlike arrays)
 
 When passing an integer-like native value, you can also optionally specify a
@@ -941,28 +908,6 @@ nativeToScVal(val: unknown, opts: NativeToScValOpts = {}): ScVal
 - **`val`** — `unknown` (required) — a native (or convertible) input value to wrap
 - **`opts`** — `NativeToScValOpts` (optional) (default: `{}`) — an optional set of hints around the type of
      conversion you'd like to see
-    - `type`: there is different behavior for different input
-     types for `val`:
-  
-      - when `val` is an integer-like type (i.e. number|bigint), this will be
-        forwarded to `ScInt` or forced to be u32/i32.
-  
-      - when `val` is an array type, this is forwarded to the recursion
-  
-      - when `val` is an object type (key-value entries), this should be an
-        object in which each key has a pair of types (to represent forced types
-        for the key and the value), where `null` (or a missing entry) indicates
-        the default interpretation(s) (refer to the examples, below)
-  
-      - when `val` is a string type, this can be 'string' or 'symbol' to force
-        a particular interpretation of `val`.
-  
-      - when `val` is a bytes-like type, this can be 'string', 'symbol', or
-        'bytes' to force a particular interpretation
-  
-     As a simple example, `nativeToScVal("hello", {type: 'symbol'})` will
-     return an `scvSymbol`, whereas without the type it would have been an
-     `scvString`.
 
 **Throws**
 
@@ -1037,7 +982,7 @@ let gigaMap = {
 };
 
 // then, simply:
-let scv = nativeToScVal(gigaMap);    // scv.switch() == xdr.ScValType.scvMap()
+let scv = nativeToScVal(gigaMap);    // scv.type === "scvMap"
 
 // then...
 someContract.call("method", scv);
@@ -1050,23 +995,22 @@ scValToNative(scv) == gigaMap;       // true
 
 - scValToNative
 
-**Source:** [src/base/scval.ts:161](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L161)
+**Source:** [src/base/scval.ts:164](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L164)
 
 ## scValToNative
 
 Given a smart contract value, attempt to convert it to a native type.
 Possible conversions include:
 
- - `void` → `null`
- - `u32`, `i32` → `number`
- - `u64`, `i64`, `u128`, `i128`, `u256`, `i256`, `timepoint`, `duration` →
-   `bigint`
- - `vec` → `Array` of any of the above (via recursion)
- - `map` → key-value object of any of the above (via recursion)
- - `bool` → `boolean`
- - `bytes` → `Uint8Array`
- - `symbol` → `string`
- - `string` → `string` IF the underlying buffer can be decoded as ascii/utf8,
+ - void -> `null`
+ - u32, i32 -> `number`
+ - u64, i64, u128, i128, u256, i256, timepoint, duration -> `bigint`
+ - vec -> `Array` of any of the above (via recursion)
+ - map -> key-value object of any of the above (via recursion)
+ - bool -> `boolean`
+ - bytes -> `Uint8Array`
+ - symbol -> `string`
+ - string -> `string` IF the underlying buffer can be decoded as ascii/utf8,
              `Uint8Array` of the raw contents in any error case
 
 If no viable conversion can be determined, this just "unwraps" the smart
@@ -1084,7 +1028,7 @@ scValToNative(scv: ScVal): any
 
 - nativeToScVal
 
-**Source:** [src/base/scval.ts:375](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L375)
+**Source:** [src/base/scval.ts:378](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L378)
 
 ## scvSortedMap
 
@@ -1098,7 +1042,7 @@ scvSortedMap(items: ScMapEntry[]): ScVal
 
 - **`items`** — `ScMapEntry[]` (required) — the unsorted map entries
 
-**Source:** [src/base/scval.ts:487](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L487)
+**Source:** [src/base/scval.ts:475](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L475)
 
 ## walkInvocationTree
 
@@ -1117,11 +1061,22 @@ walkInvocationTree(root: SorobanAuthorizedInvocation, callback: InvocationWalker
 - **`root`** — `SorobanAuthorizedInvocation` (required) — the tree to explore
 - **`callback`** — `InvocationWalker` (required) — the callback to execute for each node
 
-**Source:** [src/base/invocation.ts:229](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L229)
+**Source:** [src/base/invocation.ts:221](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L221)
 
 ## Types
 
 ### AuthorizeInvocationParams
+
+This builds an entry from scratch, allowing you to express authorization as a
+function of:
+  - a particular identity (i.e. signing `Keypair` or other signer)
+  - approving the execution of an invocation tree (i.e. a simulation-acquired
+    `xdr.SorobanAuthorizedInvocation` or otherwise built)
+  - on a particular network (uniquely identified by its passphrase, see
+    `Networks`)
+  - until a particular ledger sequence is reached.
+
+This is in contrast to `authorizeEntry`, which signs an existing entry.
 
 ```ts
 interface AuthorizeInvocationParams {
@@ -1134,7 +1089,11 @@ interface AuthorizeInvocationParams {
 }
 ```
 
-**Source:** [src/base/auth.ts:241](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L241)
+**See also**
+
+- authorizeEntry
+
+**Source:** [src/base/auth.ts:289](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L289)
 
 #### `authorizeInvocationParams.authV2`
 
@@ -1148,7 +1107,7 @@ network. The default flips to `true` once V2 becomes mandatory.
 authV2?: boolean;
 ```
 
-**Source:** [src/base/auth.ts:255](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L255)
+**Source:** [src/base/auth.ts:303](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L303)
 
 #### `authorizeInvocationParams.invocation`
 
@@ -1156,7 +1115,7 @@ authV2?: boolean;
 invocation: SorobanAuthorizedInvocation;
 ```
 
-**Source:** [src/base/auth.ts:244](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L244)
+**Source:** [src/base/auth.ts:292](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L292)
 
 #### `authorizeInvocationParams.networkPassphrase`
 
@@ -1164,7 +1123,7 @@ invocation: SorobanAuthorizedInvocation;
 networkPassphrase: string;
 ```
 
-**Source:** [src/base/auth.ts:245](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L245)
+**Source:** [src/base/auth.ts:293](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L293)
 
 #### `authorizeInvocationParams.publicKey`
 
@@ -1172,7 +1131,7 @@ networkPassphrase: string;
 publicKey?: string;
 ```
 
-**Source:** [src/base/auth.ts:246](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L246)
+**Source:** [src/base/auth.ts:294](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L294)
 
 #### `authorizeInvocationParams.signer`
 
@@ -1180,7 +1139,7 @@ publicKey?: string;
 signer: Keypair | SigningCallback;
 ```
 
-**Source:** [src/base/auth.ts:242](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L242)
+**Source:** [src/base/auth.ts:290](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L290)
 
 #### `authorizeInvocationParams.validUntilLedgerSeq`
 
@@ -1188,7 +1147,7 @@ signer: Keypair | SigningCallback;
 validUntilLedgerSeq: number;
 ```
 
-**Source:** [src/base/auth.ts:243](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L243)
+**Source:** [src/base/auth.ts:291](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L291)
 
 ### BuildWithDelegatesParams
 
@@ -1203,7 +1162,7 @@ interface BuildWithDelegatesParams {
 }
 ```
 
-**Source:** [src/base/auth.ts:425](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L425)
+**Source:** [src/base/auth.ts:437](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L437)
 
 #### `buildWithDelegatesParams.delegates`
 
@@ -1213,7 +1172,7 @@ the delegate signers to attach.
 delegates: DelegateSignature[];
 ```
 
-**Source:** [src/base/auth.ts:435](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L435)
+**Source:** [src/base/auth.ts:447](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L447)
 
 #### `buildWithDelegatesParams.entry`
 
@@ -1225,7 +1184,7 @@ simulation — whose address credentials should be wrapped.
 entry: SorobanAuthorizationEntry;
 ```
 
-**Source:** [src/base/auth.ts:431](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L431)
+**Source:** [src/base/auth.ts:443](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L443)
 
 #### `buildWithDelegatesParams.signature`
 
@@ -1236,7 +1195,7 @@ for accounts that authorize purely via delegated signers (CAP-71-01).
 signature?: ScVal;
 ```
 
-**Source:** [src/base/auth.ts:440](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L440)
+**Source:** [src/base/auth.ts:452](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L452)
 
 #### `buildWithDelegatesParams.validUntilLedgerSeq`
 
@@ -1246,7 +1205,7 @@ the expiration ledger sequence stored on the top-level credentials.
 validUntilLedgerSeq: number;
 ```
 
-**Source:** [src/base/auth.ts:433](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L433)
+**Source:** [src/base/auth.ts:445](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L445)
 
 ### CreateInvocation
 
@@ -1261,12 +1220,12 @@ Details about a contract creation invocation.
 ```ts
 interface CreateInvocation {
   asset?: string;
-  type: "sac" | "wasm";
+  type: "wasm" | "sac";
   wasm?: WasmCreateDetails;
 }
 ```
 
-**Source:** [src/base/invocation.ts:23](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L23)
+**Source:** [src/base/invocation.ts:27](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L27)
 
 #### `createInvocation.asset`
 
@@ -1274,15 +1233,15 @@ interface CreateInvocation {
 asset?: string;
 ```
 
-**Source:** [src/base/invocation.ts:25](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L25)
+**Source:** [src/base/invocation.ts:29](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L29)
 
 #### `createInvocation.type`
 
 ```ts
-type: "sac" | "wasm";
+type: "wasm" | "sac";
 ```
 
-**Source:** [src/base/invocation.ts:24](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L24)
+**Source:** [src/base/invocation.ts:28](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L28)
 
 #### `createInvocation.wasm`
 
@@ -1290,7 +1249,7 @@ type: "sac" | "wasm";
 wasm?: WasmCreateDetails;
 ```
 
-**Source:** [src/base/invocation.ts:26](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L26)
+**Source:** [src/base/invocation.ts:30](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L30)
 
 ### DelegateSignature
 
@@ -1306,7 +1265,7 @@ interface DelegateSignature {
 }
 ```
 
-**Source:** [src/base/auth.ts:411](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L411)
+**Source:** [src/base/auth.ts:423](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L423)
 
 #### `delegateSignature.address`
 
@@ -1316,7 +1275,7 @@ the delegate's address (`G…` account or `C…` contract).
 address: string;
 ```
 
-**Source:** [src/base/auth.ts:413](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L413)
+**Source:** [src/base/auth.ts:425](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L425)
 
 #### `delegateSignature.nestedDelegates`
 
@@ -1326,7 +1285,7 @@ signers this delegate in turn delegates to (recursive).
 nestedDelegates?: DelegateSignature[];
 ```
 
-**Source:** [src/base/auth.ts:421](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L421)
+**Source:** [src/base/auth.ts:433](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L433)
 
 #### `delegateSignature.signature`
 
@@ -1338,7 +1297,7 @@ as `forAddress`) or by editing the entry directly.
 signature?: ScVal;
 ```
 
-**Source:** [src/base/auth.ts:419](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L419)
+**Source:** [src/base/auth.ts:431](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L431)
 
 ### ExecuteInvocation
 
@@ -1357,7 +1316,7 @@ interface ExecuteInvocation {
 }
 ```
 
-**Source:** [src/base/invocation.ts:37](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L37)
+**Source:** [src/base/invocation.ts:41](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L41)
 
 #### `executeInvocation.args`
 
@@ -1365,7 +1324,7 @@ interface ExecuteInvocation {
 args: any[];
 ```
 
-**Source:** [src/base/invocation.ts:41](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L41)
+**Source:** [src/base/invocation.ts:45](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L45)
 
 #### `executeInvocation.function`
 
@@ -1373,7 +1332,7 @@ args: any[];
 function: string;
 ```
 
-**Source:** [src/base/invocation.ts:39](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L39)
+**Source:** [src/base/invocation.ts:43](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L43)
 
 #### `executeInvocation.source`
 
@@ -1381,7 +1340,7 @@ function: string;
 source: string;
 ```
 
-**Source:** [src/base/invocation.ts:38](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L38)
+**Source:** [src/base/invocation.ts:42](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L42)
 
 ### IntLike
 
@@ -1389,7 +1348,7 @@ source: string;
 type IntLike = bigint | number | string
 ```
 
-**Source:** [src/base/sorobandata_builder.ts:3](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L3)
+**Source:** [src/base/sorobandata_builder.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L10)
 
 ### InvocationTree
 
@@ -1409,7 +1368,7 @@ interface InvocationTree {
 }
 ```
 
-**Source:** [src/base/invocation.ts:53](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L53)
+**Source:** [src/base/invocation.ts:57](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L57)
 
 #### `invocationTree.args`
 
@@ -1417,7 +1376,7 @@ interface InvocationTree {
 args: CreateInvocation | ExecuteInvocation;
 ```
 
-**Source:** [src/base/invocation.ts:55](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L55)
+**Source:** [src/base/invocation.ts:59](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L59)
 
 #### `invocationTree.invocations`
 
@@ -1425,7 +1384,7 @@ args: CreateInvocation | ExecuteInvocation;
 invocations: InvocationTree[];
 ```
 
-**Source:** [src/base/invocation.ts:56](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L56)
+**Source:** [src/base/invocation.ts:60](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L60)
 
 #### `invocationTree.type`
 
@@ -1433,7 +1392,7 @@ invocations: InvocationTree[];
 type: "create" | "execute";
 ```
 
-**Source:** [src/base/invocation.ts:54](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L54)
+**Source:** [src/base/invocation.ts:58](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L58)
 
 ### InvocationWalker
 
@@ -1443,10 +1402,10 @@ Returning exactly `false` is a hint to stop exploring deeper from this node;
 other return values are ignored.
 
 ```ts
-type InvocationWalker = (node: xdr.SorobanAuthorizedInvocation, depth: number, parent?: xdr.SorobanAuthorizedInvocation) => boolean | null | void
+type InvocationWalker = (node: SorobanAuthorizedInvocation, depth: number, parent?: SorobanAuthorizedInvocation) => boolean | null | void
 ```
 
-**Source:** [src/base/invocation.ts:71](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L71)
+**Source:** [src/base/invocation.ts:75](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L75)
 
 ### NativeToScValOpts
 
@@ -1456,7 +1415,7 @@ interface NativeToScValOpts {
 }
 ```
 
-**Source:** [src/base/scval.ts:18](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L18)
+**Source:** [src/base/scval.ts:25](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L25)
 
 #### `nativeToScValOpts.type`
 
@@ -1464,7 +1423,7 @@ interface NativeToScValOpts {
 type?: ScValType | ScValMapTypeSpec | ScValType | null[];
 ```
 
-**Source:** [src/base/scval.ts:19](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L19)
+**Source:** [src/base/scval.ts:26](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L26)
 
 ### SigningCallback
 
@@ -1472,10 +1431,10 @@ A callback for signing an XDR structure representing all of the details
 necessary to authorize an invocation tree.
 
 ```ts
-type SigningCallback = (preimage: xdr.HashIdPreimage) => Promise<BufferLike | { publicKey: string; signature: BufferLike }>
+type SigningCallback = (preimage: HashIdPreimage) => Promise<BufferLike | { publicKey: string; signature: BufferLike }>
 ```
 
-**Source:** [src/base/auth.ts:35](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L35)
+**Source:** [src/base/auth.ts:47](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L47)
 
 ### WasmCreateDetails
 
@@ -1488,7 +1447,7 @@ interface WasmCreateDetails {
 }
 ```
 
-**Source:** [src/base/invocation.ts:6](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L6)
+**Source:** [src/base/invocation.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L10)
 
 #### `wasmCreateDetails.address`
 
@@ -1496,7 +1455,7 @@ interface WasmCreateDetails {
 address: string;
 ```
 
-**Source:** [src/base/invocation.ts:8](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L8)
+**Source:** [src/base/invocation.ts:12](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L12)
 
 #### `wasmCreateDetails.constructorArgs`
 
@@ -1504,7 +1463,7 @@ address: string;
 constructorArgs?: any[];
 ```
 
-**Source:** [src/base/invocation.ts:11](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L11)
+**Source:** [src/base/invocation.ts:15](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L15)
 
 #### `wasmCreateDetails.hash`
 
@@ -1512,7 +1471,7 @@ constructorArgs?: any[];
 hash: string;
 ```
 
-**Source:** [src/base/invocation.ts:7](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L7)
+**Source:** [src/base/invocation.ts:11](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L11)
 
 #### `wasmCreateDetails.salt`
 
@@ -1520,4 +1479,4 @@ hash: string;
 salt: string;
 ```
 
-**Source:** [src/base/invocation.ts:9](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L9)
+**Source:** [src/base/invocation.ts:13](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L13)

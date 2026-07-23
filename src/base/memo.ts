@@ -1,7 +1,6 @@
-import { UnsignedHyper } from "@stellar/js-xdr";
 import CustomBigNumber from "./util/bignumber.js";
 import type { BigNumber } from "./util/bignumber.js";
-import xdr from "./xdr.js";
+import { Hash as XdrHash, Memo as XdrMemo, Uint64 } from "../xdr/index.js";
 
 /**
  * Type of {@link Memo}.
@@ -44,7 +43,7 @@ export type MemoType =
   | MemoTypeReturn
   | MemoTypeText;
 
-export type MemoValue = Buffer | string | null;
+export type MemoValue = Buffer | string | null | Uint8Array;
 
 type MemoValueMap = {
   [MemoNone]: null;
@@ -116,7 +115,7 @@ export class Memo<T extends MemoType = MemoType> {
    * Contains memo value:
    * * `null` for `MemoNone`,
    * * `string` for `MemoID`,
-   * * `Buffer` for `MemoText` after decoding using `fromXDRObject`, original value otherwise,
+   * * `Buffer` for `MemoText` after decoding using `fromXdrObject`, original value otherwise,
    * * `Buffer` for `MemoHash`, `MemoReturn`.
    */
   get value(): MemoTypeToValue<T> {
@@ -188,16 +187,15 @@ export class Memo<T extends MemoType = MemoType> {
   private static _validateTextValue(value: MemoValue): void {
     if (typeof value === "string") {
       if (Buffer.byteLength(value, "utf8") > 28) {
-        throw new Error("Expects string, array or buffer, max 28 bytes");
+        throw new Error("Expects string or Uint8Array, max 28 bytes");
       }
-    } else if (Buffer.isBuffer(value)) {
+    } else if (value instanceof Uint8Array) {
+      // Covers Buffer too — it's a Uint8Array subclass.
       if (value.length > 28) {
-        throw new Error("Expects string, array or buffer, max 28 bytes");
+        throw new Error("Expects string or Uint8Array, max 28 bytes");
       }
     } else {
-      if (!(xdr.Memo as any).armTypeForArm("text").isValid(value)) {
-        throw new Error("Expects string, array or buffer, max 28 bytes");
-      }
+      throw new Error("Expects string or Uint8Array, max 28 bytes");
     }
   }
 
@@ -237,10 +235,11 @@ export class Memo<T extends MemoType = MemoType> {
   /**
    * Creates and returns a `MemoText` memo.
    *
-   * @param text - memo text
+   * @param text - memo text. A JS string is UTF-8 encoded on the wire;
+   *   pass a `Buffer`/`Uint8Array` for byte-exact content.
    */
-  static text(text: string): Memo<MemoTypeText> {
-    return new Memo(MemoText, text);
+  static text(text: string | Buffer | Uint8Array): Memo<MemoTypeText> {
+    return new Memo(MemoText, text as MemoValue);
   }
 
   /**
@@ -273,22 +272,21 @@ export class Memo<T extends MemoType = MemoType> {
   /**
    * Returns XDR memo object.
    */
-  toXDRObject(): xdr.Memo {
+  toXdrObject(): XdrMemo {
     switch (this._type) {
       case MemoNone:
-        return xdr.Memo.memoNone();
+        return XdrMemo.memoNone();
       case MemoID:
-        return xdr.Memo.memoId(
-          xdr.Uint64.fromString(
-            UnsignedHyper.fromString(this._value as string).toString(),
-          ),
-        );
+        return XdrMemo.memoId(Uint64.fromString(this._value as string));
       case MemoText:
-        return xdr.Memo.memoText(this._value as string);
+        // The XDR `string<28>` type accepts either a JS string (UTF-8 encoded)
+        // or a Uint8Array (byte-exact). Memo.text may have been constructed
+        // with either, so forward as-is.
+        return XdrMemo.memoText(this._value as string);
       case MemoHash:
-        return xdr.Memo.memoHash(this._value as Buffer);
+        return XdrMemo.memoHash(new XdrHash(this._value as Buffer));
       case MemoReturn:
-        return xdr.Memo.memoReturn(this._value as Buffer);
+        return XdrMemo.memoReturn(new XdrHash(this._value as Buffer));
       default:
         throw new Error("Invalid memo type");
     }
@@ -299,22 +297,20 @@ export class Memo<T extends MemoType = MemoType> {
    *
    * @param object - XDR memo object
    */
-  static fromXDRObject(object: xdr.Memo): Memo {
-    switch (object.switch()) {
-      case xdr.MemoType.memoId():
-        return Memo.id(object.id().toString());
-      case xdr.MemoType.memoText():
-        return Memo.text(object.value() as string);
-      case xdr.MemoType.memoHash():
-        return Memo.hash(object.hash());
-      case xdr.MemoType.memoReturn():
-        return Memo.return(object.retHash());
+  static fromXdrObject(object: XdrMemo): Memo {
+    switch (object.type) {
+      case "memoId":
+        return Memo.id(object.value.toString());
+      case "memoText":
+        return Memo.text(Buffer.from(object.text.bytes));
+      case "memoHash":
+        return Memo.hash(Buffer.from(object.value.toBytes()));
+      case "memoReturn":
+        return Memo.return(Buffer.from(object.value.toBytes()));
+      case "memoNone":
+        return Memo.none();
       default:
         break;
-    }
-
-    if (typeof object.value() === "undefined") {
-      return Memo.none();
     }
 
     throw new Error("Unknown type");

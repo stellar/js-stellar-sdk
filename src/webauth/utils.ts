@@ -55,11 +55,16 @@ export function gatherTxSigners(
     for (let i = 0; i < txSignatures.length; i++) {
       const decSig = txSignatures[i];
 
-      if (!decSig.hint().equals(keypair.signatureHint())) {
+      if (!Buffer.from(decSig.hint.toBytes()).equals(keypair.signatureHint())) {
         continue;
       }
 
-      if (keypair.verify(hashedSignatureBase, decSig.signature())) {
+      if (
+        keypair.verify(
+          hashedSignatureBase,
+          Buffer.from(decSig.signature.toBytes()),
+        )
+      ) {
         signersFound.add(signer);
         txSignatures.splice(i, 1);
         break;
@@ -74,8 +79,8 @@ export function gatherTxSigners(
  * Verifies if a transaction was signed by the given account id.
  *
  * @param transaction - The signed transaction.
- * @param accountID - The signer's public key.
- * @returns Whether or not `accountID` was found to have signed the
+ * @param accountId - The signer's public key.
+ * @returns Whether or not `accountId` was found to have signed the
  *    transaction.
  *
  * @example
@@ -93,9 +98,9 @@ export function gatherTxSigners(
  */
 export function verifyTxSignedBy(
   transaction: FeeBumpTransaction | Transaction,
-  accountID: string,
+  accountId: string,
 ): boolean {
-  return gatherTxSigners(transaction, [accountID]).length !== 0;
+  return gatherTxSigners(transaction, [accountId]).length !== 0;
 }
 
 /**

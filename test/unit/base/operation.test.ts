@@ -1,12 +1,12 @@
 import { describe, it, expect } from "vitest";
-import xdr from "../../../src/base/xdr.js";
+import * as xdr from "../../../src/xdr/index.js";
 import {
   checkUnsignedIntValue,
-  fromXDRAmount,
-  fromXDRPrice,
+  fromXdrAmount,
+  fromXdrPrice,
   isValidAmount,
-  toXDRAmount,
-  toXDRPrice,
+  toXdrAmount,
+  toXdrPrice,
 } from "../../../src/base/util/operations.js";
 
 describe("checkUnsignedIntValue()", () => {
@@ -97,84 +97,82 @@ describe("isValidAmount()", () => {
   });
 });
 
-describe("fromXDRAmount()", () => {
+describe("fromXdrAmount()", () => {
   it("correctly parses XDR amounts", () => {
-    expect(fromXDRAmount(xdr.Int64.fromString("1"))).toBe("0.0000001");
-    expect(fromXDRAmount(xdr.Int64.fromString("10000000"))).toBe("1.0000000");
-    expect(fromXDRAmount(xdr.Int64.fromString("10000000000"))).toBe(
-      "1000.0000000",
-    );
-    expect(fromXDRAmount(xdr.Int64.fromString("1000000000000000000"))).toBe(
+    expect(fromXdrAmount(BigInt("1"))).toBe("0.0000001");
+    expect(fromXdrAmount(BigInt("10000000"))).toBe("1.0000000");
+    expect(fromXdrAmount(BigInt("10000000000"))).toBe("1000.0000000");
+    expect(fromXdrAmount(BigInt("1000000000000000000"))).toBe(
       "100000000000.0000000",
     );
   });
 });
 
-describe("toXDRAmount()", () => {
+describe("toXdrAmount()", () => {
   it("correctly converts string amounts to XDR Int64", () => {
-    expect(toXDRAmount("0.0000001").toString()).toBe("1");
-    expect(toXDRAmount("1.0000000").toString()).toBe("10000000");
-    expect(toXDRAmount("1000.0000000").toString()).toBe("10000000000");
-    expect(toXDRAmount("100000000000.0000000").toString()).toBe(
+    expect(toXdrAmount("0.0000001").toString()).toBe("1");
+    expect(toXdrAmount("1.0000000").toString()).toBe("10000000");
+    expect(toXdrAmount("1000.0000000").toString()).toBe("10000000000");
+    expect(toXdrAmount("100000000000.0000000").toString()).toBe(
       "1000000000000000000",
     );
   });
 });
 
-describe("fromXDRPrice()", () => {
+describe("fromXdrPrice()", () => {
   it("converts an XDR Price to a decimal string", () => {
-    expect(fromXDRPrice(new xdr.Price({ n: 1, d: 2 }))).toBe("0.5");
-    expect(fromXDRPrice(new xdr.Price({ n: 11, d: 10 }))).toBe("1.1");
-    expect(fromXDRPrice(new xdr.Price({ n: 1, d: 1 }))).toBe("1");
+    expect(fromXdrPrice(new xdr.Price({ n: 1, d: 2 }))).toBe("0.5");
+    expect(fromXdrPrice(new xdr.Price({ n: 11, d: 10 }))).toBe("1.1");
+    expect(fromXdrPrice(new xdr.Price({ n: 1, d: 1 }))).toBe("1");
   });
 });
 
-describe("toXDRPrice()", () => {
+describe("toXdrPrice()", () => {
   it("converts a string price to XDR", () => {
-    const price = toXDRPrice("0.5");
-    expect(price.n() / price.d()).toBeCloseTo(0.5);
+    const price = toXdrPrice("0.5");
+    expect(price.n / price.d).toBeCloseTo(0.5);
   });
 
   it("converts a number price to XDR", () => {
-    const price = toXDRPrice(1.5);
-    expect(price.n() / price.d()).toBeCloseTo(1.5);
+    const price = toXdrPrice(1.5);
+    expect(price.n / price.d).toBeCloseTo(1.5);
   });
 
   it("converts a {n, d} fraction to XDR", () => {
-    const price = toXDRPrice({ n: 11, d: 10 });
-    expect(price.n()).toBe(11);
-    expect(price.d()).toBe(10);
+    const price = toXdrPrice({ n: 11, d: 10 });
+    expect(price.n).toBe(11);
+    expect(price.d).toBe(10);
   });
 
   it("throws for a negative price", () => {
-    expect(() => toXDRPrice({ n: -1, d: 10 })).toThrow(
+    expect(() => toXdrPrice({ n: -1, d: 10 })).toThrow(
       /price must be positive/,
     );
-    expect(() => toXDRPrice({ n: 1, d: -10 })).toThrow(
+    expect(() => toXdrPrice({ n: 1, d: -10 })).toThrow(
       /price must be positive/,
     );
   });
 
   it("throws for a zero denominator", () => {
-    expect(() => toXDRPrice({ n: 1, d: 0 })).toThrow(/price must be positive/);
-    expect(() => toXDRPrice({ n: 0, d: 0 })).toThrow(/price must be positive/);
+    expect(() => toXdrPrice({ n: 1, d: 0 })).toThrow(/price must be positive/);
+    expect(() => toXdrPrice({ n: 0, d: 0 })).toThrow(/price must be positive/);
   });
 
   it("throws 'price must be positive' for zero numeric price", () => {
-    expect(() => toXDRPrice("0")).toThrow(/price must be positive/);
-    expect(() => toXDRPrice(0)).toThrow(/price must be positive/);
+    expect(() => toXdrPrice("0")).toThrow(/price must be positive/);
+    expect(() => toXdrPrice(0)).toThrow(/price must be positive/);
   });
 
   it("throws for non-numeric string inputs", () => {
-    expect(() => toXDRPrice("abc")).toThrow(/not a number/i);
-    expect(() => toXDRPrice("")).toThrow(/not a number/i);
+    expect(() => toXdrPrice("abc")).toThrow(/not a number/i);
+    expect(() => toXdrPrice("")).toThrow(/not a number/i);
   });
 
   it("throws 'price must be positive' for NaN input", () => {
-    expect(() => toXDRPrice(NaN)).toThrow(/price must be positive/);
+    expect(() => toXdrPrice(NaN)).toThrow(/price must be positive/);
   });
 
   it("throws 'price must be positive' for Infinity input", () => {
-    expect(() => toXDRPrice(Infinity)).toThrow(/price must be positive/);
+    expect(() => toXdrPrice(Infinity)).toThrow(/price must be positive/);
   });
 });

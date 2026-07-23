@@ -1,9 +1,10 @@
-import { Operation, xdr, Address } from "../base/index.js";
+import { Operation, Address } from "../base/index.js";
 import { Spec } from "./spec.js";
 import { Server } from "../rpc/index.js";
 import { AssembledTransaction } from "./assembled_transaction.js";
 import type { ClientOptions, MethodOptions } from "./types.js";
 import { sanitizeIdentifier } from "../bindings/utils.js";
+import { ScVal } from "../xdr/index.js";
 
 const CONSTRUCTOR_FUNC = "__constructor";
 
@@ -103,7 +104,7 @@ export class Client {
     }
 
     this.spec.funcs().forEach((xdrFn) => {
-      const method = xdrFn.name().toString();
+      const method = xdrFn.name.toString();
       if (method === CONSTRUCTOR_FUNC) {
         return;
       }
@@ -119,17 +120,17 @@ export class Client {
           errorTypes: spec.errorCases().reduce(
             (acc, curr) => ({
               ...acc,
-              [curr.value()]: { message: curr.doc().toString() },
+              [curr.value]: { message: curr.doc.toString() },
             }),
             {} as Pick<ClientOptions, "errorTypes">,
           ),
-          parseResultXdr: (result: xdr.ScVal) =>
+          parseResultXdr: (result: ScVal) =>
             spec.funcResToNative(method, result),
         });
 
       // @ts-expect-error error TS7053: Element implicitly has an 'any' type
       this[sanitizeIdentifier(method)] =
-        spec.getFunc(method).inputs().length === 0
+        spec.getFunc(method).inputs.length === 0
           ? (opts?: MethodOptions) => assembleTransaction(undefined, opts)
           : assembleTransaction;
     });
@@ -248,37 +249,42 @@ export class Client {
       });
 
     const instance = await server.getContractInstance(contractId);
+    const executable = instance.executable;
 
-    if (
-      instance.executable().switch() ===
-      xdr.ContractExecutableType.contractExecutableStellarAsset()
-    ) {
+    if (executable.type === "contractExecutableStellarAsset") {
       // Lazily load the (large) embedded SAC spec so bundlers can code-split
       // it out of the common path; it's only needed for built-in SACs.
       const { SAC_SPEC } = await import("../bindings/sac-spec.js");
       return new Client(new Spec(SAC_SPEC), options) as unknown as Client & T;
     }
 
+    // The only remaining executable kind is a Wasm contract, whose executable
+    // value is the code hash.
     const wasm = await server.getContractWasmByHash(
-      instance.executable().wasmHash(),
+      Buffer.from(executable.value.value),
     );
 
     return Client.fromWasm<T>(wasm, options);
   }
 
-  txFromJSON = <T>(json: string): AssembledTransaction<T> => {
+  txFromJson = <T>(json: string): AssembledTransaction<T> => {
     const { method, ...tx } = JSON.parse(json);
-    return AssembledTransaction.fromJSON(
+    return AssembledTransaction.fromJson(
       {
         ...this.options,
         method,
-        parseResultXdr: (result: xdr.ScVal) =>
+        parseResultXdr: (result: ScVal) =>
           this.spec.funcResToNative(method, result),
       },
       tx,
     );
   };
 
+  /**
+   * @deprecated Use {@link txFromJson} instead.
+   */
+  txFromJSON = this.txFromJson;
+
   txFromXDR = <T>(xdrBase64: string): AssembledTransaction<T> =>
-    AssembledTransaction.fromXDR(this.options, xdrBase64, this.spec);
+    AssembledTransaction.fromXdr(this.options, xdrBase64, this.spec);
 }

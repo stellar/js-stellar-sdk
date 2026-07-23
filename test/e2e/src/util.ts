@@ -110,6 +110,7 @@ const installContract = async (
   const internalKeypair = keypair ?? (await generateFundedKeypair());
 
   let wasmHash = contracts[name].hash;
+
   if (!wasmHash) {
     wasmHash = run(
       `${stellar} contract upload --wasm ${contracts[name].path}`,

@@ -13,15 +13,19 @@ import * as StellarSdk from "../../../../src/index.js";
 
 const {
   Account,
+  Contract,
   Keypair,
   Networks,
+  Operation,
   rpc,
   SorobanDataBuilder,
+  TransactionBuilder,
+  TimeoutInfinite,
   authorizeInvocation,
   authorizeEntry,
   xdr,
 } = StellarSdk;
-const { Server, parseRawSimulation } = StellarSdk.rpc;
+const { Server, parseRawSimulation } = rpc;
 
 const randomSecret = Keypair.random().secret();
 const networkPassphrase = Networks.TESTNET;
@@ -35,18 +39,18 @@ function cloneSimulation(sim: any) {
     transactionData: new SorobanDataBuilder(sim.transactionData.build()),
     result: {
       auth: sim.result.auth.map((entry: any) =>
-        xdr.SorobanAuthorizationEntry.fromXDR(entry.toXDR()),
+        xdr.SorobanAuthorizationEntry.fromXdr(entry.toXdr()),
       ),
-      retval: xdr.ScVal.fromXDR(sim.result.retval.toXDR()),
+      retval: xdr.ScVal.fromXdr(sim.result.retval.toXdr()),
     },
     stateChanges: sim.stateChanges?.map((change: any) => ({
       type: change.type,
-      key: xdr.LedgerKey.fromXDR(change.key.toXDR()),
+      key: xdr.LedgerKey.fromXdr(change.key.toXdr()),
       before: change.before
-        ? xdr.LedgerEntry.fromXDR(change.before.toXDR())
+        ? xdr.LedgerEntry.fromXdr(change.before.toXdr())
         : null,
       after: change.after
-        ? xdr.LedgerEntry.fromXDR(change.after.toXDR())
+        ? xdr.LedgerEntry.fromXdr(change.after.toXdr())
         : null,
     })),
     _parsed: sim._parsed,
@@ -61,7 +65,7 @@ function baseSimulationResponse(results?: any) {
     events: [],
     latestLedger: 3,
     minResourceFee: "15",
-    transactionData: new SorobanDataBuilder().build().toXDR("base64"),
+    transactionData: new SorobanDataBuilder().build().toXdr("base64"),
     ...(results !== undefined && { results }),
     stateChanges: [
       {
@@ -70,43 +74,43 @@ function baseSimulationResponse(results?: any) {
           new xdr.LedgerKeyAccount({
             accountId: Keypair.fromPublicKey(accountId).xdrPublicKey(),
           }),
-        ).toXDR("base64"),
+        ).toXdr("base64"),
         before: new xdr.LedgerEntry({
           lastModifiedLedgerSeq: 0,
           data: xdr.LedgerEntryData.account(
             new xdr.AccountEntry({
               accountId: Keypair.fromPublicKey(accountId).xdrPublicKey(),
-              balance: xdr.Int64.fromString("1000000000"),
-              seqNum: xdr.Int64.fromString("1234"),
+              balance: BigInt("1000000000"),
+              seqNum: BigInt("1234"),
               numSubEntries: 0,
-              inflationDest: undefined as any,
+              inflationDest: null,
               flags: 0,
-              homeDomain: Buffer.from(""),
+              homeDomain: "",
               thresholds: Buffer.from("AQAAAA==", "base64"),
               signers: [],
-              ext: new (xdr.AccountEntryExt as any)(0),
+              ext: xdr.AccountEntryExt.v0(),
             }),
           ),
-          ext: new (xdr.LedgerEntryExt as any)(0),
-        }).toXDR("base64"),
+          ext: xdr.LedgerEntryExt.v0(),
+        }).toXdr("base64"),
         after: new xdr.LedgerEntry({
           lastModifiedLedgerSeq: 0,
           data: xdr.LedgerEntryData.account(
             new xdr.AccountEntry({
               accountId: Keypair.fromPublicKey(accountId).xdrPublicKey(),
-              balance: xdr.Int64.fromString("1000000000"),
-              seqNum: xdr.Int64.fromString("1234"),
+              balance: BigInt("1000000000"),
+              seqNum: BigInt("1234"),
               numSubEntries: 0,
-              inflationDest: undefined as any,
+              inflationDest: null,
               flags: 0,
-              homeDomain: Buffer.from(""),
+              homeDomain: "",
               thresholds: Buffer.from("AQAAAA==", "base64"),
               signers: [],
-              ext: new (xdr.AccountEntryExt as any)(0),
+              ext: xdr.AccountEntryExt.v0(),
             }),
           ),
-          ext: new (xdr.LedgerEntryExt as any)(0),
-        }).toXDR("base64"),
+          ext: xdr.LedgerEntryExt.v0(),
+        }).toXdr("base64"),
       },
     ],
   };
@@ -137,10 +141,23 @@ function buildAuthEntry(address: any) {
     validUntilLedgerSeq: 1,
     invocation: root,
     networkPassphrase,
-  }).then((entry: any) => {
-    // authorizeInvocation defaults to legacy SOROBAN_CREDENTIALS_ADDRESS entries
-    entry.credentials().address().nonce(new xdr.Int64(0xdeadbeef));
-    return authorizeEntry(entry, kp, 1, networkPassphrase); // overwrites signature w/ above nonce
+  }).then((entry) => {
+    // Fields are readonly in the new XDR layer — reconstruct the entry with a
+    // deterministic nonce, then re-authorize to overwrite the signature.
+    const addrCreds = (entry.credentials as xdr.SorobanCredentialsAddress)
+      .address;
+    const rebuilt = new xdr.SorobanAuthorizationEntry({
+      rootInvocation: entry.rootInvocation,
+      credentials: xdr.SorobanCredentials.sorobanCredentialsAddress(
+        new xdr.SorobanAddressCredentials({
+          address: addrCreds.address,
+          nonce: BigInt(0xdeadbeef),
+          signatureExpirationLedger: addrCreds.signatureExpirationLedger,
+          signature: addrCreds.signature,
+        }),
+      ),
+    });
+    return authorizeEntry(rebuilt, kp, 1, networkPassphrase); // re-signs with the new nonce
   });
 }
 
@@ -148,9 +165,9 @@ async function invokeSimulationResponse(address: any) {
   return baseSimulationResponse([
     {
       auth: [await buildAuthEntry(address)].map((entry) =>
-        entry.toXDR("base64"),
+        entry.toXdr("base64"),
       ),
-      xdr: xdr.ScVal.scvU32(0).toXDR("base64"),
+      xdr: xdr.ScVal.scvU32(0).toXdr("base64"),
     },
   ]);
 }
@@ -169,7 +186,7 @@ async function invokeSimulationResponseWithRestoration(address: any) {
     ...(await invokeSimulationResponse(address)),
     restorePreamble: {
       minResourceFee: "51",
-      transactionData: new SorobanDataBuilder().build().toXDR("base64"),
+      transactionData: new SorobanDataBuilder().build().toXdr("base64"),
     },
   };
 }
@@ -186,43 +203,43 @@ async function invokeSimulationResponseWithStateChanges(address: any) {
           new xdr.LedgerKeyAccount({
             accountId: Keypair.fromPublicKey(accountId).xdrPublicKey(),
           }),
-        ).toXDR("base64"),
+        ).toXdr("base64"),
         before: new xdr.LedgerEntry({
           lastModifiedLedgerSeq: 0,
           data: xdr.LedgerEntryData.account(
             new xdr.AccountEntry({
               accountId: Keypair.fromPublicKey(accountId).xdrPublicKey(),
-              balance: xdr.Int64.fromString("1000000000"),
-              seqNum: xdr.Int64.fromString("1234"),
+              balance: BigInt("1000000000"),
+              seqNum: BigInt("1234"),
               numSubEntries: 0,
-              inflationDest: undefined as any,
+              inflationDest: null,
               flags: 0,
-              homeDomain: Buffer.from(""),
+              homeDomain: "",
               thresholds: Buffer.from("AQAAAA==", "base64"),
               signers: [],
-              ext: new (xdr.AccountEntryExt as any)(0),
+              ext: xdr.AccountEntryExt.v0(),
             }),
           ),
-          ext: new (xdr.LedgerEntryExt as any)(0),
-        }).toXDR("base64"),
+          ext: xdr.LedgerEntryExt.v0(),
+        }).toXdr("base64"),
         after: new xdr.LedgerEntry({
           lastModifiedLedgerSeq: 0,
           data: xdr.LedgerEntryData.account(
             new xdr.AccountEntry({
               accountId: Keypair.fromPublicKey(accountId).xdrPublicKey(),
-              balance: xdr.Int64.fromString("1000000000"),
-              seqNum: xdr.Int64.fromString("1234"),
+              balance: BigInt("1000000000"),
+              seqNum: BigInt("1234"),
               numSubEntries: 0,
-              inflationDest: undefined as any,
+              inflationDest: null,
               flags: 0,
-              homeDomain: Buffer.from(""),
+              homeDomain: "",
               thresholds: Buffer.from("AQAAAA==", "base64"),
               signers: [],
-              ext: new (xdr.AccountEntryExt as any)(0),
+              ext: xdr.AccountEntryExt.v0(),
             }),
           ),
-          ext: new (xdr.LedgerEntryExt as any)(0),
-        }).toXDR("base64"),
+          ext: xdr.LedgerEntryExt.v0(),
+        }).toXdr("base64"),
       },
       {
         type: 1,
@@ -230,26 +247,26 @@ async function invokeSimulationResponseWithStateChanges(address: any) {
           new xdr.LedgerKeyAccount({
             accountId: Keypair.fromPublicKey(accountId).xdrPublicKey(),
           }),
-        ).toXDR("base64"),
+        ).toXdr("base64"),
         before: null,
         after: new xdr.LedgerEntry({
           lastModifiedLedgerSeq: 0,
           data: xdr.LedgerEntryData.account(
             new xdr.AccountEntry({
               accountId: Keypair.fromPublicKey(accountId).xdrPublicKey(),
-              balance: xdr.Int64.fromString("1000000000"),
-              seqNum: xdr.Int64.fromString("1234"),
+              balance: BigInt("1000000000"),
+              seqNum: BigInt("1234"),
               numSubEntries: 0,
-              inflationDest: undefined as any,
+              inflationDest: null,
               flags: 0,
-              homeDomain: Buffer.from(""),
+              homeDomain: "",
               thresholds: Buffer.from("AQAAAA==", "base64"),
               signers: [],
-              ext: new (xdr.AccountEntryExt as any)(0),
+              ext: xdr.AccountEntryExt.v0(),
             }),
           ),
-          ext: new (xdr.LedgerEntryExt as any)(0),
-        }).toXDR("base64"),
+          ext: xdr.LedgerEntryExt.v0(),
+        }).toXdr("base64"),
       },
       {
         type: 3,
@@ -257,25 +274,25 @@ async function invokeSimulationResponseWithStateChanges(address: any) {
           new xdr.LedgerKeyAccount({
             accountId: Keypair.fromPublicKey(accountId).xdrPublicKey(),
           }),
-        ).toXDR("base64"),
+        ).toXdr("base64"),
         before: new xdr.LedgerEntry({
           lastModifiedLedgerSeq: 0,
           data: xdr.LedgerEntryData.account(
             new xdr.AccountEntry({
               accountId: Keypair.fromPublicKey(accountId).xdrPublicKey(),
-              balance: xdr.Int64.fromString("1000000000"),
-              seqNum: xdr.Int64.fromString("1234"),
+              balance: BigInt("1000000000"),
+              seqNum: BigInt("1234"),
               numSubEntries: 0,
-              inflationDest: undefined as any,
+              inflationDest: null,
               flags: 0,
-              homeDomain: Buffer.from(""),
+              homeDomain: "",
               thresholds: Buffer.from("AQAAAA==", "base64"),
               signers: [],
-              ext: new (xdr.AccountEntryExt as any)(0),
+              ext: xdr.AccountEntryExt.v0(),
             }),
           ),
-          ext: new (xdr.LedgerEntryExt as any)(0),
-        }).toXDR("base64"),
+          ext: xdr.LedgerEntryExt.v0(),
+        }).toXdr("base64"),
         after: null,
       },
     ],
@@ -290,7 +307,7 @@ describe("Server#simulateTransaction", () => {
 
   const keypair = Keypair.random();
   const contractId = "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM";
-  const contract = new StellarSdk.Contract(contractId);
+  const contract = new Contract(contractId);
   const address = contract.address().toScAddress();
 
   const accountId = "GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI";
@@ -311,11 +328,11 @@ describe("Server#simulateTransaction", () => {
       "1",
     );
     function emptyContractTransaction() {
-      return new StellarSdk.TransactionBuilder(source, { fee: "100" })
+      return new TransactionBuilder(source, { fee: "100" })
         .setNetworkPassphrase("Test")
-        .setTimeout(StellarSdk.TimeoutInfinite)
+        .setTimeout(TimeoutInfinite)
         .addOperation(
-          StellarSdk.Operation.invokeHostFunction({
+          Operation.invokeHostFunction({
             func: xdr.HostFunction.hostFunctionTypeInvokeContract(
               new xdr.InvokeContractArgs({
                 contractAddress: address,
@@ -333,7 +350,7 @@ describe("Server#simulateTransaction", () => {
     tx.sign(keypair);
 
     transaction = tx;
-    blob = tx.toEnvelope().toXDR().toString("base64");
+    blob = tx.toEnvelope().toXdr("base64");
     simulationResponse = await invokeSimulationResponse(address);
 
     parsedSimulationResponse = {
@@ -346,9 +363,9 @@ describe("Server#simulateTransaction", () => {
       ),
       result: {
         auth: simulationResponse.results[0].auth.map((entry: any) =>
-          xdr.SorobanAuthorizationEntry.fromXDR(entry, "base64"),
+          xdr.SorobanAuthorizationEntry.fromXdr(entry, "base64"),
         ),
-        retval: xdr.ScVal.fromXDR(simulationResponse.results[0].xdr, "base64"),
+        retval: xdr.ScVal.fromXdr(simulationResponse.results[0].xdr, "base64"),
       },
       stateChanges: [
         {
@@ -359,36 +376,36 @@ describe("Server#simulateTransaction", () => {
             data: xdr.LedgerEntryData.account(
               new xdr.AccountEntry({
                 accountId: Keypair.fromPublicKey(accountId).xdrPublicKey(),
-                balance: xdr.Int64.fromString("1000000000"),
-                seqNum: xdr.Int64.fromString("1234"),
+                balance: BigInt("1000000000"),
+                seqNum: BigInt("1234"),
                 numSubEntries: 0,
-                inflationDest: undefined as any,
+                inflationDest: null,
                 flags: 0,
-                homeDomain: Buffer.from(""),
+                homeDomain: "",
                 thresholds: Buffer.from("AQAAAA==", "base64"),
                 signers: [],
-                ext: new (xdr.AccountEntryExt as any)(0),
+                ext: xdr.AccountEntryExt.v0(),
               }),
             ),
-            ext: new (xdr.LedgerEntryExt as any)(0),
+            ext: xdr.LedgerEntryExt.v0(),
           }),
           after: new xdr.LedgerEntry({
             lastModifiedLedgerSeq: 0,
             data: xdr.LedgerEntryData.account(
               new xdr.AccountEntry({
                 accountId: Keypair.fromPublicKey(accountId).xdrPublicKey(),
-                balance: xdr.Int64.fromString("1000000000"),
-                seqNum: xdr.Int64.fromString("1234"),
+                balance: BigInt("1000000000"),
+                seqNum: BigInt("1234"),
                 numSubEntries: 0,
-                inflationDest: undefined as any,
+                inflationDest: null,
                 flags: 0,
-                homeDomain: Buffer.from(""),
+                homeDomain: "",
                 thresholds: Buffer.from("AQAAAA==", "base64"),
                 signers: [],
-                ext: new (xdr.AccountEntryExt as any)(0),
+                ext: xdr.AccountEntryExt.v0(),
               }),
             ),
-            ext: new (xdr.LedgerEntryExt as any)(0),
+            ext: xdr.LedgerEntryExt.v0(),
           }),
         },
       ],
@@ -495,36 +512,36 @@ describe("Server#simulateTransaction", () => {
           data: xdr.LedgerEntryData.account(
             new xdr.AccountEntry({
               accountId: Keypair.fromPublicKey(accountId).xdrPublicKey(),
-              balance: xdr.Int64.fromString("1000000000"),
-              seqNum: xdr.Int64.fromString("1234"),
+              balance: BigInt("1000000000"),
+              seqNum: BigInt("1234"),
               numSubEntries: 0,
-              inflationDest: undefined as any,
+              inflationDest: null,
               flags: 0,
-              homeDomain: Buffer.from(""),
+              homeDomain: "",
               thresholds: Buffer.from("AQAAAA==", "base64"),
               signers: [],
-              ext: new (xdr.AccountEntryExt as any)(0),
+              ext: xdr.AccountEntryExt.v0(),
             }),
           ),
-          ext: new (xdr.LedgerEntryExt as any)(0),
+          ext: xdr.LedgerEntryExt.v0(),
         }),
         after: new xdr.LedgerEntry({
           lastModifiedLedgerSeq: 0,
           data: xdr.LedgerEntryData.account(
             new xdr.AccountEntry({
               accountId: Keypair.fromPublicKey(accountId).xdrPublicKey(),
-              balance: xdr.Int64.fromString("1000000000"),
-              seqNum: xdr.Int64.fromString("1234"),
+              balance: BigInt("1000000000"),
+              seqNum: BigInt("1234"),
               numSubEntries: 0,
-              inflationDest: undefined as any,
+              inflationDest: null,
               flags: 0,
-              homeDomain: Buffer.from(""),
+              homeDomain: "",
               thresholds: Buffer.from("AQAAAA==", "base64"),
               signers: [],
-              ext: new (xdr.AccountEntryExt as any)(0),
+              ext: xdr.AccountEntryExt.v0(),
             }),
           ),
-          ext: new (xdr.LedgerEntryExt as any)(0),
+          ext: xdr.LedgerEntryExt.v0(),
         }),
       },
       {
@@ -536,18 +553,18 @@ describe("Server#simulateTransaction", () => {
           data: xdr.LedgerEntryData.account(
             new xdr.AccountEntry({
               accountId: Keypair.fromPublicKey(accountId).xdrPublicKey(),
-              balance: xdr.Int64.fromString("1000000000"),
-              seqNum: xdr.Int64.fromString("1234"),
+              balance: BigInt("1000000000"),
+              seqNum: BigInt("1234"),
               numSubEntries: 0,
-              inflationDest: undefined as any,
+              inflationDest: null,
               flags: 0,
-              homeDomain: Buffer.from(""),
+              homeDomain: "",
               thresholds: Buffer.from("AQAAAA==", "base64"),
               signers: [],
-              ext: new (xdr.AccountEntryExt as any)(0),
+              ext: xdr.AccountEntryExt.v0(),
             }),
           ),
-          ext: new (xdr.LedgerEntryExt as any)(0),
+          ext: xdr.LedgerEntryExt.v0(),
         }),
       },
       {
@@ -558,18 +575,18 @@ describe("Server#simulateTransaction", () => {
           data: xdr.LedgerEntryData.account(
             new xdr.AccountEntry({
               accountId: Keypair.fromPublicKey(accountId).xdrPublicKey(),
-              balance: xdr.Int64.fromString("1000000000"),
-              seqNum: xdr.Int64.fromString("1234"),
+              balance: BigInt("1000000000"),
+              seqNum: BigInt("1234"),
               numSubEntries: 0,
-              inflationDest: undefined as any,
+              inflationDest: null,
               flags: 0,
-              homeDomain: Buffer.from(""),
+              homeDomain: "",
               thresholds: Buffer.from("AQAAAA==", "base64"),
               signers: [],
-              ext: new (xdr.AccountEntryExt as any)(0),
+              ext: xdr.AccountEntryExt.v0(),
             }),
           ),
-          ext: new (xdr.LedgerEntryExt as any)(0),
+          ext: xdr.LedgerEntryExt.v0(),
         }),
         after: null,
       },

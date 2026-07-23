@@ -1,12 +1,15 @@
-import xdr from "../xdr.js";
+import {
+  AccountId,
+  Operation,
+  OperationBody,
+  SetOptionsOp,
+  Signer,
+  SignerKey,
+  SignerKeyEd25519SignedPayload,
+} from "../../xdr/index.js";
 import { Keypair } from "../keypair.js";
 import { StrKey } from "../strkey.js";
-import {
-  SetOptionsOpts,
-  SetOptionsResult,
-  OperationAttributes,
-  SignerOpts,
-} from "./types.js";
+import { SetOptionsOpts, OperationAttributes, SignerOpts } from "./types.js";
 import { checkUnsignedIntValue, setSourceAccount } from "../util/operations.js";
 
 function weightCheckFunction(value: number, name: string): boolean {
@@ -29,28 +32,28 @@ function weightCheckFunction(value: number, name: string): boolean {
  *
  *
  * @param opts - Options object
- *   - `inflationDest`: Set this account ID as the account's inflation destination.
- *   - `clearFlags`: Bitmap integer for which account flags to clear.
- *   - `setFlags`: Bitmap integer for which account flags to set.
- *   - `masterWeight`: The master key weight.
- *   - `lowThreshold`: The sum weight for the low threshold.
- *   - `medThreshold`: The sum weight for the medium threshold.
- *   - `highThreshold`: The sum weight for the high threshold.
- *   - `signer`: Add or remove a signer from the account. The signer is
+ * @param opts.inflationDest - Set this account ID as the account's inflation destination.
+ * @param opts.clearFlags - Bitmap integer for which account flags to clear.
+ * @param opts.setFlags - Bitmap integer for which account flags to set.
+ * @param opts.masterWeight - The master key weight.
+ * @param opts.lowThreshold - The sum weight for the low threshold.
+ * @param opts.medThreshold - The sum weight for the medium threshold.
+ * @param opts.highThreshold - The sum weight for the high threshold.
+ * @param opts.signer - Add or remove a signer from the account. The signer is
  *                                 deleted if the weight is 0. Only one of `ed25519PublicKey`, `sha256Hash`, `preAuthTx` should be defined.
- *   - `signer.ed25519PublicKey`: The ed25519 public key of the signer.
- *   - `signer.sha256Hash`: sha256 hash (Buffer or hex string) of preimage that will unlock funds. Preimage should be used as signature of future transaction.
- *   - `signer.preAuthTx`: Hash (Buffer or hex string) of transaction that will unlock funds.
- *   - `signer.ed25519SignedPayload`: Signed payload signer (ed25519 public key + raw payload) for atomic transaction signature disclosure.
- *   - `signer.weight`: The weight of the new signer (0 to delete or 1-255)
- *   - `homeDomain`: sets the home domain used for reverse federation lookup.
- *   - `source`: The source account (defaults to transaction source).
+ * @param opts.signer.ed25519PublicKey - The ed25519 public key of the signer.
+ * @param opts.signer.sha256Hash - sha256 hash (Buffer or hex string) of preimage that will unlock funds. Preimage should be used as signature of future transaction.
+ * @param opts.signer.preAuthTx - Hash (Buffer or hex string) of transaction that will unlock funds.
+ * @param opts.signer.ed25519SignedPayload - Signed payload signer (ed25519 public key + raw payload) for atomic transaction signature disclosure.
+ * @param opts.signer.weight - The weight of the new signer (0 to delete or 1-255)
+ * @param opts.homeDomain - sets the home domain used for reverse federation lookup.
+ * @param opts.source - The source account (defaults to transaction source).
  * @see [Account flags](https://developers.stellar.org/docs/glossary/accounts/#flags)
  */
 export function setOptions<T extends SignerOpts = never>(
   opts: SetOptionsOpts<T>,
-): xdr.Operation<SetOptionsResult<T>> {
-  let inflationDest: xdr.AccountId | null = null;
+): Operation {
+  let inflationDest: AccountId | null = null;
 
   if (opts.inflationDest) {
     if (!StrKey.isValidEd25519PublicKey(opts.inflationDest)) {
@@ -92,7 +95,7 @@ export function setOptions<T extends SignerOpts = never>(
   }
   const homeDomain = opts.homeDomain;
 
-  let signer: xdr.Signer | null = null;
+  let signer: Signer | null = null;
 
   if (opts.signer) {
     const weight = checkUnsignedIntValue(
@@ -100,7 +103,7 @@ export function setOptions<T extends SignerOpts = never>(
       opts.signer.weight,
       weightCheckFunction,
     );
-    let key: xdr.SignerKey | undefined;
+    let key: SignerKey | undefined;
 
     let setValues = 0;
 
@@ -112,7 +115,7 @@ export function setOptions<T extends SignerOpts = never>(
         opts.signer.ed25519PublicKey,
       );
 
-      key = xdr.SignerKey.signerKeyTypeEd25519(rawKey);
+      key = SignerKey.signerKeyTypeEd25519(rawKey);
       setValues += 1;
     }
 
@@ -128,7 +131,7 @@ export function setOptions<T extends SignerOpts = never>(
         throw new Error("signer.preAuthTx must be 32 bytes Buffer.");
       }
 
-      key = xdr.SignerKey.signerKeyTypePreAuthTx(preAuthTx);
+      key = SignerKey.signerKeyTypePreAuthTx(preAuthTx);
       setValues += 1;
     }
 
@@ -144,7 +147,7 @@ export function setOptions<T extends SignerOpts = never>(
         throw new Error("signer.sha256Hash must be 32 bytes Buffer.");
       }
 
-      key = xdr.SignerKey.signerKeyTypeHashX(sha256Hash);
+      key = SignerKey.signerKeyTypeHashX(sha256Hash);
       setValues += 1;
     }
 
@@ -155,10 +158,9 @@ export function setOptions<T extends SignerOpts = never>(
       const rawKey = StrKey.decodeSignedPayload(
         opts.signer.ed25519SignedPayload,
       );
-      const signedPayloadXdr =
-        xdr.SignerKeyEd25519SignedPayload.fromXDR(rawKey);
+      const signedPayloadXdr = SignerKeyEd25519SignedPayload.fromXdr(rawKey);
 
-      key = xdr.SignerKey.signerKeyTypeEd25519SignedPayload(signedPayloadXdr);
+      key = SignerKey.signerKeyTypeEd25519SignedPayload(signedPayloadXdr);
       setValues += 1;
     }
 
@@ -173,10 +175,10 @@ export function setOptions<T extends SignerOpts = never>(
     if (key === undefined) {
       throw new Error("signer key is required.");
     }
-    signer = new xdr.Signer({ key: key, weight: weight });
+    signer = new Signer({ key: key, weight: weight });
   }
 
-  const setOptionsOp = new xdr.SetOptionsOp({
+  const setOptionsOp = new SetOptionsOp({
     inflationDest,
     clearFlags,
     setFlags,
@@ -184,15 +186,15 @@ export function setOptions<T extends SignerOpts = never>(
     lowThreshold,
     medThreshold,
     highThreshold,
-    homeDomain: homeDomain as string | null,
+    homeDomain: homeDomain ?? null,
     signer,
   });
 
   const opAttributes: OperationAttributes = {
     sourceAccount: null,
-    body: xdr.OperationBody.setOptions(setOptionsOp),
+    body: OperationBody.setOptions(setOptionsOp),
   };
   setSourceAccount(opAttributes, opts);
 
-  return new xdr.Operation(opAttributes);
+  return new Operation(opAttributes);
 }

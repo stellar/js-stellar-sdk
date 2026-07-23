@@ -177,13 +177,15 @@ describe("Custom Types Tests", () => {
 
   it("bytes", async () => {
     const bytes = Buffer.from("hello");
-    expect((await context.client.bytes({ bytes })).result).toEqual(bytes);
+    expect((await context.client.bytes({ bytes })).result).toEqual(
+      Uint8Array.from(bytes),
+    );
   });
 
   it("bytesN", async () => {
     const bytesN = Buffer.from("123456789"); // what's the correct way to construct bytesN?
     expect((await context.client.bytes_n({ bytes_n: bytesN })).result).toEqual(
-      bytesN,
+      Uint8Array.from(bytesN),
     );
   });
 

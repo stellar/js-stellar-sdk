@@ -22,16 +22,25 @@ describe("Memo", () => {
       expect(memo.type).toBe(MemoNone);
       expect(memo.value).toBeNull();
 
-      const xdrMemo = memo.toXDRObject();
-      expect(xdrMemo.value()).toBeUndefined();
+      const xdrMemo = memo.toXdrObject();
+      expect(xdrMemo.type).toBe("memoNone");
 
-      const baseMemo = Memo.fromXDRObject(xdrMemo);
+      const baseMemo = Memo.fromXdrObject(xdrMemo);
       expect(baseMemo.type).toBe(MemoNone);
       expect(baseMemo.value).toBeNull();
     });
   });
 
   describe(".text()", () => {
+    it("accepts a plain Uint8Array for byte-exact content", () => {
+      const bytes = new Uint8Array([0xe2, 0x82, 0xac]);
+      const memo = Memo.text(bytes);
+      expect(memo.type).toBe(MemoText);
+      const xdrMemo = memo.toXdrObject();
+      if (xdrMemo.type !== "memoText") throw new Error("expected memoText");
+      expect(Array.from(xdrMemo.text.bytes)).toEqual(Array.from(bytes));
+    });
+
     it("returns a value for a correct argument", () => {
       const memo = Memo.text("test");
       expect(memo.type).toBe(MemoText);
@@ -41,15 +50,20 @@ describe("Memo", () => {
       expect(memoUtf8.type).toBe(MemoText);
       expect(memoUtf8.value).toBe("三代之時");
 
-      const a = Buffer.from(memoUtf8.toXDRObject().value() as string, "utf8");
+      const xdrMemoUtf8 = memoUtf8.toXdrObject();
+      if (xdrMemoUtf8.type !== "memoText") {
+        throw new Error("expected memoText");
+      }
+      // `text` is an XdrString wrapper — compare the raw bytes.
+      const a = Buffer.from(xdrMemoUtf8.text.bytes);
       const b = Buffer.from("三代之時", "utf8");
       expect(a).toEqual(b);
     });
 
     it("returns a value for a correct argument (utf8)", () => {
       const memoText = new Memo(MemoText, Buffer.from([0xd1]))
-        .toXDRObject()
-        .toXDR();
+        .toXdrObject()
+        .toXdr();
       const expected = Buffer.from([
         // memo_text
         0x00, 0x00, 0x00, 0x01,
@@ -58,7 +72,7 @@ describe("Memo", () => {
         // value
         0xd1, 0x00, 0x00, 0x00,
       ]);
-      expect(memoText.equals(expected)).toBe(true);
+      expect(Array.from(memoText)).toEqual(Array.from(expected));
     });
 
     it("converts to/from xdr object", () => {
@@ -66,15 +80,18 @@ describe("Memo", () => {
       expect(memo.type).toBe(MemoText);
       expect(memo.value).toBe("test");
 
-      const xdrMemo = memo.toXDRObject();
-      expect(xdrMemo.switch().name).toBe("memoText");
-      expect((xdrMemo as any).arm()).toBe("text");
-      expect(xdrMemo.text()).toBe("test");
-      expect(xdrMemo.value()).toBe("test");
+      const xdrMemo = memo.toXdrObject();
+      expect(xdrMemo.type).toBe("memoText");
+      if (xdrMemo.type !== "memoText") throw new Error("expected memoText");
+      // Arm field `.text` is XdrString (call `.toString()` to decode);
+      // `.value` getter is the already-decoded string.
+      expect(xdrMemo.text.toString()).toBe("test");
+      expect(xdrMemo.value).toBe("test");
 
-      const baseMemo = Memo.fromXDRObject(xdrMemo);
+      const baseMemo = Memo.fromXdrObject(xdrMemo);
       expect(baseMemo.type).toBe(MemoText);
-      expect(baseMemo.value).toBe("test");
+      // Memo wrapper surfaces the wire bytes as a Buffer.
+      expect((baseMemo.value as Buffer).toString("utf8")).toBe("test");
     });
 
     it("converts to/from xdr object (buffer)", () => {
@@ -83,46 +100,48 @@ describe("Memo", () => {
       expect(memo.type).toBe(MemoText);
       expect(memo.value).toBe(buf.toString("utf8"));
 
-      const xdrMemo = memo.toXDRObject();
-      expect(xdrMemo.switch().name).toBe("memoText");
-      expect((xdrMemo as any).arm()).toBe("text");
-      expect(xdrMemo.text()).toBe(buf.toString("utf8"));
-      expect(xdrMemo.value()).toBe(buf.toString("utf8"));
+      const xdrMemo = memo.toXdrObject();
+      expect(xdrMemo.type).toBe("memoText");
+      if (xdrMemo.type !== "memoText") throw new Error("expected memoText");
+      expect(xdrMemo.text.toString()).toBe(buf.toString("utf8"));
+      expect(xdrMemo.value).toBe(buf.toString("utf8"));
 
-      const baseMemo = Memo.fromXDRObject(xdrMemo);
+      const baseMemo = Memo.fromXdrObject(xdrMemo);
       expect(baseMemo.type).toBe(MemoText);
-      expect(baseMemo.value).toBe(buf.toString("utf8"));
+      expect((baseMemo.value as Buffer).toString("utf8")).toBe(
+        buf.toString("utf8"),
+      );
     });
 
     it("throws an error when invalid argument was passed", () => {
       // @ts-expect-error testing missing arg
       expect(() => Memo.text()).toThrow(
-        /Expects string, array or buffer, max 28 bytes/,
+        /Expects string or Uint8Array, max 28 bytes/,
       );
       // @ts-expect-error testing invalid input
       expect(() => Memo.text({})).toThrow(
-        /Expects string, array or buffer, max 28 bytes/,
+        /Expects string or Uint8Array, max 28 bytes/,
       );
       // @ts-expect-error testing invalid input
       expect(() => Memo.text(10)).toThrow(
-        /Expects string, array or buffer, max 28 bytes/,
+        /Expects string or Uint8Array, max 28 bytes/,
       );
       // @ts-expect-error testing invalid input
       expect(() => Memo.text(Infinity)).toThrow(
-        /Expects string, array or buffer, max 28 bytes/,
+        /Expects string or Uint8Array, max 28 bytes/,
       );
       // @ts-expect-error testing invalid input
       expect(() => Memo.text(NaN)).toThrow(
-        /Expects string, array or buffer, max 28 bytes/,
+        /Expects string or Uint8Array, max 28 bytes/,
       );
     });
 
     it("throws an error when string is longer than 28 bytes", () => {
       expect(() => Memo.text("12345678901234567890123456789")).toThrow(
-        /Expects string, array or buffer, max 28 bytes/,
+        /Expects string or Uint8Array, max 28 bytes/,
       );
       expect(() => Memo.text("三代之時三代之時三代之時")).toThrow(
-        /Expects string, array or buffer, max 28 bytes/,
+        /Expects string or Uint8Array, max 28 bytes/,
       );
     });
   });
@@ -138,12 +157,12 @@ describe("Memo", () => {
       expect(memo.type).toBe(MemoID);
       expect(memo.value).toBe("1000");
 
-      const xdrMemo = memo.toXDRObject();
-      expect(xdrMemo.switch().name).toBe("memoId");
-      expect((xdrMemo as any).arm()).toBe("id");
-      expect(xdrMemo.id().toString()).toBe("1000");
+      const xdrMemo = memo.toXdrObject();
+      expect(xdrMemo.type).toBe("memoId");
+      if (xdrMemo.type !== "memoId") throw new Error("expected memoId");
+      expect(xdrMemo.id.toString()).toBe("1000");
 
-      const baseMemo = Memo.fromXDRObject(xdrMemo);
+      const baseMemo = Memo.fromXdrObject(xdrMemo);
       expect(baseMemo.type).toBe(MemoID);
       expect(baseMemo.value).toBe("1000");
     });
@@ -175,7 +194,7 @@ describe("Memo", () => {
     it("rejects scientific notation strings that BigInt cannot parse", () => {
       // "1e18" passes BigNumber validation but BigInt("1e18") throws.
       // Validation should reject it upfront instead of deferring the crash
-      // to toXDRObject().
+      // to toXdrObject().
       expect(() => Memo.id("1e18")).toThrow(/Expects a uint64/);
     });
 
@@ -188,8 +207,9 @@ describe("Memo", () => {
       // The value itself is valid — it's the string format that's the problem.
       expect(() => Memo.id("1000000000000000000")).not.toThrow();
       const memo = Memo.id("1000000000000000000");
-      const xdrMemo = memo.toXDRObject();
-      expect(xdrMemo.id().toString()).toBe("1000000000000000000");
+      const xdrMemo = memo.toXdrObject();
+      if (xdrMemo.type !== "memoId") throw new Error("expected memoId");
+      expect(xdrMemo.id.toString()).toBe("1000000000000000000");
     });
   });
 
@@ -201,13 +221,14 @@ describe("Memo", () => {
       expect(memo.type).toBe(MemoHash);
       expect(memo.value).toEqual(buffer);
 
-      const xdrMemo = memo.toXDRObject();
-      expect(xdrMemo.switch().name).toBe("memoHash");
-      expect((xdrMemo as any).arm()).toBe("hash");
-      expect(xdrMemo.hash().length).toBe(32);
-      expect(xdrMemo.hash()).toEqual(buffer);
+      const xdrMemo = memo.toXdrObject();
+      expect(xdrMemo.type).toBe("memoHash");
+      if (xdrMemo.type !== "memoHash") throw new Error("expected memoHash");
+      const hashBytes = xdrMemo.hash.toBytes();
+      expect(hashBytes.length).toBe(32);
+      expect(Array.from(hashBytes)).toEqual(Array.from(buffer));
 
-      const baseMemo = Memo.fromXDRObject(xdrMemo);
+      const baseMemo = Memo.fromXdrObject(xdrMemo);
       expect(baseMemo.type).toBe(MemoHash);
       expect((baseMemo.value as Buffer).length).toBe(32);
       expect((baseMemo.value as Buffer).toString("hex")).toBe(
@@ -223,13 +244,16 @@ describe("Memo", () => {
       expect(memo.value).toEqual(buffer);
       expect(memo.type).toBe(MemoReturn);
 
-      const xdrMemo = memo.toXDRObject();
-      expect(xdrMemo.switch().name).toBe("memoReturn");
-      expect((xdrMemo as any).arm()).toBe("retHash");
-      expect(xdrMemo.retHash().length).toBe(32);
-      expect(xdrMemo.retHash().toString("hex")).toBe(buffer.toString("hex"));
+      const xdrMemo = memo.toXdrObject();
+      expect(xdrMemo.type).toBe("memoReturn");
+      if (xdrMemo.type !== "memoReturn") throw new Error("expected memoReturn");
+      const retHashBytes = xdrMemo.retHash.toBytes();
+      expect(retHashBytes.length).toBe(32);
+      expect(Buffer.from(retHashBytes).toString("hex")).toBe(
+        buffer.toString("hex"),
+      );
 
-      const baseMemo = Memo.fromXDRObject(xdrMemo);
+      const baseMemo = Memo.fromXdrObject(xdrMemo);
       expect(baseMemo.type).toBe(MemoReturn);
       expect(Buffer.isBuffer(baseMemo.value)).toBe(true);
       expect((baseMemo.value as Buffer).length).toBe(32);

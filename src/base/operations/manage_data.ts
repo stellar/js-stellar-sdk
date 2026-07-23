@@ -1,27 +1,27 @@
 import { setSourceAccount } from "../util/operations.js";
-import xdr from "../xdr.js";
 import {
-  ManageDataResult,
-  ManageDataOpts,
-  OperationAttributes,
-} from "./types.js";
+  DataValue,
+  ManageDataOp,
+  MuxedAccount,
+  Operation,
+  OperationBody,
+} from "../../xdr/index.js";
+import { ManageDataOpts, OperationAttributes } from "./types.js";
 
 /**
  * This operation adds data entry to the ledger.
  * @param opts - Options object
- *   - `name`: The name of the data entry.
- *   - `value`: The value of the data entry.
- *   - `source`: The optional source account.
+ * @param opts.name - The name of the data entry.
+ * @param opts.value - The value of the data entry.
+ * @param opts.source - The optional source account.
  */
-export function manageData(
-  opts: ManageDataOpts,
-): xdr.Operation<ManageDataResult> {
+export function manageData(opts: ManageDataOpts): Operation {
   if (!(typeof opts.name === "string" && opts.name.length <= 64)) {
     throw new Error("name must be a string, up to 64 characters");
   }
 
   // undefined is accepted (treated as null/delete) for internal round-trip
-  // compatibility: fromXDRObject returns undefined for absent optional fields.
+  // compatibility: fromXdrObject returns undefined for absent optional fields.
   // The public API contract is null for delete-entry.
   if (
     typeof opts.value !== "string" &&
@@ -43,21 +43,22 @@ export function manageData(
     throw new Error("value cannot be longer that 64 bytes");
   }
 
-  const manageDataOp = new xdr.ManageDataOp({
+  const manageDataOp = new ManageDataOp({
     dataName: opts.name,
-    dataValue,
+    dataValue:
+      dataValue === null ? null : new DataValue(Uint8Array.from(dataValue)),
   });
 
   const opAttributes: OperationAttributes = {
     sourceAccount: null,
-    body: xdr.OperationBody.manageData(manageDataOp),
+    body: OperationBody.manageData(manageDataOp),
   };
   setSourceAccount(opAttributes, opts);
 
-  return new xdr.Operation(
+  return new Operation(
     opAttributes as {
-      sourceAccount: xdr.MuxedAccount | null;
-      body: xdr.OperationBody;
+      sourceAccount: MuxedAccount | null;
+      body: OperationBody;
     },
   );
 }

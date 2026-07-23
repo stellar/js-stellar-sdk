@@ -45,7 +45,7 @@ describe("best_r", () => {
   });
 
   it("round-trips XDR prices at int32 boundaries", () => {
-    // Regression: fromXDRPrice({n:1, d:2147483647}) produces a string like
+    // Regression: fromXdrPrice({n:1, d:2147483647}) produces a string like
     // "4.6566128752457969e-10" which must survive best_r without throwing.
     const BigNum = new BigNumber(1).div(new BigNumber(2147483647));
     const [n, d] = best_r(BigNum);

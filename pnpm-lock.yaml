@@ -15,8 +15,8 @@ importers:
         specifier: ^2.2.0
         version: 2.2.0
       '@stellar/js-xdr':
-        specifier: 4.0.0
-        version: 4.0.0
+        specifier: ^5.0.0-rc.1
+        version: 5.0.0-rc.1
       axios:
         specifier: 1.18.0
         version: 1.18.0
@@ -72,6 +72,9 @@ importers:
       '@rollup/plugin-terser':
         specifier: ^1.0.0
         version: 1.0.0(rollup@4.62.0)
+      '@stellar/stellar-xdr-json':
+        specifier: ^26.0.0
+        version: 26.0.0
       '@types/detect-node':
         specifier: ^2.0.2
         version: 2.0.2
@@ -141,6 +144,9 @@ importers:
       husky:
         specifier: ^9.1.7
         version: 9.1.7
+      js-xdr-v4:
+        specifier: npm:@stellar/js-xdr@4.0.0
+        version: '@stellar/js-xdr@4.0.0'
       jsdom:
         specifier: ^29.1.1
         version: 29.1.1(@noble/hashes@2.2.0)
@@ -1438,6 +1444,13 @@ packages:
   '@stellar/js-xdr@4.0.0':
     resolution: {integrity: sha512-+NmNa7Tk5BI5XFdy/6xGTqAN4J9a9KgCrCGhj2uEUTCBhLkch0M+QbKzNH8zEnejWe0p8w+0q5hUVX6L3OzoVA==}
     engines: {node: '>=20.0.0', pnpm: '>=9.0.0'}
+
+  '@stellar/js-xdr@5.0.0-rc.1':
+    resolution: {integrity: sha512-Srb0vLhm9fM3CLtGdMy6tjBW2SiIAnZeAhmMcODWC3eaJ07rzuIPLq2TK5ESQFc24d7y02txmV53zws9UDqfWQ==}
+    engines: {node: '>=22.0.0', pnpm: '>=10.0.0'}
+
+  '@stellar/stellar-xdr-json@26.0.0':
+    resolution: {integrity: sha512-yopCAdWndVkArd2908K4jSf5lr/k/CCVPxxhz4s3PHPZKAr/P/et+HyWgBIc3kk/SPeKgj4dKs1XexS8u3wpLg==}
 
   '@tybys/wasm-util@0.10.2':
     resolution: {integrity: sha512-RoBvJ2X0wuKlWFIjrwffGw1IqZHKQqzIchKaadZZfnNpsAYp2mM0h36JtPCjNDAHGgYez/15uMBpfGwchhiMgg==}
@@ -5738,6 +5751,10 @@ snapshots:
   '@standard-schema/spec@1.1.0': {}
 
   '@stellar/js-xdr@4.0.0': {}
+
+  '@stellar/js-xdr@5.0.0-rc.1': {}
+
+  '@stellar/stellar-xdr-json@26.0.0': {}
 
   '@tybys/wasm-util@0.10.2':
     dependencies:

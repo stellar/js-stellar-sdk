@@ -39,6 +39,12 @@ config/tsconfig.tmp.json
 .copilot/
 .codex/
 
+# xdr-roundtrip-monitor failure dumps (scripts/xdr-roundtrip-monitor.ts)
+xdr-roundtrip-failures*.jsonl
+
+# xdr-json-parity-monitor failure dumps (scripts/xdr-json-parity-monitor.ts)
+xdr-json-parity-failures*.jsonl
+
 # scratch: per-guide tests, never shipped
 test-guides/
 .vuln-hunt/

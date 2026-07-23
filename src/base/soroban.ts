@@ -1,4 +1,4 @@
-/** Helper class to assist with formatting and parsing token amounts.*/
+/** Helper class to assist with formatting and parsing token amounts. */
 export class Soroban {
   /**
    * Given a whole number smart contract amount of a token and an amount of
@@ -10,13 +10,11 @@ export class Soroban {
    * @param amount - the token amount you want to display
    * @param decimals - specify how many decimal places a token has
    *
-   * @throws if the given amount has a decimal point already
+   * @throws {TypeError} if the given amount has a decimal point already
    * @example
-   * ```ts
    * formatTokenAmount("123000", 4) === "12.3";
    * formatTokenAmount("123000", 3) === "123.0";
    * formatTokenAmount("123", 3) === "0.123";
-   * ```
    */
   static formatTokenAmount(amount: string, decimals: number): string {
     if (amount.includes(".")) {
@@ -39,15 +37,15 @@ export class Soroban {
       }
     }
 
-    if (formatted.includes(".")) {
-      formatted = formatted.replace(/0+$/, ""); // strip trailing zeroes
-      if (formatted.endsWith(".")) {
-        formatted += "0"; // but keep at least one
-      }
-    }
-    if (formatted.startsWith(".")) {
-      formatted = `0${formatted}`; // and a leading one
-    }
+    formatted = formatted
+      // Strip trailing fractional zeroes. Written to avoid polynomial
+      // backtracking (ReDoS): the lazy `\.\d*?` + `0+$` form is O(n^2) on
+      // inputs like ".000…01". `\d*[1-9]` fails fast (never reaching `0+`)
+      // when the fraction is all zeroes, which the next replace handles.
+      .replace(/(\.\d*[1-9])0+$/, "$1") // strip trailing zeroes after the last non-zero digit
+      .replace(/\.0+$/, ".0") // collapse an all-zero fraction to a single zero
+      .replace(/\.$/, ".0") // keep at least one digit after the dot
+      .replace(/^\./, "0."); // and a leading one
 
     return negative ? `-${formatted}` : formatted;
   }
@@ -68,11 +66,9 @@ export class Soroban {
    *    might not be present)
    *
    * @example
-   * ```ts
    * const displayValueAmount = "123.4560"
    * const parsedAmtForSmartContract = parseTokenAmount(displayValueAmount, 5);
    * parsedAmtForSmartContract === "12345600"
-   * ```
    */
   static parseTokenAmount(value: string, decimals: number): string {
     const [whole, fraction, ...rest] = value.split(".").slice();

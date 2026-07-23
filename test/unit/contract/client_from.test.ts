@@ -43,7 +43,7 @@ function leb128(value: number): Buffer {
 // only scans for that custom section.
 function wasmWithSpec(entries: StellarSdk.xdr.ScSpecEntry[]): Buffer {
   const name = Buffer.from("contractspecv0", "utf8");
-  const payload = Buffer.concat(entries.map((e) => e.toXDR()));
+  const payload = Buffer.concat(entries.map((e) => e.toXdr()));
   const sectionBody = Buffer.concat([leb128(name.length), name, payload]);
   const customSection = Buffer.concat([
     Buffer.from([0x00]), // custom section id
@@ -87,8 +87,8 @@ describe("contract.Client.from", () => {
             {
               liveUntilLedgerSeq: 1000,
               lastModifiedLedgerSeq: 1,
-              xdr: val.toXDR("base64"),
-              key: key.toXDR("base64"),
+              xdr: val.toXdr("base64"),
+              key: key.toXdr("base64"),
             },
           ],
         },
@@ -114,9 +114,9 @@ describe("contract.Client.from", () => {
 
     const instanceEntry = xdr.LedgerEntryData.contractData(
       new xdr.ContractDataEntry({
-        ext: new (xdr.ExtensionPoint as any)(0),
+        ext: xdr.ExtensionPoint.v0(),
         contract: address.toScAddress(),
-        durability: xdr.ContractDataDurability.persistent(),
+        durability: xdr.ContractDataDurability.persistent,
         key: xdr.ScVal.scvLedgerKeyContractInstance(),
         val: xdr.ScVal.scvContractInstance(
           new xdr.ScContractInstance({
@@ -132,7 +132,7 @@ describe("contract.Client.from", () => {
     );
     const wasmLedgerCode = xdr.LedgerEntryData.contractCode(
       new xdr.ContractCodeEntry({
-        ext: xdr.ContractCodeEntryExt.fromXDR(
+        ext: xdr.ContractCodeEntryExt.fromXdr(
           "AAAAAQAAAAAAAAAAAAAVqAAAAJwAAAADAAAAAwAAABgAAAABAAAAAQAAABEAAAAgAAABpA==",
           "base64",
         ),
@@ -166,9 +166,9 @@ describe("contract.Client.from", () => {
     // wasm hash, so there is no wasm to download from the network.
     const sacInstanceEntry = xdr.LedgerEntryData.contractData(
       new xdr.ContractDataEntry({
-        ext: new (xdr.ExtensionPoint as any)(0),
+        ext: xdr.ExtensionPoint.v0(),
         contract: address.toScAddress(),
-        durability: xdr.ContractDataDurability.persistent(),
+        durability: xdr.ContractDataDurability.persistent,
         key: xdr.ScVal.scvLedgerKeyContractInstance(),
         val: xdr.ScVal.scvContractInstance(
           new xdr.ScContractInstance({

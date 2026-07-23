@@ -3,8 +3,8 @@ import * as StellarSdk from "../../../../src/index.js";
 
 import { serverUrl } from "../../../constants";
 
-const { xdr } = StellarSdk;
-const { Server } = StellarSdk.rpc;
+const { xdr, rpc } = StellarSdk;
+const { Server } = rpc;
 
 function makeTxResult(
   ledger: number,

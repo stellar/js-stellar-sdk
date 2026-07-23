@@ -8,6 +8,8 @@ import type { Api } from "./api.js";
 import { httpClient } from "../http-client/index.js";
 import { validateDomain } from "./utils.js";
 
+/** @module Federation */
+
 /**
  * The maximum size of response from a federation server
  * @defaultValue 102400

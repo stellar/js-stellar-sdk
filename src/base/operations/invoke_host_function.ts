@@ -1,4 +1,17 @@
-import xdr from "../xdr.js";
+import {
+  ContractExecutable,
+  ContractIdPreimage,
+  ContractIdPreimageFromAddress,
+  CreateContractArgs,
+  CreateContractArgsV2,
+  Hash,
+  HostFunction,
+  InvokeContractArgs,
+  InvokeHostFunctionOp,
+  Operation,
+  OperationBody,
+  ScVal,
+} from "../../xdr/index.js";
 
 import { Keypair } from "../keypair.js";
 import { Address } from "../address.js";
@@ -8,7 +21,6 @@ import {
   CreateStellarAssetContractOpts,
   InvokeContractFunctionOpts,
   InvokeHostFunctionOpts,
-  InvokeHostFunctionResult,
   OperationAttributes,
   UploadContractWasmOpts,
 } from "./types.js";
@@ -19,9 +31,9 @@ import { setSourceAccount } from "../util/operations.js";
  *
  *
  * @param opts - options object
- *   - `func`: host function to execute (with its wrapped parameters)
- *   - `auth`: list outlining the tree of authorizations required for the call
- *   - `source`: an optional source account
+ * @param opts.func - host function to execute (with its wrapped parameters)
+ * @param opts.auth - list outlining the tree of authorizations required for the call
+ * @param opts.source - an optional source account
  *
  * @see https://soroban.stellar.org/docs/fundamentals-and-concepts/invoking-contracts-with-transactions#function
  * @see Operation.invokeContractFunction
@@ -30,56 +42,48 @@ import { setSourceAccount } from "../util/operations.js";
  * @see Operation.uploadContractWasm
  * @see Contract.call
  */
-export function invokeHostFunction(
-  opts: InvokeHostFunctionOpts,
-): xdr.Operation<InvokeHostFunctionResult> {
+export function invokeHostFunction(opts: InvokeHostFunctionOpts): Operation {
   if (!opts.func) {
     throw new TypeError(
       `host function invocation ('func') required (got ${JSON.stringify(opts)})`,
     );
   }
 
-  if (
-    opts.func.switch().value ===
-    xdr.HostFunctionType.hostFunctionTypeInvokeContract().value
-  ) {
+  if (opts.func.type === "hostFunctionTypeInvokeContract") {
     // Ensure that there are no claimable balance or liquidity pool IDs in the
     // invocation because those are not allowed.
-    opts.func
-      .invokeContract()
-      .args()
-      .forEach((arg) => {
-        let scv: Address;
-        try {
-          scv = Address.fromScVal(arg);
-        } catch {
-          // swallow non-Address errors
-          return;
-        }
+    opts.func.value.args.forEach((arg: ScVal) => {
+      let scv: Address;
+      try {
+        scv = Address.fromScVal(arg);
+      } catch {
+        // swallow non-Address errors
+        return;
+      }
 
-        switch (scv.type) {
-          case "claimableBalance":
-          case "liquidityPool":
-            throw new TypeError(
-              `claimable balances and liquidity pools cannot be arguments to invokeHostFunction`,
-            );
-          default:
-        }
-      });
+      switch (scv.type) {
+        case "claimableBalance":
+        case "liquidityPool":
+          throw new TypeError(
+            `claimable balances and liquidity pools cannot be arguments to invokeHostFunction`,
+          );
+        default:
+      }
+    });
   }
 
-  const invokeHostFunctionOp = new xdr.InvokeHostFunctionOp({
+  const invokeHostFunctionOp = new InvokeHostFunctionOp({
     hostFunction: opts.func,
     auth: opts.auth || [],
   });
 
   const opAttributes: OperationAttributes = {
     sourceAccount: null,
-    body: xdr.OperationBody.invokeHostFunction(invokeHostFunctionOp),
+    body: OperationBody.invokeHostFunction(invokeHostFunctionOp),
   };
   setSourceAccount(opAttributes, opts);
 
-  return new xdr.Operation(opAttributes);
+  return new Operation(opAttributes);
 }
 
 /**
@@ -87,11 +91,11 @@ export function invokeHostFunction(
  *
  *
  * @param opts - the set of parameters
- *   - `contract`: a strkey-fied contract address (`C...`)
- *   - `function`: the name of the contract fn to invoke
- *   - `args`: parameters to pass to the function invocation
- *   - `auth`: an optional list outlining the tree of authorizations required for the call
- *   - `source`: an optional source account
+ * @param opts.contract - a strkey-fied contract address (`C...`)
+ * @param opts.function - the name of the contract fn to invoke
+ * @param opts.args - parameters to pass to the function invocation
+ * @param opts.auth - an optional list outlining the tree of authorizations required for the call
+ * @param opts.source - an optional source account
  *
  * @see Operation.invokeHostFunction
  * @see Contract.call
@@ -99,7 +103,7 @@ export function invokeHostFunction(
  */
 export function invokeContractFunction(
   opts: InvokeContractFunctionOpts,
-): xdr.Operation<InvokeHostFunctionResult> {
+): Operation {
   const c = new Address(opts.contract);
 
   if (c.type !== "contract") {
@@ -109,8 +113,8 @@ export function invokeContractFunction(
   }
 
   return invokeHostFunction({
-    func: xdr.HostFunction.hostFunctionTypeInvokeContract(
-      new xdr.InvokeContractArgs({
+    func: HostFunction.hostFunctionTypeInvokeContract(
+      new InvokeContractArgs({
         contractAddress: c.toScAddress(),
         functionName: opts.function,
         args: opts.args,
@@ -127,18 +131,18 @@ export function invokeContractFunction(
  *
  *
  * @param opts - the set of parameters
- *   - `address`: the contract uploader address
- *   - `wasmHash`: the SHA-256 hash of the contract WASM you're uploading
- *   - `constructorArgs`: the optional parameters to pass to the constructor
- *   - `salt`: an optional, 32-byte salt to distinguish deployment instances
- *   - `auth`: an optional list outlining the tree of authorizations required for the call
- *   - `source`: an optional source account
+ * @param opts.address - the contract uploader address
+ * @param opts.wasmHash - the SHA-256 hash of the contract WASM you're uploading
+ * @param opts.constructorArgs - the optional parameters to pass to the constructor
+ * @param opts.salt - an optional, 32-byte salt to distinguish deployment instances
+ * @param opts.auth - an optional list outlining the tree of authorizations required for the call
+ * @param opts.source - an optional source account
  *
  * @see https://soroban.stellar.org/docs/fundamentals-and-concepts/invoking-contracts-with-transactions#function
  */
 export function createCustomContract(
   opts: CreateCustomContractOpts,
-): xdr.Operation<InvokeHostFunctionResult> {
+): Operation {
   const salt = Buffer.from(opts.salt || getSalty());
 
   if (!opts.wasmHash || opts.wasmHash.length !== 32) {
@@ -154,18 +158,17 @@ export function createCustomContract(
   }
 
   return invokeHostFunction({
-    func: xdr.HostFunction.hostFunctionTypeCreateContractV2(
-      new xdr.CreateContractArgsV2({
-        executable: xdr.ContractExecutable.contractExecutableWasm(
-          Buffer.from(opts.wasmHash),
+    func: HostFunction.hostFunctionTypeCreateContractV2(
+      new CreateContractArgsV2({
+        executable: ContractExecutable.contractExecutableWasm(
+          new Hash(Uint8Array.from(opts.wasmHash)),
         ),
-        contractIdPreimage:
-          xdr.ContractIdPreimage.contractIdPreimageFromAddress(
-            new xdr.ContractIdPreimageFromAddress({
-              address: opts.address.toScAddress(),
-              salt,
-            }),
-          ),
+        contractIdPreimage: ContractIdPreimage.contractIdPreimageFromAddress(
+          new ContractIdPreimageFromAddress({
+            address: opts.address.toScAddress(),
+            salt,
+          }),
+        ),
         constructorArgs: opts.constructorArgs ?? [],
       }),
     ),
@@ -179,9 +182,9 @@ export function createCustomContract(
  *
  *
  * @param opts - the set of parameters
- *   - `asset`: the Stellar asset to wrap, either as an {@link Asset} object or in canonical form (SEP-11, `code:issuer`)
- *   - `auth`: an optional list outlining the tree of authorizations required for the upload
- *   - `source`: an optional source account
+ * @param opts.asset - the Stellar asset to wrap, either as an {@link Asset} object or in canonical form (SEP-11, `code:issuer`)
+ * @param opts.auth - an optional list outlining the tree of authorizations required for the upload
+ * @param opts.source - an optional source account
  *
  * @see https://stellar.org/protocol/sep-11#alphanum4-alphanum12
  * @see https://soroban.stellar.org/docs/fundamentals-and-concepts/invoking-contracts-with-transactions
@@ -190,7 +193,7 @@ export function createCustomContract(
  */
 export function createStellarAssetContract(
   opts: CreateStellarAssetContractOpts,
-): xdr.Operation<InvokeHostFunctionResult> {
+): Operation {
   let asset = opts.asset;
 
   if (typeof asset === "string") {
@@ -211,11 +214,11 @@ export function createStellarAssetContract(
   }
 
   return invokeHostFunction({
-    func: xdr.HostFunction.hostFunctionTypeCreateContract(
-      new xdr.CreateContractArgs({
-        executable: xdr.ContractExecutable.contractExecutableStellarAsset(),
-        contractIdPreimage: xdr.ContractIdPreimage.contractIdPreimageFromAsset(
-          asset.toXDRObject(),
+    func: HostFunction.hostFunctionTypeCreateContract(
+      new CreateContractArgs({
+        executable: ContractExecutable.contractExecutableStellarAsset(),
+        contractIdPreimage: ContractIdPreimage.contractIdPreimageFromAsset(
+          asset.toXdrObject(),
         ),
       }),
     ),
@@ -229,17 +232,15 @@ export function createStellarAssetContract(
  *
  *
  * @param opts - the set of parameters
- *   - `wasm`: a WASM blob to upload to the ledger
- *   - `auth`: an optional list outlining the tree of authorizations required for the upload
- *   - `source`: an optional source account
+ * @param opts.wasm - a WASM blob to upload to the ledger
+ * @param opts.auth - an optional list outlining the tree of authorizations required for the upload
+ * @param opts.source - an optional source account
  *
  * @see https://soroban.stellar.org/docs/fundamentals-and-concepts/invoking-contracts-with-transactions#function
  */
-export function uploadContractWasm(
-  opts: UploadContractWasmOpts,
-): xdr.Operation<InvokeHostFunctionResult> {
+export function uploadContractWasm(opts: UploadContractWasmOpts): Operation {
   return invokeHostFunction({
-    func: xdr.HostFunction.hostFunctionTypeUploadContractWasm(
+    func: HostFunction.hostFunctionTypeUploadContractWasm(
       Buffer.from(opts.wasm), // coalesce so we can drop `Buffer` someday
     ),
     auth: opts.auth || [],
@@ -248,6 +249,6 @@ export function uploadContractWasm(
 }
 
 /* Returns a random 256-bit "salt" value. */
-function getSalty(): Buffer {
-  return Keypair.random().xdrPublicKey().value(); // ed25519 is 256 bits, too
+function getSalty(): Uint8Array {
+  return Keypair.random().xdrPublicKey().value; // ed25519 is 256 bits, too
 }

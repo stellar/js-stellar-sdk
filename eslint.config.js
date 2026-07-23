@@ -128,6 +128,24 @@ const baseSdkConfig = [
   },
 ];
 
+// The generated class-XDR layer relies on abstract-base ↔ concrete-subclass
+// references that are only safe under class hoisting, and preserves generated
+// naming/redeclaration shapes. Loosen the rules that would otherwise flag them.
+const xdrGenConfig = [
+  {
+    name: "src/xdr",
+    files: ["src/xdr/**/*.ts"],
+    rules: {
+      "@typescript-eslint/no-redeclare": "off",
+      "@typescript-eslint/naming-convention": "off",
+      "@typescript-eslint/no-use-before-define": [
+        "error",
+        { functions: false },
+      ],
+    },
+  },
+];
+
 // scripts/build-docs.ts dispatches a discriminated-union renderer through
 // mutually recursive helpers; function-declaration hoisting handles the
 // runtime ordering. Match baseSdkConfig's `functions: false` loosening.
@@ -165,6 +183,7 @@ ignoreFiles.ignores.push(
     "rollup.config.mjs",
     "config/**/*",
     "src/base/generated/**",
+    "tools/**",
     // Astro build-time configs — excluded from tsconfig.json (they
     // import the virtual `astro:content` module), so the typescript-
     // eslint parser can't resolve them via the SDK project. Lint
@@ -182,6 +201,8 @@ export default [
   ...javascriptConfig,
   // TypeScript Config
   ...typescriptConfig,
+  // XDR Gen Config (must come after typescriptConfig to allow overrides)
+  ...xdrGenConfig,
   // TSDoc Config
   ...tsdocConfig,
   // Test Config

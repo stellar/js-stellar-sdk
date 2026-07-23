@@ -1,6 +1,12 @@
 import { Address } from "./address.js";
 import { Operation } from "./operation.js";
-import xdr from "./xdr.js";
+import {
+  ContractDataDurability,
+  LedgerKey,
+  LedgerKeyContractData,
+  Operation as XdrOperation,
+  ScVal,
+} from "../xdr/index.js";
 import { StrKey } from "./strkey.js";
 
 /**
@@ -57,10 +63,7 @@ export class Contract {
    * @see Operation.createStellarAssetContract
    * @see Operation.uploadContractWasm
    */
-  call(
-    method: string,
-    ...params: xdr.ScVal[]
-  ): xdr.Operation<Operation.InvokeHostFunction> {
+  call(method: string, ...params: ScVal[]): XdrOperation {
     return Operation.invokeContractFunction({
       contract: this.address().toString(),
       function: method,
@@ -73,12 +76,12 @@ export class Contract {
    * this contract, for convenience when manually adding it to your
    * transaction's overall footprint or doing bump/restore operations.
    */
-  getFootprint(): xdr.LedgerKey {
-    return xdr.LedgerKey.contractData(
-      new xdr.LedgerKeyContractData({
+  getFootprint(): LedgerKey {
+    return LedgerKey.contractData(
+      new LedgerKeyContractData({
         contract: this.address().toScAddress(),
-        key: xdr.ScVal.scvLedgerKeyContractInstance(),
-        durability: xdr.ContractDataDurability.persistent(),
+        key: ScVal.scvLedgerKeyContractInstance(),
+        durability: ContractDataDurability.persistent,
       }),
     );
   }

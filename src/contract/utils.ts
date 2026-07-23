@@ -1,7 +1,7 @@
-import { xdr, cereal, Account } from "../base/index.js";
+import { Account } from "../base/index.js";
 import { Server } from "../rpc/index.js";
-import { type AssembledTransaction } from "./assembled_transaction.js";
 import { NULL_ACCOUNT, type AssembledTransactionOptions } from "./types.js";
+import { ScSpecEntry, decodeStream } from "../xdr/index.js";
 
 /**
  * Keep calling a `fn` for `timeoutInSeconds` seconds, if `keepWaitingIf` is
@@ -179,13 +179,7 @@ export function parseWasmCustomSections(
  * @hidden
  */
 export function processSpecEntryStream(buffer: Buffer) {
-  const reader = new cereal.XdrReader(buffer);
-  const res: xdr.ScSpecEntry[] = [];
-  while (!reader.eof) {
-    // @ts-expect-error ScSpecEntry.read expects the generated XdrReader type; reader is cereal.XdrReader
-    res.push(xdr.ScSpecEntry.read(reader));
-  }
-  return res;
+  return decodeStream(ScSpecEntry, new Uint8Array(buffer));
 }
 
 export async function getAccount<T>(

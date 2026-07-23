@@ -13,14 +13,10 @@
     "rootDir": "src",
     "outDir": "lib/esm",
     "target": "es2022",
-    "types": ["node", "base32.js", "stellar__js-xdr"],
-    "typeRoots": ["types", "node_modules/@types"]
+    "types": ["node", "base32.js", "js-xdr-v4"],
+    "typeRoots": ["types", "node_modules/@types"],
+    "importHelpers": false
   },
   "include": ["src"],
-  "exclude": [
-    "src/base/generated/curr_generated.js",
-    "src/base/generated/next_generated.js",
-    "src/content.config.ts",
-    "src/content/**"
-  ]
+  "exclude": ["src/content.config.ts", "src/content/**"]
 }

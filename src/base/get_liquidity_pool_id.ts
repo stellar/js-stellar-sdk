@@ -1,4 +1,7 @@
-import xdr from "./xdr.js";
+import {
+  LiquidityPoolConstantProductParameters,
+  LiquidityPoolParameters as XdrLiquidityPoolParameters,
+} from "../xdr/index.js";
 import { Asset } from "./asset.js";
 import { hash } from "./hashing.js";
 
@@ -31,9 +34,9 @@ export const LiquidityPoolFeeV18 = 30;
  *
  * @param liquidityPoolType - A string representing the liquidity pool type.
  * @param liquidityPoolParameters - The liquidity pool parameters.
- *   - `assetA`: The first asset in the Pool, it must respect the rule `assetA < assetB`.
- *   - `assetB`: The second asset in the Pool, it must respect the rule `assetA < assetB`.
- *   - `fee`: The liquidity pool fee. For now the only fee supported is `30`.
+ * @param liquidityPoolParameters.assetA - The first asset in the Pool, it must respect the rule assetA < assetB.
+ * @param liquidityPoolParameters.assetB - The second asset in the Pool, it must respect the rule assetA < assetB.
+ * @param liquidityPoolParameters.fee - The liquidity pool fee. For now the only fee supported is `30`.
  */
 export function getLiquidityPoolId(
   liquidityPoolType: LiquidityPoolType,
@@ -62,13 +65,13 @@ export function getLiquidityPoolId(
     throw new Error("Assets are not in lexicographic order");
   }
 
-  const payload = xdr.LiquidityPoolParameters.liquidityPoolConstantProduct(
-    new xdr.LiquidityPoolConstantProductParameters({
-      assetA: assetA.toXDRObject(),
-      assetB: assetB.toXDRObject(),
+  const payload = XdrLiquidityPoolParameters.liquidityPoolConstantProduct(
+    new LiquidityPoolConstantProductParameters({
+      assetA: assetA.toXdrObject(),
+      assetB: assetB.toXdrObject(),
       fee,
     }),
-  ).toXDR();
+  ).toXdr();
 
-  return hash(payload);
+  return hash(Buffer.from(payload));
 }

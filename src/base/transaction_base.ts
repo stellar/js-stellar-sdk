@@ -1,4 +1,10 @@
-import xdr from "./xdr.js";
+import {
+  DecoratedSignature,
+  FeeBumpTransaction,
+  Transaction,
+  TransactionEnvelope,
+  TransactionV0,
+} from "../xdr/index.js";
 import { hash } from "./hashing.js";
 import { Keypair } from "./keypair.js";
 
@@ -6,16 +12,16 @@ import { Keypair } from "./keypair.js";
  * @ignore
  */
 export class TransactionBase<
-  TTx extends xdr.FeeBumpTransaction | xdr.Transaction | xdr.TransactionV0,
+  TTx extends FeeBumpTransaction | Transaction | TransactionV0,
 > {
   private _tx: TTx;
-  private _signatures: xdr.DecoratedSignature[];
+  private _signatures: DecoratedSignature[];
   private _fee: string;
   private _networkPassphrase: string;
 
   constructor(
     tx: TTx,
-    signatures: xdr.DecoratedSignature[],
+    signatures: DecoratedSignature[],
     fee: string,
     networkPassphrase: string,
   ) {
@@ -32,11 +38,11 @@ export class TransactionBase<
   }
 
   /** The list of signatures for this transaction. */
-  get signatures(): xdr.DecoratedSignature[] {
+  get signatures(): DecoratedSignature[] {
     return this._signatures;
   }
 
-  set signatures(_value: xdr.DecoratedSignature[]) {
+  set signatures(_value: DecoratedSignature[]) {
     throw new Error("Transaction is immutable");
   }
 
@@ -46,23 +52,23 @@ export class TransactionBase<
    * Returns a defensive copy so that external mutations cannot alter the
    * transaction that will be signed or serialized.
    *
-   * @throws if the internal transaction is not a recognized XDR type
+   * @throws {Error} if the internal transaction is not a recognized XDR type
    */
   get tx(): TTx {
-    const buf = this._tx.toXDR();
+    const buf = this._tx.toXdr();
 
     // Making sure we have the right type here, since the base class doesn't
     // know which transaction type it is.
-    if (this._tx instanceof xdr.Transaction) {
-      return xdr.Transaction.fromXDR(buf) as TTx;
+    if (this._tx instanceof Transaction) {
+      return Transaction.fromXdr(buf) as TTx;
     }
 
-    if (this._tx instanceof xdr.TransactionV0) {
-      return xdr.TransactionV0.fromXDR(buf) as TTx;
+    if (this._tx instanceof TransactionV0) {
+      return TransactionV0.fromXdr(buf) as TTx;
     }
 
-    if (this._tx instanceof xdr.FeeBumpTransaction) {
-      return xdr.FeeBumpTransaction.fromXDR(buf) as TTx;
+    if (this._tx instanceof FeeBumpTransaction) {
+      return FeeBumpTransaction.fromXdr(buf) as TTx;
     }
 
     throw new Error("Unknown transaction type");
@@ -106,7 +112,7 @@ export class TransactionBase<
   /**
    * Signs a transaction with the given {@link Keypair}. Useful if someone sends
    * you a transaction XDR for you to sign and return (see
-   * `{@link Transaction.addSignature | addSignature}` for more information).
+   * {@link addSignature} for more information).
    *
    * When you get a transaction XDR to sign....
    * - Instantiate a `Transaction` object with the XDR
@@ -139,15 +145,15 @@ export class TransactionBase<
    * - Use `TransactionBuilder` to build a new transaction.
    * - Make sure to set a long enough timeout on that transaction to give your
    * signers enough time to sign!
-   * - Once you build the transaction, use `transaction.toXDR()` to get the
+   * - Once you build the transaction, use `transaction.toXdr()` to get the
    * base64-encoded XDR string.
    * - _Warning!_ Once you've built this transaction, don't submit any other
    * transactions onto your account! Doing so will invalidate this pre-compiled
    * transaction!
    * - Send this XDR string to your other parties. They can use the instructions
-   * for `{@link Transaction.getKeypairSignature | getKeypairSignature}` to sign the transaction.
+   * for {@link getKeypairSignature} to sign the transaction.
    * - They should send you back their `publicKey` and the `signature` string
-   * from `{@link Transaction.getKeypairSignature | getKeypairSignature}`, both of which you pass to
+   * from {@link getKeypairSignature}, both of which you pass to
    * this function.
    *
    * @param publicKey - the public key of the signer
@@ -178,7 +184,7 @@ export class TransactionBase<
     }
 
     this.signatures.push(
-      new xdr.DecoratedSignature({
+      new DecoratedSignature({
         hint,
         signature: signatureBuffer,
       }),
@@ -193,7 +199,7 @@ export class TransactionBase<
    * @see Keypair.signDecorated
    * @see Keypair.signPayloadDecorated
    */
-  addDecoratedSignature(signature: xdr.DecoratedSignature): void {
+  addDecoratedSignature(signature: DecoratedSignature): void {
     this.signatures.push(signature);
   }
 
@@ -213,7 +219,7 @@ export class TransactionBase<
     const signature = preimage;
     const hashX = hash(preimage);
     const hint = hashX.subarray(hashX.length - 4);
-    this.signatures.push(new xdr.DecoratedSignature({ hint, signature }));
+    this.signatures.push(new DecoratedSignature({ hint, signature }));
   }
 
   /**
@@ -229,14 +235,14 @@ export class TransactionBase<
   }
 
   /** Returns the XDR transaction envelope, to be overridden by subclasses. */
-  toEnvelope(): xdr.TransactionEnvelope {
+  toEnvelope(): TransactionEnvelope {
     throw new Error("Implement in subclass");
   }
 
   /**
    * Returns the transaction envelope as a base64-encoded XDR string.
    */
-  toXDR(): string {
-    return this.toEnvelope().toXDR().toString("base64");
+  toXdr(): string {
+    return this.toEnvelope().toXdr("base64");
   }
 }
