@@ -126,8 +126,7 @@ export function parseTypeFromTypeDef(
       return "bigint";
     case "scSpecTypeBytes":
     case "scSpecTypeBytesN":
-      // scValToNative returns plain Uint8Array (ScBytes.value); Buffer is a
-      // Uint8Array subclass, so inputs typed this way still accept Buffers.
+      // scValToNative returns plain Uint8Array (ScBytes.value).
       return "Uint8Array";
     case "scSpecTypeString":
       return "string";

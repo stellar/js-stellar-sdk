@@ -429,7 +429,7 @@ export namespace HorizonApi {
     OperationResponseTypeI.manageData
   > {
     name: string;
-    value: Buffer;
+    value: Uint8Array;
   }
   export interface BumpSequenceOperationResponse extends BaseOperationResponse<
     OperationResponseType.bumpSequence,

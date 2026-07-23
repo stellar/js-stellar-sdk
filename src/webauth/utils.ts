@@ -3,6 +3,7 @@
  * @see {@link https://stellar.org/protocol-10 | SEP-10 Specification}
  */
 
+import { areUint8ArraysEqual } from "uint8array-extras";
 import { FeeBumpTransaction, Keypair, Transaction } from "../base/index.js";
 import { InvalidChallengeError } from "./errors.js";
 /**
@@ -55,16 +56,13 @@ export function gatherTxSigners(
     for (let i = 0; i < txSignatures.length; i++) {
       const decSig = txSignatures[i];
 
-      if (!Buffer.from(decSig.hint.toBytes()).equals(keypair.signatureHint())) {
+      if (
+        !areUint8ArraysEqual(decSig.hint.toBytes(), keypair.signatureHint())
+      ) {
         continue;
       }
 
-      if (
-        keypair.verify(
-          hashedSignatureBase,
-          Buffer.from(decSig.signature.toBytes()),
-        )
-      ) {
+      if (keypair.verify(hashedSignatureBase, decSig.signature.toBytes())) {
         signersFound.add(signer);
         txSignatures.splice(i, 1);
         break;

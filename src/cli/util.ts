@@ -76,9 +76,9 @@ export async function createGenerator(
 
   // Local WASM file
   if (args.wasm) {
-    const wasmBuffer = await fs.readFile(args.wasm);
+    const wasmBytes = await fs.readFile(args.wasm);
     return {
-      generator: BindingGenerator.fromWasm(wasmBuffer),
+      generator: BindingGenerator.fromWasm(wasmBytes),
       source: { type: "file", path: args.wasm },
     };
   }

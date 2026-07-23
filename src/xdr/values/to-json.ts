@@ -7,7 +7,6 @@
 // without an override fall through to the kind-based default.
 
 import { uint8ArrayToHex, hexToUint8Array } from "uint8array-extras";
-import { Buffer } from "buffer";
 
 import { XdrError } from "@stellar/js-xdr";
 import type {
@@ -390,12 +389,8 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
   );
 }
 
-function asBuffer(bytes: Uint8Array): Buffer {
-  return Buffer.from(bytes.buffer, bytes.byteOffset, bytes.byteLength);
-}
-
-function asUint8Array(buf: Buffer): Uint8Array {
-  return new Uint8Array(buf.buffer, buf.byteOffset, buf.byteLength);
+function asDataView(bytes: Uint8Array): DataView {
+  return new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
 }
 
 // ---------- overrides ----------
@@ -409,17 +404,17 @@ interface Med25519Wire {
 }
 
 function med25519ToStrkey(w: Med25519Wire): string {
-  const payload = Buffer.alloc(40);
+  const payload = new Uint8Array(40);
   payload.set(w.ed25519, 0);
-  payload.writeBigUInt64BE(w.id, 32);
+  asDataView(payload).setBigUint64(32, w.id);
   return StrKey.encodeMed25519PublicKey(payload);
 }
 
 function med25519FromStrkey(json: string): Med25519Wire {
   const raw = StrKey.decodeMed25519PublicKey(json);
   return {
-    id: raw.readBigUInt64BE(32),
-    ed25519: asUint8Array(raw.subarray(0, 32)),
+    id: asDataView(raw).getBigUint64(32),
+    ed25519: raw.subarray(0, 32),
   };
 }
 
@@ -429,9 +424,9 @@ interface SignedPayloadWire {
 }
 
 function signedPayloadToStrkey(w: SignedPayloadWire): string {
-  const buf = Buffer.alloc(32 + 4 + roundUp4(w.payload.length));
+  const buf = new Uint8Array(32 + 4 + roundUp4(w.payload.length));
   buf.set(w.ed25519, 0);
-  buf.writeUInt32BE(w.payload.length, 32);
+  asDataView(buf).setUint32(32, w.payload.length);
   buf.set(w.payload, 36);
   return StrKey.encodeSignedPayload(buf);
 }
@@ -439,8 +434,8 @@ function signedPayloadToStrkey(w: SignedPayloadWire): string {
 function signedPayloadFromStrkey(json: string): SignedPayloadWire {
   const raw = StrKey.decodeSignedPayload(json);
   return {
-    ed25519: asUint8Array(raw.subarray(0, 32)),
-    payload: asUint8Array(raw.subarray(36, 36 + raw.readUInt32BE(32))),
+    ed25519: raw.subarray(0, 32),
+    payload: raw.subarray(36, 36 + asDataView(raw).getUint32(32)),
   };
 }
 
@@ -452,7 +447,7 @@ OVERRIDES.set("PublicKey", {
         `PublicKey: unsupported variant ${w.type} for JSON output`,
       );
     }
-    return StrKey.encodeEd25519PublicKey(asBuffer(w.ed25519));
+    return StrKey.encodeEd25519PublicKey(w.ed25519);
   },
   fromJson(json) {
     if (typeof json !== "string") {
@@ -460,7 +455,7 @@ OVERRIDES.set("PublicKey", {
     }
     return {
       type: 0,
-      ed25519: asUint8Array(StrKey.decodeEd25519PublicKey(json)),
+      ed25519: StrKey.decodeEd25519PublicKey(json),
     };
   },
 });
@@ -471,7 +466,7 @@ OVERRIDES.set("MuxedAccount", {
       | { type: 0; ed25519: Uint8Array }
       | { type: 256; med25519: { id: bigint; ed25519: Uint8Array } };
     if (w.type === 0) {
-      return StrKey.encodeEd25519PublicKey(asBuffer(w.ed25519));
+      return StrKey.encodeEd25519PublicKey(w.ed25519);
     }
     return med25519ToStrkey(w.med25519);
   },
@@ -482,7 +477,7 @@ OVERRIDES.set("MuxedAccount", {
     if (json.startsWith("G")) {
       return {
         type: 0,
-        ed25519: asUint8Array(StrKey.decodeEd25519PublicKey(json)),
+        ed25519: StrKey.decodeEd25519PublicKey(json),
       };
     }
     if (json.startsWith("M")) {
@@ -524,11 +519,11 @@ OVERRIDES.set("SignerKey", {
         };
     switch (w.type) {
       case 0:
-        return StrKey.encodeEd25519PublicKey(asBuffer(w.ed25519));
+        return StrKey.encodeEd25519PublicKey(w.ed25519);
       case 1:
-        return StrKey.encodePreAuthTx(asBuffer(w.preAuthTx));
+        return StrKey.encodePreAuthTx(w.preAuthTx);
       case 2:
-        return StrKey.encodeSha256Hash(asBuffer(w.hashX));
+        return StrKey.encodeSha256Hash(w.hashX);
       case 3:
         return signedPayloadToStrkey(w.ed25519SignedPayload);
     }
@@ -540,17 +535,17 @@ OVERRIDES.set("SignerKey", {
     if (json.startsWith("G")) {
       return {
         type: 0,
-        ed25519: asUint8Array(StrKey.decodeEd25519PublicKey(json)),
+        ed25519: StrKey.decodeEd25519PublicKey(json),
       };
     }
     if (json.startsWith("T")) {
       return {
         type: 1,
-        preAuthTx: asUint8Array(StrKey.decodePreAuthTx(json)),
+        preAuthTx: StrKey.decodePreAuthTx(json),
       };
     }
     if (json.startsWith("X")) {
-      return { type: 2, hashX: asUint8Array(StrKey.decodeSha256Hash(json)) };
+      return { type: 2, hashX: StrKey.decodeSha256Hash(json) };
     }
     if (json.startsWith("P")) {
       return { type: 3, ed25519SignedPayload: signedPayloadFromStrkey(json) };
@@ -592,21 +587,20 @@ OVERRIDES.set("ScAddress", {
       | { type: 4; liquidityPoolId: Uint8Array };
     switch (w.type) {
       case 0:
-        return StrKey.encodeEd25519PublicKey(asBuffer(w.accountId.ed25519));
+        return StrKey.encodeEd25519PublicKey(w.accountId.ed25519);
       case 1:
-        return StrKey.encodeContract(asBuffer(w.contractId));
+        return StrKey.encodeContract(w.contractId);
       case 2:
         return med25519ToStrkey(w.muxedAccount);
       case 3: {
         const cb = w.claimableBalanceId;
-        // CLAIMABLE_BALANCE_ID_TYPE_V0 (=0) prefix-byte
-        const raw = Buffer.alloc(1 + 32);
-        raw.writeUInt8(0, 0);
+        // CLAIMABLE_BALANCE_ID_TYPE_V0 (=0) prefix-byte (zero-initialized)
+        const raw = new Uint8Array(1 + 32);
         raw.set(cb.v0, 1);
         return StrKey.encodeClaimableBalance(raw);
       }
       case 4:
-        return StrKey.encodeLiquidityPool(asBuffer(w.liquidityPoolId));
+        return StrKey.encodeLiquidityPool(w.liquidityPoolId);
     }
   },
   fromJson(json) {
@@ -618,12 +612,12 @@ OVERRIDES.set("ScAddress", {
         type: 0,
         accountId: {
           type: 0,
-          ed25519: asUint8Array(StrKey.decodeEd25519PublicKey(json)),
+          ed25519: StrKey.decodeEd25519PublicKey(json),
         },
       };
     }
     if (json.startsWith("C")) {
-      return { type: 1, contractId: asUint8Array(StrKey.decodeContract(json)) };
+      return { type: 1, contractId: StrKey.decodeContract(json) };
     }
     if (json.startsWith("M")) {
       return { type: 2, muxedAccount: med25519FromStrkey(json) };
@@ -633,15 +627,15 @@ OVERRIDES.set("ScAddress", {
       return {
         type: 3,
         claimableBalanceId: {
-          type: raw.readUInt8(0),
-          v0: asUint8Array(raw.subarray(1)),
+          type: raw[0],
+          v0: raw.subarray(1),
         },
       };
     }
     if (json.startsWith("L")) {
       return {
         type: 4,
-        liquidityPoolId: asUint8Array(StrKey.decodeLiquidityPool(json)),
+        liquidityPoolId: StrKey.decodeLiquidityPool(json),
       };
     }
     throw new XdrError(`ScAddress: unsupported strkey prefix in ${json}`);
@@ -651,8 +645,8 @@ OVERRIDES.set("ScAddress", {
 OVERRIDES.set("ClaimableBalanceId", {
   toJson(wire) {
     const w = wire as { type: 0; v0: Uint8Array };
-    const raw = Buffer.alloc(1 + 32);
-    raw.writeUInt8(0, 0);
+    // CLAIMABLE_BALANCE_ID_TYPE_V0 (=0) prefix-byte (zero-initialized)
+    const raw = new Uint8Array(1 + 32);
     raw.set(w.v0, 1);
     return StrKey.encodeClaimableBalance(raw);
   },
@@ -661,7 +655,7 @@ OVERRIDES.set("ClaimableBalanceId", {
       throw new XdrError("ClaimableBalanceId: expected B-strkey string");
     }
     const raw = StrKey.decodeClaimableBalance(json);
-    return { type: raw.readUInt8(0), v0: asUint8Array(raw.subarray(1)) };
+    return { type: raw[0], v0: raw.subarray(1) };
   },
 });
 
@@ -671,25 +665,25 @@ OVERRIDES.set("ClaimableBalanceId", {
 
 OVERRIDES.set("PoolId", {
   toJson(wire) {
-    return StrKey.encodeLiquidityPool(asBuffer(wire as Uint8Array));
+    return StrKey.encodeLiquidityPool(wire as Uint8Array);
   },
   fromJson(json) {
     if (typeof json !== "string") {
       throw new XdrError("PoolId: expected L-strkey string");
     }
-    return asUint8Array(StrKey.decodeLiquidityPool(json));
+    return StrKey.decodeLiquidityPool(json);
   },
 });
 
 OVERRIDES.set("ContractId", {
   toJson(wire) {
-    return StrKey.encodeContract(asBuffer(wire as Uint8Array));
+    return StrKey.encodeContract(wire as Uint8Array);
   },
   fromJson(json) {
     if (typeof json !== "string") {
       throw new XdrError("ContractId: expected C-strkey string");
     }
-    return asUint8Array(StrKey.decodeContract(json));
+    return StrKey.decodeContract(json);
   },
 });
 
