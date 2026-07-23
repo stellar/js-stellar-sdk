@@ -1978,7 +1978,8 @@ var types = XDR.config((xdr) => {
   //       ENVELOPE_TYPE_OP_ID = 6,
   //       ENVELOPE_TYPE_POOL_REVOKE_OP_ID = 7,
   //       ENVELOPE_TYPE_CONTRACT_ID = 8,
-  //       ENVELOPE_TYPE_SOROBAN_AUTHORIZATION = 9
+  //       ENVELOPE_TYPE_SOROBAN_AUTHORIZATION = 9,
+  //       ENVELOPE_TYPE_SOROBAN_AUTHORIZATION_WITH_ADDRESS = 10
   //   };
   //
   // ===========================================================================
@@ -1993,6 +1994,7 @@ var types = XDR.config((xdr) => {
     envelopeTypePoolRevokeOpId: 7,
     envelopeTypeContractId: 8,
     envelopeTypeSorobanAuthorization: 9,
+    envelopeTypeSorobanAuthorizationWithAddress: 10,
   });
 
   // === xdr source ============================================================
@@ -5226,16 +5228,56 @@ var types = XDR.config((xdr) => {
 
   // === xdr source ============================================================
   //
+  //   struct SorobanDelegateSignature
+  //   {
+  //       SCAddress address;
+  //       SCVal signature;
+  //       SorobanDelegateSignature nestedDelegates<>;
+  //   };
+  //
+  // ===========================================================================
+  xdr.struct("SorobanDelegateSignature", [
+    ["address", xdr.lookup("ScAddress")],
+    ["signature", xdr.lookup("ScVal")],
+    [
+      "nestedDelegates",
+      xdr.varArray(xdr.lookup("SorobanDelegateSignature"), 2147483647),
+    ],
+  ]);
+
+  // === xdr source ============================================================
+  //
+  //   struct SorobanAddressCredentialsWithDelegates
+  //   {
+  //       SorobanAddressCredentials addressCredentials;
+  //       SorobanDelegateSignature delegates<>;
+  //   };
+  //
+  // ===========================================================================
+  xdr.struct("SorobanAddressCredentialsWithDelegates", [
+    ["addressCredentials", xdr.lookup("SorobanAddressCredentials")],
+    [
+      "delegates",
+      xdr.varArray(xdr.lookup("SorobanDelegateSignature"), 2147483647),
+    ],
+  ]);
+
+  // === xdr source ============================================================
+  //
   //   enum SorobanCredentialsType
   //   {
   //       SOROBAN_CREDENTIALS_SOURCE_ACCOUNT = 0,
-  //       SOROBAN_CREDENTIALS_ADDRESS = 1
+  //       SOROBAN_CREDENTIALS_ADDRESS = 1,
+  //       SOROBAN_CREDENTIALS_ADDRESS_V2 = 2,
+  //       SOROBAN_CREDENTIALS_ADDRESS_WITH_DELEGATES = 3
   //   };
   //
   // ===========================================================================
   xdr.enum("SorobanCredentialsType", {
     sorobanCredentialsSourceAccount: 0,
     sorobanCredentialsAddress: 1,
+    sorobanCredentialsAddressV2: 2,
+    sorobanCredentialsAddressWithDelegates: 3,
   });
 
   // === xdr source ============================================================
@@ -5246,6 +5288,10 @@ var types = XDR.config((xdr) => {
   //       void;
   //   case SOROBAN_CREDENTIALS_ADDRESS:
   //       SorobanAddressCredentials address;
+  //   case SOROBAN_CREDENTIALS_ADDRESS_V2:
+  //       SorobanAddressCredentials addressV2;
+  //   case SOROBAN_CREDENTIALS_ADDRESS_WITH_DELEGATES:
+  //       SorobanAddressCredentialsWithDelegates addressWithDelegates;
   //   };
   //
   // ===========================================================================
@@ -5255,9 +5301,15 @@ var types = XDR.config((xdr) => {
     switches: [
       ["sorobanCredentialsSourceAccount", xdr.void()],
       ["sorobanCredentialsAddress", "address"],
+      ["sorobanCredentialsAddressV2", "addressV2"],
+      ["sorobanCredentialsAddressWithDelegates", "addressWithDelegates"],
     ],
     arms: {
       address: xdr.lookup("SorobanAddressCredentials"),
+      addressV2: xdr.lookup("SorobanAddressCredentials"),
+      addressWithDelegates: xdr.lookup(
+        "SorobanAddressCredentialsWithDelegates",
+      ),
     },
   });
 
@@ -5594,6 +5646,26 @@ var types = XDR.config((xdr) => {
 
   // === xdr source ============================================================
   //
+  //   struct
+  //       {
+  //           Hash networkID;
+  //           int64 nonce;
+  //           uint32 signatureExpirationLedger;
+  //           SCAddress address;
+  //           SorobanAuthorizedInvocation invocation;
+  //       }
+  //
+  // ===========================================================================
+  xdr.struct("HashIdPreimageSorobanAuthorizationWithAddress", [
+    ["networkId", xdr.lookup("Hash")],
+    ["nonce", xdr.lookup("Int64")],
+    ["signatureExpirationLedger", xdr.lookup("Uint32")],
+    ["address", xdr.lookup("ScAddress")],
+    ["invocation", xdr.lookup("SorobanAuthorizedInvocation")],
+  ]);
+
+  // === xdr source ============================================================
+  //
   //   union HashIDPreimage switch (EnvelopeType type)
   //   {
   //   case ENVELOPE_TYPE_OP_ID:
@@ -5626,6 +5698,15 @@ var types = XDR.config((xdr) => {
   //           uint32 signatureExpirationLedger;
   //           SorobanAuthorizedInvocation invocation;
   //       } sorobanAuthorization;
+  //   case ENVELOPE_TYPE_SOROBAN_AUTHORIZATION_WITH_ADDRESS:
+  //       struct
+  //       {
+  //           Hash networkID;
+  //           int64 nonce;
+  //           uint32 signatureExpirationLedger;
+  //           SCAddress address;
+  //           SorobanAuthorizedInvocation invocation;
+  //       } sorobanAuthorizationWithAddress;
   //   };
   //
   // ===========================================================================
@@ -5637,12 +5718,19 @@ var types = XDR.config((xdr) => {
       ["envelopeTypePoolRevokeOpId", "revokeId"],
       ["envelopeTypeContractId", "contractId"],
       ["envelopeTypeSorobanAuthorization", "sorobanAuthorization"],
+      [
+        "envelopeTypeSorobanAuthorizationWithAddress",
+        "sorobanAuthorizationWithAddress",
+      ],
     ],
     arms: {
       operationId: xdr.lookup("HashIdPreimageOperationId"),
       revokeId: xdr.lookup("HashIdPreimageRevokeId"),
       contractId: xdr.lookup("HashIdPreimageContractId"),
       sorobanAuthorization: xdr.lookup("HashIdPreimageSorobanAuthorization"),
+      sorobanAuthorizationWithAddress: xdr.lookup(
+        "HashIdPreimageSorobanAuthorizationWithAddress",
+      ),
     },
   });
 
@@ -7427,7 +7515,8 @@ var types = XDR.config((xdr) => {
   //       CLAIM_CLAIMABLE_BALANCE_CANNOT_CLAIM = -2,
   //       CLAIM_CLAIMABLE_BALANCE_LINE_FULL = -3,
   //       CLAIM_CLAIMABLE_BALANCE_NO_TRUST = -4,
-  //       CLAIM_CLAIMABLE_BALANCE_NOT_AUTHORIZED = -5
+  //       CLAIM_CLAIMABLE_BALANCE_NOT_AUTHORIZED = -5,
+  //       CLAIM_CLAIMABLE_BALANCE_TRUSTLINE_FROZEN = -6
   //   };
   //
   // ===========================================================================
@@ -7438,6 +7527,7 @@ var types = XDR.config((xdr) => {
     claimClaimableBalanceLineFull: -3,
     claimClaimableBalanceNoTrust: -4,
     claimClaimableBalanceNotAuthorized: -5,
+    claimClaimableBalanceTrustlineFrozen: -6,
   });
 
   // === xdr source ============================================================
@@ -7451,6 +7541,7 @@ var types = XDR.config((xdr) => {
   //   case CLAIM_CLAIMABLE_BALANCE_LINE_FULL:
   //   case CLAIM_CLAIMABLE_BALANCE_NO_TRUST:
   //   case CLAIM_CLAIMABLE_BALANCE_NOT_AUTHORIZED:
+  //   case CLAIM_CLAIMABLE_BALANCE_TRUSTLINE_FROZEN:
   //       void;
   //   };
   //
@@ -7465,6 +7556,7 @@ var types = XDR.config((xdr) => {
       ["claimClaimableBalanceLineFull", xdr.void()],
       ["claimClaimableBalanceNoTrust", xdr.void()],
       ["claimClaimableBalanceNotAuthorized", xdr.void()],
+      ["claimClaimableBalanceTrustlineFrozen", xdr.void()],
     ],
     arms: {},
   });
@@ -7779,7 +7871,9 @@ var types = XDR.config((xdr) => {
   //       LIQUIDITY_POOL_DEPOSIT_LINE_FULL = -5,      // pool share trust line doesn't
   //                                                   // have sufficient limit
   //       LIQUIDITY_POOL_DEPOSIT_BAD_PRICE = -6,      // deposit price outside bounds
-  //       LIQUIDITY_POOL_DEPOSIT_POOL_FULL = -7       // pool reserves are full
+  //       LIQUIDITY_POOL_DEPOSIT_POOL_FULL = -7,      // pool reserves are full
+  //       LIQUIDITY_POOL_DEPOSIT_TRUSTLINE_FROZEN = -8  // trustline for one of the
+  //                                                     // assets is frozen
   //   };
   //
   // ===========================================================================
@@ -7792,6 +7886,7 @@ var types = XDR.config((xdr) => {
     liquidityPoolDepositLineFull: -5,
     liquidityPoolDepositBadPrice: -6,
     liquidityPoolDepositPoolFull: -7,
+    liquidityPoolDepositTrustlineFrozen: -8,
   });
 
   // === xdr source ============================================================
@@ -7807,6 +7902,7 @@ var types = XDR.config((xdr) => {
   //   case LIQUIDITY_POOL_DEPOSIT_LINE_FULL:
   //   case LIQUIDITY_POOL_DEPOSIT_BAD_PRICE:
   //   case LIQUIDITY_POOL_DEPOSIT_POOL_FULL:
+  //   case LIQUIDITY_POOL_DEPOSIT_TRUSTLINE_FROZEN:
   //       void;
   //   };
   //
@@ -7823,6 +7919,7 @@ var types = XDR.config((xdr) => {
       ["liquidityPoolDepositLineFull", xdr.void()],
       ["liquidityPoolDepositBadPrice", xdr.void()],
       ["liquidityPoolDepositPoolFull", xdr.void()],
+      ["liquidityPoolDepositTrustlineFrozen", xdr.void()],
     ],
     arms: {},
   });
@@ -7842,7 +7939,9 @@ var types = XDR.config((xdr) => {
   //                                                  // pool share
   //       LIQUIDITY_POOL_WITHDRAW_LINE_FULL = -4,    // would go above limit for one
   //                                                  // of the assets
-  //       LIQUIDITY_POOL_WITHDRAW_UNDER_MINIMUM = -5 // didn't withdraw enough
+  //       LIQUIDITY_POOL_WITHDRAW_UNDER_MINIMUM = -5, // didn't withdraw enough
+  //       LIQUIDITY_POOL_WITHDRAW_TRUSTLINE_FROZEN = -6  // trustline for one of the
+  //                                                      // assets is frozen
   //   };
   //
   // ===========================================================================
@@ -7853,6 +7952,7 @@ var types = XDR.config((xdr) => {
     liquidityPoolWithdrawUnderfunded: -3,
     liquidityPoolWithdrawLineFull: -4,
     liquidityPoolWithdrawUnderMinimum: -5,
+    liquidityPoolWithdrawTrustlineFrozen: -6,
   });
 
   // === xdr source ============================================================
@@ -7866,6 +7966,7 @@ var types = XDR.config((xdr) => {
   //   case LIQUIDITY_POOL_WITHDRAW_UNDERFUNDED:
   //   case LIQUIDITY_POOL_WITHDRAW_LINE_FULL:
   //   case LIQUIDITY_POOL_WITHDRAW_UNDER_MINIMUM:
+  //   case LIQUIDITY_POOL_WITHDRAW_TRUSTLINE_FROZEN:
   //       void;
   //   };
   //
@@ -7880,6 +7981,7 @@ var types = XDR.config((xdr) => {
       ["liquidityPoolWithdrawUnderfunded", xdr.void()],
       ["liquidityPoolWithdrawLineFull", xdr.void()],
       ["liquidityPoolWithdrawUnderMinimum", xdr.void()],
+      ["liquidityPoolWithdrawTrustlineFrozen", xdr.void()],
     ],
     arms: {},
   });
@@ -8305,7 +8407,8 @@ var types = XDR.config((xdr) => {
   //       txBAD_SPONSORSHIP = -14,        // sponsorship not confirmed
   //       txBAD_MIN_SEQ_AGE_OR_GAP = -15, // minSeqAge or minSeqLedgerGap conditions not met
   //       txMALFORMED = -16,              // precondition is invalid
-  //       txSOROBAN_INVALID = -17         // soroban-specific preconditions were not met
+  //       txSOROBAN_INVALID = -17,        // soroban-specific preconditions were not met
+  //       txFROZEN_KEY_ACCESSED = -18     // a 'frozen' ledger key is accessed by any operation
   //   };
   //
   // ===========================================================================
@@ -8329,6 +8432,7 @@ var types = XDR.config((xdr) => {
     txBadMinSeqAgeOrGap: -15,
     txMalformed: -16,
     txSorobanInvalid: -17,
+    txFrozenKeyAccessed: -18,
   });
 
   // === xdr source ============================================================
@@ -8355,6 +8459,7 @@ var types = XDR.config((xdr) => {
   //       case txBAD_MIN_SEQ_AGE_OR_GAP:
   //       case txMALFORMED:
   //       case txSOROBAN_INVALID:
+  //       case txFROZEN_KEY_ACCESSED:
   //           void;
   //       }
   //
@@ -8380,6 +8485,7 @@ var types = XDR.config((xdr) => {
       ["txBadMinSeqAgeOrGap", xdr.void()],
       ["txMalformed", xdr.void()],
       ["txSorobanInvalid", xdr.void()],
+      ["txFrozenKeyAccessed", xdr.void()],
     ],
     arms: {
       results: xdr.varArray(xdr.lookup("OperationResult"), 2147483647),
@@ -8431,6 +8537,7 @@ var types = XDR.config((xdr) => {
   //       case txBAD_MIN_SEQ_AGE_OR_GAP:
   //       case txMALFORMED:
   //       case txSOROBAN_INVALID:
+  //       case txFROZEN_KEY_ACCESSED:
   //           void;
   //       }
   //       result;
@@ -8491,6 +8598,7 @@ var types = XDR.config((xdr) => {
   //       case txBAD_MIN_SEQ_AGE_OR_GAP:
   //       case txMALFORMED:
   //       case txSOROBAN_INVALID:
+  //       case txFROZEN_KEY_ACCESSED:
   //           void;
   //       }
   //
@@ -8518,6 +8626,7 @@ var types = XDR.config((xdr) => {
       ["txBadMinSeqAgeOrGap", xdr.void()],
       ["txMalformed", xdr.void()],
       ["txSorobanInvalid", xdr.void()],
+      ["txFrozenKeyAccessed", xdr.void()],
     ],
     arms: {
       innerResultPair: xdr.lookup("InnerTransactionResultPair"),
@@ -8571,6 +8680,7 @@ var types = XDR.config((xdr) => {
   //       case txBAD_MIN_SEQ_AGE_OR_GAP:
   //       case txMALFORMED:
   //       case txSOROBAN_INVALID:
+  //       case txFROZEN_KEY_ACCESSED:
   //           void;
   //       }
   //       result;
@@ -9855,7 +9965,7 @@ var types = XDR.config((xdr) => {
   //       string doc<SC_SPEC_DOC_LIMIT>;
   //       string lib<80>;
   //       string name<60>;
-  //       SCSpecUDTStructFieldV0 fields<40>;
+  //       SCSpecUDTStructFieldV0 fields<>;
   //   };
   //
   // ===========================================================================
@@ -9863,7 +9973,7 @@ var types = XDR.config((xdr) => {
     ["doc", xdr.string(SC_SPEC_DOC_LIMIT)],
     ["lib", xdr.string(80)],
     ["name", xdr.string(60)],
-    ["fields", xdr.varArray(xdr.lookup("ScSpecUdtStructFieldV0"), 40)],
+    ["fields", xdr.varArray(xdr.lookup("ScSpecUdtStructFieldV0"), 2147483647)],
   ]);
 
   // === xdr source ============================================================
@@ -9886,14 +9996,14 @@ var types = XDR.config((xdr) => {
   //   {
   //       string doc<SC_SPEC_DOC_LIMIT>;
   //       string name<60>;
-  //       SCSpecTypeDef type<12>;
+  //       SCSpecTypeDef type<>;
   //   };
   //
   // ===========================================================================
   xdr.struct("ScSpecUdtUnionCaseTupleV0", [
     ["doc", xdr.string(SC_SPEC_DOC_LIMIT)],
     ["name", xdr.string(60)],
-    ["type", xdr.varArray(xdr.lookup("ScSpecTypeDef"), 12)],
+    ["type", xdr.varArray(xdr.lookup("ScSpecTypeDef"), 2147483647)],
   ]);
 
   // === xdr source ============================================================
@@ -9941,7 +10051,7 @@ var types = XDR.config((xdr) => {
   //       string doc<SC_SPEC_DOC_LIMIT>;
   //       string lib<80>;
   //       string name<60>;
-  //       SCSpecUDTUnionCaseV0 cases<50>;
+  //       SCSpecUDTUnionCaseV0 cases<>;
   //   };
   //
   // ===========================================================================
@@ -9949,7 +10059,7 @@ var types = XDR.config((xdr) => {
     ["doc", xdr.string(SC_SPEC_DOC_LIMIT)],
     ["lib", xdr.string(80)],
     ["name", xdr.string(60)],
-    ["cases", xdr.varArray(xdr.lookup("ScSpecUdtUnionCaseV0"), 50)],
+    ["cases", xdr.varArray(xdr.lookup("ScSpecUdtUnionCaseV0"), 2147483647)],
   ]);
 
   // === xdr source ============================================================
@@ -9975,7 +10085,7 @@ var types = XDR.config((xdr) => {
   //       string doc<SC_SPEC_DOC_LIMIT>;
   //       string lib<80>;
   //       string name<60>;
-  //       SCSpecUDTEnumCaseV0 cases<50>;
+  //       SCSpecUDTEnumCaseV0 cases<>;
   //   };
   //
   // ===========================================================================
@@ -9983,7 +10093,7 @@ var types = XDR.config((xdr) => {
     ["doc", xdr.string(SC_SPEC_DOC_LIMIT)],
     ["lib", xdr.string(80)],
     ["name", xdr.string(60)],
-    ["cases", xdr.varArray(xdr.lookup("ScSpecUdtEnumCaseV0"), 50)],
+    ["cases", xdr.varArray(xdr.lookup("ScSpecUdtEnumCaseV0"), 2147483647)],
   ]);
 
   // === xdr source ============================================================
@@ -10009,7 +10119,7 @@ var types = XDR.config((xdr) => {
   //       string doc<SC_SPEC_DOC_LIMIT>;
   //       string lib<80>;
   //       string name<60>;
-  //       SCSpecUDTErrorEnumCaseV0 cases<50>;
+  //       SCSpecUDTErrorEnumCaseV0 cases<>;
   //   };
   //
   // ===========================================================================
@@ -10017,7 +10127,7 @@ var types = XDR.config((xdr) => {
     ["doc", xdr.string(SC_SPEC_DOC_LIMIT)],
     ["lib", xdr.string(80)],
     ["name", xdr.string(60)],
-    ["cases", xdr.varArray(xdr.lookup("ScSpecUdtErrorEnumCaseV0"), 50)],
+    ["cases", xdr.varArray(xdr.lookup("ScSpecUdtErrorEnumCaseV0"), 2147483647)],
   ]);
 
   // === xdr source ============================================================
@@ -10042,7 +10152,7 @@ var types = XDR.config((xdr) => {
   //   {
   //       string doc<SC_SPEC_DOC_LIMIT>;
   //       SCSymbol name;
-  //       SCSpecFunctionInputV0 inputs<10>;
+  //       SCSpecFunctionInputV0 inputs<>;
   //       SCSpecTypeDef outputs<1>;
   //   };
   //
@@ -10050,7 +10160,7 @@ var types = XDR.config((xdr) => {
   xdr.struct("ScSpecFunctionV0", [
     ["doc", xdr.string(SC_SPEC_DOC_LIMIT)],
     ["name", xdr.lookup("ScSymbol")],
-    ["inputs", xdr.varArray(xdr.lookup("ScSpecFunctionInputV0"), 10)],
+    ["inputs", xdr.varArray(xdr.lookup("ScSpecFunctionInputV0"), 2147483647)],
     ["outputs", xdr.varArray(xdr.lookup("ScSpecTypeDef"), 1)],
   ]);
 
@@ -10110,7 +10220,7 @@ var types = XDR.config((xdr) => {
   //       string lib<80>;
   //       SCSymbol name;
   //       SCSymbol prefixTopics<2>;
-  //       SCSpecEventParamV0 params<50>;
+  //       SCSpecEventParamV0 params<>;
   //       SCSpecEventDataFormat dataFormat;
   //   };
   //
@@ -10120,7 +10230,7 @@ var types = XDR.config((xdr) => {
     ["lib", xdr.string(80)],
     ["name", xdr.lookup("ScSymbol")],
     ["prefixTopics", xdr.varArray(xdr.lookup("ScSymbol"), 2)],
-    ["params", xdr.varArray(xdr.lookup("ScSpecEventParamV0"), 50)],
+    ["params", xdr.varArray(xdr.lookup("ScSpecEventParamV0"), 2147483647)],
     ["dataFormat", xdr.lookup("ScSpecEventDataFormat")],
   ]);
 
@@ -10185,6 +10295,13 @@ var types = XDR.config((xdr) => {
       eventV0: xdr.lookup("ScSpecEventV0"),
     },
   });
+
+  // === xdr source ============================================================
+  //
+  //   typedef opaque EncodedLedgerKey<>;
+  //
+  // ===========================================================================
+  xdr.typedef("EncodedLedgerKey", xdr.varOpaque());
 
   // === xdr source ============================================================
   //
@@ -10514,7 +10631,40 @@ var types = XDR.config((xdr) => {
   //       // Cost of performing BLS12-381 scalar element exponentiation
   //       Bls12381FrPow = 68,
   //       // Cost of performing BLS12-381 scalar element inversion
-  //       Bls12381FrInv = 69
+  //       Bls12381FrInv = 69,
+  //
+  //       // Cost of encoding a BN254 Fp (base field element)
+  //       Bn254EncodeFp = 70,
+  //       // Cost of decoding a BN254 Fp (base field element)
+  //       Bn254DecodeFp = 71,
+  //       // Cost of checking a G1 point lies on the curve
+  //       Bn254G1CheckPointOnCurve = 72,
+  //       // Cost of checking a G2 point lies on the curve
+  //       Bn254G2CheckPointOnCurve = 73,
+  //       // Cost of checking a G2 point belongs to the correct subgroup
+  //       Bn254G2CheckPointInSubgroup = 74,
+  //       // Cost of converting a BN254 G1 point from projective to affine coordinates
+  //       Bn254G1ProjectiveToAffine = 75,
+  //       // Cost of performing BN254 G1 point addition
+  //       Bn254G1Add = 76,
+  //       // Cost of performing BN254 G1 scalar multiplication
+  //       Bn254G1Mul = 77,
+  //       // Cost of performing BN254 pairing operation
+  //       Bn254Pairing = 78,
+  //       // Cost of converting a BN254 scalar element from U256
+  //       Bn254FrFromU256 = 79,
+  //       // Cost of converting a BN254 scalar element to U256
+  //       Bn254FrToU256 = 80,
+  //       // // Cost of performing BN254 scalar element addition/subtraction
+  //       Bn254FrAddSub = 81,
+  //       // Cost of performing BN254 scalar element multiplication
+  //       Bn254FrMul = 82,
+  //       // Cost of performing BN254 scalar element exponentiation
+  //       Bn254FrPow = 83,
+  //        // Cost of performing BN254 scalar element inversion
+  //       Bn254FrInv = 84,
+  //       // Cost of performing BN254 G1 multi-scalar multiplication (MSM)
+  //       Bn254G1Msm = 85
   //   };
   //
   // ===========================================================================
@@ -10589,6 +10739,22 @@ var types = XDR.config((xdr) => {
     bls12381FrMul: 67,
     bls12381FrPow: 68,
     bls12381FrInv: 69,
+    bn254EncodeFp: 70,
+    bn254DecodeFp: 71,
+    bn254G1CheckPointOnCurve: 72,
+    bn254G2CheckPointOnCurve: 73,
+    bn254G2CheckPointInSubgroup: 74,
+    bn254G1ProjectiveToAffine: 75,
+    bn254G1Add: 76,
+    bn254G1Mul: 77,
+    bn254Pairing: 78,
+    bn254FrFromU256: 79,
+    bn254FrToU256: 80,
+    bn254FrAddSub: 81,
+    bn254FrMul: 82,
+    bn254FrPow: 83,
+    bn254FrInv: 84,
+    bn254G1Msm: 85,
   });
 
   // === xdr source ============================================================
@@ -10685,6 +10851,57 @@ var types = XDR.config((xdr) => {
 
   // === xdr source ============================================================
   //
+  //   struct FrozenLedgerKeys {
+  //       EncodedLedgerKey keys<>;
+  //   };
+  //
+  // ===========================================================================
+  xdr.struct("FrozenLedgerKeys", [
+    ["keys", xdr.varArray(xdr.lookup("EncodedLedgerKey"), 2147483647)],
+  ]);
+
+  // === xdr source ============================================================
+  //
+  //   struct FrozenLedgerKeysDelta {
+  //       EncodedLedgerKey keysToFreeze<>;
+  //       EncodedLedgerKey keysToUnfreeze<>;
+  //   };
+  //
+  // ===========================================================================
+  xdr.struct("FrozenLedgerKeysDelta", [
+    ["keysToFreeze", xdr.varArray(xdr.lookup("EncodedLedgerKey"), 2147483647)],
+    [
+      "keysToUnfreeze",
+      xdr.varArray(xdr.lookup("EncodedLedgerKey"), 2147483647),
+    ],
+  ]);
+
+  // === xdr source ============================================================
+  //
+  //   struct FreezeBypassTxs {
+  //       Hash txHashes<>;
+  //   };
+  //
+  // ===========================================================================
+  xdr.struct("FreezeBypassTxes", [
+    ["txHashes", xdr.varArray(xdr.lookup("Hash"), 2147483647)],
+  ]);
+
+  // === xdr source ============================================================
+  //
+  //   struct FreezeBypassTxsDelta {
+  //       Hash addTxs<>;
+  //       Hash removeTxs<>;
+  //   };
+  //
+  // ===========================================================================
+  xdr.struct("FreezeBypassTxsDelta", [
+    ["addTxes", xdr.varArray(xdr.lookup("Hash"), 2147483647)],
+    ["removeTxes", xdr.varArray(xdr.lookup("Hash"), 2147483647)],
+  ]);
+
+  // === xdr source ============================================================
+  //
   //   const CONTRACT_COST_COUNT_LIMIT = 1024;
   //
   // ===========================================================================
@@ -10723,7 +10940,11 @@ var types = XDR.config((xdr) => {
   //       CONFIG_SETTING_EVICTION_ITERATOR = 13,
   //       CONFIG_SETTING_CONTRACT_PARALLEL_COMPUTE_V0 = 14,
   //       CONFIG_SETTING_CONTRACT_LEDGER_COST_EXT_V0 = 15,
-  //       CONFIG_SETTING_SCP_TIMING = 16
+  //       CONFIG_SETTING_SCP_TIMING = 16,
+  //       CONFIG_SETTING_FROZEN_LEDGER_KEYS = 17,
+  //       CONFIG_SETTING_FROZEN_LEDGER_KEYS_DELTA = 18,
+  //       CONFIG_SETTING_FREEZE_BYPASS_TXS = 19,
+  //       CONFIG_SETTING_FREEZE_BYPASS_TXS_DELTA = 20
   //   };
   //
   // ===========================================================================
@@ -10745,6 +10966,10 @@ var types = XDR.config((xdr) => {
     configSettingContractParallelComputeV0: 14,
     configSettingContractLedgerCostExtV0: 15,
     configSettingScpTiming: 16,
+    configSettingFrozenLedgerKeys: 17,
+    configSettingFrozenLedgerKeysDelta: 18,
+    configSettingFreezeBypassTxes: 19,
+    configSettingFreezeBypassTxsDelta: 20,
   });
 
   // === xdr source ============================================================
@@ -10785,6 +11010,14 @@ var types = XDR.config((xdr) => {
   //       ConfigSettingContractLedgerCostExtV0 contractLedgerCostExt;
   //   case CONFIG_SETTING_SCP_TIMING:
   //       ConfigSettingSCPTiming contractSCPTiming;
+  //   case CONFIG_SETTING_FROZEN_LEDGER_KEYS:
+  //       FrozenLedgerKeys frozenLedgerKeys;
+  //   case CONFIG_SETTING_FROZEN_LEDGER_KEYS_DELTA:
+  //       FrozenLedgerKeysDelta frozenLedgerKeysDelta;
+  //   case CONFIG_SETTING_FREEZE_BYPASS_TXS:
+  //       FreezeBypassTxs freezeBypassTxs;
+  //   case CONFIG_SETTING_FREEZE_BYPASS_TXS_DELTA:
+  //       FreezeBypassTxsDelta freezeBypassTxsDelta;
   //   };
   //
   // ===========================================================================
@@ -10815,6 +11048,10 @@ var types = XDR.config((xdr) => {
       ["configSettingContractParallelComputeV0", "contractParallelCompute"],
       ["configSettingContractLedgerCostExtV0", "contractLedgerCostExt"],
       ["configSettingScpTiming", "contractScpTiming"],
+      ["configSettingFrozenLedgerKeys", "frozenLedgerKeys"],
+      ["configSettingFrozenLedgerKeysDelta", "frozenLedgerKeysDelta"],
+      ["configSettingFreezeBypassTxes", "freezeBypassTxes"],
+      ["configSettingFreezeBypassTxsDelta", "freezeBypassTxsDelta"],
     ],
     arms: {
       contractMaxSizeBytes: xdr.lookup("Uint32"),
@@ -10843,6 +11080,10 @@ var types = XDR.config((xdr) => {
       ),
       contractLedgerCostExt: xdr.lookup("ConfigSettingContractLedgerCostExtV0"),
       contractScpTiming: xdr.lookup("ConfigSettingScpTiming"),
+      frozenLedgerKeys: xdr.lookup("FrozenLedgerKeys"),
+      frozenLedgerKeysDelta: xdr.lookup("FrozenLedgerKeysDelta"),
+      freezeBypassTxes: xdr.lookup("FreezeBypassTxes"),
+      freezeBypassTxsDelta: xdr.lookup("FreezeBypassTxsDelta"),
     },
   });
 
