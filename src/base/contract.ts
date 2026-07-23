@@ -18,7 +18,7 @@ import { StrKey } from "./strkey.js";
  * for more information about how contracts work in Stellar.
  */
 export class Contract {
-  private _id: Buffer;
+  private _id: Uint8Array;
 
   /**
    * @param contractId - ID of the contract (ex.

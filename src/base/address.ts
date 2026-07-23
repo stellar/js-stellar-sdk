@@ -1,3 +1,4 @@
+import { concatUint8Arrays } from "uint8array-extras";
 import { StrKey } from "./strkey.js";
 import {
   ClaimableBalanceIdType,
@@ -30,7 +31,7 @@ export type AddressType =
 
 export class Address {
   private _type: AddressType;
-  private _key: Buffer;
+  private _key: Uint8Array;
 
   /**
    * @param address - a {@link StrKey} of the address value
@@ -66,47 +67,47 @@ export class Address {
   }
 
   /**
-   * Creates a new account Address object from a buffer of raw bytes.
+   * Creates a new account Address object from raw bytes.
    *
    * @param buffer - The bytes of an address to parse.
    */
-  static account(buffer: Buffer): Address {
+  static account(buffer: Uint8Array): Address {
     return new Address(StrKey.encodeEd25519PublicKey(buffer));
   }
 
   /**
-   * Creates a new contract Address object from a buffer of raw bytes.
+   * Creates a new contract Address object from raw bytes.
    *
    * @param buffer - The bytes of an address to parse.
    */
-  static contract(buffer: Buffer): Address {
+  static contract(buffer: Uint8Array): Address {
     return new Address(StrKey.encodeContract(buffer));
   }
 
   /**
-   * Creates a new claimable balance Address object from a buffer of raw bytes.
+   * Creates a new claimable balance Address object from raw bytes.
    *
    * @param buffer - The bytes of a claimable balance ID to parse.
    */
-  static claimableBalance(buffer: Buffer): Address {
+  static claimableBalance(buffer: Uint8Array): Address {
     return new Address(StrKey.encodeClaimableBalance(buffer));
   }
 
   /**
-   * Creates a new liquidity pool Address object from a buffer of raw bytes.
+   * Creates a new liquidity pool Address object from raw bytes.
    *
    * @param buffer - The bytes of an LP ID to parse.
    */
-  static liquidityPool(buffer: Buffer): Address {
+  static liquidityPool(buffer: Uint8Array): Address {
     return new Address(StrKey.encodeLiquidityPool(buffer));
   }
 
   /**
-   * Creates a new muxed account Address object from a buffer of raw bytes.
+   * Creates a new muxed account Address object from raw bytes.
    *
    * @param buffer - The bytes of an address to parse.
    */
-  static muxedAccount(buffer: Buffer): Address {
+  static muxedAccount(buffer: Uint8Array): Address {
     return new Address(StrKey.encodeMed25519PublicKey(buffer));
   }
 
@@ -130,32 +131,30 @@ export class Address {
   static fromScAddress(scAddress: ScAddress): Address {
     switch (scAddress.type) {
       case "scAddressTypeAccount":
-        return Address.account(Buffer.from(scAddress.accountId.ed25519));
+        return Address.account(scAddress.accountId.ed25519);
       case "scAddressTypeContract":
-        return Address.contract(Buffer.from(scAddress.contractId.value));
+        return Address.contract(scAddress.contractId.value);
       case "scAddressTypeMuxedAccount": {
         const muxed = scAddress.value;
-        const raw = Buffer.concat([
-          Buffer.from(muxed.ed25519),
-          Buffer.from(
-            MuxedEd25519Account.schema.encode(muxed.toXdrObject()),
-          ).subarray(0, 8),
+        const raw = concatUint8Arrays([
+          muxed.ed25519,
+          MuxedEd25519Account.schema.encode(muxed.toXdrObject()).subarray(0, 8),
         ]);
         return Address.muxedAccount(raw);
       }
       case "scAddressTypeClaimableBalance": {
         const cbi = scAddress.value;
         return Address.claimableBalance(
-          Buffer.concat([
-            Buffer.from([
+          concatUint8Arrays([
+            Uint8Array.of(
               ClaimableBalanceIdType.claimableBalanceIdTypeV0.value,
-            ]),
-            Buffer.from(cbi.v0.value),
+            ),
+            cbi.v0.value,
           ]),
         );
       }
       case "scAddressTypeLiquidityPool":
-        return Address.liquidityPool(Buffer.from(scAddress.value.toBytes()));
+        return Address.liquidityPool(scAddress.value.toBytes());
       default:
         throw new Error("Unsupported address type");
     }
@@ -223,7 +222,7 @@ export class Address {
   /**
    * Return the raw public key bytes for this address.
    */
-  toBuffer(): Buffer {
+  toBuffer(): Uint8Array {
     return this._key;
   }
 

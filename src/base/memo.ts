@@ -1,3 +1,4 @@
+import { hexToUint8Array, stringToUint8Array } from "uint8array-extras";
 import CustomBigNumber from "./util/bignumber.js";
 import type { BigNumber } from "./util/bignumber.js";
 import { Hash as XdrHash, Memo as XdrMemo, Uint64 } from "../xdr/index.js";
@@ -43,14 +44,14 @@ export type MemoType =
   | MemoTypeReturn
   | MemoTypeText;
 
-export type MemoValue = Buffer | string | null | Uint8Array;
+export type MemoValue = string | null | Uint8Array;
 
 type MemoValueMap = {
   [MemoNone]: null;
   [MemoID]: string;
-  [MemoText]: Buffer | string;
-  [MemoHash]: Buffer;
-  [MemoReturn]: Buffer;
+  [MemoText]: Uint8Array | string;
+  [MemoHash]: Uint8Array;
+  [MemoReturn]: Uint8Array;
 };
 
 type MemoTypeToValue<T extends MemoType> = MemoValueMap[T];
@@ -64,7 +65,7 @@ export class Memo<T extends MemoType = MemoType> {
   private _value: MemoValue;
 
   constructor(type: MemoType.None, value?: null);
-  constructor(type: MemoType.Hash | MemoType.Return, value: Buffer);
+  constructor(type: MemoType.Hash | MemoType.Return, value: Uint8Array);
   constructor(
     type: MemoType.Hash | MemoType.ID | MemoType.Return | MemoType.Text,
     value: string,
@@ -72,7 +73,7 @@ export class Memo<T extends MemoType = MemoType> {
   constructor(type: T, value: MemoValue);
   /**
    * @param type - `MemoNone`, `MemoID`, `MemoText`, `MemoHash` or `MemoReturn`
-   * @param value - `string` for `MemoID`, `MemoText`, buffer or hex string for `MemoHash` or `MemoReturn`
+   * @param value - `string` for `MemoID`, `MemoText`, `Uint8Array` or hex string for `MemoHash` or `MemoReturn`
    */
   constructor(type: T, value: MemoValue = null) {
     this._type = type;
@@ -90,9 +91,9 @@ export class Memo<T extends MemoType = MemoType> {
       case MemoHash:
       case MemoReturn:
         Memo._validateHashValue(value);
-        // We want MemoHash and MemoReturn to have Buffer as a value
+        // We want MemoHash and MemoReturn to have Uint8Array as a value
         if (typeof value === "string") {
-          this._value = Buffer.from(value, "hex");
+          this._value = hexToUint8Array(value);
         }
         break;
       default:
@@ -115,8 +116,8 @@ export class Memo<T extends MemoType = MemoType> {
    * Contains memo value:
    * * `null` for `MemoNone`,
    * * `string` for `MemoID`,
-   * * `Buffer` for `MemoText` after decoding using `fromXdrObject`, original value otherwise,
-   * * `Buffer` for `MemoHash`, `MemoReturn`.
+   * * `Uint8Array` for `MemoText` after decoding using `fromXdrObject`, original value otherwise,
+   * * `Uint8Array` for `MemoHash`, `MemoReturn`.
    */
   get value(): MemoTypeToValue<T> {
     switch (this._type) {
@@ -127,7 +128,9 @@ export class Memo<T extends MemoType = MemoType> {
         return this._value as MemoTypeToValue<T>;
       case MemoHash:
       case MemoReturn:
-        return Buffer.from(this._value as Buffer) as MemoTypeToValue<T>;
+        // Uint8Array.from, not .slice(): Buffer.prototype.slice returns a view,
+        // so it would not be a defensive copy for Buffer-typed callers.
+        return Uint8Array.from(this._value as Uint8Array) as MemoTypeToValue<T>;
       default:
         throw new Error("Invalid memo type");
     }
@@ -186,11 +189,10 @@ export class Memo<T extends MemoType = MemoType> {
 
   private static _validateTextValue(value: MemoValue): void {
     if (typeof value === "string") {
-      if (Buffer.byteLength(value, "utf8") > 28) {
+      if (stringToUint8Array(value).length > 28) {
         throw new Error("Expects string or Uint8Array, max 28 bytes");
       }
     } else if (value instanceof Uint8Array) {
-      // Covers Buffer too — it's a Uint8Array subclass.
       if (value.length > 28) {
         throw new Error("Expects string or Uint8Array, max 28 bytes");
       }
@@ -208,19 +210,19 @@ export class Memo<T extends MemoType = MemoType> {
       throw error;
     }
 
-    let valueBuffer: Buffer;
+    let valueBytes: Uint8Array;
     if (typeof value === "string") {
       if (!/^[0-9A-Fa-f]{64}$/g.test(value)) {
         throw error;
       }
-      valueBuffer = Buffer.from(value, "hex");
-    } else if (Buffer.isBuffer(value)) {
-      valueBuffer = Buffer.from(value);
+      valueBytes = hexToUint8Array(value);
+    } else if (value instanceof Uint8Array) {
+      valueBytes = value;
     } else {
       throw error;
     }
 
-    if (!valueBuffer.length || valueBuffer.length !== 32) {
+    if (!valueBytes.length || valueBytes.length !== 32) {
       throw error;
     }
   }
@@ -236,9 +238,9 @@ export class Memo<T extends MemoType = MemoType> {
    * Creates and returns a `MemoText` memo.
    *
    * @param text - memo text. A JS string is UTF-8 encoded on the wire;
-   *   pass a `Buffer`/`Uint8Array` for byte-exact content.
+   *   pass a `Uint8Array` for byte-exact content.
    */
-  static text(text: string | Buffer | Uint8Array): Memo<MemoTypeText> {
+  static text(text: string | Uint8Array): Memo<MemoTypeText> {
     return new Memo(MemoText, text as MemoValue);
   }
 
@@ -256,7 +258,7 @@ export class Memo<T extends MemoType = MemoType> {
    *
    * @param hash - 32 byte hash or hex encoded string
    */
-  static hash(hash: Buffer | string): Memo<MemoTypeHash> {
+  static hash(hash: Uint8Array | string): Memo<MemoTypeHash> {
     return new Memo(MemoHash, hash);
   }
 
@@ -265,7 +267,7 @@ export class Memo<T extends MemoType = MemoType> {
    *
    * @param hash - 32 byte hash or hex encoded string
    */
-  static return(hash: Buffer | string): Memo<MemoTypeReturn> {
+  static return(hash: Uint8Array | string): Memo<MemoTypeReturn> {
     return new Memo(MemoReturn, hash);
   }
 
@@ -284,9 +286,9 @@ export class Memo<T extends MemoType = MemoType> {
         // with either, so forward as-is.
         return XdrMemo.memoText(this._value as string);
       case MemoHash:
-        return XdrMemo.memoHash(new XdrHash(this._value as Buffer));
+        return XdrMemo.memoHash(new XdrHash(this._value as Uint8Array));
       case MemoReturn:
-        return XdrMemo.memoReturn(new XdrHash(this._value as Buffer));
+        return XdrMemo.memoReturn(new XdrHash(this._value as Uint8Array));
       default:
         throw new Error("Invalid memo type");
     }
@@ -302,11 +304,11 @@ export class Memo<T extends MemoType = MemoType> {
       case "memoId":
         return Memo.id(object.value.toString());
       case "memoText":
-        return Memo.text(Buffer.from(object.text.bytes));
+        return Memo.text(Uint8Array.from(object.text.bytes));
       case "memoHash":
-        return Memo.hash(Buffer.from(object.value.toBytes()));
+        return Memo.hash(object.value.toBytes());
       case "memoReturn":
-        return Memo.return(Buffer.from(object.value.toBytes()));
+        return Memo.return(object.value.toBytes());
       case "memoNone":
         return Memo.none();
       default:

@@ -27,8 +27,8 @@ export const LiquidityPoolFeeV18 = 30;
 /**
  * Computes the Pool ID for the given assets, fee and pool type.
  *
- * Returns the raw Pool ID buffer, which can be stringified with
- * `toString('hex')`.
+ * Returns the raw Pool ID bytes, which can be stringified with
+ * `uint8ArrayToHex` from `uint8array-extras`.
  *
  * @see [stellar-core getPoolID](https://github.com/stellar/stellar-core/blob/9f3a48c6a8f1aa77b6043a055d0638661f718080/src/ledger/test/LedgerTxnTests.cpp#L3746-L3751)
  *
@@ -73,5 +73,5 @@ export function getLiquidityPoolId(
     }),
   ).toXdr();
 
-  return hash(Buffer.from(payload));
+  return hash(payload);
 }

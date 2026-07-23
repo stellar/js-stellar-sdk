@@ -36,13 +36,19 @@ export class SignerKey {
 
     const raw = decodeCheck(vb, address);
     switch (vb) {
-      case "signedPayload":
+      case "signedPayload": {
+        const payloadLength = new DataView(
+          raw.buffer,
+          raw.byteOffset,
+          raw.byteLength,
+        ).getUint32(32);
         return XdrSignerKey.signerKeyTypeEd25519SignedPayload(
           new SignerKeyEd25519SignedPayload({
             ed25519: raw.subarray(0, 32),
-            payload: raw.subarray(36, 36 + raw.readUInt32BE(32)),
+            payload: raw.subarray(36, 36 + payloadLength),
           }),
         );
+      }
 
       case "ed25519PublicKey":
         return XdrSignerKey.signerKeyTypeEd25519(raw);
@@ -65,27 +71,27 @@ export class SignerKey {
    */
   static encodeSignerKey(signerKey: XdrSignerKey): string {
     let strkeyType: SignerStrKeyType;
-    let raw: Buffer;
+    let raw: Uint8Array;
 
     switch (signerKey.type) {
       case "signerKeyTypeEd25519":
         strkeyType = "ed25519PublicKey";
-        raw = Buffer.from(signerKey.value);
+        raw = signerKey.value;
         break;
 
       case "signerKeyTypePreAuthTx":
         strkeyType = "preAuthTx";
-        raw = Buffer.from(signerKey.value);
+        raw = signerKey.value;
         break;
 
       case "signerKeyTypeHashX":
         strkeyType = "sha256Hash";
-        raw = Buffer.from(signerKey.value);
+        raw = signerKey.value;
         break;
 
       case "signerKeyTypeEd25519SignedPayload":
         strkeyType = "signedPayload";
-        raw = Buffer.from(signerKey.value.toXdr("raw"));
+        raw = signerKey.value.toXdr("raw");
         break;
 
       default:
