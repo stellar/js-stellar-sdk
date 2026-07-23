@@ -183,11 +183,11 @@
     "vitest": "^4.1.9"
   },
   "dependencies": {
+    "@exodus/bytes": "^1.15.1",
     "@noble/ed25519": "^3.1.0",
     "@noble/hashes": "^2.2.0",
     "@stellar/js-xdr": "^5.0.0-rc.1",
     "axios": "1.18.0",
-    "base32.js": "^0.1.0",
     "bignumber.js": "^11.1.4",
     "buffer": "^6.0.3",
     "commander": "^14.0.3",
