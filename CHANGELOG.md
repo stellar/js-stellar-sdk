@@ -35,6 +35,14 @@ A breaking change will get clearly marked in this log.
 - `contract.AssembledTransaction.needsNonInvokerSigningBy` now treats an empty `scvVec` signature as unsigned, matching the existing `scvVoid` check. Such entries used to count as already signed and were left off the list ([#1529](https://github.com/stellar/js-stellar-sdk/pull/1529)).
 - `Spec.nativeToScVal` no longer misclassifies plain objects that have a `constructor` key, and handles null-prototype objects (`Object.create(null)`) ([#1485](https://github.com/stellar/js-stellar-sdk/pull/1485)).
 
+### Added
+- Protocol 28 (CAP-0084): muxed contract addresses. The vendored XDR now
+  includes the `SC_ADDRESS_TYPE_MUXED_CONTRACT` arm and `MuxedContract` struct,
+  and `Address` gains `Address.muxedContract(contractId, id)` plus
+  `contractId()` / `muxedId()` accessors. These addresses have no canonical
+  StrKey yet, so they round-trip via `ScAddress`/`ScVal` (not via a string);
+  `toString()` renders the display-only `<C-strkey>:<id>` form.
+
 ## [v16.0.1](https://github.com/stellar/js-stellar-sdk/compare/v16.0.0...v16.0.1)
 
 ### Fixed

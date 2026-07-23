@@ -2134,9 +2134,10 @@ export namespace xdr {
       | "scAddressTypeContract"
       | "scAddressTypeMuxedAccount"
       | "scAddressTypeClaimableBalance"
-      | "scAddressTypeLiquidityPool";
+      | "scAddressTypeLiquidityPool"
+      | "scAddressTypeMuxedContract";
 
-    readonly value: 0 | 1 | 2 | 3 | 4;
+    readonly value: 0 | 1 | 2 | 3 | 4 | 5;
 
     static scAddressTypeAccount(): ScAddressType;
 
@@ -2147,6 +2148,8 @@ export namespace xdr {
     static scAddressTypeClaimableBalance(): ScAddressType;
 
     static scAddressTypeLiquidityPool(): ScAddressType;
+
+    static scAddressTypeMuxedContract(): ScAddressType;
   }
 
   class ScEnvMetaKind {
@@ -9508,6 +9511,34 @@ export namespace xdr {
     static validateXDR(input: string, format: "hex" | "base64"): boolean;
   }
 
+  class MuxedContract {
+    constructor(attributes: { id: Uint64; contractId: ContractId });
+
+    id(value?: Uint64): Uint64;
+
+    contractId(value?: ContractId): ContractId;
+
+    toXDR(format?: "raw"): Buffer;
+
+    toXDR(format: "hex" | "base64"): string;
+
+    static read(io: Buffer): MuxedContract;
+
+    static write(value: MuxedContract, io: Buffer): void;
+
+    static isValid(value: MuxedContract): boolean;
+
+    static toXDR(value: MuxedContract): Buffer;
+
+    static fromXDR(input: Buffer, format?: "raw"): MuxedContract;
+
+    static fromXDR(input: string, format: "hex" | "base64"): MuxedContract;
+
+    static validateXDR(input: Buffer, format?: "raw"): boolean;
+
+    static validateXDR(input: string, format: "hex" | "base64"): boolean;
+  }
+
   class ScNonceKey {
     constructor(attributes: { nonce: Int64 });
 
@@ -15661,6 +15692,8 @@ export namespace xdr {
 
     liquidityPoolId(value?: PoolId): PoolId;
 
+    muxedContract(value?: MuxedContract): MuxedContract;
+
     static scAddressTypeAccount(value: AccountId): ScAddress;
 
     static scAddressTypeContract(value: ContractId): ScAddress;
@@ -15671,12 +15704,15 @@ export namespace xdr {
 
     static scAddressTypeLiquidityPool(value: PoolId): ScAddress;
 
+    static scAddressTypeMuxedContract(value: MuxedContract): ScAddress;
+
     value():
       | AccountId
       | ContractId
       | MuxedEd25519Account
       | ClaimableBalanceId
-      | PoolId;
+      | PoolId
+      | MuxedContract;
 
     toXDR(format?: "raw"): Buffer;
 
