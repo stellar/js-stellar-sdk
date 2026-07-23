@@ -7,6 +7,7 @@ import {
   SignerKey,
   SignerKeyEd25519SignedPayload,
 } from "../../xdr/index.js";
+import { hexToUint8Array } from "uint8array-extras";
 import { Keypair } from "../keypair.js";
 import { StrKey } from "../strkey.js";
 import { SetOptionsOpts, OperationAttributes, SignerOpts } from "./types.js";
@@ -42,8 +43,8 @@ function weightCheckFunction(value: number, name: string): boolean {
  * @param opts.signer - Add or remove a signer from the account. The signer is
  *                                 deleted if the weight is 0. Only one of `ed25519PublicKey`, `sha256Hash`, `preAuthTx` should be defined.
  * @param opts.signer.ed25519PublicKey - The ed25519 public key of the signer.
- * @param opts.signer.sha256Hash - sha256 hash (Buffer or hex string) of preimage that will unlock funds. Preimage should be used as signature of future transaction.
- * @param opts.signer.preAuthTx - Hash (Buffer or hex string) of transaction that will unlock funds.
+ * @param opts.signer.sha256Hash - sha256 hash (Uint8Array or hex string) of preimage that will unlock funds. Preimage should be used as signature of future transaction.
+ * @param opts.signer.preAuthTx - Hash (Uint8Array or hex string) of transaction that will unlock funds.
  * @param opts.signer.ed25519SignedPayload - Signed payload signer (ed25519 public key + raw payload) for atomic transaction signature disclosure.
  * @param opts.signer.weight - The weight of the new signer (0 to delete or 1-255)
  * @param opts.homeDomain - sets the home domain used for reverse federation lookup.
@@ -120,15 +121,15 @@ export function setOptions<T extends SignerOpts = never>(
     }
 
     if (opts.signer.preAuthTx) {
-      let preAuthTx: Buffer;
+      let preAuthTx: Uint8Array;
       if (typeof opts.signer.preAuthTx === "string") {
-        preAuthTx = Buffer.from(opts.signer.preAuthTx, "hex");
+        preAuthTx = hexToUint8Array(opts.signer.preAuthTx);
       } else {
         preAuthTx = opts.signer.preAuthTx;
       }
 
-      if (!(Buffer.isBuffer(preAuthTx) && preAuthTx.length === 32)) {
-        throw new Error("signer.preAuthTx must be 32 bytes Buffer.");
+      if (!(preAuthTx instanceof Uint8Array && preAuthTx.length === 32)) {
+        throw new Error("signer.preAuthTx must be 32 bytes Uint8Array.");
       }
 
       key = SignerKey.signerKeyTypePreAuthTx(preAuthTx);
@@ -136,15 +137,15 @@ export function setOptions<T extends SignerOpts = never>(
     }
 
     if (opts.signer.sha256Hash) {
-      let sha256Hash: Buffer;
+      let sha256Hash: Uint8Array;
       if (typeof opts.signer.sha256Hash === "string") {
-        sha256Hash = Buffer.from(opts.signer.sha256Hash, "hex");
+        sha256Hash = hexToUint8Array(opts.signer.sha256Hash);
       } else {
         sha256Hash = opts.signer.sha256Hash;
       }
 
-      if (!(Buffer.isBuffer(sha256Hash) && sha256Hash.length === 32)) {
-        throw new Error("signer.sha256Hash must be 32 bytes Buffer.");
+      if (!(sha256Hash instanceof Uint8Array && sha256Hash.length === 32)) {
+        throw new Error("signer.sha256Hash must be 32 bytes Uint8Array.");
       }
 
       key = SignerKey.signerKeyTypeHashX(sha256Hash);

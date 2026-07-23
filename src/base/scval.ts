@@ -187,7 +187,7 @@ export function nativeToScVal(
         return val.address().toScVal();
       }
 
-      if (val instanceof Uint8Array || Buffer.isBuffer(val)) {
+      if (val instanceof Uint8Array) {
         const copy = Uint8Array.from(val);
         switch ((opts?.type as string) ?? "bytes") {
           case "bytes":

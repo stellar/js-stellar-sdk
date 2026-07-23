@@ -1,3 +1,4 @@
+import { stringToUint8Array } from "uint8array-extras";
 import { setSourceAccount } from "../util/operations.js";
 import {
   DataValue,
@@ -25,16 +26,16 @@ export function manageData(opts: ManageDataOpts): Operation {
   // The public API contract is null for delete-entry.
   if (
     typeof opts.value !== "string" &&
-    !Buffer.isBuffer(opts.value) &&
+    !(opts.value instanceof Uint8Array) &&
     opts.value !== null &&
     opts.value !== undefined
   ) {
-    throw new Error("value must be a string, Buffer or null");
+    throw new Error("value must be a string, Uint8Array or null");
   }
 
-  let dataValue: Buffer | null;
+  let dataValue: Uint8Array | null;
   if (typeof opts.value === "string") {
-    dataValue = Buffer.from(opts.value);
+    dataValue = stringToUint8Array(opts.value);
   } else {
     dataValue = opts.value ?? null;
   }

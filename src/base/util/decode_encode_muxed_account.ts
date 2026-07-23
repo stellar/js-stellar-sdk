@@ -1,3 +1,4 @@
+import { concatUint8Arrays } from "uint8array-extras";
 import { MuxedAccount, MuxedAccountMed25519, Uint64 } from "../../xdr/index.js";
 import { StrKey } from "../strkey.js";
 
@@ -35,7 +36,7 @@ export function encodeMuxedAccountToAddress(
     return _encodeMuxedAccountFullyToAddress(muxedAccount);
   }
 
-  return StrKey.encodeEd25519PublicKey(Buffer.from(muxedAccount.value));
+  return StrKey.encodeEd25519PublicKey(muxedAccount.value);
 }
 
 /**
@@ -76,7 +77,7 @@ export function extractBaseAddress(address: string): string {
   if (muxedAccount.type !== "keyTypeMuxedEd25519") {
     throw new TypeError(`expected muxed account (M...), got ${address}`);
   }
-  return StrKey.encodeEd25519PublicKey(Buffer.from(muxedAccount.value.ed25519));
+  return StrKey.encodeEd25519PublicKey(muxedAccount.value.ed25519);
 }
 
 // Decodes an "M..." account ID into its MuxedAccount object representation.
@@ -86,7 +87,7 @@ function _decodeAddressFullyToMuxedAccount(address: string): MuxedAccount {
   // Decoding M... addresses cannot be done through a simple
   // MuxedAccountMed25519.fromXdr() call, because the definition is:
   //
-  //    constructor(attributes: { id: Uint64; ed25519: Buffer });
+  //    constructor(attributes: { id: Uint64; ed25519: Uint8Array });
   //
   // Note the ID is the first attribute. However, the ID comes *last* in the
   // stringified (base32-encoded) address itself (it's the last 8-byte suffix).
@@ -112,11 +113,9 @@ function _encodeMuxedAccountFullyToAddress(muxedAccount: MuxedAccount): string {
 
   const muxed = muxedAccount.value;
   return StrKey.encodeMed25519PublicKey(
-    Buffer.concat([
-      Buffer.from(muxed.ed25519),
-      Buffer.from(
-        MuxedAccountMed25519.schema.encode(muxed.toXdrObject()),
-      ).subarray(0, 8),
+    concatUint8Arrays([
+      muxed.ed25519,
+      MuxedAccountMed25519.schema.encode(muxed.toXdrObject()).subarray(0, 8),
     ]),
   );
 }

@@ -1,3 +1,4 @@
+import { base64ToUint8Array } from "uint8array-extras";
 import {
   FeeBumpTransaction as XdrFeeBumpTransaction,
   FeeBumpTransactionEnvelope,
@@ -35,8 +36,8 @@ export class FeeBumpTransaction extends TransactionBase<XdrFeeBumpTransaction> {
     networkPassphrase: string,
   ) {
     if (typeof envelope === "string") {
-      const buffer = Buffer.from(envelope, "base64");
-      envelope = TransactionEnvelope.fromXdr(buffer);
+      const bytes = base64ToUint8Array(envelope);
+      envelope = TransactionEnvelope.fromXdr(bytes);
     }
 
     const envelopeType = envelope.type;
@@ -94,7 +95,7 @@ export class FeeBumpTransaction extends TransactionBase<XdrFeeBumpTransaction> {
    * It is composed of a 4 prefix bytes followed by the xdr-encoded form
    * of this transaction.
    */
-  override signatureBase(): Buffer {
+  override signatureBase(): Uint8Array {
     const taggedTransaction =
       TransactionSignaturePayloadTaggedTransaction.envelopeTypeTxFeeBump(
         this.tx,
@@ -105,7 +106,7 @@ export class FeeBumpTransaction extends TransactionBase<XdrFeeBumpTransaction> {
       taggedTransaction,
     });
 
-    return Buffer.from(txSignature.toXdr());
+    return txSignature.toXdr();
   }
 
   /**

@@ -1,3 +1,4 @@
+import { compareUint8Arrays } from "uint8array-extras";
 import {
   HashIdPreimage,
   HashIdPreimageSorobanAuthorization,
@@ -21,15 +22,6 @@ import { hash } from "./hashing.js";
 import { Address } from "./address.js";
 import { nativeToScVal } from "./scval.js";
 
-type BufferLike = ArrayBuffer | Buffer | Uint8Array;
-
-function toBuffer(value: BufferLike): Buffer {
-  if (value instanceof ArrayBuffer) {
-    return Buffer.from(new Uint8Array(value));
-  }
-  return Buffer.from(value);
-}
-
 /**
  * A callback for signing an XDR structure representing all of the details
  * necessary to authorize an invocation tree.
@@ -46,7 +38,7 @@ function toBuffer(value: BufferLike): Buffer {
  */
 export type SigningCallback = (
   preimage: HashIdPreimage,
-) => Promise<BufferLike | { signature: BufferLike; publicKey: string }>;
+) => Promise<Uint8Array | { signature: Uint8Array; publicKey: string }>;
 
 /**
  * Actually authorizes an existing authorization entry using the given
@@ -62,7 +54,7 @@ export type SigningCallback = (
  *   - until a particular ledger sequence is reached.
  *
  * This one lets you pass either a {@link Keypair} (or, more accurately,
- * anything with a `sign(Buffer): Buffer` method) or a callback function (see
+ * anything with a `sign(Uint8Array): Uint8Array` method) or a callback function (see
  * {@link SigningCallback}) to handle signing the envelope hash.
  *
  * @param entry - an unsigned authorization entry
@@ -71,7 +63,7 @@ export type SigningCallback = (
  *    EITHER
  *
  *      (a) an object containing a `signature` of the hash of the raw payload
- *          bytes as a Buffer-like and a `publicKey` string representing who just
+ *          bytes as a `Uint8Array` and a `publicKey` string representing who just
  *          created this signature, or
  *      (b) just the naked signature of the hash of the raw payload bytes (where
  *          the signing key is implied to be the address in the `entry`).
@@ -179,7 +171,7 @@ export async function authorizeEntry(
 
   const payload = hash(preimage.toXdr());
 
-  let signature: Buffer;
+  let signature: Uint8Array;
   let publicKey: string;
   if (typeof signer === "function") {
     const sigResult = await signer(preimage);
@@ -188,15 +180,15 @@ export async function authorizeEntry(
       typeof sigResult === "object" &&
       "signature" in sigResult
     ) {
-      signature = toBuffer(sigResult.signature);
+      signature = sigResult.signature;
       publicKey = sigResult.publicKey;
     } else {
       // if using the deprecated form, assume it's for the entry
-      signature = toBuffer(sigResult);
+      signature = sigResult;
       publicKey = Address.fromScAddress(addrAuth.address).toString();
     }
   } else {
-    signature = toBuffer(signer.sign(payload));
+    signature = signer.sign(payload);
     publicKey = signer.publicKey();
   }
 
@@ -266,7 +258,7 @@ export async function authorizeEntry(
  *
  * @param params - the parameters for building and signing the authorization
  *   - `signer`: either a {@link Keypair} instance (or anything with a
- *    `.sign(buf): Buffer-like` method) or a function which takes a payload (a
+ *    `.sign(buf): Uint8Array` method) or a function which takes a payload (a
  *    {@link xdr.HashIdPreimageSorobanAuthorization} instance) input and returns
  *    the signature of the hash of the raw payload bytes (where the signing key
  *    should correspond to the address in the `entry`)
@@ -382,7 +374,7 @@ export function buildAuthorizationEntryPreimage(
     );
   }
 
-  const networkId = hash(Buffer.from(networkPassphrase));
+  const networkId = hash(networkPassphrase);
 
   switch (credentials.type) {
     // legacy address credentials are not address-bound
@@ -524,12 +516,16 @@ function buildDelegateNodes(
       }),
   );
 
-  nodes.sort((a, b) => Buffer.compare(a.address.toXdr(), b.address.toXdr()));
+  nodes.sort((a, b) =>
+    compareUint8Arrays(a.address.toXdr(), b.address.toXdr()),
+  );
 
   for (let i = 1; i < nodes.length; i++) {
     if (
-      Buffer.compare(nodes[i - 1].address.toXdr(), nodes[i].address.toXdr()) ===
-      0
+      compareUint8Arrays(
+        nodes[i - 1].address.toXdr(),
+        nodes[i].address.toXdr(),
+      ) === 0
     ) {
       throw new Error(
         `duplicate delegate address ${Address.fromScAddress(

@@ -13,6 +13,7 @@ import {
   PoolId,
   Price,
 } from "../../xdr/index.js";
+import { hexToUint8Array } from "uint8array-extras";
 // PoolId is an alias for Hash; we need the runtime class to construct instances.
 import { LiquidityPoolDepositOpts, OperationAttributes } from "./types.js";
 
@@ -42,7 +43,7 @@ export function liquidityPoolDeposit(
     throw new TypeError("liquidityPoolId argument is required");
   }
 
-  const liquidityPoolIdXdr = new PoolId(Buffer.from(liquidityPoolId, "hex"));
+  const liquidityPoolIdXdr = new PoolId(hexToUint8Array(liquidityPoolId));
 
   if (!isValidAmount(maxAmountA, true)) {
     throw new TypeError(constructAmountRequirementsError("maxAmountA"));

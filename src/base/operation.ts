@@ -12,7 +12,7 @@ import {
   TrustLineFlags,
 } from "../xdr/index.js";
 
-import { uint8ArrayToString } from "uint8array-extras";
+import { uint8ArrayToHex, uint8ArrayToString } from "uint8array-extras";
 import { trimEnd } from "./util/util.js";
 import { encodeMuxedAccountToAddress } from "./util/decode_encode_muxed_account.js";
 
@@ -245,14 +245,14 @@ export class Operation {
           switch (key.type) {
             case "signerKeyTypeEd25519":
               signer.ed25519PublicKey = StrKey.encodeEd25519PublicKey(
-                Buffer.from(key.ed25519),
+                key.ed25519,
               );
               break;
             case "signerKeyTypePreAuthTx":
-              signer.preAuthTx = Buffer.from(key.preAuthTx);
+              signer.preAuthTx = key.preAuthTx.slice();
               break;
             case "signerKeyTypeHashX":
-              signer.sha256Hash = Buffer.from(key.hashX);
+              signer.sha256Hash = key.hashX.slice();
               break;
             case "signerKeyTypeEd25519SignedPayload":
               signer.ed25519SignedPayload = StrKey.encodeSignedPayload(
@@ -306,9 +306,7 @@ export class Operation {
         // manage_data.name is checked by iscntrl in stellar-core
         result.name = attrs.dataName.toString();
         result.value =
-          attrs.dataValue === null
-            ? undefined
-            : Buffer.from(attrs.dataValue.value);
+          attrs.dataValue === null ? undefined : attrs.dataValue.value.slice();
         break;
       }
       case "inflation": {
@@ -404,9 +402,7 @@ export class Operation {
       }
       case "liquidityPoolDeposit": {
         result.type = "liquidityPoolDeposit";
-        result.liquidityPoolId = Buffer.from(
-          attrs.liquidityPoolId.value,
-        ).toString("hex");
+        result.liquidityPoolId = uint8ArrayToHex(attrs.liquidityPoolId.value);
         result.maxAmountA = fromXdrAmount(attrs.maxAmountA);
         result.maxAmountB = fromXdrAmount(attrs.maxAmountB);
         result.minPrice = fromXdrPrice(attrs.minPrice);
@@ -415,9 +411,7 @@ export class Operation {
       }
       case "liquidityPoolWithdraw": {
         result.type = "liquidityPoolWithdraw";
-        result.liquidityPoolId = Buffer.from(
-          attrs.liquidityPoolId.value,
-        ).toString("hex");
+        result.liquidityPoolId = uint8ArrayToHex(attrs.liquidityPoolId.value);
         result.amount = fromXdrAmount(attrs.amount);
         result.minAmountA = fromXdrAmount(attrs.minAmountA);
         result.minAmountB = fromXdrAmount(attrs.minAmountB);
@@ -537,9 +531,9 @@ function extractRevokeSponshipDetails(
         }
         case "liquidityPool": {
           result.type = "revokeLiquidityPoolSponsorship";
-          result.liquidityPoolId = Buffer.from(
+          result.liquidityPoolId = uint8ArrayToHex(
             ledgerKey.liquidityPool.liquidityPoolId.value,
-          ).toString("hex");
+          );
           break;
         }
         default: {
@@ -568,24 +562,22 @@ function convertXdrSignerKeyToObject(
 
   switch (signerKey.type) {
     case "signerKeyTypeEd25519": {
-      attrs.ed25519PublicKey = StrKey.encodeEd25519PublicKey(
-        Buffer.from(signerKey.value),
-      );
+      attrs.ed25519PublicKey = StrKey.encodeEd25519PublicKey(signerKey.value);
       break;
     }
     case "signerKeyTypePreAuthTx": {
-      attrs.preAuthTx = Buffer.from(signerKey.value).toString("hex");
+      attrs.preAuthTx = uint8ArrayToHex(signerKey.value);
       break;
     }
     case "signerKeyTypeHashX": {
-      attrs.sha256Hash = Buffer.from(signerKey.value).toString("hex");
+      attrs.sha256Hash = uint8ArrayToHex(signerKey.value);
       break;
     }
     case "signerKeyTypeEd25519SignedPayload": {
       const signedPayload = signerKey.value;
 
       attrs.ed25519SignedPayload = StrKey.encodeSignedPayload(
-        Buffer.from(signedPayload.toXdr()),
+        signedPayload.toXdr(),
       );
       break;
     }
@@ -599,7 +591,7 @@ function convertXdrSignerKeyToObject(
 }
 
 function accountIdtoAddress(accountId: AccountId): string {
-  return StrKey.encodeEd25519PublicKey(Buffer.from(accountId.value));
+  return StrKey.encodeEd25519PublicKey(accountId.value);
 }
 
 // Namespace merged with the Operation class to expose operation result types as

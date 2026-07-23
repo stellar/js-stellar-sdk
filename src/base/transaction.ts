@@ -1,3 +1,4 @@
+import { base64ToUint8Array, concatUint8Arrays } from "uint8array-extras";
 import {
   ClaimableBalanceId,
   Hash,
@@ -68,8 +69,8 @@ export class Transaction extends TransactionBase<
     networkPassphrase: string,
   ) {
     if (typeof envelope === "string") {
-      const buffer = Buffer.from(envelope, "base64");
-      envelope = TransactionEnvelope.fromXdr(buffer);
+      const bytes = base64ToUint8Array(envelope);
+      envelope = TransactionEnvelope.fromXdr(bytes);
     }
 
     const envelopeType = envelope.type;
@@ -98,7 +99,7 @@ export class Transaction extends TransactionBase<
     switch (this._envelopeType) {
       case "envelopeTypeTxV0":
         this._source = StrKey.encodeEd25519PublicKey(
-          Buffer.from((tx as TransactionV0).sourceAccountEd25519),
+          (tx as TransactionV0).sourceAccountEd25519,
         );
         break;
       default:
@@ -266,18 +267,18 @@ export class Transaction extends TransactionBase<
    * It is composed of a 4 prefix bytes followed by the xdr-encoded form
    * of this transaction.
    */
-  override signatureBase(): Buffer {
+  override signatureBase(): Uint8Array {
     let tx = this.tx;
 
     // Backwards Compatibility: Use ENVELOPE_TYPE_TX to sign ENVELOPE_TYPE_TX_V0
     // we need a Transaction to generate the signature base
     if (this._envelopeType === "envelopeTypeTxV0") {
       tx = XdrTransaction.fromXdr(
-        Buffer.concat([
+        concatUint8Arrays([
           // TransactionV0 is a transaction with the AccountID discriminant
           // stripped off, we need to put it back to build a valid transaction
           // which we can use to build a TransactionSignaturePayloadTaggedTransaction
-          Buffer.alloc(4), // AccountID discriminant: publicKeyTypeEd25519 = 0
+          new Uint8Array(4), // AccountID discriminant: publicKeyTypeEd25519 = 0
           tx.toXdr(),
         ]),
       );
@@ -293,7 +294,7 @@ export class Transaction extends TransactionBase<
       taggedTransaction,
     });
 
-    return Buffer.from(txSignature.toXdr());
+    return txSignature.toXdr();
   }
 
   /**
@@ -379,9 +380,9 @@ export class Transaction extends TransactionBase<
       }),
     );
 
-    const opIdHash = hash(Buffer.from(operationId.toXdr("raw")));
+    const opIdHash = hash(operationId.toXdr("raw"));
     const balanceId = ClaimableBalanceId.claimableBalanceIdTypeV0(
-      new Hash(Uint8Array.from(opIdHash)),
+      new Hash(opIdHash),
     );
     return balanceId.toXdr("hex");
   }
