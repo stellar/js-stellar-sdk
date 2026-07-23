@@ -120,6 +120,20 @@ Don't keep both packages installed. Two copies of the base library cause
 confusing runtime errors, such as `instanceof` checks failing on values that
 look correct.
 
+If you only use the offline primitives (`StrKey`, `Keypair`,
+`TransactionBuilder`, `xdr`, and friends), you can import them from the `/base`
+subpath instead of the package root:
+
+```js
+import { StrKey, Keypair } from "@stellar/stellar-sdk/base";
+```
+
+This loads only the former stellar-base modules, skipping Horizon, RPC, and the
+SEP helpers (federation, web auth, stellar.toml) and their networking
+dependencies. In CommonJS environments — where `require()` can't tree-shake the
+root barrel — this is noticeably leaner and avoids pulling in dependencies like
+`axios`, `eventsource`, and `smol-toml`.
+
 ## Versioning and compatibility
 
 Always use the latest `@stellar/stellar-sdk`. The Stellar network upgrades its
@@ -166,6 +180,31 @@ You can also refer to:
   Horizon REST API (if using the `Horizon` module) and
 - the [documentation](https://developers.stellar.org/docs/data/rpc) for Soroban
   RPC's API (if using the `rpc` module)
+
+### Usage with Jest
+
+Some of the SDK's dependencies (`@noble/hashes`, `@noble/ed25519`,
+`uint8array-extras`, `smol-toml`, `eventsource`) ship only ES modules. Node
+itself handles this (`require(esm)` works on all supported Node versions), but
+Jest's default transform pipeline does not: tests that load the SDK fail with
+`SyntaxError: Cannot use import statement outside a module` coming from inside
+`node_modules`.
+
+Tell Jest to transform those packages instead of skipping them:
+
+```js
+// jest.config.js
+module.exports = {
+  transformIgnorePatterns: [
+    "node_modules/(?!(@noble|uint8array-extras|smol-toml|eventsource)/)",
+  ],
+};
+```
+
+If you compile tests with ts-jest or Babel, also make sure the compilation
+target is `es2020` or later — the SDK and its crypto dependencies use native
+`BigInt`, and downleveling below `es2020` breaks it at runtime (for example
+`TypeError: Cannot convert a BigInt value to a number`).
 
 ### Usage with React Native
 
