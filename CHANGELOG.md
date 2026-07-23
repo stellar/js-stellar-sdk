@@ -4,6 +4,19 @@
 A breaking change will get clearly marked in this log.
 
 
+## Unreleased
+
+### Fixed
+- `Spec.scValToNative` now handles contract values typed as `Val`
+  (`scSpecTypeVal`) by delegating to the generic `scValToNative` converter,
+  mirroring the encoding-side support added in [#1485]. Decoding a response
+  containing a `Val`-typed string, symbol, vec, or map — e.g. a struct with a
+  `Vec<Val>` field — no longer throws
+  `ScSpecType scSpecTypeVal was not string or symbol`; each value decodes to
+  its natural native representation (`Address` → string, `u32` → number,
+  `Symbol` → string, vecs/maps recurse).
+  ([#1551](https://github.com/stellar/js-stellar-sdk/pull/1551))
+
 ## [v16.1.0](https://github.com/stellar/js-stellar-sdk/compare/v16.0.1...v16.1.0)
 
 ### Added
