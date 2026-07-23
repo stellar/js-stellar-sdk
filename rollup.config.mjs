@@ -5,7 +5,6 @@ import { builtinModules } from "node:module";
 import { fileURLToPath } from "node:url";
 
 import commonjs from "@rollup/plugin-commonjs";
-import inject from "@rollup/plugin-inject";
 import resolve from "@rollup/plugin-node-resolve";
 import replace from "@rollup/plugin-replace";
 import terser from "@rollup/plugin-terser";
@@ -108,25 +107,6 @@ function aliasHttpClientToAxios() {
   };
 }
 
-// Browser bundle only: rollup-plugin-polyfill-node ships a legacy `buffer-es6`
-// polyfill that lacks BigInt accessors (readBigUInt64BE, writeBigInt64BE, ...).
-// SDK source uses bare `Buffer.from(...)` etc. which our `inject` plugin rewrites
-// into `import { Buffer } from "buffer"`. If polyfill-node resolves that
-// specifier first, `Buffer.from()` returns a legacy buffer instance; js-xdr's
-// `Buffer.isBuffer(t)` duck-types it as a Buffer (it sets `_isBuffer = true`),
-// stores it as `_buffer`, and later `_buffer.readBigUInt64BE(...)` throws
-// `is not a function`. Pin `buffer` (and `node:buffer`) to the real npm package
-// (`buffer@6.0.3+`) before polyfill-node has a chance to intercept.
-function aliasBufferToNpmBuffer() {
-  return {
-    name: "alias-buffer-to-npm-buffer",
-    resolveId(source, importer) {
-      if (source !== "buffer" && source !== "node:buffer") return null;
-      return this.resolve("buffer/index.js", importer, { skipSelf: true });
-    },
-  };
-}
-
 // Browser bundle only: rollup-plugin-polyfill-node's zlib polyfill omits the
 // `constants` object that axios's HTTP adapter accesses at module init
 // (`zlib.constants.Z_SYNC_FLUSH`). Back it with browserify-zlib, which has
@@ -188,9 +168,6 @@ const libSharedPlugins = [
       ".js": "js",
       ".ts": "ts",
     },
-  }),
-  inject({
-    Buffer: ["buffer", "Buffer"],
   }),
   replaceVersion,
 ];
@@ -256,7 +233,6 @@ const distBaseName = useAxios ? "stellar-sdk-axios" : "stellar-sdk";
 const distPlugins = [
   ...(useAxios ? [aliasHttpClientToAxios()] : []),
   resolveJsSourceSpecifier(),
-  aliasBufferToNpmBuffer(),
   aliasZlibToBrowserifyZlib(),
   resolve({
     browser: true,
@@ -273,9 +249,6 @@ const distPlugins = [
       ".js": "js",
       ".ts": "ts",
     },
-  }),
-  inject({
-    Buffer: ["buffer", "Buffer"],
   }),
   replaceVersion,
 ];
