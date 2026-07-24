@@ -7,6 +7,7 @@ import {
   Contract,
   scValToBigInt,
   nativeToScVal,
+  scValToNative,
 } from "../base/index.js";
 import { Ok, Err } from "./rust_result.js";
 import { processSpecEntryStream } from "./utils.js";
@@ -1009,6 +1010,13 @@ export class Spec {
 
     if (value === xdr.ScSpecType.scSpecTypeUdt().value) {
       return this.scValUdtToNative(scv, typeDef.udt());
+    }
+
+    // Delegate scSpecTypeVal to the base scValToNative helper, mirroring the
+    // encoding side (nativeToScVal above): a `Val` field carries no type
+    // information, so decode each value to its natural native representation.
+    if (value === xdr.ScSpecType.scSpecTypeVal().value) {
+      return scValToNative(scv) as T;
     }
 
     // we use the verbose xdr.ScValType.<type>.value form here because it's faster
