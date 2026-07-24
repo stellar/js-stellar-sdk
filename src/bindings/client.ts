@@ -172,7 +172,7 @@ ${eventMethods}
         const fieldName = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(rawParamName)
           ? rawParamName
           : `"${escapeStringLiteral(rawParamName)}"`;
-        const fieldType = parseTypeFromTypeDef(param.type());
+        const fieldType = parseTypeFromTypeDef(param.type(), true);
         return `${fieldName}?: ${fieldType}`;
       })
       .join("; ");
