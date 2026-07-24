@@ -8,6 +8,7 @@ import {
   formatJSDocComment,
   formatImports,
   isTupleStruct,
+  toPascalCase,
 } from "./utils.js";
 
 /**
@@ -58,10 +59,13 @@ export class TypeGenerator {
       .join("\n\n");
     // Generate imports for all types
     const imports = this.generateImports();
+    // Generate the discriminated union of all contract events, if any
+    const eventUnion = this.generateContractEventUnion();
 
     return `${imports}
 
     ${types}
+    ${eventUnion}
     `;
   }
 
@@ -81,6 +85,8 @@ export class TypeGenerator {
         return this.generateEnum(entry.udtEnumV0());
       case xdr.ScSpecEntryKind.scSpecEntryUdtErrorEnumV0():
         return this.generateErrorEnum(entry.udtErrorEnumV0());
+      case xdr.ScSpecEntryKind.scSpecEntryEventV0():
+        return this.generateEvent(entry.eventV0());
       default:
         return null;
     }
@@ -114,6 +120,11 @@ export class TypeGenerator {
           case xdr.ScSpecEntryKind.scSpecEntryUdtErrorEnumV0():
             // Enums do not have associated types
             return [];
+          case xdr.ScSpecEntryKind.scSpecEntryEventV0():
+            return entry
+              .eventV0()
+              .params()
+              .map((param) => param.type());
           default:
             return [];
         }
@@ -262,6 +273,81 @@ ${members}
       name: enumCase.name().toString(),
       value: enumCase.value(),
     };
+  }
+
+  /**
+   * Compute the exported TS interface name for an event, e.g. "transfer" becomes "TransferEvent"
+   */
+  private eventInterfaceName(event: xdr.ScSpecEventV0): string {
+    return `${toPascalCase(sanitizeIdentifier(event.name().toString()))}Event`;
+  }
+
+  /**
+   * Generate TypeScript interface for a Soroban contract event
+   */
+  private generateEvent(event: xdr.ScSpecEventV0): string {
+    const rawName = event.name().toString();
+    const name = this.eventInterfaceName(event);
+    const doc = formatJSDocComment(
+      event.doc().toString() || `Event: ${rawName}`,
+      0,
+    );
+
+    // parseEvent keys its output by the raw param names, so the interface
+    // must use them too — quoted when they aren't valid identifiers.
+    const fieldKey = (rawParamName: string): string =>
+      /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(rawParamName)
+        ? rawParamName
+        : `"${escapeStringLiteral(rawParamName)}"`;
+
+    // Map-format data entries may be absent from an emitted event's map, in
+    // which case parseEvent omits the key — so those fields are optional.
+    const dataIsMapFormat =
+      event.dataFormat().value ===
+      xdr.ScSpecEventDataFormat.scSpecEventDataFormatMap().value;
+
+    // parseEvent merges topic-list and data-located params into a single
+    // flat `data` record; generate one field per param in declaration order.
+    const dataFields = event
+      .params()
+      .map((param) => {
+        const fieldName = fieldKey(param.name().toString());
+        const fieldType = parseTypeFromTypeDef(param.type());
+        const fieldDoc = formatJSDocComment(param.doc().toString(), 4);
+        const optional =
+          dataIsMapFormat &&
+          param.location().value ===
+            xdr.ScSpecEventParamLocationV0.scSpecEventParamLocationData().value;
+
+        return `${fieldDoc}    ${fieldName}${optional ? "?" : ""}: ${fieldType};`;
+      })
+      .join("\n");
+
+    return `${doc}export interface ${name} {
+  name: "${escapeStringLiteral(rawName)}";
+  data: {
+${dataFields}
+  };
+}`;
+  }
+
+  /**
+   * Generate the discriminated union of all contract events, if the spec defines any.
+   */
+  private generateContractEventUnion(): string {
+    const eventEntries = this.spec.entries.filter(
+      (entry) => entry.switch() === xdr.ScSpecEntryKind.scSpecEntryEventV0(),
+    );
+
+    if (eventEntries.length === 0) {
+      return "";
+    }
+
+    const names = eventEntries.map((entry) =>
+      this.eventInterfaceName(entry.eventV0()),
+    );
+
+    return `export type ContractEvent = ${names.join(" | ")};`;
   }
 
   private generateTupleStruct(udtStruct: xdr.ScSpecUdtStructV0): string {
