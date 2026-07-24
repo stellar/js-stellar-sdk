@@ -85,6 +85,20 @@ describe("Keypair.fromRawEd25519Seed", () => {
     );
   });
 
+  it("copies the seed instead of aliasing caller memory", () => {
+    const seed = stringToUint8Array("masterpassphrasemasterpassphrase");
+    const kp = Keypair.fromRawEd25519Seed(seed);
+
+    // Zeroizing the caller's copy must not corrupt the keypair.
+    seed.fill(0);
+
+    const payload = stringToUint8Array("payload");
+    expect(kp.verify(payload, kp.sign(payload))).toBe(true);
+    expect(kp.secret()).toEqual(
+      "SBWWC43UMVZHAYLTONYGQ4TBONSW2YLTORSXE4DBONZXA2DSMFZWLP2R",
+    );
+  });
+
   it("throws an error if the arg isn't 32 bytes", () => {
     expect(() =>
       Keypair.fromRawEd25519Seed(

@@ -24,11 +24,14 @@ ed.hashes.sha512 = sha512;
 const MESSAGE_PREFIX = stringToUint8Array("Stellar Signed Message:\n");
 
 /**
- * Normalizes the constructor's key input: raw bytes pass through, strings are
- * UTF-8 encoded (matching the `Buffer.from(string)` behavior this replaced).
+ * Normalizes the constructor's key input: strings are UTF-8 encoded and raw
+ * bytes are copied (matching the `Buffer.from` behavior this replaced), so the
+ * keypair never aliases caller-owned memory.
  */
 function toBytes(input: Uint8Array | string): Uint8Array {
-  return typeof input === "string" ? stringToUint8Array(input) : input;
+  return typeof input === "string"
+    ? stringToUint8Array(input)
+    : Uint8Array.from(input);
 }
 
 /**
