@@ -66,7 +66,7 @@ let challenge = WebAuth.buildChallengeTx(
 
 - `SEP-10: Stellar Web Auth`
 
-**Source:** [src/webauth/challenge_transaction.ts:63](https://github.com/stellar/js-stellar-sdk/blob/main/src/webauth/challenge_transaction.ts#L63)
+**Source:** [src/webauth/challenge_transaction.ts:69](https://github.com/stellar/js-stellar-sdk/blob/main/src/webauth/challenge_transaction.ts#L69)
 
 ## WebAuth.gatherTxSigners
 
@@ -103,7 +103,7 @@ transaction.sign(keypair1, keypair2)
 WebAuth.gatherTxSigners(transaction, [keypair1.publicKey(), keypair2.publicKey()])
 ```
 
-**Source:** [src/webauth/utils.ts:32](https://github.com/stellar/js-stellar-sdk/blob/main/src/webauth/utils.ts#L32)
+**Source:** [src/webauth/utils.ts:33](https://github.com/stellar/js-stellar-sdk/blob/main/src/webauth/utils.ts#L33)
 
 ## WebAuth.readChallengeTx
 
@@ -147,7 +147,7 @@ The actual transaction and the
 
 - `SEP-10: Stellar Web Auth`
 
-**Source:** [src/webauth/challenge_transaction.ts:163](https://github.com/stellar/js-stellar-sdk/blob/main/src/webauth/challenge_transaction.ts#L163)
+**Source:** [src/webauth/challenge_transaction.ts:169](https://github.com/stellar/js-stellar-sdk/blob/main/src/webauth/challenge_transaction.ts#L169)
 
 ## WebAuth.verifyChallengeTxSigners
 
@@ -236,7 +236,7 @@ WebAuth.verifyChallengeTxSigners(
 
 - `SEP-10: Stellar Web Auth`
 
-**Source:** [src/webauth/challenge_transaction.ts:419](https://github.com/stellar/js-stellar-sdk/blob/main/src/webauth/challenge_transaction.ts#L419)
+**Source:** [src/webauth/challenge_transaction.ts:433](https://github.com/stellar/js-stellar-sdk/blob/main/src/webauth/challenge_transaction.ts#L433)
 
 ## WebAuth.verifyChallengeTxThreshold
 
@@ -346,7 +346,7 @@ WebAuth.verifyChallengeTxThreshold(
 
 - `SEP-10: Stellar Web Auth`
 
-**Source:** [src/webauth/challenge_transaction.ts:645](https://github.com/stellar/js-stellar-sdk/blob/main/src/webauth/challenge_transaction.ts#L645)
+**Source:** [src/webauth/challenge_transaction.ts:659](https://github.com/stellar/js-stellar-sdk/blob/main/src/webauth/challenge_transaction.ts#L659)
 
 ## WebAuth.verifyTxSignedBy
 
@@ -380,7 +380,7 @@ transaction.sign(keypair)
 WebAuth.verifyTxSignedBy(transaction, keypair.publicKey())
 ```
 
-**Source:** [src/webauth/utils.ts:99](https://github.com/stellar/js-stellar-sdk/blob/main/src/webauth/utils.ts#L99)
+**Source:** [src/webauth/utils.ts:97](https://github.com/stellar/js-stellar-sdk/blob/main/src/webauth/utils.ts#L97)
 
 ## Types
 
@@ -392,4 +392,4 @@ A parsed and validated challenge transaction, and some of its constituent detail
 type ChallengeTxDetails = { clientAccountId: string; matchedHomeDomain: string; memo?: string; tx: Transaction }
 ```
 
-**Source:** [src/webauth/utils.ts:109](https://github.com/stellar/js-stellar-sdk/blob/main/src/webauth/utils.ts#L109)
+**Source:** [src/webauth/utils.ts:107](https://github.com/stellar/js-stellar-sdk/blob/main/src/webauth/utils.ts#L107)
