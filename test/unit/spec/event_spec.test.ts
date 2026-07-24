@@ -90,11 +90,14 @@ describe("Spec events", () => {
     );
 
     const parsed = spec.parseEvent(topics, data);
-    expect(parsed).toBeDefined();
-    expect(parsed!.name).toBe("transfer");
-    expect(parsed!.data.from).toBe(from.toString());
-    expect(parsed!.data.to).toBe(to.toString());
-    expect(parsed!.data.amount).toBe(12345n);
+    expect(parsed).toEqual({
+      name: "transfer",
+      data: {
+        from: from.toString(),
+        to: to.toString(),
+        amount: 12345n,
+      },
+    });
   });
 
   it("parses vec data format events", () => {
@@ -117,10 +120,14 @@ describe("Spec events", () => {
     const data = xdr.ScVal.scvVec([xdr.ScVal.scvU32(10), xdr.ScVal.scvU32(20)]);
 
     const parsed = spec.parseEvent(topics, data);
-    expect(parsed).toBeDefined();
-    expect(parsed!.data.who).toBe(who.toString());
-    expect(parsed!.data.sell_amount).toBe(10);
-    expect(parsed!.data.buy_amount).toBe(20);
+    expect(parsed).toEqual({
+      name: "swap",
+      data: {
+        who: who.toString(),
+        sell_amount: 10,
+        buy_amount: 20,
+      },
+    });
   });
 
   it("parses map data format events", () => {
@@ -152,9 +159,14 @@ describe("Spec events", () => {
     ]);
 
     const parsed = spec.parseEvent(topics, data);
-    expect(parsed).toBeDefined();
-    expect(parsed!.data.amount).toBe(7);
-    expect(parsed!.data.memo).toBe(99);
+    expect(parsed).toEqual({
+      name: "mint",
+      data: {
+        to: to.toString(),
+        amount: 7,
+        memo: 99,
+      },
+    });
   });
 
   it("supports multiple prefix topics", () => {
@@ -176,9 +188,10 @@ describe("Spec events", () => {
     const data = xdr.ScVal.scvVoid();
 
     const parsed = spec.parseEvent(topics, data);
-    expect(parsed).toBeDefined();
-    expect(parsed!.name).toBe("nested_event");
-    expect(parsed!.data.value).toBe(5);
+    expect(parsed).toEqual({
+      name: "nested_event",
+      data: { value: 5 },
+    });
   });
 
   it("tolerates string prefix topics (SEP-48)", () => {
@@ -199,9 +212,10 @@ describe("Spec events", () => {
       xdr.ScVal.scvSymbol("swap"),
     ];
     const parsed = spec.parseEvent(topics, xdr.ScVal.scvU32(5));
-    expect(parsed).toBeDefined();
-    expect(parsed!.name).toBe("swap");
-    expect(parsed!.data.amount).toBe(5);
+    expect(parsed).toEqual({
+      name: "swap",
+      data: { amount: 5 },
+    });
   });
 
   it("tolerates trailing undeclared topics (SAC asset topic)", () => {
@@ -229,10 +243,13 @@ describe("Spec events", () => {
       xdr.ScVal.scvString("native"), // trailing undeclared asset topic
     ];
     const parsed = spec.parseEvent(topics, xdr.ScVal.scvVoid());
-    expect(parsed).toBeDefined();
-    expect(parsed!.name).toBe("transfer");
-    expect(parsed!.data.from).toBe(from.toString());
-    expect(parsed!.data.to).toBe(to.toString());
+    expect(parsed).toEqual({
+      name: "transfer",
+      data: {
+        from: from.toString(),
+        to: to.toString(),
+      },
+    });
   });
 
   it("returns undefined for non-matching topics", () => {
@@ -325,9 +342,10 @@ describe("Spec events", () => {
       }),
     ]);
     const parsed = spec.parseEvent(mintTopics, weirdMap);
-    expect(parsed).toBeDefined();
-    expect(parsed!.name).toBe("mint");
-    expect(parsed!.data).toEqual({ to: addr.toString() });
+    expect(parsed).toEqual({
+      name: "mint",
+      data: { to: addr.toString() },
+    });
   });
 
   it("falls through to a later matching event when the first fails to decode", () => {
@@ -356,9 +374,10 @@ describe("Spec events", () => {
       [xdr.ScVal.scvSymbol("evt")],
       xdr.ScVal.scvU32(9),
     );
-    expect(parsed).toBeDefined();
-    expect(parsed!.name).toBe("second");
-    expect(parsed!.data.value).toBe(9);
+    expect(parsed).toEqual({
+      name: "second",
+      data: { value: 9 },
+    });
   });
 
   it("accepts base64 XDR strings for topics and data", () => {
@@ -379,9 +398,13 @@ describe("Spec events", () => {
     const data = xdr.ScVal.scvU32(42).toXDR("base64");
 
     const parsed = spec.parseEvent(topics, data);
-    expect(parsed).toBeDefined();
-    expect(parsed!.data.from).toBe(addr.toString());
-    expect(parsed!.data.amount).toBe(42);
+    expect(parsed).toEqual({
+      name: "transfer",
+      data: {
+        from: addr.toString(),
+        amount: 42,
+      },
+    });
   });
 
   it("builds eventTopicFilter with and without provided values", () => {

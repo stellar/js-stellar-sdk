@@ -1,62 +1,64 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`Bindings Snapshot Test > generates bindings that match snapshot for custom-types contract > custom-types-client.ts 1`] = `
-"import {Test, SimpleEnum, ComplexEnum, RecursiveEnum, RoyalCard, TupleStruct, ContractEvent} from './types.js';
+"import {RoyalCard, SimpleEnum, Test, ComplexEnum, TupleStruct, RecursiveEnum, ContractEvent} from './types.js';
 import {Result, Spec, AssembledTransaction, Client as ContractClient, ClientOptions as ContractClientOptions, MethodOptions} from '@stellar/stellar-sdk/contract';
-import {Address, xdr} from '@stellar/stellar-sdk';
+import {xdr, Address} from '@stellar/stellar-sdk';
 import { Buffer } from 'buffer';
 
 export interface Client {
-  hello({ hello }: { hello: string }, options?: MethodOptions): Promise<AssembledTransaction<string>>;
-  auth({ addr, world }: { addr: string | Address; world: string }, options?: MethodOptions): Promise<AssembledTransaction<string>>;
-  get_count(options?: MethodOptions): Promise<AssembledTransaction<number>>;
   inc(options?: MethodOptions): Promise<AssembledTransaction<number>>;
-  woid(options?: MethodOptions): Promise<AssembledTransaction<void>>;
-  val(options?: MethodOptions): Promise<AssembledTransaction<any>>;
-  u32_fail_on_even({ u32_ }: { u32_: number }, options?: MethodOptions): Promise<AssembledTransaction<Result<number, Error>>>;
-  u32_({ u32_ }: { u32_: number }, options?: MethodOptions): Promise<AssembledTransaction<number>>;
-  i32_({ i32_ }: { i32_: number }, options?: MethodOptions): Promise<AssembledTransaction<number>>;
-  i64_({ i64_ }: { i64_: bigint }, options?: MethodOptions): Promise<AssembledTransaction<bigint>>;
-  /**
-   * Example contract method which takes a struct
-   */
-  strukt_hel({ strukt }: { strukt: Test }, options?: MethodOptions): Promise<AssembledTransaction<Array<string>>>;
-  strukt({ strukt }: { strukt: Test }, options?: MethodOptions): Promise<AssembledTransaction<Test>>;
-  simple({ simple }: { simple: SimpleEnum }, options?: MethodOptions): Promise<AssembledTransaction<SimpleEnum>>;
-  complex({ complex }: { complex: ComplexEnum }, options?: MethodOptions): Promise<AssembledTransaction<ComplexEnum>>;
-  recursive_enum({ recursive }: { recursive: RecursiveEnum }, options?: MethodOptions): Promise<AssembledTransaction<RecursiveEnum>>;
-  addresse({ addresse }: { addresse: string | Address }, options?: MethodOptions): Promise<AssembledTransaction<string>>;
-  bytes({ bytes }: { bytes: Buffer }, options?: MethodOptions): Promise<AssembledTransaction<Buffer>>;
-  bytes_n({ bytes_n }: { bytes_n: Buffer }, options?: MethodOptions): Promise<AssembledTransaction<Buffer>>;
-  card({ card }: { card: RoyalCard }, options?: MethodOptions): Promise<AssembledTransaction<RoyalCard>>;
-  boolean({ boolean }: { boolean: boolean }, options?: MethodOptions): Promise<AssembledTransaction<boolean>>;
+  map({ map }: { map: Map<number, boolean> }, options?: MethodOptions): Promise<AssembledTransaction<Map<number, boolean>>>;
   /**
    * Negates a boolean value
    */
   not({ boolean }: { boolean: boolean }, options?: MethodOptions): Promise<AssembledTransaction<boolean>>;
-  i128({ i128 }: { i128: bigint }, options?: MethodOptions): Promise<AssembledTransaction<bigint>>;
-  u128({ u128 }: { u128: bigint }, options?: MethodOptions): Promise<AssembledTransaction<bigint>>;
-  multi_args({ a, b }: { a: number; b: boolean }, options?: MethodOptions): Promise<AssembledTransaction<number>>;
-  map({ map }: { map: Map<number, boolean> }, options?: MethodOptions): Promise<AssembledTransaction<Map<number, boolean>>>;
+  val(options?: MethodOptions): Promise<AssembledTransaction<any>>;
   vec({ vec }: { vec: Array<number> }, options?: MethodOptions): Promise<AssembledTransaction<Array<number>>>;
+  auth({ addr, world }: { addr: string | Address; world: string }, options?: MethodOptions): Promise<AssembledTransaction<string>>;
+  card({ card }: { card: RoyalCard }, options?: MethodOptions): Promise<AssembledTransaction<RoyalCard>>;
+  i128({ i128 }: { i128: bigint }, options?: MethodOptions): Promise<AssembledTransaction<bigint>>;
+  i256({ i256 }: { i256: bigint }, options?: MethodOptions): Promise<AssembledTransaction<bigint>>;
+  i32_({ i32_ }: { i32_: number }, options?: MethodOptions): Promise<AssembledTransaction<number>>;
+  i64_({ i64_ }: { i64_: bigint }, options?: MethodOptions): Promise<AssembledTransaction<bigint>>;
+  u128({ u128 }: { u128: bigint }, options?: MethodOptions): Promise<AssembledTransaction<bigint>>;
+  u256({ u256 }: { u256: bigint }, options?: MethodOptions): Promise<AssembledTransaction<bigint>>;
+  u32_({ u32_ }: { u32_: number }, options?: MethodOptions): Promise<AssembledTransaction<number>>;
+  woid(options?: MethodOptions): Promise<AssembledTransaction<void>>;
+  bytes({ bytes }: { bytes: Buffer }, options?: MethodOptions): Promise<AssembledTransaction<Buffer>>;
+  hello({ hello }: { hello: string }, options?: MethodOptions): Promise<AssembledTransaction<string>>;
   tuple({ tuple }: { tuple: [string, number] }, options?: MethodOptions): Promise<AssembledTransaction<[string, number]>>;
   /**
    * Example of an optional argument
    */
   option({ option }: { option: number | null }, options?: MethodOptions): Promise<AssembledTransaction<number | null>>;
-  get_object_vec_option(options?: MethodOptions): Promise<AssembledTransaction<Array<Test> | null>>;
-  u256({ u256 }: { u256: bigint }, options?: MethodOptions): Promise<AssembledTransaction<bigint>>;
-  i256({ i256 }: { i256: bigint }, options?: MethodOptions): Promise<AssembledTransaction<bigint>>;
+  simple({ simple }: { simple: SimpleEnum }, options?: MethodOptions): Promise<AssembledTransaction<SimpleEnum>>;
   string({ string }: { string: string }, options?: MethodOptions): Promise<AssembledTransaction<string>>;
-  tuple_strukt({ tuple_strukt }: { tuple_strukt: TupleStruct }, options?: MethodOptions): Promise<AssembledTransaction<TupleStruct>>;
-  timepoint({ timepoint }: { timepoint: bigint }, options?: MethodOptions): Promise<AssembledTransaction<bigint>>;
+  strukt({ strukt }: { strukt: Test }, options?: MethodOptions): Promise<AssembledTransaction<Test>>;
+  boolean({ boolean }: { boolean: boolean }, options?: MethodOptions): Promise<AssembledTransaction<boolean>>;
+  bytes_n({ bytes_n }: { bytes_n: Buffer }, options?: MethodOptions): Promise<AssembledTransaction<Buffer>>;
+  complex({ complex }: { complex: ComplexEnum }, options?: MethodOptions): Promise<AssembledTransaction<ComplexEnum>>;
+  addresse({ addresse }: { addresse: string | Address }, options?: MethodOptions): Promise<AssembledTransaction<string>>;
   duration({ duration }: { duration: bigint }, options?: MethodOptions): Promise<AssembledTransaction<bigint>>;
+  emit_swap({ from, card, strukt, complex }: { from: string | Address; card: RoyalCard; strukt: Test; complex: ComplexEnum }, options?: MethodOptions): Promise<AssembledTransaction<void>>;
+  get_count(options?: MethodOptions): Promise<AssembledTransaction<number>>;
+  timepoint({ timepoint }: { timepoint: bigint }, options?: MethodOptions): Promise<AssembledTransaction<bigint>>;
+  multi_args({ a, b }: { a: number; b: boolean }, options?: MethodOptions): Promise<AssembledTransaction<number>>;
+  /**
+   * Example contract method which takes a struct
+   */
+  strukt_hel({ strukt }: { strukt: Test }, options?: MethodOptions): Promise<AssembledTransaction<Array<string>>>;
+  emit_nested({ simple, tuple_strukt }: { simple: SimpleEnum; tuple_strukt: TupleStruct }, options?: MethodOptions): Promise<AssembledTransaction<void>>;
+  tuple_strukt({ tuple_strukt }: { tuple_strukt: TupleStruct }, options?: MethodOptions): Promise<AssembledTransaction<TupleStruct>>;
+  recursive_enum({ recursive }: { recursive: RecursiveEnum }, options?: MethodOptions): Promise<AssembledTransaction<RecursiveEnum>>;
+  u32_fail_on_even({ u32_ }: { u32_: number }, options?: MethodOptions): Promise<AssembledTransaction<Result<number, Error>>>;
+  get_object_vec_option(options?: MethodOptions): Promise<AssembledTransaction<Array<Test> | null>>;
 }
 
 export class Client extends ContractClient {
   constructor(public readonly options: ContractClientOptions) {
     super(
-      new Spec(["AAAAAQAAAC9UaGlzIGlzIGZyb20gdGhlIHJ1c3QgZG9jIGFib3ZlIHRoZSBzdHJ1Y3QgVGVzdAAAAAAAAAAABFRlc3QAAAADAAAAAAAAAAFhAAAAAAAABAAAAAAAAAABYgAAAAAAAAEAAAAAAAAAAWMAAAAAAAAR", "AAAAAgAAAAAAAAAAAAAAClNpbXBsZUVudW0AAAAAAAMAAAAAAAAAAAAAAAVGaXJzdAAAAAAAAAAAAAAAAAAABlNlY29uZAAAAAAAAAAAAAAAAAAFVGhpcmQAAAA=", "AAAAAwAAAAAAAAAAAAAACVJveWFsQ2FyZAAAAAAAAAMAAAAAAAAABEphY2sAAAALAAAAAAAAAAVRdWVlbgAAAAAAAAwAAAAAAAAABEtpbmcAAAAN", "AAAAAQAAAAAAAAAAAAAAC1R1cGxlU3RydWN0AAAAAAIAAAAAAAAAATAAAAAAAAfQAAAABFRlc3QAAAAAAAAAATEAAAAAAAfQAAAAClNpbXBsZUVudW0AAA==", "AAAAAgAAAAAAAAAAAAAAC0NvbXBsZXhFbnVtAAAAAAUAAAABAAAAAAAAAAZTdHJ1Y3QAAAAAAAEAAAfQAAAABFRlc3QAAAABAAAAAAAAAAVUdXBsZQAAAAAAAAEAAAfQAAAAC1R1cGxlU3RydWN0AAAAAAEAAAAAAAAABEVudW0AAAABAAAH0AAAAApTaW1wbGVFbnVtAAAAAAABAAAAAAAAAAVBc3NldAAAAAAAAAIAAAATAAAACwAAAAAAAAAAAAAABFZvaWQ=", "AAAAAgAAAAAAAAAAAAAADVJlY3Vyc2l2ZUVudW0AAAAAAAACAAAAAQAAAAAAAAAETGlzdAAAAAEAAAPqAAAH0AAAAA1SZWN1cnNpdmVFbnVtAAAAAAAAAAAAAAAAAAAEVm9pZA==", "AAAABQAAAAAAAAAAAAAACUF1dGhFdmVudAAAAAAAAAEAAAAEYXV0aAAAAAEAAAAAAAAABXdvcmxkAAAAAAAAEQAAAAAAAAAA", "AAAABAAAAAAAAAAAAAAABUVycm9yAAAAAAAAAQAAABxQbGVhc2UgcHJvdmlkZSBhbiBvZGQgbnVtYmVyAAAAD051bWJlck11c3RCZU9kZAAAAAAB", "AAAABAAAAAAAAAAAAAAACUVycm9uZW91cwAAAAAAAAEAAACsU29tZSBjb250cmFjdCBsaWJyYXJpZXMgY29udGFpbiBleHRyYSAjW2NvbnRyYWN0ZXJyb3JdIGRlZmluaXRpb25zIHRoYXQgZW5kIHVwIGNvbXBpbGVkCmludG8gdGhlIG1haW4gY29udHJhY3QgdHlwZXMuIFdlIG5lZWQgdG8gbWFrZSBzdXJlIHRvb2xpbmcgZGVhbHMgd2l0aCB0aGlzIHByb3Blcmx5LgAAAAtIb3dDb3VsZFlvdQAAAABk", "AAAAAAAAAAAAAAAFaGVsbG8AAAAAAAABAAAAAAAAAAVoZWxsbwAAAAAAABEAAAABAAAAEQ==", "AAAAAAAAAAAAAAAEYXV0aAAAAAIAAAAAAAAABGFkZHIAAAATAAAAAAAAAAV3b3JsZAAAAAAAABEAAAABAAAAEw==", "AAAAAAAAAAAAAAAJZ2V0X2NvdW50AAAAAAAAAAAAAAEAAAAE", "AAAAAAAAAAAAAAADaW5jAAAAAAAAAAABAAAABA==", "AAAAAAAAAAAAAAAEd29pZAAAAAAAAAAA", "AAAAAAAAAAAAAAADdmFsAAAAAAAAAAABAAAAAA==", "AAAAAAAAAAAAAAAQdTMyX2ZhaWxfb25fZXZlbgAAAAEAAAAAAAAABHUzMl8AAAAEAAAAAQAAA+kAAAAEAAAAAw==", "AAAAAAAAAAAAAAAEdTMyXwAAAAEAAAAAAAAABHUzMl8AAAAEAAAAAQAAAAQ=", "AAAAAAAAAAAAAAAEaTMyXwAAAAEAAAAAAAAABGkzMl8AAAAFAAAAAQAAAAU=", "AAAAAAAAAAAAAAAEaTY0XwAAAAEAAAAAAAAABGk2NF8AAAAHAAAAAQAAAAc=", "AAAAAAAAACxFeGFtcGxlIGNvbnRyYWN0IG1ldGhvZCB3aGljaCB0YWtlcyBhIHN0cnVjdAAAAApzdHJ1a3RfaGVsAAAAAAABAAAAAAAAAAZzdHJ1a3QAAAAAB9AAAAAEVGVzdAAAAAEAAAPqAAAAEQ==", "AAAAAAAAAAAAAAAGc3RydWt0AAAAAAABAAAAAAAAAAZzdHJ1a3QAAAAAB9AAAAAEVGVzdAAAAAEAAAfQAAAABFRlc3Q=", "AAAAAAAAAAAAAAAGc2ltcGxlAAAAAAABAAAAAAAAAAZzaW1wbGUAAAAAB9AAAAAKU2ltcGxlRW51bQAAAAAAAQAAB9AAAAAKU2ltcGxlRW51bQAA", "AAAAAAAAAAAAAAAHY29tcGxleAAAAAABAAAAAAAAAAdjb21wbGV4AAAAB9AAAAALQ29tcGxleEVudW0AAAAAAQAAB9AAAAALQ29tcGxleEVudW0A", "AAAAAAAAAAAAAAAOcmVjdXJzaXZlX2VudW0AAAAAAAEAAAAAAAAACXJlY3Vyc2l2ZQAAAAAAB9AAAAANUmVjdXJzaXZlRW51bQAAAAAAAAEAAAfQAAAADVJlY3Vyc2l2ZUVudW0AAAA=", "AAAAAAAAAAAAAAAIYWRkcmVzc2UAAAABAAAAAAAAAAhhZGRyZXNzZQAAABMAAAABAAAAEw==", "AAAAAAAAAAAAAAAFYnl0ZXMAAAAAAAABAAAAAAAAAAVieXRlcwAAAAAAAA4AAAABAAAADg==", "AAAAAAAAAAAAAAAHYnl0ZXNfbgAAAAABAAAAAAAAAAdieXRlc19uAAAAA+4AAAAJAAAAAQAAA+4AAAAJ", "AAAAAAAAAAAAAAAEY2FyZAAAAAEAAAAAAAAABGNhcmQAAAfQAAAACVJveWFsQ2FyZAAAAAAAAAEAAAfQAAAACVJveWFsQ2FyZAAAAA==", "AAAAAAAAAAAAAAAHYm9vbGVhbgAAAAABAAAAAAAAAAdib29sZWFuAAAAAAEAAAABAAAAAQ==", "AAAAAAAAABdOZWdhdGVzIGEgYm9vbGVhbiB2YWx1ZQAAAAADbm90AAAAAAEAAAAAAAAAB2Jvb2xlYW4AAAAAAQAAAAEAAAAB", "AAAAAAAAAAAAAAAEaTEyOAAAAAEAAAAAAAAABGkxMjgAAAALAAAAAQAAAAs=", "AAAAAAAAAAAAAAAEdTEyOAAAAAEAAAAAAAAABHUxMjgAAAAKAAAAAQAAAAo=", "AAAAAAAAAAAAAAAKbXVsdGlfYXJncwAAAAAAAgAAAAAAAAABYQAAAAAAAAQAAAAAAAAAAWIAAAAAAAABAAAAAQAAAAQ=", "AAAAAAAAAAAAAAADbWFwAAAAAAEAAAAAAAAAA21hcAAAAAPsAAAABAAAAAEAAAABAAAD7AAAAAQAAAAB", "AAAAAAAAAAAAAAADdmVjAAAAAAEAAAAAAAAAA3ZlYwAAAAPqAAAABAAAAAEAAAPqAAAABA==", "AAAAAAAAAAAAAAAFdHVwbGUAAAAAAAABAAAAAAAAAAV0dXBsZQAAAAAAA+0AAAACAAAAEQAAAAQAAAABAAAD7QAAAAIAAAARAAAABA==", "AAAAAAAAAB9FeGFtcGxlIG9mIGFuIG9wdGlvbmFsIGFyZ3VtZW50AAAAAAZvcHRpb24AAAAAAAEAAAAAAAAABm9wdGlvbgAAAAAD6AAAAAQAAAABAAAD6AAAAAQ=", "AAAAAAAAAAAAAAAVZ2V0X29iamVjdF92ZWNfb3B0aW9uAAAAAAAAAAAAAAEAAAPoAAAD6gAAB9AAAAAEVGVzdA==", "AAAAAAAAAAAAAAAEdTI1NgAAAAEAAAAAAAAABHUyNTYAAAAMAAAAAQAAAAw=", "AAAAAAAAAAAAAAAEaTI1NgAAAAEAAAAAAAAABGkyNTYAAAANAAAAAQAAAA0=", "AAAAAAAAAAAAAAAGc3RyaW5nAAAAAAABAAAAAAAAAAZzdHJpbmcAAAAAABAAAAABAAAAEA==", "AAAAAAAAAAAAAAAMdHVwbGVfc3RydWt0AAAAAQAAAAAAAAAMdHVwbGVfc3RydWt0AAAH0AAAAAtUdXBsZVN0cnVjdAAAAAABAAAH0AAAAAtUdXBsZVN0cnVjdAA=", "AAAAAAAAAAAAAAAJdGltZXBvaW50AAAAAAAAAQAAAAAAAAAJdGltZXBvaW50AAAAAAAACAAAAAEAAAAI", "AAAAAAAAAAAAAAAIZHVyYXRpb24AAAABAAAAAAAAAAhkdXJhdGlvbgAAAAkAAAABAAAACQ=="]),
+      new Spec(["AAAAAQAAAC9UaGlzIGlzIGZyb20gdGhlIHJ1c3QgZG9jIGFib3ZlIHRoZSBzdHJ1Y3QgVGVzdAAAAAAAAAAABFRlc3QAAAADAAAAAAAAAAFhAAAAAAAABAAAAAAAAAABYgAAAAAAAAEAAAAAAAAAAWMAAAAAAAAR", "AAAABAAAAAAAAAAAAAAABUVycm9yAAAAAAAAAQAAABxQbGVhc2UgcHJvdmlkZSBhbiBvZGQgbnVtYmVyAAAAD051bWJlck11c3RCZU9kZAAAAAAB", "AAAABAAAAAAAAAAAAAAACUVycm9uZW91cwAAAAAAAAEAAACsU29tZSBjb250cmFjdCBsaWJyYXJpZXMgY29udGFpbiBleHRyYSAjW2NvbnRyYWN0ZXJyb3JdIGRlZmluaXRpb25zIHRoYXQgZW5kIHVwIGNvbXBpbGVkCmludG8gdGhlIG1haW4gY29udHJhY3QgdHlwZXMuIFdlIG5lZWQgdG8gbWFrZSBzdXJlIHRvb2xpbmcgZGVhbHMgd2l0aCB0aGlzIHByb3Blcmx5LgAAAAtIb3dDb3VsZFlvdQAAAABk", "AAAAAwAAAAAAAAAAAAAACVJveWFsQ2FyZAAAAAAAAAMAAAAAAAAABEphY2sAAAALAAAAAAAAAAVRdWVlbgAAAAAAAAwAAAAAAAAABEtpbmcAAAAN", "AAAABQAAAAAAAAAAAAAACUF1dGhFdmVudAAAAAAAAAEAAAAEYXV0aAAAAAEAAAAAAAAABXdvcmxkAAAAAAAAEQAAAAAAAAAA", "AAAABQAAAEdFdmVudCB3aXRoIHVzZXItZGVmaW5lZCB0eXBlcyBpbiB0b3BpY3MgYW5kIGRhdGEsIHVzaW5nIHRoZSBtYXAgZm9ybWF0LgAAAAAAAAAACVN3YXBFdmVudAAAAAAAAAIAAAAEc3dhcAAAAARwb29sAAAABgAAAAAAAAAEZnJvbQAAABMAAAABAAAAAAAAAARjYXJkAAAH0AAAAAlSb3lhbENhcmQAAAAAAAABAAAAAAAAAAZzdHJ1a3QAAAAAB9AAAAAEVGVzdAAAAAAAAAAAAAAAB2NvbXBsZXgAAAAH0AAAAAtDb21wbGV4RW51bQAAAAAAAAAAAAAAAAdhbW91bnRzAAAAA+oAAAALAAAAAAAAAAAAAAAEbWVtbwAAA+gAAAARAAAAAAAAAAI=", "AAAAAgAAAAAAAAAAAAAAClNpbXBsZUVudW0AAAAAAAMAAAAAAAAAAAAAAAVGaXJzdAAAAAAAAAAAAAAAAAAABlNlY29uZAAAAAAAAAAAAAAAAAAFVGhpcmQAAAA=", "AAAAAgAAAAAAAAAAAAAAC0NvbXBsZXhFbnVtAAAAAAUAAAABAAAAAAAAAAZTdHJ1Y3QAAAAAAAEAAAfQAAAABFRlc3QAAAABAAAAAAAAAAVUdXBsZQAAAAAAAAEAAAfQAAAAC1R1cGxlU3RydWN0AAAAAAEAAAAAAAAABEVudW0AAAABAAAH0AAAAApTaW1wbGVFbnVtAAAAAAABAAAAAAAAAAVBc3NldAAAAAAAAAIAAAATAAAACwAAAAAAAAAAAAAABFZvaWQ=", "AAAAAQAAAAAAAAAAAAAAC1R1cGxlU3RydWN0AAAAAAIAAAAAAAAAATAAAAAAAAfQAAAABFRlc3QAAAAAAAAAATEAAAAAAAfQAAAAClNpbXBsZUVudW0AAA==", "AAAABQAAADtFdmVudCB3aXRoIG5lc3RlZCB1c2VyLWRlZmluZWQgdHlwZXMsIHVzaW5nIHRoZSB2ZWMgZm9ybWF0LgAAAAAAAAAAC05lc3RlZEV2ZW50AAAAAAEAAAAGbmVzdGVkAAAAAAADAAAAAAAAAAZzaW1wbGUAAAAAB9AAAAAKU2ltcGxlRW51bQAAAAAAAQAAAAAAAAAMdHVwbGVfc3RydWt0AAAH0AAAAAtUdXBsZVN0cnVjdAAAAAAAAAAAAAAAAANtYXAAAAAD7AAAAAQAAAfQAAAABFRlc3QAAAAAAAAAAQ==", "AAAAAgAAAAAAAAAAAAAADVJlY3Vyc2l2ZUVudW0AAAAAAAACAAAAAQAAAAAAAAAETGlzdAAAAAEAAAPqAAAH0AAAAA1SZWN1cnNpdmVFbnVtAAAAAAAAAAAAAAAAAAAEVm9pZA==", "AAAAAAAAAAAAAAADaW5jAAAAAAAAAAABAAAABA==", "AAAAAAAAAAAAAAADbWFwAAAAAAEAAAAAAAAAA21hcAAAAAPsAAAABAAAAAEAAAABAAAD7AAAAAQAAAAB", "AAAAAAAAABdOZWdhdGVzIGEgYm9vbGVhbiB2YWx1ZQAAAAADbm90AAAAAAEAAAAAAAAAB2Jvb2xlYW4AAAAAAQAAAAEAAAAB", "AAAAAAAAAAAAAAADdmFsAAAAAAAAAAABAAAAAA==", "AAAAAAAAAAAAAAADdmVjAAAAAAEAAAAAAAAAA3ZlYwAAAAPqAAAABAAAAAEAAAPqAAAABA==", "AAAAAAAAAAAAAAAEYXV0aAAAAAIAAAAAAAAABGFkZHIAAAATAAAAAAAAAAV3b3JsZAAAAAAAABEAAAABAAAAEw==", "AAAAAAAAAAAAAAAEY2FyZAAAAAEAAAAAAAAABGNhcmQAAAfQAAAACVJveWFsQ2FyZAAAAAAAAAEAAAfQAAAACVJveWFsQ2FyZAAAAA==", "AAAAAAAAAAAAAAAEaTEyOAAAAAEAAAAAAAAABGkxMjgAAAALAAAAAQAAAAs=", "AAAAAAAAAAAAAAAEaTI1NgAAAAEAAAAAAAAABGkyNTYAAAANAAAAAQAAAA0=", "AAAAAAAAAAAAAAAEaTMyXwAAAAEAAAAAAAAABGkzMl8AAAAFAAAAAQAAAAU=", "AAAAAAAAAAAAAAAEaTY0XwAAAAEAAAAAAAAABGk2NF8AAAAHAAAAAQAAAAc=", "AAAAAAAAAAAAAAAEdTEyOAAAAAEAAAAAAAAABHUxMjgAAAAKAAAAAQAAAAo=", "AAAAAAAAAAAAAAAEdTI1NgAAAAEAAAAAAAAABHUyNTYAAAAMAAAAAQAAAAw=", "AAAAAAAAAAAAAAAEdTMyXwAAAAEAAAAAAAAABHUzMl8AAAAEAAAAAQAAAAQ=", "AAAAAAAAAAAAAAAEd29pZAAAAAAAAAAA", "AAAAAAAAAAAAAAAFYnl0ZXMAAAAAAAABAAAAAAAAAAVieXRlcwAAAAAAAA4AAAABAAAADg==", "AAAAAAAAAAAAAAAFaGVsbG8AAAAAAAABAAAAAAAAAAVoZWxsbwAAAAAAABEAAAABAAAAEQ==", "AAAAAAAAAAAAAAAFdHVwbGUAAAAAAAABAAAAAAAAAAV0dXBsZQAAAAAAA+0AAAACAAAAEQAAAAQAAAABAAAD7QAAAAIAAAARAAAABA==", "AAAAAAAAAB9FeGFtcGxlIG9mIGFuIG9wdGlvbmFsIGFyZ3VtZW50AAAAAAZvcHRpb24AAAAAAAEAAAAAAAAABm9wdGlvbgAAAAAD6AAAAAQAAAABAAAD6AAAAAQ=", "AAAAAAAAAAAAAAAGc2ltcGxlAAAAAAABAAAAAAAAAAZzaW1wbGUAAAAAB9AAAAAKU2ltcGxlRW51bQAAAAAAAQAAB9AAAAAKU2ltcGxlRW51bQAA", "AAAAAAAAAAAAAAAGc3RyaW5nAAAAAAABAAAAAAAAAAZzdHJpbmcAAAAAABAAAAABAAAAEA==", "AAAAAAAAAAAAAAAGc3RydWt0AAAAAAABAAAAAAAAAAZzdHJ1a3QAAAAAB9AAAAAEVGVzdAAAAAEAAAfQAAAABFRlc3Q=", "AAAAAAAAAAAAAAAHYm9vbGVhbgAAAAABAAAAAAAAAAdib29sZWFuAAAAAAEAAAABAAAAAQ==", "AAAAAAAAAAAAAAAHYnl0ZXNfbgAAAAABAAAAAAAAAAdieXRlc19uAAAAA+4AAAAJAAAAAQAAA+4AAAAJ", "AAAAAAAAAAAAAAAHY29tcGxleAAAAAABAAAAAAAAAAdjb21wbGV4AAAAB9AAAAALQ29tcGxleEVudW0AAAAAAQAAB9AAAAALQ29tcGxleEVudW0A", "AAAAAAAAAAAAAAAIYWRkcmVzc2UAAAABAAAAAAAAAAhhZGRyZXNzZQAAABMAAAABAAAAEw==", "AAAAAAAAAAAAAAAIZHVyYXRpb24AAAABAAAAAAAAAAhkdXJhdGlvbgAAAAkAAAABAAAACQ==", "AAAAAAAAAAAAAAAJZW1pdF9zd2FwAAAAAAAABAAAAAAAAAAEZnJvbQAAABMAAAAAAAAABGNhcmQAAAfQAAAACVJveWFsQ2FyZAAAAAAAAAAAAAAGc3RydWt0AAAAAAfQAAAABFRlc3QAAAAAAAAAB2NvbXBsZXgAAAAH0AAAAAtDb21wbGV4RW51bQAAAAAA", "AAAAAAAAAAAAAAAJZ2V0X2NvdW50AAAAAAAAAAAAAAEAAAAE", "AAAAAAAAAAAAAAAJdGltZXBvaW50AAAAAAAAAQAAAAAAAAAJdGltZXBvaW50AAAAAAAACAAAAAEAAAAI", "AAAAAAAAAAAAAAAKbXVsdGlfYXJncwAAAAAAAgAAAAAAAAABYQAAAAAAAAQAAAAAAAAAAWIAAAAAAAABAAAAAQAAAAQ=", "AAAAAAAAACxFeGFtcGxlIGNvbnRyYWN0IG1ldGhvZCB3aGljaCB0YWtlcyBhIHN0cnVjdAAAAApzdHJ1a3RfaGVsAAAAAAABAAAAAAAAAAZzdHJ1a3QAAAAAB9AAAAAEVGVzdAAAAAEAAAPqAAAAEQ==", "AAAAAAAAAAAAAAALZW1pdF9uZXN0ZWQAAAAAAgAAAAAAAAAGc2ltcGxlAAAAAAfQAAAAClNpbXBsZUVudW0AAAAAAAAAAAAMdHVwbGVfc3RydWt0AAAH0AAAAAtUdXBsZVN0cnVjdAAAAAAA", "AAAAAAAAAAAAAAAMdHVwbGVfc3RydWt0AAAAAQAAAAAAAAAMdHVwbGVfc3RydWt0AAAH0AAAAAtUdXBsZVN0cnVjdAAAAAABAAAH0AAAAAtUdXBsZVN0cnVjdAA=", "AAAAAAAAAAAAAAAOcmVjdXJzaXZlX2VudW0AAAAAAAEAAAAAAAAACXJlY3Vyc2l2ZQAAAAAAB9AAAAANUmVjdXJzaXZlRW51bQAAAAAAAAEAAAfQAAAADVJlY3Vyc2l2ZUVudW0AAAA=", "AAAAAAAAAAAAAAAQdTMyX2ZhaWxfb25fZXZlbgAAAAEAAAAAAAAABHUzMl8AAAAEAAAAAQAAA+kAAAAEAAAAAw==", "AAAAAAAAAAAAAAAVZ2V0X29iamVjdF92ZWNfb3B0aW9uAAAAAAAAAAAAAAEAAAPoAAAD6gAAB9AAAAAEVGVzdA=="]),
       options
     );
   }
@@ -65,7 +67,7 @@ export class Client extends ContractClient {
     return ContractClient.deploy(null, options);
   }
   public readonly fromJSON = {
-    hello : this.txFromJSON<string>,  auth : this.txFromJSON<string>,  get_count : this.txFromJSON<number>,  inc : this.txFromJSON<number>,  woid : this.txFromJSON<void>,  val : this.txFromJSON<any>,  u32_fail_on_even : this.txFromJSON<Result<number, Error>>,  u32_ : this.txFromJSON<number>,  i32_ : this.txFromJSON<number>,  i64_ : this.txFromJSON<bigint>,  strukt_hel : this.txFromJSON<Array<string>>,  strukt : this.txFromJSON<Test>,  simple : this.txFromJSON<SimpleEnum>,  complex : this.txFromJSON<ComplexEnum>,  recursive_enum : this.txFromJSON<RecursiveEnum>,  addresse : this.txFromJSON<string>,  bytes : this.txFromJSON<Buffer>,  bytes_n : this.txFromJSON<Buffer>,  card : this.txFromJSON<RoyalCard>,  boolean : this.txFromJSON<boolean>,  not : this.txFromJSON<boolean>,  i128 : this.txFromJSON<bigint>,  u128 : this.txFromJSON<bigint>,  multi_args : this.txFromJSON<number>,  map : this.txFromJSON<Map<number, boolean>>,  vec : this.txFromJSON<Array<number>>,  tuple : this.txFromJSON<[string, number]>,  option : this.txFromJSON<number | null>,  get_object_vec_option : this.txFromJSON<Array<Test> | null>,  u256 : this.txFromJSON<bigint>,  i256 : this.txFromJSON<bigint>,  string : this.txFromJSON<string>,  tuple_strukt : this.txFromJSON<TupleStruct>,  timepoint : this.txFromJSON<bigint>,  duration : this.txFromJSON<bigint>
+    inc : this.txFromJSON<number>,  map : this.txFromJSON<Map<number, boolean>>,  not : this.txFromJSON<boolean>,  val : this.txFromJSON<any>,  vec : this.txFromJSON<Array<number>>,  auth : this.txFromJSON<string>,  card : this.txFromJSON<RoyalCard>,  i128 : this.txFromJSON<bigint>,  i256 : this.txFromJSON<bigint>,  i32_ : this.txFromJSON<number>,  i64_ : this.txFromJSON<bigint>,  u128 : this.txFromJSON<bigint>,  u256 : this.txFromJSON<bigint>,  u32_ : this.txFromJSON<number>,  woid : this.txFromJSON<void>,  bytes : this.txFromJSON<Buffer>,  hello : this.txFromJSON<string>,  tuple : this.txFromJSON<[string, number]>,  option : this.txFromJSON<number | null>,  simple : this.txFromJSON<SimpleEnum>,  string : this.txFromJSON<string>,  strukt : this.txFromJSON<Test>,  boolean : this.txFromJSON<boolean>,  bytes_n : this.txFromJSON<Buffer>,  complex : this.txFromJSON<ComplexEnum>,  addresse : this.txFromJSON<string>,  duration : this.txFromJSON<bigint>,  emit_swap : this.txFromJSON<void>,  get_count : this.txFromJSON<number>,  timepoint : this.txFromJSON<bigint>,  multi_args : this.txFromJSON<number>,  strukt_hel : this.txFromJSON<Array<string>>,  emit_nested : this.txFromJSON<void>,  tuple_strukt : this.txFromJSON<TupleStruct>,  recursive_enum : this.txFromJSON<RecursiveEnum>,  u32_fail_on_even : this.txFromJSON<Result<number, Error>>,  get_object_vec_option : this.txFromJSON<Array<Test> | null>
   };
 
   /**
@@ -79,6 +81,18 @@ export class Client extends ContractClient {
    */
   authEventEventFilter(): string[] {
     return this.spec.eventTopicFilter("AuthEvent");
+  }
+  /**
+   * Build a topics filter row for the "SwapEvent" event, for use in \`Api.EventFilter.topics\` when calling \`server.getEvents\`. Omitted fields match any value.
+   */
+  swapEventEventFilter(topicValues?: { from?: string; card?: RoyalCard }): string[] {
+    return this.spec.eventTopicFilter("SwapEvent", topicValues);
+  }
+  /**
+   * Build a topics filter row for the "NestedEvent" event, for use in \`Api.EventFilter.topics\` when calling \`server.getEvents\`. Omitted fields match any value.
+   */
+  nestedEventEventFilter(topicValues?: { simple?: SimpleEnum }): string[] {
+    return this.spec.eventTopicFilter("NestedEvent", topicValues);
   }
 }"
 `;
@@ -101,12 +115,25 @@ export interface Test {
 }
 
 /**
- * Union: SimpleEnum
+ * Error Enum: Error
  */
- export type SimpleEnum =
-  { tag: "First"; values: void } |
-  { tag: "Second"; values: void } |
-  { tag: "Third"; values: void };
+export const Error = {
+  /**
+   * Please provide an odd number
+   */
+  1 : { message: "NumberMustBeOdd" }
+}
+
+/**
+ * Error Enum: Erroneous
+ */
+export const Erroneous = {
+  /**
+   * Some contract libraries contain extra #[contracterror] definitions that end up compiled
+   * into the main contract types. We need to make sure tooling deals with this properly.
+   */
+  100 : { message: "HowCouldYou" }
+}
 
 /**
  * Enum: RoyalCard
@@ -127,9 +154,37 @@ export enum RoyalCard {
 }
 
 /**
- * Tuple Struct: TupleStruct
+ * Event: AuthEvent
  */
-export type TupleStruct = readonly [Test, SimpleEnum];
+export interface AuthEventEvent {
+  name: "AuthEvent";
+  data: {
+    world: string;
+  };
+}
+
+/**
+ * Event with user-defined types in topics and data, using the map format.
+ */
+export interface SwapEventEvent {
+  name: "SwapEvent";
+  data: {
+    from: string;
+    card: RoyalCard;
+    strukt?: Test;
+    complex?: ComplexEnum;
+    amounts?: Array<bigint>;
+    memo?: string | null;
+  };
+}
+
+/**
+ * Union: SimpleEnum
+ */
+ export type SimpleEnum =
+  { tag: "First"; values: void } |
+  { tag: "Second"; values: void } |
+  { tag: "Third"; values: void };
 
 /**
  * Union: ComplexEnum
@@ -142,42 +197,28 @@ export type TupleStruct = readonly [Test, SimpleEnum];
   { tag: "Void"; values: void };
 
 /**
+ * Tuple Struct: TupleStruct
+ */
+export type TupleStruct = readonly [Test, SimpleEnum];
+
+/**
+ * Event with nested user-defined types, using the vec format.
+ */
+export interface NestedEventEvent {
+  name: "NestedEvent";
+  data: {
+    simple: SimpleEnum;
+    tuple_strukt: TupleStruct;
+    map: Map<number, Test>;
+  };
+}
+
+/**
  * Union: RecursiveEnum
  */
  export type RecursiveEnum =
   { tag: "List"; values: readonly [Array<RecursiveEnum>] } |
   { tag: "Void"; values: void };
-
-/**
- * Event: AuthEvent
- */
-export interface AuthEventEvent {
-  name: "AuthEvent";
-  data: {
-    world: string;
-  };
-}
-
-/**
- * Error Enum: Error
- */
-export const Error = {
-  /**
-   * Please provide an odd number
-   */
-  1 : { message: "NumberMustBeOdd" }
-}
-
-/**
- * Error Enum: Erroneous
- */
-export const Erroneous = {
-  /**
-   * Some contract libraries contain extra #[contracterror] definitions that end up compiled
-   * into the main contract types. We need to make sure tooling deals with this properly.
-   */
-  100 : { message: "HowCouldYou" }
-}
-    export type ContractEvent = AuthEventEvent;
+    export type ContractEvent = AuthEventEvent | SwapEventEvent | NestedEventEvent;
     "
 `;
