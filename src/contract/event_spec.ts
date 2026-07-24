@@ -176,7 +176,11 @@ export function parseEvent(
     // Treat any decode failure as a non-match and try the next candidate.
     try {
       const prefixLen = event.prefixTopics().length;
-      const dataOut: Record<string, any> = {};
+      // Param names come from an untrusted, on-chain contract spec, so a
+      // param literally named "__proto__" must not be able to reach the
+      // object's prototype via normal property assignment. A null-prototype
+      // object stores it as a plain own property instead.
+      const dataOut: Record<string, any> = Object.create(null);
       tlParams.forEach((param, i) => {
         const val = topicVals[prefixLen + i];
         dataOut[param.name().toString()] = spec.scValToNative(
