@@ -3,6 +3,10 @@
 
 A breaking change will get clearly marked in this log.
 
+## Unreleased
+
+### Added
+- `@stellar/stellar-sdk/base` subpath export: import offline primitives like `StrKey` and `Keypair` without loading Horizon, RPC, or the SEP helpers and their networking dependencies([#1550](https://github.com/stellar/js-stellar-sdk/pull/1550)).
 
 ## Unreleased
 

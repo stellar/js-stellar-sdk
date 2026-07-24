@@ -267,6 +267,7 @@ const libBaseDir = useAxios ? "lib/axios" : "lib";
 // as entries guarantees emission without relying on graph reachability.
 const libEntries = {
   index: "src/index.ts",
+  "base/index": "src/base/index.ts",
   "http-client/index": "src/http-client/index.ts",
   "http-client/axios": "src/http-client/axios.ts",
   "cli/index": "src/cli/index.ts",
