@@ -127,8 +127,9 @@
     "node": ">=22.0.0"
   },
   "devDependencies": {
+    "@astrojs/markdown-remark": "^7.2.0",
     "@astrojs/sitemap": "^3.7.3",
-    "@astrojs/starlight": "^0.40.0",
+    "@astrojs/starlight": "^0.41.3",
     "@eslint/compat": "^1.4.1",
     "@eslint/js": "^9.39.4",
     "@rollup/plugin-commonjs": "^29.0.3",
@@ -145,7 +146,7 @@
     "@vitest/coverage-istanbul": "4.1.9",
     "@vitest/coverage-v8": "^4.1.9",
     "@vitest/ui": "^4.1.9",
-    "astro": "^6.4.8",
+    "astro": "^7.1.0",
     "browserify-zlib": "^0.2.0",
     "cross-env": "^10.1.0",
     "dotenv": "^17.4.2",
