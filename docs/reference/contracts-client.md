@@ -980,7 +980,7 @@ class Spec {
   events(): ScSpecEventV0[];
   eventTopicFilter(name: string, topicValues?: Record<string, any>): string[];
   findEntry(name: string): ScSpecEntry;
-  findEvent(name: string): ScSpecEventV0;
+  findEvent(name: string): ScSpecEventV0 | undefined;
   funcArgsToScVals(name: string, args: object): ScVal[];
   funcResToNative(name: string, val_or_base64: string | ScVal): any;
   funcs(): ScSpecFunctionV0[];
@@ -1135,7 +1135,7 @@ a single topic filter row
 const topics = contractSpec.eventTopicFilter('transfer', { to: someAddress });
 ```
 
-**Source:** [src/contract/spec.ts:1293](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1293)
+**Source:** [src/contract/spec.ts:1303](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1303)
 
 ### `spec.findEntry(name)`
 
@@ -1163,8 +1163,12 @@ the entry
 
 Finds the XDR event spec for the given event name.
 
+Unlike `Spec.findEntry`, a missing event is not an error: this
+returns `undefined` so callers can probe a contract for an event without
+wrapping the call in a `try`.
+
 ```ts
-findEvent(name: string): ScSpecEventV0;
+findEvent(name: string): ScSpecEventV0 | undefined;
 ```
 
 **Parameters**
@@ -1173,13 +1177,18 @@ findEvent(name: string): ScSpecEventV0;
 
 **Returns**
 
-the event spec
+the event spec, or `undefined` if the contract declares no event
+         with that name
 
-**Throws**
+**Example**
 
-- if no event with the given name exists
+```ts
+if (contractSpec.findEvent("transfer")) {
+  // the contract declares a "transfer" event
+}
+```
 
-**Source:** [src/contract/spec.ts:1236](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1236)
+**Source:** [src/contract/spec.ts:1246](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1246)
 
 ### `spec.funcArgsToScVals(name, args)`
 
@@ -1302,7 +1311,7 @@ the converted JSON schema
 
 - if the contract spec is invalid
 
-**Source:** [src/contract/spec.ts:1307](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1307)
+**Source:** [src/contract/spec.ts:1317](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1317)
 
 ### `spec.nativeToScVal(val, ty)`
 
@@ -1366,7 +1375,7 @@ if (parsed) {
 }
 ```
 
-**Source:** [src/contract/spec.ts:1268](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1268)
+**Source:** [src/contract/spec.ts:1278](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1278)
 
 ### `spec.scValStrToNative(scv, typeDef)`
 

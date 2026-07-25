@@ -41,19 +41,15 @@ export function events(entries: xdr.ScSpecEntry[]): xdr.ScSpecEventV0[] {
  *
  * @param entries - the contract's XDR spec entries
  * @param name - the name of the event to find
- * @returns the event spec
- * @throws if no event with the given name exists
+ * @returns the event spec, or `undefined` if the contract declares no event
+ *          with that name
  * @hidden
  */
 export function findEvent(
   entries: xdr.ScSpecEntry[],
   name: string,
-): xdr.ScSpecEventV0 {
-  const found = events(entries).find((e) => e.name().toString() === name);
-  if (!found) {
-    throw new Error(`no such event: ${name}`);
-  }
-  return found;
+): xdr.ScSpecEventV0 | undefined {
+  return events(entries).find((e) => e.name().toString() === name);
 }
 
 /**
@@ -265,6 +261,9 @@ export function eventTopicFilter(
   topicValues?: Record<string, any>,
 ): string[] {
   const event = findEvent(entries, name);
+  if (!event) {
+    throw new Error(`no such event: ${name}`);
+  }
   const filter: string[] = event
     .prefixTopics()
     .map((topic) => xdr.ScVal.scvSymbol(topic.toString()).toXDR("base64"));

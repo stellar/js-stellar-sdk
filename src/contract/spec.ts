@@ -1228,12 +1228,22 @@ export class Spec {
   /**
    * Finds the XDR event spec for the given event name.
    *
-   * @param name - the name of the event
-   * @returns the event spec
+   * Unlike {@link Spec.findEntry}, a missing event is not an error: this
+   * returns `undefined` so callers can probe a contract for an event without
+   * wrapping the call in a `try`.
    *
-   * @throws if no event with the given name exists
+   * @param name - the name of the event
+   * @returns the event spec, or `undefined` if the contract declares no event
+   *          with that name
+   *
+   * @example
+   * ```ts
+   * if (contractSpec.findEvent("transfer")) {
+   *   // the contract declares a "transfer" event
+   * }
+   * ```
    */
-  findEvent(name: string): xdr.ScSpecEventV0 {
+  findEvent(name: string): xdr.ScSpecEventV0 | undefined {
     return findEventImpl(this.entries, name);
   }
 
