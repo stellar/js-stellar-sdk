@@ -81,7 +81,6 @@ Two semantic traps to check for:
 | --- |
 | `rpc.Server#getContractWasmByContractId()`, `#getContractWasmByHash()` |
 | `contract.Spec` byte-typed spec entries and `specFromWasm` results |
-| `Horizon.ManageDataOperationResponse.value` |
 
 ### auth (CAP-71 / Soroban)
 
