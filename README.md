@@ -169,19 +169,16 @@ You can also refer to:
 
 ### Usage with React Native
 
-The SDK works in React Native, but its JavaScript runtime doesn't ship a couple
-of things the SDK expects from Node. You'll need to provide them in your app's
-entry file:
+The SDK works in React Native, and as of v17 it no longer needs a `Buffer`
+polyfill. The one thing you still need to provide in your app's entry file:
 
-1. **A global `Buffer`.** XDR encoding/decoding relies on `Buffer`. Install a
-   polyfill and assign it to `global.Buffer`.
-2. **A Web Crypto random source.** `Keypair.random()` and SEP-10 challenge
-   generation call `crypto.getRandomValues()`, which React Native doesn't
-   provide out of the box. Add a polyfill that registers it on the global scope,
-   imported once before any SDK code runs.
+- **A Web Crypto random source.** `Keypair.random()` and SEP-10 challenge
+  generation call `crypto.getRandomValues()`, which React Native doesn't
+  provide out of the box. Add a polyfill that registers it on the global scope,
+  imported once before any SDK code runs.
 
-Modern React Native uses Metro with autolinking, so beyond adding the two
-polyfills above, no manual native linking or custom resolver config is required.
+Modern React Native uses Metro with autolinking, so beyond adding the polyfill
+above, no manual native linking or custom resolver config is required.
 
 If you use Horizon streaming (`server.…().stream()`), be aware it depends on an
 `EventSource`, which is now an included dependency and will work in any runtimes
@@ -200,9 +197,9 @@ as `@exodus/patch-broken-hermes-typed-arrays`.
 
 #### Usage with Expo managed workflows
 
-Expo has the same two requirements as React Native above — a global `Buffer` and
-a `crypto.getRandomValues()` source. Install polyfills for both (use
-`npx expo install` so versions are matched to your Expo SDK) and import them at
+Expo has the same requirement as React Native above — a
+`crypto.getRandomValues()` source. Install a polyfill for it (use
+`npx expo install` so versions are matched to your Expo SDK) and import it at
 the top of your entry point (by default `App.js`) before any SDK code.
 
 Once `crypto.getRandomValues()` is available, `Keypair.random()` works normally
@@ -211,15 +208,14 @@ Once `crypto.getRandomValues()` is available, `Keypair.random()` works normally
 #### Usage with CloudFlare Workers
 
 The SDK defaults to a native-`fetch` HTTP client, so Horizon and RPC requests
-work in the Workers runtime without an HTTP adapter. The things to watch for
-are:
+work in the Workers runtime without an HTTP adapter. As of v17 the SDK no
+longer uses `Buffer`, so the
+[`nodejs_compat`](https://developers.cloudflare.com/workers/runtime-apis/nodejs/)
+flag is no longer required for it. The one thing to watch for:
 
-1. **Node compatibility.** The SDK relies on `Buffer`. Enable the
-   [`nodejs_compat`](https://developers.cloudflare.com/workers/runtime-apis/nodejs/)
-   flag in your `wrangler.toml` so Node built-ins are available.
-2. **Streaming.** Horizon's `.stream()` depends on `EventSource`; long-lived
-   streaming connections don't fit the Workers request model well, so prefer
-   polling (`.call()` / `.cursor()`) for Horizon data in a Worker.
+- **Streaming.** Horizon's `.stream()` depends on `EventSource`; long-lived
+  streaming connections don't fit the Workers request model well, so prefer
+  polling (`.call()` / `.cursor()`) for Horizon data in a Worker.
 
 ## CLI
 
