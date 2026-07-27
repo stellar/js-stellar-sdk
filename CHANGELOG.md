@@ -6,6 +6,7 @@ A breaking change will get clearly marked in this log.
 
 ### Added
 - `@stellar/stellar-sdk/base` subpath export: import offline primitives like `StrKey` and `Keypair` without loading Horizon, RPC, or the SEP helpers and their networking dependencies([#1550](https://github.com/stellar/js-stellar-sdk/pull/1550)).
+- `contract.Signer`, an interface pairing a signing capability with the identity it signs as (`address`, plus the SEP-43 `signTransaction` and optional `signAuthEntry` shapes the SDK already accepted), and `contract.KeypairSigner`, a `Keypair`-backed implementation. `signTransaction` and `signAuthEntry` — on `ClientOptions`, on `MethodOptions`, and on `AssembledTransaction`'s `sign` / `signAndSend` / `signAuthEntries` — now accept a `Signer` or a bare `Keypair` in addition to a callback, so signing with a local key no longer means finding `basicNodeSigner` and spreading two functions. Existing callbacks are unaffected, and `publicKey` is still required: it is never inferred from the signer ([#1462](https://github.com/stellar/js-stellar-sdk/issues/1462), [#1063](https://github.com/stellar/js-stellar-sdk/issues/1063)).
 
 ## Unreleased
 

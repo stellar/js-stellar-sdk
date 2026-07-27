@@ -165,6 +165,60 @@ describe("AssembledTransaction", () => {
       contract.AssembledTransaction.Errors.FakeAccount,
     );
   });
+
+  it("sign accepts a Keypair, a Signer, or a raw callback interchangeably", async () => {
+    const simulateTransactionResponse = {
+      id: "1",
+      events: [],
+      latestLedger: 3,
+      minResourceFee: "15",
+      transactionData: new SorobanDataBuilder()
+        .setReadWrite([
+          xdr.LedgerKey.contractData(
+            new xdr.LedgerKeyContractData({
+              contract: Address.fromString(contractId).toScAddress(),
+              key: xdr.ScVal.scvU32(0),
+              durability: xdr.ContractDataDurability.persistent(),
+            }),
+          ),
+        ])
+        .build(),
+      results: [{ auth: [], xdr: xdr.ScVal.scvU32(0).toXDR("base64") }],
+      stateChanges: [],
+    };
+    mockPost.mockResolvedValue({
+      data: { result: simulateTransactionResponse },
+    });
+    // The source account lookup isn't what's under test here, and each shape
+    // rebuilds, so stub it rather than interleaving ledger-entry responses.
+    vi.spyOn(server, "getAccount").mockResolvedValue(
+      new Account(keypair.publicKey(), "1"),
+    );
+
+    options.method = "test";
+    options.args = [];
+
+    // Each shape rebuilds, so the timebounds (and therefore the signature)
+    // differ between runs; assert each envelope is validly signed by the
+    // keypair rather than comparing the envelopes to each other.
+    const expectSignedByKeypair = async (signTransaction: any) => {
+      const txn = await contract.AssembledTransaction.build(options);
+      await txn.sign({ force: true, signTransaction });
+
+      const signed = txn.signed;
+      if (!signed) throw new Error("expected the transaction to be signed");
+      expect(signed.signatures).toHaveLength(1);
+      expect(
+        keypair.verify(signed.hash(), signed.signatures[0].signature()),
+      ).toBe(true);
+    };
+
+    await expectSignedByKeypair(keypair);
+    await expectSignedByKeypair(
+      new contract.KeypairSigner(keypair, networkPassphrase),
+    );
+    await expectSignedByKeypair(wallet.signTransaction);
+  });
 });
 
 describe("Contract ID validation on deserialization", () => {
@@ -568,6 +622,50 @@ describe("AssembledTransaction auth entry credential types (CAP-71)", () => {
       // signature was filled in (no longer the scvVoid placeholder)
       expect(signed.signature().switch().name).toBe("scvVec");
       expect(signed.signature().vec()).toHaveLength(1);
+    });
+
+    it("accepts a Keypair, a Signer, or a raw callback interchangeably", async () => {
+      const signer = Keypair.random();
+
+      // Fixed nonce and expiration, and no rebuilt timebounds on this path, so
+      // Ed25519 determinism makes the three entries byte-identical.
+      const signedEntryWith = async (signAuthEntry: any) => {
+        const assembled = assembledWith(
+          [authEntry(addressV2Cred(signer.publicKey()))],
+          { signAuthEntry },
+        );
+        await assembled.signAuthEntries({
+          expiration: 1000,
+          address: signer.publicKey(),
+        });
+        return (assembled.built as any).operations[0].auth[0].toXDR("base64");
+      };
+
+      const viaKeypair = await signedEntryWith(signer);
+      const viaSigner = await signedEntryWith(
+        new contract.KeypairSigner(signer, networkPassphrase),
+      );
+      const viaCallback = await signedEntryWith(
+        contract.basicNodeSigner(signer, networkPassphrase).signAuthEntry,
+      );
+
+      expect(viaSigner).toEqual(viaKeypair);
+      expect(viaCallback).toEqual(viaKeypair);
+    });
+
+    it("rejects a Signer that omits the optional signAuthEntry", async () => {
+      const signer = Keypair.random();
+      const assembled = assembledWith(
+        [authEntry(addressV2Cred(signer.publicKey()))],
+        { signAuthEntry: { address: signer.publicKey() } },
+      );
+
+      await expect(
+        assembled.signAuthEntries({
+          expiration: 1000,
+          address: signer.publicKey(),
+        }),
+      ).rejects.toThrow(contract.AssembledTransaction.Errors.NoSigner);
     });
   });
 });
