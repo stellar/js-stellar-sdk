@@ -321,8 +321,8 @@ ${members}
     if (this.eventInterfaceNames !== null) {
       return this.eventInterfaceNames;
     }
-
-    const reserved = new Set<string>();
+    // Reserve names that are already taken by UDTs and other special entries. ContractEvent is a special entry for the discriminated union of all events.
+    const reserved = new Set<string>(["ContractEvent"]);
 
     for (const entry of this.spec.entries) {
       switch (entry.switch()) {
