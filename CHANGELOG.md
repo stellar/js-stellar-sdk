@@ -23,6 +23,9 @@ A breaking change will get clearly marked in this log.
 - `rpc.Server.getContractWasmByContractId` now rejects a SAC with a structured `{ code: 400 }` error pointing to `contract.Client.from`, instead of failing while decoding a nonexistent Wasm hash; the not-found rejection is now `{ code: 404, message: "Could not obtain contract instance from server" }` ([#1501](https://github.com/stellar/js-stellar-sdk/pull/1501)).
 - The UMD (`dist/`) build now sets `inlineDynamicImports` so the single-file bundle stays whole despite the SAC spec's lazy `import()` ([#1501](https://github.com/stellar/js-stellar-sdk/pull/1501)).
 
+### Fixed
+- `Horizon.ManageDataOperationResponse.value` is now typed as `string`, matching what Horizon actually returns (a base64 string in JSON, which the SDK never decodes). It was previously mistyped as `Buffer` ([#1564](https://github.com/stellar/js-stellar-sdk/pull/1564)).
+
 ## [v16.0.1](https://github.com/stellar/js-stellar-sdk/compare/v16.0.0...v16.0.1)
 
 ### Fixed
