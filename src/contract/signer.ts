@@ -60,6 +60,12 @@ export interface Signer {
  * ```
  */
 export class KeypairSigner implements Signer {
+  /**
+   * The keypair's Ed25519 account address (`G…`).
+   *
+   * Always `keypair.publicKey()`. {@link Signer.address} is broader — it may be
+   * a `C…` contract address — but a keypair-backed signer never is.
+   */
   readonly address: string;
 
   constructor(

@@ -873,17 +873,20 @@ constructor(keypair: Keypair, networkPassphrase: string);
 - **`keypair`** — `Keypair` (required)
 - **`networkPassphrase`** — `string` (required)
 
-**Source:** [src/contract/signer.ts:65](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/signer.ts#L65)
+**Source:** [src/contract/signer.ts:71](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/signer.ts#L71)
 
 ### `keypairSigner.address`
 
-The address this signer signs as: `G…` for accounts, `C…` for contracts.
+The keypair's Ed25519 account address (`G…`).
+
+Always `keypair.publicKey()`. `Signer.address` is broader — it may be
+a `C…` contract address — but a keypair-backed signer never is.
 
 ```ts
 readonly address: string;
 ```
 
-**Source:** [src/contract/signer.ts:63](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/signer.ts#L63)
+**Source:** [src/contract/signer.ts:69](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/signer.ts#L69)
 
 ### `keypairSigner.signAuthEntry`
 
@@ -893,7 +896,7 @@ Signs an auth entry preimage. Matches `signAuthEntry` from Freighter.
 signAuthEntry: SignAuthEntry;
 ```
 
-**Source:** [src/contract/signer.ts:91](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/signer.ts#L91)
+**Source:** [src/contract/signer.ts:97](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/signer.ts#L97)
 
 ### `keypairSigner.signTransaction`
 
@@ -903,7 +906,7 @@ Signs a transaction envelope. Matches `signTransaction` from Freighter.
 signTransaction: SignTransaction;
 ```
 
-**Source:** [src/contract/signer.ts:78](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/signer.ts#L78)
+**Source:** [src/contract/signer.ts:84](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/signer.ts#L84)
 
 ## contract.NULL_ACCOUNT
 
@@ -1773,7 +1776,7 @@ Anything accepted where a `signAuthEntry` callback is expected.
 type SignAuthEntryLike = SignAuthEntry | Signer | Keypair
 ```
 
-**Source:** [src/contract/signer.ts:111](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/signer.ts#L111)
+**Source:** [src/contract/signer.ts:117](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/signer.ts#L117)
 
 ### contract.SignTransaction
 
@@ -1798,7 +1801,7 @@ SEP-43 callback, a `Signer`, or a `Keypair`.
 type SignTransactionLike = SignTransaction | Signer | Keypair
 ```
 
-**Source:** [src/contract/signer.ts:106](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/signer.ts#L106)
+**Source:** [src/contract/signer.ts:112](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/signer.ts#L112)
 
 ### contract.Signer
 
