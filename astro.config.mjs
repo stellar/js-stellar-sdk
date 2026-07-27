@@ -1,4 +1,5 @@
 import { defineConfig, fontProviders } from "astro/config";
+import { unified } from "@astrojs/markdown-remark";
 import starlight from "@astrojs/starlight";
 import sitemap from "@astrojs/sitemap";
 import GithubSlugger from "github-slugger";
@@ -87,6 +88,11 @@ export default defineConfig({
   outDir: "./dist/site",
   prefetch: { prefetchAll: true },
   markdown: {
+    // Astro 7's default Markdown processor (Sätteri) does not run unified
+    // plugins; the heading-id deference our anchor plugin relies on (see
+    // rehypeHeadingAnchors) is a markdown-remark behavior, so stay on the
+    // unified pipeline explicitly.
+    processor: unified(),
     rehypePlugins: [rehypeBaseInternalLinks, rehypeHeadingAnchors],
   },
   fonts: [
