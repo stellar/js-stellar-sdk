@@ -130,6 +130,49 @@ describe("AssembledTransaction", () => {
     expect(mockPost).toHaveBeenCalledTimes(3);
   });
 
+  it("passes useUpgradedAuth through to simulateTransaction", async () => {
+    const simulateTransactionResponse = {
+      transactionData: restoreTxnData,
+      minResourceFee: "52641",
+      cost: { cpuInsns: "0", memBytes: "0" },
+      latestLedger: 17027,
+    };
+    mockPost.mockResolvedValue({
+      data: { result: simulateTransactionResponse },
+    });
+
+    // set via options: flows through to every simulation
+    options.useUpgradedAuth = true;
+    const txn = await contract.AssembledTransaction[
+      "buildFootprintRestoreTransaction"
+    ](
+      options,
+      restoreTxnData,
+      new Account(
+        "GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI",
+        "1",
+      ),
+      52641,
+    );
+    expect(mockPost).toHaveBeenLastCalledWith(
+      serverUrl,
+      expect.objectContaining({
+        method: "simulateTransaction",
+        params: expect.objectContaining({ useUpgradedAuth: true }),
+      }),
+    );
+
+    // per-call value overrides the option
+    await txn.simulate({ restore: false, useUpgradedAuth: false });
+    expect(mockPost).toHaveBeenLastCalledWith(
+      serverUrl,
+      expect.objectContaining({
+        method: "simulateTransaction",
+        params: expect.objectContaining({ useUpgradedAuth: false }),
+      }),
+    );
+  });
+
   it("throws an error if signing transaction without providing a public key", async () => {
     const simulateTransactionResponse = {
       id: "1",

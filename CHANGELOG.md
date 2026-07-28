@@ -5,6 +5,7 @@ A breaking change will get clearly marked in this log.
 ## Unreleased
 
 ### Added
+- `rpc.Server.simulateTransaction` accepts an optional `useUpgradedAuth` flag, and `contract.AssembledTransaction` accepts it as a method option (`useUpgradedAuth`) or per-call (`tx.simulate({ useUpgradedAuth: true })`). When set, RPC simulation records v2 address credentials (CAP-71) instead of the legacy v1 credentials. It only affects the recording auth modes and is silently ignored on hosts that cannot emit v2 credentials. The flag is deprecated from the start: it is transitional and becomes a no-op once the network returns v2 credentials by default (protocol 28) ([#1562](https://github.com/stellar/js-stellar-sdk/issues/1562)).
 - `@stellar/stellar-sdk/base` subpath export: import offline primitives like `StrKey` and `Keypair` without loading Horizon, RPC, or the SEP helpers and their networking dependencies([#1550](https://github.com/stellar/js-stellar-sdk/pull/1550)).
 
 ## Unreleased

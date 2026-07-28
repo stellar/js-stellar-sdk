@@ -419,6 +419,31 @@ describe("Server#simulateTransaction", () => {
     expect(mockPost).toHaveBeenCalledTimes(1);
   });
 
+  it("simulates a transaction with useUpgradedAuth", async () => {
+    const mockResponse = { data: { id: 1, result: simulationResponse } };
+    mockPost.mockResolvedValue(mockResponse);
+
+    const response = await server.simulateTransaction(
+      transaction,
+      undefined,
+      undefined,
+      true,
+    );
+    const expected = cloneSimulation(parsedSimulationResponse);
+    assert.deepEqual(response, expected);
+    expect(mockPost).toHaveBeenCalledWith(serverUrl, {
+      jsonrpc: "2.0",
+      id: 1,
+      method: "simulateTransaction",
+      params: {
+        transaction: blob,
+        authMode: undefined,
+        useUpgradedAuth: true,
+      },
+    });
+    expect(mockPost).toHaveBeenCalledTimes(1);
+  });
+
   it("simulates a transaction with add'l resource usage", async () => {
     const mockResponse = { data: { id: 1, result: simulationResponse } };
     mockPost.mockResolvedValue(mockResponse);

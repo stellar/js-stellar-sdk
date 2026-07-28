@@ -640,7 +640,10 @@ export class AssembledTransaction<T> {
     return tx;
   }
 
-  simulate = async ({ restore }: { restore?: boolean } = {}): Promise<this> => {
+  simulate = async ({
+    restore,
+    useUpgradedAuth,
+  }: { restore?: boolean; useUpgradedAuth?: boolean } = {}): Promise<this> => {
     if (!this.built) {
       if (!this.raw) {
         throw new Error(
@@ -651,11 +654,17 @@ export class AssembledTransaction<T> {
       this.built = this.raw.build();
     }
     restore = restore ?? this.options.restore;
+    useUpgradedAuth = useUpgradedAuth ?? this.options.useUpgradedAuth;
 
     // need to force re-calculation of simulationData for new simulation
     delete this.simulationResult;
     delete this.simulationTransactionData;
-    this.simulation = await this.server.simulateTransaction(this.built);
+    this.simulation = await this.server.simulateTransaction(
+      this.built,
+      undefined,
+      undefined,
+      useUpgradedAuth,
+    );
 
     if (restore && Api.isSimulationRestore(this.simulation)) {
       const account = await getAccount(this.options, this.server);
@@ -678,7 +687,7 @@ export class AssembledTransaction<T> {
           .addOperation(op)
           .setTimeout(this.options.timeoutInSeconds ?? DEFAULT_TIMEOUT);
         delete this.built;
-        await this.simulate();
+        await this.simulate({ useUpgradedAuth });
         return this;
       }
       throw new AssembledTransaction.Errors.RestorationFailure(

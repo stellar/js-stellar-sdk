@@ -230,6 +230,19 @@ export type MethodOptions = {
   restore?: boolean;
 
   /**
+   * If true, simulation records v2 address credentials (CAP-71) instead of
+   * the legacy v1 address credentials. Best-effort: it only affects the
+   * recording auth modes and is silently ignored on protocol versions whose
+   * host cannot emit v2 credentials.
+   *
+   * @deprecated This flag is transitional. Once the network returns v2
+   * credentials by default (protocol 28), it becomes a no-op — do not rely on
+   * omitting it to keep receiving the legacy v1 format.
+   * @defaultValue false
+   */
+  useUpgradedAuth?: boolean;
+
+  /**
    * The public key of the source account for this transaction.
    *
    * Default: the one provided to the {@link Client} in {@link ClientOptions}
