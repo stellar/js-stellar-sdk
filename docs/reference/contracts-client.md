@@ -1172,7 +1172,7 @@ all contract functions
 
 ### `spec.events()`
 
-Gets the CAP-67 event spec entries from the spec.
+Gets the SEP-48 event spec entries from the spec.
 
 ```ts
 events(): ScSpecEventV0[];
@@ -1419,7 +1419,7 @@ the converted ScVal
 ### `spec.parseEvent(topics, data)`
 
 Attempts to parse an emitted contract event (its topics and data) using
-the event specs (CAP-67) declared in this contract's spec.
+the event specs (SEP-48) declared in this contract's spec.
 
 An event's topics are `[...prefixTopics, ...topicListParamValues]` (in
 that order), and its data is decoded according to the event's
