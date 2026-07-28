@@ -2,7 +2,7 @@
 
 A breaking change will get clearly marked in this log.
 
-## Unreleased
+## [v16.2.0](https://github.com/stellar/js-stellar-sdk/compare/v16.1.0...v16.2.0)
 
 ### Added
 - `rpc.Server.simulateTransaction` accepts an optional `useUpgradedAuth` flag, and `contract.AssembledTransaction` accepts it as a method option (`useUpgradedAuth`) or per-call (`tx.simulate({ useUpgradedAuth: true })`). When set, RPC simulation records v2 address credentials (CAP-71) instead of the legacy v1 credentials. It only affects the recording auth modes and is silently ignored on hosts that cannot emit v2 credentials. The flag is deprecated from the start: it is transitional and becomes a no-op once the network returns v2 credentials by default (protocol 28) ([#1562](https://github.com/stellar/js-stellar-sdk/issues/1562)).
@@ -19,6 +19,7 @@ A breaking change will get clearly marked in this log.
 ```
 
   Name `contract.SignTransaction` / `contract.SignAuthEntry` directly instead of deriving from the option field.
+- `contract.Spec` now reads CAP-67 event declarations: `events()` and `findEvent(name)` list a contract's declared events, `parseEvent(topics, data)` decodes a fired event into `{ name, topics, data }` (returns `undefined` when nothing matches), and `eventTopicFilter(name, topicValues?)` builds a `getEvents` filter row, with `"*"` for any topic param left unset. Generated client bindings gain a typed `<Name>Event` interface per event, a `ContractEvent` union, a `parseEvent()` method, and per-event `<name>EventFilter()` methods. Adds the `contract.ParsedEvent` type ([#1556](https://github.com/stellar/js-stellar-sdk/pull/1556), [#1565](https://github.com/stellar/js-stellar-sdk/pull/1565)).
 
 ### Fixed
 - `Spec.scValToNative` now handles contract values typed as `Val`
