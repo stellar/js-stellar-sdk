@@ -18,17 +18,18 @@ jobs:
         job: ["test:e2e"]
     services:
       rpc:
-        # This image's core supports up to protocol 25. guides_pr.yml pins a
-        # newer digest running protocol 27 (the guides document protocol-27
-        # behavior) — when bumping either workflow's image, check the other.
-        image: stellar/quickstart:testing@sha256:e09b46445243c966557073e4947642153e515bb3fa0c8b26d92ed3b7cdce3ba2
+        # This image runs core v27.1.0 (protocol 27) and stellar-rpc 27.1.1,
+        # which supports the `useUpgradedAuth` simulation flag (CAP-71) that
+        # use-upgraded-auth.test.ts exercises. guides_pr.yml pins its own
+        # digest — when bumping either workflow's image, check the other.
+        image: stellar/quickstart:testing@sha256:c8f1a95e43f5c0ff0b3d2ce6c3db008ccb0754ffa50175c4e0ef06b9d643b490
         ports:
           - 8000:8000
         env:
           ENABLE_LOGS: true
           NETWORK: local
           ENABLE_SOROBAN_RPC: true
-          PROTOCOL_VERSION: 25
+          PROTOCOL_VERSION: 27
         options: >-
           --health-cmd "curl --no-progress-meter --fail-with-body -X POST
           \"http://localhost:8000/soroban/rpc\" -H 'Content-Type:
