@@ -6,13 +6,19 @@ A breaking change will get clearly marked in this log.
 
 ### Added
 - `@stellar/stellar-sdk/base` subpath export: import offline primitives like `StrKey` and `Keypair` without loading Horizon, RPC, or the SEP helpers and their networking dependencies([#1550](https://github.com/stellar/js-stellar-sdk/pull/1550)).
-- `contract.Signer`, an interface pairing a signing capability with the identity it signs as (`address`, plus the SEP-43 `signTransaction` and optional `signAuthEntry` shapes the SDK already accepted), and `contract.KeypairSigner`, a `Keypair`-backed implementation. `signTransaction` and `signAuthEntry` — on `ClientOptions`, on `MethodOptions`, and on `AssembledTransaction`'s `sign` / `signAndSend` / `signAuthEntries` — now accept a `Signer` or a bare `Keypair` in addition to a callback, so signing with a local key no longer means finding `basicNodeSigner` and spreading two functions. Existing callbacks are unaffected, and `publicKey` is still required: it is never inferred from the signer ([#1462](https://github.com/stellar/js-stellar-sdk/issues/1462), [#1063](https://github.com/stellar/js-stellar-sdk/issues/1063)).
-
-## Unreleased
-
-### Added
 - `authorizeEntry` / `authorizeInvocation` signing callbacks now receive the 32-byte signing payload (`hash(preimage.toXDR())`) as a second argument alongside the preimage, so signers — including HSMs and remote signers that only accept a digest — never have to re-derive it. Existing single-argument callbacks are unaffected ([#1532](https://github.com/stellar/js-stellar-sdk/issues/1532)).
 - `authorizeEntry` / `authorizeInvocation` now support non-Ed25519 signers: the signing callback may return `{ signatureScVal: xdr.ScVal, address?: string }`, and the given `ScVal` is written verbatim as the credentials' signature — no Ed25519 verification, no `{public_key, signature}` map, no `scvVec` wrapping. This lets smart-wallet / custom-account contracts (whose `__check_auth` expects its own signature structure) use the helper instead of hand-rolling preimage construction and credential assembly. The optional `address` routes the signature to a specific credential node, like `forAddress` ([#1530](https://github.com/stellar/js-stellar-sdk/issues/1530)).
+- `contract.Signer`, an interface pairing a signing capability with the identity it signs as (`address`, plus the SEP-43 `signTransaction` and optional `signAuthEntry` shapes the SDK already accepted), and `contract.KeypairSigner`, a `Keypair`-backed implementation. `signTransaction` and `signAuthEntry` — on `ClientOptions`, on `MethodOptions`, and on `AssembledTransaction`'s `sign` / `signAndSend` / `signAuthEntries` — now accept a `Signer` or a bare `Keypair` in addition to a callback, so signing with a local key no longer means finding `basicNodeSigner` and spreading two functions. A `Signer` may be implemented as a class with ordinary prototype methods. Also adds the `contract.SignTransactionLike` and `contract.SignAuthEntryLike` types, naming everything those options accept. Existing callbacks are unaffected, and `publicKey` is still required: it is never inferred from the signer ([#1567](https://github.com/stellar/js-stellar-sdk/pull/1567), closes [#1462](https://github.com/stellar/js-stellar-sdk/issues/1462) and [#1063](https://github.com/stellar/js-stellar-sdk/issues/1063)).
+
+  Not a breaking change: no runtime behavior changed, every previously accepted value is still accepted, and `basicNodeSigner`'s signature and output are unchanged. One **type-only** caveat — because these options are no longer exclusively function types, a type expression that derived the callback's shape from the option field needs updating:
+
+```diff
+-type SignOpts = Parameters<NonNullable<contract.ClientOptions["signTransaction"]>>[1]
++type SignOpts = Parameters<contract.SignTransaction>[1]
+```
+
+  Name `contract.SignTransaction` / `contract.SignAuthEntry` directly instead of deriving from the option field.
+
 ### Fixed
 - `Spec.scValToNative` now handles contract values typed as `Val`
   (`scSpecTypeVal`) by delegating to the generic `scValToNative` converter,
