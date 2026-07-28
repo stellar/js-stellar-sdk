@@ -423,7 +423,7 @@ returns `false`, then you need to call `signAndSend` on this transaction.
 readonly isReadCall: boolean;
 ```
 
-**Source:** [src/contract/assembled_transaction.ts:1117](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L1117)
+**Source:** [src/contract/assembled_transaction.ts:1118](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L1118)
 
 ### `assembledTransaction.result`
 
@@ -504,7 +504,7 @@ Client initialization.
 - - Throws a custom error if the
 restore transaction fails, providing the details of the failure.
 
-**Source:** [src/contract/assembled_transaction.ts:1146](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L1146)
+**Source:** [src/contract/assembled_transaction.ts:1147](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L1147)
 
 ### `assembledTransaction.send(watcher)`
 
@@ -1172,7 +1172,7 @@ all contract functions
 
 ### `spec.events()`
 
-Gets the CAP-67 event spec entries from the spec.
+Gets the SEP-48 event spec entries from the spec.
 
 ```ts
 events(): ScSpecEventV0[];
@@ -1419,7 +1419,7 @@ the converted ScVal
 ### `spec.parseEvent(topics, data)`
 
 Attempts to parse an emitted contract event (its topics and data) using
-the event specs (CAP-67) declared in this contract's spec.
+the event specs (SEP-48) declared in this contract's spec.
 
 An event's topics are `[...prefixTopics, ...topicListParamValues]` (in
 that order), and its data is decoded according to the event's

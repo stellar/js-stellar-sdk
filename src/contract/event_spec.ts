@@ -20,7 +20,7 @@ export interface ParsedEvent {
 }
 
 /**
- * Gets all the CAP-67 event spec entries (`xdr.ScSpecEntryKind.scSpecEntryEventV0`)
+ * Gets all the SEP-48 event spec entries (`xdr.ScSpecEntryKind.scSpecEntryEventV0`)
  * out of a contract's spec entries.
  *
  * @param entries - the contract's XDR spec entries
@@ -127,7 +127,7 @@ function matchesTopics(
 
 /**
  * Attempts to parse an emitted contract event (topics + data ScVals) against
- * the event specs (CAP-67) contained in a {@link Spec}.
+ * the event specs (SEP-48) contained in a {@link Spec}.
  *
  * @param spec - the Spec instance to decode values with (for `scValToNative`)
  * @param entries - the contract's XDR spec entries
