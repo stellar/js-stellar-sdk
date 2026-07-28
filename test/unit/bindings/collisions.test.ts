@@ -101,6 +101,20 @@ describe("bindings generated-name collision resolution", () => {
     expect(output).toMatch(/renamed from "FooBarEvent" to avoid a collision/);
   });
 
+  it("rejects duplicate raw event names instead of generating duplicate members", () => {
+    const spec = new Spec([
+      eventEntry("transfer", ["first"]),
+      eventEntry("transfer", ["second"]),
+    ]);
+
+    expect(() => new TypeGenerator(spec).generate()).toThrow(
+      "cannot generate bindings for duplicate event name: transfer",
+    );
+    expect(() => new ClientGenerator(spec).generate()).toThrow(
+      "cannot generate bindings for duplicate event name: transfer",
+    );
+  });
+
   it("disambiguates an event filter method that collides with a contract function member name, keeping the function's name", () => {
     const spec = new Spec([
       funcEntry("transferEventFilter"),
@@ -116,6 +130,19 @@ describe("bindings generated-name collision resolution", () => {
 
     expect(output).toMatch(
       /renamed from "transferEventFilter" to avoid a collision/,
+    );
+  });
+
+  it("disambiguates the event parser when a contract function is named parseEvent", () => {
+    const spec = new Spec([
+      funcEntry("parseEvent"),
+      eventEntry("transfer", ["transfer"]),
+    ]);
+    const output = new ClientGenerator(spec).generate();
+
+    expect(output).toMatch(/parseEvent\(options\?: MethodOptions\)/);
+    expect(output).toMatch(
+      /parseEvent2\(topics: xdr\.ScVal\[\] \| string\[\], data:/,
     );
   });
 
