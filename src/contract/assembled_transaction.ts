@@ -18,10 +18,13 @@ import type {
   AssembledTransactionOptions,
   ClientOptions,
   MethodOptions,
+  SignAuthEntry,
+  SignTransaction,
   Tx,
   WalletError,
   XDR_BASE64,
 } from "./types.js";
+import { toSignAuthEntry, toSignTransaction } from "./signer.js";
 import { Server } from "../rpc/index.js";
 import { Api } from "../rpc/api.js";
 import { assembleTransaction } from "../rpc/transaction.js";
@@ -797,7 +800,12 @@ export class AssembledTransaction<T> {
       );
     }
 
-    if (!signTransaction) {
+    const signTx = toSignTransaction(
+      signTransaction,
+      this.options.networkPassphrase,
+    );
+
+    if (!signTx) {
       throw new AssembledTransaction.Errors.NoSigner(
         "You must provide a signTransaction function, either when calling " +
           "`signAndSend` or when initializing your Client",
@@ -830,9 +838,7 @@ export class AssembledTransaction<T> {
       .setTimeout(timeoutInSeconds)
       .build();
 
-    const signOpts: Parameters<
-      NonNullable<ClientOptions["signTransaction"]>
-    >[1] = {
+    const signOpts: Parameters<SignTransaction>[1] = {
       networkPassphrase: this.options.networkPassphrase,
     };
 
@@ -841,7 +847,7 @@ export class AssembledTransaction<T> {
       signOpts.submit = this.options.submit;
     if (this.options.submitUrl) signOpts.submitUrl = this.options.submitUrl;
 
-    const { signedTxXdr: signature, error } = await signTransaction(
+    const { signedTxXdr: signature, error } = await signTx(
       this.built.toXDR(),
       signOpts,
     );
@@ -900,8 +906,12 @@ export class AssembledTransaction<T> {
   } = {}): Promise<SentTransaction<T>> => {
     if (!this.signed) {
       // Wrap signTransaction to disable submit and prevent double submission,
-      // without mutating the shared this.options object
-      const signer = signTransaction || this.options.signTransaction;
+      // without mutating the shared this.options object. Reduce to a plain
+      // callback first, since the wrapper has to call it.
+      const signer = toSignTransaction(
+        signTransaction || this.options.signTransaction,
+        this.options.networkPassphrase,
+      );
       const wrappedSignTransaction: typeof signTransaction =
         this.options.submit && signer
           ? (tx, opts) => signer(tx, { ...opts, submit: false })
@@ -1025,6 +1035,14 @@ export class AssembledTransaction<T> {
     if (!this.built)
       throw new Error("Transaction has not yet been assembled or simulated");
 
+    // Reduced up front, not at the call site below, so that the `!signAuth`
+    // check reports a `Signer` that omits the optional `signAuthEntry` the same
+    // way it reports a missing option, rather than silently signing nothing.
+    const signAuth = toSignAuthEntry(
+      signAuthEntry,
+      this.options.networkPassphrase,
+    );
+
     // Likely if we're using a custom authorizeEntry then we know better than the `needsNonInvokerSigningBy` logic.
     if (authorizeEntry === stellarBaseAuthorizeEntry) {
       const needsNonInvokerSigningBy = this.needsNonInvokerSigningBy();
@@ -1038,7 +1056,7 @@ export class AssembledTransaction<T> {
           `No auth entries for public key "${address}"`,
         );
       }
-      if (!signAuthEntry) {
+      if (!signAuth) {
         throw new AssembledTransaction.Errors.NoSigner(
           "You must provide `signAuthEntry` or a custom `authorizeEntry`",
         );
@@ -1070,7 +1088,7 @@ export class AssembledTransaction<T> {
       // (or maybe already was!)
       if (authEntryAddress !== address) continue;
 
-      const sign: typeof signAuthEntry = signAuthEntry ?? Promise.resolve;
+      const sign: SignAuthEntry = signAuth ?? Promise.resolve;
 
       authEntries[i] = await authorizeEntry(
         entry,
