@@ -895,7 +895,7 @@ Signs an auth entry preimage. Matches `signAuthEntry` from Freighter.
 signAuthEntry: SignAuthEntry;
 ```
 
-**Source:** [src/contract/signer.ts:101](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/signer.ts#L101)
+**Source:** [src/contract/signer.ts:103](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/signer.ts#L103)
 
 ### `keypairSigner.signTransaction`
 
@@ -1776,7 +1776,7 @@ SEP-43 callback, a `Signer`, or a `Keypair`.
 type SignAuthEntryLike = SignAuthEntry | Signer | Keypair
 ```
 
-**Source:** [src/contract/signer.ts:122](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/signer.ts#L122)
+**Source:** [src/contract/signer.ts:125](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/signer.ts#L125)
 
 ### contract.SignTransaction
 
@@ -1801,7 +1801,7 @@ SEP-43 callback, a `Signer`, or a `Keypair`.
 type SignTransactionLike = SignTransaction | Signer | Keypair
 ```
 
-**Source:** [src/contract/signer.ts:116](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/signer.ts#L116)
+**Source:** [src/contract/signer.ts:119](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/signer.ts#L119)
 
 ### contract.Signer
 
