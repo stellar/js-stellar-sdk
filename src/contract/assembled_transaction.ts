@@ -24,7 +24,7 @@ import type {
   WalletError,
   XDR_BASE64,
 } from "./types.js";
-import { toSignAuthEntry, toSignTransaction } from "./signer.js";
+import { signerAddress, toSignAuthEntry, toSignTransaction } from "./signer.js";
 import { Server } from "../rpc/index.js";
 import { Api } from "../rpc/api.js";
 import { assembleTransaction } from "../rpc/transaction.js";
@@ -1006,7 +1006,7 @@ export class AssembledTransaction<T> {
     expiration = (async () =>
       (await this.server.getLatestLedger()).sequence + 100)(),
     signAuthEntry = this.options.signAuthEntry,
-    address = this.options.publicKey,
+    address = signerAddress(signAuthEntry) ?? this.options.publicKey,
     authorizeEntry = stellarBaseAuthorizeEntry,
   }: {
     /**
