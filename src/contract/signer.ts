@@ -125,7 +125,11 @@ export type SignTransactionLike = SignTransaction | Signer | Keypair;
 export type SignAuthEntryLike = SignAuthEntry | Signer | Keypair;
 
 /**
- * Recognizes a {@link Keypair} by the two members {@link KeypairSigner} calls.
+ * Recognizes a {@link Keypair} by the three members {@link KeypairSigner} calls:
+ * `publicKey` for the address, `sign` for auth entries, and `signDecorated`,
+ * which `Transaction.sign` reaches for when signing an envelope. All three are
+ * required, so a partial object is refused here rather than yielding a callback
+ * that throws once it is actually used.
  *
  * Structural rather than `instanceof` on purpose: this package ships a CJS and
  * an ESM build whose `Keypair` classes are distinct objects, so a keypair made
@@ -140,7 +144,9 @@ function isKeypairLike(value: object): value is Keypair {
     "publicKey" in value &&
     typeof value.publicKey === "function" &&
     "sign" in value &&
-    typeof value.sign === "function"
+    typeof value.sign === "function" &&
+    "signDecorated" in value &&
+    typeof value.signDecorated === "function"
   );
 }
 
@@ -170,8 +176,12 @@ export function toSignTransaction(
 
   // `signTransaction` is a `Signer`'s required member, so it identifies one.
   // Bound because a `Signer` may implement it as a prototype method that relies
-  // on `this`; a bare reference would lose its receiver.
-  if ("signTransaction" in value) return value.signTransaction?.bind(value);
+  // on `this`; a bare reference would lose its receiver. The `typeof` check is
+  // for untyped callers: a present-but-non-function member has no `bind`.
+  if ("signTransaction" in value) {
+    const fn = value.signTransaction;
+    return typeof fn === "function" ? fn.bind(value) : undefined;
+  }
 
   if (isKeypairLike(value)) {
     return new KeypairSigner(value, networkPassphrase).signTransaction;
@@ -198,9 +208,13 @@ export function toSignAuthEntry(
 
   if (typeof value !== "object") return undefined;
 
-  // Identified and bound as in `toSignTransaction`; optional chaining keeps a
-  // `Signer` that omits the optional `signAuthEntry` reported as `undefined`.
-  if ("signTransaction" in value) return value.signAuthEntry?.bind(value);
+  // Identified and bound as in `toSignTransaction`. The `typeof` check also
+  // covers the ordinary case of a `Signer` that omits the optional
+  // `signAuthEntry`, which is reported as `undefined`.
+  if ("signTransaction" in value) {
+    const fn = value.signAuthEntry;
+    return typeof fn === "function" ? fn.bind(value) : undefined;
+  }
 
   if (isKeypairLike(value)) {
     return new KeypairSigner(value, networkPassphrase).signAuthEntry;

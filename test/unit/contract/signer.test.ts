@@ -225,7 +225,7 @@ describe("signer normalization", () => {
     expect(toSignAuthEntry(undefined, networkPassphrase)).toBeUndefined();
   });
 
-  it("recognizes a Keypair from a different copy of the module", () => {
+  it("recognizes a Keypair from a different copy of the module", async () => {
     // `instanceof` fails when a caller's Keypair comes from a different copy of
     // the module — the CJS and ESM builds have distinct `Keypair` classes, as do
     // duplicate installs — so the check is structural. Simulated here by a
@@ -234,6 +234,7 @@ describe("signer normalization", () => {
     const foreign = {
       publicKey: () => keypair.publicKey(),
       sign: (data: Buffer) => keypair.sign(data),
+      signDecorated: (data: Buffer) => keypair.signDecorated(data),
     };
     expect(foreign instanceof Keypair).toBe(false);
 
@@ -245,9 +246,57 @@ describe("signer normalization", () => {
       foreign as unknown as Keypair,
       networkPassphrase,
     );
+    if (!signTransaction)
+      throw new Error("expected a signTransaction callback");
+    if (!signAuthEntry) throw new Error("expected a signAuthEntry callback");
 
-    expect(signTransaction).toBeTypeOf("function");
-    expect(signAuthEntry).toBeTypeOf("function");
+    // Exercise both callbacks rather than just checking their type: a stand-in
+    // missing a member the signing path needs would otherwise pass this test.
+    const { signedTxXdr } = await signTransaction(buildTxXdr(keypair));
+    const signed = TransactionBuilder.fromXDR(signedTxXdr, networkPassphrase);
+    expect(
+      keypair.verify(signed.hash(), signed.signatures[0].signature()),
+    ).toBe(true);
+    expect(await signAuthEntry(preimage)).toHaveProperty(
+      "signerAddress",
+      keypair.publicKey(),
+    );
+  });
+
+  it("rejects a partial keypair that cannot sign an envelope", () => {
+    // `Transaction.sign` reaches for `signDecorated`, which `signAuthEntry`
+    // never needs. An object with only `publicKey`/`sign` therefore half-works,
+    // and must be refused up front rather than producing a `signTransaction`
+    // callback that throws `signDecorated is not a function` when used.
+    const keypair = Keypair.random();
+    const partial = {
+      publicKey: () => keypair.publicKey(),
+      sign: (data: Buffer) => keypair.sign(data),
+    };
+
+    expect(
+      toSignTransaction(partial as unknown as Keypair, networkPassphrase),
+    ).toBeUndefined();
+    expect(
+      toSignAuthEntry(partial as unknown as Keypair, networkPassphrase),
+    ).toBeUndefined();
+  });
+
+  it("treats a non-function signAuthEntry as absent", async () => {
+    // A valid `signTransaction` alongside a junk `signAuthEntry`: the usable
+    // callback must still come through, and the junk one must not throw.
+    const malformed = {
+      address: Keypair.random().publicKey(),
+      signTransaction: callback,
+      signAuthEntry: "nope",
+    } as unknown as Signer;
+
+    const signTransaction = toSignTransaction(malformed, networkPassphrase);
+    if (!signTransaction)
+      throw new Error("expected a signTransaction callback");
+
+    expect(await signTransaction("xdr")).toEqual(await callback("xdr"));
+    expect(toSignAuthEntry(malformed, networkPassphrase)).toBeUndefined();
   });
 
   it("prefers the Signer shape over the Keypair shape", async () => {
@@ -280,6 +329,11 @@ describe("signer normalization", () => {
     ["a null signTransaction", { address: "G...", signTransaction: null }],
     ["a string", "not a signer"],
     ["a number", 42],
+    // `?.bind` only guards null/undefined, so a present-but-non-function
+    // member would otherwise reach `.bind` and throw.
+    ["a string signTransaction", { address: "G...", signTransaction: "nope" }],
+    ["a number signTransaction", { address: "G...", signTransaction: 42 }],
+    ["an object signTransaction", { address: "G...", signTransaction: {} }],
   ])("degrades to undefined for %s", (_label, malformed) => {
     expect(
       toSignTransaction(malformed as never, networkPassphrase),
