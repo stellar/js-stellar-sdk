@@ -696,6 +696,26 @@ describe("AssembledTransaction auth entry credential types (CAP-71)", () => {
       expect(viaCallback).toEqual(viaKeypair);
     });
 
+    it("infers the target address from a Signer or Keypair", async () => {
+      const signer = Keypair.random();
+
+      for (const signAuthEntry of [
+        signer,
+        new contract.KeypairSigner(signer, networkPassphrase),
+      ]) {
+        const assembled = assembledWith(
+          [authEntry(addressV2Cred(signer.publicKey()))],
+          { signAuthEntry },
+        );
+        await assembled.signAuthEntries({ expiration: 1000 });
+
+        const signed = (assembled.built as any).operations[0].auth[0]
+          .credentials()
+          .addressV2();
+        expect(signed.signature().switch().name).toBe("scvVec");
+      }
+    });
+
     it("rejects a Signer that omits the optional signAuthEntry", async () => {
       const signer = Keypair.random();
       const assembled = assembledWith(

@@ -150,6 +150,17 @@ function isKeypairLike(value: object): value is Keypair {
   );
 }
 
+/** @internal */
+export function signerAddress(
+  value: SignAuthEntryLike | undefined,
+): string | undefined {
+  if (value == null || typeof value !== "object") return undefined;
+  if ("signTransaction" in value && typeof value.address === "string") {
+    return value.address;
+  }
+  return isKeypairLike(value) ? value.publicKey() : undefined;
+}
+
 /**
  * Reduces the accepted signing shapes down to a plain callback.
  *

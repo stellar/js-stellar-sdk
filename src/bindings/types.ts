@@ -357,6 +357,11 @@ ${members}
       }
       const event = entry.eventV0();
       const rawName = event.name().toString();
+      if (resolved.has(rawName)) {
+        throw new Error(
+          `cannot generate bindings for duplicate event name: ${rawName}`,
+        );
+      }
       const preferred = `${toPascalCase(sanitizeIdentifier(rawName))}Event`;
 
       let candidate = preferred;

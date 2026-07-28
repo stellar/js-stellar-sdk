@@ -57,9 +57,10 @@ export class ClientGenerator {
       .join(",");
 
     const events = this.spec.events();
+    const parseEventMethodName = this.parseEventMethodName();
     const eventMethods =
       events.length > 0
-        ? `\n${this.generateParseEventMethod()}\n${events
+        ? `\n${this.generateParseEventMethod(parseEventMethodName)}\n${events
             .map((event) => this.generateEventFilterMethod(event))
             .join("\n")}`
         : "";
@@ -142,13 +143,29 @@ ${eventMethods}
    * Generate the parseEvent method, which delegates to the underlying Spec
    * to decode a raw event's topics/data into a typed ContractEvent.
    */
-  private generateParseEventMethod(): string {
+  private generateParseEventMethod(methodName: string): string {
     return `  /**
    * Parse a raw contract event (topics + data) into a typed {@link ContractEvent}.
    */
-  parseEvent(topics: xdr.ScVal[] | string[], data: xdr.ScVal | string): ContractEvent | undefined {
+  ${methodName}(topics: xdr.ScVal[] | string[], data: xdr.ScVal | string): ContractEvent | undefined {
     return this.spec.parseEvent(topics, data) as ContractEvent | undefined;
   }`;
+  }
+
+  private parseEventMethodName(): string {
+    const reserved = new Set(
+      this.spec
+        .funcs()
+        .filter((func) => func.name().toString() !== "__constructor")
+        .map((func) => sanitizeIdentifier(func.name().toString())),
+    );
+    let candidate = "parseEvent";
+    let suffix = 2;
+    while (reserved.has(candidate)) {
+      candidate = `parseEvent${suffix}`;
+      suffix += 1;
+    }
+    return candidate;
   }
 
   /**
@@ -182,6 +199,11 @@ ${eventMethods}
 
     this.spec.events().forEach((event) => {
       const rawName = event.name().toString();
+      if (resolved.has(rawName)) {
+        throw new Error(
+          `cannot generate bindings for duplicate event name: ${rawName}`,
+        );
+      }
       const preferred = `${toCamelCase(sanitizeIdentifier(rawName))}EventFilter`;
 
       let candidate = preferred;

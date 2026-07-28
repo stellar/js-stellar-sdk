@@ -24,7 +24,7 @@ import type {
   WalletError,
   XDR_BASE64,
 } from "./types.js";
-import { toSignAuthEntry, toSignTransaction } from "./signer.js";
+import { signerAddress, toSignAuthEntry, toSignTransaction } from "./signer.js";
 import { Server } from "../rpc/index.js";
 import { Api } from "../rpc/api.js";
 import { assembleTransaction } from "../rpc/transaction.js";
@@ -1006,7 +1006,7 @@ export class AssembledTransaction<T> {
     expiration = (async () =>
       (await this.server.getLatestLedger()).sequence + 100)(),
     signAuthEntry = this.options.signAuthEntry,
-    address = this.options.publicKey,
+    address = signerAddress(signAuthEntry) ?? this.options.publicKey,
     authorizeEntry = stellarBaseAuthorizeEntry,
   }: {
     /**
@@ -1016,12 +1016,13 @@ export class AssembledTransaction<T> {
      */
     expiration?: number | Promise<number>;
     /**
-     * Sign all auth entries for this account. Default: the account that
-     * constructed the transaction
+     * Sign all auth entries for this account. Default: when `signAuthEntry`
+     * is a `Signer` or `Keypair`, its own address; otherwise the account that
+     * constructed the transaction (`publicKey`).
      */
     address?: string;
     /**
-     * You must provide this here if you did not provide one before and you are not passing `authorizeEntry`. Default: the `signAuthEntry` function from the `Client` options. Must sign things as the given `publicKey`.
+     * You must provide this here if you did not provide one before and you are not passing `authorizeEntry`. Default: the `signAuthEntry` from the `Client` options. Must sign things as the given `address`.
      */
     signAuthEntry?: ClientOptions["signAuthEntry"];
 
