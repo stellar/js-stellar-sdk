@@ -16,7 +16,7 @@ describe("Operation.clawback()", () => {
   it("creates a clawback operation", () => {
     const op = Operation.clawback({ from: account, amount, asset });
     const xdrHex = op.toXdr("hex");
-    const operation = xdr.Operation.fromXdr(Buffer.from(xdrHex, "hex"));
+    const operation = xdr.Operation.fromXdr(xdrHex, "hex");
     const obj = expectOperationType(
       Operation.fromXdrObject(operation),
       "clawback",

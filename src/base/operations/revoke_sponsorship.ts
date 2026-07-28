@@ -17,6 +17,7 @@ import {
   SignerKeyEd25519SignedPayload,
   TrustLineAsset,
 } from "../../xdr/index.js";
+import { hexToUint8Array } from "uint8array-extras";
 import { StrKey } from "../strkey.js";
 import { Keypair } from "../keypair.js";
 import { Asset } from "../asset.js";
@@ -259,7 +260,7 @@ export function revokeLiquidityPoolSponsorship(
 
   const ledgerKey = LedgerKey.liquidityPool(
     new LedgerKeyLiquidityPool({
-      liquidityPoolId: new PoolId(Buffer.from(opts.liquidityPoolId, "hex")),
+      liquidityPoolId: new PoolId(hexToUint8Array(opts.liquidityPoolId)),
     }),
   );
   const op = RevokeSponsorshipOp.revokeSponsorshipLedgerEntry(ledgerKey);
@@ -280,8 +281,8 @@ export function revokeLiquidityPoolSponsorship(
  * @param opts.account - The account ID where the signer sponsorship is being removed from.
  * @param opts.signer - The signer whose sponsorship is being removed. Exactly one of the following must be set:
  * @param opts.signer.ed25519PublicKey - (optional) The ed25519 public key of the signer.
- * @param opts.signer.sha256Hash - (optional) sha256 hash (Buffer or hex string).
- * @param opts.signer.preAuthTx - (optional) Hash (Buffer or hex string) of transaction.
+ * @param opts.signer.sha256Hash - (optional) sha256 hash (Uint8Array or hex string).
+ * @param opts.signer.preAuthTx - (optional) Hash (Uint8Array or hex string) of transaction.
  * @param opts.signer.ed25519SignedPayload - (optional) Signed payload signer (StrKey P... address).
  * @param opts.source - The source account for the operation. Defaults to the transaction's source account.
  *
@@ -309,30 +310,30 @@ export function revokeSignerSponsorship(
     const rawKey = StrKey.decodeEd25519PublicKey(opts.signer.ed25519PublicKey);
     key = SignerKey.signerKeyTypeEd25519(rawKey);
   } else if (opts.signer.preAuthTx) {
-    let buffer: Buffer;
+    let buffer: Uint8Array;
 
     if (typeof opts.signer.preAuthTx === "string") {
-      buffer = Buffer.from(opts.signer.preAuthTx, "hex");
+      buffer = hexToUint8Array(opts.signer.preAuthTx);
     } else {
       buffer = opts.signer.preAuthTx;
     }
 
-    if (!(Buffer.isBuffer(buffer) && buffer.length === 32)) {
-      throw new Error("signer.preAuthTx must be 32 bytes Buffer.");
+    if (!(buffer instanceof Uint8Array && buffer.length === 32)) {
+      throw new Error("signer.preAuthTx must be 32 bytes Uint8Array.");
     }
 
     key = SignerKey.signerKeyTypePreAuthTx(buffer);
   } else if (opts.signer.sha256Hash) {
-    let buffer: Buffer;
+    let buffer: Uint8Array;
 
     if (typeof opts.signer.sha256Hash === "string") {
-      buffer = Buffer.from(opts.signer.sha256Hash, "hex");
+      buffer = hexToUint8Array(opts.signer.sha256Hash);
     } else {
       buffer = opts.signer.sha256Hash;
     }
 
-    if (!(Buffer.isBuffer(buffer) && buffer.length === 32)) {
-      throw new Error("signer.sha256Hash must be 32 bytes Buffer.");
+    if (!(buffer instanceof Uint8Array && buffer.length === 32)) {
+      throw new Error("signer.sha256Hash must be 32 bytes Uint8Array.");
     }
 
     key = SignerKey.signerKeyTypeHashX(buffer);

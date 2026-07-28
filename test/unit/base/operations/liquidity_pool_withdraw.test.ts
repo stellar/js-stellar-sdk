@@ -17,7 +17,7 @@ describe("Operation.liquidityPoolWithdraw()", () => {
     };
     const op = Operation.liquidityPoolWithdraw(opts);
     const xdrHex = op.toXdr("hex");
-    const xdrObj = xdr.Operation.fromXdr(Buffer.from(xdrHex, "hex"));
+    const xdrObj = xdr.Operation.fromXdr(xdrHex, "hex");
     const body = expectVariant(
       xdrObj.body,
       "liquidityPoolWithdraw",
@@ -48,7 +48,7 @@ describe("Operation.liquidityPoolWithdraw()", () => {
     };
     const op = Operation.liquidityPoolWithdraw(opts);
     const xdrHex = op.toXdr("hex");
-    const xdrObj = xdr.Operation.fromXdr(Buffer.from(xdrHex, "hex"));
+    const xdrObj = xdr.Operation.fromXdr(xdrHex, "hex");
     const operation = expectOperationType(
       Operation.fromXdrObject(xdrObj),
       "liquidityPoolWithdraw",
@@ -65,7 +65,7 @@ describe("Operation.liquidityPoolWithdraw()", () => {
     };
     const op = Operation.liquidityPoolWithdraw(opts);
     const xdrHex = op.toXdr("hex");
-    const xdrObj = xdr.Operation.fromXdr(Buffer.from(xdrHex, "hex"));
+    const xdrObj = xdr.Operation.fromXdr(xdrHex, "hex");
     const operation = expectOperationType(
       Operation.fromXdrObject(xdrObj),
       "liquidityPoolWithdraw",
@@ -82,7 +82,7 @@ describe("Operation.liquidityPoolWithdraw()", () => {
     };
     const op = Operation.liquidityPoolWithdraw(opts);
     const xdrHex = op.toXdr("hex");
-    const xdrObj = xdr.Operation.fromXdr(Buffer.from(xdrHex, "hex"));
+    const xdrObj = xdr.Operation.fromXdr(xdrHex, "hex");
     const operation = expectOperationType(
       Operation.fromXdrObject(xdrObj),
       "liquidityPoolWithdraw",

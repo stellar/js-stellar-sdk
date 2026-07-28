@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import { uint8ArrayToBase64 } from "uint8array-extras";
 
 import {
   Int32,
@@ -34,9 +35,7 @@ describe("Int64/Uint64 shims", () => {
       const bytes = new Uint8Array([0, 0, 0, 0, 0, 0, 0, 5]);
       expect(Int64.fromXdr(bytes)).toBe(5n);
       expect(Int64.fromXdr("0000000000000005", "hex")).toBe(5n);
-      expect(
-        Int64.fromXdr(Buffer.from(bytes).toString("base64"), "base64"),
-      ).toBe(5n);
+      expect(Int64.fromXdr(uint8ArrayToBase64(bytes), "base64")).toBe(5n);
     });
 
     it("requires exactly 8 bytes", () => {
@@ -74,9 +73,7 @@ describe("Int32/Uint32 shims", () => {
       const bytes = new Uint8Array([0, 0, 0, 5]);
       expect(Int32.fromXdr(bytes)).toBe(5);
       expect(Int32.fromXdr("00000005", "hex")).toBe(5);
-      expect(
-        Int32.fromXdr(Buffer.from(bytes).toString("base64"), "base64"),
-      ).toBe(5);
+      expect(Int32.fromXdr(uint8ArrayToBase64(bytes), "base64")).toBe(5);
     });
 
     it("respects signedness", () => {

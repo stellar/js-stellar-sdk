@@ -1,4 +1,9 @@
 import {
+  base64ToUint8Array,
+  hexToUint8Array,
+  uint8ArrayToBase64,
+} from "uint8array-extras";
+import {
   DecoratedSignature,
   FeeBumpTransaction,
   Transaction,
@@ -133,7 +138,7 @@ export class TransactionBase<
    * @param keypair - Keypair of signer
    */
   getKeypairSignature(keypair: Keypair): string {
-    return keypair.sign(this.hash()).toString("base64");
+    return uint8ArrayToBase64(keypair.sign(this.hash()));
   }
 
   /**
@@ -170,7 +175,7 @@ export class TransactionBase<
 
     let keypair;
     let hint;
-    const signatureBuffer = Buffer.from(signature, "base64");
+    const signatureBytes = base64ToUint8Array(signature);
 
     try {
       keypair = Keypair.fromPublicKey(publicKey);
@@ -179,14 +184,14 @@ export class TransactionBase<
       throw new Error("Invalid publicKey");
     }
 
-    if (!keypair.verify(this.hash(), signatureBuffer)) {
+    if (!keypair.verify(this.hash(), signatureBytes)) {
       throw new Error("Invalid signature");
     }
 
     this.signatures.push(
       new DecoratedSignature({
         hint,
-        signature: signatureBuffer,
+        signature: signatureBytes,
       }),
     );
   }
@@ -207,9 +212,9 @@ export class TransactionBase<
    * Add `hashX` signer preimage as signature.
    * @param preimage - preimage of hash used as signer
    */
-  signHashX(preimage: Buffer | string): void {
+  signHashX(preimage: Uint8Array | string): void {
     if (typeof preimage === "string") {
-      preimage = Buffer.from(preimage, "hex");
+      preimage = hexToUint8Array(preimage);
     }
 
     if (preimage.length > 64) {
@@ -225,12 +230,12 @@ export class TransactionBase<
   /**
    * Returns a hash for this transaction, suitable for signing.
    */
-  hash(): Buffer {
+  hash(): Uint8Array {
     return hash(this.signatureBase());
   }
 
   /** Returns the signature base for this transaction, to be overridden by subclasses. */
-  signatureBase(): Buffer {
+  signatureBase(): Uint8Array {
     throw new Error("Implement in subclass");
   }
 

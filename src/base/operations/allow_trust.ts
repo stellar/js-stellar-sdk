@@ -10,6 +10,7 @@ import {
 import { Keypair } from "../keypair.js";
 import { StrKey } from "../strkey.js";
 import { AllowTrustOpts, OperationAttributes } from "./types.js";
+import { stringToUint8Array } from "uint8array-extras";
 import { setSourceAccount } from "../util/operations.js";
 
 /**
@@ -33,10 +34,10 @@ export function allowTrust(opts: AllowTrustOpts): Operation {
 
   let asset: AssetCode;
   if (opts.assetCode.length <= 4) {
-    const code = Buffer.from(opts.assetCode.padEnd(4, "\0"));
+    const code = stringToUint8Array(opts.assetCode.padEnd(4, "\0"));
     asset = AssetCode.assetTypeCreditAlphanum4(new AssetCode4(code));
   } else if (opts.assetCode.length <= 12) {
-    const code = Buffer.from(opts.assetCode.padEnd(12, "\0"));
+    const code = stringToUint8Array(opts.assetCode.padEnd(12, "\0"));
     asset = AssetCode.assetTypeCreditAlphanum12(new AssetCode12(code));
   } else {
     throw new Error("Asset code must be 12 characters at max.");

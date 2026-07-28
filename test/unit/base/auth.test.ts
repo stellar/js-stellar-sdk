@@ -1,5 +1,10 @@
 import { describe, it, expect, afterEach, vi } from "vitest";
 import {
+  compareUint8Arrays,
+  stringToUint8Array,
+  uint8ArrayToHex,
+} from "uint8array-extras";
+import {
   authorizeEntry,
   authorizeInvocation,
   buildAuthorizationEntryPreimage,
@@ -73,7 +78,10 @@ describe("building authorization entries", () => {
       ).map((v) => scValToNative(v));
       expect(sigArgs).toHaveLength(1);
 
-      const sig = sigArgs[0] as { public_key: Buffer; signature: Buffer };
+      const sig = sigArgs[0] as {
+        public_key: Uint8Array;
+        signature: Uint8Array;
+      };
       expect(sig).toHaveProperty("public_key");
       expect(sig).toHaveProperty("signature");
       expect(StrKey.encodeEd25519PublicKey(sig.public_key)).toBe(
@@ -84,7 +92,7 @@ describe("building authorization entries", () => {
     it("signs the entry correctly with a callback", async () => {
       // eslint-disable-next-line @typescript-eslint/require-await
       const callback: SigningCallback = async (preimage) =>
-        kp.sign(hash(Buffer.from(preimage.toXdr())));
+        kp.sign(hash(preimage.toXdr()));
 
       const signedEntry = await authorizeEntry(
         authEntry,
@@ -103,7 +111,10 @@ describe("building authorization entries", () => {
       ).map((v) => scValToNative(v));
       expect(sigArgs).toHaveLength(1);
 
-      const sig = sigArgs[0] as { public_key: Buffer; signature: Buffer };
+      const sig = sigArgs[0] as {
+        public_key: Uint8Array;
+        signature: Uint8Array;
+      };
       expect(StrKey.encodeEd25519PublicKey(sig.public_key)).toBe(
         kp.publicKey(),
       );
@@ -112,7 +123,7 @@ describe("building authorization entries", () => {
     it("signs the entry correctly with a callback returning an object", async () => {
       // eslint-disable-next-line @typescript-eslint/require-await
       const callback: SigningCallback = async (preimage) => ({
-        signature: kp.sign(hash(Buffer.from(preimage.toXdr()))),
+        signature: kp.sign(hash(preimage.toXdr())),
         publicKey: kp.publicKey(),
       });
 
@@ -133,7 +144,10 @@ describe("building authorization entries", () => {
       ).map((v) => scValToNative(v));
       expect(sigArgs).toHaveLength(1);
 
-      const sig = sigArgs[0] as { public_key: Buffer; signature: Buffer };
+      const sig = sigArgs[0] as {
+        public_key: Uint8Array;
+        signature: Uint8Array;
+      };
       expect(StrKey.encodeEd25519PublicKey(sig.public_key)).toBe(
         kp.publicKey(),
       );
@@ -148,7 +162,7 @@ describe("building authorization entries", () => {
         // eslint-disable-next-line @typescript-eslint/require-await
         async (preimage) => {
           invoked = true;
-          return kp.sign(hash(Buffer.from(preimage.toXdr())));
+          return kp.sign(hash(preimage.toXdr()));
         },
         10,
         Networks.TESTNET,
@@ -211,7 +225,7 @@ describe("building authorization entries", () => {
       const wrongKp = Keypair.random();
       // eslint-disable-next-line @typescript-eslint/require-await
       const badCallback: SigningCallback = async (preimage) => ({
-        signature: wrongKp.sign(hash(Buffer.from(preimage.toXdr()))),
+        signature: wrongKp.sign(hash(preimage.toXdr())),
         publicKey: kp.publicKey(), // claims to be kp but signed with wrongKp
       });
 
@@ -223,7 +237,7 @@ describe("building authorization entries", () => {
     it("throws with a bad signature from a callback", async () => {
       // eslint-disable-next-line @typescript-eslint/require-await
       const badCallback: SigningCallback = async () => ({
-        signature: Buffer.from("bad-signature-data"),
+        signature: stringToUint8Array("bad-signature-data"),
         publicKey: kp.publicKey(),
       });
 
@@ -287,12 +301,12 @@ describe("building authorization entries", () => {
       // eslint-disable-next-line @typescript-eslint/require-await
       return async (preimage) => {
         capture.preimage = preimage;
-        return kp.sign(hash(Buffer.from(preimage.toXdr())));
+        return kp.sign(hash(preimage.toXdr()));
       };
     }
 
     const expectedNetworkId = (passphrase: string) =>
-      hash(Buffer.from(passphrase)).toString("hex");
+      uint8ArrayToHex(hash(passphrase));
 
     it("ADDRESS switches to the non-address-bound preimage", async () => {
       const capture: { preimage?: xdr.HashIdPreimage } = {};
@@ -401,7 +415,7 @@ describe("building authorization entries", () => {
       const signer: SigningCallback = async (preimage) => {
         capture.preimage = preimage;
         return {
-          signature: delegate.sign(hash(Buffer.from(preimage.toXdr()))),
+          signature: delegate.sign(hash(preimage.toXdr())),
           publicKey: delegate.publicKey(),
         };
       };
@@ -453,7 +467,10 @@ describe("building authorization entries", () => {
       const sigArgs = expectDefined(
         (signedDelegate.signature as xdr.ScValVec).vec,
       ).map((v) => scValToNative(v));
-      const sig = sigArgs[0] as { public_key: Buffer; signature: Buffer };
+      const sig = sigArgs[0] as {
+        public_key: Uint8Array;
+        signature: Uint8Array;
+      };
       expect(StrKey.encodeEd25519PublicKey(sig.public_key)).toBe(
         delegate.publicKey(),
       );
@@ -538,7 +555,7 @@ describe("building authorization entries", () => {
           xdr.SorobanCredentials.sorobanCredentialsAddressV2(makeAddrCreds()),
         ),
         // eslint-disable-next-line @typescript-eslint/require-await
-        async (preimage) => kp.sign(hash(Buffer.from(preimage.toXdr()))),
+        async (preimage) => kp.sign(hash(preimage.toXdr())),
         EXPIRATION,
         Networks.TESTNET,
       );
@@ -549,7 +566,10 @@ describe("building authorization entries", () => {
             .signature as xdr.ScValVec
         ).vec,
       ).map((v) => scValToNative(v));
-      const sig = sigArgs[0] as { public_key: Buffer; signature: Buffer };
+      const sig = sigArgs[0] as {
+        public_key: Uint8Array;
+        signature: Uint8Array;
+      };
       expect(StrKey.encodeEd25519PublicKey(sig.public_key)).toBe(
         kp.publicKey(),
       );
@@ -584,7 +604,7 @@ describe("building authorization entries", () => {
     it("can build from scratch with explicit publicKey", async () => {
       // eslint-disable-next-line @typescript-eslint/require-await
       const callback: SigningCallback = async (preimage) => ({
-        signature: kp.sign(hash(Buffer.from(preimage.toXdr()))),
+        signature: kp.sign(hash(preimage.toXdr())),
         publicKey: kp.publicKey(),
       });
 
@@ -628,7 +648,7 @@ describe("building authorization entries", () => {
     it("throws when signer has no publicKey method and none provided", () => {
       // eslint-disable-next-line @typescript-eslint/require-await
       const callback: SigningCallback = async (preimage) =>
-        kp.sign(hash(Buffer.from(preimage.toXdr())));
+        kp.sign(hash(preimage.toXdr()));
 
       // When called with a non-Keypair signer and no explicit publicKey, the
       // implementation throws Error("authorizeInvocation requires publicKey parameter").
@@ -805,7 +825,7 @@ describe("building authorization entries", () => {
           // eslint-disable-next-line @typescript-eslint/require-await
           async (preimage) => {
             capture.preimage = preimage;
-            return kp.sign(hash(Buffer.from(preimage.toXdr())));
+            return kp.sign(hash(preimage.toXdr()));
           },
           4242,
           Networks.TESTNET,
@@ -866,7 +886,7 @@ describe("building authorization entries", () => {
         const expectedOrder = kps
           .map((k) => k.publicKey())
           .sort((a, b) =>
-            Buffer.compare(
+            compareUint8Arrays(
               new Address(a).toScAddress().toXdr(),
               new Address(b).toScAddress().toXdr(),
             ),
@@ -941,7 +961,10 @@ describe("building authorization entries", () => {
         const sigArgs = expectDefined(
           (wd.delegates[0].signature as xdr.ScValVec).vec,
         ).map((v) => scValToNative(v));
-        const sig = sigArgs[0] as { public_key: Buffer; signature: Buffer };
+        const sig = sigArgs[0] as {
+          public_key: Uint8Array;
+          signature: Uint8Array;
+        };
         expect(StrKey.encodeEd25519PublicKey(sig.public_key)).toBe(
           delegate.publicKey(),
         );

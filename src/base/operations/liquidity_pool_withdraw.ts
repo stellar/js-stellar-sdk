@@ -10,6 +10,7 @@ import {
   OperationBody,
   PoolId,
 } from "../../xdr/index.js";
+import { hexToUint8Array } from "uint8array-extras";
 import { LiquidityPoolWithdrawOpts, OperationAttributes } from "./types.js";
 
 /**
@@ -30,7 +31,7 @@ export function liquidityPoolWithdraw(
   if (!opts.liquidityPoolId) {
     throw new TypeError("liquidityPoolId argument is required");
   }
-  const liquidityPoolId = new PoolId(Buffer.from(opts.liquidityPoolId, "hex"));
+  const liquidityPoolId = new PoolId(hexToUint8Array(opts.liquidityPoolId));
 
   if (!isValidAmount(opts.amount)) {
     throw new TypeError(constructAmountRequirementsError("amount"));

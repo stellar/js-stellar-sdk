@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import { areUint8ArraysEqual } from "uint8array-extras";
 import { Asset } from "../../../src/base/asset.js";
 import { Keypair } from "../../../src/base/keypair.js";
 import { Networks } from "../../../src/base/network.js";
@@ -82,27 +83,34 @@ describe("Asset", () => {
   describe("toXdrObject(), toChangeTrustXdrObject(), toTrustLineXdrObject()", () => {
     it("parses a native asset object", () => {
       const asset = Asset.native();
-      const nativeBytes = Buffer.from([0, 0, 0, 0]);
+      const nativeBytes = new Uint8Array([0, 0, 0, 0]);
 
-      let assetXdr = asset.toXdrObject();
+      const assetXdr = asset.toXdrObject();
       expect(assetXdr).toBeInstanceOf(xdr.Asset);
-      expect(Buffer.from(assetXdr.toXdr()).equals(nativeBytes)).toBe(true);
+      expect(
+        areUint8ArraysEqual(new Uint8Array(assetXdr.toXdr()), nativeBytes),
+      ).toBe(true);
 
-      let changeTrustXdr = asset.toChangeTrustXdrObject();
+      const changeTrustXdr = asset.toChangeTrustXdrObject();
       expect(changeTrustXdr).toBeInstanceOf(xdr.ChangeTrustAsset);
-      expect(Buffer.from(changeTrustXdr.toXdr()).equals(nativeBytes)).toBe(
-        true,
-      );
+      expect(
+        areUint8ArraysEqual(
+          new Uint8Array(changeTrustXdr.toXdr()),
+          nativeBytes,
+        ),
+      ).toBe(true);
 
-      let trustLineXdr = asset.toTrustLineXdrObject();
+      const trustLineXdr = asset.toTrustLineXdrObject();
       expect(trustLineXdr).toBeInstanceOf(xdr.TrustLineAsset);
-      expect(Buffer.from(trustLineXdr.toXdr()).equals(nativeBytes)).toBe(true);
+      expect(
+        areUint8ArraysEqual(new Uint8Array(trustLineXdr.toXdr()), nativeBytes),
+      ).toBe(true);
     });
 
     it("parses a 3-alphanum asset object", () => {
       const asset = new Asset("USD", ISSUER);
 
-      let assetXdr = asset.toXdrObject();
+      const assetXdr = asset.toXdrObject();
       expect(assetXdr).toBeInstanceOf(xdr.Asset);
       expect(() => assetXdr.toXdr("hex")).not.toThrow();
       expect(assetXdr.type).toBe("assetTypeCreditAlphanum4");
@@ -110,7 +118,7 @@ describe("Asset", () => {
         ascii((assetXdr as AssetCreditAlphanum4).alphaNum4.assetCode.value),
       ).toBe("USD\0");
 
-      let changeTrustXdr = asset.toChangeTrustXdrObject();
+      const changeTrustXdr = asset.toChangeTrustXdrObject();
       expect(changeTrustXdr).toBeInstanceOf(xdr.ChangeTrustAsset);
       expect(() => changeTrustXdr.toXdr("hex")).not.toThrow();
       expect(changeTrustXdr.type).toBe("assetTypeCreditAlphanum4");
@@ -121,7 +129,7 @@ describe("Asset", () => {
         ),
       ).toBe("USD\0");
 
-      let trustLineXdr = asset.toTrustLineXdrObject();
+      const trustLineXdr = asset.toTrustLineXdrObject();
       expect(trustLineXdr).toBeInstanceOf(xdr.TrustLineAsset);
       expect(() => trustLineXdr.toXdr("hex")).not.toThrow();
       expect(trustLineXdr.type).toBe("assetTypeCreditAlphanum4");
@@ -136,7 +144,7 @@ describe("Asset", () => {
     it("parses a 4-alphanum asset object", () => {
       const asset = new Asset("BART", ISSUER);
 
-      let assetXdr = asset.toXdrObject();
+      const assetXdr = asset.toXdrObject();
       expect(assetXdr).toBeInstanceOf(xdr.Asset);
       expect(() => assetXdr.toXdr("hex")).not.toThrow();
       expect(assetXdr.type).toBe("assetTypeCreditAlphanum4");
@@ -144,7 +152,7 @@ describe("Asset", () => {
         ascii((assetXdr as AssetCreditAlphanum4).alphaNum4.assetCode.value),
       ).toBe("BART");
 
-      let changeTrustXdr = asset.toChangeTrustXdrObject();
+      const changeTrustXdr = asset.toChangeTrustXdrObject();
       expect(changeTrustXdr).toBeInstanceOf(xdr.ChangeTrustAsset);
       expect(() => changeTrustXdr.toXdr("hex")).not.toThrow();
       expect(changeTrustXdr.type).toBe("assetTypeCreditAlphanum4");
@@ -155,7 +163,7 @@ describe("Asset", () => {
         ),
       ).toBe("BART");
 
-      let trustLineXdr = asset.toTrustLineXdrObject();
+      const trustLineXdr = asset.toTrustLineXdrObject();
       expect(trustLineXdr).toBeInstanceOf(xdr.TrustLineAsset);
       expect(() => trustLineXdr.toXdr("hex")).not.toThrow();
       expect(trustLineXdr.type).toBe("assetTypeCreditAlphanum4");
@@ -170,7 +178,7 @@ describe("Asset", () => {
     it("parses a 5-alphanum asset object", () => {
       const asset = new Asset("12345", ISSUER);
 
-      let assetXdr = asset.toXdrObject();
+      const assetXdr = asset.toXdrObject();
       expect(assetXdr).toBeInstanceOf(xdr.Asset);
       expect(() => assetXdr.toXdr("hex")).not.toThrow();
       expect(assetXdr.type).toBe("assetTypeCreditAlphanum12");
@@ -178,7 +186,7 @@ describe("Asset", () => {
         ascii((assetXdr as AssetCreditAlphanum12).alphaNum12.assetCode.value),
       ).toBe("12345\0\0\0\0\0\0\0");
 
-      let changeTrustXdr = asset.toChangeTrustXdrObject();
+      const changeTrustXdr = asset.toChangeTrustXdrObject();
       expect(changeTrustXdr).toBeInstanceOf(xdr.ChangeTrustAsset);
       expect(() => changeTrustXdr.toXdr("hex")).not.toThrow();
       expect(changeTrustXdr.type).toBe("assetTypeCreditAlphanum12");
@@ -189,7 +197,7 @@ describe("Asset", () => {
         ),
       ).toBe("12345\0\0\0\0\0\0\0");
 
-      let trustLineXdr = asset.toTrustLineXdrObject();
+      const trustLineXdr = asset.toTrustLineXdrObject();
       expect(trustLineXdr).toBeInstanceOf(xdr.TrustLineAsset);
       expect(() => trustLineXdr.toXdr("hex")).not.toThrow();
       expect(trustLineXdr.type).toBe("assetTypeCreditAlphanum12");
@@ -204,7 +212,7 @@ describe("Asset", () => {
     it("parses a 12-alphanum asset object", () => {
       const asset = new Asset("123456789012", ISSUER);
 
-      let assetXdr = asset.toXdrObject();
+      const assetXdr = asset.toXdrObject();
       expect(assetXdr).toBeInstanceOf(xdr.Asset);
       expect(() => assetXdr.toXdr("hex")).not.toThrow();
       expect(assetXdr.type).toBe("assetTypeCreditAlphanum12");
@@ -212,7 +220,7 @@ describe("Asset", () => {
         ascii((assetXdr as AssetCreditAlphanum12).alphaNum12.assetCode.value),
       ).toBe("123456789012");
 
-      let changeTrustXdr = asset.toChangeTrustXdrObject();
+      const changeTrustXdr = asset.toChangeTrustXdrObject();
       expect(changeTrustXdr).toBeInstanceOf(xdr.ChangeTrustAsset);
       expect(() => changeTrustXdr.toXdr("hex")).not.toThrow();
       expect(changeTrustXdr.type).toBe("assetTypeCreditAlphanum12");
@@ -223,7 +231,7 @@ describe("Asset", () => {
         ),
       ).toBe("123456789012");
 
-      let trustLineXdr = asset.toTrustLineXdrObject();
+      const trustLineXdr = asset.toTrustLineXdrObject();
       expect(trustLineXdr).toBeInstanceOf(xdr.TrustLineAsset);
       expect(() => trustLineXdr.toXdr("hex")).not.toThrow();
       expect(trustLineXdr.type).toBe("assetTypeCreditAlphanum12");

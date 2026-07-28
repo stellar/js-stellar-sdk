@@ -7,7 +7,7 @@ describe("Operation.inflation()", () => {
   it("creates an inflation operation", () => {
     const op = Operation.inflation();
     const xdrHex = op.toXdr("hex");
-    const operation = xdr.Operation.fromXdr(Buffer.from(xdrHex, "hex"));
+    const operation = xdr.Operation.fromXdr(xdrHex, "hex");
     expectOperationType(Operation.fromXdrObject(operation), "inflation");
   });
 
@@ -15,7 +15,7 @@ describe("Operation.inflation()", () => {
     const source = "GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGSNFHEYVXM3XOJMDS674JZ";
     const op = Operation.inflation({ source });
     const xdrHex = op.toXdr("hex");
-    const operation = xdr.Operation.fromXdr(Buffer.from(xdrHex, "hex"));
+    const operation = xdr.Operation.fromXdr(xdrHex, "hex");
     const obj = expectOperationType(
       Operation.fromXdrObject(operation),
       "inflation",
@@ -26,7 +26,7 @@ describe("Operation.inflation()", () => {
   it("creates an inflation operation with empty opts", () => {
     const op = Operation.inflation({});
     const xdrHex = op.toXdr("hex");
-    const operation = xdr.Operation.fromXdr(Buffer.from(xdrHex, "hex"));
+    const operation = xdr.Operation.fromXdr(xdrHex, "hex");
     const obj = expectOperationType(
       Operation.fromXdrObject(operation),
       "inflation",

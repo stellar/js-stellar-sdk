@@ -1,5 +1,10 @@
 import * as ed from "@noble/ed25519";
 import { sha512 } from "@noble/hashes/sha2.js";
+import {
+  areUint8ArraysEqual,
+  concatUint8Arrays,
+  stringToUint8Array,
+} from "uint8array-extras";
 import { sign, verify, generate } from "./signing.js";
 import { StrKey } from "./strkey.js";
 import { hash } from "./hashing.js";
@@ -16,7 +21,18 @@ import {
 ed.hashes.sha512 = sha512;
 
 // SEP-53: fixed prefix prepended to a message before hashing and signing.
-const MESSAGE_PREFIX = Buffer.from("Stellar Signed Message:\n", "utf8");
+const MESSAGE_PREFIX = stringToUint8Array("Stellar Signed Message:\n");
+
+/**
+ * Normalizes the constructor's key input: strings are UTF-8 encoded and raw
+ * bytes are copied (matching the `Buffer.from` behavior this replaced), so the
+ * keypair never aliases caller-owned memory.
+ */
+function toBytes(input: Uint8Array | string): Uint8Array {
+  return typeof input === "string"
+    ? stringToUint8Array(input)
+    : Uint8Array.from(input);
+}
 
 /**
  * `Keypair` represents public (and secret) keys of the account.
@@ -31,9 +47,9 @@ const MESSAGE_PREFIX = Buffer.from("Stellar Signed Message:\n", "utf8");
  */
 export class Keypair {
   readonly type: "ed25519";
-  private _publicKey: Buffer;
-  private _secretSeed?: Buffer;
-  private _secretKey?: Buffer;
+  private _publicKey: Uint8Array;
+  private _secretSeed?: Uint8Array;
+  private _secretKey?: Uint8Array;
 
   /**
    * @param keys - at least one of keys must be provided.
@@ -45,10 +61,10 @@ export class Keypair {
     keys:
       | {
           type: "ed25519";
-          secretKey: Buffer | string;
-          publicKey?: Buffer | string;
+          secretKey: Uint8Array | string;
+          publicKey?: Uint8Array | string;
         }
-      | { type: "ed25519"; publicKey: Buffer | string },
+      | { type: "ed25519"; publicKey: Uint8Array | string },
   ) {
     if (keys.type !== "ed25519") {
       throw new Error("Invalid keys type");
@@ -57,24 +73,24 @@ export class Keypair {
     this.type = keys.type;
 
     if ("secretKey" in keys) {
-      keys.secretKey = Buffer.from(keys.secretKey);
+      const secretKey = toBytes(keys.secretKey);
 
-      if (keys.secretKey.length !== 32) {
+      if (secretKey.length !== 32) {
         throw new Error("secretKey length is invalid");
       }
 
-      this._secretSeed = keys.secretKey;
-      this._publicKey = generate(keys.secretKey);
-      this._secretKey = keys.secretKey;
+      this._secretSeed = secretKey;
+      this._publicKey = generate(secretKey);
+      this._secretKey = secretKey;
 
       if (
         keys.publicKey &&
-        !this._publicKey.equals(Buffer.from(keys.publicKey))
+        !areUint8ArraysEqual(this._publicKey, toBytes(keys.publicKey))
       ) {
         throw new Error("secretKey does not match publicKey");
       }
     } else if ("publicKey" in keys) {
-      this._publicKey = Buffer.from(keys.publicKey);
+      this._publicKey = toBytes(keys.publicKey);
 
       if (this._publicKey.length !== 32) {
         throw new Error("publicKey length is invalid");
@@ -101,7 +117,7 @@ export class Keypair {
    *
    * @param rawSeed - raw 32-byte ed25519 secret key seed
    */
-  static fromRawEd25519Seed(rawSeed: Buffer): Keypair {
+  static fromRawEd25519Seed(rawSeed: Uint8Array): Keypair {
     return new this({ type: "ed25519", secretKey: rawSeed });
   }
 
@@ -124,12 +140,12 @@ export class Keypair {
    * @param publicKey - public key (ex. `GB3KJPLFUYN5VL6R3GU3EGCGVCKFDSD7BEDX42HWG5BWFKB3KQGJJRMA`)
    */
   static fromPublicKey(publicKey: string): Keypair {
-    const publicKeyBuffer = StrKey.decodeEd25519PublicKey(publicKey);
-    if (publicKeyBuffer.length !== 32) {
+    const rawPublicKey = StrKey.decodeEd25519PublicKey(publicKey);
+    if (rawPublicKey.length !== 32) {
       throw new Error("Invalid Stellar public key");
     }
 
-    return new this({ type: "ed25519", publicKey: publicKeyBuffer });
+    return new this({ type: "ed25519", publicKey: rawPublicKey });
   }
 
   /**
@@ -137,7 +153,7 @@ export class Keypair {
    */
   static random(): Keypair {
     const secretKey = ed.utils.randomSecretKey();
-    return this.fromRawEd25519Seed(Buffer.from(secretKey));
+    return this.fromRawEd25519Seed(secretKey);
   }
 
   /** Returns this public key as an xdr.AccountId. */
@@ -179,7 +195,7 @@ export class Keypair {
   /**
    * Returns raw public key bytes
    */
-  rawPublicKey(): Buffer {
+  rawPublicKey(): Uint8Array {
     return this._publicKey;
   }
 
@@ -187,10 +203,10 @@ export class Keypair {
    * Returns the signature hint for this keypair.
    * The hint is the last 4 bytes of the account ID XDR representation.
    */
-  signatureHint(): Buffer {
+  signatureHint(): Uint8Array {
     const a = this.xdrAccountId().toXdr();
 
-    return Buffer.from(a.subarray(a.length - 4));
+    return a.slice(a.length - 4);
   }
 
   /**
@@ -224,7 +240,7 @@ export class Keypair {
    *
    * @throws {Error} if no secret seed is available
    */
-  rawSecretKey(): Buffer {
+  rawSecretKey(): Uint8Array {
     if (!this._secretSeed) {
       throw new Error("no secret seed available");
     }
@@ -244,7 +260,7 @@ export class Keypair {
    * @param data - data to sign
    * @throws {Error} if no secret key is available
    */
-  sign(data: Buffer): Buffer {
+  sign(data: Uint8Array): Uint8Array {
     if (!this._secretKey) {
       throw new Error("cannot sign: no secret key available");
     }
@@ -258,7 +274,7 @@ export class Keypair {
    * @param data - signed data
    * @param signature - signature to verify
    */
-  verify(data: Buffer, signature: Buffer): boolean {
+  verify(data: Uint8Array, signature: Uint8Array): boolean {
     try {
       return verify(data, signature, this._publicKey);
     } catch {
@@ -278,7 +294,7 @@ export class Keypair {
    * @throws if no secret key is available
    * @see https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0053.md
    */
-  signMessage(message: string | Buffer): Buffer {
+  signMessage(message: string | Uint8Array): Uint8Array {
     return this.sign(this._hashMessage(message));
   }
 
@@ -290,7 +306,7 @@ export class Keypair {
    * @returns `true` if `signature` is valid for `message` and this key
    * @see https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0053.md
    */
-  verifyMessage(message: string | Buffer, signature: Buffer): boolean {
+  verifyMessage(message: string | Uint8Array, signature: Uint8Array): boolean {
     try {
       return this.verify(this._hashMessage(message), signature);
     } catch {
@@ -303,10 +319,10 @@ export class Keypair {
    * Computes the SEP-53 message hash:
    * `SHA-256("Stellar Signed Message:\n" + message)`.
    */
-  private _hashMessage(message: string | Buffer): Buffer {
+  private _hashMessage(message: string | Uint8Array): Uint8Array {
     const messageBytes =
-      typeof message === "string" ? Buffer.from(message, "utf8") : message;
-    return hash(Buffer.concat([MESSAGE_PREFIX, messageBytes]));
+      typeof message === "string" ? stringToUint8Array(message) : message;
+    return hash(concatUint8Arrays([MESSAGE_PREFIX, messageBytes]));
   }
 
   /**
@@ -318,7 +334,7 @@ export class Keypair {
    *
    * @see TransactionBase.addDecoratedSignature
    */
-  signDecorated(data: Buffer): DecoratedSignature {
+  signDecorated(data: Uint8Array): DecoratedSignature {
     const signature = this.sign(data);
     const hint = this.signatureHint();
 
@@ -336,18 +352,12 @@ export class Keypair {
    * @see https://github.com/stellar/stellar-protocol/blob/master/core/cap-0040.md#signature-hint
    * @see TransactionBase.addDecoratedSignature
    */
-  signPayloadDecorated(data: Buffer): DecoratedSignature {
-    // Ensure data is a Buffer to support array-like inputs
-    const dataBuffer = Buffer.isBuffer(data) ? data : Buffer.from(data);
-
-    const signature = this.sign(dataBuffer);
+  signPayloadDecorated(data: Uint8Array): DecoratedSignature {
+    const signature = this.sign(data);
     const keyHint = this.signatureHint();
 
-    let hint = Buffer.from(dataBuffer.subarray(-4));
-    if (hint.length < 4) {
-      // append zeroes as needed
-      hint = Buffer.concat([hint, Buffer.alloc(4 - hint.length, 0)]);
-    }
+    const hint = new Uint8Array(4);
+    hint.set(data.slice(-4), 0);
 
     // XOR each byte of hint with corresponding byte of keyHint
     for (let i = 0; i < hint.length; i++) {

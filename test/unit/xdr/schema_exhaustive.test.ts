@@ -18,7 +18,10 @@
 // smoke tests (`legacy_round_trip.test.ts`) are the complementary layers.
 
 import { describe, it, expect } from "vitest";
-import { Buffer } from "buffer";
+// Buffer is only used to feed the legacy js-xdr v4 API, which genuinely
+// expects Buffers. This file is Node-only (excluded from the browser suite).
+import { Buffer } from "node:buffer";
+import { uint8ArrayToHex } from "uint8array-extras";
 
 import legacyTypes from "../../fixtures/legacy-xdr/curr_generated.js";
 
@@ -200,10 +203,10 @@ describe("schema-exhaustive: every generated class round-trips a default wire", 
       const decoded = lgcyDecoded as any;
       if (typeof decoded?.toXDR === "function") {
         const lgcyReencoded = decoded.toXDR();
-        expect(Buffer.from(lgcyReencoded).toString("hex")).toBe(
-          Buffer.from(newBytes).toString("hex"),
+        expect(uint8ArrayToHex(Uint8Array.from(lgcyReencoded))).toBe(
+          uint8ArrayToHex(newBytes),
         );
-      } else if (decoded instanceof Uint8Array || Buffer.isBuffer(decoded)) {
+      } else if (decoded instanceof Uint8Array) {
         // Typedef-opaque types: legacy fromXDR returns the raw bytes
         // directly. `legacy[name]` is a `SizedReference` wrapper without
         // a usable `.toXDR(value)` shape, so we can't cleanly re-encode.
@@ -211,16 +214,15 @@ describe("schema-exhaustive: every generated class round-trips a default wire", 
         // SDK accepted the new SDK's wire and the bytes survived the
         // round-trip (since the buffer IS the payload, sans the discrim-
         // inant prefix var-opaque adds).
-        const newPayload = Buffer.from(newBytes);
         // For fixed-length opaque, payload bytes appear at the END of
         // newBytes (after any padding). The legacy decoder strips padding
         // and returns the data portion. For var-opaque, the legacy still
         // strips the 4-byte length prefix and any padding. Either way,
         // decoded.length matches the declared/declared-max length.
         expect(
-          newPayload
-            .toString("hex")
-            .endsWith(Buffer.from(decoded).toString("hex")),
+          uint8ArrayToHex(newBytes).endsWith(
+            uint8ArrayToHex(Uint8Array.from(decoded)),
+          ),
           `${name}: decoded bytes don't appear at the tail of new SDK output`,
         ).toBe(true);
       } else {

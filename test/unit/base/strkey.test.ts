@@ -1,4 +1,9 @@
 import { beforeEach, describe, expect, it } from "vitest";
+import {
+  areUint8ArraysEqual,
+  hexToUint8Array,
+  uint8ArrayToHex,
+} from "uint8array-extras";
 import { StrKey, decodeCheck, encodeCheck } from "../../../src/base/strkey.js";
 import {
   decodeAddressToMuxedAccount,
@@ -10,29 +15,28 @@ import * as xdr from "../../../src/xdr/index.js";
 const PUBKEY = "GA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJVSGZ";
 const MPUBKEY =
   "MA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJVAAAAAAAAAAAAAJLK";
-const RAW_MPUBKEY = Buffer.from(
+const RAW_MPUBKEY = hexToUint8Array(
   "3f0c34bf93ad0d9971d04ccc90f705511c838aad9734a4a2fb0d7a03fc7fe89a8000000000000000",
-  "hex",
 );
 
 describe("StrKey", () => {
-  let unencodedBuffer: Buffer;
+  let unencodedBytes: Uint8Array;
   let accountIdEncoded: string;
   let seedEncoded: string;
 
   beforeEach(() => {
-    unencodedBuffer = StrKey.decodeEd25519PublicKey(PUBKEY);
+    unencodedBytes = StrKey.decodeEd25519PublicKey(PUBKEY);
     accountIdEncoded = PUBKEY;
-    seedEncoded = StrKey.encodeEd25519SecretSeed(unencodedBuffer);
+    seedEncoded = StrKey.encodeEd25519SecretSeed(unencodedBytes);
   });
 
   describe("#decodeCheck", () => {
     it("decodes correctly", () => {
       expect(StrKey.decodeEd25519PublicKey(accountIdEncoded)).toEqual(
-        unencodedBuffer,
+        unencodedBytes,
       );
       expect(StrKey.decodeEd25519SecretSeed(seedEncoded)).toEqual(
-        unencodedBuffer,
+        unencodedBytes,
       );
     });
 
@@ -55,53 +59,67 @@ describe("StrKey", () => {
         StrKey.decodeEd25519PublicKey(
           "GBPXX0A5N4JYPESHAADMQKBPWZWQDQ64ZV6ZL2S3LAGW4SY7NTCMWIVL",
         ),
-      ).toThrow(/invalid encoded string/);
+      ).toThrow(/invalid character in base32 input/i);
       expect(() =>
         StrKey.decodeEd25519PublicKey(
           "GCFZB6L25D26RQFDWSSBDEYQ32JHLRMTT44ZYE3DZQUTYOL7WY43PLBG++",
         ),
-      ).toThrow(/invalid encoded string/);
+      ).toThrow(/invalid character in base32 input/i);
       expect(() =>
         StrKey.decodeEd25519PublicKey(
           "GADE5QJ2TY7S5ZB65Q43DFGWYWCPHIYDJ2326KZGAGBN7AE5UY6JVDRRA",
         ),
-      ).toThrow(/invalid encoded string/);
+      ).toThrow(
+        /invalid (encoded string|base32 length|last chunk|character in base32 input)/i,
+      );
       expect(() =>
         StrKey.decodeEd25519PublicKey(
           "GB6OWYST45X57HCJY5XWOHDEBULB6XUROWPIKW77L5DSNANBEQGUPADT2",
         ),
-      ).toThrow(/invalid encoded string/);
+      ).toThrow(
+        /invalid (encoded string|base32 length|last chunk|character in base32 input)/i,
+      );
       expect(() =>
         StrKey.decodeEd25519PublicKey(
           "GB6OWYST45X57HCJY5XWOHDEBULB6XUROWPIKW77L5DSNANBEQGUPADT2T",
         ),
-      ).toThrow(/invalid encoded string/);
+      ).toThrow(
+        /invalid (encoded string|base32 length|last chunk|character in base32 input)/i,
+      );
       // seed
       expect(() =>
         StrKey.decodeEd25519SecretSeed(
           "SB7OJNF5727F3RJUG5ASQJ3LUM44ELLNKW35ZZQDHMVUUQNGYW",
         ),
-      ).toThrow(/invalid encoded string/);
+      ).toThrow(
+        /invalid (encoded string|base32 length|last chunk|character in base32 input)/i,
+      );
       expect(() =>
         StrKey.decodeEd25519SecretSeed(
           "SB7OJNF5727F3RJUG5ASQJ3LUM44ELLNKW35ZZQDHMVUUQNGYWMEGB2W2",
         ),
-      ).toThrow(/invalid encoded string/);
+      ).toThrow(
+        /invalid (encoded string|base32 length|last chunk|character in base32 input)/i,
+      );
       expect(() =>
         StrKey.decodeEd25519SecretSeed(
           "SB7OJNF5727F3RJUG5ASQJ3LUM44ELLNKW35ZZQDHMVUUQNGYWMEGB2W2T",
         ),
-      ).toThrow(/invalid encoded string/);
+      ).toThrow(
+        /invalid (encoded string|base32 length|last chunk|character in base32 input)/i,
+      );
       expect(() =>
         StrKey.decodeEd25519SecretSeed(
           "SCMB30FQCIQAWZ4WQTS6SVK37LGMAFJGXOZIHTH2PY6EXLP37G46H6DT",
         ),
-      ).toThrow(/invalid encoded string/);
+      ).toThrow(
+        /invalid (encoded string|base32 length|last chunk|character in base32 input)/i,
+      );
       expect(() =>
         StrKey.decodeEd25519SecretSeed(
           "SAYC2LQ322EEHZYWNSKBEW6N66IRTDREEBUXXU5HPVZGMAXKLIZNM45H++",
         ),
-      ).toThrow(/invalid encoded string/);
+      ).toThrow(/invalid character in base32 input/i);
     });
 
     it("throws an error when the checksum is wrong", () => {
@@ -119,40 +137,40 @@ describe("StrKey", () => {
   });
 
   describe("#encodeCheck", () => {
-    it("encodes a buffer correctly", () => {
-      expect(StrKey.encodeEd25519PublicKey(unencodedBuffer)).toEqual(
+    it("encodes bytes correctly", () => {
+      expect(StrKey.encodeEd25519PublicKey(unencodedBytes)).toEqual(
         accountIdEncoded,
       );
-      expect(StrKey.encodeEd25519PublicKey(unencodedBuffer)).toMatch(/^G/);
-      expect(StrKey.encodeEd25519SecretSeed(unencodedBuffer)).toEqual(
+      expect(StrKey.encodeEd25519PublicKey(unencodedBytes)).toMatch(/^G/);
+      expect(StrKey.encodeEd25519SecretSeed(unencodedBytes)).toEqual(
         seedEncoded,
       );
-      expect(StrKey.encodeEd25519SecretSeed(unencodedBuffer)).toMatch(/^S/);
+      expect(StrKey.encodeEd25519SecretSeed(unencodedBytes)).toMatch(/^S/);
 
-      let strkeyEncoded = StrKey.encodePreAuthTx(unencodedBuffer);
+      let strkeyEncoded = StrKey.encodePreAuthTx(unencodedBytes);
       expect(strkeyEncoded).toMatch(/^T/);
-      expect(StrKey.decodePreAuthTx(strkeyEncoded)).toEqual(unencodedBuffer);
+      expect(StrKey.decodePreAuthTx(strkeyEncoded)).toEqual(unencodedBytes);
 
-      strkeyEncoded = StrKey.encodeSha256Hash(unencodedBuffer);
+      strkeyEncoded = StrKey.encodeSha256Hash(unencodedBytes);
       expect(strkeyEncoded).toMatch(/^X/);
-      expect(StrKey.decodeSha256Hash(strkeyEncoded)).toEqual(unencodedBuffer);
+      expect(StrKey.decodeSha256Hash(strkeyEncoded)).toEqual(unencodedBytes);
     });
 
     it("roundtrips the helper fns", () => {
-      expect(encodeCheck("ed25519PublicKey", unencodedBuffer)).toEqual(
+      expect(encodeCheck("ed25519PublicKey", unencodedBytes)).toEqual(
         accountIdEncoded,
       );
       expect(decodeCheck("ed25519PublicKey", accountIdEncoded)).toEqual(
-        unencodedBuffer,
+        unencodedBytes,
       );
     });
 
     it("throws an error when the data is null", () => {
       expect(() =>
-        StrKey.encodeEd25519SecretSeed(null as unknown as Buffer),
+        StrKey.encodeEd25519SecretSeed(null as unknown as Uint8Array),
       ).toThrow(/null data/);
       expect(() =>
-        StrKey.encodeEd25519PublicKey(null as unknown as Buffer),
+        StrKey.encodeEd25519PublicKey(null as unknown as Uint8Array),
       ).toThrow(/null data/);
     });
   });
@@ -240,9 +258,12 @@ describe("StrKey", () => {
 
     it("encodes & decodes M... addresses correctly", () => {
       expect(StrKey.encodeMed25519PublicKey(RAW_MPUBKEY)).toBe(MPUBKEY);
-      expect(StrKey.decodeMed25519PublicKey(MPUBKEY).equals(RAW_MPUBKEY)).toBe(
-        true,
-      );
+      expect(
+        areUint8ArraysEqual(
+          StrKey.decodeMed25519PublicKey(MPUBKEY),
+          RAW_MPUBKEY,
+        ),
+      ).toBe(true);
     });
 
     it("lets G... accounts pass through (unmuxed)", () => {
@@ -341,7 +362,7 @@ describe("StrKey", () => {
         const signer = StrKey.encodeEd25519PublicKey(signedPayload.ed25519);
         expect(signer).toBe(testCase.ed25519);
 
-        const payload = Buffer.from(signedPayload.payload).toString("hex");
+        const payload = uint8ArrayToHex(new Uint8Array(signedPayload.payload));
         expect(payload).toBe(testCase.payload);
 
         const str = StrKey.encodeSignedPayload(signedPayload.toXdr("raw"));
@@ -351,7 +372,7 @@ describe("StrKey", () => {
 
     describe("payload bounds", () => {
       const makeSignedPayload = (
-        payload: Buffer,
+        payload: Uint8Array,
       ): xdr.SignerKeyEd25519SignedPayload =>
         new xdr.SignerKeyEd25519SignedPayload({
           ed25519: StrKey.decodeEd25519PublicKey(PUBKEY),
@@ -365,21 +386,21 @@ describe("StrKey", () => {
       };
 
       it("invalid with no payload", () => {
-        expect(isValid(makeSignedPayload(Buffer.alloc(0)))).toBe(false);
+        expect(isValid(makeSignedPayload(new Uint8Array(0)))).toBe(false);
       });
 
       it("valid with 1-byte payload", () => {
-        expect(isValid(makeSignedPayload(Buffer.alloc(1)))).toBe(true);
+        expect(isValid(makeSignedPayload(new Uint8Array(1)))).toBe(true);
       });
 
       it("throws with 65-byte payload", () => {
-        expect(() => isValid(makeSignedPayload(Buffer.alloc(65)))).toThrow(
+        expect(() => isValid(makeSignedPayload(new Uint8Array(65)))).toThrow(
           /XDR Write Error|exceeds max length|length/i,
         );
       });
 
       it("valid with 64-byte payload (max)", () => {
-        expect(isValid(makeSignedPayload(Buffer.alloc(64)))).toBe(true);
+        expect(isValid(makeSignedPayload(new Uint8Array(64)))).toBe(true);
       });
     });
   });
@@ -389,7 +410,7 @@ describe("StrKey", () => {
       const strkey = "CA3D5KRYM6CB7OWQ6TWYRR3Z4T7GNZLKERYNZGGA5SOAOPIFY6YQGAXE";
       const decoded = StrKey.decodeContract(strkey);
 
-      expect(decoded.toString("hex")).toBe(
+      expect(uint8ArrayToHex(decoded)).toBe(
         "363eaa3867841fbad0f4ed88c779e4fe66e56a2470dc98c0ec9c073d05c7b103",
       );
       expect(StrKey.encodeContract(decoded)).toBe(strkey);
@@ -412,10 +433,8 @@ describe("StrKey", () => {
         "3f0c34bf93ad0d9971d04ccc90f705511c838aad9734a4a2fb0d7a03fc7fe89a";
 
       expect(StrKey.isValidLiquidityPool(strkey)).toBe(true);
-      expect(StrKey.decodeLiquidityPool(strkey).toString("hex")).toBe(asHex);
-      expect(StrKey.encodeLiquidityPool(Buffer.from(asHex, "hex"))).toBe(
-        strkey,
-      );
+      expect(uint8ArrayToHex(StrKey.decodeLiquidityPool(strkey))).toBe(asHex);
+      expect(StrKey.encodeLiquidityPool(hexToUint8Array(asHex))).toBe(strkey);
     });
 
     it("rejects invalid liquidity pool addresses", () => {
@@ -437,8 +456,10 @@ describe("StrKey", () => {
         "003f0c34bf93ad0d9971d04ccc90f705511c838aad9734a4a2fb0d7a03fc7fe89a";
 
       expect(StrKey.isValidClaimableBalance(strkey)).toBe(true);
-      expect(StrKey.decodeClaimableBalance(strkey).toString("hex")).toBe(asHex);
-      expect(StrKey.encodeClaimableBalance(Buffer.from(asHex, "hex"))).toBe(
+      expect(uint8ArrayToHex(StrKey.decodeClaimableBalance(strkey))).toBe(
+        asHex,
+      );
+      expect(StrKey.encodeClaimableBalance(hexToUint8Array(asHex))).toBe(
         strkey,
       );
     });

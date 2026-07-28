@@ -11,10 +11,9 @@
 //     corpus of real on-chain envelopes (highest signal for "does the new
 //     SDK match what the network actually produces").
 import { describe, it, expect } from "vitest";
-import { Buffer } from "buffer";
-import { stringToUint8Array } from "uint8array-extras";
+import { Buffer } from "node:buffer";
+import { stringToUint8Array, uint8ArrayToHex } from "uint8array-extras";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 import legacyTypes from "../../fixtures/legacy-xdr/curr_generated.js";
 const legacy = legacyTypes as any;
 
@@ -46,14 +45,13 @@ function asciiCode(s: string, length: number): Uint8Array {
   return buf;
 }
 
-function asHex(buf: Uint8Array | Buffer): string {
-  return Buffer.from(buf).toString("hex");
+// Works for both sides: legacy toXDR() returns a Buffer, which is a
+// Uint8Array subclass; `Uint8Array.from` normalizes it.
+function asHex(buf: Uint8Array): string {
+  return uint8ArrayToHex(Uint8Array.from(buf));
 }
 
-function expectBytesEqual(
-  a: Uint8Array | Buffer,
-  b: Uint8Array | Buffer,
-): void {
+function expectBytesEqual(a: Uint8Array, b: Uint8Array): void {
   expect(asHex(a)).toBe(asHex(b));
 }
 

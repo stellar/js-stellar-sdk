@@ -1,3 +1,4 @@
+import { base64ToUint8Array, uint8ArrayToBase64 } from "uint8array-extras";
 import { Keypair, TransactionBuilder, hash } from "../base/index.js";
 import type { Client } from "./client.js";
 import type { SignAuthEntry, SignTransaction } from "./types.js";
@@ -34,9 +35,9 @@ export const basicNodeSigner = (
   },
   // eslint-disable-next-line @typescript-eslint/require-await
   signAuthEntry: async (authEntry) => {
-    const signedAuthEntry = keypair
-      .sign(hash(Buffer.from(authEntry, "base64")))
-      .toString("base64");
+    const signedAuthEntry = uint8ArrayToBase64(
+      keypair.sign(hash(base64ToUint8Array(authEntry))),
+    );
     return {
       signedAuthEntry,
       signerAddress: keypair.publicKey(),

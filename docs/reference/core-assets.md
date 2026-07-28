@@ -35,7 +35,7 @@ class Asset {
 }
 ```
 
-**Source:** [src/base/asset.ts:58](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L58)
+**Source:** [src/base/asset.ts:67](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L67)
 
 ### `new Asset(code, issuer)`
 
@@ -48,7 +48,7 @@ constructor(code: string, issuer?: string);
 - **`code`** — `string` (required) — The asset code.
 - **`issuer`** — `string` (optional) — The account ID of the issuer.
 
-**Source:** [src/base/asset.ts:68](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L68)
+**Source:** [src/base/asset.ts:77](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L77)
 
 ### `Asset.compare(assetA, assetB)`
 
@@ -67,7 +67,7 @@ static compare(assetA: Asset, assetB: Asset): -1 | 0 | 1;
 - **`assetA`** — `Asset` (required) — the first asset
 - **`assetB`** — `Asset` (required) — the second asset
 
-**Source:** [src/base/asset.ts:308](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L308)
+**Source:** [src/base/asset.ts:313](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L313)
 
 ### `Asset.fromOperation(assetXdr)`
 
@@ -81,7 +81,7 @@ static fromOperation(assetXdr: Asset): Asset;
 
 - **`assetXdr`** — `Asset` (required) — The asset xdr object.
 
-**Source:** [src/base/asset.ts:102](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L102)
+**Source:** [src/base/asset.ts:111](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L111)
 
 ### `Asset.native()`
 
@@ -91,7 +91,7 @@ Returns an asset object for the native asset.
 static native(): Asset;
 ```
 
-**Source:** [src/base/asset.ts:94](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L94)
+**Source:** [src/base/asset.ts:103](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L103)
 
 ### `asset.code`
 
@@ -101,7 +101,7 @@ The asset code.
 readonly code: string;
 ```
 
-**Source:** [src/base/asset.ts:60](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L60)
+**Source:** [src/base/asset.ts:69](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L69)
 
 ### `asset.issuer`
 
@@ -111,7 +111,7 @@ The account ID of the issuer. Undefined for the native asset.
 readonly issuer: string | undefined;
 ```
 
-**Source:** [src/base/asset.ts:62](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L62)
+**Source:** [src/base/asset.ts:71](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L71)
 
 ### `asset.contractId(networkPassphrase)`
 
@@ -128,7 +128,7 @@ contractId(networkPassphrase: string): string;
      ID should refer to, since every network will have a unique ID for the
      same contract (see `Networks` for options)
 
-**Source:** [src/base/asset.ts:167](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L167)
+**Source:** [src/base/asset.ts:172](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L172)
 
 ### `asset.equals(asset)`
 
@@ -142,7 +142,7 @@ equals(asset: Asset): boolean;
 
 - **`asset`** — `Asset` (required) — Asset to compare
 
-**Source:** [src/base/asset.ts:281](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L281)
+**Source:** [src/base/asset.ts:286](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L286)
 
 ### `asset.getAssetType()`
 
@@ -163,7 +163,7 @@ Returns the asset type. Can be one of following types:
  - `credit_alphanum4`,
  - `credit_alphanum12`
 
-**Source:** [src/base/asset.ts:238](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L238)
+**Source:** [src/base/asset.ts:243](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L243)
 
 ### `asset.getCode()`
 
@@ -173,7 +173,7 @@ Returns the asset code
 getCode(): string;
 ```
 
-**Source:** [src/base/asset.ts:215](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L215)
+**Source:** [src/base/asset.ts:220](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L220)
 
 ### `asset.getIssuer()`
 
@@ -183,7 +183,7 @@ Returns the asset issuer
 getIssuer(): string | undefined;
 ```
 
-**Source:** [src/base/asset.ts:222](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L222)
+**Source:** [src/base/asset.ts:227](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L227)
 
 ### `asset.getRawAssetType()`
 
@@ -193,7 +193,7 @@ Returns the raw XDR representation of the asset type
 getRawAssetType(): AssetType;
 ```
 
-**Source:** [src/base/asset.ts:257](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L257)
+**Source:** [src/base/asset.ts:262](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L262)
 
 ### `asset.isNative()`
 
@@ -203,7 +203,7 @@ Returns true if this asset object is the native asset.
 isNative(): boolean;
 ```
 
-**Source:** [src/base/asset.ts:272](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L272)
+**Source:** [src/base/asset.ts:277](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L277)
 
 ### `asset.toChangeTrustXdrObject()`
 
@@ -213,7 +213,7 @@ Returns the xdr.ChangeTrustAsset object for this asset.
 toChangeTrustXdrObject(): ChangeTrustAsset;
 ```
 
-**Source:** [src/base/asset.ts:145](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L145)
+**Source:** [src/base/asset.ts:150](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L150)
 
 ### `asset.toString()`
 
@@ -225,7 +225,7 @@ Native assets return `"native"`. Non-native assets return `"code:issuer"`.
 toString(): string;
 ```
 
-**Source:** [src/base/asset.ts:290](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L290)
+**Source:** [src/base/asset.ts:295](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L295)
 
 ### `asset.toTrustLineXdrObject()`
 
@@ -235,7 +235,7 @@ Returns the xdr.TrustLineAsset object for this asset.
 toTrustLineXdrObject(): TrustLineAsset;
 ```
 
-**Source:** [src/base/asset.ts:152](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L152)
+**Source:** [src/base/asset.ts:157](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L157)
 
 ### `asset.toXdrObject()`
 
@@ -245,7 +245,7 @@ Returns the xdr.Asset object for this asset.
 toXdrObject(): Asset;
 ```
 
-**Source:** [src/base/asset.ts:138](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L138)
+**Source:** [src/base/asset.ts:143](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L143)
 
 ## AssetType
 
@@ -253,7 +253,7 @@ toXdrObject(): Asset;
 const AssetType: { readonly credit12: "credit_alphanum12"; readonly credit4: "credit_alphanum4"; readonly liquidityPoolShares: "liquidity_pool_shares"; readonly native: "native" }
 ```
 
-**Source:** [src/base/asset.ts:18](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L18)
+**Source:** [src/base/asset.ts:22](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L22)
 
 ## Claimant
 
@@ -445,7 +445,7 @@ class LiquidityPoolAsset {
 }
 ```
 
-**Source:** [src/base/liquidity_pool_asset.ts:16](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/liquidity_pool_asset.ts#L16)
+**Source:** [src/base/liquidity_pool_asset.ts:17](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/liquidity_pool_asset.ts#L17)
 
 ### `new LiquidityPoolAsset(assetA, assetB, fee)`
 
@@ -459,7 +459,7 @@ constructor(assetA: Asset, assetB: Asset, fee: number);
 - **`assetB`** — `Asset` (required) — The second asset in the Pool, it must respect the rule assetA < assetB. See `Asset.compare` for more details on how assets are sorted.
 - **`fee`** — `number` (required) — The liquidity pool fee. For now the only fee supported is `30`.
 
-**Source:** [src/base/liquidity_pool_asset.ts:26](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/liquidity_pool_asset.ts#L26)
+**Source:** [src/base/liquidity_pool_asset.ts:27](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/liquidity_pool_asset.ts#L27)
 
 ### `LiquidityPoolAsset.fromOperation(ctAssetXdr)`
 
@@ -474,7 +474,7 @@ static fromOperation(ctAssetXdr: ChangeTrustAsset): LiquidityPoolAsset;
 
 - **`ctAssetXdr`** — `ChangeTrustAsset` (required) — The asset XDR object.
 
-**Source:** [src/base/liquidity_pool_asset.ts:54](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/liquidity_pool_asset.ts#L54)
+**Source:** [src/base/liquidity_pool_asset.ts:55](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/liquidity_pool_asset.ts#L55)
 
 ### `liquidityPoolAsset.assetA`
 
@@ -482,7 +482,7 @@ static fromOperation(ctAssetXdr: ChangeTrustAsset): LiquidityPoolAsset;
 assetA: Asset;
 ```
 
-**Source:** [src/base/liquidity_pool_asset.ts:17](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/liquidity_pool_asset.ts#L17)
+**Source:** [src/base/liquidity_pool_asset.ts:18](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/liquidity_pool_asset.ts#L18)
 
 ### `liquidityPoolAsset.assetB`
 
@@ -490,7 +490,7 @@ assetA: Asset;
 assetB: Asset;
 ```
 
-**Source:** [src/base/liquidity_pool_asset.ts:18](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/liquidity_pool_asset.ts#L18)
+**Source:** [src/base/liquidity_pool_asset.ts:19](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/liquidity_pool_asset.ts#L19)
 
 ### `liquidityPoolAsset.fee`
 
@@ -498,7 +498,7 @@ assetB: Asset;
 fee: number;
 ```
 
-**Source:** [src/base/liquidity_pool_asset.ts:19](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/liquidity_pool_asset.ts#L19)
+**Source:** [src/base/liquidity_pool_asset.ts:20](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/liquidity_pool_asset.ts#L20)
 
 ### `liquidityPoolAsset.equals(other)`
 
@@ -512,7 +512,7 @@ equals(other: LiquidityPoolAsset): boolean;
 
 - **`other`** — `LiquidityPoolAsset` (required) — the LiquidityPoolAsset to compare
 
-**Source:** [src/base/liquidity_pool_asset.ts:117](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/liquidity_pool_asset.ts#L117)
+**Source:** [src/base/liquidity_pool_asset.ts:118](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/liquidity_pool_asset.ts#L118)
 
 ### `liquidityPoolAsset.getAssetType()`
 
@@ -526,7 +526,7 @@ getAssetType(): "liquidity_pool_shares";
 
 - [Assets concept](https://developers.stellar.org/docs/glossary/assets/)
 
-**Source:** [src/base/liquidity_pool_asset.ts:108](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/liquidity_pool_asset.ts#L108)
+**Source:** [src/base/liquidity_pool_asset.ts:109](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/liquidity_pool_asset.ts#L109)
 
 ### `liquidityPoolAsset.getLiquidityPoolParameters()`
 
@@ -536,7 +536,7 @@ Returns liquidity pool parameters.
 getLiquidityPoolParameters(): ConstantProduct;
 ```
 
-**Source:** [src/base/liquidity_pool_asset.ts:94](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/liquidity_pool_asset.ts#L94)
+**Source:** [src/base/liquidity_pool_asset.ts:95](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/liquidity_pool_asset.ts#L95)
 
 ### `liquidityPoolAsset.toString()`
 
@@ -546,7 +546,7 @@ Returns a string representation in `liquidity_pool:<hex pool id>` format.
 toString(): string;
 ```
 
-**Source:** [src/base/liquidity_pool_asset.ts:126](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/liquidity_pool_asset.ts#L126)
+**Source:** [src/base/liquidity_pool_asset.ts:127](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/liquidity_pool_asset.ts#L127)
 
 ### `liquidityPoolAsset.toXdrObject()`
 
@@ -560,7 +560,7 @@ please refer to the
 toXdrObject(): ChangeTrustAsset;
 ```
 
-**Source:** [src/base/liquidity_pool_asset.ts:77](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/liquidity_pool_asset.ts#L77)
+**Source:** [src/base/liquidity_pool_asset.ts:78](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/liquidity_pool_asset.ts#L78)
 
 ## LiquidityPoolFeeV18
 
@@ -636,7 +636,7 @@ equals(asset: LiquidityPoolId): boolean;
 
 - **`asset`** — `LiquidityPoolId` (required) — LiquidityPoolId to compare.
 
-**Source:** [src/base/liquidity_pool_id.ts:77](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/liquidity_pool_id.ts#L77)
+**Source:** [src/base/liquidity_pool_id.ts:75](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/liquidity_pool_id.ts#L75)
 
 ### `liquidityPoolId.getAssetType()`
 
@@ -650,7 +650,7 @@ getAssetType(): "liquidity_pool_shares";
 
 - [Assets concept](https://developers.stellar.org/docs/glossary/assets/)
 
-**Source:** [src/base/liquidity_pool_id.ts:68](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/liquidity_pool_id.ts#L68)
+**Source:** [src/base/liquidity_pool_id.ts:66](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/liquidity_pool_id.ts#L66)
 
 ### `liquidityPoolId.getLiquidityPoolId()`
 
@@ -660,7 +660,7 @@ Returns the liquidity pool ID as a hex string.
 getLiquidityPoolId(): string;
 ```
 
-**Source:** [src/base/liquidity_pool_id.ts:59](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/liquidity_pool_id.ts#L59)
+**Source:** [src/base/liquidity_pool_id.ts:57](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/liquidity_pool_id.ts#L57)
 
 ### `liquidityPoolId.toString()`
 
@@ -670,7 +670,7 @@ Returns a string representation of this liquidity pool ID.
 toString(): string;
 ```
 
-**Source:** [src/base/liquidity_pool_id.ts:84](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/liquidity_pool_id.ts#L84)
+**Source:** [src/base/liquidity_pool_id.ts:82](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/liquidity_pool_id.ts#L82)
 
 ### `liquidityPoolId.toXdrObject()`
 
@@ -684,17 +684,17 @@ refer to the
 toXdrObject(): TrustLineAsset;
 ```
 
-**Source:** [src/base/liquidity_pool_id.ts:51](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/liquidity_pool_id.ts#L51)
+**Source:** [src/base/liquidity_pool_id.ts:49](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/liquidity_pool_id.ts#L49)
 
 ## getLiquidityPoolId
 
 Computes the Pool ID for the given assets, fee and pool type.
 
-Returns the raw Pool ID buffer, which can be stringified with
-`toString('hex')`.
+Returns the raw Pool ID bytes, which can be stringified with
+`uint8ArrayToHex` from `uint8array-extras`.
 
 ```ts
-getLiquidityPoolId(liquidityPoolType: "constant_product", liquidityPoolParameters: ConstantProduct): Buffer<ArrayBufferLike>
+getLiquidityPoolId(liquidityPoolType: "constant_product", liquidityPoolParameters: ConstantProduct): Uint8Array<ArrayBufferLike>
 ```
 
 **Parameters**
@@ -716,7 +716,7 @@ getLiquidityPoolId(liquidityPoolType: "constant_product", liquidityPoolParameter
 type AssetType = typeof AssetType[keyof typeof AssetType]
 ```
 
-**Source:** [src/base/asset.ts:18](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L18)
+**Source:** [src/base/asset.ts:22](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L22)
 
 ### AssetType.credit12
 
@@ -724,7 +724,7 @@ type AssetType = typeof AssetType[keyof typeof AssetType]
 type credit12 = "credit_alphanum12"
 ```
 
-**Source:** [src/base/asset.ts:31](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L31)
+**Source:** [src/base/asset.ts:35](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L35)
 
 ### AssetType.credit4
 
@@ -732,7 +732,7 @@ type credit12 = "credit_alphanum12"
 type credit4 = "credit_alphanum4"
 ```
 
-**Source:** [src/base/asset.ts:30](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L30)
+**Source:** [src/base/asset.ts:34](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L34)
 
 ### AssetType.liquidityPoolShares
 
@@ -740,7 +740,7 @@ type credit4 = "credit_alphanum4"
 type liquidityPoolShares = "liquidity_pool_shares"
 ```
 
-**Source:** [src/base/asset.ts:32](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L32)
+**Source:** [src/base/asset.ts:36](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L36)
 
 ### AssetType.native
 
@@ -748,7 +748,7 @@ type liquidityPoolShares = "liquidity_pool_shares"
 type native = "native"
 ```
 
-**Source:** [src/base/asset.ts:29](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L29)
+**Source:** [src/base/asset.ts:33](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L33)
 
 ### LiquidityPoolParameters
 

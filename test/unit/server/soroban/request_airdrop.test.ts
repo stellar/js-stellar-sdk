@@ -1,4 +1,5 @@
 import { describe, it, beforeEach, afterEach, expect, vi } from "vitest";
+import { base64ToUint8Array, hexToUint8Array } from "uint8array-extras";
 import {
   xdr,
   rpc,
@@ -29,7 +30,7 @@ describe("Server#requestAirdrop", () => {
       inflationDest: null,
       flags: 0,
       homeDomain: "",
-      thresholds: Buffer.from("AQAAAA==", "base64"),
+      thresholds: base64ToUint8Array("AQAAAA=="),
       signers: [],
       ext: xdr.AccountEntryExt.v0(),
     });
@@ -51,7 +52,7 @@ describe("Server#requestAirdrop", () => {
       inflationDest: null,
       flags: 0,
       homeDomain: "",
-      thresholds: Buffer.from("AQAAAA==", "base64"),
+      thresholds: base64ToUint8Array("AQAAAA=="),
       signers: [],
       ext: xdr.AccountEntryExt.v0(),
     });
@@ -453,9 +454,7 @@ describe("Server#fundAddress", () => {
 
   it("funds a contract address (C...) and returns transaction response", async () => {
     const friendbotUrl = "https://friendbot.stellar.org";
-    const contractId = StrKey.encodeContract(
-      Buffer.from("0".repeat(64), "hex"),
-    );
+    const contractId = StrKey.encodeContract(hexToUint8Array("0".repeat(64)));
     const hash =
       "ae9f315c048d87a5f853bc15bf284a2c3c89eb0e1cb38c10409b77a877b830a8";
 

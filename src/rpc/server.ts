@@ -12,6 +12,12 @@ import {
   scValToNative,
 } from "../base/index.js";
 
+import {
+  base64ToUint8Array,
+  concatUint8Arrays,
+  hexToUint8Array,
+  stringToUint8Array,
+} from "uint8array-extras";
 import type { TransactionBuilder } from "../base/index.js";
 import type { Config } from "../config.js";
 import { createHttpClient } from "./axios.js";
@@ -352,14 +358,11 @@ export class RpcServer {
       const buffer = StrKey.decodeClaimableBalance(id);
 
       // Pad the version byte to be a full int32 like in the XDR spec
-      const v = Buffer.concat([
-        Buffer.from("\x00\x00\x00"),
-        buffer.subarray(0, 1),
-      ]);
+      const v = concatUint8Arrays([new Uint8Array(3), buffer.subarray(0, 1)]);
 
       // Slap on the rest of it and decode it
       balanceId = ClaimableBalanceId.fromXdr(
-        Buffer.concat([v, buffer.subarray(1)]),
+        concatUint8Arrays([v, buffer.subarray(1)]),
       );
     } else if (id.match(/[a-f0-9]{72}/i)) {
       balanceId = ClaimableBalanceId.fromXdr(id, "hex");
@@ -629,15 +632,15 @@ export class RpcServer {
    * {@link contract.Client.from} to build a client from the embedded SAC spec.
    *
    * @param contractId - The contract ID containing the WASM bytecode to retrieve
-   * @returns A Buffer containing the WASM bytecode
+   * @returns A Uint8Array containing the WASM bytecode
    * @throws If the contract or its associated WASM bytecode cannot be
    * found on the network, or if the contract is a Stellar Asset Contract (SAC).
    *
    * @example
    * ```ts
    * const contractId = "CCJZ5DGASBWQXR5MPFCJXMBI333XE5U3FSJTNQU7RIKE3P5GN2K2WYD5";
-   * server.getContractWasmByContractId(contractId).then(wasmBuffer => {
-   *   console.log("WASM bytecode length:", wasmBuffer.length);
+   * server.getContractWasmByContractId(contractId).then(wasmBytes => {
+   *   console.log("WASM bytecode length:", wasmBytes.length);
    *   // ... do something with the WASM bytecode ...
    * }).catch(err => {
    *   console.error("Error fetching WASM bytecode:", err);
@@ -646,7 +649,7 @@ export class RpcServer {
    */
   public async getContractWasmByContractId(
     contractId: string,
-  ): Promise<Buffer> {
+  ): Promise<Uint8Array> {
     const instance = await this.getContractInstance(contractId);
 
     const executable = instance.executable;
@@ -666,7 +669,7 @@ export class RpcServer {
       });
     }
 
-    return this.getContractWasmByHash(Buffer.from(executable.value.value));
+    return this.getContractWasmByHash(executable.value.value);
   }
 
   /**
@@ -677,15 +680,15 @@ export class RpcServer {
    * represents the executable code of the contract.
    *
    * @param wasmHash - The WASM hash of the contract
-   * @returns A Buffer containing the WASM bytecode
+   * @returns A Uint8Array containing the WASM bytecode
    * @throws If the contract or its associated WASM bytecode cannot be
    * found on the network.
    *
    * @example
    * ```ts
-   * const wasmHash = Buffer.from("...");
-   * server.getContractWasmByHash(wasmHash).then(wasmBuffer => {
-   *   console.log("WASM bytecode length:", wasmBuffer.length);
+   * const wasmHash = hexToUint8Array("...");
+   * server.getContractWasmByHash(wasmHash).then(wasmBytes => {
+   *   console.log("WASM bytecode length:", wasmBytes.length);
    *   // ... do something with the WASM bytecode ...
    * }).catch(err => {
    *   console.error("Error fetching WASM bytecode:", err);
@@ -693,17 +696,25 @@ export class RpcServer {
    * ```
    */
   public async getContractWasmByHash(
-    wasmHash: Buffer | string,
+    wasmHash: Uint8Array | string,
     format: undefined | "hex" | "base64" = undefined,
-  ): Promise<Buffer> {
-    const wasmHashBuffer =
-      typeof wasmHash === "string"
-        ? Buffer.from(wasmHash, format)
-        : (wasmHash as Buffer);
+  ): Promise<Uint8Array> {
+    let wasmHashBytes: Uint8Array;
+    if (typeof wasmHash === "string") {
+      if (format === "base64") {
+        wasmHashBytes = base64ToUint8Array(wasmHash);
+      } else if (format === "hex") {
+        wasmHashBytes = hexToUint8Array(wasmHash);
+      } else {
+        wasmHashBytes = stringToUint8Array(wasmHash);
+      }
+    } else {
+      wasmHashBytes = wasmHash;
+    }
 
     const ledgerKeyWasmHash = LedgerKey.contractCode(
       new LedgerKeyContractCode({
-        hash: new Hash(Uint8Array.from(wasmHashBuffer)),
+        hash: new Hash(wasmHashBytes),
       }),
     );
 
@@ -721,7 +732,7 @@ export class RpcServer {
         message: "Expected contractCode ledger entry",
       });
     }
-    return Buffer.from(wasmEntry.value.code);
+    return wasmEntry.value.code;
   }
 
   /**

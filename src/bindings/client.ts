@@ -183,7 +183,7 @@ export class Client extends ContractClient {
     }
 
     params.push(
-      'options: MethodOptions & Omit<ContractClientOptions, \'contractId\'> & { wasmHash: Buffer | string; salt?: Buffer | Uint8Array; format?: "hex" | "base64"; address?: string; }',
+      'options: MethodOptions & Omit<ContractClientOptions, \'contractId\'> & { wasmHash: Uint8Array | string; salt?: Uint8Array; format?: "hex" | "base64"; address?: string; }',
     );
 
     return params.join(", ");

@@ -7,6 +7,7 @@ A breaking change will get clearly marked in this log.
 ## Unreleased
 
 ### Breaking Changes
+* Public APIs use `Uint8Array` instead of Node's `Buffer` ([#1457](https://github.com/stellar/js-stellar-sdk/issues/1457)). Methods that returned `Buffer` (e.g. `hash()`, `Keypair`'s `sign`/`rawPublicKey`/`rawSecretKey`, `StrKey.decode*`, `Transaction#hash()`, `rpc.Server#getContractWasmByHash`) now return a plain `Uint8Array`, so Buffer-only conveniences like `.toString("hex")` and `.equals()` on results must be replaced — see [`docs/UINT8ARRAY_MIGRATION.md`](./docs/UINT8ARRAY_MIGRATION.md) for method-by-method recipes. Byte inputs still accept `Buffer` (it's a `Uint8Array` subclass), with two exceptions: a `SigningCallback` may no longer resolve to a raw `ArrayBuffer` (wrap it in a `Uint8Array`), and `SorobanDataBuilder`'s constructor no longer accepts non-`Uint8Array` typed arrays. The `buffer` dependency is gone (`base32.js`, which needed a Buffer global, is replaced by `@exodus/bytes`), and browsers/edge runtimes need no Buffer polyfill.
 * The XDR layer now consumes the runtime from `@stellar/js-xdr` v5 instead of the vendored in-tree copy. The v4 `Reader` and `Writer` classes are no longer re-exported from the SDK; the `Reader`/`Writer` re-exported from `xdr` are now the v5 implementations. Code that imported the v4 `Reader`/`Writer` (directly from `@stellar/js-xdr@4` or via the SDK) must migrate to the v5 API. See [`docs/XDR_MIGRATION.md`](./docs/XDR_MIGRATION.md#14-removed-v4-reader--writer-exports).
 
 ### Added
@@ -21,6 +22,9 @@ A breaking change will get clearly marked in this log.
 - `contract.Client.from` now supports built-in Stellar Asset Contracts (SACs): when the contract's executable is a SAC, the client is built from the embedded SAC spec (lazily imported so bundlers can code-split it out of the common path) instead of downloading Wasm, which a SAC has none of on-chain ([#1501](https://github.com/stellar/js-stellar-sdk/pull/1501)).
 - `rpc.Server.getContractWasmByContractId` now rejects a SAC with a structured `{ code: 400 }` error pointing to `contract.Client.from`, instead of failing while decoding a nonexistent Wasm hash; the not-found rejection is now `{ code: 404, message: "Could not obtain contract instance from server" }` ([#1501](https://github.com/stellar/js-stellar-sdk/pull/1501)).
 - The UMD (`dist/`) build now sets `inlineDynamicImports` so the single-file bundle stays whole despite the SAC spec's lazy `import()` ([#1501](https://github.com/stellar/js-stellar-sdk/pull/1501)).
+
+### Fixed
+- `Horizon.ManageDataOperationResponse.value` is now typed as `string`, matching what Horizon actually returns (a base64 string in JSON, which the SDK never decodes). It was previously mistyped as `Buffer` ([#1564](https://github.com/stellar/js-stellar-sdk/pull/1564)).
 
 ## [v16.0.1](https://github.com/stellar/js-stellar-sdk/compare/v16.0.0...v16.0.1)
 

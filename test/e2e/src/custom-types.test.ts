@@ -1,4 +1,5 @@
 import { expect, beforeAll, describe, it } from "vitest";
+import { stringToUint8Array } from "uint8array-extras";
 import { Address, contract } from "../../../lib/esm/index.js";
 import { clientFor } from "./util.js";
 
@@ -176,16 +177,14 @@ describe("Custom Types Tests", () => {
   });
 
   it("bytes", async () => {
-    const bytes = Buffer.from("hello");
-    expect((await context.client.bytes({ bytes })).result).toEqual(
-      Uint8Array.from(bytes),
-    );
+    const bytes = stringToUint8Array("hello");
+    expect((await context.client.bytes({ bytes })).result).toEqual(bytes);
   });
 
   it("bytesN", async () => {
-    const bytesN = Buffer.from("123456789"); // what's the correct way to construct bytesN?
+    const bytesN = stringToUint8Array("123456789"); // what's the correct way to construct bytesN?
     expect((await context.client.bytes_n({ bytes_n: bytesN })).result).toEqual(
-      Uint8Array.from(bytesN),
+      bytesN,
     );
   });
 

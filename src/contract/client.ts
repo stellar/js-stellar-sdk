@@ -5,11 +5,12 @@ import { AssembledTransaction } from "./assembled_transaction.js";
 import type { ClientOptions, MethodOptions } from "./types.js";
 import { sanitizeIdentifier } from "../bindings/utils.js";
 import { ScVal } from "../xdr/index.js";
+import { base64ToUint8Array, hexToUint8Array } from "uint8array-extras";
 
 const CONSTRUCTOR_FUNC = "__constructor";
 
 async function specFromWasmHash(
-  wasmHash: Buffer | string,
+  wasmHash: Uint8Array | string,
   options: Server.Options & { rpcUrl: string },
   format: "hex" | "base64" = "hex",
 ): Promise<Spec> {
@@ -43,9 +44,9 @@ export class Client {
     options: MethodOptions &
       Omit<ClientOptions, "contractId"> & {
         /** The hash of the Wasm blob, which must already be installed on-chain. */
-        wasmHash: Buffer | string;
+        wasmHash: Uint8Array | string;
         /** Salt used to generate the contract's ID. Passed through to {@link Operation.createCustomContract}. Default: random. */
-        salt?: Buffer | Uint8Array;
+        salt?: Uint8Array;
         /** The format used to decode `wasmHash`, if it's provided as a string. */
         format?: "hex" | "base64";
         /** The address to use to deploy the custom contract */
@@ -67,8 +68,10 @@ export class Client {
       address: new Address(options.address || options.publicKey!),
       wasmHash:
         typeof wasmHash === "string"
-          ? Buffer.from(wasmHash, format ?? "hex")
-          : (wasmHash as Buffer),
+          ? (format ?? "hex") === "base64"
+            ? base64ToUint8Array(wasmHash)
+            : hexToUint8Array(wasmHash)
+          : wasmHash,
       salt,
       constructorArgs: args
         ? spec.funcArgsToScVals(CONSTRUCTOR_FUNC, args)
@@ -161,7 +164,7 @@ export class Client {
    * ```
    */
   static async fromWasmHash<T = unknown>(
-    wasmHash: Buffer | string,
+    wasmHash: Uint8Array | string,
     options: ClientOptions,
     format: "hex" | "base64" = "hex",
   ): Promise<Client & T> {
@@ -188,7 +191,7 @@ export class Client {
    * argument yields a plain `Client` (backward compatible). Provide it to get
    * typed, autocompleted contract methods without code generation.
    *
-   * @param wasm - The contract's wasm binary as a Buffer.
+   * @param wasm - The contract's wasm binary as a Uint8Array.
    * @param options - The ClientOptions object containing the necessary configuration.
    * @returns A Promise that resolves to a Client instance.
    * @throws If the contract spec cannot be obtained from the provided wasm binary.
@@ -203,7 +206,7 @@ export class Client {
    * ```
    */
   static async fromWasm<T = unknown>(
-    wasm: Buffer,
+    wasm: Uint8Array,
     options: ClientOptions,
   ): Promise<Client & T> {
     const spec = await Spec.fromWasm(wasm);
@@ -260,9 +263,7 @@ export class Client {
 
     // The only remaining executable kind is a Wasm contract, whose executable
     // value is the code hash.
-    const wasm = await server.getContractWasmByHash(
-      Buffer.from(executable.value.value),
-    );
+    const wasm = await server.getContractWasmByHash(executable.value.value);
 
     return Client.fromWasm<T>(wasm, options);
   }

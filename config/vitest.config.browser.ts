@@ -47,6 +47,9 @@ export default defineConfig({
       // via `node:fs`, which isn't available in the browser environment.
       "test/unit/xdr/corpus_round_trip.test.ts",
       "test/unit/xdr/schema_exhaustive.test.ts",
+      // Node-only: compares against legacy js-xdr v4, whose API requires
+      // `node:buffer` Buffers.
+      "test/unit/xdr/legacy_round_trip.test.ts",
     ],
     // Setup files to load the browser bundle
     setupFiles: [resolve(__dirname, "../test/setup-browser.ts")],
@@ -82,9 +85,8 @@ export default defineConfig({
       "smol-toml",
       "bignumber.js",
       "@noble/ed25519",
-      "base32.js",
+      "@exodus/bytes/base32.js",
       "@noble/hashes/sha2.js",
-      "buffer",
       "commander",
     ],
   },

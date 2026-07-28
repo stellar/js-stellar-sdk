@@ -58,6 +58,7 @@ import {
   SorobanTransactionData,
   TransactionEnvelope,
 } from "../xdr/index.js";
+import { base64ToUint8Array } from "uint8array-extras";
 
 /** @module contract */
 
@@ -1100,7 +1101,7 @@ export class AssembledTransaction<T> {
             },
           );
           this.handleWalletError(error);
-          return Buffer.from(signedAuthEntry, "base64");
+          return base64ToUint8Array(signedAuthEntry);
         },
         await expiration,
         this.options.networkPassphrase,

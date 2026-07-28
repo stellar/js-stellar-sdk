@@ -136,7 +136,7 @@ describe("assembleTransaction", () => {
         credAddr.address,
         "scAddressTypeAccount",
       ).accountId;
-      expect(StrKey.encodeEd25519PublicKey(Buffer.from(accountKey.value))).toBe(
+      expect(StrKey.encodeEd25519PublicKey(accountKey.value)).toBe(
         "GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI",
       );
     });

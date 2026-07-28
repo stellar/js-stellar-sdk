@@ -1,3 +1,4 @@
+import { uint8ArrayToHex } from "uint8array-extras";
 import {
   ChangeTrustAsset,
   LiquidityPoolConstantProductParameters,
@@ -124,10 +125,9 @@ export class LiquidityPoolAsset {
 
   /** Returns a string representation in `liquidity_pool:<hex pool id>` format. */
   toString(): string {
-    const poolId = getLiquidityPoolId(
-      "constant_product",
-      this.getLiquidityPoolParameters(),
-    ).toString("hex");
+    const poolId = uint8ArrayToHex(
+      getLiquidityPoolId("constant_product", this.getLiquidityPoolParameters()),
+    );
 
     return `liquidity_pool:${poolId}`;
   }

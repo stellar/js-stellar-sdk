@@ -1,3 +1,4 @@
+import { uint8ArrayToHex } from "uint8array-extras";
 import {
   CreateContractArgsV2,
   ScVal,
@@ -174,8 +175,8 @@ export function buildInvocationTree(
         const details = preimage.value;
         createInvocation.type = "wasm";
         createInvocation.wasm = {
-          salt: Buffer.from(details.salt).toString("hex"),
-          hash: Buffer.from(exec.value.value).toString("hex"),
+          salt: uint8ArrayToHex(details.salt),
+          hash: uint8ArrayToHex(exec.value.value),
           address: Address.fromScAddress(details.address).toString(),
           // only apply constructor args for WASM+CreateV2 scenario
           ...(createV2 && {

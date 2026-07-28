@@ -1,4 +1,9 @@
 import { describe, it, expect, beforeEach } from "vitest";
+import {
+  uint8ArrayToBase64,
+  uint8ArrayToHex,
+  uint8ArrayToString,
+} from "uint8array-extras";
 import { Transaction } from "../../../src/base/transaction.js";
 import {
   TransactionBuilder,
@@ -29,22 +34,19 @@ import type {
 } from "../../../src/xdr/index.js";
 import { expectVariant } from "./support/xdr.js";
 
-function expectBuffersToBeEqual(
-  left: { toString(encoding: BufferEncoding): string },
-  right: { toString(encoding: BufferEncoding): string },
-): void {
-  const leftHex = left.toString("hex");
-  const rightHex = right.toString("hex");
+function expectBytesToBeEqual(left: Uint8Array, right: Uint8Array): void {
+  const leftHex = uint8ArrayToHex(left);
+  const rightHex = uint8ArrayToHex(right);
   expect(leftHex).toEqual(rightHex);
 }
 
-function createTestBytes(length: number): Buffer {
+function createTestBytes(length: number): Uint8Array {
   const bytes = new Uint8Array(length);
   for (let index = 0; index < length; index += 1) {
     bytes[index] = index % 256;
   }
 
-  return Buffer.from(bytes);
+  return bytes;
 }
 
 describe("Transaction", () => {
@@ -78,7 +80,7 @@ describe("Transaction", () => {
     expect(transaction.source).toBe(source.accountId());
     expect(transaction.fee).toBe("100");
     expect(transaction.memo.type).toBe(MemoText);
-    expect((transaction.memo.value as Buffer).toString("ascii")).toBe(
+    expect(uint8ArrayToString(transaction.memo.value as Uint8Array)).toBe(
       "Happy birthday!",
     );
     expect(operation.type).toBe("payment");
@@ -94,7 +96,7 @@ describe("Transaction", () => {
     const envelope = xdr.TransactionEnvelope.fromXdr(v0EnvelopeXdr, "base64");
     const txe = expectVariant(envelope, "envelopeTypeTxV0").v0;
     const expectedSource = StrKey.encodeEd25519PublicKey(
-      Buffer.from(txe.tx.sourceAccountEd25519),
+      new Uint8Array(txe.tx.sourceAccountEd25519),
     );
 
     const tx = new Transaction(v0EnvelopeXdr, Networks.TESTNET);
@@ -261,7 +263,7 @@ describe("Transaction", () => {
         .setTimeout(TimeoutInfinite)
         .build();
 
-      const hashBefore = tx.hash().toString("hex");
+      const hashBefore = uint8ArrayToHex(tx.hash());
 
       // Attempt to mutate the XDR via the tx getter — fee is a readonly
       // bigint in the new class layer; assignment should silently no-op.
@@ -271,7 +273,7 @@ describe("Transaction", () => {
         // strict mode may throw; either way the source must not change
       }
 
-      const hashAfter = tx.hash().toString("hex");
+      const hashAfter = uint8ArrayToHex(tx.hash());
       expect(hashAfter).toBe(hashBefore);
     });
 
@@ -363,13 +365,13 @@ describe("Transaction", () => {
 
       const tx = new Transaction(xdrString, Networks.TESTNET);
 
-      const hashBefore = tx.hash().toString("hex");
+      const hashBefore = uint8ArrayToHex(tx.hash());
       try {
         (tx.tx as { fee: bigint }).fee = 999999n;
       } catch {
         // strict mode may throw; readonly assignment must not affect source
       }
-      const hashAfter = tx.hash().toString("hex");
+      const hashAfter = uint8ArrayToHex(tx.hash());
       expect(hashAfter).toBe(hashBefore);
     });
 
@@ -399,13 +401,13 @@ describe("Transaction", () => {
         Networks.TESTNET,
       ) as Transaction;
 
-      const hashBefore = tx.hash().toString("hex");
+      const hashBefore = uint8ArrayToHex(tx.hash());
       try {
         (tx.tx as { fee: bigint }).fee = 999999n;
       } catch {
         // strict mode may throw; readonly assignment must not affect source
       }
-      const hashAfter = tx.hash().toString("hex");
+      const hashAfter = uint8ArrayToHex(tx.hash());
       expect(hashAfter).toBe(hashBefore);
     });
   });
@@ -513,7 +515,7 @@ describe("Transaction", () => {
     if (sig === undefined) {
       throw new Error("expected a signature");
     }
-    const rawSig = Buffer.from(sig.signature.value);
+    const rawSig = new Uint8Array(sig.signature.value);
     const verified = signer.verify(tx.hash(), rawSig);
     expect(verified).toBe(true);
   });
@@ -545,9 +547,9 @@ describe("Transaction", () => {
     if (sig === undefined) {
       throw new Error("expected a signature");
     }
-    expectBuffersToBeEqual(Buffer.from(sig.signature.value), preimage);
-    expectBuffersToBeEqual(
-      Buffer.from(sig.hint.value),
+    expectBytesToBeEqual(new Uint8Array(sig.signature.value), preimage);
+    expectBytesToBeEqual(
+      new Uint8Array(sig.hint.value),
       preimageHash.subarray(preimageHash.length - 4),
     );
   });
@@ -619,7 +621,7 @@ describe("Transaction", () => {
       .addOperation(Operation.payment({ destination, asset, amount }))
       .build();
 
-    const signature = signer.sign(presignHash).toString("base64");
+    const signature = uint8ArrayToBase64(signer.sign(presignHash));
 
     addedSignatureTx.addSignature(signer.publicKey(), signature);
 
@@ -636,7 +638,7 @@ describe("Transaction", () => {
     expect(
       signer.verify(
         addedSignatureTx.hash(),
-        Buffer.from(addedSig.signature.value),
+        new Uint8Array(addedSig.signature.value),
       ),
     ).toBe(true);
 
@@ -645,17 +647,17 @@ describe("Transaction", () => {
       throw new Error("expected a signature");
     }
 
-    expectBuffersToBeEqual(
-      Buffer.from(signedSig.signature.value),
-      Buffer.from(addedSig.signature.value),
+    expectBytesToBeEqual(
+      new Uint8Array(signedSig.signature.value),
+      new Uint8Array(addedSig.signature.value),
     );
 
-    expectBuffersToBeEqual(
-      Buffer.from(signedSig.hint.value),
-      Buffer.from(addedSig.hint.value),
+    expectBytesToBeEqual(
+      new Uint8Array(signedSig.hint.value),
+      new Uint8Array(addedSig.hint.value),
     );
 
-    expectBuffersToBeEqual(addedSignatureTx.hash(), signedTx.hash());
+    expectBytesToBeEqual(addedSignatureTx.hash(), signedTx.hash());
   });
 
   it("adds signature generated by getKeypairSignature", () => {
@@ -694,7 +696,7 @@ describe("Transaction", () => {
       Networks.TESTNET,
     ).getKeypairSignature(signer);
 
-    expect(signer.sign(presignHash).toString("base64")).toEqual(signature);
+    expect(uint8ArrayToBase64(signer.sign(presignHash))).toEqual(signature);
 
     const addedSignatureTx = new TransactionBuilder(addedSignatureSource, {
       timebounds: {
@@ -722,7 +724,7 @@ describe("Transaction", () => {
     expect(
       signer.verify(
         addedSignatureTx.hash(),
-        Buffer.from(addedSig.signature.value),
+        new Uint8Array(addedSig.signature.value),
       ),
     ).toBe(true);
 
@@ -731,17 +733,17 @@ describe("Transaction", () => {
       throw new Error("expected a signature");
     }
 
-    expectBuffersToBeEqual(
-      Buffer.from(signedSig.signature.value),
-      Buffer.from(addedSig.signature.value),
+    expectBytesToBeEqual(
+      new Uint8Array(signedSig.signature.value),
+      new Uint8Array(addedSig.signature.value),
     );
 
-    expectBuffersToBeEqual(
-      Buffer.from(signedSig.hint.value),
-      Buffer.from(addedSig.hint.value),
+    expectBytesToBeEqual(
+      new Uint8Array(signedSig.hint.value),
+      new Uint8Array(addedSig.hint.value),
     );
 
-    expectBuffersToBeEqual(addedSignatureTx.hash(), signedTx.hash());
+    expectBytesToBeEqual(addedSignatureTx.hash(), signedTx.hash());
   });
 
   it("does not add invalid signature", () => {

@@ -13,7 +13,7 @@ describe("Operation.allowTrust()", () => {
       authorize: true,
     });
     const xdrHex = op.toXdr("hex");
-    const operation = xdr.Operation.fromXdr(Buffer.from(xdrHex, "hex"));
+    const operation = xdr.Operation.fromXdr(xdrHex, "hex");
     const obj = expectOperationType(
       Operation.fromXdrObject(operation),
       "allowTrust",
@@ -30,7 +30,7 @@ describe("Operation.allowTrust()", () => {
       authorize: false,
     });
     const xdrHex = op.toXdr("hex");
-    const operation = xdr.Operation.fromXdr(Buffer.from(xdrHex, "hex"));
+    const operation = xdr.Operation.fromXdr(xdrHex, "hex");
     const obj = expectOperationType(
       Operation.fromXdrObject(operation),
       "allowTrust",
@@ -45,7 +45,7 @@ describe("Operation.allowTrust()", () => {
       authorize: 2,
     });
     const xdrHex = op.toXdr("hex");
-    const operation = xdr.Operation.fromXdr(Buffer.from(xdrHex, "hex"));
+    const operation = xdr.Operation.fromXdr(xdrHex, "hex");
     const obj = expectOperationType(
       Operation.fromXdrObject(operation),
       "allowTrust",
@@ -60,7 +60,7 @@ describe("Operation.allowTrust()", () => {
       authorize: true,
     });
     const xdrHex = op.toXdr("hex");
-    const operation = xdr.Operation.fromXdr(Buffer.from(xdrHex, "hex"));
+    const operation = xdr.Operation.fromXdr(xdrHex, "hex");
     const obj = expectOperationType(
       Operation.fromXdrObject(operation),
       "allowTrust",
@@ -75,7 +75,7 @@ describe("Operation.allowTrust()", () => {
       authorize: true,
     });
     const xdrHex = op.toXdr("hex");
-    const operation = xdr.Operation.fromXdr(Buffer.from(xdrHex, "hex"));
+    const operation = xdr.Operation.fromXdr(xdrHex, "hex");
     const obj = expectOperationType(
       Operation.fromXdrObject(operation),
       "allowTrust",
@@ -90,7 +90,7 @@ describe("Operation.allowTrust()", () => {
       authorize: true,
     });
     const xdrHex = op.toXdr("hex");
-    const operation = xdr.Operation.fromXdr(Buffer.from(xdrHex, "hex"));
+    const operation = xdr.Operation.fromXdr(xdrHex, "hex");
     const obj = expectOperationType(
       Operation.fromXdrObject(operation),
       "allowTrust",
@@ -105,7 +105,7 @@ describe("Operation.allowTrust()", () => {
       authorize: true,
     });
     const xdrHex = op.toXdr("hex");
-    const operation = xdr.Operation.fromXdr(Buffer.from(xdrHex, "hex"));
+    const operation = xdr.Operation.fromXdr(xdrHex, "hex");
     const obj = expectOperationType(
       Operation.fromXdrObject(operation),
       "allowTrust",
@@ -122,7 +122,7 @@ describe("Operation.allowTrust()", () => {
       source,
     });
     const xdrHex = op.toXdr("hex");
-    const operation = xdr.Operation.fromXdr(Buffer.from(xdrHex, "hex"));
+    const operation = xdr.Operation.fromXdr(xdrHex, "hex");
     const obj = expectOperationType(
       Operation.fromXdrObject(operation),
       "allowTrust",

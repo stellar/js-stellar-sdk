@@ -62,7 +62,7 @@ describe("Operation", () => {
 
     describe("abstractions", () => {
       it("lets you create custom contracts", () => {
-        const h = hash(Buffer.from("random stuff"));
+        const h = hash("random stuff");
 
         const op = Operation.createCustomContract({
           address: c.address(),
@@ -130,7 +130,7 @@ describe("Operation", () => {
       });
 
       it("lets you upload wasm", () => {
-        const wasm = Buffer.alloc(512);
+        const wasm = new Uint8Array(512);
         const op = Operation.uploadContractWasm({ wasm });
         expect(op.body.type).toBe("invokeHostFunction");
 
@@ -152,7 +152,7 @@ describe("Operation", () => {
       });
 
       it("lets you create contracts with a constructor", () => {
-        const h = hash(Buffer.from("random stuff"));
+        const h = hash("random stuff");
         const constructorArgs = [
           nativeToScVal("admin name"),
           nativeToScVal(1234, { type: "i128" }),
@@ -226,7 +226,7 @@ describe("Operation", () => {
       });
 
       it("prevents invocation with claimable balance args", () => {
-        const cbAddress = Address.claimableBalance(Buffer.alloc(33));
+        const cbAddress = Address.claimableBalance(new Uint8Array(33));
         expect(() =>
           Operation.invokeContractFunction({
             contract:
@@ -300,8 +300,8 @@ describe("Operation", () => {
         expect(() =>
           Operation.createCustomContract({
             address: c.address(),
-            wasmHash: undefined as unknown as Buffer,
-            salt: hash(Buffer.from("salt")),
+            wasmHash: undefined as unknown as Uint8Array,
+            salt: hash("salt"),
           }),
         ).toThrow(/opts.wasmHash/);
       });
@@ -310,25 +310,25 @@ describe("Operation", () => {
         expect(() =>
           Operation.createCustomContract({
             address: c.address(),
-            wasmHash: Buffer.alloc(16),
-            salt: hash(Buffer.from("salt")),
+            wasmHash: new Uint8Array(16),
+            salt: hash("salt"),
           }),
         ).toThrow(/opts.wasmHash/);
       });
 
       it("throws when salt has wrong length", () => {
-        const h = hash(Buffer.from("random stuff"));
+        const h = hash("random stuff");
         expect(() =>
           Operation.createCustomContract({
             address: c.address(),
             wasmHash: h,
-            salt: Buffer.alloc(16),
+            salt: new Uint8Array(16),
           }),
         ).toThrow(/opts.salt/);
       });
 
       it("auto-generates salt when omitted", () => {
-        const h = hash(Buffer.from("random stuff"));
+        const h = hash("random stuff");
         const op = Operation.createCustomContract({
           address: c.address(),
           wasmHash: h,

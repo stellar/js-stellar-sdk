@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
+  stringToUint8Array,
+  uint8ArrayToHex,
+  uint8ArrayToString,
+} from "uint8array-extras";
+import {
   Memo,
   MemoNone,
   MemoID,
@@ -55,16 +60,16 @@ describe("Memo", () => {
         throw new Error("expected memoText");
       }
       // `text` is an XdrString wrapper — compare the raw bytes.
-      const a = Buffer.from(xdrMemoUtf8.text.bytes);
-      const b = Buffer.from("三代之時", "utf8");
+      const a = new Uint8Array(xdrMemoUtf8.text.bytes);
+      const b = stringToUint8Array("三代之時");
       expect(a).toEqual(b);
     });
 
     it("returns a value for a correct argument (utf8)", () => {
-      const memoText = new Memo(MemoText, Buffer.from([0xd1]))
+      const memoText = new Memo(MemoText, new Uint8Array([0xd1]))
         .toXdrObject()
         .toXdr();
-      const expected = Buffer.from([
+      const expected = new Uint8Array([
         // memo_text
         0x00, 0x00, 0x00, 0x01,
         // length
@@ -90,27 +95,26 @@ describe("Memo", () => {
 
       const baseMemo = Memo.fromXdrObject(xdrMemo);
       expect(baseMemo.type).toBe(MemoText);
-      // Memo wrapper surfaces the wire bytes as a Buffer.
-      expect((baseMemo.value as Buffer).toString("utf8")).toBe("test");
+      // Memo wrapper surfaces the wire bytes as a Uint8Array.
+      expect(uint8ArrayToString(baseMemo.value as Uint8Array)).toBe("test");
     });
 
-    it("converts to/from xdr object (buffer)", () => {
-      const buf = Buffer.from([0xd1]);
-      const memo = Memo.text(buf.toString("utf8"));
+    it("converts to/from xdr object (bytes)", () => {
+      const buf = new Uint8Array([0xd1]);
+      const text = uint8ArrayToString(buf);
+      const memo = Memo.text(text);
       expect(memo.type).toBe(MemoText);
-      expect(memo.value).toBe(buf.toString("utf8"));
+      expect(memo.value).toBe(text);
 
       const xdrMemo = memo.toXdrObject();
       expect(xdrMemo.type).toBe("memoText");
       if (xdrMemo.type !== "memoText") throw new Error("expected memoText");
-      expect(xdrMemo.text.toString()).toBe(buf.toString("utf8"));
-      expect(xdrMemo.value).toBe(buf.toString("utf8"));
+      expect(xdrMemo.text.toString()).toBe(text);
+      expect(xdrMemo.value).toBe(text);
 
       const baseMemo = Memo.fromXdrObject(xdrMemo);
       expect(baseMemo.type).toBe(MemoText);
-      expect((baseMemo.value as Buffer).toString("utf8")).toBe(
-        buf.toString("utf8"),
-      );
+      expect(uint8ArrayToString(baseMemo.value as Uint8Array)).toBe(text);
     });
 
     it("throws an error when invalid argument was passed", () => {
@@ -215,7 +219,7 @@ describe("Memo", () => {
 
   describe(".hash() & .return()", () => {
     it("hash converts to/from xdr object", () => {
-      const buffer = Buffer.alloc(32, 10);
+      const buffer = new Uint8Array(32).fill(10);
 
       const memo = Memo.hash(buffer);
       expect(memo.type).toBe(MemoHash);
@@ -230,17 +234,17 @@ describe("Memo", () => {
 
       const baseMemo = Memo.fromXdrObject(xdrMemo);
       expect(baseMemo.type).toBe(MemoHash);
-      expect((baseMemo.value as Buffer).length).toBe(32);
-      expect((baseMemo.value as Buffer).toString("hex")).toBe(
-        buffer.toString("hex"),
+      expect((baseMemo.value as Uint8Array).length).toBe(32);
+      expect(uint8ArrayToHex(baseMemo.value as Uint8Array)).toBe(
+        uint8ArrayToHex(buffer),
       );
     });
 
     it("return converts to/from xdr object", () => {
-      const buffer = Buffer.alloc(32, 10);
+      const buffer = new Uint8Array(32).fill(10);
 
       // Testing string hash
-      const memo = Memo.return(buffer.toString("hex"));
+      const memo = Memo.return(uint8ArrayToHex(buffer));
       expect(memo.value).toEqual(buffer);
       expect(memo.type).toBe(MemoReturn);
 
@@ -249,23 +253,23 @@ describe("Memo", () => {
       if (xdrMemo.type !== "memoReturn") throw new Error("expected memoReturn");
       const retHashBytes = xdrMemo.retHash.toBytes();
       expect(retHashBytes.length).toBe(32);
-      expect(Buffer.from(retHashBytes).toString("hex")).toBe(
-        buffer.toString("hex"),
+      expect(uint8ArrayToHex(new Uint8Array(retHashBytes))).toBe(
+        uint8ArrayToHex(buffer),
       );
 
       const baseMemo = Memo.fromXdrObject(xdrMemo);
       expect(baseMemo.type).toBe(MemoReturn);
-      expect(Buffer.isBuffer(baseMemo.value)).toBe(true);
-      expect((baseMemo.value as Buffer).length).toBe(32);
-      expect((baseMemo.value as Buffer).toString("hex")).toBe(
-        buffer.toString("hex"),
+      expect(baseMemo.value).toBeInstanceOf(Uint8Array);
+      expect((baseMemo.value as Uint8Array).length).toBe(32);
+      expect(uint8ArrayToHex(baseMemo.value as Uint8Array)).toBe(
+        uint8ArrayToHex(buffer),
       );
     });
 
     it("returns a value for a correct argument", () => {
       const methods = [Memo.hash, Memo.return] as const;
       for (const method of methods) {
-        expect(() => method(Buffer.alloc(32).toString("hex"))).not.toThrow();
+        expect(() => method(uint8ArrayToHex(new Uint8Array(32)))).not.toThrow();
         expect(() =>
           method(
             "0000000000000000000000000000000000000000000000000000000000000000",
@@ -274,8 +278,8 @@ describe("Memo", () => {
       }
     });
 
-    it("return accepts a Buffer directly", () => {
-      const buffer = Buffer.alloc(32, 10);
+    it("return accepts a Uint8Array directly", () => {
+      const buffer = new Uint8Array(32).fill(10);
       const memo = Memo.return(buffer);
       expect(memo.type).toBe(MemoReturn);
       expect(memo.value).toEqual(buffer);
@@ -297,7 +301,7 @@ describe("Memo", () => {
         expect(() => method([0, 10, 20])).toThrow(
           /Expects a 32 byte hash value/,
         );
-        expect(() => method(Buffer.alloc(33).toString("hex"))).toThrow(
+        expect(() => method(uint8ArrayToHex(new Uint8Array(33)))).toThrow(
           /Expects a 32 byte hash value/,
         );
         expect(() =>
@@ -332,7 +336,7 @@ describe("Memo", () => {
 
   describe("value getter defensive copy", () => {
     it("returns a copy for MemoHash so mutations do not affect the original", () => {
-      const buffer = Buffer.alloc(32, 10);
+      const buffer = new Uint8Array(32).fill(10);
       const memo = Memo.hash(buffer);
 
       const value = memo.value;
@@ -342,7 +346,7 @@ describe("Memo", () => {
     });
 
     it("returns a copy for MemoReturn so mutations do not affect the original", () => {
-      const buffer = Buffer.alloc(32, 20);
+      const buffer = new Uint8Array(32).fill(20);
       const memo = Memo.return(buffer);
 
       const value = memo.value;

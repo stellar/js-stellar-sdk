@@ -132,7 +132,7 @@ export class Claimant {
       case "claimantTypeV0":
         value = claimantXdr.value;
         return new this(
-          StrKey.encodeEd25519PublicKey(Buffer.from(value.destination.value)),
+          StrKey.encodeEd25519PublicKey(value.destination.value),
           value.predicate,
         );
       default:

@@ -1,3 +1,4 @@
+import { hexToUint8Array } from "uint8array-extras";
 import { Address, Contract, StrKey } from "../base/index.js";
 import { Server } from "../rpc/index.js";
 
@@ -13,7 +14,7 @@ import {
  * Types of contract data that can be fetched
  */
 export type ContractData =
-  | { type: "wasm"; wasmBytes: Buffer }
+  | { type: "wasm"; wasmBytes: Uint8Array }
   | { type: "stellar-asset-contract" };
 
 /**
@@ -34,13 +35,13 @@ export class WasmFetchError extends Error {
  */
 async function getRemoteWasmFromHash(
   server: RpcServer,
-  hashBuffer: Buffer,
-): Promise<Buffer> {
+  hashBytes: Uint8Array,
+): Promise<Uint8Array> {
   try {
     // Create the ledger key for the contract code
     const contractCodeKey = LedgerKey.contractCode(
       new LedgerKeyContractCode({
-        hash: new Hash(Uint8Array.from(hashBuffer)),
+        hash: new Hash(hashBytes),
       }),
     );
 
@@ -60,7 +61,7 @@ async function getRemoteWasmFromHash(
       throw new WasmFetchError("Invalid ledger entry data type");
     }
     const contractCode = entry.val.value;
-    return Buffer.from(contractCode.code);
+    return contractCode.code;
   } catch (error) {
     if (error instanceof WasmFetchError) {
       throw error;
@@ -113,7 +114,7 @@ async function fetchWasmFromContract(
     if (instance.executable.type !== "contractExecutableWasm") {
       throw new WasmFetchError("Contract is not a wasm executable");
     }
-    const wasmHash = Buffer.from(instance.executable.value.value);
+    const wasmHash = instance.executable.value.value;
     const wasmBytes = await getRemoteWasmFromHash(server, wasmHash);
     return { type: "wasm", wasmBytes };
   } catch (error) {
@@ -136,15 +137,15 @@ export async function fetchFromWasmHash(
 ): Promise<ContractData> {
   try {
     // Validate and decode the hash
-    const hashBuffer = Buffer.from(wasmHash, "hex");
-    if (hashBuffer.length !== 32) {
+    const hashBytes = hexToUint8Array(wasmHash);
+    if (hashBytes.length !== 32) {
       throw new WasmFetchError(
-        `Invalid WASM hash length: expected 32 bytes, got ${hashBuffer.length}`,
+        `Invalid WASM hash length: expected 32 bytes, got ${hashBytes.length}`,
       );
     }
 
     // Get WASM from hash
-    const wasmBytes = await getRemoteWasmFromHash(rpcServer, hashBuffer);
+    const wasmBytes = await getRemoteWasmFromHash(rpcServer, hashBytes);
 
     return { type: "wasm", wasmBytes };
   } catch (error) {

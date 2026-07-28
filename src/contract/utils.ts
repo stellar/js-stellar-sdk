@@ -96,20 +96,17 @@ export function implementsToString(
 }
 
 export function parseWasmCustomSections(
-  buffer: Buffer,
+  buffer: Uint8Array,
 ): Map<string, Uint8Array[]> {
   const sections = new Map<string, Uint8Array[]>();
-  const arrayBuffer = buffer.buffer.slice(
-    buffer.byteOffset,
-    buffer.byteOffset + buffer.byteLength,
-  );
 
   let offset = 0;
 
   // Helper to read bytes with bounds checking
   const read = (length: number): Uint8Array => {
-    if (offset + length > buffer.byteLength) throw new Error("Buffer overflow");
-    const bytes = new Uint8Array(arrayBuffer, offset, length);
+    if (offset + length > buffer.byteLength)
+      throw new Error("WASM read out of bounds");
+    const bytes = buffer.subarray(offset, offset + length);
     offset += length;
     return bytes;
   };
@@ -178,8 +175,8 @@ export function parseWasmCustomSections(
  * Reads a binary stream of ScSpecEntries into an array for processing by ContractSpec
  * @hidden
  */
-export function processSpecEntryStream(buffer: Buffer) {
-  return decodeStream(ScSpecEntry, new Uint8Array(buffer));
+export function processSpecEntryStream(buffer: Uint8Array) {
+  return decodeStream(ScSpecEntry, buffer);
 }
 
 export async function getAccount<T>(

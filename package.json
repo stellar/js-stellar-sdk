@@ -138,7 +138,6 @@
     "@eslint/compat": "^1.4.1",
     "@eslint/js": "^9.39.4",
     "@rollup/plugin-commonjs": "^29.0.3",
-    "@rollup/plugin-inject": "^5.0.5",
     "@rollup/plugin-node-resolve": "^16.0.1",
     "@rollup/plugin-replace": "^6.0.2",
     "@rollup/plugin-terser": "^1.0.0",
@@ -183,13 +182,12 @@
     "vitest": "^4.1.9"
   },
   "dependencies": {
+    "@exodus/bytes": "^1.15.1",
     "@noble/ed25519": "^3.1.0",
     "@noble/hashes": "^2.2.0",
     "@stellar/js-xdr": "^5.0.0-rc.1",
     "axios": "1.18.0",
-    "base32.js": "^0.1.0",
     "bignumber.js": "^11.1.4",
-    "buffer": "^6.0.3",
     "commander": "^14.0.3",
     "eventsource": "^4.1.0",
     "feaxios": "^0.0.23",

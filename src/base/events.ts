@@ -19,7 +19,7 @@ function extractEvent(event: ContractEvent): SorobanEvent {
   return {
     ...(contractId !== null &&
       contractId !== undefined && {
-        contractId: StrKey.encodeContract(Buffer.from(contractId.toBytes())),
+        contractId: StrKey.encodeContract(contractId.toBytes()),
       }),
     type: event.type.name,
     topics: body.topics.map((t: ScVal) => scValToNative(t)),

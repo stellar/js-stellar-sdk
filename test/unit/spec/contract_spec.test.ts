@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeAll, assert } from "vitest";
+import { base64ToUint8Array } from "uint8array-extras";
 import spec from "../spec.json";
 import specStream from "../spec_stream.json";
 import { xdr, Address, contract } from "../../../src/index.js";
@@ -161,11 +162,8 @@ function generateTestData(funcName: string, index: number): any {
 }
 
 function replaceBigIntWithStrings(obj: any): any {
-  if (Buffer.isBuffer(obj)) {
-    return obj;
-  }
   if (obj instanceof Uint8Array) {
-    return Buffer.from(obj);
+    return obj;
   }
   // If obj is an array, process each element
   if (Array.isArray(obj)) {
@@ -325,7 +323,7 @@ describe("Can round trip custom types", () => {
     }
 
     args.forEach((arg) => {
-      // @ts-ignore
+      // @ts-expect-error generated test data is untyped
       const res = arg.args;
       try {
         const scVals = SPEC.funcArgsToScVals(funcName, res);
@@ -335,7 +333,7 @@ describe("Can round trip custom types", () => {
         }
         const result = SPEC.funcResToNative(funcName, scVal);
         if (funcName.startsWith("bytes")) {
-          res[funcName] = Buffer.from(res[funcName], "base64");
+          res[funcName] = base64ToUint8Array(res[funcName]);
         }
         const expected = res[funcName];
         const actual = replaceBigIntWithStrings(result);
@@ -347,7 +345,7 @@ describe("Can round trip custom types", () => {
 
           "\n",
           JSON.stringify(
-            // @ts-ignore
+            // @ts-expect-error generated test data is untyped
             funcSpec.definitions![funcName].properties,
             null,
             2,

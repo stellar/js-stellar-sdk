@@ -29,7 +29,7 @@ describe("Operation.setTrustLineFlags()", () => {
     expect(opBody.setFlags).toBe(2);
 
     const xdrHex = op.toXdr("hex");
-    const operation = xdr.Operation.fromXdr(Buffer.from(xdrHex, "hex"));
+    const operation = xdr.Operation.fromXdr(xdrHex, "hex");
     const obj = expectOperationType(
       Operation.fromXdrObject(operation),
       "setTrustLineFlags",
@@ -56,7 +56,7 @@ describe("Operation.setTrustLineFlags()", () => {
     expect(opBody.setFlags).toBe(1);
 
     const xdrHex = op.toXdr("hex");
-    const operation = xdr.Operation.fromXdr(Buffer.from(xdrHex, "hex"));
+    const operation = xdr.Operation.fromXdr(xdrHex, "hex");
     const obj = expectOperationType(
       Operation.fromXdrObject(operation),
       "setTrustLineFlags",
@@ -77,7 +77,7 @@ describe("Operation.setTrustLineFlags()", () => {
       source,
     });
     const xdrHex = op.toXdr("hex");
-    const operation = xdr.Operation.fromXdr(Buffer.from(xdrHex, "hex"));
+    const operation = xdr.Operation.fromXdr(xdrHex, "hex");
     const obj = expectOperationType(
       Operation.fromXdrObject(operation),
       "setTrustLineFlags",

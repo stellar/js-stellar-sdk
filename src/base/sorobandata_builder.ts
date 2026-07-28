@@ -40,9 +40,7 @@ export class SorobanDataBuilder {
    *      (it will be copied); if omitted or "falsy" (e.g. an empty string), it
    *      starts with an empty instance
    */
-  constructor(
-    sorobanData?: Buffer | Uint8Array | SorobanTransactionData | string,
-  ) {
+  constructor(sorobanData?: Uint8Array | SorobanTransactionData | string) {
     let data: SorobanTransactionData;
 
     if (!sorobanData) {
@@ -58,9 +56,9 @@ export class SorobanDataBuilder {
       });
     } else if (
       typeof sorobanData === "string" ||
-      ArrayBuffer.isView(sorobanData)
+      sorobanData instanceof Uint8Array
     ) {
-      data = SorobanDataBuilder.fromXdr(sorobanData as Uint8Array | string);
+      data = SorobanDataBuilder.fromXdr(sorobanData);
     } else {
       data = SorobanDataBuilder.fromXdr(sorobanData.toXdr()); // copy
     }
@@ -73,11 +71,11 @@ export class SorobanDataBuilder {
    *
    * @param data - raw input to decode
    */
-  static fromXdr(data: Buffer | Uint8Array | string): SorobanTransactionData {
+  static fromXdr(data: Uint8Array | string): SorobanTransactionData {
     if (typeof data === "string") {
       return SorobanTransactionData.fromXdr(data, "base64");
     } else {
-      return SorobanTransactionData.fromXdr(Uint8Array.from(data));
+      return SorobanTransactionData.fromXdr(data);
     }
   }
 

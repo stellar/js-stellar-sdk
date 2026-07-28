@@ -4344,7 +4344,7 @@ interface ManageDataOperationResponse extends BaseOperationResponse<OperationRes
   transaction_successful: boolean;
   type: manageData;
   type_i: manageData;
-  value: Buffer;
+  value: string;
 }
 ```
 
@@ -4433,7 +4433,7 @@ type_i: manageData;
 #### `manageDataOperationResponse.value`
 
 ```ts
-value: Buffer;
+value: string;
 ```
 
 **Source:** [src/horizon/horizon_api.ts:432](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L432)
@@ -10313,7 +10313,7 @@ interface ManageDataOperationRecord extends BaseOperationRecord<OperationRespons
   transaction_successful: boolean;
   type: manageData;
   type_i: manageData;
-  value: Buffer;
+  value: string;
 }
 ```
 
@@ -10442,7 +10442,7 @@ type_i: manageData;
 #### `manageDataOperationRecord.value`
 
 ```ts
-value: Buffer;
+value: string;
 ```
 
 **Source:** [src/horizon/horizon_api.ts:432](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L432)

@@ -143,7 +143,7 @@ export function invokeContractFunction(
 export function createCustomContract(
   opts: CreateCustomContractOpts,
 ): Operation {
-  const salt = Buffer.from(opts.salt || getSalty());
+  const salt = Uint8Array.from(opts.salt || getSalty());
 
   if (!opts.wasmHash || opts.wasmHash.length !== 32) {
     throw new TypeError(
@@ -241,7 +241,7 @@ export function createStellarAssetContract(
 export function uploadContractWasm(opts: UploadContractWasmOpts): Operation {
   return invokeHostFunction({
     func: HostFunction.hostFunctionTypeUploadContractWasm(
-      Buffer.from(opts.wasm), // coalesce so we can drop `Buffer` someday
+      Uint8Array.from(opts.wasm), // coalesce subclasses to a plain Uint8Array copy
     ),
     auth: opts.auth || [],
     ...(opts.source !== undefined && { source: opts.source }),

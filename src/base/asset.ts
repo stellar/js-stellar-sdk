@@ -1,4 +1,8 @@
-import { stringToUint8Array } from "uint8array-extras";
+import {
+  compareUint8Arrays,
+  stringToUint8Array,
+  uint8ArrayToString,
+} from "uint8array-extras";
 import { trimEnd } from "./util/util.js";
 import {
   AlphaNum12,
@@ -45,7 +49,12 @@ interface XdrAssetConstructor<TNative, TAlpha4, TAlpha12> {
  * @param b - the second string to compare
  */
 function asciiCompare(a: string, b: string): -1 | 0 | 1 {
-  return Buffer.compare(Buffer.from(a, "ascii"), Buffer.from(b, "ascii"));
+  // Asset codes and issuers are pure ASCII, so UTF-8 bytes match the old
+  // "ascii" encoding byte-for-byte.
+  return compareUint8Arrays(stringToUint8Array(a), stringToUint8Array(b)) as
+    | -1
+    | 0
+    | 1;
 }
 
 /**
@@ -108,21 +117,17 @@ export class Asset {
         return this.native();
       case "assetTypeCreditAlphanum4":
         anum = assetXdr.alphaNum4;
-        issuer = StrKey.encodeEd25519PublicKey(
-          Buffer.from(anum.issuer.ed25519),
-        );
+        issuer = StrKey.encodeEd25519PublicKey(anum.issuer.ed25519);
         code = trimEnd(
-          Buffer.from(anum.assetCode.toBytes()).toString(),
+          uint8ArrayToString(anum.assetCode.toBytes()),
           "\0",
         ) as string;
         return new this(code, issuer);
       case "assetTypeCreditAlphanum12":
         anum = assetXdr.alphaNum12;
-        issuer = StrKey.encodeEd25519PublicKey(
-          Buffer.from(anum.issuer.ed25519),
-        );
+        issuer = StrKey.encodeEd25519PublicKey(anum.issuer.ed25519);
         code = trimEnd(
-          Buffer.from(anum.assetCode.toBytes()).toString(),
+          uint8ArrayToString(anum.assetCode.toBytes()),
           "\0",
         ) as string;
         return new this(code, issuer);
@@ -165,7 +170,7 @@ export class Asset {
    * **Warning:** This makes no guarantee that this contract actually *exists*.
    */
   contractId(networkPassphrase: string): string {
-    const networkId = hash(Buffer.from(networkPassphrase));
+    const networkId = hash(stringToUint8Array(networkPassphrase));
     const preimage = HashIdPreimage.envelopeTypeContractId(
       new HashIdPreimageContractId({
         networkId,
@@ -175,7 +180,7 @@ export class Asset {
       }),
     );
 
-    return StrKey.encodeContract(hash(Buffer.from(preimage.toXdr())));
+    return StrKey.encodeContract(hash(preimage.toXdr()));
   }
 
   /**

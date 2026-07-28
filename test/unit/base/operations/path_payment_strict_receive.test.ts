@@ -45,7 +45,7 @@ describe("Operation.pathPaymentStrictReceive()", () => {
       path,
     });
     const xdrHex = op.toXdr("hex");
-    const operation = xdr.Operation.fromXdr(Buffer.from(xdrHex, "hex"));
+    const operation = xdr.Operation.fromXdr(xdrHex, "hex");
     const obj = expectOperationType(
       Operation.fromXdrObject(operation),
       "pathPaymentStrictReceive",

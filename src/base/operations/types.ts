@@ -37,7 +37,7 @@ export interface RestoreFootprintOpts {
 
 export interface ManageDataOpts {
   name: string;
-  value: Buffer | string | null;
+  value: string | Uint8Array | null;
   source?: string;
 }
 
@@ -98,7 +98,7 @@ export interface Ed25519PublicKeySignerOpt {
 
 export interface Sha256HashSignerOpt {
   ed25519PublicKey?: never;
-  sha256Hash: Buffer | string;
+  sha256Hash: Uint8Array | string;
   preAuthTx?: never;
   ed25519SignedPayload?: never;
 }
@@ -106,7 +106,7 @@ export interface Sha256HashSignerOpt {
 export interface PreAuthTxSignerOpt {
   ed25519PublicKey?: never;
   sha256Hash?: never;
-  preAuthTx: Buffer | string;
+  preAuthTx: Uint8Array | string;
   ed25519SignedPayload?: never;
 }
 
@@ -193,8 +193,8 @@ export interface BumpSequenceOpts {
 
 export interface SignerKeyOptions {
   ed25519PublicKey?: string;
-  sha256Hash?: Buffer | string;
-  preAuthTx?: Buffer | string;
+  sha256Hash?: Uint8Array | string;
+  preAuthTx?: Uint8Array | string;
   ed25519SignedPayload?: string;
 }
 
@@ -268,9 +268,9 @@ export interface InvokeContractFunctionOpts {
 
 export interface CreateCustomContractOpts {
   address: Address;
-  wasmHash: Buffer | Uint8Array;
+  wasmHash: Uint8Array;
   constructorArgs?: ScVal[];
-  salt?: Buffer | Uint8Array;
+  salt?: Uint8Array;
   auth?: SorobanAuthorizationEntry[];
   source?: string;
 }
@@ -282,7 +282,7 @@ export interface CreateStellarAssetContractOpts {
 }
 
 export interface UploadContractWasmOpts {
-  wasm: Buffer | Uint8Array;
+  wasm: Uint8Array;
   auth?: SorobanAuthorizationEntry[];
   source?: string;
 }
@@ -479,11 +479,11 @@ export namespace Signer {
     weight?: number;
   }
   export interface Sha256Hash {
-    sha256Hash: Buffer;
+    sha256Hash: Uint8Array;
     weight?: number;
   }
   export interface PreAuthTx {
-    preAuthTx: Buffer;
+    preAuthTx: Uint8Array;
     weight?: number;
   }
   export interface Ed25519SignedPayload {
@@ -591,7 +591,7 @@ export type InflationResult = BaseOperation<OperationType.Inflation>;
 
 export interface ManageDataResult extends BaseOperation<OperationType.ManageData> {
   name: string;
-  value?: Buffer;
+  value?: Uint8Array;
 }
 
 export interface BumpSequenceResult extends BaseOperation<OperationType.BumpSequence> {

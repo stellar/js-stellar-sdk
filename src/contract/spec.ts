@@ -1,4 +1,5 @@
 import type { JSONSchema7, JSONSchema7Definition } from "json-schema";
+import { base64ToUint8Array, uint8ArrayToBase64 } from "uint8array-extras";
 import {
   type ScIntType,
   XdrLargeInt,
@@ -110,9 +111,7 @@ function stringToScVal(str: string, ty: string): ScVal {
       return new XdrLargeInt("i256", str).toScVal();
     case "scSpecTypeBytes":
     case "scSpecTypeBytesN":
-      return ScVal.scvBytes(
-        new ScBytes(Uint8Array.from(Buffer.from(str, "base64"))),
-      );
+      return ScVal.scvBytes(new ScBytes(base64ToUint8Array(str)));
     case "scSpecTypeTimepoint": {
       return ScVal.scvTimepoint(Uint64(str));
     }
@@ -518,11 +517,11 @@ export class Spec {
   /**
    * Generates a Spec instance from the contract's wasm binary.
    *
-   * @param wasm - The contract's wasm binary as a Buffer.
+   * @param wasm - The contract's wasm binary as a Uint8Array.
    * @returns A Promise that resolves to a Spec instance.
    * @throws If the contract spec cannot be obtained from the provided wasm binary.
    */
-  static fromWasm(wasm: Buffer): Spec {
+  static fromWasm(wasm: Uint8Array): Spec {
     const spec = specFromWasm(wasm);
     return new Spec(spec);
   }
@@ -538,11 +537,11 @@ export class Spec {
    * @returns A Promise that resolves to a Client instance.
    * @throws If the contract spec cannot be obtained from the provided wasm binary.
    */
-  constructor(entries: Buffer | string | ScSpecEntry[] | string[]) {
-    if (Buffer.isBuffer(entries)) {
-      this.entries = processSpecEntryStream(entries as Buffer);
+  constructor(entries: Uint8Array | string | ScSpecEntry[] | string[]) {
+    if (entries instanceof Uint8Array) {
+      this.entries = processSpecEntryStream(entries);
     } else if (typeof entries === "string") {
-      this.entries = processSpecEntryStream(Buffer.from(entries, "base64"));
+      this.entries = processSpecEntryStream(base64ToUint8Array(entries));
     } else {
       if (entries.length === 0) {
         throw new Error("Contract spec must have at least one entry");
@@ -644,7 +643,7 @@ export class Spec {
     if (output.type === "scSpecTypeResult") {
       if (val.type === "scvError") {
         return new Err({
-          message: Buffer.from(val.value.toXdr()).toString("base64"),
+          message: uint8ArrayToBase64(val.value.toXdr()),
         });
       }
       return new Ok(this.scValToNative(val, output.value.okType));
@@ -731,7 +730,7 @@ export class Spec {
           return val.address().toScVal();
         }
 
-        if (val instanceof Uint8Array || Buffer.isBuffer(val)) {
+        if (val instanceof Uint8Array) {
           const copy = Uint8Array.from(val);
           switch (tyType) {
             case "scSpecTypeBytesN": {
