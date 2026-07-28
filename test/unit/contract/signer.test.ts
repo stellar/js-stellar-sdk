@@ -98,8 +98,8 @@ describe("KeypairSigner", () => {
   });
 
   it("keeps working when its methods are pulled off the instance", async () => {
-    // `basicNodeSigner` spreads them and the normalizers extract them, so they
-    // must not depend on being called as methods.
+    // `basicNodeSigner` destructures them and the normalizers read them off the
+    // instance, so they must not depend on being called as methods.
     const keypair = Keypair.random();
     const { signTransaction, signAuthEntry } = new KeypairSigner(
       keypair,
@@ -144,15 +144,23 @@ describe("signer normalization", () => {
     expect(toSignAuthEntry(authCallback, networkPassphrase)).toBe(authCallback);
   });
 
-  it("unwraps a Signer's callbacks", () => {
+  it("unwraps a Signer's callbacks", async () => {
     const signer: Signer = {
       address: Keypair.random().publicKey(),
       signTransaction: callback,
       signAuthEntry: authCallback,
     };
 
-    expect(toSignTransaction(signer, networkPassphrase)).toBe(callback);
-    expect(toSignAuthEntry(signer, networkPassphrase)).toBe(authCallback);
+    // Delegation, not reference identity: the returned callbacks are bound to
+    // the signer, so they are wrappers rather than the originals.
+    const signTransaction = toSignTransaction(signer, networkPassphrase);
+    const signAuthEntry = toSignAuthEntry(signer, networkPassphrase);
+    if (!signTransaction)
+      throw new Error("expected a signTransaction callback");
+    if (!signAuthEntry) throw new Error("expected a signAuthEntry callback");
+
+    expect(await signTransaction("xdr")).toEqual(await callback("xdr"));
+    expect(await signAuthEntry("entry")).toEqual(await authCallback("entry"));
   });
 
   it("reports a Signer that omits signAuthEntry as absent", () => {
@@ -161,7 +169,7 @@ describe("signer normalization", () => {
       signTransaction: callback,
     };
 
-    expect(toSignTransaction(signer, networkPassphrase)).toBe(callback);
+    expect(toSignTransaction(signer, networkPassphrase)).toBeTypeOf("function");
     expect(toSignAuthEntry(signer, networkPassphrase)).toBeUndefined();
   });
 
@@ -171,6 +179,8 @@ describe("signer normalization", () => {
 
     const signTransaction = toSignTransaction(keypair, networkPassphrase);
     const signAuthEntry = toSignAuthEntry(keypair, networkPassphrase);
+    if (!signTransaction)
+      throw new Error("expected a signTransaction callback");
     if (!signAuthEntry) throw new Error("expected a signAuthEntry callback");
 
     expect(await signTransaction(xdr)).toEqual(
@@ -182,8 +192,100 @@ describe("signer normalization", () => {
     );
   });
 
+  it("keeps `this` for a Signer implemented with prototype methods", async () => {
+    // A class-based Signer is idiomatic, and TypeScript accepts a prototype
+    // method for `signTransaction: SignTransaction`. Extracting the bare
+    // function reference must not strip its receiver.
+    class ClassSigner implements Signer {
+      readonly address = Keypair.random().publicKey();
+      private secret = "kept";
+
+      async signTransaction() {
+        return Promise.resolve({ signedTxXdr: this.secret });
+      }
+
+      async signAuthEntry() {
+        return Promise.resolve({ signedAuthEntry: this.secret });
+      }
+    }
+    const signer = new ClassSigner();
+
+    const signTransaction = toSignTransaction(signer, networkPassphrase);
+    const signAuthEntry = toSignAuthEntry(signer, networkPassphrase);
+    if (!signTransaction)
+      throw new Error("expected a signTransaction callback");
+    if (!signAuthEntry) throw new Error("expected a signAuthEntry callback");
+
+    expect(await signTransaction("xdr")).toEqual({ signedTxXdr: "kept" });
+    expect(await signAuthEntry("entry")).toEqual({ signedAuthEntry: "kept" });
+  });
+
   it("passes undefined through", () => {
     expect(toSignTransaction(undefined, networkPassphrase)).toBeUndefined();
     expect(toSignAuthEntry(undefined, networkPassphrase)).toBeUndefined();
+  });
+
+  it("recognizes a Keypair from a different copy of the module", () => {
+    // `instanceof` fails when a caller's Keypair comes from a different copy of
+    // the module — the CJS and ESM builds have distinct `Keypair` classes, as do
+    // duplicate installs — so the check is structural. Simulated here by a
+    // distinct object exposing the two members KeypairSigner uses.
+    const keypair = Keypair.random();
+    const foreign = {
+      publicKey: () => keypair.publicKey(),
+      sign: (data: Buffer) => keypair.sign(data),
+    };
+    expect(foreign instanceof Keypair).toBe(false);
+
+    const signTransaction = toSignTransaction(
+      foreign as unknown as Keypair,
+      networkPassphrase,
+    );
+    const signAuthEntry = toSignAuthEntry(
+      foreign as unknown as Keypair,
+      networkPassphrase,
+    );
+
+    expect(signTransaction).toBeTypeOf("function");
+    expect(signAuthEntry).toBeTypeOf("function");
+  });
+
+  it("prefers the Signer shape over the Keypair shape", async () => {
+    // A Signer that also exposes `sign`/`publicKey` must still route through its
+    // own `signTransaction` rather than being mistaken for a keypair.
+    const keypair = Keypair.random();
+    const hybrid = {
+      address: keypair.publicKey(),
+      signTransaction: callback,
+      publicKey: () => keypair.publicKey(),
+      sign: (data: Buffer) => keypair.sign(data),
+    };
+
+    const signTransaction = toSignTransaction(hybrid, networkPassphrase);
+    if (!signTransaction)
+      throw new Error("expected a signTransaction callback");
+
+    // The Signer's own callback returns this sentinel; had it been treated as a
+    // keypair, signing would instead try to parse "xdr" as an envelope.
+    expect(await signTransaction("xdr")).toEqual({ signedTxXdr: "unused" });
+  });
+
+  // Malformed input cannot occur in TypeScript, but the SDK is consumed from
+  // plain JavaScript too. Each of these must degrade to `undefined` so the
+  // caller raises its own `NoSigner`, rather than throwing from the normalizer.
+  it.each([
+    ["null", null],
+    ["an empty object", {}],
+    ["an object with no callbacks", { address: "G..." }],
+    ["a null signTransaction", { address: "G...", signTransaction: null }],
+    ["a string", "not a signer"],
+    ["a number", 42],
+  ])("degrades to undefined for %s", (_label, malformed) => {
+    expect(
+      toSignTransaction(malformed as never, networkPassphrase),
+    ).toBeUndefined();
+    expect(
+      toSignAuthEntry(malformed as never, networkPassphrase),
+    ).toBeUndefined();
   });
 });

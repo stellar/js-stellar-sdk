@@ -16,13 +16,13 @@ import type { SignAuthEntry, SignTransaction } from "./types.js";
  * accepts (those of SEP-43 wallets such as Freighter), so an existing wallet
  * object becomes a `Signer` by gaining an `address`.
  *
- * `signAuthEntry` is optional because not every wallet implements it; it is only
- * needed for multi-party (non-invoker) auth entry signing.
+ * `signAuthEntry` is optional because not every wallet implements it; it is
+ * only needed for multi-party (non-invoker) auth entry signing.
  *
- * Accepted anywhere a `signTransaction` callback is, i.e. in
- * {@link ClientOptions}, {@link MethodOptions},
- * {@link contract.AssembledTransaction.sign | sign}, and
- * {@link contract.AssembledTransaction.signAndSend | signAndSend}.
+ * Accepted wherever the SDK takes a signing callback: the `signTransaction` and
+ * `signAuthEntry` options on `ClientOptions` and `MethodOptions`, and the
+ * per-call overrides on `AssembledTransaction`'s `sign`, `signAndSend`, and
+ * `signAuthEntries`.
  */
 export interface Signer {
   /** The address this signer signs as: `G…` for accounts, `C…` for contracts. */
@@ -39,10 +39,6 @@ export interface Signer {
  * Suitable for Node applications, scripts, and tests — anywhere the secret key
  * lives in the same process. For browser applications, use the SEP-43 wallet's
  * own `signTransaction`, or wrap it in an object satisfying {@link Signer}.
- *
- * @param keypair - the {@link Keypair} to sign with; needs a secret key
- * @param networkPassphrase - passphrase of the network to sign for, used when
- *    the caller does not pass one at signing time
  *
  * @example
  * ```ts
@@ -61,13 +57,16 @@ export interface Signer {
  */
 export class KeypairSigner implements Signer {
   /**
-   * The keypair's Ed25519 account address (`G…`).
-   *
-   * Always `keypair.publicKey()`. {@link Signer.address} is broader — it may be
-   * a `C…` contract address — but a keypair-backed signer never is.
+   * The keypair's Ed25519 account address (`G…`), always `keypair.publicKey()`.
    */
   readonly address: string;
 
+  /**
+   * @param keypair - the {@link Keypair} to sign with. Signing throws
+   *    `cannot sign: no secret key available` if it holds only a public key.
+   * @param networkPassphrase - passphrase of the network to sign for, used
+   *    whenever the caller does not pass one at signing time
+   */
   constructor(
     private readonly keypair: Keypair,
     private readonly networkPassphrase: string,
@@ -75,10 +74,15 @@ export class KeypairSigner implements Signer {
     this.address = keypair.publicKey();
   }
 
-  /* These are arrow instance properties rather than prototype methods because
-     callers pull them off the instance as bare functions — `basicNodeSigner`
-     spreads them, and the normalizers below extract them — which would lose
-     `this` on a prototype method. */
+  /* Arrow instance properties rather than prototype methods because
+     `basicNodeSigner` destructures them into a plain object, which would lose
+     `this` on a prototype method. (The normalizers below tolerate either, since
+     they bind what they extract.)
+
+     They stay `async` despite having nothing to await (hence the rule
+     suppressions): that way a synchronous failure — malformed XDR, or a keypair
+     holding no secret key — rejects the returned promise instead of throwing,
+     preserving the behavior `basicNodeSigner` had before it delegated here. */
 
   // eslint-disable-next-line @typescript-eslint/require-await
   signTransaction: SignTransaction = async (xdr, opts) => {
@@ -86,7 +90,9 @@ export class KeypairSigner implements Signer {
       xdr,
       opts?.networkPassphrase || this.networkPassphrase,
     );
+
     t.sign(this.keypair);
+
     return {
       signedTxXdr: t.toXDR(),
       signerAddress: this.address,
@@ -98,6 +104,7 @@ export class KeypairSigner implements Signer {
     const signedAuthEntry = this.keypair
       .sign(hash(Buffer.from(authEntry, "base64")))
       .toString("base64");
+
     return {
       signedAuthEntry,
       signerAddress: this.address,
@@ -112,34 +119,65 @@ export class KeypairSigner implements Signer {
 export type SignTransactionLike = SignTransaction | Signer | Keypair;
 
 /**
- * Anything accepted where a `signAuthEntry` callback is expected.
+ * Anything accepted where a `signAuthEntry` callback is expected: the raw
+ * SEP-43 callback, a {@link Signer}, or a {@link Keypair}.
  */
 export type SignAuthEntryLike = SignAuthEntry | Signer | Keypair;
 
 /**
+ * Recognizes a {@link Keypair} by the two members {@link KeypairSigner} calls.
+ *
+ * Structural rather than `instanceof` on purpose: this package ships a CJS and
+ * an ESM build whose `Keypair` classes are distinct objects, so a keypair made
+ * through one entry point fails `instanceof` against the other despite working
+ * perfectly. Duplicate copies of the SDK in one dependency tree do the same.
+ *
+ * Only ever reached after a `Signer` has been ruled out, so an object carrying
+ * `signTransaction` can never be misrouted here.
+ */
+function isKeypairLike(value: object): value is Keypair {
+  return (
+    "publicKey" in value &&
+    typeof value.publicKey === "function" &&
+    "sign" in value &&
+    typeof value.sign === "function"
+  );
+}
+
+/**
  * Reduces the accepted signing shapes down to a plain callback.
+ *
+ * Anything that carries no usable callback yields `undefined` — including an
+ * absent value, or an object that does not match any accepted shape — so the
+ * caller decides how to report a missing signer. This is deliberately lenient:
+ * callers reaching the SDK from plain JavaScript are not held to the types, and
+ * a clear `NoSigner` beats a `TypeError` from deep inside a normalizer.
  *
  * Internal: called at the entry points that read a caller-supplied signer, so
  * the rest of the code only ever deals with a `SignTransaction`.
  */
 export function toSignTransaction(
-  value: SignTransactionLike,
-  networkPassphrase: string,
-): SignTransaction;
-export function toSignTransaction(
-  value: SignTransactionLike | undefined,
-  networkPassphrase: string,
-): SignTransaction | undefined;
-export function toSignTransaction(
   value: SignTransactionLike | undefined,
   networkPassphrase: string,
 ): SignTransaction | undefined {
-  if (value === undefined) return undefined;
-  if (value instanceof Keypair) {
+  // `== null` so an explicit `null` from a JS caller behaves like `undefined`.
+  if (value == null) return undefined;
+
+  if (typeof value === "function") return value;
+
+  // Guards the `in` checks below, which throw on primitives.
+  if (typeof value !== "object") return undefined;
+
+  // `signTransaction` is a `Signer`'s required member, so it identifies one.
+  // Bound because a `Signer` may implement it as a prototype method that relies
+  // on `this`; a bare reference would lose its receiver.
+  if ("signTransaction" in value) return value.signTransaction?.bind(value);
+
+  if (isKeypairLike(value)) {
     return new KeypairSigner(value, networkPassphrase).signTransaction;
   }
-  if (typeof value === "function") return value;
-  return value.signTransaction;
+
+  return undefined;
 }
 
 /**
@@ -154,10 +192,19 @@ export function toSignAuthEntry(
   value: SignAuthEntryLike | undefined,
   networkPassphrase: string,
 ): SignAuthEntry | undefined {
-  if (value === undefined) return undefined;
-  if (value instanceof Keypair) {
+  if (value == null) return undefined;
+
+  if (typeof value === "function") return value;
+
+  if (typeof value !== "object") return undefined;
+
+  // Identified and bound as in `toSignTransaction`; optional chaining keeps a
+  // `Signer` that omits the optional `signAuthEntry` reported as `undefined`.
+  if ("signTransaction" in value) return value.signAuthEntry?.bind(value);
+
+  if (isKeypairLike(value)) {
     return new KeypairSigner(value, networkPassphrase).signAuthEntry;
   }
-  if (typeof value === "function") return value;
-  return value.signAuthEntry;
+
+  return undefined;
 }

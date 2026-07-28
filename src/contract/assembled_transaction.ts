@@ -791,7 +791,12 @@ export class AssembledTransaction<T> {
       );
     }
 
-    if (!signTransaction) {
+    const signTx = toSignTransaction(
+      signTransaction,
+      this.options.networkPassphrase,
+    );
+
+    if (!signTx) {
       throw new AssembledTransaction.Errors.NoSigner(
         "You must provide a signTransaction function, either when calling " +
           "`signAndSend` or when initializing your Client",
@@ -823,11 +828,6 @@ export class AssembledTransaction<T> {
     })
       .setTimeout(timeoutInSeconds)
       .build();
-
-    const signTx = toSignTransaction(
-      signTransaction,
-      this.options.networkPassphrase,
-    );
 
     const signOpts: Parameters<SignTransaction>[1] = {
       networkPassphrase: this.options.networkPassphrase,

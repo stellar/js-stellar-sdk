@@ -860,7 +860,7 @@ const client = await Client.from({
 });
 ```
 
-**Source:** [src/contract/signer.ts:62](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/signer.ts#L62)
+**Source:** [src/contract/signer.ts:58](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/signer.ts#L58)
 
 ### `new KeypairSigner(keypair, networkPassphrase)`
 
@@ -870,23 +870,22 @@ constructor(keypair: Keypair, networkPassphrase: string);
 
 **Parameters**
 
-- **`keypair`** — `Keypair` (required)
-- **`networkPassphrase`** — `string` (required)
+- **`keypair`** — `Keypair` (required) — the `Keypair` to sign with. Signing throws
+     `cannot sign: no secret key available` if it holds only a public key.
+- **`networkPassphrase`** — `string` (required) — passphrase of the network to sign for, used
+     whenever the caller does not pass one at signing time
 
-**Source:** [src/contract/signer.ts:71](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/signer.ts#L71)
+**Source:** [src/contract/signer.ts:70](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/signer.ts#L70)
 
 ### `keypairSigner.address`
 
-The keypair's Ed25519 account address (`G…`).
-
-Always `keypair.publicKey()`. `Signer.address` is broader — it may be
-a `C…` contract address — but a keypair-backed signer never is.
+The keypair's Ed25519 account address (`G…`), always `keypair.publicKey()`.
 
 ```ts
 readonly address: string;
 ```
 
-**Source:** [src/contract/signer.ts:69](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/signer.ts#L69)
+**Source:** [src/contract/signer.ts:62](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/signer.ts#L62)
 
 ### `keypairSigner.signAuthEntry`
 
@@ -896,7 +895,7 @@ Signs an auth entry preimage. Matches `signAuthEntry` from Freighter.
 signAuthEntry: SignAuthEntry;
 ```
 
-**Source:** [src/contract/signer.ts:97](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/signer.ts#L97)
+**Source:** [src/contract/signer.ts:101](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/signer.ts#L101)
 
 ### `keypairSigner.signTransaction`
 
@@ -906,7 +905,7 @@ Signs a transaction envelope. Matches `signTransaction` from Freighter.
 signTransaction: SignTransaction;
 ```
 
-**Source:** [src/contract/signer.ts:84](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/signer.ts#L84)
+**Source:** [src/contract/signer.ts:88](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/signer.ts#L88)
 
 ## contract.NULL_ACCOUNT
 
@@ -1770,13 +1769,14 @@ type SignAuthEntry = (authEntry: string, opts?: { address?: string; networkPassp
 
 ### contract.SignAuthEntryLike
 
-Anything accepted where a `signAuthEntry` callback is expected.
+Anything accepted where a `signAuthEntry` callback is expected: the raw
+SEP-43 callback, a `Signer`, or a `Keypair`.
 
 ```ts
 type SignAuthEntryLike = SignAuthEntry | Signer | Keypair
 ```
 
-**Source:** [src/contract/signer.ts:117](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/signer.ts#L117)
+**Source:** [src/contract/signer.ts:122](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/signer.ts#L122)
 
 ### contract.SignTransaction
 
@@ -1801,7 +1801,7 @@ SEP-43 callback, a `Signer`, or a `Keypair`.
 type SignTransactionLike = SignTransaction | Signer | Keypair
 ```
 
-**Source:** [src/contract/signer.ts:112](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/signer.ts#L112)
+**Source:** [src/contract/signer.ts:116](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/signer.ts#L116)
 
 ### contract.Signer
 
@@ -1819,13 +1819,13 @@ contract address for smart accounts, whose signatures are not Ed25519 at all.
 accepts (those of SEP-43 wallets such as Freighter), so an existing wallet
 object becomes a `Signer` by gaining an `address`.
 
-`signAuthEntry` is optional because not every wallet implements it; it is only
-needed for multi-party (non-invoker) auth entry signing.
+`signAuthEntry` is optional because not every wallet implements it; it is
+only needed for multi-party (non-invoker) auth entry signing.
 
-Accepted anywhere a `signTransaction` callback is, i.e. in
-`ClientOptions`, `MethodOptions`,
-`sign`, and
-`signAndSend`.
+Accepted wherever the SDK takes a signing callback: the `signTransaction` and
+`signAuthEntry` options on `ClientOptions` and `MethodOptions`, and the
+per-call overrides on `AssembledTransaction`'s `sign`, `signAndSend`, and
+`signAuthEntries`.
 
 ```ts
 interface Signer {
