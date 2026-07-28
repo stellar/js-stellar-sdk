@@ -85,7 +85,7 @@ export class Client extends ContractClient {
   /**
    * Build a topics filter row for the "SwapEvent" event, for use in \`Api.EventFilter.topics\` when calling \`server.getEvents\`. Omitted fields match any value.
    */
-  swapEventEventFilter(topicValues?: { from?: string; card?: RoyalCard }): string[] {
+  swapEventEventFilter(topicValues?: { from?: string | Address; card?: RoyalCard }): string[] {
     return this.spec.eventTopicFilter("SwapEvent", topicValues);
   }
   /**

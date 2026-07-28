@@ -44,6 +44,10 @@ export interface EnumCase {
 export class TypeGenerator {
   private spec: Spec;
 
+  // rawEventName -> resolved (possibly disambiguated) interface name.
+  // Lazily computed on first use; see resolveEventInterfaceNames().
+  private eventInterfaceNames: Map<string, string> | null = null;
+
   constructor(spec: Spec) {
     this.spec = spec;
   }
@@ -276,10 +280,98 @@ ${members}
   }
 
   /**
-   * Compute the exported TS interface name for an event, e.g. "transfer" becomes "TransferEvent"
+   * Compute the exported TS interface name for an event, e.g. "transfer"
+   * becomes "TransferEvent". Resolved (and disambiguated if necessary) via
+   * {@link resolveEventInterfaceNames}, so every call site agrees.
    */
   private eventInterfaceName(event: xdr.ScSpecEventV0): string {
-    return `${toPascalCase(sanitizeIdentifier(event.name().toString()))}Event`;
+    const rawName = event.name().toString();
+    const resolved = this.resolveEventInterfaceNames().get(rawName);
+    /* istanbul ignore next -- every event in the spec is reserved a name */
+    if (resolved === undefined) {
+      return `${toPascalCase(sanitizeIdentifier(rawName))}Event`;
+    }
+    return resolved;
+  }
+
+  /**
+   * True if the given event's resolved interface name differs from its
+   * preferred (unsuffixed) form, i.e. it was disambiguated away from a
+   * collision.
+   */
+  private eventInterfaceNameWasRenamed(event: xdr.ScSpecEventV0): boolean {
+    const rawName = event.name().toString();
+    const preferred = `${toPascalCase(sanitizeIdentifier(rawName))}Event`;
+    return this.eventInterfaceName(event) !== preferred;
+  }
+
+  /**
+   * The name-normalization used for event interface names (and UDT type
+   * names) is not injective — e.g. events "FooBar" and "foo_bar" both
+   * produce the interface name "FooBarEvent", and an event can just as
+   * easily collide with a UDT (struct/union/enum) of the same generated
+   * name. Since UDT/function names are load-bearing (referenced directly in
+   * signatures) and event-derived names are already synthetic, UDT names
+   * always win: they are reserved first, in spec-entry order. Events are
+   * then resolved in spec-entry order, appending the smallest integer 2 or greater
+   * needed to make the name unique (and reserving whatever name results, so
+   * later events see it too). This is deterministic for a given spec.
+   */
+  private resolveEventInterfaceNames(): Map<string, string> {
+    if (this.eventInterfaceNames !== null) {
+      return this.eventInterfaceNames;
+    }
+    // Reserve names that are already taken by UDTs and other special entries. ContractEvent is a special entry for the discriminated union of all events.
+    const reserved = new Set<string>(["ContractEvent"]);
+
+    for (const entry of this.spec.entries) {
+      switch (entry.switch()) {
+        case xdr.ScSpecEntryKind.scSpecEntryUdtStructV0():
+          reserved.add(
+            sanitizeIdentifier(entry.udtStructV0().name().toString()),
+          );
+          break;
+        case xdr.ScSpecEntryKind.scSpecEntryUdtUnionV0():
+          reserved.add(
+            sanitizeIdentifier(entry.udtUnionV0().name().toString()),
+          );
+          break;
+        case xdr.ScSpecEntryKind.scSpecEntryUdtEnumV0():
+          reserved.add(sanitizeIdentifier(entry.udtEnumV0().name().toString()));
+          break;
+        case xdr.ScSpecEntryKind.scSpecEntryUdtErrorEnumV0():
+          reserved.add(
+            sanitizeIdentifier(entry.udtErrorEnumV0().name().toString()),
+          );
+          break;
+        default:
+          break;
+      }
+    }
+
+    const resolved = new Map<string, string>();
+
+    for (const entry of this.spec.entries) {
+      if (entry.switch() !== xdr.ScSpecEntryKind.scSpecEntryEventV0()) {
+        continue;
+      }
+      const event = entry.eventV0();
+      const rawName = event.name().toString();
+      const preferred = `${toPascalCase(sanitizeIdentifier(rawName))}Event`;
+
+      let candidate = preferred;
+      let suffix = 2;
+      while (reserved.has(candidate)) {
+        candidate = `${preferred}${suffix}`;
+        suffix += 1;
+      }
+
+      reserved.add(candidate);
+      resolved.set(rawName, candidate);
+    }
+
+    this.eventInterfaceNames = resolved;
+    return resolved;
   }
 
   /**
@@ -288,8 +380,12 @@ ${members}
   private generateEvent(event: xdr.ScSpecEventV0): string {
     const rawName = event.name().toString();
     const name = this.eventInterfaceName(event);
+    const preferred = `${toPascalCase(sanitizeIdentifier(rawName))}Event`;
+    const renameNote = this.eventInterfaceNameWasRenamed(event)
+      ? `\n\nNote: renamed from "${preferred}" to avoid a collision with another generated name.`
+      : "";
     const doc = formatJSDocComment(
-      event.doc().toString() || `Event: ${rawName}`,
+      (event.doc().toString() || `Event: ${rawName}`) + renameNote,
       0,
     );
 

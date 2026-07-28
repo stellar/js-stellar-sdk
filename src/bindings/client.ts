@@ -16,6 +16,10 @@ import {
 export class ClientGenerator {
   private spec: Spec;
 
+  // rawEventName -> resolved (possibly disambiguated) filter method name.
+  // Lazily computed on first use; see resolveEventFilterMethodNames().
+  private eventFilterMethodNames: Map<string, string> | null = null;
+
   constructor(spec: Spec) {
     this.spec = spec;
   }
@@ -148,12 +152,79 @@ ${eventMethods}
   }
 
   /**
+   * The `<camelCase>EventFilter` method name derived from an event name is
+   * not injective (e.g. "FooBar" and "foo_bar" both produce
+   * "fooBarEventFilter"), and it can just as easily collide with a
+   * generated contract function name (e.g. an event "transfer" plus a
+   * function "transferEventFilter"). Since function member names are
+   * load-bearing (called directly by users) and event filter names are
+   * already synthetic, function names always win: they are reserved first,
+   * in spec-entry order. Events are then resolved in spec-entry order,
+   * appending the smallest integer 2 or greater needed to make the name unique (and
+   * reserving whatever name results, so later events see it too). This is
+   * deterministic for a given spec.
+   */
+  private resolveEventFilterMethodNames(): Map<string, string> {
+    if (this.eventFilterMethodNames !== null) {
+      return this.eventFilterMethodNames;
+    }
+
+    const reserved = new Set<string>();
+
+    this.spec
+      .funcs()
+      .filter((func) => func.name().toString() !== "__constructor")
+      .forEach((func) => {
+        reserved.add(sanitizeIdentifier(func.name().toString()));
+      });
+
+    const resolved = new Map<string, string>();
+
+    this.spec.events().forEach((event) => {
+      const rawName = event.name().toString();
+      const preferred = `${toCamelCase(sanitizeIdentifier(rawName))}EventFilter`;
+
+      let candidate = preferred;
+      let suffix = 2;
+      while (reserved.has(candidate)) {
+        candidate = `${preferred}${suffix}`;
+        suffix += 1;
+      }
+
+      reserved.add(candidate);
+      resolved.set(rawName, candidate);
+    });
+
+    this.eventFilterMethodNames = resolved;
+    return resolved;
+  }
+
+  /**
+   * Compute the resolved (possibly disambiguated) filter method name for an
+   * event; see {@link resolveEventFilterMethodNames}.
+   */
+  private eventFilterMethodName(event: xdr.ScSpecEventV0): string {
+    const rawName = event.name().toString();
+    const resolved = this.resolveEventFilterMethodNames().get(rawName);
+    /* istanbul ignore next -- every event in the spec is reserved a name */
+    if (resolved === undefined) {
+      return `${toCamelCase(sanitizeIdentifier(rawName))}EventFilter`;
+    }
+    return resolved;
+  }
+
+  /**
    * Generate a per-event helper that builds a topics-filter row for
    * `Api.EventFilter.topics`, suitable for passing to server.getEvents.
    */
   private generateEventFilterMethod(event: xdr.ScSpecEventV0): string {
     const rawName = event.name().toString();
-    const methodName = `${toCamelCase(sanitizeIdentifier(rawName))}EventFilter`;
+    const methodName = this.eventFilterMethodName(event);
+    const preferredMethodName = `${toCamelCase(sanitizeIdentifier(rawName))}EventFilter`;
+    const renameNote =
+      methodName !== preferredMethodName
+        ? ` Note: renamed from "${preferredMethodName}" to avoid a collision with another generated name.`
+        : "";
     const topicParams = event
       .params()
       .filter(
@@ -172,7 +243,7 @@ ${eventMethods}
         const fieldName = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(rawParamName)
           ? rawParamName
           : `"${escapeStringLiteral(rawParamName)}"`;
-        const fieldType = parseTypeFromTypeDef(param.type());
+        const fieldType = parseTypeFromTypeDef(param.type(), true);
         return `${fieldName}?: ${fieldType}`;
       })
       .join("; ");
@@ -180,7 +251,7 @@ ${eventMethods}
     const doc = formatJSDocComment(
       `Build a topics filter row for the "${rawName}" event, for use in ` +
         `\`Api.EventFilter.topics\` when calling \`server.getEvents\`. ` +
-        `Omitted fields match any value.`,
+        `Omitted fields match any value.${renameNote}`,
       2,
     );
 

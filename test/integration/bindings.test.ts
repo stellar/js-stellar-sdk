@@ -1409,7 +1409,7 @@ describe("BindingGenerator", () => {
       expect(result.client).toContain("transferEventFilter(");
       expect(result.client).toContain("mintEventFilter(");
       expect(result.client).toContain(
-        "mintEventFilter(topicValues?: { to?: string })",
+        "mintEventFilter(topicValues?: { to?: string | Address })",
       );
 
       // Metadata is only used by a data-located param, so it appears in

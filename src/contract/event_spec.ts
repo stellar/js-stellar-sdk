@@ -41,19 +41,15 @@ export function events(entries: xdr.ScSpecEntry[]): xdr.ScSpecEventV0[] {
  *
  * @param entries - the contract's XDR spec entries
  * @param name - the name of the event to find
- * @returns the event spec
- * @throws if no event with the given name exists
+ * @returns the event spec, or `undefined` if the contract declares no event
+ *          with that name
  * @hidden
  */
 export function findEvent(
   entries: xdr.ScSpecEntry[],
   name: string,
-): xdr.ScSpecEventV0 {
-  const found = events(entries).find((e) => e.name().toString() === name);
-  if (!found) {
-    throw new Error(`no such event: ${name}`);
-  }
-  return found;
+): xdr.ScSpecEventV0 | undefined {
+  return events(entries).find((e) => e.name().toString() === name);
 }
 
 /**
@@ -176,7 +172,11 @@ export function parseEvent(
     // Treat any decode failure as a non-match and try the next candidate.
     try {
       const prefixLen = event.prefixTopics().length;
-      const dataOut: Record<string, any> = {};
+      // Param names come from an untrusted, on-chain contract spec, so a
+      // param literally named "__proto__" must not be able to reach the
+      // object's prototype via normal property assignment. A null-prototype
+      // object stores it as a plain own property instead.
+      const dataOut: Record<string, any> = Object.create(null);
       tlParams.forEach((param, i) => {
         const val = topicVals[prefixLen + i];
         dataOut[param.name().toString()] = spec.scValToNative(
@@ -261,6 +261,9 @@ export function eventTopicFilter(
   topicValues?: Record<string, any>,
 ): string[] {
   const event = findEvent(entries, name);
+  if (!event) {
+    throw new Error(`no such event: ${name}`);
+  }
   const filter: string[] = event
     .prefixTopics()
     .map((topic) => xdr.ScVal.scvSymbol(topic.toString()).toXDR("base64"));

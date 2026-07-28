@@ -57,8 +57,28 @@ describe("Spec events", () => {
 
     expect(spec.events().length).toBe(1);
     expect(spec.events()[0].name().toString()).toBe("transfer");
-    expect(spec.findEvent("transfer").name().toString()).toBe("transfer");
-    expect(() => spec.findEvent("nope")).toThrow();
+    expect(spec.findEvent("transfer")?.name().toString()).toBe("transfer");
+  });
+
+  it("findEvent returns undefined for an undeclared event", () => {
+    // Unlike findEntry, probing for an absent event is not an error — callers
+    // filtering a mixed event stream shouldn't need a try/catch.
+    const event = new xdr.ScSpecEventV0({
+      doc: "",
+      lib: "",
+      name: "transfer",
+      prefixTopics: ["transfer"],
+      params: [param("from", addrType, TOPIC)],
+      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatSingleValue(),
+    });
+    const spec = new Spec([entryFor(event)]);
+
+    expect(spec.findEvent("nope")).toBeUndefined();
+    expect(() => spec.findEvent("nope")).not.toThrow();
+
+    // eventTopicFilter still throws: it builds a value, and there is no
+    // meaningful filter row for an event the contract doesn't declare.
+    expect(() => spec.eventTopicFilter("nope")).toThrow(/no such event: nope/);
   });
 
   it("parses singleValue data format events, round-tripping natives", () => {
@@ -405,6 +425,32 @@ describe("Spec events", () => {
         amount: 42,
       },
     });
+  });
+
+  it("does not pollute the prototype for a param named __proto__", () => {
+    // Param names come from an untrusted on-chain contract spec; a param
+    // literally named "__proto__" must be stored as an own property, not
+    // interpreted as a prototype assignment.
+    const event = new xdr.ScSpecEventV0({
+      doc: "",
+      lib: "",
+      name: "evil",
+      prefixTopics: ["evil"],
+      params: [param("__proto__", u32Type, DATA)],
+      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatSingleValue(),
+    });
+    const spec = new Spec([entryFor(event)]);
+
+    const topics = [xdr.ScVal.scvSymbol("evil")];
+    const data = xdr.ScVal.scvU32(1337);
+
+    const parsed = spec.parseEvent(topics, data);
+    expect(parsed).toBeDefined();
+    expect(
+      Object.prototype.hasOwnProperty.call(parsed!.data, "__proto__"),
+    ).toBe(true);
+    expect((parsed!.data as any).__proto__).toBe(1337);
+    expect(({} as any).polluted).toBeUndefined();
   });
 
   it("builds eventTopicFilter with and without provided values", () => {
