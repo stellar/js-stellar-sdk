@@ -38,6 +38,11 @@ import {
   AssetCode,
   AssetCode12,
   MuxedEd25519Account,
+  ContractEvent,
+  ContractEventBody,
+  ContractEventType,
+  ContractEventV0,
+  ExtensionPoint,
 } from "../../../src/xdr/index.js";
 
 const ED = new Uint8Array(32);
@@ -291,6 +296,36 @@ describe("walker — structs (composite)", () => {
     });
     const round = Asset.fromJson(usd.toJson());
     expect(round.toXdr()).toEqual(usd.toXdr());
+  });
+});
+
+describe("walker — Rust-keyword struct fields (`type`)", () => {
+  const event = new ContractEvent({
+    ext: ExtensionPoint.v0(),
+    contractId: null,
+    type: ContractEventType.contract,
+    body: ContractEventBody.v0(
+      new ContractEventV0({ topics: [], data: ScVal.scvVoid() }),
+    ),
+  });
+
+  it("toJson emits `type`, not the Rust-escaped `type_`", () => {
+    const json = event.toJson() as Record<string, unknown>;
+    expect(json.type).toBe("contract");
+    expect(json).not.toHaveProperty("type_");
+  });
+
+  it("fromJson accepts the canonical `type` key", () => {
+    const round = ContractEvent.fromJson(event.toJson());
+    expect(round.toXdr()).toEqual(event.toXdr());
+  });
+
+  it("fromJson still accepts the legacy `type_` key", () => {
+    const json = event.toJson() as Record<string, unknown>;
+    json.type_ = json.type;
+    delete json.type;
+    const round = ContractEvent.fromJson(json as never);
+    expect(round.toXdr()).toEqual(event.toXdr());
   });
 });
 

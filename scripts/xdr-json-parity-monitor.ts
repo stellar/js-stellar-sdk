@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 // Long-running XDR↔JSON parity monitor: pulls real XDR from Horizon and checks
 // that the new class-XDR layer's SEP-51 JSON matches the canonical reference
 // implementation — the Rust `stellar-xdr` crate compiled to WASM and published
@@ -157,6 +156,31 @@ function sortKeys(v: any): any {
   return v;
 }
 
+// stellar-xdr's serde output escapes the XDR field `type` as `type_`. The SDK
+// emits the SEP-51 field name, but this monitor still uses the Rust package as
+// its reference encoder/decoder, so adapt that legacy spelling at the boundary.
+function normalizeReferenceJson(v: any, toReference = false): any {
+  if (Array.isArray(v)) {
+    return v.map((item) => normalizeReferenceJson(item, toReference));
+  }
+  if (v && typeof v === "object") {
+    const out: Record<string, any> = {};
+    for (const [key, value] of Object.entries(v)) {
+      const normalizedKey = toReference
+        ? key === "type"
+          ? "type_"
+          : key
+        : key === "type_"
+          ? "type"
+          : key;
+      if (normalizedKey in out) return v;
+      out[normalizedKey] = normalizeReferenceJson(value, toReference);
+    }
+    return out;
+  }
+  return v;
+}
+
 const hex = (b: Uint8Array): string => Buffer.from(b).toString("hex");
 
 function checkParity(
@@ -212,7 +236,8 @@ function checkParity(
   }
 
   // Both decoded — compare JSON and both reconstruction directions.
-  const jsonEqual = canonical(ourJson) === canonical(refJson);
+  const jsonEqual =
+    canonical(ourJson) === canonical(normalizeReferenceJson(refJson));
 
   let weReadRef = false;
   try {
@@ -225,7 +250,13 @@ function checkParity(
   try {
     refReadsOurs =
       hex(
-        Buffer.from(refEncode(typeName, JSON.stringify(ourJson)), "base64"),
+        Buffer.from(
+          refEncode(
+            typeName,
+            JSON.stringify(normalizeReferenceJson(ourJson, true)),
+          ),
+          "base64",
+        ),
       ) === inputHex;
   } catch {
     refReadsOurs = false;
