@@ -170,9 +170,14 @@ function runCli() {
                 `you need.`,
             );
           } else {
+            const renamed = [
+              ...(d.interfaceRenamed ? [d.interfaceName] : []),
+              ...(d.filterMethodRenamed ? [`${d.filterMethodName}()`] : []),
+            ];
             console.warn(
-              `\n⚠ Event "${d.rawName}": generated names ${d.interfaceName} ` +
-                `and ${d.filterMethodName}() were renamed to avoid a ` +
+              `\n⚠ Event "${d.rawName}": generated name` +
+                `${renamed.length > 1 ? "s" : ""} ${renamed.join(" and ")} ` +
+                `${renamed.length > 1 ? "were" : "was"} renamed to avoid a ` +
                 `collision with another generated name.`,
             );
           }

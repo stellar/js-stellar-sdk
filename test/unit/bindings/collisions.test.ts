@@ -235,7 +235,8 @@ describe("bindings generated-name collision resolution", () => {
         declarations: 2,
         interfaceName: "TransferEvent",
         filterMethodName: "transferEventFilter",
-        renamed: false,
+        interfaceRenamed: false,
+        filterMethodRenamed: false,
       },
       {
         rawName: "transfer",
@@ -243,7 +244,8 @@ describe("bindings generated-name collision resolution", () => {
         declarations: 2,
         interfaceName: "TransferEvent2",
         filterMethodName: "transferEventFilter2",
-        renamed: true,
+        interfaceRenamed: true,
+        filterMethodRenamed: true,
       },
       {
         rawName: "foo_bar",
@@ -251,7 +253,32 @@ describe("bindings generated-name collision resolution", () => {
         declarations: 1,
         interfaceName: "FooBarEvent2",
         filterMethodName: "fooBarEventFilter2",
-        renamed: true,
+        interfaceRenamed: true,
+        filterMethodRenamed: true,
+      },
+    ]);
+  });
+
+  it("tracks interface and filter renames independently in diagnostics", () => {
+    const spec = new Spec([
+      structEntry("TransferEvent"),
+      eventEntry("transfer", ["transfer"]),
+    ]);
+
+    const { diagnostics } = BindingGenerator.fromSpec(spec).generate({
+      contractName: "test-contract",
+    });
+    // The UDT collision renames only the interface; the filter method keeps
+    // its preferred name.
+    expect(diagnostics).toEqual([
+      {
+        rawName: "transfer",
+        occurrence: 0,
+        declarations: 1,
+        interfaceName: "TransferEvent2",
+        filterMethodName: "transferEventFilter",
+        interfaceRenamed: true,
+        filterMethodRenamed: false,
       },
     ]);
   });

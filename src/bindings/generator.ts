@@ -36,8 +36,10 @@ export type EventDiagnostic = {
   interfaceName: string;
   /** The filter method name generated on the Client class */
   filterMethodName: string;
-  /** True if either generated name differs from its preferred form */
-  renamed: boolean;
+  /** True if the interface name differs from its preferred form */
+  interfaceRenamed: boolean;
+  /** True if the filter method name differs from its preferred form */
+  filterMethodRenamed: boolean;
 };
 
 /**
@@ -310,12 +312,13 @@ export class BindingGenerator {
 
       const declarations = declarationCounts.get(rawName)!;
       const sanitized = sanitizeIdentifier(rawName);
-      const renamed =
-        interfaceNames[eventIndex] !== `${toPascalCase(sanitized)}Event` ||
+      const interfaceRenamed =
+        interfaceNames[eventIndex] !== `${toPascalCase(sanitized)}Event`;
+      const filterMethodRenamed =
         filterMethodNames[eventIndex] !==
-          `${toCamelCase(sanitized)}EventFilter`;
+        `${toCamelCase(sanitized)}EventFilter`;
 
-      if (declarations <= 1 && !renamed) {
+      if (declarations <= 1 && !interfaceRenamed && !filterMethodRenamed) {
         return [];
       }
       return [
@@ -325,7 +328,8 @@ export class BindingGenerator {
           declarations,
           interfaceName: interfaceNames[eventIndex],
           filterMethodName: filterMethodNames[eventIndex],
-          renamed,
+          interfaceRenamed,
+          filterMethodRenamed,
         },
       ];
     });
