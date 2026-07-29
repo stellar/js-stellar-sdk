@@ -1058,7 +1058,7 @@ class Spec {
   entries: ScSpecEntry[];
   errorCases(): ScSpecUdtErrorEnumCaseV0[];
   events(): ScSpecEventV0[];
-  eventTopicFilter(name: string, topicValues?: Record<string, any>): string[];
+  eventTopicFilter(name: string, topicValues?: Record<string, any>, occurrence?: number): string[];
   findEntry(name: string): ScSpecEntry;
   findEvent(name: string): ScSpecEventV0 | undefined;
   funcArgsToScVals(name: string, args: object): ScVal[];
@@ -1184,7 +1184,7 @@ all contract events
 
 **Source:** [src/contract/spec.ts:1224](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1224)
 
-### `spec.eventTopicFilter(name, topicValues)`
+### `spec.eventTopicFilter(name, topicValues, occurrence)`
 
 Builds a `getEvents` topic filter (a single row of `Api.EventFilter.topics`)
 for the named event: base64-encoded `scvSymbol`s for the event's prefix
@@ -1193,13 +1193,16 @@ base64-encoded ScVal for a value supplied in `topicValues`, or the
 wildcard `"*"`.
 
 ```ts
-eventTopicFilter(name: string, topicValues?: Record<string, any>): string[];
+eventTopicFilter(name: string, topicValues?: Record<string, any>, occurrence?: number): string[];
 ```
 
 **Parameters**
 
 - **`name`** — `string` (required) — the name of the event
 - **`topicValues`** — `Record<string, any>` (optional) — (optional) native values for topic-list params, keyed by param name
+- **`occurrence`** — `number` (optional) — (optional) 0-based index among same-named events, in
+         declaration order, for contracts that declare the same event name
+         more than once (defaults to the first)
 
 **Returns**
 
@@ -1207,7 +1210,8 @@ a single topic filter row
 
 **Throws**
 
-- if no event with the given name exists
+- if no event with the given name (at the given occurrence) exists,
+        or if `occurrence` is not a non-negative integer
 
 **Example**
 
@@ -1215,7 +1219,7 @@ a single topic filter row
 const topics = contractSpec.eventTopicFilter('transfer', { to: someAddress });
 ```
 
-**Source:** [src/contract/spec.ts:1303](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1303)
+**Source:** [src/contract/spec.ts:1307](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1307)
 
 ### `spec.findEntry(name)`
 
@@ -1391,7 +1395,7 @@ the converted JSON schema
 
 - if the contract spec is invalid
 
-**Source:** [src/contract/spec.ts:1317](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1317)
+**Source:** [src/contract/spec.ts:1331](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1331)
 
 ### `spec.nativeToScVal(val, ty)`
 

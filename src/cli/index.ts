@@ -154,11 +154,34 @@ function runCli() {
           `\n✓ Generating TypeScript bindings for "${contractName}"...`,
         );
 
-        await generateAndWrite(generator, {
+        const bindings = await generateAndWrite(generator, {
           contractName,
           outputDir: path.resolve(options.outputDir),
           overwrite: options.overwrite,
         });
+
+        for (const d of bindings.diagnostics) {
+          if (d.declarations > 1) {
+            console.warn(
+              `\n⚠ Event "${d.rawName}" is declared ${d.declarations} times; ` +
+                `declaration ${d.occurrence + 1} generated as ` +
+                `${d.interfaceName} with filter ${d.filterMethodName}(). ` +
+                `Review the generated bindings to confirm which declaration ` +
+                `you need.`,
+            );
+          } else {
+            const renamed = [
+              ...(d.interfaceRenamed ? [d.interfaceName] : []),
+              ...(d.filterMethodRenamed ? [`${d.filterMethodName}()`] : []),
+            ];
+            console.warn(
+              `\n⚠ Event "${d.rawName}": generated name` +
+                `${renamed.length > 1 ? "s" : ""} ${renamed.join(" and ")} ` +
+                `${renamed.length > 1 ? "were" : "was"} renamed to avoid a ` +
+                `collision with another generated name.`,
+            );
+          }
+        }
 
         console.log(
           `\n✓ Successfully generated bindings in ${options.outputDir}`,

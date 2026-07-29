@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import { xdr, contract } from "../../../src/index.js";
 import { TypeGenerator } from "../../../src/bindings/types.js";
 import { ClientGenerator } from "../../../src/bindings/client.js";
+import { BindingGenerator } from "../../../src/bindings/generator.js";
 
 const { Spec } = contract;
 
@@ -101,17 +102,52 @@ describe("bindings generated-name collision resolution", () => {
     expect(output).toMatch(/renamed from "FooBarEvent" to avoid a collision/);
   });
 
-  it("rejects duplicate raw event names instead of generating duplicate members", () => {
+  it("disambiguates duplicate raw event names, keeping the raw name as discriminant", () => {
     const spec = new Spec([
       eventEntry("transfer", ["first"]),
       eventEntry("transfer", ["second"]),
     ]);
 
-    expect(() => new TypeGenerator(spec).generate()).toThrow(
-      "cannot generate bindings for duplicate event name: transfer",
+    const typesOutput = new TypeGenerator(spec).generate();
+    expect(typesOutput).toMatch(/export interface TransferEvent \{/);
+    expect(typesOutput).toMatch(/export interface TransferEvent2 \{/);
+    // Both interfaces keep the raw event name as their discriminant.
+    const discriminants = typesOutput.match(/name: "transfer";/g) ?? [];
+    expect(discriminants.length).toBe(2);
+    expect(typesOutput).toMatch(
+      /export type ContractEvent = TransferEvent \| TransferEvent2;/,
     );
-    expect(() => new ClientGenerator(spec).generate()).toThrow(
-      "cannot generate bindings for duplicate event name: transfer",
+
+    const clientOutput = new ClientGenerator(spec).generate();
+    expect(clientOutput).toMatch(/transferEventFilter\(/);
+    expect(clientOutput).toMatch(/transferEventFilter2\(/);
+    // The first filter targets the first declaration (no occurrence arg);
+    // the second passes its occurrence so it targets the right spec.
+    expect(clientOutput).toMatch(/eventTopicFilter\("transfer", topicValues\)/);
+    expect(clientOutput).toMatch(
+      /eventTopicFilter\("transfer", topicValues, 1\)/,
+    );
+    expect(clientOutput).toMatch(/targets declaration 2 of the "transfer"/i);
+  });
+
+  it("builds occurrence-specific topic filters for duplicate event names at runtime", () => {
+    const spec = new Spec([
+      eventEntry("transfer", ["first"]),
+      eventEntry("transfer", ["second"]),
+    ]);
+
+    const first = spec.eventTopicFilter("transfer");
+    const second = spec.eventTopicFilter("transfer", undefined, 1);
+    expect(first[0]).toBe(xdr.ScVal.scvSymbol("first").toXDR("base64"));
+    expect(second[0]).toBe(xdr.ScVal.scvSymbol("second").toXDR("base64"));
+    expect(() => spec.eventTopicFilter("transfer", undefined, 2)).toThrow(
+      "no such event: transfer (occurrence 2)",
+    );
+    expect(() => spec.eventTopicFilter("transfer", undefined, -1)).toThrow(
+      "invalid occurrence for event transfer: -1",
+    );
+    expect(() => spec.eventTopicFilter("transfer", undefined, 0.5)).toThrow(
+      "invalid occurrence for event transfer: 0.5",
     );
   });
 
@@ -177,6 +213,86 @@ describe("bindings generated-name collision resolution", () => {
     expect(clientOutput).toMatch(/transferEventFilter\(/);
     expect(clientOutput).toMatch(/mintEventFilter\(/);
     expect(clientOutput).not.toMatch(/renamed from/);
+  });
+
+  it("reports diagnostics for duplicate event names and collision renames", () => {
+    const spec = new Spec([
+      eventEntry("transfer", ["first"]),
+      eventEntry("transfer", ["second"]),
+      eventEntry("FooBar", ["FooBar"]),
+      eventEntry("foo_bar", ["foo_bar"]),
+      eventEntry("mint", ["mint"]),
+    ]);
+
+    const { diagnostics } = BindingGenerator.fromSpec(spec).generate({
+      contractName: "test-contract",
+    });
+
+    expect(diagnostics).toEqual([
+      {
+        rawName: "transfer",
+        occurrence: 0,
+        declarations: 2,
+        interfaceName: "TransferEvent",
+        filterMethodName: "transferEventFilter",
+        interfaceRenamed: false,
+        filterMethodRenamed: false,
+      },
+      {
+        rawName: "transfer",
+        occurrence: 1,
+        declarations: 2,
+        interfaceName: "TransferEvent2",
+        filterMethodName: "transferEventFilter2",
+        interfaceRenamed: true,
+        filterMethodRenamed: true,
+      },
+      {
+        rawName: "foo_bar",
+        occurrence: 0,
+        declarations: 1,
+        interfaceName: "FooBarEvent2",
+        filterMethodName: "fooBarEventFilter2",
+        interfaceRenamed: true,
+        filterMethodRenamed: true,
+      },
+    ]);
+  });
+
+  it("tracks interface and filter renames independently in diagnostics", () => {
+    const spec = new Spec([
+      structEntry("TransferEvent"),
+      eventEntry("transfer", ["transfer"]),
+    ]);
+
+    const { diagnostics } = BindingGenerator.fromSpec(spec).generate({
+      contractName: "test-contract",
+    });
+    // The UDT collision renames only the interface; the filter method keeps
+    // its preferred name.
+    expect(diagnostics).toEqual([
+      {
+        rawName: "transfer",
+        occurrence: 0,
+        declarations: 1,
+        interfaceName: "TransferEvent2",
+        filterMethodName: "transferEventFilter",
+        interfaceRenamed: true,
+        filterMethodRenamed: false,
+      },
+    ]);
+  });
+
+  it("reports no diagnostics when event names are unique and unrenamed", () => {
+    const spec = new Spec([
+      eventEntry("transfer", ["transfer"]),
+      eventEntry("mint", ["mint"]),
+    ]);
+
+    const { diagnostics } = BindingGenerator.fromSpec(spec).generate({
+      contractName: "test-contract",
+    });
+    expect(diagnostics).toEqual([]);
   });
 
   it("produces byte-identical output across repeated generation from the same spec", () => {

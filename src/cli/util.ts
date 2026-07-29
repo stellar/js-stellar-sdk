@@ -177,10 +177,11 @@ export async function writeBindings(
 export async function generateAndWrite(
   generator: BindingGenerator,
   options: GenerateAndWriteOptions,
-): Promise<void> {
+): Promise<GeneratedBindings> {
   const { outputDir, overwrite = false, ...genOptions } = options;
   const bindings = generator.generate(genOptions);
   await writeBindings(outputDir, bindings, overwrite);
+  return bindings;
 }
 
 /**
