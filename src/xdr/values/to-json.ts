@@ -20,6 +20,7 @@ import type {
 import type { JsonValue } from "./xdr-value.js";
 import { XdrString } from "./xdr-string.js";
 import {
+  legacyStructFieldJsonName,
   structFieldJsonName,
   enumJsonNames,
   unionCaseNames,
@@ -271,12 +272,21 @@ export function walkFromJson(
       }
       const rec = json as Record<string, JsonValue>;
       const out: Record<string, unknown> = {};
-      // Accept either the SEP-0051 snake_case key or the raw camelCase wire
-      // name (so internally-produced JSON round-trips even if a caller hands
-      // us camelCase).
+      // Accept the SEP-0051 snake_case key, the legacy Rust keyword-escaped
+      // key (`type_` from the `stellar-xdr` crate's buggy output), or the raw
+      // camelCase wire name (so internally-produced JSON round-trips even if
+      // a caller hands us camelCase).
       for (const [k, fieldSchema] of s.entries) {
         const snake = structFieldJsonName(k);
-        const lookupKey = snake in rec ? snake : k in rec ? k : undefined;
+        const legacy = legacyStructFieldJsonName(k);
+        const lookupKey =
+          snake in rec
+            ? snake
+            : legacy !== undefined && legacy in rec
+              ? legacy
+              : k in rec
+                ? k
+                : undefined;
         if (lookupKey === undefined) {
           // Match the serde-based Rust reference: an omitted optional field
           // is None, so JSON from tooling that skips nulls still parses.

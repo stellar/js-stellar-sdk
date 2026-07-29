@@ -44,8 +44,10 @@ function snakeCase(input: string): string {
 }
 
 // Rust keywords xdrgen-rust escapes with a trailing `_` when an XDR field name
-// collides; serde then keeps the escaped form. `type` is the one that occurs in
-// the Stellar XDR (ContractEvent, the SC-spec structs, …).
+// collides; serde then leaks the escaped form into the JSON (`type_`). That is
+// a bug in the Rust `stellar-xdr` JSON output — SEP-0051 keys come from the
+// XDR field name, so we emit the plain name (`type`). The keyword set is kept
+// only so fromJson can still accept the escaped legacy keys.
 const RUST_KEYWORD_FIELDS = new Set([
   "type",
   "ref",
@@ -62,8 +64,17 @@ const RUST_KEYWORD_FIELDS = new Set([
 
 /** Struct field → its SEP-0051 JSON key. */
 export function structFieldJsonName(field: string): string {
+  return snakeCase(field);
+}
+
+/**
+ * Legacy escaped JSON key for a struct field, if one exists. The Rust
+ * `stellar-xdr` crate emits keyword fields with a trailing `_` (`type_`);
+ * fromJson accepts that spelling for backwards compatibility.
+ */
+export function legacyStructFieldJsonName(field: string): string | undefined {
   const name = snakeCase(field);
-  return RUST_KEYWORD_FIELDS.has(name) ? `${name}_` : name;
+  return RUST_KEYWORD_FIELDS.has(name) ? `${name}_` : undefined;
 }
 
 // Name maps are derived purely from the (immutable) schema, and the walker
