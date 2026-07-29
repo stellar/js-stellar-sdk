@@ -49,3 +49,4 @@ xdr-json-parity-failures*.jsonl
 test-guides/
 .vuln-hunt/
 scratch/
+.xdr-build/
