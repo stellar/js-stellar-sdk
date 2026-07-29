@@ -238,6 +238,19 @@ ${eventMethods}
   }
 
   /**
+   * The resolved (possibly disambiguated) filter method name of every event
+   * in the spec, in declaration order. Exposed so callers (e.g. the bindings
+   * generator's diagnostics) can report renames and duplicates.
+   */
+  eventFilterMethodNamesInOrder(): string[] {
+    return this.spec
+      .events()
+      .map((event, eventIndex) =>
+        this.eventFilterMethodName(event, eventIndex),
+      );
+  }
+
+  /**
    * Generate a per-event helper that builds a topics-filter row for
    * `Api.EventFilter.topics`, suitable for passing to server.getEvents.
    */

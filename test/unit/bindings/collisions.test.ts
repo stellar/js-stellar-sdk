@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import { xdr, contract } from "../../../src/index.js";
 import { TypeGenerator } from "../../../src/bindings/types.js";
 import { ClientGenerator } from "../../../src/bindings/client.js";
+import { BindingGenerator } from "../../../src/bindings/generator.js";
 
 const { Spec } = contract;
 
@@ -206,6 +207,59 @@ describe("bindings generated-name collision resolution", () => {
     expect(clientOutput).toMatch(/transferEventFilter\(/);
     expect(clientOutput).toMatch(/mintEventFilter\(/);
     expect(clientOutput).not.toMatch(/renamed from/);
+  });
+
+  it("reports diagnostics for duplicate event names and collision renames", () => {
+    const spec = new Spec([
+      eventEntry("transfer", ["first"]),
+      eventEntry("transfer", ["second"]),
+      eventEntry("FooBar", ["FooBar"]),
+      eventEntry("foo_bar", ["foo_bar"]),
+      eventEntry("mint", ["mint"]),
+    ]);
+
+    const { diagnostics } = BindingGenerator.fromSpec(spec).generate({
+      contractName: "test-contract",
+    });
+
+    expect(diagnostics).toEqual([
+      {
+        rawName: "transfer",
+        occurrence: 0,
+        declarations: 2,
+        interfaceName: "TransferEvent",
+        filterMethodName: "transferEventFilter",
+        renamed: false,
+      },
+      {
+        rawName: "transfer",
+        occurrence: 1,
+        declarations: 2,
+        interfaceName: "TransferEvent2",
+        filterMethodName: "transferEventFilter2",
+        renamed: true,
+      },
+      {
+        rawName: "foo_bar",
+        occurrence: 0,
+        declarations: 1,
+        interfaceName: "FooBarEvent2",
+        filterMethodName: "fooBarEventFilter2",
+        renamed: true,
+      },
+    ]);
+  });
+
+  it("reports no diagnostics when event names are unique and unrenamed", () => {
+    const spec = new Spec([
+      eventEntry("transfer", ["transfer"]),
+      eventEntry("mint", ["mint"]),
+    ]);
+
+    const { diagnostics } = BindingGenerator.fromSpec(spec).generate({
+      contractName: "test-contract",
+    });
+    expect(diagnostics).toEqual([]);
   });
 
   it("produces byte-identical output across repeated generation from the same spec", () => {

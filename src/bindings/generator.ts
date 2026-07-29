@@ -1,5 +1,6 @@
 import { Spec } from "../contract/index.js";
 import { ConfigGenerator } from "./config.js";
+import { sanitizeIdentifier, toCamelCase, toPascalCase } from "./utils.js";
 import { TypeGenerator } from "./types.js";
 import { ClientGenerator } from "./client.js";
 import { specFromWasm } from "../contract/wasm_spec_parser.js";
@@ -16,6 +17,27 @@ export type GenerateOptions = {
    * Should be in kebab-case (e.g., "my-contract").
    */
   contractName: string;
+};
+
+/**
+ * A note about an event whose generated names need the user's attention:
+ * either the contract declares the same event name more than once, or the
+ * generated names were renamed away from their preferred form to avoid a
+ * collision with another generated name.
+ */
+export type EventDiagnostic = {
+  /** The event name exactly as declared in the contract spec */
+  rawName: string;
+  /** 0-based index of this declaration among same-named events */
+  occurrence: number;
+  /** Total number of declarations of this raw name in the spec */
+  declarations: number;
+  /** The exported interface name generated in types.ts */
+  interfaceName: string;
+  /** The filter method name generated on the Client class */
+  filterMethodName: string;
+  /** True if either generated name differs from its preferred form */
+  renamed: boolean;
 };
 
 /**
@@ -39,6 +61,11 @@ export type GeneratedBindings = {
   readme: string;
   /** The .gitignore file for the generated package */
   gitignore: string;
+  /**
+   * Notes about events whose generated names need attention (duplicate
+   * declarations or collision-driven renames); empty when there are none
+   */
+  diagnostics: EventDiagnostic[];
 };
 
 /**
@@ -231,6 +258,7 @@ export class BindingGenerator {
 
     const types = typeGenerator.generate();
     const client = clientGenerator.generate();
+    const diagnostics = this.eventDiagnostics(typeGenerator, clientGenerator);
 
     let index = `export { Client } from "./client.js";`;
     if (types.trim() !== "") {
@@ -250,7 +278,57 @@ export class BindingGenerator {
       tsConfig,
       readme,
       gitignore,
+      diagnostics,
     };
+  }
+
+  /**
+   * Collect an {@link EventDiagnostic} for every event that a user should
+   * review in the generated output: duplicate declarations of the same raw
+   * name, and generated names renamed away from their preferred form to
+   * avoid a collision.
+   */
+  private eventDiagnostics(
+    typeGenerator: TypeGenerator,
+    clientGenerator: ClientGenerator,
+  ): EventDiagnostic[] {
+    const events = this.spec.events();
+    const interfaceNames = typeGenerator.eventInterfaceNamesInOrder();
+    const filterMethodNames = clientGenerator.eventFilterMethodNamesInOrder();
+
+    const declarationCounts = new Map<string, number>();
+    events.forEach((event) => {
+      const rawName = event.name().toString();
+      declarationCounts.set(rawName, (declarationCounts.get(rawName) ?? 0) + 1);
+    });
+
+    const occurrenceSoFar = new Map<string, number>();
+    return events.flatMap((event, eventIndex) => {
+      const rawName = event.name().toString();
+      const occurrence = occurrenceSoFar.get(rawName) ?? 0;
+      occurrenceSoFar.set(rawName, occurrence + 1);
+
+      const declarations = declarationCounts.get(rawName)!;
+      const sanitized = sanitizeIdentifier(rawName);
+      const renamed =
+        interfaceNames[eventIndex] !== `${toPascalCase(sanitized)}Event` ||
+        filterMethodNames[eventIndex] !==
+          `${toCamelCase(sanitized)}EventFilter`;
+
+      if (declarations <= 1 && !renamed) {
+        return [];
+      }
+      return [
+        {
+          rawName,
+          occurrence,
+          declarations,
+          interfaceName: interfaceNames[eventIndex],
+          filterMethodName: filterMethodNames[eventIndex],
+          renamed,
+        },
+      ];
+    });
   }
 
   /**

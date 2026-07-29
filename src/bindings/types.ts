@@ -305,6 +305,17 @@ ${members}
   }
 
   /**
+   * The resolved (possibly disambiguated) interface name of every event in
+   * the spec, in declaration order. Exposed so callers (e.g. the bindings
+   * generator's diagnostics) can report renames and duplicates.
+   */
+  eventInterfaceNamesInOrder(): string[] {
+    return this.spec
+      .events()
+      .map((event, eventIndex) => this.eventInterfaceName(event, eventIndex));
+  }
+
+  /**
    * True if the given event's resolved interface name differs from its
    * preferred (unsuffixed) form, i.e. it was disambiguated away from a
    * collision.
