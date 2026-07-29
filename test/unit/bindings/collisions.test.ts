@@ -101,17 +101,46 @@ describe("bindings generated-name collision resolution", () => {
     expect(output).toMatch(/renamed from "FooBarEvent" to avoid a collision/);
   });
 
-  it("rejects duplicate raw event names instead of generating duplicate members", () => {
+  it("disambiguates duplicate raw event names, keeping the raw name as discriminant", () => {
     const spec = new Spec([
       eventEntry("transfer", ["first"]),
       eventEntry("transfer", ["second"]),
     ]);
 
-    expect(() => new TypeGenerator(spec).generate()).toThrow(
-      "cannot generate bindings for duplicate event name: transfer",
+    const typesOutput = new TypeGenerator(spec).generate();
+    expect(typesOutput).toMatch(/export interface TransferEvent \{/);
+    expect(typesOutput).toMatch(/export interface TransferEvent2 \{/);
+    // Both interfaces keep the raw event name as their discriminant.
+    const discriminants = typesOutput.match(/name: "transfer";/g) ?? [];
+    expect(discriminants.length).toBe(2);
+    expect(typesOutput).toMatch(
+      /export type ContractEvent = TransferEvent \| TransferEvent2;/,
     );
-    expect(() => new ClientGenerator(spec).generate()).toThrow(
-      "cannot generate bindings for duplicate event name: transfer",
+
+    const clientOutput = new ClientGenerator(spec).generate();
+    expect(clientOutput).toMatch(/transferEventFilter\(/);
+    expect(clientOutput).toMatch(/transferEventFilter2\(/);
+    // The first filter targets the first declaration (no occurrence arg);
+    // the second passes its occurrence so it targets the right spec.
+    expect(clientOutput).toMatch(/eventTopicFilter\("transfer", topicValues\)/);
+    expect(clientOutput).toMatch(
+      /eventTopicFilter\("transfer", topicValues, 1\)/,
+    );
+    expect(clientOutput).toMatch(/targets declaration 2 of the "transfer"/i);
+  });
+
+  it("builds occurrence-specific topic filters for duplicate event names at runtime", () => {
+    const spec = new Spec([
+      eventEntry("transfer", ["first"]),
+      eventEntry("transfer", ["second"]),
+    ]);
+
+    const first = spec.eventTopicFilter("transfer");
+    const second = spec.eventTopicFilter("transfer", undefined, 1);
+    expect(first[0]).toBe(xdr.ScVal.scvSymbol("first").toXDR("base64"));
+    expect(second[0]).toBe(xdr.ScVal.scvSymbol("second").toXDR("base64"));
+    expect(() => spec.eventTopicFilter("transfer", undefined, 2)).toThrow(
+      "no such event: transfer (occurrence 2)",
     );
   });
 

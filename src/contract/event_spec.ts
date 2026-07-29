@@ -38,18 +38,25 @@ export function events(entries: xdr.ScSpecEntry[]): xdr.ScSpecEventV0[] {
 
 /**
  * Finds the event spec with the given name among a contract's event entries.
+ * A contract may declare several events with the same name (e.g. composed
+ * modules each emitting their own `transfer`); `occurrence` selects among
+ * them, in declaration order.
  *
  * @param entries - the contract's XDR spec entries
  * @param name - the name of the event to find
+ * @param occurrence - 0-based index among the events with that name
  * @returns the event spec, or `undefined` if the contract declares no event
- *          with that name
+ *          with that name (at that occurrence)
  * @hidden
  */
 export function findEvent(
   entries: xdr.ScSpecEntry[],
   name: string,
+  occurrence: number = 0,
 ): xdr.ScSpecEventV0 | undefined {
-  return events(entries).find((e) => e.name().toString() === name);
+  return events(entries).filter((e) => e.name().toString() === name)[
+    occurrence
+  ];
 }
 
 /**
@@ -250,8 +257,10 @@ export function parseEvent(
  * @param entries - the contract's XDR spec entries
  * @param name - the name of the event
  * @param topicValues - (optional) native values for topic-list params, keyed by param name
+ * @param occurrence - (optional) 0-based index among same-named events, for
+ *        contracts that declare the same event name more than once
  * @returns a single topic filter row
- * @throws if no event with the given name exists
+ * @throws if no event with the given name (at the given occurrence) exists
  * @hidden
  */
 export function eventTopicFilter(
@@ -259,10 +268,15 @@ export function eventTopicFilter(
   entries: xdr.ScSpecEntry[],
   name: string,
   topicValues?: Record<string, any>,
+  occurrence: number = 0,
 ): string[] {
-  const event = findEvent(entries, name);
+  const event = findEvent(entries, name, occurrence);
   if (!event) {
-    throw new Error(`no such event: ${name}`);
+    throw new Error(
+      occurrence > 0
+        ? `no such event: ${name} (occurrence ${occurrence})`
+        : `no such event: ${name}`,
+    );
   }
   const filter: string[] = event
     .prefixTopics()

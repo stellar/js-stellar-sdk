@@ -16,9 +16,11 @@ import {
 export class ClientGenerator {
   private spec: Spec;
 
-  // rawEventName -> resolved (possibly disambiguated) filter method name.
+  // event index (in declaration order) -> resolved (possibly disambiguated)
+  // filter method name. Keyed by index rather than raw name because a
+  // contract may declare several events with the same name.
   // Lazily computed on first use; see resolveEventFilterMethodNames().
-  private eventFilterMethodNames: Map<string, string> | null = null;
+  private eventFilterMethodNames: Map<number, string> | null = null;
 
   constructor(spec: Spec) {
     this.spec = spec;
@@ -61,7 +63,9 @@ export class ClientGenerator {
     const eventMethods =
       events.length > 0
         ? `\n${this.generateParseEventMethod(parseEventMethodName)}\n${events
-            .map((event) => this.generateEventFilterMethod(event))
+            .map((event, eventIndex) =>
+              this.generateEventFilterMethod(event, eventIndex),
+            )
             .join("\n")}`
         : "";
 
@@ -171,17 +175,19 @@ ${eventMethods}
   /**
    * The `<camelCase>EventFilter` method name derived from an event name is
    * not injective (e.g. "FooBar" and "foo_bar" both produce
-   * "fooBarEventFilter"), and it can just as easily collide with a
-   * generated contract function name (e.g. an event "transfer" plus a
-   * function "transferEventFilter"). Since function member names are
-   * load-bearing (called directly by users) and event filter names are
-   * already synthetic, function names always win: they are reserved first,
-   * in spec-entry order. Events are then resolved in spec-entry order,
-   * appending the smallest integer 2 or greater needed to make the name unique (and
-   * reserving whatever name results, so later events see it too). This is
-   * deterministic for a given spec.
+   * "fooBarEventFilter"), a contract may declare several events with the
+   * very same name (composed modules each emitting their own "transfer"),
+   * and it can just as easily collide with a generated contract function
+   * name (e.g. an event "transfer" plus a function "transferEventFilter").
+   * Since function member names are load-bearing (called directly by
+   * users) and event filter names are already synthetic, function names
+   * always win: they are reserved first, in spec-entry order. Events are
+   * then resolved in spec-entry order, appending the smallest integer 2 or
+   * greater needed to make the name unique (and reserving whatever name
+   * results, so later events see it too). This is deterministic for a
+   * given spec.
    */
-  private resolveEventFilterMethodNames(): Map<string, string> {
+  private resolveEventFilterMethodNames(): Map<number, string> {
     if (this.eventFilterMethodNames !== null) {
       return this.eventFilterMethodNames;
     }
@@ -195,16 +201,10 @@ ${eventMethods}
         reserved.add(sanitizeIdentifier(func.name().toString()));
       });
 
-    const resolved = new Map<string, string>();
+    const resolved = new Map<number, string>();
 
-    this.spec.events().forEach((event) => {
-      const rawName = event.name().toString();
-      if (resolved.has(rawName)) {
-        throw new Error(
-          `cannot generate bindings for duplicate event name: ${rawName}`,
-        );
-      }
-      const preferred = `${toCamelCase(sanitizeIdentifier(rawName))}EventFilter`;
+    this.spec.events().forEach((event, eventIndex) => {
+      const preferred = `${toCamelCase(sanitizeIdentifier(event.name().toString()))}EventFilter`;
 
       let candidate = preferred;
       let suffix = 2;
@@ -214,7 +214,7 @@ ${eventMethods}
       }
 
       reserved.add(candidate);
-      resolved.set(rawName, candidate);
+      resolved.set(eventIndex, candidate);
     });
 
     this.eventFilterMethodNames = resolved;
@@ -225,12 +225,14 @@ ${eventMethods}
    * Compute the resolved (possibly disambiguated) filter method name for an
    * event; see {@link resolveEventFilterMethodNames}.
    */
-  private eventFilterMethodName(event: xdr.ScSpecEventV0): string {
-    const rawName = event.name().toString();
-    const resolved = this.resolveEventFilterMethodNames().get(rawName);
+  private eventFilterMethodName(
+    event: xdr.ScSpecEventV0,
+    eventIndex: number,
+  ): string {
+    const resolved = this.resolveEventFilterMethodNames().get(eventIndex);
     /* istanbul ignore next -- every event in the spec is reserved a name */
     if (resolved === undefined) {
-      return `${toCamelCase(sanitizeIdentifier(rawName))}EventFilter`;
+      return `${toCamelCase(sanitizeIdentifier(event.name().toString()))}EventFilter`;
     }
     return resolved;
   }
@@ -239,10 +241,23 @@ ${eventMethods}
    * Generate a per-event helper that builds a topics-filter row for
    * `Api.EventFilter.topics`, suitable for passing to server.getEvents.
    */
-  private generateEventFilterMethod(event: xdr.ScSpecEventV0): string {
+  private generateEventFilterMethod(
+    event: xdr.ScSpecEventV0,
+    eventIndex: number,
+  ): string {
     const rawName = event.name().toString();
-    const methodName = this.eventFilterMethodName(event);
+    const methodName = this.eventFilterMethodName(event, eventIndex);
     const preferredMethodName = `${toCamelCase(sanitizeIdentifier(rawName))}EventFilter`;
+    // Which same-named event this is (0-based, declaration order) — needed
+    // so eventTopicFilter targets the right spec when names are duplicated.
+    const occurrence = this.spec
+      .events()
+      .slice(0, eventIndex)
+      .filter((e) => e.name().toString() === rawName).length;
+    const occurrenceNote =
+      occurrence > 0
+        ? ` This targets declaration ${occurrence + 1} of the "${rawName}" event in the contract spec.`
+        : "";
     const renameNote =
       methodName !== preferredMethodName
         ? ` Note: renamed from "${preferredMethodName}" to avoid a collision with another generated name.`
@@ -273,20 +288,21 @@ ${eventMethods}
     const doc = formatJSDocComment(
       `Build a topics filter row for the "${rawName}" event, for use in ` +
         `\`Api.EventFilter.topics\` when calling \`server.getEvents\`. ` +
-        `Omitted fields match any value.${renameNote}`,
+        `Omitted fields match any value.${occurrenceNote}${renameNote}`,
       2,
     );
 
     const escapedName = escapeStringLiteral(rawName);
+    const occurrenceArg = occurrence > 0 ? `, ${occurrence}` : "";
 
     if (topicParams.length === 0) {
       return `${doc}  ${methodName}(): string[] {
-    return this.spec.eventTopicFilter("${escapedName}");
+    return this.spec.eventTopicFilter("${escapedName}"${occurrence > 0 ? `, undefined${occurrenceArg}` : ""});
   }`;
     }
 
     return `${doc}  ${methodName}(topicValues?: { ${fields} }): string[] {
-    return this.spec.eventTopicFilter("${escapedName}", topicValues);
+    return this.spec.eventTopicFilter("${escapedName}", topicValues${occurrenceArg});
   }`;
   }
 

@@ -1291,17 +1291,30 @@ export class Spec {
    *
    * @param name - the name of the event
    * @param topicValues - (optional) native values for topic-list params, keyed by param name
+   * @param occurrence - (optional) 0-based index among same-named events, in
+   *        declaration order, for contracts that declare the same event name
+   *        more than once (defaults to the first)
    * @returns a single topic filter row
    *
-   * @throws if no event with the given name exists
+   * @throws if no event with the given name (at the given occurrence) exists
    *
    * @example
    * ```ts
    * const topics = contractSpec.eventTopicFilter('transfer', { to: someAddress });
    * ```
    */
-  eventTopicFilter(name: string, topicValues?: Record<string, any>): string[] {
-    return eventTopicFilterImpl(this, this.entries, name, topicValues);
+  eventTopicFilter(
+    name: string,
+    topicValues?: Record<string, any>,
+    occurrence?: number,
+  ): string[] {
+    return eventTopicFilterImpl(
+      this,
+      this.entries,
+      name,
+      topicValues,
+      occurrence,
+    );
   }
 
   /**
