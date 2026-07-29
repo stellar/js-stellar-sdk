@@ -1233,8 +1233,13 @@ export class Spec {
    * wrapping the call in a `try`.
    *
    * @param name - the name of the event
+   * @param occurrence - (optional) 0-based index among same-named events, in
+   *        declaration order, for contracts that declare the same event name
+   *        more than once (defaults to the first)
    * @returns the event spec, or `undefined` if the contract declares no event
-   *          with that name
+   *          with that name (at that occurrence)
+   *
+   * @throws if `occurrence` is not a non-negative integer
    *
    * @example
    * ```ts
@@ -1243,8 +1248,8 @@ export class Spec {
    * }
    * ```
    */
-  findEvent(name: string): xdr.ScSpecEventV0 | undefined {
-    return findEventImpl(this.entries, name);
+  findEvent(name: string, occurrence?: number): xdr.ScSpecEventV0 | undefined {
+    return findEventImpl(this.entries, name, occurrence);
   }
 
   /**
