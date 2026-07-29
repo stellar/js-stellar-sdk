@@ -1060,7 +1060,7 @@ class Spec {
   events(): ScSpecEventV0[];
   eventTopicFilter(name: string, topicValues?: Record<string, any>, occurrence?: number): string[];
   findEntry(name: string): ScSpecEntry;
-  findEvent(name: string): ScSpecEventV0 | undefined;
+  findEvent(name: string, occurrence?: number): ScSpecEventV0 | undefined;
   funcArgsToScVals(name: string, args: object): ScVal[];
   funcResToNative(name: string, val_or_base64: string | ScVal): any;
   funcs(): ScSpecFunctionV0[];
@@ -1219,7 +1219,7 @@ a single topic filter row
 const topics = contractSpec.eventTopicFilter('transfer', { to: someAddress });
 ```
 
-**Source:** [src/contract/spec.ts:1307](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1307)
+**Source:** [src/contract/spec.ts:1312](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1312)
 
 ### `spec.findEntry(name)`
 
@@ -1243,7 +1243,7 @@ the entry
 
 **Source:** [src/contract/spec.ts:658](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L658)
 
-### `spec.findEvent(name)`
+### `spec.findEvent(name, occurrence)`
 
 Finds the XDR event spec for the given event name.
 
@@ -1252,17 +1252,24 @@ returns `undefined` so callers can probe a contract for an event without
 wrapping the call in a `try`.
 
 ```ts
-findEvent(name: string): ScSpecEventV0 | undefined;
+findEvent(name: string, occurrence?: number): ScSpecEventV0 | undefined;
 ```
 
 **Parameters**
 
 - **`name`** — `string` (required) — the name of the event
+- **`occurrence`** — `number` (optional) — (optional) 0-based index among same-named events, in
+         declaration order, for contracts that declare the same event name
+         more than once (defaults to the first)
 
 **Returns**
 
 the event spec, or `undefined` if the contract declares no event
-         with that name
+         with that name (at that occurrence)
+
+**Throws**
+
+- if `occurrence` is not a non-negative integer
 
 **Example**
 
@@ -1272,7 +1279,7 @@ if (contractSpec.findEvent("transfer")) {
 }
 ```
 
-**Source:** [src/contract/spec.ts:1246](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1246)
+**Source:** [src/contract/spec.ts:1251](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1251)
 
 ### `spec.funcArgsToScVals(name, args)`
 
@@ -1395,7 +1402,7 @@ the converted JSON schema
 
 - if the contract spec is invalid
 
-**Source:** [src/contract/spec.ts:1331](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1331)
+**Source:** [src/contract/spec.ts:1336](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1336)
 
 ### `spec.nativeToScVal(val, ty)`
 
@@ -1459,7 +1466,7 @@ if (parsed) {
 }
 ```
 
-**Source:** [src/contract/spec.ts:1278](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1278)
+**Source:** [src/contract/spec.ts:1283](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1283)
 
 ### `spec.scValStrToNative(scv, typeDef)`
 

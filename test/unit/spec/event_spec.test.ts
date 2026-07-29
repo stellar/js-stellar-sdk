@@ -81,6 +81,48 @@ describe("Spec events", () => {
     expect(() => spec.eventTopicFilter("nope")).toThrow(/no such event: nope/);
   });
 
+  it("findEvent selects among same-named events by occurrence", () => {
+    // Composed contracts can declare the same event name more than once, with
+    // different params; `occurrence` picks one in declaration order.
+    const first = new xdr.ScSpecEventV0({
+      doc: "",
+      lib: "",
+      name: "transfer",
+      prefixTopics: ["transfer"],
+      params: [param("amount", i128Type, DATA)],
+      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatSingleValue(),
+    });
+    const second = new xdr.ScSpecEventV0({
+      doc: "",
+      lib: "",
+      name: "transfer",
+      prefixTopics: ["transfer"],
+      params: [param("count", u32Type, DATA)],
+      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatSingleValue(),
+    });
+    const spec = new Spec([entryFor(first), entryFor(second)]);
+
+    // No occurrence means the first declaration, as before.
+    expect(spec.findEvent("transfer")?.params()[0].name().toString()).toBe(
+      "amount",
+    );
+    expect(spec.findEvent("transfer", 0)?.params()[0].name().toString()).toBe(
+      "amount",
+    );
+    expect(spec.findEvent("transfer", 1)?.params()[0].name().toString()).toBe(
+      "count",
+    );
+
+    // Past the last declaration is a miss, not an error — same as an
+    // undeclared name.
+    expect(spec.findEvent("transfer", 2)).toBeUndefined();
+
+    // A nonsensical occurrence is a caller bug, so it throws rather than
+    // quietly returning undefined.
+    expect(() => spec.findEvent("transfer", -1)).toThrow(/invalid occurrence/);
+    expect(() => spec.findEvent("transfer", 1.5)).toThrow(/invalid occurrence/);
+  });
+
   it("parses singleValue data format events, round-tripping natives", () => {
     const event = new xdr.ScSpecEventV0({
       doc: "",
