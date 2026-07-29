@@ -1210,7 +1210,8 @@ a single topic filter row
 
 **Throws**
 
-- if no event with the given name (at the given occurrence) exists
+- if no event with the given name (at the given occurrence) exists,
+        or if `occurrence` is not a non-negative integer
 
 **Example**
 
@@ -1218,7 +1219,7 @@ a single topic filter row
 const topics = contractSpec.eventTopicFilter('transfer', { to: someAddress });
 ```
 
-**Source:** [src/contract/spec.ts:1306](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1306)
+**Source:** [src/contract/spec.ts:1307](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1307)
 
 ### `spec.findEntry(name)`
 
@@ -1394,7 +1395,7 @@ the converted JSON schema
 
 - if the contract spec is invalid
 
-**Source:** [src/contract/spec.ts:1330](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1330)
+**Source:** [src/contract/spec.ts:1331](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1331)
 
 ### `spec.nativeToScVal(val, ty)`
 
