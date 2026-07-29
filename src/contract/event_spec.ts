@@ -47,6 +47,7 @@ export function events(entries: xdr.ScSpecEntry[]): xdr.ScSpecEventV0[] {
  * @param occurrence - 0-based index among the events with that name
  * @returns the event spec, or `undefined` if the contract declares no event
  *          with that name (at that occurrence)
+ * @throws if `occurrence` is not a non-negative integer
  * @hidden
  */
 export function findEvent(
@@ -54,6 +55,11 @@ export function findEvent(
   name: string,
   occurrence: number = 0,
 ): xdr.ScSpecEventV0 | undefined {
+  if (!Number.isInteger(occurrence) || occurrence < 0) {
+    throw new Error(
+      `invalid occurrence for event ${name}: ${occurrence} (expected a non-negative integer)`,
+    );
+  }
   return events(entries).filter((e) => e.name().toString() === name)[
     occurrence
   ];
@@ -260,7 +266,8 @@ export function parseEvent(
  * @param occurrence - (optional) 0-based index among same-named events, for
  *        contracts that declare the same event name more than once
  * @returns a single topic filter row
- * @throws if no event with the given name (at the given occurrence) exists
+ * @throws if no event with the given name (at the given occurrence) exists,
+ *         or if `occurrence` is not a non-negative integer
  * @hidden
  */
 export function eventTopicFilter(

@@ -1296,7 +1296,8 @@ export class Spec {
    *        more than once (defaults to the first)
    * @returns a single topic filter row
    *
-   * @throws if no event with the given name (at the given occurrence) exists
+   * @throws if no event with the given name (at the given occurrence) exists,
+   *         or if `occurrence` is not a non-negative integer
    *
    * @example
    * ```ts

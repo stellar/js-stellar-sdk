@@ -143,6 +143,12 @@ describe("bindings generated-name collision resolution", () => {
     expect(() => spec.eventTopicFilter("transfer", undefined, 2)).toThrow(
       "no such event: transfer (occurrence 2)",
     );
+    expect(() => spec.eventTopicFilter("transfer", undefined, -1)).toThrow(
+      "invalid occurrence for event transfer: -1",
+    );
+    expect(() => spec.eventTopicFilter("transfer", undefined, 0.5)).toThrow(
+      "invalid occurrence for event transfer: 0.5",
+    );
   });
 
   it("disambiguates an event filter method that collides with a contract function member name, keeping the function's name", () => {
