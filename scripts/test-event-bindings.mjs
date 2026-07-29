@@ -157,8 +157,7 @@ fs.mkdirSync(path.join(OUT_DIR, "gen"), { recursive: true });
 
 const results = {
   generated: 0,
-  genFailed: [], // {hash, error} — unexpected
-  dupRejected: [], // {hash, error} — duplicate event names, rejected by design
+  genFailed: [], // {hash, error} — any generate() throw is a failure
   checkFailed: [], // {hash, problems: string[]}
   renamed: 0, // outputs where a collision rename kicked in
   census: {
@@ -186,14 +185,14 @@ function verifyContract(hash, events, clientSrc, typesSrc) {
     problems.push("parseEvent generated for event-less contract");
   }
 
-  // client.ts: one filter method per event (names may carry rename suffixes,
-  // but every filter method name contains "EventFilter")
-  const filterDefs = (
-    clientSrc.match(/^ {2}[A-Za-z_$][\w$]*\(/gm) ?? []
-  ).filter((m) => m.includes("EventFilter"));
+  // client.ts: one filter method per event. Count eventTopicFilter delegate
+  // calls rather than method names — a contract function can legitimately be
+  // named like "transferEventFilter" and would inflate a name-based count.
+  const filterDefs =
+    clientSrc.match(/return this\.spec\.eventTopicFilter\(/g) ?? [];
   if (filterDefs.length !== n) {
     problems.push(
-      `expected ${n} *EventFilter methods, found ${filterDefs.length}`,
+      `expected ${n} event filter methods, found ${filterDefs.length}`,
     );
   }
 
@@ -266,14 +265,7 @@ async function runOne(hash, events) {
     const { generator } = await createGenerator({ wasm: wasmPath });
     bindings = generator.generate({ contractName: `c${hash.slice(0, 8)}` });
   } catch (error) {
-    const msg = String(error?.message ?? error);
-    // The generator rejects duplicate event names by design; track those
-    // separately so unexpected failures stand out.
-    if (msg.includes("duplicate event name")) {
-      results.dupRejected.push({ hash, error: msg });
-    } else {
-      results.genFailed.push({ hash, error: msg });
-    }
+    results.genFailed.push({ hash, error: String(error?.message ?? error) });
     return;
   }
   results.generated += 1;
@@ -423,9 +415,6 @@ if (TYPECHECK) {
 console.log("\n================ RESULTS ================");
 console.log(
   `generated OK:        ${results.generated}/${targets.length + controls.length}`,
-);
-console.log(
-  `dup-name rejects:    ${results.dupRejected.length} (rejected by design)`,
 );
 console.log(`generation failures: ${results.genFailed.length}`);
 console.log(`structural failures: ${results.checkFailed.length}`);
