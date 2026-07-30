@@ -110,7 +110,7 @@ class Server {
   _getTransaction(hash: string): Promise<RawGetTransactionResponse>;
   _getTransactions(request: GetTransactionsRequest): Promise<RawGetTransactionsResponse>;
   _sendTransaction(transaction: Transaction | FeeBumpTransaction): Promise<RawSendTransactionResponse>;
-  _simulateTransaction(transaction: Transaction | FeeBumpTransaction, addlResources?: ResourceLeeway, authMode?: SimulationAuthMode): Promise<RawSimulateTransactionResponse>;
+  _simulateTransaction(transaction: Transaction | FeeBumpTransaction, addlResources?: ResourceLeeway, authMode?: SimulationAuthMode, useUpgradedAuth?: boolean): Promise<RawSimulateTransactionResponse>;
   fundAddress(address: string, friendbotUrl?: string): Promise<GetSuccessfulTransactionResponse>;
   getAccount(address: string): Promise<Account>;
   getAccountEntry(address: string): Promise<AccountEntry>;
@@ -139,7 +139,7 @@ class Server {
   queryContract<T = any>(contractId: string, method: string, args: Record<string, unknown> = {}, networkPassphrase?: string): Promise<{ isReadCall: boolean; result: T }>;
   requestAirdrop(address: string | Pick<Account, "accountId">, friendbotUrl?: string): Promise<Account>;
   sendTransaction(transaction: Transaction | FeeBumpTransaction): Promise<SendTransactionResponse>;
-  simulateTransaction(tx: Transaction | FeeBumpTransaction, addlResources?: ResourceLeeway, authMode?: SimulationAuthMode): Promise<SimulateTransactionResponse>;
+  simulateTransaction(tx: Transaction | FeeBumpTransaction, addlResources?: ResourceLeeway, authMode?: SimulationAuthMode, useUpgradedAuth?: boolean): Promise<SimulateTransactionResponse>;
 }
 ```
 
@@ -236,7 +236,7 @@ _getLedgers(request: GetLedgersRequest): Promise<RawGetLedgersResponse>;
 
 - **`request`** — `GetLedgersRequest` (required)
 
-**Source:** [src/rpc/server.ts:1837](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1837)
+**Source:** [src/rpc/server.ts:1852](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1852)
 
 ### `server._getTransaction(hash)`
 
@@ -272,12 +272,12 @@ _sendTransaction(transaction: Transaction | FeeBumpTransaction): Promise<RawSend
 
 - **`transaction`** — `Transaction | FeeBumpTransaction` (required)
 
-**Source:** [src/rpc/server.ts:1476](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1476)
+**Source:** [src/rpc/server.ts:1491](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1491)
 
-### `server._simulateTransaction(transaction, addlResources, authMode)`
+### `server._simulateTransaction(transaction, addlResources, authMode, useUpgradedAuth)`
 
 ```ts
-_simulateTransaction(transaction: Transaction | FeeBumpTransaction, addlResources?: ResourceLeeway, authMode?: SimulationAuthMode): Promise<RawSimulateTransactionResponse>;
+_simulateTransaction(transaction: Transaction | FeeBumpTransaction, addlResources?: ResourceLeeway, authMode?: SimulationAuthMode, useUpgradedAuth?: boolean): Promise<RawSimulateTransactionResponse>;
 ```
 
 **Parameters**
@@ -285,8 +285,9 @@ _simulateTransaction(transaction: Transaction | FeeBumpTransaction, addlResource
 - **`transaction`** — `Transaction | FeeBumpTransaction` (required)
 - **`addlResources`** — `ResourceLeeway` (optional)
 - **`authMode`** — `SimulationAuthMode` (optional)
+- **`useUpgradedAuth`** — `boolean` (optional)
 
-**Source:** [src/rpc/server.ts:1323](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1323)
+**Source:** [src/rpc/server.ts:1336](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1336)
 
 ### `server.fundAddress(address, friendbotUrl)`
 
@@ -339,7 +340,7 @@ console.log("Contract funded! Hash:", tx.txHash);
 
 - `Friendbot docs`
 
-**Source:** [src/rpc/server.ts:1596](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1596)
+**Source:** [src/rpc/server.ts:1611](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1611)
 
 ### `server.getAccount(address)`
 
@@ -775,7 +776,7 @@ the fee stats
 
 - https://developers.stellar.org/docs/data/rpc/api-reference/methods/getFeeStats
 
-**Source:** [src/rpc/server.ts:1642](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1642)
+**Source:** [src/rpc/server.ts:1657](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1657)
 
 ### `server.getHealth()`
 
@@ -961,7 +962,7 @@ const nextPage = await server.getLedgers({
 
 - `getLedgers docs`
 
-**Source:** [src/rpc/server.ts:1821](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1821)
+**Source:** [src/rpc/server.ts:1836](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1836)
 
 ### `server.getNetwork()`
 
@@ -1049,7 +1050,7 @@ console.log(
 - - getLedgerEntries
  - https://developers.stellar.org/docs/tokens/stellar-asset-contract
 
-**Source:** [src/rpc/server.ts:1706](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1706)
+**Source:** [src/rpc/server.ts:1721](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1721)
 
 ### `server.getTransaction(hash)`
 
@@ -1180,7 +1181,7 @@ the version info
 
 - https://developers.stellar.org/docs/data/rpc/api-reference/methods/getVersionInfo
 
-**Source:** [src/rpc/server.ts:1656](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1656)
+**Source:** [src/rpc/server.ts:1671](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1671)
 
 ### `server.pollTransaction(hash, opts)`
 
@@ -1309,7 +1310,7 @@ server.sendTransaction(transaction).then(result => {
 - - module:rpc.assembleTransaction
  - `simulateTransaction docs`
 
-**Source:** [src/rpc/server.ts:1415](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1415)
+**Source:** [src/rpc/server.ts:1430](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1430)
 
 ### `server.queryContract(contractId, method, args, networkPassphrase)`
 
@@ -1417,7 +1418,7 @@ server
 - - `Friendbot docs`
  - `Friendbot.Api.Response`
 
-**Source:** [src/rpc/server.ts:1521](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1521)
+**Source:** [src/rpc/server.ts:1536](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1536)
 
 ### `server.sendTransaction(transaction)`
 
@@ -1478,15 +1479,15 @@ server.sendTransaction(transaction).then((result) => {
 - - `transaction docs`
  - `sendTransaction docs`
 
-**Source:** [src/rpc/server.ts:1470](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1470)
+**Source:** [src/rpc/server.ts:1485](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1485)
 
-### `server.simulateTransaction(tx, addlResources, authMode)`
+### `server.simulateTransaction(tx, addlResources, authMode, useUpgradedAuth)`
 
 Submit a trial contract invocation to get back return values, expected
 ledger footprint, expected authorizations, and expected costs.
 
 ```ts
-simulateTransaction(tx: Transaction | FeeBumpTransaction, addlResources?: ResourceLeeway, authMode?: SimulationAuthMode): Promise<SimulateTransactionResponse>;
+simulateTransaction(tx: Transaction | FeeBumpTransaction, addlResources?: ResourceLeeway, authMode?: SimulationAuthMode, useUpgradedAuth?: boolean): Promise<SimulateTransactionResponse>;
 ```
 
 **Parameters**
@@ -1503,6 +1504,15 @@ simulateTransaction(tx: Transaction | FeeBumpTransaction, addlResources?: Resour
      auth mode to use for simulation: `enforce` for enforcement mode,
      `record` for recording mode, or `record_allow_nonroot` for recording
      mode that allows non-root authorization
+- **`useUpgradedAuth`** — `boolean` (optional) — (optional) opt simulation into recording
+     v2 address credentials (CAP-71) instead of the legacy v1 address
+     credentials. Best-effort: it only affects the recording auth modes and
+     is silently ignored on protocol versions whose host cannot emit v2
+     credentials.
+  
+     **Deprecated**: this flag is transitional. Once the network returns v2
+     credentials by default (protocol 28), it becomes a no-op — do not rely
+     on omitting it to keep receiving the legacy v1 format.
 
 **Returns**
 
@@ -1544,7 +1554,7 @@ server.simulateTransaction(transaction).then((sim) => {
  - module:rpc.Server#prepareTransaction
  - module:rpc.assembleTransaction
 
-**Source:** [src/rpc/server.ts:1313](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1313)
+**Source:** [src/rpc/server.ts:1322](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1322)
 
 ## rpc.assembleTransaction
 
