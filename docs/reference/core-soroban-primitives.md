@@ -1042,7 +1042,7 @@ scvSortedMap(items: ScMapEntry[]): ScVal
 
 - **`items`** — `ScMapEntry[]` (required) — the unsorted map entries
 
-**Source:** [src/base/scval.ts:475](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L475)
+**Source:** [src/base/scval.ts:476](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L476)
 
 ## walkInvocationTree
 

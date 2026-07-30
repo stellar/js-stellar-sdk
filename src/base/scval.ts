@@ -462,7 +462,8 @@ export function scValToNative(scv: ScVal): any {
       return undefined;
 
     default:
-      // @ts-expect-error this should be unreachable if the XDR types are correct, but we return the underlying value just in case
+      // Variants without an explicit case above (currently the newly
+      // generated `scvExecutableTag`) fall through to their underlying value.
       return scv.value;
   }
 }

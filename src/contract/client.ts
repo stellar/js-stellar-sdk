@@ -261,9 +261,14 @@ export class Client {
       return new Client(new Spec(SAC_SPEC), options) as unknown as Client & T;
     }
 
-    // The only remaining executable kind is a Wasm contract, whose executable
-    // value is the code hash.
-    const wasm = await server.getContractWasmByHash(executable.value.value);
+    if (executable.type !== "contractExecutableWasm") {
+      throw new TypeError(
+        `unsupported contract executable type: ${executable.type}`,
+      );
+    }
+
+    // A Wasm contract's executable value is the code hash.
+    const wasm = await server.getContractWasmByHash(executable.wasmHash.value);
 
     return Client.fromWasm<T>(wasm, options);
   }
