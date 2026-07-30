@@ -1,9 +1,17 @@
-import { xdr } from "../base/index.js";
+import {
+  ScSpecEntry,
+  ScSpecEntryEventV0,
+  ScSpecEventDataFormat,
+  ScSpecEventParamLocationV0,
+  ScSpecEventParamV0,
+  ScSpecEventV0,
+  ScVal,
+} from "../xdr/index.js";
 import type { Spec } from "./spec.js";
 
 /**
  * The result of successfully matching an emitted contract event against one
- * of the event specs (`xdr.ScSpecEventV0`) defined in a {@link Spec}.
+ * of the event specs ({@link ScSpecEventV0}) defined in a {@link Spec}.
  *
  * @see Spec.parseEvent
  */
@@ -20,20 +28,20 @@ export interface ParsedEvent {
 }
 
 /**
- * Gets all the SEP-48 event spec entries (`xdr.ScSpecEntryKind.scSpecEntryEventV0`)
- * out of a contract's spec entries.
+ * Gets all the SEP-48 event spec entries (`scSpecEntryEventV0`) out of a
+ * contract's spec entries.
  *
  * @param entries - the contract's XDR spec entries
  * @returns all event entries
  * @hidden
  */
-export function events(entries: xdr.ScSpecEntry[]): xdr.ScSpecEventV0[] {
+export function events(entries: ScSpecEntry[]): ScSpecEventV0[] {
   return entries
     .filter(
-      (entry) =>
-        entry.switch().value === xdr.ScSpecEntryKind.scSpecEntryEventV0().value,
+      (entry): entry is ScSpecEntryEventV0 =>
+        entry.type === "scSpecEntryEventV0",
     )
-    .map((entry) => entry.eventV0());
+    .map((entry) => entry.value);
 }
 
 /**
@@ -51,47 +59,40 @@ export function events(entries: xdr.ScSpecEntry[]): xdr.ScSpecEventV0[] {
  * @hidden
  */
 export function findEvent(
-  entries: xdr.ScSpecEntry[],
+  entries: ScSpecEntry[],
   name: string,
   occurrence: number = 0,
-): xdr.ScSpecEventV0 | undefined {
+): ScSpecEventV0 | undefined {
   if (!Number.isInteger(occurrence) || occurrence < 0) {
     throw new Error(
       `invalid occurrence for event ${name}: ${occurrence} (expected a non-negative integer)`,
     );
   }
-  return events(entries).filter((e) => e.name().toString() === name)[
-    occurrence
-  ];
+  return events(entries).filter((e) => e.name.toString() === name)[occurrence];
 }
 
 /**
  * Returns the topic-list-located params of an event, in declaration order.
  * @hidden
  */
-function topicListParams(event: xdr.ScSpecEventV0): xdr.ScSpecEventParamV0[] {
-  return event
-    .params()
-    .filter(
-      (p) =>
-        p.location().value ===
-        xdr.ScSpecEventParamLocationV0.scSpecEventParamLocationTopicList()
-          .value,
-    );
+function topicListParams(event: ScSpecEventV0): ScSpecEventParamV0[] {
+  return event.params.filter(
+    (p) =>
+      p.location.value ===
+      ScSpecEventParamLocationV0.scSpecEventParamLocationTopicList.value,
+  );
 }
 
 /**
  * Returns the data-located params of an event, in declaration order.
  * @hidden
  */
-function dataParams(event: xdr.ScSpecEventV0): xdr.ScSpecEventParamV0[] {
-  return event
-    .params()
-    .filter(
-      (p) =>
-        p.location().value ===
-        xdr.ScSpecEventParamLocationV0.scSpecEventParamLocationData().value,
-    );
+function dataParams(event: ScSpecEventV0): ScSpecEventParamV0[] {
+  return event.params.filter(
+    (p) =>
+      p.location.value ===
+      ScSpecEventParamLocationV0.scSpecEventParamLocationData.value,
+  );
 }
 
 /**
@@ -100,12 +101,11 @@ function dataParams(event: xdr.ScSpecEventV0): xdr.ScSpecEventParamV0[] {
  * them as strings, so we accept both `scvSymbol` and `scvString`.
  * @hidden
  */
-function prefixTopicText(topic: xdr.ScVal): string | undefined {
-  switch (topic.switch().value) {
-    case xdr.ScValType.scvSymbol().value:
-      return topic.sym().toString();
-    case xdr.ScValType.scvString().value:
-      return topic.str().toString();
+function prefixTopicText(topic: ScVal): string | undefined {
+  switch (topic.type) {
+    case "scvSymbol":
+    case "scvString":
+      return topic.value.toString();
     default:
       return undefined;
   }
@@ -122,10 +122,10 @@ function prefixTopicText(topic: xdr.ScVal): string | undefined {
  * @hidden
  */
 function matchesTopics(
-  event: xdr.ScSpecEventV0,
-  topics: xdr.ScVal[],
-): xdr.ScSpecEventParamV0[] | undefined {
-  const prefixTopics = event.prefixTopics();
+  event: ScSpecEventV0,
+  topics: ScVal[],
+): ScSpecEventParamV0[] | undefined {
+  const prefixTopics = event.prefixTopics;
   const tlParams = topicListParams(event);
   if (topics.length < prefixTopics.length + tlParams.length) {
     return undefined;
@@ -144,8 +144,8 @@ function matchesTopics(
  *
  * @param spec - the Spec instance to decode values with (for `scValToNative`)
  * @param entries - the contract's XDR spec entries
- * @param topics - the event's topics, as `xdr.ScVal[]` or base64 XDR strings
- * @param data - the event's data, as an `xdr.ScVal` or a base64 XDR string
+ * @param topics - the event's topics, as `ScVal[]` or base64 XDR strings
+ * @param data - the event's data, as an `ScVal` or a base64 XDR string
  * @returns the parsed event, or `undefined` if no event spec matches
  *
  * Matching compares only the prefix topics and a minimum topic count, so if
@@ -156,18 +156,17 @@ function matchesTopics(
  */
 export function parseEvent(
   spec: Spec,
-  entries: xdr.ScSpecEntry[],
-  topics: xdr.ScVal[] | string[],
-  data: xdr.ScVal | string,
+  entries: ScSpecEntry[],
+  topics: ScVal[] | string[],
+  data: ScVal | string,
 ): ParsedEvent | undefined {
-  let topicVals: xdr.ScVal[];
-  let dataVal: xdr.ScVal;
+  let topicVals: ScVal[];
+  let dataVal: ScVal;
   try {
     topicVals = topics.map((t) =>
-      typeof t === "string" ? xdr.ScVal.fromXDR(t, "base64") : t,
+      typeof t === "string" ? ScVal.fromXdr(t, "base64") : t,
     );
-    dataVal =
-      typeof data === "string" ? xdr.ScVal.fromXDR(data, "base64") : data;
+    dataVal = typeof data === "string" ? ScVal.fromXdr(data, "base64") : data;
   } catch {
     return undefined;
   }
@@ -184,7 +183,7 @@ export function parseEvent(
     // an unrelated contract's event sharing the same prefix and topic count.
     // Treat any decode failure as a non-match and try the next candidate.
     try {
-      const prefixLen = event.prefixTopics().length;
+      const prefixLen = event.prefixTopics.length;
       // Param names come from an untrusted, on-chain contract spec, so a
       // param literally named "__proto__" must not be able to reach the
       // object's prototype via normal property assignment. A null-prototype
@@ -192,57 +191,52 @@ export function parseEvent(
       const dataOut: Record<string, any> = Object.create(null);
       tlParams.forEach((param, i) => {
         const val = topicVals[prefixLen + i];
-        dataOut[param.name().toString()] = spec.scValToNative(
-          val,
-          param.type(),
-        );
+        dataOut[param.name.toString()] = spec.scValToNative(val, param.type);
       });
 
       const dParams = dataParams(event);
-      const format = event.dataFormat().value;
+      const format = event.dataFormat.value;
       if (
         format ===
-        xdr.ScSpecEventDataFormat.scSpecEventDataFormatSingleValue().value
+        ScSpecEventDataFormat.scSpecEventDataFormatSingleValue.value
       ) {
         const param = dParams[0];
         if (param) {
-          dataOut[param.name().toString()] = spec.scValToNative(
+          dataOut[param.name.toString()] = spec.scValToNative(
             dataVal,
-            param.type(),
+            param.type,
           );
         }
       } else if (
-        format === xdr.ScSpecEventDataFormat.scSpecEventDataFormatVec().value
+        format === ScSpecEventDataFormat.scSpecEventDataFormatVec.value
       ) {
-        const vec = dataVal.vec() ?? [];
+        const vec = (dataVal.type === "scvVec" ? dataVal.value : null) ?? [];
         if (vec.length < dParams.length) {
           continue;
         }
         dParams.forEach((param, i) => {
-          dataOut[param.name().toString()] = spec.scValToNative(
+          dataOut[param.name.toString()] = spec.scValToNative(
             vec[i],
-            param.type(),
+            param.type,
           );
         });
       } else if (
-        format === xdr.ScSpecEventDataFormat.scSpecEventDataFormatMap().value
+        format === ScSpecEventDataFormat.scSpecEventDataFormatMap.value
       ) {
-        const map = dataVal.map() ?? [];
+        const map = (dataVal.type === "scvMap" ? dataVal.value : null) ?? [];
         dParams.forEach((param) => {
-          const name = param.name().toString();
+          const name = param.name.toString();
           const entry = map.find(
-            (e) =>
-              e.key().switch().value === xdr.ScValType.scvSymbol().value &&
-              e.key().sym().toString() === name,
+            (e) => e.key.type === "scvSymbol" && e.key.value.toString() === name,
           );
           if (entry) {
-            dataOut[name] = spec.scValToNative(entry.val(), param.type());
+            dataOut[name] = spec.scValToNative(entry.val, param.type);
           }
         });
       }
 
       return {
-        name: event.name().toString(),
+        name: event.name.toString(),
         data: dataOut,
       };
     } catch {
@@ -272,7 +266,7 @@ export function parseEvent(
  */
 export function eventTopicFilter(
   spec: Spec,
-  entries: xdr.ScSpecEntry[],
+  entries: ScSpecEntry[],
   name: string,
   topicValues?: Record<string, any>,
   occurrence: number = 0,
@@ -285,18 +279,18 @@ export function eventTopicFilter(
         : `no such event: ${name}`,
     );
   }
-  const filter: string[] = event
-    .prefixTopics()
-    .map((topic) => xdr.ScVal.scvSymbol(topic.toString()).toXDR("base64"));
+  const filter: string[] = event.prefixTopics.map((topic) =>
+    ScVal.scvSymbol(topic.toString()).toXdr("base64"),
+  );
 
   topicListParams(event).forEach((param) => {
-    const paramName = param.name().toString();
+    const paramName = param.name.toString();
     if (
       topicValues &&
       Object.prototype.hasOwnProperty.call(topicValues, paramName)
     ) {
-      const scVal = spec.nativeToScVal(topicValues[paramName], param.type());
-      filter.push(scVal.toXDR("base64"));
+      const scVal = spec.nativeToScVal(topicValues[paramName], param.type);
+      filter.push(scVal.toXdr("base64"));
     } else {
       filter.push("*");
     }

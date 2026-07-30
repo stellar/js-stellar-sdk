@@ -24,6 +24,7 @@ import {
   ScBytes,
   ScMapEntry,
   ScSpecEntry,
+  ScSpecEventV0,
   ScSpecFunctionInputV0,
   ScSpecFunctionV0,
   ScSpecTypeDef,
@@ -709,10 +710,10 @@ export class Spec {
 
     // Delegate scSpecTypeVal to the base nativeToScVal helper, which handles
     // strings, numbers/bigints (via ScInt), booleans, null/undefined, arrays,
-    // plain objects (sorted), Map, Address, Contract, Uint8Array, and xdr.ScVal
+    // plain objects (sorted), Map, Address, Contract, Uint8Array, and ScVal
     // passthroughs — keeping this in one place so the two code paths can't
     // drift apart over time.
-    if (value === xdr.ScSpecType.scSpecTypeVal().value) {
+    if (tyType === "scSpecTypeVal") {
       return nativeToScVal(val);
     }
 
@@ -1230,7 +1231,7 @@ export class Spec {
    *
    * @returns all contract events
    */
-  events(): xdr.ScSpecEventV0[] {
+  events(): ScSpecEventV0[] {
     return eventsImpl(this.entries);
   }
 
@@ -1257,7 +1258,7 @@ export class Spec {
    * }
    * ```
    */
-  findEvent(name: string, occurrence?: number): xdr.ScSpecEventV0 | undefined {
+  findEvent(name: string, occurrence?: number): ScSpecEventV0 | undefined {
     return findEventImpl(this.entries, name, occurrence);
   }
 
@@ -1269,8 +1270,8 @@ export class Spec {
    * that order), and its data is decoded according to the event's
    * `dataFormat` (`singleValue`, `vec`, or `map`).
    *
-   * @param topics - the event's topics, as `xdr.ScVal[]` or base64 XDR strings
-   * @param data - the event's data, as an `xdr.ScVal` or a base64 XDR string
+   * @param topics - the event's topics, as `ScVal[]` or base64 XDR strings
+   * @param data - the event's data, as an `ScVal` or a base64 XDR string
    * @returns the parsed event (its name plus all decoded params — topic-list
    *          and data-located alike — merged into `data`), or `undefined` if
    *          no event spec matches (e.g. when filtering a mixed stream of
@@ -1290,8 +1291,8 @@ export class Spec {
    * ```
    */
   parseEvent(
-    topics: xdr.ScVal[] | string[],
-    data: xdr.ScVal | string,
+    topics: ScVal[] | string[],
+    data: ScVal | string,
   ): ParsedEvent | undefined {
     return parseEventImpl(this, this.entries, topics, data);
   }

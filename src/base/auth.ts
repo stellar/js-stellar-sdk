@@ -4,6 +4,7 @@ import {
   HashIdPreimageSorobanAuthorization,
   HashIdPreimageSorobanAuthorizationWithAddress,
   Int64,
+  ScAddress,
   ScVal,
   SorobanAddressCredentials,
   SorobanAddressCredentialsWithDelegates,
@@ -748,7 +749,7 @@ export interface AuthEntrySignature {
   /** the signer's public key, as a `G…` strkey. */
   publicKey: string;
   /** the raw 64-byte ed25519 signature. */
-  signature: Buffer;
+  signature: Uint8Array;
 }
 
 /**
@@ -777,7 +778,7 @@ export interface AuthEntrySigner {
    */
   signatures: AuthEntrySignature[] | null;
   /** the raw signature value, whatever its shape. */
-  rawSignature: xdr.ScVal;
+  rawSignature: ScVal;
 }
 
 /**
@@ -813,7 +814,7 @@ export interface AuthEntryInfo {
    */
   signed: boolean;
   /** the invocation tree this entry authorizes. */
-  invocation: xdr.SorobanAuthorizedInvocation;
+  invocation: SorobanAuthorizedInvocation;
 }
 
 /** The result of {@link checkAuthEntryReadiness}. */
@@ -855,42 +856,38 @@ export interface AuthEntryReadiness {
  * ```
  */
 export function inspectAuthEntry(
-  entry: xdr.SorobanAuthorizationEntry,
+  entry: SorobanAuthorizationEntry,
 ): AuthEntryInfo {
-  const credentials = entry.credentials();
+  const credentials = entry.credentials;
   const addrAuth = getAddressCredentials(credentials);
 
   let credentialType: AuthEntryCredentialType;
-  switch (credentials.switch().value) {
-    case xdr.SorobanCredentialsType.sorobanCredentialsSourceAccount().value:
+  switch (credentials.type) {
+    case "sorobanCredentialsSourceAccount":
       credentialType = "sourceAccount";
       break;
-    case xdr.SorobanCredentialsType.sorobanCredentialsAddress().value:
+    case "sorobanCredentialsAddress":
       credentialType = "address";
       break;
-    case xdr.SorobanCredentialsType.sorobanCredentialsAddressV2().value:
+    case "sorobanCredentialsAddressV2":
       credentialType = "addressV2";
       break;
-    case xdr.SorobanCredentialsType.sorobanCredentialsAddressWithDelegates()
-      .value:
+    case "sorobanCredentialsAddressWithDelegates":
       credentialType = "addressWithDelegates";
       break;
     default:
       throw new Error(
-        `unsupported credential type ${credentials.switch().name}`,
+        `unsupported credential type ${(credentials as SorobanCredentials).type}`,
       );
   }
 
   const signers = collectSignatureNodes(credentials).map(
-    (node): AuthEntrySigner => {
-      const rawSignature = node.signature();
-      return {
-        address: Address.fromScAddress(node.address()).toString(),
-        signed: signaturePresent(rawSignature),
-        signatures: parseEd25519Signatures(rawSignature),
-        rawSignature,
-      };
-    },
+    (node): AuthEntrySigner => ({
+      address: Address.fromScAddress(node.address).toString(),
+      signed: signaturePresent(node.signature),
+      signatures: parseEd25519Signatures(node.signature),
+      rawSignature: node.signature,
+    }),
   );
 
   return {
@@ -898,14 +895,57 @@ export function inspectAuthEntry(
     address:
       addrAuth === null
         ? null
-        : Address.fromScAddress(addrAuth.address()).toString(),
-    nonce: addrAuth === null ? null : addrAuth.nonce().toBigInt(),
+        : Address.fromScAddress(addrAuth.address).toString(),
+    nonce: addrAuth === null ? null : addrAuth.nonce,
     signatureExpirationLedger:
-      addrAuth === null ? null : addrAuth.signatureExpirationLedger(),
+      addrAuth === null ? null : addrAuth.signatureExpirationLedger,
     signers,
     signed: signers.length > 0 && signers.every((signer) => signer.signed),
-    invocation: entry.rootInvocation(),
+    invocation: entry.rootInvocation,
   };
+}
+
+/**
+ * Internal helper. One signature-carrying node, read out of a credential tree:
+ * the top-level address credentials plus, for the CAP-71 delegates variant,
+ * every (possibly nested) delegate, depth-first.
+ */
+interface SignatureNode {
+  address: ScAddress;
+  signature: ScVal;
+}
+
+/**
+ * Internal helper. Collects every signature-carrying node of a credential tree,
+ * read-only — the write-side counterpart is
+ * {@link applyExpirationAndSignature}.
+ */
+function collectSignatureNodes(
+  credentials: SorobanCredentials,
+): SignatureNode[] {
+  const addrAuth = getAddressCredentials(credentials);
+  if (addrAuth === null) {
+    return [];
+  }
+
+  const nodes: SignatureNode[] = [
+    { address: addrAuth.address, signature: addrAuth.signature },
+  ];
+
+  if (credentials.type === "sorobanCredentialsAddressWithDelegates") {
+    const walk = (delegates: SorobanDelegateSignature[]): void => {
+      delegates.forEach((delegate) => {
+        nodes.push({
+          address: delegate.address,
+          signature: delegate.signature,
+        });
+        walk(delegate.nestedDelegates);
+      });
+    };
+    walk(credentials.addressWithDelegates.delegates);
+  }
+
+  return nodes;
 }
 
 /**
@@ -936,7 +976,7 @@ export function inspectAuthEntry(
  *    expiration comparison unreliable
  */
 export function checkAuthEntryReadiness(
-  entry: xdr.SorobanAuthorizationEntry,
+  entry: SorobanAuthorizationEntry,
   currentLedgerSeq: number,
 ): AuthEntryReadiness {
   if (
@@ -967,12 +1007,12 @@ export function checkAuthEntryReadiness(
  * (the delegate/CAP-71 placeholder) or an empty `scvVec` (the placeholder
  * {@link authorizeInvocation} writes); anything else is a signature payload.
  */
-function signaturePresent(signature: xdr.ScVal): boolean {
-  switch (signature.switch().value) {
-    case xdr.ScValType.scvVoid().value:
+function signaturePresent(signature: ScVal): boolean {
+  switch (signature.type) {
+    case "scvVoid":
       return false;
-    case xdr.ScValType.scvVec().value:
-      return (signature.vec() ?? []).length > 0;
+    case "scvVec":
+      return (signature.value ?? []).length > 0;
     default:
       return true;
   }
@@ -985,34 +1025,30 @@ function signaturePresent(signature: xdr.ScVal): boolean {
  * value has any other shape (e.g. a custom account's signer-defined payload).
  */
 function parseEd25519Signatures(
-  signature: xdr.ScVal,
+  signature: ScVal,
 ): AuthEntrySignature[] | null {
-  if (signature.switch().value !== xdr.ScValType.scvVec().value) {
+  if (signature.type !== "scvVec") {
     return null;
   }
 
   const parsed: AuthEntrySignature[] = [];
-  for (const element of signature.vec() ?? []) {
-    if (element.switch().value !== xdr.ScValType.scvMap().value) {
+  for (const element of signature.value ?? []) {
+    if (element.type !== "scvMap") {
       return null;
     }
-    let publicKey: Buffer | null = null;
-    let sig: Buffer | null = null;
-    for (const mapEntry of element.map() ?? []) {
-      const key = mapEntry.key();
-      const val = mapEntry.val();
-      if (
-        key.switch().value !== xdr.ScValType.scvSymbol().value ||
-        val.switch().value !== xdr.ScValType.scvBytes().value
-      ) {
+    let publicKey: Uint8Array | null = null;
+    let sig: Uint8Array | null = null;
+    for (const mapEntry of element.value ?? []) {
+      const { key, val } = mapEntry;
+      if (key.type !== "scvSymbol" || val.type !== "scvBytes") {
         return null;
       }
-      switch (key.sym().toString()) {
+      switch (key.value.toString()) {
         case "public_key":
-          publicKey = val.bytes();
+          publicKey = val.value.value;
           break;
         case "signature":
-          sig = val.bytes();
+          sig = val.value.value;
           break;
         default:
           return null;

@@ -1,3 +1,4 @@
+import { base64ToUint8Array, uint8ArrayToBase64 } from "uint8array-extras";
 import { Keypair, TransactionBuilder, hash } from "../base/index.js";
 import type { SignAuthEntry, SignTransaction } from "./types.js";
 
@@ -86,7 +87,7 @@ export class KeypairSigner implements Signer {
 
   // eslint-disable-next-line @typescript-eslint/require-await
   signTransaction: SignTransaction = async (xdr, opts) => {
-    const t = TransactionBuilder.fromXDR(
+    const t = TransactionBuilder.fromXdr(
       xdr,
       opts?.networkPassphrase || this.networkPassphrase,
     );
@@ -94,16 +95,16 @@ export class KeypairSigner implements Signer {
     t.sign(this.keypair);
 
     return {
-      signedTxXdr: t.toXDR(),
+      signedTxXdr: t.toXdr(),
       signerAddress: this.address,
     };
   };
 
   // eslint-disable-next-line @typescript-eslint/require-await
   signAuthEntry: SignAuthEntry = async (authEntry) => {
-    const signedAuthEntry = this.keypair
-      .sign(hash(Buffer.from(authEntry, "base64")))
-      .toString("base64");
+    const signedAuthEntry = uint8ArrayToBase64(
+      this.keypair.sign(hash(base64ToUint8Array(authEntry))),
+    );
 
     return {
       signedAuthEntry,

@@ -8,7 +8,11 @@ import {
   formatImports,
   toCamelCase,
 } from "./utils.js";
-import { ScSpecFunctionV0 } from "../xdr/index.js";
+import {
+  ScSpecEventParamLocationV0,
+  ScSpecEventV0,
+  ScSpecFunctionV0,
+} from "../xdr/index.js";
 
 /**
  * Generates TypeScript client class for contract methods
@@ -113,23 +117,18 @@ ${eventMethods}
       // Event filter helpers reference topic-list param types only; data
       // param types appear only in types.ts
       events.forEach((event) => {
-        const topicParams = event
-          .params()
-          .filter(
-            (param) =>
-              param.location().value ===
-              xdr.ScSpecEventParamLocationV0.scSpecEventParamLocationTopicList()
-                .value,
-          );
+        const topicParams = event.params.filter(
+          (param) =>
+            param.location.value ===
+            ScSpecEventParamLocationV0.scSpecEventParamLocationTopicList.value,
+        );
         topicParams.forEach((param) => {
-          const nested = generateTypeImports([param.type()]);
+          const nested = generateTypeImports([param.type]);
           nested.typeFileImports.forEach((t) => imports.typeFileImports.add(t));
           nested.stellarContractImports.forEach((t) =>
             imports.stellarContractImports.add(t),
           );
           nested.stellarImports.forEach((t) => imports.stellarImports.add(t));
-          imports.needsBufferImport =
-            imports.needsBufferImport || nested.needsBufferImport;
         });
       });
     }
@@ -163,8 +162,8 @@ ${eventMethods}
     const reserved = new Set(
       this.spec
         .funcs()
-        .filter((func) => func.name().toString() !== "__constructor")
-        .map((func) => sanitizeIdentifier(func.name().toString())),
+        .filter((func) => func.name.toString() !== "__constructor")
+        .map((func) => sanitizeIdentifier(func.name.toString())),
     );
     let candidate = "parseEvent";
     let suffix = 2;
@@ -199,15 +198,15 @@ ${eventMethods}
 
     this.spec
       .funcs()
-      .filter((func) => func.name().toString() !== "__constructor")
+      .filter((func) => func.name.toString() !== "__constructor")
       .forEach((func) => {
-        reserved.add(sanitizeIdentifier(func.name().toString()));
+        reserved.add(sanitizeIdentifier(func.name.toString()));
       });
 
     const resolved = new Map<number, string>();
 
     this.spec.events().forEach((event, eventIndex) => {
-      const preferred = `${toCamelCase(sanitizeIdentifier(event.name().toString()))}EventFilter`;
+      const preferred = `${toCamelCase(sanitizeIdentifier(event.name.toString()))}EventFilter`;
 
       let candidate = preferred;
       let suffix = 2;
@@ -229,13 +228,13 @@ ${eventMethods}
    * event; see {@link resolveEventFilterMethodNames}.
    */
   private eventFilterMethodName(
-    event: xdr.ScSpecEventV0,
+    event: ScSpecEventV0,
     eventIndex: number,
   ): string {
     const resolved = this.resolveEventFilterMethodNames().get(eventIndex);
     /* istanbul ignore next -- every event in the spec is reserved a name */
     if (resolved === undefined) {
-      return `${toCamelCase(sanitizeIdentifier(event.name().toString()))}EventFilter`;
+      return `${toCamelCase(sanitizeIdentifier(event.name.toString()))}EventFilter`;
     }
     return resolved;
   }
@@ -258,10 +257,10 @@ ${eventMethods}
    * `Api.EventFilter.topics`, suitable for passing to server.getEvents.
    */
   private generateEventFilterMethod(
-    event: xdr.ScSpecEventV0,
+    event: ScSpecEventV0,
     eventIndex: number,
   ): string {
-    const rawName = event.name().toString();
+    const rawName = event.name.toString();
     const methodName = this.eventFilterMethodName(event, eventIndex);
     const preferredMethodName = `${toCamelCase(sanitizeIdentifier(rawName))}EventFilter`;
     // Which same-named event this is (0-based, declaration order) — needed
@@ -269,7 +268,7 @@ ${eventMethods}
     const occurrence = this.spec
       .events()
       .slice(0, eventIndex)
-      .filter((e) => e.name().toString() === rawName).length;
+      .filter((e) => e.name.toString() === rawName).length;
     const occurrenceNote =
       occurrence > 0
         ? ` This targets declaration ${occurrence + 1} of the "${rawName}" event in the contract spec.`
@@ -278,25 +277,22 @@ ${eventMethods}
       methodName !== preferredMethodName
         ? ` Note: renamed from "${preferredMethodName}" to avoid a collision with another generated name.`
         : "";
-    const topicParams = event
-      .params()
-      .filter(
-        (param) =>
-          param.location().value ===
-          xdr.ScSpecEventParamLocationV0.scSpecEventParamLocationTopicList()
-            .value,
-      );
+    const topicParams = event.params.filter(
+      (param) =>
+        param.location.value ===
+        ScSpecEventParamLocationV0.scSpecEventParamLocationTopicList.value,
+    );
 
     // eventTopicFilter looks values up by the raw param names, so the
     // parameter type must use them too — quoted when they aren't valid
     // identifiers.
     const fields = topicParams
       .map((param) => {
-        const rawParamName = param.name().toString();
+        const rawParamName = param.name.toString();
         const fieldName = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(rawParamName)
           ? rawParamName
           : `"${escapeStringLiteral(rawParamName)}"`;
-        const fieldType = parseTypeFromTypeDef(param.type(), true);
+        const fieldType = parseTypeFromTypeDef(param.type, true);
         return `${fieldName}?: ${fieldType}`;
       })
       .join("; ");

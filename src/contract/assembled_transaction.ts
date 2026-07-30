@@ -55,12 +55,12 @@ import {
   Operation as XdrOperation,
   ScAddress,
   ScVal,
-  SorobanAddressCredentials,
   SorobanAuthorizationEntry,
   SorobanCredentials,
   SorobanTransactionData,
   TransactionEnvelope,
 } from "../xdr/index.js";
+import { getAddressCredentials } from "../base/auth.js";
 import { base64ToUint8Array } from "uint8array-extras";
 
 /** @module contract */

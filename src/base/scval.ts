@@ -258,7 +258,7 @@ export function nativeToScVal(
           );
         }
 
-        const entries: xdr.ScMapEntry[] = [];
+        const entries: ScMapEntry[] = [];
         for (const [k, v] of val) {
           let keyType = uniformKeyType;
           let valType = uniformValType;
@@ -270,13 +270,13 @@ export function nativeToScVal(
             [keyType = null, valType = null] = perKeySpec[k] ?? [];
           }
           entries.push(
-            new xdr.ScMapEntry({
+            new ScMapEntry({
               key: nativeToScVal(k, keyType ? { type: keyType } : {}),
               val: nativeToScVal(v, valType ? { type: valType } : {}),
             }),
           );
         }
-        return xdr.scvSortedMap(entries);
+        return scvSortedMap(entries);
       }
 
       if (Object.getPrototypeOf(val) !== Object.prototype) {

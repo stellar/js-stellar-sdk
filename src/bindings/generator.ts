@@ -300,13 +300,13 @@ export class BindingGenerator {
 
     const declarationCounts = new Map<string, number>();
     events.forEach((event) => {
-      const rawName = event.name().toString();
+      const rawName = event.name.toString();
       declarationCounts.set(rawName, (declarationCounts.get(rawName) ?? 0) + 1);
     });
 
     const occurrenceSoFar = new Map<string, number>();
     return events.flatMap((event, eventIndex) => {
-      const rawName = event.name().toString();
+      const rawName = event.name.toString();
       const occurrence = occurrenceSoFar.get(rawName) ?? 0;
       occurrenceSoFar.set(rawName, occurrence + 1);
 

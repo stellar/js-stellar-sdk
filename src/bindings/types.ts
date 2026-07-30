@@ -76,8 +76,8 @@ export class TypeGenerator {
     let eventIndex = 0;
     const types = this.spec.entries
       .map((entry) =>
-        entry.switch() === xdr.ScSpecEntryKind.scSpecEntryEventV0()
-          ? this.generateEvent(entry.eventV0(), eventIndex++)
+        entry.type === "scSpecEntryEventV0"
+          ? this.generateEvent(entry.value, eventIndex++)
           : this.generateEntry(entry),
       )
       .filter((t) => t)
@@ -140,11 +140,8 @@ export class TypeGenerator {
           case "scSpecEntryUdtErrorEnumV0":
             // Enums do not have associated types
             return [];
-          case xdr.ScSpecEntryKind.scSpecEntryEventV0():
-            return entry
-              .eventV0()
-              .params()
-              .map((param) => param.type());
+          case "scSpecEntryEventV0":
+            return entry.value.params.map((param) => param.type);
           default:
             return [];
         }
