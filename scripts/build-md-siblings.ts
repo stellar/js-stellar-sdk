@@ -25,6 +25,8 @@ import {
 } from "node:fs";
 import { dirname, join, relative } from "node:path";
 
+import { expandSnippetMarkers } from "../config/snippets.js";
+
 const REPO_ROOT = process.cwd();
 const DOCS_DIR = join(REPO_ROOT, "docs");
 const DIST_DIR = join(REPO_ROOT, "dist", "site");
@@ -101,7 +103,9 @@ function main(): void {
     const rel = relative(DOCS_DIR, src);
     const dst = join(DIST_DIR, rel);
     mkdirSync(dirname(dst), { recursive: true });
-    const content = readFileSync(src, "utf8");
+    // Guide code blocks live in examples/guides/ and are injected at
+    // build time; the raw siblings must carry the code, not the markers.
+    const content = expandSnippetMarkers(readFileSync(src, "utf8"));
     writeFileSync(dst, rewriteLinks(content), "utf8");
     written += 1;
   }

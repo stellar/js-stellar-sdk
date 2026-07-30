@@ -1270,6 +1270,15 @@ export class RpcServer {
    *    auth mode to use for simulation: `enforce` for enforcement mode,
    *    `record` for recording mode, or `record_allow_nonroot` for recording
    *    mode that allows non-root authorization
+   * @param useUpgradedAuth - (optional) opt simulation into recording
+   *    v2 address credentials (CAP-71) instead of the legacy v1 address
+   *    credentials. Best-effort: it only affects the recording auth modes and
+   *    is silently ignored on protocol versions whose host cannot emit v2
+   *    credentials.
+   *
+   *    **Deprecated**: this flag is transitional. Once the network returns v2
+   *    credentials by default (protocol 28), it becomes a no-op — do not rely
+   *    on omitting it to keep receiving the legacy v1 format.
    *
    * @returns An object with the
    *    cost, footprint, result/auth requirements (if applicable), and error of
@@ -1314,16 +1323,21 @@ export class RpcServer {
     tx: Transaction | FeeBumpTransaction,
     addlResources?: RpcServer.ResourceLeeway,
     authMode?: Api.SimulationAuthMode,
+    useUpgradedAuth?: boolean,
   ): Promise<Api.SimulateTransactionResponse> {
-    return this._simulateTransaction(tx, addlResources, authMode).then(
-      parseRawSimulation,
-    );
+    return this._simulateTransaction(
+      tx,
+      addlResources,
+      authMode,
+      useUpgradedAuth,
+    ).then(parseRawSimulation);
   }
 
   public async _simulateTransaction(
     transaction: Transaction | FeeBumpTransaction,
     addlResources?: RpcServer.ResourceLeeway,
     authMode?: Api.SimulationAuthMode,
+    useUpgradedAuth?: boolean,
   ): Promise<Api.RawSimulateTransactionResponse> {
     return jsonrpc.postObject(
       this.httpClient,
@@ -1332,6 +1346,7 @@ export class RpcServer {
       {
         transaction: transaction.toXdr(),
         authMode,
+        ...(useUpgradedAuth !== undefined && { useUpgradedAuth }),
         ...(addlResources !== undefined && {
           resourceConfig: {
             instructionLeeway: addlResources.cpuInstructions,

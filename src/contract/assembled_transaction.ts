@@ -9,16 +9,19 @@ import {
   SorobanDataBuilder,
   TransactionBuilder,
   authorizeEntry as stellarBaseAuthorizeEntry,
+  inspectAuthEntry,
 } from "../base/index.js";
-import { getAddressCredentials } from "../base/auth.js";
 import type {
   AssembledTransactionOptions,
   ClientOptions,
   MethodOptions,
+  SignAuthEntry,
+  SignTransaction,
   Tx,
   WalletError,
   XDR_BASE64,
 } from "./types.js";
+import { signerAddress, toSignAuthEntry, toSignTransaction } from "./signer.js";
 import { Server } from "../rpc/index.js";
 import { Api } from "../rpc/api.js";
 import { assembleTransaction } from "../rpc/transaction.js";
@@ -667,7 +670,10 @@ export class AssembledTransaction<T> {
     return tx;
   }
 
-  simulate = async ({ restore }: { restore?: boolean } = {}): Promise<this> => {
+  simulate = async ({
+    restore,
+    useUpgradedAuth,
+  }: { restore?: boolean; useUpgradedAuth?: boolean } = {}): Promise<this> => {
     if (!this.built) {
       if (!this.raw) {
         throw new Error(
@@ -678,11 +684,17 @@ export class AssembledTransaction<T> {
       this.built = this.raw.build();
     }
     restore = restore ?? this.options.restore;
+    useUpgradedAuth = useUpgradedAuth ?? this.options.useUpgradedAuth;
 
     // need to force re-calculation of simulationData for new simulation
     delete this.simulationResult;
     delete this.simulationTransactionData;
-    this.simulation = await this.server.simulateTransaction(this.built);
+    this.simulation = await this.server.simulateTransaction(
+      this.built,
+      undefined,
+      undefined,
+      useUpgradedAuth,
+    );
 
     if (restore && Api.isSimulationRestore(this.simulation)) {
       const account = await getAccount(this.options, this.server);
@@ -705,7 +717,7 @@ export class AssembledTransaction<T> {
           .addOperation(op)
           .setTimeout(this.options.timeoutInSeconds ?? DEFAULT_TIMEOUT);
         delete this.built;
-        await this.simulate();
+        await this.simulate({ useUpgradedAuth });
         return this;
       }
       throw new AssembledTransaction.Errors.RestorationFailure(
@@ -815,7 +827,12 @@ export class AssembledTransaction<T> {
       );
     }
 
-    if (!signTransaction) {
+    const signTx = toSignTransaction(
+      signTransaction,
+      this.options.networkPassphrase,
+    );
+
+    if (!signTx) {
       throw new AssembledTransaction.Errors.NoSigner(
         "You must provide a signTransaction function, either when calling " +
           "`signAndSend` or when initializing your Client",
@@ -848,9 +865,7 @@ export class AssembledTransaction<T> {
       .setTimeout(timeoutInSeconds)
       .build();
 
-    const signOpts: Parameters<
-      NonNullable<ClientOptions["signTransaction"]>
-    >[1] = {
+    const signOpts: Parameters<SignTransaction>[1] = {
       networkPassphrase: this.options.networkPassphrase,
     };
 
@@ -859,7 +874,7 @@ export class AssembledTransaction<T> {
       signOpts.submit = this.options.submit;
     if (this.options.submitUrl) signOpts.submitUrl = this.options.submitUrl;
 
-    const { signedTxXdr: signature, error } = await signTransaction(
+    const { signedTxXdr: signature, error } = await signTx(
       this.built.toXdr(),
       signOpts,
     );
@@ -918,8 +933,12 @@ export class AssembledTransaction<T> {
   } = {}): Promise<SentTransaction<T>> => {
     if (!this.signed) {
       // Wrap signTransaction to disable submit and prevent double submission,
-      // without mutating the shared this.options object
-      const signer = signTransaction || this.options.signTransaction;
+      // without mutating the shared this.options object. Reduce to a plain
+      // callback first, since the wrapper has to call it.
+      const signer = toSignTransaction(
+        signTransaction || this.options.signTransaction,
+        this.options.networkPassphrase,
+      );
       const wrappedSignTransaction: typeof signTransaction =
         this.options.submit && signer
           ? (tx, opts) => signer(tx, { ...opts, submit: false })
@@ -978,21 +997,18 @@ export class AssembledTransaction<T> {
     return [
       ...new Set(
         (rawInvokeHostFunctionOp.auth ?? [])
-          // Extract the inner address credentials from any address-based
-          // credential (ADDRESS, ADDRESS_V2, or ADDRESS_WITH_DELEGATES).
-          .map((entry: SorobanAuthorizationEntry) =>
-            getAddressCredentials(entry.credentials),
-          )
+          .map((entry) => inspectAuthEntry(entry))
           .filter(
-            (addrAuth): addrAuth is SorobanAddressCredentials =>
+            (info) =>
               // skip source-account credentials (no address payload), which
-              // are covered by the envelope signature on the source account
-              addrAuth !== null &&
-              (includeAlreadySigned || addrAuth.signature.type === "scvVoid"),
+              // are covered by the envelope signature on the source account.
+              // Only the top-level credentials (signers[0]) matter here — this
+              // method reports (and signAuthEntries signs) the top-level
+              // address, so unsigned delegate nodes must not keep it listed.
+              info.address !== null &&
+              (includeAlreadySigned || !info.signers[0].signed),
           )
-          .map((addrAuth) =>
-            Address.fromScAddress(addrAuth.address).toString(),
-          ),
+          .map((info) => info.address as string),
       ),
     ];
   };
@@ -1017,7 +1033,7 @@ export class AssembledTransaction<T> {
     expiration = (async () =>
       (await this.server.getLatestLedger()).sequence + 100)(),
     signAuthEntry = this.options.signAuthEntry,
-    address = this.options.publicKey,
+    address = signerAddress(signAuthEntry) ?? this.options.publicKey,
     authorizeEntry = stellarBaseAuthorizeEntry,
   }: {
     /**
@@ -1027,12 +1043,13 @@ export class AssembledTransaction<T> {
      */
     expiration?: number | Promise<number>;
     /**
-     * Sign all auth entries for this account. Default: the account that
-     * constructed the transaction
+     * Sign all auth entries for this account. Default: when `signAuthEntry`
+     * is a `Signer` or `Keypair`, its own address; otherwise the account that
+     * constructed the transaction (`publicKey`).
      */
     address?: string;
     /**
-     * You must provide this here if you did not provide one before and you are not passing `authorizeEntry`. Default: the `signAuthEntry` function from the `Client` options. Must sign things as the given `publicKey`.
+     * You must provide this here if you did not provide one before and you are not passing `authorizeEntry`. Default: the `signAuthEntry` from the `Client` options. Must sign things as the given `address`.
      */
     signAuthEntry?: ClientOptions["signAuthEntry"];
 
@@ -1045,6 +1062,14 @@ export class AssembledTransaction<T> {
   } = {}): Promise<void> => {
     if (!this.built)
       throw new Error("Transaction has not yet been assembled or simulated");
+
+    // Reduced up front, not at the call site below, so that the `!signAuth`
+    // check reports a `Signer` that omits the optional `signAuthEntry` the same
+    // way it reports a missing option, rather than silently signing nothing.
+    const signAuth = toSignAuthEntry(
+      signAuthEntry,
+      this.options.networkPassphrase,
+    );
 
     // Likely if we're using a custom authorizeEntry then we know better than the `needsNonInvokerSigningBy` logic.
     if (authorizeEntry === stellarBaseAuthorizeEntry) {
@@ -1059,7 +1084,7 @@ export class AssembledTransaction<T> {
           `No auth entries for public key "${address}"`,
         );
       }
-      if (!signAuthEntry) {
+      if (!signAuth) {
         throw new AssembledTransaction.Errors.NoSigner(
           "You must provide `signAuthEntry` or a custom `authorizeEntry`",
         );
@@ -1089,7 +1114,7 @@ export class AssembledTransaction<T> {
       // (or maybe already was!)
       if (authEntryAddress !== address) continue;
 
-      const sign: typeof signAuthEntry = signAuthEntry ?? Promise.resolve;
+      const sign: SignAuthEntry = signAuth ?? Promise.resolve;
 
       authEntries[i] = await authorizeEntry(
         entry,

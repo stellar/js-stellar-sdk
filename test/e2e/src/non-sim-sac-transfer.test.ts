@@ -104,10 +104,18 @@ describe("Non-simulated SAC Transfer", () => {
       issuer,
       Operation.createStellarAssetContract({ asset: customAsset }),
     );
-    await submitTx(
-      issuer,
-      Operation.createStellarAssetContract({ asset: Asset.native() }),
-    );
+    // The native SAC has a fixed contract ID per network, so a previous run
+    // against the same network may have already deployed it.
+    try {
+      await submitTx(
+        issuer,
+        Operation.createStellarAssetContract({ asset: Asset.native() }),
+      );
+    } catch (e) {
+      if (!String(e).includes("ExistingValue")) {
+        throw e;
+      }
+    }
 
     context = { sender, receiver, issuer, customAsset };
   });

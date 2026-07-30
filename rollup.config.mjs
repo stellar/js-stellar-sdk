@@ -187,6 +187,7 @@ const libBaseDir = useAxios ? "lib/axios" : "lib";
 // (dnt, TypeScript NodeNext resolution) error on "module not found".
 const libEntries = {
   index: "src/index.ts",
+  "base/index": "src/base/index.ts",
   "http-client/index": "src/http-client/index.ts",
   "http-client/axios": "src/http-client/axios.ts",
   "cli/index": "src/cli/index.ts",
