@@ -17,7 +17,10 @@
     "paths": {
       "@stellar/stellar-sdk": ["../../src/index.ts"]
     },
-    "types": ["node", "base32.js", "stellar__js-xdr", "vitest/globals"],
+    // Mirrors the root config's `types` (plus vitest globals): the class-XDR
+    // layer resolves `@stellar/js-xdr` types from the package itself, so
+    // listing the local `stellar__js-xdr` stub here would shadow them.
+    "types": ["node", "js-xdr-v4", "vitest/globals"],
     "typeRoots": [
       "../../types",
       "../../node_modules/@types",
