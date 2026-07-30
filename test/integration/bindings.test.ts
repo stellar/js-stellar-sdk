@@ -1281,13 +1281,15 @@ describe("BindingGenerator", () => {
                 type: p.type,
                 location:
                   p.location === "topic_list"
-                    ? xdr.ScSpecEventParamLocationV0.scSpecEventParamLocationTopicList()
-                    : xdr.ScSpecEventParamLocationV0.scSpecEventParamLocationData(),
+                    ? xdr.ScSpecEventParamLocationV0
+                        .scSpecEventParamLocationTopicList
+                    : xdr.ScSpecEventParamLocationV0
+                        .scSpecEventParamLocationData,
               }),
           ),
           dataFormat:
             opts.dataFormat ||
-            xdr.ScSpecEventDataFormat.scSpecEventDataFormatSingleValue(),
+            xdr.ScSpecEventDataFormat.scSpecEventDataFormatSingleValue,
         }),
       );
 
@@ -1323,7 +1325,7 @@ describe("BindingGenerator", () => {
         { doc: "Emitted when tokens move between accounts" },
       );
 
-      const spec = new contract.Spec([eventSpec.toXDR("base64")]);
+      const spec = new contract.Spec([eventSpec.toXdr("base64")]);
       const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
 
       // Types file: event interface
@@ -1400,7 +1402,7 @@ describe("BindingGenerator", () => {
       ]);
 
       const spec = new contract.Spec(
-        [structSpec, transferEvent, mintEvent].map((s) => s.toXDR("base64")),
+        [structSpec, transferEvent, mintEvent].map((s) => s.toXdr("base64")),
       );
       const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
 
@@ -1435,7 +1437,7 @@ describe("BindingGenerator", () => {
         },
       ]);
 
-      const spec = new contract.Spec([maliciousEvent.toXDR("base64")]);
+      const spec = new contract.Spec([maliciousEvent.toXdr("base64")]);
       const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
 
       // The unescaped quote must not appear, i.e. it can't break out of the
