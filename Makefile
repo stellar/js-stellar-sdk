@@ -72,7 +72,12 @@ xdr: xdr-json xdr-classes
 xdr-json:
 	rm -rf $(BUILD)/stage
 	mkdir -p $(BUILD)/stage/xdr
-	curl -fsSL "$(XDR_REPO)/archive/$(XDR_COMMIT).tar.gz" | tar -xz -C $(BUILD)/stage --strip-components=1
+	# Download to a file rather than piping into tar: a failed or truncated
+	# download makes curl exit non-zero, which a pipeline would hide (sh has
+	# no pipefail) since tar can still exit 0 on an empty stream.
+	curl -fsSL -o $(BUILD)/stage.tar.gz "$(XDR_REPO)/archive/$(XDR_COMMIT).tar.gz"
+	tar -xzf $(BUILD)/stage.tar.gz -C $(BUILD)/stage --strip-components=1
+	rm -f $(BUILD)/stage.tar.gz
 	@for f in $(XDR_FILES); do \
 		test -s "$(BUILD)/stage/$$f" || { echo "error: $$f missing or empty in $(XDR_COMMIT)" >&2; exit 1; }; \
 		mv "$(BUILD)/stage/$$f" "$(BUILD)/stage/xdr/$$f"; \
