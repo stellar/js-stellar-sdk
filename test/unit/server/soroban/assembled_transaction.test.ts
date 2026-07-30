@@ -219,12 +219,12 @@ describe("AssembledTransaction", () => {
             new xdr.LedgerKeyContractData({
               contract: Address.fromString(contractId).toScAddress(),
               key: xdr.ScVal.scvU32(0),
-              durability: xdr.ContractDataDurability.persistent(),
+              durability: xdr.ContractDataDurability.persistent,
             }),
           ),
         ])
         .build(),
-      results: [{ auth: [], xdr: xdr.ScVal.scvU32(0).toXDR("base64") }],
+      results: [{ auth: [], xdr: xdr.ScVal.scvU32(0).toXdr("base64") }],
       stateChanges: [],
     };
     mockPost.mockResolvedValue({
@@ -250,7 +250,7 @@ describe("AssembledTransaction", () => {
       if (!signed) throw new Error("expected the transaction to be signed");
       expect(signed.signatures).toHaveLength(1);
       expect(
-        keypair.verify(signed.hash(), signed.signatures[0].signature()),
+        keypair.verify(signed.hash(), signed.signatures[0].signature.value),
       ).toBe(true);
     };
 
@@ -581,8 +581,14 @@ describe("AssembledTransaction auth entry credential types (CAP-71)", () => {
     });
 
     it("treats an empty scvVec signature (authorizeInvocation's placeholder) as unsigned", () => {
-      const creds = addrCreds(kpA.publicKey());
-      creds.signature(xdr.ScVal.scvVec([]));
+      // class-XDR values are immutable, so the empty-scvVec placeholder is
+      // built in rather than assigned after the fact.
+      const creds = new xdr.SorobanAddressCredentials({
+        address: new Address(kpA.publicKey()).toScAddress(),
+        nonce: 1n,
+        signatureExpirationLedger: 0,
+        signature: xdr.ScVal.scvVec([]),
+      });
       const assembled = assembledWith([
         authEntry(xdr.SorobanCredentials.sorobanCredentialsAddress(creds)),
       ]);
@@ -678,7 +684,7 @@ describe("AssembledTransaction auth entry credential types (CAP-71)", () => {
           expiration: 1000,
           address: signer.publicKey(),
         });
-        return (assembled.built as any).operations[0].auth[0].toXDR("base64");
+        return (assembled.built as any).operations[0].auth[0].toXdr("base64");
       };
 
       const viaKeypair = await signedEntryWith(signer);
@@ -707,9 +713,8 @@ describe("AssembledTransaction auth entry credential types (CAP-71)", () => {
         await assembled.signAuthEntries({ expiration: 1000 });
 
         const signed = (assembled.built as any).operations[0].auth[0]
-          .credentials()
-          .addressV2();
-        expect(signed.signature().switch().name).toBe("scvVec");
+          .credentials.addressV2;
+        expect(signed.signature.type).toBe("scvVec");
       }
     });
 

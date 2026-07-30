@@ -391,7 +391,7 @@ describe("server.js transaction tests", () => {
 
     function failedTxResult() {
       return new xdr.TransactionResult({
-        feeCharged: new xdr.Int64(100),
+        feeCharged: 100n,
         result: xdr.TransactionResultResult.txFailed([
           xdr.OperationResult.opInner(
             xdr.OperationResultTr.payment(
@@ -399,7 +399,7 @@ describe("server.js transaction tests", () => {
             ),
           ),
         ]),
-        ext: new (xdr.TransactionResultExt as any)(0),
+        ext: xdr.TransactionResultExt.v0(),
       });
     }
 
@@ -433,7 +433,7 @@ describe("server.js transaction tests", () => {
                 transaction: "tx_failed",
                 operations: ["op_underfunded"],
               },
-              result_xdr: txResult.toXDR("base64"),
+              result_xdr: txResult.toXdr("base64"),
             },
           }),
         ),
@@ -455,10 +455,10 @@ describe("server.js transaction tests", () => {
 
       const decoded = err.getTransactionResult();
       expect(decoded).toBeInstanceOf(xdr.TransactionResult);
-      expect(decoded.result().switch().name).toEqual("txFailed");
-      expect(
-        decoded.result().results()[0].tr().paymentResult().switch().name,
-      ).toEqual("paymentUnderfunded");
+      expect(decoded.result.type).toEqual("txFailed");
+      expect(decoded.result.value[0].tr.value.type).toEqual(
+        "paymentUnderfunded",
+      );
       expect(err.response.status).toEqual(400);
       expect(err.cause).toBeInstanceOf(Error);
       expect(err.cause.response.statusText).toEqual("Bad Request");
@@ -540,7 +540,7 @@ describe("server.js transaction tests", () => {
               envelope_xdr: "AAAA...",
               // Horizon omits `operations` for transaction-level failures
               result_codes: { transaction: "tx_bad_seq" },
-              result_xdr: failedTxResult().toXDR("base64"),
+              result_xdr: failedTxResult().toXdr("base64"),
             },
           }),
         ),

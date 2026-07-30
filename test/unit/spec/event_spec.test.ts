@@ -19,9 +19,8 @@ function param(
   });
 }
 
-const TOPIC =
-  xdr.ScSpecEventParamLocationV0.scSpecEventParamLocationTopicList();
-const DATA = xdr.ScSpecEventParamLocationV0.scSpecEventParamLocationData();
+const TOPIC = xdr.ScSpecEventParamLocationV0.scSpecEventParamLocationTopicList;
+const DATA = xdr.ScSpecEventParamLocationV0.scSpecEventParamLocationData;
 
 const u32Type = xdr.ScSpecTypeDef.scSpecTypeU32();
 const addrType = xdr.ScSpecTypeDef.scSpecTypeAddress();
@@ -43,7 +42,7 @@ describe("Spec events", () => {
         param("to", addrType, TOPIC),
         param("amount", i128Type, DATA),
       ],
-      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatSingleValue(),
+      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatSingleValue,
     });
     const funcEntry = xdr.ScSpecEntry.scSpecEntryFunctionV0(
       new xdr.ScSpecFunctionV0({
@@ -56,8 +55,8 @@ describe("Spec events", () => {
     const spec = new Spec([funcEntry, entryFor(event)]);
 
     expect(spec.events().length).toBe(1);
-    expect(spec.events()[0].name().toString()).toBe("transfer");
-    expect(spec.findEvent("transfer")?.name().toString()).toBe("transfer");
+    expect(spec.events()[0].name.toString()).toBe("transfer");
+    expect(spec.findEvent("transfer")?.name.toString()).toBe("transfer");
   });
 
   it("findEvent returns undefined for an undeclared event", () => {
@@ -69,7 +68,7 @@ describe("Spec events", () => {
       name: "transfer",
       prefixTopics: ["transfer"],
       params: [param("from", addrType, TOPIC)],
-      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatSingleValue(),
+      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatSingleValue,
     });
     const spec = new Spec([entryFor(event)]);
 
@@ -90,7 +89,7 @@ describe("Spec events", () => {
       name: "transfer",
       prefixTopics: ["transfer"],
       params: [param("amount", i128Type, DATA)],
-      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatSingleValue(),
+      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatSingleValue,
     });
     const second = new xdr.ScSpecEventV0({
       doc: "",
@@ -98,18 +97,18 @@ describe("Spec events", () => {
       name: "transfer",
       prefixTopics: ["transfer"],
       params: [param("count", u32Type, DATA)],
-      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatSingleValue(),
+      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatSingleValue,
     });
     const spec = new Spec([entryFor(first), entryFor(second)]);
 
     // No occurrence means the first declaration, as before.
-    expect(spec.findEvent("transfer")?.params()[0].name().toString()).toBe(
+    expect(spec.findEvent("transfer")?.params[0].name.toString()).toBe(
       "amount",
     );
-    expect(spec.findEvent("transfer", 0)?.params()[0].name().toString()).toBe(
+    expect(spec.findEvent("transfer", 0)?.params[0].name.toString()).toBe(
       "amount",
     );
-    expect(spec.findEvent("transfer", 1)?.params()[0].name().toString()).toBe(
+    expect(spec.findEvent("transfer", 1)?.params[0].name.toString()).toBe(
       "count",
     );
 
@@ -134,7 +133,7 @@ describe("Spec events", () => {
         param("to", addrType, TOPIC),
         param("amount", i128Type, DATA),
       ],
-      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatSingleValue(),
+      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatSingleValue,
     });
     const spec = new Spec([entryFor(event)]);
 
@@ -147,9 +146,7 @@ describe("Spec events", () => {
       from.toScVal(),
       to.toScVal(),
     ];
-    const data = xdr.ScVal.scvI128(
-      new xdr.Int128Parts({ hi: new xdr.Int64(0), lo: new xdr.Uint64(12345) }),
-    );
+    const data = xdr.ScVal.scvI128(new xdr.Int128Parts({ hi: 0n, lo: 12345n }));
 
     const parsed = spec.parseEvent(topics, data);
     expect(parsed).toEqual({
@@ -173,7 +170,7 @@ describe("Spec events", () => {
         param("sell_amount", u32Type, DATA),
         param("buy_amount", u32Type, DATA),
       ],
-      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatVec(),
+      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatVec,
     });
     const spec = new Spec([entryFor(event)]);
 
@@ -203,7 +200,7 @@ describe("Spec events", () => {
         param("amount", u32Type, DATA),
         param("memo", u32Type, DATA),
       ],
-      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatMap(),
+      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatMap,
     });
     const spec = new Spec([entryFor(event)]);
 
@@ -238,7 +235,7 @@ describe("Spec events", () => {
       name: "nested_event",
       prefixTopics: ["namespace", "nested_event"],
       params: [param("value", u32Type, TOPIC)],
-      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatSingleValue(),
+      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatSingleValue,
     });
     const spec = new Spec([entryFor(event)]);
 
@@ -265,7 +262,7 @@ describe("Spec events", () => {
       name: "swap",
       prefixTopics: ["SoroswapPair", "swap"],
       params: [param("amount", u32Type, DATA)],
-      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatSingleValue(),
+      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatSingleValue,
     });
     const spec = new Spec([entryFor(event)]);
 
@@ -290,7 +287,7 @@ describe("Spec events", () => {
       name: "transfer",
       prefixTopics: ["transfer"],
       params: [param("from", addrType, TOPIC), param("to", addrType, TOPIC)],
-      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatSingleValue(),
+      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatSingleValue,
     });
     const spec = new Spec([entryFor(event)]);
 
@@ -321,7 +318,7 @@ describe("Spec events", () => {
       name: "transfer",
       prefixTopics: ["transfer"],
       params: [param("from", addrType, TOPIC)],
-      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatSingleValue(),
+      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatSingleValue,
     });
     const spec = new Spec([entryFor(event)]);
 
@@ -341,7 +338,7 @@ describe("Spec events", () => {
       name: "transfer",
       prefixTopics: ["transfer"],
       params: [param("from", addrType, TOPIC)],
-      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatSingleValue(),
+      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatSingleValue,
     });
     const spec = new Spec([entryFor(event)]);
 
@@ -353,8 +350,8 @@ describe("Spec events", () => {
     ).toBeUndefined();
 
     const validTopics = [
-      xdr.ScVal.scvSymbol("transfer").toXDR("base64"),
-      addr.toScVal().toXDR("base64"),
+      xdr.ScVal.scvSymbol("transfer").toXdr("base64"),
+      addr.toScVal().toXdr("base64"),
     ];
     expect(() =>
       spec.parseEvent(validTopics, "also not valid base64 xdr!!"),
@@ -375,7 +372,7 @@ describe("Spec events", () => {
         param("sell_amount", u32Type, DATA),
         param("buy_amount", u32Type, DATA),
       ],
-      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatVec(),
+      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatVec,
     });
     const mapEvent = new xdr.ScSpecEventV0({
       doc: "",
@@ -383,7 +380,7 @@ describe("Spec events", () => {
       name: "mint",
       prefixTopics: ["mint"],
       params: [param("to", addrType, TOPIC), param("amount", u32Type, DATA)],
-      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatMap(),
+      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatMap,
     });
     const spec = new Spec([entryFor(vecEvent), entryFor(mapEvent)]);
 
@@ -420,7 +417,7 @@ describe("Spec events", () => {
       name: "first",
       prefixTopics: ["evt"],
       params: [param("a", u32Type, DATA), param("b", u32Type, DATA)],
-      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatVec(),
+      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatVec,
     });
     const second = new xdr.ScSpecEventV0({
       doc: "",
@@ -428,7 +425,7 @@ describe("Spec events", () => {
       name: "second",
       prefixTopics: ["evt"],
       params: [param("value", u32Type, DATA)],
-      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatSingleValue(),
+      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatSingleValue,
     });
     const spec = new Spec([entryFor(first), entryFor(second)]);
 
@@ -449,15 +446,15 @@ describe("Spec events", () => {
       name: "transfer",
       prefixTopics: ["transfer"],
       params: [param("from", addrType, TOPIC), param("amount", u32Type, DATA)],
-      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatSingleValue(),
+      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatSingleValue,
     });
     const spec = new Spec([entryFor(event)]);
 
     const topics = [
-      xdr.ScVal.scvSymbol("transfer").toXDR("base64"),
-      addr.toScVal().toXDR("base64"),
+      xdr.ScVal.scvSymbol("transfer").toXdr("base64"),
+      addr.toScVal().toXdr("base64"),
     ];
-    const data = xdr.ScVal.scvU32(42).toXDR("base64");
+    const data = xdr.ScVal.scvU32(42).toXdr("base64");
 
     const parsed = spec.parseEvent(topics, data);
     expect(parsed).toEqual({
@@ -479,7 +476,7 @@ describe("Spec events", () => {
       name: "evil",
       prefixTopics: ["evil"],
       params: [param("__proto__", u32Type, DATA)],
-      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatSingleValue(),
+      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatSingleValue,
     });
     const spec = new Spec([entryFor(event)]);
 
@@ -506,14 +503,14 @@ describe("Spec events", () => {
         param("to", addrType, TOPIC),
         param("amount", i128Type, DATA),
       ],
-      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatSingleValue(),
+      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatSingleValue,
     });
     const spec = new Spec([entryFor(event)]);
 
     // No values provided: wildcard for both topic-list params
     const filterAll = spec.eventTopicFilter("transfer");
     expect(filterAll.length).toBe(3);
-    expect(xdr.ScVal.fromXDR(filterAll[0], "base64").sym().toString()).toBe(
+    expect(xdr.ScVal.fromXdr(filterAll[0], "base64").value.toString()).toBe(
       "transfer",
     );
     expect(filterAll[1]).toBe("*");
@@ -524,7 +521,7 @@ describe("Spec events", () => {
       from: publicKey,
     });
     expect(filterPartial[1]).not.toBe("*");
-    const decoded = xdr.ScVal.fromXDR(filterPartial[1], "base64");
+    const decoded = xdr.ScVal.fromXdr(filterPartial[1], "base64");
     expect(Address.fromScVal(decoded).toString()).toBe(publicKey);
     expect(filterPartial[2]).toBe("*");
 

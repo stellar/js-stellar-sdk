@@ -197,8 +197,7 @@ export function parseEvent(
       const dParams = dataParams(event);
       const format = event.dataFormat.value;
       if (
-        format ===
-        ScSpecEventDataFormat.scSpecEventDataFormatSingleValue.value
+        format === ScSpecEventDataFormat.scSpecEventDataFormatSingleValue.value
       ) {
         const param = dParams[0];
         if (param) {
@@ -227,7 +226,8 @@ export function parseEvent(
         dParams.forEach((param) => {
           const name = param.name.toString();
           const entry = map.find(
-            (e) => e.key.type === "scvSymbol" && e.key.value.toString() === name,
+            (e) =>
+              e.key.type === "scvSymbol" && e.key.value.toString() === name,
           );
           if (entry) {
             dataOut[name] = spec.scValToNative(entry.val, param.type);

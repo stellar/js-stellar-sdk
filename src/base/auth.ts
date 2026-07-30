@@ -1024,9 +1024,7 @@ function signaturePresent(signature: ScVal): boolean {
  * bytes) and `signature` — back into typed pairs. Returns `null` when the
  * value has any other shape (e.g. a custom account's signer-defined payload).
  */
-function parseEd25519Signatures(
-  signature: ScVal,
-): AuthEntrySignature[] | null {
+function parseEd25519Signatures(signature: ScVal): AuthEntrySignature[] | null {
   if (signature.type !== "scvVec") {
     return null;
   }

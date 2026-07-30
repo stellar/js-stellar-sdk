@@ -369,22 +369,22 @@ describe("nativeToScVal with Maps", () => {
         ["a", 1],
       ]),
     );
-    expect(scv.switch().name).toBe("scvMap");
-    const entries = scv.map()!;
-    expect(entries.map((e) => e.key().str().toString())).toEqual(["a", "b"]);
-    expect(entries.map((e) => Number(e.val().u64()))).toEqual([1, 2]);
+    expect(scv.type).toBe("scvMap");
+    const entries = scv.value!;
+    expect(entries.map((e) => e.key.value.toString())).toEqual(["a", "b"]);
+    expect(entries.map((e) => Number(e.val.value))).toEqual([1, 2]);
   });
 
   it("converts an empty Map", () => {
     const scv = nativeToScVal(new Map());
-    expect(scv.switch().name).toBe("scvMap");
-    expect(scv.map()).toEqual([]);
+    expect(scv.type).toBe("scvMap");
+    expect(scv.value).toEqual([]);
   });
 
   it("converts a Map subclass", () => {
     class MyMap extends Map {}
     const scv = nativeToScVal(new MyMap([["a", 1]]));
-    expect(scv.switch().name).toBe("scvMap");
+    expect(scv.type).toBe("scvMap");
   });
 
   it("applies a uniform [keyType, valType] pair", () => {
@@ -395,18 +395,18 @@ describe("nativeToScVal with Maps", () => {
       ]),
       { type: ["symbol", "u32"] },
     );
-    const entries = scv.map()!;
+    const entries = scv.value!;
     entries.forEach((e) => {
-      expect(e.key().switch().name).toBe("scvSymbol");
-      expect(e.val().switch().name).toBe("scvU32");
+      expect(e.key.type).toBe("scvSymbol");
+      expect(e.val.type).toBe("scvU32");
     });
   });
 
   it("allows a partial pair", () => {
     const scv = nativeToScVal(new Map([["a", 1]]), { type: ["symbol"] });
-    const entries = scv.map()!;
-    expect(entries[0].key().switch().name).toBe("scvSymbol");
-    expect(entries[0].val().switch().name).toBe("scvU64");
+    const entries = scv.value!;
+    expect(entries[0].key.type).toBe("scvSymbol");
+    expect(entries[0].val.type).toBe("scvU64");
   });
 
   it("applies a per-key spec for string-keyed Maps", () => {
@@ -417,11 +417,11 @@ describe("nativeToScVal with Maps", () => {
       ]),
       { type: { a: ["symbol", "u32"] } },
     );
-    const entries = scv.map()!;
-    const a = entries.find((e) => e.key().switch().name === "scvSymbol")!;
-    const b = entries.find((e) => e.key().switch().name === "scvString")!;
-    expect(a.val().switch().name).toBe("scvU32");
-    expect(b.val().switch().name).toBe("scvU64");
+    const entries = scv.value!;
+    const a = entries.find((e) => e.key.type === "scvSymbol")!;
+    const b = entries.find((e) => e.key.type === "scvString")!;
+    expect(a.val.type).toBe("scvU32");
+    expect(b.val.type).toBe("scvU64");
   });
 
   it("throws on a string type spec for a Map", () => {

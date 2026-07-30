@@ -975,7 +975,7 @@ describe("building authorization entries", () => {
   });
 
   describe("signing payload passed to the callback", () => {
-    it("equals hash(preimage.toXDR())", async () => {
+    it("equals hash(preimage.toXdr())", async () => {
       let captured: { preimage?: xdr.HashIdPreimage; payload?: Buffer } = {};
       await authorizeEntry(
         authEntry,
@@ -988,7 +988,7 @@ describe("building authorization entries", () => {
       );
 
       expect(expectDefined(captured.payload)).toEqual(
-        hash(expectDefined(captured.preimage).toXDR()),
+        hash(expectDefined(captured.preimage).toXdr()),
       );
     });
 
@@ -1006,7 +1006,7 @@ describe("building authorization entries", () => {
 
       // internal verification passing proves the payload is the signing hash
       const sigArgs = expectDefined(
-        signed.credentials().address().signature().vec(),
+        signed.credentials.address.signature.value,
       ).map((v) => scValToNative(v));
       const sig = sigArgs[0] as { public_key: Buffer; signature: Buffer };
       expect(StrKey.encodeEd25519PublicKey(sig.public_key)).toBe(
@@ -1053,19 +1053,19 @@ describe("building authorization entries", () => {
         Networks.TESTNET,
       );
 
-      const addr = signed.credentials().address();
-      expect(addr.signatureExpirationLedger()).toBe(10);
+      const addr = signed.credentials.address;
+      expect(addr.signatureExpirationLedger).toBe(10);
       // verbatim: not wrapped in an scvVec, byte-identical to what we returned
-      expect(addr.signature().toXDR("hex")).toBe(customSig.toXDR("hex"));
+      expect(addr.signature.toXdr("hex")).toBe(customSig.toXdr("hex"));
     });
 
     it("works with ADDRESS_V2 credentials", async () => {
       const entry = new xdr.SorobanAuthorizationEntry({
-        rootInvocation: authEntry.rootInvocation(),
+        rootInvocation: authEntry.rootInvocation,
         credentials: xdr.SorobanCredentials.sorobanCredentialsAddressV2(
           new xdr.SorobanAddressCredentials({
             address: new Address(contractId).toScAddress(),
-            nonce: new xdr.Int64(1n),
+            nonce: 1n,
             signatureExpirationLedger: 0,
             signature: xdr.ScVal.scvVoid(),
           }),
@@ -1079,8 +1079,8 @@ describe("building authorization entries", () => {
         Networks.TESTNET,
       );
 
-      expect(signed.credentials().addressV2().signature().toXDR("hex")).toBe(
-        customSig.toXDR("hex"),
+      expect(signed.credentials.addressV2.signature.toXdr("hex")).toBe(
+        customSig.toXdr("hex"),
       );
     });
 
@@ -1103,12 +1103,12 @@ describe("building authorization entries", () => {
         Networks.TESTNET,
       );
 
-      const wd = signed.credentials().addressWithDelegates();
+      const wd = signed.credentials.addressWithDelegates;
       // top-level untouched (still the Void placeholder), delegate node
       // carries the custom ScVal
-      expect(wd.addressCredentials().signature().switch().name).toBe("scvVoid");
-      expect(wd.delegates()[0].signature().toXDR("hex")).toBe(
-        customSig.toXDR("hex"),
+      expect(wd.addressCredentials.signature.type).toBe("scvVoid");
+      expect(wd.delegates[0].signature.toXdr("hex")).toBe(
+        customSig.toXdr("hex"),
       );
     });
 
@@ -1140,7 +1140,7 @@ describe("inspecting authorization entries", () => {
         new xdr.InvokeContractArgs({
           contractAddress: new Address(contractId).toScAddress(),
           functionName: "hello",
-          args: [xdr.ScVal.scvU64(new xdr.Uint64(1234n))],
+          args: [xdr.ScVal.scvU64(1234n)],
         }),
       ),
     subInvocations: [],
@@ -1157,7 +1157,7 @@ describe("inspecting authorization entries", () => {
   const makeAddressCredentials = (signature: xdr.ScVal) =>
     new xdr.SorobanAddressCredentials({
       address: new Address(kp.publicKey()).toScAddress(),
-      nonce: new xdr.Int64(123456789101112n),
+      nonce: 123456789101112n,
       signatureExpirationLedger: 100,
       signature,
     });
@@ -1182,7 +1182,7 @@ describe("inspecting authorization entries", () => {
         signed: false,
         signatures: [],
       });
-      expect(info.invocation.toXDR()).toEqual(invocation.toXDR());
+      expect(info.invocation.toXdr()).toEqual(invocation.toXdr());
     });
 
     it("decodes a signed entry, parsing the ed25519 signature format", async () => {
@@ -1280,7 +1280,7 @@ describe("inspecting authorization entries", () => {
       const info = inspectAuthEntry(entry);
       expect(info.signed).toBe(true);
       expect(info.signers[0].signatures).toBeNull();
-      expect(info.signers[0].rawSignature.switch().name).toBe("scvBytes");
+      expect(info.signers[0].rawSignature.type).toBe("scvBytes");
     });
 
     it("rejects non-64-byte signatures as non-standard payloads", () => {

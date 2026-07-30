@@ -294,10 +294,7 @@ ${members}
    * becomes "TransferEvent". Resolved (and disambiguated if necessary) via
    * {@link resolveEventInterfaceNames}, so every call site agrees.
    */
-  private eventInterfaceName(
-    event: ScSpecEventV0,
-    eventIndex: number,
-  ): string {
+  private eventInterfaceName(event: ScSpecEventV0, eventIndex: number): string {
     const resolved = this.resolveEventInterfaceNames().get(eventIndex);
     /* istanbul ignore next -- every event in the spec is reserved a name */
     if (resolved === undefined) {
