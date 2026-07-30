@@ -10,14 +10,20 @@ import {
   LedgerCloseValueSignature,
   type LedgerCloseValueSignatureWire,
 } from "./ledger-close-value-signature.js";
+import {
+  StellarValueProposedValue,
+  type StellarValueProposedValueWire,
+} from "./stellar-value-proposed-value.js";
 
 export type StellarValueExtWire =
   | { v: 0 }
-  | { v: 1; lcValueSignature: LedgerCloseValueSignatureWire };
+  | { v: 1; lcValueSignature: LedgerCloseValueSignatureWire }
+  | { v: 2; proposedValue: StellarValueProposedValueWire };
 
 export type StellarValueExtVariantName =
   | "stellarValueBasic"
-  | "stellarValueSigned";
+  | "stellarValueSigned"
+  | "stellarValueEmptyTxSet";
 
 /**
  * ```xdr
@@ -27,7 +33,6 @@ export type StellarValueExtVariantName =
  *         void;
  *     case STELLAR_VALUE_SIGNED:
  *         LedgerCloseValueSignature lcValueSignature;
- * #ifdef CAP_0083
  *     case STELLAR_VALUE_EMPTY_TX_SET:
  *         struct
  *         {
@@ -36,7 +41,6 @@ export type StellarValueExtVariantName =
  *             uint32 previousLedgerVersion;
  *             LedgerCloseValueSignature lcValueSignature;
  *         } proposedValue;
- * #endif
  *     }
  * ```
  */
@@ -54,6 +58,11 @@ abstract class StellarValueExtBase extends XdrValue {
           1,
           field("lcValueSignature", LedgerCloseValueSignature.schema),
         ),
+        case_(
+          "stellarValueEmptyTxSet",
+          2,
+          field("proposedValue", StellarValueProposedValue.schema),
+        ),
       ],
       switchKey: "v",
     },
@@ -69,6 +78,12 @@ abstract class StellarValueExtBase extends XdrValue {
     return new StellarValueExtSigned(lcValueSignature);
   }
 
+  static stellarValueEmptyTxSet(
+    proposedValue: StellarValueProposedValue,
+  ): StellarValueExtEmptyTxSet {
+    return new StellarValueExtEmptyTxSet(proposedValue);
+  }
+
   static fromXdrObject(wire: StellarValueExtWire): StellarValueExt {
     switch (wire.v) {
       case 0:
@@ -76,6 +91,10 @@ abstract class StellarValueExtBase extends XdrValue {
       case 1:
         return new StellarValueExtSigned(
           LedgerCloseValueSignature.fromXdrObject(wire.lcValueSignature),
+        );
+      case 2:
+        return new StellarValueExtEmptyTxSet(
+          StellarValueProposedValue.fromXdrObject(wire.proposedValue),
         );
     }
   }
@@ -123,5 +142,26 @@ export class StellarValueExtSigned extends StellarValueExtBase {
   }
 }
 
-export type StellarValueExt = StellarValueExtBasic | StellarValueExtSigned;
+export class StellarValueExtEmptyTxSet extends StellarValueExtBase {
+  readonly type = "stellarValueEmptyTxSet" as const;
+  readonly proposedValue: StellarValueProposedValue;
+
+  constructor(proposedValue: StellarValueProposedValue) {
+    super();
+    this.proposedValue = proposedValue;
+  }
+
+  get value(): StellarValueProposedValue {
+    return this.proposedValue;
+  }
+
+  toXdrObject(): Extract<StellarValueExtWire, { v: 2 }> {
+    return { v: 2, proposedValue: this.proposedValue.toXdrObject() };
+  }
+}
+
+export type StellarValueExt =
+  | StellarValueExtBasic
+  | StellarValueExtSigned
+  | StellarValueExtEmptyTxSet;
 export const StellarValueExt = StellarValueExtBase;

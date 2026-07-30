@@ -27,7 +27,7 @@
 
 # Pinned stellar/stellar-xdr commit the schema is generated from.
 XDR_REPO   ?= https://github.com/stellar/stellar-xdr
-XDR_COMMIT ?= 68fa1ac55692f68ad2a2ca549d0a283273554439
+XDR_COMMIT ?= 9c9c145953e80990d6ff1ae3a6a973a0ce6d0694
 
 # Pinned stellar/rs-stellar-xdr commit providing generator-definitions-json.
 RS_XDR_REPO ?= https://github.com/stellar/rs-stellar-xdr
