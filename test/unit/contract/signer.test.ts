@@ -234,8 +234,8 @@ describe("signer normalization", () => {
     const keypair = Keypair.random();
     const foreign = {
       publicKey: () => keypair.publicKey(),
-      sign: (data: Buffer) => keypair.sign(data),
-      signDecorated: (data: Buffer) => keypair.signDecorated(data),
+      sign: (data: Uint8Array) => keypair.sign(data),
+      signDecorated: (data: Uint8Array) => keypair.signDecorated(data),
     };
     expect(foreign instanceof Keypair).toBe(false);
 
@@ -272,7 +272,7 @@ describe("signer normalization", () => {
     const keypair = Keypair.random();
     const partial = {
       publicKey: () => keypair.publicKey(),
-      sign: (data: Buffer) => keypair.sign(data),
+      sign: (data: Uint8Array) => keypair.sign(data),
     };
 
     expect(
@@ -308,7 +308,7 @@ describe("signer normalization", () => {
       address: keypair.publicKey(),
       signTransaction: callback,
       publicKey: () => keypair.publicKey(),
-      sign: (data: Buffer) => keypair.sign(data),
+      sign: (data: Uint8Array) => keypair.sign(data),
     };
 
     const signTransaction = toSignTransaction(hybrid, networkPassphrase);

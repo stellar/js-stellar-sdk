@@ -976,7 +976,8 @@ describe("building authorization entries", () => {
 
   describe("signing payload passed to the callback", () => {
     it("equals hash(preimage.toXdr())", async () => {
-      let captured: { preimage?: xdr.HashIdPreimage; payload?: Buffer } = {};
+      let captured: { preimage?: xdr.HashIdPreimage; payload?: Uint8Array } =
+        {};
       await authorizeEntry(
         authEntry,
         (preimage, payload) => {
@@ -1008,7 +1009,10 @@ describe("building authorization entries", () => {
       const sigArgs = expectDefined(
         signed.credentials.address.signature.value,
       ).map((v) => scValToNative(v));
-      const sig = sigArgs[0] as { public_key: Buffer; signature: Buffer };
+      const sig = sigArgs[0] as {
+        public_key: Uint8Array;
+        signature: Uint8Array;
+      };
       expect(StrKey.encodeEd25519PublicKey(sig.public_key)).toBe(
         kp.publicKey(),
       );
@@ -1041,7 +1045,7 @@ describe("building authorization entries", () => {
     const customSig = xdr.ScVal.scvMap([
       new xdr.ScMapEntry({
         key: xdr.ScVal.scvSymbol("blob"),
-        val: xdr.ScVal.scvBytes(Buffer.alloc(17, 0xab)),
+        val: xdr.ScVal.scvBytes(new Uint8Array(17).fill(0xab)),
       }),
     ]);
 
@@ -1272,7 +1276,7 @@ describe("inspecting authorization entries", () => {
       const entry = makeEntry(
         xdr.SorobanCredentials.sorobanCredentialsAddress(
           makeAddressCredentials(
-            xdr.ScVal.scvBytes(Buffer.alloc(64)), // e.g. a custom-account payload
+            xdr.ScVal.scvBytes(new Uint8Array(64)), // e.g. a custom-account payload
           ),
         ),
       );
@@ -1288,11 +1292,11 @@ describe("inspecting authorization entries", () => {
         xdr.ScVal.scvMap([
           new xdr.ScMapEntry({
             key: xdr.ScVal.scvSymbol("public_key"),
-            val: xdr.ScVal.scvBytes(Buffer.alloc(32)),
+            val: xdr.ScVal.scvBytes(new Uint8Array(32)),
           }),
           new xdr.ScMapEntry({
             key: xdr.ScVal.scvSymbol("signature"),
-            val: xdr.ScVal.scvBytes(Buffer.alloc(1)),
+            val: xdr.ScVal.scvBytes(new Uint8Array(1)),
           }),
         ]),
       ]);

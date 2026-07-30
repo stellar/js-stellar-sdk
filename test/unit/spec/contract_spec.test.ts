@@ -886,7 +886,7 @@ describe("Spec scValToNative with scSpecTypeVal", () => {
 
   it("converts scvBytes to Uint8Array", () => {
     const native: Uint8Array = SPEC.scValToNative(
-      xdr.ScVal.scvBytes(Buffer.from([0, 1, 2, 3])),
+      xdr.ScVal.scvBytes(new Uint8Array([0, 1, 2, 3])),
       valType,
     );
     expect(Uint8Array.from(native)).toEqual(new Uint8Array([0, 1, 2, 3]));

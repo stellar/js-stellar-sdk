@@ -471,7 +471,7 @@ describe("AssembledTransaction auth entry credential types (CAP-71)", () => {
       nonce: 1n,
       signatureExpirationLedger: 0,
       signature: signed
-        ? xdr.ScVal.scvVec([xdr.ScVal.scvBytes(Buffer.alloc(64))])
+        ? xdr.ScVal.scvVec([xdr.ScVal.scvBytes(new Uint8Array(64))])
         : xdr.ScVal.scvVoid(),
     });
   }
