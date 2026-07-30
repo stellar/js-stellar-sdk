@@ -804,7 +804,7 @@ s.simulateTransaction(tx).then(
 );
 ```
 
-**Source:** [src/base/invocation.ts:125](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L125)
+**Source:** [src/base/invocation.ts:151](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L151)
 
 ## buildWithDelegatesEntry
 
@@ -1042,7 +1042,7 @@ scvSortedMap(items: ScMapEntry[]): ScVal
 
 - **`items`** — `ScMapEntry[]` (required) — the unsorted map entries
 
-**Source:** [src/base/scval.ts:476](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L476)
+**Source:** [src/base/scval.ts:477](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L477)
 
 ## walkInvocationTree
 
@@ -1061,7 +1061,7 @@ walkInvocationTree(root: SorobanAuthorizedInvocation, callback: InvocationWalker
 - **`root`** — `SorobanAuthorizedInvocation` (required) — the tree to explore
 - **`callback`** — `InvocationWalker` (required) — the callback to execute for each node
 
-**Source:** [src/base/invocation.ts:222](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L222)
+**Source:** [src/base/invocation.ts:258](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L258)
 
 ## Types
 
@@ -1211,21 +1211,25 @@ validUntilLedgerSeq: number;
 
 Details about a contract creation invocation.
 
-- `type` indicates if this creation was a custom contract (`'wasm'`) or a
-  wrapping of an existing Stellar asset (`'sac'`)
+- `type` indicates if this creation was a custom contract (`'wasm'`), a
+  wrapping of an existing Stellar asset (`'sac'`), or a reference to an
+  external executable (`'external'`, see CAP-85)
 - `asset` is set when `type=='sac'`, containing the canonical `Asset`
   being wrapped by this Stellar Asset Contract
 - `wasm` is set when `type=='wasm'`, containing additional creation parameters
+- `external` is set when `type=='external'`, containing the referenced
+  executable and the creation parameters
 
 ```ts
 interface CreateInvocation {
   asset?: string;
-  type: "wasm" | "sac";
+  external?: ExternalRefCreateDetails;
+  type: "wasm" | "sac" | "external";
   wasm?: WasmCreateDetails;
 }
 ```
 
-**Source:** [src/base/invocation.ts:28](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L28)
+**Source:** [src/base/invocation.ts:53](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L53)
 
 #### `createInvocation.asset`
 
@@ -1233,15 +1237,23 @@ interface CreateInvocation {
 asset?: string;
 ```
 
-**Source:** [src/base/invocation.ts:30](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L30)
+**Source:** [src/base/invocation.ts:55](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L55)
+
+#### `createInvocation.external`
+
+```ts
+external?: ExternalRefCreateDetails;
+```
+
+**Source:** [src/base/invocation.ts:57](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L57)
 
 #### `createInvocation.type`
 
 ```ts
-type: "wasm" | "sac";
+type: "wasm" | "sac" | "external";
 ```
 
-**Source:** [src/base/invocation.ts:29](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L29)
+**Source:** [src/base/invocation.ts:54](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L54)
 
 #### `createInvocation.wasm`
 
@@ -1249,7 +1261,7 @@ type: "wasm" | "sac";
 wasm?: WasmCreateDetails;
 ```
 
-**Source:** [src/base/invocation.ts:31](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L31)
+**Source:** [src/base/invocation.ts:56](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L56)
 
 ### DelegateSignature
 
@@ -1316,7 +1328,7 @@ interface ExecuteInvocation {
 }
 ```
 
-**Source:** [src/base/invocation.ts:42](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L42)
+**Source:** [src/base/invocation.ts:68](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L68)
 
 #### `executeInvocation.args`
 
@@ -1324,7 +1336,7 @@ interface ExecuteInvocation {
 args: any[];
 ```
 
-**Source:** [src/base/invocation.ts:46](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L46)
+**Source:** [src/base/invocation.ts:72](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L72)
 
 #### `executeInvocation.function`
 
@@ -1332,7 +1344,7 @@ args: any[];
 function: string;
 ```
 
-**Source:** [src/base/invocation.ts:44](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L44)
+**Source:** [src/base/invocation.ts:70](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L70)
 
 #### `executeInvocation.source`
 
@@ -1340,7 +1352,73 @@ function: string;
 source: string;
 ```
 
-**Source:** [src/base/invocation.ts:43](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L43)
+**Source:** [src/base/invocation.ts:69](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L69)
+
+### ExternalRefCreateDetails
+
+Details about a contract creation from an external executable (CAP-85).
+
+- `owner` is the strkey of the account or contract that owns the external
+  executable being referenced
+- `tag` is the owner-scoped name of that executable. It is an unbounded
+  `SCString`, so it is not always text: a lenient UTF-8 decode would render
+  two distinct tags identically, and the tag is half of what identifies the
+  code being deployed. Binary tags come back as raw bytes, matching
+  `scValToNative`
+- `address` is the strkey of the deployer and `salt` its hex-encoded salt,
+  which together derive the new contract's ID
+
+```ts
+interface ExternalRefCreateDetails {
+  address: string;
+  constructorArgs?: any[];
+  owner: string;
+  salt: string;
+  tag: string | Uint8Array<ArrayBufferLike>;
+}
+```
+
+**Source:** [src/base/invocation.ts:32](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L32)
+
+#### `externalRefCreateDetails.address`
+
+```ts
+address: string;
+```
+
+**Source:** [src/base/invocation.ts:35](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L35)
+
+#### `externalRefCreateDetails.constructorArgs`
+
+```ts
+constructorArgs?: any[];
+```
+
+**Source:** [src/base/invocation.ts:38](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L38)
+
+#### `externalRefCreateDetails.owner`
+
+```ts
+owner: string;
+```
+
+**Source:** [src/base/invocation.ts:33](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L33)
+
+#### `externalRefCreateDetails.salt`
+
+```ts
+salt: string;
+```
+
+**Source:** [src/base/invocation.ts:36](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L36)
+
+#### `externalRefCreateDetails.tag`
+
+```ts
+tag: string | Uint8Array<ArrayBufferLike>;
+```
+
+**Source:** [src/base/invocation.ts:34](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L34)
 
 ### IntLike
 
@@ -1368,7 +1446,7 @@ interface InvocationTree {
 }
 ```
 
-**Source:** [src/base/invocation.ts:58](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L58)
+**Source:** [src/base/invocation.ts:84](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L84)
 
 #### `invocationTree.args`
 
@@ -1376,7 +1454,7 @@ interface InvocationTree {
 args: CreateInvocation | ExecuteInvocation;
 ```
 
-**Source:** [src/base/invocation.ts:60](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L60)
+**Source:** [src/base/invocation.ts:86](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L86)
 
 #### `invocationTree.invocations`
 
@@ -1384,7 +1462,7 @@ args: CreateInvocation | ExecuteInvocation;
 invocations: InvocationTree[];
 ```
 
-**Source:** [src/base/invocation.ts:61](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L61)
+**Source:** [src/base/invocation.ts:87](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L87)
 
 #### `invocationTree.type`
 
@@ -1392,7 +1470,7 @@ invocations: InvocationTree[];
 type: "create" | "execute";
 ```
 
-**Source:** [src/base/invocation.ts:59](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L59)
+**Source:** [src/base/invocation.ts:85](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L85)
 
 ### InvocationWalker
 
@@ -1405,7 +1483,7 @@ other return values are ignored.
 type InvocationWalker = (node: SorobanAuthorizedInvocation, depth: number, parent?: SorobanAuthorizedInvocation) => boolean | null | void
 ```
 
-**Source:** [src/base/invocation.ts:76](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L76)
+**Source:** [src/base/invocation.ts:102](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/invocation.ts#L102)
 
 ### NativeToScValOpts
 

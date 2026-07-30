@@ -42,6 +42,7 @@ import {
   ClaimableBalanceEntry,
   ClaimableBalanceId,
   ContractDataDurability,
+  ContractExecutableExternalRef,
   Hash,
   LedgerKey,
   LedgerKeyAccount,
@@ -621,14 +622,84 @@ export class RpcServer {
   }
 
   /**
+   * Resolves a CAP-85 external executable reference to the Wasm hash it names.
+   *
+   * A contract created with an external reference does not carry its own code
+   * hash. Instead the reference names an owner contract and a tag, and the
+   * owner holds a *persistent* contract data entry keyed by that tag whose
+   * value is the 32-byte hash of an existing Wasm. This performs exactly that
+   * lookup — the owner contract is not invoked.
+   *
+   * @param ref - the external reference, e.g. from the
+   *    `contractExecutableExternalRef` arm of a contract instance's executable
+   * @returns the 32-byte Wasm hash the reference resolves to
+   * @throws If the owner is not a contract, the tag entry is missing or
+   *    archived, or the entry does not hold a 32-byte hash.
+   *
+   * @example
+   * ```ts
+   * const instance = await server.getContractInstance(contractId);
+   * if (instance.executable.type === "contractExecutableExternalRef") {
+   *   const hash = await server.getExternalRefWasmHash(
+   *     instance.executable.externalRef,
+   *   );
+   *   const wasm = await server.getContractWasmByHash(hash);
+   * }
+   * ```
+   */
+  public async getExternalRefWasmHash(
+    ref: ContractExecutableExternalRef,
+  ): Promise<Uint8Array> {
+    const owner = ref.executableOwner;
+    if (owner.type !== "scAddressTypeContract") {
+      return Promise.reject({
+        code: 400,
+        message:
+          `External executable owner ${Address.fromScAddress(owner)} is not a ` +
+          `contract, so it cannot hold the tag entry that names the Wasm`,
+      });
+    }
+
+    // The tag is an unbounded SCString and may be binary, so pass it through
+    // as-is rather than decoding it — a lenient decode would build a key for a
+    // different entry.
+    const entry = await this.getContractData(
+      Address.fromScAddress(owner),
+      ScVal.scvExecutableTag(ref.tag),
+      Durability.Persistent,
+    );
+
+    if (entry.val.type !== "contractData") {
+      return Promise.reject({
+        code: 404,
+        message: "Expected contractData ledger entry",
+      });
+    }
+
+    const scv = entry.val.value.val;
+    if (scv.type !== "scvBytes" || scv.bytes.value.length !== 32) {
+      return Promise.reject({
+        code: 404,
+        message:
+          `External executable tag entry on ${Address.fromScAddress(owner)} ` +
+          `does not hold a 32-byte Wasm hash`,
+      });
+    }
+
+    return scv.bytes.value;
+  }
+
+  /**
    * Retrieves the WASM bytecode for a given contract.
    *
    * This method allows you to fetch the WASM bytecode associated with a contract
    * deployed on the Soroban network. The WASM bytecode represents the executable
    * code of the contract.
    *
-   * This only works for Wasm-based contracts. A built-in Stellar Asset Contract
-   * (SAC) has no Wasm bytecode on-chain, so this throws for a SAC; use
+   * This only works for Wasm-based contracts, including one created from a
+   * CAP-85 external executable reference, whose reference is resolved to a Wasm
+   * hash first (see {@link getExternalRefWasmHash}). A built-in Stellar Asset
+   * Contract (SAC) has no Wasm bytecode on-chain, so this throws for a SAC; use
    * {@link contract.Client.from} to build a client from the embedded SAC spec.
    *
    * @param contractId - The contract ID containing the WASM bytecode to retrieve
@@ -661,6 +732,13 @@ export class RpcServer {
           `no Wasm bytecode. Use contract.Client.from() to build a client from ` +
           `the built-in SAC spec instead.`,
       });
+    }
+    if (executable.type === "contractExecutableExternalRef") {
+      // A CAP-85 reference names its code indirectly; resolve the tag entry on
+      // the owner contract to get the hash.
+      return this.getContractWasmByHash(
+        await this.getExternalRefWasmHash(executable.externalRef),
+      );
     }
     if (executable.type !== "contractExecutableWasm") {
       return Promise.reject({
