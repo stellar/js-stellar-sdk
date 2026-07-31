@@ -97,6 +97,27 @@ const testConfig = [
   },
 ];
 
+// Guide snippets (examples/guides/*.ts) are standalone programs embedded into
+// docs/guides/*.md, not library code. They live outside tsconfig.json's `src`
+// include, so point type-aware lint at their own project.
+const examplesConfig = [
+  {
+    name: "examples/typescript",
+    files: ["examples/**/*.ts"],
+    languageOptions: {
+      parserOptions: {
+        project: "./examples/tsconfig.json",
+      },
+    },
+    rules: {
+      // Snippets read as documentation: they log, and they evaluate
+      // expressions like `result.hash` to show what a response carries.
+      "no-console": "off",
+      "@typescript-eslint/no-unused-expressions": "off",
+    },
+  },
+];
+
 const scriptsConfig = [
   {
     name: "scripts/typescript",
@@ -209,6 +230,8 @@ export default [
   ...testConfig,
   // Scripts Config (uses scripts/tsconfig.json for type-aware lint)
   ...scriptsConfig,
+  // Examples Config (uses examples/tsconfig.json for type-aware lint)
+  ...examplesConfig,
   // Base SDK overrides (must come after typescriptConfig/tsdocConfig)
   ...baseSdkConfig,
   // Scripts overrides (must come after typescriptConfig/scriptsConfig)
