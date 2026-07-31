@@ -192,7 +192,6 @@ const libEntries = {
   "http-client/axios": "src/http-client/axios.ts",
   "cli/index": "src/cli/index.ts",
 
-  "base/index": "src/base/index.ts",
   "base/operations/index": "src/base/operations/index.ts",
   "base/operations/types": "src/base/operations/types.ts",
   "bindings/index": "src/bindings/index.ts",
