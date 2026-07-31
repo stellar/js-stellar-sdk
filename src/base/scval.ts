@@ -435,6 +435,8 @@ export function scValToNative(scv: ScVal): any {
       return scv.sym.asStringOrBytes();
     case "scvString":
       return scv.str.asStringOrBytes();
+    case "scvExecutableTag":
+      return scv.executableTag.asStringOrBytes();
 
     // these can be converted to bigint
     case "scvTimepoint":
@@ -462,8 +464,7 @@ export function scValToNative(scv: ScVal): any {
       return undefined;
 
     default:
-      // Variants without an explicit case above (currently the newly
-      // generated `scvExecutableTag`) fall through to their underlying value.
+      // @ts-expect-error this should be unreachable if the XDR types are correct, but we return the underlying value just in case
       return scv.value;
   }
 }

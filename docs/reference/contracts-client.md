@@ -706,6 +706,11 @@ If the contract is a built-in Stellar Asset Contract (SAC), the embedded
 SAC spec is used instead of downloading Wasm, since a SAC has no Wasm
 executable on-chain.
 
+If the contract was created from a CAP-85 external executable reference,
+the reference is resolved to a Wasm hash first (see
+`rpc.Server.getExternalRefWasmHash`), then the spec is read from
+that Wasm.
+
 ```ts
 static from<T = unknown>(options: ClientOptions): Promise<Client & T>;
 ```
@@ -732,7 +737,7 @@ const client = await contract.Client.from<MyContract>(options);
 const tx = await client.increment(); // typed
 ```
 
-**Source:** [src/contract/client.ts:241](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L241)
+**Source:** [src/contract/client.ts:246](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L246)
 
 ### `Client.fromWasm(wasm, options)`
 
@@ -830,7 +835,7 @@ txFromJSON: <T>(json: string) => AssembledTransaction<T>;
 
 - **`json`** — `string` (required)
 
-**Source:** [src/contract/client.ts:292](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L292)
+**Source:** [src/contract/client.ts:298](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L298)
 
 ### `client.txFromJson(json)`
 
@@ -842,7 +847,7 @@ txFromJson<T>(json: string): AssembledTransaction<T>;
 
 - **`json`** — `string` (required)
 
-**Source:** [src/contract/client.ts:276](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L276)
+**Source:** [src/contract/client.ts:282](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L282)
 
 ### `client.txFromXDR(xdrBase64)`
 
@@ -854,7 +859,7 @@ txFromXDR<T>(xdrBase64: string): AssembledTransaction<T>;
 
 - **`xdrBase64`** — `string` (required)
 
-**Source:** [src/contract/client.ts:294](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L294)
+**Source:** [src/contract/client.ts:300](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L300)
 
 ## contract.DEFAULT_TIMEOUT
 

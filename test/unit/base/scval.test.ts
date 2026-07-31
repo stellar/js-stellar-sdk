@@ -1258,6 +1258,20 @@ describe("scValToNative", () => {
     });
   });
 
+  describe("executable tags (CAP-85)", () => {
+    it("converts scvExecutableTag to string", () => {
+      const scv = xdr.ScVal.scvExecutableTag("my_tag");
+      expect(scValToNative(scv)).toBe("my_tag");
+    });
+
+    it("returns raw bytes for a non-UTF-8 executable tag", () => {
+      const scv = xdr.ScVal.scvExecutableTag(new Uint8Array([0xff, 0xfe]));
+      const result = scValToNative(scv);
+      expect(result).toBeInstanceOf(Uint8Array);
+      expect(Array.from(result as Uint8Array)).toEqual([0xff, 0xfe]);
+    });
+  });
+
   describe("addresses", () => {
     it("converts scvAddress (account) to string", () => {
       const kp = Keypair.random();
