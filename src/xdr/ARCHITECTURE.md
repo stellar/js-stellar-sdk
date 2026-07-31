@@ -18,6 +18,10 @@ Everything Stellar-specific lives in this repo: the consumer value classes, the
 SEP-0051 JSON walker, the generated class per XDR type, and the DX overlays —
 driven by codegen against a canonical schema file (`xdr/xdr.json`).
 
+`xdr/xdr.json` is itself generated — don't hand-edit it. It comes from the
+protocol `.x` files at a pinned stellar/stellar-xdr commit, via `make` in the
+repo root; see [Regenerating the schema](#regenerating-the-schema).
+
 ---
 
 ## Layered architecture
@@ -235,7 +239,7 @@ bottom of the stack is a separate package:
 
 | You want to…                                                     | Edit here                                                                                      |
 | ---------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| Add a new XDR type to the schema                                 | `xdr/xdr.json` (then `pnpm run xdrgen`)                                                        |
+| Add a new XDR type to the schema                                 | `XDR_COMMIT` / `XDR_FEATURES` in the root `Makefile` (then `make`) — see below                  |
 | Change codegen output (TS type expr, generated factory shape, …) | `tools/xdrgen/generate.mjs`                                                                    |
 | Change wire serialization of a primitive kind                    | `@stellar/js-xdr` (separate repo) — not here                                                   |
 | Add a new schema primitive (e.g. a new int variant)              | `@stellar/js-xdr`, then wire into codegen `schemaExpr` and the JSON walker here                |
@@ -245,6 +249,22 @@ bottom of the stack is a separate package:
 | Hand-edit one specific generated class                           | **don't.** Codegen output is overwritten on regen — change `tools/xdrgen/generate.mjs` instead |
 
 A few cross-cutting changes worth knowing how to do:
+
+### Regenerating the schema
+
+`xdr/xdr.json` is generated output. Editing it by hand works until the next
+`make xdr-json`, which overwrites the file — so schema changes go through the
+pins in the root `Makefile` instead:
+
+1. Bump `XDR_COMMIT` to the stellar/stellar-xdr commit you want.
+2. If the change is still gated upstream behind `#ifdef CAP_00XX`, add the
+   feature symbol (lowercase, e.g. `cap_0083`) to `XDR_FEATURES`. Once
+   upstream ungates it, drop it from the list again.
+3. Run `make` — this rewrites `xdr/xdr.json`, then `src/xdr/generated/`.
+
+Needs docker, curl, and pnpm. `make xdr-json` and `make xdr-classes` run the
+two halves separately. The `Makefile` header covers the rest, including how to
+move the pinned Rust image.
 
 ### Supporting a new schema primitive
 
