@@ -8,18 +8,18 @@ import {
 
 export type StellarValueTypeWire = number;
 
-export type StellarValueTypeName = "stellarValueBasic" | "stellarValueSigned";
+export type StellarValueTypeName =
+  | "stellarValueBasic"
+  | "stellarValueSigned"
+  | "stellarValueEmptyTxSet";
 
 /**
  * ```xdr
  * enum StellarValueType
  * {
  *     STELLAR_VALUE_BASIC = 0,
- *     STELLAR_VALUE_SIGNED = 1
- * #ifdef CAP_0083
- *     ,
+ *     STELLAR_VALUE_SIGNED = 1,
  *     STELLAR_VALUE_EMPTY_TX_SET = 2
- * #endif
  * };
  * ```
  */
@@ -32,11 +32,16 @@ export class StellarValueType extends EnumValue<StellarValueTypeName> {
     "stellarValueSigned",
     1,
   );
+  static readonly stellarValueEmptyTxSet = new StellarValueType(
+    "stellarValueEmptyTxSet",
+    2,
+  );
 
   static readonly schema = withMemberPrefix(
     enumType("StellarValueType", {
       stellarValueBasic: 0,
       stellarValueSigned: 1,
+      stellarValueEmptyTxSet: 2,
     }),
     "stellarValue",
   );

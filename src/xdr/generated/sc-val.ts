@@ -158,7 +158,8 @@ export type ScValWire =
   | { type: 18; address: ScAddressWire }
   | { type: 19; instance: ScContractInstanceWire }
   | { type: 20 }
-  | { type: 21; nonceKey: ScNonceKeyWire };
+  | { type: 21; nonceKey: ScNonceKeyWire }
+  | { type: 22; executableTag: XdrString };
 
 export type ScValVariantName =
   | "scvBool"
@@ -182,7 +183,8 @@ export type ScValVariantName =
   | "scvAddress"
   | "scvContractInstance"
   | "scvLedgerKeyContractInstance"
-  | "scvLedgerKeyNonce";
+  | "scvLedgerKeyNonce"
+  | "scvExecutableTag";
 
 /**
  * ```xdr
@@ -245,6 +247,9 @@ export type ScValVariantName =
  *     void;
  * case SCV_LEDGER_KEY_NONCE:
  *     SCNonceKey nonce_key;
+ *
+ * case SCV_EXECUTABLE_TAG:
+ *     SCString executable_tag;
  * };
  * ```
  */
@@ -307,6 +312,11 @@ abstract class ScValBase extends XdrValue {
       ),
       case_("scvLedgerKeyContractInstance", 20, voidType()),
       case_("scvLedgerKeyNonce", 21, field("nonceKey", ScNonceKey.schema)),
+      case_(
+        "scvExecutableTag",
+        22,
+        field("executableTag", xdrString(UNBOUNDED_MAX_LENGTH)),
+      ),
     ],
   });
 
@@ -400,6 +410,12 @@ abstract class ScValBase extends XdrValue {
     return new ScValLedgerKeyNonce(nonceKey);
   }
 
+  static scvExecutableTag(
+    executableTag: XdrString | string | Uint8Array,
+  ): ScValExecutableTag {
+    return new ScValExecutableTag(executableTag);
+  }
+
   static fromXdrObject(wire: ScValWire): ScVal {
     switch (wire.type) {
       case 0:
@@ -456,6 +472,8 @@ abstract class ScValBase extends XdrValue {
         return new ScValLedgerKeyContractInstance();
       case 21:
         return new ScValLedgerKeyNonce(ScNonceKey.fromXdrObject(wire.nonceKey));
+      case 22:
+        return new ScValExecutableTag(wire.executableTag);
     }
   }
 
@@ -862,6 +880,27 @@ export class ScValLedgerKeyNonce extends ScValBase {
   }
 }
 
+export class ScValExecutableTag extends ScValBase {
+  readonly type = "scvExecutableTag" as const;
+  readonly executableTag: XdrString;
+
+  constructor(executableTag: XdrString | string | Uint8Array) {
+    super();
+    this.executableTag =
+      executableTag instanceof XdrString
+        ? executableTag
+        : new XdrString(executableTag);
+  }
+
+  get value(): string {
+    return this.executableTag.toString();
+  }
+
+  toXdrObject(): Extract<ScValWire, { type: 22 }> {
+    return { type: 22, executableTag: this.executableTag };
+  }
+}
+
 export type ScVal =
   | ScValBool
   | ScValVoid
@@ -884,5 +923,6 @@ export type ScVal =
   | ScValAddress
   | ScValContractInstance
   | ScValLedgerKeyContractInstance
-  | ScValLedgerKeyNonce;
+  | ScValLedgerKeyNonce
+  | ScValExecutableTag;
 export const ScVal = ScValBase;

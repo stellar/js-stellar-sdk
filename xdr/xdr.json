@@ -23,7 +23,7 @@
     },
     {
       "name": "xdr/Stellar-contract.x",
-      "sha256": "5d8063e6ddc09be5c22569f1668720b5c705505a70e9224f00748fa58aab2fc5"
+      "sha256": "b87e9474002c0a089a8aa6f4c4e76e74fa497a7c20e3656532f0ac7762374e4e"
     },
     {
       "name": "xdr/Stellar-exporter.x",
@@ -39,7 +39,7 @@
     },
     {
       "name": "xdr/Stellar-ledger.x",
-      "sha256": "93cdd4dd597d9f0b271762c2f3c81be8562e2004f4f019f539ca7d7e92167099"
+      "sha256": "b6dec791414821d0bae7a11abb4a6b6143ce3e09d0030c580c9ece1815418b13"
     },
     {
       "name": "xdr/Stellar-overlay.x",
@@ -3024,9 +3024,44 @@
       ]
     },
     {
+      "kind": "typedef",
+      "name": "SCBytes",
+      "source": "typedef opaque SCBytes<>;",
+      "file_index": 5,
+      "type": {
+        "kind": "opaque_var"
+      }
+    },
+    {
+      "kind": "typedef",
+      "name": "SCString",
+      "source": "typedef string SCString<>;",
+      "file_index": 5,
+      "type": {
+        "kind": "string"
+      }
+    },
+    {
+      "kind": "const",
+      "name": "SCSYMBOL_LIMIT",
+      "value": 32,
+      "source": "const SCSYMBOL_LIMIT = 32;",
+      "file_index": 5
+    },
+    {
+      "kind": "typedef",
+      "name": "SCSymbol",
+      "source": "typedef string SCSymbol<SCSYMBOL_LIMIT>;",
+      "file_index": 5,
+      "type": {
+        "kind": "string",
+        "max_size": 32
+      }
+    },
+    {
       "kind": "enum",
       "name": "SCValType",
-      "source": "enum SCValType\n{\n    SCV_BOOL = 0,\n    SCV_VOID = 1,\n    SCV_ERROR = 2,\n\n    // 32 bits is the smallest type in WASM or XDR; no need for u8/u16.\n    SCV_U32 = 3,\n    SCV_I32 = 4,\n\n    // 64 bits is naturally supported by both WASM and XDR also.\n    SCV_U64 = 5,\n    SCV_I64 = 6,\n\n    // Time-related u64 subtypes with their own functions and formatting.\n    SCV_TIMEPOINT = 7,\n    SCV_DURATION = 8,\n\n    // 128 bits is naturally supported by Rust and we use it for Soroban\n    // fixed-point arithmetic prices / balances / similar \"quantities\". These\n    // are represented in XDR as a pair of 2 u64s.\n    SCV_U128 = 9,\n    SCV_I128 = 10,\n\n    // 256 bits is the size of sha256 output, ed25519 keys, and the EVM machine\n    // word, so for interop use we include this even though it requires a small\n    // amount of Rust guest and/or host library code.\n    SCV_U256 = 11,\n    SCV_I256 = 12,\n\n    // Bytes come in 3 flavors, 2 of which have meaningfully different\n    // formatting and validity-checking / domain-restriction.\n    SCV_BYTES = 13,\n    SCV_STRING = 14,\n    SCV_SYMBOL = 15,\n\n    // Vecs and maps are just polymorphic containers of other ScVals.\n    SCV_VEC = 16,\n    SCV_MAP = 17,\n\n    // Address is the universal identifier for contracts and classic\n    // accounts.\n    SCV_ADDRESS = 18,\n\n    // The following are the internal SCVal variants that are not\n    // exposed to the contracts. \n    SCV_CONTRACT_INSTANCE = 19,\n\n    // SCV_LEDGER_KEY_CONTRACT_INSTANCE and SCV_LEDGER_KEY_NONCE are unique\n    // symbolic SCVals used as the key for ledger entries for a contract's\n    // instance and an address' nonce, respectively.\n    SCV_LEDGER_KEY_CONTRACT_INSTANCE = 20,\n    SCV_LEDGER_KEY_NONCE = 21\n};",
+      "source": "enum SCValType\n{\n    SCV_BOOL = 0,\n    SCV_VOID = 1,\n    SCV_ERROR = 2,\n\n    // 32 bits is the smallest type in WASM or XDR; no need for u8/u16.\n    SCV_U32 = 3,\n    SCV_I32 = 4,\n\n    // 64 bits is naturally supported by both WASM and XDR also.\n    SCV_U64 = 5,\n    SCV_I64 = 6,\n\n    // Time-related u64 subtypes with their own functions and formatting.\n    SCV_TIMEPOINT = 7,\n    SCV_DURATION = 8,\n\n    // 128 bits is naturally supported by Rust and we use it for Soroban\n    // fixed-point arithmetic prices / balances / similar \"quantities\". These\n    // are represented in XDR as a pair of 2 u64s.\n    SCV_U128 = 9,\n    SCV_I128 = 10,\n\n    // 256 bits is the size of sha256 output, ed25519 keys, and the EVM machine\n    // word, so for interop use we include this even though it requires a small\n    // amount of Rust guest and/or host library code.\n    SCV_U256 = 11,\n    SCV_I256 = 12,\n\n    // Bytes come in 3 flavors, 2 of which have meaningfully different\n    // formatting and validity-checking / domain-restriction.\n    SCV_BYTES = 13,\n    SCV_STRING = 14,\n    SCV_SYMBOL = 15,\n\n    // Vecs and maps are just polymorphic containers of other ScVals.\n    SCV_VEC = 16,\n    SCV_MAP = 17,\n\n    // Address is the universal identifier for contracts and classic\n    // accounts.\n    SCV_ADDRESS = 18,\n\n    // The following are the internal SCVal variants that are not\n    // exposed to the contracts. \n    SCV_CONTRACT_INSTANCE = 19,\n\n    // SCV_LEDGER_KEY_CONTRACT_INSTANCE and SCV_LEDGER_KEY_NONCE are unique\n    // symbolic SCVals used as the key for ledger entries for a contract's\n    // instance and an address' nonce, respectively.\n    SCV_LEDGER_KEY_CONTRACT_INSTANCE = 20,\n    SCV_LEDGER_KEY_NONCE = 21,\n\n    SCV_EXECUTABLE_TAG = 22\n};",
       "file_index": 5,
       "member_prefix": "SCV_",
       "members": [
@@ -3117,6 +3152,10 @@
         {
           "name": "SCV_LEDGER_KEY_NONCE",
           "value": 21
+        },
+        {
+          "name": "SCV_EXECUTABLE_TAG",
+          "value": 22
         }
       ]
     },
@@ -3415,7 +3454,7 @@
     {
       "kind": "enum",
       "name": "ContractExecutableType",
-      "source": "enum ContractExecutableType\n{\n    CONTRACT_EXECUTABLE_WASM = 0,\n    CONTRACT_EXECUTABLE_STELLAR_ASSET = 1\n};",
+      "source": "enum ContractExecutableType\n{\n    CONTRACT_EXECUTABLE_WASM = 0,\n    CONTRACT_EXECUTABLE_STELLAR_ASSET = 1,\n    CONTRACT_EXECUTABLE_EXTERNAL_REF = 2\n};",
       "file_index": 5,
       "member_prefix": "CONTRACT_EXECUTABLE_",
       "members": [
@@ -3426,51 +3465,17 @@
         {
           "name": "CONTRACT_EXECUTABLE_STELLAR_ASSET",
           "value": 1
-        }
-      ]
-    },
-    {
-      "kind": "union",
-      "name": "ContractExecutable",
-      "fixed_size": null,
-      "source": "union ContractExecutable switch (ContractExecutableType type)\n{\ncase CONTRACT_EXECUTABLE_WASM:\n    Hash wasm_hash;\ncase CONTRACT_EXECUTABLE_STELLAR_ASSET:\n    void;\n};",
-      "file_index": 5,
-      "discriminant": {
-        "name": "type",
-        "type": {
-          "kind": "ref",
-          "name": "ContractExecutableType"
-        }
-      },
-      "arms": [
-        {
-          "cases": [
-            {
-              "value": 0,
-              "name": "CONTRACT_EXECUTABLE_WASM"
-            }
-          ],
-          "name": "wasm_hash",
-          "type": {
-            "kind": "ref",
-            "name": "Hash"
-          }
         },
         {
-          "cases": [
-            {
-              "value": 1,
-              "name": "CONTRACT_EXECUTABLE_STELLAR_ASSET"
-            }
-          ],
-          "name": null
+          "name": "CONTRACT_EXECUTABLE_EXTERNAL_REF",
+          "value": 2
         }
       ]
     },
     {
       "kind": "enum",
       "name": "SCAddressType",
-      "source": "enum SCAddressType\n{\n    SC_ADDRESS_TYPE_ACCOUNT = 0,\n    SC_ADDRESS_TYPE_CONTRACT = 1,\n    SC_ADDRESS_TYPE_MUXED_ACCOUNT = 2,\n    SC_ADDRESS_TYPE_CLAIMABLE_BALANCE = 3,\n    SC_ADDRESS_TYPE_LIQUIDITY_POOL = 4\n};",
+      "source": "enum SCAddressType\n{\n    SC_ADDRESS_TYPE_ACCOUNT = 0,\n    SC_ADDRESS_TYPE_CONTRACT = 1,\n    SC_ADDRESS_TYPE_MUXED_ACCOUNT = 2,\n    SC_ADDRESS_TYPE_CLAIMABLE_BALANCE = 3,\n    SC_ADDRESS_TYPE_LIQUIDITY_POOL = 4\n#ifdef CAP_0084_MUXED_CONTRACT\n    ,\n    SC_ADDRESS_TYPE_MUXED_CONTRACT = 5\n#endif\n};",
       "file_index": 5,
       "member_prefix": "SC_ADDRESS_TYPE_",
       "members": [
@@ -3523,7 +3528,7 @@
       "kind": "union",
       "name": "SCAddress",
       "fixed_size": null,
-      "source": "union SCAddress switch (SCAddressType type)\n{\ncase SC_ADDRESS_TYPE_ACCOUNT:\n    AccountID accountId;\ncase SC_ADDRESS_TYPE_CONTRACT:\n    ContractID contractId;\ncase SC_ADDRESS_TYPE_MUXED_ACCOUNT:\n    MuxedEd25519Account muxedAccount;\ncase SC_ADDRESS_TYPE_CLAIMABLE_BALANCE:\n    ClaimableBalanceID claimableBalanceId;\ncase SC_ADDRESS_TYPE_LIQUIDITY_POOL:\n    PoolID liquidityPoolId;\n};",
+      "source": "union SCAddress switch (SCAddressType type)\n{\ncase SC_ADDRESS_TYPE_ACCOUNT:\n    AccountID accountId;\ncase SC_ADDRESS_TYPE_CONTRACT:\n    ContractID contractId;\ncase SC_ADDRESS_TYPE_MUXED_ACCOUNT:\n    MuxedEd25519Account muxedAccount;\ncase SC_ADDRESS_TYPE_CLAIMABLE_BALANCE:\n    ClaimableBalanceID claimableBalanceId;\ncase SC_ADDRESS_TYPE_LIQUIDITY_POOL:\n    PoolID liquidityPoolId;\n#ifdef CAP_0084_MUXED_CONTRACT\ncase SC_ADDRESS_TYPE_MUXED_CONTRACT:\n    MuxedContract muxedContract;\n#endif\n};",
       "file_index": 5,
       "discriminant": {
         "name": "type",
@@ -3601,11 +3606,78 @@
       ]
     },
     {
-      "kind": "const",
-      "name": "SCSYMBOL_LIMIT",
-      "value": 32,
-      "source": "const SCSYMBOL_LIMIT = 32;",
-      "file_index": 5
+      "kind": "struct",
+      "name": "ContractExecutableExternalRef",
+      "fixed_size": null,
+      "source": "struct ContractExecutableExternalRef {\n    SCAddress executable_owner;\n    SCString tag;\n};",
+      "file_index": 5,
+      "fields": [
+        {
+          "name": "executable_owner",
+          "type": {
+            "kind": "ref",
+            "name": "SCAddress"
+          }
+        },
+        {
+          "name": "tag",
+          "type": {
+            "kind": "ref",
+            "name": "SCString"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "union",
+      "name": "ContractExecutable",
+      "fixed_size": null,
+      "source": "union ContractExecutable switch (ContractExecutableType type)\n{\ncase CONTRACT_EXECUTABLE_WASM:\n    Hash wasm_hash;\ncase CONTRACT_EXECUTABLE_STELLAR_ASSET:\n    void;\ncase CONTRACT_EXECUTABLE_EXTERNAL_REF:\n    ContractExecutableExternalRef external_ref;\n};",
+      "file_index": 5,
+      "discriminant": {
+        "name": "type",
+        "type": {
+          "kind": "ref",
+          "name": "ContractExecutableType"
+        }
+      },
+      "arms": [
+        {
+          "cases": [
+            {
+              "value": 0,
+              "name": "CONTRACT_EXECUTABLE_WASM"
+            }
+          ],
+          "name": "wasm_hash",
+          "type": {
+            "kind": "ref",
+            "name": "Hash"
+          }
+        },
+        {
+          "cases": [
+            {
+              "value": 1,
+              "name": "CONTRACT_EXECUTABLE_STELLAR_ASSET"
+            }
+          ],
+          "name": null
+        },
+        {
+          "cases": [
+            {
+              "value": 2,
+              "name": "CONTRACT_EXECUTABLE_EXTERNAL_REF"
+            }
+          ],
+          "name": "external_ref",
+          "type": {
+            "kind": "ref",
+            "name": "ContractExecutableExternalRef"
+          }
+        }
+      ]
     },
     {
       "kind": "typedef",
@@ -3631,34 +3703,6 @@
           "kind": "ref",
           "name": "SCMapEntry"
         }
-      }
-    },
-    {
-      "kind": "typedef",
-      "name": "SCBytes",
-      "source": "typedef opaque SCBytes<>;",
-      "file_index": 5,
-      "type": {
-        "kind": "opaque_var"
-      }
-    },
-    {
-      "kind": "typedef",
-      "name": "SCString",
-      "source": "typedef string SCString<>;",
-      "file_index": 5,
-      "type": {
-        "kind": "string"
-      }
-    },
-    {
-      "kind": "typedef",
-      "name": "SCSymbol",
-      "source": "typedef string SCSymbol<SCSYMBOL_LIMIT>;",
-      "file_index": 5,
-      "type": {
-        "kind": "string",
-        "max_size": 32
       }
     },
     {
@@ -3707,7 +3751,7 @@
       "kind": "union",
       "name": "SCVal",
       "fixed_size": null,
-      "source": "union SCVal switch (SCValType type)\n{\n\ncase SCV_BOOL:\n    bool b;\ncase SCV_VOID:\n    void;\ncase SCV_ERROR:\n    SCError error;\n\ncase SCV_U32:\n    uint32 u32;\ncase SCV_I32:\n    int32 i32;\n\ncase SCV_U64:\n    uint64 u64;\ncase SCV_I64:\n    int64 i64;\ncase SCV_TIMEPOINT:\n    TimePoint timepoint;\ncase SCV_DURATION:\n    Duration duration;\n\ncase SCV_U128:\n    UInt128Parts u128;\ncase SCV_I128:\n    Int128Parts i128;\n\ncase SCV_U256:\n    UInt256Parts u256;\ncase SCV_I256:\n    Int256Parts i256;\n\ncase SCV_BYTES:\n    SCBytes bytes;\ncase SCV_STRING:\n    SCString str;\ncase SCV_SYMBOL:\n    SCSymbol sym;\n\n// Vec and Map are recursive so need to live\n// behind an option, due to xdrpp limitations.\ncase SCV_VEC:\n    SCVec *vec;\ncase SCV_MAP:\n    SCMap *map;\n\ncase SCV_ADDRESS:\n    SCAddress address;\n\n// Special SCVals reserved for system-constructed contract-data\n// ledger keys, not generally usable elsewhere.\ncase SCV_CONTRACT_INSTANCE:\n    SCContractInstance instance;\ncase SCV_LEDGER_KEY_CONTRACT_INSTANCE:\n    void;\ncase SCV_LEDGER_KEY_NONCE:\n    SCNonceKey nonce_key;\n};",
+      "source": "union SCVal switch (SCValType type)\n{\n\ncase SCV_BOOL:\n    bool b;\ncase SCV_VOID:\n    void;\ncase SCV_ERROR:\n    SCError error;\n\ncase SCV_U32:\n    uint32 u32;\ncase SCV_I32:\n    int32 i32;\n\ncase SCV_U64:\n    uint64 u64;\ncase SCV_I64:\n    int64 i64;\ncase SCV_TIMEPOINT:\n    TimePoint timepoint;\ncase SCV_DURATION:\n    Duration duration;\n\ncase SCV_U128:\n    UInt128Parts u128;\ncase SCV_I128:\n    Int128Parts i128;\n\ncase SCV_U256:\n    UInt256Parts u256;\ncase SCV_I256:\n    Int256Parts i256;\n\ncase SCV_BYTES:\n    SCBytes bytes;\ncase SCV_STRING:\n    SCString str;\ncase SCV_SYMBOL:\n    SCSymbol sym;\n\n// Vec and Map are recursive so need to live\n// behind an option, due to xdrpp limitations.\ncase SCV_VEC:\n    SCVec *vec;\ncase SCV_MAP:\n    SCMap *map;\n\ncase SCV_ADDRESS:\n    SCAddress address;\n\n// Special SCVals reserved for system-constructed contract-data\n// ledger keys, not generally usable elsewhere.\ncase SCV_CONTRACT_INSTANCE:\n    SCContractInstance instance;\ncase SCV_LEDGER_KEY_CONTRACT_INSTANCE:\n    void;\ncase SCV_LEDGER_KEY_NONCE:\n    SCNonceKey nonce_key;\n\ncase SCV_EXECUTABLE_TAG:\n    SCString executable_tag;\n};",
       "file_index": 5,
       "discriminant": {
         "name": "type",
@@ -3998,6 +4042,19 @@
           "type": {
             "kind": "ref",
             "name": "SCNonceKey"
+          }
+        },
+        {
+          "cases": [
+            {
+              "value": 22,
+              "name": "SCV_EXECUTABLE_TAG"
+            }
+          ],
+          "name": "executable_tag",
+          "type": {
+            "kind": "ref",
+            "name": "SCString"
           }
         }
       ]
@@ -7062,7 +7119,7 @@
     {
       "kind": "enum",
       "name": "StellarValueType",
-      "source": "enum StellarValueType\n{\n    STELLAR_VALUE_BASIC = 0,\n    STELLAR_VALUE_SIGNED = 1\n#ifdef CAP_0083\n    ,\n    STELLAR_VALUE_EMPTY_TX_SET = 2\n#endif\n};",
+      "source": "enum StellarValueType\n{\n    STELLAR_VALUE_BASIC = 0,\n    STELLAR_VALUE_SIGNED = 1,\n    STELLAR_VALUE_EMPTY_TX_SET = 2\n};",
       "file_index": 9,
       "member_prefix": "STELLAR_VALUE_",
       "members": [
@@ -7073,6 +7130,10 @@
         {
           "name": "STELLAR_VALUE_SIGNED",
           "value": 1
+        },
+        {
+          "name": "STELLAR_VALUE_EMPTY_TX_SET",
+          "value": 2
         }
       ]
     },
@@ -7100,10 +7161,47 @@
       ]
     },
     {
+      "kind": "struct",
+      "name": "StellarValueProposedValue",
+      "fixed_size": null,
+      "source": "struct\n        {\n            Hash txSetHash;\n            Hash previousLedgerHash;\n            uint32 previousLedgerVersion;\n            LedgerCloseValueSignature lcValueSignature;\n        }",
+      "file_index": 9,
+      "fields": [
+        {
+          "name": "txSetHash",
+          "type": {
+            "kind": "ref",
+            "name": "Hash"
+          }
+        },
+        {
+          "name": "previousLedgerHash",
+          "type": {
+            "kind": "ref",
+            "name": "Hash"
+          }
+        },
+        {
+          "name": "previousLedgerVersion",
+          "type": {
+            "kind": "ref",
+            "name": "uint32"
+          }
+        },
+        {
+          "name": "lcValueSignature",
+          "type": {
+            "kind": "ref",
+            "name": "LedgerCloseValueSignature"
+          }
+        }
+      ]
+    },
+    {
       "kind": "union",
       "name": "StellarValueExt",
       "fixed_size": null,
-      "source": "union switch (StellarValueType v)\n    {\n    case STELLAR_VALUE_BASIC:\n        void;\n    case STELLAR_VALUE_SIGNED:\n        LedgerCloseValueSignature lcValueSignature;\n#ifdef CAP_0083\n    case STELLAR_VALUE_EMPTY_TX_SET:\n        struct\n        {\n            Hash txSetHash;\n            Hash previousLedgerHash;\n            uint32 previousLedgerVersion;\n            LedgerCloseValueSignature lcValueSignature;\n        } proposedValue;\n#endif\n    }",
+      "source": "union switch (StellarValueType v)\n    {\n    case STELLAR_VALUE_BASIC:\n        void;\n    case STELLAR_VALUE_SIGNED:\n        LedgerCloseValueSignature lcValueSignature;\n    case STELLAR_VALUE_EMPTY_TX_SET:\n        struct\n        {\n            Hash txSetHash;\n            Hash previousLedgerHash;\n            uint32 previousLedgerVersion;\n            LedgerCloseValueSignature lcValueSignature;\n        } proposedValue;\n    }",
       "file_index": 9,
       "discriminant": {
         "name": "v",
@@ -7134,6 +7232,19 @@
             "kind": "ref",
             "name": "LedgerCloseValueSignature"
           }
+        },
+        {
+          "cases": [
+            {
+              "value": 2,
+              "name": "STELLAR_VALUE_EMPTY_TX_SET"
+            }
+          ],
+          "name": "proposedValue",
+          "type": {
+            "kind": "ref",
+            "name": "StellarValueProposedValue"
+          }
         }
       ]
     },
@@ -7141,7 +7252,7 @@
       "kind": "struct",
       "name": "StellarValue",
       "fixed_size": null,
-      "source": "struct StellarValue\n{\n    Hash txSetHash;      // transaction set to apply to previous ledger\n    TimePoint closeTime; // network close time\n\n    // upgrades to apply to the previous ledger (usually empty)\n    // this is a vector of encoded 'LedgerUpgrade' so that nodes can drop\n    // unknown steps during consensus if needed.\n    // see notes below on 'LedgerUpgrade' for more detail\n    // max size is dictated by number of upgrade types (+ room for future)\n    UpgradeType upgrades<6>;\n\n    // reserved for future use\n    union switch (StellarValueType v)\n    {\n    case STELLAR_VALUE_BASIC:\n        void;\n    case STELLAR_VALUE_SIGNED:\n        LedgerCloseValueSignature lcValueSignature;\n#ifdef CAP_0083\n    case STELLAR_VALUE_EMPTY_TX_SET:\n        struct\n        {\n            Hash txSetHash;\n            Hash previousLedgerHash;\n            uint32 previousLedgerVersion;\n            LedgerCloseValueSignature lcValueSignature;\n        } proposedValue;\n#endif\n    }\n    ext;\n};",
+      "source": "struct StellarValue\n{\n    Hash txSetHash;      // transaction set to apply to previous ledger\n    TimePoint closeTime; // network close time\n\n    // upgrades to apply to the previous ledger (usually empty)\n    // this is a vector of encoded 'LedgerUpgrade' so that nodes can drop\n    // unknown steps during consensus if needed.\n    // see notes below on 'LedgerUpgrade' for more detail\n    // max size is dictated by number of upgrade types (+ room for future)\n    UpgradeType upgrades<6>;\n\n    // reserved for future use\n    union switch (StellarValueType v)\n    {\n    case STELLAR_VALUE_BASIC:\n        void;\n    case STELLAR_VALUE_SIGNED:\n        LedgerCloseValueSignature lcValueSignature;\n    case STELLAR_VALUE_EMPTY_TX_SET:\n        struct\n        {\n            Hash txSetHash;\n            Hash previousLedgerHash;\n            uint32 previousLedgerVersion;\n            LedgerCloseValueSignature lcValueSignature;\n        } proposedValue;\n    }\n    ext;\n};",
       "file_index": 9,
       "fields": [
         {
@@ -8468,7 +8579,7 @@
       "kind": "struct",
       "name": "SorobanTransactionMetaExtV1",
       "fixed_size": 28,
-      "source": "struct SorobanTransactionMetaExtV1\n{\n    ExtensionPoint ext;\n\n    // The following are the components of the overall Soroban resource fee\n    // charged for the transaction.\n    // The following relation holds:\n    // `resourceFeeCharged = totalNonRefundableResourceFeeCharged + totalRefundableResourceFeeCharged`\n    // where `resourceFeeCharged` is the overall fee charged for the \n    // transaction. Also, `resourceFeeCharged` <= `sorobanData.resourceFee` \n    // i.e.we never charge more than the declared resource fee.\n    // The inclusion fee for charged the Soroban transaction can be found using \n    // the following equation:\n    // `result.feeCharged = resourceFeeCharged + inclusionFeeCharged`.\n\n    // Total amount (in stroops) that has been charged for non-refundable\n    // Soroban resources.\n    // Non-refundable resources are charged based on the usage declared in\n    // the transaction envelope (such as `instructions`, `readBytes` etc.) and \n    // is charged regardless of the success of the transaction.\n    int64 totalNonRefundableResourceFeeCharged;\n    // Total amount (in stroops) that has been charged for refundable\n    // Soroban resource fees.\n    // Currently this comprises the rent fee (`rentFeeCharged`) and the\n    // fee for the events and return value.\n    // Refundable resources are charged based on the actual resources usage.\n    // Since currently refundable resources are only used for the successful\n    // transactions, this will be `0` for failed transactions.\n    int64 totalRefundableResourceFeeCharged;\n    // Amount (in stroops) that has been charged for rent.\n    // This is a part of `totalNonRefundableResourceFeeCharged`.\n    int64 rentFeeCharged;\n};",
+      "source": "struct SorobanTransactionMetaExtV1\n{\n    ExtensionPoint ext;\n\n    // The following are the components of the overall Soroban resource fee\n    // charged for the transaction.\n    // The following relation holds:\n    // `resourceFeeCharged = totalNonRefundableResourceFeeCharged + totalRefundableResourceFeeCharged`\n    // where `resourceFeeCharged` is the overall fee charged for the \n    // transaction. Also, `resourceFeeCharged` <= `sorobanData.resourceFee` \n    // i.e.we never charge more than the declared resource fee.\n    // The inclusion fee for charged the Soroban transaction can be found using \n    // the following equation:\n    // `result.feeCharged = resourceFeeCharged + inclusionFeeCharged`.\n\n    // Total amount (in stroops) that has been charged for non-refundable\n    // Soroban resources.\n    // Non-refundable resources are charged based on the usage declared in\n    // the transaction envelope (such as `instructions`, `readBytes` etc.) and \n    // is charged regardless of the success of the transaction.\n    int64 totalNonRefundableResourceFeeCharged;\n    // Total amount (in stroops) that has been charged for refundable\n    // Soroban resource fees.\n    // Currently this comprises the rent fee (`rentFeeCharged`) and the\n    // fee for the events and return value.\n    // Refundable resources are charged based on the actual resources usage.\n    // Since currently refundable resources are only used for the successful\n    // transactions, this will be `0` for failed transactions.\n    int64 totalRefundableResourceFeeCharged;\n    // Amount (in stroops) that has been charged for rent.\n    // This is a part of `totalRefundableResourceFeeCharged`.\n    int64 rentFeeCharged;\n};",
       "file_index": 9,
       "fields": [
         {
