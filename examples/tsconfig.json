@@ -1,0 +1,27 @@
+{
+  // Type-check context for the guide snippets in examples/guides/. These files
+  // are never built or published — they exist so docs/guides/*.md can embed
+  // real, executed code (see config/snippets.ts) — but eslint's type-aware
+  // rules need every linted file to belong to a project, so this one covers
+  // them.
+  //
+  // The snippets import "@stellar/stellar-sdk" the way a reader would; the
+  // `paths` mapping resolves that to src/, matching the alias in
+  // config/vitest.config.guides.ts that the snippets test uses at runtime.
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    // Matches tsconfig.json — src/ is compiled without tslib.
+    "importHelpers": false,
+    "lib": ["ES2022", "DOM"],
+    "module": "Node20",
+    "moduleResolution": "node16",
+    "target": "es2022",
+    "types": ["node"],
+    "typeRoots": ["../types", "../node_modules/@types"],
+    "paths": {
+      "@stellar/stellar-sdk": ["../src/index.ts"]
+    }
+  },
+  "include": ["./**/*.ts"]
+}

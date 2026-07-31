@@ -1,0 +1,530 @@
+import { describe, it, expect } from "vitest";
+import { xdr, Address, contract } from "../../../src/index.js";
+
+const { Spec } = contract;
+
+const publicKey = "GCBVOLOM32I7OD5TWZQCIXCXML3TK56MDY7ZMTAILIBQHHKPCVU42XYW";
+const addr = Address.fromString(publicKey);
+
+function param(
+  name: string,
+  type: xdr.ScSpecTypeDef,
+  location: xdr.ScSpecEventParamLocationV0,
+): xdr.ScSpecEventParamV0 {
+  return new xdr.ScSpecEventParamV0({
+    doc: "",
+    name,
+    type,
+    location,
+  });
+}
+
+const TOPIC = xdr.ScSpecEventParamLocationV0.scSpecEventParamLocationTopicList;
+const DATA = xdr.ScSpecEventParamLocationV0.scSpecEventParamLocationData;
+
+const u32Type = xdr.ScSpecTypeDef.scSpecTypeU32();
+const addrType = xdr.ScSpecTypeDef.scSpecTypeAddress();
+const i128Type = xdr.ScSpecTypeDef.scSpecTypeI128();
+
+function entryFor(event: xdr.ScSpecEventV0): xdr.ScSpecEntry {
+  return xdr.ScSpecEntry.scSpecEntryEventV0(event);
+}
+
+describe("Spec events", () => {
+  it("events() and findEvent() return event entries only", () => {
+    const event = new xdr.ScSpecEventV0({
+      doc: "",
+      lib: "",
+      name: "transfer",
+      prefixTopics: ["transfer"],
+      params: [
+        param("from", addrType, TOPIC),
+        param("to", addrType, TOPIC),
+        param("amount", i128Type, DATA),
+      ],
+      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatSingleValue,
+    });
+    const funcEntry = xdr.ScSpecEntry.scSpecEntryFunctionV0(
+      new xdr.ScSpecFunctionV0({
+        doc: "",
+        name: "transfer",
+        inputs: [],
+        outputs: [],
+      }),
+    );
+    const spec = new Spec([funcEntry, entryFor(event)]);
+
+    expect(spec.events().length).toBe(1);
+    expect(spec.events()[0].name.toString()).toBe("transfer");
+    expect(spec.findEvent("transfer")?.name.toString()).toBe("transfer");
+  });
+
+  it("findEvent returns undefined for an undeclared event", () => {
+    // Unlike findEntry, probing for an absent event is not an error — callers
+    // filtering a mixed event stream shouldn't need a try/catch.
+    const event = new xdr.ScSpecEventV0({
+      doc: "",
+      lib: "",
+      name: "transfer",
+      prefixTopics: ["transfer"],
+      params: [param("from", addrType, TOPIC)],
+      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatSingleValue,
+    });
+    const spec = new Spec([entryFor(event)]);
+
+    expect(spec.findEvent("nope")).toBeUndefined();
+    expect(() => spec.findEvent("nope")).not.toThrow();
+
+    // eventTopicFilter still throws: it builds a value, and there is no
+    // meaningful filter row for an event the contract doesn't declare.
+    expect(() => spec.eventTopicFilter("nope")).toThrow(/no such event: nope/);
+  });
+
+  it("findEvent selects among same-named events by occurrence", () => {
+    // Composed contracts can declare the same event name more than once, with
+    // different params; `occurrence` picks one in declaration order.
+    const first = new xdr.ScSpecEventV0({
+      doc: "",
+      lib: "",
+      name: "transfer",
+      prefixTopics: ["transfer"],
+      params: [param("amount", i128Type, DATA)],
+      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatSingleValue,
+    });
+    const second = new xdr.ScSpecEventV0({
+      doc: "",
+      lib: "",
+      name: "transfer",
+      prefixTopics: ["transfer"],
+      params: [param("count", u32Type, DATA)],
+      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatSingleValue,
+    });
+    const spec = new Spec([entryFor(first), entryFor(second)]);
+
+    // No occurrence means the first declaration, as before.
+    expect(spec.findEvent("transfer")?.params[0].name.toString()).toBe(
+      "amount",
+    );
+    expect(spec.findEvent("transfer", 0)?.params[0].name.toString()).toBe(
+      "amount",
+    );
+    expect(spec.findEvent("transfer", 1)?.params[0].name.toString()).toBe(
+      "count",
+    );
+
+    // Past the last declaration is a miss, not an error — same as an
+    // undeclared name.
+    expect(spec.findEvent("transfer", 2)).toBeUndefined();
+
+    // A nonsensical occurrence is a caller bug, so it throws rather than
+    // quietly returning undefined.
+    expect(() => spec.findEvent("transfer", -1)).toThrow(/invalid occurrence/);
+    expect(() => spec.findEvent("transfer", 1.5)).toThrow(/invalid occurrence/);
+  });
+
+  it("parses singleValue data format events, round-tripping natives", () => {
+    const event = new xdr.ScSpecEventV0({
+      doc: "",
+      lib: "",
+      name: "transfer",
+      prefixTopics: ["transfer"],
+      params: [
+        param("from", addrType, TOPIC),
+        param("to", addrType, TOPIC),
+        param("amount", i128Type, DATA),
+      ],
+      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatSingleValue,
+    });
+    const spec = new Spec([entryFor(event)]);
+
+    const from = Address.fromString(publicKey);
+    const to = Address.fromString(
+      "GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD",
+    );
+    const topics = [
+      xdr.ScVal.scvSymbol("transfer"),
+      from.toScVal(),
+      to.toScVal(),
+    ];
+    const data = xdr.ScVal.scvI128(new xdr.Int128Parts({ hi: 0n, lo: 12345n }));
+
+    const parsed = spec.parseEvent(topics, data);
+    expect(parsed).toEqual({
+      name: "transfer",
+      data: {
+        from: from.toString(),
+        to: to.toString(),
+        amount: 12345n,
+      },
+    });
+  });
+
+  it("parses vec data format events", () => {
+    const event = new xdr.ScSpecEventV0({
+      doc: "",
+      lib: "",
+      name: "swap",
+      prefixTopics: ["swap"],
+      params: [
+        param("who", addrType, TOPIC),
+        param("sell_amount", u32Type, DATA),
+        param("buy_amount", u32Type, DATA),
+      ],
+      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatVec,
+    });
+    const spec = new Spec([entryFor(event)]);
+
+    const who = Address.fromString(publicKey);
+    const topics = [xdr.ScVal.scvSymbol("swap"), who.toScVal()];
+    const data = xdr.ScVal.scvVec([xdr.ScVal.scvU32(10), xdr.ScVal.scvU32(20)]);
+
+    const parsed = spec.parseEvent(topics, data);
+    expect(parsed).toEqual({
+      name: "swap",
+      data: {
+        who: who.toString(),
+        sell_amount: 10,
+        buy_amount: 20,
+      },
+    });
+  });
+
+  it("parses map data format events", () => {
+    const event = new xdr.ScSpecEventV0({
+      doc: "",
+      lib: "",
+      name: "mint",
+      prefixTopics: ["mint"],
+      params: [
+        param("to", addrType, TOPIC),
+        param("amount", u32Type, DATA),
+        param("memo", u32Type, DATA),
+      ],
+      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatMap,
+    });
+    const spec = new Spec([entryFor(event)]);
+
+    const to = Address.fromString(publicKey);
+    const topics = [xdr.ScVal.scvSymbol("mint"), to.toScVal()];
+    const data = xdr.ScVal.scvMap([
+      new xdr.ScMapEntry({
+        key: xdr.ScVal.scvSymbol("amount"),
+        val: xdr.ScVal.scvU32(7),
+      }),
+      new xdr.ScMapEntry({
+        key: xdr.ScVal.scvSymbol("memo"),
+        val: xdr.ScVal.scvU32(99),
+      }),
+    ]);
+
+    const parsed = spec.parseEvent(topics, data);
+    expect(parsed).toEqual({
+      name: "mint",
+      data: {
+        to: to.toString(),
+        amount: 7,
+        memo: 99,
+      },
+    });
+  });
+
+  it("supports multiple prefix topics", () => {
+    const event = new xdr.ScSpecEventV0({
+      doc: "",
+      lib: "",
+      name: "nested_event",
+      prefixTopics: ["namespace", "nested_event"],
+      params: [param("value", u32Type, TOPIC)],
+      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatSingleValue,
+    });
+    const spec = new Spec([entryFor(event)]);
+
+    const topics = [
+      xdr.ScVal.scvSymbol("namespace"),
+      xdr.ScVal.scvSymbol("nested_event"),
+      xdr.ScVal.scvU32(5),
+    ];
+    const data = xdr.ScVal.scvVoid();
+
+    const parsed = spec.parseEvent(topics, data);
+    expect(parsed).toEqual({
+      name: "nested_event",
+      data: { value: 5 },
+    });
+  });
+
+  it("tolerates string prefix topics (SEP-48)", () => {
+    // Some contracts emit prefix topics as scvString rather than scvSymbol;
+    // SEP-48 says parsers should accept both.
+    const event = new xdr.ScSpecEventV0({
+      doc: "",
+      lib: "",
+      name: "swap",
+      prefixTopics: ["SoroswapPair", "swap"],
+      params: [param("amount", u32Type, DATA)],
+      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatSingleValue,
+    });
+    const spec = new Spec([entryFor(event)]);
+
+    const topics = [
+      xdr.ScVal.scvString("SoroswapPair"),
+      xdr.ScVal.scvSymbol("swap"),
+    ];
+    const parsed = spec.parseEvent(topics, xdr.ScVal.scvU32(5));
+    expect(parsed).toEqual({
+      name: "swap",
+      data: { amount: 5 },
+    });
+  });
+
+  it("tolerates trailing undeclared topics (SAC asset topic)", () => {
+    // SAC events carry a trailing SEP-11 asset topic that the token event
+    // declarations deliberately leave undeclared, so the emitted topic count
+    // exceeds the declared count.
+    const event = new xdr.ScSpecEventV0({
+      doc: "",
+      lib: "",
+      name: "transfer",
+      prefixTopics: ["transfer"],
+      params: [param("from", addrType, TOPIC), param("to", addrType, TOPIC)],
+      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatSingleValue,
+    });
+    const spec = new Spec([entryFor(event)]);
+
+    const from = Address.fromString(publicKey);
+    const to = Address.fromString(
+      "GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD",
+    );
+    const topics = [
+      xdr.ScVal.scvSymbol("transfer"),
+      from.toScVal(),
+      to.toScVal(),
+      xdr.ScVal.scvString("native"), // trailing undeclared asset topic
+    ];
+    const parsed = spec.parseEvent(topics, xdr.ScVal.scvVoid());
+    expect(parsed).toEqual({
+      name: "transfer",
+      data: {
+        from: from.toString(),
+        to: to.toString(),
+      },
+    });
+  });
+
+  it("returns undefined for non-matching topics", () => {
+    const event = new xdr.ScSpecEventV0({
+      doc: "",
+      lib: "",
+      name: "transfer",
+      prefixTopics: ["transfer"],
+      params: [param("from", addrType, TOPIC)],
+      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatSingleValue,
+    });
+    const spec = new Spec([entryFor(event)]);
+
+    // Wrong prefix symbol
+    const wrongPrefix = [xdr.ScVal.scvSymbol("not_transfer"), addr.toScVal()];
+    expect(spec.parseEvent(wrongPrefix, xdr.ScVal.scvVoid())).toBeUndefined();
+
+    // Wrong topic count
+    const wrongCount = [xdr.ScVal.scvSymbol("transfer")];
+    expect(spec.parseEvent(wrongCount, xdr.ScVal.scvVoid())).toBeUndefined();
+  });
+
+  it("returns undefined instead of throwing on malformed base64 XDR input", () => {
+    const event = new xdr.ScSpecEventV0({
+      doc: "",
+      lib: "",
+      name: "transfer",
+      prefixTopics: ["transfer"],
+      params: [param("from", addrType, TOPIC)],
+      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatSingleValue,
+    });
+    const spec = new Spec([entryFor(event)]);
+
+    expect(() =>
+      spec.parseEvent(["not valid base64 xdr!!"], xdr.ScVal.scvVoid()),
+    ).not.toThrow();
+    expect(
+      spec.parseEvent(["not valid base64 xdr!!"], xdr.ScVal.scvVoid()),
+    ).toBeUndefined();
+
+    const validTopics = [
+      xdr.ScVal.scvSymbol("transfer").toXdr("base64"),
+      addr.toScVal().toXdr("base64"),
+    ];
+    expect(() =>
+      spec.parseEvent(validTopics, "also not valid base64 xdr!!"),
+    ).not.toThrow();
+    expect(
+      spec.parseEvent(validTopics, "also not valid base64 xdr!!"),
+    ).toBeUndefined();
+  });
+
+  it("returns undefined instead of throwing on malformed event data", () => {
+    const vecEvent = new xdr.ScSpecEventV0({
+      doc: "",
+      lib: "",
+      name: "swap",
+      prefixTopics: ["swap"],
+      params: [
+        param("who", addrType, TOPIC),
+        param("sell_amount", u32Type, DATA),
+        param("buy_amount", u32Type, DATA),
+      ],
+      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatVec,
+    });
+    const mapEvent = new xdr.ScSpecEventV0({
+      doc: "",
+      lib: "",
+      name: "mint",
+      prefixTopics: ["mint"],
+      params: [param("to", addrType, TOPIC), param("amount", u32Type, DATA)],
+      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatMap,
+    });
+    const spec = new Spec([entryFor(vecEvent), entryFor(mapEvent)]);
+
+    // vec data shorter than the declared data params
+    const swapTopics = [xdr.ScVal.scvSymbol("swap"), addr.toScVal()];
+    const shortVec = xdr.ScVal.scvVec([xdr.ScVal.scvU32(10)]);
+    expect(spec.parseEvent(swapTopics, shortVec)).toBeUndefined();
+
+    // vec data of entirely the wrong ScVal type
+    expect(spec.parseEvent(swapTopics, xdr.ScVal.scvU32(1))).toBeUndefined();
+
+    // map data with a non-symbol key does not throw; the param is omitted
+    const mintTopics = [xdr.ScVal.scvSymbol("mint"), addr.toScVal()];
+    const weirdMap = xdr.ScVal.scvMap([
+      new xdr.ScMapEntry({
+        key: xdr.ScVal.scvU32(0),
+        val: xdr.ScVal.scvU32(7),
+      }),
+    ]);
+    const parsed = spec.parseEvent(mintTopics, weirdMap);
+    expect(parsed).toEqual({
+      name: "mint",
+      data: { to: addr.toString() },
+    });
+  });
+
+  it("falls through to a later matching event when the first fails to decode", () => {
+    // Two events with identical prefix topics and topic arity; the first
+    // declares vec data, the second singleValue. A non-vec data payload
+    // should skip the first and match the second.
+    const first = new xdr.ScSpecEventV0({
+      doc: "",
+      lib: "",
+      name: "first",
+      prefixTopics: ["evt"],
+      params: [param("a", u32Type, DATA), param("b", u32Type, DATA)],
+      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatVec,
+    });
+    const second = new xdr.ScSpecEventV0({
+      doc: "",
+      lib: "",
+      name: "second",
+      prefixTopics: ["evt"],
+      params: [param("value", u32Type, DATA)],
+      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatSingleValue,
+    });
+    const spec = new Spec([entryFor(first), entryFor(second)]);
+
+    const parsed = spec.parseEvent(
+      [xdr.ScVal.scvSymbol("evt")],
+      xdr.ScVal.scvU32(9),
+    );
+    expect(parsed).toEqual({
+      name: "second",
+      data: { value: 9 },
+    });
+  });
+
+  it("accepts base64 XDR strings for topics and data", () => {
+    const event = new xdr.ScSpecEventV0({
+      doc: "",
+      lib: "",
+      name: "transfer",
+      prefixTopics: ["transfer"],
+      params: [param("from", addrType, TOPIC), param("amount", u32Type, DATA)],
+      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatSingleValue,
+    });
+    const spec = new Spec([entryFor(event)]);
+
+    const topics = [
+      xdr.ScVal.scvSymbol("transfer").toXdr("base64"),
+      addr.toScVal().toXdr("base64"),
+    ];
+    const data = xdr.ScVal.scvU32(42).toXdr("base64");
+
+    const parsed = spec.parseEvent(topics, data);
+    expect(parsed).toEqual({
+      name: "transfer",
+      data: {
+        from: addr.toString(),
+        amount: 42,
+      },
+    });
+  });
+
+  it("does not pollute the prototype for a param named __proto__", () => {
+    // Param names come from an untrusted on-chain contract spec; a param
+    // literally named "__proto__" must be stored as an own property, not
+    // interpreted as a prototype assignment.
+    const event = new xdr.ScSpecEventV0({
+      doc: "",
+      lib: "",
+      name: "evil",
+      prefixTopics: ["evil"],
+      params: [param("__proto__", u32Type, DATA)],
+      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatSingleValue,
+    });
+    const spec = new Spec([entryFor(event)]);
+
+    const topics = [xdr.ScVal.scvSymbol("evil")];
+    const data = xdr.ScVal.scvU32(1337);
+
+    const parsed = spec.parseEvent(topics, data);
+    expect(parsed).toBeDefined();
+    expect(
+      Object.prototype.hasOwnProperty.call(parsed!.data, "__proto__"),
+    ).toBe(true);
+    expect((parsed!.data as any).__proto__).toBe(1337);
+    expect(({} as any).polluted).toBeUndefined();
+  });
+
+  it("builds eventTopicFilter with and without provided values", () => {
+    const event = new xdr.ScSpecEventV0({
+      doc: "",
+      lib: "",
+      name: "transfer",
+      prefixTopics: ["transfer"],
+      params: [
+        param("from", addrType, TOPIC),
+        param("to", addrType, TOPIC),
+        param("amount", i128Type, DATA),
+      ],
+      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatSingleValue,
+    });
+    const spec = new Spec([entryFor(event)]);
+
+    // No values provided: wildcard for both topic-list params
+    const filterAll = spec.eventTopicFilter("transfer");
+    expect(filterAll.length).toBe(3);
+    expect(xdr.ScVal.fromXdr(filterAll[0], "base64").value.toString()).toBe(
+      "transfer",
+    );
+    expect(filterAll[1]).toBe("*");
+    expect(filterAll[2]).toBe("*");
+
+    // Provide a value for "from" only
+    const filterPartial = spec.eventTopicFilter("transfer", {
+      from: publicKey,
+    });
+    expect(filterPartial[1]).not.toBe("*");
+    const decoded = xdr.ScVal.fromXdr(filterPartial[1], "base64");
+    expect(Address.fromScVal(decoded).toString()).toBe(publicKey);
+    expect(filterPartial[2]).toBe("*");
+
+    expect(() => spec.eventTopicFilter("nonexistent")).toThrow();
+  });
+});

@@ -28,7 +28,6 @@
     "isolatedModules": true,
     "noEmit": true,
     "rootDir": "../",
-    "baseUrl": "./",
     "paths": {
       "@/*": ["../src/*"]
     },

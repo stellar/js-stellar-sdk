@@ -2,7 +2,8 @@ import { describe, it, expect, beforeAll, assert } from "vitest";
 import { base64ToUint8Array } from "uint8array-extras";
 import spec from "../spec.json";
 import specStream from "../spec_stream.json";
-import { xdr, Address, contract } from "../../../src/index.js";
+import { xdr, Address, Contract, contract } from "../../../src/index.js";
+import type { JSONSchema7 } from "json-schema";
 import type { Spec } from "../../../src/contract/spec.js";
 
 const publicKey = "GCBVOLOM32I7OD5TWZQCIXCXML3TK56MDY7ZMTAILIBQHHKPCVU42XYW";
@@ -323,7 +324,6 @@ describe("Can round trip custom types", () => {
     }
 
     args.forEach((arg) => {
-      // @ts-expect-error generated test data is untyped
       const res = arg.args;
       try {
         const scVals = SPEC.funcArgsToScVals(funcName, res);
@@ -345,8 +345,7 @@ describe("Can round trip custom types", () => {
 
           "\n",
           JSON.stringify(
-            // @ts-expect-error generated test data is untyped
-            funcSpec.definitions![funcName].properties,
+            (funcSpec.definitions![funcName] as JSONSchema7).properties,
             null,
             2,
           ),
@@ -559,6 +558,447 @@ describe("Can round trip custom types", () => {
     const arg = [{ a: 0, b: true, c: "hello" }, { tag: "First" }] as const;
 
     roundtrip("tuple_strukt", arg);
+  });
+});
+
+describe("Spec nativeToScVal with scSpecTypeVal", () => {
+  it("converts a string to scvString", () => {
+    const scv = SPEC.nativeToScVal("hello", xdr.ScSpecTypeDef.scSpecTypeVal());
+    expect(scv.type).toBe("scvString");
+    expect(scv.value?.toString()).toBe("hello");
+  });
+
+  it("converts a Stellar address string to scvString (no address guessing)", () => {
+    // Strings are always scvString for Val; pass an Address object for scvAddress
+    const scv = SPEC.nativeToScVal(
+      publicKey,
+      xdr.ScSpecTypeDef.scSpecTypeVal(),
+    );
+    expect(scv.type).toBe("scvString");
+  });
+
+  it("converts a small number to scvU64 (smallest fitting type)", () => {
+    const scv = SPEC.nativeToScVal(42, xdr.ScSpecTypeDef.scSpecTypeVal());
+    expect(scv.type).toBe("scvU64");
+  });
+
+  it("converts a small bigint to scvU64 (smallest fitting type)", () => {
+    const scv = SPEC.nativeToScVal(42n, xdr.ScSpecTypeDef.scSpecTypeVal());
+    expect(scv.type).toBe("scvU64");
+  });
+
+  it("converts a u128-range bigint to scvU128", () => {
+    const val = 1n << 127n;
+    const scv = SPEC.nativeToScVal(val, xdr.ScSpecTypeDef.scSpecTypeVal());
+    expect(scv.type).toBe("scvU128");
+  });
+
+  it("converts a negative i128-range bigint to scvI128", () => {
+    const val = -(1n << 127n);
+    const scv = SPEC.nativeToScVal(val, xdr.ScSpecTypeDef.scSpecTypeVal());
+    expect(scv.type).toBe("scvI128");
+  });
+
+  it("converts a u256-range bigint to scvU256", () => {
+    const val = 1n << 200n;
+    const scv = SPEC.nativeToScVal(val, xdr.ScSpecTypeDef.scSpecTypeVal());
+    expect(scv.type).toBe("scvU256");
+  });
+
+  it("converts a zero bigint to scvU64", () => {
+    const scv = SPEC.nativeToScVal(0n, xdr.ScSpecTypeDef.scSpecTypeVal());
+    expect(scv.type).toBe("scvU64");
+  });
+
+  it("converts a boolean to scvBool", () => {
+    const scv = SPEC.nativeToScVal(true, xdr.ScSpecTypeDef.scSpecTypeVal());
+    expect(scv.type).toBe("scvBool");
+    expect(scv.value).toBe(true);
+
+    const scv2 = SPEC.nativeToScVal(false, xdr.ScSpecTypeDef.scSpecTypeVal());
+    expect(scv2.type).toBe("scvBool");
+    expect(scv2.value).toBe(false);
+  });
+
+  it("converts null to scvVoid", () => {
+    const scv = SPEC.nativeToScVal(null, xdr.ScSpecTypeDef.scSpecTypeVal());
+    expect(scv.type).toBe("scvVoid");
+  });
+
+  it("converts undefined to scvVoid (Val can carry void)", () => {
+    const scv = SPEC.nativeToScVal(
+      undefined,
+      xdr.ScSpecTypeDef.scSpecTypeVal(),
+    );
+    expect(scv.type).toBe("scvVoid");
+  });
+
+  it("converts an array to scvVec", () => {
+    const scv = SPEC.nativeToScVal(
+      [1, 2, 3],
+      xdr.ScSpecTypeDef.scSpecTypeVal(),
+    );
+    expect(scv.type).toBe("scvVec");
+    const vec = scv.value ?? [];
+    expect(vec.length).toBe(3);
+  });
+
+  it("converts a mixed array to scvVec", () => {
+    const scv = SPEC.nativeToScVal(
+      ["hello", 42, true],
+      xdr.ScSpecTypeDef.scSpecTypeVal(),
+    );
+    expect(scv.type).toBe("scvVec");
+    const vec = scv.value ?? [];
+    expect(vec.length).toBe(3);
+    expect(vec[0]?.type).toBe("scvString");
+    expect(vec[1]?.type).toBe("scvU64");
+    expect(vec[2]?.type).toBe("scvBool");
+  });
+
+  it("converts a nested array to scvVec of scvVec", () => {
+    const scv = SPEC.nativeToScVal(
+      [
+        [1, 2],
+        [3, 4],
+      ],
+      xdr.ScSpecTypeDef.scSpecTypeVal(),
+    );
+    expect(scv.type).toBe("scvVec");
+    const outer = scv.value ?? [];
+    expect(outer.length).toBe(2);
+    expect(outer[0]?.type).toBe("scvVec");
+    expect(outer[1]?.type).toBe("scvVec");
+  });
+
+  it("converts a Map to scvMap", () => {
+    const m = new Map<string, any>();
+    m.set("key1", "value1");
+    m.set("key2", 42);
+    const scv = SPEC.nativeToScVal(m, xdr.ScSpecTypeDef.scSpecTypeVal());
+    expect(scv.type).toBe("scvMap");
+    const entries = scv.value ?? [];
+    expect(entries.length).toBe(2);
+  });
+
+  it("converts a plain object to scvMap with string keys", () => {
+    const scv = SPEC.nativeToScVal(
+      { a: 1, b: "hello" },
+      xdr.ScSpecTypeDef.scSpecTypeVal(),
+    );
+    expect(scv.type).toBe("scvMap");
+    const entries = scv.value ?? [];
+    expect(entries.length).toBe(2);
+    // base nativeToScVal uses scvString for plain object keys
+    const keyNames = entries.map((e) => e.key.value.toString()).sort();
+    expect(keyNames).toEqual(["a", "b"]);
+    // Value types should be correct
+    const entryA = entries.find((e) => e.key.value.toString() === "a");
+    expect(entryA?.val.type).toBe("scvU64");
+  });
+
+  it("converts a plain object with keys in non-sorted order to a sorted scvMap", () => {
+    // Soroban requires map keys to be sorted; verify the output is sorted
+    const scv = SPEC.nativeToScVal(
+      { z: 1, a: 2, m: 3 },
+      xdr.ScSpecTypeDef.scSpecTypeVal(),
+    );
+    expect(scv.type).toBe("scvMap");
+    const entries = scv.value ?? [];
+    const keys = entries.map((e) => e.key.value.toString());
+    expect(keys).toEqual(["a", "m", "z"]);
+  });
+
+  it("converts a nested plain object to scvMap of scvMap", () => {
+    const scv = SPEC.nativeToScVal(
+      { outer: { inner: 42 } },
+      xdr.ScSpecTypeDef.scSpecTypeVal(),
+    );
+    expect(scv.type).toBe("scvMap");
+    const outerEntries = scv.value ?? [];
+    expect(outerEntries.length).toBe(1);
+    const innerVal = outerEntries[0]?.val;
+    expect(innerVal?.type).toBe("scvMap");
+    const innerEntries = innerVal?.value ?? [];
+    expect(innerEntries.length).toBe(1);
+    expect(innerEntries[0]?.val.type).toBe("scvU64");
+  });
+
+  it("converts a plain object with 'constructor' key to scvMap (not shadowed)", () => {
+    const scv = SPEC.nativeToScVal(
+      { constructor: "x", name: "test" },
+      xdr.ScSpecTypeDef.scSpecTypeVal(),
+    );
+    expect(scv.type).toBe("scvMap");
+    const entries = scv.value ?? [];
+    expect(entries.length).toBe(2);
+    // Verify the keys are preserved as-is
+    const keys = entries.map((e) => e.key.value.toString()).sort();
+    expect(keys).toEqual(["constructor", "name"]);
+  });
+
+  it("converts an empty plain object to empty scvMap", () => {
+    const scv = SPEC.nativeToScVal({}, xdr.ScSpecTypeDef.scSpecTypeVal());
+    expect(scv.type).toBe("scvMap");
+    const entries = scv.value ?? [];
+    expect(entries.length).toBe(0);
+  });
+
+  it("converts an Address object to scvAddress", () => {
+    const scv = SPEC.nativeToScVal(addr, xdr.ScSpecTypeDef.scSpecTypeVal());
+    expect(scv.type).toBe("scvAddress");
+  });
+
+  it("converts a Contract object to scvAddress", () => {
+    const contractId =
+      "CA3D5KRYM6CB7OWQ6TWYRR3Z4T7GNZLKERYNZGGA5SOAOPIFY6YQGAXE";
+    const contractObj = new Contract(contractId);
+    const scv = SPEC.nativeToScVal(
+      contractObj,
+      xdr.ScSpecTypeDef.scSpecTypeVal(),
+    );
+    expect(scv.type).toBe("scvAddress");
+  });
+
+  it("passes through an existing ScVal", () => {
+    const existing = xdr.ScVal.scvU32(99);
+    const scv = SPEC.nativeToScVal(existing, xdr.ScSpecTypeDef.scSpecTypeVal());
+    expect(scv.type).toBe("scvU32");
+    expect(scv.value).toBe(99);
+  });
+
+  it("converts Uint8Array to scvBytes", () => {
+    const data = new Uint8Array([0, 1, 2, 3]);
+    const scv = SPEC.nativeToScVal(data, xdr.ScSpecTypeDef.scSpecTypeVal());
+    expect(scv.type).toBe("scvBytes");
+  });
+
+  it("works with funcArgsToScVals for val-typed function inputs", () => {
+    // Create a spec with a function that takes a val-typed input
+    const funcSpec = xdr.ScSpecEntry.scSpecEntryFunctionV0(
+      new xdr.ScSpecFunctionV0({
+        doc: "Takes a val",
+        name: "takes_val",
+        inputs: [
+          new xdr.ScSpecFunctionInputV0({
+            doc: "",
+            name: "some_val",
+            type: xdr.ScSpecTypeDef.scSpecTypeVal(),
+          }),
+        ],
+        outputs: [],
+      }),
+    );
+    const localSpec = new contract.Spec([funcSpec.toXdr("base64")]);
+
+    // Test with a string
+    const scVals = localSpec.funcArgsToScVals("takes_val", {
+      some_val: "hello",
+    });
+    expect(scVals.length).toBe(1);
+    expect(scVals[0].type).toBe("scvString");
+    expect(scVals[0].value?.toString()).toBe("hello");
+
+    // Test with a number
+    const scVals2 = localSpec.funcArgsToScVals("takes_val", { some_val: 42 });
+    expect(scVals2.length).toBe(1);
+    expect(scVals2[0].type).toBe("scvU64");
+
+    // Test with a boolean
+    const scVals3 = localSpec.funcArgsToScVals("takes_val", {
+      some_val: true,
+    });
+    expect(scVals3.length).toBe(1);
+    expect(scVals3[0].type).toBe("scvBool");
+    expect(scVals3[0].value).toBe(true);
+
+    // Strings are always scvString for Val — pass Address object for scvAddress
+    const scVals4 = localSpec.funcArgsToScVals("takes_val", {
+      some_val: publicKey,
+    });
+    expect(scVals4.length).toBe(1);
+    expect(scVals4[0].type).toBe("scvString");
+
+    // Test with a plain object — string keys, sorted
+    const scVals5 = localSpec.funcArgsToScVals("takes_val", {
+      some_val: { x: 1, y: 2 },
+    });
+    expect(scVals5.length).toBe(1);
+    expect(scVals5[0].type).toBe("scvMap");
+    const entries = scVals5[0].value ?? [];
+    expect(entries.length).toBe(2);
+    const keys = entries.map((e) => e.key.value.toString()).sort();
+    expect(keys).toEqual(["x", "y"]);
+
+    // Test with undefined — should produce scvVoid
+    const scVals6 = localSpec.funcArgsToScVals("takes_val", {
+      some_val: undefined,
+    });
+    expect(scVals6.length).toBe(1);
+    expect(scVals6[0].type).toBe("scvVoid");
+
+    // Test with an Address object — should produce scvAddress
+    const scVals7 = localSpec.funcArgsToScVals("takes_val", {
+      some_val: addr,
+    });
+    expect(scVals7.length).toBe(1);
+    expect(scVals7[0].type).toBe("scvAddress");
+    expect(scVals7[0].toXdr("base64")).toEqual(addr.toScVal().toXdr("base64"));
+  });
+});
+
+describe("Spec scValToNative with scSpecTypeVal", () => {
+  const valType = xdr.ScSpecTypeDef.scSpecTypeVal();
+
+  it("converts scvString to string", () => {
+    const native = SPEC.scValToNative(xdr.ScVal.scvString("hello"), valType);
+    expect(native).toBe("hello");
+  });
+
+  it("converts scvSymbol to string", () => {
+    const native = SPEC.scValToNative(xdr.ScVal.scvSymbol("transfer"), valType);
+    expect(native).toBe("transfer");
+  });
+
+  it("converts scvU32 to number", () => {
+    const native = SPEC.scValToNative(xdr.ScVal.scvU32(42), valType);
+    expect(native).toBe(42);
+  });
+
+  it("converts scvU64 to bigint", () => {
+    const native = SPEC.scValToNative(xdr.ScVal.scvU64(42n), valType);
+    expect(native).toBe(42n);
+  });
+
+  it("converts scvBool to boolean", () => {
+    expect(SPEC.scValToNative(xdr.ScVal.scvBool(true), valType)).toBe(true);
+    expect(SPEC.scValToNative(xdr.ScVal.scvBool(false), valType)).toBe(false);
+  });
+
+  it("converts scvVoid to null", () => {
+    expect(SPEC.scValToNative(xdr.ScVal.scvVoid(), valType)).toBe(null);
+  });
+
+  it("converts scvAddress to address string", () => {
+    const native = SPEC.scValToNative(addr.toScVal(), valType);
+    expect(native).toBe(publicKey);
+  });
+
+  it("converts scvBytes to Uint8Array", () => {
+    const native: Uint8Array = SPEC.scValToNative(
+      xdr.ScVal.scvBytes(new Uint8Array([0, 1, 2, 3])),
+      valType,
+    );
+    expect(Uint8Array.from(native)).toEqual(new Uint8Array([0, 1, 2, 3]));
+  });
+
+  it("converts scvVec with mixed elements to a mixed array", () => {
+    const scv = xdr.ScVal.scvVec([
+      addr.toScVal(),
+      xdr.ScVal.scvU32(7),
+      xdr.ScVal.scvSymbol("do_thing"),
+    ]);
+    const native = SPEC.scValToNative(scv, valType);
+    expect(native).toEqual([publicKey, 7, "do_thing"]);
+  });
+
+  it("converts scvMap to a plain object", () => {
+    const scv = xdr.ScVal.scvMap([
+      new xdr.ScMapEntry({
+        key: xdr.ScVal.scvSymbol("a"),
+        val: xdr.ScVal.scvU32(1),
+      }),
+      new xdr.ScMapEntry({
+        key: xdr.ScVal.scvSymbol("b"),
+        val: xdr.ScVal.scvString("two"),
+      }),
+    ]);
+    const native = SPEC.scValToNative(scv, valType);
+    expect(native).toEqual({ a: 1, b: "two" });
+  });
+
+  it("decodes a Vec<Val> typed as scSpecTypeVec(Val) element-by-element", () => {
+    // This is the exact shape from issue #1498: a Vec<Val> field whose
+    // elements are heterogeneous (e.g. an Address and a u32)
+    const vecOfVal = xdr.ScSpecTypeDef.scSpecTypeVec(
+      new xdr.ScSpecTypeVec({ elementType: valType }),
+    );
+    const scv = xdr.ScVal.scvVec([
+      addr.toScVal(),
+      xdr.ScVal.scvU32(3),
+      xdr.ScVal.scvSymbol("execute"),
+    ]);
+    const native = SPEC.scValToNative(scv, vecOfVal);
+    expect(native).toEqual([publicKey, 3, "execute"]);
+  });
+
+  it("decodes a struct containing a Vec<Val> field (issue #1498)", () => {
+    // Mirrors the OutcomeContract struct from the issue:
+    //   struct OutcomeContract { address: Address, execute_fn: Symbol, args: Vec<Val> }
+    const structEntry = xdr.ScSpecEntry.scSpecEntryUdtStructV0(
+      new xdr.ScSpecUdtStructV0({
+        doc: "",
+        lib: "",
+        name: "OutcomeContract",
+        fields: [
+          new xdr.ScSpecUdtStructFieldV0({
+            doc: "",
+            name: "address",
+            type: xdr.ScSpecTypeDef.scSpecTypeAddress(),
+          }),
+          new xdr.ScSpecUdtStructFieldV0({
+            doc: "",
+            name: "args",
+            type: xdr.ScSpecTypeDef.scSpecTypeVec(
+              new xdr.ScSpecTypeVec({ elementType: valType }),
+            ),
+          }),
+          new xdr.ScSpecUdtStructFieldV0({
+            doc: "",
+            name: "execute_fn",
+            type: xdr.ScSpecTypeDef.scSpecTypeSymbol(),
+          }),
+        ],
+      }),
+    );
+    const funcEntry = xdr.ScSpecEntry.scSpecEntryFunctionV0(
+      new xdr.ScSpecFunctionV0({
+        doc: "",
+        name: "get_outcome",
+        inputs: [],
+        outputs: [
+          xdr.ScSpecTypeDef.scSpecTypeUdt(
+            new xdr.ScSpecTypeUdt({ name: "OutcomeContract" }),
+          ),
+        ],
+      }),
+    );
+    const localSpec = new contract.Spec([
+      structEntry.toXdr("base64"),
+      funcEntry.toXdr("base64"),
+    ]);
+
+    const scv = xdr.ScVal.scvMap([
+      new xdr.ScMapEntry({
+        key: xdr.ScVal.scvSymbol("address"),
+        val: addr.toScVal(),
+      }),
+      new xdr.ScMapEntry({
+        key: xdr.ScVal.scvSymbol("args"),
+        val: xdr.ScVal.scvVec([addr.toScVal(), xdr.ScVal.scvU32(5)]),
+      }),
+      new xdr.ScMapEntry({
+        key: xdr.ScVal.scvSymbol("execute_fn"),
+        val: xdr.ScVal.scvSymbol("release_funds"),
+      }),
+    ]);
+
+    const native = localSpec.funcResToNative("get_outcome", scv);
+    expect(native).toEqual({
+      address: publicKey,
+      args: [publicKey, 5],
+      execute_fn: "release_funds",
+    });
   });
 });
 

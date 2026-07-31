@@ -6,15 +6,25 @@ import {
   Address,
   Contract,
   scValToBigInt,
+  nativeToScVal,
+  scValToNative,
 } from "../base/index.js";
 import { Ok, Err } from "./rust_result.js";
 import { processSpecEntryStream } from "./utils.js";
 import { specFromWasm } from "./wasm_spec_parser.js";
 import {
+  events as eventsImpl,
+  findEvent as findEventImpl,
+  parseEvent as parseEventImpl,
+  eventTopicFilter as eventTopicFilterImpl,
+  type ParsedEvent,
+} from "./event_spec.js";
+import {
   Int32,
   ScBytes,
   ScMapEntry,
   ScSpecEntry,
+  ScSpecEventV0,
   ScSpecFunctionInputV0,
   ScSpecFunctionV0,
   ScSpecTypeDef,
@@ -31,6 +41,8 @@ import {
   Uint64,
   XdrString,
 } from "../xdr/index.js";
+
+export type { ParsedEvent };
 
 export interface Union<T> {
   tag: string;
@@ -695,6 +707,16 @@ export class Spec {
       }
       return this.nativeToScVal(val, opt.valueType);
     }
+
+    // Delegate scSpecTypeVal to the base nativeToScVal helper, which handles
+    // strings, numbers/bigints (via ScInt), booleans, null/undefined, arrays,
+    // plain objects (sorted), Map, Address, Contract, Uint8Array, and ScVal
+    // passthroughs — keeping this in one place so the two code paths can't
+    // drift apart over time.
+    if (tyType === "scSpecTypeVal") {
+      return nativeToScVal(val);
+    }
+
     switch (typeof val) {
       case "object": {
         if (val === null) {
@@ -809,7 +831,8 @@ export class Spec {
           return ScVal.scvMap(entries);
         }
 
-        if ((val.constructor?.name ?? "") !== "Object") {
+        const proto = Object.getPrototypeOf(val);
+        if (proto !== Object.prototype && proto !== null) {
           throw new TypeError(
             `cannot interpret ${
               val.constructor?.name
@@ -1010,6 +1033,13 @@ export class Spec {
       return this.scValUdtToNative(scv, typeDef.value);
     }
 
+    // Delegate scSpecTypeVal to the base scValToNative helper, mirroring the
+    // encoding side (nativeToScVal above): a `Val` field carries no type
+    // information, so decode each value to its natural native representation.
+    if (tyType === "scSpecTypeVal") {
+      return scValToNative(scv) as T;
+    }
+
     switch (scv.type) {
       case "scvVoid":
         return null as T;
@@ -1194,6 +1224,113 @@ export class Spec {
     return this.entries
       .filter((entry) => entry.type === "scSpecEntryUdtErrorEnumV0")
       .flatMap((entry) => (entry.value as ScSpecUdtErrorEnumV0).cases);
+  }
+
+  /**
+   * Gets the SEP-48 event spec entries from the spec.
+   *
+   * @returns all contract events
+   */
+  events(): ScSpecEventV0[] {
+    return eventsImpl(this.entries);
+  }
+
+  /**
+   * Finds the XDR event spec for the given event name.
+   *
+   * Unlike {@link Spec.findEntry}, a missing event is not an error: this
+   * returns `undefined` so callers can probe a contract for an event without
+   * wrapping the call in a `try`.
+   *
+   * @param name - the name of the event
+   * @param occurrence - (optional) 0-based index among same-named events, in
+   *        declaration order, for contracts that declare the same event name
+   *        more than once (defaults to the first)
+   * @returns the event spec, or `undefined` if the contract declares no event
+   *          with that name (at that occurrence)
+   *
+   * @throws if `occurrence` is not a non-negative integer
+   *
+   * @example
+   * ```ts
+   * if (contractSpec.findEvent("transfer")) {
+   *   // the contract declares a "transfer" event
+   * }
+   * ```
+   */
+  findEvent(name: string, occurrence?: number): ScSpecEventV0 | undefined {
+    return findEventImpl(this.entries, name, occurrence);
+  }
+
+  /**
+   * Attempts to parse an emitted contract event (its topics and data) using
+   * the event specs (SEP-48) declared in this contract's spec.
+   *
+   * An event's topics are `[...prefixTopics, ...topicListParamValues]` (in
+   * that order), and its data is decoded according to the event's
+   * `dataFormat` (`singleValue`, `vec`, or `map`).
+   *
+   * @param topics - the event's topics, as `ScVal[]` or base64 XDR strings
+   * @param data - the event's data, as an `ScVal` or a base64 XDR string
+   * @returns the parsed event (its name plus all decoded params — topic-list
+   *          and data-located alike — merged into `data`), or `undefined` if
+   *          no event spec matches (e.g. when filtering a mixed stream of
+   *          events from multiple contracts/specs)
+   *
+   * Note that matching compares only the prefix topics and the topic count;
+   * if two event specs share both (in particular, events with no prefix
+   * topics match on arity alone), the first declared spec whose values
+   * decode successfully wins.
+   *
+   * @example
+   * ```ts
+   * const parsed = contractSpec.parseEvent(response.topic, response.value);
+   * if (parsed) {
+   *   console.log(parsed.name, parsed.data);
+   * }
+   * ```
+   */
+  parseEvent(
+    topics: ScVal[] | string[],
+    data: ScVal | string,
+  ): ParsedEvent | undefined {
+    return parseEventImpl(this, this.entries, topics, data);
+  }
+
+  /**
+   * Builds a `getEvents` topic filter (a single row of `Api.EventFilter.topics`)
+   * for the named event: base64-encoded `scvSymbol`s for the event's prefix
+   * topics, followed by one entry per topic-list param — either the
+   * base64-encoded ScVal for a value supplied in `topicValues`, or the
+   * wildcard `"*"`.
+   *
+   * @param name - the name of the event
+   * @param topicValues - (optional) native values for topic-list params, keyed by param name
+   * @param occurrence - (optional) 0-based index among same-named events, in
+   *        declaration order, for contracts that declare the same event name
+   *        more than once (defaults to the first)
+   * @returns a single topic filter row
+   *
+   * @throws if no event with the given name (at the given occurrence) exists,
+   *         or if `occurrence` is not a non-negative integer
+   *
+   * @example
+   * ```ts
+   * const topics = contractSpec.eventTopicFilter('transfer', { to: someAddress });
+   * ```
+   */
+  eventTopicFilter(
+    name: string,
+    topicValues?: Record<string, any>,
+    occurrence?: number,
+  ): string[] {
+    return eventTopicFilterImpl(
+      this,
+      this.entries,
+      name,
+      topicValues,
+      occurrence,
+    );
   }
 
   /**

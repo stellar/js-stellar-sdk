@@ -1,8 +1,6 @@
-
 # Changelog
 
 A breaking change will get clearly marked in this log.
-
 
 ## Unreleased
 
@@ -11,25 +9,66 @@ A breaking change will get clearly marked in this log.
 * The XDR layer now consumes the runtime from `@stellar/js-xdr` v5 instead of the vendored in-tree copy. The v4 `Reader` and `Writer` classes are no longer re-exported from the SDK; the `Reader`/`Writer` re-exported from `xdr` are now the v5 implementations. Code that imported the v4 `Reader`/`Writer` (directly from `@stellar/js-xdr@4` or via the SDK) must migrate to the v5 API. See [`docs/XDR_MIGRATION.md`](./docs/XDR_MIGRATION.md#14-removed-v4-reader--writer-exports).
 
 ### Added
-- `rpc.Server.queryContract<T>(contractId, method, args?, networkPassphrase?)`: a one-line read-only contract call that builds a client, simulates the method, and returns `{ result, isReadCall }` — the spec-decoded return value plus whether this specific call is a signature-free read that wrote no state (per-call, reflecting the given `args`). No manual transaction assembly, signing, or submission. Works for both Wasm contracts and built-in Stellar Asset Contracts (SACs) ([#1502](https://github.com/stellar/js-stellar-sdk/pull/1502)).
-- `rpc.Server.getContractMethods(contractId, networkPassphrase?)`: lists a contract's callable methods and their signatures (name, inputs, outputs, and doc string) for discovery and tooling, without invoking or simulating anything. Adds the `Api.ContractMethod` and `Api.ContractMethodInput` types ([#1502](https://github.com/stellar/js-stellar-sdk/pull/1502)).
-- `rpc.Server.getContractInstance(contractId)`: returns a contract's `xdr.ScContractInstance` (its executable and instance storage) ([#1501](https://github.com/stellar/js-stellar-sdk/pull/1501)).
 - `rpc.Server.getExternalRefWasmHash(ref)`: resolves a CAP-85 external executable reference to the 32-byte Wasm hash it names, by reading the persistent tag entry on the owner contract ([#1577](https://github.com/stellar/js-stellar-sdk/pull/1577)).
-- `contract.Client.from`, `fromWasm`, and `fromWasmHash` are now generic (`<T>`) and return `Client & T`, giving typed, autocompleted contract methods without code generation. The type parameter defaults to `unknown`, so existing untyped calls are unchanged ([#1502](https://github.com/stellar/js-stellar-sdk/pull/1502)).
-- `ClientOptions.server`: pass an existing `rpc.Server` to `contract.Client.from` to reuse its transport (headers, interceptors, `allowHttp`) instead of constructing a new one ([#1502](https://github.com/stellar/js-stellar-sdk/pull/1502)).
 - The XDR schema now covers [CAP-83](https://github.com/stellar/stellar-protocol/blob/master/core/cap-0083.md) (empty transaction set values) and [CAP-85](https://github.com/stellar/stellar-protocol/blob/master/core/cap-0085.md) (external contract executables), adding `xdr.StellarValueType.stellarValueEmptyTxSet` with the `xdr.StellarValueExtEmptyTxSet` arm and its `xdr.StellarValueProposedValue` struct, `xdr.ContractExecutableType.contractExecutableExternalRef` with the `xdr.ContractExecutableExternalRefArm` arm and its `xdr.ContractExecutableExternalRef` struct (an `executableOwner` address plus a `tag`), and the `xdr.ScValType.scvExecutableTag` / `xdr.ScValExecutableTag` value ([#1577](https://github.com/stellar/js-stellar-sdk/pull/1577)).
-- `Keypair.signMessage(message)` and `Keypair.verifyMessage(message, signature)`: sign and verify arbitrary messages per [SEP-53](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0053.md), for proving Stellar address ownership off-chain. The message (a UTF-8 string or `Buffer`) is prefixed with `"Stellar Signed Message:\n"`, SHA-256 hashed, and signed/verified with the keypair's ed25519 key — parity with the Python/Java SDKs and stellar-cli ([#1513](https://github.com/stellar/js-stellar-sdk/pull/1513)).
 
 ### Changed
-- `contract.Client.from` now supports built-in Stellar Asset Contracts (SACs): when the contract's executable is a SAC, the client is built from the embedded SAC spec (lazily imported so bundlers can code-split it out of the common path) instead of downloading Wasm, which a SAC has none of on-chain ([#1501](https://github.com/stellar/js-stellar-sdk/pull/1501)).
-- `rpc.Server.getContractWasmByContractId` now rejects a SAC with a structured `{ code: 400 }` error pointing to `contract.Client.from`, instead of failing while decoding a nonexistent Wasm hash; the not-found rejection is now `{ code: 404, message: "Could not obtain contract instance from server" }` ([#1501](https://github.com/stellar/js-stellar-sdk/pull/1501)).
 - `scValToNative` converts an `scvExecutableTag` to its tag: a string when the bytes are valid UTF-8, otherwise the raw bytes (same rule as `scvString` and `scvSymbol`) ([#1577](https://github.com/stellar/js-stellar-sdk/pull/1577)).
 - `buildInvocationTree` renders CAP-85 external-executable creations instead of throwing. `CreateInvocation.type` gains an `"external"` case, whose details live in a new `external` field (`owner`, `tag`, `address`, `salt`, and `constructorArgs` for `CREATE_CONTRACT_V2`). `tag` is `string | Uint8Array` — an executable tag is an unbounded `SCString`, so a binary one is returned as raw bytes rather than lossily decoded ([#1577](https://github.com/stellar/js-stellar-sdk/pull/1577)).
 - `contract.Client.from` and `rpc.Server.getContractWasmByContractId` support contracts created from a CAP-85 external executable reference. The reference names an owner contract and a tag; the owner holds a persistent contract data entry keyed by that tag whose value is the Wasm hash, so both methods resolve that entry and then load the Wasm as usual ([#1577](https://github.com/stellar/js-stellar-sdk/pull/1577)).
+
+## [v16.2.0](https://github.com/stellar/js-stellar-sdk/compare/v16.1.0...v16.2.0)
+
+### Added
+- `rpc.Server.simulateTransaction` accepts an optional `useUpgradedAuth` flag, and `contract.AssembledTransaction` accepts it as a method option (`useUpgradedAuth`) or per-call (`tx.simulate({ useUpgradedAuth: true })`). When set, RPC simulation records v2 address credentials (CAP-71) instead of the legacy v1 credentials. It only affects the recording auth modes and is silently ignored on hosts that cannot emit v2 credentials. The flag is deprecated from the start: it is transitional and becomes a no-op once the network returns v2 credentials by default (protocol 28) ([#1562](https://github.com/stellar/js-stellar-sdk/issues/1562)).
+- `@stellar/stellar-sdk/base` subpath export: import offline primitives like `StrKey` and `Keypair` without loading Horizon, RPC, or the SEP helpers and their networking dependencies ([#1550](https://github.com/stellar/js-stellar-sdk/pull/1550)).
+- `authorizeEntry` / `authorizeInvocation` signing callbacks now receive the 32-byte signing payload (`hash(preimage.toXDR())`) as a second argument alongside the preimage, so signers — including HSMs and remote signers that only accept a digest — never have to re-derive it. Existing single-argument callbacks are unaffected ([#1532](https://github.com/stellar/js-stellar-sdk/issues/1532)).
+- `authorizeEntry` / `authorizeInvocation` now support non-Ed25519 signers: the signing callback may return `{ signatureScVal: xdr.ScVal, address?: string }`, and the given `ScVal` is written verbatim as the credentials' signature — no Ed25519 verification, no `{public_key, signature}` map, no `scvVec` wrapping. This lets smart-wallet / custom-account contracts (whose `__check_auth` expects its own signature structure) use the helper instead of hand-rolling preimage construction and credential assembly. The optional `address` routes the signature to a specific credential node, like `forAddress` ([#1530](https://github.com/stellar/js-stellar-sdk/issues/1530)).
+- `contract.Signer`: an interface pairing an `address` with the SEP-43 `signTransaction` and optional `signAuthEntry` methods, plus `contract.KeypairSigner`, a `Keypair`-backed implementation. The `signTransaction` and `signAuthEntry` options — on `ClientOptions`, `MethodOptions`, and `AssembledTransaction`'s `sign` / `signAndSend` / `signAuthEntries` — now accept a `Signer` or a bare `Keypair` in addition to a callback. Adds the `contract.SignTransactionLike` and `contract.SignAuthEntryLike` types. When `signAuthEntries` gets a `Signer` or `Keypair`, its default target `address` is now the signer's own address rather than `publicKey`. Existing callbacks work unchanged; one type-only caveat: the option fields are no longer plain function types, so derive callback shapes from `contract.SignTransaction` / `contract.SignAuthEntry` instead of the option field ([#1567](https://github.com/stellar/js-stellar-sdk/pull/1567), closes [#1462](https://github.com/stellar/js-stellar-sdk/issues/1462) and [#1063](https://github.com/stellar/js-stellar-sdk/issues/1063)).
+- `contract.Spec` now reads SEP-48 event declarations: `events()` and `findEvent(name, occurrence?)` list a contract's declared events, `parseEvent(topics, data)` decodes a fired event into `{ name, data }`, with topic-carried params merged into `data` (returns `undefined` when nothing matches), and `eventTopicFilter(name, topicValues?, occurrence?)` builds a `getEvents` filter row, with `"*"` for any topic param left unset. Generated client bindings gain a typed `<Name>Event` interface per event, a `ContractEvent` union, a `parseEvent()` method, and per-event `<name>EventFilter()` methods. A contract may declare the same event name more than once (composed modules each emitting their own `transfer`); each declaration gets its own interface and filter method, and `occurrence` — a 0-based index in declaration order — selects among them. Generated names receive a numeric suffix when needed to avoid a collision, and `stellar-sdk bindings` warns about duplicate declarations and renames. Adds the `contract.ParsedEvent` type ([#1556](https://github.com/stellar/js-stellar-sdk/pull/1556), [#1565](https://github.com/stellar/js-stellar-sdk/pull/1565), [#1572](https://github.com/stellar/js-stellar-sdk/pull/1572)).
+
+### Fixed
+- `Spec.scValToNative` now handles contract values typed as `Val`
+  (`scSpecTypeVal`) by delegating to the generic `scValToNative` converter,
+  mirroring the encoding-side support added in [#1485]. Decoding a response
+  containing a `Val`-typed string, symbol, vec, or map — e.g. a struct with a
+  `Vec<Val>` field — no longer throws
+  `ScSpecType scSpecTypeVal was not string or symbol`; each value decodes to
+  its natural native representation (`Address` → string, `u32` → number,
+  `Symbol` → string, vecs/maps recurse).
+  ([#1551](https://github.com/stellar/js-stellar-sdk/pull/1551))
+
+## [v16.1.0](https://github.com/stellar/js-stellar-sdk/compare/v16.0.1...v16.1.0)
+
+### Added
+- `inspectAuthEntry(entry)`: decodes a `xdr.SorobanAuthorizationEntry` into a typed summary — credential type, authorizing address, nonce, `signatureExpirationLedger`, and a `signers` list covering top-level credentials and CAP-71 delegates. Adds the `AuthEntryInfo`, `AuthEntrySigner`, `AuthEntrySignature`, and `AuthEntryCredentialType` types ([#1529](https://github.com/stellar/js-stellar-sdk/pull/1529)).
+- `checkAuthEntryReadiness(entry, currentLedgerSeq)`: reports whether an auth entry is ready to submit — `{ ready, expired, unsignedBy }` — as a pure decode with no network call ([#1529](https://github.com/stellar/js-stellar-sdk/pull/1529)).
+- `Spec.nativeToScVal` now supports contract parameters typed as `Val` (`scSpecTypeVal`), so raw JS values can be passed to `Val`-typed arguments without building `xdr.ScVal` objects by hand ([#1485](https://github.com/stellar/js-stellar-sdk/pull/1485)).
+- `rpc.Server.queryContract<T>(contractId, method, args?, networkPassphrase?)`: a one-line read-only contract call that returns `{ result, isReadCall }`, no transaction assembly or signing. Works for Wasm contracts and built-in Stellar Asset Contracts (SACs) ([#1502](https://github.com/stellar/js-stellar-sdk/pull/1502)).
+- `rpc.Server.getContractMethods(contractId, networkPassphrase?)`: lists a contract's callable methods and their signatures. Adds the `Api.ContractMethod` and `Api.ContractMethodInput` types ([#1502](https://github.com/stellar/js-stellar-sdk/pull/1502)).
+- `rpc.Server.getContractInstance(contractId)`: returns a contract's `xdr.ScContractInstance` ([#1501](https://github.com/stellar/js-stellar-sdk/pull/1501)).
+- `contract.Client.from`, `fromWasm`, and `fromWasmHash` are now generic (`<T>`) and return `Client & T`, giving typed contract methods without code generation. `T` defaults to `unknown`, so untyped calls are unchanged ([#1502](https://github.com/stellar/js-stellar-sdk/pull/1502)).
+- `ClientOptions.server`: pass an existing `rpc.Server` to `contract.Client.from` to reuse its transport instead of building a new one ([#1502](https://github.com/stellar/js-stellar-sdk/pull/1502)).
+- `Keypair.signMessage(message)` and `Keypair.verifyMessage(message, signature)`: sign and verify arbitrary messages per [SEP-53](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0053.md), matching the Python and Java SDKs and stellar-cli ([#1513](https://github.com/stellar/js-stellar-sdk/pull/1513)).
+- `TransactionFailedError`: raised by `Horizon.Server.submitTransaction` and `submitAsyncTransaction` when Horizon rejects a transaction with result codes. Extends `BadResponseError` and adds `getResultCodes()` and `getTransactionResult()` ([#1526](https://github.com/stellar/js-stellar-sdk/pull/1526)).
+
+### Changed
+- `HorizonApi.TransactionFailedResultCodes` gained the transaction result codes it was missing: `tx_bad_sponsorship`, `tx_bad_min_seq_age_or_gap`, `tx_malformed`, `tx_soroban_invalid`, and `tx_frozen_key_accessed` ([#1526](https://github.com/stellar/js-stellar-sdk/pull/1526)).
+- `contract.Client.from` now supports built-in Stellar Asset Contracts (SACs), building the client from the embedded SAC spec instead of downloading Wasm ([#1501](https://github.com/stellar/js-stellar-sdk/pull/1501)).
+- `rpc.Server.getContractWasmByContractId` now rejects a SAC with a structured `{ code: 400 }` error pointing to `contract.Client.from`. The not-found rejection is now `{ code: 404, message: "Could not obtain contract instance from server" }` ([#1501](https://github.com/stellar/js-stellar-sdk/pull/1501)).
 - The UMD (`dist/`) build now sets `inlineDynamicImports` so the single-file bundle stays whole despite the SAC spec's lazy `import()` ([#1501](https://github.com/stellar/js-stellar-sdk/pull/1501)).
 
 ### Fixed
 - `Horizon.ManageDataOperationResponse.value` is now typed as `string`, matching what Horizon actually returns (a base64 string in JSON, which the SDK never decodes). It was previously mistyped as `Buffer` ([#1564](https://github.com/stellar/js-stellar-sdk/pull/1564)).
+- `Horizon.Server.submitTransaction` and `submitAsyncTransaction` now reject with
+  SDK error types on HTTP failures, as documented: a `TransactionFailedError` for
+  Horizon result codes, a `BadResponseError` otherwise. The wrapping branch used
+  to be unreachable, so failures leaked through as raw HTTP-client errors.
+  `err.response.data` and `err.response.status` are unchanged; the original error
+  is now preserved as `err.cause` ([#1526](https://github.com/stellar/js-stellar-sdk/pull/1526)).
+- `Federation.Server` resolution methods (`resolveAddress`, `resolveAccountId`, `resolveTransactionId`, `forDomain`) had the same unreachable branch and now reject HTTP failures with `BadResponseError` ([#1526](https://github.com/stellar/js-stellar-sdk/pull/1526)).
+- `contract.AssembledTransaction.needsNonInvokerSigningBy` now treats an empty `scvVec` signature as unsigned, matching the existing `scvVoid` check. Such entries used to count as already signed and were left off the list ([#1529](https://github.com/stellar/js-stellar-sdk/pull/1529)).
+- `Spec.nativeToScVal` no longer misclassifies plain objects that have a `constructor` key, and handles null-prototype objects (`Object.create(null)`) ([#1485](https://github.com/stellar/js-stellar-sdk/pull/1485)).
 
 ## [v16.0.1](https://github.com/stellar/js-stellar-sdk/compare/v16.0.0...v16.0.1)
 
@@ -323,6 +362,7 @@ build the SDK from source or maintain forks.
 [#1408]: https://github.com/stellar/js-stellar-sdk/pull/1408
 [#1429]: https://github.com/stellar/js-stellar-sdk/pull/1429
 [#1450]: https://github.com/stellar/js-stellar-sdk/pull/1450
+[#1485]: https://github.com/stellar/js-stellar-sdk/pull/1485
 [#1478]: https://github.com/stellar/js-stellar-sdk/pull/1478
 
 ## [v16.0.0-rc.2](https://github.com/stellar/js-stellar-sdk/compare/v16.0.0-rc.1...v16.0.0-rc.2)

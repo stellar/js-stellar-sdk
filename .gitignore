@@ -49,4 +49,9 @@ xdr-json-parity-failures*.jsonl
 test-guides/
 .vuln-hunt/
 scratch/
+.docs-build/
 .xdr-build/
+
+# Working data for scripts/test-event-bindings.mjs (contract-wasms clone +
+# generated bindings under test)
+.contract-wasms-test/

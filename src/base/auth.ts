@@ -4,6 +4,7 @@ import {
   HashIdPreimageSorobanAuthorization,
   HashIdPreimageSorobanAuthorizationWithAddress,
   Int64,
+  ScAddress,
   ScVal,
   SorobanAddressCredentials,
   SorobanAddressCredentialsWithDelegates,
@@ -29,16 +30,38 @@ import { nativeToScVal } from "./scval.js";
  * @param preimage - the entire authorization envelope whose hash you should
  *    sign, so that you can inspect the entire structure if necessary (rather
  *    than blindly signing a hash)
+ * @param payload - the 32-byte signing payload, i.e. the sha256 hash of the
+ *    preimage bytes (`hash(preimage.toXdr())`), provided as a convenience so
+ *    you never have to re-derive it (e.g. for HSMs or remote signers that only
+ *    accept a digest)
  *
- * @returns the signature of the raw payload (which is the sha256 hash of the
- *    preimage bytes, so `hash(preimage.toXdr())`) either naked, implying it is
+ * @returns one of the following:
+ *
+ *  - the signature of the payload as a naked `Uint8Array`, implying it is
  *    signed by the key corresponding to the public key in the entry you pass to
  *    {@link authorizeEntry} (decipherable from its
- *    `credentials().address().address()`), or alongside an explicit `publicKey`.
+ *    `credentials.address.address`),
+ *  - an object with the `signature` alongside an explicit `publicKey` string
+ *    identifying the Ed25519 signer, or
+ *  - an object with a `signatureScVal`: an arbitrary, caller-built
+ *    {@link xdr.ScVal} that is placed verbatim into the credentials'
+ *    `signature` field. Use this for custom account contracts (smart wallets,
+ *    passkey/WebAuthn signers, etc.) whose `__check_auth` expects a signature
+ *    structure other than the built-in Stellar account
+ *    `{public_key, signature}` vector. No Ed25519 verification is performed on
+ *    this variant, and no `scvVec` wrapping is applied — you own the exact
+ *    shape. The optional `address` selects which credential node receives the
+ *    signature (like `forAddress` on {@link authorizeEntry}, which takes
+ *    precedence if both are given).
  */
 export type SigningCallback = (
   preimage: HashIdPreimage,
-) => Promise<Uint8Array | { signature: Uint8Array; publicKey: string }>;
+  payload: Uint8Array,
+) => Promise<
+  | Uint8Array
+  | { signature: Uint8Array; publicKey: string }
+  | { signatureScVal: ScVal; address?: string }
+>;
 
 /**
  * Actually authorizes an existing authorization entry using the given
@@ -58,17 +81,22 @@ export type SigningCallback = (
  * {@link SigningCallback}) to handle signing the envelope hash.
  *
  * @param entry - an unsigned authorization entry
- * @param signer - either a {@link Keypair} instance or a function which takes a
- *    {@link xdr.HashIdPreimageSorobanAuthorization} input payload and returns
- *    EITHER
+ * @param signer - either a {@link Keypair} instance or a function (see
+ *    {@link SigningCallback}) which receives the
+ *    {@link xdr.HashIdPreimage} input payload plus its 32-byte signing hash
+ *    and returns EITHER
  *
  *      (a) an object containing a `signature` of the hash of the raw payload
  *          bytes as a `Uint8Array` and a `publicKey` string representing who just
- *          created this signature, or
+ *          created this signature,
  *      (b) just the naked signature of the hash of the raw payload bytes (where
- *          the signing key is implied to be the address in the `entry`).
+ *          the signing key is implied to be the address in the `entry`), or
+ *      (c) an object containing a `signatureScVal` — an arbitrary, caller-built
+ *          {@link xdr.ScVal} written verbatim as the credentials' signature,
+ *          for custom account contracts (smart wallets, passkey/WebAuthn
+ *          signers) whose `__check_auth` expects a non-Ed25519 signature shape.
  *
- *    The latter option (b) is JUST for backwards compatibility and will be
+ *    Option (b) is JUST for backwards compatibility and will be
  *    removed in the future.
  * @param validUntilLedgerSeq - the (exclusive) future ledger sequence number
  *    until which this authorization entry should be valid (if
@@ -106,8 +134,10 @@ export type SigningCallback = (
  * // It might, for example, pop up a modal from a browser extension, send the
  * // transaction to a third-party service for signing, or just do simple
  * // signing via Keypair like it does here:
- * function signPayloadCallback(payload) {
- *    return signer.sign(hash(payload.toXdr()));
+ * function signPayloadCallback(preimage, payload) {
+ *    // `payload` is hash(preimage.toXdr()) — inspect `preimage` if you want
+ *    // to display/verify what is being authorized before signing.
+ *    return signer.sign(payload);
  * }
  *
  * function multiPartyAuth(
@@ -171,70 +201,92 @@ export async function authorizeEntry(
 
   const payload = hash(preimage.toXdr());
 
-  let signature: Uint8Array;
-  let publicKey: string;
+  let signatureScVal: ScVal;
+  let targetAddress = forAddress;
+  let sigResult: Awaited<ReturnType<SigningCallback>> | null = null;
   if (typeof signer === "function") {
-    const sigResult = await signer(preimage);
-    if (
-      sigResult !== null &&
-      typeof sigResult === "object" &&
-      "signature" in sigResult
-    ) {
-      signature = sigResult.signature;
-      publicKey = sigResult.publicKey;
-    } else {
-      // if using the deprecated form, assume it's for the entry
-      signature = sigResult;
-      publicKey = Address.fromScAddress(addrAuth.address).toString();
-    }
+    // Hand the callback its own copy of the payload: `payload` is what the
+    // Ed25519 signature is verified against below, so a callback mutating the
+    // array it received must not be able to shift what "valid" means.
+    sigResult = await signer(preimage, Uint8Array.from(payload));
+  }
+
+  if (
+    sigResult !== null &&
+    typeof sigResult === "object" &&
+    "signatureScVal" in sigResult
+  ) {
+    // Custom-credential path (smart wallets, passkeys/WebAuthn, etc.): the
+    // caller owns the exact ScVal their account contract's `__check_auth`
+    // expects, so it is written verbatim — no Ed25519 verification and no
+    // scvVec wrapping.
+    signatureScVal = sigResult.signatureScVal;
+    targetAddress ??= sigResult.address;
   } else {
-    signature = signer.sign(payload);
-    publicKey = signer.publicKey();
-  }
+    let signature: Uint8Array;
+    let publicKey: string;
+    if (typeof signer === "function") {
+      if (
+        sigResult !== null &&
+        typeof sigResult === "object" &&
+        "signature" in sigResult
+      ) {
+        signature = sigResult.signature;
+        publicKey = sigResult.publicKey;
+      } else {
+        // if using the deprecated form, assume it's for the entry
+        signature = sigResult as Uint8Array;
+        publicKey = Address.fromScAddress(addrAuth.address).toString();
+      }
+    } else {
+      signature = signer.sign(payload);
+      publicKey = signer.publicKey();
+    }
 
-  if (!Keypair.fromPublicKey(publicKey).verify(payload, signature)) {
-    throw new Error(`signature doesn't match payload`);
-  }
+    if (!Keypair.fromPublicKey(publicKey).verify(payload, signature)) {
+      throw new Error(`signature doesn't match payload`);
+    }
 
-  // This structure is defined here:
-  // https://soroban.stellar.org/docs/fundamentals-and-concepts/invoking-contracts-with-transactions#stellar-account-signatures
-  //
-  // Encoding a contract structure as an ScVal means the map keys are supposed
-  // to be symbols, hence the forced typing here.
-  const sigScVal = nativeToScVal(
-    {
-      public_key: StrKey.decodeEd25519PublicKey(publicKey),
-      signature,
-    },
-    {
-      type: {
-        public_key: ["symbol", null],
-        signature: ["symbol", null],
+    // This structure is defined here:
+    // https://soroban.stellar.org/docs/fundamentals-and-concepts/invoking-contracts-with-transactions#stellar-account-signatures
+    //
+    // Encoding a contract structure as an ScVal means the map keys are supposed
+    // to be symbols, hence the forced typing here.
+    const sigScVal = nativeToScVal(
+      {
+        public_key: StrKey.decodeEd25519PublicKey(publicKey),
+        signature,
       },
-    },
-  );
+      {
+        type: {
+          public_key: ["symbol", null],
+          signature: ["symbol", null],
+        },
+      },
+    );
 
-  const signatureScVal = ScVal.scvVec([sigScVal]);
+    signatureScVal = ScVal.scvVec([sigScVal]);
+  }
 
   // CAP-71-01: the signature payload is shared across the top-level address and
   // every (possibly nested) delegate, so this signer's signature is written to
-  // whichever credential node(s) carry `forAddress`. When no `forAddress` is
-  // given we fall back to the top-level credentials, which preserves the
-  // behavior for ADDRESS / ADDRESS_V2 and for accounts whose signing key
-  // differs from the credential address (e.g. multisig). Because the class-XDR
-  // types are immutable, the updated expiration and signature are folded into a
-  // freshly-built credential tree.
+  // whichever credential node(s) carry `targetAddress`. When no target is given
+  // we fall back to the top-level credentials, which preserves the behavior for
+  // ADDRESS / ADDRESS_V2 and for accounts whose signing key differs from the
+  // credential address (e.g. multisig). Because the class-XDR types are
+  // immutable, the updated expiration and signature are folded into a freshly
+  // built credential tree.
   const { credentials: signedCredentials, matched } =
     applyExpirationAndSignature(
       credentials,
       validUntilLedgerSeq,
       signatureScVal,
-      forAddress,
+      targetAddress,
     );
 
   if (matched === 0) {
     throw new Error(
-      `the authorization entry has no credential node for address ${forAddress}`,
+      `the authorization entry has no credential node for address ${targetAddress}`,
     );
   }
 
@@ -680,6 +732,341 @@ function rebuildDelegatesWithSignature(
       ),
     });
   });
+}
+
+/** The credential arm of a {@link xdr.SorobanAuthorizationEntry}. */
+export type AuthEntryCredentialType =
+  | "sourceAccount"
+  | "address"
+  | "addressV2"
+  | "addressWithDelegates";
+
+/**
+ * A single ed25519 signature parsed out of a credential node's signature
+ * value, in the map format written by {@link authorizeEntry}.
+ */
+export interface AuthEntrySignature {
+  /** the signer's public key, as a `G…` strkey. */
+  publicKey: string;
+  /** the raw 64-byte ed25519 signature. */
+  signature: Uint8Array;
+}
+
+/**
+ * One node of an authorization entry that can carry a signature: the top-level
+ * address credentials and, for `SOROBAN_CREDENTIALS_ADDRESS_WITH_DELEGATES`,
+ * each (possibly nested) delegate.
+ */
+export interface AuthEntrySigner {
+  /** the node's address (`G…` account or `C…` contract). */
+  address: string;
+  /**
+   * whether a signature payload is present on this node (i.e. its signature is
+   * neither `scvVoid` nor an empty `scvVec`). For contract (`C…`) addresses
+   * this only means *something* is attached — whether it satisfies the
+   * contract's `__check_auth` cannot be verified client-side.
+   */
+  signed: boolean;
+  /**
+   * the signature payload parsed as the SDK's standard ed25519 format (a vec
+   * of `{public_key, signature}` maps, see {@link authorizeEntry}), or `null`
+   * when the payload has some other, signer-defined shape (as custom accounts
+   * such as WebAuthn/passkey wallets use). Of the two unsigned placeholder
+   * forms, an empty `scvVec` parses as `[]` while `scvVoid` (not a vec at all)
+   * parses as `null` — check `signed` rather than this field to tell whether a
+   * node is unsigned.
+   */
+  signatures: AuthEntrySignature[] | null;
+  /** the raw signature value, whatever its shape. */
+  rawSignature: ScVal;
+}
+
+/**
+ * A structured, read-only view of a {@link xdr.SorobanAuthorizationEntry},
+ * returned by {@link inspectAuthEntry}.
+ */
+export interface AuthEntryInfo {
+  credentialType: AuthEntryCredentialType;
+  /** the authorizing address, or `null` for source-account credentials. */
+  address: string | null;
+  /** the credential nonce, or `null` for source-account credentials. */
+  nonce: bigint | null;
+  /**
+   * the (exclusive) ledger sequence until which the signature is valid, or
+   * `null` for source-account credentials. Note that unsigned entries commonly
+   * carry a placeholder (often `0`) until {@link authorizeEntry} sets it.
+   */
+  signatureExpirationLedger: number | null;
+  /**
+   * every node that can carry a signature: the top-level credentials first,
+   * then (for the delegates variant) each delegate, depth-first. Empty for
+   * source-account credentials.
+   */
+  signers: AuthEntrySigner[];
+  /**
+   * whether every signer node carries a signature payload. Always `false` for
+   * source-account credentials (which have no signature nodes — they are
+   * instead covered by the transaction envelope signature; use
+   * {@link checkAuthEntryReadiness} for a submit check). For the delegates
+   * variant note that an account's policy may accept an unsigned top-level
+   * node when its delegates have signed (CAP-71-01) — consult `signers` if you
+   * support that.
+   */
+  signed: boolean;
+  /** the invocation tree this entry authorizes. */
+  invocation: SorobanAuthorizedInvocation;
+}
+
+/** The result of {@link checkAuthEntryReadiness}. */
+export interface AuthEntryReadiness {
+  /** `true` when the entry is fully signed and not expired. */
+  ready: boolean;
+  /**
+   * `true` when `currentLedgerSeq >= signatureExpirationLedger` (expiration is
+   * exclusive). Always `false` for source-account credentials.
+   */
+  expired: boolean;
+  /** addresses of signer nodes that carry no signature payload. */
+  unsignedBy: string[];
+}
+
+/**
+ * Decodes a {@link xdr.SorobanAuthorizationEntry} into a plain, typed summary:
+ * which credential variant it uses, which address authorizes it, its nonce and
+ * expiration ledger, and — for every node that can carry a signature (the
+ * top-level credentials plus any CAP-71 delegates) — whether it is signed and,
+ * when the payload uses the SDK's standard ed25519 format, by which keys.
+ *
+ * This is the read-side complement to {@link authorizeEntry} /
+ * {@link authorizeInvocation}: those fill entries with signatures, this
+ * inspects what an entry (e.g. one returned by transaction simulation, or
+ * received from a counterparty in a multi-party signing flow) requires and
+ * already carries, without reaching into raw XDR accessors.
+ *
+ * @param entry - the authorization entry to inspect
+ * @returns a {@link AuthEntryInfo} summary of the entry
+ *
+ * @see checkAuthEntryReadiness
+ * @example
+ * ```ts
+ * const info = inspectAuthEntry(entry);
+ * if (!info.signed && info.address !== null) {
+ *   console.log(`${info.address} still needs to sign`, info.signers);
+ * }
+ * ```
+ */
+export function inspectAuthEntry(
+  entry: SorobanAuthorizationEntry,
+): AuthEntryInfo {
+  const credentials = entry.credentials;
+  const addrAuth = getAddressCredentials(credentials);
+
+  let credentialType: AuthEntryCredentialType;
+  switch (credentials.type) {
+    case "sorobanCredentialsSourceAccount":
+      credentialType = "sourceAccount";
+      break;
+    case "sorobanCredentialsAddress":
+      credentialType = "address";
+      break;
+    case "sorobanCredentialsAddressV2":
+      credentialType = "addressV2";
+      break;
+    case "sorobanCredentialsAddressWithDelegates":
+      credentialType = "addressWithDelegates";
+      break;
+    default:
+      throw new Error(
+        `unsupported credential type ${(credentials as SorobanCredentials).type}`,
+      );
+  }
+
+  const signers = collectSignatureNodes(credentials).map(
+    (node): AuthEntrySigner => ({
+      address: Address.fromScAddress(node.address).toString(),
+      signed: signaturePresent(node.signature),
+      signatures: parseEd25519Signatures(node.signature),
+      rawSignature: node.signature,
+    }),
+  );
+
+  return {
+    credentialType,
+    address:
+      addrAuth === null
+        ? null
+        : Address.fromScAddress(addrAuth.address).toString(),
+    nonce: addrAuth === null ? null : addrAuth.nonce,
+    signatureExpirationLedger:
+      addrAuth === null ? null : addrAuth.signatureExpirationLedger,
+    signers,
+    signed: signers.length > 0 && signers.every((signer) => signer.signed),
+    invocation: entry.rootInvocation,
+  };
+}
+
+/**
+ * Internal helper. One signature-carrying node, read out of a credential tree:
+ * the top-level address credentials plus, for the CAP-71 delegates variant,
+ * every (possibly nested) delegate, depth-first.
+ */
+interface SignatureNode {
+  address: ScAddress;
+  signature: ScVal;
+}
+
+/**
+ * Internal helper. Collects every signature-carrying node of a credential tree,
+ * read-only — the write-side counterpart is
+ * {@link applyExpirationAndSignature}.
+ */
+function collectSignatureNodes(
+  credentials: SorobanCredentials,
+): SignatureNode[] {
+  const addrAuth = getAddressCredentials(credentials);
+  if (addrAuth === null) {
+    return [];
+  }
+
+  const nodes: SignatureNode[] = [
+    { address: addrAuth.address, signature: addrAuth.signature },
+  ];
+
+  if (credentials.type === "sorobanCredentialsAddressWithDelegates") {
+    const walk = (delegates: SorobanDelegateSignature[]): void => {
+      delegates.forEach((delegate) => {
+        nodes.push({
+          address: delegate.address,
+          signature: delegate.signature,
+        });
+        walk(delegate.nestedDelegates);
+      });
+    };
+    walk(credentials.addressWithDelegates.delegates);
+  }
+
+  return nodes;
+}
+
+/**
+ * Reports whether an authorization entry is ready to submit at a given ledger:
+ * fully signed and not yet expired.
+ *
+ * Source-account entries are always ready — they carry no signature or
+ * expiration of their own and are instead covered by the transaction envelope
+ * signature.
+ *
+ * The current ledger sequence is taken as a parameter (fetch it from a source
+ * you trust, e.g. `rpc.Server.getLatestLedger`) rather than looked up here, so
+ * this stays a pure decode with no network dependency.
+ *
+ * For `SOROBAN_CREDENTIALS_ADDRESS_WITH_DELEGATES`, this conservatively
+ * requires *every* node (top-level and all delegates) to be signed. An
+ * account's policy may accept an unsigned top-level node when its delegates
+ * have signed (CAP-71-01); if you support that, check
+ * {@link inspectAuthEntry}'s `signers` yourself.
+ *
+ * @param entry - the authorization entry to check
+ * @param currentLedgerSeq - the network's current ledger sequence, compared
+ *    (exclusively) against the entry's `signatureExpirationLedger`
+ * @returns a {@link AuthEntryReadiness}: `ready`, `expired`, and which
+ *    addresses are still `unsignedBy`
+ * @throws `Error` if `currentLedgerSeq` cannot represent a uint32 ledger
+ *    sequence (non-integer, negative, or above 2^32 - 1), which would make the
+ *    expiration comparison unreliable
+ */
+export function checkAuthEntryReadiness(
+  entry: SorobanAuthorizationEntry,
+  currentLedgerSeq: number,
+): AuthEntryReadiness {
+  if (
+    !Number.isInteger(currentLedgerSeq) ||
+    currentLedgerSeq < 0 ||
+    currentLedgerSeq > 0xffffffff
+  ) {
+    throw new Error(
+      `currentLedgerSeq must be a uint32 ledger sequence, got ${currentLedgerSeq}`,
+    );
+  }
+
+  const info = inspectAuthEntry(entry);
+  if (info.credentialType === "sourceAccount") {
+    return { ready: true, expired: false, unsignedBy: [] };
+  }
+
+  const expired = currentLedgerSeq >= (info.signatureExpirationLedger ?? 0);
+  const unsignedBy = info.signers
+    .filter((signer) => !signer.signed)
+    .map((signer) => signer.address);
+
+  return { ready: !expired && unsignedBy.length === 0, expired, unsignedBy };
+}
+
+/**
+ * Internal helper. A node counts as unsigned when its signature is `scvVoid`
+ * (the delegate/CAP-71 placeholder) or an empty `scvVec` (the placeholder
+ * {@link authorizeInvocation} writes); anything else is a signature payload.
+ */
+function signaturePresent(signature: ScVal): boolean {
+  switch (signature.type) {
+    case "scvVoid":
+      return false;
+    case "scvVec":
+      return (signature.value ?? []).length > 0;
+    default:
+      return true;
+  }
+}
+
+/**
+ * Internal helper. Parses a signature value in the SDK's standard format — an
+ * `scvVec` of `scvMap`s with symbol keys `public_key` (32 raw ed25519 key
+ * bytes) and `signature` — back into typed pairs. Returns `null` when the
+ * value has any other shape (e.g. a custom account's signer-defined payload).
+ */
+function parseEd25519Signatures(signature: ScVal): AuthEntrySignature[] | null {
+  if (signature.type !== "scvVec") {
+    return null;
+  }
+
+  const parsed: AuthEntrySignature[] = [];
+  for (const element of signature.value ?? []) {
+    if (element.type !== "scvMap") {
+      return null;
+    }
+    let publicKey: Uint8Array | null = null;
+    let sig: Uint8Array | null = null;
+    for (const mapEntry of element.value ?? []) {
+      const { key, val } = mapEntry;
+      if (key.type !== "scvSymbol" || val.type !== "scvBytes") {
+        return null;
+      }
+      switch (key.value.toString()) {
+        case "public_key":
+          publicKey = val.value.value;
+          break;
+        case "signature":
+          sig = val.value.value;
+          break;
+        default:
+          return null;
+      }
+    }
+    if (
+      publicKey === null ||
+      sig === null ||
+      publicKey.length !== 32 ||
+      sig.length !== 64
+    ) {
+      return null;
+    }
+    parsed.push({
+      publicKey: StrKey.encodeEd25519PublicKey(publicKey),
+      signature: sig,
+    });
+  }
+
+  return parsed;
 }
 
 function bytesToInt64(bytes: Uint8Array): bigint {

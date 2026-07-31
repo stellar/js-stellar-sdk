@@ -74,6 +74,30 @@ describe("federation-server.js tests", () => {
       });
     });
 
+    it("rejects with BadResponseError on HTTP errors", async () => {
+      mockHttpClient.mockImplementation(() =>
+        Promise.reject(
+          Object.assign(new Error("Request failed with status code 404"), {
+            response: {
+              status: 404,
+              statusText: "Not Found",
+              data: { detail: "not found" },
+            },
+          }),
+        ),
+      );
+
+      const err = await server.resolveAddress("bob*stellar.org").then(
+        () => Promise.reject(new Error("expected rejection")),
+        (e: any) => e,
+      );
+
+      expect(err).toBeInstanceOf(StellarSdk.BadResponseError);
+      expect(err.response.status).toEqual(404);
+      expect(err.response.data).toEqual({ detail: "not found" });
+      expect(err.cause).toBeInstanceOf(Error);
+    });
+
     it("requests is correct", async () => {
       const response = await server.resolveAddress("bob*stellar.org");
       expect(response.stellar_address).toEqual("bob*stellar.org");

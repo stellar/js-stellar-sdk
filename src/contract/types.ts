@@ -3,6 +3,7 @@
 import { Transaction } from "../base/index.js";
 import type { SentTransaction } from "./sent_transaction.js";
 import type { Client } from "./client.js";
+import type { SignAuthEntryLike, SignTransactionLike } from "./signer.js";
 import { Server } from "../rpc/index.js";
 import { ScVal } from "../xdr/index.js";
 
@@ -139,9 +140,10 @@ export type ClientOptions = {
    * method (see {@link MethodOptions}) or when you call
    * {@link contract.AssembledTransaction.signAndSend | signAndSend}.
    *
-   * Matches signature of `signTransaction` from Freighter.
+   * Matches signature of `signTransaction` from Freighter. May instead be a
+   * {@link Signer} or a {@link Keypair}, which are converted internally.
    */
-  signTransaction?: SignTransaction;
+  signTransaction?: SignTransactionLike;
   /**
    * A function to sign a specific auth entry for a transaction, using the
    * private key corresponding to the provided `publicKey`. This is only needed
@@ -150,9 +152,10 @@ export type ClientOptions = {
    * provide it later either when you initialize a method (see {@link MethodOptions})
    * or when you call {@link contract.AssembledTransaction.signAuthEntries | signAuthEntries}.
    *
-   * Matches signature of `signAuthEntry` from Freighter.
+   * Matches signature of `signAuthEntry` from Freighter. May instead be a
+   * {@link Signer} or a {@link Keypair}, which are converted internally.
    */
-  signAuthEntry?: SignAuthEntry;
+  signAuthEntry?: SignAuthEntryLike;
   /** The address of the contract the client will interact with. */
   contractId: string;
   /**
@@ -230,6 +233,19 @@ export type MethodOptions = {
   restore?: boolean;
 
   /**
+   * If true, simulation records v2 address credentials (CAP-71) instead of
+   * the legacy v1 address credentials. Best-effort: it only affects the
+   * recording auth modes and is silently ignored on protocol versions whose
+   * host cannot emit v2 credentials.
+   *
+   * @deprecated This flag is transitional. Once the network returns v2
+   * credentials by default (protocol 28), it becomes a no-op — do not rely on
+   * omitting it to keep receiving the legacy v1 format.
+   * @defaultValue false
+   */
+  useUpgradedAuth?: boolean;
+
+  /**
    * The public key of the source account for this transaction.
    *
    * Default: the one provided to the {@link Client} in {@link ClientOptions}
@@ -240,22 +256,24 @@ export type MethodOptions = {
    * the given `publicKey`. You do not need to provide this, for read-only
    * calls, which only need to be simulated.
    *
-   * Matches signature of `signTransaction` from Freighter.
+   * Matches signature of `signTransaction` from Freighter. May instead be a
+   * {@link Signer} or a {@link Keypair}, which are converted internally.
    *
    * Default: the one provided to the {@link Client} in {@link ClientOptions}
    */
-  signTransaction?: SignTransaction;
+  signTransaction?: SignTransactionLike;
   /**
    * A function to sign a specific auth entry for a transaction, using the
    * private key corresponding to the provided `publicKey`. This is only needed
    * for multi-auth transactions, in which one transaction is signed by
    * multiple parties.
    *
-   * Matches signature of `signAuthEntry` from Freighter.
+   * Matches signature of `signAuthEntry` from Freighter. May instead be a
+   * {@link Signer} or a {@link Keypair}, which are converted internally.
    *
    * Default: the one provided to the {@link Client} in {@link ClientOptions}
    */
-  signAuthEntry?: SignAuthEntry;
+  signAuthEntry?: SignAuthEntryLike;
 };
 
 export type AssembledTransactionOptions<T = string> = MethodOptions &

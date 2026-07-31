@@ -18,6 +18,7 @@
 import { mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
+import { expandSnippetMarkers } from "../config/snippets.js";
 import { DOCS_SOURCE_REF } from "./docs-source-ref.js";
 import {
   collectLinks,
@@ -127,7 +128,9 @@ function urlForDocsRelPath(docsRelPath: string): string {
 
 function readDoc(docsRelPath: string): DocPage {
   const fullPath = join(DOCS_DIR, docsRelPath);
-  const raw = readFileSync(fullPath, "utf8");
+  // Guide code blocks live in examples/guides/ and are injected at
+  // build time; the bundle must carry the expanded code, not the markers.
+  const raw = expandSnippetMarkers(readFileSync(fullPath, "utf8"));
   const { fm, body: rawBody } = parseFrontmatter(raw);
   const body = rawBody.replace(/^\n+/, "").replace(/\n+$/, "");
   return {

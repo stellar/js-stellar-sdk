@@ -81,12 +81,19 @@ export {
   authorizeInvocation,
   buildAuthorizationEntryPreimage,
   buildWithDelegatesEntry,
+  inspectAuthEntry,
+  checkAuthEntryReadiness,
 } from "./auth.js";
 export type {
   SigningCallback,
   AuthorizeInvocationParams,
   DelegateSignature,
   BuildWithDelegatesParams,
+  AuthEntryCredentialType,
+  AuthEntrySignature,
+  AuthEntrySigner,
+  AuthEntryInfo,
+  AuthEntryReadiness,
 } from "./auth.js";
 export * from "./invocation.js";
 export * from "./numbers/index.js";

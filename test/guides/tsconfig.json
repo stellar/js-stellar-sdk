@@ -1,0 +1,35 @@
+{
+  // Typechecks the guide snippets (and the tests that run them) against the
+  // SDK source, so `pnpm docs:snippets:check` fails when an API or type
+  // change makes guide code stale. Extends the root build config because src
+  // must typecheck under the same strictness it builds with; the paths entry
+  // lets snippets import "@stellar/stellar-sdk" the way readers would while
+  // resolving to src/.
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "declaration": false,
+    "emitDeclarationOnly": false,
+    "declarationDir": null,
+    "outDir": null,
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
+    "rootDir": "../../",
+    "paths": {
+      "@stellar/stellar-sdk": ["../../src/index.ts"]
+    },
+    // Mirrors the root config's `types` (plus vitest globals): the class-XDR
+    // layer resolves `@stellar/js-xdr` types from the package itself, so
+    // listing the local `stellar__js-xdr` stub here would shadow them.
+    "types": ["node", "js-xdr-v4", "vitest/globals"],
+    "typeRoots": [
+      "../../types",
+      "../../node_modules/@types",
+      "../../node_modules"
+    ]
+  },
+  "include": [
+    "**/*.ts",
+    "../../examples/guides/**/*.ts",
+    "../../config/guides-local-setup.ts"
+  ]
+}

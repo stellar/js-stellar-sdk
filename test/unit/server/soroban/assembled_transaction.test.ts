@@ -128,6 +128,49 @@ describe("AssembledTransaction", () => {
     expect(mockPost).toHaveBeenCalledTimes(3);
   });
 
+  it("passes useUpgradedAuth through to simulateTransaction", async () => {
+    const simulateTransactionResponse = {
+      transactionData: restoreTxnData,
+      minResourceFee: "52641",
+      cost: { cpuInsns: "0", memBytes: "0" },
+      latestLedger: 17027,
+    };
+    mockPost.mockResolvedValue({
+      data: { result: simulateTransactionResponse },
+    });
+
+    // set via options: flows through to every simulation
+    options.useUpgradedAuth = true;
+    const txn = await contract.AssembledTransaction[
+      "buildFootprintRestoreTransaction"
+    ](
+      options,
+      restoreTxnData,
+      new Account(
+        "GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI",
+        "1",
+      ),
+      52641,
+    );
+    expect(mockPost).toHaveBeenLastCalledWith(
+      serverUrl,
+      expect.objectContaining({
+        method: "simulateTransaction",
+        params: expect.objectContaining({ useUpgradedAuth: true }),
+      }),
+    );
+
+    // per-call value overrides the option
+    await txn.simulate({ restore: false, useUpgradedAuth: false });
+    expect(mockPost).toHaveBeenLastCalledWith(
+      serverUrl,
+      expect.objectContaining({
+        method: "simulateTransaction",
+        params: expect.objectContaining({ useUpgradedAuth: false }),
+      }),
+    );
+  });
+
   it("throws an error if signing transaction without providing a public key", async () => {
     const simulateTransactionResponse = {
       id: "1",
@@ -162,6 +205,60 @@ describe("AssembledTransaction", () => {
     expect(txn.sign({ ...wallet })).rejects.toThrow(
       contract.AssembledTransaction.Errors.FakeAccount,
     );
+  });
+
+  it("sign accepts a Keypair, a Signer, or a raw callback interchangeably", async () => {
+    const simulateTransactionResponse = {
+      id: "1",
+      events: [],
+      latestLedger: 3,
+      minResourceFee: "15",
+      transactionData: new SorobanDataBuilder()
+        .setReadWrite([
+          xdr.LedgerKey.contractData(
+            new xdr.LedgerKeyContractData({
+              contract: Address.fromString(contractId).toScAddress(),
+              key: xdr.ScVal.scvU32(0),
+              durability: xdr.ContractDataDurability.persistent,
+            }),
+          ),
+        ])
+        .build(),
+      results: [{ auth: [], xdr: xdr.ScVal.scvU32(0).toXdr("base64") }],
+      stateChanges: [],
+    };
+    mockPost.mockResolvedValue({
+      data: { result: simulateTransactionResponse },
+    });
+    // The source account lookup isn't what's under test here, and each shape
+    // rebuilds, so stub it rather than interleaving ledger-entry responses.
+    vi.spyOn(server, "getAccount").mockResolvedValue(
+      new Account(keypair.publicKey(), "1"),
+    );
+
+    options.method = "test";
+    options.args = [];
+
+    // Each shape rebuilds, so the timebounds (and therefore the signature)
+    // differ between runs; assert each envelope is validly signed by the
+    // keypair rather than comparing the envelopes to each other.
+    const expectSignedByKeypair = async (signTransaction: any) => {
+      const txn = await contract.AssembledTransaction.build(options);
+      await txn.sign({ force: true, signTransaction });
+
+      const signed = txn.signed;
+      if (!signed) throw new Error("expected the transaction to be signed");
+      expect(signed.signatures).toHaveLength(1);
+      expect(
+        keypair.verify(signed.hash(), signed.signatures[0].signature.value),
+      ).toBe(true);
+    };
+
+    await expectSignedByKeypair(keypair);
+    await expectSignedByKeypair(
+      new contract.KeypairSigner(keypair, networkPassphrase),
+    );
+    await expectSignedByKeypair(wallet.signTransaction);
   });
 });
 
@@ -363,8 +460,8 @@ describe("AssembledTransaction auth entry credential types (CAP-71)", () => {
     ).toXdr("base64"),
   ]);
 
-  // unsigned auth entries carry an scvVoid signature; an scvVec signature
-  // marks an entry as already signed
+  // unsigned auth entries carry an scvVoid (or empty scvVec) signature; a
+  // non-empty scvVec signature marks an entry as already signed
   function addrCreds(
     pk: string,
     signed = false,
@@ -373,7 +470,9 @@ describe("AssembledTransaction auth entry credential types (CAP-71)", () => {
       address: new Address(pk).toScAddress(),
       nonce: 1n,
       signatureExpirationLedger: 0,
-      signature: signed ? xdr.ScVal.scvVec([]) : xdr.ScVal.scvVoid(),
+      signature: signed
+        ? xdr.ScVal.scvVec([xdr.ScVal.scvBytes(new Uint8Array(64))])
+        : xdr.ScVal.scvVoid(),
     });
   }
 
@@ -481,6 +580,42 @@ describe("AssembledTransaction auth entry credential types (CAP-71)", () => {
       ).toEqual([kpA.publicKey(), kpB.publicKey()].sort());
     });
 
+    it("treats an empty scvVec signature (authorizeInvocation's placeholder) as unsigned", () => {
+      // class-XDR values are immutable, so the empty-scvVec placeholder is
+      // built in rather than assigned after the fact.
+      const creds = new xdr.SorobanAddressCredentials({
+        address: new Address(kpA.publicKey()).toScAddress(),
+        nonce: 1n,
+        signatureExpirationLedger: 0,
+        signature: xdr.ScVal.scvVec([]),
+      });
+      const assembled = assembledWith([
+        authEntry(xdr.SorobanCredentials.sorobanCredentialsAddress(creds)),
+      ]);
+
+      expect(assembled.needsNonInvokerSigningBy()).toEqual([kpA.publicKey()]);
+    });
+
+    it("keeps top-level semantics for delegate entries: a signed top level is excluded even with unsigned delegates", () => {
+      const entry = authEntry(
+        xdr.SorobanCredentials.sorobanCredentialsAddressWithDelegates(
+          new xdr.SorobanAddressCredentialsWithDelegates({
+            addressCredentials: addrCreds(kpB.publicKey(), true),
+            delegates: [
+              new xdr.SorobanDelegateSignature({
+                address: new Address(kpC.publicKey()).toScAddress(),
+                signature: xdr.ScVal.scvVoid(), // unsigned delegate
+                nestedDelegates: [],
+              }),
+            ],
+          }),
+        ),
+      );
+      const assembled = assembledWith([entry]);
+
+      expect(assembled.needsNonInvokerSigningBy()).toEqual([]);
+    });
+
     it("deduplicates repeated addresses across credential types", () => {
       const assembled = assembledWith([
         authEntry(addressV2Cred(kpA.publicKey())),
@@ -533,6 +668,69 @@ describe("AssembledTransaction auth entry credential types (CAP-71)", () => {
       // signature was filled in (no longer the scvVoid placeholder)
       expect(signed.signature.type).toBe("scvVec");
       expect(signed.signature.vec).toHaveLength(1);
+    });
+
+    it("accepts a Keypair, a Signer, or a raw callback interchangeably", async () => {
+      const signer = Keypair.random();
+
+      // Fixed nonce and expiration, and no rebuilt timebounds on this path, so
+      // Ed25519 determinism makes the three entries byte-identical.
+      const signedEntryWith = async (signAuthEntry: any) => {
+        const assembled = assembledWith(
+          [authEntry(addressV2Cred(signer.publicKey()))],
+          { signAuthEntry },
+        );
+        await assembled.signAuthEntries({
+          expiration: 1000,
+          address: signer.publicKey(),
+        });
+        return (assembled.built as any).operations[0].auth[0].toXdr("base64");
+      };
+
+      const viaKeypair = await signedEntryWith(signer);
+      const viaSigner = await signedEntryWith(
+        new contract.KeypairSigner(signer, networkPassphrase),
+      );
+      const viaCallback = await signedEntryWith(
+        contract.basicNodeSigner(signer, networkPassphrase).signAuthEntry,
+      );
+
+      expect(viaSigner).toEqual(viaKeypair);
+      expect(viaCallback).toEqual(viaKeypair);
+    });
+
+    it("infers the target address from a Signer or Keypair", async () => {
+      const signer = Keypair.random();
+
+      for (const signAuthEntry of [
+        signer,
+        new contract.KeypairSigner(signer, networkPassphrase),
+      ]) {
+        const assembled = assembledWith(
+          [authEntry(addressV2Cred(signer.publicKey()))],
+          { signAuthEntry },
+        );
+        await assembled.signAuthEntries({ expiration: 1000 });
+
+        const signed = (assembled.built as any).operations[0].auth[0]
+          .credentials.addressV2;
+        expect(signed.signature.type).toBe("scvVec");
+      }
+    });
+
+    it("rejects a Signer that omits the optional signAuthEntry", async () => {
+      const signer = Keypair.random();
+      const assembled = assembledWith(
+        [authEntry(addressV2Cred(signer.publicKey()))],
+        { signAuthEntry: { address: signer.publicKey() } },
+      );
+
+      await expect(
+        assembled.signAuthEntries({
+          expiration: 1000,
+          address: signer.publicKey(),
+        }),
+      ).rejects.toThrow(contract.AssembledTransaction.Errors.NoSigner);
     });
   });
 });
