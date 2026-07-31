@@ -185,8 +185,9 @@ You can also refer to:
 
 Some of the SDK's dependencies (`@noble/hashes`, `@noble/ed25519`,
 `uint8array-extras`, `smol-toml`, `eventsource`) ship only ES modules. Node
-itself handles this (`require(esm)` works on all supported Node versions), but
-Jest's default transform pipeline does not: tests that load the SDK fail with
+itself handles this (`require(esm)` is on by default from Node 22.12.0; on
+22.0–22.11 it needs `--experimental-require-module`), but Jest's default
+transform pipeline does not: tests that load the SDK fail with
 `SyntaxError: Cannot use import statement outside a module` coming from inside
 `node_modules`.
 
