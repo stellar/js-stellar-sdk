@@ -220,6 +220,11 @@ export class Client {
    * SAC spec is used instead of downloading Wasm, since a SAC has no Wasm
    * executable on-chain.
    *
+   * If the contract was created from a CAP-85 external executable reference,
+   * the reference is resolved to a Wasm hash first (see
+   * {@link rpc.Server.getExternalRefWasmHash}), then the spec is read from
+   * that Wasm.
+   *
    * @typeParam T - An interface describing the contract's methods, used to type
    * the returned client. Defaults to `unknown`, so calling without a type
    * argument yields a plain `Client` (backward compatible). Provide it to get
@@ -261,9 +266,15 @@ export class Client {
       return new Client(new Spec(SAC_SPEC), options) as unknown as Client & T;
     }
 
-    // The only remaining executable kind is a Wasm contract, whose executable
-    // value is the code hash.
-    const wasm = await server.getContractWasmByHash(executable.value.value);
+    // A CAP-85 external reference names its code indirectly: the owner contract
+    // holds a persistent entry keyed by the tag whose value is the Wasm hash.
+    // Resolve that, then load the spec from the Wasm as usual.
+    const wasmHash =
+      executable.type === "contractExecutableExternalRef"
+        ? await server.getExternalRefWasmHash(executable.externalRef)
+        : executable.wasmHash.value;
+
+    const wasm = await server.getContractWasmByHash(wasmHash);
 
     return Client.fromWasm<T>(wasm, options);
   }

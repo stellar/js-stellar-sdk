@@ -7,14 +7,20 @@ import type { XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import { ContractExecutableType } from "./contract-executable-type.js";
 import { Hash, type HashWire } from "./hash.js";
+import {
+  ContractExecutableExternalRef,
+  type ContractExecutableExternalRefWire,
+} from "./contract-executable-external-ref.js";
 
 export type ContractExecutableWire =
   | { type: 0; wasmHash: HashWire }
-  | { type: 1 };
+  | { type: 1 }
+  | { type: 2; externalRef: ContractExecutableExternalRefWire };
 
 export type ContractExecutableVariantName =
   | "contractExecutableWasm"
-  | "contractExecutableStellarAsset";
+  | "contractExecutableStellarAsset"
+  | "contractExecutableExternalRef";
 
 /**
  * ```xdr
@@ -24,6 +30,8 @@ export type ContractExecutableVariantName =
  *     Hash wasm_hash;
  * case CONTRACT_EXECUTABLE_STELLAR_ASSET:
  *     void;
+ * case CONTRACT_EXECUTABLE_EXTERNAL_REF:
+ *     ContractExecutableExternalRef external_ref;
  * };
  * ```
  */
@@ -37,6 +45,11 @@ abstract class ContractExecutableBase extends XdrValue {
       cases: [
         case_("contractExecutableWasm", 0, field("wasmHash", Hash.schema)),
         case_("contractExecutableStellarAsset", 1, voidType()),
+        case_(
+          "contractExecutableExternalRef",
+          2,
+          field("externalRef", ContractExecutableExternalRef.schema),
+        ),
       ],
     },
   );
@@ -51,12 +64,22 @@ abstract class ContractExecutableBase extends XdrValue {
     return new ContractExecutableStellarAsset();
   }
 
+  static contractExecutableExternalRef(
+    externalRef: ContractExecutableExternalRef,
+  ): ContractExecutableExternalRefArm {
+    return new ContractExecutableExternalRefArm(externalRef);
+  }
+
   static fromXdrObject(wire: ContractExecutableWire): ContractExecutable {
     switch (wire.type) {
       case 0:
         return new ContractExecutableWasm(Hash.fromXdrObject(wire.wasmHash));
       case 1:
         return new ContractExecutableStellarAsset();
+      case 2:
+        return new ContractExecutableExternalRefArm(
+          ContractExecutableExternalRef.fromXdrObject(wire.externalRef),
+        );
     }
   }
 
@@ -103,7 +126,26 @@ export class ContractExecutableStellarAsset extends ContractExecutableBase {
   }
 }
 
+export class ContractExecutableExternalRefArm extends ContractExecutableBase {
+  readonly type = "contractExecutableExternalRef" as const;
+  readonly externalRef: ContractExecutableExternalRef;
+
+  constructor(externalRef: ContractExecutableExternalRef) {
+    super();
+    this.externalRef = externalRef;
+  }
+
+  get value(): ContractExecutableExternalRef {
+    return this.externalRef;
+  }
+
+  toXdrObject(): Extract<ContractExecutableWire, { type: 2 }> {
+    return { type: 2, externalRef: this.externalRef.toXdrObject() };
+  }
+}
+
 export type ContractExecutable =
   | ContractExecutableWasm
-  | ContractExecutableStellarAsset;
+  | ContractExecutableStellarAsset
+  | ContractExecutableExternalRefArm;
 export const ContractExecutable = ContractExecutableBase;

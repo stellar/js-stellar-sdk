@@ -2,6 +2,17 @@
 
 A breaking change will get clearly marked in this log.
 
+## Unreleased
+
+### Added
+- `rpc.Server.getExternalRefWasmHash(ref)`: resolves a CAP-85 external executable reference to the 32-byte Wasm hash it names, by reading the persistent tag entry on the owner contract ([#1577](https://github.com/stellar/js-stellar-sdk/pull/1577)).
+- The XDR schema now covers [CAP-83](https://github.com/stellar/stellar-protocol/blob/master/core/cap-0083.md) (empty transaction set values) and [CAP-85](https://github.com/stellar/stellar-protocol/blob/master/core/cap-0085.md) (external contract executables), adding `xdr.StellarValueType.stellarValueEmptyTxSet` with the `xdr.StellarValueExtEmptyTxSet` arm and its `xdr.StellarValueProposedValue` struct, `xdr.ContractExecutableType.contractExecutableExternalRef` with the `xdr.ContractExecutableExternalRefArm` arm and its `xdr.ContractExecutableExternalRef` struct (an `executableOwner` address plus a `tag`), and the `xdr.ScValType.scvExecutableTag` / `xdr.ScValExecutableTag` value ([#1577](https://github.com/stellar/js-stellar-sdk/pull/1577)).
+
+### Changed
+- `scValToNative` converts an `scvExecutableTag` to its tag: a string when the bytes are valid UTF-8, otherwise the raw bytes (same rule as `scvString` and `scvSymbol`) ([#1577](https://github.com/stellar/js-stellar-sdk/pull/1577)).
+- `buildInvocationTree` renders CAP-85 external-executable creations instead of throwing. `CreateInvocation.type` gains an `"external"` case, whose details live in a new `external` field (`owner`, `tag`, `address`, `salt`, and `constructorArgs` for `CREATE_CONTRACT_V2`). `tag` is `string | Uint8Array` — an executable tag is an unbounded `SCString`, so a binary one is returned as raw bytes rather than lossily decoded ([#1577](https://github.com/stellar/js-stellar-sdk/pull/1577)).
+- `contract.Client.from` and `rpc.Server.getContractWasmByContractId` support contracts created from a CAP-85 external executable reference. The reference names an owner contract and a tag; the owner holds a persistent contract data entry keyed by that tag whose value is the Wasm hash, so both methods resolve that entry and then load the Wasm as usual ([#1577](https://github.com/stellar/js-stellar-sdk/pull/1577)).
+
 ## [v16.2.0](https://github.com/stellar/js-stellar-sdk/compare/v16.1.0...v16.2.0)
 
 ### Breaking Changes

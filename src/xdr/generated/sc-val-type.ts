@@ -30,7 +30,8 @@ export type ScValTypeName =
   | "scvAddress"
   | "scvContractInstance"
   | "scvLedgerKeyContractInstance"
-  | "scvLedgerKeyNonce";
+  | "scvLedgerKeyNonce"
+  | "scvExecutableTag";
 
 /**
  * ```xdr
@@ -86,7 +87,9 @@ export type ScValTypeName =
  *     // symbolic SCVals used as the key for ledger entries for a contract's
  *     // instance and an address' nonce, respectively.
  *     SCV_LEDGER_KEY_CONTRACT_INSTANCE = 20,
- *     SCV_LEDGER_KEY_NONCE = 21
+ *     SCV_LEDGER_KEY_NONCE = 21,
+ *
+ *     SCV_EXECUTABLE_TAG = 22
  * };
  * ```
  */
@@ -119,6 +122,7 @@ export class ScValType extends EnumValue<ScValTypeName> {
     20,
   );
   static readonly scvLedgerKeyNonce = new ScValType("scvLedgerKeyNonce", 21);
+  static readonly scvExecutableTag = new ScValType("scvExecutableTag", 22);
 
   static readonly schema = withMemberPrefix(
     enumType("ScValType", {
@@ -144,6 +148,7 @@ export class ScValType extends EnumValue<ScValTypeName> {
       scvContractInstance: 19,
       scvLedgerKeyContractInstance: 20,
       scvLedgerKeyNonce: 21,
+      scvExecutableTag: 22,
     }),
     "scv",
   );

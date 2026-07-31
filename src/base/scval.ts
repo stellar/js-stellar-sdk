@@ -484,6 +484,8 @@ export function scValToNative(scv: ScVal): any {
       return scv.sym.asStringOrBytes();
     case "scvString":
       return scv.str.asStringOrBytes();
+    case "scvExecutableTag":
+      return scv.executableTag.asStringOrBytes();
 
     // these can be converted to bigint
     case "scvTimepoint":

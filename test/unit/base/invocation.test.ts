@@ -315,6 +315,133 @@ describe("buildInvocationTree", () => {
     expect(args.wasm.constructorArgs).toEqual([]);
   });
 
+  it("handles an external ref V1 creation invocation", () => {
+    const deployer = randomContract();
+    const owner = randomKey();
+    const salt = new Uint8Array(32).fill(0x07);
+    const inv = new xdr.SorobanAuthorizedInvocation({
+      function:
+        xdr.SorobanAuthorizedFunction.sorobanAuthorizedFunctionTypeCreateContractHostFn(
+          new xdr.CreateContractArgs({
+            contractIdPreimage:
+              xdr.ContractIdPreimage.contractIdPreimageFromAddress(
+                new xdr.ContractIdPreimageFromAddress({
+                  address: deployer.address().toScAddress(),
+                  salt,
+                }),
+              ),
+            executable: xdr.ContractExecutable.contractExecutableExternalRef(
+              new xdr.ContractExecutableExternalRef({
+                executableOwner: new Address(owner).toScAddress(),
+                tag: "my-executable",
+              }),
+            ),
+          }),
+        ),
+      subInvocations: [],
+    });
+    const tree = buildInvocationTree(inv);
+    expect(tree.type).toBe("create");
+    const args = tree.args as any;
+    expect(args.type).toBe("external");
+    expect(args.external.owner).toBe(owner);
+    expect(args.external.tag).toBe("my-executable");
+    expect(args.external.salt).toBe("07".repeat(32));
+    expect(args.external.address).toBe(deployer.contractId());
+    // V1 should NOT have constructorArgs at all
+    expect(args.external.constructorArgs).toBeUndefined();
+  });
+
+  it("handles an external ref V2 creation with constructor args", () => {
+    const deployer = randomContract();
+    const owner = randomContract();
+    const inv = new xdr.SorobanAuthorizedInvocation({
+      function:
+        xdr.SorobanAuthorizedFunction.sorobanAuthorizedFunctionTypeCreateContractV2HostFn(
+          new xdr.CreateContractArgsV2({
+            contractIdPreimage:
+              xdr.ContractIdPreimage.contractIdPreimageFromAddress(
+                new xdr.ContractIdPreimageFromAddress({
+                  address: deployer.address().toScAddress(),
+                  salt: new Uint8Array(32),
+                }),
+              ),
+            constructorArgs: [nativeToScVal(5, { type: "u32" })],
+            executable: xdr.ContractExecutable.contractExecutableExternalRef(
+              new xdr.ContractExecutableExternalRef({
+                executableOwner: owner.address().toScAddress(),
+                tag: "v2-executable",
+              }),
+            ),
+          }),
+        ),
+      subInvocations: [],
+    });
+    const tree = buildInvocationTree(inv);
+    expect(tree.type).toBe("create");
+    const args = tree.args as any;
+    expect(args.type).toBe("external");
+    expect(args.external.owner).toBe(owner.contractId());
+    expect(args.external.tag).toBe("v2-executable");
+    expect(args.external.constructorArgs).toEqual([5]);
+  });
+
+  it("keeps a non-UTF-8 external ref tag as raw bytes", () => {
+    const deployer = randomContract();
+    const owner = randomKey();
+    const tag = new Uint8Array([0xff]);
+    const inv = new xdr.SorobanAuthorizedInvocation({
+      function:
+        xdr.SorobanAuthorizedFunction.sorobanAuthorizedFunctionTypeCreateContractHostFn(
+          new xdr.CreateContractArgs({
+            contractIdPreimage:
+              xdr.ContractIdPreimage.contractIdPreimageFromAddress(
+                new xdr.ContractIdPreimageFromAddress({
+                  address: deployer.address().toScAddress(),
+                  salt: new Uint8Array(32),
+                }),
+              ),
+            executable: xdr.ContractExecutable.contractExecutableExternalRef(
+              new xdr.ContractExecutableExternalRef({
+                executableOwner: new Address(owner).toScAddress(),
+                tag,
+              }),
+            ),
+          }),
+        ),
+      subInvocations: [],
+    });
+    const args = buildInvocationTree(inv).args as any;
+    // A lenient decode would collapse this to U+FFFD, which any other
+    // undecodable tag also renders as.
+    expect(args.external.tag).toEqual(tag);
+  });
+
+  it("throws for an external ref paired with an asset preimage", () => {
+    const issuer = randomKey();
+    const inv = new xdr.SorobanAuthorizedInvocation({
+      function:
+        xdr.SorobanAuthorizedFunction.sorobanAuthorizedFunctionTypeCreateContractHostFn(
+          new xdr.CreateContractArgs({
+            contractIdPreimage:
+              xdr.ContractIdPreimage.contractIdPreimageFromAsset(
+                new Asset("USD", issuer).toXdrObject(),
+              ),
+            executable: xdr.ContractExecutable.contractExecutableExternalRef(
+              new xdr.ContractExecutableExternalRef({
+                executableOwner: new Address(issuer).toScAddress(),
+                tag: "bad",
+              }),
+            ),
+          }),
+        ),
+      subInvocations: [],
+    });
+    expect(() => buildInvocationTree(inv)).toThrow(
+      /creation function appears invalid/,
+    );
+  });
+
   it("throws for mismatched exec/preimage types", () => {
     // wasm executable + asset preimage = invalid
     const issuer = randomKey();

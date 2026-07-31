@@ -36,7 +36,6 @@ export interface StellarValueWire {
  *         void;
  *     case STELLAR_VALUE_SIGNED:
  *         LedgerCloseValueSignature lcValueSignature;
- * #ifdef CAP_0083
  *     case STELLAR_VALUE_EMPTY_TX_SET:
  *         struct
  *         {
@@ -45,7 +44,6 @@ export interface StellarValueWire {
  *             uint32 previousLedgerVersion;
  *             LedgerCloseValueSignature lcValueSignature;
  *         } proposedValue;
- * #endif
  *     }
  *     ext;
  * };

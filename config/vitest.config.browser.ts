@@ -7,6 +7,16 @@ const isAxios = process.env.TRANSPORT === "axios";
 
 export default defineConfig({
   plugins: [aliasHttpClientToAxiosSource(isAxios)],
+  // The two transports produce different module graphs (the plugin above
+  // rewrites the http-client entrypoint), so they hash to different Vite
+  // configs. Sharing one cache dir makes each run discard the other's
+  // pre-bundled deps — every axios run started with "Re-optimizing
+  // dependencies because vite config has changed" and paid the full optimize
+  // cost again. One dir per transport keeps both caches warm.
+  cacheDir: resolve(
+    __dirname,
+    `../node_modules/.vite/browser-${isAxios ? "axios" : "fetch"}`,
+  ),
   test: {
     globals: true,
     environment: "jsdom",
