@@ -39,7 +39,7 @@ import {
 
 const CORPUS_DIR = resolve(
   fileURLToPath(new URL(".", import.meta.url)),
-  "../../../fixtures/horizon-corpus",
+  "../../fixtures/horizon-corpus",
 );
 
 function loadCorpus<T>(filename: string): T[] | null {
