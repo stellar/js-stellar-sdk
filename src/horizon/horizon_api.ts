@@ -687,12 +687,10 @@ export namespace HorizonApi {
     result_codes: {
       transaction: TransactionFailedResultCodes;
       /** Omitted by Horizon when the transaction failed a transaction-level
-       * check (e.g. `tx_bad_seq`) and no operations were evaluated. Typed as
-       * required for backwards compatibility; treat as possibly undefined
-       * when reading the raw response, or use
-       * `TransactionFailedError.getResultCodes()` which normalizes it.
-       * TODO(next major): make this `operations?: string[]`. */
-      operations: string[];
+       * check (e.g. `tx_bad_seq`) and no operations were evaluated. Use
+       * `TransactionFailedError.getResultCodes()` to read it normalized to an
+       * empty array. */
+      operations?: string[];
     };
     result_xdr: string;
   }
