@@ -164,6 +164,45 @@ describe("corpus round-trip: TransactionEnvelope (mainnet)", () => {
   }
 });
 
+describe("corpus JSON round-trip: envelopes and metas (mainnet)", () => {
+  const records = loadCorpus<TransactionRecord>("transactions.json");
+  if (!records || records.length === 0) {
+    it.skip("(no corpus file; run `pnpm tsx scripts/refresh-horizon-corpus.ts`)", () => {});
+    return;
+  }
+
+  // toJson → fromJson on real, large mainnet values. Besides checking the
+  // JSON dialect round-trips, this exercises the memoized per-schema
+  // accepted-key set across many repeated struct nodes.
+  function assertJsonRoundTrip(b64: string, ctor: any): void {
+    const value = ctor.fromXdr(base64ToUint8Array(b64));
+    const round = ctor.fromJson(value.toJson());
+    expect(round.toXdr()).toEqual(value.toXdr());
+  }
+
+  for (const r of records) {
+    it(`envelope ${r.hash.slice(0, 12)}… JSON round-trips`, () => {
+      assertJsonRoundTrip(r.envelope_xdr, TransactionEnvelope);
+    });
+
+    it(`result_meta ${r.hash.slice(0, 12)}… JSON round-trips`, () => {
+      // Same fee-bump dispatch as the byte-level test above: the outer
+      // record's meta is wire-equivalent to an OperationMeta.
+      const envBytes = base64ToUint8Array(r.envelope_xdr);
+      const isFeeBump =
+        new DataView(
+          envBytes.buffer,
+          envBytes.byteOffset,
+          envBytes.byteLength,
+        ).getUint32(0) === 5;
+      assertJsonRoundTrip(
+        r.result_meta_xdr,
+        isFeeBump ? OperationMeta : TransactionMeta,
+      );
+    });
+  }
+});
+
 describe("corpus round-trip: LedgerHeader (mainnet)", () => {
   const records = loadCorpus<LedgerRecord>("ledgers.json");
   if (!records || records.length === 0) {
