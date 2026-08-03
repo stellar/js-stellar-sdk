@@ -54,6 +54,38 @@ export function assertBigIntFits(
 }
 
 /**
+ * Reject decimal strings whose length alone rules out fitting a `bits`-wide
+ * integer, BEFORE the string reaches `BigInt(...)`. Parsing an
+ * attacker-supplied multi-megabyte string costs work per input byte and
+ * produces a value that `assertBigIntFits` is then certain to reject; checking
+ * the length first makes that rejection O(1) and keeps the huge value out of
+ * the range error message.
+ *
+ * Budget formula: a `bits`-wide integer has at most `ceil(bits * log10(2))`
+ * decimal digits (log10(2) ≈ 0.30103) — e.g. 20 digits for a 64-bit value.
+ * The `+ 2` is slack: one character for an optional leading `-` sign, plus
+ * one digit of rounding headroom, giving 22 for 64 bits. Any longer string
+ * cannot possibly denote an in-range value, so no legitimate input is
+ * affected. It does, however, reject padding that `BigInt()` itself would
+ * tolerate (long runs of leading zeros, `+`, surrounding whitespace) once the
+ * string exceeds the budget — intentional, since SEP-51 integer fields carry
+ * canonical decimal strings.
+ */
+export function assertDecimalDigitBudget(
+  s: string,
+  bits: number,
+  name: string,
+): void {
+  const maxDigits = Math.ceil(bits * 0.30103) + 2;
+  if (s.length > maxDigits) {
+    throw new XdrError(
+      `${name}: decimal string length ${s.length} exceeds the ` +
+        `${maxDigits}-character budget for a ${bits}-bit integer`,
+    );
+  }
+}
+
+/**
  * Number-valued counterpart of `assertBigIntFits` for the 32-bit `Int32`/
  * `Uint32` shims: validate that `value` is an integer within a `bits`-wide
  * signed/unsigned range, throwing a consistent `XdrError` otherwise.
