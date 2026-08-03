@@ -82,6 +82,28 @@ export function legacyStructFieldJsonName(field: string): string | undefined {
 // large values (transaction metas) don't rebuild the same maps repeatedly.
 const ENUM_NAME_CACHE = new WeakMap<object, JsonNameMap>();
 const UNION_NAME_CACHE = new WeakMap<object, JsonNameMap>();
+const ACCEPTED_KEY_CACHE = new WeakMap<object, ReadonlySet<string>>();
+
+/**
+ * Every JSON key a struct schema accepts: the snake_case name for each field,
+ * plus the legacy Rust keyword-escaped form (`type_`) where one exists.
+ * Memoized per schema — `StructType` assigns `entries` once in its
+ * constructor, so the array identity is stable for the schema's lifetime.
+ */
+export function acceptedStructJsonKeys(
+  entries: ReadonlyArray<readonly [string, unknown]>,
+): ReadonlySet<string> {
+  const cached = ACCEPTED_KEY_CACHE.get(entries);
+  if (cached) return cached;
+  const accepted = new Set<string>();
+  for (const [k] of entries) {
+    accepted.add(structFieldJsonName(k));
+    const legacy = legacyStructFieldJsonName(k);
+    if (legacy !== undefined) accepted.add(legacy);
+  }
+  ACCEPTED_KEY_CACHE.set(entries, accepted);
+  return accepted;
+}
 
 /**
  * Canonical JSON names for an enum's members. Strips the enum's camelized
