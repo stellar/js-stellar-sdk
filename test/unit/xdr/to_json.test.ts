@@ -945,6 +945,33 @@ describe("SEP-0051 conformance — Stellar-specific asset codes & integers", () 
     expect(json.asset_code).toBe("USDTether");
   });
 
+  it("AssetCode12.fromJson rejects codes shorter than 5 bytes", () => {
+    expect(() => AssetCode12.fromJson("USD")).toThrow(/at least 5 bytes/);
+    expect(() => AssetCode12.fromJson("")).toThrow(/at least 5 bytes/);
+    expect(() => AssetCode12.fromJson("ABCD")).toThrow(/at least 5 bytes/);
+    // 5 escaped bytes (3 chars + 2 NULs, as toJson emits) are still accepted.
+    expect(Array.from(AssetCode12.fromJson("ABC\\0\\0").value)).toEqual([
+      65, 66, 67, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    ]);
+  });
+
+  it("Asset.fromJson rejects a credit_alphanum12 code shorter than 5 bytes", () => {
+    expect(() =>
+      Asset.fromJson({
+        credit_alphanum12: { asset_code: "USD", issuer: STRKEY },
+      }),
+    ).toThrow(/at least 5 bytes/);
+  });
+
+  it("Asset.fromJson keeps the alphanum12 discriminant for genuine 5-12 byte codes", () => {
+    const round = Asset.fromJson({
+      credit_alphanum12: { asset_code: "USDTether", issuer: STRKEY },
+    });
+    const wire = round.toXdr();
+    // AssetType discriminant is the first 4 bytes: 2 = ASSET_TYPE_CREDIT_ALPHANUM12.
+    expect(Array.from(wire.slice(0, 4))).toEqual([0, 0, 0, 2]);
+  });
+
   it("rule 28: Int128Parts → decimal string", () => {
     expect(
       ScVal.scvI128(new Int128Parts({ hi: 0n, lo: 12345n })).toJson(),

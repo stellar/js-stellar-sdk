@@ -720,7 +720,14 @@ OVERRIDES.set("AssetCode12", {
     if (typeof json !== "string") {
       throw new XdrError("AssetCode12: expected escaped-string JSON");
     }
-    return padRightZeros(XdrString.fromJson(json).bytes, 12);
+    const bytes = XdrString.fromJson(json).bytes;
+    if (bytes.length < 5) {
+      throw new XdrError(
+        "AssetCode12: code must be at least 5 bytes; " +
+          "use AssetCode4 for shorter codes",
+      );
+    }
+    return padRightZeros(bytes, 12);
   },
 });
 
