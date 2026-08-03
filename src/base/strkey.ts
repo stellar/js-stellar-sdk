@@ -47,6 +47,25 @@ function hasVersionByteName(
   return Object.prototype.hasOwnProperty.call(versionBytes, versionByteName);
 }
 
+/** Legal encoded (strkey string) length range for a strkey type. */
+function encodedLengthRange(name: VersionByteName): [number, number] {
+  switch (name) {
+    case "ed25519PublicKey":
+    case "ed25519SecretSeed":
+    case "preAuthTx":
+    case "sha256Hash":
+    case "contract":
+    case "liquidityPool":
+      return [56, 56];
+    case "claimableBalance":
+      return [58, 58];
+    case "med25519PublicKey":
+      return [69, 69];
+    case "signedPayload":
+      return [56, 165];
+  }
+}
+
 /**
  * StrKey is a helper class that allows encoding and decoding Stellar keys
  * to/from strings, i.e. between their binary (Uint8Array, xdr.PublicKey, etc.) and
@@ -314,43 +333,9 @@ function isValid(versionByteName: string, encoded: unknown): boolean {
     return false;
   }
 
-  // basic length checks on the strkey lengths
-  switch (versionByteName) {
-    case "ed25519PublicKey": // falls through
-    case "ed25519SecretSeed": // falls through
-    case "preAuthTx": // falls through
-    case "sha256Hash": // falls through
-    case "contract": // falls through
-    case "liquidityPool":
-      if (encoded.length !== 56) {
-        return false;
-      }
-      break;
-
-    case "claimableBalance":
-      if (encoded.length !== 58) {
-        return false;
-      }
-      break;
-
-    case "med25519PublicKey":
-      if (encoded.length !== 69) {
-        return false;
-      }
-      break;
-
-    case "signedPayload":
-      if (encoded.length < 56 || encoded.length > 165) {
-        return false;
-      }
-      break;
-
-    default:
-      return false;
-  }
-
   let decoded: Uint8Array;
   try {
+    // encoded-length bounds are enforced by `decodeCheck`
     decoded = decodeCheck(versionByteName, encoded);
   } catch {
     return false;
@@ -399,6 +384,22 @@ export function decodeCheck(
     throw new TypeError("encoded argument must be of type String");
   }
 
+  if (!hasVersionByteName(versionByteName)) {
+    throw new Error(
+      `${versionByteName} is not a valid version byte name. ` +
+        `Expected one of ${Object.keys(versionBytes).join(", ")}`,
+    );
+  }
+
+  const [minLen, maxLen] = encodedLengthRange(versionByteName);
+  if (encoded.length < minLen || encoded.length > maxLen) {
+    throw new Error(
+      `invalid encoded string length: expected ` +
+        `${minLen === maxLen ? minLen : `${minLen}-${maxLen}`}, ` +
+        `got ${encoded.length}`,
+    );
+  }
+
   const decoded = fromBase32(encoded, { padding: false });
   const versionByte = decoded[0];
   const payload = decoded.slice(0, -2);
@@ -409,12 +410,6 @@ export function decodeCheck(
     throw new Error("invalid encoded string");
   }
 
-  if (!hasVersionByteName(versionByteName)) {
-    throw new Error(
-      `${versionByteName} is not a valid version byte name. ` +
-        `Expected one of ${Object.keys(versionBytes).join(", ")}`,
-    );
-  }
   const expectedVersion = versionBytes[versionByteName];
 
   if (versionByte !== expectedVersion) {

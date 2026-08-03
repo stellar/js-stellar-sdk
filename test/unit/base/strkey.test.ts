@@ -60,11 +60,13 @@ describe("StrKey", () => {
           "GBPXX0A5N4JYPESHAADMQKBPWZWQDQ64ZV6ZL2S3LAGW4SY7NTCMWIVL",
         ),
       ).toThrow(/invalid character in base32 input/i);
-      expect(() =>
-        StrKey.decodeEd25519PublicKey(
-          "GCFZB6L25D26RQFDWSSBDEYQ32JHLRMTT44ZYE3DZQUTYOL7WY43PLBG++",
-        ),
-      ).toThrow(/invalid character in base32 input/i);
+      expect(
+        () =>
+          StrKey.decodeEd25519PublicKey(
+            "GCFZB6L25D26RQFDWSSBDEYQ32JHLRMTT44ZYE3DZQUTYOL7WY43PLBG++",
+          ),
+        // 58 chars: rejected by the encoded-length guard before base32 decode
+      ).toThrow(/invalid encoded string length/i);
       expect(() =>
         StrKey.decodeEd25519PublicKey(
           "GADE5QJ2TY7S5ZB65Q43DFGWYWCPHIYDJ2326KZGAGBN7AE5UY6JVDRRA",
@@ -115,11 +117,13 @@ describe("StrKey", () => {
       ).toThrow(
         /invalid (encoded string|base32 length|last chunk|character in base32 input)/i,
       );
-      expect(() =>
-        StrKey.decodeEd25519SecretSeed(
-          "SAYC2LQ322EEHZYWNSKBEW6N66IRTDREEBUXXU5HPVZGMAXKLIZNM45H++",
-        ),
-      ).toThrow(/invalid character in base32 input/i);
+      expect(
+        () =>
+          StrKey.decodeEd25519SecretSeed(
+            "SAYC2LQ322EEHZYWNSKBEW6N66IRTDREEBUXXU5HPVZGMAXKLIZNM45H++",
+          ),
+        // 58 chars: rejected by the encoded-length guard before base32 decode
+      ).toThrow(/invalid encoded string length/i);
     });
 
     it("throws an error when the checksum is wrong", () => {
@@ -133,6 +137,88 @@ describe("StrKey", () => {
           "SBGWKM3CD4IL47QN6X54N6Y33T3JDNVI6AIJ6CD5IM47HG3IG4O36XCX",
         ),
       ).toThrow(/invalid checksum/);
+    });
+  });
+
+  describe("#decodeCheck length bounds", () => {
+    it("rejects an oversized G-shaped string before decoding", () => {
+      const huge = `G${"A".repeat(1_000_000)}`;
+      expect(() => StrKey.decodeEd25519PublicKey(huge)).toThrow(
+        /invalid encoded string length: expected 56, got 1000001/,
+      );
+    });
+
+    it("rejects oversized canonical T- and X-shaped strings", () => {
+      const big = new Uint8Array(1024);
+      expect(() =>
+        StrKey.decodePreAuthTx(encodeCheck("preAuthTx", big)),
+      ).toThrow(/invalid encoded string length/);
+      expect(() =>
+        StrKey.decodeSha256Hash(encodeCheck("sha256Hash", big)),
+      ).toThrow(/invalid encoded string length/);
+    });
+
+    it("rejects a checksummed strkey with a wrong-sized payload", () => {
+      // encodes fine (valid version byte + CRC16) but is not 32 bytes, so
+      // decodeCheck must throw rather than return a 37-byte buffer
+      const wrongSize = encodeCheck("ed25519PublicKey", new Uint8Array(37));
+      expect(() => decodeCheck("ed25519PublicKey", wrongSize)).toThrow(
+        /invalid encoded string length/,
+      );
+    });
+
+    it("rejects unknown version byte names before decoding", () => {
+      expect(() => decodeCheck("notAType", PUBKEY)).toThrow(
+        /not a valid version byte name/,
+      );
+    });
+
+    it("still decodes valid strkeys of every type (regression)", () => {
+      const raw32 = StrKey.decodeEd25519PublicKey(PUBKEY);
+
+      // 56-char fixed-length types
+      expect(StrKey.decodeEd25519PublicKey(PUBKEY)).toHaveLength(32); // G
+      expect(
+        StrKey.decodeEd25519SecretSeed(StrKey.encodeEd25519SecretSeed(raw32)),
+      ).toEqual(raw32); // S
+      expect(StrKey.decodePreAuthTx(StrKey.encodePreAuthTx(raw32))).toEqual(
+        raw32,
+      ); // T
+      expect(StrKey.decodeSha256Hash(StrKey.encodeSha256Hash(raw32))).toEqual(
+        raw32,
+      ); // X
+      expect(
+        StrKey.decodeContract(
+          "CA3D5KRYM6CB7OWQ6TWYRR3Z4T7GNZLKERYNZGGA5SOAOPIFY6YQGAXE",
+        ),
+      ).toHaveLength(32); // C
+      expect(
+        StrKey.decodeLiquidityPool(
+          "LA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJUPJN",
+        ),
+      ).toHaveLength(32); // L
+
+      // 58-char B
+      expect(
+        StrKey.decodeClaimableBalance(
+          "BAAD6DBUX6J22DMZOHIEZTEQ64CVCHEDRKWZONFEUL5Q26QD7R76RGR4TU",
+        ),
+      ).toHaveLength(33);
+
+      // 69-char M
+      expect(StrKey.decodeMed25519PublicKey(MPUBKEY)).toHaveLength(40);
+
+      // variable-length P (32-byte and 29-byte payloads)
+      expect(
+        StrKey.decodeSignedPayload(
+          "PA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJUAAAAAQACAQDAQCQMBYIBEFAWDANBYHRAEISCMKBKFQXDAMRUGY4DUPB6IBZGM",
+        ),
+      ).toHaveLength(32 + 4 + 32);
+      expect(
+        StrKey.decodeSignedPayload(
+          "PA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJUAAAAAOQCAQDAQCQMBYIBEFAWDANBYHRAEISCMKBKFQXDAMRUGY4DUAAAAFGBU",
+        ),
+      ).toHaveLength(32 + 4 + 29 + 3); // payload zero-padded to 4-byte boundary
     });
   });
 
