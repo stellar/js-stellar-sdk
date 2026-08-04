@@ -42,7 +42,8 @@ const RPC_URL = process.env.RPC_URL ?? "https://mainnet.sorobanrpc.com";
 const OUT_DIR = resolve(import.meta.dirname, "../test/fixtures/rpc-corpus");
 const COUNT = readCount(process.env.COUNT, 50);
 
-// RPC caps a single page at 200 records for both methods.
+// Use 200-record pages: this is getTransactions' cap and is also a
+// conservative page size for getLedgers (whose cap is 10,000).
 const PAGE_LIMIT = 200;
 
 interface RpcTransaction {
