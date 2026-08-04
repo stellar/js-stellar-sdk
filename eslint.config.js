@@ -109,6 +109,18 @@ const scriptsConfig = [
   },
 ];
 
+const examplesConfig = [
+  {
+    name: "examples/typescript",
+    files: ["examples/**/*.ts"],
+    languageOptions: {
+      parserOptions: {
+        project: "./test/guides/tsconfig.json",
+      },
+    },
+  },
+];
+
 // The base XDR/SDK module preserves a public API shape (namespace+const merging,
 // XDR-string-literal type aliases, snake_case helpers like `best_r`, leading-_
 // internals) and uses a "public API at top, helpers below" file layout. Loosen
@@ -188,6 +200,8 @@ export default [
   ...testConfig,
   // Scripts Config (uses scripts/tsconfig.json for type-aware lint)
   ...scriptsConfig,
+  // Examples Config (uses test/guides/tsconfig.json for type-aware lint)
+  ...examplesConfig,
   // Base SDK overrides (must come after typescriptConfig/tsdocConfig)
   ...baseSdkConfig,
   // Scripts overrides (must come after typescriptConfig/scriptsConfig)
