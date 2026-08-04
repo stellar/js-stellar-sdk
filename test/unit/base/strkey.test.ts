@@ -717,13 +717,16 @@ describe("StrKey", () => {
       });
     }
 
-    it("current limitation: claimable balance discriminant is not validated", () => {
+    it("rejects an unknown claimable balance discriminant", () => {
+      // CLAIMABLE_BALANCE_ID_TYPE_V0 (0) is the union's only case, so the wire
+      // decoder refuses anything else; the strkey checksum covers whatever
+      // discriminant byte is present, so this has to be checked separately.
       const invalidDiscriminant =
         "BAAT6DBUX6J22DMZOHIEZTEQ64CVCHEDRKWZONFEUL5Q26QD7R76RGXACA";
       expect(() =>
         decodeCheck("claimableBalance", invalidDiscriminant),
-      ).not.toThrow();
-      expect(StrKey.isValidClaimableBalance(invalidDiscriminant)).toBe(true);
+      ).toThrow(/unknown discriminant/);
+      expect(StrKey.isValidClaimableBalance(invalidDiscriminant)).toBe(false);
     });
   });
 });
