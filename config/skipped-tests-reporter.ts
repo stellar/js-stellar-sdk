@@ -19,6 +19,19 @@ interface SkipRecord {
   note: string | undefined;
 }
 
+// Per-path tally. A run can load one path several times — the browser suite
+// loads every file once per browser — so whole-file status has to be counted
+// against the number of modules for that path, not stored as a single flag.
+// Otherwise a file skipped in one browser reads as dead in all of them.
+interface FileStatus {
+  modules: number;
+  wholeSkipped: number;
+  // Projects behind `wholeSkipped`, kept for display when only some skipped.
+  projects: Set<string>;
+}
+
+type FileStatuses = Map<string, FileStatus>;
+
 const RULE = "─".repeat(72);
 
 function toRecord(mod: TestModule, test: TestCase): SkipRecord {
@@ -35,20 +48,34 @@ function toRecord(mod: TestModule, test: TestCase): SkipRecord {
 function collect(testModules: ReadonlyArray<TestModule>): {
   skipped: SkipRecord[];
   todo: SkipRecord[];
-  wholeFiles: Set<string>;
+  statuses: FileStatuses;
 } {
   const skipped: SkipRecord[] = [];
   const todo: SkipRecord[] = [];
-  const wholeFiles = new Set<string>();
+  const statuses: FileStatuses = new Map();
 
   for (const mod of testModules) {
+    const file = mod.relativeModuleId;
+    const status = statuses.get(file) ?? {
+      modules: 0,
+      wholeSkipped: 0,
+      projects: new Set<string>(),
+    };
+    // Counted before the early continue below: a project that ran the file in
+    // full still has to weigh in on "did every project skip this?".
+    status.modules += 1;
+    statuses.set(file, status);
+
     const all = [...mod.children.allTests()];
     const notRun = all.filter((test) => test.result().state === "skipped");
     if (notRun.length === 0) continue;
 
     // Nothing in this file ran at all — the loudest case, and the one a
     // single "1 skipped" file count hides completely.
-    if (notRun.length === all.length) wholeFiles.add(mod.relativeModuleId);
+    if (notRun.length === all.length) {
+      status.wholeSkipped += 1;
+      status.projects.add(mod.project.name);
+    }
 
     for (const test of notRun) {
       const record = toRecord(mod, test);
@@ -62,19 +89,39 @@ function collect(testModules: ReadonlyArray<TestModule>): {
     }
   }
 
-  return { skipped, todo, wholeFiles };
+  return { skipped, todo, statuses };
+}
+
+// A path only counts as entirely skipped when every module for it skipped
+// everything.
+function isFullySkipped(status: FileStatus): boolean {
+  return status.wholeSkipped > 0 && status.wholeSkipped === status.modules;
+}
+
+function entireFileFlag(file: string, statuses: FileStatuses): string {
+  const status = statuses.get(file);
+  if (!status || status.wholeSkipped === 0) return "";
+  if (isFullySkipped(status)) return "   <-- ENTIRE FILE";
+
+  // Only some projects skipped the whole file, so say which — the file did run
+  // elsewhere and a bare "ENTIRE FILE" would be a false alarm.
+  const named = [...status.projects].filter((project) => project !== "").sort();
+  const where = named.map((project) => `[${project}]`).join(", ");
+  return where
+    ? `   <-- ENTIRE FILE in ${where}`
+    : "   <-- ENTIRE FILE in some projects";
 }
 
 function headline(
   skipped: number,
   todo: number,
-  wholeFiles: Set<string>,
+  statuses: FileStatuses,
 ): string {
   const counts: string[] = [];
   if (skipped > 0) counts.push(`${skipped} skipped`);
   if (todo > 0) counts.push(`${todo} todo`);
 
-  const files = wholeFiles.size;
+  const files = [...statuses.values()].filter(isFullySkipped).length;
   const entirely =
     files > 0
       ? `, including ${files} file${files === 1 ? "" : "s"} entirely`
@@ -86,7 +133,7 @@ function headline(
 function section(
   label: string,
   records: SkipRecord[],
-  wholeFiles: Set<string>,
+  statuses: FileStatuses,
   showProject: boolean,
 ): string[] {
   const byFile = new Map<string, SkipRecord[]>();
@@ -103,8 +150,7 @@ function section(
   const files = [...byFile.keys()].sort((a, b) => a.localeCompare(b));
   for (const file of files) {
     const group = byFile.get(file) ?? [];
-    const flag = wholeFiles.has(file) ? "   <-- ENTIRE FILE" : "";
-    lines.push(`  ${file}${flag}`);
+    lines.push(`  ${file}${entireFileFlag(file, statuses)}`);
     for (const record of group) {
       const project = showProject ? ` [${record.project}]` : "";
       const note = record.note ? ` — ${record.note}` : "";
@@ -117,22 +163,22 @@ function section(
 
 export class SkippedTestsReporter implements Reporter {
   onTestRunEnd(testModules: ReadonlyArray<TestModule>): void {
-    const { skipped, todo, wholeFiles } = collect(testModules);
+    const { skipped, todo, statuses } = collect(testModules);
     if (skipped.length === 0 && todo.length === 0) return;
 
     // Browser runs execute the same files once per browser instance, so the
     // same test name shows up twice; the project name is what tells them apart.
-    const projects = new Set(
-      [...skipped, ...todo].map((record) => record.project),
-    );
+    // Derived from the projects active in the run rather than the ones holding
+    // skips, so a finding that applies to only one project still names it.
+    const projects = new Set(testModules.map((mod) => mod.project.name));
     const showProject = projects.size > 1;
 
-    const lines = ["", RULE, headline(skipped.length, todo.length, wholeFiles)];
+    const lines = ["", RULE, headline(skipped.length, todo.length, statuses)];
     if (skipped.length > 0) {
-      lines.push(...section("skipped", skipped, wholeFiles, showProject));
+      lines.push(...section("skipped", skipped, statuses, showProject));
     }
     if (todo.length > 0) {
-      lines.push(...section("todo", todo, wholeFiles, showProject));
+      lines.push(...section("todo", todo, statuses, showProject));
     }
     lines.push(RULE, "");
 
