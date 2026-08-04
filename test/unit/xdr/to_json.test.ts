@@ -16,6 +16,7 @@ import {
   ContractId,
   PublicKey,
   ScVal,
+  ScValType,
   ScAddress,
   ScBytes,
   ScMapEntry,
@@ -326,6 +327,119 @@ describe("walker — Rust-keyword struct fields (`type`)", () => {
     delete json.type;
     const round = ContractEvent.fromJson(json as never);
     expect(round.toXdr()).toEqual(event.toXdr());
+  });
+
+  it("fromJson rejects a field supplied as both `type` and `type_`", () => {
+    const json = event.toJson() as Record<string, unknown>;
+    json.type_ = json.type; // both spellings present — ambiguous
+    expect(() => ContractEvent.fromJson(json as never)).toThrow(
+      /field type given as both type and type_/,
+    );
+  });
+});
+
+describe("walker — camelCase JSON input is rejected (SEP-0051 only)", () => {
+  it("struct: a camelCase alias alongside snake_case is rejected as unknown", () => {
+    // Originally `assetCode` was an accepted alias and the walker silently
+    // picked snake_case, discarding the conflicting value. It is no longer
+    // an accepted spelling, and unknown keys are rejected outright — so a
+    // consumer inspecting `assetCode` can never see a value the codec
+    // ignored.
+    expect(() =>
+      AlphaNum4.fromJson({
+        asset_code: "USD",
+        assetCode: "EVIL",
+        issuer: STRKEY,
+      } as never),
+    ).toThrow(/unknown field assetCode/);
+  });
+
+  it("struct: camelCase-only keys throw unknown-field", () => {
+    expect(() =>
+      AlphaNum4.fromJson({ assetCode: "USD", issuer: STRKEY } as never),
+    ).toThrow(/unknown field assetCode/);
+  });
+
+  it("enum: snake_case member name works, raw camelCase source name throws", () => {
+    expect(ScValType.fromJson("i32")).toBe(ScValType.scvI32);
+    expect(() => ScValType.fromJson("scvI32")).toThrow(/unknown enum name/);
+  });
+
+  it("union: snake_case case key works, raw camelCase source name throws", () => {
+    const payload = {
+      asset_code: "USD",
+      issuer: STRKEY,
+    };
+    const round = Asset.fromJson({ credit_alphanum4: payload });
+    expect(round.type).toBe("assetTypeCreditAlphanum4");
+    expect(() =>
+      Asset.fromJson({ assetTypeCreditAlphanum4: payload } as never),
+    ).toThrow(/unknown case/);
+  });
+});
+
+describe("walker — unknown struct keys are rejected", () => {
+  it("a typo'd OPTIONAL field key throws instead of silently decoding null", () => {
+    // ContractEvent.contractId is optional: an absent `contract_id` maps to
+    // `null`, so before unknown-key rejection a typo'd key produced a
+    // *successfully decoded* event with the contract id silently dropped.
+    const event = new ContractEvent({
+      ext: ExtensionPoint.v0(),
+      contractId: new ContractId(new Uint8Array(32).fill(9)),
+      type: ContractEventType.contract,
+      body: ContractEventBody.v0(
+        new ContractEventV0({ topics: [], data: ScVal.scvVoid() }),
+      ),
+    });
+    const json = event.toJson() as Record<string, unknown>;
+    json.contract_idd = json.contract_id; // typo
+    delete json.contract_id;
+    expect(() => ContractEvent.fromJson(json as never)).toThrow(
+      /unknown field contract_idd/,
+    );
+  });
+
+  it("a typo'd key alongside otherwise-valid input throws", () => {
+    expect(() =>
+      AlphaNum4.fromJson({
+        asset_code: "USD",
+        issuer: STRKEY,
+        asset_codee: "XLM",
+      } as never),
+    ).toThrow(/unknown field asset_codee/);
+  });
+
+  it("the legacy `type_` spelling does not trip the unknown-key check", () => {
+    const event = new ContractEvent({
+      ext: ExtensionPoint.v0(),
+      contractId: null,
+      type: ContractEventType.contract,
+      body: ContractEventBody.v0(
+        new ContractEventV0({ topics: [], data: ScVal.scvVoid() }),
+      ),
+    });
+    const json = event.toJson() as Record<string, unknown>;
+    json.type_ = json.type;
+    delete json.type;
+    const round = ContractEvent.fromJson(json as never);
+    expect(round.toXdr()).toEqual(event.toXdr());
+  });
+
+  it("large/deep round-trip: repeated structs share the memoized key set", () => {
+    // Thousands of ScMapEntry structs against the same schema — exercises
+    // the WeakMap-cached accepted-key set on a hot decode path.
+    const entries = [];
+    for (let i = 0; i < 2000; i += 1) {
+      entries.push(
+        new ScMapEntry({
+          key: ScVal.scvU32(i),
+          val: ScVal.scvVec([ScVal.scvSymbol(`v${i}`)]),
+        }),
+      );
+    }
+    const original = ScVal.scvMap(entries);
+    const round = ScVal.fromJson(original.toJson());
+    expect(round.toXdr()).toEqual(original.toXdr());
   });
 });
 
@@ -756,17 +870,17 @@ describe("SEP-0051 conformance — composites", () => {
     });
   });
 
-  it("rule 15 round-trip: struct fromJson accepts both snake_case and camelCase keys", () => {
+  it("rule 15 round-trip: struct fromJson accepts only snake_case keys", () => {
     const an4 = new AlphaNum4({
       assetCode: asciiCode("USD", 4),
       issuer: PublicKey.publicKeyTypeEd25519(ED),
     });
     // Snake-case (canonical):
     expect(AlphaNum4.fromJson(an4.toJson()).toXdr()).toEqual(an4.toXdr());
-    // Camel-case (legacy / forgiving): also accepted.
-    expect(
-      AlphaNum4.fromJson({ assetCode: "USD", issuer: STRKEY }).toXdr(),
-    ).toEqual(an4.toXdr());
+    // Camel-case is rejected: it is not SEP-0051 JSON, and never emitted.
+    expect(() =>
+      AlphaNum4.fromJson({ assetCode: "USD", issuer: STRKEY }),
+    ).toThrow(/unknown field assetCode/);
   });
 
   it("rule 16: union void arm → snake_case string", () => {

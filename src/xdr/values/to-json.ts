@@ -20,6 +20,7 @@ import type {
 import type { JsonValue } from "./xdr-value.js";
 import { XdrString } from "./xdr-string.js";
 import {
+  acceptedStructJsonKeys,
   legacyStructFieldJsonName,
   structFieldJsonName,
   enumJsonNames,
@@ -232,10 +233,6 @@ export function walkFromJson(
           if (name === sourceName) return value;
         }
       }
-      // Tolerate the raw (camelCase) source name as well.
-      for (const [value, name] of e.nameByValue) {
-        if (name === target) return value;
-      }
       throw new XdrError(
         `${schema.name ?? "enum"}: unknown enum name ${target}`,
       );
@@ -274,21 +271,37 @@ export function walkFromJson(
       }
       const rec = json as Record<string, JsonValue>;
       const out: Record<string, unknown> = {};
-      // Accept the SEP-0051 snake_case key, the legacy Rust keyword-escaped
-      // key (`type_` from the `stellar-xdr` crate's buggy output), or the raw
-      // camelCase wire name (so internally-produced JSON round-trips even if
-      // a caller hands us camelCase).
+      // Accept the SEP-0051 snake_case key or the legacy Rust keyword-escaped
+      // key (`type_` from the `stellar-xdr` crate's buggy output). Supplying
+      // both spellings of the same field is ambiguous and rejected. Any other
+      // key is rejected outright: an absent optional field maps to `null`, so
+      // a silently ignored typo'd key would otherwise drop data undetectably.
+      const accepted = acceptedStructJsonKeys(s.entries);
+      for (const key of Object.keys(rec)) {
+        if (!accepted.has(key)) {
+          throw new XdrError(
+            `${schema.name ?? "struct"}: unknown field ${key}`,
+          );
+        }
+      }
       for (const [k, fieldSchema] of s.entries) {
         const snake = structFieldJsonName(k);
         const legacy = legacyStructFieldJsonName(k);
-        const lookupKey =
-          snake in rec
-            ? snake
-            : legacy !== undefined && legacy in rec
-              ? legacy
-              : k in rec
-                ? k
-                : undefined;
+        if (
+          legacy !== undefined &&
+          Object.hasOwn(rec, snake) &&
+          Object.hasOwn(rec, legacy)
+        ) {
+          throw new XdrError(
+            `${schema.name ?? "struct"}: field ${k} given as both ` +
+              `${snake} and ${legacy}`,
+          );
+        }
+        const lookupKey = Object.hasOwn(rec, snake)
+          ? snake
+          : legacy !== undefined && Object.hasOwn(rec, legacy)
+            ? legacy
+            : undefined;
         if (lookupKey === undefined) {
           // Match the serde-based Rust reference: an omitted optional field
           // is None, so JSON from tooling that skips nulls still parses.
@@ -335,11 +348,13 @@ function unionFromJson(json: JsonValue, schema: UnionSchema<unknown>): unknown {
     );
   }
 
-  // Accept either the SEP-0051 form (snake_case, prefix stripped) or the
-  // raw camelCase source name.
+  // Only the SEP-0051 form (snake_case, prefix stripped) is accepted.
   const names = unionCaseNames(schema);
-  const sourceName = names.byJson.get(jsonKey) ?? jsonKey;
-  const matched = schema.cases.find((c) => c.name === sourceName);
+  const sourceName = names.byJson.get(jsonKey);
+  const matched =
+    sourceName === undefined
+      ? undefined
+      : schema.cases.find((c) => c.name === sourceName);
   if (matched === undefined) {
     // See the walkToJson union case: default arms are deliberately
     // unsupported — the "default" JSON key would discard the discriminant.

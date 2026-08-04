@@ -637,16 +637,39 @@ schema name:
 | `AssetCode4`                                                 | trimmed text (trailing zero bytes removed)                                |
 | `AssetCode12`                                                | trimmed text, minimum 5 bytes (so it's distinguishable from `AssetCode4`) |
 
-### `fromJson` accepts both canonical and forgiving inputs
+### `fromJson` accepts SEP-0051 keys only
 
-`fromJson` is lenient on input shape — accepts either the SEP-0051 form
-(snake_case keys) or the raw wire field names (camelCase keys), so
-internally-produced JSON round-trips even if a caller hands you the older shape.
+`fromJson` accepts the SEP-0051 form and nothing else. The raw wire field names
+(camelCase) are **not** accepted, and an unknown struct key is rejected rather
+than ignored — an omitted optional field decodes to `null`, so a silently
+skipped typo would drop data without any error.
 
 ```ts
-// Both work:
-xdr.AlphaNum4.fromJson({ asset_code: "USD", issuer: "GAAQ…" }); // canonical
-xdr.AlphaNum4.fromJson({ assetCode: "USD", issuer: "GAAQ…" }); // legacy
+xdr.AlphaNum4.fromJson({ asset_code: "USD", issuer: "GAAQ…" }); // ok
+xdr.AlphaNum4.fromJson({ assetCode: "USD", issuer: "GAAQ…" }); // throws: unknown field assetCode
+xdr.AlphaNum4.fromJson({ asset_code: "USD", issuer: "GAAQ…", extra: 1 }); // throws: unknown field extra
+```
+
+The same applies to enum and union case names — only the snake_case,
+prefix-stripped spelling works:
+
+```ts
+xdr.ScValType.fromJson("i32"); // ok
+xdr.ScValType.fromJson("scvI32"); // throws: unknown enum name scvI32
+xdr.Asset.fromJson({ credit_alphanum4: payload }); // ok
+xdr.Asset.fromJson({ assetTypeCreditAlphanum4: payload }); // throws: unknown case
+```
+
+One exception: for struct fields whose name is a Rust keyword, the Rust
+`stellar-xdr` crate emits a keyword-escaped key (`type_` instead of `type`).
+`fromJson` accepts that legacy spelling alongside the plain one so JSON from the
+Rust tooling still parses. Supplying both spellings of the same field is
+ambiguous and throws.
+
+```ts
+xdr.ContractEvent.fromJson({ ...rest, type: "contract" }); // ok (canonical)
+xdr.ContractEvent.fromJson({ ...rest, type_: "contract" }); // ok (Rust legacy)
+xdr.ContractEvent.fromJson({ ...rest, type: "contract", type_: "contract" }); // throws
 ```
 
 ### Method names
