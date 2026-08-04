@@ -3,7 +3,7 @@
 // under class hoisting — every reference site runs after both classes are fully
 // initialized.
 import { case as case_, field, union, void as voidType } from "@stellar/js-xdr";
-import type { XdrType } from "@stellar/js-xdr";
+import { XdrError, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import { InvokeHostFunctionResultCode } from "./invoke-host-function-result-code.js";
 import { Hash, type HashWire } from "./hash.js";
@@ -103,6 +103,11 @@ abstract class InvokeHostFunctionResultBase extends XdrValue {
       case -5:
         return new InvokeHostFunctionResultInsufficientRefundableFee();
     }
+    // unreachable for a well-typed wire object; a hand-built one can still
+    // carry an out-of-range discriminant
+    throw new XdrError(
+      `InvokeHostFunctionResult: unknown code ${(wire as { code: unknown }).code}`,
+    );
   }
 
   /**

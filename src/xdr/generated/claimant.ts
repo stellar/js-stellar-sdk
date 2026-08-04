@@ -3,7 +3,7 @@
 // under class hoisting — every reference site runs after both classes are fully
 // initialized.
 import { case as case_, field, union } from "@stellar/js-xdr";
-import type { XdrType } from "@stellar/js-xdr";
+import { XdrError, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import { ClaimantType } from "./claimant-type.js";
 import { ClaimantV0, type ClaimantV0Wire } from "./claimant-v0.js";
@@ -42,6 +42,11 @@ abstract class ClaimantBase extends XdrValue {
       case 0:
         return new ClaimantV0Arm(ClaimantV0.fromXdrObject(wire.v0));
     }
+    // unreachable for a well-typed wire object; a hand-built one can still
+    // carry an out-of-range discriminant
+    throw new XdrError(
+      `Claimant: unknown type ${(wire as { type: unknown }).type}`,
+    );
   }
 
   /**

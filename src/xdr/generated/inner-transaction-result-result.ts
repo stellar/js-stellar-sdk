@@ -9,7 +9,7 @@ import {
   union,
   void as voidType,
 } from "@stellar/js-xdr";
-import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
+import { UNBOUNDED_MAX_LENGTH, XdrError, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import { TransactionResultCode } from "./transaction-result-code.js";
 import {
@@ -246,6 +246,11 @@ abstract class InnerTransactionResultResultBase extends XdrValue {
       case -18:
         return new InnerTransactionResultResultTxFrozenKeyAccessed();
     }
+    // unreachable for a well-typed wire object; a hand-built one can still
+    // carry an out-of-range discriminant
+    throw new XdrError(
+      `InnerTransactionResultResult: unknown code ${(wire as { code: unknown }).code}`,
+    );
   }
 
   /**

@@ -9,7 +9,7 @@ import {
   union,
   void as voidType,
 } from "@stellar/js-xdr";
-import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
+import { UNBOUNDED_MAX_LENGTH, XdrError, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import { InflationResultCode } from "./inflation-result-code.js";
 import {
@@ -72,6 +72,11 @@ abstract class InflationResultBase extends XdrValue {
       case -1:
         return new InflationResultNotTime();
     }
+    // unreachable for a well-typed wire object; a hand-built one can still
+    // carry an out-of-range discriminant
+    throw new XdrError(
+      `InflationResult: unknown code ${(wire as { code: unknown }).code}`,
+    );
   }
 
   /**

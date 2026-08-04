@@ -3,7 +3,7 @@
 // under class hoisting — every reference site runs after both classes are fully
 // initialized.
 import { case as case_, field, union } from "@stellar/js-xdr";
-import type { XdrType } from "@stellar/js-xdr";
+import { XdrError, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import { ScMetaKind } from "./sc-meta-kind.js";
 import { ScMetaV0, type ScMetaV0Wire } from "./sc-meta-v0.js";
@@ -39,6 +39,11 @@ abstract class ScMetaEntryBase extends XdrValue {
       case 0:
         return new ScMetaEntryScMetaV0(ScMetaV0.fromXdrObject(wire.v0));
     }
+    // unreachable for a well-typed wire object; a hand-built one can still
+    // carry an out-of-range discriminant
+    throw new XdrError(
+      `ScMetaEntry: unknown kind ${(wire as { kind: unknown }).kind}`,
+    );
   }
 
   /**

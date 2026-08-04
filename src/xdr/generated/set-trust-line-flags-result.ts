@@ -3,7 +3,7 @@
 // under class hoisting — every reference site runs after both classes are fully
 // initialized.
 import { case as case_, union, void as voidType } from "@stellar/js-xdr";
-import type { XdrType } from "@stellar/js-xdr";
+import { XdrError, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import { SetTrustLineFlagsResultCode } from "./set-trust-line-flags-result-code.js";
 
@@ -98,6 +98,11 @@ abstract class SetTrustLineFlagsResultBase extends XdrValue {
       case -5:
         return new SetTrustLineFlagsResultLowReserve();
     }
+    // unreachable for a well-typed wire object; a hand-built one can still
+    // carry an out-of-range discriminant
+    throw new XdrError(
+      `SetTrustLineFlagsResult: unknown code ${(wire as { code: unknown }).code}`,
+    );
   }
 
   /**

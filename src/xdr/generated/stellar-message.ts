@@ -10,7 +10,7 @@ import {
   uint32,
   union,
 } from "@stellar/js-xdr";
-import type { XdrType } from "@stellar/js-xdr";
+import { XdrError, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import { MessageType } from "./message-type.js";
 import { Error, type ErrorWire } from "./error.js";
@@ -433,6 +433,11 @@ abstract class StellarMessageBase extends XdrValue {
           FloodDemand.fromXdrObject(wire.floodDemand),
         );
     }
+    // unreachable for a well-typed wire object; a hand-built one can still
+    // carry an out-of-range discriminant
+    throw new XdrError(
+      `StellarMessage: unknown type ${(wire as { type: unknown }).type}`,
+    );
   }
 
   /**

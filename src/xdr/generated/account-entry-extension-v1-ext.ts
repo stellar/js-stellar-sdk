@@ -9,7 +9,7 @@ import {
   union,
   void as voidType,
 } from "@stellar/js-xdr";
-import type { XdrType } from "@stellar/js-xdr";
+import { XdrError, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import {
   AccountEntryExtensionV2,
@@ -67,6 +67,11 @@ abstract class AccountEntryExtensionV1ExtBase extends XdrValue {
           AccountEntryExtensionV2.fromXdrObject(wire.v2),
         );
     }
+    // unreachable for a well-typed wire object; a hand-built one can still
+    // carry an out-of-range discriminant
+    throw new XdrError(
+      `AccountEntryExtensionV1Ext: unknown v ${(wire as { v: unknown }).v}`,
+    );
   }
 
   /**

@@ -12,7 +12,7 @@ import {
   union,
   void as voidType,
 } from "@stellar/js-xdr";
-import type { XdrType } from "@stellar/js-xdr";
+import { XdrError, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import { ClaimPredicateType } from "./claim-predicate-type.js";
 
@@ -155,6 +155,11 @@ abstract class ClaimPredicateBase extends XdrValue {
       case 5:
         return new ClaimPredicateBeforeRelativeTime(wire.relBefore);
     }
+    // unreachable for a well-typed wire object; a hand-built one can still
+    // carry an out-of-range discriminant
+    throw new XdrError(
+      `ClaimPredicate: unknown type ${(wire as { type: unknown }).type}`,
+    );
   }
 
   /**

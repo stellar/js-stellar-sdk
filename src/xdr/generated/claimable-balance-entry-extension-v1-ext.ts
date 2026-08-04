@@ -3,7 +3,7 @@
 // under class hoisting — every reference site runs after both classes are fully
 // initialized.
 import { case as case_, int32, union, void as voidType } from "@stellar/js-xdr";
-import type { XdrType } from "@stellar/js-xdr";
+import { XdrError, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 
 export type ClaimableBalanceEntryExtensionV1ExtWire = { v: 0 };
@@ -40,6 +40,11 @@ abstract class ClaimableBalanceEntryExtensionV1ExtBase extends XdrValue {
       case 0:
         return new ClaimableBalanceEntryExtensionV1ExtV0();
     }
+    // unreachable for a well-typed wire object; a hand-built one can still
+    // carry an out-of-range discriminant
+    throw new XdrError(
+      `ClaimableBalanceEntryExtensionV1Ext: unknown v ${(wire as { v: unknown }).v}`,
+    );
   }
 
   /**

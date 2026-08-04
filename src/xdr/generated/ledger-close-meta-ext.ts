@@ -9,7 +9,7 @@ import {
   union,
   void as voidType,
 } from "@stellar/js-xdr";
-import type { XdrType } from "@stellar/js-xdr";
+import { XdrError, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import {
   LedgerCloseMetaExtV1,
@@ -65,6 +65,11 @@ abstract class LedgerCloseMetaExtBase extends XdrValue {
           LedgerCloseMetaExtV1.fromXdrObject(wire.v1),
         );
     }
+    // unreachable for a well-typed wire object; a hand-built one can still
+    // carry an out-of-range discriminant
+    throw new XdrError(
+      `LedgerCloseMetaExt: unknown v ${(wire as { v: unknown }).v}`,
+    );
   }
 
   /**

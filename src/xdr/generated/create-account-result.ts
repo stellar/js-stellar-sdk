@@ -3,7 +3,7 @@
 // under class hoisting — every reference site runs after both classes are fully
 // initialized.
 import { case as case_, union, void as voidType } from "@stellar/js-xdr";
-import type { XdrType } from "@stellar/js-xdr";
+import { XdrError, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import { CreateAccountResultCode } from "./create-account-result-code.js";
 
@@ -86,6 +86,11 @@ abstract class CreateAccountResultBase extends XdrValue {
       case -4:
         return new CreateAccountResultAlreadyExist();
     }
+    // unreachable for a well-typed wire object; a hand-built one can still
+    // carry an out-of-range discriminant
+    throw new XdrError(
+      `CreateAccountResult: unknown code ${(wire as { code: unknown }).code}`,
+    );
   }
 
   /**

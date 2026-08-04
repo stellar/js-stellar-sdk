@@ -3,7 +3,7 @@
 // under class hoisting — every reference site runs after both classes are fully
 // initialized.
 import { case as case_, field, union, varOpaque } from "@stellar/js-xdr";
-import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
+import { UNBOUNDED_MAX_LENGTH, XdrError, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import { HostFunctionType } from "./host-function-type.js";
 import {
@@ -116,6 +116,11 @@ abstract class HostFunctionBase extends XdrValue {
           CreateContractArgsV2.fromXdrObject(wire.createContractV2),
         );
     }
+    // unreachable for a well-typed wire object; a hand-built one can still
+    // carry an out-of-range discriminant
+    throw new XdrError(
+      `HostFunction: unknown type ${(wire as { type: unknown }).type}`,
+    );
   }
 
   /**

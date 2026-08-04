@@ -3,7 +3,7 @@
 // under class hoisting — every reference site runs after both classes are fully
 // initialized.
 import { case as case_, field, union, void as voidType } from "@stellar/js-xdr";
-import type { XdrType } from "@stellar/js-xdr";
+import { XdrError, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import { ContractExecutableType } from "./contract-executable-type.js";
 import { Hash, type HashWire } from "./hash.js";
@@ -81,6 +81,11 @@ abstract class ContractExecutableBase extends XdrValue {
           ContractExecutableExternalRef.fromXdrObject(wire.externalRef),
         );
     }
+    // unreachable for a well-typed wire object; a hand-built one can still
+    // carry an out-of-range discriminant
+    throw new XdrError(
+      `ContractExecutable: unknown type ${(wire as { type: unknown }).type}`,
+    );
   }
 
   /**

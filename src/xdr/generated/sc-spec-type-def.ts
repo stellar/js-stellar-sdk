@@ -11,7 +11,7 @@ import {
   union,
   void as voidType,
 } from "@stellar/js-xdr";
-import type { XdrType } from "@stellar/js-xdr";
+import { XdrError, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import { ScSpecType } from "./sc-spec-type.js";
 import {
@@ -354,6 +354,11 @@ abstract class ScSpecTypeDefBase extends XdrValue {
       case 2000:
         return new ScSpecTypeDefUdt(ScSpecTypeUdt.fromXdrObject(wire.udt));
     }
+    // unreachable for a well-typed wire object; a hand-built one can still
+    // carry an out-of-range discriminant
+    throw new XdrError(
+      `ScSpecTypeDef: unknown type ${(wire as { type: unknown }).type}`,
+    );
   }
 
   /**
