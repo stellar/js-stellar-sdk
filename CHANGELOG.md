@@ -20,6 +20,9 @@ A breaking change will get clearly marked in this log.
 - `StrKey.decode*` and the underlying `decodeCheck` now validate the encoded string's length against the requested strkey type before decoding it. Two consequences: a long attacker-supplied string is rejected up front instead of driving a full base32 decode plus canonical re-encode, and a strkey whose payload is the wrong size for its type now throws instead of returning a mis-sized buffer (previously, a 37-byte payload encoded as an `ed25519PublicKey` strkey decoded to 37 bytes and only failed later, if at all). Inputs that were already invalid may now report a length error rather than a checksum or version-byte error ([#1583](https://github.com/stellar/js-stellar-sdk/pull/1583)).
 - `contract.Client.from` and `rpc.Server.getContractWasmByContractId` support contracts created from a CAP-85 external executable reference. The reference names an owner contract and a tag; the owner holds a persistent contract data entry keyed by that tag whose value is the Wasm hash, so both methods resolve that entry and then load the Wasm as usual ([#1577](https://github.com/stellar/js-stellar-sdk/pull/1577)).
 
+### Fixed
+- `StrKey.decodeSignedPayload` and `StrKey.isValidSignedPayload` now validate the framing inside a `P...` strkey: the declared payload length must be 1-64, must match the number of payload bytes present, and the padding must be zero. The three [SEP-23](https://stellar.org/protocol/sep-23) invalid signed-payload test cases — length prefix shorter than the payload, longer than the payload, and missing zero padding — were previously accepted ([#1588](https://github.com/stellar/js-stellar-sdk/pull/1588)).
+
 ## [v16.2.0](https://github.com/stellar/js-stellar-sdk/compare/v16.1.0...v16.2.0)
 
 ### Added
