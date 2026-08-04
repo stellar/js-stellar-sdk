@@ -2,6 +2,7 @@ import { defineConfig } from "vitest/config";
 import { resolve } from "path";
 import packageJson from "../package.json" with { type: "json" };
 import { aliasHttpClientToAxiosSource } from "./vitest-utils";
+import { SkippedTestsReporter } from "./skipped-tests-reporter";
 
 const isAxios = process.env.TRANSPORT === "axios";
 
@@ -38,6 +39,10 @@ export default defineConfig({
     // vitest.config.guides.ts, never as part of a default run.
     include: ["test/unit/**/*.test.ts", "test/integration/**/*.test.ts"],
     exclude: ["**/browser.test.ts"],
+    // `reporters` replaces the default rather than adding to it, so "default"
+    // has to be listed. Inherited by vitest.config.guides.ts via mergeConfig —
+    // do not add it there too, the merge concatenates arrays.
+    reporters: ["default", new SkippedTestsReporter()],
   },
   resolve: {
     alias: {

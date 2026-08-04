@@ -1,5 +1,6 @@
 import { defineConfig } from 'vitest/config'
 import { resolve } from 'path'
+import { SkippedTestsReporter } from './skipped-tests-reporter'
 
 export default defineConfig({
   test: {
@@ -17,6 +18,9 @@ export default defineConfig({
     // Include only e2e tests
     include: ['test/e2e/src/**/*.test.ts'],
     exclude: ['**/browser.test.ts'],
+    // `reporters` replaces the default rather than adding to it, so 'default'
+    // has to be listed.
+    reporters: ['default', new SkippedTestsReporter()],
     // Run tests in sequence to avoid conflicts with shared resources
     pool: 'forks',
     poolOptions: {

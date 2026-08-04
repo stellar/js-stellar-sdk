@@ -2,6 +2,7 @@ import { defineConfig } from "vitest/config";
 import { playwright } from "@vitest/browser-playwright";
 import packageJson from "../package.json" with { type: "json" };
 import { aliasHttpClientToAxiosSource } from "./vitest-utils";
+import { SkippedTestsReporter } from "./skipped-tests-reporter";
 import { resolve } from "path";
 const isAxios = process.env.TRANSPORT === "axios";
 
@@ -66,6 +67,9 @@ export default defineConfig({
     ],
     // Setup files to load the browser bundle
     setupFiles: [resolve(__dirname, "../test/setup-browser.ts")],
+    // `reporters` replaces the default rather than adding to it, so "default"
+    // has to be listed.
+    reporters: ["default", new SkippedTestsReporter()],
   },
   resolve: {
     alias: {
