@@ -411,12 +411,10 @@ const result = await client.transfer({
 
 ## Migrating
 
-This release carries two breaking changes, each with a step-by-step guide:
-
-- [XDR migration guide](./docs/XDR_MIGRATION.md) — the `xdr` namespace is now
-  class-based, so every XDR value exposes a different API.
-- [Uint8Array migration guide](./docs/UINT8ARRAY_MIGRATION.md) — byte-returning
-  public APIs return `Uint8Array` instead of Node's `Buffer`.
+Upgrading from an earlier version? The
+[Migration Guide](https://stellar.github.io/js-stellar-sdk/guides/00-migration/)
+lists every breaking change by SDK version, newest first, and links to the
+deep-dive guides for the largest ones.
 
 ## Developing
 
