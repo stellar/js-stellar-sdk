@@ -468,7 +468,7 @@ class StrKey {
 }
 ```
 
-**Source:** [src/base/strkey.ts:74](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/strkey.ts#L74)
+**Source:** [src/base/strkey.ts:113](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/strkey.ts#L113)
 
 ### `new StrKey()`
 
@@ -482,7 +482,7 @@ constructor();
 static types: Record<string, VersionByteName>;
 ```
 
-**Source:** [src/base/strkey.ts:75](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/strkey.ts#L75)
+**Source:** [src/base/strkey.ts:114](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/strkey.ts#L114)
 
 ### `StrKey.decodeClaimableBalance(address)`
 
@@ -496,7 +496,7 @@ static decodeClaimableBalance(address: string): Uint8Array;
 
 - **`address`** — `string` (required) — balance to decode
 
-**Source:** [src/base/strkey.ts:265](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/strkey.ts#L265)
+**Source:** [src/base/strkey.ts:304](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/strkey.ts#L304)
 
 ### `StrKey.decodeContract(address)`
 
@@ -510,7 +510,7 @@ static decodeContract(address: string): Uint8Array;
 
 - **`address`** — `string` (required) — address to decode
 
-**Source:** [src/base/strkey.ts:238](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/strkey.ts#L238)
+**Source:** [src/base/strkey.ts:277](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/strkey.ts#L277)
 
 ### `StrKey.decodeEd25519PublicKey(data)`
 
@@ -527,7 +527,7 @@ static decodeEd25519PublicKey(data: string): Uint8Array;
 
 - **`data`** — `string` (required) — "G..." (or "M...") key representation to decode
 
-**Source:** [src/base/strkey.ts:94](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/strkey.ts#L94)
+**Source:** [src/base/strkey.ts:133](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/strkey.ts#L133)
 
 ### `StrKey.decodeEd25519SecretSeed(address)`
 
@@ -541,7 +541,7 @@ static decodeEd25519SecretSeed(address: string): Uint8Array;
 
 - **`address`** — `string` (required) — data to decode
 
-**Source:** [src/base/strkey.ts:121](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/strkey.ts#L121)
+**Source:** [src/base/strkey.ts:160](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/strkey.ts#L160)
 
 ### `StrKey.decodeLiquidityPool(address)`
 
@@ -555,7 +555,7 @@ static decodeLiquidityPool(address: string): Uint8Array;
 
 - **`address`** — `string` (required) — address to decode
 
-**Source:** [src/base/strkey.ts:292](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/strkey.ts#L292)
+**Source:** [src/base/strkey.ts:331](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/strkey.ts#L331)
 
 ### `StrKey.decodeMed25519PublicKey(address)`
 
@@ -569,7 +569,7 @@ static decodeMed25519PublicKey(address: string): Uint8Array;
 
 - **`address`** — `string` (required) — data to decode
 
-**Source:** [src/base/strkey.ts:148](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/strkey.ts#L148)
+**Source:** [src/base/strkey.ts:187](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/strkey.ts#L187)
 
 ### `StrKey.decodePreAuthTx(address)`
 
@@ -583,7 +583,7 @@ static decodePreAuthTx(address: string): Uint8Array;
 
 - **`address`** — `string` (required) — data to decode
 
-**Source:** [src/base/strkey.ts:175](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/strkey.ts#L175)
+**Source:** [src/base/strkey.ts:214](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/strkey.ts#L214)
 
 ### `StrKey.decodeSha256Hash(address)`
 
@@ -597,7 +597,7 @@ static decodeSha256Hash(address: string): Uint8Array;
 
 - **`address`** — `string` (required) — data to decode
 
-**Source:** [src/base/strkey.ts:193](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/strkey.ts#L193)
+**Source:** [src/base/strkey.ts:232](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/strkey.ts#L232)
 
 ### `StrKey.decodeSignedPayload(address)`
 
@@ -611,7 +611,7 @@ static decodeSignedPayload(address: string): Uint8Array;
 
 - **`address`** — `string` (required) — address to decode
 
-**Source:** [src/base/strkey.ts:211](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/strkey.ts#L211)
+**Source:** [src/base/strkey.ts:250](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/strkey.ts#L250)
 
 ### `StrKey.encodeClaimableBalance(data)`
 
@@ -625,7 +625,7 @@ static encodeClaimableBalance(data: Uint8Array): string;
 
 - **`data`** — `Uint8Array` (required) — data to encode
 
-**Source:** [src/base/strkey.ts:256](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/strkey.ts#L256)
+**Source:** [src/base/strkey.ts:295](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/strkey.ts#L295)
 
 ### `StrKey.encodeContract(data)`
 
@@ -639,7 +639,7 @@ static encodeContract(data: Uint8Array): string;
 
 - **`data`** — `Uint8Array` (required) — data to encode
 
-**Source:** [src/base/strkey.ts:229](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/strkey.ts#L229)
+**Source:** [src/base/strkey.ts:268](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/strkey.ts#L268)
 
 ### `StrKey.encodeEd25519PublicKey(data)`
 
@@ -653,7 +653,7 @@ static encodeEd25519PublicKey(data: Uint8Array): string;
 
 - **`data`** — `Uint8Array` (required) — raw data to encode
 
-**Source:** [src/base/strkey.ts:82](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/strkey.ts#L82)
+**Source:** [src/base/strkey.ts:121](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/strkey.ts#L121)
 
 ### `StrKey.encodeEd25519SecretSeed(data)`
 
@@ -667,7 +667,7 @@ static encodeEd25519SecretSeed(data: Uint8Array): string;
 
 - **`data`** — `Uint8Array` (required) — data to encode
 
-**Source:** [src/base/strkey.ts:112](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/strkey.ts#L112)
+**Source:** [src/base/strkey.ts:151](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/strkey.ts#L151)
 
 ### `StrKey.encodeLiquidityPool(data)`
 
@@ -681,7 +681,7 @@ static encodeLiquidityPool(data: Uint8Array): string;
 
 - **`data`** — `Uint8Array` (required) — data to encode
 
-**Source:** [src/base/strkey.ts:283](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/strkey.ts#L283)
+**Source:** [src/base/strkey.ts:322](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/strkey.ts#L322)
 
 ### `StrKey.encodeMed25519PublicKey(data)`
 
@@ -695,7 +695,7 @@ static encodeMed25519PublicKey(data: Uint8Array): string;
 
 - **`data`** — `Uint8Array` (required) — data to encode
 
-**Source:** [src/base/strkey.ts:139](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/strkey.ts#L139)
+**Source:** [src/base/strkey.ts:178](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/strkey.ts#L178)
 
 ### `StrKey.encodePreAuthTx(data)`
 
@@ -709,7 +709,7 @@ static encodePreAuthTx(data: Uint8Array): string;
 
 - **`data`** — `Uint8Array` (required) — data to encode
 
-**Source:** [src/base/strkey.ts:166](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/strkey.ts#L166)
+**Source:** [src/base/strkey.ts:205](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/strkey.ts#L205)
 
 ### `StrKey.encodeSha256Hash(data)`
 
@@ -723,7 +723,7 @@ static encodeSha256Hash(data: Uint8Array): string;
 
 - **`data`** — `Uint8Array` (required) — data to encode
 
-**Source:** [src/base/strkey.ts:184](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/strkey.ts#L184)
+**Source:** [src/base/strkey.ts:223](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/strkey.ts#L223)
 
 ### `StrKey.encodeSignedPayload(data)`
 
@@ -737,7 +737,7 @@ static encodeSignedPayload(data: Uint8Array): string;
 
 - **`data`** — `Uint8Array` (required) — data to encode
 
-**Source:** [src/base/strkey.ts:202](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/strkey.ts#L202)
+**Source:** [src/base/strkey.ts:241](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/strkey.ts#L241)
 
 ### `StrKey.getVersionByteForPrefix(address)`
 
@@ -752,7 +752,7 @@ static getVersionByteForPrefix(address: string): VersionByteName | undefined;
 
 - **`address`** — `string` (required) — the strkey address to check
 
-**Source:** [src/base/strkey.ts:311](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/strkey.ts#L311)
+**Source:** [src/base/strkey.ts:350](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/strkey.ts#L350)
 
 ### `StrKey.isValidClaimableBalance(address)`
 
@@ -766,7 +766,7 @@ static isValidClaimableBalance(address: string): boolean;
 
 - **`address`** — `string` (required) — balance to check
 
-**Source:** [src/base/strkey.ts:274](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/strkey.ts#L274)
+**Source:** [src/base/strkey.ts:313](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/strkey.ts#L313)
 
 ### `StrKey.isValidContract(address)`
 
@@ -780,7 +780,7 @@ static isValidContract(address: string): boolean;
 
 - **`address`** — `string` (required) — signer key to check
 
-**Source:** [src/base/strkey.ts:247](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/strkey.ts#L247)
+**Source:** [src/base/strkey.ts:286](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/strkey.ts#L286)
 
 ### `StrKey.isValidEd25519PublicKey(publicKey)`
 
@@ -794,7 +794,7 @@ static isValidEd25519PublicKey(publicKey: string): boolean;
 
 - **`publicKey`** — `string` (required) — public key to check
 
-**Source:** [src/base/strkey.ts:103](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/strkey.ts#L103)
+**Source:** [src/base/strkey.ts:142](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/strkey.ts#L142)
 
 ### `StrKey.isValidEd25519SecretSeed(seed)`
 
@@ -808,7 +808,7 @@ static isValidEd25519SecretSeed(seed: string): boolean;
 
 - **`seed`** — `string` (required) — seed to check
 
-**Source:** [src/base/strkey.ts:130](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/strkey.ts#L130)
+**Source:** [src/base/strkey.ts:169](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/strkey.ts#L169)
 
 ### `StrKey.isValidLiquidityPool(address)`
 
@@ -822,7 +822,7 @@ static isValidLiquidityPool(address: string): boolean;
 
 - **`address`** — `string` (required) — pool to check
 
-**Source:** [src/base/strkey.ts:301](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/strkey.ts#L301)
+**Source:** [src/base/strkey.ts:340](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/strkey.ts#L340)
 
 ### `StrKey.isValidMed25519PublicKey(publicKey)`
 
@@ -836,7 +836,7 @@ static isValidMed25519PublicKey(publicKey: string): boolean;
 
 - **`publicKey`** — `string` (required) — public key to check
 
-**Source:** [src/base/strkey.ts:157](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/strkey.ts#L157)
+**Source:** [src/base/strkey.ts:196](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/strkey.ts#L196)
 
 ### `StrKey.isValidSignedPayload(address)`
 
@@ -850,7 +850,7 @@ static isValidSignedPayload(address: string): boolean;
 
 - **`address`** — `string` (required) — signer key to check
 
-**Source:** [src/base/strkey.ts:220](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/strkey.ts#L220)
+**Source:** [src/base/strkey.ts:259](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/strkey.ts#L259)
 
 ## sign
 
