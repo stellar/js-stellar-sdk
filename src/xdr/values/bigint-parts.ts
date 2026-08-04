@@ -12,6 +12,15 @@
 import { XdrError } from "@stellar/js-xdr";
 
 const MASK_64 = (1n << 64n) - 1n;
+
+// log10(2): decimal digits per bit, so a `bits`-wide integer has at most
+// `ceil(bits * LOG10_OF_2)` decimal digits.
+const LOG10_OF_2 = 0.30103;
+
+// Slack on the digit budget: one character for an optional leading `-` sign,
+// plus one digit of rounding headroom.
+const DIGIT_BUDGET_SLACK = 2;
+
 const MASK_HI_SIGNED_128 = 1n << 127n;
 const MASK_HI_SIGNED_256 = 1n << 255n;
 
@@ -61,10 +70,10 @@ export function assertBigIntFits(
  * the length first makes that rejection O(1) and keeps the huge value out of
  * the range error message.
  *
- * Budget formula: a `bits`-wide integer has at most `ceil(bits * log10(2))`
- * decimal digits (log10(2) ≈ 0.30103) — e.g. 20 digits for a 64-bit value.
- * The `+ 2` is slack: one character for an optional leading `-` sign, plus
- * one digit of rounding headroom, giving 22 for 64 bits. Any longer string
+ * Budget formula: a `bits`-wide integer has at most
+ * `ceil(bits * LOG10_OF_2)` decimal digits — e.g. 20 digits for a 64-bit
+ * value. `DIGIT_BUDGET_SLACK` adds room for an optional leading `-` sign plus
+ * a digit of rounding headroom, giving 22 for 64 bits. Any longer string
  * cannot possibly denote an in-range value, so no legitimate input is
  * affected. It does, however, reject padding that `BigInt()` itself would
  * tolerate (long runs of leading zeros, `+`, surrounding whitespace) once the
@@ -76,7 +85,7 @@ export function assertDecimalDigitBudget(
   bits: number,
   name: string,
 ): void {
-  const maxDigits = Math.ceil(bits * 0.30103) + 2;
+  const maxDigits = Math.ceil(bits * LOG10_OF_2) + DIGIT_BUDGET_SLACK;
   if (s.length > maxDigits) {
     throw new XdrError(
       `${name}: decimal string length ${s.length} exceeds the ` +
