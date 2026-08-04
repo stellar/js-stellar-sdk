@@ -418,9 +418,9 @@ const result = await client.transfer({
 
 This release carries two breaking changes, each with a step-by-step guide:
 
-- [XDR migration guide](./XDR_MIGRATION.md) — the `xdr` namespace is now
+- [XDR migration guide](./docs/XDR_MIGRATION.md) — the `xdr` namespace is now
   class-based, so every XDR value exposes a different API.
-- [Uint8Array migration guide](./UINT8ARRAY_MIGRATION.md) — byte-returning
+- [Uint8Array migration guide](./docs/UINT8ARRAY_MIGRATION.md) — byte-returning
   public APIs return `Uint8Array` instead of Node's `Buffer`.
 
 ## Developing
