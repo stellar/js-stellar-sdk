@@ -41,5 +41,25 @@ jobs:
       - name: Build, Test, and Package
         run: pnpm run preversion
 
+      # A prerelease must not land on the `latest` dist-tag, or every plain
+      # `npm install @stellar/stellar-sdk` picks it up. Derive the tag from the
+      # version so this needs no attention per release: 17.0.0-rc.1 -> `rc`,
+      # 17.0.0 -> `latest`.
+      - name: Determine npm dist-tag
+        id: disttag
+        run: |
+          VERSION="$(node -p "require('./package.json').version")"
+          case "$VERSION" in
+            *-*)
+              PRERELEASE="${VERSION#*-}"
+              TAG="${PRERELEASE%%.*}"
+              ;;
+            *)
+              TAG="latest"
+              ;;
+          esac
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "Publishing $VERSION under dist-tag '$TAG'."
+
       - name: Publish npm package
-        run: npm publish --access public --provenance
+        run: npm publish --access public --provenance --tag "${{ steps.disttag.outputs.tag }}"
