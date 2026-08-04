@@ -5855,7 +5855,7 @@ interface RootResponse {
 }
 ```
 
-**Source:** [src/horizon/horizon_api.ts:700](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L700)
+**Source:** [src/horizon/horizon_api.ts:698](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L698)
 
 #### `rootResponse.core_latest_ledger`
 
@@ -5863,7 +5863,7 @@ interface RootResponse {
 core_latest_ledger: number;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:707](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L707)
+**Source:** [src/horizon/horizon_api.ts:705](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L705)
 
 #### `rootResponse.core_supported_protocol_version`
 
@@ -5871,7 +5871,7 @@ core_latest_ledger: number;
 core_supported_protocol_version: number;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:711](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L711)
+**Source:** [src/horizon/horizon_api.ts:709](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L709)
 
 #### `rootResponse.core_version`
 
@@ -5879,7 +5879,7 @@ core_supported_protocol_version: number;
 core_version: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:702](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L702)
+**Source:** [src/horizon/horizon_api.ts:700](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L700)
 
 #### `rootResponse.current_protocol_version`
 
@@ -5887,7 +5887,7 @@ core_version: string;
 current_protocol_version: number;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:709](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L709)
+**Source:** [src/horizon/horizon_api.ts:707](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L707)
 
 #### `rootResponse.history_elder_ledger`
 
@@ -5895,7 +5895,7 @@ current_protocol_version: number;
 history_elder_ledger: number;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:706](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L706)
+**Source:** [src/horizon/horizon_api.ts:704](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L704)
 
 #### `rootResponse.history_latest_ledger`
 
@@ -5903,7 +5903,7 @@ history_elder_ledger: number;
 history_latest_ledger: number;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:704](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L704)
+**Source:** [src/horizon/horizon_api.ts:702](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L702)
 
 #### `rootResponse.history_latest_ledger_closed_at`
 
@@ -5911,7 +5911,7 @@ history_latest_ledger: number;
 history_latest_ledger_closed_at: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:705](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L705)
+**Source:** [src/horizon/horizon_api.ts:703](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L703)
 
 #### `rootResponse.horizon_version`
 
@@ -5919,7 +5919,7 @@ history_latest_ledger_closed_at: string;
 horizon_version: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:701](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L701)
+**Source:** [src/horizon/horizon_api.ts:699](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L699)
 
 #### `rootResponse.ingest_latest_ledger`
 
@@ -5927,7 +5927,7 @@ horizon_version: string;
 ingest_latest_ledger: number;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:703](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L703)
+**Source:** [src/horizon/horizon_api.ts:701](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L701)
 
 #### `rootResponse.network_passphrase`
 
@@ -5935,7 +5935,7 @@ ingest_latest_ledger: number;
 network_passphrase: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:708](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L708)
+**Source:** [src/horizon/horizon_api.ts:706](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L706)
 
 #### `rootResponse.supported_protocol_version`
 
@@ -5943,7 +5943,7 @@ network_passphrase: string;
 supported_protocol_version: number;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:710](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L710)
+**Source:** [src/horizon/horizon_api.ts:708](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L708)
 
 ### Horizon.HorizonApi.SetOptionsOperationResponse
 
@@ -6391,7 +6391,7 @@ successful: boolean;
 ```ts
 interface TransactionFailedExtras {
   envelope_xdr: string;
-  result_codes: { operations: string[]; transaction: TransactionFailedResultCodes };
+  result_codes: { operations?: string[]; transaction: TransactionFailedResultCodes };
   result_xdr: string;
 }
 ```
@@ -6409,7 +6409,7 @@ envelope_xdr: string;
 #### `transactionFailedExtras.result_codes`
 
 ```ts
-result_codes: { operations: string[]; transaction: TransactionFailedResultCodes };
+result_codes: { operations?: string[]; transaction: TransactionFailedResultCodes };
 ```
 
 **Source:** [src/horizon/horizon_api.ts:687](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L687)
@@ -6420,7 +6420,7 @@ result_codes: { operations: string[]; transaction: TransactionFailedResultCodes 
 result_xdr: string;
 ```
 
-**Source:** [src/horizon/horizon_api.ts:697](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L697)
+**Source:** [src/horizon/horizon_api.ts:695](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/horizon_api.ts#L695)
 
 ### Horizon.HorizonApi.TransactionFailedResultCodes
 
