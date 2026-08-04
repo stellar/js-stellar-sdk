@@ -2,7 +2,7 @@
 
 A breaking change will get clearly marked in this log.
 
-## Unreleased
+## [v17.0.0-rc.1](https://github.com/stellar/js-stellar-sdk/compare/v16.2.0...v17.0.0-rc.1)
 
 ### Breaking Changes
 * Public APIs use `Uint8Array` instead of Node's `Buffer` ([#1457](https://github.com/stellar/js-stellar-sdk/issues/1457)). Methods that returned `Buffer` (e.g. `hash()`, `Keypair`'s `sign`/`rawPublicKey`/`rawSecretKey`, `StrKey.decode*`, `Transaction#hash()`, `rpc.Server#getContractWasmByHash`, `getLiquidityPoolId()`, `AuthEntrySignature.signature`, and the signing payload passed *to* a `SigningCallback`) now return a plain `Uint8Array`, so Buffer-only conveniences like `.toString("hex")` and `.equals()` on results must be replaced — see [`docs/UINT8ARRAY_MIGRATION.md`](./docs/UINT8ARRAY_MIGRATION.md) for method-by-method recipes. Byte inputs still accept `Buffer` (it's a `Uint8Array` subclass), with two exceptions: a `SigningCallback` may no longer resolve to a raw `ArrayBuffer` (wrap it in a `Uint8Array`), and `SorobanDataBuilder`'s constructor no longer accepts non-`Uint8Array` typed arrays. The `buffer` dependency is gone (`base32.js`, which needed a Buffer global, is replaced by `@exodus/bytes`), and browsers/edge runtimes need no Buffer polyfill.
