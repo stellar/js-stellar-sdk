@@ -94,6 +94,32 @@ export function assertDecimalDigitBudget(
   }
 }
 
+/** An optionally-signed run of decimal digits, and nothing else. */
+const DECIMAL_INTEGER = /^[+-]?[0-9]+$/;
+
+/**
+ * Reject strings that `BigInt(...)` would accept but that do not denote a
+ * decimal integer, BEFORE they reach it.
+ *
+ * `BigInt` inherits the numeric-literal grammar, so it silently accepts `""`
+ * and `" "` as 0, and reads `"0x10"` as 16 — none of which are SEP-51 integer
+ * values. Each one decodes without complaint and re-serializes as a different
+ * string than it came in as, which is a value change rather than a parse error.
+ * `assertDecimalDigitBudget` does not catch these: it only bounds length.
+ *
+ * The accepted grammar matches the reference implementation
+ * (`@stellar/stellar-xdr-json`, which parses these fields with Rust's
+ * `from_str`), verified case by case: `"+7"`, `"01"`, `"0007"` and `"-0"` are
+ * accepted there and so are accepted here, even though they are not canonical
+ * and normalize on the way back out; `""`, `" "`, `"0x10"`, `"1e3"`, `" 7"` and
+ * `"7 "` are rejected there and are rejected here.
+ */
+export function assertDecimalString(s: string, name: string): void {
+  if (!DECIMAL_INTEGER.test(s)) {
+    throw new XdrError(`${name}: "${s}" is not a decimal integer string`);
+  }
+}
+
 /**
  * Number-valued counterpart of `assertBigIntFits` for the 32-bit `Int32`/
  * `Uint32` shims: validate that `value` is an integer within a `bits`-wide
