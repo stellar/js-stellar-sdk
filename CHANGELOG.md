@@ -10,9 +10,12 @@ A breaking change will get clearly marked in this log.
   * Unions are discriminated classes. `.switch()` becomes a `.type` string literal, arm getters like `.contractData()` become properties, and `new xdr.LedgerEntryData(disc, val)` becomes a factory call such as `xdr.LedgerEntryData.contractData(val)`.
   * Enums are singletons, not factory calls: `xdr.ContractDataDurability.persistent()` becomes `xdr.ContractDataDurability.persistent`.
   * Primitives are plain JS values. Integers are `number` or `bigint` instead of class wrappers, `LargeInt` subclasses are gone, byte fields are `Uint8Array`, and fields are `readonly`.
-  * Acronyms in method names collapse to single-initial-cap form: `toXDR()` / `fromXDR()` become `toXdr()` / `fromXdr()`, and likewise `toChangeTrustXdrObject()` / `toTrustLineXdrObject()`. Type and field names are unchanged.
-  * New: `toJson()` / `fromJson()` for [SEP-0051](https://stellar.org/protocol/sep-51) JSON, and `toXdrObject()` / `fromXdrObject()` for the wire-shape object.
-  * The `Reader` and `Writer` classes are no longer exported.
+  * Absent optional fields decode to `null` instead of `undefined`, so `=== undefined` checks silently stop matching. Prefer `== null`.
+  * Acronyms in method names collapse to single-initial-cap form, with no back-compat aliases. This reaches beyond the `xdr` namespace to the wrapper classes: `Transaction#toXDR()`, `TransactionBuilder.fromXDR()`, `Operation.fromXDRObject()`, `Asset#toXDRObject()`, `contract.AssembledTransaction#toXDR()` and others all gained the `Xdr` spelling.
+  * Struct field names are unchanged, but a few type names moved: `UInt128Parts` / `UInt256Parts` are now `Uint128Parts` / `Uint256Parts`, `ThresholdIndices` is now `ThresholdIndexes`, and ten typedef aliases (`Duration`, `TimePoint`, `SequenceNumber`, `ScVec`, `ScMap`, `ScString`, `ScSymbol`, `String32`, `String64`, `SponsorshipDescriptor`) are gone in favor of what they stood for.
+  * New: `toJson()` / `fromJson()` for [SEP-0051](https://stellar.org/protocol/sep-51) JSON, `toXdrObject()` / `fromXdrObject()` on XDR values, and `equals()` for structural comparison. Failures throw `xdr.XdrError`, which is now exported.
+  * Removed: `Reader` and `Writer`; the v4 runtime type constructors (`Hyper`, `UnsignedHyper`, `Option`, `Opaque`, `VarOpaque`, `XDRArray`, `XDRString`, `Bool`, `SignedInt`, `UnsignedInt`), plus top-level `Hyper` / `UnsignedHyper` / `cereal`; the `validateXDR()` static on every type (use `try`/`catch` around `fromXdr`); and `xdr.scvSortedMap` (use the top-level `scvSortedMap`).
+  * `ScInt` and `XdrLargeInt` lost their `.int` property; read `.value` (a `bigint`) instead, and note `valueOf()` now returns a `bigint`.
 
   [`docs/XDR_MIGRATION.md`](./docs/XDR_MIGRATION.md) covers every change with before/after examples and a quick-reference table.
 
