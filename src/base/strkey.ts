@@ -67,6 +67,45 @@ function encodedLengthRange(name: VersionByteName): [number, number] {
 }
 
 /**
+ * Enforces the `opaque payload<64>` framing that the XDR wire decoder enforces
+ * on a signed payload: 32 bytes of signer, a payload length word, then exactly
+ * that many payload bytes zero-padded to a 4-byte boundary.
+ *
+ * Without this, a declared length larger than the bytes present decodes into a
+ * silently truncated payload, and non-zero padding is silently discarded — so
+ * the JSON and XDR decoders would disagree about the same value.
+ */
+function assertSignedPayloadFraming(data: Uint8Array): void {
+  if (data.length < 32 + 4) {
+    throw new Error("signed payload: too short to carry a payload length");
+  }
+
+  const declared = new DataView(
+    data.buffer,
+    data.byteOffset,
+    data.byteLength,
+  ).getUint32(32);
+
+  if (declared < 1 || declared > 64) {
+    throw new Error(`signed payload: declared length ${declared} outside 1-64`);
+  }
+
+  const framed = 32 + 4 + Math.ceil(declared / 4) * 4;
+  if (data.length !== framed) {
+    throw new Error(
+      `signed payload: declared length ${declared} needs ${framed} bytes, ` +
+        `got ${data.length}`,
+    );
+  }
+
+  for (let i = 32 + 4 + declared; i < data.length; i++) {
+    if (data[i] !== 0) {
+      throw new Error("signed payload: non-zero padding");
+    }
+  }
+}
+
+/**
  * StrKey is a helper class that allows encoding and decoding Stellar keys
  * to/from strings, i.e. between their binary (Uint8Array, xdr.PublicKey, etc.) and
  * string (i.e. "GABCD...", etc.) representations.
@@ -358,11 +397,9 @@ function isValid(versionByteName: string, encoded: unknown): boolean {
       return decoded.length === 40; // +8 bytes for the ID
 
     case "signedPayload":
-      return (
-        // 32 for the signer, +4 for the payload size, then either +4 for the
-        // min or +64 for the max payload
-        decoded.length >= 32 + 4 + 4 && decoded.length <= 32 + 4 + 64
-      );
+      // the full framing (declared length, size, and padding) is enforced by
+      // `decodeCheck`, so reaching here means the buffer is well-formed
+      return true;
 
     default:
       return false;
@@ -422,6 +459,10 @@ export function decodeCheck(
 
   if (!verifyChecksum(expectedChecksum, checksum)) {
     throw new Error(`invalid checksum`);
+  }
+
+  if (versionByteName === "signedPayload") {
+    assertSignedPayloadFraming(data);
   }
 
   return data;

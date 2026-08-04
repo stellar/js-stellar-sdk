@@ -489,6 +489,82 @@ describe("StrKey", () => {
         expect(isValid(makeSignedPayload(new Uint8Array(64)))).toBe(true);
       });
     });
+
+    describe("framing", () => {
+      // builds a checksum-valid P-strkey whose 40-byte body declares `declared`
+      // as its payload length but carries `tail` in the payload region
+      const forge = (declared: number, tail: number[]): string => {
+        const body = new Uint8Array(40);
+        new DataView(body.buffer).setUint32(32, declared);
+        body.set(tail, 36);
+        return StrKey.encodeSignedPayload(body);
+      };
+
+      // the equivalent wire bytes: SignerKey discriminant + the strkey body
+      const asWire = (body: Uint8Array): Uint8Array => {
+        const wire = new Uint8Array(4 + body.length);
+        new DataView(wire.buffer).setUint32(0, 3); // ed25519SignedPayload
+        wire.set(body, 4);
+        return wire;
+      };
+
+      const malformed = [
+        {
+          desc: "declared length exceeds the bytes present",
+          declared: 64,
+          tail: [1, 2, 3, 4],
+        },
+        {
+          desc: "padding is non-zero",
+          declared: 1,
+          tail: [0xaa, 0xbb, 0xcc, 0xdd],
+        },
+      ];
+
+      for (const testCase of malformed) {
+        describe(testCase.desc, () => {
+          const strkey = forge(testCase.declared, testCase.tail);
+
+          it("is rejected by decodeSignedPayload", () => {
+            expect(() => StrKey.decodeSignedPayload(strkey)).toThrow(
+              /signed payload/,
+            );
+          });
+
+          it("is rejected by isValidSignedPayload", () => {
+            expect(StrKey.isValidSignedPayload(strkey)).toBe(false);
+          });
+
+          it("is rejected by SignerKey.fromJson", () => {
+            expect(() => xdr.SignerKey.fromJson(strkey)).toThrow();
+          });
+
+          it("is rejected by both decoders, not just one", () => {
+            // the JSON path used to silently rewrite these into a *different*
+            // valid signer key while the wire path threw
+            const body = new Uint8Array(40);
+            new DataView(body.buffer).setUint32(32, testCase.declared);
+            body.set(testCase.tail, 36);
+
+            expect(() => xdr.SignerKey.fromXdr(asWire(body))).toThrow();
+            expect(() => xdr.SignerKey.fromJson(strkey)).toThrow();
+          });
+        });
+      }
+
+      for (const size of [1, 64]) {
+        it(`round-trips a well-formed ${size}-byte payload through JSON`, () => {
+          const strkey = StrKey.encodeSignedPayload(
+            new xdr.SignerKeyEd25519SignedPayload({
+              ed25519: StrKey.decodeEd25519PublicKey(PUBKEY),
+              payload: new Uint8Array(size).fill(0xab),
+            }).toXdr("raw"),
+          );
+
+          expect(xdr.SignerKey.fromJson(strkey).toJson()).toBe(strkey);
+        });
+      }
+    });
   });
 
   describe("#contracts", () => {
@@ -621,6 +697,12 @@ describe("StrKey", () => {
       "MA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJUAAAAAAAAAAAACJUO",
       // Trailing bits should be zeroes
       "BAAD6DBUX6J22DMZOHIEZTEQ64CVCHEDRKWZONFEUL5Q26QD7R76RGR4TV",
+      // Length prefix specifies a length shorter than the payload present
+      "PA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJUAAAAAQACAQDAQCQMBYIBEFAWDANBYHRAEISCMKBKFQXDAMRUGY4DUPB6IAAAAAAAAPM",
+      // Length prefix specifies a length longer than the payload present
+      "PA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJUAAAAAOQCAQDAQCQMBYIBEFAWDANBYHRAEISCMKBKFQXDAMRUGY4Z2PQ",
+      // No zero padding after the payload
+      "PA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJUAAAAAOQCAQDAQCQMBYIBEFAWDANBYHRAEISCMKBKFQXDAMRUGY4DXFH6",
     ];
 
     for (const address of badStrkeys) {
