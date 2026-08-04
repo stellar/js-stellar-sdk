@@ -322,7 +322,7 @@ The XDR layer's test suite lives under `test/unit/xdr/`:
 | Layer                    | File                                                              | Purpose                                                                              |
 | ------------------------ | ----------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
 | Hand-written smoke       | `legacy_round_trip.test.ts`                                       | Representative shapes; byte-equality against the legacy `@stellar/js-xdr` v4 runtime |
-| Real-traffic corpus      | `corpus_round_trip.test.ts`                                       | Wire bytes captured from Horizon mainnet; decode/re-encode must be lossless          |
+| Real-traffic corpus      | `corpus_round_trip.test.ts`                                       | Wire bytes from Horizon + Stellar RPC on mainnet; decode/re-encode must be lossless  |
 | Schema-driven exhaustive | `schema_exhaustive.test.ts`                                       | Auto-generated default-value sample for every named class (no manual additions)      |
 | JSON walker              | `to_json.test.ts`                                                 | SEP-0051 conformance per encoding rule + field-level JSON round-trips                |
 | Value-class units        | `enum_value.test.ts`, `bigint_parts.test.ts`, `large_int.test.ts` | The hand-written `values/` and `dx/` bases in isolation                              |
@@ -332,11 +332,24 @@ The legacy v4-backed generated files are checked in at
 layer has stayed agreement-green for a release or two, the legacy fixtures can
 be dropped and the corpus fixtures become frozen ground truth.
 
-To refresh the mainnet corpus:
+There are two corpora, one per API, in `test/fixtures/horizon-corpus/` and
+`test/fixtures/rpc-corpus/`. They are separate because the two APIs return
+different XDR types for the same concepts — Horizon serves a bare
+`LedgerHeader` where RPC serves a `LedgerHeaderHistoryEntry` that wraps one,
+and Horizon no longer serves `result_meta_xdr` at all, so `TransactionMeta`
+coverage comes from RPC. Each corpus is asserted against what its own source
+actually returns, down to the field naming.
+
+To refresh the mainnet corpora:
 
 ```
 pnpm tsx scripts/refresh-horizon-corpus.ts
+pnpm tsx scripts/refresh-rpc-corpus.ts
 ```
+
+Both accept `COUNT` (default 50) and print the envelope-type spread they
+captured — mainnet traffic is often almost entirely fee-bump, so check that
+spread before committing a lopsided sample.
 
 ---
 
