@@ -985,7 +985,7 @@ TypeScript won't flag it.
 ### `homeDomain` and data-entry names decode as UTF-8, not ASCII
 
 `Operation.fromXdrObject` used `.toString("ascii")`, which masks every byte to 7
-bits. It now decodes UTF-8. For any byte ≥ `0x80` the result differs:
+bits. It now decodes UTF-8 leniently, so bytes ≥ `0x80` read back differently:
 
 ```ts
 // wire dataName bytes: [0xC3, 0xA9]
@@ -993,9 +993,17 @@ rec.name; // "é"   — was "C)"
 ```
 
 Affects `manageData`'s `name`, `setOptions`'s `homeDomain`, and
-`revokeSponsorship`'s data-entry name. Round-tripping a decoded name back
-through `Operation.manageData` can now produce different wire bytes than you
-started with.
+`revokeSponsorship`'s data-entry name. **No valid operation is affected** —
+stellar-core's
+[`isStringValid`](https://github.com/stellar/stellar-core/blob/master/src/util/types.cpp)
+rejects any byte outside `0x20`–`0x7E` in all three, and ASCII and UTF-8 agree
+over that range. Only synthetic or hand-forged XDR decodes differently.
+
+For such input the new decode round-trips valid UTF-8 (the legacy pairing of
+ASCII reads with UTF-8 writes did not) but still loses bytes that aren't valid
+UTF-8, which become U+FFFD. If you need byte fidelity, read the `XdrString`
+instead of going through `Operation.fromXdrObject`: `attrs.homeDomain.bytes`,
+`.asStringOrBytes()` to branch, or `.toStringStrict()` to throw.
 
 ### `SorobanDataBuilder` rebuilds instead of mutating
 
