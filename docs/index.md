@@ -35,7 +35,7 @@ The library provides:
   - [...with Expo](#usage-with-expo-managed-workflows)
   - [...with CloudFlare Workers](#usage-with-cloudflare-workers)
 - [CLI](#cli): generate TypeScript bindings for Stellar smart contracts
-- [Migrating](#migrating): guides for this release's breaking changes
+- [Migrating](#migrating): migration guides for breaking changes
 - [Developing](#developing): contribute to the project!
 - [License](#license)
 
