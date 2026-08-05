@@ -2,8 +2,9 @@
 title: Migration Guide
 description:
   Breaking changes by version for @stellar/stellar-sdk, newest first. Covers the
-  v16 modernization release (base fold-in, native fetch, ESM, Node 22) and the
-  Protocol 27 Soroban authorization changes.
+  v17 class-based XDR and Uint8Array releases, the v16 modernization release
+  (base fold-in, native fetch, ESM, Node 22), and the Protocol 27 Soroban
+  authorization changes.
 ---
 
 # Migration Guide
@@ -15,6 +16,38 @@ APIs listed below.
 > fail to decode newer network data as the protocol upgrades. These docs cover
 > the latest version only. See
 > [Versioning and compatibility](/#versioning-and-compatibility).
+
+## 17.x.x Breaking changes
+
+The 17.x.x release changes two things that touch nearly every codebase: the `xdr`
+namespace is rebuilt as a class-based API, and every public API that returned
+Node's `Buffer` now returns a `Uint8Array`. The wire format is unchanged — bytes
+and base64 written by older SDKs still decode.
+
+Each has a dedicated deep-dive guide, because the surface is too large to
+summarize here:
+
+- **[XDR migration guide](/xdr_migration/)** — the class-based `xdr` namespace,
+  built on js-xdr v5. Affects anyone who reads or builds `xdr.*` values, plus
+  anyone calling `tx.toXDR()` or `TransactionBuilder.fromXDR()`, which were
+  renamed.
+- **[Uint8Array migration guide](/uint8array_migration/)** — `Buffer` →
+  `Uint8Array` on every byte-returning public API. Affects anyone calling
+  `.toString("hex")`, `.equals()`, or another Buffer method on an SDK result.
+
+Read both. The two interact, and each has failure modes that produce **no error
+at all**:
+
+- `Buffer` methods on a `Uint8Array` fail silently. `.toString("hex")` returns
+  comma-joined decimals (`"185,77,39,…"`), and `.toString("utf8")` returns
+  `"104,105"` — no exception, just a wrong string that flows onward.
+- Absent optional XDR fields decode to `null` instead of `undefined`, so
+  `=== undefined` checks stop matching. Prefer `== null`.
+- `scValToNative` can now return a `Uint8Array` for a `scvString` or `scvSymbol`
+  whose contents aren't valid UTF-8, where it always returned a string before.
+
+The method renames (`toXDR` → `toXdr`, `fromXDRObject` → `fromXdrObject`, and
+eleven more) ship without back-compat aliases, so those at least fail loudly.
 
 ## 16.x.x Breaking changes
 

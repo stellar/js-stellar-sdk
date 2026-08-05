@@ -30,6 +30,7 @@ The library provides:
   - [...with Expo](#usage-with-expo-managed-workflows)
   - [...with CloudFlare Workers](#usage-with-cloudflare-workers)
 - [CLI](#cli): generate TypeScript bindings for Stellar smart contracts
+- [Migrating](#migrating): migration guides for breaking changes
 - [Developing](#developing): contribute to the project!
 - [License](#license)
 
@@ -407,6 +408,13 @@ const result = await client.transfer({
   amount: 1000n,
 });
 ```
+
+## Migrating
+
+Upgrading from an earlier version? The
+[Migration Guide](https://stellar.github.io/js-stellar-sdk/guides/00-migration/)
+lists every breaking change by SDK version, newest first, and links to the
+deep-dive guides for the largest ones.
 
 ## Developing
 

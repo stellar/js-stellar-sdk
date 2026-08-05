@@ -13,6 +13,12 @@ getters and setters.
 
 This guide documents every user-visible change so you can update existing code.
 
+The same release also switches the SDK's public byte-returning APIs from
+`Buffer` to `Uint8Array`. That change reaches beyond the XDR layer and has its
+own guide: [`UINT8ARRAY_MIGRATION.md`](./UINT8ARRAY_MIGRATION.md). Read both —
+`Buffer` methods like `.toString("hex")` and `.toString("utf8")` fail _silently_
+on a `Uint8Array`, which is the most common way this migration goes wrong.
+
 ---
 
 ## 1. Method-name changes (XDR/JSON acronyms → PascalCase)
@@ -20,35 +26,86 @@ This guide documents every user-visible change so you can update existing code.
 The all-caps acronyms in method names normalize to single-initial-cap form. This
 affects application code that called the renamed methods directly.
 
-**True renames** — the legacy method existed with the all-caps name:
+**True renames** — the legacy method existed with the all-caps name. None of
+these kept a back-compat alias, so every call site is a hard failure (TypeScript
+error; `TypeError: … is not a function` in plain JavaScript):
 
 | Before                           | After                            |
 | -------------------------------- | -------------------------------- |
 | `value.toXDR()`                  | `value.toXdr()`                  |
 | `Class.fromXDR(…)`               | `Class.fromXdr(…)`               |
+| `value.toXDRObject()`            | `value.toXdrObject()`            |
+| `Class.fromXDRObject(…)`         | `Class.fromXdrObject(…)`         |
 | `asset.toChangeTrustXDRObject()` | `asset.toChangeTrustXdrObject()` |
 | `asset.toTrustLineXDRObject()`   | `asset.toTrustLineXdrObject()`   |
 
-**Net-new methods** — these didn't exist in the legacy SDK at all (no rename to
-do; they're brand-new capabilities):
+This reaches well beyond the `xdr` namespace: the wrapper classes you use every
+day carry these methods too, including some of the SDK's most-called APIs. The
+full list of renamed public methods:
 
-| Method                                              | Description                                                                                                               |
-| --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| `value.toXdrObject()` / `Class.fromXdrObject(wire)` | Bridges instance ↔ wire-shape object. Legacy types directly held their wire shape, so this distinction wasn't meaningful. |
-| `value.toJson()` / `Class.fromJson(json)`           | [SEP-51](https://stellar.org/protocol/sep-51)-compliant JSON serialization. See § 13.                                     |
+| Class                                   | Renamed                                                                   |
+| --------------------------------------- | ------------------------------------------------------------------------- |
+| `Transaction`, `FeeBumpTransaction`     | `toXDR()` → `toXdr()`                                                     |
+| `TransactionBuilder`                    | `fromXDR()` → `fromXdr()`                                                 |
+| `contract.AssembledTransaction`         | `toXDR()` / `fromXDR()` → `toXdr()` / `fromXdr()`                         |
+| `SorobanDataBuilder`                    | `fromXDR()` → `fromXdr()`                                                 |
+| `Asset`                                 | `toXDRObject()` → `toXdrObject()`                                         |
+| `Memo`                                  | `toXDRObject()` / `fromXDRObject()` → `toXdrObject()` / `fromXdrObject()` |
+| `Operation`                             | `fromXDRObject()` → `fromXdrObject()`                                     |
+| `Claimant`                              | `toXDRObject()` → `toXdrObject()`, `fromXDR()` → `fromXdr()`              |
+| `MuxedAccount`                          | `toXDRObject()` → `toXdrObject()`                                         |
+| `LiquidityPoolAsset`, `LiquidityPoolId` | `toXDRObject()` → `toXdrObject()`                                         |
+
+`contract.Client#txFromJSON` was likewise renamed to `txFromJson`, but it keeps
+a deprecated alias, so existing calls still work.
+
+**Net-new methods** — no legacy equivalent:
+
+| Method                                    | Description                                                                                                                                                                                  |
+| ----------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `value.toXdrObject()` on **XDR values**   | Bridges instance ↔ wire-shape object. Legacy XDR types held their wire shape directly, so the distinction wasn't meaningful. (On the wrapper classes above it's a rename, not a new method.) |
+| `value.toJson()` / `Class.fromJson(json)` | [SEP-51](https://stellar.org/protocol/sep-51)-compliant JSON serialization. See § 12.                                                                                                        |
+| `value.equals(other)`                     | Structural comparison. Handy because a `Buffer` and a `Uint8Array` of identical bytes are not deep-equal under vitest/Jest (§ 6).                                                            |
 
 Note that `toJson()` (lowercase) is the API to call; the JavaScript-standard
 `toJSON()` hook is also implemented as a thin delegate to it, so
 `JSON.stringify()` produces SEP-0051 output for any XDR value (including ones
-nested inside plain objects). See § 13.
+nested inside plain objects). See § 12.
 
-> **Note on type/field names.** The PascalCase-with-collapsed-acronyms rule
-> (`AccountId`, `ScVal`, `Uint128Parts`, `TtlEntry`, `HashIdPreimage`,
-> `ScSpecUdtUnionV0`, …) **also** applies to types — but those names already
-> matched the legacy SDK's public surface. The names you imported from
-> `@stellar/stellar-sdk` haven't changed. Field names on structs (`accountId`,
-> `sponsoredId`, `offerId`, `balanceId`, `sellerId`, …) are likewise unchanged.
-> The only rename that breaks application code is the method-name table above.
+Struct **field** names (`accountId`, `sponsoredId`, `offerId`, `balanceId`,
+`sellerId`, …) are unchanged. Most **type** names are too — the
+PascalCase-with-collapsed-acronyms rule (`AccountId`, `ScVal`, `TtlEntry`,
+`HashIdPreimage`, `ScSpecUdtUnionV0`, …) already matched the legacy SDK's public
+surface. But a handful of type names did change; see § 1.1.
+
+### 1.1 Renamed and removed type names
+
+Three renames. The first two are easy to miss because only the _unsigned_
+spelling changed:
+
+| Legacy             | Now                |
+| ------------------ | ------------------ |
+| `UInt128Parts`     | `Uint128Parts`     |
+| `UInt256Parts`     | `Uint256Parts`     |
+| `ThresholdIndices` | `ThresholdIndexes` |
+
+And the following typedef aliases are gone entirely — the new layer inlines what they
+stood for rather than exporting a name for it:
+
+| Legacy alias                                   | Was                                  | Now write                         |
+| ---------------------------------------------- | ------------------------------------ | --------------------------------- |
+| `Duration`, `TimePoint`                        | `Uint64`                             | `bigint`                          |
+| `SequenceNumber`                               | `Int64`                              | `bigint`                          |
+| `ScVec`                                        | array of `ScVal`                     | `xdr.ScVal[]`                     |
+| `ScMap`                                        | array of `ScMapEntry`                | `xdr.ScMapEntry[]`                |
+| `LedgerEntryChanges`                           | array of `LedgerEntryChange`         | `xdr.LedgerEntryChange[]`         |
+| `ContractCostParams`                           | array of `ContractCostParamEntry`    | `xdr.ContractCostParamEntry[]`    |
+| `SorobanAuthorizationEntries`                  | array of `SorobanAuthorizationEntry` | `xdr.SorobanAuthorizationEntry[]` |
+| `ScString`, `ScSymbol`, `String32`, `String64` | `XDRString`                          | `xdr.XdrString` (§ 11)            |
+| `SponsorshipDescriptor`                        | `undefined \| AccountId`             | `xdr.AccountId \| null` (§ 14)    |
+
+These only bite type annotations and `import type` lines — the runtime values
+were always the underlying types.
 
 ---
 
@@ -197,32 +254,42 @@ at the call site.)
 `BigIntValue` base. They hold a single `value: bigint` and round-trip through
 the generated `Int128Parts` / `Uint128Parts` / etc. structs.
 
+These four are reachable **both** as `xdr.Int128` and as a top-level `Int128` —
+the same class either way, and one of the few exceptions to the "XDR types are
+namespace-only" rule in § 9. That matters when migrating: the legacy SDK also
+exported a top-level `Int128`, but it was a _different_ class (a `LargeInt`
+subclass). So `import { Int128 } from "@stellar/stellar-sdk"` still resolves and
+still constructs — it just builds a different object with a different
+constructor contract, rather than failing at the import.
+
 ```ts
 // Before — multi-arg constructors with 32- or 64-bit slices
-new Int128(lo, hi);
-new Int256(loLo, loHi, hiLo, hiHi);
-new Uint256(1n, 2n, 3n, 4n).toBigInt();
+new xdr.Int128(lo, hi);
+new xdr.Int256(loLo, loHi, hiLo, hiHi);
+new xdr.Uint256(1n, 2n, 3n, 4n).toBigInt();
 i128.size; // 128
 i128.unsigned; // false
 
 // After — single bigint
-new Int128(42n);
-new Uint256(123456789n).value; // bigint
-Int128.fromXdrObject({ hi, lo }); // round-trip via the parts struct
+new xdr.Int128(42n);
+new xdr.Uint256(123456789n).value; // bigint
+xdr.Int128.fromXdrObject({ hi, lo }); // round-trip via the parts struct
 i128.value; // bigint
 i128.toParts(); // { hi, lo }
 i128.toXdr(); // 16 bytes
-Int128.fromJson("42"); // JSON deserialize
+xdr.Int128.fromJson("42"); // JSON deserialize
 ```
 
 To reconstruct a bigint from XDR parts (the old `new Int128(lo, hi).toBigInt()`
-pattern), use `XdrLargeInt` directly. As in the legacy SDK, it accepts slices in
+pattern), use `XdrLargeInt` — one of the few XDR-adjacent classes exported
+top-level, alongside `ScInt`. As in the legacy SDK, it accepts slices in
 **little-endian** order (parts[0] is least significant):
 
 ```ts
 import { XdrLargeInt } from "@stellar/stellar-sdk";
 
-new XdrLargeInt("i128", [i128.lo, i128.hi]).toBigInt();
+const { hi, lo } = i128.toParts(); // no `.lo` / `.hi` directly on the instance
+new XdrLargeInt("i128", [lo, hi]).toBigInt();
 new XdrLargeInt("u256", [loLo, loHi, hiLo, hiHi]).toBigInt();
 ```
 
@@ -231,7 +298,24 @@ the new bigint-direct impl preserves the behavior).
 `new XdrLargeInt("u64", 1n << 64n)` throws a `RangeError`, as does a slice that
 doesn't fit its width (e.g. `new XdrLargeInt("u128", [0n, 2n ** 80n])`).
 
-`ScInt` is unchanged.
+### `XdrLargeInt` and `ScInt`
+
+`ScInt`'s own API is unchanged, but it extends `XdrLargeInt`, whose shape moved
+underneath it — so inherited members changed for both classes:
+
+- **`.int` is gone.** It used to hold a `LargeInt` instance (`Hyper`, `Int128`,
+  `Int256`, …). It's replaced by `readonly value: bigint` plus
+  `readonly type: ScIntType`. Anything reaching through it —
+  `new ScInt(x).int.toBigInt()`, `.int.size`, `.int.unsigned`, `.int.slice(…)` —
+  now fails with `Cannot read properties of undefined`.
+- **`valueOf()` returns a `bigint`** instead of the wrapped `LargeInt`. This is
+  a silent change: `xli + 1n` works where it previously didn't, and comparisons
+  against a `LargeInt` behave differently.
+- **`type` is now `readonly`**, so reassigning it is a compile error.
+- The constructor validates `type` up front (`TypeError: invalid type: …`)
+  instead of failing later, and slice input has new guards: an empty slice array
+  throws `RangeError`, and a slice count that doesn't evenly divide the width
+  throws `TypeError`.
 
 ---
 
@@ -243,28 +327,35 @@ Every fixed-length and variable-length **byte** field (`opaque[N]`, `opaque<N>`,
 subclass so most code that just reads bytes (indexing, `.length`) keeps working.
 The differences appear when:
 
-(**Note:** XDR _string_ fields are a separate story — see § 12.)
+(**Note:** XDR _string_ fields are a separate story — see § 11.)
 
 - **You compare values with `toEqual` / deep equality.** `Buffer` vs
   `Uint8Array` containing identical bytes are _not_ deep-equal under vitest /
   Jest. Convert with `Array.from()` on both sides, or compare via
   `.toXdr("base64")`.
 - **You call Buffer-only methods** (e.g. `.toString("hex")`). Wrap at the
-  boundary: `Buffer.from(uint8array).toString("hex")`.
-- **You construct an XDR class that wants `Hash` or `ScBytes`.** Wrap raw bytes
-  in the field type:
+  boundary: `Buffer.from(uint8array).toString("hex")`, or use
+  [`uint8array-extras`](https://github.com/sindresorhus/uint8array-extras) — see
+  [`UINT8ARRAY_MIGRATION.md`](./UINT8ARRAY_MIGRATION.md).
+
+### Passing bytes in
+
+Byte fields still accept raw bytes, so there's no need to wrap every call site.
+Both forms typecheck and encode identically:
 
 ```ts
-// Before — passing a Buffer worked
-xdr.ContractExecutable.contractExecutableWasm(Buffer.alloc(32));
-xdr.LedgerKeyContractCode({ hash: someBuffer });
-xdr.ScVal.scvBytes(Buffer.from([1, 2, 3]));
+// Equivalent
+xdr.ContractExecutable.contractExecutableWasm(new Uint8Array(32));
+xdr.ContractExecutable.contractExecutableWasm(new xdr.Hash(new Uint8Array(32)));
+xdr.ScVal.scvBytes(new Uint8Array([1, 2, 3]));
+xdr.ScVal.scvBytes(new xdr.ScBytes(new Uint8Array([1, 2, 3])));
 
-// After — explicit class wrappers
-xdr.ContractExecutable.contractExecutableWasm(new xdr.Hash(Buffer.alloc(32)));
-xdr.LedgerKeyContractCode({ hash: new xdr.Hash(someBuffer) });
-xdr.ScVal.scvBytes(new xdr.ScBytes(Buffer.from([1, 2, 3])));
+// Struct constructors need `new` — they're classes now, not factory functions
+new xdr.LedgerKeyContractCode({ hash: someBytes });
 ```
+
+The one place a specific class **is** required is the typedef-opaque aliases —
+see § 6.1.
 
 Byte-class constructors also accept hex strings as a convenience —
 `new xdr.Hash("aabbcc…")` works the same as passing 32 bytes.
@@ -287,9 +378,11 @@ xdr.ScAddress.scAddressTypeContract(new xdr.ContractId(bytes)); // required
 xdr.ScAddress.scAddressTypeLiquidityPool(new xdr.PoolId(bytes));
 ```
 
-The motivation is JSON output (§ 13): the walker dispatches encoding overrides
-on `schema.name`, so `PoolId` can render as an `L`-strkey and `ContractId` as a
-`C`-strkey, while a plain `Hash` stays hex.
+This is what lets JSON output (§ 12) render a `PoolId` as an `L`-strkey and a
+`ContractId` as a `C`-strkey while a plain `Hash` stays hex.
+
+Note that this break is type-level: at runtime a `Hash` still encodes to the
+same 32 bytes, so plain JavaScript callers see no error.
 
 ---
 
@@ -324,8 +417,12 @@ xdr.Asset.fromXdr(hexString, "hex");
 
 ## 8. Immutability: fields are `readonly`
 
-Every field on a generated XDR class is `readonly`. Code that mutated XDR values
-after construction will silently no-op (non-strict) or throw (strict).
+Every field on a generated XDR class is declared `readonly`, so code that
+mutated XDR values after construction is now a TypeScript compile error. This is
+a **type-level** guarantee only — instances aren't frozen, so plain JavaScript
+callers get no error and the assignment takes effect. Either way, treat XDR
+values as immutable: the setter-style call chains are gone, and mutating a
+decoded value is no longer a supported way to change one.
 
 ```ts
 // Before — mutating the envelope post-build worked
@@ -366,6 +463,10 @@ xdr.ScVal.scvU32(42);
 import { Asset } from "@stellar/stellar-sdk";
 // ⚠ This is the SDK's Asset wrapper class, NOT xdr.Asset — same as before.
 ```
+
+The exceptions are `Int128`, `Uint128`, `Int256`, and `Uint256`, which are
+exported top-level as well as on `xdr` (§ 5), plus the XDR-adjacent
+`XdrLargeInt` and `ScInt`, which are top-level only.
 
 ### Variant-class types
 
@@ -436,15 +537,16 @@ new xdr.Int32(v)             →   Number(v)
                                  .toJson()      / .fromJson(json)
 
 // ============== BYTES ==============
-contractExecutableWasm(buf)  →   contractExecutableWasm(new xdr.Hash(buf))
-scvBytes(buf)                →   scvBytes(new xdr.ScBytes(buf))
+contractExecutableWasm(buf)  →   (unchanged; raw bytes still accepted)
+scvBytes(buf)                →   (unchanged; raw bytes still accepted)
 new xdr.Hash(buf)            →   (still works; also accepts hex strings)
 new xdr.Hash(bytes) for PoolId/ContractId  →  use new xdr.PoolId(bytes) /
                                               new xdr.ContractId(bytes)
 
 // ============== STRINGS ==============
 memo.text                    →   memo.text.toString() or memo.text.bytes
-memo.value (memoText)        →   (Buffer; was string) — call .toString("utf8")
+memo.value (memoText, after  →   (Uint8Array; was string) — decode with
+  Memo.fromXdrObject)            uint8ArrayToString(), NOT .toString("utf8")
 scvString.str (was string)   →   scvString.str.bytes (or scvString.value: string)
 
 // ============== JSON (new) ==============
@@ -452,40 +554,37 @@ scvString.str (was string)   →   scvString.str.bytes (or scvString.value: stri
                                  Type.fromJson(json)      // SEP-0051 decode
 
 // ============== WIDE INTS ==============
-new Int128(lo, hi)           →   new XdrLargeInt("i128", [lo, hi])
-new Int256(loLo, …, hiHi)    →   new XdrLargeInt("i256", [loLo, …, hiHi])
-new Int128(42n).toBigInt()   →   new Int128(42n).value
+new xdr.Int128(lo, hi)       →   new XdrLargeInt("i128", [lo, hi])
+new xdr.Int256(loLo, …)      →   new XdrLargeInt("i256", [loLo, …, hiHi])
+new xdr.Int128(42n).toBigInt() → new xdr.Int128(42n).value
+i128.lo, i128.hi             →   i128.toParts()  // { hi, lo }
 i128.size, i128.unsigned     →   (no longer exposed — pick the right class)
+scInt.int / xli.int          →   scInt.value / xli.value  (bigint) — `.int` is gone
 
-// Type and field names (AccountId, ScVal, accountId, offerId, sponsoredId,
-// Uint128Parts, TtlEntry, …) are unchanged from the legacy SDK — only
-// method names with embedded XDR/JSON acronyms have been normalized.
+// ============== OPTIONALS (§ 14) ==============
+x === undefined              →   x == null    // decoded absent = null now
+
+// ============== REMOVED (§ 13) ==============
+Type.validateXDR(s, "base64") →  try { Type.fromXdr(s, "base64") } catch {}
+xdr.scvSortedMap(entries)    →   scvSortedMap(entries)   // top-level export
+xdr.Hyper / xdr.Option / xdr.Opaque / xdr.XDRString / …  →  (gone; see § 13)
+Hyper, UnsignedHyper, cereal →   (gone from top-level)
+
+// ============== TYPE NAMES (§ 1.1) ==============
+UInt128Parts, UInt256Parts   →   Uint128Parts, Uint256Parts
+ThresholdIndices             →   ThresholdIndexes
+Duration, TimePoint, SequenceNumber  →  bigint
+ScVec, ScMap                 →   xdr.ScVal[], xdr.ScMapEntry[]
+ScString, ScSymbol, String32/64      →  xdr.XdrString
+SponsorshipDescriptor        →   xdr.AccountId | null
+
+// Struct field names (accountId, offerId, sponsoredId, …) and most type names
+// (AccountId, ScVal, TtlEntry, …) are unchanged.
 ```
 
 ---
 
-## 11. Common test-suite patterns
-
-These come up over and over when migrating tests against the new layer:
-
-```ts
-// Narrow a union for typed access
-const v2 = xdr.expectUnionVariant(cond, "precondV2").v2;
-
-// Compare bytes when Buffer/Uint8Array deep-equal fails
-expect(Array.from(actualBytes)).toEqual(Array.from(expectedBytes));
-expect(actual.toXdr("base64")).toBe(expected.toXdr("base64"));
-
-// Round-trip a fixture to normalize Buffer → Uint8Array internals
-const normalized = xdr.LedgerKey.fromXdr(legacyKey.toXdr());
-
-// Variant types for casts (qualified via the xdr namespace)
-const addr = (scv as xdr.ScValAddress).address;
-```
-
----
-
-## 12. Strings: the `XdrString` wrapper
+## 11. Strings: the `XdrString` wrapper
 
 XDR `string<N>` fields no longer surface as JavaScript `string`. They're wrapped
 in a new `XdrString` class. The reason: a JS `string` can't be both
@@ -507,11 +606,11 @@ lets the caller choose decoding semantics explicitly.
 shapes:
 
 ```ts
-import { XdrString } from "@stellar/stellar-sdk";
+import { xdr } from "@stellar/stellar-sdk";
 
-new XdrString("hello"); // string → UTF-8 encoded
-new XdrString(new Uint8Array([0xd1, 0xff])); // bytes → byte-exact
-new XdrString(otherXdrString); // copy
+new xdr.XdrString("hello"); // string → UTF-8 encoded
+new xdr.XdrString(new Uint8Array([0xd1, 0xff])); // bytes → byte-exact
+new xdr.XdrString(otherXdrString); // copy
 
 // Generated factories accept the same union shape:
 xdr.Memo.memoText("hello"); // string
@@ -524,13 +623,13 @@ xdr.ScVal.scvSymbol("transfer"); // string
 Pick the access pattern that matches what you want:
 
 ```ts
-const text: XdrString = (memo as MemoText).text;
+const text: xdr.XdrString = (memo as xdr.MemoText).text;
 
 text.bytes; // Uint8Array — canonical wire form
 text.toString(); // "hello" — UTF-8 decode; U+FFFD on invalid
 text.toStringStrict(); // "hello" — throws on invalid UTF-8
 text.asStringOrBytes(); // string | Uint8Array — best-effort decode
-text.toJson(); // SEP-0051 escape form (see § 13)
+text.toJson(); // SEP-0051 escape form (see § 12)
 text.length; // byte length
 text.equals(other); // byte-equal comparison
 ```
@@ -560,22 +659,33 @@ letting binary callers reach the raw bytes through the arm field.
 ### Round-trip caveat: `Memo.fromXdrObject`
 
 The SDK-level `Memo` class (in `src/base/memo.ts`) now surfaces decoded
-`MemoText` content as a `Buffer`, not a `string` — because the underlying bytes
-might not be valid UTF-8:
+`MemoText` content as a `Uint8Array`, not a `string` — because the underlying
+bytes might not be valid UTF-8:
 
 ```ts
+import { uint8ArrayToString } from "uint8array-extras";
+
 const wire = xdr.Memo.memoText("hi").toXdr();
 const back = Memo.fromXdrObject(xdr.Memo.fromXdr(wire));
-back.value; // Buffer "hi" (was: string "hi")
-back.value.toString("utf8"); // "hi" — explicit decode at the boundary
+back.value; // Uint8Array [0x68, 0x69] (was: string "hi")
+uint8ArrayToString(back.value); // "hi" — explicit decode at the boundary
 ```
 
 If you previously did `someMemo.value === "expected-string"`, switch to
-`someMemo.value?.toString("utf8") === "expected-string"`.
+`someMemo.value && uint8ArrayToString(someMemo.value) === "expected-string"`.
+
+> **Don't reach for `.toString("utf8")`.** It's a `Buffer` method, and
+> `Uint8Array.prototype.toString` ignores the argument — you get `"104,105"`, a
+> comma-joined byte list, with no error. See
+> [`UINT8ARRAY_MIGRATION.md`](./UINT8ARRAY_MIGRATION.md) for the full set of
+> `Buffer`-method replacements.
+
+Note that this only affects the decode path. A `Memo` you constructed yourself
+(`Memo.text("hi")`) still holds the `string` you passed.
 
 ---
 
-## 13. SEP-0051 JSON output: `toJson()` / `fromJson()`
+## 12. SEP-0051 JSON output: `toJson()` / `fromJson()`
 
 Every generated XDR class has
 [SEP-51](https://stellar.org/protocol/sep-51)-compliant JSON serialization built
@@ -689,7 +799,7 @@ xdr.ContractEvent.fromJson({ ...rest, type: "contract", type_: "contract" }); //
 
 ---
 
-## 14. Removed: `Reader` / `Writer` exports
+## 13. Removed exports
 
 The SDK's XDR runtime is now `@stellar/js-xdr` v5 (previously v4), and the SDK
 **no longer exports `Reader` or `Writer`** — they are internal runtime details.
@@ -704,6 +814,47 @@ import { xdr } from "@stellar/stellar-sdk";
 const entries = xdr.decodeStream(xdr.ScSpecEntry, bytes);
 ```
 
+`decodeStream` decodes until the buffer is exhausted and throws if the remaining
+bytes don't form a complete value — it never returns a partial list.
+
+### Runtime type constructors
+
+The v4 schema/authoring types the legacy SDK re-exported on `xdr` are gone, as
+values and as types: `Bool`, `Hyper`, `UnsignedHyper`, `SignedInt`,
+`UnsignedInt`, `Opaque`, `VarOpaque`, `Option`, `XDRArray`, and `XDRString`. The
+new layer's generated classes and native primitives (§ 4, § 6, § 11) replace
+them; the schema builders behind them are internal.
+
+`Hyper` and `UnsignedHyper` were also exported **top-level**, as was `cereal`
+(the raw js-xdr namespace). All three are gone. For 64-bit values use `bigint`
+(§ 4).
+
+### `validateXDR` and `xdr.scvSortedMap`
+
+- **`validateXDR(input, format)`** was a static on every generated type — a
+  cheap "is this decodable?" check. It has no replacement; wrap `fromXdr` in a
+  `try`/`catch` instead (§ 15).
+
+  ```ts
+  // Before
+  if (xdr.TransactionEnvelope.validateXDR(str, "base64")) { … }
+
+  // After
+  function isValid(str: string): boolean {
+    try {
+      xdr.TransactionEnvelope.fromXdr(str, "base64");
+      return true;
+    } catch {
+      return false;
+    }
+  }
+  ```
+
+- **`xdr.scvSortedMap()`** is gone. The legacy SDK monkey-patched it onto the
+  `xdr` namespace for backwards compatibility; the new layer doesn't. Use the
+  top-level export, which was always the real home:
+  `import { scvSortedMap } from "@stellar/stellar-sdk"`.
+
 If you depended on the `Reader`/`Writer` previously obtained through the SDK,
 depend on `@stellar/js-xdr` directly instead. Note that v5's `Reader`/`Writer`
 API differs from v4's (the wire format is unchanged); if you still need the v4
@@ -715,3 +866,171 @@ runtime for legacy code, install it under an alias:
   "js-xdr-v4": "npm:@stellar/js-xdr@4.0.0"
 }
 ```
+
+---
+
+## 14. Optional fields: `null`, not `undefined`
+
+An absent optional (`T*` in the XDR) now decodes to **`null`**. The legacy layer
+used `undefined`:
+
+```ts
+// Legacy: an unset optional read back as undefined
+tx.cond().v2().timeBounds(); // undefined
+
+// Now: null
+xdr.PreconditionsV2.fromXdr(bytes).timeBounds; // null
+```
+
+This is a **silent** change — the shape of the check is what breaks, not the
+type:
+
+```ts
+// ⚠ Compiles, never matches any more
+if (v2.timeBounds === undefined) { … }
+
+// ⚠ Worse: the guard passes for null, then the access throws
+if (v2.timeBounds !== undefined) {
+  v2.timeBounds.minTime; // TypeError: … of null
+}
+
+// ✅ Covers both
+if (v2.timeBounds == null) { … }
+if (!v2.timeBounds) { … }
+```
+
+Construct absent fields with `null`, not `undefined`. TypeScript already
+requires it (`timeBounds: TimeBounds | null`), and the runtime holds you to it
+at encode time: the constructor stores whatever you pass, so `undefined` or an
+omitted key still builds an instance, but `toXdr()` / `toXdrObject()` on that
+instance then throws — a `TypeError` for struct-typed optionals, an
+`xdr.XdrError` for primitive ones. Decoded values are always `null`. Prefer
+`== null` / falsy checks over `=== undefined` everywhere.
+
+In JSON output an unset optional is `null` too (§ 12).
+
+---
+
+## 15. Errors and validation
+
+Every failure in the XDR layer now throws **`XdrError`**, which the SDK exports
+— so you can finally match on the class instead of on message text:
+
+```ts
+import { xdr } from "@stellar/stellar-sdk";
+
+try {
+  xdr.TransactionEnvelope.fromXdr(input, "base64");
+} catch (e) {
+  if (e instanceof xdr.XdrError) { … }
+}
+```
+
+Two things to know when migrating:
+
+- **Every message changed.** The v4 runtime threw `XdrReaderError` /
+  `XdrWriterError` (neither of which the SDK exported, so message-matching was
+  the only option) with text like `"XDR Write Error: invalid i32 value"`. The
+  equivalent is now `"Uint32: value 4294967296 out of range [0, 4294967295]"`.
+  Any `catch` block matching on error text needs rewriting.
+- **One exception to the rule:** invalid base64 surfaces as a
+  `DOMException: Invalid character` from the platform decoder, not an
+  `XdrError`. Catch broadly if you accept untrusted base64.
+
+Strictness itself is mostly unchanged — v4 also rejected buffers it didn't fully
+consume (`"source buffer not entirely consumed"`), which is now
+`"Asset: trailing 4 byte(s) after XDR value"`. Byte-length mismatches on
+fixed-size fields, out-of-range integers, unknown union discriminants, and
+unknown enum values all throw as before, with new wording.
+
+There is no `validateXDR` any more — see § 13 for the try/catch replacement.
+
+### Enum lookup
+
+Enums keep name- and value-based lookup, useful when decoding from external
+input:
+
+```ts
+xdr.AssetType.fromName("assetTypeCreditAlphanum4");
+xdr.AssetType.fromValue(1);
+```
+
+---
+
+## 16. Changes outside the `xdr` namespace
+
+The XDR swap changed a few SDK-level behaviors that have nothing to do with
+typing `xdr.` yourself. These are the easiest ones to miss because most produce
+no error at all.
+
+### `scValToNative` may return bytes for a string or symbol
+
+`scvString` / `scvSymbol` whose contents aren't valid UTF-8 now come back as a
+`Uint8Array` instead of a lossily-decoded string:
+
+```ts
+scValToNative(xdr.ScVal.scvString("hello")); // "hello"      (string, as before)
+scValToNative(xdr.ScVal.scvString(rawBytes)); // Uint8Array   (was a U+FFFD string)
+```
+
+The legacy implementation looked like it did this, but its byte-returning branch
+was unreachable: it decoded with a non-fatal `TextDecoder`, which never throws.
+So in practice legacy **always** returned a string. Code doing
+`result.startsWith(…)`, `result.trim()`, `result.length`, or
+`typeof result === "string"` on contract output is now data-dependent. The same
+applies to `contract.Spec#scValToNative` and `funcResToNative` for `Bytes` /
+`BytesN`, which return `Uint8Array`; because those are generically typed (`T`),
+TypeScript won't flag it.
+
+### `homeDomain` and data-entry names decode as UTF-8, not ASCII
+
+`Operation.fromXdrObject` used `.toString("ascii")`, which masks every byte to 7
+bits. It now decodes UTF-8. For any byte ≥ `0x80` the result differs:
+
+```ts
+// wire dataName bytes: [0xC3, 0xA9]
+rec.name; // "é"   — was "C)"
+```
+
+Affects `manageData`'s `name`, `setOptions`'s `homeDomain`, and
+`revokeSponsorship`'s data-entry name. Round-tripping a decoded name back
+through `Operation.manageData` can now produce different wire bytes than you
+started with.
+
+### `SorobanDataBuilder` rebuilds instead of mutating
+
+Setters used to mutate one internal object; they now replace it. Any value you
+captured earlier is a stale snapshot:
+
+```ts
+const fp = builder.getFootprint();
+builder.setReadOnly(keys);
+fp.readOnly.length; // 0 — the builder moved on without it
+```
+
+Re-read from the builder after each call, and note that the legacy
+mutate-through idiom (`builder.getFootprint().readOnly(keys)`) is gone —
+footprint fields are readonly arrays now.
+
+### `MuxedAccount#setId` no longer mutates a handed-out object
+
+```ts
+const held = muxed.toXdrObject();
+muxed.setId("99");
+held.med25519.id; // still the old id
+```
+
+Call `toXdrObject()` again after `setId`.
+
+### `contract.Spec#nativeToScVal` rejects `Map` subclasses
+
+The check tightened from `val instanceof Map` to `val.constructor === Map`, so
+passing a subclass (an ordered-map implementation, say) for a `Map`-typed
+parameter now throws `cannot interpret … value as ScVal`. Pass a plain `Map`.
+
+### Byte-typed results
+
+`getLiquidityPoolId()`, `AuthEntrySignature.signature`, and the second argument
+handed to a `SigningCallback` are all `Uint8Array` now. `.toString("hex")` on
+any of them silently yields comma-joined decimals — see
+[`UINT8ARRAY_MIGRATION.md`](./UINT8ARRAY_MIGRATION.md).

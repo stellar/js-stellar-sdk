@@ -45,7 +45,7 @@ covers the rest. In Node you can also just wrap the result:
 | `buf.readBigUInt64BE(o)`           | `…same DataView….getBigUint64(o)`                           |
 | `buf.slice(a, b)` (view)           | `bytes.subarray(a, b)` — note `Uint8Array.prototype.slice` **copies**, while `Buffer.prototype.slice` returned a view |
 
-Two semantic traps to check for:
+Three semantic traps to check for:
 
 - **`.toString("hex")` fails silently.** `Uint8Array.prototype.toString`
   ignores its argument and returns comma-joined decimals
@@ -56,6 +56,16 @@ Two semantic traps to check for:
   (e.g. hex signer keys in `Operation.setOptions`, base64 envelopes), invalid
   input now throws (`Invalid Hex character…`) instead of being silently
   truncated the way `Buffer.from(str, "hex")` was.
+- **Test assertions stop matching.** A `Buffer` and a `Uint8Array` holding
+  identical bytes are **not** deep-equal under vitest or Jest — `toEqual`,
+  `toStrictEqual`, and nested comparisons all fail, because the two report
+  different types. So a test whose expected value is a `Buffer` fixture now
+  fails against an SDK result. Normalize one side, or compare encodings:
+
+  ```ts
+  expect(uint8ArrayToHex(actual)).toBe(expectedHex); // preferred
+  expect(Array.from(actual)).toEqual(Array.from(expectedBuffer));
+  ```
 
 ## 2. Method-by-method: returns that changed `Buffer` → `Uint8Array`
 
@@ -74,6 +84,7 @@ Two semantic traps to check for:
 | `Address#toBuffer()` (name kept, now returns `Uint8Array`) |
 | `Operation.fromXdrObject` records: `manageData`'s `value`, `setOptions`/`revokeSponsorship` signer `sha256Hash` / `preAuthTx` |
 | signing helpers: `generate`, `sign` |
+| `getLiquidityPoolId(type, params)` |
 
 ### rpc / contract / horizon
 
@@ -81,6 +92,7 @@ Two semantic traps to check for:
 | --- |
 | `rpc.Server#getContractWasmByContractId()`, `#getContractWasmByHash()` |
 | `contract.Spec` byte-typed spec entries and `specFromWasm` results |
+| `contract.Spec#scValToNative` / `#funcResToNative` for `Bytes` / `BytesN` — including values nested in structs, vecs, and maps. These are generically typed (`T`), so TypeScript will **not** flag the change: a `client.get_hash().result.toString("hex")` keeps compiling and starts returning comma-joined decimals. |
 
 ### auth (CAP-71 / Soroban)
 
@@ -88,6 +100,10 @@ Two semantic traps to check for:
   `{ signature: Uint8Array; publicKey: string }`). Returning a `Buffer` still
   works; returning a **raw `ArrayBuffer` no longer does** — wrap it:
   `new Uint8Array(arrayBuffer)`.
+- The **signing payload** handed *to* a `SigningCallback` as its second argument
+  is a `Uint8Array` too (it used to be a `Buffer`). A callback that logs or
+  forwards it with `payload.toString("hex")` silently gets decimals.
+- `AuthEntrySignature.signature` (from `inspectAuthEntry`) is a `Uint8Array`.
 
 ## 3. Inputs that got more flexible
 
