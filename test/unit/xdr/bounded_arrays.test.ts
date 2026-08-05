@@ -15,7 +15,7 @@ import { describe, it, expect } from "vitest";
 
 import xdrJson from "../../../xdr/xdr.json";
 import * as classXdr from "../../../src/xdr/index.js";
-import type { XdrType } from "../../../src/xdr/core/xdr-type.js";
+import type { XdrType } from "@stellar/js-xdr";
 
 interface BoundedField {
   owner: string;
@@ -85,7 +85,12 @@ describe("bounded var_array limits survive generation", () => {
 });
 
 describe("Transaction rejects more than MAX_OPS_PER_TX operations", () => {
-  const { MuxedAccount, Operation, Transaction } = classXdr as any;
+  const { MuxedAccount, Operation, Transaction } = classXdr;
+
+  // Byte offset of the `operations` count word in an encoded Transaction:
+  // 36 (KEY_TYPE_ED25519 muxed account) + 4 (fee) + 8 (seqNum)
+  // + 4 (PRECOND_NONE) + 4 (MEMO_NONE).
+  const OPERATIONS_COUNT_OFFSET = 36 + 4 + 8 + 4 + 4;
 
   const inflationOp = () =>
     new Operation({
@@ -113,13 +118,21 @@ describe("Transaction rejects more than MAX_OPS_PER_TX operations", () => {
   });
 
   it("rejects over-long arrays on decode too", () => {
-    // Legal 100-op tx re-labelled as 101 ops must not decode: splice a bumped
-    // length in. Simpler: decode bytes from an (unvalidated) hand-built buffer
-    // is awkward here, so assert the schema's read-side bound directly.
-    expect(
-      (Transaction.schema as any).entries.find(
-        ([n]: [string]) => n === "operations",
-      )![1].maxLength,
-    ).toBe(100);
+    // A legal 100-op transaction re-labelled as 101 ops must not decode. The
+    // reader checks the bound before it checks how many bytes are left, so
+    // this fails on the limit rather than on the truncated operation list.
+    const forged = tx(100).toXdr().slice();
+    const view = new DataView(
+      forged.buffer,
+      forged.byteOffset,
+      forged.byteLength,
+    );
+
+    // pins the offset: if the layout shifts, the forged count lands elsewhere
+    // and the assertion below would pass for the wrong reason
+    expect(view.getUint32(OPERATIONS_COUNT_OFFSET)).toBe(100);
+    view.setUint32(OPERATIONS_COUNT_OFFSET, 101);
+
+    expect(() => Transaction.fromXdr(forged)).toThrow(/exceeds maximum 100/);
   });
 });
