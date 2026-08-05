@@ -89,7 +89,7 @@ spelling changed:
 | `UInt256Parts`     | `Uint256Parts`     |
 | `ThresholdIndices` | `ThresholdIndexes` |
 
-And ten typedef aliases are gone entirely — the new layer inlines what they
+And the following typedef aliases are gone entirely — the new layer inlines what they
 stood for rather than exporting a name for it:
 
 | Legacy alias                                   | Was                                  | Now write                         |
@@ -559,7 +559,7 @@ new xdr.Int256(loLo, …)      →   new XdrLargeInt("i256", [loLo, …, hiHi])
 new xdr.Int128(42n).toBigInt() → new xdr.Int128(42n).value
 i128.lo, i128.hi             →   i128.toParts()  // { hi, lo }
 i128.size, i128.unsigned     →   (no longer exposed — pick the right class)
-scInt.int / xli.int          →   scInt.value  (bigint) — `.int` is gone
+scInt.int / xli.int          →   scInt.value / xli.value  (bigint) — `.int` is gone
 
 // ============== OPTIONALS (§ 14) ==============
 x === undefined              →   x == null    // decoded absent = null now
@@ -899,11 +899,13 @@ if (v2.timeBounds == null) { … }
 if (!v2.timeBounds) { … }
 ```
 
-Construction is lenient: `null`, `undefined`, and omitting the key entirely are
-all accepted, and `undefined` is preserved on the instance you built. Only
-**decoded** values are normalized to `null` — so a value that round-trips
-through `toXdr()`/`fromXdr()` changes from `undefined` to `null` mid-flight.
-Prefer `== null` / falsy checks over `=== undefined` everywhere.
+Construct absent fields with `null`, not `undefined`. TypeScript already
+requires it (`timeBounds: TimeBounds | null`), and the runtime holds you to it
+at encode time: the constructor stores whatever you pass, so `undefined` or an
+omitted key still builds an instance, but `toXdr()` / `toXdrObject()` on that
+instance then throws — a `TypeError` for struct-typed optionals, an
+`xdr.XdrError` for primitive ones. Decoded values are always `null`. Prefer
+`== null` / falsy checks over `=== undefined` everywhere.
 
 In JSON output an unset optional is `null` too (§ 12).
 
