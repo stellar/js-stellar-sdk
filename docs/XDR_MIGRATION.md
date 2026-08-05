@@ -1022,13 +1022,62 @@ footprint fields are readonly arrays now.
 
 ### `MuxedAccount#setId` no longer mutates a handed-out object
 
+This section covers the top-level `MuxedAccount` helper class. The XDR union
+`xdr.MuxedAccount` has no setter methods, and its fields are declared
+`readonly`.
+
 ```ts
-const held = muxed.toXdrObject();
+import { Account, MuxedAccount } from "@stellar/stellar-sdk";
+
+const muxed = new MuxedAccount(new Account(pubKey, "1"), "5");
+const held = muxed.toXdrObject(); // an xdr.MuxedAccount
 muxed.setId("99");
-held.med25519.id; // still the old id
+
+// `toXdrObject()` returns the `MuxedAccount` union, so narrow before
+// reading the arm (see § on union access).
+if (held.type === "keyTypeMuxedEd25519") {
+  held.med25519.id; // 5n — still the old id
+}
 ```
 
-Call `toXdrObject()` again after `setId`.
+`setId` replaces the internal XDR object instead of mutating it in place, so
+call `toXdrObject()` again afterwards.
+
+#### How to check for the two cases above
+
+The legacy mutate-through idiom fails loudly. Those accessors were methods, and
+they no longer exist:
+
+```ts
+held.med25519().id(99n);
+// tsc:     error TS2339: Property 'med25519' does not exist on type 'MuxedAccount'
+// runtime: TypeError: held.med25519 is not a function
+```
+
+TypeScript users get a build error; plain-JS users get a `TypeError` the first
+time the line runs. Neither can keep mutating unnoticed. (A direct field write,
+`held.med25519.id = 99n`, is a `readonly` error in TypeScript. Nothing is frozen
+at runtime, though, so from JS the write lands and silently desyncs the helper's
+cached `id()` and M-address.)
+
+What *is* silent is narrower: capture a reference, call a mutator, then read the
+stale capture. Seven methods can do it — `MuxedAccount#setId` and
+`SorobanDataBuilder#`&nbsp;`setResourceFee`, `setResources`, `appendFootprint`,
+`setFootprint`, `setReadOnly`, `setReadWrite`. Only `MuxedAccount#toXdrObject()`
+and `SorobanDataBuilder#getFootprint()` (and `getReadOnly`&nbsp;/
+`getReadWrite`, which delegate to it) hand out a reference that can go stale;
+`SorobanDataBuilder#build()` returns a clone, so the normal build path is
+unaffected.
+
+```sh
+tsc --noEmit    # catches every mutate-through
+
+rg -n '\.setId\(|\.set(ResourceFee|Resources|Footprint|ReadOnly|ReadWrite)\(|\.appendFootprint\('
+```
+
+For each hit, look back for a `toXdrObject()` or `getFootprint()` result stored
+in a variable and forward for a read of it. If the getter result is used
+immediately — the usual shape — there is nothing to fix.
 
 ### `contract.Spec#nativeToScVal` rejects `Map` subclasses
 
