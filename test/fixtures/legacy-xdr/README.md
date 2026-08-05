@@ -7,7 +7,7 @@ as part of the library — `src/` does not import from this directory.
 ## Role
 
 Source of truth for byte-compatibility testing. Round-trip tests in
-`test/unit/base/xdr/` use this layer as an oracle: encode the same logical
+`test/unit/xdr/` use this layer as an oracle: encode the same logical
 value through both the new class-based runtime (`src/xdr/`) and this legacy
 layer, then assert byte equality. If the bytes diverge, the new layer has a
 bug.

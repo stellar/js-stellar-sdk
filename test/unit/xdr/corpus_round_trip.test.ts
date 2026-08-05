@@ -1,21 +1,28 @@
-// Corpus-based round-trip tests against real on-chain XDR payloads pulled
-// from horizon mainnet (`test/fixtures/horizon-corpus/`).
+// Corpus-based round-trip tests against real on-chain XDR payloads.
 //
-// For every fixture we check three properties:
+// There are two corpora, from two APIs, in two fixture directories:
 //
-//   1. The new SDK decodes the bytes without throwing.
-//   2. Re-encoding produces bytes identical to the input (self-lossless).
-//   3. The legacy SDK decodes the bytes and re-encodes to the same bytes
-//      (sanity check — legacy is our oracle).
+//   test/fixtures/horizon-corpus/  ← scripts/refresh-horizon-corpus.ts
+//   test/fixtures/rpc-corpus/      ← scripts/refresh-rpc-corpus.ts
 //
-// Optional 4th check: the new SDK can decode bytes that the legacy SDK
-// produced from a fresh decode (legacy → bytes → new → bytes). Catches
-// any subtle decoder divergence between the two SDKs.
+// They are kept separate rather than merged because the two APIs genuinely
+// return different XDR types for the same concepts, and each section asserts
+// against what its source actually serves instead of translating between them:
 //
-// The corpus is checked in but disposable; refresh via
-// `pnpm tsx scripts/refresh-horizon-corpus.ts` to pull a fresh sample.
-// Tests skip cleanly if a corpus file is missing (so adding new corpus
-// files later doesn't require updating this test file).
+//   - Horizon serves `header_xdr` as a bare LedgerHeader; RPC serves
+//     `headerXdr` as a LedgerHeaderHistoryEntry, which WRAPS a LedgerHeader
+//     plus its hash and ext. Decoding one as the other misaligns and throws.
+//   - Horizon no longer serves `result_meta_xdr` at all (SDF removed it and
+//     points callers at RPC), so TransactionMeta coverage comes from the RPC
+//     corpus. Horizon still serves `fee_meta_xdr`, which is wire-equivalent to
+//     an OperationMeta.
+//   - Field names follow each source: Horizon's snake_case, RPC's camelCase.
+//
+// For every fixture we check that the new SDK decodes the bytes without
+// throwing, that re-encoding reproduces the input exactly, and that the legacy
+// SDK agrees on the same bytes (legacy is the oracle). Sections skip cleanly
+// when their corpus file is absent, so adding a new corpus file later doesn't
+// require editing this file.
 import { describe, it, expect } from "vitest";
 // Legacy js-xdr v4's `fromXDR` genuinely takes/returns Buffers; this file is
 // Node-only (excluded from the browser suite), so Buffer here is fine — but
@@ -27,7 +34,6 @@ import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import legacyTypes from "../../fixtures/legacy-xdr/curr_generated.js";
-const legacy = legacyTypes as any;
 
 import {
   TransactionEnvelope,
@@ -35,15 +41,37 @@ import {
   TransactionMeta,
   OperationMeta,
   LedgerHeader,
+  LedgerHeaderHistoryEntry,
 } from "../../../src/xdr/index.js";
 
-const CORPUS_DIR = resolve(
-  fileURLToPath(new URL(".", import.meta.url)),
-  "../../fixtures/horizon-corpus",
-);
+interface XdrValueLike {
+  toXdr(): Uint8Array;
+  toJson(): unknown;
+}
 
-function loadCorpus<T>(filename: string): T[] | null {
-  const path = resolve(CORPUS_DIR, filename);
+interface XdrCodec {
+  fromXdr(bytes: Uint8Array): XdrValueLike;
+  fromJson(json: unknown): XdrValueLike;
+}
+
+interface LegacyCodec {
+  fromXDR(buf: Buffer): { toXDR(): Buffer };
+}
+
+const legacy = legacyTypes as unknown as Record<string, LegacyCodec>;
+
+const FIXTURES = resolve(
+  fileURLToPath(new URL(".", import.meta.url)),
+  "../../fixtures",
+);
+const HORIZON_DIR = resolve(FIXTURES, "horizon-corpus");
+const RPC_DIR = resolve(FIXTURES, "rpc-corpus");
+
+const REFRESH_HORIZON = "pnpm tsx scripts/refresh-horizon-corpus.ts";
+const REFRESH_RPC = "pnpm tsx scripts/refresh-rpc-corpus.ts";
+
+function loadCorpus<T>(dir: string, filename: string): T[] | null {
+  const path = resolve(dir, filename);
   if (!existsSync(path)) return null;
   const json = JSON.parse(readFileSync(path, "utf8"));
   return json.records as T[];
@@ -53,35 +81,43 @@ function asHex(buf: Uint8Array): string {
   return uint8ArrayToHex(Uint8Array.from(buf));
 }
 
-interface TransactionRecord {
+interface HorizonTransactionRecord {
   hash: string;
   envelope_xdr: string;
   result_xdr: string;
-  result_meta_xdr: string;
+  fee_meta_xdr: string;
 }
 
-interface LedgerRecord {
+interface HorizonLedgerRecord {
   sequence: number;
   header_xdr: string;
 }
 
+interface RpcTransactionRecord {
+  txHash: string;
+  envelopeXdr: string;
+  resultXdr: string;
+  resultMetaXdr: string;
+}
+
+interface RpcLedgerRecord {
+  sequence: number;
+  headerXdr: string;
+}
+
 // Assert: decoding `b64` with the new SDK, then re-encoding, produces the
-// same bytes. Also (optionally) cross-checks against the legacy SDK doing
-// the same round-trip — proves both SDKs agree on the wire shape.
+// same bytes. Also cross-checks against the legacy SDK doing the same
+// round-trip — proves both SDKs agree on the wire shape.
 function assertRoundTrip(
   name: string,
   b64: string,
-
-  newCtor: any,
-
-  legacyCtor: any,
+  newCtor: XdrCodec,
+  legacyCtor: LegacyCodec,
 ): void {
   const inputBytes = base64ToUint8Array(b64);
   const inputHex = asHex(inputBytes);
 
-  // New SDK: decode → encode → bytes match input
-
-  let newDecoded: any;
+  let newDecoded: XdrValueLike;
   try {
     newDecoded = newCtor.fromXdr(inputBytes);
   } catch (err) {
@@ -89,12 +125,11 @@ function assertRoundTrip(
       `${name}: new SDK fromXdr threw — ${(err as Error).message}`,
     );
   }
-  const newReencoded = asHex(newDecoded.toXdr());
-  expect(newReencoded, `${name}: new SDK lossy round-trip`).toBe(inputHex);
+  expect(asHex(newDecoded.toXdr()), `${name}: new SDK lossy round-trip`).toBe(
+    inputHex,
+  );
 
-  // Legacy SDK: same dance, as a sanity check
-
-  let lgcyDecoded: any;
+  let lgcyDecoded: { toXDR(): Buffer };
   try {
     lgcyDecoded = legacyCtor.fromXDR(Buffer.from(inputBytes));
   } catch (err) {
@@ -102,14 +137,28 @@ function assertRoundTrip(
       `${name}: legacy SDK fromXDR threw — ${(err as Error).message}`,
     );
   }
-  const lgcyReencoded = asHex(lgcyDecoded.toXDR());
-  expect(lgcyReencoded, `${name}: legacy SDK lossy round-trip`).toBe(inputHex);
+  expect(
+    asHex(lgcyDecoded.toXDR()),
+    `${name}: legacy SDK lossy round-trip`,
+  ).toBe(inputHex);
 }
 
-describe("corpus round-trip: TransactionEnvelope (mainnet)", () => {
-  const records = loadCorpus<TransactionRecord>("transactions.json");
+// toJson → fromJson on real, large mainnet values. Besides checking the JSON
+// dialect round-trips, this exercises the memoized per-schema accepted-key set
+// across many repeated struct nodes.
+function assertJsonRoundTrip(b64: string, ctor: XdrCodec): void {
+  const value = ctor.fromXdr(base64ToUint8Array(b64));
+  const round = ctor.fromJson(value.toJson());
+  expect(round.toXdr()).toEqual(value.toXdr());
+}
+
+describe("horizon corpus: TransactionEnvelope + TransactionResult (mainnet)", () => {
+  const records = loadCorpus<HorizonTransactionRecord>(
+    HORIZON_DIR,
+    "transactions.json",
+  );
   if (!records || records.length === 0) {
-    it.skip("(no corpus file; run `pnpm tsx scripts/refresh-horizon-corpus.ts`)", () => {});
+    it.skip(`(no corpus file; run \`${REFRESH_HORIZON}\`)`, () => {});
     return;
   }
 
@@ -131,82 +180,37 @@ describe("corpus round-trip: TransactionEnvelope (mainnet)", () => {
         legacy.TransactionResult,
       );
     });
-
-    it(`result_meta ${r.hash.slice(0, 12)}… round-trips`, () => {
-      // Horizon's `result_meta_xdr` field is `TransactionMeta` for regular
-      // transactions, but for fee-bump (envelopeTypeTxFeeBump, v=5) it
-      // carries only the outer-tx fee-processing changes — wire-equivalent
-      // to a bare `LedgerEntryChanges` / `OperationMeta`. The inner-tx meta
-      // lives on the inner tx's separate record. Detect and dispatch.
-      const envBytes = base64ToUint8Array(r.envelope_xdr);
-      const envDiscriminator = new DataView(
-        envBytes.buffer,
-        envBytes.byteOffset,
-        envBytes.byteLength,
-      ).getUint32(0);
-      const isFeeBump = envDiscriminator === 5; // envelopeTypeTxFeeBump
-      if (isFeeBump) {
-        assertRoundTrip(
-          `result_meta ${r.hash} (fee-bump outer changes)`,
-          r.result_meta_xdr,
-          OperationMeta,
-          legacy.OperationMeta,
-        );
-      } else {
-        assertRoundTrip(
-          `result_meta ${r.hash}`,
-          r.result_meta_xdr,
-          TransactionMeta,
-          legacy.TransactionMeta,
-        );
-      }
-    });
   }
 });
 
-describe("corpus JSON round-trip: envelopes and metas (mainnet)", () => {
-  const records = loadCorpus<TransactionRecord>("transactions.json");
+describe("horizon corpus: fee meta as OperationMeta (mainnet)", () => {
+  const records = loadCorpus<HorizonTransactionRecord>(
+    HORIZON_DIR,
+    "transactions.json",
+  );
   if (!records || records.length === 0) {
-    it.skip("(no corpus file; run `pnpm tsx scripts/refresh-horizon-corpus.ts`)", () => {});
+    it.skip(`(no corpus file; run \`${REFRESH_HORIZON}\`)`, () => {});
     return;
   }
 
-  // toJson → fromJson on real, large mainnet values. Besides checking the
-  // JSON dialect round-trips, this exercises the memoized per-schema
-  // accepted-key set across many repeated struct nodes.
-  function assertJsonRoundTrip(b64: string, ctor: any): void {
-    const value = ctor.fromXdr(base64ToUint8Array(b64));
-    const round = ctor.fromJson(value.toJson());
-    expect(round.toXdr()).toEqual(value.toXdr());
-  }
-
+  // `fee_meta_xdr` carries the fee-processing LedgerEntryChanges, which is
+  // wire-identical to an OperationMeta (a struct of just that field).
   for (const r of records) {
-    it(`envelope ${r.hash.slice(0, 12)}… JSON round-trips`, () => {
-      assertJsonRoundTrip(r.envelope_xdr, TransactionEnvelope);
-    });
-
-    it(`result_meta ${r.hash.slice(0, 12)}… JSON round-trips`, () => {
-      // Same fee-bump dispatch as the byte-level test above: the outer
-      // record's meta is wire-equivalent to an OperationMeta.
-      const envBytes = base64ToUint8Array(r.envelope_xdr);
-      const isFeeBump =
-        new DataView(
-          envBytes.buffer,
-          envBytes.byteOffset,
-          envBytes.byteLength,
-        ).getUint32(0) === 5;
-      assertJsonRoundTrip(
-        r.result_meta_xdr,
-        isFeeBump ? OperationMeta : TransactionMeta,
+    it(`fee_meta ${r.hash.slice(0, 12)}… round-trips`, () => {
+      assertRoundTrip(
+        `fee_meta ${r.hash}`,
+        r.fee_meta_xdr,
+        OperationMeta,
+        legacy.OperationMeta,
       );
     });
   }
 });
 
-describe("corpus round-trip: LedgerHeader (mainnet)", () => {
-  const records = loadCorpus<LedgerRecord>("ledgers.json");
+describe("horizon corpus: LedgerHeader (mainnet)", () => {
+  const records = loadCorpus<HorizonLedgerRecord>(HORIZON_DIR, "ledgers.json");
   if (!records || records.length === 0) {
-    it.skip("(no corpus file; run `pnpm tsx scripts/refresh-horizon-corpus.ts`)", () => {});
+    it.skip(`(no corpus file; run \`${REFRESH_HORIZON}\`)`, () => {});
     return;
   }
 
@@ -217,6 +221,109 @@ describe("corpus round-trip: LedgerHeader (mainnet)", () => {
         r.header_xdr,
         LedgerHeader,
         legacy.LedgerHeader,
+      );
+    });
+  }
+});
+
+describe("horizon corpus: JSON round-trip (mainnet)", () => {
+  const records = loadCorpus<HorizonTransactionRecord>(
+    HORIZON_DIR,
+    "transactions.json",
+  );
+  if (!records || records.length === 0) {
+    it.skip(`(no corpus file; run \`${REFRESH_HORIZON}\`)`, () => {});
+    return;
+  }
+
+  for (const r of records) {
+    it(`envelope ${r.hash.slice(0, 12)}… JSON round-trips`, () => {
+      assertJsonRoundTrip(r.envelope_xdr, TransactionEnvelope);
+    });
+
+    it(`fee_meta ${r.hash.slice(0, 12)}… JSON round-trips`, () => {
+      assertJsonRoundTrip(r.fee_meta_xdr, OperationMeta);
+    });
+  }
+});
+
+describe("rpc corpus: TransactionEnvelope + Result + TransactionMeta (mainnet)", () => {
+  const records = loadCorpus<RpcTransactionRecord>(
+    RPC_DIR,
+    "transactions.json",
+  );
+  if (!records || records.length === 0) {
+    it.skip(`(no corpus file; run \`${REFRESH_RPC}\`)`, () => {});
+    return;
+  }
+
+  for (const r of records) {
+    it(`envelope ${r.txHash.slice(0, 12)}… round-trips`, () => {
+      assertRoundTrip(
+        `envelope ${r.txHash}`,
+        r.envelopeXdr,
+        TransactionEnvelope,
+        legacy.TransactionEnvelope,
+      );
+    });
+
+    it(`result ${r.txHash.slice(0, 12)}… round-trips`, () => {
+      assertRoundTrip(
+        `result ${r.txHash}`,
+        r.resultXdr,
+        TransactionResult,
+        legacy.TransactionResult,
+      );
+    });
+
+    // RPC returns a full TransactionMeta for every transaction, fee-bump
+    // included — no per-envelope-type dispatch needed.
+    it(`result_meta ${r.txHash.slice(0, 12)}… round-trips`, () => {
+      assertRoundTrip(
+        `result_meta ${r.txHash}`,
+        r.resultMetaXdr,
+        TransactionMeta,
+        legacy.TransactionMeta,
+      );
+    });
+  }
+});
+
+describe("rpc corpus: JSON round-trip (mainnet)", () => {
+  const records = loadCorpus<RpcTransactionRecord>(
+    RPC_DIR,
+    "transactions.json",
+  );
+  if (!records || records.length === 0) {
+    it.skip(`(no corpus file; run \`${REFRESH_RPC}\`)`, () => {});
+    return;
+  }
+
+  for (const r of records) {
+    it(`envelope ${r.txHash.slice(0, 12)}… JSON round-trips`, () => {
+      assertJsonRoundTrip(r.envelopeXdr, TransactionEnvelope);
+    });
+
+    it(`result_meta ${r.txHash.slice(0, 12)}… JSON round-trips`, () => {
+      assertJsonRoundTrip(r.resultMetaXdr, TransactionMeta);
+    });
+  }
+});
+
+describe("rpc corpus: LedgerHeaderHistoryEntry (mainnet)", () => {
+  const records = loadCorpus<RpcLedgerRecord>(RPC_DIR, "ledgers.json");
+  if (!records || records.length === 0) {
+    it.skip(`(no corpus file; run \`${REFRESH_RPC}\`)`, () => {});
+    return;
+  }
+
+  for (const r of records) {
+    it(`ledger ${r.sequence} round-trips`, () => {
+      assertRoundTrip(
+        `ledger ${r.sequence}`,
+        r.headerXdr,
+        LedgerHeaderHistoryEntry,
+        legacy.LedgerHeaderHistoryEntry,
       );
     });
   }
