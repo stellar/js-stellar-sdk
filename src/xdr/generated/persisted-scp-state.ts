@@ -3,7 +3,7 @@
 // under class hoisting — every reference site runs after both classes are fully
 // initialized.
 import { case as case_, field, int32, union } from "@stellar/js-xdr";
-import type { XdrType } from "@stellar/js-xdr";
+import { XdrError, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import {
   PersistedScpStateV0,
@@ -65,6 +65,11 @@ abstract class PersistedScpStateBase extends XdrValue {
           PersistedScpStateV1.fromXdrObject(wire.v1),
         );
     }
+    // unreachable for a well-typed wire object; a hand-built one can still
+    // carry an out-of-range discriminant
+    throw new XdrError(
+      `PersistedScpState: unknown v ${(wire as { v: unknown }).v}`,
+    );
   }
 
   /**

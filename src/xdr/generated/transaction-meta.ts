@@ -3,7 +3,7 @@
 // under class hoisting — every reference site runs after both classes are fully
 // initialized.
 import { array, case as case_, field, int32, union } from "@stellar/js-xdr";
-import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
+import { UNBOUNDED_MAX_LENGTH, XdrError, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import { OperationMeta, type OperationMetaWire } from "./operation-meta.js";
 import {
@@ -122,6 +122,11 @@ abstract class TransactionMetaBase extends XdrValue {
           TransactionMetaV4.fromXdrObject(wire.v4),
         );
     }
+    // unreachable for a well-typed wire object; a hand-built one can still
+    // carry an out-of-range discriminant
+    throw new XdrError(
+      `TransactionMeta: unknown v ${(wire as { v: unknown }).v}`,
+    );
   }
 
   /**

@@ -29,6 +29,7 @@ import {
 import {
   assertBigIntFits,
   assertDecimalDigitBudget,
+  assertDecimalString,
   bigIntTo128Parts,
   bigIntTo256Parts,
   partsTo128BigInt,
@@ -180,6 +181,7 @@ export function walkFromJson(
     case "uint64": {
       assertJsonType(json, "string", schema);
       assertDecimalDigitBudget(json as string, 64, schema.name ?? s.kind);
+      assertDecimalString(json as string, schema.name ?? s.kind);
       let value: bigint;
       try {
         value = BigInt(json as string);
@@ -799,6 +801,7 @@ OVERRIDES.set("Int128Parts", {
       throw new XdrError("Int128Parts: expected decimal string");
     }
     assertDecimalDigitBudget(json, 128, "Int128Parts");
+    assertDecimalString(json, "Int128Parts");
     const value = BigInt(json);
     assertBigIntFits(value, true, 128, "Int128Parts");
     return bigIntTo128Parts(value, true);
@@ -814,6 +817,7 @@ OVERRIDES.set("Uint128Parts", {
       throw new XdrError("Uint128Parts: expected decimal string");
     }
     assertDecimalDigitBudget(json, 128, "Uint128Parts");
+    assertDecimalString(json, "Uint128Parts");
     const value = BigInt(json);
     assertBigIntFits(value, false, 128, "Uint128Parts");
     return bigIntTo128Parts(value, false);
@@ -829,6 +833,7 @@ OVERRIDES.set("Int256Parts", {
       throw new XdrError("Int256Parts: expected decimal string");
     }
     assertDecimalDigitBudget(json, 256, "Int256Parts");
+    assertDecimalString(json, "Int256Parts");
     const value = BigInt(json);
     assertBigIntFits(value, true, 256, "Int256Parts");
     return bigIntTo256Parts(value, true);
@@ -844,6 +849,7 @@ OVERRIDES.set("Uint256Parts", {
       throw new XdrError("Uint256Parts: expected decimal string");
     }
     assertDecimalDigitBudget(json, 256, "Uint256Parts");
+    assertDecimalString(json, "Uint256Parts");
     const value = BigInt(json);
     assertBigIntFits(value, false, 256, "Uint256Parts");
     return bigIntTo256Parts(value, false);

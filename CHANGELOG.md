@@ -22,6 +22,7 @@ A breaking change will get clearly marked in this log.
 
 ### Fixed
 - `StrKey.decodeSignedPayload` and `StrKey.isValidSignedPayload` now validate the framing inside a `P...` strkey: the declared payload length must be 1-64, must match the number of payload bytes present, and the padding must be zero. The three [SEP-23](https://stellar.org/protocol/sep-23) invalid signed-payload test cases — length prefix shorter than the payload, longer than the payload, and missing zero padding — were previously accepted ([#1588](https://github.com/stellar/js-stellar-sdk/pull/1588)).
+- `StrKey.decodeClaimableBalance` and `StrKey.isValidClaimableBalance` now validate the discriminant byte that leads a `B...` strkey. `CLAIMABLE_BALANCE_ID_TYPE_V0` (0) is the only case `ClaimableBalanceID` declares, so the XDR decoder has always refused anything else — but the strkey checksum covers whatever byte is present, so a `B...` key with an unknown discriminant was decoded and reported valid.
 
 ## [v16.2.0](https://github.com/stellar/js-stellar-sdk/compare/v16.1.0...v16.2.0)
 

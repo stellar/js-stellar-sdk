@@ -3,7 +3,7 @@
 // under class hoisting — every reference site runs after both classes are fully
 // initialized.
 import { case as case_, field, union } from "@stellar/js-xdr";
-import type { XdrType } from "@stellar/js-xdr";
+import { XdrError, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import { ScSpecUdtUnionCaseV0Kind } from "./sc-spec-udt-union-case-v0-kind.js";
 import {
@@ -80,6 +80,11 @@ abstract class ScSpecUdtUnionCaseV0Base extends XdrValue {
           ScSpecUdtUnionCaseTupleV0.fromXdrObject(wire.tupleCase),
         );
     }
+    // unreachable for a well-typed wire object; a hand-built one can still
+    // carry an out-of-range discriminant
+    throw new XdrError(
+      `ScSpecUdtUnionCaseV0: unknown kind ${(wire as { kind: unknown }).kind}`,
+    );
   }
 
   /**

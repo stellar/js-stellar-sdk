@@ -3,7 +3,7 @@
 // under class hoisting — every reference site runs after both classes are fully
 // initialized.
 import { case as case_, field, uint32, union } from "@stellar/js-xdr";
-import type { XdrType } from "@stellar/js-xdr";
+import { XdrError, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import {
   AuthenticatedMessageV0,
@@ -51,6 +51,11 @@ abstract class AuthenticatedMessageBase extends XdrValue {
           AuthenticatedMessageV0.fromXdrObject(wire.v0),
         );
     }
+    // unreachable for a well-typed wire object; a hand-built one can still
+    // carry an out-of-range discriminant
+    throw new XdrError(
+      `AuthenticatedMessage: unknown v ${(wire as { v: unknown }).v}`,
+    );
   }
 
   /**

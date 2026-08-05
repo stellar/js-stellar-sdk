@@ -9,7 +9,7 @@ import {
   union,
   void as voidType,
 } from "@stellar/js-xdr";
-import type { XdrType } from "@stellar/js-xdr";
+import { XdrError, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import {
   GeneralizedTransactionSet,
@@ -73,6 +73,11 @@ abstract class TransactionHistoryEntryExtBase extends XdrValue {
           GeneralizedTransactionSet.fromXdrObject(wire.generalizedTxSet),
         );
     }
+    // unreachable for a well-typed wire object; a hand-built one can still
+    // carry an out-of-range discriminant
+    throw new XdrError(
+      `TransactionHistoryEntryExt: unknown v ${(wire as { v: unknown }).v}`,
+    );
   }
 
   /**

@@ -694,8 +694,8 @@ describe("walker — fromJson input validation", () => {
   });
 
   it("rejects malformed int64 strings with an XdrError, not SyntaxError", () => {
-    expect(() => ScVal.fromJson({ i64: "1.5" })).toThrow(/not a valid/);
-    expect(() => ScVal.fromJson({ i64: "12x" })).toThrow(/not a valid/);
+    expect(() => ScVal.fromJson({ i64: "1.5" })).toThrow(jsxdr.XdrError);
+    expect(() => ScVal.fromJson({ i64: "12x" })).toThrow(jsxdr.XdrError);
   });
 
   it("rejects strings over the schema max length", () => {

@@ -1278,6 +1278,8 @@ function bodyOfUnion(rawDef, ctx) {
   ctx.currentType = def.name;
   ctx.builders.add("union");
   ctx.coreImports.add("type XdrType");
+  // `fromXdrObject`'s fall-through guard, below.
+  ctx.coreImports.add("XdrError");
   ctx.valueImports.add("XdrValue");
 
   const name = def.name;
@@ -1386,7 +1388,18 @@ function bodyOfUnion(rawDef, ctx) {
     })
     .join("\n\n");
 
-  // fromXdrObject dispatch
+  // fromXdrObject dispatch. `<Name>Wire` types the discriminant as a closed set
+  // of literals, so the emitted switch is exhaustive to the compiler and needs
+  // no fall-through to typecheck — but a wire object built by hand, or by a JSON
+  // decoder that skipped schema validation, can still carry an out-of-range
+  // value. Without the guard below such a value falls through and the method
+  // returns `undefined` against a non-optional return type, surfacing as a
+  // `TypeError` frames away from the bad input.
+  //
+  // The guard is emitted *after* the switch rather than as a `default:` case so
+  // that a union with a real XDR `default` arm (none exist today, and
+  // `xdr.json` cannot express one) can add its own case without this having to
+  // become conditional; the throw simply becomes dead code.
   const fromWireCases = armsMeta
     .map((a) => {
       if (a.isVoid) {
@@ -1495,6 +1508,11 @@ ${factories}
     switch (wire.${switchKey}) {
 ${fromWireCases}
     }
+    // unreachable for a well-typed wire object; a hand-built one can still
+    // carry an out-of-range discriminant
+    throw new XdrError(
+      \`${name}: unknown ${switchKey} \${(wire as { ${switchKey}: unknown }).${switchKey}}\`,
+    );
   }
 
   /**

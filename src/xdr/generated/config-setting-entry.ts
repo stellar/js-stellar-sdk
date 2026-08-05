@@ -10,7 +10,7 @@ import {
   uint64,
   union,
 } from "@stellar/js-xdr";
-import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
+import { UNBOUNDED_MAX_LENGTH, XdrError, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import { ConfigSettingId } from "./config-setting-id.js";
 import {
@@ -579,6 +579,11 @@ abstract class ConfigSettingEntryBase extends XdrValue {
           FreezeBypassTxsDelta.fromXdrObject(wire.freezeBypassTxsDelta),
         );
     }
+    // unreachable for a well-typed wire object; a hand-built one can still
+    // carry an out-of-range discriminant
+    throw new XdrError(
+      `ConfigSettingEntry: unknown configSettingID ${(wire as { configSettingID: unknown }).configSettingID}`,
+    );
   }
 
   /**

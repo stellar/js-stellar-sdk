@@ -9,7 +9,7 @@ import {
   union,
   void as voidType,
 } from "@stellar/js-xdr";
-import type { XdrType } from "@stellar/js-xdr";
+import { XdrError, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import { BucketListType, type BucketListTypeWire } from "./bucket-list-type.js";
 
@@ -68,6 +68,11 @@ abstract class BucketMetadataExtBase extends XdrValue {
           BucketListType.fromXdrObject(wire.bucketListType),
         );
     }
+    // unreachable for a well-typed wire object; a hand-built one can still
+    // carry an out-of-range discriminant
+    throw new XdrError(
+      `BucketMetadataExt: unknown v ${(wire as { v: unknown }).v}`,
+    );
   }
 
   /**

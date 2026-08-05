@@ -17,7 +17,7 @@ import {
   union,
   void as voidType,
 } from "@stellar/js-xdr";
-import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
+import { UNBOUNDED_MAX_LENGTH, XdrError, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import { XdrString, xdrString } from "../values/xdr-string.js";
 import {
@@ -475,6 +475,11 @@ abstract class ScValBase extends XdrValue {
       case 22:
         return new ScValExecutableTag(wire.executableTag);
     }
+    // unreachable for a well-typed wire object; a hand-built one can still
+    // carry an out-of-range discriminant
+    throw new XdrError(
+      `ScVal: unknown type ${(wire as { type: unknown }).type}`,
+    );
   }
 
   /**

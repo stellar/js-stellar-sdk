@@ -106,6 +106,27 @@ function assertSignedPayloadFraming(data: Uint8Array): void {
 }
 
 /**
+ * Enforces the discriminant byte that leads a claimable balance id.
+ *
+ * `ClaimableBalanceID` is a union, and `CLAIMABLE_BALANCE_ID_TYPE_V0` (0) is
+ * its only case — so the XDR wire decoder rejects any other value. Nothing in
+ * the strkey encoding does: the checksum covers whatever byte is there. Without
+ * this, a `B...` key with an unknown discriminant is vouched for by
+ * `isValidClaimableBalance` while the wire decoder refuses it.
+ *
+ * The length needs no check — `claimableBalance` has a fixed 58-character
+ * encoded length, so `decodeCheck` has already pinned the payload at 33 bytes.
+ */
+function assertClaimableBalanceDiscriminant(data: Uint8Array): void {
+  if (data[0] !== 0) {
+    throw new Error(
+      `claimable balance: unknown discriminant ${data[0]}, expected 0 ` +
+        `(CLAIMABLE_BALANCE_ID_TYPE_V0)`,
+    );
+  }
+}
+
+/**
  * StrKey is a helper class that allows encoding and decoding Stellar keys
  * to/from strings, i.e. between their binary (Uint8Array, xdr.PublicKey, etc.) and
  * string (i.e. "GABCD...", etc.) representations.
@@ -391,6 +412,7 @@ function isValid(versionByteName: string, encoded: unknown): boolean {
       return decoded.length === 32;
 
     case "claimableBalance":
+      // the discriminant byte's value is enforced by `decodeCheck`
       return decoded.length === 32 + 1; // +1 byte for discriminant
 
     case "med25519PublicKey":
@@ -463,6 +485,10 @@ export function decodeCheck(
 
   if (versionByteName === "signedPayload") {
     assertSignedPayloadFraming(data);
+  }
+
+  if (versionByteName === "claimableBalance") {
+    assertClaimableBalanceDiscriminant(data);
   }
 
   return data;

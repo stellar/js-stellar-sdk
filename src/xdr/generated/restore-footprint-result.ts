@@ -3,7 +3,7 @@
 // under class hoisting — every reference site runs after both classes are fully
 // initialized.
 import { case as case_, union, void as voidType } from "@stellar/js-xdr";
-import type { XdrType } from "@stellar/js-xdr";
+import { XdrError, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import { RestoreFootprintResultCode } from "./restore-footprint-result-code.js";
 
@@ -78,6 +78,11 @@ abstract class RestoreFootprintResultBase extends XdrValue {
       case -3:
         return new RestoreFootprintResultInsufficientRefundableFee();
     }
+    // unreachable for a well-typed wire object; a hand-built one can still
+    // carry an out-of-range discriminant
+    throw new XdrError(
+      `RestoreFootprintResult: unknown code ${(wire as { code: unknown }).code}`,
+    );
   }
 
   /**

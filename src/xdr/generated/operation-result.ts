@@ -3,7 +3,7 @@
 // under class hoisting — every reference site runs after both classes are fully
 // initialized.
 import { case as case_, field, union, void as voidType } from "@stellar/js-xdr";
-import type { XdrType } from "@stellar/js-xdr";
+import { XdrError, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import { OperationResultCode } from "./operation-result-code.js";
 import {
@@ -169,6 +169,11 @@ abstract class OperationResultBase extends XdrValue {
       case -6:
         return new OperationResultOpTooManySponsoring();
     }
+    // unreachable for a well-typed wire object; a hand-built one can still
+    // carry an out-of-range discriminant
+    throw new XdrError(
+      `OperationResult: unknown code ${(wire as { code: unknown }).code}`,
+    );
   }
 
   /**

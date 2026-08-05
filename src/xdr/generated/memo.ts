@@ -9,7 +9,7 @@ import {
   union,
   void as voidType,
 } from "@stellar/js-xdr";
-import type { XdrType } from "@stellar/js-xdr";
+import { XdrError, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import { XdrString, xdrString } from "../values/xdr-string.js";
 import { MemoType } from "./memo-type.js";
@@ -93,6 +93,11 @@ abstract class MemoBase extends XdrValue {
       case 4:
         return new MemoReturn(Hash.fromXdrObject(wire.retHash));
     }
+    // unreachable for a well-typed wire object; a hand-built one can still
+    // carry an out-of-range discriminant
+    throw new XdrError(
+      `Memo: unknown type ${(wire as { type: unknown }).type}`,
+    );
   }
 
   /**
