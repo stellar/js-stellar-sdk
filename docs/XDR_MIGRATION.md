@@ -34,6 +34,7 @@ error; `TypeError: … is not a function` in plain JavaScript):
 | -------------------------------- | -------------------------------- |
 | `value.toXDR()`                  | `value.toXdr()`                  |
 | `Class.fromXDR(…)`               | `Class.fromXdr(…)`               |
+| `Class.validateXDR(…)`           | `Class.validateXdr(…)`           |
 | `value.toXDRObject()`            | `value.toXdrObject()`            |
 | `Class.fromXDRObject(…)`         | `Class.fromXdrObject(…)`         |
 | `asset.toChangeTrustXDRObject()` | `asset.toChangeTrustXdrObject()` |
@@ -531,6 +532,7 @@ new xdr.Int32(v)             →   Number(v)
 .toXDR()                     →   .toXdr()
 .toXDR().toString("base64")  →   .toXdr("base64")
 .fromXDR(buf, "base64")      →   .fromXdr(buf, "base64")
+.validateXDR(s, "base64")    →   .validateXdr(s, "base64")
 
 // ============== METHODS (new — no legacy equivalent) ==============
                                  .toXdrObject() / .fromXdrObject(wire)
@@ -565,7 +567,6 @@ scInt.int / xli.int          →   scInt.value / xli.value  (bigint) — `.int` 
 x === undefined              →   x == null    // decoded absent = null now
 
 // ============== REMOVED (§ 13) ==============
-Type.validateXDR(s, "base64") →  Type.validateXdr(s, "base64")  // note casing
 xdr.scvSortedMap(entries)    →   scvSortedMap(entries)   // top-level export
 xdr.Hyper / xdr.Option / xdr.Opaque / xdr.XDRString / …  →  (gone; see § 13)
 Hyper, UnsignedHyper, cereal →   (gone from top-level)
@@ -833,10 +834,11 @@ them; the schema builders behind them are internal.
 
 - **`validateXDR(input, format)`** was a static on every generated type — a
   "is this decodable?" check. It survives as **`validateXdr`** (casing now
-  matches `fromXdr`/`toXdr`), same shape otherwise: `Uint8Array` input, or a
-  string with `"hex" | "base64"`. It does a full decode and returns a boolean;
-  it never throws. When you need the failure reason, call `fromXdr` in a
-  `try`/`catch` instead (§ 15).
+  matches `fromXdr`/`toXdr`): `Uint8Array` input, or a string with
+  `"hex" | "base64"`. As with `fromXdr`, the optional `"raw"` format argument
+  is gone — pass bytes alone (§ 7). It does a full decode and returns a
+  boolean; it never throws. When you need the failure reason, call `fromXdr`
+  in a `try`/`catch` instead (§ 15).
 
   ```ts
   // Before
