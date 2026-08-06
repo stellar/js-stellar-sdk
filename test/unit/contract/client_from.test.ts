@@ -1,27 +1,12 @@
-import { describe, it, afterEach, expect, vi } from "vitest";
+import { describe, it, beforeEach, afterEach, expect, vi } from "vitest";
 import { concatUint8Arrays, stringToUint8Array } from "uint8array-extras";
 import * as StellarSdk from "../../../src/index.js";
 
 import { serverUrl } from "../../constants";
 
-// `Client.from` constructs its own `Server` internally, so we cannot spy on a
-// server instance we create here. Instead we mock the http-client factory that
-// the internal `Server` uses, which lets the real code path
-// (`getContractInstance`, then `getContractWasmByHash` for Wasm contracts) run
-// against controlled JSON-RPC responses.
-const { mockPost } = vi.hoisted(() => ({ mockPost: vi.fn() }));
-
-vi.mock("../../../src/rpc/axios.js", async (importActual) => {
-  const actual =
-    await importActual<typeof import("../../../src/rpc/axios.js")>();
-  return {
-    ...actual,
-    createHttpClient: () => ({ post: mockPost }),
-  };
-});
-
-const { xdr, hash, Contract } = StellarSdk;
+const { xdr, hash, Contract, rpc } = StellarSdk;
 const { Client } = StellarSdk.contract;
+const { Server } = rpc;
 
 const networkPassphrase = "Test SDF Network ; September 2015";
 
@@ -65,6 +50,23 @@ function wasmWithSpec(entries: StellarSdk.xdr.ScSpecEntry[]): Uint8Array {
 }
 
 describe("contract.Client.from", () => {
+  let server: any;
+  let mockPost: any;
+
+  // `Client.from` accepts a pre-built `Server` via `options.server`, so spying
+  // on that instance's http client lets the real code path
+  // (`getContractInstance`, then `getContractWasmByHash` for wasm contracts)
+  // run against controlled JSON-RPC responses without mocking a module.
+  beforeEach(() => {
+    server = new Server(serverUrl);
+    // The default throws rather than calling through: `vi.spyOn` keeps the real
+    // implementation, so once the queued `mockResolvedValueOnce` responses run
+    // out an unexpected call would otherwise issue a real HTTP request.
+    mockPost = vi.spyOn(server.httpClient, "post").mockImplementation(() => {
+      throw new Error("unexpected RPC call");
+    });
+  });
+
   afterEach(() => {
     vi.clearAllMocks();
   });
@@ -155,10 +157,13 @@ describe("contract.Client.from", () => {
         contractId,
         networkPassphrase,
         rpcUrl: serverUrl,
+        server,
       });
 
       expect(client).toBeInstanceOf(Client);
       expect(client.spec.funcs().length).toBeGreaterThan(0);
+      // The instance lookup, then the wasm fetch.
+      expect(mockPost).toHaveBeenCalledTimes(2);
     });
   });
 
@@ -191,6 +196,7 @@ describe("contract.Client.from", () => {
         contractId,
         networkPassphrase,
         rpcUrl: serverUrl,
+        server,
       });
 
       expect(client).toBeInstanceOf(Client);
@@ -204,6 +210,7 @@ describe("contract.Client.from", () => {
       ]) {
         expect(typeof (client as any)[method]).toBe("function");
       }
+      expect(mockPost).toHaveBeenCalledTimes(1);
     });
   });
 });

@@ -20,6 +20,21 @@ export default defineConfig({
   test: {
     globals: true,
     environment: "jsdom",
+    // Reuse one iframe across all test files instead of creating a fresh one
+    // per file. Every test file imports the SDK source entrypoint, so with
+    // isolation each of the 117 files re-evaluated the ~470-module `src/xdr`
+    // graph from scratch; the browser page grew until Firefox lost it mid-run
+    // ("Browser connection was closed while running tests"), consistently
+    // around file ~60 with every test that had run passing. Sharing the iframe
+    // evaluates that graph once, which keeps memory flat and cuts the run from
+    // ~16s to ~6s.
+    //
+    // The trade-off is that module state is shared across files, so a
+    // `vi.mock` here leaks into every file that runs after it. The suite is
+    // kept mock-free for that reason: tests that need a stubbed transport
+    // inject a `Server` and spy on `server.httpClient` instead (see
+    // test/unit/contract/client_from.test.ts and test/unit/server/soroban/).
+    isolate: false,
     coverage: {
       provider: "istanbul",
       reporter: ["text", "html", "lcov"],
