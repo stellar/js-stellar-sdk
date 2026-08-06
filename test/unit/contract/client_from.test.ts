@@ -1,4 +1,4 @@
-import { describe, it, beforeEach, afterEach, expect, vi } from "vitest";
+import { describe, it, beforeEach, expect, vi } from "vitest";
 import { concatUint8Arrays, stringToUint8Array } from "uint8array-extras";
 import * as StellarSdk from "../../../src/index.js";
 
@@ -65,10 +65,6 @@ describe("contract.Client.from", () => {
     mockPost = vi.spyOn(server.httpClient, "post").mockImplementation(() => {
       throw new Error("unexpected RPC call");
     });
-  });
-
-  afterEach(() => {
-    vi.clearAllMocks();
   });
 
   const contractId = "CCN57TGC6EXFCYIQJ4UCD2UDZ4C3AQCHVMK74DGZ3JYCA5HD4BY7FNPC";
