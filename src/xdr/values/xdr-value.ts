@@ -38,7 +38,8 @@ export interface XdrValueConstructor<Wire, Instance extends XdrValue> {
  *   - `static fromXdrObject(wire: Wire): InstanceType` going the other way
  *   - `toJson(): JsonValue`
  *
- * Inherited helpers (`toXdr`, `fromXdr`, `toString`, `equals`) handle the rest.
+ * Inherited helpers (`toXdr`, `fromXdr`, `validateXdr`, `toString`, `equals`)
+ * handle the rest.
  */
 export abstract class XdrValue {
   abstract toXdrObject(): unknown;
@@ -105,6 +106,35 @@ export abstract class XdrValue {
   ): Instance {
     const bytes = decodeBytes(input, format);
     return this.fromXdrObject(this.schema.decode(bytes));
+  }
+
+  /**
+   * Check whether `input` decodes as this type — {@link XdrValue.fromXdr}
+   * without the throw. Returns `false` on any failure (bad hex/base64, wrong
+   * shape, trailing bytes) and discards the error detail; decode directly
+   * when you need the reason.
+   */
+  static validateXdr<Wire, Instance extends XdrValue>(
+    this: XdrValueConstructor<Wire, Instance>,
+    input: Uint8Array,
+  ): boolean;
+  static validateXdr<Wire, Instance extends XdrValue>(
+    this: XdrValueConstructor<Wire, Instance>,
+    input: string,
+    format: "hex" | "base64",
+  ): boolean;
+  static validateXdr<Wire, Instance extends XdrValue>(
+    this: XdrValueConstructor<Wire, Instance>,
+    input: Uint8Array | string,
+    format?: "hex" | "base64",
+  ): boolean {
+    let bytes: Uint8Array;
+    try {
+      bytes = decodeBytes(input, format);
+    } catch {
+      return false;
+    }
+    return this.schema.validateXdr(bytes);
   }
 
   static fromJson<Wire, Instance extends XdrValue>(

@@ -565,7 +565,7 @@ scInt.int / xli.int          →   scInt.value / xli.value  (bigint) — `.int` 
 x === undefined              →   x == null    // decoded absent = null now
 
 // ============== REMOVED (§ 13) ==============
-Type.validateXDR(s, "base64") →  try { Type.fromXdr(s, "base64") } catch {}
+Type.validateXDR(s, "base64") →  Type.validateXdr(s, "base64")  // note casing
 xdr.scvSortedMap(entries)    →   scvSortedMap(entries)   // top-level export
 xdr.Hyper / xdr.Option / xdr.Opaque / xdr.XDRString / …  →  (gone; see § 13)
 Hyper, UnsignedHyper, cereal →   (gone from top-level)
@@ -832,7 +832,10 @@ them; the schema builders behind them are internal.
 ### `validateXDR` and `xdr.scvSortedMap`
 
 - **`validateXDR(input, format)`** was a static on every generated type — a
-  cheap "is this decodable?" check. It has no replacement; wrap `fromXdr` in a
+  "is this decodable?" check. It survives as **`validateXdr`** (casing now
+  matches `fromXdr`/`toXdr`), same shape otherwise: `Uint8Array` input, or a
+  string with `"hex" | "base64"`. It does a full decode and returns a boolean;
+  it never throws. When you need the failure reason, call `fromXdr` in a
   `try`/`catch` instead (§ 15).
 
   ```ts
@@ -840,14 +843,7 @@ them; the schema builders behind them are internal.
   if (xdr.TransactionEnvelope.validateXDR(str, "base64")) { … }
 
   // After
-  function isValid(str: string): boolean {
-    try {
-      xdr.TransactionEnvelope.fromXdr(str, "base64");
-      return true;
-    } catch {
-      return false;
-    }
-  }
+  if (xdr.TransactionEnvelope.validateXdr(str, "base64")) { … }
   ```
 
 - **`xdr.scvSortedMap()`** is gone. The legacy SDK monkey-patched it onto the
@@ -943,7 +939,8 @@ consume (`"source buffer not entirely consumed"`), which is now
 fixed-size fields, out-of-range integers, unknown union discriminants, and
 unknown enum values all throw as before, with new wording.
 
-There is no `validateXDR` any more — see § 13 for the try/catch replacement.
+`validateXDR` survives as `validateXdr` (casing matches `fromXdr`/`toXdr`) —
+see § 13. It returns a bare boolean; decode directly when you need the error.
 
 ### Enum lookup
 
