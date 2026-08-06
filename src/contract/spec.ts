@@ -812,7 +812,7 @@ export class Spec {
               );
           }
         }
-        if (val.constructor === Map) {
+        if (val instanceof Map) {
           if (tyType !== "scSpecTypeMap") {
             throw new TypeError(`Type ${ty} was not map, but value was Map`);
           }

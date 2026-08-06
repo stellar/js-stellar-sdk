@@ -1079,12 +1079,6 @@ For each hit, look back for a `toXdrObject()` or `getFootprint()` result stored
 in a variable and forward for a read of it. If the getter result is used
 immediately — the usual shape — there is nothing to fix.
 
-### `contract.Spec#nativeToScVal` rejects `Map` subclasses
-
-The check tightened from `val instanceof Map` to `val.constructor === Map`, so
-passing a subclass (an ordered-map implementation, say) for a `Map`-typed
-parameter now throws `cannot interpret … value as ScVal`. Pass a plain `Map`.
-
 ### Byte-typed results
 
 `getLiquidityPoolId()`, `AuthEntrySignature.signature`, and the second argument
