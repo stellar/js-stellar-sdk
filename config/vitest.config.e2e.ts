@@ -1,10 +1,14 @@
 import { defineConfig } from 'vitest/config'
 import { resolve } from 'path'
+import { mockSafeguards } from './vitest-utils'
 
 export default defineConfig({
   test: {
     globals: true,
     environment: 'node',
+    // Shared with the other configs so the cleanup guarantee is uniform; inert
+    // here today, since test/e2e uses no spies or global stubs.
+    ...mockSafeguards,
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html', 'lcov'],
