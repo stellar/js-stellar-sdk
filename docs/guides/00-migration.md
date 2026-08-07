@@ -21,17 +21,17 @@ APIs listed below.
 
 The 17.x.x release changes two things that touch nearly every codebase: the `xdr`
 namespace is rebuilt as a class-based API, and every public API that returned
-Node's `Buffer` now returns a `Uint8Array`. The wire format is unchanged — bytes
+Node's `Buffer` now returns a `Uint8Array`. The wire format is unchanged: bytes
 and base64 written by older SDKs still decode.
 
 Each has a dedicated deep-dive guide, because the surface is too large to
 summarize here:
 
-- **[XDR migration guide](/xdr_migration/)** — the class-based `xdr` namespace,
-  built on js-xdr v5. Affects anyone who reads or builds `xdr.*` values, plus
-  anyone calling `tx.toXDR()` or `TransactionBuilder.fromXDR()`, which were
-  renamed.
-- **[Uint8Array migration guide](/uint8array_migration/)** — `Buffer` →
+- **[XDR migration guide](/xdr_migration/)** covers the class-based `xdr`
+  namespace, built on js-xdr v5. Affects anyone who reads or builds `xdr.*`
+  values, plus anyone calling `tx.toXDR()` or `TransactionBuilder.fromXDR()`,
+  which were renamed.
+- **[Uint8Array migration guide](/uint8array_migration/)** covers `Buffer` →
   `Uint8Array` on every byte-returning public API. Affects anyone calling
   `.toString("hex")`, `.equals()`, or another Buffer method on an SDK result.
 
@@ -40,7 +40,7 @@ at all**:
 
 - `Buffer` methods on a `Uint8Array` fail silently. `.toString("hex")` returns
   comma-joined decimals (`"185,77,39,…"`), and `.toString("utf8")` returns
-  `"104,105"` — no exception, just a wrong string that flows onward.
+  `"104,105"`. Nothing throws, so the wrong string is used downstream.
 - Absent optional XDR fields decode to `null` instead of `undefined`, so
   `=== undefined` checks stop matching. Prefer `== null`.
 - `scValToNative` can now return a `Uint8Array` for a `scvString` or `scvSymbol`
@@ -296,7 +296,7 @@ switch (operation.type) {
 
 ### Transactions: mutating `.tx` is now a silent no-op
 
-**This is a silent behavior change — it does not throw, and no types change.**
+**This is a silent behavior change. It does not throw, and no types change.**
 `TransactionBase.tx` now returns a fresh defensive copy on every access. The old
 pattern of setting fields _through_ it mutates that throwaway copy and has **no
 effect** on the transaction that gets signed or serialized:
@@ -310,7 +310,7 @@ tx.tx.cond(newCond) // silently discarded
 ```
 
 Because nothing throws, code that relied on this keeps compiling and running
-while signing and submitting the **unmodified** transaction — a payment can go
+while signing and submitting the **unmodified** transaction. A payment can go
 out with the wrong fee, operations, or preconditions, and the only signal is the
 on-chain result. If you were patching a built transaction this way, rebuild it
 so the change is part of what you sign:
@@ -445,7 +445,7 @@ By default the SDK still uses the legacy `ADDRESS` credential: simulation
 returns `ADDRESS` entries and `authorizeInvocation` builds them. `ADDRESS_V2`
 is only valid on networks that have upgraded to protocol 27, so it is **opt-in** until
  protocol 28 makes it mandatory (at which point the default flips). Opt in with
-the `authV2` flag on `authorizeInvocation`'s params — when your target network
+the `authV2` flag on `authorizeInvocation`'s params, once your target network
 supports it.
 
 SDK-driven signing ([`contract.Client`](/reference/contracts-client/#contractclient),

@@ -8,7 +8,7 @@ description:
 As of v17, every public SDK API that used Node's `Buffer` uses the web-standard
 `Uint8Array` instead ([#1457](https://github.com/stellar/js-stellar-sdk/issues/1457)).
 The `buffer` dependency is gone, and the browser bundle no longer needs (or
-ships) a Buffer polyfill — the SDK now runs in browsers, edge runtimes, Deno,
+ships) a Buffer polyfill, so the SDK now runs in browsers, edge runtimes, Deno,
 and Bun with no shims.
 
 **Inputs are not breaking.** `Buffer` is a subclass of `Uint8Array`, so
@@ -43,24 +43,23 @@ covers the rest. In Node you can also just wrap the result:
 | `Buffer.isBuffer(x)`               | `x instanceof Uint8Array`                                   |
 | `buf.readUInt32BE(o)`              | `new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength).getUint32(o)` |
 | `buf.readBigUInt64BE(o)`           | `…same DataView….getBigUint64(o)`                           |
-| `buf.slice(a, b)` (view)           | `bytes.subarray(a, b)` — note `Uint8Array.prototype.slice` **copies**, while `Buffer.prototype.slice` returned a view |
+| `buf.slice(a, b)` (view)           | `bytes.subarray(a, b)`. Note that `Uint8Array.prototype.slice` **copies**, while `Buffer.prototype.slice` returned a view |
 
 Three semantic traps to check for:
 
-- **`.toString("hex")` fails silently.** `Uint8Array.prototype.toString`
-  ignores its argument and returns comma-joined decimals
-  (`"185,77,39,…"`). Code comparing that to a hex string just stops matching —
-  no exception. Grep your codebase for `.toString("hex")`/`.toString("base64")`
-  applied to SDK results.
-- **Strict decoding.** Where the SDK parses hex/base64 strings you hand it
+- `.toString("hex")` fails silently. `Uint8Array.prototype.toString` ignores its
+  argument and returns comma-joined decimals (`"185,77,39,…"`). Code comparing
+  that to a hex string stops matching, and nothing throws. Grep your
+  codebase for `.toString("hex")`/`.toString("base64")` applied to SDK results.
+- Decoding is stricter. Where the SDK parses hex/base64 strings you hand it
   (e.g. hex signer keys in `Operation.setOptions`, base64 envelopes), invalid
   input now throws (`Invalid Hex character…`) instead of being silently
   truncated the way `Buffer.from(str, "hex")` was.
-- **Test assertions stop matching.** A `Buffer` and a `Uint8Array` holding
-  identical bytes are **not** deep-equal under vitest or Jest — `toEqual`,
-  `toStrictEqual`, and nested comparisons all fail, because the two report
-  different types. So a test whose expected value is a `Buffer` fixture now
-  fails against an SDK result. Normalize one side, or compare encodings:
+- Test assertions stop matching. A `Buffer` and a `Uint8Array` holding identical
+  bytes are **not** deep-equal under vitest or Jest. `toEqual`, `toStrictEqual`,
+  and nested comparisons all fail, because the two report different types. So a
+  test whose expected value is a `Buffer` fixture now fails against an SDK
+  result. Normalize one side, or compare encodings:
 
   ```ts
   expect(uint8ArrayToHex(actual)).toBe(expectedHex); // preferred
@@ -74,14 +73,14 @@ Three semantic traps to check for:
 | API |
 | --- |
 | `hash(data)` |
-| `Keypair#rawPublicKey()`, `#rawSecretKey()` |
-| `Keypair#sign(data)`, `#signMessage(message)` |
-| `Keypair#signatureHint()` |
+| `Keypair.rawPublicKey()` / `rawSecretKey()` |
+| `Keypair.sign(data)` / `signMessage(message)` |
+| `Keypair.signatureHint()` |
 | `StrKey.decodeEd25519PublicKey` / `decodeEd25519SecretSeed` / `decodeMed25519PublicKey` / `decodePreAuthTx` / `decodeSha256Hash` / `decodeSignedPayload` / `decodeContract` / `decodeClaimableBalance` / `decodeLiquidityPool` |
 | `decodeCheck(versionByteName, encoded)` |
-| `Transaction#hash()`, `#signatureBase()` (also on `FeeBumpTransaction`) |
-| `Memo#value` for `MemoHash` / `MemoReturn` (and the decoded bytes of a `MemoText` read back via `Memo.fromXdrObject`) |
-| `Address#toBuffer()` (name kept, now returns `Uint8Array`) |
+| `Transaction.hash()` / `signatureBase()` (also on `FeeBumpTransaction`) |
+| `Memo.value` for `MemoHash` / `MemoReturn` (and the decoded bytes of a `MemoText` read back via `Memo.fromXdrObject`) |
+| `Address.toBuffer()` (name kept, now returns `Uint8Array`) |
 | `Operation.fromXdrObject` records: `manageData`'s `value`, `setOptions`/`revokeSponsorship` signer `sha256Hash` / `preAuthTx` |
 | signing helpers: `generate`, `sign` |
 | `getLiquidityPoolId(type, params)` |
@@ -90,15 +89,15 @@ Three semantic traps to check for:
 
 | API |
 | --- |
-| `rpc.Server#getContractWasmByContractId()`, `#getContractWasmByHash()` |
+| `rpc.Server.getContractWasmByContractId()` / `getContractWasmByHash()` |
 | `contract.Spec` byte-typed spec entries and `specFromWasm` results |
-| `contract.Spec#scValToNative` / `#funcResToNative` for `Bytes` / `BytesN` — including values nested in structs, vecs, and maps. These are generically typed (`T`), so TypeScript will **not** flag the change: a `client.get_hash().result.toString("hex")` keeps compiling and starts returning comma-joined decimals. |
+| `contract.Spec.scValToNative` / `funcResToNative` for `Bytes` / `BytesN`, including values nested in structs, vecs, and maps. These are generically typed (`T`), so TypeScript will **not** flag the change: a `client.get_hash().result.toString("hex")` keeps compiling and starts returning comma-joined decimals. |
 
 ### auth (CAP-71 / Soroban)
 
 - `SigningCallback` must now resolve to a `Uint8Array` (or
   `{ signature: Uint8Array; publicKey: string }`). Returning a `Buffer` still
-  works; returning a **raw `ArrayBuffer` no longer does** — wrap it:
+  works; returning a **raw `ArrayBuffer` no longer does**, so wrap it:
   `new Uint8Array(arrayBuffer)`.
 - The **signing payload** handed *to* a `SigningCallback` as its second argument
   is a `Uint8Array` too (it used to be a `Buffer`). A callback that logs or
@@ -110,7 +109,7 @@ Three semantic traps to check for:
 - `Operation.manageData`'s `value` accepts `string | Uint8Array | null`
   directly (Buffers still work).
 - `Memo.text` accepts `string | Uint8Array`.
-- Everything that accepted `Buffer` accepts any `Uint8Array` now — including
+- Everything that accepted `Buffer` accepts any `Uint8Array` now, including
   ones backed by `SharedArrayBuffer`-free views from `fetch()` responses,
   `crypto.getRandomValues`, WASM memory, etc.
 
