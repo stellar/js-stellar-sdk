@@ -75,7 +75,12 @@ console.log("Submitted:", result.hash, "successful:", result.successful);
 if (!result.successful) {
   throw new Error(`guide payment was not applied (${result.hash})`);
 }
-if (tx.memo.value?.toString() !== "invoice-42") {
+
+const txMemo = tx.memo.toXdrObject();
+if (txMemo.type !== "memoText") {
+  throw new Error("guide memo is not of type memoText");
+}
+if (txMemo.text.toString() !== "invoice-42") {
   throw new Error("guide memo was not set on the transaction");
 }
 

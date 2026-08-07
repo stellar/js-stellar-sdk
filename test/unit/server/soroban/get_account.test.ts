@@ -3,9 +3,9 @@ import * as StellarSdk from "../../../../src/index.js";
 
 import { serverUrl } from "../../../constants";
 
-const { Account, Keypair, xdr } = StellarSdk;
+const { Account, Keypair, xdr, rpc } = StellarSdk;
 
-const { Server } = StellarSdk.rpc;
+const { Server } = rpc;
 
 describe("Server#getAccount", () => {
   let server: any;
@@ -33,7 +33,7 @@ describe("Server#getAccount", () => {
           latestLedger: 0,
           entries: [
             {
-              key: key.toXDR("base64"),
+              key: key.toXdr("base64"),
               xdr: accountEntry,
             },
           ],
@@ -51,7 +51,7 @@ describe("Server#getAccount", () => {
       jsonrpc: "2.0",
       id: 1,
       method: "getLedgerEntries",
-      params: { keys: [key.toXDR("base64")] },
+      params: { keys: [key.toXdr("base64")] },
     });
     expect(mockPost).toHaveBeenCalledTimes(1);
   });
@@ -75,7 +75,7 @@ describe("Server#getAccount", () => {
       jsonrpc: "2.0",
       id: 1,
       method: "getLedgerEntries",
-      params: { keys: [key.toXDR("base64")] },
+      params: { keys: [key.toXdr("base64")] },
     });
     expect(mockPost).toHaveBeenCalledTimes(1);
   });

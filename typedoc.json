@@ -3,6 +3,7 @@
   "entryPointStrategy": "expand",
   "tsconfig": "tsconfig.json",
   "exclude": ["src/base/generated/**"],
+  "ignoredHighlightLanguages": ["xdr"],
   "validation": {
     "invalidLink": true,
     "notExported": false,

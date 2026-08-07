@@ -362,7 +362,7 @@ describe("HttpClient contract", () => {
   describe("bounded path — response size cap", () => {
     it("rejects when content-length exceeds maxContentLength", async () => {
       respond = (_req, res) => {
-        const body = Buffer.alloc(5000, 0x61);
+        const body = new Uint8Array(5000).fill(0x61);
         res.setHeader("Content-Type", "text/plain");
         res.setHeader("Content-Length", String(body.length));
         res.writeHead(200);
@@ -478,7 +478,7 @@ describe("HttpClient contract", () => {
       respond = async (_req, res) => {
         res.setHeader("Content-Type", "text/plain");
         res.setHeader("Transfer-Encoding", "chunked");
-        const chunk = Buffer.alloc(chunkSize, 0x61);
+        const chunk = new Uint8Array(chunkSize).fill(0x61);
         for (let i = 0; i < totalChunks; i += 1) {
           if (res.writableEnded || res.destroyed) break;
           const written = await new Promise<boolean>((resolve) => {

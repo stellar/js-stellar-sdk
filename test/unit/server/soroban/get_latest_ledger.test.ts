@@ -3,8 +3,8 @@ import * as StellarSdk from "../../../../src/index.js";
 
 import { serverUrl } from "../../../constants";
 
-const { Server } = StellarSdk.rpc;
-const { xdr } = StellarSdk;
+const { xdr, rpc } = StellarSdk;
+const { Server } = rpc;
 
 describe("Server#getLatestLedger", () => {
   let server: any;
@@ -35,8 +35,8 @@ describe("Server#getLatestLedger", () => {
       sequence: result.sequence,
       protocolVersion: result.protocolVersion,
       closeTime: result.closeTime,
-      headerXdr: xdr.LedgerHeader.fromXDR(result.headerXdr, "base64"),
-      metadataXdr: xdr.LedgerCloseMeta.fromXDR(result.metadataXdr, "base64"),
+      headerXdr: xdr.LedgerHeader.fromXdr(result.headerXdr, "base64"),
+      metadataXdr: xdr.LedgerCloseMeta.fromXdr(result.metadataXdr, "base64"),
     };
     const mockResponse = { data: { result } };
     mockPost.mockResolvedValue(mockResponse);

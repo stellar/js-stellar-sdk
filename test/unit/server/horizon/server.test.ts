@@ -13,8 +13,8 @@ import { http, HttpResponse } from "msw";
 import { setupServer } from "msw/node";
 import * as StellarSdk from "../../../../src/index.js";
 
-const { Horizon } = StellarSdk;
-const { SERVER_TIME_MAP } = StellarSdk.Horizon;
+const { Horizon, Config, Asset, NotFoundError } = StellarSdk;
+const { SERVER_TIME_MAP } = Horizon;
 
 describe("server.js non-transaction tests", () => {
   let server: any;
@@ -22,7 +22,7 @@ describe("server.js non-transaction tests", () => {
   beforeEach(() => {
     server = new Horizon.Server("https://horizon-live.stellar.org:1337");
     mockGet = vi.spyOn(server.httpClient, "get");
-    StellarSdk.Config.setDefault();
+    Config.setDefault();
   });
 
   afterEach(() => {
@@ -46,7 +46,7 @@ describe("server.js non-transaction tests", () => {
     });
 
     it("allow insecure server when global Config.allowHttp flag is set", () => {
-      StellarSdk.Config.setAllowHttp(true);
+      Config.setAllowHttp(true);
       expect(
         () => new Horizon.Server("http://horizon-live.stellar.org:1337"),
       ).not.toThrow();
@@ -681,7 +681,7 @@ describe("server.js non-transaction tests", () => {
           });
 
           await expect(server.ledgers().ledger(1).call()).rejects.toThrow(
-            StellarSdk.NotFoundError,
+            NotFoundError,
           );
         });
       });
@@ -1485,7 +1485,7 @@ describe("server.js non-transaction tests", () => {
         const response = await server
           .accounts()
           .forAsset(
-            new StellarSdk.Asset(
+            new Asset(
               "USD",
               "GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD",
             ),
@@ -1889,7 +1889,7 @@ describe("server.js non-transaction tests", () => {
         expect(response.prev).toBeTypeOf("function");
       });
       it("selling requests the correct endpoint", async () => {
-        const selling = new StellarSdk.Asset(
+        const selling = new Asset(
           "USD",
           "GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG",
         );
@@ -1916,7 +1916,7 @@ describe("server.js non-transaction tests", () => {
         expect(response.prev).toBeTypeOf("function");
       });
       it("buying requests the correct endpoint", async () => {
-        const buying = new StellarSdk.Asset(
+        const buying = new Asset(
           "COP",
           "GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG",
         );
@@ -1997,8 +1997,8 @@ describe("server.js non-transaction tests", () => {
 
         const response = await server
           .orderbook(
-            StellarSdk.Asset.native(),
-            new StellarSdk.Asset(
+            Asset.native(),
+            new Asset(
               "USD",
               "GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG",
             ),
@@ -2022,11 +2022,11 @@ describe("server.js non-transaction tests", () => {
 
         const response = await server
           .orderbook(
-            new StellarSdk.Asset(
+            new Asset(
               "USD",
               "GDVDKQFP665JAO7A2LSHNLQIUNYNAAIGJ6FYJVMG4DT3YJQQJSRBLQDG",
             ),
-            StellarSdk.Asset.native(),
+            Asset.native(),
           )
           .call();
 
@@ -2167,8 +2167,8 @@ describe("server.js non-transaction tests", () => {
         const response = await server
           .trades()
           .forAssetPair(
-            StellarSdk.Asset.native(),
-            new StellarSdk.Asset(
+            Asset.native(),
+            new Asset(
               "JPY",
               "GBVAOIACNSB7OVUXJYC5UE2D4YK2F7A24T7EE5YOMN4CE6GCHUTOUQXM",
             ),
@@ -2620,7 +2620,7 @@ describe("server.js non-transaction tests", () => {
         const response = await server
           .strictReceivePaths(
             "GARSFJNXJIHO6ULUBK3DBYKVSIZE7SC72S5DYBCHU7DKL22UXKVD7MXP",
-            new StellarSdk.Asset(
+            new Asset(
               "EUR",
               "GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN",
             ),
@@ -2648,12 +2648,12 @@ describe("server.js non-transaction tests", () => {
         });
 
         const assets = [
-          StellarSdk.Asset.native(),
-          new StellarSdk.Asset(
+          Asset.native(),
+          new Asset(
             "EUR",
             "GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN",
           ),
-          new StellarSdk.Asset(
+          new Asset(
             "USD",
             "GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN",
           ),
@@ -2662,7 +2662,7 @@ describe("server.js non-transaction tests", () => {
         const response = await server
           .strictReceivePaths(
             assets,
-            new StellarSdk.Asset(
+            new Asset(
               "EUR",
               "GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN",
             ),
@@ -2762,7 +2762,7 @@ describe("server.js non-transaction tests", () => {
 
         const response = await server
           .strictSendPaths(
-            new StellarSdk.Asset(
+            new Asset(
               "EUR",
               "GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN",
             ),
@@ -2791,12 +2791,12 @@ describe("server.js non-transaction tests", () => {
         });
 
         const assets = [
-          StellarSdk.Asset.native(),
-          new StellarSdk.Asset(
+          Asset.native(),
+          new Asset(
             "EUR",
             "GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN",
           ),
-          new StellarSdk.Asset(
+          new Asset(
             "USD",
             "GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN",
           ),
@@ -2804,7 +2804,7 @@ describe("server.js non-transaction tests", () => {
 
         const response = await server
           .strictSendPaths(
-            new StellarSdk.Asset(
+            new Asset(
               "EUR",
               "GDSBCQO34HWPGUGQSP3QBFEXVTSR2PW46UIGTHVWGWJGQKH3AFNHXHXN",
             ),
@@ -3298,8 +3298,8 @@ describe("server.js non-transaction tests", () => {
 
         const response = await server
           .tradeAggregation(
-            StellarSdk.Asset.native(),
-            new StellarSdk.Asset(
+            Asset.native(),
+            new Asset(
               "BTC",
               "GATEMHCCKCY67ZUCKTROYN24ZYT5GK4EQZ65JJLDHKHRUZI3EUEKMTCH",
             ),
@@ -3331,11 +3331,11 @@ describe("server.js non-transaction tests", () => {
 
         const response = await server
           .tradeAggregation(
-            new StellarSdk.Asset(
+            new Asset(
               "BTC",
               "GATEMHCCKCY67ZUCKTROYN24ZYT5GK4EQZ65JJLDHKHRUZI3EUEKMTCH",
             ),
-            StellarSdk.Asset.native(),
+            Asset.native(),
             1512689100000,
             1512775500000,
             300000,

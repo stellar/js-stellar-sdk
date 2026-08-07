@@ -1,3 +1,4 @@
+import { base64ToUint8Array, uint8ArrayToBase64 } from "uint8array-extras";
 import { describe, it, expect } from "vitest";
 import {
   Account,
@@ -37,12 +38,12 @@ function buildTxXdr(source: Keypair): string {
     )
     .setTimeout(30)
     .build()
-    .toXDR();
+    .toXdr();
 }
 
 // A 32-byte stand-in for an auth entry preimage; `signAuthEntry` only hashes
 // the bytes, so it does not need to be valid XDR.
-const preimage = Buffer.alloc(32, 7).toString("base64");
+const preimage = uint8ArrayToBase64(new Uint8Array(32).fill(7));
 
 describe("KeypairSigner", () => {
   it("exposes the keypair's address as its identity", () => {
@@ -61,10 +62,10 @@ describe("KeypairSigner", () => {
     );
 
     expect(signerAddress).toEqual(keypair.publicKey());
-    const signed = TransactionBuilder.fromXDR(signedTxXdr, networkPassphrase);
+    const signed = TransactionBuilder.fromXdr(signedTxXdr, networkPassphrase);
     expect(signed.signatures).toHaveLength(1);
     expect(
-      keypair.verify(signed.hash(), signed.signatures[0].signature()),
+      keypair.verify(signed.hash(), signed.signatures[0].signature.value),
     ).toBe(true);
   });
 
@@ -78,9 +79,9 @@ describe("KeypairSigner", () => {
       networkPassphrase: Networks.TESTNET,
     });
 
-    const signed = TransactionBuilder.fromXDR(signedTxXdr, Networks.TESTNET);
+    const signed = TransactionBuilder.fromXdr(signedTxXdr, Networks.TESTNET);
     expect(
-      keypair.verify(signed.hash(), signed.signatures[0].signature()),
+      keypair.verify(signed.hash(), signed.signatures[0].signature.value),
     ).toBe(true);
   });
 
@@ -92,8 +93,8 @@ describe("KeypairSigner", () => {
       await signer.signAuthEntry(preimage);
 
     expect(signerAddress).toEqual(keypair.publicKey());
-    expect(Buffer.from(signedAuthEntry, "base64")).toEqual(
-      keypair.sign(hash(Buffer.from(preimage, "base64"))),
+    expect(base64ToUint8Array(signedAuthEntry)).toEqual(
+      keypair.sign(hash(base64ToUint8Array(preimage))),
     );
   });
 
@@ -233,8 +234,8 @@ describe("signer normalization", () => {
     const keypair = Keypair.random();
     const foreign = {
       publicKey: () => keypair.publicKey(),
-      sign: (data: Buffer) => keypair.sign(data),
-      signDecorated: (data: Buffer) => keypair.signDecorated(data),
+      sign: (data: Uint8Array) => keypair.sign(data),
+      signDecorated: (data: Uint8Array) => keypair.signDecorated(data),
     };
     expect(foreign instanceof Keypair).toBe(false);
 
@@ -253,9 +254,9 @@ describe("signer normalization", () => {
     // Exercise both callbacks rather than just checking their type: a stand-in
     // missing a member the signing path needs would otherwise pass this test.
     const { signedTxXdr } = await signTransaction(buildTxXdr(keypair));
-    const signed = TransactionBuilder.fromXDR(signedTxXdr, networkPassphrase);
+    const signed = TransactionBuilder.fromXdr(signedTxXdr, networkPassphrase);
     expect(
-      keypair.verify(signed.hash(), signed.signatures[0].signature()),
+      keypair.verify(signed.hash(), signed.signatures[0].signature.value),
     ).toBe(true);
     expect(await signAuthEntry(preimage)).toHaveProperty(
       "signerAddress",
@@ -271,7 +272,7 @@ describe("signer normalization", () => {
     const keypair = Keypair.random();
     const partial = {
       publicKey: () => keypair.publicKey(),
-      sign: (data: Buffer) => keypair.sign(data),
+      sign: (data: Uint8Array) => keypair.sign(data),
     };
 
     expect(
@@ -307,7 +308,7 @@ describe("signer normalization", () => {
       address: keypair.publicKey(),
       signTransaction: callback,
       publicKey: () => keypair.publicKey(),
-      sign: (data: Buffer) => keypair.sign(data),
+      sign: (data: Uint8Array) => keypair.sign(data),
     };
 
     const signTransaction = toSignTransaction(hybrid, networkPassphrase);

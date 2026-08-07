@@ -78,7 +78,6 @@ describe("CLI generate command", () => {
     await installContract("customTypes");
     const wasmHash = contracts.customTypes.hash;
     if (!wasmHash) {
-      console.log("Skipping test: WASM hash not available");
       return;
     }
 

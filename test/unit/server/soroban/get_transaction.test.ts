@@ -3,8 +3,18 @@ import * as StellarSdk from "../../../../src/index.js";
 
 import { serverUrl } from "../../../constants";
 
-const { Keypair, TransactionBuilder } = StellarSdk;
-const { Server } = StellarSdk.rpc;
+const {
+  Account,
+  Asset,
+  Keypair,
+  Networks,
+  Operation,
+  TransactionBuilder,
+  TimeoutInfinite,
+  xdr,
+  rpc,
+} = StellarSdk;
+const { Server } = rpc;
 
 function makeTxResult(status: string, addSoroban = true) {
   // Use a simple valid XDR string for testing
@@ -54,24 +64,24 @@ describe("Server#getTransaction", () => {
   let transaction: any;
 
   const keypair = Keypair.random();
-  const account = new StellarSdk.Account(keypair.publicKey(), "56199647068161");
+  const account = new Account(keypair.publicKey(), "56199647068161");
 
   beforeEach(() => {
     server = new Server(serverUrl);
     mockPost = vi.spyOn(server.httpClient, "post");
     transaction = new TransactionBuilder(account, {
       fee: "100",
-      networkPassphrase: StellarSdk.Networks.TESTNET,
+      networkPassphrase: Networks.TESTNET,
     })
       .addOperation(
-        StellarSdk.Operation.payment({
+        Operation.payment({
           destination:
             "GASOCNHNNLYFNMDJYQ3XFMI7BYHIOCFW3GJEOWRPEGK2TDPGTG2E5EDW",
-          asset: StellarSdk.Asset.native(),
+          asset: Asset.native(),
           amount: "100.50",
         }),
       )
-      .setTimeout(StellarSdk.TimeoutInfinite)
+      .setTimeout(TimeoutInfinite)
       .build();
     transaction.sign(keypair);
   });
@@ -107,9 +117,9 @@ describe("Server#getTransaction", () => {
     expect(response.createdAt).toEqual(123456789010);
     expect(response.applicationOrder).toEqual(2);
     expect(response.feeBump).toEqual(false);
-    expect(response.envelopeXdr.toXDR("base64")).toEqual(result.envelopeXdr);
-    expect(response.resultXdr.toXDR("base64")).toEqual(result.resultXdr);
-    expect(response.resultMetaXdr.toXDR("base64")).toEqual(
+    expect(response.envelopeXdr.toXdr("base64")).toEqual(result.envelopeXdr);
+    expect(response.resultXdr.toXdr("base64")).toEqual(result.resultXdr);
+    expect(response.resultMetaXdr.toXdr("base64")).toEqual(
       result.resultMetaXdr,
     );
     expect(response.events).toEqual(result.events);
@@ -133,9 +143,9 @@ describe("Server#getTransaction", () => {
     expect(response.createdAt).toEqual(123456789010);
     expect(response.applicationOrder).toEqual(2);
     expect(response.feeBump).toEqual(false);
-    expect(response.envelopeXdr.toXDR("base64")).toEqual(result.envelopeXdr);
-    expect(response.resultXdr.toXDR("base64")).toEqual(result.resultXdr);
-    expect(response.resultMetaXdr.toXDR("base64")).toEqual(
+    expect(response.envelopeXdr.toXdr("base64")).toEqual(result.envelopeXdr);
+    expect(response.resultXdr.toXdr("base64")).toEqual(result.resultXdr);
+    expect(response.resultMetaXdr.toXdr("base64")).toEqual(
       result.resultMetaXdr,
     );
     expect(response.events).toEqual(result.events);

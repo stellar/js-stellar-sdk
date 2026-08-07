@@ -97,6 +97,27 @@ const testConfig = [
   },
 ];
 
+// Guide snippets (examples/guides/*.ts) are standalone programs embedded into
+// docs/guides/*.md, not library code. They live outside tsconfig.json's `src`
+// include, so point type-aware lint at their own project.
+const examplesConfig = [
+  {
+    name: "examples/typescript",
+    files: ["examples/**/*.ts"],
+    languageOptions: {
+      parserOptions: {
+        project: "./examples/tsconfig.json",
+      },
+    },
+    rules: {
+      // Snippets read as documentation: they log, and they evaluate
+      // expressions like `result.hash` to show what a response carries.
+      "no-console": "off",
+      "@typescript-eslint/no-unused-expressions": "off",
+    },
+  },
+];
+
 const scriptsConfig = [
   {
     name: "scripts/typescript",
@@ -124,6 +145,24 @@ const baseSdkConfig = [
         { functions: false },
       ],
       "@typescript-eslint/naming-convention": "off",
+    },
+  },
+];
+
+// The generated class-XDR layer relies on abstract-base ↔ concrete-subclass
+// references that are only safe under class hoisting, and preserves generated
+// naming/redeclaration shapes. Loosen the rules that would otherwise flag them.
+const xdrGenConfig = [
+  {
+    name: "src/xdr",
+    files: ["src/xdr/**/*.ts"],
+    rules: {
+      "@typescript-eslint/no-redeclare": "off",
+      "@typescript-eslint/naming-convention": "off",
+      "@typescript-eslint/no-use-before-define": [
+        "error",
+        { functions: false },
+      ],
     },
   },
 ];
@@ -165,6 +204,7 @@ ignoreFiles.ignores.push(
     "rollup.config.mjs",
     "config/**/*",
     "src/base/generated/**",
+    "tools/**",
     // Astro build-time configs — excluded from tsconfig.json (they
     // import the virtual `astro:content` module), so the typescript-
     // eslint parser can't resolve them via the SDK project. Lint
@@ -182,12 +222,16 @@ export default [
   ...javascriptConfig,
   // TypeScript Config
   ...typescriptConfig,
+  // XDR Gen Config (must come after typescriptConfig to allow overrides)
+  ...xdrGenConfig,
   // TSDoc Config
   ...tsdocConfig,
   // Test Config
   ...testConfig,
   // Scripts Config (uses scripts/tsconfig.json for type-aware lint)
   ...scriptsConfig,
+  // Examples Config (uses examples/tsconfig.json for type-aware lint)
+  ...examplesConfig,
   // Base SDK overrides (must come after typescriptConfig/tsdocConfig)
   ...baseSdkConfig,
   // Scripts overrides (must come after typescriptConfig/scriptsConfig)

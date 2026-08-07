@@ -1,8 +1,8 @@
 import { describe, it, beforeEach, afterEach, expect, vi } from "vitest";
 import * as StellarSdk from "../../../../src/index.js";
 
-const { Server } = StellarSdk.rpc;
-const { xdr } = StellarSdk;
+const { xdr, rpc } = StellarSdk;
+const { Server } = rpc;
 
 const serverUrl = "https://soroban-testnet.stellar.org";
 
@@ -52,11 +52,11 @@ describe("Server#getLedgers", () => {
       hash: ledger.hash,
       sequence: ledger.sequence,
       ledgerCloseTime: ledger.ledgerCloseTime,
-      headerXdr: xdr.LedgerHeaderHistoryEntry.fromXDR(
+      headerXdr: xdr.LedgerHeaderHistoryEntry.fromXdr(
         ledger.headerXdr,
         "base64",
       ),
-      metadataXdr: xdr.LedgerCloseMeta.fromXDR(ledger.metadataXdr, "base64"),
+      metadataXdr: xdr.LedgerCloseMeta.fromXdr(ledger.metadataXdr, "base64"),
     })),
     latestLedger: mockLedgerResult.latestLedger,
     latestLedgerCloseTime: mockLedgerResult.latestLedgerCloseTime,

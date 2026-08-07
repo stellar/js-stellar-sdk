@@ -1,10 +1,11 @@
 import { setSourceAccount } from "../util/operations.js";
-import xdr from "../xdr.js";
 import {
-  OperationAttributes,
-  RestoreFootprintResult,
-  RestoreFootprintOpts,
-} from "./types.js";
+  ExtensionPoint,
+  Operation,
+  OperationBody,
+  RestoreFootprintOp,
+} from "../../xdr/index.js";
+import { OperationAttributes, RestoreFootprintOpts } from "./types.js";
 
 /**
  * Builds an operation to restore the archived ledger entries specified
@@ -21,18 +22,16 @@ import {
  *
  *
  * @param opts - an optional set of parameters
- *   - `source`: an optional source account
+ * @param opts.source - an optional source account
  */
-export function restoreFootprint(
-  opts: RestoreFootprintOpts = {},
-): xdr.Operation<RestoreFootprintResult> {
-  const op = new xdr.RestoreFootprintOp({
-    ext: new xdr.ExtensionPoint(0),
+export function restoreFootprint(opts: RestoreFootprintOpts = {}): Operation {
+  const op = new RestoreFootprintOp({
+    ext: ExtensionPoint.v0(),
   });
   const opAttributes: OperationAttributes = {
     sourceAccount: null,
-    body: xdr.OperationBody.restoreFootprint(op),
+    body: OperationBody.restoreFootprint(op),
   };
   setSourceAccount(opAttributes, opts);
-  return new xdr.Operation(opAttributes);
+  return new Operation(opAttributes);
 }

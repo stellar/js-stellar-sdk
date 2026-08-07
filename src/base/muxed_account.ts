@@ -1,4 +1,4 @@
-import xdr from "./xdr.js";
+import { MuxedAccount as XdrMuxedAccount } from "../xdr/index.js";
 import { Account } from "./account.js";
 import { StrKey } from "./strkey.js";
 import type { TransactionSource } from "./transaction_source.js";
@@ -59,7 +59,7 @@ function validateUint64Id(id: string): void {
  */
 export class MuxedAccount implements TransactionSource {
   private account: Account;
-  private _muxedXdr: xdr.MuxedAccount;
+  private _muxedXdr: XdrMuxedAccount;
   private _mAddress: string;
   private _id: string;
 
@@ -96,7 +96,10 @@ export class MuxedAccount implements TransactionSource {
   static fromAddress(mAddress: string, sequenceNum: string): MuxedAccount {
     const muxedAccount = decodeAddressToMuxedAccount(mAddress);
     const gAddress = extractBaseAddress(mAddress);
-    const id = muxedAccount.med25519().id().toString();
+    if (muxedAccount.type !== "keyTypeMuxedEd25519") {
+      throw new Error("accountId is invalid");
+    }
+    const id = muxedAccount.value.id.toString();
 
     return new MuxedAccount(new Account(gAddress, sequenceNum), id);
   }
@@ -135,7 +138,7 @@ export class MuxedAccount implements TransactionSource {
 
     validateUint64Id(id);
 
-    this._muxedXdr.med25519().id(xdr.Uint64.fromString(id));
+    this._muxedXdr = encodeMuxedAccount(this.account.accountId(), id);
     this._mAddress = encodeMuxedAccountToAddress(this._muxedXdr);
     this._id = id;
     return this;
@@ -159,7 +162,7 @@ export class MuxedAccount implements TransactionSource {
    * Returns the XDR object representing this muxed account's
    * G-address and uint64 ID.
    */
-  toXDRObject(): xdr.MuxedAccount {
+  toXdrObject(): XdrMuxedAccount {
     return this._muxedXdr;
   }
 

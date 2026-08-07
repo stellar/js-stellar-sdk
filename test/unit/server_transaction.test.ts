@@ -4,7 +4,16 @@ import * as StellarSdk from "../../src/index.js";
 
 const { NotFoundError } = StellarSdk;
 
-const { Horizon } = StellarSdk;
+const {
+  Horizon,
+  Keypair,
+  Account,
+  TransactionBuilder,
+  Operation,
+  Asset,
+  Networks,
+  TimeoutInfinite,
+} = StellarSdk;
 
 describe("server.js transaction tests", () => {
   let server: any;
@@ -13,32 +22,30 @@ describe("server.js transaction tests", () => {
   let transaction: any;
   let blob: string;
 
-  const keypair = StellarSdk.Keypair.random();
-  const account = new StellarSdk.Account(keypair.publicKey(), "56199647068161");
+  const keypair = Keypair.random();
+  const account = new Account(keypair.publicKey(), "56199647068161");
 
   beforeEach(() => {
     server = new Horizon.Server("https://horizon-live.stellar.org:1337");
     mockPost = vi.spyOn(server.httpClient, "post");
     mockGet = vi.spyOn(server.httpClient, "get");
-    transaction = new StellarSdk.TransactionBuilder(account, {
+    transaction = new TransactionBuilder(account, {
       fee: "100",
-      networkPassphrase: StellarSdk.Networks.TESTNET,
+      networkPassphrase: Networks.TESTNET,
     })
       .addOperation(
-        StellarSdk.Operation.payment({
+        Operation.payment({
           destination:
             "GASOCNHNNLYFNMDJYQ3XFMI7BYHIOCFW3GJEOWRPEGK2TDPGTG2E5EDW",
-          asset: StellarSdk.Asset.native(),
+          asset: Asset.native(),
           amount: "100.50",
         }),
       )
-      .setTimeout(StellarSdk.TimeoutInfinite)
+      .setTimeout(TimeoutInfinite)
       .build();
     transaction.sign(keypair);
 
-    blob = encodeURIComponent(
-      transaction.toEnvelope().toXDR().toString("base64"),
-    );
+    blob = encodeURIComponent(transaction.toEnvelope().toXdr("base64"));
   });
 
   afterEach(() => {
@@ -336,16 +343,14 @@ describe("server.js transaction tests", () => {
     });
   });
   it("submits fee bump transactions", async () => {
-    const feeBumpTx = StellarSdk.TransactionBuilder.buildFeeBumpTransaction(
+    const feeBumpTx = TransactionBuilder.buildFeeBumpTransaction(
       keypair,
       "200",
       transaction,
-      StellarSdk.Networks.TESTNET,
+      Networks.TESTNET,
     );
 
-    blob = encodeURIComponent(
-      feeBumpTx.toEnvelope().toXDR().toString("base64"),
-    );
+    blob = encodeURIComponent(feeBumpTx.toEnvelope().toXdr("base64"));
 
     mockPost.mockImplementation((url: string, data: string) => {
       if (
@@ -386,7 +391,7 @@ describe("server.js transaction tests", () => {
 
     function failedTxResult() {
       return new xdr.TransactionResult({
-        feeCharged: new xdr.Int64(100),
+        feeCharged: 100n,
         result: xdr.TransactionResultResult.txFailed([
           xdr.OperationResult.opInner(
             xdr.OperationResultTr.payment(
@@ -394,7 +399,7 @@ describe("server.js transaction tests", () => {
             ),
           ),
         ]),
-        ext: new (xdr.TransactionResultExt as any)(0),
+        ext: xdr.TransactionResultExt.v0(),
       });
     }
 
@@ -428,7 +433,7 @@ describe("server.js transaction tests", () => {
                 transaction: "tx_failed",
                 operations: ["op_underfunded"],
               },
-              result_xdr: txResult.toXDR("base64"),
+              result_xdr: txResult.toXdr("base64"),
             },
           }),
         ),
@@ -450,10 +455,10 @@ describe("server.js transaction tests", () => {
 
       const decoded = err.getTransactionResult();
       expect(decoded).toBeInstanceOf(xdr.TransactionResult);
-      expect(decoded.result().switch().name).toEqual("txFailed");
-      expect(
-        decoded.result().results()[0].tr().paymentResult().switch().name,
-      ).toEqual("paymentUnderfunded");
+      expect(decoded.result.type).toEqual("txFailed");
+      expect(decoded.result.value[0].tr.value.type).toEqual(
+        "paymentUnderfunded",
+      );
       expect(err.response.status).toEqual(400);
       expect(err.cause).toBeInstanceOf(Error);
       expect(err.cause.response.statusText).toEqual("Bad Request");
@@ -535,7 +540,7 @@ describe("server.js transaction tests", () => {
               envelope_xdr: "AAAA...",
               // Horizon omits `operations` for transaction-level failures
               result_codes: { transaction: "tx_bad_seq" },
-              result_xdr: failedTxResult().toXDR("base64"),
+              result_xdr: failedTxResult().toXdr("base64"),
             },
           }),
         ),

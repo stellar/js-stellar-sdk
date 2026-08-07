@@ -2,8 +2,9 @@ import { describe, it, expect } from "vitest";
 import BigNumber from "bignumber.js";
 import { Operation } from "../../../../src/base/operation.js";
 import { Asset } from "../../../../src/base/asset.js";
-import xdr from "../../../../src/base/xdr.js";
+import * as xdr from "../../../../src/xdr/index.js";
 import { expectOperationType } from "../support/operation.js";
+import { expectVariant } from "../support/xdr.js";
 
 const selling = new Asset(
   "USD",
@@ -24,19 +25,20 @@ describe("Operation.createPassiveSellOffer()", () => {
       amount,
       price,
     });
-    const xdrHex = op.toXDR("hex");
-    const operation = xdr.Operation.fromXDR(xdrHex, "hex");
+    const xdrHex = op.toXdr("hex");
+    const operation = xdr.Operation.fromXdr(xdrHex, "hex");
     const obj = expectOperationType(
-      Operation.fromXDRObject(operation),
+      Operation.fromXdrObject(operation),
       "createPassiveSellOffer",
     );
 
     expect(obj.selling.equals(selling)).toBe(true);
     expect(obj.buying.equals(buying)).toBe(true);
     expect(
-      (operation.body().value() as xdr.CreatePassiveSellOfferOp)
-        .amount()
-        .toString(),
+      expectVariant(
+        operation.body,
+        "createPassiveSellOffer",
+      ).value.amount.toString(),
     ).toBe("112782700");
     expect(obj.amount).toBe(amount);
     expect(obj.price).toBe(price);
@@ -51,7 +53,7 @@ describe("Operation.createPassiveSellOffer()", () => {
       price,
     });
     const obj = expectOperationType(
-      Operation.fromXDRObject(xdr.Operation.fromXDR(op.toXDR("hex"), "hex")),
+      Operation.fromXdrObject(xdr.Operation.fromXdr(op.toXdr("hex"), "hex")),
       "createPassiveSellOffer",
     );
 
@@ -70,7 +72,7 @@ describe("Operation.createPassiveSellOffer()", () => {
       price,
     });
     const obj = expectOperationType(
-      Operation.fromXDRObject(xdr.Operation.fromXDR(op.toXDR("hex"), "hex")),
+      Operation.fromXdrObject(xdr.Operation.fromXdr(op.toXdr("hex"), "hex")),
       "createPassiveSellOffer",
     );
 
@@ -125,7 +127,7 @@ describe("Operation.createPassiveSellOffer()", () => {
       source,
     });
     const obj = expectOperationType(
-      Operation.fromXDRObject(xdr.Operation.fromXDR(op.toXDR("hex"), "hex")),
+      Operation.fromXdrObject(xdr.Operation.fromXdr(op.toXdr("hex"), "hex")),
       "createPassiveSellOffer",
     );
 
@@ -139,8 +141,8 @@ describe("Operation.createPassiveSellOffer()", () => {
       amount,
       price: "3.07",
     });
-    const hex = op.toXDR("hex");
-    const roundtripped = xdr.Operation.fromXDR(hex, "hex");
-    expect(roundtripped.body().switch().name).toBe("createPassiveSellOffer");
+    const hex = op.toXdr("hex");
+    const roundtripped = xdr.Operation.fromXdr(hex, "hex");
+    expect(roundtripped.body.type).toBe("createPassiveSellOffer");
   });
 });

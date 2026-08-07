@@ -1,7 +1,18 @@
 import { describe, it, beforeEach, afterEach, expect, vi } from "vitest";
-import * as StellarSdk from "../../src/index.js";
-
-const { Horizon } = StellarSdk;
+import {
+  Account,
+  AccountRequiresMemoError,
+  Asset,
+  Horizon,
+  Keypair,
+  LiquidityPoolAsset,
+  Memo,
+  NetworkError,
+  Networks,
+  Operation,
+  TimeoutInfinite,
+  TransactionBuilder,
+} from "../../src/index.js";
 
 function buildTransaction(
   destination: string,
@@ -10,19 +21,19 @@ function buildTransaction(
 ) {
   const txBuilderOpts = {
     fee: "100",
-    networkPassphrase: StellarSdk.Networks.TESTNET,
+    networkPassphrase: Networks.TESTNET,
     v1: true,
   };
   Object.assign(txBuilderOpts, builderOpts);
-  const keypair = StellarSdk.Keypair.random();
-  const account = new StellarSdk.Account(keypair.publicKey(), "56199647068161");
-  let transactionBuilder = new StellarSdk.TransactionBuilder(
+  const keypair = Keypair.random();
+  const account = new Account(keypair.publicKey(), "56199647068161");
+  let transactionBuilder = new TransactionBuilder(
     account,
     txBuilderOpts,
   ).addOperation(
-    StellarSdk.Operation.payment({
+    Operation.payment({
       destination,
-      asset: StellarSdk.Asset.native(),
+      asset: Asset.native(),
       amount: "100.50",
     }),
   );
@@ -31,13 +42,11 @@ function buildTransaction(
     transactionBuilder = transactionBuilder.addOperation(op);
   });
 
-  const transaction = transactionBuilder
-    .setTimeout(StellarSdk.TimeoutInfinite)
-    .build();
+  const transaction = transactionBuilder.setTimeout(TimeoutInfinite).build();
   transaction.sign(keypair);
 
   if (builderOpts.feeBump) {
-    return StellarSdk.TransactionBuilder.buildFeeBumpTransaction(
+    return TransactionBuilder.buildFeeBumpTransaction(
       keypair,
       "200",
       transaction,
@@ -140,7 +149,7 @@ function mockAccountRequest(
 }
 
 describe("server.js check-memo-required", () => {
-  let server: any;
+  let server: Horizon.Server;
   let mockGet: any;
 
   beforeEach(() => {
@@ -162,11 +171,7 @@ describe("server.js check-memo-required", () => {
     const transaction = buildTransaction(accountId);
 
     await expect(server.checkMemoRequired(transaction)).rejects.toThrow(
-      new StellarSdk.AccountRequiresMemoError(
-        "account requires memo",
-        accountId,
-        0,
-      ),
+      new AccountRequiresMemoError("account requires memo", accountId, 0),
     );
   });
 
@@ -179,7 +184,7 @@ describe("server.js check-memo-required", () => {
     const transaction = buildTransaction(accountId, [], { feeBump: true });
 
     await expect(server.checkMemoRequired(transaction)).rejects.toThrow(
-      StellarSdk.AccountRequiresMemoError,
+      AccountRequiresMemoError,
     );
   });
 
@@ -210,7 +215,7 @@ describe("server.js check-memo-required", () => {
     const transaction = buildTransaction(accountId);
 
     await expect(server.checkMemoRequired(transaction)).rejects.toThrow(
-      StellarSdk.NetworkError,
+      NetworkError,
     );
   });
 
@@ -220,9 +225,9 @@ describe("server.js check-memo-required", () => {
     mockAccountRequest(mockGet, accountId, 200, {});
 
     const operations = [
-      StellarSdk.Operation.payment({
+      Operation.payment({
         destination: accountId,
-        asset: StellarSdk.Asset.native(),
+        asset: Asset.native(),
         amount: "100.50",
       }),
     ];
@@ -244,40 +249,40 @@ describe("server.js check-memo-required", () => {
       "GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGSNFHEYVXM3XOJMDS674JZ",
     ];
 
-    const usd = new StellarSdk.Asset(
+    const usd = new Asset(
       "USD",
       "GBBM6BKZPEHWYO3E3YKREDPQXMS4VK35YLNU7NFBRI26RAN7GI5POFBB",
     );
-    const eur = new StellarSdk.Asset(
+    const eur = new Asset(
       "EUR",
       "GDTNXRLOJD2YEBPKK7KCMR7J33AAG5VZXHAJTHIG736D6LVEFLLLKPDL",
     );
-    const liquidityPoolAsset = new StellarSdk.LiquidityPoolAsset(eur, usd, 30);
+    const liquidityPoolAsset = new LiquidityPoolAsset(eur, usd, 30);
 
     const operations = [
-      StellarSdk.Operation.accountMerge({
+      Operation.accountMerge({
         destination: destinations[0]!,
       }),
-      StellarSdk.Operation.pathPaymentStrictReceive({
-        sendAsset: StellarSdk.Asset.native(),
+      Operation.pathPaymentStrictReceive({
+        sendAsset: Asset.native(),
         sendMax: "5.0000000",
         destination: destinations[1]!,
-        destAsset: StellarSdk.Asset.native(),
+        destAsset: Asset.native(),
         destAmount: "5.50",
         path: [usd, eur],
       }),
-      StellarSdk.Operation.pathPaymentStrictSend({
-        sendAsset: StellarSdk.Asset.native(),
+      Operation.pathPaymentStrictSend({
+        sendAsset: Asset.native(),
         sendAmount: "5.0000000",
         destination: destinations[2]!,
-        destAsset: StellarSdk.Asset.native(),
+        destAsset: Asset.native(),
         destMin: "5.50",
         path: [usd, eur],
       }),
-      StellarSdk.Operation.changeTrust({
+      Operation.changeTrust({
         asset: usd,
       }),
-      StellarSdk.Operation.changeTrust({
+      Operation.changeTrust({
         asset: liquidityPoolAsset,
       }),
     ];
@@ -292,7 +297,7 @@ describe("server.js check-memo-required", () => {
   it("checks for memo required by default", async () => {
     const accountId =
       "GAYHAAKPAQLMGIJYMIWPDWCGUCQ5LAWY4Q7Q3IKSP57O7GUPD3NEOSEA";
-    const memo = StellarSdk.Memo.text("42");
+    const memo = Memo.text("42");
     const transaction = buildTransaction(accountId, [], { memo });
     const result = await server.checkMemoRequired(transaction);
     expect(result).toBeFalsy();

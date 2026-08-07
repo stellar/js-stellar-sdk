@@ -1,8 +1,15 @@
 import { describe, expect, it } from "vitest";
+import {
+  areUint8ArraysEqual,
+  base64ToUint8Array,
+  stringToUint8Array,
+  uint8ArrayToBase64,
+  uint8ArrayToHex,
+} from "uint8array-extras";
 import { Keypair } from "../../../src/base/keypair.js";
 import { StrKey } from "../../../src/base/strkey.js";
 import { Networks } from "../../../src/base/network.js";
-import xdr from "../../../src/base/xdr.js";
+import * as xdr from "../../../src/xdr/index.js";
 
 describe("Keypair.constructor", () => {
   it("fails when passes secret key does not match public key", () => {
@@ -19,14 +26,14 @@ describe("Keypair.constructor", () => {
   });
 
   it("fails when secretKey length is invalid", () => {
-    const secretKey = Buffer.alloc(33);
+    const secretKey = new Uint8Array(33);
     expect(() => new Keypair({ type: "ed25519", secretKey })).toThrow(
       /secretKey length is invalid/,
     );
   });
 
   it("fails when publicKey length is invalid", () => {
-    const publicKey = Buffer.alloc(33);
+    const publicKey = new Uint8Array(33);
     expect(() => new Keypair({ type: "ed25519", publicKey })).toThrow(
       /publicKey length is invalid/,
     );
@@ -64,7 +71,7 @@ describe("Keypair.fromSecret", () => {
 describe("Keypair.fromRawEd25519Seed", () => {
   it("creates a keypair correctly", () => {
     const seed = "masterpassphrasemasterpassphrase";
-    const kp = Keypair.fromRawEd25519Seed(seed as unknown as Buffer);
+    const kp = Keypair.fromRawEd25519Seed(seed as unknown as Uint8Array);
 
     expect(kp).toBeInstanceOf(Keypair);
     expect(kp.publicKey()).toEqual(
@@ -73,27 +80,41 @@ describe("Keypair.fromRawEd25519Seed", () => {
     expect(kp.secret()).toEqual(
       "SBWWC43UMVZHAYLTONYGQ4TBONSW2YLTORSXE4DBONZXA2DSMFZWLP2R",
     );
-    expect(kp.rawPublicKey().toString("hex")).toEqual(
+    expect(uint8ArrayToHex(kp.rawPublicKey())).toEqual(
       "2e3c35010749c1de3d9a5bdd6a31c12458768da5ce87cca6aad63ebbaaef7432",
+    );
+  });
+
+  it("copies the seed instead of aliasing caller memory", () => {
+    const seed = stringToUint8Array("masterpassphrasemasterpassphrase");
+    const kp = Keypair.fromRawEd25519Seed(seed);
+
+    // Zeroizing the caller's copy must not corrupt the keypair.
+    seed.fill(0);
+
+    const payload = stringToUint8Array("payload");
+    expect(kp.verify(payload, kp.sign(payload))).toBe(true);
+    expect(kp.secret()).toEqual(
+      "SBWWC43UMVZHAYLTONYGQ4TBONSW2YLTORSXE4DBONZXA2DSMFZWLP2R",
     );
   });
 
   it("throws an error if the arg isn't 32 bytes", () => {
     expect(() =>
       Keypair.fromRawEd25519Seed(
-        "masterpassphrasemasterpassphras" as unknown as Buffer,
+        "masterpassphrasemasterpassphras" as unknown as Uint8Array,
       ),
     ).toThrow();
     expect(() =>
       Keypair.fromRawEd25519Seed(
-        "masterpassphrasemasterpassphrase1" as unknown as Buffer,
+        "masterpassphrasemasterpassphrase1" as unknown as Uint8Array,
       ),
     ).toThrow();
     expect(() =>
-      Keypair.fromRawEd25519Seed(null as unknown as Buffer),
+      Keypair.fromRawEd25519Seed(null as unknown as Uint8Array),
     ).toThrow();
     expect(() =>
-      Keypair.fromRawEd25519Seed(undefined as unknown as Buffer),
+      Keypair.fromRawEd25519Seed(undefined as unknown as Uint8Array),
     ).toThrow();
   });
 });
@@ -107,7 +128,7 @@ describe("Keypair.fromPublicKey", () => {
     expect(kp.publicKey()).toEqual(
       "GAXDYNIBA5E4DXR5TJN522RRYESFQ5UNUXHIPTFGVLLD5O5K552DF5ZH",
     );
-    expect(kp.rawPublicKey().toString("hex")).toEqual(
+    expect(uint8ArrayToHex(kp.rawPublicKey())).toEqual(
       "2e3c35010749c1de3d9a5bdd6a31c12458768da5ce87cca6aad63ebbaaef7432",
     );
   });
@@ -152,7 +173,7 @@ describe("Keypair.xdrMuxedAccount", () => {
     );
     const muxed = kp.xdrMuxedAccount();
     expect(muxed).toBeInstanceOf(xdr.MuxedAccount);
-    expect(muxed.switch()).toEqual(xdr.CryptoKeyType.keyTypeEd25519());
+    expect(muxed.type).toBe("keyTypeEd25519");
   });
 });
 
@@ -164,25 +185,25 @@ describe("Keypair.sign*Decorated", () => {
     // Note: these were generated using the Go SDK as a source of truth
     const CASES = [
       {
-        data: [1, 2, 3, 4, 5, 6],
-        regular: Buffer.from([8, 170, 203, 16]),
-        payload: Buffer.from([11, 174, 206, 22]),
+        data: new Uint8Array([1, 2, 3, 4, 5, 6]),
+        regular: new Uint8Array([8, 170, 203, 16]),
+        payload: new Uint8Array([11, 174, 206, 22]),
       },
       {
-        data: [1, 2],
-        regular: Buffer.from([8, 170, 203, 16]),
-        payload: Buffer.from([9, 168, 203, 16]),
+        data: new Uint8Array([1, 2]),
+        regular: new Uint8Array([8, 170, 203, 16]),
+        payload: new Uint8Array([9, 168, 203, 16]),
       },
       {
-        data: [],
-        regular: Buffer.from([8, 170, 203, 16]),
-        payload: Buffer.from([8, 170, 203, 16]),
+        data: new Uint8Array(0),
+        regular: new Uint8Array([8, 170, 203, 16]),
+        payload: new Uint8Array([8, 170, 203, 16]),
       },
     ];
 
     CASES.forEach((testCase) => {
       const data = testCase.data;
-      const sig = kp.sign(data as unknown as Buffer);
+      const sig = kp.sign(data);
 
       it(`signedPayloads#${data.length}`, () => {
         const expectedXdr = new xdr.DecoratedSignature({
@@ -190,8 +211,8 @@ describe("Keypair.sign*Decorated", () => {
           signature: sig,
         });
 
-        const decoSig = kp.signPayloadDecorated(data as unknown as Buffer);
-        expect(decoSig.toXDR("hex")).toEqual(expectedXdr.toXDR("hex"));
+        const decoSig = kp.signPayloadDecorated(data);
+        expect(decoSig.toXdr("hex")).toEqual(expectedXdr.toXdr("hex"));
       });
 
       it(`regular#${data.length}`, () => {
@@ -200,8 +221,8 @@ describe("Keypair.sign*Decorated", () => {
           signature: sig,
         });
 
-        const decoSig = kp.signDecorated(data as unknown as Buffer);
-        expect(decoSig.toXDR("hex")).toEqual(expectedXdr.toXDR("hex"));
+        const decoSig = kp.signDecorated(data);
+        expect(decoSig.toXdr("hex")).toEqual(expectedXdr.toXdr("hex"));
       });
     });
   });
@@ -212,7 +233,7 @@ describe("Keypair.sign*Decorated", () => {
 describe("Keypair.constructor additional errors", () => {
   it("fails when type is not ed25519", () => {
     expect(
-      () => new Keypair({ type: "rsa", publicKey: Buffer.alloc(32) } as any),
+      () => new Keypair({ type: "rsa", publicKey: new Uint8Array(32) } as any),
     ).toThrow(/Invalid keys type/);
   });
 
@@ -249,7 +270,7 @@ describe("Keypair public-key-only errors", () => {
   });
 
   it("sign() throws on public-key-only keypair", () => {
-    expect(() => kp.sign(Buffer.from("test"))).toThrow(
+    expect(() => kp.sign(stringToUint8Array("test"))).toThrow(
       /cannot sign: no secret key available/,
     );
   });
@@ -276,7 +297,7 @@ describe("Keypair.verify", () => {
     const kp = Keypair.fromSecret(
       "SD7X7LEHBNMUIKQGKPARG5TDJNBHKC346OUARHGZL5ITC6IJPXHILY36",
     );
-    const data = Buffer.from("hello");
+    const data = stringToUint8Array("hello");
     const signature = kp.sign(data);
     expect(kp.verify(data, signature)).toBe(true);
   });
@@ -285,7 +306,7 @@ describe("Keypair.verify", () => {
     const kp = Keypair.fromSecret(
       "SD7X7LEHBNMUIKQGKPARG5TDJNBHKC346OUARHGZL5ITC6IJPXHILY36",
     );
-    const data = Buffer.from("hello");
+    const data = stringToUint8Array("hello");
     const signature = kp.sign(data);
     const firstByte = signature[0];
 
@@ -302,7 +323,7 @@ describe("Keypair.verify", () => {
       "SD7X7LEHBNMUIKQGKPARG5TDJNBHKC346OUARHGZL5ITC6IJPXHILY36",
     );
     const verifyKp = Keypair.fromPublicKey(signingKp.publicKey());
-    const data = Buffer.from("hello");
+    const data = stringToUint8Array("hello");
     const signature = signingKp.sign(data);
     expect(verifyKp.verify(data, signature)).toBe(true);
   });
@@ -315,7 +336,7 @@ describe("Keypair.xdrMuxedAccount with id", () => {
     );
     const muxed = kp.xdrMuxedAccount("12345");
     expect(muxed).toBeInstanceOf(xdr.MuxedAccount);
-    expect(muxed.switch()).toEqual(xdr.CryptoKeyType.keyTypeMuxedEd25519());
+    expect(muxed.type).toBe("keyTypeMuxedEd25519");
   });
 
   it("throws TypeError when id is not a string", () => {
@@ -335,9 +356,7 @@ describe("Keypair.xdrAccountId", () => {
     );
     const accountId = kp.xdrAccountId();
     expect(accountId).toBeInstanceOf(xdr.PublicKey);
-    expect(accountId.switch()).toEqual(
-      xdr.PublicKeyType.publicKeyTypeEd25519(),
-    );
+    expect(accountId.type).toBe("publicKeyTypeEd25519");
   });
 });
 
@@ -348,7 +367,7 @@ describe("Keypair.xdrPublicKey", () => {
     );
     const pubKey = kp.xdrPublicKey();
     expect(pubKey).toBeInstanceOf(xdr.PublicKey);
-    expect(pubKey.switch()).toEqual(xdr.PublicKeyType.publicKeyTypeEd25519());
+    expect(pubKey.type).toBe("publicKeyTypeEd25519");
   });
 });
 
@@ -358,12 +377,14 @@ describe("Keypair.signatureHint", () => {
       "GAXDYNIBA5E4DXR5TJN522RRYESFQ5UNUXHIPTFGVLLD5O5K552DF5ZH",
     );
     const hint = kp.signatureHint();
-    expect(hint).toBeInstanceOf(Buffer);
+    expect(hint).toBeInstanceOf(Uint8Array);
     expect(hint.length).toBe(4);
 
     // Verify hint matches the last 4 bytes of the XDR account ID
-    const accountIdXdr = kp.xdrAccountId().toXDR();
-    expect(hint).toEqual(accountIdXdr.subarray(accountIdXdr.length - 4));
+    const accountIdXdr = kp.xdrAccountId().toXdr();
+    expect(Array.from(hint)).toEqual(
+      Array.from(accountIdXdr.subarray(accountIdXdr.length - 4)),
+    );
   });
 });
 
@@ -388,9 +409,8 @@ describe("Keypair.signMessage / verifyMessage (SEP-53)", () => {
     },
     {
       name: "binary",
-      message: Buffer.from(
+      message: base64ToUint8Array(
         "2zZDP1sa1BVBfLP7TeeMk3sUbaxAkUhBhDiNdrksaFo=",
-        "base64",
       ),
       signature:
         "VA1+7hefNwv2NKScH6n+Sljj15kLAge+M2wE7fzFOf+L0MMbssA1mwfJZRyyrhBORQRle10X1Dxpx+UOI4EbDQ==",
@@ -400,12 +420,12 @@ describe("Keypair.signMessage / verifyMessage (SEP-53)", () => {
   CASES.forEach(({ name, message, signature }) => {
     it(`signs the ${name} test vector to the SEP-53 signature`, () => {
       const kp = Keypair.fromSecret(seed);
-      expect(kp.signMessage(message).toString("base64")).toBe(signature);
+      expect(uint8ArrayToBase64(kp.signMessage(message))).toBe(signature);
     });
 
     it(`verifies the ${name} test vector with a public-key-only keypair`, () => {
       const kp = Keypair.fromPublicKey(address);
-      expect(kp.verifyMessage(message, Buffer.from(signature, "base64"))).toBe(
+      expect(kp.verifyMessage(message, base64ToUint8Array(signature))).toBe(
         true,
       );
     });
@@ -417,11 +437,11 @@ describe("Keypair.signMessage / verifyMessage (SEP-53)", () => {
     expect(kp.verifyMessage(message, kp.signMessage(message))).toBe(true);
   });
 
-  it("treats an equivalent string and Buffer message identically", () => {
+  it("treats an equivalent string and Uint8Array message identically", () => {
     const kp = Keypair.fromSecret(seed);
     const fromString = kp.signMessage("Hello, World!");
-    const fromBuffer = kp.signMessage(Buffer.from("Hello, World!", "utf8"));
-    expect(fromString.equals(fromBuffer)).toBe(true);
+    const fromBytes = kp.signMessage(stringToUint8Array("Hello, World!"));
+    expect(areUint8ArraysEqual(fromString, fromBytes)).toBe(true);
   });
 
   it("returns false for a tampered message", () => {
@@ -432,12 +452,12 @@ describe("Keypair.signMessage / verifyMessage (SEP-53)", () => {
 
   it("returns false for an invalid signature", () => {
     const kp = Keypair.fromPublicKey(address);
-    expect(kp.verifyMessage("Hello, World!", Buffer.alloc(64))).toBe(false);
+    expect(kp.verifyMessage("Hello, World!", new Uint8Array(64))).toBe(false);
   });
 
   it("returns false (does not throw) for a malformed message, like verify()", () => {
     const kp = Keypair.fromPublicKey(address);
-    const sig = Buffer.alloc(64);
+    const sig = new Uint8Array(64);
     expect(kp.verifyMessage(null as unknown as string, sig)).toBe(false);
     expect(kp.verifyMessage(123 as unknown as string, sig)).toBe(false);
   });

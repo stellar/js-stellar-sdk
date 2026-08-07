@@ -1,6 +1,7 @@
 /* eslint no-bitwise: ["error", {"allow": ["<<", ">>", "^", "&", "&="]}] */
 
-import base32 from "base32.js";
+import { concatUint8Arrays } from "uint8array-extras";
+import { fromBase32, toBase32 } from "@exodus/bytes/base32.js";
 import { verifyChecksum } from "./util/checksum.js";
 
 type VersionByteName =
@@ -46,9 +47,88 @@ function hasVersionByteName(
   return Object.prototype.hasOwnProperty.call(versionBytes, versionByteName);
 }
 
+/** Legal encoded (strkey string) length range for a strkey type. */
+function encodedLengthRange(name: VersionByteName): [number, number] {
+  switch (name) {
+    case "ed25519PublicKey":
+    case "ed25519SecretSeed":
+    case "preAuthTx":
+    case "sha256Hash":
+    case "contract":
+    case "liquidityPool":
+      return [56, 56];
+    case "claimableBalance":
+      return [58, 58];
+    case "med25519PublicKey":
+      return [69, 69];
+    case "signedPayload":
+      return [56, 165];
+  }
+}
+
+/**
+ * Enforces the `opaque payload<64>` framing that the XDR wire decoder enforces
+ * on a signed payload: 32 bytes of signer, a payload length word, then exactly
+ * that many payload bytes zero-padded to a 4-byte boundary.
+ *
+ * Without this, a declared length larger than the bytes present decodes into a
+ * silently truncated payload, and non-zero padding is silently discarded — so
+ * the JSON and XDR decoders would disagree about the same value.
+ */
+function assertSignedPayloadFraming(data: Uint8Array): void {
+  if (data.length < 32 + 4) {
+    throw new Error("signed payload: too short to carry a payload length");
+  }
+
+  const declared = new DataView(
+    data.buffer,
+    data.byteOffset,
+    data.byteLength,
+  ).getUint32(32);
+
+  if (declared < 1 || declared > 64) {
+    throw new Error(`signed payload: declared length ${declared} outside 1-64`);
+  }
+
+  const framed = 32 + 4 + Math.ceil(declared / 4) * 4;
+  if (data.length !== framed) {
+    throw new Error(
+      `signed payload: declared length ${declared} needs ${framed} bytes, ` +
+        `got ${data.length}`,
+    );
+  }
+
+  for (let i = 32 + 4 + declared; i < data.length; i++) {
+    if (data[i] !== 0) {
+      throw new Error("signed payload: non-zero padding");
+    }
+  }
+}
+
+/**
+ * Enforces the discriminant byte that leads a claimable balance id.
+ *
+ * `ClaimableBalanceID` is a union, and `CLAIMABLE_BALANCE_ID_TYPE_V0` (0) is
+ * its only case — so the XDR wire decoder rejects any other value. Nothing in
+ * the strkey encoding does: the checksum covers whatever byte is there. Without
+ * this, a `B...` key with an unknown discriminant is vouched for by
+ * `isValidClaimableBalance` while the wire decoder refuses it.
+ *
+ * The length needs no check — `claimableBalance` has a fixed 58-character
+ * encoded length, so `decodeCheck` has already pinned the payload at 33 bytes.
+ */
+function assertClaimableBalanceDiscriminant(data: Uint8Array): void {
+  if (data[0] !== 0) {
+    throw new Error(
+      `claimable balance: unknown discriminant ${data[0]}, expected 0 ` +
+        `(CLAIMABLE_BALANCE_ID_TYPE_V0)`,
+    );
+  }
+}
+
 /**
  * StrKey is a helper class that allows encoding and decoding Stellar keys
- * to/from strings, i.e. between their binary (Buffer, xdr.PublicKey, etc.) and
+ * to/from strings, i.e. between their binary (Uint8Array, xdr.PublicKey, etc.) and
  * string (i.e. "GABCD...", etc.) representations.
  */
 export class StrKey {
@@ -59,7 +139,7 @@ export class StrKey {
    *
    * @param data - raw data to encode
    */
-  static encodeEd25519PublicKey(data: Buffer): string {
+  static encodeEd25519PublicKey(data: Uint8Array): string {
     return encodeCheck("ed25519PublicKey", data);
   }
 
@@ -71,7 +151,7 @@ export class StrKey {
    *
    * @param data - "G..." (or "M...") key representation to decode
    */
-  static decodeEd25519PublicKey(data: string): Buffer {
+  static decodeEd25519PublicKey(data: string): Uint8Array {
     return decodeCheck("ed25519PublicKey", data);
   }
 
@@ -89,7 +169,7 @@ export class StrKey {
    *
    * @param data - data to encode
    */
-  static encodeEd25519SecretSeed(data: Buffer): string {
+  static encodeEd25519SecretSeed(data: Uint8Array): string {
     return encodeCheck("ed25519SecretSeed", data);
   }
 
@@ -98,7 +178,7 @@ export class StrKey {
    *
    * @param address - data to decode
    */
-  static decodeEd25519SecretSeed(address: string): Buffer {
+  static decodeEd25519SecretSeed(address: string): Uint8Array {
     return decodeCheck("ed25519SecretSeed", address);
   }
 
@@ -116,7 +196,7 @@ export class StrKey {
    *
    * @param data - data to encode
    */
-  static encodeMed25519PublicKey(data: Buffer): string {
+  static encodeMed25519PublicKey(data: Uint8Array): string {
     return encodeCheck("med25519PublicKey", data);
   }
 
@@ -125,7 +205,7 @@ export class StrKey {
    *
    * @param address - data to decode
    */
-  static decodeMed25519PublicKey(address: string): Buffer {
+  static decodeMed25519PublicKey(address: string): Uint8Array {
     return decodeCheck("med25519PublicKey", address);
   }
 
@@ -143,7 +223,7 @@ export class StrKey {
    *
    * @param data - data to encode
    */
-  static encodePreAuthTx(data: Buffer): string {
+  static encodePreAuthTx(data: Uint8Array): string {
     return encodeCheck("preAuthTx", data);
   }
 
@@ -152,7 +232,7 @@ export class StrKey {
    *
    * @param address - data to decode
    */
-  static decodePreAuthTx(address: string): Buffer {
+  static decodePreAuthTx(address: string): Uint8Array {
     return decodeCheck("preAuthTx", address);
   }
 
@@ -161,7 +241,7 @@ export class StrKey {
    *
    * @param data - data to encode
    */
-  static encodeSha256Hash(data: Buffer): string {
+  static encodeSha256Hash(data: Uint8Array): string {
     return encodeCheck("sha256Hash", data);
   }
 
@@ -170,7 +250,7 @@ export class StrKey {
    *
    * @param address - data to decode
    */
-  static decodeSha256Hash(address: string): Buffer {
+  static decodeSha256Hash(address: string): Uint8Array {
     return decodeCheck("sha256Hash", address);
   }
 
@@ -179,7 +259,7 @@ export class StrKey {
    *
    * @param data - data to encode
    */
-  static encodeSignedPayload(data: Buffer): string {
+  static encodeSignedPayload(data: Uint8Array): string {
     return encodeCheck("signedPayload", data);
   }
 
@@ -188,7 +268,7 @@ export class StrKey {
    *
    * @param address - address to decode
    */
-  static decodeSignedPayload(address: string): Buffer {
+  static decodeSignedPayload(address: string): Uint8Array {
     return decodeCheck("signedPayload", address);
   }
 
@@ -206,7 +286,7 @@ export class StrKey {
    *
    * @param data - data to encode
    */
-  static encodeContract(data: Buffer): string {
+  static encodeContract(data: Uint8Array): string {
     return encodeCheck("contract", data);
   }
 
@@ -215,7 +295,7 @@ export class StrKey {
    *
    * @param address - address to decode
    */
-  static decodeContract(address: string): Buffer {
+  static decodeContract(address: string): Uint8Array {
     return decodeCheck("contract", address);
   }
 
@@ -233,7 +313,7 @@ export class StrKey {
    *
    * @param data - data to encode
    */
-  static encodeClaimableBalance(data: Buffer): string {
+  static encodeClaimableBalance(data: Uint8Array): string {
     return encodeCheck("claimableBalance", data);
   }
 
@@ -242,7 +322,7 @@ export class StrKey {
    *
    * @param address - balance to decode
    */
-  static decodeClaimableBalance(address: string): Buffer {
+  static decodeClaimableBalance(address: string): Uint8Array {
     return decodeCheck("claimableBalance", address);
   }
 
@@ -260,7 +340,7 @@ export class StrKey {
    *
    * @param data - data to encode
    */
-  static encodeLiquidityPool(data: Buffer): string {
+  static encodeLiquidityPool(data: Uint8Array): string {
     return encodeCheck("liquidityPool", data);
   }
 
@@ -269,7 +349,7 @@ export class StrKey {
    *
    * @param address - address to decode
    */
-  static decodeLiquidityPool(address: string): Buffer {
+  static decodeLiquidityPool(address: string): Uint8Array {
     return decodeCheck("liquidityPool", address);
   }
 
@@ -313,43 +393,9 @@ function isValid(versionByteName: string, encoded: unknown): boolean {
     return false;
   }
 
-  // basic length checks on the strkey lengths
-  switch (versionByteName) {
-    case "ed25519PublicKey": // falls through
-    case "ed25519SecretSeed": // falls through
-    case "preAuthTx": // falls through
-    case "sha256Hash": // falls through
-    case "contract": // falls through
-    case "liquidityPool":
-      if (encoded.length !== 56) {
-        return false;
-      }
-      break;
-
-    case "claimableBalance":
-      if (encoded.length !== 58) {
-        return false;
-      }
-      break;
-
-    case "med25519PublicKey":
-      if (encoded.length !== 69) {
-        return false;
-      }
-      break;
-
-    case "signedPayload":
-      if (encoded.length < 56 || encoded.length > 165) {
-        return false;
-      }
-      break;
-
-    default:
-      return false;
-  }
-
-  let decoded: Buffer;
+  let decoded: Uint8Array;
   try {
+    // encoded-length bounds are enforced by `decodeCheck`
     decoded = decodeCheck(versionByteName, encoded);
   } catch {
     return false;
@@ -366,17 +412,16 @@ function isValid(versionByteName: string, encoded: unknown): boolean {
       return decoded.length === 32;
 
     case "claimableBalance":
+      // the discriminant byte's value is enforced by `decodeCheck`
       return decoded.length === 32 + 1; // +1 byte for discriminant
 
     case "med25519PublicKey":
       return decoded.length === 40; // +8 bytes for the ID
 
     case "signedPayload":
-      return (
-        // 32 for the signer, +4 for the payload size, then either +4 for the
-        // min or +64 for the max payload
-        decoded.length >= 32 + 4 + 4 && decoded.length <= 32 + 4 + 64
-      );
+      // the full framing (declared length, size, and padding) is enforced by
+      // `decodeCheck`, so reaching here means the buffer is well-formed
+      return true;
 
     default:
       return false;
@@ -390,19 +435,12 @@ function isValid(versionByteName: string, encoded: unknown): boolean {
  * @param versionByteName - the expected strkey type
  * @param encoded - the strkey-encoded string to decode
  */
-export function decodeCheck(versionByteName: string, encoded: string): Buffer {
+export function decodeCheck(
+  versionByteName: string,
+  encoded: string,
+): Uint8Array {
   if (typeof encoded !== "string") {
     throw new TypeError("encoded argument must be of type String");
-  }
-
-  const decoded = base32.decode(encoded);
-  const versionByte = decoded[0];
-  const payload = decoded.slice(0, -2);
-  const data = payload.slice(1);
-  const checksum = decoded.slice(-2);
-
-  if (encoded !== base32.encode(decoded)) {
-    throw new Error("invalid encoded string");
   }
 
   if (!hasVersionByteName(versionByteName)) {
@@ -411,6 +449,26 @@ export function decodeCheck(versionByteName: string, encoded: string): Buffer {
         `Expected one of ${Object.keys(versionBytes).join(", ")}`,
     );
   }
+
+  const [minLen, maxLen] = encodedLengthRange(versionByteName);
+  if (encoded.length < minLen || encoded.length > maxLen) {
+    throw new Error(
+      `invalid encoded string length: expected ` +
+        `${minLen === maxLen ? minLen : `${minLen}-${maxLen}`}, ` +
+        `got ${encoded.length}`,
+    );
+  }
+
+  const decoded = fromBase32(encoded, { padding: false });
+  const versionByte = decoded[0];
+  const payload = decoded.slice(0, -2);
+  const data = payload.slice(1);
+  const checksum = decoded.slice(-2);
+
+  if (encoded !== toBase32(decoded)) {
+    throw new Error("invalid encoded string");
+  }
+
   const expectedVersion = versionBytes[versionByteName];
 
   if (versionByte !== expectedVersion) {
@@ -425,7 +483,15 @@ export function decodeCheck(versionByteName: string, encoded: string): Buffer {
     throw new Error(`invalid checksum`);
   }
 
-  return Buffer.from(data);
+  if (versionByteName === "signedPayload") {
+    assertSignedPayloadFraming(data);
+  }
+
+  if (versionByteName === "claimableBalance") {
+    assertClaimableBalanceDiscriminant(data);
+  }
+
+  return data;
 }
 
 /**
@@ -435,7 +501,7 @@ export function decodeCheck(versionByteName: string, encoded: string): Buffer {
  * @param versionByteName - the strkey type to encode as
  * @param data - the raw data to encode
  */
-export function encodeCheck(versionByteName: string, data: Buffer): string {
+export function encodeCheck(versionByteName: string, data: Uint8Array): string {
   if (data === null || data === undefined) {
     throw new Error("cannot encode null data");
   }
@@ -447,14 +513,11 @@ export function encodeCheck(versionByteName: string, data: Buffer): string {
     );
   }
   const versionByte = versionBytes[versionByteName];
-  data = Buffer.from(data);
 
-  const versionBuffer = Buffer.from([versionByte]);
-  const payload = Buffer.concat([versionBuffer, data]);
-  const checksum = Buffer.from(calculateChecksum(payload));
-  const unencoded = Buffer.concat([payload, checksum]);
+  const payload = concatUint8Arrays([Uint8Array.of(versionByte), data]);
+  const unencoded = concatUint8Arrays([payload, calculateChecksum(payload)]);
 
-  return base32.encode(unencoded);
+  return toBase32(unencoded);
 }
 
 // Computes the CRC16-XModem checksum of `payload` in little-endian order
