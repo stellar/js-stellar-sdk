@@ -9,8 +9,10 @@ import {
   formatImports,
   isTupleStruct,
   toPascalCase,
-  createUdtNameResolver,
-  type UdtNameResolver,
+  createUdtNames,
+  udtTypeName,
+  type UdtNames,
+  type UdtTypeNames,
 } from "./utils.js";
 
 /**
@@ -41,15 +43,24 @@ export interface EnumCase {
 }
 
 /**
- * A doc-comment note recording a user-defined type's name as it appears in
- * the contract spec, for the types whose generated identifier drops the Rust
- * module path the name is qualified with (e.g. "token::Balance" declared as
- * `Balance`). Empty when the two are the same.
+ * The doc-comment notes appended to a user-defined type's declaration: the
+ * name it goes by in the contract spec when the declared identifier spells it
+ * differently, and why no bare-name alias is exported when the spec makes
+ * that name ambiguous. Empty when neither applies.
  */
-function specNameNote(specName: string, generatedName: string): string {
-  return specName === generatedName
-    ? ""
-    : `\n\nDeclared in the contract spec as \`${specName}\`.`;
+function specNameNotes(specName: string, names: UdtTypeNames): string {
+  const notes: string[] = [];
+  if (specName !== names.declared) {
+    notes.push(`Declared in the contract spec as \`${specName}\`.`);
+  }
+  if (names.alias === undefined && names.ambiguousWith.length > 0) {
+    const others = names.ambiguousWith.map((name) => `\`${name}\``).join(", ");
+    notes.push(
+      `No \`${udtTypeName(specName)}\` alias is exported; ` +
+        `the same bare name is used by ${others}.`,
+    );
+  }
+  return notes.length > 0 ? `\n\n${notes.join("\n\n")}` : "";
 }
 
 /**
@@ -58,9 +69,9 @@ function specNameNote(specName: string, generatedName: string): string {
 export class TypeGenerator {
   private spec: Spec;
 
-  // Spec name (module-qualified, e.g. "token::Balance") -> the TypeScript
-  // identifier declared for it. See createUdtNameResolver().
-  private resolveUdtName: UdtNameResolver;
+  // The identifiers declared (and aliased) for the spec's user-defined
+  // types, keyed by spec name. See createUdtNames().
+  private udtNames: UdtNames;
 
   // event index (in event-entry declaration order) -> resolved (possibly
   // disambiguated) interface name. Keyed by index rather than raw name
@@ -70,7 +81,7 @@ export class TypeGenerator {
 
   constructor(spec: Spec) {
     this.spec = spec;
-    this.resolveUdtName = createUdtNameResolver(spec.entries);
+    this.udtNames = createUdtNames(spec.entries);
   }
 
   /**
@@ -160,7 +171,7 @@ export class TypeGenerator {
             return [];
         }
       }),
-      this.resolveUdtName,
+      this.udtNames.reference,
     );
 
     return formatImports(imports, {
@@ -172,10 +183,12 @@ export class TypeGenerator {
    * Generate TypeScript interface for a struct
    */
   private generateStruct(struct: xdr.ScSpecUdtStructV0): string {
-    const name = this.resolveUdtName(struct.name().toString());
+    const specName = struct.name().toString();
+    const names = this.udtNames.for(specName);
+    const name = names.declared;
     const doc = formatJSDocComment(
       (struct.doc().toString() || `Struct: ${name}`) +
-        specNameNote(struct.name().toString(), name),
+        specNameNotes(specName, names),
       0,
     );
 
@@ -186,7 +199,7 @@ export class TypeGenerator {
         const fieldType = parseTypeFromTypeDef(
           field.type(),
           false,
-          this.resolveUdtName,
+          this.udtNames.reference,
         );
         const fieldDoc = formatJSDocComment(field.doc().toString(), 2);
 
@@ -196,17 +209,19 @@ export class TypeGenerator {
 
     return `${doc}export interface ${name} {
 ${fields}
-}`;
+}${this.aliasExport(specName, names, "type")}`;
   }
 
   /**
    * Generate TypeScript union type
    */
   private generateUnion(union: xdr.ScSpecUdtUnionV0): string {
-    const name = this.resolveUdtName(union.name().toString());
+    const specName = union.name().toString();
+    const names = this.udtNames.for(specName);
+    const name = names.declared;
     const doc = formatJSDocComment(
       (union.doc().toString() || `Union: ${name}`) +
-        specNameNote(union.name().toString(), name),
+        specNameNotes(specName, names),
       0,
     );
     const cases = union
@@ -223,17 +238,19 @@ ${fields}
       .join(" |\n");
 
     return `${doc} export type ${name} =
-${caseTypes};`;
+${caseTypes};${this.aliasExport(specName, names, "type")}`;
   }
 
   /**
    * Generate TypeScript enum
    */
   private generateEnum(enumEntry: xdr.ScSpecUdtEnumV0): string {
-    const name = this.resolveUdtName(enumEntry.name().toString());
+    const specName = enumEntry.name().toString();
+    const names = this.udtNames.for(specName);
+    const name = names.declared;
     const doc = formatJSDocComment(
       (enumEntry.doc().toString() || `Enum: ${name}`) +
-        specNameNote(enumEntry.name().toString(), name),
+        specNameNotes(specName, names),
       0,
     );
 
@@ -250,17 +267,19 @@ ${caseTypes};`;
 
     return `${doc}export enum ${name} {
 ${members}
-}`;
+}${this.aliasExport(specName, names, "value")}`;
   }
 
   /**
    * Generate TypeScript error enum
    */
   private generateErrorEnum(errorEnum: xdr.ScSpecUdtErrorEnumV0): string {
-    const name = this.resolveUdtName(errorEnum.name().toString());
+    const specName = errorEnum.name().toString();
+    const names = this.udtNames.for(specName);
+    const name = names.declared;
     const doc = formatJSDocComment(
       (errorEnum.doc().toString() || `Error Enum: ${name}`) +
-        specNameNote(errorEnum.name().toString(), name),
+        specNameNotes(specName, names),
       0,
     );
     const cases = errorEnum
@@ -275,7 +294,38 @@ ${members}
 
     return `${doc}export const ${name} = {
 ${members}
-}`;
+}${this.aliasExport(specName, names, "value")}`;
+  }
+
+  /**
+   * Generate the export that additionally publishes a type under its bare
+   * name, so callers can keep using the name they always have without
+   * spelling out the Rust module path. Empty when the type has no such alias
+   * — either its declaration already carries the bare name, or the spec makes
+   * that name ambiguous.
+   *
+   * Aliasing an enum (or an error enum's const) has to re-export the binding
+   * itself rather than just its type, since callers reference its members as
+   * values.
+   */
+  private aliasExport(
+    specName: string,
+    names: UdtTypeNames,
+    kind: "type" | "value",
+  ): string {
+    if (names.alias === undefined) {
+      return "";
+    }
+    const doc = formatJSDocComment(
+      `${names.alias} is an alias of {@link ${names.declared}}, the contract ` +
+        `spec's \`${specName}\`.`,
+      0,
+    );
+    const statement =
+      kind === "type"
+        ? `export type ${names.alias} = ${names.declared};`
+        : `export { ${names.declared} as ${names.alias} };`;
+    return `\n\n${doc}${statement}`;
   }
 
   /**
@@ -298,7 +348,9 @@ ${members}
           name: tupleCase.name().toString(),
           types: tupleCase
             .type()
-            .map((t) => parseTypeFromTypeDef(t, false, this.resolveUdtName)),
+            .map((t) =>
+              parseTypeFromTypeDef(t, false, this.udtNames.reference),
+            ),
         };
       }
       default:
@@ -376,35 +428,13 @@ ${members}
     if (this.eventInterfaceNames !== null) {
       return this.eventInterfaceNames;
     }
-    // Reserve names that are already taken by UDTs and other special entries. ContractEvent is a special entry for the discriminated union of all events.
-    const reserved = new Set<string>(["ContractEvent"]);
-
-    for (const entry of this.spec.entries) {
-      switch (entry.switch()) {
-        case xdr.ScSpecEntryKind.scSpecEntryUdtStructV0():
-          reserved.add(
-            this.resolveUdtName(entry.udtStructV0().name().toString()),
-          );
-          break;
-        case xdr.ScSpecEntryKind.scSpecEntryUdtUnionV0():
-          reserved.add(
-            this.resolveUdtName(entry.udtUnionV0().name().toString()),
-          );
-          break;
-        case xdr.ScSpecEntryKind.scSpecEntryUdtEnumV0():
-          reserved.add(
-            this.resolveUdtName(entry.udtEnumV0().name().toString()),
-          );
-          break;
-        case xdr.ScSpecEntryKind.scSpecEntryUdtErrorEnumV0():
-          reserved.add(
-            this.resolveUdtName(entry.udtErrorEnumV0().name().toString()),
-          );
-          break;
-        default:
-          break;
-      }
-    }
+    // Reserve names that are already taken by UDTs — declarations and
+    // bare-name aliases alike — and other special entries. ContractEvent is a
+    // special entry for the discriminated union of all events.
+    const reserved = new Set<string>([
+      "ContractEvent",
+      ...this.udtNames.exported(),
+    ]);
 
     const resolved = new Map<number, string>();
 
@@ -469,7 +499,7 @@ ${members}
         const fieldType = parseTypeFromTypeDef(
           param.type(),
           false,
-          this.resolveUdtName,
+          this.udtNames.reference,
         );
         const fieldDoc = formatJSDocComment(param.doc().toString(), 4);
         const optional =
@@ -509,20 +539,22 @@ ${dataFields}
   }
 
   private generateTupleStruct(udtStruct: xdr.ScSpecUdtStructV0): string {
-    const name = this.resolveUdtName(udtStruct.name().toString());
+    const specName = udtStruct.name().toString();
+    const names = this.udtNames.for(specName);
+    const name = names.declared;
     const doc = formatJSDocComment(
       (udtStruct.doc().toString() || `Tuple Struct: ${name}`) +
-        specNameNote(udtStruct.name().toString(), name),
+        specNameNotes(specName, names),
       0,
     );
 
     const types = udtStruct
       .fields()
       .map((field) =>
-        parseTypeFromTypeDef(field.type(), false, this.resolveUdtName),
+        parseTypeFromTypeDef(field.type(), false, this.udtNames.reference),
       )
       .join(", ");
 
-    return `${doc}export type ${name} = readonly [${types}];`;
+    return `${doc}export type ${name} = readonly [${types}];${this.aliasExport(specName, names, "type")}`;
   }
 }

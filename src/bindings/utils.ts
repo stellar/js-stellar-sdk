@@ -94,13 +94,8 @@ function typeNameSegments(specName: string): string[] {
 }
 
 /**
- * The generated TypeScript identifier for a user-defined type, ignoring any
- * collisions with other types in the same spec: the last segment of a
- * module-qualified spec name (`token::Balance` becomes `Balance`), sanitized.
- *
- * Prefer {@link createUdtNameResolver} when a spec is available, so that two
- * types whose names differ only by module path still get distinct
- * identifiers.
+ * The bare type name of a spec name: the last segment of a module-qualified
+ * name (`token::storage::Balance` becomes `Balance`), sanitized.
  */
 export function udtTypeName(specName: string): string {
   const segments = typeNameSegments(specName);
@@ -110,11 +105,54 @@ export function udtTypeName(specName: string): string {
 }
 
 /**
+ * The whole spec name as a single identifier
+ * (`token::storage::Balance` becomes `token_storage_Balance`).
+ */
+export function udtQualifiedTypeName(specName: string): string {
+  const segments = typeNameSegments(specName);
+  return sanitizeIdentifier(
+    segments.length > 0 ? segments.join("_") : specName,
+  );
+}
+
+/**
  * Maps a user-defined type's spec name to the TypeScript identifier the
- * bindings declare for it. Shared by the types and client generators so both
- * files agree on every name.
+ * bindings use to refer to it. Shared by the types and client generators so
+ * both files agree on every name.
  */
 export type UdtNameResolver = (specName: string) => string;
+
+/**
+ * The identifiers the generated types file uses for one user-defined type.
+ */
+export type UdtTypeNames = {
+  /** The identifier the type is declared under: its whole spec name. */
+  declared: string;
+  /**
+   * The bare type name the declaration is additionally exported under, or
+   * `undefined` when the bare name is unavailable — either the declaration
+   * already carries it, or another type in the spec has the same bare name.
+   */
+  alias?: string;
+  /**
+   * The other spec names sharing this type's bare name; only non-empty when
+   * that clash is why no {@link UdtTypeNames.alias} is exported.
+   */
+  ambiguousWith: string[];
+};
+
+/**
+ * The identifiers the generated types file uses for every user-defined type
+ * in a spec.
+ */
+export type UdtNames = {
+  /** The identifiers for the type with the given spec name. */
+  for: (specName: string) => UdtTypeNames;
+  /** How other generated code refers to the type: its alias, else its declared name. */
+  reference: UdtNameResolver;
+  /** Every identifier the types file exports, declarations and aliases alike. */
+  exported: () => string[];
+};
 
 /**
  * The spec name of a user-defined type entry, or `null` for entries that do
@@ -136,60 +174,89 @@ function udtEntryName(entry: xdr.ScSpecEntry): string | null {
 }
 
 /**
- * The identifiers to try for a module-qualified spec name, shortest first:
- * the bare type name, then progressively more of the module path prefixed to
- * it (`Balance`, `storage_Balance`, `token_storage_Balance`).
- */
-function udtNameCandidates(specName: string): string[] {
-  const segments = typeNameSegments(specName);
-  if (segments.length === 0) {
-    return [sanitizeIdentifier(specName)];
-  }
-  return segments.map((_, index) =>
-    sanitizeIdentifier(segments.slice(segments.length - 1 - index).join("_")),
-  );
-}
-
-/**
- * Resolve the TypeScript identifier for every user-defined type in a spec.
+ * Resolve the TypeScript identifiers for every user-defined type in a spec.
  *
- * Type names are qualified with their Rust module path
- * (`token::storage::Balance`), which makes for unwieldy TypeScript
- * identifiers, so the bare type name is used wherever it is unambiguous.
- * Types are resolved in spec-entry order; when a bare name is already taken,
- * more of the module path is prefixed until the identifier is unique, and
- * failing that a numeric suffix is appended. This is deterministic for a
- * given spec, so the types and client files always agree.
+ * Every type is declared under its whole spec name — module path included,
+ * `_`-joined — so the Rust type it came from is always spelled out and two
+ * same-named types from different modules never clash. Each is then also
+ * exported under its bare type name, which is the name generated bindings
+ * have always used, so the module path stays out of the way. A bare name is
+ * only skipped when the spec makes it ambiguous: several types share it, or
+ * another type is declared under it outright.
+ *
+ * Names are resolved in spec-entry order, and a declaration whose identifier
+ * is somehow already taken gets a numeric suffix, so resolution is
+ * deterministic for a given spec and the types and client files always agree.
  */
-export function createUdtNameResolver(
-  entries: xdr.ScSpecEntry[],
-): UdtNameResolver {
-  const resolved = new Map<string, string>();
-  const taken = new Set<string>();
-
+export function createUdtNames(entries: xdr.ScSpecEntry[]): UdtNames {
+  const specNames: string[] = [];
   entries.forEach((entry) => {
     const specName = udtEntryName(entry);
-    if (specName === null || resolved.has(specName)) {
-      return;
+    if (specName !== null && !specNames.includes(specName)) {
+      specNames.push(specName);
     }
-
-    const candidates = udtNameCandidates(specName);
-    let name = candidates.find((candidate) => !taken.has(candidate));
-    if (name === undefined) {
-      const longest = candidates[candidates.length - 1];
-      let suffix = 2;
-      name = `${longest}${suffix}`;
-      while (taken.has(name)) {
-        suffix += 1;
-        name = `${longest}${suffix}`;
-      }
-    }
-
-    resolved.set(specName, name);
-    taken.add(name);
   });
 
-  return (specName: string) => resolved.get(specName) ?? udtTypeName(specName);
+  const taken = new Set<string>();
+  const names = new Map<string, UdtTypeNames>();
+
+  // Declarations first: they are the names that must exist.
+  specNames.forEach((specName) => {
+    const base = udtQualifiedTypeName(specName);
+    let declared = base;
+    let suffix = 2;
+    while (taken.has(declared)) {
+      declared = `${base}${suffix}`;
+      suffix += 1;
+    }
+    taken.add(declared);
+    names.set(specName, { declared, ambiguousWith: [] });
+  });
+
+  // Then the bare-name aliases, for every type whose bare name is its alone.
+  const claimants = new Map<string, string[]>();
+  specNames.forEach((specName) => {
+    const bare = udtTypeName(specName);
+    claimants.set(bare, [...(claimants.get(bare) ?? []), specName]);
+  });
+
+  claimants.forEach((claiming, bare) => {
+    if (claiming.length === 1 && !taken.has(bare)) {
+      taken.add(bare);
+      names.get(claiming[0])!.alias = bare;
+      return;
+    }
+    // Ambiguous: the bare name is shared, or is itself a declared name.
+    claiming.forEach((specName) => {
+      if (names.get(specName)!.declared === bare) {
+        return;
+      }
+      names.get(specName)!.ambiguousWith = claiming.filter(
+        (other) => other !== specName,
+      );
+    });
+  });
+
+  const namesFor = (specName: string): UdtTypeNames =>
+    names.get(specName) ?? {
+      declared: udtQualifiedTypeName(specName),
+      ambiguousWith: [],
+    };
+
+  return {
+    for: namesFor,
+    reference: (specName: string) => {
+      const resolved = namesFor(specName);
+      return resolved.alias ?? resolved.declared;
+    },
+    exported: () =>
+      specNames.flatMap((specName) => {
+        const resolved = names.get(specName)!;
+        return resolved.alias === undefined
+          ? [resolved.declared]
+          : [resolved.declared, resolved.alias];
+      }),
+  };
 }
 
 /**

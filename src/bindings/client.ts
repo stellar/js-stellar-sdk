@@ -8,7 +8,7 @@ import {
   formatJSDocComment,
   formatImports,
   toCamelCase,
-  createUdtNameResolver,
+  createUdtNames,
   type UdtNameResolver,
 } from "./utils.js";
 
@@ -19,7 +19,7 @@ export class ClientGenerator {
   private spec: Spec;
 
   // Spec name (module-qualified, e.g. "token::Balance") -> the TypeScript
-  // identifier types.ts declares for it. See createUdtNameResolver().
+  // identifier types.ts publishes it under. See createUdtNames().
   private resolveUdtName: UdtNameResolver;
 
   // event index (in declaration order) -> resolved (possibly disambiguated)
@@ -30,7 +30,7 @@ export class ClientGenerator {
 
   constructor(spec: Spec) {
     this.spec = spec;
-    this.resolveUdtName = createUdtNameResolver(spec.entries);
+    this.resolveUdtName = createUdtNames(spec.entries).reference;
   }
 
   /**

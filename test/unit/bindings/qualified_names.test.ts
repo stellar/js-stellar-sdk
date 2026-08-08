@@ -28,6 +28,19 @@ function structEntry(name: string): xdr.ScSpecEntry {
   );
 }
 
+function errorEnumEntry(name: string): xdr.ScSpecEntry {
+  return xdr.ScSpecEntry.scSpecEntryUdtErrorEnumV0(
+    new xdr.ScSpecUdtErrorEnumV0({
+      doc: "",
+      lib: "",
+      name,
+      cases: [
+        new xdr.ScSpecUdtErrorEnumCaseV0({ doc: "", name: "Boom", value: 1 }),
+      ],
+    }),
+  );
+}
+
 function enumEntry(name: string): xdr.ScSpecEntry {
   return xdr.ScSpecEntry.scSpecEntryUdtEnumV0(
     new xdr.ScSpecUdtEnumV0({
@@ -84,26 +97,43 @@ function eventEntry(name: string): xdr.ScSpecEntry {
 }
 
 describe("module-qualified user-defined type names", () => {
-  it("declares a qualified type under its bare name and records the spec name", () => {
+  it("declares a qualified type under its whole spec name, aliased to the bare name", () => {
     const spec = new Spec([structEntry("test_udt::UdtStruct")]);
     const output = new TypeGenerator(spec).generate();
 
-    expect(output).toMatch(/export interface UdtStruct \{/);
-    expect(output).not.toMatch(/test_udt__UdtStruct/);
+    expect(output).toMatch(/export interface test_udt_UdtStruct \{/);
+    expect(output).toMatch(/export type UdtStruct = test_udt_UdtStruct;/);
     expect(output).toMatch(
       /Declared in the contract spec as `test_udt::UdtStruct`\./,
     );
+    expect(output).toMatch(
+      /UdtStruct is an alias of \{@link test_udt_UdtStruct\}, the contract spec's `test_udt::UdtStruct`\./,
+    );
   });
 
-  it("leaves an unqualified type name (and its doc comment) untouched", () => {
+  it("aliases enums and error enums as values, so their members stay reachable", () => {
+    const spec = new Spec([
+      enumEntry("test_udt::UdtEnum"),
+      errorEnumEntry("test_udt::UdtError"),
+    ]);
+    const output = new TypeGenerator(spec).generate();
+
+    expect(output).toMatch(/export enum test_udt_UdtEnum \{/);
+    expect(output).toMatch(/export \{ test_udt_UdtEnum as UdtEnum \};/);
+    expect(output).toMatch(/export const test_udt_UdtError = \{/);
+    expect(output).toMatch(/export \{ test_udt_UdtError as UdtError \};/);
+  });
+
+  it("leaves an unqualified type name untouched, with no alias or notes", () => {
     const spec = new Spec([structEntry("UdtStruct")]);
     const output = new TypeGenerator(spec).generate();
 
     expect(output).toMatch(/export interface UdtStruct \{/);
     expect(output).not.toMatch(/Declared in the contract spec as/);
+    expect(output).not.toMatch(/is an alias of/);
   });
 
-  it("references and imports qualified types by their bare name in the client", () => {
+  it("references and imports qualified types by their bare alias in the client", () => {
     const spec = new Spec([
       structEntry("test_udt::UdtStruct"),
       enumEntry("test_udt::nested::UdtEnum"),
@@ -123,40 +153,47 @@ describe("module-qualified user-defined type names", () => {
     );
   });
 
-  it("resolves types with the same bare name by prefixing the module path", () => {
+  it("exports no bare alias for types that share a bare name, and says why", () => {
     const spec = new Spec([
       structEntry("first::Shared"),
       structEntry("second::Shared"),
-      structEntry("third::nested::Shared"),
       funcEntry("convert", udtType("second::Shared"), udtType("first::Shared")),
     ]);
 
     const types = new TypeGenerator(spec).generate();
-    expect(types).toMatch(/export interface Shared \{/);
+    expect(types).toMatch(/export interface first_Shared \{/);
     expect(types).toMatch(/export interface second_Shared \{/);
-    expect(types).toMatch(/export interface nested_Shared \{/);
+    expect(types).not.toMatch(/= first_Shared;/);
+    expect(types).not.toMatch(/= second_Shared;/);
+    expect(types).toMatch(
+      /No `Shared` alias is exported; the same bare name is used by `second::Shared`\./,
+    );
+    expect(types).toMatch(
+      /No `Shared` alias is exported; the same bare name is used by `first::Shared`\./,
+    );
 
-    // The client agrees with the names types.ts declares.
+    // The client falls back to the declared names, which types.ts exports.
     const client = new ClientGenerator(spec).generate();
     expect(client).toMatch(
-      /import \{second_Shared, Shared\} from '\.\/types\.js'/,
+      /import \{second_Shared, first_Shared\} from '\.\/types\.js'/,
     );
     expect(client).toMatch(
-      /convert\(\{ arg \}: \{ arg: second_Shared \}, options\?: MethodOptions\): Promise<AssembledTransaction<Shared>>;/,
+      /convert\(\{ arg \}: \{ arg: second_Shared \}, options\?: MethodOptions\): Promise<AssembledTransaction<first_Shared>>;/,
     );
   });
 
-  it("falls back to a numeric suffix when every module-path candidate is taken", () => {
+  it("keeps the bare alias when the clash is with another type's declared name", () => {
     const spec = new Spec([
-      structEntry("Shared"),
       structEntry("first_Shared"),
       structEntry("first::Shared"),
     ]);
     const types = new TypeGenerator(spec).generate();
 
-    expect(types).toMatch(/export interface Shared \{/);
+    // Both flatten to first_Shared, so the second declaration is suffixed...
     expect(types).toMatch(/export interface first_Shared \{/);
     expect(types).toMatch(/export interface first_Shared2 \{/);
+    // ...but its bare name is unclaimed, so it still gets its alias.
+    expect(types).toMatch(/export type Shared = first_Shared2;/);
 
     const declNames = (types.match(/export interface (\w+) \{/g) ?? []).map(
       (m: string) => m.replace(/export interface (\w+) \{/, "$1"),
@@ -164,15 +201,18 @@ describe("module-qualified user-defined type names", () => {
     expect(new Set(declNames).size).toBe(declNames.length);
   });
 
-  it("reserves the bare name of a qualified type against event interface names", () => {
+  it("reserves declared names and aliases alike against event interface names", () => {
     const spec = new Spec([
       structEntry("test_udt::TransferEvent"),
       eventEntry("transfer"),
     ]);
     const types = new TypeGenerator(spec).generate();
 
-    // The UDT keeps the bare name; the event is disambiguated around it.
-    expect(types).toMatch(/export interface TransferEvent \{/);
+    // The UDT's alias keeps the bare name; the event is disambiguated around it.
+    expect(types).toMatch(/export interface test_udt_TransferEvent \{/);
+    expect(types).toMatch(
+      /export type TransferEvent = test_udt_TransferEvent;/,
+    );
     expect(types).toMatch(/export interface TransferEvent2 \{/);
     expect(types).toMatch(/export type ContractEvent = TransferEvent2;/);
   });
