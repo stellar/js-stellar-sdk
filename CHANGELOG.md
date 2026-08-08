@@ -2,6 +2,12 @@
 
 A breaking change will get clearly marked in this log.
 
+## Unreleased
+
+### Changed
+- Generated bindings handle module-qualified user-defined type names. Upcoming versions of `rs-soroban-sdk` name each `#[contracttype]` by its full Rust path ([rs-soroban-sdk#1970](https://github.com/stellar/rs-soroban-sdk/pull/1970)), so a spec entry reads `token::storage::Balance` rather than `Balance`. The generator now declares such a type under its bare name (`export interface Balance`), noting the full spec name in the type's doc comment, instead of mangling the path into the identifier. When two types in one spec share a bare name, the module path is prefixed until the identifier is unique (`Balance`, `storage_Balance`, …), falling back to a numeric suffix; resolution is deterministic, so `types.ts` and `client.ts` always agree. Specs with unqualified names generate exactly as before.
+- `contract.Spec.findEntry` accepts a bare type name for a module-qualified entry (`findEntry("Balance")` finds `token::storage::Balance`), and throws `ambiguous entry: …` when more than one entry matches.
+
 ## [v16.2.0](https://github.com/stellar/js-stellar-sdk/compare/v16.1.0...v16.2.0)
 
 ### Added

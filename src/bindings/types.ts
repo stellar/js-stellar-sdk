@@ -9,6 +9,8 @@ import {
   formatImports,
   isTupleStruct,
   toPascalCase,
+  createUdtNameResolver,
+  type UdtNameResolver,
 } from "./utils.js";
 
 /**
@@ -39,10 +41,26 @@ export interface EnumCase {
 }
 
 /**
+ * A doc-comment note recording a user-defined type's name as it appears in
+ * the contract spec, for the types whose generated identifier drops the Rust
+ * module path the name is qualified with (e.g. "token::Balance" declared as
+ * `Balance`). Empty when the two are the same.
+ */
+function specNameNote(specName: string, generatedName: string): string {
+  return specName === generatedName
+    ? ""
+    : `\n\nDeclared in the contract spec as \`${specName}\`.`;
+}
+
+/**
  * Generates TypeScript type definitions from Stellar contract specs
  */
 export class TypeGenerator {
   private spec: Spec;
+
+  // Spec name (module-qualified, e.g. "token::Balance") -> the TypeScript
+  // identifier declared for it. See createUdtNameResolver().
+  private resolveUdtName: UdtNameResolver;
 
   // event index (in event-entry declaration order) -> resolved (possibly
   // disambiguated) interface name. Keyed by index rather than raw name
@@ -52,6 +70,7 @@ export class TypeGenerator {
 
   constructor(spec: Spec) {
     this.spec = spec;
+    this.resolveUdtName = createUdtNameResolver(spec.entries);
   }
 
   /**
@@ -141,6 +160,7 @@ export class TypeGenerator {
             return [];
         }
       }),
+      this.resolveUdtName,
     );
 
     return formatImports(imports, {
@@ -152,9 +172,10 @@ export class TypeGenerator {
    * Generate TypeScript interface for a struct
    */
   private generateStruct(struct: xdr.ScSpecUdtStructV0): string {
-    const name = sanitizeIdentifier(struct.name().toString());
+    const name = this.resolveUdtName(struct.name().toString());
     const doc = formatJSDocComment(
-      struct.doc().toString() || `Struct: ${name}`,
+      (struct.doc().toString() || `Struct: ${name}`) +
+        specNameNote(struct.name().toString(), name),
       0,
     );
 
@@ -162,7 +183,11 @@ export class TypeGenerator {
       .fields()
       .map((field) => {
         const fieldName = sanitizeIdentifier(field.name().toString());
-        const fieldType = parseTypeFromTypeDef(field.type());
+        const fieldType = parseTypeFromTypeDef(
+          field.type(),
+          false,
+          this.resolveUdtName,
+        );
         const fieldDoc = formatJSDocComment(field.doc().toString(), 2);
 
         return `${fieldDoc}  ${fieldName}: ${fieldType};`;
@@ -178,9 +203,10 @@ ${fields}
    * Generate TypeScript union type
    */
   private generateUnion(union: xdr.ScSpecUdtUnionV0): string {
-    const name = sanitizeIdentifier(union.name().toString());
+    const name = this.resolveUdtName(union.name().toString());
     const doc = formatJSDocComment(
-      union.doc().toString() || `Union: ${name}`,
+      (union.doc().toString() || `Union: ${name}`) +
+        specNameNote(union.name().toString(), name),
       0,
     );
     const cases = union
@@ -204,9 +230,10 @@ ${caseTypes};`;
    * Generate TypeScript enum
    */
   private generateEnum(enumEntry: xdr.ScSpecUdtEnumV0): string {
-    const name = sanitizeIdentifier(enumEntry.name().toString());
+    const name = this.resolveUdtName(enumEntry.name().toString());
     const doc = formatJSDocComment(
-      enumEntry.doc().toString() || `Enum: ${name}`,
+      (enumEntry.doc().toString() || `Enum: ${name}`) +
+        specNameNote(enumEntry.name().toString(), name),
       0,
     );
 
@@ -230,9 +257,10 @@ ${members}
    * Generate TypeScript error enum
    */
   private generateErrorEnum(errorEnum: xdr.ScSpecUdtErrorEnumV0): string {
-    const name = sanitizeIdentifier(errorEnum.name().toString());
+    const name = this.resolveUdtName(errorEnum.name().toString());
     const doc = formatJSDocComment(
-      errorEnum.doc().toString() || `Error Enum: ${name}`,
+      (errorEnum.doc().toString() || `Error Enum: ${name}`) +
+        specNameNote(errorEnum.name().toString(), name),
       0,
     );
     const cases = errorEnum
@@ -268,7 +296,9 @@ ${members}
         return {
           doc: tupleCase.doc().toString(),
           name: tupleCase.name().toString(),
-          types: tupleCase.type().map((t) => parseTypeFromTypeDef(t)),
+          types: tupleCase
+            .type()
+            .map((t) => parseTypeFromTypeDef(t, false, this.resolveUdtName)),
         };
       }
       default:
@@ -353,20 +383,22 @@ ${members}
       switch (entry.switch()) {
         case xdr.ScSpecEntryKind.scSpecEntryUdtStructV0():
           reserved.add(
-            sanitizeIdentifier(entry.udtStructV0().name().toString()),
+            this.resolveUdtName(entry.udtStructV0().name().toString()),
           );
           break;
         case xdr.ScSpecEntryKind.scSpecEntryUdtUnionV0():
           reserved.add(
-            sanitizeIdentifier(entry.udtUnionV0().name().toString()),
+            this.resolveUdtName(entry.udtUnionV0().name().toString()),
           );
           break;
         case xdr.ScSpecEntryKind.scSpecEntryUdtEnumV0():
-          reserved.add(sanitizeIdentifier(entry.udtEnumV0().name().toString()));
+          reserved.add(
+            this.resolveUdtName(entry.udtEnumV0().name().toString()),
+          );
           break;
         case xdr.ScSpecEntryKind.scSpecEntryUdtErrorEnumV0():
           reserved.add(
-            sanitizeIdentifier(entry.udtErrorEnumV0().name().toString()),
+            this.resolveUdtName(entry.udtErrorEnumV0().name().toString()),
           );
           break;
         default:
@@ -434,7 +466,11 @@ ${members}
       .params()
       .map((param) => {
         const fieldName = fieldKey(param.name().toString());
-        const fieldType = parseTypeFromTypeDef(param.type());
+        const fieldType = parseTypeFromTypeDef(
+          param.type(),
+          false,
+          this.resolveUdtName,
+        );
         const fieldDoc = formatJSDocComment(param.doc().toString(), 4);
         const optional =
           dataIsMapFormat &&
@@ -473,15 +509,18 @@ ${dataFields}
   }
 
   private generateTupleStruct(udtStruct: xdr.ScSpecUdtStructV0): string {
-    const name = sanitizeIdentifier(udtStruct.name().toString());
+    const name = this.resolveUdtName(udtStruct.name().toString());
     const doc = formatJSDocComment(
-      udtStruct.doc().toString() || `Tuple Struct: ${name}`,
+      (udtStruct.doc().toString() || `Tuple Struct: ${name}`) +
+        specNameNote(udtStruct.name().toString(), name),
       0,
     );
 
     const types = udtStruct
       .fields()
-      .map((field) => parseTypeFromTypeDef(field.type()))
+      .map((field) =>
+        parseTypeFromTypeDef(field.type(), false, this.resolveUdtName),
+      )
       .join(", ");
 
     return `${doc}export type ${name} = readonly [${types}];`;

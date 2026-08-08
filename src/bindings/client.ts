@@ -8,6 +8,8 @@ import {
   formatJSDocComment,
   formatImports,
   toCamelCase,
+  createUdtNameResolver,
+  type UdtNameResolver,
 } from "./utils.js";
 
 /**
@@ -15,6 +17,10 @@ import {
  */
 export class ClientGenerator {
   private spec: Spec;
+
+  // Spec name (module-qualified, e.g. "token::Balance") -> the TypeScript
+  // identifier types.ts declares for it. See createUdtNameResolver().
+  private resolveUdtName: UdtNameResolver;
 
   // event index (in declaration order) -> resolved (possibly disambiguated)
   // filter method name. Keyed by index rather than raw name because a
@@ -24,6 +30,7 @@ export class ClientGenerator {
 
   constructor(spec: Spec) {
     this.spec = spec;
+    this.resolveUdtName = createUdtNameResolver(spec.entries);
   }
 
   /**
@@ -99,6 +106,7 @@ ${eventMethods}
         const defs = inputs.map((input) => input.type()).concat(outputs);
         return defs;
       }),
+      this.resolveUdtName,
     );
 
     const events = this.spec.events();
@@ -119,7 +127,10 @@ ${eventMethods}
                 .value,
           );
         topicParams.forEach((param) => {
-          const nested = generateTypeImports([param.type()]);
+          const nested = generateTypeImports(
+            [param.type()],
+            this.resolveUdtName,
+          );
           nested.typeFileImports.forEach((t) => imports.typeFileImports.add(t));
           nested.stellarContractImports.forEach((t) =>
             imports.stellarContractImports.add(t),
@@ -293,7 +304,11 @@ ${eventMethods}
         const fieldName = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(rawParamName)
           ? rawParamName
           : `"${escapeStringLiteral(rawParamName)}"`;
-        const fieldType = parseTypeFromTypeDef(param.type(), true);
+        const fieldType = parseTypeFromTypeDef(
+          param.type(),
+          true,
+          this.resolveUdtName,
+        );
         return `${fieldName}?: ${fieldType}`;
       })
       .join("; ");
@@ -326,11 +341,11 @@ ${eventMethods}
     const name = sanitizeIdentifier(func.name().toString());
     const inputs = func.inputs().map((input: any) => ({
       name: sanitizeIdentifier(input.name().toString()),
-      type: parseTypeFromTypeDef(input.type(), true),
+      type: parseTypeFromTypeDef(input.type(), true, this.resolveUdtName),
     }));
     const outputType =
       func.outputs().length > 0
-        ? parseTypeFromTypeDef(func.outputs()[0])
+        ? parseTypeFromTypeDef(func.outputs()[0], false, this.resolveUdtName)
         : "void";
     const docs = formatJSDocComment(func.doc().toString(), 2);
     const params = this.formatMethodParameters(inputs);
@@ -342,7 +357,7 @@ ${eventMethods}
     const name = sanitizeIdentifier(func.name().toString());
     const outputType =
       func.outputs().length > 0
-        ? parseTypeFromTypeDef(func.outputs()[0])
+        ? parseTypeFromTypeDef(func.outputs()[0], false, this.resolveUdtName)
         : "void";
 
     return `  ${name} : this.txFromJSON<${outputType}>`;
@@ -362,7 +377,7 @@ ${eventMethods}
     }
     const inputs = constructorFunc.inputs().map((input) => ({
       name: sanitizeIdentifier(input.name().toString()),
-      type: parseTypeFromTypeDef(input.type(), true),
+      type: parseTypeFromTypeDef(input.type(), true, this.resolveUdtName),
     }));
 
     const params = this.formatConstructorParameters(inputs);

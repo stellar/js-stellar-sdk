@@ -650,19 +650,39 @@ export class Spec {
   /**
    * Finds the XDR spec entry for the given name.
    *
+   * User-defined type names are qualified with the Rust module path they are
+   * declared in (e.g. `token::Balance`), so a bare type name is also accepted
+   * when exactly one entry in the spec ends with it.
+   *
    * @param name - the name to find
    * @returns the entry
    *
-   * @throws if no entry with the given name exists
+   * @throws if no entry with the given name exists, or if a bare type name
+   *         matches more than one module-qualified entry
    */
   findEntry(name: string): xdr.ScSpecEntry {
     const entry = this.entries.find(
       (e) => e.value().name().toString() === name,
     );
-    if (!entry) {
-      throw new Error(`no such entry: ${name}`);
+    if (entry) {
+      return entry;
     }
-    return entry;
+    if (!name.includes("::")) {
+      const matches = this.entries.filter((e) =>
+        e.value().name().toString().endsWith(`::${name}`),
+      );
+      if (matches.length === 1) {
+        return matches[0];
+      }
+      if (matches.length > 1) {
+        throw new Error(
+          `ambiguous entry: ${name} matches ${matches
+            .map((e) => e.value().name().toString())
+            .join(", ")}`,
+        );
+      }
+    }
+    throw new Error(`no such entry: ${name}`);
   }
 
   /**

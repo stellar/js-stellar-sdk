@@ -83,6 +83,116 @@ export function sanitizeIdentifier(identifier: string): string {
 }
 
 /**
+ * Split a spec type name into its path segments.
+ *
+ * Since rs-soroban-sdk qualifies user-defined type names with the Rust
+ * module path they are declared in, a spec name can look like
+ * `token::storage::Balance` rather than a bare `Balance`.
+ */
+function typeNameSegments(specName: string): string[] {
+  return specName.split("::").filter((segment) => segment.length > 0);
+}
+
+/**
+ * The generated TypeScript identifier for a user-defined type, ignoring any
+ * collisions with other types in the same spec: the last segment of a
+ * module-qualified spec name (`token::Balance` becomes `Balance`), sanitized.
+ *
+ * Prefer {@link createUdtNameResolver} when a spec is available, so that two
+ * types whose names differ only by module path still get distinct
+ * identifiers.
+ */
+export function udtTypeName(specName: string): string {
+  const segments = typeNameSegments(specName);
+  return sanitizeIdentifier(
+    segments.length > 0 ? segments[segments.length - 1] : specName,
+  );
+}
+
+/**
+ * Maps a user-defined type's spec name to the TypeScript identifier the
+ * bindings declare for it. Shared by the types and client generators so both
+ * files agree on every name.
+ */
+export type UdtNameResolver = (specName: string) => string;
+
+/**
+ * The spec name of a user-defined type entry, or `null` for entries that do
+ * not declare one (functions, events).
+ */
+function udtEntryName(entry: xdr.ScSpecEntry): string | null {
+  switch (entry.switch()) {
+    case xdr.ScSpecEntryKind.scSpecEntryUdtStructV0():
+      return entry.udtStructV0().name().toString();
+    case xdr.ScSpecEntryKind.scSpecEntryUdtUnionV0():
+      return entry.udtUnionV0().name().toString();
+    case xdr.ScSpecEntryKind.scSpecEntryUdtEnumV0():
+      return entry.udtEnumV0().name().toString();
+    case xdr.ScSpecEntryKind.scSpecEntryUdtErrorEnumV0():
+      return entry.udtErrorEnumV0().name().toString();
+    default:
+      return null;
+  }
+}
+
+/**
+ * The identifiers to try for a module-qualified spec name, shortest first:
+ * the bare type name, then progressively more of the module path prefixed to
+ * it (`Balance`, `storage_Balance`, `token_storage_Balance`).
+ */
+function udtNameCandidates(specName: string): string[] {
+  const segments = typeNameSegments(specName);
+  if (segments.length === 0) {
+    return [sanitizeIdentifier(specName)];
+  }
+  return segments.map((_, index) =>
+    sanitizeIdentifier(segments.slice(segments.length - 1 - index).join("_")),
+  );
+}
+
+/**
+ * Resolve the TypeScript identifier for every user-defined type in a spec.
+ *
+ * Type names are qualified with their Rust module path
+ * (`token::storage::Balance`), which makes for unwieldy TypeScript
+ * identifiers, so the bare type name is used wherever it is unambiguous.
+ * Types are resolved in spec-entry order; when a bare name is already taken,
+ * more of the module path is prefixed until the identifier is unique, and
+ * failing that a numeric suffix is appended. This is deterministic for a
+ * given spec, so the types and client files always agree.
+ */
+export function createUdtNameResolver(
+  entries: xdr.ScSpecEntry[],
+): UdtNameResolver {
+  const resolved = new Map<string, string>();
+  const taken = new Set<string>();
+
+  entries.forEach((entry) => {
+    const specName = udtEntryName(entry);
+    if (specName === null || resolved.has(specName)) {
+      return;
+    }
+
+    const candidates = udtNameCandidates(specName);
+    let name = candidates.find((candidate) => !taken.has(candidate));
+    if (name === undefined) {
+      const longest = candidates[candidates.length - 1];
+      let suffix = 2;
+      name = `${longest}${suffix}`;
+      while (taken.has(name)) {
+        suffix += 1;
+        name = `${longest}${suffix}`;
+      }
+    }
+
+    resolved.set(specName, name);
+    taken.add(name);
+  });
+
+  return (specName: string) => resolved.get(specName) ?? udtTypeName(specName);
+}
+
+/**
  * Escape a string for safe interpolation inside a double-quoted JavaScript string literal.
  */
 export function escapeStringLiteral(str: string): string {
@@ -101,6 +211,7 @@ export function escapeStringLiteral(str: string): string {
 export function parseTypeFromTypeDef(
   typeDef: xdr.ScSpecTypeDef,
   isFunctionInput = false,
+  resolveUdtName: UdtNameResolver = udtTypeName,
 ): string {
   switch (typeDef.switch()) {
     case xdr.ScSpecType.scSpecTypeVal():
@@ -143,6 +254,7 @@ export function parseTypeFromTypeDef(
       const vecType = parseTypeFromTypeDef(
         typeDef.vec().elementType(),
         isFunctionInput,
+        resolveUdtName,
       );
       return `Array<${vecType}>`;
     }
@@ -150,10 +262,12 @@ export function parseTypeFromTypeDef(
       const keyType = parseTypeFromTypeDef(
         typeDef.map().keyType(),
         isFunctionInput,
+        resolveUdtName,
       );
       const valueType = parseTypeFromTypeDef(
         typeDef.map().valueType(),
         isFunctionInput,
+        resolveUdtName,
       );
       return `Map<${keyType}, ${valueType}>`;
     }
@@ -162,7 +276,7 @@ export function parseTypeFromTypeDef(
         .tuple()
         .valueTypes()
         .map((t: xdr.ScSpecTypeDef) =>
-          parseTypeFromTypeDef(t, isFunctionInput),
+          parseTypeFromTypeDef(t, isFunctionInput, resolveUdtName),
         );
       return `[${tupleTypes.join(", ")}]`;
     }
@@ -177,6 +291,7 @@ export function parseTypeFromTypeDef(
       const optionType = parseTypeFromTypeDef(
         typeDef.option().valueType(),
         isFunctionInput,
+        resolveUdtName,
       );
 
       return `${optionType} | null`;
@@ -185,16 +300,17 @@ export function parseTypeFromTypeDef(
       const okType = parseTypeFromTypeDef(
         typeDef.result().okType(),
         isFunctionInput,
+        resolveUdtName,
       );
       const errorType = parseTypeFromTypeDef(
         typeDef.result().errorType(),
         isFunctionInput,
+        resolveUdtName,
       );
       return `Result<${okType}, ${errorType}>`;
     }
     case xdr.ScSpecType.scSpecTypeUdt(): {
-      const udtName = sanitizeIdentifier(typeDef.udt().name().toString());
-      return udtName;
+      return resolveUdtName(typeDef.udt().name().toString());
     }
     default:
       return "unknown";
@@ -246,6 +362,7 @@ function extractNestedTypes(typeDef: xdr.ScSpecTypeDef): xdr.ScSpecTypeDef[] {
 function visitTypeDef(
   typeDef: xdr.ScSpecTypeDef,
   accumulator: BindingImports,
+  resolveUdtName: UdtNameResolver,
 ): void {
   const typeSwitch = typeDef.switch();
 
@@ -253,7 +370,7 @@ function visitTypeDef(
   switch (typeSwitch) {
     case xdr.ScSpecType.scSpecTypeUdt():
       accumulator.typeFileImports.add(
-        sanitizeIdentifier(typeDef.udt().name().toString()),
+        resolveUdtName(typeDef.udt().name().toString()),
       );
       return;
 
@@ -297,7 +414,9 @@ function visitTypeDef(
 
   // Handle container types (have nested types)
   const nestedTypes = extractNestedTypes(typeDef);
-  nestedTypes.forEach((nested) => visitTypeDef(nested, accumulator));
+  nestedTypes.forEach((nested) =>
+    visitTypeDef(nested, accumulator, resolveUdtName),
+  );
 }
 
 /**
@@ -305,6 +424,7 @@ function visitTypeDef(
  */
 export function generateTypeImports(
   typeDefs: xdr.ScSpecTypeDef[],
+  resolveUdtName: UdtNameResolver = udtTypeName,
 ): BindingImports {
   const imports: BindingImports = {
     typeFileImports: new Set<string>(),
@@ -314,7 +434,7 @@ export function generateTypeImports(
   };
 
   // Visit each type definition
-  typeDefs.forEach((typeDef) => visitTypeDef(typeDef, imports));
+  typeDefs.forEach((typeDef) => visitTypeDef(typeDef, imports, resolveUdtName));
 
   return imports;
 }
