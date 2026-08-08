@@ -1168,7 +1168,7 @@ errorCases(): ScSpecUdtErrorEnumCaseV0[];
 
 all contract functions
 
-**Source:** [src/contract/spec.ts:1209](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1209)
+**Source:** [src/contract/spec.ts:1229](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1229)
 
 ### `spec.events()`
 
@@ -1182,7 +1182,7 @@ events(): ScSpecEventV0[];
 
 all contract events
 
-**Source:** [src/contract/spec.ts:1224](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1224)
+**Source:** [src/contract/spec.ts:1244](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1244)
 
 ### `spec.eventTopicFilter(name, topicValues, occurrence)`
 
@@ -1219,11 +1219,15 @@ a single topic filter row
 const topics = contractSpec.eventTopicFilter('transfer', { to: someAddress });
 ```
 
-**Source:** [src/contract/spec.ts:1312](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1312)
+**Source:** [src/contract/spec.ts:1332](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1332)
 
 ### `spec.findEntry(name)`
 
 Finds the XDR spec entry for the given name.
+
+User-defined type names are qualified with the Rust module path they are
+declared in (e.g. `token::Balance`), so a bare type name is also accepted
+when exactly one entry in the spec ends with it.
 
 ```ts
 findEntry(name: string): ScSpecEntry;
@@ -1239,9 +1243,10 @@ the entry
 
 **Throws**
 
-- if no entry with the given name exists
+- if no entry with the given name exists, or if a bare type name
+        matches more than one module-qualified entry
 
-**Source:** [src/contract/spec.ts:658](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L658)
+**Source:** [src/contract/spec.ts:663](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L663)
 
 ### `spec.findEvent(name, occurrence)`
 
@@ -1279,7 +1284,7 @@ if (contractSpec.findEvent("transfer")) {
 }
 ```
 
-**Source:** [src/contract/spec.ts:1251](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1251)
+**Source:** [src/contract/spec.ts:1271](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1271)
 
 ### `spec.funcArgsToScVals(name, args)`
 
@@ -1402,7 +1407,7 @@ the converted JSON schema
 
 - if the contract spec is invalid
 
-**Source:** [src/contract/spec.ts:1336](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1336)
+**Source:** [src/contract/spec.ts:1356](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1356)
 
 ### `spec.nativeToScVal(val, ty)`
 
@@ -1425,7 +1430,7 @@ the converted ScVal
 
 - if value cannot be converted to the given type
 
-**Source:** [src/contract/spec.ts:677](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L677)
+**Source:** [src/contract/spec.ts:697](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L697)
 
 ### `spec.parseEvent(topics, data)`
 
@@ -1466,7 +1471,7 @@ if (parsed) {
 }
 ```
 
-**Source:** [src/contract/spec.ts:1283](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1283)
+**Source:** [src/contract/spec.ts:1303](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1303)
 
 ### `spec.scValStrToNative(scv, typeDef)`
 
@@ -1489,7 +1494,7 @@ the converted native JS value
 
 - if ScVal cannot be converted to the given type
 
-**Source:** [src/contract/spec.ts:994](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L994)
+**Source:** [src/contract/spec.ts:1014](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1014)
 
 ### `spec.scValToNative(scv, typeDef)`
 
@@ -1512,7 +1517,7 @@ the converted native JS value
 
 - if ScVal cannot be converted to the given type
 
-**Source:** [src/contract/spec.ts:1007](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1007)
+**Source:** [src/contract/spec.ts:1027](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1027)
 
 ## contract.Watcher
 
