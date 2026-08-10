@@ -657,6 +657,50 @@ describe("StrKey", () => {
     });
   });
 
+  describe("cross-type validation", () => {
+    // `isValid` screens out length and prefix mismatches before calling
+    // `decodeCheck`, because `decodeCheck` reports failure by throwing and the
+    // negative answer is the common case (`decodeAddressToMuxedAccount` asks
+    // `isValidMed25519PublicKey` about every G address). This matrix pins down
+    // that the fast rejection agrees with the slow one: every predicate
+    // accepts its own type and nothing else.
+    const seed32 = new Uint8Array(32).map((_, i) => i + 1);
+    const seed40 = new Uint8Array(40).map((_, i) => i + 1);
+    const seed33 = new Uint8Array(33).map((_, i) => (i === 0 ? 0 : i));
+
+    const samples: Record<string, string> = {
+      ed25519PublicKey: StrKey.encodeEd25519PublicKey(seed32),
+      ed25519SecretSeed: StrKey.encodeEd25519SecretSeed(seed32),
+      med25519PublicKey: StrKey.encodeMed25519PublicKey(seed40),
+      preAuthTx: StrKey.encodePreAuthTx(seed32),
+      sha256Hash: StrKey.encodeSha256Hash(seed32),
+      contract: StrKey.encodeContract(seed32),
+      liquidityPool: StrKey.encodeLiquidityPool(seed32),
+      claimableBalance: StrKey.encodeClaimableBalance(seed33),
+      signedPayload:
+        "PA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJUAAAAAQACAQDAQCQMBYIBEFAWDANBYHRAEISCMKBKFQXDAMRUGY4DUPB6IBZGM",
+    };
+
+    const predicates: Record<string, (value: string) => boolean> = {
+      ed25519PublicKey: StrKey.isValidEd25519PublicKey,
+      ed25519SecretSeed: StrKey.isValidEd25519SecretSeed,
+      med25519PublicKey: StrKey.isValidMed25519PublicKey,
+      contract: StrKey.isValidContract,
+      liquidityPool: StrKey.isValidLiquidityPool,
+      claimableBalance: StrKey.isValidClaimableBalance,
+      signedPayload: StrKey.isValidSignedPayload,
+    };
+
+    for (const [predicateName, isValid] of Object.entries(predicates)) {
+      for (const [sampleName, strkey] of Object.entries(samples)) {
+        const expected = predicateName === sampleName;
+        it(`isValid${predicateName} on a ${sampleName} strkey is ${expected}`, () => {
+          expect(isValid(strkey)).toBe(expected);
+        });
+      }
+    }
+  });
+
   describe("#getVersionByteForPrefix", () => {
     it("returns the correct type for each prefix", () => {
       expect(StrKey.getVersionByteForPrefix("G...")).toBe("ed25519PublicKey");

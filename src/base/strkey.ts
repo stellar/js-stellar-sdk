@@ -67,6 +67,52 @@ function encodedLengthRange(name: VersionByteName): [number, number] {
 }
 
 /**
+ * The checks that can be made before decoding anything: is this a strkey type
+ * we know, and is `encoded` a legal length for it?
+ *
+ * Returns a boolean rather than throwing so both callers get what they need.
+ * `isValid` answers with it directly, which matters because its common case is
+ * the *negative* one — `decodeAddressToMuxedAccount` asks
+ * `isValidMed25519PublicKey` about every destination address, and ordinary G
+ * addresses are not M addresses. Constructing an `Error` (and its stack trace)
+ * only to discard it costs orders of magnitude more than the checks
+ * themselves. `decodeCheck` turns a `false` into the corresponding throw via
+ * {@link strkeyFormatError}.
+ */
+function hasValidStrkeyFormat(
+  versionByteName: string,
+  encoded: string,
+): versionByteName is VersionByteName {
+  if (!hasVersionByteName(versionByteName)) {
+    return false;
+  }
+
+  const [minLen, maxLen] = encodedLengthRange(versionByteName);
+  return encoded.length >= minLen && encoded.length <= maxLen;
+}
+
+/**
+ * Explains a {@link hasValidStrkeyFormat} rejection. Only ever called on the
+ * failure path, so it can afford to re-run the checks to find out which one
+ * failed.
+ */
+function strkeyFormatError(versionByteName: string, encoded: string): Error {
+  if (!hasVersionByteName(versionByteName)) {
+    return new Error(
+      `${versionByteName} is not a valid version byte name. ` +
+        `Expected one of ${Object.keys(versionBytes).join(", ")}`,
+    );
+  }
+
+  const [minLen, maxLen] = encodedLengthRange(versionByteName);
+  return new Error(
+    `invalid encoded string length: expected ` +
+      `${minLen === maxLen ? minLen : `${minLen}-${maxLen}`}, ` +
+      `got ${encoded.length}`,
+  );
+}
+
+/**
  * Enforces the `opaque payload<64>` framing that the XDR wire decoder enforces
  * on a signed payload: 32 bytes of signer, a payload length word, then exactly
  * that many payload bytes zero-padded to a 4-byte boundary.
@@ -393,9 +439,19 @@ function isValid(versionByteName: string, encoded: unknown): boolean {
     return false;
   }
 
+  // Screen out the mismatches that don't need decoding before entering the
+  // `try`, so the common negative case never pays for a thrown `Error`.
+  if (!hasValidStrkeyFormat(versionByteName, encoded)) {
+    return false;
+  }
+  // The prefix determines the version byte, which `decodeCheck` would reject
+  // after decoding anyway.
+  if (strkeyTypes[encoded[0]] !== versionByteName) {
+    return false;
+  }
+
   let decoded: Uint8Array;
   try {
-    // encoded-length bounds are enforced by `decodeCheck`
     decoded = decodeCheck(versionByteName, encoded);
   } catch {
     return false;
@@ -443,20 +499,8 @@ export function decodeCheck(
     throw new TypeError("encoded argument must be of type String");
   }
 
-  if (!hasVersionByteName(versionByteName)) {
-    throw new Error(
-      `${versionByteName} is not a valid version byte name. ` +
-        `Expected one of ${Object.keys(versionBytes).join(", ")}`,
-    );
-  }
-
-  const [minLen, maxLen] = encodedLengthRange(versionByteName);
-  if (encoded.length < minLen || encoded.length > maxLen) {
-    throw new Error(
-      `invalid encoded string length: expected ` +
-        `${minLen === maxLen ? minLen : `${minLen}-${maxLen}`}, ` +
-        `got ${encoded.length}`,
-    );
+  if (!hasValidStrkeyFormat(versionByteName, encoded)) {
+    throw strkeyFormatError(versionByteName, encoded);
   }
 
   const decoded = fromBase32(encoded, { padding: false });
