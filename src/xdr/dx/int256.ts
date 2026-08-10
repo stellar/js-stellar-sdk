@@ -4,14 +4,20 @@ import {
   bigIntTo256Parts,
   partsTo256BigInt,
 } from "../values/bigint-value.js";
+import { intRange } from "../values/bigint-parts.js";
 import {
   Int256Parts,
   type Int256PartsWire,
 } from "../generated/int256-parts.js";
 
+const [MIN, MAX] = intRange(true, 256);
+
 export class Int256 extends BigIntValue {
   static readonly signed = true;
   static readonly bits = 256 as const;
+
+  static readonly MIN_VALUE = MIN;
+  static readonly MAX_VALUE = MAX;
 
   static readonly schema = Int256Parts.schema;
 

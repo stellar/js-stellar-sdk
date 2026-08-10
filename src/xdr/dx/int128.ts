@@ -6,14 +6,23 @@ import {
   bigIntTo128Parts,
   partsTo128BigInt,
 } from "../values/bigint-value.js";
+import { intRange } from "../values/bigint-parts.js";
 import {
   Int128Parts,
   type Int128PartsWire,
 } from "../generated/int128-parts.js";
 
+const [MIN, MAX] = intRange(true, 128);
+
 export class Int128 extends BigIntValue {
   static readonly signed = true;
   static readonly bits = 128 as const;
+
+  // Kept for parity with the legacy LargeInt-based class: callers range-check
+  // against these (`if (v > Int128.MAX_VALUE)`), and in JS a missing static
+  // would compare against `undefined` and silently pass.
+  static readonly MIN_VALUE = MIN;
+  static readonly MAX_VALUE = MAX;
 
   // Reuse the generated `Int128Parts` schema — the wire shape is identical.
   static readonly schema = Int128Parts.schema;

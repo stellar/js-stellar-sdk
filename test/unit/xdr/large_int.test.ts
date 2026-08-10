@@ -135,6 +135,60 @@ describe("wide-int range enforcement", () => {
   });
 });
 
+// ---------- MIN_VALUE / MAX_VALUE statics ----------
+// The legacy LargeInt-based classes exposed these, and consumers range-check
+// against them (`if (v > Int128.MAX_VALUE)`). A missing static is invisible in
+// JS — `5n > undefined` is `false`, so the guard silently passes everything —
+// so these assertions exist to fail loudly if the statics are ever dropped.
+// The expected values are spelled out independently of `intRange`, the helper
+// that computes them, so a bug in that helper can't satisfy the test.
+
+const STATICS = [
+  { name: "Int128", cls: Int128, min: I128_MIN, max: I128_MAX },
+  { name: "Uint128", cls: Uint128, min: 0n, max: U128_MAX },
+  { name: "Int256", cls: Int256, min: I256_MIN, max: I256_MAX },
+  { name: "Uint256", cls: Uint256, min: 0n, max: U256_MAX },
+];
+
+describe("wide-int MIN_VALUE / MAX_VALUE", () => {
+  for (const { name, cls, min, max } of STATICS) {
+    it(`${name} exposes its inclusive bounds as bigints`, () => {
+      expect(cls.MIN_VALUE).toBe(min);
+      expect(cls.MAX_VALUE).toBe(max);
+    });
+
+    it(`${name} constructs at both bounds and throws beyond them`, () => {
+      expect(new cls(cls.MIN_VALUE).value).toBe(min);
+      expect(new cls(cls.MAX_VALUE).value).toBe(max);
+      expect(() => new cls(cls.MAX_VALUE + 1n)).toThrow(XdrError);
+      expect(() => new cls(cls.MIN_VALUE - 1n)).toThrow(XdrError);
+    });
+  }
+
+  it("reports the same decimal bounds as the legacy classes", () => {
+    expect(Int128.MAX_VALUE.toString()).toBe(
+      "170141183460469231731687303715884105727",
+    );
+    expect(Int128.MIN_VALUE.toString()).toBe(
+      "-170141183460469231731687303715884105728",
+    );
+    expect(Uint128.MAX_VALUE.toString()).toBe(
+      "340282366920938463463374607431768211455",
+    );
+    expect(Uint128.MIN_VALUE.toString()).toBe("0");
+    expect(Int256.MAX_VALUE.toString()).toBe(
+      "57896044618658097711785492504343953926634992332820282019728792003956564819967",
+    );
+    expect(Int256.MIN_VALUE.toString()).toBe(
+      "-57896044618658097711785492504343953926634992332820282019728792003956564819968",
+    );
+    expect(Uint256.MAX_VALUE.toString()).toBe(
+      "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+    );
+    expect(Uint256.MIN_VALUE.toString()).toBe("0");
+  });
+});
+
 // ---------- XDR byte round-trip (toXdr / fromXdr) ----------
 
 describe("Int128 XDR byte round-trip", () => {
