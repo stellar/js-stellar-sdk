@@ -108,7 +108,13 @@ Three semantic traps to check for:
 
 - `Operation.manageData`'s `value` accepts `string | Uint8Array | null`
   directly (Buffers still work).
-- `Memo.text` accepts `string | Uint8Array`.
+- `Memo.text` accepts `string | Uint8Array`. This one is a swap rather than a
+  pure widening, so read it carefully: a bare `Uint8Array` was **rejected**
+  before 17.x and is now the canonical byte input, while a plain `number[]` —
+  which 16.2.0 accepted, encoding each element as one byte — is now **rejected**
+  with `Expects string or Uint8Array, max 28 bytes`. Wrap byte arrays:
+  `Memo.text(new Uint8Array([104, 105]))`. A `Buffer` keeps working as before,
+  and `Memo.hash` / `Memo.return` are unaffected — they never took plain arrays.
 - Everything that accepted `Buffer` accepts any `Uint8Array` now, including
   ones backed by `SharedArrayBuffer`-free views from `fetch()` responses,
   `crypto.getRandomValues`, WASM memory, etc.

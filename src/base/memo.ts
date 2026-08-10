@@ -238,7 +238,8 @@ export class Memo<T extends MemoType = MemoType> {
    * Creates and returns a `MemoText` memo.
    *
    * @param text - memo text. A JS string is UTF-8 encoded on the wire;
-   *   pass a `Uint8Array` for byte-exact content.
+   *   pass a `Uint8Array` for byte-exact content. A plain `number[]` is not
+   *   accepted (16.2.0 and earlier took one); wrap it: `new Uint8Array(arr)`.
    */
   static text(text: string | Uint8Array): Memo<MemoTypeText> {
     return new Memo(MemoText, text as MemoValue);
