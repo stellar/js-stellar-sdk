@@ -993,7 +993,7 @@ class SentTransaction<T> {
 }
 ```
 
-**Source:** [src/contract/sent_transaction.ts:28](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/sent_transaction.ts#L28)
+**Source:** [src/contract/sent_transaction.ts:31](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/sent_transaction.ts#L31)
 
 ### `new SentTransaction(assembled)`
 
@@ -1005,7 +1005,7 @@ constructor(assembled: AssembledTransaction<T>);
 
 - **`assembled`** — `AssembledTransaction<T>` (required)
 
-**Source:** [src/contract/sent_transaction.ts:57](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/sent_transaction.ts#L57)
+**Source:** [src/contract/sent_transaction.ts:60](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/sent_transaction.ts#L60)
 
 ### `SentTransaction.Errors`
 
@@ -1013,7 +1013,7 @@ constructor(assembled: AssembledTransaction<T>);
 static Errors: { SendFailed: typeof SendFailedError; SendResultOnly: typeof SendResultOnlyError; TransactionStillPending: typeof TransactionStillPendingError };
 ```
 
-**Source:** [src/contract/sent_transaction.ts:51](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/sent_transaction.ts#L51)
+**Source:** [src/contract/sent_transaction.ts:54](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/sent_transaction.ts#L54)
 
 ### `SentTransaction.init(assembled, watcher)`
 
@@ -1030,7 +1030,7 @@ static init<U>(assembled: AssembledTransaction<U>, watcher?: Watcher): Promise<S
 - **`assembled`** — `AssembledTransaction<U>` (required) — `AssembledTransaction` from which this SentTransaction was initialized
 - **`watcher`** — `Watcher` (optional)
 
-**Source:** [src/contract/sent_transaction.ts:67](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/sent_transaction.ts#L67)
+**Source:** [src/contract/sent_transaction.ts:70](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/sent_transaction.ts#L70)
 
 ### `sentTransaction.assembled`
 
@@ -1038,7 +1038,7 @@ static init<U>(assembled: AssembledTransaction<U>, watcher?: Watcher): Promise<S
 assembled: AssembledTransaction<T>;
 ```
 
-**Source:** [src/contract/sent_transaction.ts:57](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/sent_transaction.ts#L57)
+**Source:** [src/contract/sent_transaction.ts:60](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/sent_transaction.ts#L60)
 
 ### `sentTransaction.getTransactionResponse`
 
@@ -1049,7 +1049,7 @@ The most recent result of calling `getTransaction`, from the
 getTransactionResponse?: GetTransactionResponse;
 ```
 
-**Source:** [src/contract/sent_transaction.ts:49](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/sent_transaction.ts#L49)
+**Source:** [src/contract/sent_transaction.ts:52](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/sent_transaction.ts#L52)
 
 ### `sentTransaction.getTransactionResponseAll`
 
@@ -1062,7 +1062,7 @@ the results of those calls.
 getTransactionResponseAll?: GetTransactionResponse[];
 ```
 
-**Source:** [src/contract/sent_transaction.ts:43](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/sent_transaction.ts#L43)
+**Source:** [src/contract/sent_transaction.ts:46](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/sent_transaction.ts#L46)
 
 ### `sentTransaction.sendTransactionResponse`
 
@@ -1073,7 +1073,7 @@ network.
 sendTransactionResponse?: SendTransactionResponse;
 ```
 
-**Source:** [src/contract/sent_transaction.ts:35](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/sent_transaction.ts#L35)
+**Source:** [src/contract/sent_transaction.ts:38](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/sent_transaction.ts#L38)
 
 ### `sentTransaction.server`
 
@@ -1081,7 +1081,7 @@ sendTransactionResponse?: SendTransactionResponse;
 server: RpcServer;
 ```
 
-**Source:** [src/contract/sent_transaction.ts:29](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/sent_transaction.ts#L29)
+**Source:** [src/contract/sent_transaction.ts:32](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/sent_transaction.ts#L32)
 
 ### `sentTransaction.result`
 
@@ -1089,7 +1089,7 @@ server: RpcServer;
 readonly result: T;
 ```
 
-**Source:** [src/contract/sent_transaction.ts:132](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/sent_transaction.ts#L132)
+**Source:** [src/contract/sent_transaction.ts:135](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/sent_transaction.ts#L135)
 
 ## contract.Spec
 
@@ -1571,7 +1571,7 @@ class Watcher {
 }
 ```
 
-**Source:** [src/contract/sent_transaction.ts:167](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/sent_transaction.ts#L167)
+**Source:** [src/contract/sent_transaction.ts:170](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/sent_transaction.ts#L170)
 
 ### `new Watcher()`
 
@@ -1592,7 +1592,7 @@ onProgress(response?: GetTransactionResponse): void;
 
 - **`response`** — `GetTransactionResponse` (optional)
 
-**Source:** [src/contract/sent_transaction.ts:178](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/sent_transaction.ts#L178)
+**Source:** [src/contract/sent_transaction.ts:181](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/sent_transaction.ts#L181)
 
 ### `watcher.onSubmitted(response)`
 
@@ -1607,7 +1607,7 @@ onSubmitted(response?: SendTransactionResponse): void;
 
 - **`response`** — `SendTransactionResponse` (optional)
 
-**Source:** [src/contract/sent_transaction.ts:172](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/sent_transaction.ts#L172)
+**Source:** [src/contract/sent_transaction.ts:175](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/sent_transaction.ts#L175)
 
 ## contract.basicNodeSigner
 

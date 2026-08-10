@@ -20,6 +20,9 @@ importers:
       '@stellar/js-xdr':
         specifier: ^5.0.0-rc.1
         version: 5.0.0-rc.1
+      '@types/json-schema':
+        specifier: ^7.0.15
+        version: 7.0.15
       axios:
         specifier: 1.18.0
         version: 1.18.0
@@ -78,9 +81,6 @@ importers:
       '@types/detect-node':
         specifier: ^2.0.2
         version: 2.0.2
-      '@types/json-schema':
-        specifier: ^7.0.15
-        version: 7.0.15
       '@types/node':
         specifier: ^22.19.17
         version: 22.19.17
