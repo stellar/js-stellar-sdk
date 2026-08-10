@@ -11,8 +11,14 @@ The `buffer` dependency is gone, and the browser bundle no longer needs (or
 ships) a Buffer polyfill, so the SDK now runs in browsers, edge runtimes, Deno,
 and Bun with no shims.
 
-**Inputs are not breaking.** `Buffer` is a subclass of `Uint8Array`, so
-everywhere the SDK now accepts a `Uint8Array` you can keep passing a `Buffer`.
+**Inputs are almost never breaking.** `Buffer` is a subclass of `Uint8Array`, so
+everywhere the SDK now accepts a `Uint8Array` you can keep passing a `Buffer` —
+that part holds with no exceptions. What narrowed is what *else* a byte input
+takes, in three places: a `SigningCallback` may no longer resolve to a raw
+`ArrayBuffer` (§ 2), `Memo.text` no longer takes a plain `number[]`, and
+`SorobanDataBuilder`'s constructor no longer takes non-`Uint8Array` typed arrays
+(both § 3). All three throw at runtime, so check them if you pass byte input
+that is not a `string`, a `Uint8Array`, or a `Buffer`.
 
 **Returns are breaking.** Methods that returned `Buffer` now return a plain
 `Uint8Array`, which lacks Buffer's convenience methods. If you called
@@ -104,7 +110,7 @@ Three semantic traps to check for:
   forwards it with `payload.toString("hex")` silently gets decimals.
 - `AuthEntrySignature.signature` (from `inspectAuthEntry`) is a `Uint8Array`.
 
-## 3. Inputs that got more flexible
+## 3. Inputs: what got more flexible, and what got stricter
 
 - `Operation.manageData`'s `value` accepts `string | Uint8Array | null`
   directly (Buffers still work).
@@ -115,6 +121,13 @@ Three semantic traps to check for:
   with `Expects string or Uint8Array, max 28 bytes`. Wrap byte arrays:
   `Memo.text(new Uint8Array([104, 105]))`. A `Buffer` keeps working as before,
   and `Memo.hash` / `Memo.return` are unaffected — they never took plain arrays.
+- `SorobanDataBuilder`'s constructor no longer takes a non-`Uint8Array` typed
+  array. 16.2.0 decoded an `Int8Array`, `Uint8ClampedArray`, or `Uint16Array`
+  holding the right bytes; 17.x routes anything that is not a `string` or
+  `Uint8Array` down the XDR-instance path, so it fails with
+  `TypeError: sorobanData.toXdr is not a function` — an error that never
+  mentions byte input. Wrap the view: `new SorobanDataBuilder(new Uint8Array(v))`,
+  which reproduces the element-to-byte conversion 16.2.0 did internally.
 - Everything that accepted `Buffer` accepts any `Uint8Array` now, including
   ones backed by `SharedArrayBuffer`-free views from `fetch()` responses,
   `crypto.getRandomValues`, WASM memory, etc.
