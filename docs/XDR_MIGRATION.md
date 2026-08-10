@@ -281,16 +281,6 @@ i128.toXdr(); // 16 bytes
 xdr.Int128.fromJson("42"); // JSON deserialize
 ```
 
-The static `MIN_VALUE` / `MAX_VALUE` bounds carry over unchanged, so range checks
-written against the legacy classes keep working. They are `bigint`s on all four
-types, matching the inclusive range the constructor enforces:
-
-```ts
-Int128.MAX_VALUE; // 170141183460469231731687303715884105727n
-Uint128.MAX_VALUE; // 340282366920938463463374607431768211455n
-Uint256.MIN_VALUE; // 0n
-```
-
 To reconstruct a bigint from XDR parts (the old `new Int128(lo, hi).toBigInt()`
 pattern), use `XdrLargeInt`, one of the few XDR-adjacent classes exported
 top-level, alongside `ScInt`. As in the legacy SDK, it accepts slices in
