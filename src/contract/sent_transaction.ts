@@ -1,11 +1,14 @@
-/* disable max-classes rule, because extending error shouldn't count! */
-/* eslint max-classes-per-file: 0 */
 import type { MethodOptions } from "./types.js";
 import { Server } from "../rpc/index.js";
 import { Api } from "../rpc/api.js";
 import { withExponentialBackoff } from "./utils.js";
 import { DEFAULT_TIMEOUT } from "./types.js";
 import type { AssembledTransaction } from "./assembled_transaction.js";
+import {
+  SendFailedError,
+  SendResultOnlyError,
+  TransactionStillPendingError,
+} from "./errors.js";
 
 /**
  * A transaction that has been sent to the Soroban network. This happens in two steps:
@@ -49,9 +52,9 @@ export class SentTransaction<T> {
   public getTransactionResponse?: Api.GetTransactionResponse;
 
   static Errors = {
-    SendFailed: class SendFailedError extends Error {},
-    SendResultOnly: class SendResultOnlyError extends Error {},
-    TransactionStillPending: class TransactionStillPendingError extends Error {},
+    SendFailed: SendFailedError,
+    SendResultOnly: SendResultOnlyError,
+    TransactionStillPending: TransactionStillPendingError,
   };
 
   constructor(public assembled: AssembledTransaction<T>) {
