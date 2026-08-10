@@ -108,7 +108,9 @@ Three semantic traps to check for:
 
 - `Operation.manageData`'s `value` accepts `string | Uint8Array | null`
   directly (Buffers still work).
-- `Memo.text` accepts `string | Uint8Array`.
+- `Memo.text` accepts `string | Uint8Array`. It no longer takes a plain
+  `number[]`, which 16.2.0 did accept, so pass `new Uint8Array(arr)` instead.
+  Note that `Memo.text([])` was a valid zero-byte memo and now throws.
 - Everything that accepted `Buffer` accepts any `Uint8Array` now, including
   ones backed by `SharedArrayBuffer`-free views from `fetch()` responses,
   `crypto.getRandomValues`, WASM memory, etc.
