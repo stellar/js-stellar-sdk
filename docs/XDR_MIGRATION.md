@@ -962,9 +962,9 @@ The XDR swap changed a few SDK-level behaviors that have nothing to do with
 typing `xdr.` yourself. These are the easiest ones to miss because most produce
 no error at all.
 
-### `scValToNative` may return bytes for a string or symbol
+### `scValToNative` may return bytes for a string
 
-`scvString` / `scvSymbol` whose contents aren't valid UTF-8 now come back as a
+An `scvString` whose contents aren't valid UTF-8 now comes back as a
 `Uint8Array` instead of a lossily-decoded string:
 
 ```ts
@@ -976,10 +976,16 @@ The legacy implementation looked like it did this, but its byte-returning branch
 was unreachable: it decoded with a non-fatal `TextDecoder`, which never throws.
 So in practice legacy **always** returned a string. Code doing
 `result.startsWith(…)`, `result.trim()`, `result.length`, or
-`typeof result === "string"` on contract output is now data-dependent. The same
-applies to `contract.Spec.scValToNative` and `funcResToNative` for `Bytes` /
-`BytesN`, which return `Uint8Array`; because those are generically typed (`T`),
-TypeScript won't flag it.
+`typeof result === "string"` on contract output is now data-dependent.
+
+`scvSymbol` follows the same rule, but it can't reach the byte-returning branch
+in practice: the host restricts symbols to `[_0-9A-Za-z]` and at most 32 bytes,
+rejecting anything else with `Error(Value, InvalidInput)`, so a symbol that came
+off the network is always valid UTF-8.
+
+The same applies to `contract.Spec.scValToNative` and `funcResToNative` for
+`Bytes` / `BytesN`, which return `Uint8Array`; because those are generically
+typed (`T`), TypeScript won't flag it.
 
 ### `homeDomain` and data-entry names decode as UTF-8, not ASCII
 
