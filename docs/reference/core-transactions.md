@@ -482,7 +482,7 @@ static fromXdrObject(object: Memo): Memo;
 
 - **`object`** — `Memo` (required) — XDR memo object
 
-**Source:** [src/base/memo.ts:302](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L302)
+**Source:** [src/base/memo.ts:303](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L303)
 
 ### `Memo.hash(hash)`
 
@@ -496,7 +496,7 @@ static hash(hash: string | Uint8Array<ArrayBufferLike>): Memo<"hash">;
 
 - **`hash`** — `string | Uint8Array<ArrayBufferLike>` (required) — 32 byte hash or hex encoded string
 
-**Source:** [src/base/memo.ts:261](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L261)
+**Source:** [src/base/memo.ts:262](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L262)
 
 ### `Memo.id(id)`
 
@@ -510,7 +510,7 @@ static id(id: string): Memo<"id">;
 
 - **`id`** — `string` (required) — 64-bit number represented as a string
 
-**Source:** [src/base/memo.ts:252](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L252)
+**Source:** [src/base/memo.ts:253](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L253)
 
 ### `Memo.none()`
 
@@ -534,7 +534,7 @@ static return(hash: string | Uint8Array<ArrayBufferLike>): Memo<"return">;
 
 - **`hash`** — `string | Uint8Array<ArrayBufferLike>` (required) — 32 byte hash or hex encoded string
 
-**Source:** [src/base/memo.ts:270](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L270)
+**Source:** [src/base/memo.ts:271](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L271)
 
 ### `Memo.text(text)`
 
@@ -547,9 +547,10 @@ static text(text: string | Uint8Array<ArrayBufferLike>): Memo<"text">;
 **Parameters**
 
 - **`text`** — `string | Uint8Array<ArrayBufferLike>` (required) — memo text. A JS string is UTF-8 encoded on the wire;
-    pass a `Uint8Array` for byte-exact content.
+    pass a `Uint8Array` for byte-exact content. A plain `number[]` is not
+    accepted (16.2.0 and earlier took one); wrap it: `new Uint8Array(arr)`.
 
-**Source:** [src/base/memo.ts:243](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L243)
+**Source:** [src/base/memo.ts:244](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L244)
 
 ### `memo.type`
 
@@ -583,7 +584,7 @@ Returns XDR memo object.
 toXdrObject(): Memo;
 ```
 
-**Source:** [src/base/memo.ts:277](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L277)
+**Source:** [src/base/memo.ts:278](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L278)
 
 ## MemoHash
 

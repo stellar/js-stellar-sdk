@@ -4,14 +4,20 @@ import {
   bigIntTo128Parts,
   partsTo128BigInt,
 } from "../values/bigint-value.js";
+import { intRange } from "../values/bigint-parts.js";
 import {
   Uint128Parts,
   type Uint128PartsWire,
 } from "../generated/uint128-parts.js";
 
+const [MIN, MAX] = intRange(false, 128);
+
 export class Uint128 extends BigIntValue {
   static readonly signed = false;
   static readonly bits = 128 as const;
+
+  static readonly MIN_VALUE = MIN;
+  static readonly MAX_VALUE = MAX;
 
   static readonly schema = Uint128Parts.schema;
 

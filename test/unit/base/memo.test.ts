@@ -140,6 +140,16 @@ describe("Memo", () => {
       );
     });
 
+    // 16.2.0 and earlier accepted a plain array, encoding each element as one
+    // byte. That input is documented as removed in 17.x (CHANGELOG, and
+    // docs/UINT8ARRAY_MIGRATION.md § 3), so pin the rejection.
+    it("rejects a plain array of bytes", () => {
+      // @ts-expect-error testing input removed in 17.x
+      expect(() => Memo.text([104, 105])).toThrow(
+        /Expects string or Uint8Array, max 28 bytes/,
+      );
+    });
+
     it("throws an error when string is longer than 28 bytes", () => {
       expect(() => Memo.text("12345678901234567890123456789")).toThrow(
         /Expects string or Uint8Array, max 28 bytes/,
