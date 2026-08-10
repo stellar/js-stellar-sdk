@@ -14,8 +14,7 @@ function param(
   return new xdr.ScSpecEventParamV0({ doc: "", name, type, location });
 }
 
-const TOPIC =
-  xdr.ScSpecEventParamLocationV0.scSpecEventParamLocationTopicList();
+const TOPIC = xdr.ScSpecEventParamLocationV0.scSpecEventParamLocationTopicList;
 const u32Type = xdr.ScSpecTypeDef.scSpecTypeU32();
 
 function eventEntry(name: string, prefixTopics: string[]): xdr.ScSpecEntry {
@@ -25,7 +24,7 @@ function eventEntry(name: string, prefixTopics: string[]): xdr.ScSpecEntry {
     name,
     prefixTopics,
     params: [param("value", u32Type, TOPIC)],
-    dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatSingleValue(),
+    dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatSingleValue,
   });
   return xdr.ScSpecEntry.scSpecEntryEventV0(event);
 }
@@ -138,8 +137,8 @@ describe("bindings generated-name collision resolution", () => {
 
     const first = spec.eventTopicFilter("transfer");
     const second = spec.eventTopicFilter("transfer", undefined, 1);
-    expect(first[0]).toBe(xdr.ScVal.scvSymbol("first").toXDR("base64"));
-    expect(second[0]).toBe(xdr.ScVal.scvSymbol("second").toXDR("base64"));
+    expect(first[0]).toBe(xdr.ScVal.scvSymbol("first").toXdr("base64"));
+    expect(second[0]).toBe(xdr.ScVal.scvSymbol("second").toXdr("base64"));
     expect(() => spec.eventTopicFilter("transfer", undefined, 2)).toThrow(
       "no such event: transfer (occurrence 2)",
     );

@@ -1,14 +1,16 @@
-import { Operation, xdr, Address } from "../base/index.js";
+import { Operation, Address } from "../base/index.js";
 import { Spec } from "./spec.js";
 import { Server } from "../rpc/index.js";
 import { AssembledTransaction } from "./assembled_transaction.js";
 import type { ClientOptions, MethodOptions } from "./types.js";
 import { sanitizeIdentifier } from "../bindings/utils.js";
+import { ScVal } from "../xdr/index.js";
+import { base64ToUint8Array, hexToUint8Array } from "uint8array-extras";
 
 const CONSTRUCTOR_FUNC = "__constructor";
 
 async function specFromWasmHash(
-  wasmHash: Buffer | string,
+  wasmHash: Uint8Array | string,
   options: Server.Options & { rpcUrl: string },
   format: "hex" | "base64" = "hex",
 ): Promise<Spec> {
@@ -42,9 +44,9 @@ export class Client {
     options: MethodOptions &
       Omit<ClientOptions, "contractId"> & {
         /** The hash of the Wasm blob, which must already be installed on-chain. */
-        wasmHash: Buffer | string;
+        wasmHash: Uint8Array | string;
         /** Salt used to generate the contract's ID. Passed through to {@link Operation.createCustomContract}. Default: random. */
-        salt?: Buffer | Uint8Array;
+        salt?: Uint8Array;
         /** The format used to decode `wasmHash`, if it's provided as a string. */
         format?: "hex" | "base64";
         /** The address to use to deploy the custom contract */
@@ -66,8 +68,10 @@ export class Client {
       address: new Address(options.address || options.publicKey!),
       wasmHash:
         typeof wasmHash === "string"
-          ? Buffer.from(wasmHash, format ?? "hex")
-          : (wasmHash as Buffer),
+          ? (format ?? "hex") === "base64"
+            ? base64ToUint8Array(wasmHash)
+            : hexToUint8Array(wasmHash)
+          : wasmHash,
       salt,
       constructorArgs: args
         ? spec.funcArgsToScVals(CONSTRUCTOR_FUNC, args)
@@ -103,7 +107,7 @@ export class Client {
     }
 
     this.spec.funcs().forEach((xdrFn) => {
-      const method = xdrFn.name().toString();
+      const method = xdrFn.name.toString();
       if (method === CONSTRUCTOR_FUNC) {
         return;
       }
@@ -119,17 +123,17 @@ export class Client {
           errorTypes: spec.errorCases().reduce(
             (acc, curr) => ({
               ...acc,
-              [curr.value()]: { message: curr.doc().toString() },
+              [curr.value]: { message: curr.doc.toString() },
             }),
             {} as Pick<ClientOptions, "errorTypes">,
           ),
-          parseResultXdr: (result: xdr.ScVal) =>
+          parseResultXdr: (result: ScVal) =>
             spec.funcResToNative(method, result),
         });
 
       // @ts-expect-error error TS7053: Element implicitly has an 'any' type
       this[sanitizeIdentifier(method)] =
-        spec.getFunc(method).inputs().length === 0
+        spec.getFunc(method).inputs.length === 0
           ? (opts?: MethodOptions) => assembleTransaction(undefined, opts)
           : assembleTransaction;
     });
@@ -160,7 +164,7 @@ export class Client {
    * ```
    */
   static async fromWasmHash<T = unknown>(
-    wasmHash: Buffer | string,
+    wasmHash: Uint8Array | string,
     options: ClientOptions,
     format: "hex" | "base64" = "hex",
   ): Promise<Client & T> {
@@ -187,7 +191,7 @@ export class Client {
    * argument yields a plain `Client` (backward compatible). Provide it to get
    * typed, autocompleted contract methods without code generation.
    *
-   * @param wasm - The contract's wasm binary as a Buffer.
+   * @param wasm - The contract's wasm binary as a Uint8Array.
    * @param options - The ClientOptions object containing the necessary configuration.
    * @returns A Promise that resolves to a Client instance.
    * @throws If the contract spec cannot be obtained from the provided wasm binary.
@@ -202,7 +206,7 @@ export class Client {
    * ```
    */
   static async fromWasm<T = unknown>(
-    wasm: Buffer,
+    wasm: Uint8Array,
     options: ClientOptions,
   ): Promise<Client & T> {
     const spec = await Spec.fromWasm(wasm);
@@ -215,6 +219,11 @@ export class Client {
    * If the contract is a built-in Stellar Asset Contract (SAC), the embedded
    * SAC spec is used instead of downloading Wasm, since a SAC has no Wasm
    * executable on-chain.
+   *
+   * If the contract was created from a CAP-85 external executable reference,
+   * the reference is resolved to a Wasm hash first (see
+   * {@link rpc.Server.getExternalRefWasmHash}), then the spec is read from
+   * that Wasm.
    *
    * @typeParam T - An interface describing the contract's methods, used to type
    * the returned client. Defaults to `unknown`, so calling without a type
@@ -248,37 +257,46 @@ export class Client {
       });
 
     const instance = await server.getContractInstance(contractId);
+    const executable = instance.executable;
 
-    if (
-      instance.executable().switch() ===
-      xdr.ContractExecutableType.contractExecutableStellarAsset()
-    ) {
+    if (executable.type === "contractExecutableStellarAsset") {
       // Lazily load the (large) embedded SAC spec so bundlers can code-split
       // it out of the common path; it's only needed for built-in SACs.
       const { SAC_SPEC } = await import("../bindings/sac-spec.js");
       return new Client(new Spec(SAC_SPEC), options) as unknown as Client & T;
     }
 
-    const wasm = await server.getContractWasmByHash(
-      instance.executable().wasmHash(),
-    );
+    // A CAP-85 external reference names its code indirectly: the owner contract
+    // holds a persistent entry keyed by the tag whose value is the Wasm hash.
+    // Resolve that, then load the spec from the Wasm as usual.
+    const wasmHash =
+      executable.type === "contractExecutableExternalRef"
+        ? await server.getExternalRefWasmHash(executable.externalRef)
+        : executable.wasmHash.value;
+
+    const wasm = await server.getContractWasmByHash(wasmHash);
 
     return Client.fromWasm<T>(wasm, options);
   }
 
-  txFromJSON = <T>(json: string): AssembledTransaction<T> => {
+  txFromJson = <T>(json: string): AssembledTransaction<T> => {
     const { method, ...tx } = JSON.parse(json);
-    return AssembledTransaction.fromJSON(
+    return AssembledTransaction.fromJson(
       {
         ...this.options,
         method,
-        parseResultXdr: (result: xdr.ScVal) =>
+        parseResultXdr: (result: ScVal) =>
           this.spec.funcResToNative(method, result),
       },
       tx,
     );
   };
 
+  /**
+   * @deprecated Use {@link txFromJson} instead.
+   */
+  txFromJSON = this.txFromJson;
+
   txFromXDR = <T>(xdrBase64: string): AssembledTransaction<T> =>
-    AssembledTransaction.fromXDR(this.options, xdrBase64, this.spec);
+    AssembledTransaction.fromXdr(this.options, xdrBase64, this.spec);
 }

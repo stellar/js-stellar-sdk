@@ -16,7 +16,13 @@ import { InvalidChallengeError } from "./errors.js";
 import { gatherTxSigners, verifyTxSignedBy } from "./utils.js";
 import { Utils } from "../utils.js";
 import { ServerApi } from "../horizon/server_api.js";
-import { uint8ArrayToBase64 } from "uint8array-extras";
+import {
+  areUint8ArraysEqual,
+  base64ToUint8Array,
+  stringToUint8Array,
+  uint8ArrayToBase64,
+  uint8ArrayToString,
+} from "uint8array-extras";
 
 /**
  * Returns a valid {@link https://stellar.org/protocol/sep-10 | SEP-10}
@@ -129,7 +135,7 @@ export function buildChallengeTx(
   const transaction = builder.build();
   transaction.sign(serverKeypair);
 
-  return transaction.toEnvelope().toXDR("base64").toString();
+  return transaction.toEnvelope().toXdr("base64").toString();
 }
 
 /**
@@ -275,7 +281,15 @@ export function readChallengeTx(
     );
   }
 
-  if (Buffer.from(operation.value.toString(), "base64").length !== 48) {
+  let decodedValueLength = -1;
+  try {
+    decodedValueLength = base64ToUint8Array(
+      uint8ArrayToString(operation.value),
+    ).length;
+  } catch {
+    // not valid base64; length check below will fail
+  }
+  if (decodedValueLength !== 48) {
     throw new InvalidChallengeError(
       "The transaction's operation value should be a 64 bytes base64 random string",
     );
@@ -328,7 +342,7 @@ export function readChallengeTx(
           "'web_auth_domain' operation value should not be null",
         );
       }
-      if (op.value.compare(Buffer.from(webAuthDomain))) {
+      if (!areUint8ArraysEqual(op.value, stringToUint8Array(webAuthDomain))) {
         throw new InvalidChallengeError(
           `'web_auth_domain' operation value does not match ${webAuthDomain}`,
         );
@@ -399,11 +413,11 @@ export function readChallengeTx(
  * // clock.tick(200);  // Simulates a 200 ms delay when communicating from server to client
  *
  * // Transaction gathered from a challenge, possibly from the client side
- * const transaction = TransactionBuilder.fromXDR(challenge, Networks.TESTNET);
+ * const transaction = TransactionBuilder.fromXdr(challenge, Networks.TESTNET);
  * transaction.sign(clientKP1, clientKP2);
  * const signedChallenge = transaction
  *         .toEnvelope()
- *         .toXDR("base64")
+ *         .toXdr("base64")
  *         .toString();
  *
  * // The result below should be equal to [clientKP1.publicKey(), clientKP2.publicKey()]
@@ -612,11 +626,11 @@ export function verifyChallengeTxSigners(
  * // clock.tick(200);  // Simulates a 200 ms delay when communicating from server to client
  *
  * // Transaction gathered from a challenge, possibly from the client side
- * const transaction = TransactionBuilder.fromXDR(challenge, Networks.TESTNET);
+ * const transaction = TransactionBuilder.fromXdr(challenge, Networks.TESTNET);
  * transaction.sign(clientKP1, clientKP2);
  * const signedChallenge = transaction
  *         .toEnvelope()
- *         .toXDR("base64")
+ *         .toXdr("base64")
  *         .toString();
  *
  * // Defining the threshold and signerSummary

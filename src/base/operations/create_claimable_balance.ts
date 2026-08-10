@@ -1,15 +1,18 @@
-import xdr from "../xdr.js";
-import { Asset } from "../asset.js";
 import {
-  CreateClaimableBalanceResult,
-  CreateClaimableBalanceOpts,
-  OperationAttributes,
-} from "./types.js";
+  Asset as XdrAsset,
+  Claimant,
+  CreateClaimableBalanceOp,
+  Int64,
+  Operation,
+  OperationBody,
+} from "../../xdr/index.js";
+import { Asset } from "../asset.js";
+import { CreateClaimableBalanceOpts, OperationAttributes } from "./types.js";
 import {
   constructAmountRequirementsError,
   isValidAmount,
   setSourceAccount,
-  toXDRAmount,
+  toXdrAmount,
 } from "../util/operations.js";
 
 /**
@@ -17,13 +20,12 @@ import {
  *
  *
  * @param opts - Options object
- *   - `asset`: The asset for the claimable balance.
- *   - `amount`: Amount.
- *   - `claimants`: An array of Claimants
- *   - `source`: The source account for the operation. Defaults to the transaction's source account.
+ * @param opts.asset - The asset for the claimable balance.
+ * @param opts.amount - Amount.
+ * @param opts.claimants - An array of Claimants
+ * @param opts.source - The source account for the operation. Defaults to the transaction's source account.
  *
  * @example
- * ```ts
  * const asset = new Asset(
  *   'USD',
  *   'GDGU5OAPHNPU5UCLE5RDJHG7PXZFQYWKCFOEXSXNMR6KRQRI5T6XXCD7'
@@ -41,11 +43,10 @@ import {
  *   amount,
  *   claimants
  * });
- * ```
  */
 export function createClaimableBalance(
   opts: CreateClaimableBalanceOpts,
-): xdr.Operation<CreateClaimableBalanceResult> {
+): Operation {
   if (!(opts.asset instanceof Asset)) {
     throw new Error(
       "must provide an asset for create claimable balance operation",
@@ -60,11 +61,11 @@ export function createClaimableBalance(
     throw new Error("must provide at least one claimant");
   }
 
-  const asset: xdr.Asset = opts.asset.toXDRObject();
-  const amount: xdr.Int64 = toXDRAmount(opts.amount);
-  const claimants: xdr.Claimant[] = opts.claimants.map((c) => c.toXDRObject());
+  const asset: XdrAsset = opts.asset.toXdrObject();
+  const amount: Int64 = toXdrAmount(opts.amount);
+  const claimants: Claimant[] = opts.claimants.map((c) => c.toXdrObject());
 
-  const createClaimableBalanceOp = new xdr.CreateClaimableBalanceOp({
+  const createClaimableBalanceOp = new CreateClaimableBalanceOp({
     asset,
     amount,
     claimants,
@@ -72,10 +73,10 @@ export function createClaimableBalance(
 
   const opAttributes: OperationAttributes = {
     sourceAccount: null,
-    body: xdr.OperationBody.createClaimableBalance(createClaimableBalanceOp),
+    body: OperationBody.createClaimableBalance(createClaimableBalanceOp),
   };
 
   setSourceAccount(opAttributes, opts);
 
-  return new xdr.Operation(opAttributes);
+  return new Operation(opAttributes);
 }

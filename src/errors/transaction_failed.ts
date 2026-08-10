@@ -18,7 +18,7 @@ import { BadResponseError } from "./bad_response.js";
  *     const { transaction, operations } = err.getResultCodes();
  *     console.log(transaction);  // e.g. "tx_failed"
  *     console.log(operations);   // e.g. ["op_underfunded"]
- *     console.log(err.getTransactionResult()?.result().switch().name);
+ *     console.log(err.getTransactionResult()?.result.type);
  *   }
  * }
  * ```
@@ -60,7 +60,7 @@ export class TransactionFailedError extends BadResponseError {
     if (!resultXdr) {
       return null;
     }
-    return xdr.TransactionResult.fromXDR(resultXdr, "base64");
+    return xdr.TransactionResult.fromXdr(resultXdr, "base64");
   }
 
   private extras(): HorizonApi.TransactionFailedExtras {

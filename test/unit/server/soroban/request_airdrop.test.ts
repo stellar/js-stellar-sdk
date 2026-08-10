@@ -1,10 +1,15 @@
 import { describe, it, beforeEach, afterEach, expect, vi } from "vitest";
-import * as StellarSdk from "../../../../src/index.js";
+import { base64ToUint8Array, hexToUint8Array } from "uint8array-extras";
+import {
+  xdr,
+  rpc,
+  Keypair,
+  Networks,
+  Account,
+  StrKey,
+} from "../../../../src/index.js";
 
-import { serverUrl } from "../../../constants";
-
-const { Keypair, Networks, xdr } = StellarSdk;
-const { Server } = StellarSdk.rpc;
+import { serverUrl } from "../../../constants.js";
 
 // ripped out of ./get_transaction_test.js
 
@@ -19,15 +24,15 @@ describe("Server#requestAirdrop", () => {
     ).xdrPublicKey();
     const accountEntry = new xdr.AccountEntry({
       accountId,
-      balance: xdr.Int64.fromString("1000000000"),
-      seqNum: xdr.Int64.fromString("1234"),
+      balance: BigInt("1000000000"),
+      seqNum: BigInt("1234"),
       numSubEntries: 0,
       inflationDest: null,
       flags: 0,
       homeDomain: "",
-      thresholds: Buffer.from("AQAAAA==", "base64"),
+      thresholds: base64ToUint8Array("AQAAAA=="),
       signers: [],
-      ext: new (xdr.AccountEntryExt as any)(0),
+      ext: xdr.AccountEntryExt.v0(),
     });
     return xdr.LedgerEntryData.account(accountEntry);
   }
@@ -41,15 +46,15 @@ describe("Server#requestAirdrop", () => {
     ).xdrPublicKey();
     const accountEntry = new xdr.AccountEntry({
       accountId,
-      balance: xdr.Int64.fromString("1000000000"),
-      seqNum: xdr.Int64.fromString("1234"),
+      balance: BigInt("1000000000"),
+      seqNum: BigInt("1234"),
       numSubEntries: 0,
       inflationDest: null,
       flags: 0,
       homeDomain: "",
-      thresholds: Buffer.from("AQAAAA==", "base64"),
+      thresholds: base64ToUint8Array("AQAAAA=="),
       signers: [],
-      ext: new (xdr.AccountEntryExt as any)(0),
+      ext: xdr.AccountEntryExt.v0(),
     });
 
     // Create a ledger entry change that represents account creation
@@ -57,7 +62,7 @@ describe("Server#requestAirdrop", () => {
     const ledgerEntry = new xdr.LedgerEntry({
       lastModifiedLedgerSeq: 1234,
       data: ledgerEntryData,
-      ext: new (xdr.LedgerEntryExt as any)(0),
+      ext: xdr.LedgerEntryExt.v0(),
     });
 
     const ledgerEntryChange =
@@ -72,11 +77,11 @@ describe("Server#requestAirdrop", () => {
       txChangesAfter: [],
     });
 
-    return new (xdr.TransactionMeta as any)(2, transactionMetaV2);
+    return xdr.TransactionMeta.v2(transactionMetaV2);
   }
 
   beforeEach(() => {
-    server = new Server(serverUrl);
+    server = new rpc.Server(serverUrl);
     mockPost = vi.spyOn(server.httpClient, "post");
   });
 
@@ -96,7 +101,7 @@ describe("Server#requestAirdrop", () => {
     };
     const networkResponse = { data: { result: networkResult } };
 
-    const resultMetaXdr = transactionMetaFor().toXDR("base64");
+    const resultMetaXdr = transactionMetaFor().toXdr("base64");
 
     // Mock the friendbot call with result_meta_xdr
     const friendbotResponse = {
@@ -112,7 +117,7 @@ describe("Server#requestAirdrop", () => {
       .mockResolvedValueOnce(friendbotResponse); // friendbot call
 
     const result = await server.requestAirdrop(accountId);
-    expect(result).toBeInstanceOf(StellarSdk.Account);
+    expect(result).toBeInstanceOf(Account);
     expect(result.accountId()).toBe(accountId);
     expect(result.sequence.toNumber()).toEqual(1234);
     expect(mockPost).toHaveBeenCalledWith(serverUrl, {
@@ -159,8 +164,8 @@ describe("Server#requestAirdrop", () => {
           latestLedger: 0,
           entries: [
             {
-              key: ledgerKey.toXDR("base64"),
-              xdr: accountEntry.toXDR("base64"),
+              key: ledgerKey.toXdr("base64"),
+              xdr: accountEntry.toXdr("base64"),
             },
           ],
         },
@@ -174,7 +179,7 @@ describe("Server#requestAirdrop", () => {
       .mockResolvedValueOnce(ledgerEntryResponse); // getLedgerEntry call
 
     const result = await server.requestAirdrop(accountId);
-    expect(result).toBeInstanceOf(StellarSdk.Account);
+    expect(result).toBeInstanceOf(Account);
     expect(result.accountId()).toBe(accountId);
     expect(mockPost).toHaveBeenCalledWith(serverUrl, {
       jsonrpc: "2.0",
@@ -187,7 +192,7 @@ describe("Server#requestAirdrop", () => {
       jsonrpc: "2.0",
       id: 1,
       method: "getLedgerEntries",
-      params: { keys: [ledgerKey.toXDR("base64")] },
+      params: { keys: [ledgerKey.toXdr("base64")] },
     });
     expect(mockPost).toHaveBeenCalledTimes(3);
   });
@@ -251,7 +256,7 @@ describe("Server#requestAirdrop", () => {
     const accountId =
       "GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI";
 
-    const resultMetaXdr = transactionMetaFor().toXDR("base64");
+    const resultMetaXdr = transactionMetaFor().toXdr("base64");
 
     // Mock the friendbot call with result_meta_xdr
     const friendbotResponse = {
@@ -264,7 +269,7 @@ describe("Server#requestAirdrop", () => {
     mockPost.mockResolvedValueOnce(friendbotResponse);
 
     const result = await server.requestAirdrop(accountId, customFriendbotUrl);
-    expect(result).toBeInstanceOf(StellarSdk.Account);
+    expect(result).toBeInstanceOf(Account);
     expect(result.accountId()).toBe(accountId);
     expect(result.sequence.toNumber()).toEqual(1234);
     // Should not call getNetwork
@@ -311,7 +316,7 @@ describe("Server#requestAirdrop", () => {
     };
 
     // Mock the getTransaction call - use meta with account creation info
-    const resultMetaXdr = transactionMetaFor().toXDR("base64");
+    const resultMetaXdr = transactionMetaFor().toXdr("base64");
 
     const successInfo = {
       ledger: 12345,
@@ -351,7 +356,7 @@ describe("Server#requestAirdrop", () => {
       .mockResolvedValueOnce(getTransactionResponse); // getTransaction call
 
     const result = await server.requestAirdrop(accountId);
-    expect(result).toBeInstanceOf(StellarSdk.Account);
+    expect(result).toBeInstanceOf(Account);
     expect(result.accountId()).toBe(accountId);
     expect(result.sequence.toNumber()).toEqual(1234);
     expect(mockPost).toHaveBeenCalledWith(serverUrl, {
@@ -407,7 +412,7 @@ describe("Server#fundAddress", () => {
   });
 
   beforeEach(() => {
-    server = new Server(serverUrl);
+    server = new rpc.Server(serverUrl);
     mockPost = vi.spyOn(server.httpClient, "post");
   });
 
@@ -449,9 +454,7 @@ describe("Server#fundAddress", () => {
 
   it("funds a contract address (C...) and returns transaction response", async () => {
     const friendbotUrl = "https://friendbot.stellar.org";
-    const contractId = StellarSdk.StrKey.encodeContract(
-      Buffer.from("0".repeat(64), "hex"),
-    );
+    const contractId = StrKey.encodeContract(hexToUint8Array("0".repeat(64)));
     const hash =
       "ae9f315c048d87a5f853bc15bf284a2c3c89eb0e1cb38c10409b77a877b830a8";
 

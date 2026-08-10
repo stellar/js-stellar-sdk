@@ -1,38 +1,42 @@
 import { beforeEach, describe, expect, it } from "vitest";
+import {
+  areUint8ArraysEqual,
+  hexToUint8Array,
+  uint8ArrayToHex,
+} from "uint8array-extras";
 import { StrKey, decodeCheck, encodeCheck } from "../../../src/base/strkey.js";
 import {
   decodeAddressToMuxedAccount,
   encodeMuxedAccountToAddress,
   extractBaseAddress,
 } from "../../../src/base/util/decode_encode_muxed_account.js";
-import xdr from "../../../src/base/xdr.js";
+import * as xdr from "../../../src/xdr/index.js";
 
 const PUBKEY = "GA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJVSGZ";
 const MPUBKEY =
   "MA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJVAAAAAAAAAAAAAJLK";
-const RAW_MPUBKEY = Buffer.from(
+const RAW_MPUBKEY = hexToUint8Array(
   "3f0c34bf93ad0d9971d04ccc90f705511c838aad9734a4a2fb0d7a03fc7fe89a8000000000000000",
-  "hex",
 );
 
 describe("StrKey", () => {
-  let unencodedBuffer: Buffer;
+  let unencodedBytes: Uint8Array;
   let accountIdEncoded: string;
   let seedEncoded: string;
 
   beforeEach(() => {
-    unencodedBuffer = StrKey.decodeEd25519PublicKey(PUBKEY);
+    unencodedBytes = StrKey.decodeEd25519PublicKey(PUBKEY);
     accountIdEncoded = PUBKEY;
-    seedEncoded = StrKey.encodeEd25519SecretSeed(unencodedBuffer);
+    seedEncoded = StrKey.encodeEd25519SecretSeed(unencodedBytes);
   });
 
   describe("#decodeCheck", () => {
     it("decodes correctly", () => {
       expect(StrKey.decodeEd25519PublicKey(accountIdEncoded)).toEqual(
-        unencodedBuffer,
+        unencodedBytes,
       );
       expect(StrKey.decodeEd25519SecretSeed(seedEncoded)).toEqual(
-        unencodedBuffer,
+        unencodedBytes,
       );
     });
 
@@ -55,53 +59,71 @@ describe("StrKey", () => {
         StrKey.decodeEd25519PublicKey(
           "GBPXX0A5N4JYPESHAADMQKBPWZWQDQ64ZV6ZL2S3LAGW4SY7NTCMWIVL",
         ),
-      ).toThrow(/invalid encoded string/);
-      expect(() =>
-        StrKey.decodeEd25519PublicKey(
-          "GCFZB6L25D26RQFDWSSBDEYQ32JHLRMTT44ZYE3DZQUTYOL7WY43PLBG++",
-        ),
-      ).toThrow(/invalid encoded string/);
+      ).toThrow(/invalid character in base32 input/i);
+      expect(
+        () =>
+          StrKey.decodeEd25519PublicKey(
+            "GCFZB6L25D26RQFDWSSBDEYQ32JHLRMTT44ZYE3DZQUTYOL7WY43PLBG++",
+          ),
+        // 58 chars: rejected by the encoded-length guard before base32 decode
+      ).toThrow(/invalid encoded string length/i);
       expect(() =>
         StrKey.decodeEd25519PublicKey(
           "GADE5QJ2TY7S5ZB65Q43DFGWYWCPHIYDJ2326KZGAGBN7AE5UY6JVDRRA",
         ),
-      ).toThrow(/invalid encoded string/);
+      ).toThrow(
+        /invalid (encoded string|base32 length|last chunk|character in base32 input)/i,
+      );
       expect(() =>
         StrKey.decodeEd25519PublicKey(
           "GB6OWYST45X57HCJY5XWOHDEBULB6XUROWPIKW77L5DSNANBEQGUPADT2",
         ),
-      ).toThrow(/invalid encoded string/);
+      ).toThrow(
+        /invalid (encoded string|base32 length|last chunk|character in base32 input)/i,
+      );
       expect(() =>
         StrKey.decodeEd25519PublicKey(
           "GB6OWYST45X57HCJY5XWOHDEBULB6XUROWPIKW77L5DSNANBEQGUPADT2T",
         ),
-      ).toThrow(/invalid encoded string/);
+      ).toThrow(
+        /invalid (encoded string|base32 length|last chunk|character in base32 input)/i,
+      );
       // seed
       expect(() =>
         StrKey.decodeEd25519SecretSeed(
           "SB7OJNF5727F3RJUG5ASQJ3LUM44ELLNKW35ZZQDHMVUUQNGYW",
         ),
-      ).toThrow(/invalid encoded string/);
+      ).toThrow(
+        /invalid (encoded string|base32 length|last chunk|character in base32 input)/i,
+      );
       expect(() =>
         StrKey.decodeEd25519SecretSeed(
           "SB7OJNF5727F3RJUG5ASQJ3LUM44ELLNKW35ZZQDHMVUUQNGYWMEGB2W2",
         ),
-      ).toThrow(/invalid encoded string/);
+      ).toThrow(
+        /invalid (encoded string|base32 length|last chunk|character in base32 input)/i,
+      );
       expect(() =>
         StrKey.decodeEd25519SecretSeed(
           "SB7OJNF5727F3RJUG5ASQJ3LUM44ELLNKW35ZZQDHMVUUQNGYWMEGB2W2T",
         ),
-      ).toThrow(/invalid encoded string/);
+      ).toThrow(
+        /invalid (encoded string|base32 length|last chunk|character in base32 input)/i,
+      );
       expect(() =>
         StrKey.decodeEd25519SecretSeed(
           "SCMB30FQCIQAWZ4WQTS6SVK37LGMAFJGXOZIHTH2PY6EXLP37G46H6DT",
         ),
-      ).toThrow(/invalid encoded string/);
-      expect(() =>
-        StrKey.decodeEd25519SecretSeed(
-          "SAYC2LQ322EEHZYWNSKBEW6N66IRTDREEBUXXU5HPVZGMAXKLIZNM45H++",
-        ),
-      ).toThrow(/invalid encoded string/);
+      ).toThrow(
+        /invalid (encoded string|base32 length|last chunk|character in base32 input)/i,
+      );
+      expect(
+        () =>
+          StrKey.decodeEd25519SecretSeed(
+            "SAYC2LQ322EEHZYWNSKBEW6N66IRTDREEBUXXU5HPVZGMAXKLIZNM45H++",
+          ),
+        // 58 chars: rejected by the encoded-length guard before base32 decode
+      ).toThrow(/invalid encoded string length/i);
     });
 
     it("throws an error when the checksum is wrong", () => {
@@ -118,41 +140,123 @@ describe("StrKey", () => {
     });
   });
 
+  describe("#decodeCheck length bounds", () => {
+    it("rejects an oversized G-shaped string before decoding", () => {
+      const huge = `G${"A".repeat(1_000_000)}`;
+      expect(() => StrKey.decodeEd25519PublicKey(huge)).toThrow(
+        /invalid encoded string length: expected 56, got 1000001/,
+      );
+    });
+
+    it("rejects oversized canonical T- and X-shaped strings", () => {
+      const big = new Uint8Array(1024);
+      expect(() =>
+        StrKey.decodePreAuthTx(encodeCheck("preAuthTx", big)),
+      ).toThrow(/invalid encoded string length/);
+      expect(() =>
+        StrKey.decodeSha256Hash(encodeCheck("sha256Hash", big)),
+      ).toThrow(/invalid encoded string length/);
+    });
+
+    it("rejects a checksummed strkey with a wrong-sized payload", () => {
+      // encodes fine (valid version byte + CRC16) but is not 32 bytes, so
+      // decodeCheck must throw rather than return a 37-byte buffer
+      const wrongSize = encodeCheck("ed25519PublicKey", new Uint8Array(37));
+      expect(() => decodeCheck("ed25519PublicKey", wrongSize)).toThrow(
+        /invalid encoded string length/,
+      );
+    });
+
+    it("rejects unknown version byte names before decoding", () => {
+      expect(() => decodeCheck("notAType", PUBKEY)).toThrow(
+        /not a valid version byte name/,
+      );
+    });
+
+    it("still decodes valid strkeys of every type (regression)", () => {
+      const raw32 = StrKey.decodeEd25519PublicKey(PUBKEY);
+
+      // 56-char fixed-length types
+      expect(StrKey.decodeEd25519PublicKey(PUBKEY)).toHaveLength(32); // G
+      expect(
+        StrKey.decodeEd25519SecretSeed(StrKey.encodeEd25519SecretSeed(raw32)),
+      ).toEqual(raw32); // S
+      expect(StrKey.decodePreAuthTx(StrKey.encodePreAuthTx(raw32))).toEqual(
+        raw32,
+      ); // T
+      expect(StrKey.decodeSha256Hash(StrKey.encodeSha256Hash(raw32))).toEqual(
+        raw32,
+      ); // X
+      expect(
+        StrKey.decodeContract(
+          "CA3D5KRYM6CB7OWQ6TWYRR3Z4T7GNZLKERYNZGGA5SOAOPIFY6YQGAXE",
+        ),
+      ).toHaveLength(32); // C
+      expect(
+        StrKey.decodeLiquidityPool(
+          "LA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJUPJN",
+        ),
+      ).toHaveLength(32); // L
+
+      // 58-char B
+      expect(
+        StrKey.decodeClaimableBalance(
+          "BAAD6DBUX6J22DMZOHIEZTEQ64CVCHEDRKWZONFEUL5Q26QD7R76RGR4TU",
+        ),
+      ).toHaveLength(33);
+
+      // 69-char M
+      expect(StrKey.decodeMed25519PublicKey(MPUBKEY)).toHaveLength(40);
+
+      // variable-length P (32-byte and 29-byte payloads)
+      expect(
+        StrKey.decodeSignedPayload(
+          "PA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJUAAAAAQACAQDAQCQMBYIBEFAWDANBYHRAEISCMKBKFQXDAMRUGY4DUPB6IBZGM",
+        ),
+      ).toHaveLength(32 + 4 + 32);
+      expect(
+        StrKey.decodeSignedPayload(
+          "PA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJUAAAAAOQCAQDAQCQMBYIBEFAWDANBYHRAEISCMKBKFQXDAMRUGY4DUAAAAFGBU",
+        ),
+      ).toHaveLength(32 + 4 + 29 + 3); // payload zero-padded to 4-byte boundary
+    });
+  });
+
   describe("#encodeCheck", () => {
-    it("encodes a buffer correctly", () => {
-      expect(StrKey.encodeEd25519PublicKey(unencodedBuffer)).toEqual(
+    it("encodes bytes correctly", () => {
+      expect(StrKey.encodeEd25519PublicKey(unencodedBytes)).toEqual(
         accountIdEncoded,
       );
-      expect(StrKey.encodeEd25519PublicKey(unencodedBuffer)).toMatch(/^G/);
-      expect(StrKey.encodeEd25519SecretSeed(unencodedBuffer)).toEqual(
+      expect(StrKey.encodeEd25519PublicKey(unencodedBytes)).toMatch(/^G/);
+      expect(StrKey.encodeEd25519SecretSeed(unencodedBytes)).toEqual(
         seedEncoded,
       );
-      expect(StrKey.encodeEd25519SecretSeed(unencodedBuffer)).toMatch(/^S/);
+      expect(StrKey.encodeEd25519SecretSeed(unencodedBytes)).toMatch(/^S/);
 
-      let strkeyEncoded = StrKey.encodePreAuthTx(unencodedBuffer);
+      let strkeyEncoded = StrKey.encodePreAuthTx(unencodedBytes);
       expect(strkeyEncoded).toMatch(/^T/);
-      expect(StrKey.decodePreAuthTx(strkeyEncoded)).toEqual(unencodedBuffer);
+      expect(StrKey.decodePreAuthTx(strkeyEncoded)).toEqual(unencodedBytes);
 
-      strkeyEncoded = StrKey.encodeSha256Hash(unencodedBuffer);
+      strkeyEncoded = StrKey.encodeSha256Hash(unencodedBytes);
       expect(strkeyEncoded).toMatch(/^X/);
-      expect(StrKey.decodeSha256Hash(strkeyEncoded)).toEqual(unencodedBuffer);
+      expect(StrKey.decodeSha256Hash(strkeyEncoded)).toEqual(unencodedBytes);
     });
 
     it("roundtrips the helper fns", () => {
-      expect(encodeCheck("ed25519PublicKey", unencodedBuffer)).toEqual(
+      expect(encodeCheck("ed25519PublicKey", unencodedBytes)).toEqual(
         accountIdEncoded,
       );
       expect(decodeCheck("ed25519PublicKey", accountIdEncoded)).toEqual(
-        unencodedBuffer,
+        unencodedBytes,
       );
     });
 
     it("throws an error when the data is null", () => {
       expect(() =>
-        StrKey.encodeEd25519SecretSeed(null as unknown as Buffer),
+        StrKey.encodeEd25519SecretSeed(null as unknown as Uint8Array),
       ).toThrow(/null data/);
       expect(() =>
-        StrKey.encodeEd25519PublicKey(null as unknown as Buffer),
+        StrKey.encodeEd25519PublicKey(null as unknown as Uint8Array),
       ).toThrow(/null data/);
     });
   });
@@ -240,19 +344,22 @@ describe("StrKey", () => {
 
     it("encodes & decodes M... addresses correctly", () => {
       expect(StrKey.encodeMed25519PublicKey(RAW_MPUBKEY)).toBe(MPUBKEY);
-      expect(StrKey.decodeMed25519PublicKey(MPUBKEY).equals(RAW_MPUBKEY)).toBe(
-        true,
-      );
+      expect(
+        areUint8ArraysEqual(
+          StrKey.decodeMed25519PublicKey(MPUBKEY),
+          RAW_MPUBKEY,
+        ),
+      ).toBe(true);
     });
 
     it("lets G... accounts pass through (unmuxed)", () => {
       const decoded = decodeAddressToMuxedAccount(PUBKEY);
 
-      expect(xdr.MuxedAccount.isValid(decoded)).toBe(true);
-      expect(decoded.switch()).toEqual(xdr.CryptoKeyType.keyTypeEd25519());
-      expect(
-        decoded.ed25519().equals(StrKey.decodeEd25519PublicKey(PUBKEY)),
-      ).toBe(true);
+      expect(decoded).toBeInstanceOf(xdr.MuxedAccount);
+      expect(decoded.type).toBe("keyTypeEd25519");
+      expect(Array.from((decoded as xdr.MuxedAccountEd25519).ed25519)).toEqual(
+        Array.from(StrKey.decodeEd25519PublicKey(PUBKEY)),
+      );
       expect(encodeMuxedAccountToAddress(decoded)).toBe(PUBKEY);
     });
 
@@ -262,9 +369,9 @@ describe("StrKey", () => {
     });
 
     it("encodes & decodes unmuxed keys", () => {
-      expect(xdr.MuxedAccount.isValid(unmuxed)).toBe(true);
-      expect(unmuxed.switch()).toEqual(xdr.CryptoKeyType.keyTypeEd25519());
-      expect(unmuxed.ed25519().equals(rawPubkey)).toBe(true);
+      expect(unmuxed).toBeInstanceOf(xdr.MuxedAccount);
+      expect(unmuxed.type).toBe("keyTypeEd25519");
+      expect(Array.from(unmuxed.ed25519)).toEqual(Array.from(rawPubkey));
 
       const pubkey = encodeMuxedAccountToAddress(unmuxed);
       expect(pubkey).toBe(PUBKEY);
@@ -296,13 +403,14 @@ describe("StrKey", () => {
     for (const testCase of cases) {
       it(`encodes & decodes muxed key w/ ID=${testCase.id}`, () => {
         const muxed = decodeAddressToMuxedAccount(testCase.strkey);
-        expect(xdr.MuxedAccount.isValid(muxed)).toBe(true);
-        expect(muxed.switch()).toEqual(xdr.CryptoKeyType.keyTypeMuxedEd25519());
+        expect(muxed).toBeInstanceOf(xdr.MuxedAccount);
+        expect(muxed.type).toBe("keyTypeMuxedEd25519");
 
-        const innerMux = muxed.med25519();
-        const id = xdr.Uint64.fromString(testCase.id);
-        expect(innerMux.ed25519().equals(unmuxed.ed25519())).toBe(true);
-        expect(innerMux.id()).toEqual(id);
+        const innerMux = (muxed as xdr.MuxedAccountMuxedEd25519).med25519;
+        expect(Array.from(innerMux.ed25519)).toEqual(
+          Array.from(unmuxed.ed25519),
+        );
+        expect(innerMux.id).toEqual(BigInt(testCase.id));
 
         const mpubkey = encodeMuxedAccountToAddress(muxed);
         expect(mpubkey).toBe(testCase.strkey);
@@ -332,53 +440,130 @@ describe("StrKey", () => {
     for (const testCase of happyPaths) {
       it(testCase.desc, () => {
         const signedPayloadBuf = StrKey.decodeSignedPayload(testCase.strkey);
-        const signedPayload = xdr.SignerKeyEd25519SignedPayload.fromXDR(
+        const signedPayload = xdr.SignerKeyEd25519SignedPayload.fromXdr(
           signedPayloadBuf,
           "raw",
         );
 
-        const signer = StrKey.encodeEd25519PublicKey(signedPayload.ed25519());
+        const signer = StrKey.encodeEd25519PublicKey(signedPayload.ed25519);
         expect(signer).toBe(testCase.ed25519);
 
-        const payload = signedPayload.payload().toString("hex");
+        const payload = uint8ArrayToHex(new Uint8Array(signedPayload.payload));
         expect(payload).toBe(testCase.payload);
 
-        const str = StrKey.encodeSignedPayload(signedPayload.toXDR("raw"));
+        const str = StrKey.encodeSignedPayload(signedPayload.toXdr("raw"));
         expect(str).toBe(testCase.strkey);
       });
     }
 
     describe("payload bounds", () => {
-      const signedPayload = new xdr.SignerKeyEd25519SignedPayload({
-        ed25519: StrKey.decodeEd25519PublicKey(PUBKEY),
-        payload: Buffer.alloc(0),
-      });
+      const makeSignedPayload = (
+        payload: Uint8Array,
+      ): xdr.SignerKeyEd25519SignedPayload =>
+        new xdr.SignerKeyEd25519SignedPayload({
+          ed25519: StrKey.decodeEd25519PublicKey(PUBKEY),
+          payload,
+        });
 
       const isValid = (value: xdr.SignerKeyEd25519SignedPayload): boolean => {
         return StrKey.isValidSignedPayload(
-          StrKey.encodeSignedPayload(value.toXDR("raw")),
+          StrKey.encodeSignedPayload(value.toXdr("raw")),
         );
       };
 
       it("invalid with no payload", () => {
-        signedPayload.payload(Buffer.alloc(0));
-        expect(isValid(signedPayload)).toBe(false);
+        expect(isValid(makeSignedPayload(new Uint8Array(0)))).toBe(false);
       });
 
       it("valid with 1-byte payload", () => {
-        signedPayload.payload(Buffer.alloc(1));
-        expect(isValid(signedPayload)).toBe(true);
+        expect(isValid(makeSignedPayload(new Uint8Array(1)))).toBe(true);
       });
 
       it("throws with 65-byte payload", () => {
-        signedPayload.payload(Buffer.alloc(65));
-        expect(() => isValid(signedPayload)).toThrow(/XDR Write Error/);
+        expect(() => isValid(makeSignedPayload(new Uint8Array(65)))).toThrow(
+          /XDR Write Error|exceeds max length|length/i,
+        );
       });
 
       it("valid with 64-byte payload (max)", () => {
-        signedPayload.payload(Buffer.alloc(64));
-        expect(isValid(signedPayload)).toBe(true);
+        expect(isValid(makeSignedPayload(new Uint8Array(64)))).toBe(true);
       });
+    });
+
+    describe("framing", () => {
+      // builds a checksum-valid P-strkey whose 40-byte body declares `declared`
+      // as its payload length but carries `tail` in the payload region
+      const forge = (declared: number, tail: number[]): string => {
+        const body = new Uint8Array(40);
+        new DataView(body.buffer).setUint32(32, declared);
+        body.set(tail, 36);
+        return StrKey.encodeSignedPayload(body);
+      };
+
+      // the equivalent wire bytes: SignerKey discriminant + the strkey body
+      const asWire = (body: Uint8Array): Uint8Array => {
+        const wire = new Uint8Array(4 + body.length);
+        new DataView(wire.buffer).setUint32(0, 3); // ed25519SignedPayload
+        wire.set(body, 4);
+        return wire;
+      };
+
+      const malformed = [
+        {
+          desc: "declared length exceeds the bytes present",
+          declared: 64,
+          tail: [1, 2, 3, 4],
+        },
+        {
+          desc: "padding is non-zero",
+          declared: 1,
+          tail: [0xaa, 0xbb, 0xcc, 0xdd],
+        },
+      ];
+
+      for (const testCase of malformed) {
+        describe(testCase.desc, () => {
+          const strkey = forge(testCase.declared, testCase.tail);
+
+          it("is rejected by decodeSignedPayload", () => {
+            expect(() => StrKey.decodeSignedPayload(strkey)).toThrow(
+              /signed payload/,
+            );
+          });
+
+          it("is rejected by isValidSignedPayload", () => {
+            expect(StrKey.isValidSignedPayload(strkey)).toBe(false);
+          });
+
+          it("is rejected by SignerKey.fromJson", () => {
+            expect(() => xdr.SignerKey.fromJson(strkey)).toThrow();
+          });
+
+          it("is rejected by both decoders, not just one", () => {
+            // the JSON path used to silently rewrite these into a *different*
+            // valid signer key while the wire path threw
+            const body = new Uint8Array(40);
+            new DataView(body.buffer).setUint32(32, testCase.declared);
+            body.set(testCase.tail, 36);
+
+            expect(() => xdr.SignerKey.fromXdr(asWire(body))).toThrow();
+            expect(() => xdr.SignerKey.fromJson(strkey)).toThrow();
+          });
+        });
+      }
+
+      for (const size of [1, 64]) {
+        it(`round-trips a well-formed ${size}-byte payload through JSON`, () => {
+          const strkey = StrKey.encodeSignedPayload(
+            new xdr.SignerKeyEd25519SignedPayload({
+              ed25519: StrKey.decodeEd25519PublicKey(PUBKEY),
+              payload: new Uint8Array(size).fill(0xab),
+            }).toXdr("raw"),
+          );
+
+          expect(xdr.SignerKey.fromJson(strkey).toJson()).toBe(strkey);
+        });
+      }
     });
   });
 
@@ -387,7 +572,7 @@ describe("StrKey", () => {
       const strkey = "CA3D5KRYM6CB7OWQ6TWYRR3Z4T7GNZLKERYNZGGA5SOAOPIFY6YQGAXE";
       const decoded = StrKey.decodeContract(strkey);
 
-      expect(decoded.toString("hex")).toBe(
+      expect(uint8ArrayToHex(decoded)).toBe(
         "363eaa3867841fbad0f4ed88c779e4fe66e56a2470dc98c0ec9c073d05c7b103",
       );
       expect(StrKey.encodeContract(decoded)).toBe(strkey);
@@ -410,10 +595,8 @@ describe("StrKey", () => {
         "3f0c34bf93ad0d9971d04ccc90f705511c838aad9734a4a2fb0d7a03fc7fe89a";
 
       expect(StrKey.isValidLiquidityPool(strkey)).toBe(true);
-      expect(StrKey.decodeLiquidityPool(strkey).toString("hex")).toBe(asHex);
-      expect(StrKey.encodeLiquidityPool(Buffer.from(asHex, "hex"))).toBe(
-        strkey,
-      );
+      expect(uint8ArrayToHex(StrKey.decodeLiquidityPool(strkey))).toBe(asHex);
+      expect(StrKey.encodeLiquidityPool(hexToUint8Array(asHex))).toBe(strkey);
     });
 
     it("rejects invalid liquidity pool addresses", () => {
@@ -435,8 +618,10 @@ describe("StrKey", () => {
         "003f0c34bf93ad0d9971d04ccc90f705511c838aad9734a4a2fb0d7a03fc7fe89a";
 
       expect(StrKey.isValidClaimableBalance(strkey)).toBe(true);
-      expect(StrKey.decodeClaimableBalance(strkey).toString("hex")).toBe(asHex);
-      expect(StrKey.encodeClaimableBalance(Buffer.from(asHex, "hex"))).toBe(
+      expect(uint8ArrayToHex(StrKey.decodeClaimableBalance(strkey))).toBe(
+        asHex,
+      );
+      expect(StrKey.encodeClaimableBalance(hexToUint8Array(asHex))).toBe(
         strkey,
       );
     });
@@ -470,6 +655,50 @@ describe("StrKey", () => {
         ),
       ).toBe(false);
     });
+  });
+
+  describe("cross-type validation", () => {
+    // `isValid` screens out length and prefix mismatches before calling
+    // `decodeCheck`, because `decodeCheck` reports failure by throwing and the
+    // negative answer is the common case (`decodeAddressToMuxedAccount` asks
+    // `isValidMed25519PublicKey` about every G address). This matrix pins down
+    // that the fast rejection agrees with the slow one: every predicate
+    // accepts its own type and nothing else.
+    const seed32 = new Uint8Array(32).map((_, i) => i + 1);
+    const seed40 = new Uint8Array(40).map((_, i) => i + 1);
+    const seed33 = new Uint8Array(33).map((_, i) => (i === 0 ? 0 : i));
+
+    const samples: Record<string, string> = {
+      ed25519PublicKey: StrKey.encodeEd25519PublicKey(seed32),
+      ed25519SecretSeed: StrKey.encodeEd25519SecretSeed(seed32),
+      med25519PublicKey: StrKey.encodeMed25519PublicKey(seed40),
+      preAuthTx: StrKey.encodePreAuthTx(seed32),
+      sha256Hash: StrKey.encodeSha256Hash(seed32),
+      contract: StrKey.encodeContract(seed32),
+      liquidityPool: StrKey.encodeLiquidityPool(seed32),
+      claimableBalance: StrKey.encodeClaimableBalance(seed33),
+      signedPayload:
+        "PA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJUAAAAAQACAQDAQCQMBYIBEFAWDANBYHRAEISCMKBKFQXDAMRUGY4DUPB6IBZGM",
+    };
+
+    const predicates: Record<string, (value: string) => boolean> = {
+      ed25519PublicKey: StrKey.isValidEd25519PublicKey,
+      ed25519SecretSeed: StrKey.isValidEd25519SecretSeed,
+      med25519PublicKey: StrKey.isValidMed25519PublicKey,
+      contract: StrKey.isValidContract,
+      liquidityPool: StrKey.isValidLiquidityPool,
+      claimableBalance: StrKey.isValidClaimableBalance,
+      signedPayload: StrKey.isValidSignedPayload,
+    };
+
+    for (const [predicateName, isValid] of Object.entries(predicates)) {
+      for (const [sampleName, strkey] of Object.entries(samples)) {
+        const expected = predicateName === sampleName;
+        it(`isValid${predicateName} on a ${sampleName} strkey is ${expected}`, () => {
+          expect(isValid(strkey)).toBe(expected);
+        });
+      }
+    }
   });
 
   describe("#getVersionByteForPrefix", () => {
@@ -512,6 +741,12 @@ describe("StrKey", () => {
       "MA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJUAAAAAAAAAAAACJUO",
       // Trailing bits should be zeroes
       "BAAD6DBUX6J22DMZOHIEZTEQ64CVCHEDRKWZONFEUL5Q26QD7R76RGR4TV",
+      // Length prefix specifies a length shorter than the payload present
+      "PA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJUAAAAAQACAQDAQCQMBYIBEFAWDANBYHRAEISCMKBKFQXDAMRUGY4DUPB6IAAAAAAAAPM",
+      // Length prefix specifies a length longer than the payload present
+      "PA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJUAAAAAOQCAQDAQCQMBYIBEFAWDANBYHRAEISCMKBKFQXDAMRUGY4Z2PQ",
+      // No zero padding after the payload
+      "PA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJUAAAAAOQCAQDAQCQMBYIBEFAWDANBYHRAEISCMKBKFQXDAMRUGY4DXFH6",
     ];
 
     for (const address of badStrkeys) {
@@ -526,13 +761,16 @@ describe("StrKey", () => {
       });
     }
 
-    it("current limitation: claimable balance discriminant is not validated", () => {
+    it("rejects an unknown claimable balance discriminant", () => {
+      // CLAIMABLE_BALANCE_ID_TYPE_V0 (0) is the union's only case, so the wire
+      // decoder refuses anything else; the strkey checksum covers whatever
+      // discriminant byte is present, so this has to be checked separately.
       const invalidDiscriminant =
         "BAAT6DBUX6J22DMZOHIEZTEQ64CVCHEDRKWZONFEUL5Q26QD7R76RGXACA";
       expect(() =>
         decodeCheck("claimableBalance", invalidDiscriminant),
-      ).not.toThrow();
-      expect(StrKey.isValidClaimableBalance(invalidDiscriminant)).toBe(true);
+      ).toThrow(/unknown discriminant/);
+      expect(StrKey.isValidClaimableBalance(invalidDiscriminant)).toBe(false);
     });
   });
 });

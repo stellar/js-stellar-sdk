@@ -4,7 +4,7 @@ import * as StellarSdk from "../../../../src/index.js";
 import { serverUrl } from "../../../constants";
 
 const { nativeToScVal, rpc } = StellarSdk;
-const { Server } = StellarSdk.rpc;
+const { Server } = rpc;
 
 // Helper functions
 function filterEvents(events: any[], filter: string): any[] {
@@ -33,11 +33,11 @@ function parseEvents(result: any): any {
 // Test data
 const contractId = "CA3D5KRYM6CB7OWQ6TWYRR3Z4T7GNZLKERYNZGGA5SOAOPIFY6YQGAXE";
 const topicVals = [
-  nativeToScVal("transfer", { type: "symbol" }).toXDR("base64"),
-  nativeToScVal(contractId, { type: "address" }).toXDR("base64"),
-  nativeToScVal(1234).toXDR("base64"),
+  nativeToScVal("transfer", { type: "symbol" }).toXdr("base64"),
+  nativeToScVal(contractId, { type: "address" }).toXdr("base64"),
+  nativeToScVal(1234).toXdr("base64"),
 ];
-const eventVal = nativeToScVal("wassup").toXDR("base64");
+const eventVal = nativeToScVal("wassup").toXdr("base64");
 const getEventsResponseFixture = [
   {
     type: "system",

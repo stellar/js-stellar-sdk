@@ -80,8 +80,8 @@ export type GeneratedBindings = {
  * @example
  * ```ts
  * // Create from a local WASM file
- * const wasmBuffer = fs.readFileSync("./my_contract.wasm");
- * const generator = await BindingGenerator.fromWasm(wasmBuffer);
+ * const wasmBytes = fs.readFileSync("./my_contract.wasm");
+ * const generator = await BindingGenerator.fromWasm(wasmBytes);
  * const bindings = generator.generate({ contractName: "my-contract" });
  * ```
  *
@@ -141,18 +141,18 @@ export class BindingGenerator {
    * Parses the contract specification directly from the WASM file's custom section.
    * This is the most common method when working with locally compiled contracts.
    *
-   * @param wasmBuffer - The raw WASM binary as a Buffer
+   * @param wasmBytes - The raw WASM binary as a Uint8Array
    * @returns A Promise resolving to a new BindingGenerator instance
    * @throws If the WASM file doesn't contain a valid contract spec
    *
    * @example
    * ```ts
-   * const wasmBuffer = fs.readFileSync("./target/wasm32-unknown-unknown/release/my_contract.wasm");
-   * const generator = await BindingGenerator.fromWasm(wasmBuffer);
+   * const wasmBytes = fs.readFileSync("./target/wasm32-unknown-unknown/release/my_contract.wasm");
+   * const generator = await BindingGenerator.fromWasm(wasmBytes);
    * ```
    */
-  static fromWasm(wasmBuffer: Buffer): BindingGenerator {
-    const spec = new Spec(specFromWasm(wasmBuffer));
+  static fromWasm(wasmBytes: Uint8Array): BindingGenerator {
+    const spec = new Spec(specFromWasm(wasmBytes));
     return new BindingGenerator(spec);
   }
 
@@ -300,13 +300,13 @@ export class BindingGenerator {
 
     const declarationCounts = new Map<string, number>();
     events.forEach((event) => {
-      const rawName = event.name().toString();
+      const rawName = event.name.toString();
       declarationCounts.set(rawName, (declarationCounts.get(rawName) ?? 0) + 1);
     });
 
     const occurrenceSoFar = new Map<string, number>();
     return events.flatMap((event, eventIndex) => {
-      const rawName = event.name().toString();
+      const rawName = event.name.toString();
       const occurrence = occurrenceSoFar.get(rawName) ?? 0;
       occurrenceSoFar.set(rawName, occurrence + 1);
 

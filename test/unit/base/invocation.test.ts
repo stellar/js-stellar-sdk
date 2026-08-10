@@ -3,7 +3,7 @@ import { describe, it, expect } from "vitest";
 import { Keypair } from "../../../src/base/keypair.js";
 import { Asset } from "../../../src/base/asset.js";
 import { StrKey } from "../../../src/base/strkey.js";
-import xdr from "../../../src/base/xdr.js";
+import * as xdr from "../../../src/xdr/index.js";
 import { hash } from "../../../src/base/hashing.js";
 import { Address } from "../../../src/base/address.js";
 import { Contract } from "../../../src/base/contract.js";
@@ -64,7 +64,7 @@ describe("buildInvocationTree", () => {
             new xdr.CreateContractArgs({
               contractIdPreimage:
                 xdr.ContractIdPreimage.contractIdPreimageFromAsset(
-                  new Asset("TEST", nftId).toXDRObject(),
+                  new Asset("TEST", nftId).toXdrObject(),
                 ),
               executable:
                 xdr.ContractExecutable.contractExecutableStellarAsset(),
@@ -119,7 +119,7 @@ describe("buildInvocationTree", () => {
                 xdr.ContractIdPreimage.contractIdPreimageFromAddress(
                   new xdr.ContractIdPreimageFromAddress({
                     address: nftContract.address().toScAddress(),
-                    salt: Buffer.alloc(32, 0),
+                    salt: new Uint8Array(32),
                   }),
                 ),
               constructorArgs: [1, "2", 3].map((arg, i) => {
@@ -128,7 +128,7 @@ describe("buildInvocationTree", () => {
                 });
               }),
               executable: xdr.ContractExecutable.contractExecutableWasm(
-                Buffer.alloc(32, "\x20"),
+                new xdr.Hash(new Uint8Array(32).fill(0x20)),
               ),
             }),
           ),
@@ -207,7 +207,7 @@ describe("buildInvocationTree", () => {
   };
 
   it("builds valid XDR for the root invocation", () => {
-    expect(() => rootInvocation.toXDR()).not.toThrow();
+    expect(() => rootInvocation.toXdr()).not.toThrow();
   });
 
   it("outputs a human-readable version of the invocation tree", () => {
@@ -243,7 +243,7 @@ describe("buildInvocationTree", () => {
           new xdr.CreateContractArgs({
             contractIdPreimage:
               xdr.ContractIdPreimage.contractIdPreimageFromAsset(
-                new Asset("USD", issuer).toXDRObject(),
+                new Asset("USD", issuer).toXdrObject(),
               ),
             executable: xdr.ContractExecutable.contractExecutableStellarAsset(),
           }),
@@ -258,8 +258,8 @@ describe("buildInvocationTree", () => {
 
   it("handles a WASM V1 creation invocation (no constructorArgs)", () => {
     const contract = randomContract();
-    const wasmHash = Buffer.alloc(32, "\x42");
-    const salt = Buffer.alloc(32, "\x01");
+    const wasmHash = new xdr.Hash(new Uint8Array(32).fill(0x42));
+    const salt = new Uint8Array(32).fill(0x01);
     const inv = new xdr.SorobanAuthorizedInvocation({
       function:
         xdr.SorobanAuthorizedFunction.sorobanAuthorizedFunctionTypeCreateContractHostFn(
@@ -297,12 +297,12 @@ describe("buildInvocationTree", () => {
               xdr.ContractIdPreimage.contractIdPreimageFromAddress(
                 new xdr.ContractIdPreimageFromAddress({
                   address: contract.address().toScAddress(),
-                  salt: Buffer.alloc(32, 0),
+                  salt: new Uint8Array(32),
                 }),
               ),
             constructorArgs: [],
             executable: xdr.ContractExecutable.contractExecutableWasm(
-              Buffer.alloc(32, "\x10"),
+              new xdr.Hash(new Uint8Array(32).fill(0x10)),
             ),
           }),
         ),
@@ -315,6 +315,133 @@ describe("buildInvocationTree", () => {
     expect(args.wasm.constructorArgs).toEqual([]);
   });
 
+  it("handles an external ref V1 creation invocation", () => {
+    const deployer = randomContract();
+    const owner = randomKey();
+    const salt = new Uint8Array(32).fill(0x07);
+    const inv = new xdr.SorobanAuthorizedInvocation({
+      function:
+        xdr.SorobanAuthorizedFunction.sorobanAuthorizedFunctionTypeCreateContractHostFn(
+          new xdr.CreateContractArgs({
+            contractIdPreimage:
+              xdr.ContractIdPreimage.contractIdPreimageFromAddress(
+                new xdr.ContractIdPreimageFromAddress({
+                  address: deployer.address().toScAddress(),
+                  salt,
+                }),
+              ),
+            executable: xdr.ContractExecutable.contractExecutableExternalRef(
+              new xdr.ContractExecutableExternalRef({
+                executableOwner: new Address(owner).toScAddress(),
+                tag: "my-executable",
+              }),
+            ),
+          }),
+        ),
+      subInvocations: [],
+    });
+    const tree = buildInvocationTree(inv);
+    expect(tree.type).toBe("create");
+    const args = tree.args as any;
+    expect(args.type).toBe("external");
+    expect(args.external.owner).toBe(owner);
+    expect(args.external.tag).toBe("my-executable");
+    expect(args.external.salt).toBe("07".repeat(32));
+    expect(args.external.address).toBe(deployer.contractId());
+    // V1 should NOT have constructorArgs at all
+    expect(args.external.constructorArgs).toBeUndefined();
+  });
+
+  it("handles an external ref V2 creation with constructor args", () => {
+    const deployer = randomContract();
+    const owner = randomContract();
+    const inv = new xdr.SorobanAuthorizedInvocation({
+      function:
+        xdr.SorobanAuthorizedFunction.sorobanAuthorizedFunctionTypeCreateContractV2HostFn(
+          new xdr.CreateContractArgsV2({
+            contractIdPreimage:
+              xdr.ContractIdPreimage.contractIdPreimageFromAddress(
+                new xdr.ContractIdPreimageFromAddress({
+                  address: deployer.address().toScAddress(),
+                  salt: new Uint8Array(32),
+                }),
+              ),
+            constructorArgs: [nativeToScVal(5, { type: "u32" })],
+            executable: xdr.ContractExecutable.contractExecutableExternalRef(
+              new xdr.ContractExecutableExternalRef({
+                executableOwner: owner.address().toScAddress(),
+                tag: "v2-executable",
+              }),
+            ),
+          }),
+        ),
+      subInvocations: [],
+    });
+    const tree = buildInvocationTree(inv);
+    expect(tree.type).toBe("create");
+    const args = tree.args as any;
+    expect(args.type).toBe("external");
+    expect(args.external.owner).toBe(owner.contractId());
+    expect(args.external.tag).toBe("v2-executable");
+    expect(args.external.constructorArgs).toEqual([5]);
+  });
+
+  it("keeps a non-UTF-8 external ref tag as raw bytes", () => {
+    const deployer = randomContract();
+    const owner = randomKey();
+    const tag = new Uint8Array([0xff]);
+    const inv = new xdr.SorobanAuthorizedInvocation({
+      function:
+        xdr.SorobanAuthorizedFunction.sorobanAuthorizedFunctionTypeCreateContractHostFn(
+          new xdr.CreateContractArgs({
+            contractIdPreimage:
+              xdr.ContractIdPreimage.contractIdPreimageFromAddress(
+                new xdr.ContractIdPreimageFromAddress({
+                  address: deployer.address().toScAddress(),
+                  salt: new Uint8Array(32),
+                }),
+              ),
+            executable: xdr.ContractExecutable.contractExecutableExternalRef(
+              new xdr.ContractExecutableExternalRef({
+                executableOwner: new Address(owner).toScAddress(),
+                tag,
+              }),
+            ),
+          }),
+        ),
+      subInvocations: [],
+    });
+    const args = buildInvocationTree(inv).args as any;
+    // A lenient decode would collapse this to U+FFFD, which any other
+    // undecodable tag also renders as.
+    expect(args.external.tag).toEqual(tag);
+  });
+
+  it("throws for an external ref paired with an asset preimage", () => {
+    const issuer = randomKey();
+    const inv = new xdr.SorobanAuthorizedInvocation({
+      function:
+        xdr.SorobanAuthorizedFunction.sorobanAuthorizedFunctionTypeCreateContractHostFn(
+          new xdr.CreateContractArgs({
+            contractIdPreimage:
+              xdr.ContractIdPreimage.contractIdPreimageFromAsset(
+                new Asset("USD", issuer).toXdrObject(),
+              ),
+            executable: xdr.ContractExecutable.contractExecutableExternalRef(
+              new xdr.ContractExecutableExternalRef({
+                executableOwner: new Address(issuer).toScAddress(),
+                tag: "bad",
+              }),
+            ),
+          }),
+        ),
+      subInvocations: [],
+    });
+    expect(() => buildInvocationTree(inv)).toThrow(
+      /creation function appears invalid/,
+    );
+  });
+
   it("throws for mismatched exec/preimage types", () => {
     // wasm executable + asset preimage = invalid
     const issuer = randomKey();
@@ -324,10 +451,10 @@ describe("buildInvocationTree", () => {
           new xdr.CreateContractArgs({
             contractIdPreimage:
               xdr.ContractIdPreimage.contractIdPreimageFromAsset(
-                new Asset("USD", issuer).toXDRObject(),
+                new Asset("USD", issuer).toXdrObject(),
               ),
             executable: xdr.ContractExecutable.contractExecutableWasm(
-              Buffer.alloc(32, "\x01"),
+              new xdr.Hash(new Uint8Array(32).fill(0x01)),
             ),
           }),
         ),
@@ -363,7 +490,7 @@ describe("walkInvocationTree", () => {
 
     walkInvocationTree(root, (node, depth) => {
       walkCount++;
-      const s = node.toXDR("base64");
+      const s = node.toXdr("base64");
       if (s in walkSet) {
         const count = expectDefined(walkSet[s]);
         walkSet[s] = count + 1;
@@ -400,7 +527,7 @@ describe("walkInvocationTree", () => {
               new xdr.CreateContractArgs({
                 contractIdPreimage:
                   xdr.ContractIdPreimage.contractIdPreimageFromAsset(
-                    new Asset("TEST", nftId).toXDRObject(),
+                    new Asset("TEST", nftId).toXdrObject(),
                   ),
                 executable:
                   xdr.ContractExecutable.contractExecutableStellarAsset(),
@@ -455,7 +582,7 @@ describe("walkInvocationTree", () => {
                   xdr.ContractIdPreimage.contractIdPreimageFromAddress(
                     new xdr.ContractIdPreimageFromAddress({
                       address: nftContract.address().toScAddress(),
-                      salt: Buffer.alloc(32, 0),
+                      salt: new Uint8Array(32),
                     }),
                   ),
                 constructorArgs: [1, "2", 3].map((arg, i) => {
@@ -464,7 +591,7 @@ describe("walkInvocationTree", () => {
                   });
                 }),
                 executable: xdr.ContractExecutable.contractExecutableWasm(
-                  Buffer.alloc(32, "\x20"),
+                  new xdr.Hash(new Uint8Array(32).fill(0x20)),
                 ),
               }),
             ),
@@ -479,7 +606,7 @@ describe("walkInvocationTree", () => {
 
     walkInvocationTree(rootInvocation, (node, depth) => {
       walkCount++;
-      const s = node.toXDR("base64");
+      const s = node.toXdr("base64");
       if (s in walkSet) {
         const count = expectDefined(walkSet[s]);
         walkSet[s] = count + 1;
@@ -551,7 +678,7 @@ describe("walkInvocationTree", () => {
     expect(parents[0]).toBeUndefined();
     // Child's parent should be the root
     const parent = expectDefined(parents[1]);
-    expect(parent.toXDR("base64")).toBe(root.toXDR("base64"));
+    expect(parent.toXdr("base64")).toBe(root.toXdr("base64"));
   });
 
   it("handles void return from callback (continues walking)", () => {

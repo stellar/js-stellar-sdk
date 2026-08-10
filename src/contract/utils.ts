@@ -1,7 +1,7 @@
-import { xdr, cereal, Account } from "../base/index.js";
+import { Account } from "../base/index.js";
 import { Server } from "../rpc/index.js";
-import { type AssembledTransaction } from "./assembled_transaction.js";
 import { NULL_ACCOUNT, type AssembledTransactionOptions } from "./types.js";
+import { ScSpecEntry, decodeStream } from "../xdr/index.js";
 
 /**
  * Keep calling a `fn` for `timeoutInSeconds` seconds, if `keepWaitingIf` is
@@ -96,20 +96,17 @@ export function implementsToString(
 }
 
 export function parseWasmCustomSections(
-  buffer: Buffer,
+  buffer: Uint8Array,
 ): Map<string, Uint8Array[]> {
   const sections = new Map<string, Uint8Array[]>();
-  const arrayBuffer = buffer.buffer.slice(
-    buffer.byteOffset,
-    buffer.byteOffset + buffer.byteLength,
-  );
 
   let offset = 0;
 
   // Helper to read bytes with bounds checking
   const read = (length: number): Uint8Array => {
-    if (offset + length > buffer.byteLength) throw new Error("Buffer overflow");
-    const bytes = new Uint8Array(arrayBuffer, offset, length);
+    if (offset + length > buffer.byteLength)
+      throw new Error("WASM read out of bounds");
+    const bytes = buffer.subarray(offset, offset + length);
     offset += length;
     return bytes;
   };
@@ -178,14 +175,8 @@ export function parseWasmCustomSections(
  * Reads a binary stream of ScSpecEntries into an array for processing by ContractSpec
  * @hidden
  */
-export function processSpecEntryStream(buffer: Buffer) {
-  const reader = new cereal.XdrReader(buffer);
-  const res: xdr.ScSpecEntry[] = [];
-  while (!reader.eof) {
-    // @ts-expect-error ScSpecEntry.read expects the generated XdrReader type; reader is cereal.XdrReader
-    res.push(xdr.ScSpecEntry.read(reader));
-  }
-  return res;
+export function processSpecEntryStream(buffer: Uint8Array) {
+  return decodeStream(ScSpecEntry, buffer);
 }
 
 export async function getAccount<T>(

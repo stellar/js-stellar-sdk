@@ -10,9 +10,14 @@ import {
   Transaction,
   nativeToScVal,
   scValToNative,
-  xdr,
 } from "../base/index.js";
 
+import {
+  base64ToUint8Array,
+  concatUint8Arrays,
+  hexToUint8Array,
+  stringToUint8Array,
+} from "uint8array-extras";
 import type { TransactionBuilder } from "../base/index.js";
 import type { Config } from "../config.js";
 import { createHttpClient } from "./axios.js";
@@ -32,6 +37,28 @@ import {
 } from "./parsers.js";
 import { Utils } from "../utils.js";
 import type { HttpClient } from "../http-client/index.js";
+import {
+  AccountEntry,
+  ClaimableBalanceEntry,
+  ClaimableBalanceId,
+  ContractDataDurability,
+  ContractExecutableExternalRef,
+  Hash,
+  LedgerKey,
+  LedgerKeyAccount,
+  LedgerKeyClaimableBalance,
+  LedgerKeyContractCode,
+  LedgerKeyContractData,
+  LedgerKeyTrustLine,
+  OperationMeta,
+  ScAddress,
+  ScContractInstance,
+  ScSpecTypeDef,
+  ScVal,
+  TransactionMeta,
+  TransactionMetaV4,
+  TrustLineEntry,
+} from "../xdr/index.js";
 
 /**
  * Default transaction submission timeout for RPC requests, in milliseconds
@@ -99,37 +126,35 @@ export const LinearSleepStrategy: SleepStrategy = (iter: number) => 1000 * iter;
 export type SleepStrategy = (iter: number) => number;
 
 function findCreatedAccountSequenceInTransactionMeta(
-  meta: xdr.TransactionMeta,
+  meta: TransactionMeta,
 ): string {
-  let operations: xdr.OperationMeta[] = [];
-  switch (meta.switch()) {
-    case 0:
-      operations = meta.operations();
+  let operations: OperationMeta[] = [];
+  switch (meta.type) {
+    case "operations":
+      operations = meta.value;
       break;
-    case 1:
-    case 2:
-    case 3:
-    case 4: // all four have the same interface
-      operations = (meta.value() as xdr.TransactionMetaV4).operations();
+    case "v1":
+    case "v2":
+    case "v3":
+    case "v4": // all four have the same interface
+      operations = (meta.value as TransactionMetaV4).operations;
       break;
     default:
-      throw new Error("Unexpected transaction meta switch value");
+      throw new Error(
+        // @ts-expect-error this should be unreachable if the XDR types are correct, but we throw just in case
+        "Unexpected transaction meta switch value variant: " + meta.type,
+      );
   }
-  const sequenceNumber = operations
-    .flatMap((op) => op.changes())
+  const created = operations
+    .flatMap((op) => op.changes)
     .find(
-      (c) =>
-        c.switch() === xdr.LedgerEntryChangeType.ledgerEntryCreated() &&
-        c.created().data().switch() === xdr.LedgerEntryType.account(),
-    )
-    ?.created()
-    ?.data()
-    ?.account()
-    ?.seqNum()
-    ?.toString();
-
-  if (sequenceNumber) {
-    return sequenceNumber;
+      (c) => c.type === "ledgerEntryCreated" && c.value.data.type === "account",
+    );
+  if (created && created.type === "ledgerEntryCreated") {
+    const entryData = created.value.data;
+    if (entryData.type === "account") {
+      return entryData.value.seqNum.toString();
+    }
   }
   throw new Error("No account created in transaction");
 }
@@ -139,11 +164,11 @@ function findCreatedAccountSequenceInTransactionMeta(
  * `scSpecTypeU32` becomes `U32` and `scSpecTypeAddress` becomes `Address`.
  * User-defined types (structs/enums/unions) are shown by their declared name.
  */
-function contractSpecTypeName(td: xdr.ScSpecTypeDef): string {
-  if (td.switch().value === xdr.ScSpecType.scSpecTypeUdt().value) {
-    return td.udt().name().toString();
+function contractSpecTypeName(td: ScSpecTypeDef): string {
+  if (td.type === "scSpecTypeUdt") {
+    return td.value.name.toString();
   }
-  return td.switch().name.replace(/^scSpecType/, "");
+  return td.type.replace(/^scSpecType/, "");
 }
 
 /**
@@ -182,6 +207,7 @@ export class RpcServer {
   constructor(serverURL: string, opts: RpcServer.Options = {}) {
     /**
      * RPC Server URL (ex. `http://localhost:8000/soroban/rpc`).
+     * @member {URL}
      */
     this.serverURL = new URL(serverURL);
     this.httpClient = createHttpClient(opts.headers);
@@ -214,7 +240,7 @@ export class RpcServer {
    */
   public async getAccount(address: string): Promise<Account> {
     const entry = await this.getAccountEntry(address);
-    return new Account(address, entry.seqNum().toString());
+    return new Account(address, entry.seqNum.toString());
   }
 
   /**
@@ -235,16 +261,21 @@ export class RpcServer {
    * });
    * ```
    */
-  public async getAccountEntry(address: string): Promise<xdr.AccountEntry> {
-    const ledgerKey = xdr.LedgerKey.account(
-      new xdr.LedgerKeyAccount({
+  public async getAccountEntry(address: string): Promise<AccountEntry> {
+    const ledgerKey = LedgerKey.account(
+      new LedgerKeyAccount({
         accountId: Keypair.fromPublicKey(address).xdrPublicKey(),
       }),
     );
 
     try {
       const resp = await this.getLedgerEntry(ledgerKey);
-      return resp.val.account();
+      if (resp.val.type !== "account") {
+        throw new Error(
+          "unexpected ledger entry type for account: " + resp.val.type,
+        );
+      }
+      return resp.val.value;
     } catch {
       throw new Error(`Account not found: ${address}`);
     }
@@ -277,17 +308,22 @@ export class RpcServer {
   public async getTrustline(
     account: string,
     asset: Asset,
-  ): Promise<xdr.TrustLineEntry> {
-    const trustlineLedgerKey = xdr.LedgerKey.trustline(
-      new xdr.LedgerKeyTrustLine({
+  ): Promise<TrustLineEntry> {
+    const trustlineLedgerKey = LedgerKey.trustline(
+      new LedgerKeyTrustLine({
         accountId: Keypair.fromPublicKey(account).xdrAccountId(),
-        asset: asset.toTrustLineXDRObject(),
+        asset: asset.toTrustLineXdrObject(),
       }),
     );
 
     try {
       const entry = await this.getLedgerEntry(trustlineLedgerKey);
-      return entry.val.trustLine();
+      if (entry.val.type !== "trustline") {
+        throw new Error(
+          "unexpected ledger entry type for trustline: " + entry.val.type,
+        );
+      }
+      return entry.val.value;
     } catch {
       throw new Error(
         `Trustline for ${asset.getCode()}:${asset.getIssuer()} not found for ${account}`,
@@ -312,43 +348,44 @@ export class RpcServer {
    * const id = "00000000178826fbfe339e1f5c53417c6fedfe2c05e8bec14303143ec46b38981b09c3f9";
    * server.getClaimableBalance(id).then((entry) => {
    *   console.log(`Claimable balance {id.substr(0, 12)} has:`);
-   *   console.log(`  asset:  ${Asset.fromXDRObject(entry.asset()).toString()}`;
-   *   console.log(`  amount: ${entry.amount().toString()}`;
+   *   console.log(`  asset:  ${Asset.fromOperation(entry.asset).toString()}`);
+   *   console.log(`  amount: ${entry.amount.toString()}`);
    * });
    * ```
    */
-  public async getClaimableBalance(
-    id: string,
-  ): Promise<xdr.ClaimableBalanceEntry> {
+  public async getClaimableBalance(id: string): Promise<ClaimableBalanceEntry> {
     let balanceId;
     if (StrKey.isValidClaimableBalance(id)) {
       const buffer = StrKey.decodeClaimableBalance(id);
 
       // Pad the version byte to be a full int32 like in the XDR spec
-      const v = Buffer.concat([
-        Buffer.from("\x00\x00\x00"),
-        buffer.subarray(0, 1),
-      ]);
+      const v = concatUint8Arrays([new Uint8Array(3), buffer.subarray(0, 1)]);
 
       // Slap on the rest of it and decode it
-      balanceId = xdr.ClaimableBalanceId.fromXDR(
-        Buffer.concat([v, buffer.subarray(1)]),
+      balanceId = ClaimableBalanceId.fromXdr(
+        concatUint8Arrays([v, buffer.subarray(1)]),
       );
     } else if (id.match(/[a-f0-9]{72}/i)) {
-      balanceId = xdr.ClaimableBalanceId.fromXDR(id, "hex");
+      balanceId = ClaimableBalanceId.fromXdr(id, "hex");
     } else if (id.match(/[a-f0-9]{64}/i)) {
-      balanceId = xdr.ClaimableBalanceId.fromXDR(id.padStart(72, "0"), "hex");
+      balanceId = ClaimableBalanceId.fromXdr(id.padStart(72, "0"), "hex");
     } else {
       throw new TypeError(`expected 72-char hex ID or strkey, not ${id}`);
     }
 
-    const trustlineLedgerKey = xdr.LedgerKey.claimableBalance(
-      new xdr.LedgerKeyClaimableBalance({ balanceId }),
+    const trustlineLedgerKey = LedgerKey.claimableBalance(
+      new LedgerKeyClaimableBalance({ balanceId: balanceId }),
     );
 
     try {
       const entry = await this.getLedgerEntry(trustlineLedgerKey);
-      return entry.val.claimableBalance();
+      if (entry.val.type !== "claimableBalance") {
+        throw new Error(
+          "unexpected ledger entry type for claimable balance: " +
+            entry.val.type,
+        );
+      }
+      return entry.val.value;
     } catch {
       throw new Error(`Claimable balance ${id} not found`);
     }
@@ -412,12 +449,12 @@ export class RpcServer {
       return {
         latestLedger: ll.sequence,
         balanceEntry: {
-          amount: tl.balance().toString(),
+          amount: tl.balance.toString(),
           // Extract actual flags from the coalesced value.
-          authorized: Boolean(tl.flags() & 0x1), // AUTHORIZED_FLAG
-          clawback: Boolean(tl.flags() & 0x4), // TRUSTLINE_CLAWBACK_ENABLED_FLAG
-          authorizedToMaintainLiabilities: Boolean(tl.flags() & 0x2), // AUTHORIZED_TO_MAINTAIN_LIABILITIES_FLAG
-          revocable: Boolean(tl.flags() & 0x2), // AUTHORIZED_TO_MAINTAIN_LIABILITIES_FLAG (deprecated, will be removed in a future major release)
+          authorized: Boolean(tl.flags & 0x1), // AUTHORIZED_FLAG
+          clawback: Boolean(tl.flags & 0x4), // TRUSTLINE_CLAWBACK_ENABLED_FLAG
+          authorizedToMaintainLiabilities: Boolean(tl.flags & 0x2), // AUTHORIZED_TO_MAINTAIN_LIABILITIES_FLAG
+          revocable: Boolean(tl.flags & 0x2), // AUTHORIZED_TO_MAINTAIN_LIABILITIES_FLAG (deprecated, will be removed in a future major release)
         },
       };
     } else if (StrKey.isValidContract(addr)) {
@@ -488,11 +525,11 @@ export class RpcServer {
 
   public async getContractData(
     contract: string | Address | Contract,
-    key: xdr.ScVal,
+    key: ScVal,
     durability: Durability = Durability.Persistent,
   ): Promise<Api.LedgerEntryResult> {
     // coalesce `contract` param variants to an ScAddress
-    let scAddress: xdr.ScAddress;
+    let scAddress: ScAddress;
     if (typeof contract === "string") {
       scAddress = new Contract(contract).address().toScAddress();
     } else if (contract instanceof Address) {
@@ -503,22 +540,22 @@ export class RpcServer {
       throw new TypeError(`unknown contract type: ${contract}`);
     }
 
-    let xdrDurability: xdr.ContractDataDurability;
+    let xdrDurability: ContractDataDurability;
     switch (durability) {
       case Durability.Temporary:
-        xdrDurability = xdr.ContractDataDurability.temporary();
+        xdrDurability = ContractDataDurability.temporary;
         break;
 
       case Durability.Persistent:
-        xdrDurability = xdr.ContractDataDurability.persistent();
+        xdrDurability = ContractDataDurability.persistent;
         break;
 
       default:
         throw new TypeError(`invalid durability: ${durability}`);
     }
 
-    const contractKey = xdr.LedgerKey.contractData(
-      new xdr.LedgerKeyContractData({
+    const contractKey = LedgerKey.contractData(
+      new LedgerKeyContractData({
         key,
         contract: scAddress,
         durability: xdrDurability,
@@ -532,7 +569,7 @@ export class RpcServer {
         code: 404,
         message: `Contract data not found for ${Address.fromScAddress(
           scAddress,
-        ).toString()} with key ${key.toXDR("base64")} and durability: ${durability}`,
+        ).toString()} with key ${key.toXdr("base64")} and durability: ${durability}`,
       };
     }
   }
@@ -552,12 +589,12 @@ export class RpcServer {
    * const instance = await server.getContractInstance(
    *   "CCJZ5DGASBWQXR5MPFCJXMBI333XE5U3FSJTNQU7RIKE3P5GN2K2WYD5",
    * );
-   * console.log(instance.executable().switch().name);
+   * console.log(instance.executable.type);
    * ```
    */
   public async getContractInstance(
     contractId: string,
-  ): Promise<xdr.ScContractInstance> {
+  ): Promise<ScContractInstance> {
     const contractLedgerKey = new Contract(contractId).getFootprint();
     const response = await this.getLedgerEntries(contractLedgerKey);
     if (!response.entries.length || !response.entries[0]?.val) {
@@ -567,7 +604,89 @@ export class RpcServer {
       });
     }
 
-    return response.entries[0].val.contractData().val().instance();
+    const ledgerEntryData = response.entries[0].val;
+    if (ledgerEntryData.type !== "contractData") {
+      return Promise.reject({
+        code: 404,
+        message: "Expected contractData ledger entry",
+      });
+    }
+    const scv = ledgerEntryData.value.val;
+    if (scv.type !== "scvContractInstance") {
+      return Promise.reject({
+        code: 404,
+        message: "Expected contract instance",
+      });
+    }
+    return scv.value;
+  }
+
+  /**
+   * Resolves a CAP-85 external executable reference to the Wasm hash it names.
+   *
+   * A contract created with an external reference does not carry its own code
+   * hash. Instead the reference names an owner contract and a tag, and the
+   * owner holds a *persistent* contract data entry keyed by that tag whose
+   * value is the 32-byte hash of an existing Wasm. This performs exactly that
+   * lookup — the owner contract is not invoked.
+   *
+   * @param ref - the external reference, e.g. from the
+   *    `contractExecutableExternalRef` arm of a contract instance's executable
+   * @returns the 32-byte Wasm hash the reference resolves to
+   * @throws If the owner is not a contract, the tag entry is missing or
+   *    archived, or the entry does not hold a 32-byte hash.
+   *
+   * @example
+   * ```ts
+   * const instance = await server.getContractInstance(contractId);
+   * if (instance.executable.type === "contractExecutableExternalRef") {
+   *   const hash = await server.getExternalRefWasmHash(
+   *     instance.executable.externalRef,
+   *   );
+   *   const wasm = await server.getContractWasmByHash(hash);
+   * }
+   * ```
+   */
+  public async getExternalRefWasmHash(
+    ref: ContractExecutableExternalRef,
+  ): Promise<Uint8Array> {
+    const owner = ref.executableOwner;
+    if (owner.type !== "scAddressTypeContract") {
+      return Promise.reject({
+        code: 400,
+        message:
+          `External executable owner ${Address.fromScAddress(owner)} is not a ` +
+          `contract, so it cannot hold the tag entry that names the Wasm`,
+      });
+    }
+
+    // The tag is an unbounded SCString and may be binary, so pass it through
+    // as-is rather than decoding it — a lenient decode would build a key for a
+    // different entry.
+    const entry = await this.getContractData(
+      Address.fromScAddress(owner),
+      ScVal.scvExecutableTag(ref.tag),
+      Durability.Persistent,
+    );
+
+    if (entry.val.type !== "contractData") {
+      return Promise.reject({
+        code: 404,
+        message: "Expected contractData ledger entry",
+      });
+    }
+
+    const scv = entry.val.value.val;
+    if (scv.type !== "scvBytes" || scv.bytes.value.length !== 32) {
+      return Promise.reject({
+        code: 404,
+        message:
+          `External executable tag entry on ${Address.fromScAddress(owner)} ` +
+          `does not hold a 32-byte Wasm hash`,
+      });
+    }
+
+    return scv.bytes.value;
   }
 
   /**
@@ -577,20 +696,22 @@ export class RpcServer {
    * deployed on the Soroban network. The WASM bytecode represents the executable
    * code of the contract.
    *
-   * This only works for Wasm-based contracts. A built-in Stellar Asset Contract
-   * (SAC) has no Wasm bytecode on-chain, so this throws for a SAC; use
+   * This only works for Wasm-based contracts, including one created from a
+   * CAP-85 external executable reference, whose reference is resolved to a Wasm
+   * hash first (see {@link getExternalRefWasmHash}). A built-in Stellar Asset
+   * Contract (SAC) has no Wasm bytecode on-chain, so this throws for a SAC; use
    * {@link contract.Client.from} to build a client from the embedded SAC spec.
    *
    * @param contractId - The contract ID containing the WASM bytecode to retrieve
-   * @returns A Buffer containing the WASM bytecode
+   * @returns A Uint8Array containing the WASM bytecode
    * @throws If the contract or its associated WASM bytecode cannot be
    * found on the network, or if the contract is a Stellar Asset Contract (SAC).
    *
    * @example
    * ```ts
    * const contractId = "CCJZ5DGASBWQXR5MPFCJXMBI333XE5U3FSJTNQU7RIKE3P5GN2K2WYD5";
-   * server.getContractWasmByContractId(contractId).then(wasmBuffer => {
-   *   console.log("WASM bytecode length:", wasmBuffer.length);
+   * server.getContractWasmByContractId(contractId).then(wasmBytes => {
+   *   console.log("WASM bytecode length:", wasmBytes.length);
    *   // ... do something with the WASM bytecode ...
    * }).catch(err => {
    *   console.error("Error fetching WASM bytecode:", err);
@@ -599,13 +720,11 @@ export class RpcServer {
    */
   public async getContractWasmByContractId(
     contractId: string,
-  ): Promise<Buffer> {
+  ): Promise<Uint8Array> {
     const instance = await this.getContractInstance(contractId);
 
-    if (
-      instance.executable().switch() ===
-      xdr.ContractExecutableType.contractExecutableStellarAsset()
-    ) {
+    const executable = instance.executable;
+    if (executable.type === "contractExecutableStellarAsset") {
       return Promise.reject({
         code: 400,
         message:
@@ -614,8 +733,21 @@ export class RpcServer {
           `the built-in SAC spec instead.`,
       });
     }
+    if (executable.type === "contractExecutableExternalRef") {
+      // A CAP-85 reference names its code indirectly; resolve the tag entry on
+      // the owner contract to get the hash.
+      return this.getContractWasmByHash(
+        await this.getExternalRefWasmHash(executable.externalRef),
+      );
+    }
+    if (executable.type !== "contractExecutableWasm") {
+      return Promise.reject({
+        code: 404,
+        message: `Contract is not a wasm executable`,
+      });
+    }
 
-    return this.getContractWasmByHash(instance.executable().wasmHash());
+    return this.getContractWasmByHash(executable.value.value);
   }
 
   /**
@@ -626,15 +758,15 @@ export class RpcServer {
    * represents the executable code of the contract.
    *
    * @param wasmHash - The WASM hash of the contract
-   * @returns A Buffer containing the WASM bytecode
+   * @returns A Uint8Array containing the WASM bytecode
    * @throws If the contract or its associated WASM bytecode cannot be
    * found on the network.
    *
    * @example
    * ```ts
-   * const wasmHash = Buffer.from("...");
-   * server.getContractWasmByHash(wasmHash).then(wasmBuffer => {
-   *   console.log("WASM bytecode length:", wasmBuffer.length);
+   * const wasmHash = hexToUint8Array("...");
+   * server.getContractWasmByHash(wasmHash).then(wasmBytes => {
+   *   console.log("WASM bytecode length:", wasmBytes.length);
    *   // ... do something with the WASM bytecode ...
    * }).catch(err => {
    *   console.error("Error fetching WASM bytecode:", err);
@@ -642,17 +774,25 @@ export class RpcServer {
    * ```
    */
   public async getContractWasmByHash(
-    wasmHash: Buffer | string,
+    wasmHash: Uint8Array | string,
     format: undefined | "hex" | "base64" = undefined,
-  ): Promise<Buffer> {
-    const wasmHashBuffer =
-      typeof wasmHash === "string"
-        ? Buffer.from(wasmHash, format)
-        : (wasmHash as Buffer);
+  ): Promise<Uint8Array> {
+    let wasmHashBytes: Uint8Array;
+    if (typeof wasmHash === "string") {
+      if (format === "base64") {
+        wasmHashBytes = base64ToUint8Array(wasmHash);
+      } else if (format === "hex") {
+        wasmHashBytes = hexToUint8Array(wasmHash);
+      } else {
+        wasmHashBytes = stringToUint8Array(wasmHash);
+      }
+    } else {
+      wasmHashBytes = wasmHash;
+    }
 
-    const ledgerKeyWasmHash = xdr.LedgerKey.contractCode(
-      new xdr.LedgerKeyContractCode({
-        hash: wasmHashBuffer,
+    const ledgerKeyWasmHash = LedgerKey.contractCode(
+      new LedgerKeyContractCode({
+        hash: new Hash(wasmHashBytes),
       }),
     );
 
@@ -663,9 +803,14 @@ export class RpcServer {
         message: "Could not obtain contract wasm from server",
       });
     }
-    const wasmBuffer = responseWasm.entries[0].val.contractCode().code();
-
-    return wasmBuffer;
+    const wasmEntry = responseWasm.entries[0].val;
+    if (wasmEntry.type !== "contractCode") {
+      return Promise.reject({
+        code: 404,
+        message: "Expected contractCode ledger entry",
+      });
+    }
+    return wasmEntry.value.code;
   }
 
   /**
@@ -737,11 +882,11 @@ export class RpcServer {
 
     // Validate against the contract spec (keyed by the real on-chain name)
     // first, so a `method` that collides with a built-in `Client`/prototype
-    // member (e.g. `txFromJSON`, `toString`) is rejected rather than silently
+    // member (e.g. `txFromJson`, `toString`) is rejected rather than silently
     // invoking the wrong function.
     const isContractMethod = client.spec
       .funcs()
-      .some((fn) => fn.name().toString() === method);
+      .some((fn) => fn.name.toString() === method);
 
     // Methods are attached dynamically from the spec, so they aren't on the
     // static `Client` type — hence the cast. The `Client` constructor attaches
@@ -819,14 +964,14 @@ export class RpcServer {
     });
 
     return client.spec.funcs().map((fn) => {
-      const doc = fn.doc().toString();
+      const doc = fn.doc.toString();
       const method: Api.ContractMethod = {
-        name: fn.name().toString(),
-        inputs: fn.inputs().map((input) => ({
-          name: input.name().toString(),
-          type: contractSpecTypeName(input.type()),
+        name: fn.name.toString(),
+        inputs: fn.inputs.map((input) => ({
+          name: input.name.toString(),
+          type: contractSpecTypeName(input.type),
         })),
-        outputs: fn.outputs().map(contractSpecTypeName),
+        outputs: fn.outputs.map(contractSpecTypeName),
       };
       if (doc) {
         method.doc = doc;
@@ -869,27 +1014,27 @@ export class RpcServer {
    * });
    * ```
    */
-  public getLedgerEntries(...keys: xdr.LedgerKey[]) {
+  public getLedgerEntries(...keys: LedgerKey[]) {
     return this._getLedgerEntries(...keys).then(parseRawLedgerEntries);
   }
 
-  public _getLedgerEntries(...keys: xdr.LedgerKey[]) {
+  public _getLedgerEntries(...keys: LedgerKey[]) {
     return jsonrpc.postObject<Api.RawGetLedgerEntriesResponse>(
       this.httpClient,
       this.serverURL.toString(),
       "getLedgerEntries",
       {
-        keys: keys.map((k) => k.toXDR("base64")),
+        keys: keys.map((k) => k.toXdr("base64")),
       },
     );
   }
 
-  public async getLedgerEntry(key: xdr.LedgerKey) {
+  public async getLedgerEntry(key: LedgerKey) {
     const results = await this._getLedgerEntries(key).then(
       parseRawLedgerEntries,
     );
     if (results.entries.length !== 1) {
-      throw new Error(`failed to find an entry for key ${key.toXDR("base64")}`);
+      throw new Error(`failed to find an entry for key ${key.toXdr("base64")}`);
     }
     return results.entries[0];
   }
@@ -1277,7 +1422,7 @@ export class RpcServer {
       this.serverURL.toString(),
       "simulateTransaction",
       {
-        transaction: transaction.toXDR(),
+        transaction: transaction.toXdr(),
         authMode,
         ...(useUpgradedAuth !== undefined && { useUpgradedAuth }),
         ...(addlResources !== undefined && {
@@ -1429,7 +1574,7 @@ export class RpcServer {
       this.serverURL.toString(),
       "sendTransaction",
       {
-        transaction: transaction.toXDR(),
+        transaction: transaction.toXdr(),
       },
     );
   }
@@ -1481,7 +1626,7 @@ export class RpcServer {
         `${friendbotUrl}?addr=${encodeURIComponent(account)}`,
       );
 
-      let meta: xdr.TransactionMeta;
+      let meta: TransactionMeta;
       if (!response.data.result_meta_xdr) {
         const txMeta = await this.getTransaction(response.data.hash);
         if (txMeta.status !== Api.GetTransactionStatus.SUCCESS) {
@@ -1489,10 +1634,7 @@ export class RpcServer {
         }
         meta = txMeta.resultMetaXdr;
       } else {
-        meta = xdr.TransactionMeta.fromXDR(
-          response.data.result_meta_xdr,
-          "base64",
-        );
+        meta = TransactionMeta.fromXdr(response.data.result_meta_xdr, "base64");
       }
 
       const sequence = findCreatedAccountSequenceInTransactionMeta(meta);
@@ -1683,10 +1825,10 @@ export class RpcServer {
     // balance entry for each contract, not the other way around (i.e. XLM
     // holds a reserve for contract X, rather that contract X having a balance
     // of N XLM).
-    const ledgerKey = xdr.LedgerKey.contractData(
-      new xdr.LedgerKeyContractData({
+    const ledgerKey = LedgerKey.contractData(
+      new LedgerKeyContractData({
         contract: new Address(sacId).toScAddress(),
-        durability: xdr.ContractDataDurability.persistent(),
+        durability: ContractDataDurability.persistent,
         key,
       }),
     );
@@ -1699,11 +1841,11 @@ export class RpcServer {
     const { lastModifiedLedgerSeq, liveUntilLedgerSeq, val } =
       response.entries[0];
 
-    if (val.switch().value !== xdr.LedgerEntryType.contractData().value) {
+    if (val.type !== "contractData") {
       return { latestLedger: response.latestLedger };
     }
 
-    const entry = scValToNative(val.contractData().val());
+    const entry = scValToNative(val.value.val);
 
     // Since we are requesting a SAC's contract data, we know for a fact that
     // it should follow the expected structure format. Thus, we can presume

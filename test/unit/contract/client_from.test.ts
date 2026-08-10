@@ -1,31 +1,17 @@
-import { describe, it, afterEach, expect, vi } from "vitest";
+import { describe, it, beforeEach, expect, vi } from "vitest";
+import { concatUint8Arrays, stringToUint8Array } from "uint8array-extras";
 import * as StellarSdk from "../../../src/index.js";
 
 import { serverUrl } from "../../constants";
 
-// `Client.from` constructs its own `Server` internally, so we cannot spy on a
-// server instance we create here. Instead we mock the http-client factory that
-// the internal `Server` uses, which lets the real code path
-// (`getContractInstance`, then `getContractWasmByHash` for Wasm contracts) run
-// against controlled JSON-RPC responses.
-const { mockPost } = vi.hoisted(() => ({ mockPost: vi.fn() }));
-
-vi.mock("../../../src/rpc/axios.js", async (importActual) => {
-  const actual =
-    await importActual<typeof import("../../../src/rpc/axios.js")>();
-  return {
-    ...actual,
-    createHttpClient: () => ({ post: mockPost }),
-  };
-});
-
-const { xdr, hash, Contract } = StellarSdk;
+const { xdr, hash, Contract, rpc } = StellarSdk;
 const { Client } = StellarSdk.contract;
+const { Server } = rpc;
 
 const networkPassphrase = "Test SDF Network ; September 2015";
 
 // LEB128 unsigned varint, as used for WASM section lengths.
-function leb128(value: number): Buffer {
+function leb128(value: number): Uint8Array {
   const bytes: number[] = [];
   let n = value;
   do {
@@ -34,23 +20,23 @@ function leb128(value: number): Buffer {
     if (n !== 0) byte |= 0x80;
     bytes.push(byte);
   } while (n !== 0);
-  return Buffer.from(bytes);
+  return Uint8Array.from(bytes);
 }
 
 // Builds a minimal valid WASM binary whose only content is a `contractspecv0`
 // custom section carrying the given spec entries. This is browser-safe (pure
-// Buffer ops, no filesystem) and is enough for `Spec.fromWasm` to parse, which
-// only scans for that custom section.
-function wasmWithSpec(entries: StellarSdk.xdr.ScSpecEntry[]): Buffer {
-  const name = Buffer.from("contractspecv0", "utf8");
-  const payload = Buffer.concat(entries.map((e) => e.toXDR()));
-  const sectionBody = Buffer.concat([leb128(name.length), name, payload]);
-  const customSection = Buffer.concat([
-    Buffer.from([0x00]), // custom section id
+// Uint8Array ops, no filesystem) and is enough for `Spec.fromWasm` to parse,
+// which only scans for that custom section.
+function wasmWithSpec(entries: StellarSdk.xdr.ScSpecEntry[]): Uint8Array {
+  const name = stringToUint8Array("contractspecv0");
+  const payload = concatUint8Arrays(entries.map((e) => e.toXdr()));
+  const sectionBody = concatUint8Arrays([leb128(name.length), name, payload]);
+  const customSection = concatUint8Arrays([
+    Uint8Array.of(0x00), // custom section id
     leb128(sectionBody.length),
     sectionBody,
   ]);
-  const header = Buffer.from([
+  const header = Uint8Array.of(
     0x00,
     0x61,
     0x73,
@@ -59,13 +45,26 @@ function wasmWithSpec(entries: StellarSdk.xdr.ScSpecEntry[]): Buffer {
     0x00,
     0x00,
     0x00, // version 1
-  ]);
-  return Buffer.concat([header, customSection]);
+  );
+  return concatUint8Arrays([header, customSection]);
 }
 
 describe("contract.Client.from", () => {
-  afterEach(() => {
-    vi.clearAllMocks();
+  let server: any;
+  let mockPost: any;
+
+  // `Client.from` accepts a pre-built `Server` via `options.server`, so spying
+  // on that instance's http client lets the real code path
+  // (`getContractInstance`, then `getContractWasmByHash` for wasm contracts)
+  // run against controlled JSON-RPC responses without mocking a module.
+  beforeEach(() => {
+    server = new Server(serverUrl);
+    // The default throws rather than calling through: `vi.spyOn` keeps the real
+    // implementation, so once the queued `mockResolvedValueOnce` responses run
+    // out an unexpected call would otherwise issue a real HTTP request.
+    mockPost = vi.spyOn(server.httpClient, "post").mockImplementation(() => {
+      throw new Error("unexpected RPC call");
+    });
   });
 
   const contractId = "CCN57TGC6EXFCYIQJ4UCD2UDZ4C3AQCHVMK74DGZ3JYCA5HD4BY7FNPC";
@@ -87,8 +86,8 @@ describe("contract.Client.from", () => {
             {
               liveUntilLedgerSeq: 1000,
               lastModifiedLedgerSeq: 1,
-              xdr: val.toXDR("base64"),
-              key: key.toXDR("base64"),
+              xdr: val.toXdr("base64"),
+              key: key.toXdr("base64"),
             },
           ],
         },
@@ -114,9 +113,9 @@ describe("contract.Client.from", () => {
 
     const instanceEntry = xdr.LedgerEntryData.contractData(
       new xdr.ContractDataEntry({
-        ext: new (xdr.ExtensionPoint as any)(0),
+        ext: xdr.ExtensionPoint.v0(),
         contract: address.toScAddress(),
-        durability: xdr.ContractDataDurability.persistent(),
+        durability: xdr.ContractDataDurability.persistent,
         key: xdr.ScVal.scvLedgerKeyContractInstance(),
         val: xdr.ScVal.scvContractInstance(
           new xdr.ScContractInstance({
@@ -132,7 +131,7 @@ describe("contract.Client.from", () => {
     );
     const wasmLedgerCode = xdr.LedgerEntryData.contractCode(
       new xdr.ContractCodeEntry({
-        ext: xdr.ContractCodeEntryExt.fromXDR(
+        ext: xdr.ContractCodeEntryExt.fromXdr(
           "AAAAAQAAAAAAAAAAAAAVqAAAAJwAAAADAAAAAwAAABgAAAABAAAAAQAAABEAAAAgAAABpA==",
           "base64",
         ),
@@ -154,10 +153,13 @@ describe("contract.Client.from", () => {
         contractId,
         networkPassphrase,
         rpcUrl: serverUrl,
+        server,
       });
 
       expect(client).toBeInstanceOf(Client);
       expect(client.spec.funcs().length).toBeGreaterThan(0);
+      // The instance lookup, then the wasm fetch.
+      expect(mockPost).toHaveBeenCalledTimes(2);
     });
   });
 
@@ -166,9 +168,9 @@ describe("contract.Client.from", () => {
     // wasm hash, so there is no wasm to download from the network.
     const sacInstanceEntry = xdr.LedgerEntryData.contractData(
       new xdr.ContractDataEntry({
-        ext: new (xdr.ExtensionPoint as any)(0),
+        ext: xdr.ExtensionPoint.v0(),
         contract: address.toScAddress(),
-        durability: xdr.ContractDataDurability.persistent(),
+        durability: xdr.ContractDataDurability.persistent,
         key: xdr.ScVal.scvLedgerKeyContractInstance(),
         val: xdr.ScVal.scvContractInstance(
           new xdr.ScContractInstance({
@@ -190,6 +192,7 @@ describe("contract.Client.from", () => {
         contractId,
         networkPassphrase,
         rpcUrl: serverUrl,
+        server,
       });
 
       expect(client).toBeInstanceOf(Client);
@@ -203,6 +206,7 @@ describe("contract.Client.from", () => {
       ]) {
         expect(typeof (client as any)[method]).toBe("function");
       }
+      expect(mockPost).toHaveBeenCalledTimes(1);
     });
   });
 });

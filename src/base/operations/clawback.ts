@@ -1,11 +1,16 @@
-import xdr from "../xdr.js";
+import {
+  ClawbackOp,
+  MuxedAccount,
+  Operation,
+  OperationBody,
+} from "../../xdr/index.js";
 import { decodeAddressToMuxedAccount } from "../util/decode_encode_muxed_account.js";
-import { ClawbackOpts, ClawbackResult, OperationAttributes } from "./types.js";
+import { ClawbackOpts, OperationAttributes } from "./types.js";
 import {
   constructAmountRequirementsError,
   isValidAmount,
   setSourceAccount,
-  toXDRAmount,
+  toXdrAmount,
 } from "../util/operations.js";
 
 /**
@@ -13,38 +18,38 @@ import {
  *
  *
  * @param opts - Options object
- *   - `asset`: The asset being clawed back.
- *   - `amount`: The amount of the asset to claw back.
- *   - `from`: The public key of the (optionally-muxed)
+ * @param opts.asset - The asset being clawed back.
+ * @param opts.amount - The amount of the asset to claw back.
+ * @param opts.from - The public key of the (optionally-muxed)
  *     account to claw back from.
- *   - `source`: The source account for the operation.
+ * @param opts.source - The source account for the operation.
  *     Defaults to the transaction's source account.
  *
  * @see https://github.com/stellar/stellar-protocol/blob/master/core/cap-0035.md#clawback-operation
  */
-export function clawback(opts: ClawbackOpts): xdr.Operation<ClawbackResult> {
+export function clawback(opts: ClawbackOpts): Operation {
   if (!isValidAmount(opts.amount)) {
     throw new TypeError(constructAmountRequirementsError("amount"));
   }
 
-  let from: xdr.MuxedAccount;
+  let from: MuxedAccount;
   try {
     from = decodeAddressToMuxedAccount(opts.from);
   } catch {
     throw new Error("from address is invalid");
   }
 
-  const clawbackOp = new xdr.ClawbackOp({
-    amount: toXDRAmount(opts.amount),
-    asset: opts.asset.toXDRObject(),
+  const clawbackOp = new ClawbackOp({
+    amount: toXdrAmount(opts.amount),
+    asset: opts.asset.toXdrObject(),
     from,
   });
 
   const opAttributes: OperationAttributes = {
     sourceAccount: null,
-    body: xdr.OperationBody.clawback(clawbackOp),
+    body: OperationBody.clawback(clawbackOp),
   };
   setSourceAccount(opAttributes, opts);
 
-  return new xdr.Operation(opAttributes);
+  return new Operation(opAttributes);
 }

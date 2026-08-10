@@ -1,7 +1,8 @@
 import { describe, it, beforeEach, afterEach, expect, vi } from "vitest";
 import * as StellarSdk from "../../src/index.js";
 
-const { SERVER_TIME_MAP, getCurrentServerTime } = StellarSdk.Horizon;
+const { Horizon } = StellarSdk;
+const { SERVER_TIME_MAP, getCurrentServerTime } = Horizon;
 
 describe("getCurrentServerTime", () => {
   beforeEach(() => {

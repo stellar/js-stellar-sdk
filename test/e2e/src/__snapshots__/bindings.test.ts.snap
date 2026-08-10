@@ -4,7 +4,6 @@ exports[`Bindings Snapshot Test > generates bindings that match snapshot for cus
 "import {RoyalCard, SimpleEnum, Test, ComplexEnum, TupleStruct, RecursiveEnum, ContractEvent} from './types.js';
 import {Result, Spec, AssembledTransaction, Client as ContractClient, ClientOptions as ContractClientOptions, MethodOptions} from '@stellar/stellar-sdk/contract';
 import {xdr, Address} from '@stellar/stellar-sdk';
-import { Buffer } from 'buffer';
 
 export interface Client {
   inc(options?: MethodOptions): Promise<AssembledTransaction<number>>;
@@ -25,7 +24,7 @@ export interface Client {
   u256({ u256 }: { u256: bigint }, options?: MethodOptions): Promise<AssembledTransaction<bigint>>;
   u32_({ u32_ }: { u32_: number }, options?: MethodOptions): Promise<AssembledTransaction<number>>;
   woid(options?: MethodOptions): Promise<AssembledTransaction<void>>;
-  bytes({ bytes }: { bytes: Buffer }, options?: MethodOptions): Promise<AssembledTransaction<Buffer>>;
+  bytes({ bytes }: { bytes: Uint8Array }, options?: MethodOptions): Promise<AssembledTransaction<Uint8Array>>;
   hello({ hello }: { hello: string }, options?: MethodOptions): Promise<AssembledTransaction<string>>;
   tuple({ tuple }: { tuple: [string, number] }, options?: MethodOptions): Promise<AssembledTransaction<[string, number]>>;
   /**
@@ -36,7 +35,7 @@ export interface Client {
   string({ string }: { string: string }, options?: MethodOptions): Promise<AssembledTransaction<string>>;
   strukt({ strukt }: { strukt: Test }, options?: MethodOptions): Promise<AssembledTransaction<Test>>;
   boolean({ boolean }: { boolean: boolean }, options?: MethodOptions): Promise<AssembledTransaction<boolean>>;
-  bytes_n({ bytes_n }: { bytes_n: Buffer }, options?: MethodOptions): Promise<AssembledTransaction<Buffer>>;
+  bytes_n({ bytes_n }: { bytes_n: Uint8Array }, options?: MethodOptions): Promise<AssembledTransaction<Uint8Array>>;
   complex({ complex }: { complex: ComplexEnum }, options?: MethodOptions): Promise<AssembledTransaction<ComplexEnum>>;
   addresse({ addresse }: { addresse: string | Address }, options?: MethodOptions): Promise<AssembledTransaction<string>>;
   duration({ duration }: { duration: bigint }, options?: MethodOptions): Promise<AssembledTransaction<bigint>>;
@@ -63,12 +62,15 @@ export class Client extends ContractClient {
     );
   }
 
-   static deploy<T = Client>(options: MethodOptions & Omit<ContractClientOptions, 'contractId'> & { wasmHash: Buffer | string; salt?: Buffer | Uint8Array; format?: "hex" | "base64"; address?: string; }): Promise<AssembledTransaction<T>> {
+   static deploy<T = Client>(options: MethodOptions & Omit<ContractClientOptions, 'contractId'> & { wasmHash: Uint8Array | string; salt?: Uint8Array; format?: "hex" | "base64"; address?: string; }): Promise<AssembledTransaction<T>> {
     return ContractClient.deploy(null, options);
   }
-  public readonly fromJSON = {
-    inc : this.txFromJSON<number>,  map : this.txFromJSON<Map<number, boolean>>,  not : this.txFromJSON<boolean>,  val : this.txFromJSON<any>,  vec : this.txFromJSON<Array<number>>,  auth : this.txFromJSON<string>,  card : this.txFromJSON<RoyalCard>,  i128 : this.txFromJSON<bigint>,  i256 : this.txFromJSON<bigint>,  i32_ : this.txFromJSON<number>,  i64_ : this.txFromJSON<bigint>,  u128 : this.txFromJSON<bigint>,  u256 : this.txFromJSON<bigint>,  u32_ : this.txFromJSON<number>,  woid : this.txFromJSON<void>,  bytes : this.txFromJSON<Buffer>,  hello : this.txFromJSON<string>,  tuple : this.txFromJSON<[string, number]>,  option : this.txFromJSON<number | null>,  simple : this.txFromJSON<SimpleEnum>,  string : this.txFromJSON<string>,  strukt : this.txFromJSON<Test>,  boolean : this.txFromJSON<boolean>,  bytes_n : this.txFromJSON<Buffer>,  complex : this.txFromJSON<ComplexEnum>,  addresse : this.txFromJSON<string>,  duration : this.txFromJSON<bigint>,  emit_swap : this.txFromJSON<void>,  get_count : this.txFromJSON<number>,  timepoint : this.txFromJSON<bigint>,  multi_args : this.txFromJSON<number>,  strukt_hel : this.txFromJSON<Array<string>>,  emit_nested : this.txFromJSON<void>,  tuple_strukt : this.txFromJSON<TupleStruct>,  recursive_enum : this.txFromJSON<RecursiveEnum>,  u32_fail_on_even : this.txFromJSON<Result<number, Error>>,  get_object_vec_option : this.txFromJSON<Array<Test> | null>
+  public readonly fromJson = {
+    inc : this.txFromJson<number>,  map : this.txFromJson<Map<number, boolean>>,  not : this.txFromJson<boolean>,  val : this.txFromJson<any>,  vec : this.txFromJson<Array<number>>,  auth : this.txFromJson<string>,  card : this.txFromJson<RoyalCard>,  i128 : this.txFromJson<bigint>,  i256 : this.txFromJson<bigint>,  i32_ : this.txFromJson<number>,  i64_ : this.txFromJson<bigint>,  u128 : this.txFromJson<bigint>,  u256 : this.txFromJson<bigint>,  u32_ : this.txFromJson<number>,  woid : this.txFromJson<void>,  bytes : this.txFromJson<Uint8Array>,  hello : this.txFromJson<string>,  tuple : this.txFromJson<[string, number]>,  option : this.txFromJson<number | null>,  simple : this.txFromJson<SimpleEnum>,  string : this.txFromJson<string>,  strukt : this.txFromJson<Test>,  boolean : this.txFromJson<boolean>,  bytes_n : this.txFromJson<Uint8Array>,  complex : this.txFromJson<ComplexEnum>,  addresse : this.txFromJson<string>,  duration : this.txFromJson<bigint>,  emit_swap : this.txFromJson<void>,  get_count : this.txFromJson<number>,  timepoint : this.txFromJson<bigint>,  multi_args : this.txFromJson<number>,  strukt_hel : this.txFromJson<Array<string>>,  emit_nested : this.txFromJson<void>,  tuple_strukt : this.txFromJson<TupleStruct>,  recursive_enum : this.txFromJson<RecursiveEnum>,  u32_fail_on_even : this.txFromJson<Result<number, Error>>,  get_object_vec_option : this.txFromJson<Array<Test> | null>
   };
+
+  /** @deprecated Use fromJson instead. */
+  public readonly fromJSON = this.fromJson;
 
   /**
    * Parse a raw contract event (topics + data) into a typed {@link ContractEvent}.

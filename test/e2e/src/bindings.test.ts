@@ -1,4 +1,5 @@
 import { expect, beforeAll, afterAll, describe, it } from "vitest";
+import { stringToUint8Array } from "uint8array-extras";
 import { spawnSync } from "node:child_process";
 import * as fs from "node:fs";
 import * as path from "node:path";
@@ -329,12 +330,12 @@ describe("Generated Bindings E2E Test", () => {
     expect(addresseResultWithAddress.result).toBe(keypair.publicKey());
 
     // Test bytes method
-    const bytesInput = Buffer.from("hello");
+    const bytesInput = stringToUint8Array("hello");
     const bytesResult = await client.bytes({ bytes: bytesInput });
     expect(bytesResult.result).toEqual(bytesInput);
 
     // Test bytes_n method
-    const bytesNInput = Buffer.from("123456789");
+    const bytesNInput = stringToUint8Array("123456789");
     const bytesNResult = await client.bytes_n({ bytes_n: bytesNInput });
     expect(bytesNResult.result).toEqual(bytesNInput);
 

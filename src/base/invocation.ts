@@ -1,4 +1,9 @@
-import xdr from "./xdr.js";
+import { uint8ArrayToHex } from "uint8array-extras";
+import {
+  CreateContractArgsV2,
+  ScVal,
+  SorobanAuthorizedInvocation,
+} from "../xdr/index.js";
 import { Asset } from "./asset.js";
 import { Address } from "./address.js";
 import { scValToNative } from "./scval.js";
@@ -12,18 +17,44 @@ export interface WasmCreateDetails {
 }
 
 /**
+ * Details about a contract creation from an external executable (CAP-85).
+ *
+ * - `owner` is the strkey of the account or contract that owns the external
+ *   executable being referenced
+ * - `tag` is the owner-scoped name of that executable. It is an unbounded
+ *   `SCString`, so it is not always text: a lenient UTF-8 decode would render
+ *   two distinct tags identically, and the tag is half of what identifies the
+ *   code being deployed. Binary tags come back as raw bytes, matching
+ *   {@link scValToNative}
+ * - `address` is the strkey of the deployer and `salt` its hex-encoded salt,
+ *   which together derive the new contract's ID
+ */
+export interface ExternalRefCreateDetails {
+  owner: string;
+  tag: string | Uint8Array;
+  address: string;
+  salt: string;
+
+  constructorArgs?: any[];
+}
+
+/**
  * Details about a contract creation invocation.
  *
- * - `type` indicates if this creation was a custom contract (`'wasm'`) or a
- *   wrapping of an existing Stellar asset (`'sac'`)
+ * - `type` indicates if this creation was a custom contract (`'wasm'`), a
+ *   wrapping of an existing Stellar asset (`'sac'`), or a reference to an
+ *   external executable (`'external'`, see CAP-85)
  * - `asset` is set when `type=='sac'`, containing the canonical {@link Asset}
  *   being wrapped by this Stellar Asset Contract
  * - `wasm` is set when `type=='wasm'`, containing additional creation parameters
+ * - `external` is set when `type=='external'`, containing the referenced
+ *   executable and the creation parameters
  */
 export interface CreateInvocation {
-  type: "sac" | "wasm";
+  type: "sac" | "wasm" | "external";
   asset?: string;
   wasm?: WasmCreateDetails;
+  external?: ExternalRefCreateDetails;
 }
 
 /**
@@ -69,9 +100,9 @@ export interface InvocationTree {
  *    exist at the root)
  */
 export type InvocationWalker = (
-  node: xdr.SorobanAuthorizedInvocation,
+  node: SorobanAuthorizedInvocation,
   depth: number,
-  parent?: xdr.SorobanAuthorizedInvocation,
+  parent?: SorobanAuthorizedInvocation,
 ) => boolean | null | void;
 
 /**
@@ -92,7 +123,7 @@ export type InvocationWalker = (
  * Here, we show a browser modal after simulating an arbitrary transaction,
  * `tx`, which we assume has an `Operation.invokeHostFunction` inside of it:
  *
- * ```ts
+ * ```typescript
  * import { Server, buildInvocationTree } from '@stellar/stellar-sdk';
  *
  * const s = new Server("fill in accordingly");
@@ -118,88 +149,86 @@ export type InvocationWalker = (
  * ```
  */
 export function buildInvocationTree(
-  root: xdr.SorobanAuthorizedInvocation,
+  root: SorobanAuthorizedInvocation,
 ): InvocationTree {
-  const fn = root.function();
+  const fn = root.function;
 
   const output: Partial<InvocationTree> = {};
-  const inner = fn.value();
 
-  switch (fn.switch().value) {
-    // sorobanAuthorizedFunctionTypeContractFn
-    case 0: {
-      const invokeArgs = fn.contractFn();
+  switch (fn.type) {
+    case "sorobanAuthorizedFunctionTypeContractFn": {
+      const invokeArgs = fn.value;
       output.type = "execute";
       output.args = {
-        source: Address.fromScAddress(invokeArgs.contractAddress()).toString(),
-        function: invokeArgs.functionName().toString(),
+        source: Address.fromScAddress(invokeArgs.contractAddress).toString(),
+        function: invokeArgs.functionName.toString(),
 
-        args: invokeArgs.args().map((arg) => scValToNative(arg)),
+        args: invokeArgs.args.map((arg) => scValToNative(arg)),
       };
       break;
     }
 
-    // sorobanAuthorizedFunctionTypeCreateContractHostFn
-    // sorobanAuthorizedFunctionTypeCreateContractV2HostFn
-    case 1: // fallthrough: just no ctor args in V1
-    case 2: {
-      const createArgs = inner as
-        | xdr.CreateContractArgs
-        | xdr.CreateContractArgsV2;
-      const createV2 = fn.switch().value === 2;
+    case "sorobanAuthorizedFunctionTypeCreateContractHostFn":
+    // fallthrough: V1 just has no ctor args
+    case "sorobanAuthorizedFunctionTypeCreateContractV2HostFn": {
+      const createArgs = fn.value;
+      const createV2 =
+        fn.type === "sorobanAuthorizedFunctionTypeCreateContractV2HostFn";
       output.type = "create";
       const createInvocation: Partial<CreateInvocation> = {};
 
-      // If the executable is a WASM, the preimage MUST be an address. If it's a
-      // token, the preimage MUST be an asset. This is a cheeky way to check
-      // that, because wasm=0, token=1 and address=0, asset=1 in the XDR switch
-      // values.
-      //
-      // The first part may not be true in V2, but we'd need to update this code
-      // anyway so it can still be an error.
-      const [exec, preimage] = [
-        createArgs.executable(),
-        createArgs.contractIdPreimage(),
-      ];
-      if (!!exec.switch().value !== !!preimage.switch().value) {
+      // A WASM or external-ref executable derives its contract ID from a
+      // deployer address plus salt, so its preimage MUST be an address. A
+      // token wraps an existing asset, so its preimage MUST be an asset.
+      const exec = createArgs.executable;
+      const preimage = createArgs.contractIdPreimage;
+
+      // only apply constructor args for CreateV2 scenarios;
+      // empty indicates V2 and no ctor, undefined indicates V1
+      const ctorArgs = createV2
+        ? {
+            constructorArgs: (
+              fn.value as CreateContractArgsV2
+            ).constructorArgs.map((arg: ScVal) => scValToNative(arg)),
+          }
+        : {};
+
+      if (
+        exec.type === "contractExecutableWasm" &&
+        preimage.type === "contractIdPreimageFromAddress"
+      ) {
+        const details = preimage.value;
+        createInvocation.type = "wasm";
+        createInvocation.wasm = {
+          salt: uint8ArrayToHex(details.salt),
+          hash: uint8ArrayToHex(exec.value.value),
+          address: Address.fromScAddress(details.address).toString(),
+          ...ctorArgs,
+        };
+      } else if (
+        exec.type === "contractExecutableExternalRef" &&
+        preimage.type === "contractIdPreimageFromAddress"
+      ) {
+        const details = preimage.value;
+        createInvocation.type = "external";
+        createInvocation.external = {
+          owner: Address.fromScAddress(exec.value.executableOwner).toString(),
+          tag: exec.value.tag.asStringOrBytes(),
+          salt: uint8ArrayToHex(details.salt),
+          address: Address.fromScAddress(details.address).toString(),
+          ...ctorArgs,
+        };
+      } else if (
+        exec.type === "contractExecutableStellarAsset" &&
+        preimage.type === "contractIdPreimageFromAsset"
+      ) {
+        createInvocation.type = "sac";
+        createInvocation.asset = Asset.fromOperation(preimage.value).toString();
+      } else {
         throw new Error(
-          `creation function appears invalid: ${JSON.stringify(
-            inner,
-          )} (should be wasm+address or token+asset)`,
+          `creation function appears invalid: ${JSON.stringify(fn.value)} ` +
+            `(should be wasm+address, external ref+address, or token+asset)`,
         );
-      }
-
-      switch (exec.switch().value) {
-        // contractExecutableWasm
-        case 0: {
-          const details = preimage.fromAddress();
-
-          createInvocation.type = "wasm";
-          createInvocation.wasm = {
-            salt: Buffer.from(details.salt()).toString("hex"),
-            hash: exec.wasmHash().toString("hex"),
-            address: Address.fromScAddress(details.address()).toString(),
-            // only apply constructor args for WASM+CreateV2 scenario
-            ...(createV2 && {
-              constructorArgs: (inner as xdr.CreateContractArgsV2)
-                .constructorArgs()
-
-                .map((arg) => scValToNative(arg)),
-            }), // empty indicates V2 and no ctor, undefined indicates V1
-          };
-          break;
-        }
-
-        // contractExecutableStellarAsset
-        case 1:
-          createInvocation.type = "sac";
-          createInvocation.asset = Asset.fromOperation(
-            preimage.fromAsset(),
-          ).toString();
-          break;
-
-        default:
-          throw new Error(`unknown creation type: ${JSON.stringify(exec)}`);
       }
 
       output.args = createInvocation as CreateInvocation;
@@ -208,11 +237,11 @@ export function buildInvocationTree(
 
     default:
       throw new Error(
-        `unknown invocation type (${fn.switch().value}): ${JSON.stringify(fn)}`,
+        `unknown invocation type (${(fn as { type: string }).type}): ${JSON.stringify(fn)}`,
       );
   }
 
-  output.invocations = root.subInvocations().map((i) => buildInvocationTree(i));
+  output.invocations = root.subInvocations.map((i) => buildInvocationTree(i));
   return output as InvocationTree;
 }
 
@@ -227,23 +256,21 @@ export function buildInvocationTree(
  * @param callback - the callback to execute for each node
  */
 export function walkInvocationTree(
-  root: xdr.SorobanAuthorizedInvocation,
+  root: SorobanAuthorizedInvocation,
   callback: InvocationWalker,
 ): void {
   walkHelper(root, 1, callback);
 }
 
 function walkHelper(
-  node: xdr.SorobanAuthorizedInvocation,
+  node: SorobanAuthorizedInvocation,
   depth: number,
   callback: InvocationWalker,
-  parent?: xdr.SorobanAuthorizedInvocation,
+  parent?: SorobanAuthorizedInvocation,
 ): void {
   if (callback(node, depth, parent) === false /* allow void rv */) {
     return;
   }
 
-  node
-    .subInvocations()
-    .forEach((i) => walkHelper(i, depth + 1, callback, node));
+  node.subInvocations.forEach((i) => walkHelper(i, depth + 1, callback, node));
 }

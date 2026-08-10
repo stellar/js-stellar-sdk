@@ -17,7 +17,7 @@ and compile-time type checking.
 class BindingGenerator {
   static fromContractId(contractId: string, rpcServer: RpcServer): Promise<BindingGenerator>;
   static fromSpec(spec: Spec): BindingGenerator;
-  static fromWasm(wasmBuffer: Buffer): BindingGenerator;
+  static fromWasm(wasmBytes: Uint8Array): BindingGenerator;
   static fromWasmHash(wasmHash: string, rpcServer: RpcServer): Promise<BindingGenerator>;
   generate(options: GenerateOptions): GeneratedBindings;
 }
@@ -27,8 +27,8 @@ class BindingGenerator {
 
 ```ts
 // Create from a local WASM file
-const wasmBuffer = fs.readFileSync("./my_contract.wasm");
-const generator = await BindingGenerator.fromWasm(wasmBuffer);
+const wasmBytes = fs.readFileSync("./my_contract.wasm");
+const generator = await BindingGenerator.fromWasm(wasmBytes);
 const bindings = generator.generate({ contractName: "my-contract" });
 ```
 
@@ -119,7 +119,7 @@ const generator = BindingGenerator.fromSpec(spec);
 
 **Source:** [src/bindings/generator.ts:134](https://github.com/stellar/js-stellar-sdk/blob/main/src/bindings/generator.ts#L134)
 
-### `BindingGenerator.fromWasm(wasmBuffer)`
+### `BindingGenerator.fromWasm(wasmBytes)`
 
 Creates a BindingGenerator from a WASM binary buffer.
 
@@ -127,12 +127,12 @@ Parses the contract specification directly from the WASM file's custom section.
 This is the most common method when working with locally compiled contracts.
 
 ```ts
-static fromWasm(wasmBuffer: Buffer): BindingGenerator;
+static fromWasm(wasmBytes: Uint8Array): BindingGenerator;
 ```
 
 **Parameters**
 
-- **`wasmBuffer`** — `Buffer` (required) — The raw WASM binary as a Buffer
+- **`wasmBytes`** — `Uint8Array` (required) — The raw WASM binary as a Uint8Array
 
 **Returns**
 
@@ -145,8 +145,8 @@ A Promise resolving to a new BindingGenerator instance
 **Example**
 
 ```ts
-const wasmBuffer = fs.readFileSync("./target/wasm32-unknown-unknown/release/my_contract.wasm");
-const generator = await BindingGenerator.fromWasm(wasmBuffer);
+const wasmBytes = fs.readFileSync("./target/wasm32-unknown-unknown/release/my_contract.wasm");
+const generator = await BindingGenerator.fromWasm(wasmBytes);
 ```
 
 **Source:** [src/bindings/generator.ts:154](https://github.com/stellar/js-stellar-sdk/blob/main/src/bindings/generator.ts#L154)

@@ -3,8 +3,9 @@ import { Operation } from "../../../../src/base/operation.js";
 import { Asset } from "../../../../src/base/asset.js";
 import { LiquidityPoolAsset } from "../../../../src/base/liquidity_pool_asset.js";
 import { LiquidityPoolFeeV18 } from "../../../../src/base/get_liquidity_pool_id.js";
-import xdr from "../../../../src/base/xdr.js";
+import * as xdr from "../../../../src/xdr/index.js";
 import { expectOperationType } from "../support/operation.js";
+import { expectVariant } from "../support/xdr.js";
 
 const usd = new Asset(
   "USD",
@@ -20,32 +21,32 @@ const lpAsset = new LiquidityPoolAsset(
 describe("Operation.changeTrust()", () => {
   it("creates a changeTrustOp with Asset using default limit (MAX_INT64)", () => {
     const op = Operation.changeTrust({ asset: usd });
-    const xdrHex = op.toXDR("hex");
-    const operation = xdr.Operation.fromXDR(xdrHex, "hex");
+    const xdrHex = op.toXdr("hex");
+    const operation = xdr.Operation.fromXdr(xdrHex, "hex");
     const obj = expectOperationType(
-      Operation.fromXDRObject(operation),
+      Operation.fromXdrObject(operation),
       "changeTrust",
     );
 
     expect(obj.line).toEqual(usd);
     expect(
-      (operation.body().value() as xdr.ChangeTrustOp).limit().toString(),
+      expectVariant(operation.body, "changeTrust").value.limit.toString(),
     ).toBe("9223372036854775807");
     expect(obj.limit).toBe("922337203685.4775807");
   });
 
   it("creates a changeTrustOp with Asset and explicit limit", () => {
     const op = Operation.changeTrust({ asset: usd, limit: "50.0000000" });
-    const xdrHex = op.toXDR("hex");
-    const operation = xdr.Operation.fromXDR(xdrHex, "hex");
+    const xdrHex = op.toXdr("hex");
+    const operation = xdr.Operation.fromXdr(xdrHex, "hex");
     const obj = expectOperationType(
-      Operation.fromXDRObject(operation),
+      Operation.fromXdrObject(operation),
       "changeTrust",
     );
 
     expect(obj.line).toEqual(usd);
     expect(
-      (operation.body().value() as xdr.ChangeTrustOp).limit().toString(),
+      expectVariant(operation.body, "changeTrust").value.limit.toString(),
     ).toBe("500000000");
     expect(obj.limit).toBe("50.0000000");
   });
@@ -54,23 +55,23 @@ describe("Operation.changeTrust()", () => {
     const op = Operation.changeTrust({ asset: lpAsset });
     expect(op).toBeInstanceOf(xdr.Operation);
 
-    const xdrOp = xdr.Operation.fromXDR(op.toXDR("hex"), "hex");
+    const xdrOp = xdr.Operation.fromXdr(op.toXdr("hex"), "hex");
     const obj = expectOperationType(
-      Operation.fromXDRObject(xdrOp),
+      Operation.fromXdrObject(xdrOp),
       "changeTrust",
     );
 
     expect(obj.line).toEqual(lpAsset);
-    expect((xdrOp.body().value() as xdr.ChangeTrustOp).limit().toString()).toBe(
-      "9223372036854775807",
-    );
+    expect(
+      expectVariant(xdrOp.body, "changeTrust").value.limit.toString(),
+    ).toBe("9223372036854775807");
     expect(obj.limit).toBe("922337203685.4775807");
   });
 
   it("deletes an Asset trustline by setting limit to 0", () => {
     const op = Operation.changeTrust({ asset: usd, limit: "0.0000000" });
     const obj = expectOperationType(
-      Operation.fromXDRObject(xdr.Operation.fromXDR(op.toXDR("hex"), "hex")),
+      Operation.fromXdrObject(xdr.Operation.fromXdr(op.toXdr("hex"), "hex")),
       "changeTrust",
     );
 
@@ -81,7 +82,7 @@ describe("Operation.changeTrust()", () => {
   it("deletes a LiquidityPoolAsset trustline by setting limit to 0", () => {
     const op = Operation.changeTrust({ asset: lpAsset, limit: "0.0000000" });
     const obj = expectOperationType(
-      Operation.fromXDRObject(xdr.Operation.fromXDR(op.toXDR("hex"), "hex")),
+      Operation.fromXdrObject(xdr.Operation.fromXdr(op.toXdr("hex"), "hex")),
       "changeTrust",
     );
 
@@ -103,39 +104,39 @@ describe("Operation.changeTrust()", () => {
     ).toThrow(TypeError);
   });
 
-  it("round-trips an Asset changeTrust through fromXDRObject and back", () => {
+  it("round-trips an Asset changeTrust through fromXdrObject and back", () => {
     const op = Operation.changeTrust({ asset: usd, limit: "50.0000000" });
-    const xdrHex = op.toXDR("hex");
+    const xdrHex = op.toXdr("hex");
     const parsed = expectOperationType(
-      Operation.fromXDRObject(xdr.Operation.fromXDR(xdrHex, "hex")),
+      Operation.fromXdrObject(xdr.Operation.fromXdr(xdrHex, "hex")),
       "changeTrust",
     );
 
     // parsed has `line` (not `asset`); changeTrust accepts both
     const rebuilt = Operation.changeTrust(parsed);
     expect(rebuilt).toBeInstanceOf(xdr.Operation);
-    expect(rebuilt.toXDR("hex")).toBe(xdrHex);
+    expect(rebuilt.toXdr("hex")).toBe(xdrHex);
   });
 
-  it("round-trips a LiquidityPoolAsset changeTrust through fromXDRObject and back", () => {
+  it("round-trips a LiquidityPoolAsset changeTrust through fromXdrObject and back", () => {
     const op = Operation.changeTrust({ asset: lpAsset });
-    const xdrHex = op.toXDR("hex");
+    const xdrHex = op.toXdr("hex");
     const parsed = expectOperationType(
-      Operation.fromXDRObject(xdr.Operation.fromXDR(xdrHex, "hex")),
+      Operation.fromXdrObject(xdr.Operation.fromXdr(xdrHex, "hex")),
       "changeTrust",
     );
 
     // parsed has `line` (not `asset`); changeTrust accepts both
     const rebuilt = Operation.changeTrust(parsed);
     expect(rebuilt).toBeInstanceOf(xdr.Operation);
-    expect(rebuilt.toXDR("hex")).toBe(xdrHex);
+    expect(rebuilt.toXdr("hex")).toBe(xdrHex);
   });
 
   it("preserves an optional source account", () => {
     const source = "GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGSNFHEYVXM3XOJMDS674JZ";
     const op = Operation.changeTrust({ asset: usd, source });
     const obj = expectOperationType(
-      Operation.fromXDRObject(xdr.Operation.fromXDR(op.toXDR("hex"), "hex")),
+      Operation.fromXdrObject(xdr.Operation.fromXdr(op.toXdr("hex"), "hex")),
       "changeTrust",
     );
 

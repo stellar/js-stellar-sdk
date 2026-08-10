@@ -7,8 +7,8 @@ ed.hashes.sha512 = sha512;
  *
  * @param secretKey - the raw Ed25519 secret key
  */
-export function generate(secretKey: Buffer | Uint8Array): Buffer {
-  return Buffer.from(ed.getPublicKey(secretKey));
+export function generate(secretKey: Uint8Array): Uint8Array {
+  return ed.getPublicKey(secretKey);
 }
 
 /**
@@ -17,8 +17,8 @@ export function generate(secretKey: Buffer | Uint8Array): Buffer {
  * @param data - the data to sign
  * @param rawSecret - the raw Ed25519 secret key
  */
-export function sign(data: Buffer, rawSecret: Buffer | Uint8Array): Buffer {
-  return Buffer.from(ed.sign(Buffer.from(data), rawSecret));
+export function sign(data: Uint8Array, rawSecret: Uint8Array): Uint8Array {
+  return ed.sign(data, rawSecret);
 }
 
 /**
@@ -29,16 +29,11 @@ export function sign(data: Buffer, rawSecret: Buffer | Uint8Array): Buffer {
  * @param rawPublicKey - the raw Ed25519 public key
  */
 export function verify(
-  data: Buffer,
-  signature: Buffer,
-  rawPublicKey: Buffer | Uint8Array,
+  data: Uint8Array,
+  signature: Uint8Array,
+  rawPublicKey: Uint8Array,
 ): boolean {
-  return ed.verify(
-    Buffer.from(signature),
-    Buffer.from(data),
-    Buffer.from(rawPublicKey),
-    {
-      zip215: false,
-    },
-  );
+  return ed.verify(signature, data, rawPublicKey, {
+    zip215: false,
+  });
 }
