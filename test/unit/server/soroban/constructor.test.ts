@@ -3,7 +3,8 @@ import * as StellarSdk from "../../../../src/index.js";
 
 import { serverUrl } from "../../../constants";
 
-const { Server } = StellarSdk.rpc;
+const { rpc } = StellarSdk;
+const { Server } = rpc;
 
 describe("Server.constructor", () => {
   let server: any;

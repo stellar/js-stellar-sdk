@@ -1,16 +1,17 @@
 import { describe, it, expect } from "vitest";
 import { Operation } from "../../../../src/base/operation.js";
-import xdr from "../../../../src/base/xdr.js";
+import * as xdr from "../../../../src/xdr/index.js";
 import { expectOperationType } from "../support/operation.js";
+import { expectVariant } from "../support/xdr.js";
 
 describe("Operation.extendFootprintTtl()", () => {
   it("creates an extendFootprintTtl operation", () => {
     const op = Operation.extendFootprintTtl({ extendTo: 1234 });
-    const xdrHex = op.toXDR("hex");
-    const operation = xdr.Operation.fromXDR(xdrHex, "hex");
-    expect(operation.body().switch().name).toBe("extendFootprintTtl");
+    const xdrHex = op.toXdr("hex");
+    const operation = xdr.Operation.fromXdr(xdrHex, "hex");
+    expect(operation.body.type).toBe("extendFootprintTtl");
     const obj = expectOperationType(
-      Operation.fromXDRObject(operation),
+      Operation.fromXdrObject(operation),
       "extendFootprintTtl",
     );
     expect(obj.extendTo).toBe(1234);
@@ -19,10 +20,10 @@ describe("Operation.extendFootprintTtl()", () => {
   it("creates an extendFootprintTtl operation with source account", () => {
     const source = "GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGSNFHEYVXM3XOJMDS674JZ";
     const op = Operation.extendFootprintTtl({ extendTo: 5000, source });
-    const xdrHex = op.toXDR("hex");
-    const operation = xdr.Operation.fromXDR(xdrHex, "hex");
+    const xdrHex = op.toXdr("hex");
+    const operation = xdr.Operation.fromXdr(xdrHex, "hex");
     const obj = expectOperationType(
-      Operation.fromXDRObject(operation),
+      Operation.fromXdrObject(operation),
       "extendFootprintTtl",
     );
     expect(obj.extendTo).toBe(5000);
@@ -60,19 +61,22 @@ describe("Operation.extendFootprintTtl()", () => {
 
   it("roundtrips through XDR hex encoding", () => {
     const op = Operation.extendFootprintTtl({ extendTo: 999 });
-    const hex = op.toXDR("hex");
-    const roundtripped = xdr.Operation.fromXDR(hex, "hex");
-    expect(roundtripped.body().switch().name).toBe("extendFootprintTtl");
-    const opValue = roundtripped.body().value() as xdr.ExtendFootprintTtlOp;
-    expect(opValue.extendTo()).toBe(999);
+    const hex = op.toXdr("hex");
+    const roundtripped = xdr.Operation.fromXdr(hex, "hex");
+    expect(roundtripped.body.type).toBe("extendFootprintTtl");
+    const opValue = expectVariant(
+      roundtripped.body,
+      "extendFootprintTtl",
+    ).value;
+    expect(opValue.extendTo).toBe(999);
   });
 
   it("accepts extendTo value of 1 (minimum positive)", () => {
     const op = Operation.extendFootprintTtl({ extendTo: 1 });
-    const xdrHex = op.toXDR("hex");
-    const operation = xdr.Operation.fromXDR(xdrHex, "hex");
+    const xdrHex = op.toXdr("hex");
+    const operation = xdr.Operation.fromXdr(xdrHex, "hex");
     const obj = expectOperationType(
-      Operation.fromXDRObject(operation),
+      Operation.fromXdrObject(operation),
       "extendFootprintTtl",
     );
     expect(obj.extendTo).toBe(1);

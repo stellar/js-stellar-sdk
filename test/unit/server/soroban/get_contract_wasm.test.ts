@@ -7,13 +7,14 @@ import {
   vi,
   assert,
 } from "vitest";
+import { base64ToUint8Array, hexToUint8Array } from "uint8array-extras";
 import * as StellarSdk from "../../../../src/index.js";
 
 import { serverUrl } from "../../../constants";
 
-const { xdr, hash, Contract } = StellarSdk;
+const { xdr, hash, Contract, rpc } = StellarSdk;
 
-const { Server } = StellarSdk.rpc;
+const { Server } = rpc;
 
 describe("Server#getContractWasm", () => {
   let server: any;
@@ -29,15 +30,13 @@ describe("Server#getContractWasm", () => {
   });
 
   const contractId = "CCN57TGC6EXFCYIQJ4UCD2UDZ4C3AQCHVMK74DGZ3JYCA5HD4BY7FNPC";
-  const wasmHash = Buffer.from(
+  const wasmHash = base64ToUint8Array(
     "kh1dFBiUKv/lXkcD+XnVTsbzi+Lps96lfWEk3rFWNnI=",
-    "base64",
   );
-  const wasmBuffer = Buffer.from(
+  const wasmBuffer = hexToUint8Array(
     "0061730120c0800010ab818080000b20002035503082000336232636439000",
-    "hex",
   );
-  const contractCodeEntryExtension = xdr.ContractCodeEntryExt.fromXDR(
+  const contractCodeEntryExtension = xdr.ContractCodeEntryExt.fromXdr(
     "AAAAAQAAAAAAAAAAAAAVqAAAAJwAAAADAAAAAwAAABgAAAABAAAAAQAAABEAAAAgAAABpA==",
     "base64",
   );
@@ -48,13 +47,15 @@ describe("Server#getContractWasm", () => {
 
   const ledgerEntryWasmHash = xdr.LedgerEntryData.contractData(
     new xdr.ContractDataEntry({
-      ext: new (xdr.ExtensionPoint as any)(0),
+      ext: xdr.ExtensionPoint.v0(),
       contract: address.toScAddress(),
-      durability: xdr.ContractDataDurability.persistent(),
+      durability: xdr.ContractDataDurability.persistent,
       key: xdr.ScVal.scvLedgerKeyContractInstance(),
       val: xdr.ScVal.scvContractInstance(
         new xdr.ScContractInstance({
-          executable: xdr.ContractExecutable.contractExecutableWasm(wasmHash),
+          executable: xdr.ContractExecutable.contractExecutableWasm(
+            new xdr.Hash(wasmHash),
+          ),
           storage: null,
         }),
       ),
@@ -62,14 +63,14 @@ describe("Server#getContractWasm", () => {
   );
   const ledgerKeyWasmHash = xdr.LedgerKey.contractData(
     new xdr.LedgerKeyContractData({
-      contract: ledgerEntryWasmHash.contractData().contract(),
-      durability: ledgerEntryWasmHash.contractData().durability(),
-      key: ledgerEntryWasmHash.contractData().key(),
+      contract: ledgerEntryWasmHash.contractData.contract,
+      durability: ledgerEntryWasmHash.contractData.durability,
+      key: ledgerEntryWasmHash.contractData.key,
     }),
   );
   const ledgerTtlEntryWasmHash = xdr.LedgerEntryData.ttl(
     new xdr.TtlEntry({
-      keyHash: hash(ledgerKeyWasmHash.toXDR()),
+      keyHash: hash(ledgerKeyWasmHash.toXdr()),
       liveUntilLedgerSeq: 1000,
     }),
   );
@@ -96,7 +97,7 @@ describe("Server#getContractWasm", () => {
 
   const wasmLedgerTtlEntry = xdr.LedgerEntryData.ttl(
     new xdr.TtlEntry({
-      keyHash: hash(wasmLedgerKey.toXDR()),
+      keyHash: hash(wasmLedgerKey.toXdr()),
       liveUntilLedgerSeq: 1000,
     }),
   );
@@ -115,12 +116,10 @@ describe("Server#getContractWasm", () => {
           latestLedger: 18039,
           entries: [
             {
-              liveUntilLedgerSeq: ledgerTtlEntryWasmHash
-                .ttl()
-                .liveUntilLedgerSeq(),
+              liveUntilLedgerSeq: ledgerTtlEntryWasmHash.ttl.liveUntilLedgerSeq,
               lastModifiedLedgerSeq: wasmHashResult.lastModifiedLedgerSeq,
-              xdr: ledgerEntryWasmHash.toXDR("base64"),
-              key: contractLedgerKey.toXDR("base64"),
+              xdr: ledgerEntryWasmHash.toXdr("base64"),
+              key: contractLedgerKey.toXdr("base64"),
             },
           ],
         },
@@ -133,10 +132,10 @@ describe("Server#getContractWasm", () => {
           latestLedger: 18039,
           entries: [
             {
-              liveUntilLedgerSeq: wasmLedgerTtlEntry.ttl().liveUntilLedgerSeq(),
+              liveUntilLedgerSeq: wasmLedgerTtlEntry.ttl.liveUntilLedgerSeq,
               lastModifiedLedgerSeq: wasmResult.lastModifiedLedgerSeq,
-              xdr: wasmLedgerCode.toXDR("base64"),
-              key: wasmLedgerKey.toXDR("base64"),
+              xdr: wasmLedgerCode.toXdr("base64"),
+              key: wasmLedgerKey.toXdr("base64"),
             },
           ],
         },
@@ -153,13 +152,13 @@ describe("Server#getContractWasm", () => {
       jsonrpc: "2.0",
       id: 1,
       method: "getLedgerEntries",
-      params: { keys: [contractLedgerKey.toXDR("base64")] },
+      params: { keys: [contractLedgerKey.toXdr("base64")] },
     });
     expect(mockPost).toHaveBeenCalledWith(serverUrl, {
       jsonrpc: "2.0",
       id: 1,
       method: "getLedgerEntries",
-      params: { keys: [wasmLedgerKey.toXDR("base64")] },
+      params: { keys: [wasmLedgerKey.toXdr("base64")] },
     });
     expect(mockPost).toHaveBeenCalledTimes(2);
   });
@@ -177,7 +176,7 @@ describe("Server#getContractWasm", () => {
       jsonrpc: "2.0",
       id: 1,
       method: "getLedgerEntries",
-      params: { keys: [contractLedgerKey.toXDR("base64")] },
+      params: { keys: [contractLedgerKey.toXdr("base64")] },
     });
     expect(mockPost).toHaveBeenCalledTimes(1);
   });
@@ -189,12 +188,10 @@ describe("Server#getContractWasm", () => {
           latestLedger: 18039,
           entries: [
             {
-              liveUntilLedgerSeq: ledgerTtlEntryWasmHash
-                .ttl()
-                .liveUntilLedgerSeq(),
+              liveUntilLedgerSeq: ledgerTtlEntryWasmHash.ttl.liveUntilLedgerSeq,
               lastModifiedLedgerSeq: wasmHashResult.lastModifiedLedgerSeq,
-              xdr: ledgerEntryWasmHash.toXDR("base64"),
-              key: contractLedgerKey.toXDR("base64"),
+              xdr: ledgerEntryWasmHash.toXdr("base64"),
+              key: contractLedgerKey.toXdr("base64"),
             },
           ],
         },
@@ -216,13 +213,13 @@ describe("Server#getContractWasm", () => {
       jsonrpc: "2.0",
       id: 1,
       method: "getLedgerEntries",
-      params: { keys: [contractLedgerKey.toXDR("base64")] },
+      params: { keys: [contractLedgerKey.toXdr("base64")] },
     });
     expect(mockPost).toHaveBeenCalledWith(serverUrl, {
       jsonrpc: "2.0",
       id: 1,
       method: "getLedgerEntries",
-      params: { keys: [wasmLedgerKey.toXDR("base64")] },
+      params: { keys: [wasmLedgerKey.toXdr("base64")] },
     });
     expect(mockPost).toHaveBeenCalledTimes(2);
   });
@@ -230,9 +227,9 @@ describe("Server#getContractWasm", () => {
   it("throws a clear error for a Stellar Asset Contract (SAC)", async () => {
     const sacInstanceEntry = xdr.LedgerEntryData.contractData(
       new xdr.ContractDataEntry({
-        ext: new (xdr.ExtensionPoint as any)(0),
+        ext: xdr.ExtensionPoint.v0(),
         contract: address.toScAddress(),
-        durability: xdr.ContractDataDurability.persistent(),
+        durability: xdr.ContractDataDurability.persistent,
         key: xdr.ScVal.scvLedgerKeyContractInstance(),
         val: xdr.ScVal.scvContractInstance(
           new xdr.ScContractInstance({
@@ -251,8 +248,8 @@ describe("Server#getContractWasm", () => {
             {
               liveUntilLedgerSeq: 1000,
               lastModifiedLedgerSeq: 1,
-              xdr: sacInstanceEntry.toXDR("base64"),
-              key: contractLedgerKey.toXDR("base64"),
+              xdr: sacInstanceEntry.toXdr("base64"),
+              key: contractLedgerKey.toXdr("base64"),
             },
           ],
         },
@@ -271,5 +268,189 @@ describe("Server#getContractWasm", () => {
       message: expect.stringContaining("Stellar Asset Contract"),
     });
     expect(mockPost).toHaveBeenCalledTimes(1);
+  });
+
+  describe("CAP-85 external executable references", () => {
+    const ownerId = "CA3D5KRYM6CB7OWQ6TWYRR3Z4T7GNZLKERYNZGGA5SOAOPIFY6YQGAXE";
+    const owner = new Contract(ownerId);
+    const tag = "my-executable";
+
+    // The owner holds a persistent entry keyed by the tag whose value is the
+    // 32-byte Wasm hash; the reference itself carries no hash.
+    const tagKey = xdr.ScVal.scvExecutableTag(tag);
+    const tagLedgerKey = xdr.LedgerKey.contractData(
+      new xdr.LedgerKeyContractData({
+        contract: owner.address().toScAddress(),
+        durability: xdr.ContractDataDurability.persistent,
+        key: tagKey,
+      }),
+    );
+
+    function externalRefInstanceEntry(tagValue: string | Uint8Array = tag) {
+      return xdr.LedgerEntryData.contractData(
+        new xdr.ContractDataEntry({
+          ext: xdr.ExtensionPoint.v0(),
+          contract: address.toScAddress(),
+          durability: xdr.ContractDataDurability.persistent,
+          key: xdr.ScVal.scvLedgerKeyContractInstance(),
+          val: xdr.ScVal.scvContractInstance(
+            new xdr.ScContractInstance({
+              executable: xdr.ContractExecutable.contractExecutableExternalRef(
+                new xdr.ContractExecutableExternalRef({
+                  executableOwner: owner.address().toScAddress(),
+                  tag: tagValue,
+                }),
+              ),
+              storage: null,
+            }),
+          ),
+        }),
+      );
+    }
+
+    function tagEntry(value: xdr.ScVal) {
+      return xdr.LedgerEntryData.contractData(
+        new xdr.ContractDataEntry({
+          ext: xdr.ExtensionPoint.v0(),
+          contract: owner.address().toScAddress(),
+          durability: xdr.ContractDataDurability.persistent,
+          key: tagKey,
+          val: value,
+        }),
+      );
+    }
+
+    function entryResponse(entry: any, key: any) {
+      return {
+        data: {
+          result: {
+            latestLedger: 18039,
+            entries: [
+              {
+                liveUntilLedgerSeq: 1000,
+                lastModifiedLedgerSeq: 1,
+                xdr: entry.toXdr("base64"),
+                key: key.toXdr("base64"),
+              },
+            ],
+          },
+        },
+      };
+    }
+
+    it("resolves the reference and retrieves the WASM", async () => {
+      mockPost
+        .mockResolvedValueOnce(
+          entryResponse(externalRefInstanceEntry(), contractLedgerKey),
+        )
+        .mockResolvedValueOnce(
+          entryResponse(tagEntry(xdr.ScVal.scvBytes(wasmHash)), tagLedgerKey),
+        )
+        .mockResolvedValueOnce(entryResponse(wasmLedgerCode, wasmLedgerKey));
+
+      const wasmData = await server.getContractWasmByContractId(contractId);
+      assert.deepEqual(wasmData, wasmBuffer);
+
+      // instance -> owner's tag entry -> contract code
+      expect(mockPost).toHaveBeenCalledWith(serverUrl, {
+        jsonrpc: "2.0",
+        id: 1,
+        method: "getLedgerEntries",
+        params: { keys: [tagLedgerKey.toXdr("base64")] },
+      });
+      expect(mockPost).toHaveBeenCalledWith(serverUrl, {
+        jsonrpc: "2.0",
+        id: 1,
+        method: "getLedgerEntries",
+        params: { keys: [wasmLedgerKey.toXdr("base64")] },
+      });
+      expect(mockPost).toHaveBeenCalledTimes(3);
+    });
+
+    it("keys the lookup on a binary tag without decoding it", async () => {
+      // An executable tag is an unbounded SCString and need not be UTF-8. A
+      // lenient decode would build a key for a different entry.
+      const binaryTag = new Uint8Array([0xff, 0xfe, 0x00, 0x41]);
+      const binaryTagLedgerKey = xdr.LedgerKey.contractData(
+        new xdr.LedgerKeyContractData({
+          contract: owner.address().toScAddress(),
+          durability: xdr.ContractDataDurability.persistent,
+          key: xdr.ScVal.scvExecutableTag(binaryTag),
+        }),
+      );
+
+      mockPost.mockResolvedValueOnce(
+        entryResponse(externalRefInstanceEntry(binaryTag), contractLedgerKey),
+      );
+      mockPost.mockResolvedValue({ data: { result: { entries: [] } } });
+
+      await expect(
+        server.getContractWasmByContractId(contractId),
+      ).rejects.toMatchObject({ code: 404 });
+
+      expect(mockPost).toHaveBeenCalledWith(serverUrl, {
+        jsonrpc: "2.0",
+        id: 1,
+        method: "getLedgerEntries",
+        params: { keys: [binaryTagLedgerKey.toXdr("base64")] },
+      });
+    });
+
+    it("rejects when the tag entry does not hold a 32-byte hash", async () => {
+      mockPost
+        .mockResolvedValueOnce(
+          entryResponse(externalRefInstanceEntry(), contractLedgerKey),
+        )
+        .mockResolvedValueOnce(
+          entryResponse(tagEntry(xdr.ScVal.scvU32(7)), tagLedgerKey),
+        );
+
+      await expect(
+        server.getContractWasmByContractId(contractId),
+      ).rejects.toMatchObject({
+        code: 404,
+        message: expect.stringContaining("32-byte Wasm hash"),
+      });
+      expect(mockPost).toHaveBeenCalledTimes(2);
+    });
+
+    it("rejects when the owner is not a contract", async () => {
+      const accountOwner = new StellarSdk.Address(
+        "GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI",
+      );
+      const instanceEntry = xdr.LedgerEntryData.contractData(
+        new xdr.ContractDataEntry({
+          ext: xdr.ExtensionPoint.v0(),
+          contract: address.toScAddress(),
+          durability: xdr.ContractDataDurability.persistent,
+          key: xdr.ScVal.scvLedgerKeyContractInstance(),
+          val: xdr.ScVal.scvContractInstance(
+            new xdr.ScContractInstance({
+              executable: xdr.ContractExecutable.contractExecutableExternalRef(
+                new xdr.ContractExecutableExternalRef({
+                  executableOwner: accountOwner.toScAddress(),
+                  tag,
+                }),
+              ),
+              storage: null,
+            }),
+          ),
+        }),
+      );
+
+      mockPost.mockResolvedValueOnce(
+        entryResponse(instanceEntry, contractLedgerKey),
+      );
+
+      // Only a contract can hold the contract data entry that names the Wasm,
+      // so this fails before any second lookup.
+      await expect(
+        server.getContractWasmByContractId(contractId),
+      ).rejects.toMatchObject({
+        code: 400,
+        message: expect.stringContaining("is not a"),
+      });
+      expect(mockPost).toHaveBeenCalledTimes(1);
+    });
   });
 });

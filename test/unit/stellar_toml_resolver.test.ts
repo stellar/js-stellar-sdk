@@ -4,14 +4,15 @@ import { AddressInfo } from "net";
 import * as StellarSdk from "../../src/index.js";
 import { httpClient } from "../../src/http-client/index.js";
 
-const { Resolver, STELLAR_TOML_MAX_SIZE } = StellarSdk.StellarToml;
+const { StellarToml, Config } = StellarSdk;
+const { Resolver, STELLAR_TOML_MAX_SIZE } = StellarToml;
 
 describe("stellar_toml_resolver.js tests", () => {
   let mockHttpClient: any;
 
   beforeEach(() => {
     mockHttpClient = vi.spyOn(httpClient, "get");
-    StellarSdk.Config.setDefault();
+    Config.setDefault();
   });
 
   afterEach(() => {
@@ -20,7 +21,7 @@ describe("stellar_toml_resolver.js tests", () => {
 
   describe("Resolver.resolve", () => {
     afterEach(() => {
-      StellarSdk.Config.setDefault();
+      Config.setDefault();
     });
 
     it("returns stellar.toml object for valid request and stellar.toml file", async () => {
@@ -66,7 +67,7 @@ FEDERATION_SERVER="http://api.stellar.org/federation"
     });
 
     it("returns stellar.toml object for valid request and stellar.toml file when global Config.allowHttp flag is set", async () => {
-      StellarSdk.Config.setAllowHttp(true);
+      Config.setAllowHttp(true);
 
       mockHttpClient.mockImplementation((url: string) => {
         if (url.includes("http://acme.com/.well-known/stellar.toml")) {
@@ -142,7 +143,7 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
     });
 
     it("rejects after given timeout when global Config.timeout flag is set", async () => {
-      StellarSdk.Config.setTimeout(1000);
+      Config.setTimeout(1000);
 
       // Unable to create temp server in a browser
       if (typeof window !== "undefined") {
@@ -162,7 +163,7 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
           }),
         ).rejects.toThrow(/timeout of 1000ms exceeded/);
       } finally {
-        StellarSdk.Config.setDefault();
+        Config.setDefault();
         tempServer.close();
       }
     });

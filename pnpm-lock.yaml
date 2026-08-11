@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@exodus/bytes':
+        specifier: ^1.15.1
+        version: 1.15.1(@noble/hashes@2.2.0)
       '@noble/ed25519':
         specifier: ^3.1.0
         version: 3.1.0
@@ -15,20 +18,17 @@ importers:
         specifier: ^2.2.0
         version: 2.2.0
       '@stellar/js-xdr':
-        specifier: 4.0.0
-        version: 4.0.0
+        specifier: ^5.0.0-rc.1
+        version: 5.0.0-rc.1
+      '@types/json-schema':
+        specifier: ^7.0.15
+        version: 7.0.15
       axios:
         specifier: 1.18.0
         version: 1.18.0
-      base32.js:
-        specifier: ^0.1.0
-        version: 0.1.0
       bignumber.js:
         specifier: ^11.1.4
         version: 11.1.4
-      buffer:
-        specifier: ^6.0.3
-        version: 6.0.3
       commander:
         specifier: ^14.0.3
         version: 14.0.3
@@ -66,9 +66,6 @@ importers:
       '@rollup/plugin-commonjs':
         specifier: ^29.0.3
         version: 29.0.3(rollup@4.62.0)
-      '@rollup/plugin-inject':
-        specifier: ^5.0.5
-        version: 5.0.5(rollup@4.62.0)
       '@rollup/plugin-node-resolve':
         specifier: ^16.0.1
         version: 16.0.3(rollup@4.62.0)
@@ -78,12 +75,12 @@ importers:
       '@rollup/plugin-terser':
         specifier: ^1.0.0
         version: 1.0.0(rollup@4.62.0)
+      '@stellar/stellar-xdr-json':
+        specifier: ^26.0.0
+        version: 26.0.0
       '@types/detect-node':
         specifier: ^2.0.2
         version: 2.0.2
-      '@types/json-schema':
-        specifier: ^7.0.15
-        version: 7.0.15
       '@types/node':
         specifier: ^22.19.17
         version: 22.19.17
@@ -147,6 +144,9 @@ importers:
       husky:
         specifier: ^9.1.7
         version: 9.1.7
+      js-xdr-v4:
+        specifier: npm:@stellar/js-xdr@4.0.0
+        version: '@stellar/js-xdr@4.0.0'
       jsdom:
         specifier: ^29.1.1
         version: 29.1.1(@noble/hashes@2.2.0)
@@ -1593,6 +1593,13 @@ packages:
     resolution: {integrity: sha512-+NmNa7Tk5BI5XFdy/6xGTqAN4J9a9KgCrCGhj2uEUTCBhLkch0M+QbKzNH8zEnejWe0p8w+0q5hUVX6L3OzoVA==}
     engines: {node: '>=20.0.0', pnpm: '>=9.0.0'}
 
+  '@stellar/js-xdr@5.0.0-rc.1':
+    resolution: {integrity: sha512-Srb0vLhm9fM3CLtGdMy6tjBW2SiIAnZeAhmMcODWC3eaJ07rzuIPLq2TK5ESQFc24d7y02txmV53zws9UDqfWQ==}
+    engines: {node: '>=22.0.0', pnpm: '>=10.0.0'}
+
+  '@stellar/stellar-xdr-json@26.0.0':
+    resolution: {integrity: sha512-yopCAdWndVkArd2908K4jSf5lr/k/CCVPxxhz4s3PHPZKAr/P/et+HyWgBIc3kk/SPeKgj4dKs1XexS8u3wpLg==}
+
   '@tybys/wasm-util@0.10.2':
     resolution: {integrity: sha512-RoBvJ2X0wuKlWFIjrwffGw1IqZHKQqzIchKaadZZfnNpsAYp2mM0h36JtPCjNDAHGgYez/15uMBpfGwchhiMgg==}
 
@@ -2110,13 +2117,6 @@ packages:
     resolution: {integrity: sha512-BLrgEcRTwX2o6gGxGOCNyMvGSp35YofuYzw9h1IMTRmKqttAZZVU67bdb9Pr2vUHA8+j3i2tJfjO6C6+4myGTA==}
     engines: {node: 18 || 20 || >=22}
 
-  base32.js@0.1.0:
-    resolution: {integrity: sha512-n3TkB02ixgBOhTvANakDb4xaMXnYUVkNoRFJjQflcqMQhyEKxEHdj3E6N8t8sUQ0mjH/3/JxzlXuz3ul/J90pQ==}
-    engines: {node: '>=0.12.0'}
-
-  base64-js@1.5.1:
-    resolution: {integrity: sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==}
-
   baseline-browser-mapping@2.10.37:
     resolution: {integrity: sha512-girxaJ7WZssDOFhzCGZTDKoTa1gk6A1TbflaYTpykLJ4UU9Fz9kx1aREM8JCuoVHbL8X8T/mJg7w2oYSq72Oig==}
     engines: {node: '>=6.0.0'}
@@ -2154,9 +2154,6 @@ packages:
 
   buffer-from@1.1.2:
     resolution: {integrity: sha512-E+XQCRwSbaaiChtv6k6Dwgc+bx+Bs6vuKJHHl5kox/BaKbhiXzqQOwK4cO22yElGp2OCmjwVhT3HmxgyPGnJfQ==}
-
-  buffer@6.0.3:
-    resolution: {integrity: sha512-FTiCpNxtwiZZHEZbcbTIcZjERVICn9yq/pDFkTl95/AxzD1naBctN7YO68riM/gLSDY7sdrMby8hofADYuuqOA==}
 
   call-bind-apply-helpers@1.0.2:
     resolution: {integrity: sha512-Sp1ablJ0ivDkSzjcaJdxEunN5/XvksFJ2sMBFfq6x0ryhQV/2b/KwFe21cMpmHtPOSij8K99/wSfoEuTObmuMQ==}
@@ -3003,9 +3000,6 @@ packages:
     peerDependenciesMeta:
       typescript:
         optional: true
-
-  ieee754@1.2.1:
-    resolution: {integrity: sha512-dcyqhDvX1C46lXZcVqCpK+FtMRQVdIMN6/Df5js2zouUsqG7I6sFxitIC+7KYK29KdXOLHdu9zL4sFnoVQnqaA==}
 
   ignore@5.3.2:
     resolution: {integrity: sha512-hsBTNUqQTDwkWtcdYI2i06Y/nUBEsNEDJKjWdigLvegy8kDuJAS8uRlpkkcQpyEXL0Z/pjDy5HBmMjRCJ2gq+g==}
@@ -5974,6 +5968,10 @@ snapshots:
 
   '@stellar/js-xdr@4.0.0': {}
 
+  '@stellar/js-xdr@5.0.0-rc.1': {}
+
+  '@stellar/stellar-xdr-json@26.0.0': {}
+
   '@tybys/wasm-util@0.10.2':
     dependencies:
       tslib: 2.8.1
@@ -6645,10 +6643,6 @@ snapshots:
 
   balanced-match@4.0.4: {}
 
-  base32.js@0.1.0: {}
-
-  base64-js@1.5.1: {}
-
   baseline-browser-mapping@2.10.37: {}
 
   bcp-47-match@2.0.3: {}
@@ -6689,11 +6683,6 @@ snapshots:
       update-browserslist-db: 1.2.3(browserslist@4.28.2)
 
   buffer-from@1.1.2: {}
-
-  buffer@6.0.3:
-    dependencies:
-      base64-js: 1.5.1
-      ieee754: 1.2.1
 
   call-bind-apply-helpers@1.0.2:
     dependencies:
@@ -7771,8 +7760,6 @@ snapshots:
   i18next@26.3.1(typescript@5.9.3):
     optionalDependencies:
       typescript: 5.9.3
-
-  ieee754@1.2.1: {}
 
   ignore@5.3.2: {}
 

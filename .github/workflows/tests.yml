@@ -38,15 +38,6 @@ jobs:
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile --network-concurrency 1
 
-      - name: Install Playwright Chromium
-        run: pnpm exec playwright install chromium
-
-      - name: Install Playwright Firefox
-        run: pnpm exec playwright install firefox
-
-      - name: Install Playwright system dependencies
-        run: pnpm exec playwright install-deps chromium firefox
-
       - name: Build
         run: pnpm run build:prod
 
@@ -65,11 +56,53 @@ jobs:
         if: matrix.node-version == 22
         run: pnpm run docs:snippets:check
 
-      - name: Browser Tests
-        run: pnpm run test:browser
+  # Browser tests get their own job per transport rather than two steps in
+  # `build_and_test`. Each pass loads the SDK source graph — ~470 unbundled
+  # `src/xdr` modules — once per test file, across 220 files and two browsers.
+  # Run back to back on one runner, the second pass reliably lost its browser
+  # page mid-run ("Browser connection was closed while running tests"), always
+  # after ~65 files with every test that ran passing. A fresh runner per
+  # transport keeps each pass within the runner's memory budget.
+  browser_test:
+    runs-on: ubuntu-latest
 
-      - name: Browser Tests (Axios)
-        run: pnpm run test:browser:axios
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [22, 24]
+        transport: [fetch, axios]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v7
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile --network-concurrency 1
+
+      - name: Install Playwright Chromium
+        run: pnpm exec playwright install chromium
+
+      - name: Install Playwright Firefox
+        run: pnpm exec playwright install firefox
+
+      - name: Install Playwright system dependencies
+        run: pnpm exec playwright install-deps chromium firefox
+
+      - name: Browser Tests (${{ matrix.transport }})
+        run: pnpm run test:browser:${{ matrix.transport }}
 
   # Placeholder to satisfy the `build_and_test (20)` required status check in
   # the `protect-main` ruleset. Node 20 was dropped from the test matrix

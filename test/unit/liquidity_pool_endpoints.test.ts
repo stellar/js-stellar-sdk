@@ -1,7 +1,7 @@
 import { describe, it, beforeEach, afterEach, expect, vi } from "vitest";
 import * as StellarSdk from "../../src/index.js";
 
-const { Horizon } = StellarSdk;
+const { Horizon, Config, Asset } = StellarSdk;
 
 const BASE_URL = "https://horizon-live.stellar.org:1337";
 const LP_URL = `${BASE_URL}/liquidity_pools`;
@@ -18,7 +18,7 @@ describe("/liquidity_pools tests", () => {
   beforeEach(() => {
     server = new Horizon.Server(BASE_URL);
     mockGet = vi.spyOn(server.httpClient, "get");
-    StellarSdk.Config.setDefault();
+    Config.setDefault();
   });
 
   afterEach(() => {
@@ -93,11 +93,11 @@ describe("/liquidity_pools tests", () => {
   const phpResponse = copyJson(rootResponse);
   phpResponse._embedded.records.pop(); // last elem doesn't have PHP asset
 
-  const EURT = new StellarSdk.Asset(
+  const EURT = new Asset(
     "EURT",
     "GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S",
   );
-  const PHP = new StellarSdk.Asset(
+  const PHP = new Asset(
     "PHP",
     "GAP5LETOV6YIE62YAM56STDANPRDO7ZFDBGSNHJQIYGGKSMOZAHOOS2S",
   );
@@ -118,7 +118,7 @@ describe("/liquidity_pools tests", () => {
   describe("filters", () => {
     const testCases = [
       {
-        assets: [StellarSdk.Asset.native()],
+        assets: [Asset.native()],
         response: emptyResponse,
       },
       {

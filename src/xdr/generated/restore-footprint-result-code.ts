@@ -1,0 +1,80 @@
+import { enumType } from "@stellar/js-xdr";
+import {
+  EnumValue,
+  enumFromName,
+  enumFromValue,
+  withMemberPrefix,
+} from "../values/enum-value.js";
+
+export type RestoreFootprintResultCodeWire = number;
+
+export type RestoreFootprintResultCodeName =
+  | "restoreFootprintSuccess"
+  | "restoreFootprintMalformed"
+  | "restoreFootprintResourceLimitExceeded"
+  | "restoreFootprintInsufficientRefundableFee";
+
+/**
+ * ```xdr
+ * enum RestoreFootprintResultCode
+ * {
+ *     // codes considered as "success" for the operation
+ *     RESTORE_FOOTPRINT_SUCCESS = 0,
+ *
+ *     // codes considered as "failure" for the operation
+ *     RESTORE_FOOTPRINT_MALFORMED = -1,
+ *     RESTORE_FOOTPRINT_RESOURCE_LIMIT_EXCEEDED = -2,
+ *     RESTORE_FOOTPRINT_INSUFFICIENT_REFUNDABLE_FEE = -3
+ * };
+ * ```
+ */
+export class RestoreFootprintResultCode extends EnumValue<RestoreFootprintResultCodeName> {
+  static readonly restoreFootprintSuccess = new RestoreFootprintResultCode(
+    "restoreFootprintSuccess",
+    0,
+  );
+  static readonly restoreFootprintMalformed = new RestoreFootprintResultCode(
+    "restoreFootprintMalformed",
+    -1,
+  );
+  static readonly restoreFootprintResourceLimitExceeded =
+    new RestoreFootprintResultCode("restoreFootprintResourceLimitExceeded", -2);
+  static readonly restoreFootprintInsufficientRefundableFee =
+    new RestoreFootprintResultCode(
+      "restoreFootprintInsufficientRefundableFee",
+      -3,
+    );
+
+  static readonly schema = withMemberPrefix(
+    enumType("RestoreFootprintResultCode", {
+      restoreFootprintSuccess: 0,
+      restoreFootprintMalformed: -1,
+      restoreFootprintResourceLimitExceeded: -2,
+      restoreFootprintInsufficientRefundableFee: -3,
+    }),
+    "restoreFootprint",
+  );
+
+  static fromValue(value: number): RestoreFootprintResultCode {
+    return enumFromValue(
+      "RestoreFootprintResultCode",
+      RestoreFootprintResultCode.schema,
+      RestoreFootprintResultCode,
+      value,
+    );
+  }
+
+  static fromName(
+    name: RestoreFootprintResultCodeName,
+  ): RestoreFootprintResultCode {
+    return enumFromName(
+      "RestoreFootprintResultCode",
+      RestoreFootprintResultCode,
+      name,
+    );
+  }
+
+  static fromXdrObject(wire: number): RestoreFootprintResultCode {
+    return RestoreFootprintResultCode.fromValue(wire);
+  }
+}

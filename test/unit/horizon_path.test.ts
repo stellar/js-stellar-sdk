@@ -1,7 +1,17 @@
 import { describe, it, beforeEach, afterEach, expect, vi } from "vitest";
 import * as StellarSdk from "../../src/index.js";
 
-const { Horizon } = StellarSdk;
+const {
+  Horizon,
+  Config,
+  Keypair,
+  Account,
+  TransactionBuilder,
+  Operation,
+  Asset,
+  Networks,
+  TimeoutInfinite,
+} = StellarSdk;
 
 // Test data for different server URL configurations
 const SERVER_URLS = [
@@ -20,7 +30,7 @@ SERVER_URLS.forEach((serverUrl) => {
       server = new Horizon.Server(serverUrl);
       mockGet = vi.spyOn(server.httpClient, "get");
       mockPost = vi.spyOn(server.httpClient, "post");
-      StellarSdk.Config.setDefault();
+      Config.setDefault();
     });
 
     afterEach(() => {
@@ -142,28 +152,25 @@ SERVER_URLS.forEach((serverUrl) => {
     });
 
     it("server.submitTransaction()", async () => {
-      const keypair = StellarSdk.Keypair.random();
-      const account = new StellarSdk.Account(
-        keypair.publicKey(),
-        "56199647068161",
-      );
+      const keypair = Keypair.random();
+      const account = new Account(keypair.publicKey(), "56199647068161");
 
-      const fakeTransaction = new StellarSdk.TransactionBuilder(account, {
+      const fakeTransaction = new TransactionBuilder(account, {
         fee: "100",
-        networkPassphrase: StellarSdk.Networks.TESTNET,
+        networkPassphrase: Networks.TESTNET,
       })
         .addOperation(
-          StellarSdk.Operation.payment({
+          Operation.payment({
             destination: keypair.publicKey(),
-            asset: StellarSdk.Asset.native(),
+            asset: Asset.native(),
             amount: "100.50",
           }),
         )
-        .setTimeout(StellarSdk.TimeoutInfinite)
+        .setTimeout(TimeoutInfinite)
         .build();
       fakeTransaction.sign(keypair);
       const tx = encodeURIComponent(
-        fakeTransaction.toEnvelope().toXDR().toString("base64"),
+        fakeTransaction.toEnvelope().toXdr("base64"),
       );
 
       const testResult = prepareAxiosMock("post", "post", `tx=${tx}`);

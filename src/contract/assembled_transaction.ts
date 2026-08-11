@@ -10,10 +10,7 @@ import {
   TransactionBuilder,
   authorizeEntry as stellarBaseAuthorizeEntry,
   inspectAuthEntry,
-  xdr,
 } from "../base/index.js";
-// internal helper (not part of the public API), imported directly from auth.js
-import { getAddressCredentials } from "../base/auth.js";
 import type {
   AssembledTransactionOptions,
   ClientOptions,
@@ -53,6 +50,20 @@ import {
   SimulationFailedError,
   UserRejectedError,
 } from "./errors.js";
+import {
+  InvokeContractArgs,
+  Operation as XdrOperation,
+  ScAddress,
+  ScVal,
+  SorobanAuthorizationEntry,
+  SorobanCredentials,
+  SorobanTransactionData,
+  TransactionEnvelope,
+} from "../xdr/index.js";
+import { getAddressCredentials } from "../base/auth.js";
+import { base64ToUint8Array } from "uint8array-extras";
+
+/** @module contract */
 
 /**
  * The main workhorse of {@link Client}. This class is used to wrap a
@@ -215,7 +226,7 @@ import {
  * transaction-under-assembly:
  *
  * ```ts
- * const json = tx.toJSON()
+ * const json = tx.toJson()
  * ```
  *
  * And now you need to send it to Bob's browser. How you do this depends on
@@ -227,14 +238,14 @@ import {
  * deserialize it:
  *
  * ```ts
- * const tx = swapClient.txFromJSON(json)
+ * const tx = swapClient.txFromJson(json)
  * ```
  *
  * Or, if you're using a client generated with
  * `soroban contract bindings typescript`, this deserialization will look like:
  *
  * ```ts
- * const tx = swapClient.fromJSON.swap(json)
+ * const tx = swapClient.fromJson.swap(json)
  * ```
  *
  * Then you can have Bob sign it. What Bob will actually need to sign is some
@@ -279,7 +290,7 @@ export class AssembledTransaction<T> {
    * Stores the original operation from `buildWithOp` for reuse during
    * automatic state restoration rebuilds.
    */
-  private originalOp?: xdr.Operation;
+  private originalOp?: XdrOperation;
 
   /**
    * The Transaction as it was built with `raw.build()` right before
@@ -291,7 +302,7 @@ export class AssembledTransaction<T> {
   /**
    * The result of the transaction simulation. This is set after the first call
    * to `simulate`. It is difficult to serialize and deserialize, so it is not
-   * included in the `toJSON` and `fromJSON` methods. See `simulationData`
+   * included in the `toJson` and `fromJson` methods. See `simulationData`
    * cached, serializable access to the data needed by AssembledTransaction
    * logic.
    */
@@ -321,7 +332,7 @@ export class AssembledTransaction<T> {
    * If you need access to this data after a transaction has been serialized
    * and then deserialized, you can call `simulationData.transactionData`.
    */
-  private simulationTransactionData?: xdr.SorobanTransactionData;
+  private simulationTransactionData?: SorobanTransactionData;
 
   /**
    * The Soroban server to use for all RPC calls. This is constructed from the
@@ -358,20 +369,28 @@ export class AssembledTransaction<T> {
   /**
    * Serialize the AssembledTransaction to a JSON string. This is useful for
    * saving the transaction to a database or sending it over the wire for
-   * multi-auth workflows. `fromJSON` can be used to deserialize the
+   * multi-auth workflows. `fromJson` can be used to deserialize the
    * transaction. This only works with transactions that have been simulated.
    */
-  toJSON() {
+  toJson() {
     return JSON.stringify({
       method: this.options.method,
-      tx: this.built?.toXDR(),
+      tx: this.built?.toXdr(),
       simulationResult: {
-        auth: this.simulationData.result.auth.map((a) => a.toXDR("base64")),
-        retval: this.simulationData.result.retval.toXDR("base64"),
+        auth: this.simulationData.result.auth.map((a) => a.toXdr("base64")),
+        retval: this.simulationData.result.retval.toXdr("base64"),
       },
       simulationTransactionData:
-        this.simulationData.transactionData.toXDR("base64"),
+        this.simulationData.transactionData.toXdr("base64"),
     });
+  }
+
+  /**
+   * @deprecated Use {@link toJson} instead. Kept so existing callers and the
+   * `JSON.stringify` protocol hook keep working.
+   */
+  toJSON() {
+    return this.toJson();
   }
 
   /**
@@ -381,7 +400,7 @@ export class AssembledTransaction<T> {
   private static validateInvokeContractOp(
     built: Tx,
     expectedContractId: string,
-  ): xdr.InvokeContractArgs {
+  ): InvokeContractArgs {
     if (built.operations.length !== 1) {
       throw new Error(
         "Transaction envelope must contain exactly one operation.",
@@ -398,20 +417,20 @@ export class AssembledTransaction<T> {
 
     const invokeOp = operation as Operation.InvokeHostFunction;
 
-    if (invokeOp.func.switch().name !== "hostFunctionTypeInvokeContract") {
+    if (invokeOp.func.type !== "hostFunctionTypeInvokeContract") {
       throw new Error(
         "Transaction envelope does not contain an invokeContract host function.",
       );
     }
 
-    const invokeContractArgs = invokeOp.func.value() as xdr.InvokeContractArgs;
+    const invokeContractArgs = invokeOp.func.value as InvokeContractArgs;
 
-    let contractAddress: xdr.ScAddress;
+    let contractAddress: ScAddress;
     let functionName: string;
 
     try {
-      contractAddress = invokeContractArgs.contractAddress();
-      functionName = invokeContractArgs.functionName().toString("utf-8");
+      contractAddress = invokeContractArgs.contractAddress;
+      functionName = invokeContractArgs.functionName.toString();
     } catch {
       throw new Error(
         "Could not extract contract address or method name from the transaction envelope.",
@@ -434,7 +453,7 @@ export class AssembledTransaction<T> {
     return invokeContractArgs;
   }
 
-  static fromJSON<T>(
+  static fromJson<T>(
     options: Omit<AssembledTransactionOptions<T>, "args">,
     {
       tx,
@@ -450,14 +469,14 @@ export class AssembledTransaction<T> {
     },
   ): AssembledTransaction<T> {
     const txn = new AssembledTransaction(options);
-    txn.built = TransactionBuilder.fromXDR(tx, options.networkPassphrase) as Tx;
+    txn.built = TransactionBuilder.fromXdr(tx, options.networkPassphrase) as Tx;
 
     const invokeContractArgs = AssembledTransaction.validateInvokeContractOp(
       txn.built,
       options.contractId,
     );
 
-    const xdrMethod = invokeContractArgs.functionName().toString("utf-8");
+    const xdrMethod = invokeContractArgs.functionName.toString();
 
     if (xdrMethod !== options.method) {
       throw new Error(
@@ -467,11 +486,11 @@ export class AssembledTransaction<T> {
 
     txn.simulationResult = {
       auth: simulationResult.auth.map((a) =>
-        xdr.SorobanAuthorizationEntry.fromXDR(a, "base64"),
+        SorobanAuthorizationEntry.fromXdr(a, "base64"),
       ),
-      retval: xdr.ScVal.fromXDR(simulationResult.retval, "base64"),
+      retval: ScVal.fromXdr(simulationResult.retval, "base64"),
     };
-    txn.simulationTransactionData = xdr.SorobanTransactionData.fromXDR(
+    txn.simulationTransactionData = SorobanTransactionData.fromXdr(
       simulationTransactionData,
       "base64",
     );
@@ -479,21 +498,30 @@ export class AssembledTransaction<T> {
   }
 
   /**
+   * @deprecated Use {@link fromJson} instead.
+   */
+  static fromJSON<T>(
+    ...args: Parameters<typeof AssembledTransaction.fromJson<T>>
+  ): AssembledTransaction<T> {
+    return AssembledTransaction.fromJson(...args);
+  }
+
+  /**
    * Serialize the AssembledTransaction to a base64-encoded XDR string.
    */
-  toXDR(): string {
+  toXdr(): string {
     if (!this.built)
       throw new Error(
         "Transaction has not yet been simulated; " +
           "call `AssembledTransaction.simulate` first.",
       );
-    return this.built?.toEnvelope().toXDR("base64");
+    return this.built?.toEnvelope().toXdr("base64");
   }
 
   /**
    * Deserialize the AssembledTransaction from a base64-encoded XDR string.
    */
-  static fromXDR<T>(
+  static fromXdr<T>(
     options: Omit<
       AssembledTransactionOptions<T>,
       "args" | "method" | "parseResultXdr"
@@ -501,8 +529,8 @@ export class AssembledTransaction<T> {
     encodedXDR: string,
     spec: Spec,
   ): AssembledTransaction<T> {
-    const envelope = xdr.TransactionEnvelope.fromXDR(encodedXDR, "base64");
-    const built = TransactionBuilder.fromXDR(
+    const envelope = TransactionEnvelope.fromXdr(encodedXDR, "base64");
+    const built = TransactionBuilder.fromXdr(
       envelope,
       options.networkPassphrase,
     ) as Tx;
@@ -512,12 +540,11 @@ export class AssembledTransaction<T> {
       options.contractId,
     );
 
-    const method = invokeContractArgs.functionName().toString("utf-8");
+    const method = invokeContractArgs.functionName.toString();
     const txn = new AssembledTransaction({
       ...options,
       method,
-      parseResultXdr: (result: xdr.ScVal) =>
-        spec.funcResToNative(method, result),
+      parseResultXdr: (result: ScVal) => spec.funcResToNative(method, result),
     });
     txn.built = built;
     return txn;
@@ -603,7 +630,7 @@ export class AssembledTransaction<T> {
    * ```
    */
   static async buildWithOp<T>(
-    operation: xdr.Operation,
+    operation: XdrOperation,
     options: AssembledTransactionOptions<T>,
   ): Promise<AssembledTransaction<T>> {
     const tx = new AssembledTransaction(options);
@@ -623,7 +650,7 @@ export class AssembledTransaction<T> {
 
   private static async buildFootprintRestoreTransaction<T>(
     options: AssembledTransactionOptions<T>,
-    sorobanData: SorobanDataBuilder | xdr.SorobanTransactionData,
+    sorobanData: SorobanDataBuilder | SorobanTransactionData,
     account: Account,
     fee: string,
   ): Promise<AssembledTransaction<T>> {
@@ -707,7 +734,7 @@ export class AssembledTransaction<T> {
 
   get simulationData(): {
     result: Api.SimulateHostFunctionResult;
-    transactionData: xdr.SorobanTransactionData;
+    transactionData: SorobanTransactionData;
   } {
     if (this.simulationResult && this.simulationTransactionData) {
       return {
@@ -738,7 +765,7 @@ export class AssembledTransaction<T> {
     // add to object for serialization & deserialization
     this.simulationResult = simulation.result ?? {
       auth: [],
-      retval: xdr.ScVal.scvVoid(),
+      retval: ScVal.scvVoid(),
     };
     this.simulationTransactionData = simulation.transactionData.build();
 
@@ -848,13 +875,13 @@ export class AssembledTransaction<T> {
     if (this.options.submitUrl) signOpts.submitUrl = this.options.submitUrl;
 
     const { signedTxXdr: signature, error } = await signTx(
-      this.built.toXDR(),
+      this.built.toXdr(),
       signOpts,
     );
 
     this.handleWalletError(error);
 
-    this.signed = TransactionBuilder.fromXDR(
+    this.signed = TransactionBuilder.fromXdr(
       signature,
       this.options.networkPassphrase,
     ) as Tx;
@@ -936,7 +963,7 @@ export class AssembledTransaction<T> {
    * transaction envelope as signed the initial simulation.
    *
    * One at a time, for each public key in this array, you will need to
-   * serialize this transaction with `toJSON`, send to the owner of that key,
+   * serialize this transaction with `toJson`, send to the owner of that key,
    * deserialize the transaction with `txFromJson`, and call
    * {@link AssembledTransaction.signAuthEntries}. Then re-serialize and send to
    * the next account in this list.
@@ -987,10 +1014,10 @@ export class AssembledTransaction<T> {
   };
 
   /**
-   * If {@link AssembledTransaction.needsNonInvokerSigningBy} returns a
-   * non-empty list, you can serialize the transaction with `toJSON`, send it to
+   * If {@link AssembledTransaction#needsNonInvokerSigningBy} returns a
+   * non-empty list, you can serialize the transaction with `toJson`, send it to
    * the owner of one of the public keys in the map, deserialize with
-   * `txFromJSON`, and call this method on their machine. Internally, this will
+   * `txFromJson`, and call this method on their machine. Internally, this will
    * use `signAuthEntry` function from connected `wallet` for each.
    *
    * Then, re-serialize the transaction and either send to the next
@@ -1071,9 +1098,7 @@ export class AssembledTransaction<T> {
 
     for (const [i, entry] of authEntries.entries()) {
       // workaround for https://github.com/stellar/js-stellar-sdk/issues/1070
-      const credentials = xdr.SorobanCredentials.fromXDR(
-        entry.credentials().toXDR(),
-      );
+      const credentials = SorobanCredentials.fromXdr(entry.credentials.toXdr());
       const addrAuth = getAddressCredentials(credentials);
       if (addrAuth === null) {
         // if the invoker/source account, then the entry doesn't need explicit
@@ -1082,7 +1107,7 @@ export class AssembledTransaction<T> {
         continue;
       }
       const authEntryAddress = Address.fromScAddress(
-        addrAuth.address(),
+        addrAuth.address,
       ).toString();
 
       // this auth entry needs to be signed by a different account
@@ -1095,13 +1120,13 @@ export class AssembledTransaction<T> {
         entry,
         async (preimage) => {
           const { signedAuthEntry, error } = await sign(
-            preimage.toXDR("base64"),
+            preimage.toXdr("base64"),
             {
               address,
             },
           );
           this.handleWalletError(error);
-          return Buffer.from(signedAuthEntry, "base64");
+          return base64ToUint8Array(signedAuthEntry);
         },
         await expiration,
         this.options.networkPassphrase,
@@ -1117,10 +1142,8 @@ export class AssembledTransaction<T> {
    */
   get isReadCall(): boolean {
     const authsCount = this.simulationData.result.auth.length;
-    const writeLength = this.simulationData.transactionData
-      .resources()
-      .footprint()
-      .readWrite().length;
+    const writeLength =
+      this.simulationData.transactionData.resources.footprint.readWrite.length;
     return authsCount === 0 && writeLength === 0;
   }
 

@@ -1,7 +1,7 @@
 import { defineConfig } from "vitest/config";
 import { resolve } from "path";
 import packageJson from "../package.json" with { type: "json" };
-import { aliasHttpClientToAxiosSource } from "./vitest-utils";
+import { aliasHttpClientToAxiosSource, mockSafeguards } from "./vitest-utils";
 
 const isAxios = process.env.TRANSPORT === "axios";
 
@@ -24,6 +24,9 @@ export default defineConfig({
   test: {
     globals: true,
     environment: "node",
+    // Shared with the browser config: `test/unit` runs under both, so the
+    // cleanup guarantee must not depend on which runner picks up the file.
+    ...mockSafeguards,
     coverage: {
       provider: "v8",
       reporter: ["text", "html", "lcov"],

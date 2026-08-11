@@ -963,7 +963,7 @@ try {
     const { transaction, operations } = err.getResultCodes();
     console.log(transaction);  // e.g. "tx_failed"
     console.log(operations);   // e.g. ["op_underfunded"]
-    console.log(err.getTransactionResult()?.result().switch().name);
+    console.log(err.getTransactionResult()?.result.type);
   }
 }
 ```

@@ -1,77 +1,86 @@
 import { describe, it, expect } from "vitest";
+import {
+  stringToUint8Array,
+  uint8ArrayToHex,
+  uint8ArrayToString,
+} from "uint8array-extras";
 import { Operation } from "../../../../src/base/operation.js";
-import xdr from "../../../../src/base/xdr.js";
+import * as xdr from "../../../../src/xdr/index.js";
 import { expectDefined } from "../support/expect_defined.js";
 import { expectOperationType } from "../support/operation.js";
+import { expectVariant } from "../support/xdr.js";
 
 describe("Operation.manageData()", () => {
   it("creates a manageData operation with string value", () => {
     const opts = { name: "name", value: "value" };
     const op = Operation.manageData(opts);
-    const xdrHex = op.toXDR("hex");
-    const operation = xdr.Operation.fromXDR(Buffer.from(xdrHex, "hex"));
+    const xdrHex = op.toXdr("hex");
+    const operation = xdr.Operation.fromXdr(xdrHex, "hex");
     const obj = expectOperationType(
-      Operation.fromXDRObject(operation),
+      Operation.fromXdrObject(operation),
       "manageData",
     );
     expect(obj.name).toBe("name");
-    expect(expectDefined(obj.value).toString("ascii")).toBe("value");
+    expect(uint8ArrayToString(expectDefined(obj.value))).toBe("value");
   });
 
-  it("creates a manageData operation with Buffer value", () => {
-    const opts = { name: "name", value: Buffer.from("value") };
+  it("creates a manageData operation with Uint8Array value", () => {
+    const opts = { name: "name", value: stringToUint8Array("value") };
     const op = Operation.manageData(opts);
-    const xdrHex = op.toXDR("hex");
-    const operation = xdr.Operation.fromXDR(Buffer.from(xdrHex, "hex"));
+    const xdrHex = op.toXdr("hex");
+    const operation = xdr.Operation.fromXdr(xdrHex, "hex");
     const obj = expectOperationType(
-      Operation.fromXDRObject(operation),
+      Operation.fromXdrObject(operation),
       "manageData",
     );
     expect(obj.name).toBe("name");
-    expect(expectDefined(obj.value).toString("hex")).toBe(
-      opts.value.toString("hex"),
+    expect(uint8ArrayToHex(expectDefined(obj.value))).toBe(
+      uint8ArrayToHex(opts.value),
     );
   });
 
   it("creates a manageData operation with null value (deletes entry)", () => {
     const opts = { name: "name", value: null };
     const op = Operation.manageData(opts);
-    const xdrHex = op.toXDR("hex");
-    const operation = xdr.Operation.fromXDR(Buffer.from(xdrHex, "hex"));
+    const xdrHex = op.toXdr("hex");
+    const operation = xdr.Operation.fromXdr(xdrHex, "hex");
     const obj = expectOperationType(
-      Operation.fromXDRObject(operation),
+      Operation.fromXdrObject(operation),
       "manageData",
     );
     expect(obj.name).toBe("name");
     expect(obj.value).toBeUndefined();
   });
 
-  it("round-trips a null-value (delete) manageData through fromXDRObject and back", () => {
+  it("round-trips a null-value (delete) manageData through fromXdrObject and back", () => {
     const op = Operation.manageData({ name: "test", value: null });
-    const xdrHex = op.toXDR("hex");
-    const operation = xdr.Operation.fromXDR(Buffer.from(xdrHex, "hex"));
-    const parsed = expectOperationType(
-      Operation.fromXDRObject(operation),
+    const xdrHex = op.toXdr("hex");
+    const operation = xdr.Operation.fromXdr(xdrHex, "hex");
+    const parsed = expectVariant(
+      Operation.fromXdrObject(operation),
       "manageData",
     );
+
+    // A null-value manageData (delete) decodes to value === undefined.
+    expect(parsed.value).toBeUndefined();
 
     // Rebuilding from the parsed result must not throw
     const rebuilt = Operation.manageData({
       name: parsed.name,
-      value: parsed.value,
+      value: null,
     });
     expect(rebuilt).toBeInstanceOf(xdr.Operation);
-    expect(rebuilt.toXDR("hex")).toBe(xdrHex);
+    expect(rebuilt.toXdr("hex")).toBe(xdrHex);
   });
 
   it("creates a manageData operation with source account", () => {
     const source = "GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGSNFHEYVXM3XOJMDS674JZ";
     const opts = { name: "test", value: "data", source };
     const op = Operation.manageData(opts);
-    const xdrHex = op.toXDR("hex");
-    const operation = xdr.Operation.fromXDR(Buffer.from(xdrHex, "hex"));
+    const xdrHex = op.toXdr("hex");
+    const operation = xdr.Operation.fromXdr(xdrHex, "hex");
     const obj = expectOperationType(
-      Operation.fromXDRObject(operation),
+      Operation.fromXdrObject(operation),
       "manageData",
     );
     expect(obj.source).toBe(source);
@@ -80,22 +89,22 @@ describe("Operation.manageData()", () => {
   it("creates a manageData operation with maximum length name (64 chars)", () => {
     const name = "a".repeat(64);
     const op = Operation.manageData({ name, value: "v" });
-    const xdrHex = op.toXDR("hex");
-    const operation = xdr.Operation.fromXDR(Buffer.from(xdrHex, "hex"));
+    const xdrHex = op.toXdr("hex");
+    const operation = xdr.Operation.fromXdr(xdrHex, "hex");
     const obj = expectOperationType(
-      Operation.fromXDRObject(operation),
+      Operation.fromXdrObject(operation),
       "manageData",
     );
     expect(obj.name).toBe(name);
   });
 
   it("creates a manageData operation with maximum length value (64 bytes)", () => {
-    const value = Buffer.alloc(64, 0xff);
+    const value = new Uint8Array(64).fill(0xff);
     const op = Operation.manageData({ name: "test", value });
-    const xdrHex = op.toXDR("hex");
-    const operation = xdr.Operation.fromXDR(Buffer.from(xdrHex, "hex"));
+    const xdrHex = op.toXdr("hex");
+    const operation = xdr.Operation.fromXdr(xdrHex, "hex");
     const obj = expectOperationType(
-      Operation.fromXDRObject(operation),
+      Operation.fromXdrObject(operation),
       "manageData",
     );
     expect(expectDefined(obj.value).length).toBe(64);
@@ -116,7 +125,7 @@ describe("Operation.manageData()", () => {
 
     it("throws when value is too long (> 64 bytes)", () => {
       expect(() =>
-        Operation.manageData({ name: "a", value: Buffer.alloc(65) }),
+        Operation.manageData({ name: "a", value: new Uint8Array(65) }),
       ).toThrow(/value cannot be longer that 64 bytes/);
     });
 
@@ -126,7 +135,7 @@ describe("Operation.manageData()", () => {
           name: "a",
           value: 123 as unknown as string,
         }),
-      ).toThrow(/value must be a string, Buffer or null/);
+      ).toThrow(/value must be a string, Uint8Array or null/);
     });
 
     it("throws when name is empty string", () => {
@@ -134,10 +143,10 @@ describe("Operation.manageData()", () => {
       // But let's confirm the behavior matches the source code.
       // Actually empty string passes the length check (0 <= 64) and typeof check.
       const op = Operation.manageData({ name: "", value: "v" });
-      const xdrHex = op.toXDR("hex");
-      const operation = xdr.Operation.fromXDR(Buffer.from(xdrHex, "hex"));
+      const xdrHex = op.toXdr("hex");
+      const operation = xdr.Operation.fromXdr(xdrHex, "hex");
       const obj = expectOperationType(
-        Operation.fromXDRObject(operation),
+        Operation.fromXdrObject(operation),
         "manageData",
       );
       expect(obj.name).toBe("");
@@ -158,8 +167,8 @@ describe("Operation.manageData()", () => {
 
   it("roundtrips through XDR hex encoding", () => {
     const op = Operation.manageData({ name: "key", value: "val" });
-    const hex = op.toXDR("hex");
-    const roundtripped = xdr.Operation.fromXDR(hex, "hex");
-    expect(roundtripped.body().switch().name).toBe("manageData");
+    const hex = op.toXdr("hex");
+    const roundtripped = xdr.Operation.fromXdr(hex, "hex");
+    expect(roundtripped.body.type).toBe("manageData");
   });
 });

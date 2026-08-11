@@ -1,14 +1,17 @@
-import xdr from "../xdr.js";
-import { decodeAddressToMuxedAccount } from "../util/decode_encode_muxed_account.js";
 import {
-  PathPaymentStrictSendResult,
-  PathPaymentStrictSendOpts,
-  OperationAttributes,
-} from "./types.js";
+  Asset,
+  Int64,
+  MuxedAccount,
+  Operation,
+  OperationBody,
+  PathPaymentStrictSendOp,
+} from "../../xdr/index.js";
+import { decodeAddressToMuxedAccount } from "../util/decode_encode_muxed_account.js";
+import { PathPaymentStrictSendOpts, OperationAttributes } from "./types.js";
 import {
   isValidAmount,
   constructAmountRequirementsError,
-  toXDRAmount,
+  toXdrAmount,
   setSourceAccount,
 } from "../util/operations.js";
 
@@ -23,17 +26,17 @@ import {
  * @see https://developers.stellar.org/docs/start/list-of-operations/#path-payment-strict-send
  *
  * @param opts - Options object
- *   - `sendAsset`: asset to pay with
- *   - `sendAmount`: amount of sendAsset to send (excluding fees)
- *   - `destination`: destination account to send to
- *   - `destAsset`: asset the destination will receive
- *   - `destMin`: minimum amount of destAsset to be received
- *   - `path`: array of Asset objects to use as the path
- *   - `source`: The source account for the payment. Defaults to the transaction's source account.
+ * @param opts.sendAsset - asset to pay with
+ * @param opts.sendAmount - amount of sendAsset to send (excluding fees)
+ * @param opts.destination - destination account to send to
+ * @param opts.destAsset - asset the destination will receive
+ * @param opts.destMin - minimum amount of destAsset to be received
+ * @param opts.path - array of Asset objects to use as the path
+ * @param opts.source - The source account for the payment. Defaults to the transaction's source account.
  */
 export function pathPaymentStrictSend(
   opts: PathPaymentStrictSendOpts,
-): xdr.Operation<PathPaymentStrictSendResult> {
+): Operation {
   if (!opts.sendAsset) {
     throw new Error("Must specify a send asset");
   }
@@ -50,10 +53,10 @@ export function pathPaymentStrictSend(
     throw new TypeError(constructAmountRequirementsError("destMin"));
   }
 
-  const sendAsset: xdr.Asset = opts.sendAsset.toXDRObject();
-  const sendAmount: xdr.Int64 = toXDRAmount(opts.sendAmount);
+  const sendAsset: Asset = opts.sendAsset.toXdrObject();
+  const sendAmount: Int64 = toXdrAmount(opts.sendAmount);
 
-  let destination: xdr.MuxedAccount;
+  let destination: MuxedAccount;
 
   try {
     destination = decodeAddressToMuxedAccount(opts.destination);
@@ -61,11 +64,11 @@ export function pathPaymentStrictSend(
     throw new Error("destination is invalid");
   }
 
-  const destAsset: xdr.Asset = opts.destAsset.toXDRObject();
-  const destMin: xdr.Int64 = toXDRAmount(opts.destMin);
-  const path = (opts.path ?? []).map((x) => x.toXDRObject());
+  const destAsset: Asset = opts.destAsset.toXdrObject();
+  const destMin: Int64 = toXdrAmount(opts.destMin);
+  const path = (opts.path ?? []).map((x) => x.toXdrObject());
 
-  const payment = new xdr.PathPaymentStrictSendOp({
+  const payment = new PathPaymentStrictSendOp({
     sendAsset,
     sendAmount,
     destination,
@@ -76,10 +79,10 @@ export function pathPaymentStrictSend(
 
   const opAttributes: OperationAttributes = {
     sourceAccount: null,
-    body: xdr.OperationBody.pathPaymentStrictSend(payment),
+    body: OperationBody.pathPaymentStrictSend(payment),
   };
 
   setSourceAccount(opAttributes, opts);
 
-  return new xdr.Operation(opAttributes);
+  return new Operation(opAttributes);
 }

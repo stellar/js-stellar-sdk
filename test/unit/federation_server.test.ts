@@ -4,7 +4,8 @@ import { AddressInfo } from "net";
 import * as StellarSdk from "../../src/index.js";
 import { httpClient } from "../../src/http-client/index.js";
 
-const { Server, FEDERATION_RESPONSE_MAX_SIZE } = StellarSdk.Federation;
+const { Federation, Config } = StellarSdk;
+const { Server, FEDERATION_RESPONSE_MAX_SIZE } = Federation;
 
 describe("federation-server.js tests", () => {
   let server: any;
@@ -13,7 +14,7 @@ describe("federation-server.js tests", () => {
   beforeEach(() => {
     server = new Server("https://acme.com:1337/federation", "stellar.org");
     mockHttpClient = vi.spyOn(httpClient, "get");
-    StellarSdk.Config.setDefault();
+    Config.setDefault();
   });
 
   afterEach(() => {
@@ -43,7 +44,7 @@ describe("federation-server.js tests", () => {
     });
 
     it("allow insecure server when global Config.allowHttp flag is set", () => {
-      StellarSdk.Config.setAllowHttp(true);
+      Config.setAllowHttp(true);
       expect(
         () =>
           new Server("http://acme.com:1337/federation", "stellar.org", {
@@ -335,12 +336,12 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
 
   describe("FederationServer times out when response lags and timeout set", () => {
     afterEach(() => {
-      StellarSdk.Config.setDefault();
+      Config.setDefault();
     });
 
     describe("with global config set", () => {
       beforeEach(() => {
-        StellarSdk.Config.setTimeout(1000);
+        Config.setTimeout(1000);
       });
 
       it("resolveAddress times out with global config set", async () => {

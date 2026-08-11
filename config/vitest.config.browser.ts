@@ -1,15 +1,49 @@
 import { defineConfig } from "vitest/config";
 import { playwright } from "@vitest/browser-playwright";
 import packageJson from "../package.json" with { type: "json" };
-import { aliasHttpClientToAxiosSource } from "./vitest-utils";
+import { aliasHttpClientToAxiosSource, mockSafeguards } from "./vitest-utils";
 import { resolve } from "path";
 const isAxios = process.env.TRANSPORT === "axios";
 
 export default defineConfig({
   plugins: [aliasHttpClientToAxiosSource(isAxios)],
+  // The two transports produce different module graphs (the plugin above
+  // rewrites the http-client entrypoint), so they hash to different Vite
+  // configs. Sharing one cache dir makes each run discard the other's
+  // pre-bundled deps — every axios run started with "Re-optimizing
+  // dependencies because vite config has changed" and paid the full optimize
+  // cost again. One dir per transport keeps both caches warm.
+  cacheDir: resolve(
+    __dirname,
+    `../node_modules/.vite/browser-${isAxios ? "axios" : "fetch"}`,
+  ),
   test: {
     globals: true,
     environment: "jsdom",
+    // Reuse one iframe across all test files instead of creating a fresh one
+    // per file. Every test file imports the SDK source entrypoint, so with
+    // isolation each of the 117 files re-evaluated the ~470-module `src/xdr`
+    // graph from scratch; the browser page grew until Firefox lost it mid-run
+    // ("Browser connection was closed while running tests"), consistently
+    // around file ~60 with every test that had run passing. Sharing the iframe
+    // evaluates that graph once, which keeps memory flat and cuts the run from
+    // ~16s to ~6s.
+    //
+    // The trade-off is that the module registry is shared across files, so
+    // module-level state now outlives the file that created it. A
+    // module-level `vi.mock` leaks into every file that runs after it — avoid
+    // module mocks for that reason: tests that need a stubbed transport
+    // inject a `Server` and spy on `server.httpClient` instead (see
+    // test/unit/contract/client_from.test.ts and test/unit/server/soroban/).
+    // Per-test spies are fine — they are attached to an instance built inside
+    // the test, so they cannot outlive it. The SDK's own module-level state
+    // (`Config`, `SERVER_TIME_MAP`) is shared the same way, and the safeguards
+    // below do not restore it: a test that mutates it must reset it itself.
+    isolate: false,
+    // Backstop for the mock rule above — spies and `vi.stubGlobal` only, not
+    // module state. Shared with every other config so the guarantee does not
+    // depend on which runner executes the file.
+    ...mockSafeguards,
     coverage: {
       provider: "istanbul",
       reporter: ["text", "html", "lcov"],
@@ -43,6 +77,13 @@ export default defineConfig({
     exclude: [
       "test/unit/call_builders.test.ts",
       "test/unit/server/horizon/server.test.ts",
+      // Node-only class-XDR tests: they read corpus/fixture files from disk
+      // via `node:fs`, which isn't available in the browser environment.
+      "test/unit/xdr/corpus_round_trip.test.ts",
+      "test/unit/xdr/schema_exhaustive.test.ts",
+      // Node-only: compares against legacy js-xdr v4, whose API requires
+      // `node:buffer` Buffers.
+      "test/unit/xdr/legacy_round_trip.test.ts",
       // Tests the docs snippet-expansion machinery (config/snippets.ts),
       // which reads snippet files with node:fs — Node-only, not SDK code.
       "test/unit/guide-snippets.test.ts",
@@ -53,20 +94,10 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": resolve(__dirname, "../src"),
-      // js-xdr ships a `browser` field pointing at a webpack UMD that embeds
-      // its own copy of `buffer`. When Vite picks that up, every value js-xdr
-      // produces (e.g. xdr struct `_value` fields) becomes an instance of the
-      // embedded Buffer class — different from the npm `Buffer` the SDK uses
-      // everywhere else. Round-trip tests like
-      // `expect(xdr.X.fromXDR(s.toXDR())).toEqual(s)` then fail with two
-      // structurally-identical objects because their nested `Buffer`s have
-      // different constructors. Force resolution to js-xdr's ESM source so
-      // bare `Buffer` references resolve to the same global Buffer the rest
-      // of the test environment sees.
-      "@stellar/js-xdr": resolve(
-        __dirname,
-        "../node_modules/@stellar/js-xdr/src/index.js",
-      ),
+      // Note: js-xdr v5 ships a proper dual ESM/CJS build (no `browser`-field
+      // UMD embedding its own `buffer`), so the v4-era alias forcing resolution
+      // to js-xdr's source is no longer needed — Vite resolves it via the
+      // package `exports` map to the ESM build.
     },
   },
   define: {
@@ -91,9 +122,8 @@ export default defineConfig({
       "smol-toml",
       "bignumber.js",
       "@noble/ed25519",
-      "base32.js",
+      "@exodus/bytes/base32.js",
       "@noble/hashes/sha2.js",
-      "buffer",
       "commander",
     ],
   },

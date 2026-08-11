@@ -1,7 +1,12 @@
 import { describe, expect, it } from "vitest";
+import {
+  hexToUint8Array,
+  stringToUint8Array,
+  uint8ArrayToHex,
+} from "uint8array-extras";
 import { LiquidityPoolId } from "../../../src/base/liquidity_pool_id.js";
 import { StrKey } from "../../../src/base/strkey.js";
-import xdr from "../../../src/base/xdr.js";
+import * as xdr from "../../../src/xdr/index.js";
 
 const POOL_ID =
   "dd7b1ab831c273310ddbec6f97870aa83c2fbd78ce22aded37ecbf4f3380fac7";
@@ -50,21 +55,21 @@ describe("LiquidityPoolId", () => {
     });
   });
 
-  describe("toXDRObject()", () => {
+  describe("toXdrObject()", () => {
     it("parses a liquidity pool trustline asset object", () => {
       const asset = new LiquidityPoolId(POOL_ID);
-      const tlAsset = asset.toXDRObject();
+      const tlAsset = asset.toXdrObject();
 
       expect(tlAsset).toBeInstanceOf(xdr.TrustLineAsset);
-      // TODO: check generated XDR types to make sure they are up to date.
-      // arm() exists at runtime on XDR union types but is not declared in types/curr.d.ts.
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
-      expect((tlAsset as any).arm()).toBe("liquidityPoolId");
+      expect(tlAsset.type).toBe("assetTypePoolShare");
+      if (tlAsset.type !== "assetTypePoolShare") {
+        throw new Error("expected assetTypePoolShare");
+      }
       expect(
-        (tlAsset.liquidityPoolId() as unknown as Buffer).toString("hex"),
+        uint8ArrayToHex(new Uint8Array(tlAsset.liquidityPoolId.toBytes())),
       ).toBe(POOL_ID);
       expect(
-        (tlAsset.liquidityPoolId() as unknown as Buffer).toString("hex"),
+        uint8ArrayToHex(new Uint8Array(tlAsset.liquidityPoolId.toBytes())),
       ).toBe(asset.getLiquidityPoolId());
     });
   });
@@ -82,7 +87,7 @@ describe("LiquidityPoolId", () => {
         StrKey.decodeEd25519PublicKey(ISSUER),
       );
       const assetXdr = new xdr.AlphaNum4({
-        assetCode: Buffer.from("KHL\0"),
+        assetCode: stringToUint8Array("KHL\0"),
         issuer: issuerKey,
       });
       const tlAsset = xdr.TrustLineAsset.assetTypeCreditAlphanum4(assetXdr);
@@ -96,7 +101,7 @@ describe("LiquidityPoolId", () => {
         StrKey.decodeEd25519PublicKey(ISSUER),
       );
       const assetXdr = new xdr.AlphaNum12({
-        assetCode: Buffer.from("KHLTOKEN\0\0\0\0"),
+        assetCode: stringToUint8Array("KHLTOKEN\0\0\0\0"),
         issuer: issuerKey,
       });
       const tlAsset = xdr.TrustLineAsset.assetTypeCreditAlphanum12(assetXdr);
@@ -106,7 +111,7 @@ describe("LiquidityPoolId", () => {
     });
 
     it("parses a liquidityPoolId asset XDR", () => {
-      const xdrPoolId = Buffer.from(POOL_ID, "hex") as unknown as xdr.PoolId;
+      const xdrPoolId = new xdr.PoolId(hexToUint8Array(POOL_ID));
       const tlAsset = xdr.TrustLineAsset.assetTypePoolShare(xdrPoolId);
 
       const asset = LiquidityPoolId.fromOperation(tlAsset);
@@ -139,10 +144,10 @@ describe("LiquidityPoolId", () => {
     });
   });
 
-  describe("toXDRObject() / fromOperation() round-trip", () => {
+  describe("toXdrObject() / fromOperation() round-trip", () => {
     it("round-trips correctly", () => {
       const original = new LiquidityPoolId(POOL_ID);
-      const restored = LiquidityPoolId.fromOperation(original.toXDRObject());
+      const restored = LiquidityPoolId.fromOperation(original.toXdrObject());
       expect(original.equals(restored)).toBe(true);
     });
   });

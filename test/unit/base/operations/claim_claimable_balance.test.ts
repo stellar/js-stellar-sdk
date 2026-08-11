@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { Operation } from "../../../../src/base/operation.js";
-import xdr from "../../../../src/base/xdr.js";
+import * as xdr from "../../../../src/xdr/index.js";
 import { expectOperationType } from "../support/operation.js";
 
 const balanceId =
@@ -9,10 +9,10 @@ const balanceId =
 describe("Operation.claimClaimableBalance()", () => {
   it("creates a claimClaimableBalanceOp", () => {
     const op = Operation.claimClaimableBalance({ balanceId });
-    const xdrHex = op.toXDR("hex");
-    const operation = xdr.Operation.fromXDR(xdrHex, "hex");
+    const xdrHex = op.toXdr("hex");
+    const operation = xdr.Operation.fromXdr(xdrHex, "hex");
     const obj = expectOperationType(
-      Operation.fromXDRObject(operation),
+      Operation.fromXdrObject(operation),
       "claimClaimableBalance",
     );
 
@@ -36,7 +36,7 @@ describe("Operation.claimClaimableBalance()", () => {
     const source = "GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGSNFHEYVXM3XOJMDS674JZ";
     const op = Operation.claimClaimableBalance({ balanceId, source });
     const obj = expectOperationType(
-      Operation.fromXDRObject(xdr.Operation.fromXDR(op.toXDR("hex"), "hex")),
+      Operation.fromXdrObject(xdr.Operation.fromXdr(op.toXdr("hex"), "hex")),
       "claimClaimableBalance",
     );
 
@@ -45,8 +45,8 @@ describe("Operation.claimClaimableBalance()", () => {
 
   it("roundtrips through XDR hex encoding", () => {
     const op = Operation.claimClaimableBalance({ balanceId });
-    const hex = op.toXDR("hex");
-    const roundtripped = xdr.Operation.fromXDR(hex, "hex");
-    expect(roundtripped.body().switch().name).toBe("claimClaimableBalance");
+    const hex = op.toXdr("hex");
+    const roundtripped = xdr.Operation.fromXdr(hex, "hex");
+    expect(roundtripped.body.type).toBe("claimClaimableBalance");
   });
 });

@@ -3,8 +3,8 @@ import { describe, it, beforeEach, afterEach, expect, vi } from "vitest";
 import * as StellarSdk from "../../../../src/index.js";
 import { serverUrl } from "../../../constants";
 
-const { Address, xdr, nativeToScVal, hash } = StellarSdk;
-const { Server, Durability } = StellarSdk.rpc;
+const { Address, xdr, nativeToScVal, hash, rpc } = StellarSdk;
+const { Server, Durability } = rpc;
 
 describe("Server#getContractData", () => {
   let server: any;
@@ -24,9 +24,9 @@ describe("Server#getContractData", () => {
 
   const ledgerEntry = xdr.LedgerEntryData.contractData(
     new xdr.ContractDataEntry({
-      ext: new (xdr.ExtensionPoint as any)(0),
+      ext: xdr.ExtensionPoint.v0(),
       contract: new Address(address).toScAddress(),
-      durability: xdr.ContractDataDurability.persistent(),
+      durability: xdr.ContractDataDurability.persistent,
       key,
       val: key, // lazy
     }),
@@ -35,15 +35,15 @@ describe("Server#getContractData", () => {
   // the key is a subset of the val
   const ledgerKey = xdr.LedgerKey.contractData(
     new xdr.LedgerKeyContractData({
-      contract: ledgerEntry.contractData().contract(),
-      durability: ledgerEntry.contractData().durability(),
-      key: ledgerEntry.contractData().key(),
+      contract: ledgerEntry.contractData.contract,
+      durability: ledgerEntry.contractData.durability,
+      key: ledgerEntry.contractData.key,
     }),
   );
 
   const ledgerTtlEntry = xdr.LedgerEntryData.ttl(
     new xdr.TtlEntry({
-      keyHash: hash(ledgerKey.toXDR()),
+      keyHash: hash(ledgerKey.toXdr()),
       liveUntilLedgerSeq: 1000,
     }),
   );
@@ -62,10 +62,10 @@ describe("Server#getContractData", () => {
           latestLedger: 420,
           entries: [
             {
-              liveUntilLedgerSeq: ledgerTtlEntry.ttl().liveUntilLedgerSeq(),
+              liveUntilLedgerSeq: ledgerTtlEntry.ttl.liveUntilLedgerSeq,
               lastModifiedLedgerSeq: result.lastModifiedLedgerSeq,
-              key: ledgerKey.toXDR("base64"),
-              xdr: ledgerEntry.toXDR("base64"),
+              key: ledgerKey.toXdr("base64"),
+              xdr: ledgerEntry.toXdr("base64"),
             },
           ],
         },
@@ -79,24 +79,27 @@ describe("Server#getContractData", () => {
       key,
       Durability.Persistent,
     );
-    expect(response.key.toXDR("base64")).toEqual(result.key.toXDR("base64"));
-    expect(response.val.toXDR("base64")).toEqual(result.val.toXDR("base64"));
+    expect(response.key.toXdr("base64")).toEqual(result.key.toXdr("base64"));
+    expect(response.val.toXdr("base64")).toEqual(result.val.toXdr("base64"));
     expect(response.liveUntilLedgerSeq).toEqual(1000);
     expect(mockPost).toHaveBeenCalledWith(serverUrl, {
       jsonrpc: "2.0",
       id: 1,
       method: "getLedgerEntries",
-      params: { keys: [ledgerKey.toXDR("base64")] },
+      params: { keys: [ledgerKey.toXdr("base64")] },
     });
     expect(mockPost).toHaveBeenCalledTimes(1);
   });
 
   it("contract data key not found", async () => {
     // clone and change durability to test this case
-    const ledgerKeyDupe = xdr.LedgerKey.fromXDR(ledgerKey.toXDR());
-    ledgerKeyDupe
-      .contractData()
-      .durability(xdr.ContractDataDurability.temporary());
+    const ledgerKeyDupe = xdr.LedgerKey.contractData(
+      new xdr.LedgerKeyContractData({
+        contract: ledgerEntry.contractData.contract,
+        key: ledgerEntry.contractData.key,
+        durability: xdr.ContractDataDurability.temporary,
+      }),
+    );
 
     const mockResponse = { data: { result: { entries: [] } } };
     mockPost.mockResolvedValue(mockResponse);
@@ -110,7 +113,7 @@ describe("Server#getContractData", () => {
       jsonrpc: "2.0",
       id: 1,
       method: "getLedgerEntries",
-      params: { keys: [ledgerKeyDupe.toXDR("base64")] },
+      params: { keys: [ledgerKeyDupe.toXdr("base64")] },
     });
   });
 

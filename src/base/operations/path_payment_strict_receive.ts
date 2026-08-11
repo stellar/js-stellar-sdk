@@ -1,14 +1,15 @@
-import xdr from "../xdr.js";
-import { decodeAddressToMuxedAccount } from "../util/decode_encode_muxed_account.js";
 import {
-  OperationAttributes,
-  PathPaymentStrictReceiveResult,
-  PathPaymentStrictReceiveOpts,
-} from "./types.js";
+  MuxedAccount,
+  Operation,
+  OperationBody,
+  PathPaymentStrictReceiveOp,
+} from "../../xdr/index.js";
+import { decodeAddressToMuxedAccount } from "../util/decode_encode_muxed_account.js";
+import { OperationAttributes, PathPaymentStrictReceiveOpts } from "./types.js";
 import {
   isValidAmount,
   constructAmountRequirementsError,
-  toXDRAmount,
+  toXdrAmount,
   setSourceAccount,
 } from "../util/operations.js";
 
@@ -24,18 +25,18 @@ import {
  * @see https://developers.stellar.org/docs/start/list-of-operations/#path-payment-strict-receive
  *
  * @param opts - Options object
- *   - `sendAsset`: asset to pay with
- *   - `sendMax`: maximum amount of sendAsset to send
- *   - `destination`: destination account to send to
- *   - `destAsset`: asset the destination will receive
- *   - `destAmount`: amount the destination receives
- *   - `path`: array of Asset objects to use as the path
- *   - `source`: The source account for the payment.
+ * @param opts.sendAsset - asset to pay with
+ * @param opts.sendMax - maximum amount of sendAsset to send
+ * @param opts.destination - destination account to send to
+ * @param opts.destAsset - asset the destination will receive
+ * @param opts.destAmount - amount the destination receives
+ * @param opts.path - array of Asset objects to use as the path
+ * @param opts.source - The source account for the payment.
  *     Defaults to the transaction's source account.
  */
 export function pathPaymentStrictReceive(
   opts: PathPaymentStrictReceiveOpts,
-): xdr.Operation<PathPaymentStrictReceiveResult> {
+): Operation {
   if (!opts.sendAsset) {
     throw new Error("Must specify a send asset");
   }
@@ -49,7 +50,7 @@ export function pathPaymentStrictReceive(
     throw new TypeError(constructAmountRequirementsError("destAmount"));
   }
 
-  let destination: xdr.MuxedAccount;
+  let destination: MuxedAccount;
   try {
     destination = decodeAddressToMuxedAccount(opts.destination);
   } catch {
@@ -58,20 +59,20 @@ export function pathPaymentStrictReceive(
 
   const path = opts.path ? opts.path : [];
 
-  const paymentOp = new xdr.PathPaymentStrictReceiveOp({
-    sendAsset: opts.sendAsset.toXDRObject(),
-    sendMax: toXDRAmount(opts.sendMax),
+  const paymentOp = new PathPaymentStrictReceiveOp({
+    sendAsset: opts.sendAsset.toXdrObject(),
+    sendMax: toXdrAmount(opts.sendMax),
     destination,
-    destAsset: opts.destAsset.toXDRObject(),
-    destAmount: toXDRAmount(opts.destAmount),
-    path: path.map((x) => x.toXDRObject()),
+    destAsset: opts.destAsset.toXdrObject(),
+    destAmount: toXdrAmount(opts.destAmount),
+    path: path.map((x) => x.toXdrObject()),
   });
 
   const opAttributes: OperationAttributes = {
     sourceAccount: null,
-    body: xdr.OperationBody.pathPaymentStrictReceive(paymentOp),
+    body: OperationBody.pathPaymentStrictReceive(paymentOp),
   };
   setSourceAccount(opAttributes, opts);
 
-  return new xdr.Operation(opAttributes);
+  return new Operation(opAttributes);
 }

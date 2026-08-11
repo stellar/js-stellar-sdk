@@ -153,6 +153,10 @@ type RouteResult = BucketName | "external" | "unmapped";
 function bucketForPath(path: string): RouteResult {
   if (!path.startsWith("src/")) return "external";
   if (path.startsWith("src/base/generated/")) return "external";
+  // The in-tree class-XDR layer (`xdr` namespace) is treated as an external
+  // reference — like the legacy `base/generated` js-xdr types — rather than
+  // getting its own generated reference pages for ~1800 schema symbols.
+  if (path.startsWith("src/xdr/")) return "external";
   const override = FILE_OVERRIDES[path];
   if (override !== undefined) return override;
   for (const [prefix, bucket] of DIRECTORY_PREFIXES) {

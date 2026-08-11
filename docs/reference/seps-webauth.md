@@ -66,7 +66,7 @@ let challenge = WebAuth.buildChallengeTx(
 
 - `SEP-10: Stellar Web Auth`
 
-**Source:** [src/webauth/challenge_transaction.ts:63](https://github.com/stellar/js-stellar-sdk/blob/main/src/webauth/challenge_transaction.ts#L63)
+**Source:** [src/webauth/challenge_transaction.ts:69](https://github.com/stellar/js-stellar-sdk/blob/main/src/webauth/challenge_transaction.ts#L69)
 
 ## WebAuth.gatherTxSigners
 
@@ -103,7 +103,7 @@ transaction.sign(keypair1, keypair2)
 WebAuth.gatherTxSigners(transaction, [keypair1.publicKey(), keypair2.publicKey()])
 ```
 
-**Source:** [src/webauth/utils.ts:32](https://github.com/stellar/js-stellar-sdk/blob/main/src/webauth/utils.ts#L32)
+**Source:** [src/webauth/utils.ts:33](https://github.com/stellar/js-stellar-sdk/blob/main/src/webauth/utils.ts#L33)
 
 ## WebAuth.readChallengeTx
 
@@ -147,7 +147,7 @@ The actual transaction and the
 
 - `SEP-10: Stellar Web Auth`
 
-**Source:** [src/webauth/challenge_transaction.ts:163](https://github.com/stellar/js-stellar-sdk/blob/main/src/webauth/challenge_transaction.ts#L163)
+**Source:** [src/webauth/challenge_transaction.ts:169](https://github.com/stellar/js-stellar-sdk/blob/main/src/webauth/challenge_transaction.ts#L169)
 
 ## WebAuth.verifyChallengeTxSigners
 
@@ -215,11 +215,11 @@ const challenge = WebAuth.buildChallengeTx(
 // clock.tick(200);  // Simulates a 200 ms delay when communicating from server to client
 
 // Transaction gathered from a challenge, possibly from the client side
-const transaction = TransactionBuilder.fromXDR(challenge, Networks.TESTNET);
+const transaction = TransactionBuilder.fromXdr(challenge, Networks.TESTNET);
 transaction.sign(clientKP1, clientKP2);
 const signedChallenge = transaction
         .toEnvelope()
-        .toXDR("base64")
+        .toXdr("base64")
         .toString();
 
 // The result below should be equal to [clientKP1.publicKey(), clientKP2.publicKey()]
@@ -236,7 +236,7 @@ WebAuth.verifyChallengeTxSigners(
 
 - `SEP-10: Stellar Web Auth`
 
-**Source:** [src/webauth/challenge_transaction.ts:419](https://github.com/stellar/js-stellar-sdk/blob/main/src/webauth/challenge_transaction.ts#L419)
+**Source:** [src/webauth/challenge_transaction.ts:433](https://github.com/stellar/js-stellar-sdk/blob/main/src/webauth/challenge_transaction.ts#L433)
 
 ## WebAuth.verifyChallengeTxThreshold
 
@@ -312,11 +312,11 @@ const challenge = WebAuth.buildChallengeTx(
 // clock.tick(200);  // Simulates a 200 ms delay when communicating from server to client
 
 // Transaction gathered from a challenge, possibly from the client side
-const transaction = TransactionBuilder.fromXDR(challenge, Networks.TESTNET);
+const transaction = TransactionBuilder.fromXdr(challenge, Networks.TESTNET);
 transaction.sign(clientKP1, clientKP2);
 const signedChallenge = transaction
         .toEnvelope()
-        .toXDR("base64")
+        .toXdr("base64")
         .toString();
 
 // Defining the threshold and signerSummary
@@ -346,24 +346,24 @@ WebAuth.verifyChallengeTxThreshold(
 
 - `SEP-10: Stellar Web Auth`
 
-**Source:** [src/webauth/challenge_transaction.ts:645](https://github.com/stellar/js-stellar-sdk/blob/main/src/webauth/challenge_transaction.ts#L645)
+**Source:** [src/webauth/challenge_transaction.ts:659](https://github.com/stellar/js-stellar-sdk/blob/main/src/webauth/challenge_transaction.ts#L659)
 
 ## WebAuth.verifyTxSignedBy
 
 Verifies if a transaction was signed by the given account id.
 
 ```ts
-verifyTxSignedBy(transaction: Transaction | FeeBumpTransaction, accountID: string): boolean
+verifyTxSignedBy(transaction: Transaction | FeeBumpTransaction, accountId: string): boolean
 ```
 
 **Parameters**
 
 - **`transaction`** — `Transaction | FeeBumpTransaction` (required) — The signed transaction.
-- **`accountID`** — `string` (required) — The signer's public key.
+- **`accountId`** — `string` (required) — The signer's public key.
 
 **Returns**
 
-Whether or not `accountID` was found to have signed the
+Whether or not `accountId` was found to have signed the
    transaction.
 
 **Example**
@@ -380,7 +380,7 @@ transaction.sign(keypair)
 WebAuth.verifyTxSignedBy(transaction, keypair.publicKey())
 ```
 
-**Source:** [src/webauth/utils.ts:94](https://github.com/stellar/js-stellar-sdk/blob/main/src/webauth/utils.ts#L94)
+**Source:** [src/webauth/utils.ts:97](https://github.com/stellar/js-stellar-sdk/blob/main/src/webauth/utils.ts#L97)
 
 ## Types
 
@@ -392,4 +392,4 @@ A parsed and validated challenge transaction, and some of its constituent detail
 type ChallengeTxDetails = { clientAccountId: string; matchedHomeDomain: string; memo?: string; tx: Transaction }
 ```
 
-**Source:** [src/webauth/utils.ts:104](https://github.com/stellar/js-stellar-sdk/blob/main/src/webauth/utils.ts#L104)
+**Source:** [src/webauth/utils.ts:107](https://github.com/stellar/js-stellar-sdk/blob/main/src/webauth/utils.ts#L107)

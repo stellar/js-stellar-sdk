@@ -4,6 +4,7 @@ import {
   getLiquidityPoolId,
   LiquidityPoolFeeV18,
 } from "../../../src/base/get_liquidity_pool_id.js";
+import { hexToUint8Array, uint8ArrayToHex } from "uint8array-extras";
 import { StrKey } from "../../../src/base/strkey.js";
 
 const assetA = new Asset(
@@ -75,7 +76,7 @@ describe("getLiquidityPoolId()", () => {
       assetB,
       fee,
     });
-    expect(poolId.toString("hex")).toBe(
+    expect(uint8ArrayToHex(poolId)).toBe(
       "dd7b1ab831c273310ddbec6f97870aa83c2fbd78ce22aded37ecbf4f3380fac7",
     );
   });
@@ -84,79 +85,91 @@ describe("getLiquidityPoolId()", () => {
 describe("getLiquidityPoolId() mirror stellar-core getPoolID() tests", () => {
   // The tests below were copied from https://github.com/stellar/stellar-core/blob/c5f6349b240818f716617ca6e0f08d295a6fad9a/src/transactions/test/LiquidityPoolTradeTests.cpp#L430-L526
   const issuer1 = StrKey.encodeEd25519PublicKey(
-    Buffer.from(
+    hexToUint8Array(
       "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
-      "hex",
     ),
   );
   const issuer2 = StrKey.encodeEd25519PublicKey(
-    Buffer.from(
+    hexToUint8Array(
       "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789",
-      "hex",
     ),
   );
 
   it("returns poolId correctly for native and alphaNum4 (short and full length)", () => {
     expect(
-      getLiquidityPoolId("constant_product", {
-        assetA: Asset.native(),
-        assetB: new Asset("AbC", issuer1),
-        fee,
-      }).toString("hex"),
+      uint8ArrayToHex(
+        getLiquidityPoolId("constant_product", {
+          assetA: Asset.native(),
+          assetB: new Asset("AbC", issuer1),
+          fee,
+        }),
+      ),
     ).toBe("c17f36fbd210e43dca1cda8edc5b6c0f825fcb72b39f0392fd6309844d77ff7d");
 
     expect(
-      getLiquidityPoolId("constant_product", {
-        assetA: Asset.native(),
-        assetB: new Asset("AbCd", issuer1),
-        fee,
-      }).toString("hex"),
+      uint8ArrayToHex(
+        getLiquidityPoolId("constant_product", {
+          assetA: Asset.native(),
+          assetB: new Asset("AbCd", issuer1),
+          fee,
+        }),
+      ),
     ).toBe("80e0c5dc79ed76bb7e63681f6456136762f0d01ede94bb379dbc793e66db35e6");
   });
 
   it("returns poolId correctly for native and alphaNum12 (short and full length)", () => {
     expect(
-      getLiquidityPoolId("constant_product", {
-        assetA: Asset.native(),
-        assetB: new Asset("AbCdEfGhIjK", issuer1),
-        fee,
-      }).toString("hex"),
+      uint8ArrayToHex(
+        getLiquidityPoolId("constant_product", {
+          assetA: Asset.native(),
+          assetB: new Asset("AbCdEfGhIjK", issuer1),
+          fee,
+        }),
+      ),
     ).toBe("d2306c6e8532f99418e9d38520865e1c1059cddb6793da3cc634224f2ffb5bd4");
 
     expect(
-      getLiquidityPoolId("constant_product", {
-        assetA: Asset.native(),
-        assetB: new Asset("AbCdEfGhIjKl", issuer1),
-        fee,
-      }).toString("hex"),
+      uint8ArrayToHex(
+        getLiquidityPoolId("constant_product", {
+          assetA: Asset.native(),
+          assetB: new Asset("AbCdEfGhIjKl", issuer1),
+          fee,
+        }),
+      ),
     ).toBe("807e9e66653b5fda4dd4e672ff64a929fc5fdafe152eeadc07bb460c4849d711");
   });
 
   it("returns poolId correctly for alphaNum4 and alphaNum12, same code but different issuer", () => {
     expect(
-      getLiquidityPoolId("constant_product", {
-        assetA: new Asset("aBc", issuer1),
-        assetB: new Asset("aBc", issuer2),
-        fee,
-      }).toString("hex"),
+      uint8ArrayToHex(
+        getLiquidityPoolId("constant_product", {
+          assetA: new Asset("aBc", issuer1),
+          assetB: new Asset("aBc", issuer2),
+          fee,
+        }),
+      ),
     ).toBe("5d7188454299529856586e81ea385d2c131c6afdd9d58c82e9aa558c16522fea");
 
     expect(
-      getLiquidityPoolId("constant_product", {
-        assetA: new Asset("aBcDeFgHiJkL", issuer1),
-        assetB: new Asset("aBcDeFgHiJkL", issuer2),
-        fee,
-      }).toString("hex"),
+      uint8ArrayToHex(
+        getLiquidityPoolId("constant_product", {
+          assetA: new Asset("aBcDeFgHiJkL", issuer1),
+          assetB: new Asset("aBcDeFgHiJkL", issuer2),
+          fee,
+        }),
+      ),
     ).toBe("93fa82ecaabe987461d1e3c8e0fd6510558b86ac82a41f7c70b112281be90c71");
   });
 
   it("returns poolId correctly for alphaNum4 and alphaNum12 do not depend on issuer or code", () => {
     expect(
-      getLiquidityPoolId("constant_product", {
-        assetA: new Asset("aBc", issuer1),
-        assetB: new Asset("aBcDeFgHiJk", issuer2),
-        fee,
-      }).toString("hex"),
+      uint8ArrayToHex(
+        getLiquidityPoolId("constant_product", {
+          assetA: new Asset("aBc", issuer1),
+          assetB: new Asset("aBcDeFgHiJk", issuer2),
+          fee,
+        }),
+      ),
     ).toBe("c0d4c87bbaade53764b904fde2901a0353af437e9d3a976f1252670b85a36895");
   });
 });
