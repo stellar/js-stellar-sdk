@@ -56,6 +56,13 @@ jobs:
         if: matrix.node-version == 22
         run: pnpm run docs:snippets:check
 
+      # Compile-time regression tests (test/types/): code that must typecheck
+      # against src/, e.g. equals() on union-typed XDR values (issue #1630).
+      # tsc output does not vary by Node version, so run once.
+      - name: Type Tests
+        if: matrix.node-version == 22
+        run: pnpm run test:types
+
   # Browser tests get their own job per transport rather than two steps in
   # `build_and_test`. Each pass loads the SDK source graph — ~470 unbundled
   # `src/xdr` modules — once per test file, across 220 files and two browsers.
