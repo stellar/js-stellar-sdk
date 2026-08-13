@@ -327,6 +327,154 @@ describe("Keypair.verify", () => {
     const signature = signingKp.sign(data);
     expect(verifyKp.verify(data, signature)).toBe(true);
   });
+
+  it("accepts an xdr.Signature wrapper, as found on DecoratedSignature", () => {
+    const kp = Keypair.fromSecret(
+      "SD7X7LEHBNMUIKQGKPARG5TDJNBHKC346OUARHGZL5ITC6IJPXHILY36",
+    );
+    const data = stringToUint8Array("hello");
+    const decorated = kp.signDecorated(data);
+
+    expect(decorated.signature).toBeInstanceOf(xdr.Signature);
+    expect(kp.verify(data, decorated.signature)).toBe(true);
+    expect(kp.verify(data, new xdr.Signature(kp.sign(data)))).toBe(true);
+  });
+
+  // Buffer is the subclass callers actually pass, but it has no browser global
+  // and these tests run in both environments.
+  it("accepts a Uint8Array subclass, such as Buffer, in either argument", () => {
+    const kp = Keypair.fromSecret(
+      "SD7X7LEHBNMUIKQGKPARG5TDJNBHKC346OUARHGZL5ITC6IJPXHILY36",
+    );
+    const data = stringToUint8Array("hello");
+    const signature = kp.sign(data);
+    class Bytes extends Uint8Array {}
+    expect(kp.verify(Bytes.from(data), Bytes.from(signature))).toBe(true);
+  });
+
+  it("returns false, not a throw, for well-formed but wrong signatures", () => {
+    const kp = Keypair.fromSecret(
+      "SD7X7LEHBNMUIKQGKPARG5TDJNBHKC346OUARHGZL5ITC6IJPXHILY36",
+    );
+    const data = stringToUint8Array("hello");
+    const signature = kp.sign(data);
+
+    expect(kp.verify(stringToUint8Array("goodbye"), signature)).toBe(false);
+    expect(kp.verify(data, new Uint8Array(64))).toBe(false);
+    expect(kp.verify(data, new Uint8Array(10))).toBe(false);
+    expect(Keypair.random().verify(data, signature)).toBe(false);
+    // the same verdict through the wrapper
+    expect(kp.verify(data, new xdr.Signature(new Uint8Array(64)))).toBe(false);
+  });
+
+  it("throws for shapes that carry no signature", () => {
+    const kp = Keypair.fromSecret(
+      "SD7X7LEHBNMUIKQGKPARG5TDJNBHKC346OUARHGZL5ITC6IJPXHILY36",
+    );
+    const data = stringToUint8Array("hello");
+    const signature = kp.sign(data);
+    const bad = (v: unknown) => () => kp.verify(data, v as Uint8Array);
+
+    expect(bad(null)).toThrow(TypeError);
+    expect(bad(undefined)).toThrow(TypeError);
+    expect(bad(uint8ArrayToBase64(signature))).toThrow(
+      /expected Uint8Array or xdr\.Signature/,
+    );
+    expect(bad({})).toThrow(TypeError);
+    expect(bad(Array.from(signature))).toThrow(TypeError);
+    // a sibling byte wrapper is not a signature
+    expect(bad(new xdr.Hash(new Uint8Array(32)))).toThrow(TypeError);
+    expect(() => kp.verify(null as unknown as Uint8Array, signature)).toThrow(
+      /expected Uint8Array for data/,
+    );
+  });
+
+  // Bytes from another realm (an iframe, a worker, `node:vm`) fail
+  // `instanceof Uint8Array` while being perfectly good bytes. Node-only
+  // because `node:vm` is the portable way to get a second realm.
+  it.runIf(typeof globalThis.process?.versions?.node === "string")(
+    "accepts a Uint8Array from another realm",
+    async () => {
+      const { default: vm } = await import("node:vm");
+      const kp = Keypair.fromSecret(
+        "SD7X7LEHBNMUIKQGKPARG5TDJNBHKC346OUARHGZL5ITC6IJPXHILY36",
+      );
+      const data = stringToUint8Array("hello");
+      const signature = kp.sign(data);
+
+      const ctx = vm.createContext({});
+      const foreign = (len: number, src: Uint8Array): Uint8Array => {
+        const arr = vm.runInContext(
+          `new Uint8Array(${len})`,
+          ctx,
+        ) as Uint8Array;
+        arr.set(src);
+        return arr;
+      };
+      const foreignData = foreign(data.length, data);
+      const foreignSig = foreign(signature.length, signature);
+
+      expect(foreignData).not.toBeInstanceOf(Uint8Array);
+      expect(kp.verify(foreignData, foreignSig)).toBe(true);
+      expect(kp.verifyMessage("x", foreign(64, kp.signMessage("x")))).toBe(
+        true,
+      );
+    },
+  );
+
+  // A dual ESM/CJS load (or two installed versions) puts two distinct
+  // Signature classes in one process, so `instanceof` alone would reject a
+  // perfectly good wrapper. These stand in for that second copy.
+  it("accepts a Signature from another copy of the SDK", () => {
+    const kp = Keypair.fromSecret(
+      "SD7X7LEHBNMUIKQGKPARG5TDJNBHKC346OUARHGZL5ITC6IJPXHILY36",
+    );
+    const data = stringToUint8Array("hello");
+    const signature = kp.sign(data);
+
+    class ForeignBytesValue {
+      static readonly schema = { name: "Signature" };
+      constructor(private readonly bytes: Uint8Array) {}
+      toBytes(): Uint8Array {
+        return this.bytes;
+      }
+    }
+    const foreign = new ForeignBytesValue(signature);
+    expect(foreign).not.toBeInstanceOf(xdr.Signature);
+    expect(kp.verify(data, foreign as unknown as xdr.Signature)).toBe(true);
+
+    class ForeignHash extends ForeignBytesValue {
+      static readonly schema = { name: "Hash" };
+    }
+    expect(() =>
+      kp.verify(data, new ForeignHash(signature) as unknown as xdr.Signature),
+    ).toThrow(TypeError);
+  });
+
+  // The brand is only a name; an object can carry a matching `constructor`
+  // as an own property without being a usable wrapper.
+  it("rejects a brand match whose toBytes is unusable, with the guard error", () => {
+    const kp = Keypair.fromSecret(
+      "SD7X7LEHBNMUIKQGKPARG5TDJNBHKC346OUARHGZL5ITC6IJPXHILY36",
+    );
+    const data = stringToUint8Array("hello");
+    const brand = { schema: { name: "Signature" } };
+    const bad = (v: unknown) => () => kp.verify(data, v as xdr.Signature);
+
+    expect(bad({ constructor: brand })).toThrow(
+      /expected Uint8Array or xdr\.Signature/,
+    );
+    expect(bad({ constructor: brand, toBytes: "nope" })).toThrow(
+      /expected Uint8Array or xdr\.Signature/,
+    );
+    // A brand match that *is* usable still works.
+    expect(
+      kp.verify(data, {
+        constructor: brand,
+        toBytes: () => kp.sign(data),
+      } as unknown as xdr.Signature),
+    ).toBe(true);
+  });
 });
 
 describe("Keypair.xdrMuxedAccount with id", () => {
@@ -455,11 +603,30 @@ describe("Keypair.signMessage / verifyMessage (SEP-53)", () => {
     expect(kp.verifyMessage("Hello, World!", new Uint8Array(64))).toBe(false);
   });
 
-  it("returns false (does not throw) for a malformed message, like verify()", () => {
+  it("throws for a malformed message, like verify()", () => {
     const kp = Keypair.fromPublicKey(address);
     const sig = new Uint8Array(64);
-    expect(kp.verifyMessage(null as unknown as string, sig)).toBe(false);
-    expect(kp.verifyMessage(123 as unknown as string, sig)).toBe(false);
+    expect(() => kp.verifyMessage(null as unknown as string, sig)).toThrow(
+      /expected string or Uint8Array for message/,
+    );
+    expect(() => kp.verifyMessage(123 as unknown as string, sig)).toThrow(
+      TypeError,
+    );
+  });
+
+  it("throws for a malformed signature rather than reporting it invalid", () => {
+    const kp = Keypair.fromPublicKey(address);
+    expect(() =>
+      kp.verifyMessage("Hello, World!", null as unknown as Uint8Array),
+    ).toThrow(/expected Uint8Array or xdr\.Signature/);
+  });
+
+  it("accepts an xdr.Signature wrapper", () => {
+    const kp = Keypair.fromSecret(seed);
+    const signature = kp.signMessage("Hello, World!");
+    expect(
+      kp.verifyMessage("Hello, World!", new xdr.Signature(signature)),
+    ).toBe(true);
   });
 
   it("throws when signing without a secret key", () => {

@@ -2,6 +2,7 @@ import { describe, it, expect, afterEach, vi } from "vitest";
 import {
   compareUint8Arrays,
   stringToUint8Array,
+  uint8ArrayToBase64,
   uint8ArrayToHex,
 } from "uint8array-extras";
 import {
@@ -246,6 +247,38 @@ describe("building authorization entries", () => {
       await expect(
         authorizeEntry(authEntry, badCallback, 10, Networks.TESTNET),
       ).rejects.toThrow(/signature doesn't match payload/);
+    });
+
+    // Each of these carries no usable signature at all, so `verify` would
+    // report a TypeError naming *its* parameter — a confusing place to land
+    // for a mistake the caller made in a callback.
+    it.each([
+      ["a base64 string", (sig: Uint8Array) => uint8ArrayToBase64(sig)],
+      ["a plain number[]", (sig: Uint8Array) => Array.from(sig)],
+      ["null", () => null],
+      ["undefined", () => undefined],
+    ])("throws when a callback resolves to %s", async (_label, produce) => {
+      const badCallback = ((preimage: xdr.HashIdPreimage) =>
+        Promise.resolve(
+          produce(kp.sign(hash(preimage.toXdr()))),
+        )) as unknown as SigningCallback;
+
+      await expect(
+        authorizeEntry(authEntry, badCallback, 10, Networks.TESTNET),
+      ).rejects.toThrow(/SigningCallback must resolve to a Uint8Array/);
+    });
+
+    // An `xdr.Signature` does carry a valid signature, so it passes `verify`
+    // and used to fail two layers down in `nativeToScVal`.
+    it("throws when a callback resolves to an xdr.Signature wrapper", async () => {
+      const badCallback = ((preimage: xdr.HashIdPreimage) =>
+        Promise.resolve(
+          new xdr.Signature(kp.sign(hash(preimage.toXdr()))),
+        )) as unknown as SigningCallback;
+
+      await expect(
+        authorizeEntry(authEntry, badCallback, 10, Networks.TESTNET),
+      ).rejects.toThrow(/SigningCallback must resolve to a Uint8Array/);
     });
 
     it("produces different signatures for different networks", async () => {

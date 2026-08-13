@@ -1,4 +1,4 @@
-import { compareUint8Arrays } from "uint8array-extras";
+import { compareUint8Arrays, isUint8Array } from "uint8array-extras";
 import {
   HashIdPreimage,
   HashIdPreimageSorobanAuthorization,
@@ -233,10 +233,21 @@ export async function authorizeEntry(
       ) {
         signature = sigResult.signature;
         publicKey = sigResult.publicKey;
-      } else {
+      } else if (isUint8Array(sigResult)) {
         // if using the deprecated form, assume it's for the entry
-        signature = sigResult as Uint8Array;
+        signature = sigResult;
         publicKey = Address.fromScAddress(addrAuth.address).toString();
+      } else {
+        // Without this the value reached `verify` unchecked. A wrong shape that
+        // still carries a signature (an `xdr.Signature` wrapper) got a forgery
+        // verdict for a valid signature; one that carries none surfaces
+        // `verify`'s own TypeError, which names a parameter the caller never
+        // passed.
+        throw new TypeError(
+          "SigningCallback must resolve to a Uint8Array, " +
+            "{ signature, publicKey }, or { signatureScVal }; got " +
+            `${sigResult === null ? "null" : typeof sigResult}`,
+        );
       }
     } else {
       signature = signer.sign(payload);
