@@ -66,10 +66,11 @@ Three semantic traps to check for:
   expect(Array.from(actual)).toEqual(Array.from(expectedBuffer));
   ```
 
-  Both recipes assume `actual` is **raw bytes**. If it is one of the fourteen
-  XDR byte wrappers (`xdr.Hash`, `xdr.Signature`, …), `Array.from()` yields
-  `[]` and the assertion passes no matter what — use `.equals()` there
-  instead. See [`XDR_MIGRATION.md`](./XDR_MIGRATION.md) § 6.
+  If `actual` is one of the fourteen XDR byte wrappers (`xdr.Hash`,
+  `xdr.Signature`, …) both recipes work — wrappers iterate as bytes — but
+  neither is class-aware, so a `Hash` and a `PoolId` over the same bytes
+  compare equal. Use `.equals()` when that matters. See
+  [`XDR_MIGRATION.md`](./XDR_MIGRATION.md) § 6.
 
 ## 2. Method-by-method: returns that changed `Buffer` → `Uint8Array`
 
@@ -110,9 +111,9 @@ Three semantic traps to check for:
 - `AuthEntrySignature.signature` (from `inspectAuthEntry`) is a `Uint8Array`.
 - `DecoratedSignature.signature` and `.hint` are **not**. They are
   `xdr.Signature` / `xdr.SignatureHint` wrappers — through 16.2.0 both were
-  `Buffer`. Read them with `.toBytes()` or `.value`, and compare them with
-  `.equals()`; `Array.from()` on a wrapper yields `[]`. See
-  [`XDR_MIGRATION.md`](./XDR_MIGRATION.md) § 6.
+  `Buffer`. They iterate as bytes, but have no `.length` and are not indexable;
+  read them with `.toBytes()` or `.value` before handing them to code that
+  expects a `Uint8Array`. See [`XDR_MIGRATION.md`](./XDR_MIGRATION.md) § 6.
 
 ## 3. Inputs that got more flexible
 

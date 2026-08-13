@@ -66,7 +66,7 @@ a deprecated alias, so existing calls still work.
 | ----------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `value.toXdrObject()` on **XDR values**   | Bridges instance ↔ wire-shape object. Legacy XDR types held their wire shape directly, so the distinction wasn't meaningful. (On the wrapper classes above it's a rename, not a new method.) |
 | `value.toJson()` / `Class.fromJson(json)` | [SEP-51](https://stellar.org/protocol/sep-51)-compliant JSON serialization. See § 12.                                                                                                        |
-| `value.equals(other)`                     | Structural comparison, and the only correct way to compare byte wrappers — `Array.from()` on one yields `[]`, so a deep-equal assertion passes vacuously (§ 6).                              |
+| `value.equals(other)`                     | Structural comparison, and the class-aware way to compare byte wrappers — `Array.from()` and `toEqual` both reduce a `Hash` and a `PoolId` over the same bytes to equal (§ 6).               |
 
 Note that `toJson()` (lowercase) is the API to call; the JavaScript-standard
 `toJSON()` hook is also implemented as a thin delegate to it, so
@@ -329,9 +329,10 @@ them:
   **`Uint8Array`**. Indexing, `.length`, `Array.from()` and spread all work.
 - Byte fields whose XDR type is a **named typedef** — `Hash`, `Signature`,
   `ScBytes` and eleven others — are **wrapper classes**. They hold their bytes
-  at `.value`, also available via `.toBytes()`. They are _not_ a `Uint8Array`:
-  `instanceof` is `false`, `.length` is `undefined`, `Array.from()` yields `[]`,
-  and spread / `Buffer.from()` throw.
+  at `.value`, also available via `.toBytes()`. They _iterate_ as bytes, so
+  `Array.from(h)` and `[...h]` work, but they are still not a `Uint8Array`:
+  `instanceof` is `false`, `.length` is `undefined`, indexing gives `undefined`,
+  and `Buffer.from()` throws.
 
 The fourteen wrappers are `AssetCode12`, `AssetCode4`, `ContractId`,
 `DataValue`, `EncodedLedgerKey`, `EncryptedBody`, `Hash`, `PoolId`, `ScBytes`,
@@ -352,11 +353,11 @@ txV0.sourceAccountEd25519.length; // 32
 The generated declarations tell you which shape you have — `readonly hash: Hash`
 is a wrapper, `readonly sourceAccountEd25519: Uint8Array` is raw.
 
-Under `strict: true` TypeScript catches every one of these at the exact line:
-`wrapper.length` is `TS2339`, `wrapper[0]` is `TS7053`, `Array.from(wrapper)` is
-`TS2769`, and passing a wrapper where a `Uint8Array` is required is `TS2345`.
-Plain JavaScript, and TypeScript run without a type-check pass, get no signal —
-see § 6.2 for the failure that costs the most.
+Under `strict: true` TypeScript catches the remaining mistakes at the exact
+line: `wrapper.length` is `TS2339`, `wrapper[0]` is `TS7053`, and passing a
+wrapper where a `Uint8Array` is required is `TS2345`. Plain JavaScript, and
+TypeScript run without a type-check pass, get no signal — see § 6.2 for the
+failure that costs the most.
 
 (**Note:** XDR _string_ fields are a separate story, with their bytes at
 `.bytes`; see § 11.)
@@ -380,12 +381,11 @@ a.equals(b); // wrappers and any XDR value
 uint8ArrayToHex(a) === expectedHex; // raw byte fields
 ```
 
-Do **not** reach for `Array.from()` on a wrapper. It sees an object that is
-neither iterable nor array-like and yields `[]`, so
-`expect(Array.from(a)).toEqual(Array.from(b))` **passes for any two wrappers** —
-a byte assertion migrated that way can no longer fail. Restrict `Array.from()`
-to raw byte fields, where it is still a fine way to normalize a `Buffer` and a
-`Uint8Array` for a deep-equality check.
+`Array.from()` also works on a wrapper — it iterates as bytes — so
+`expect(Array.from(a)).toEqual(Array.from(b))` compares what you meant. Prefer
+`.equals()` anyway: it is class-aware, while `Array.from()` reduces a `Hash` and
+a `PoolId` over the same bytes to the same array. The same caveat applies to
+`expect(a).toEqual(b)`, which ignores prototypes.
 
 ### Passing bytes in
 
@@ -625,11 +625,12 @@ new xdr.Hash(bytes) for PoolId/ContractId  →  use new xdr.PoolId(bytes) /
                                               new xdr.ContractId(bytes)
 
 // ============== BYTES (reading back) — see § 6 ==============
-// Named typedefs (Hash, Signature, ScBytes, … 14 in all) are WRAPPERS:
-wrapper.length               →   wrapper.toBytes().length   // was undefined
+// Named typedefs (Hash, Signature, ScBytes, … 14 in all) are WRAPPERS.
+// They iterate as bytes; they are not indexable and have no .length.
+wrapper.length               →   wrapper.toBytes().length   // undefined on the wrapper
 wrapper[0]                   →   wrapper.toBytes()[0]
-Array.from(wrapper)          →   (yields []! use .equals() to compare)
-Buffer.from(wrapper)         →   Buffer.from(wrapper.toBytes())   // was a throw
+Buffer.from(wrapper)         →   Buffer.from(wrapper.toBytes())
+Array.from(wrapper)          →   (works; .equals() is class-aware, prefer it)
 decSig.signature             →   decSig.signature.toBytes()  // .hint likewise
 // Inline opaque[N]/opaque<N> and uint256 stay raw Uint8Array — index freely.
 

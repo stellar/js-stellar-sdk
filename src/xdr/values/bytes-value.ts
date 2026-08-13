@@ -78,4 +78,20 @@ export abstract class BytesValue<Tag extends string = string> extends XdrValue {
   toBytes(): Uint8Array {
     return this.value;
   }
+
+  /**
+   * Iterating yields the bytes, so `Array.from(hash)` and `[...hash]` behave.
+   * Without this they returned `[]` and threw respectively, and the empty array
+   * silently disarmed byte assertions (`deepEqual(Array.from(a), Array.from(b))`
+   * passed for any two wrappers).
+   *
+   * Deliberately *not* paired with a `length` getter: index access can't work
+   * without a Proxy, so `length` would turn `for (i; i < v.length; i++) v[i]`
+   * from a loop that never runs into one that yields `undefined` per byte —
+   * trading a silent no-op for silently wrong data. Every remaining difference
+   * from a `Uint8Array` now fails loudly instead.
+   */
+  *[Symbol.iterator](): IterableIterator<number> {
+    yield* this.value;
+  }
 }
