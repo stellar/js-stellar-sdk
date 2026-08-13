@@ -233,10 +233,19 @@ export async function authorizeEntry(
       ) {
         signature = sigResult.signature;
         publicKey = sigResult.publicKey;
-      } else {
+      } else if (sigResult instanceof Uint8Array) {
         // if using the deprecated form, assume it's for the entry
-        signature = sigResult as Uint8Array;
+        signature = sigResult;
         publicKey = Address.fromScAddress(addrAuth.address).toString();
+      } else {
+        // Without this the value reached `verify` unchecked, and a wrong shape
+        // (e.g. an `xdr.Signature` wrapper) surfaced as "signature doesn't
+        // match payload" — a forgery verdict for a valid signature.
+        throw new TypeError(
+          "SigningCallback must resolve to a Uint8Array, " +
+            "{ signature, publicKey }, or { signatureScVal }; got " +
+            `${sigResult === null ? "null" : typeof sigResult}`,
+        );
       }
     } else {
       signature = signer.sign(payload);

@@ -15,6 +15,7 @@ import {
   MuxedAccount,
   MuxedAccountMed25519,
   PublicKey,
+  Signature,
   Uint64,
 } from "../xdr/index.js";
 
@@ -22,6 +23,20 @@ ed.hashes.sha512 = sha512;
 
 // SEP-53: fixed prefix prepended to a message before hashing and signing.
 const MESSAGE_PREFIX = stringToUint8Array("Stellar Signed Message:\n");
+
+/**
+ * True for an `xdr.Signature`, including one built by a *different* copy of the
+ * SDK loaded in the same process (a dual ESM/CJS load, or two installed
+ * versions), where `instanceof` fails on an otherwise perfectly good wrapper.
+ * The generated schema carries its XDR type name as a string literal, so unlike
+ * `constructor.name` it survives both the module boundary and minification.
+ */
+function isSignature(value: unknown): value is Signature {
+  if (value instanceof Signature) return true;
+  if (typeof value !== "object" || value === null) return false;
+  const ctor = value.constructor as { schema?: { name?: string } } | undefined;
+  return ctor?.schema?.name === Signature.schema.name;
+}
 
 /**
  * Normalizes the constructor's key input: strings are UTF-8 encoded and raw
@@ -271,13 +286,34 @@ export class Keypair {
   /**
    * Verifies if `signature` for `data` is valid.
    *
+   * A well-formed signature that doesn't match returns `false`; an argument
+   * that isn't byte-shaped throws, because reporting it as an invalid
+   * signature would be indistinguishable from a forgery.
+   *
    * @param data - signed data
-   * @param signature - signature to verify
+   * @param signature - signature to verify, either raw bytes or the
+   *    `xdr.Signature` wrapper that `DecoratedSignature.signature` holds
+   * @throws {TypeError} if `data` or `signature` is not byte-shaped
    */
-  verify(data: Uint8Array, signature: Uint8Array): boolean {
+  verify(data: Uint8Array, signature: Uint8Array | Signature): boolean {
+    if (!(data instanceof Uint8Array)) {
+      throw new TypeError(`expected Uint8Array for data, got ${typeof data}`);
+    }
+    // `toBytes()`, not `toXdr()` — Signature is `opaque<64>`, so its XDR form
+    // carries a 4-byte length prefix that would fail verification.
+    const signatureBytes = isSignature(signature)
+      ? signature.toBytes()
+      : signature;
+    if (!(signatureBytes instanceof Uint8Array)) {
+      throw new TypeError(
+        `expected Uint8Array or xdr.Signature for signature, got ${typeof signature}`,
+      );
+    }
+
     try {
-      return verify(data, signature, this._publicKey);
+      return verify(data, signatureBytes, this._publicKey);
     } catch {
+      // A well-formed but invalid signature is a verdict, not an error.
       return false;
     }
   }
@@ -302,17 +338,17 @@ export class Keypair {
    * Verifies a SEP-53 signed message against this keypair's public key.
    *
    * @param message - the original message (a UTF-8 string or raw bytes)
-   * @param signature - the 64-byte signature to verify
+   * @param signature - the 64-byte signature to verify, either raw bytes or an
+   *    `xdr.Signature` wrapper
    * @returns `true` if `signature` is valid for `message` and this key
+   * @throws {TypeError} if `message` or `signature` is not byte-shaped
    * @see https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0053.md
    */
-  verifyMessage(message: string | Uint8Array, signature: Uint8Array): boolean {
-    try {
-      return this.verify(this._hashMessage(message), signature);
-    } catch {
-      // Mirror `verify`: never throw on bad input, just report invalid.
-      return false;
-    }
+  verifyMessage(
+    message: string | Uint8Array,
+    signature: Uint8Array | Signature,
+  ): boolean {
+    return this.verify(this._hashMessage(message), signature);
   }
 
   /**
@@ -320,6 +356,11 @@ export class Keypair {
    * `SHA-256("Stellar Signed Message:\n" + message)`.
    */
   private _hashMessage(message: string | Uint8Array): Uint8Array {
+    if (typeof message !== "string" && !(message instanceof Uint8Array)) {
+      throw new TypeError(
+        `expected string or Uint8Array for message, got ${typeof message}`,
+      );
+    }
     const messageBytes =
       typeof message === "string" ? stringToUint8Array(message) : message;
     return hash(concatUint8Arrays([MESSAGE_PREFIX, messageBytes]));
