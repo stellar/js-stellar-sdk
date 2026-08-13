@@ -389,6 +389,39 @@ describe("Keypair.verify", () => {
     );
   });
 
+  // Bytes from another realm (an iframe, a worker, `node:vm`) fail
+  // `instanceof Uint8Array` while being perfectly good bytes. Node-only
+  // because `node:vm` is the portable way to get a second realm.
+  it.runIf(typeof globalThis.process?.versions?.node === "string")(
+    "accepts a Uint8Array from another realm",
+    async () => {
+      const { default: vm } = await import("node:vm");
+      const kp = Keypair.fromSecret(
+        "SD7X7LEHBNMUIKQGKPARG5TDJNBHKC346OUARHGZL5ITC6IJPXHILY36",
+      );
+      const data = stringToUint8Array("hello");
+      const signature = kp.sign(data);
+
+      const ctx = vm.createContext({});
+      const foreign = (len: number, src: Uint8Array): Uint8Array => {
+        const arr = vm.runInContext(
+          `new Uint8Array(${len})`,
+          ctx,
+        ) as Uint8Array;
+        arr.set(src);
+        return arr;
+      };
+      const foreignData = foreign(data.length, data);
+      const foreignSig = foreign(signature.length, signature);
+
+      expect(foreignData).not.toBeInstanceOf(Uint8Array);
+      expect(kp.verify(foreignData, foreignSig)).toBe(true);
+      expect(kp.verifyMessage("x", foreign(64, kp.signMessage("x")))).toBe(
+        true,
+      );
+    },
+  );
+
   // A dual ESM/CJS load (or two installed versions) puts two distinct
   // Signature classes in one process, so `instanceof` alone would reject a
   // perfectly good wrapper. These stand in for that second copy.
@@ -416,6 +449,31 @@ describe("Keypair.verify", () => {
     expect(() =>
       kp.verify(data, new ForeignHash(signature) as unknown as xdr.Signature),
     ).toThrow(TypeError);
+  });
+
+  // The brand is only a name; an object can carry a matching `constructor`
+  // as an own property without being a usable wrapper.
+  it("rejects a brand match whose toBytes is unusable, with the guard error", () => {
+    const kp = Keypair.fromSecret(
+      "SD7X7LEHBNMUIKQGKPARG5TDJNBHKC346OUARHGZL5ITC6IJPXHILY36",
+    );
+    const data = stringToUint8Array("hello");
+    const brand = { schema: { name: "Signature" } };
+    const bad = (v: unknown) => () => kp.verify(data, v as xdr.Signature);
+
+    expect(bad({ constructor: brand })).toThrow(
+      /expected Uint8Array or xdr\.Signature/,
+    );
+    expect(bad({ constructor: brand, toBytes: "nope" })).toThrow(
+      /expected Uint8Array or xdr\.Signature/,
+    );
+    // A brand match that *is* usable still works.
+    expect(
+      kp.verify(data, {
+        constructor: brand,
+        toBytes: () => kp.sign(data),
+      } as unknown as xdr.Signature),
+    ).toBe(true);
   });
 });
 

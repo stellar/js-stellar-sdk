@@ -236,6 +236,28 @@ describe("building authorization entries", () => {
       ).rejects.toThrow(/signature doesn't match payload/);
     });
 
+    it("throws when a callback resolves to none of its three shapes", async () => {
+      const cases: [string, unknown][] = [
+        ["undefined", undefined],
+        ["null", null],
+        ["a string", "deadbeef"],
+        ["an empty object", {}],
+        ["an ArrayBuffer", new ArrayBuffer(64)],
+      ];
+
+      for (const [label, value] of cases) {
+        await expect(
+          authorizeEntry(
+            authEntry,
+            (() => Promise.resolve(value)) as unknown as SigningCallback,
+            10,
+            Networks.TESTNET,
+          ),
+          `callback returning ${label}`,
+        ).rejects.toThrow(/SigningCallback must resolve to a Uint8Array/);
+      }
+    });
+
     it("throws with a bad signature from a callback", async () => {
       // eslint-disable-next-line @typescript-eslint/require-await
       const badCallback: SigningCallback = async () => ({

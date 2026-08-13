@@ -36,15 +36,15 @@ class Keypair {
   signDecorated(data: Uint8Array): DecoratedSignature;
   signMessage(message: string | Uint8Array<ArrayBufferLike>): Uint8Array;
   signPayloadDecorated(data: Uint8Array): DecoratedSignature;
-  verify(data: Uint8Array, signature: Uint8Array): boolean;
-  verifyMessage(message: string | Uint8Array<ArrayBufferLike>, signature: Uint8Array): boolean;
+  verify(data: Uint8Array, signature: Uint8Array<ArrayBufferLike> | Signature): boolean;
+  verifyMessage(message: string | Uint8Array<ArrayBufferLike>, signature: Uint8Array<ArrayBufferLike> | Signature): boolean;
   xdrAccountId(): PublicKeyEd25519;
   xdrMuxedAccount(id?: string): MuxedAccount;
   xdrPublicKey(): PublicKeyEd25519;
 }
 ```
 
-**Source:** [src/base/keypair.ts:48](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/keypair.ts#L48)
+**Source:** [src/base/keypair.ts:68](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/keypair.ts#L68)
 
 ### `new Keypair(keys)`
 
@@ -56,7 +56,7 @@ constructor(keys: { publicKey?: string | Uint8Array<ArrayBufferLike>; secretKey:
 
 - **`keys`** — `{ publicKey?: string | Uint8Array<ArrayBufferLike>; secretKey: string | Uint8Array<ArrayBufferLike>; type: "ed25519" } | { publicKey: string | Uint8Array<ArrayBufferLike>; type: "ed25519" }` (required) — at least one of keys must be provided.
 
-**Source:** [src/base/keypair.ts:60](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/keypair.ts#L60)
+**Source:** [src/base/keypair.ts:80](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/keypair.ts#L80)
 
 ### `Keypair.fromPublicKey(publicKey)`
 
@@ -70,7 +70,7 @@ static fromPublicKey(publicKey: string): Keypair;
 
 - **`publicKey`** — `string` (required) — public key (ex. `GB3KJPLFUYN5VL6R3GU3EGCGVCKFDSD7BEDX42HWG5BWFKB3KQGJJRMA`)
 
-**Source:** [src/base/keypair.ts:142](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/keypair.ts#L142)
+**Source:** [src/base/keypair.ts:162](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/keypair.ts#L162)
 
 ### `Keypair.fromRawEd25519Seed(rawSeed)`
 
@@ -84,7 +84,7 @@ static fromRawEd25519Seed(rawSeed: Uint8Array): Keypair;
 
 - **`rawSeed`** — `Uint8Array` (required) — raw 32-byte ed25519 secret key seed
 
-**Source:** [src/base/keypair.ts:120](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/keypair.ts#L120)
+**Source:** [src/base/keypair.ts:140](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/keypair.ts#L140)
 
 ### `Keypair.fromSecret(secret)`
 
@@ -99,7 +99,7 @@ static fromSecret(secret: string): Keypair;
 
 - **`secret`** — `string` (required) — secret key (ex. `SDAK....`)
 
-**Source:** [src/base/keypair.ts:110](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/keypair.ts#L110)
+**Source:** [src/base/keypair.ts:130](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/keypair.ts#L130)
 
 ### `Keypair.master(networkPassphrase)`
 
@@ -113,7 +113,7 @@ static master(networkPassphrase: string): Keypair;
 
 - **`networkPassphrase`** — `string` (required) — passphrase of the target stellar network (e.g. "Public Global Stellar Network ; September 2015")
 
-**Source:** [src/base/keypair.ts:128](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/keypair.ts#L128)
+**Source:** [src/base/keypair.ts:148](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/keypair.ts#L148)
 
 ### `Keypair.random()`
 
@@ -123,7 +123,7 @@ Create a random `Keypair` object.
 static random(): Keypair;
 ```
 
-**Source:** [src/base/keypair.ts:154](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/keypair.ts#L154)
+**Source:** [src/base/keypair.ts:174](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/keypair.ts#L174)
 
 ### `keypair.type`
 
@@ -131,7 +131,7 @@ static random(): Keypair;
 readonly type: "ed25519";
 ```
 
-**Source:** [src/base/keypair.ts:49](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/keypair.ts#L49)
+**Source:** [src/base/keypair.ts:69](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/keypair.ts#L69)
 
 ### `keypair.canSign()`
 
@@ -141,7 +141,7 @@ Returns `true` if this `Keypair` object contains secret key and can sign.
 canSign(): boolean;
 ```
 
-**Source:** [src/base/keypair.ts:253](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/keypair.ts#L253)
+**Source:** [src/base/keypair.ts:273](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/keypair.ts#L273)
 
 ### `keypair.publicKey()`
 
@@ -151,7 +151,7 @@ Returns public key associated with this `Keypair` object.
 publicKey(): string;
 ```
 
-**Source:** [src/base/keypair.ts:215](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/keypair.ts#L215)
+**Source:** [src/base/keypair.ts:235](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/keypair.ts#L235)
 
 ### `keypair.rawPublicKey()`
 
@@ -161,7 +161,7 @@ Returns raw public key bytes
 rawPublicKey(): Uint8Array;
 ```
 
-**Source:** [src/base/keypair.ts:198](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/keypair.ts#L198)
+**Source:** [src/base/keypair.ts:218](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/keypair.ts#L218)
 
 ### `keypair.rawSecretKey()`
 
@@ -175,7 +175,7 @@ rawSecretKey(): Uint8Array;
 
 - if no secret seed is available
 
-**Source:** [src/base/keypair.ts:243](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/keypair.ts#L243)
+**Source:** [src/base/keypair.ts:263](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/keypair.ts#L263)
 
 ### `keypair.secret()`
 
@@ -191,7 +191,7 @@ secret(): string;
 
 - if no secret key is available
 
-**Source:** [src/base/keypair.ts:226](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/keypair.ts#L226)
+**Source:** [src/base/keypair.ts:246](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/keypair.ts#L246)
 
 ### `keypair.sign(data)`
 
@@ -209,7 +209,7 @@ sign(data: Uint8Array): Uint8Array;
 
 - if no secret key is available
 
-**Source:** [src/base/keypair.ts:263](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/keypair.ts#L263)
+**Source:** [src/base/keypair.ts:283](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/keypair.ts#L283)
 
 ### `keypair.signatureHint()`
 
@@ -220,7 +220,7 @@ The hint is the last 4 bytes of the account ID XDR representation.
 signatureHint(): Uint8Array;
 ```
 
-**Source:** [src/base/keypair.ts:206](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/keypair.ts#L206)
+**Source:** [src/base/keypair.ts:226](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/keypair.ts#L226)
 
 ### `keypair.signDecorated(data)`
 
@@ -240,7 +240,7 @@ signDecorated(data: Uint8Array): DecoratedSignature;
 
 - TransactionBase.addDecoratedSignature
 
-**Source:** [src/base/keypair.ts:337](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/keypair.ts#L337)
+**Source:** [src/base/keypair.ts:386](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/keypair.ts#L386)
 
 ### `keypair.signMessage(message)`
 
@@ -270,7 +270,7 @@ the 64-byte ed25519 signature
 
 - https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0053.md
 
-**Source:** [src/base/keypair.ts:297](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/keypair.ts#L297)
+**Source:** [src/base/keypair.ts:341](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/keypair.ts#L341)
 
 ### `keypair.signPayloadDecorated(data)`
 
@@ -292,45 +292,59 @@ signPayloadDecorated(data: Uint8Array): DecoratedSignature;
 - - https://github.com/stellar/stellar-protocol/blob/master/core/cap-0040.md#signature-hint
  - TransactionBase.addDecoratedSignature
 
-**Source:** [src/base/keypair.ts:355](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/keypair.ts#L355)
+**Source:** [src/base/keypair.ts:404](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/keypair.ts#L404)
 
 ### `keypair.verify(data, signature)`
 
 Verifies if `signature` for `data` is valid.
 
+A well-formed signature that doesn't match returns `false`; an argument
+that isn't byte-shaped throws, because reporting it as an invalid
+signature would be indistinguishable from a forgery.
+
 ```ts
-verify(data: Uint8Array, signature: Uint8Array): boolean;
+verify(data: Uint8Array, signature: Uint8Array<ArrayBufferLike> | Signature): boolean;
 ```
 
 **Parameters**
 
 - **`data`** — `Uint8Array` (required) — signed data
-- **`signature`** — `Uint8Array` (required) — signature to verify
+- **`signature`** — `Uint8Array<ArrayBufferLike> | Signature` (required) — signature to verify, either raw bytes or the
+     `xdr.Signature` wrapper that `DecoratedSignature.signature` holds
 
-**Source:** [src/base/keypair.ts:277](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/keypair.ts#L277)
+**Throws**
+
+- a `TypeError` if `data` or `signature` is not byte-shaped
+
+**Source:** [src/base/keypair.ts:303](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/keypair.ts#L303)
 
 ### `keypair.verifyMessage(message, signature)`
 
 Verifies a SEP-53 signed message against this keypair's public key.
 
 ```ts
-verifyMessage(message: string | Uint8Array<ArrayBufferLike>, signature: Uint8Array): boolean;
+verifyMessage(message: string | Uint8Array<ArrayBufferLike>, signature: Uint8Array<ArrayBufferLike> | Signature): boolean;
 ```
 
 **Parameters**
 
 - **`message`** — `string | Uint8Array<ArrayBufferLike>` (required) — the original message (a UTF-8 string or raw bytes)
-- **`signature`** — `Uint8Array` (required) — the 64-byte signature to verify
+- **`signature`** — `Uint8Array<ArrayBufferLike> | Signature` (required) — the 64-byte signature to verify, either raw bytes or an
+     `xdr.Signature` wrapper
 
 **Returns**
 
 `true` if `signature` is valid for `message` and this key
 
+**Throws**
+
+- a `TypeError` if `message` or `signature` is not byte-shaped
+
 **See also**
 
 - https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0053.md
 
-**Source:** [src/base/keypair.ts:309](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/keypair.ts#L309)
+**Source:** [src/base/keypair.ts:355](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/keypair.ts#L355)
 
 ### `keypair.xdrAccountId()`
 
@@ -340,7 +354,7 @@ Returns this public key as an xdr.AccountId.
 xdrAccountId(): PublicKeyEd25519;
 ```
 
-**Source:** [src/base/keypair.ts:160](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/keypair.ts#L160)
+**Source:** [src/base/keypair.ts:180](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/keypair.ts#L180)
 
 ### `keypair.xdrMuxedAccount(id)`
 
@@ -358,7 +372,7 @@ xdrMuxedAccount(id?: string): MuxedAccount;
 - **`id`** — `string` (optional) — stringified integer indicating the underlying muxed
       ID of the new account object
 
-**Source:** [src/base/keypair.ts:178](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/keypair.ts#L178)
+**Source:** [src/base/keypair.ts:198](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/keypair.ts#L198)
 
 ### `keypair.xdrPublicKey()`
 
@@ -368,7 +382,7 @@ Returns this public key as an xdr.PublicKey.
 xdrPublicKey(): PublicKeyEd25519;
 ```
 
-**Source:** [src/base/keypair.ts:165](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/keypair.ts#L165)
+**Source:** [src/base/keypair.ts:185](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/keypair.ts#L185)
 
 ## SignerKey
 

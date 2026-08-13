@@ -3,6 +3,7 @@ import { sha512 } from "@noble/hashes/sha2.js";
 import {
   areUint8ArraysEqual,
   concatUint8Arrays,
+  isUint8Array,
   stringToUint8Array,
 } from "uint8array-extras";
 import { sign, verify, generate } from "./signing.js";
@@ -35,7 +36,11 @@ function isSignature(value: unknown): value is Signature {
   if (value instanceof Signature) return true;
   if (typeof value !== "object" || value === null) return false;
   const ctor = value.constructor as { schema?: { name?: string } } | undefined;
-  return ctor?.schema?.name === Signature.schema.name;
+  if (ctor?.schema?.name !== Signature.schema.name) return false;
+  // The brand alone isn't enough: an object can carry a matching `constructor`
+  // as an own property without being usable. Optional chaining wouldn't help —
+  // `?.` guards null/undefined, not a `toBytes` that is a string.
+  return typeof (value as { toBytes?: unknown }).toBytes === "function";
 }
 
 /**
@@ -293,10 +298,13 @@ export class Keypair {
    * @param data - signed data
    * @param signature - signature to verify, either raw bytes or the
    *    `xdr.Signature` wrapper that `DecoratedSignature.signature` holds
-   * @throws {TypeError} if `data` or `signature` is not byte-shaped
+   * @throws a `TypeError` if `data` or `signature` is not byte-shaped
    */
   verify(data: Uint8Array, signature: Uint8Array | Signature): boolean {
-    if (!(data instanceof Uint8Array)) {
+    // `isUint8Array`, not `instanceof`: bytes from another realm (an iframe, a
+    // worker, `node:vm`) are perfectly good and would fail an `instanceof`
+    // check, which verified fine before this guard existed.
+    if (!isUint8Array(data)) {
       throw new TypeError(`expected Uint8Array for data, got ${typeof data}`);
     }
     // `toBytes()`, not `toXdr()` — Signature is `opaque<64>`, so its XDR form
@@ -304,7 +312,7 @@ export class Keypair {
     const signatureBytes = isSignature(signature)
       ? signature.toBytes()
       : signature;
-    if (!(signatureBytes instanceof Uint8Array)) {
+    if (!isUint8Array(signatureBytes)) {
       throw new TypeError(
         `expected Uint8Array or xdr.Signature for signature, got ${typeof signature}`,
       );
@@ -341,7 +349,7 @@ export class Keypair {
    * @param signature - the 64-byte signature to verify, either raw bytes or an
    *    `xdr.Signature` wrapper
    * @returns `true` if `signature` is valid for `message` and this key
-   * @throws {TypeError} if `message` or `signature` is not byte-shaped
+   * @throws a `TypeError` if `message` or `signature` is not byte-shaped
    * @see https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0053.md
    */
   verifyMessage(
@@ -356,7 +364,7 @@ export class Keypair {
    * `SHA-256("Stellar Signed Message:\n" + message)`.
    */
   private _hashMessage(message: string | Uint8Array): Uint8Array {
-    if (typeof message !== "string" && !(message instanceof Uint8Array)) {
+    if (typeof message !== "string" && !isUint8Array(message)) {
       throw new TypeError(
         `expected string or Uint8Array for message, got ${typeof message}`,
       );

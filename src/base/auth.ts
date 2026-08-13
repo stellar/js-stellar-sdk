@@ -1,4 +1,4 @@
-import { compareUint8Arrays } from "uint8array-extras";
+import { compareUint8Arrays, isUint8Array } from "uint8array-extras";
 import {
   HashIdPreimage,
   HashIdPreimageSorobanAuthorization,
@@ -233,7 +233,7 @@ export async function authorizeEntry(
       ) {
         signature = sigResult.signature;
         publicKey = sigResult.publicKey;
-      } else if (sigResult instanceof Uint8Array) {
+      } else if (isUint8Array(sigResult)) {
         // if using the deprecated form, assume it's for the entry
         signature = sigResult;
         publicKey = Address.fromScAddress(addrAuth.address).toString();
