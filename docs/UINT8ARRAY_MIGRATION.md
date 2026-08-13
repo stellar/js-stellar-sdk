@@ -66,6 +66,11 @@ Three semantic traps to check for:
   expect(Array.from(actual)).toEqual(Array.from(expectedBuffer));
   ```
 
+  Both recipes assume `actual` is **raw bytes**. If it is one of the fourteen
+  XDR byte wrappers (`xdr.Hash`, `xdr.Signature`, …), `Array.from()` yields
+  `[]` and the assertion passes no matter what — use `.equals()` there
+  instead. See [`XDR_MIGRATION.md`](./XDR_MIGRATION.md) § 6.
+
 ## 2. Method-by-method: returns that changed `Buffer` → `Uint8Array`
 
 ### base
@@ -103,6 +108,11 @@ Three semantic traps to check for:
   is a `Uint8Array` too (it used to be a `Buffer`). A callback that logs or
   forwards it with `payload.toString("hex")` silently gets decimals.
 - `AuthEntrySignature.signature` (from `inspectAuthEntry`) is a `Uint8Array`.
+- `DecoratedSignature.signature` and `.hint` are **not**. They are
+  `xdr.Signature` / `xdr.SignatureHint` wrappers — through 16.2.0 both were
+  `Buffer`. Read them with `.toBytes()` or `.value`, and compare them with
+  `.equals()`; `Array.from()` on a wrapper yields `[]`. See
+  [`XDR_MIGRATION.md`](./XDR_MIGRATION.md) § 6.
 
 ## 3. Inputs that got more flexible
 

@@ -66,7 +66,7 @@ a deprecated alias, so existing calls still work.
 | ----------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `value.toXdrObject()` on **XDR values**   | Bridges instance ↔ wire-shape object. Legacy XDR types held their wire shape directly, so the distinction wasn't meaningful. (On the wrapper classes above it's a rename, not a new method.) |
 | `value.toJson()` / `Class.fromJson(json)` | [SEP-51](https://stellar.org/protocol/sep-51)-compliant JSON serialization. See § 12.                                                                                                        |
-| `value.equals(other)`                     | Structural comparison. Handy because a `Buffer` and a `Uint8Array` of identical bytes are not deep-equal under vitest/Jest (§ 6).                                                            |
+| `value.equals(other)`                     | Structural comparison, and the only correct way to compare byte wrappers — `Array.from()` on one yields `[]`, so a deep-equal assertion passes vacuously (§ 6).                              |
 
 Note that `toJson()` (lowercase) is the API to call; the JavaScript-standard
 `toJSON()` hook is also implemented as a thin delegate to it, so
@@ -320,24 +320,72 @@ underneath it, so inherited members changed for both classes:
 
 ---
 
-## 6. Bytes: `Uint8Array` everywhere
+## 6. Bytes: raw `Uint8Array` and byte wrappers
 
-Every fixed-length and variable-length **byte** field (`opaque[N]`, `opaque<N>`,
-`Hash`, `Signature`, `ScBytes`, …) is a `Uint8Array`. The SDK used to surface
-`Buffer` in many places; now it's `Uint8Array`. `Buffer` **is** a `Uint8Array`
-subclass so most code that just reads bytes (indexing, `.length`) keeps working.
-The differences appear when:
+Byte fields come in **two shapes**, and nothing at the call site distinguishes
+them:
 
-(**Note:** XDR _string_ fields are a separate story; see § 11.)
+- Inline `opaque[N]` / `opaque<N>` fields and the `uint256` typedef are a plain
+  **`Uint8Array`**. Indexing, `.length`, `Array.from()` and spread all work.
+- Byte fields whose XDR type is a **named typedef** — `Hash`, `Signature`,
+  `ScBytes` and eleven others — are **wrapper classes**. They hold their bytes
+  at `.value`, also available via `.toBytes()`. They are _not_ a `Uint8Array`:
+  `instanceof` is `false`, `.length` is `undefined`, `Array.from()` yields `[]`,
+  and spread / `Buffer.from()` throw.
 
-- You compare values with `toEqual` or another deep equality check. `Buffer` and
-  `Uint8Array` containing identical bytes are _not_ deep-equal under vitest /
-  Jest. Convert with `Array.from()` on both sides, or compare via
-  `.toXdr("base64")`.
-- You call Buffer-only methods (e.g. `.toString("hex")`). Wrap at the
-  boundary: `Buffer.from(uint8array).toString("hex")`, or use
-  [`uint8array-extras`](https://github.com/sindresorhus/uint8array-extras). See
-  [`UINT8ARRAY_MIGRATION.md`](./UINT8ARRAY_MIGRATION.md).
+The fourteen wrappers are `AssetCode12`, `AssetCode4`, `ContractId`,
+`DataValue`, `EncodedLedgerKey`, `EncryptedBody`, `Hash`, `PoolId`, `ScBytes`,
+`Signature`, `SignatureHint`, `Thresholds`, `UpgradeType` and `Value`.
+
+```ts
+// Named typedef → wrapper
+const h = ledgerKey.contractCode.hash; // xdr.Hash
+h.length; // undefined — not a Uint8Array
+h.toBytes(); // Uint8Array(32) — the bytes
+h.value; // the same array, no copy
+
+// Inline opaque / uint256 → raw
+txV0.sourceAccountEd25519; // Uint8Array(32)
+txV0.sourceAccountEd25519.length; // 32
+```
+
+The generated declarations tell you which shape you have — `readonly hash: Hash`
+is a wrapper, `readonly sourceAccountEd25519: Uint8Array` is raw.
+
+Under `strict: true` TypeScript catches every one of these at the exact line:
+`wrapper.length` is `TS2339`, `wrapper[0]` is `TS7053`, `Array.from(wrapper)` is
+`TS2769`, and passing a wrapper where a `Uint8Array` is required is `TS2345`.
+Plain JavaScript, and TypeScript run without a type-check pass, get no signal —
+see § 6.2 for the failure that costs the most.
+
+(**Note:** XDR _string_ fields are a separate story, with their bytes at
+`.bytes`; see § 11.)
+
+Separately, the SDK used to surface `Buffer` where it now returns `Uint8Array`.
+`Buffer` **is** a `Uint8Array` subclass, so code that only reads bytes keeps
+working; the difference shows up when you call Buffer-only methods (e.g.
+`.toString("hex")`). Wrap at the boundary with
+`Buffer.from(uint8array).toString("hex")`, or use
+[`uint8array-extras`](https://github.com/sindresorhus/uint8array-extras). See
+[`UINT8ARRAY_MIGRATION.md`](./UINT8ARRAY_MIGRATION.md).
+
+### Comparing byte values
+
+Use **`.equals()`**. It works on wrappers and on every other `XdrValue`, and it
+is class-aware, so `new xdr.Hash(x).equals(new xdr.PoolId(x))` is `false` —
+which is what you want now that those are distinct types (§ 6.1).
+
+```ts
+a.equals(b); // wrappers and any XDR value
+uint8ArrayToHex(a) === expectedHex; // raw byte fields
+```
+
+Do **not** reach for `Array.from()` on a wrapper. It sees an object that is
+neither iterable nor array-like and yields `[]`, so
+`expect(Array.from(a)).toEqual(Array.from(b))` **passes for any two wrappers** —
+a byte assertion migrated that way can no longer fail. Restrict `Array.from()`
+to raw byte fields, where it is still a fine way to normalize a `Buffer` and a
+`Uint8Array` for a deep-equality check.
 
 ### Passing bytes in
 
@@ -382,8 +430,39 @@ xdr.ScAddress.scAddressTypeLiquidityPool(new xdr.PoolId(bytes));
 This is what lets JSON output (§ 12) render a `PoolId` as an `L`-strkey and a
 `ContractId` as a `C`-strkey while a plain `Hash` stays hex.
 
-Note that this break is type-level: at runtime a `Hash` still encodes to the
-same 32 bytes, so plain JavaScript callers see no error.
+Note that for **construction** this break is type-level: at runtime a `Hash`
+still encodes to the same 32 bytes, so passing one where a `PoolId` is expected
+raises no error in plain JavaScript. **Reading** is the dangerous direction —
+there the wrong assumption also raises no error, it just returns `undefined` or
+`[]` (§ 6) and takes your logic with it.
+
+### 6.2 The wrapper hazard that costs the most: `Keypair.verify`
+
+`DecoratedSignature.signature` is an `xdr.Signature` wrapper, not a
+`Uint8Array`. Through 16.2.0 it was a `Buffer`, so this worked:
+
+```ts
+const sig = tx.signatures[0].signature;
+kp.verify(tx.hash(), sig); // 16.2.0: true
+```
+
+In v17 that same call verifies a wrapper. `Keypair.verify` accepts an
+`xdr.Signature` and unwraps it for you, so the code above still returns `true` —
+but only because the method special-cases it. Hand the wrapper to any _other_
+raw-bytes API and it will not work, and `verify` itself now throws a
+`TypeError` rather than reporting a wrong-shaped argument as an invalid
+signature:
+
+```ts
+kp.verify(tx.hash(), sig); // true — Signature is accepted
+kp.verify(tx.hash(), sig.toBytes()); // true — equivalent
+kp.verify(tx.hash(), new xdr.Hash(bytes)); // throws TypeError, not `false`
+```
+
+Both `.hint` and `.signature` on a `DecoratedSignature` are wrappers
+(`SignatureHint` and `Signature`); read either with `.toBytes()` or `.value`
+before handing it to code that expects bytes. Compare them with `.equals()`,
+not `Array.from()`.
 
 ---
 
@@ -538,12 +617,21 @@ new xdr.Int32(v)             →   Number(v)
                                  .toXdrObject() / .fromXdrObject(wire)
                                  .toJson()      / .fromJson(json)
 
-// ============== BYTES ==============
+// ============== BYTES (passing in) ==============
 contractExecutableWasm(buf)  →   (unchanged; raw bytes still accepted)
 scvBytes(buf)                →   (unchanged; raw bytes still accepted)
 new xdr.Hash(buf)            →   (still works; also accepts hex strings)
 new xdr.Hash(bytes) for PoolId/ContractId  →  use new xdr.PoolId(bytes) /
                                               new xdr.ContractId(bytes)
+
+// ============== BYTES (reading back) — see § 6 ==============
+// Named typedefs (Hash, Signature, ScBytes, … 14 in all) are WRAPPERS:
+wrapper.length               →   wrapper.toBytes().length   // was undefined
+wrapper[0]                   →   wrapper.toBytes()[0]
+Array.from(wrapper)          →   (yields []! use .equals() to compare)
+Buffer.from(wrapper)         →   Buffer.from(wrapper.toBytes())   // was a throw
+decSig.signature             →   decSig.signature.toBytes()  // .hint likewise
+// Inline opaque[N]/opaque<N> and uint256 stay raw Uint8Array — index freely.
 
 // ============== STRINGS ==============
 memo.text                    →   memo.text.toString() or memo.text.bytes
@@ -1090,3 +1178,17 @@ immediately, which is the usual shape, there is nothing to fix.
 handed to a `SigningCallback` are all `Uint8Array` now. `.toString("hex")` on
 any of them silently yields comma-joined decimals. See
 [`UINT8ARRAY_MIGRATION.md`](./UINT8ARRAY_MIGRATION.md).
+
+`DecoratedSignature.signature` and `.hint` are the exception, and the confusion
+is worth naming: they are `xdr.Signature` and `xdr.SignatureHint` **wrappers**,
+not raw bytes. Two public fields are called `signature` and they have opposite
+shapes — `AuthEntrySignature.signature` is a `Uint8Array`, and
+`DecoratedSignature.signature` is not. Read the wrapper with `.toBytes()` or
+`.value` (§ 6.2).
+
+The rule that generates the split: a value the **SDK** computes and hands back
+(a hash, a signature, a decoded strkey) is raw bytes, while a field **decoded
+from XDR** carries whatever shape its XDR type declares — raw for inline
+`opaque[N]` / `opaque<N>` / `uint256`, a wrapper for a named typedef. `hash()`,
+`Keypair.sign()`, `Keypair.rawPublicKey()` and `StrKey.decode*` are all on the
+raw side.
