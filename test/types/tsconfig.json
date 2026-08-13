@@ -1,0 +1,28 @@
+{
+  // Typechecks the compile-time regression tests in this directory against
+  // the SDK source (`pnpm test:types`). These files contain code that must
+  // compile — e.g. `equals()` on union-typed XDR values (issue #1630), which
+  // the emitted declarations once rejected while runtime behavior was fine.
+  // Extends the root build config so src typechecks under the same
+  // strictness it builds with.
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "declaration": false,
+    "emitDeclarationOnly": false,
+    "declarationDir": null,
+    "outDir": null,
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
+    "rootDir": "../../",
+    // Mirrors the root config's `types`: the class-XDR layer resolves
+    // `@stellar/js-xdr` types from the package itself, so listing the local
+    // `stellar__js-xdr` stub here would shadow them.
+    "types": ["node", "js-xdr-v4"],
+    "typeRoots": [
+      "../../types",
+      "../../node_modules/@types",
+      "../../node_modules"
+    ]
+  },
+  "include": ["**/*.ts"]
+}

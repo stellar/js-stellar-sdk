@@ -83,7 +83,10 @@ export abstract class XdrValue {
     return this.toJson();
   }
 
-  equals(other: this): boolean {
+  // Widened to `XdrValue` (not `this`): polymorphic `this` in parameter
+  // position intersects a union's arms to `never`, making equals uncallable
+  // on union-typed values (ScVal, Memo, ...). Cross-type calls return false.
+  equals(other: XdrValue): boolean {
     if (this === other) return true;
     if (other == null || !(other instanceof XdrValue)) return false;
     if (this.constructor !== other.constructor) return false;

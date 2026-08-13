@@ -2,6 +2,11 @@
 
 A breaking change will get clearly marked in this log.
 
+## Unreleased
+
+### Fixed
+* `equals()` on XDR values is now callable from TypeScript on union types like `xdr.ScVal`, `xdr.TransactionEnvelope`, and `xdr.Memo` — which is what the SDK's accessors return ([#1630](https://github.com/stellar/js-stellar-sdk/issues/1630)). The parameter was typed as polymorphic `this`, which reduces to `never` on a union, so every call failed with TS2345 even though the runtime worked. The parameter is now `XdrValue`, so comparing two different XDR types compiles and returns `false`.
+
 ## [v17.0.0-rc.1](https://github.com/stellar/js-stellar-sdk/compare/v16.2.0...v17.0.0-rc.1)
 
 ### Breaking Changes
