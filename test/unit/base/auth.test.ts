@@ -695,11 +695,11 @@ describe("building authorization entries", () => {
         authEntry.rootInvocation.toXdr(),
       );
 
-      // authorizeInvocation defaults to legacy SOROBAN_CREDENTIALS_ADDRESS
-      // entries (CAP-71 V2 is opt-in via `authV2`).
-      expect(signedEntry.credentials.type).toBe("sorobanCredentialsAddress");
+      // authorizeInvocation defaults to CAP-71 SOROBAN_CREDENTIALS_ADDRESS_V2
+      // entries; the legacy arm is opt-in via `authV2: false`.
+      expect(signedEntry.credentials.type).toBe("sorobanCredentialsAddressV2");
       const signedAddr = (
-        signedEntry.credentials as xdr.SorobanCredentialsAddress
+        signedEntry.credentials as xdr.SorobanCredentialsAddressV2
       ).value;
       expect(signedAddr.signatureExpirationLedger).toBe(10);
 
@@ -720,6 +720,25 @@ describe("building authorization entries", () => {
         invocation: authEntry.rootInvocation,
         networkPassphrase: Networks.TESTNET,
         publicKey: kp.publicKey(),
+      });
+
+      expect(signedEntry.credentials.type).toBe("sorobanCredentialsAddressV2");
+      const signedAddr = (
+        signedEntry.credentials as xdr.SorobanCredentialsAddressV2
+      ).value;
+      expect(signedAddr.signatureExpirationLedger).toBe(10);
+
+      const addrStr = Address.fromScAddress(signedAddr.address).toString();
+      expect(addrStr).toBe(kp.publicKey());
+    });
+
+    it("builds legacy SOROBAN_CREDENTIALS_ADDRESS entries when authV2 is false", async () => {
+      const signedEntry = await authorizeInvocation({
+        signer: kp,
+        validUntilLedgerSeq: 10,
+        invocation: authEntry.rootInvocation,
+        networkPassphrase: Networks.TESTNET,
+        authV2: false,
       });
 
       expect(signedEntry.credentials.type).toBe("sorobanCredentialsAddress");
@@ -796,9 +815,9 @@ describe("building authorization entries", () => {
       });
       const credentials = expectUnionVariant(
         entry.credentials,
-        "sorobanCredentialsAddress",
+        "sorobanCredentialsAddressV2",
       );
-      expect(credentials.address.nonce).toBe(4294967296n); // 2^32
+      expect(credentials.addressV2.nonce).toBe(4294967296n); // 2^32
     });
 
     it("all-0xFF bytes produce nonce -1 (signed Int64 all-bits-set)", async () => {
@@ -811,9 +830,9 @@ describe("building authorization entries", () => {
       });
       const credentials = expectUnionVariant(
         entry.credentials,
-        "sorobanCredentialsAddress",
+        "sorobanCredentialsAddressV2",
       );
-      expect(credentials.address.nonce).toBe(-1n);
+      expect(credentials.addressV2.nonce).toBe(-1n);
     });
 
     it("high bit set produces Int64 minimum value", async () => {
@@ -826,9 +845,9 @@ describe("building authorization entries", () => {
       });
       const credentials = expectUnionVariant(
         entry.credentials,
-        "sorobanCredentialsAddress",
+        "sorobanCredentialsAddressV2",
       );
-      expect(credentials.address.nonce).toBe(-9223372036854775808n); // -(2^63), Int64 minimum
+      expect(credentials.addressV2.nonce).toBe(-9223372036854775808n); // -(2^63), Int64 minimum
     });
 
     it("all-zero bytes produce nonce 0", async () => {
@@ -841,9 +860,9 @@ describe("building authorization entries", () => {
       });
       const credentials = expectUnionVariant(
         entry.credentials,
-        "sorobanCredentialsAddress",
+        "sorobanCredentialsAddressV2",
       );
-      expect(credentials.address.nonce).toBe(0n);
+      expect(credentials.addressV2.nonce).toBe(0n);
     });
 
     it("throws if fewer than 8 bytes are available", () => {

@@ -49,6 +49,59 @@ at all**:
 The method renames (`toXDR` → `toXdr`, `fromXDRObject` → `fromXdrObject`, and
 eleven more) ship without back-compat aliases, so those at least fail loudly.
 
+### Auth: CAP-71 v2 address credentials are now the default
+
+Protocol 27 ([CAP-71](https://github.com/stellar/stellar-protocol/blob/master/core/cap-0071.md))
+added the address-bound `SOROBAN_CREDENTIALS_ADDRESS_V2` credential, which 16.x
+kept behind opt-in flags. Both flags now default to v2:
+
+- [`rpc.Server.simulateTransaction`](/reference/network-rpc/#serversimulatetransactiontx-addlresources-authmode-useupgradedauth)
+  asks RPC to record `ADDRESS_V2` entries. Its `useUpgradedAuth` flag defaults
+  to `true`, and is now always sent on the wire (it used to be omitted when
+  unset). The same default reaches everything built on it, including
+  `contract.AssembledTransaction.simulate()` and the `useUpgradedAuth` method
+  option.
+- [`authorizeInvocation`](/reference/core-soroban-primitives/#authorizeinvocation)
+  builds `ADDRESS_V2` credentials. Its `authV2` flag defaults to `true`.
+
+Pass `false` to either one for the legacy `ADDRESS` format:
+
+```ts
+await server.simulateTransaction(tx, undefined, undefined, false);
+await assembled.simulate({ useUpgradedAuth: false });
+await authorizeInvocation({ ...params, authV2: false });
+```
+
+Both flags are transitional and become no-ops once v2 is mandatory in protocol
+28, so don't rely on `false` to keep the v1 format long-term. `useUpgradedAuth`
+only affects the recording auth modes.
+
+Reading entries is where this surfaces. Code that picks the credential arm by
+hand must handle `addressV2`, not just `address`:
+
+```ts ins={4-6}
+const creds = entry.credentials;
+if (creds.type === "sorobanCredentialsAddress") {
+  const { nonce, signatureExpirationLedger } = creds.address;
+} else if (creds.type === "sorobanCredentialsAddressV2") {
+  // now the default arm, from simulation and from authorizeInvocation
+  const { nonce, signatureExpirationLedger } = creds.addressV2;
+}
+```
+
+Or let
+[`inspectAuthEntry`](/reference/core-soroban-primitives/#inspectauthentry)
+normalize the arms for you.
+
+Signing needs no change if you use the SDK for it. `contract.Client`,
+`authorizeEntry`, `signAuthEntries`, and `buildAuthorizationEntryPreimage` all
+sign whichever credential the entry carries, and pick the address-bound payload
+for `ADDRESS_V2`. A hand-rolled signer that hardcodes the legacy
+`ENVELOPE_TYPE_SOROBAN_AUTHORIZATION` preimage now produces signatures the
+network rejects. See
+[Protocol 27 Soroban auth](/guides/00-protocol-27-soroban-auth/) for the
+address-bound payload.
+
 ## 16.x.x Breaking changes
 
 The 16.x.x release is a major modernization. `@stellar/stellar-base` is folded
@@ -441,12 +494,13 @@ adds two address-bound Soroban credential types, `AddressV2` and
 `AddressWithDelegates`. This only affects code that signs Soroban authorization
 entries or inspects their credential arms.
 
-By default the SDK still uses the legacy `ADDRESS` credential: simulation
-returns `ADDRESS` entries and `authorizeInvocation` builds them. `ADDRESS_V2`
-is only valid on networks that have upgraded to protocol 27, so it is **opt-in** until
- protocol 28 makes it mandatory (at which point the default flips). Opt in with
-the `authV2` flag on `authorizeInvocation`'s params, once your target network
-supports it.
+In 16.x the SDK used the legacy `ADDRESS` credential everywhere by default:
+simulation returned `ADDRESS` entries and `authorizeInvocation` built them.
+`ADDRESS_V2` had not activated yet, so it was **opt-in**, via `useUpgradedAuth`
+on simulation and `authV2` on `authorizeInvocation`. Both now default to v2 in
+17.x, see
+[Auth: CAP-71 v2 address credentials are now the default](#auth-cap-71-v2-address-credentials-are-now-the-default).
+The rest of this section describes the 16.x defaults.
 
 SDK-driven signing ([`contract.Client`](/reference/contracts-client/#contractclient),
 [`basicNodeSigner`](/reference/contracts-client/#contractbasicnodesigner),
@@ -462,9 +516,10 @@ For the full walkthrough of signing Soroban authorization entries, see
 ### Auth: `authorizeInvocation` takes a params object
 
 [`authorizeInvocation`](/reference/core-soroban-primitives/#authorizeinvocation) now
-takes a single params object instead of positional arguments. It still builds a
-legacy `SOROBAN_CREDENTIALS_ADDRESS` entry by default, so keep reading the result
-with `.address()`.
+takes a single params object instead of positional arguments. In 16.x it still
+built a legacy `SOROBAN_CREDENTIALS_ADDRESS` entry by default, so keep reading
+the result with `.address()`. (In 17.x that default is `ADDRESS_V2`; see
+[above](#auth-cap-71-v2-address-credentials-are-now-the-default).)
 
 ```ts del={1-4} ins={5-7}
 const entry = await authorizeInvocation(
@@ -477,7 +532,7 @@ const addr = entry.credentials().address()
 ```
 
 To build a CAP-71 `ADDRESS_V2` entry instead, pass `authV2: true` and read the
-result with `.addressV2()`. Only do this on networks that have upgraded to protocol 27.
+result with `.addressV2()`.
 
 ```ts ins={6}
 const entry = await authorizeInvocation({

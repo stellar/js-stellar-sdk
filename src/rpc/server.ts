@@ -1347,15 +1347,16 @@ export class RpcServer {
    *    auth mode to use for simulation: `enforce` for enforcement mode,
    *    `record` for recording mode, or `record_allow_nonroot` for recording
    *    mode that allows non-root authorization
-   * @param useUpgradedAuth - (optional) opt simulation into recording
-   *    v2 address credentials (CAP-71) instead of the legacy v1 address
-   *    credentials. Best-effort: it only affects the recording auth modes and
-   *    is silently ignored on protocol versions whose host cannot emit v2
-   *    credentials.
+   * @param useUpgradedAuth - (optional) whether simulation records v2 address
+   *    credentials (CAP-71) instead of the legacy v1 address credentials.
+   *    Defaults to `true`; pass `false` to ask for the legacy v1 format.
+   *    It only affects the recording auth modes.
    *
    *    **Deprecated**: this flag is transitional. Once the network returns v2
    *    credentials by default (protocol 28), it becomes a no-op — do not rely
-   *    on omitting it to keep receiving the legacy v1 format.
+   *    on passing `false` to keep receiving the legacy v1 format.
+   *
+   * @defaultValue true
    *
    * @returns An object with the
    *    cost, footprint, result/auth requirements (if applicable), and error of
@@ -1423,7 +1424,7 @@ export class RpcServer {
       {
         transaction: transaction.toXdr(),
         authMode,
-        ...(useUpgradedAuth !== undefined && { useUpgradedAuth }),
+        useUpgradedAuth: useUpgradedAuth ?? true,
         ...(addlResources !== undefined && {
           resourceConfig: {
             instructionLeeway: addlResources.cpuInstructions,
