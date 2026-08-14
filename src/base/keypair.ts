@@ -3,6 +3,7 @@ import { sha512 } from "@noble/hashes/sha2.js";
 import {
   areUint8ArraysEqual,
   concatUint8Arrays,
+  isUint8Array,
   stringToUint8Array,
 } from "uint8array-extras";
 import { sign, verify, generate } from "./signing.js";
@@ -15,6 +16,7 @@ import {
   MuxedAccount,
   MuxedAccountMed25519,
   PublicKey,
+  Signature,
   Uint64,
 } from "../xdr/index.js";
 
@@ -22,6 +24,24 @@ ed.hashes.sha512 = sha512;
 
 // SEP-53: fixed prefix prepended to a message before hashing and signing.
 const MESSAGE_PREFIX = stringToUint8Array("Stellar Signed Message:\n");
+
+/**
+ * True for an `xdr.Signature`, including one built by a *different* copy of the
+ * SDK loaded in the same process (a dual ESM/CJS load, or two installed
+ * versions), where `instanceof` fails on an otherwise perfectly good wrapper.
+ * The generated schema carries its XDR type name as a string literal, so unlike
+ * `constructor.name` it survives both the module boundary and minification.
+ */
+function isSignature(value: unknown): value is Signature {
+  if (value instanceof Signature) return true;
+  if (typeof value !== "object" || value === null) return false;
+  const ctor = value.constructor as { schema?: { name?: string } } | undefined;
+  if (ctor?.schema?.name !== Signature.schema.name) return false;
+  // The brand alone isn't enough: an object can carry a matching `constructor`
+  // as an own property without being usable. Optional chaining wouldn't help —
+  // `?.` guards null/undefined, not a `toBytes` that is a string.
+  return typeof (value as { toBytes?: unknown }).toBytes === "function";
+}
 
 /**
  * Normalizes the constructor's key input: strings are UTF-8 encoded and raw
@@ -271,13 +291,41 @@ export class Keypair {
   /**
    * Verifies if `signature` for `data` is valid.
    *
+   * A well-formed signature that doesn't match returns `false`; an argument of
+   * an unaccepted type throws, because reporting it as an invalid signature
+   * would be indistinguishable from a forgery.
+   *
    * @param data - signed data
-   * @param signature - signature to verify
+   * @param signature - signature to verify, either raw bytes or the
+   *    `xdr.Signature` wrapper that `DecoratedSignature.signature` holds
+   * @throws a `TypeError` if `data` is not a `Uint8Array`, or if `signature` is
+   *    neither a `Uint8Array` nor an `xdr.Signature` — a hex/base64 string, a
+   *    plain array of byte values, or the `xdr.DecoratedSignature` that
+   *    `tx.signatures[0]` holds is rejected rather than reported as an invalid
+   *    signature.
    */
-  verify(data: Uint8Array, signature: Uint8Array): boolean {
+  verify(data: Uint8Array, signature: Uint8Array | Signature): boolean {
+    // `isUint8Array`, not `instanceof`: bytes from another realm (an iframe, a
+    // worker, `node:vm`) are perfectly good and would fail an `instanceof`
+    // check, which verified fine before this guard existed.
+    if (!isUint8Array(data)) {
+      throw new TypeError(`expected Uint8Array for data, got ${typeof data}`);
+    }
+    // `toBytes()`, not `toXdr()` — Signature is `opaque<64>`, so its XDR form
+    // carries a 4-byte length prefix that would fail verification.
+    const signatureBytes = isSignature(signature)
+      ? signature.toBytes()
+      : signature;
+    if (!isUint8Array(signatureBytes)) {
+      throw new TypeError(
+        `expected Uint8Array or xdr.Signature for signature, got ${typeof signature}`,
+      );
+    }
+
     try {
-      return verify(data, signature, this._publicKey);
+      return verify(data, signatureBytes, this._publicKey);
     } catch {
+      // A well-formed but invalid signature is a verdict, not an error.
       return false;
     }
   }
@@ -291,7 +339,8 @@ export class Keypair {
    *
    * @param message - the message to sign (a UTF-8 string or raw bytes)
    * @returns the 64-byte ed25519 signature
-   * @throws if no secret key is available
+   * @throws an `Error` if no secret key is available, or a `TypeError` if
+   *    `message` is neither a string nor a `Uint8Array`
    * @see https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0053.md
    */
   signMessage(message: string | Uint8Array): Uint8Array {
@@ -302,17 +351,20 @@ export class Keypair {
    * Verifies a SEP-53 signed message against this keypair's public key.
    *
    * @param message - the original message (a UTF-8 string or raw bytes)
-   * @param signature - the 64-byte signature to verify
+   * @param signature - the 64-byte signature to verify, either raw bytes or an
+   *    `xdr.Signature` wrapper
    * @returns `true` if `signature` is valid for `message` and this key
+   * @throws a `TypeError` if `message` is neither a string nor a `Uint8Array`,
+   *    or if `signature` is neither a `Uint8Array` nor an `xdr.Signature` (e.g.
+   *    a hex/base64 signature string): an unaccepted type is rejected rather
+   *    than reported as an invalid signature.
    * @see https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0053.md
    */
-  verifyMessage(message: string | Uint8Array, signature: Uint8Array): boolean {
-    try {
-      return this.verify(this._hashMessage(message), signature);
-    } catch {
-      // Mirror `verify`: never throw on bad input, just report invalid.
-      return false;
-    }
+  verifyMessage(
+    message: string | Uint8Array,
+    signature: Uint8Array | Signature,
+  ): boolean {
+    return this.verify(this._hashMessage(message), signature);
   }
 
   /**
@@ -320,6 +372,11 @@ export class Keypair {
    * `SHA-256("Stellar Signed Message:\n" + message)`.
    */
   private _hashMessage(message: string | Uint8Array): Uint8Array {
+    if (typeof message !== "string" && !isUint8Array(message)) {
+      throw new TypeError(
+        `expected string or Uint8Array for message, got ${typeof message}`,
+      );
+    }
     const messageBytes =
       typeof message === "string" ? stringToUint8Array(message) : message;
     return hash(concatUint8Arrays([MESSAGE_PREFIX, messageBytes]));

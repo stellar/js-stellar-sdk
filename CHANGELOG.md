@@ -7,6 +7,13 @@ A breaking change will get clearly marked in this log.
 ### Fixed
 * `equals()` on XDR values is now callable from TypeScript on union types like `xdr.ScVal`, `xdr.TransactionEnvelope`, and `xdr.Memo` — which is what the SDK's accessors return ([#1630](https://github.com/stellar/js-stellar-sdk/issues/1630)). The parameter was typed as polymorphic `this`, which reduces to `never` on a union, so every call failed with TS2345 even though the runtime worked. The parameter is now `XdrValue`, so comparing two different XDR types compiles and returns `false`.
 
+* `Keypair.verify` and `Keypair.verifyMessage` throw a `TypeError` for arguments whose type they don't accept, instead of returning `false` ([#1649](https://github.com/stellar/js-stellar-sdk/pull/1649)). Both previously swallowed every error and reported `false`, so a caller mistake was indistinguishable from an invalid signature. `verify` requires `data` to be a `Uint8Array` and `signature` to be either a `Uint8Array` or an `xdr.Signature`; `verifyMessage` takes the same `signature` and a `message` that is a string or a `Uint8Array`. Anything else now throws — a hex/base64 signature string, a plain array of byte values, the `xdr.DecoratedSignature` that `tx.signatures[0]` holds, or a `message` that is neither string nor bytes. A well-formed signature that doesn't match still returns `false`. Accepting an `xdr.Signature` — what `DecoratedSignature.signature` holds — means `kp.verify(tx.hash(), tx.signatures[0].signature)` works again. `authorizeEntry` likewise rejects a signer result it would have passed on unchecked — a callback returning none of its three shapes, a non-bytes `signature`, a non-string `publicKey`, or a `signatureScVal` that isn't an `xdr.ScVal`.
+
+  ```diff
+  -if (kp.verifyMessage(untrustedInput, signature)) { grant(); }
+  +if (typeof untrustedInput === "string" && kp.verifyMessage(untrustedInput, signature)) { grant(); }
+  ```
+
 ## [v17.0.0-rc.1](https://github.com/stellar/js-stellar-sdk/compare/v16.2.0...v17.0.0-rc.1)
 
 ### Breaking Changes

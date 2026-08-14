@@ -1,4 +1,4 @@
-import { compareUint8Arrays } from "uint8array-extras";
+import { compareUint8Arrays, isUint8Array } from "uint8array-extras";
 import {
   HashIdPreimage,
   HashIdPreimageSorobanAuthorization,
@@ -6,6 +6,7 @@ import {
   Int64,
   ScAddress,
   ScVal,
+  type ScValWire,
   SorobanAddressCredentials,
   SorobanAddressCredentialsWithDelegates,
   SorobanAuthorizationEntry,
@@ -62,6 +63,33 @@ export type SigningCallback = (
   | { signature: Uint8Array; publicKey: string }
   | { signatureScVal: ScVal; address?: string }
 >;
+
+/**
+ * Returns `value` as an `xdr.ScVal`, or `null` if it isn't one. Accepts a value
+ * built by a *different* copy of the SDK loaded in the same process (a dual
+ * ESM/CJS load, or two installed versions), where `instanceof` fails on an
+ * otherwise perfectly good value. Every arm class carries the union's own
+ * schema name, so the brand covers `scvVec`, `scvMap` and the rest without
+ * enumerating them.
+ */
+function toScVal(value: unknown): ScVal | null {
+  if (ScVal.is(value)) return value;
+  if (typeof value !== "object" || value === null) return null;
+  const ctor = value.constructor as { schema?: { name?: string } } | undefined;
+  if (ctor?.schema?.name !== ScVal.schema.name) return null;
+  const toXdrObject = (value as { toXdrObject?: () => ScValWire }).toXdrObject;
+  if (typeof toXdrObject !== "function") return null;
+  // The brand is only what the value claims to be, and it is written into the
+  // credentials to be read at serialization time — much later than the call
+  // that produced it. Round-tripping the wire value through the *local* schema
+  // is what proves it, and hands back a local instance rather than storing a
+  // foreign object whose insides were never checked.
+  try {
+    return ScVal.fromXdr(ScVal.schema.encode(toXdrObject.call(value)));
+  } catch {
+    return null;
+  }
+}
 
 /**
  * Actually authorizes an existing authorization entry using the given
@@ -219,12 +247,20 @@ export async function authorizeEntry(
     // Custom-credential path (smart wallets, passkeys/WebAuthn, etc.): the
     // caller owns the exact ScVal their account contract's `__check_auth`
     // expects, so it is written verbatim — no Ed25519 verification and no
-    // scvVec wrapping.
-    signatureScVal = sigResult.signatureScVal;
+    // scvVec wrapping. Nothing downstream inspects it, so it is checked here or
+    // not at all.
+    const candidate: unknown = sigResult.signatureScVal;
+    const asScVal = toScVal(candidate);
+    if (asScVal === null) {
+      throw new TypeError(
+        `signatureScVal must be an xdr.ScVal, got ${candidate === null ? "null" : typeof candidate}`,
+      );
+    }
+    signatureScVal = asScVal;
     targetAddress ??= sigResult.address;
   } else {
-    let signature: Uint8Array;
-    let publicKey: string;
+    let signature: unknown;
+    let publicKey: unknown;
     if (typeof signer === "function") {
       if (
         sigResult !== null &&
@@ -233,14 +269,39 @@ export async function authorizeEntry(
       ) {
         signature = sigResult.signature;
         publicKey = sigResult.publicKey;
-      } else {
+      } else if (isUint8Array(sigResult)) {
         // if using the deprecated form, assume it's for the entry
-        signature = sigResult as Uint8Array;
+        signature = sigResult;
         publicKey = Address.fromScAddress(addrAuth.address).toString();
+      } else {
+        // Without this the value reached `verify` unchecked. A wrong shape that
+        // still carries a signature (an `xdr.Signature` wrapper) got a forgery
+        // verdict for a valid signature; one that carries none surfaces
+        // `verify`'s own TypeError, which names a parameter the caller never
+        // passed.
+        throw new TypeError(
+          "SigningCallback must resolve to a Uint8Array, " +
+            "{ signature, publicKey }, or { signatureScVal }; got " +
+            `${sigResult === null ? "null" : typeof sigResult}`,
+        );
       }
     } else {
       signature = signer.sign(payload);
       publicKey = signer.publicKey();
+    }
+
+    // `signature` and `publicKey` arrive from three places above — two callback
+    // shapes and a signer object — so they are checked here, where those paths
+    // meet, rather than in each branch.
+    if (typeof publicKey !== "string") {
+      throw new TypeError(
+        `expected a public key string from the signer, got ${typeof publicKey}`,
+      );
+    }
+    if (!isUint8Array(signature)) {
+      throw new TypeError(
+        `expected a Uint8Array signature from the signer, got ${signature === null ? "null" : typeof signature}`,
+      );
     }
 
     if (!Keypair.fromPublicKey(publicKey).verify(payload, signature)) {
