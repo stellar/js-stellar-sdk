@@ -872,7 +872,7 @@ _before_ transaction signing.
 const DEFAULT_TIMEOUT: number
 ```
 
-**Source:** [src/contract/types.ts:311](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L311)
+**Source:** [src/contract/types.ts:310](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L310)
 
 ## contract.KeypairSigner
 
@@ -962,7 +962,7 @@ An impossible account on the Stellar network
 const NULL_ACCOUNT: "GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF"
 ```
 
-**Source:** [src/contract/types.ts:317](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L317)
+**Source:** [src/contract/types.ts:316](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L316)
 
 ## contract.SentTransaction
 
@@ -1640,7 +1640,7 @@ basicNodeSigner(keypair: Keypair, networkPassphrase: string): { signAuthEntry: S
 type AssembledTransactionOptions<T = string> = MethodOptions & ClientOptions & { address?: string; args?: any[]; method: string; parseResultXdr: (xdr: ScVal) => T; submit?: boolean; submitUrl?: string }
 ```
 
-**Source:** [src/contract/types.ts:279](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L279)
+**Source:** [src/contract/types.ts:278](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L278)
 
 ### contract.ClientOptions
 
