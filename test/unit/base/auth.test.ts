@@ -1261,26 +1261,40 @@ describe("building authorization entries", () => {
     });
 
     // A brand match is not enough: the value is only read at serialization
-    // time, so a `toXdrObject` that is present but not callable would surface
+    // time, so a `toXdrObject` that is present but not callable — or callable
+    // but producing something that is not an ScVal on the wire — would surface
     // as a `toXdr()` failure long after the call that caused it.
-    it("throws when signatureScVal carries the brand but no usable toXdrObject", async () => {
-      const brand = { schema: { name: "ScVal" } };
+    it.each([
+      ["no usable toXdrObject", "nope"],
+      ["a toXdrObject that produces no ScVal", () => ({})],
+      ["a toXdrObject that produces a bad arm", () => ({ type: 16, vec: 7 })],
+      [
+        "a toXdrObject that throws",
+        () => {
+          throw new Error("boom");
+        },
+      ],
+    ])(
+      "throws when signatureScVal carries the brand but %s",
+      async (_label, toXdrObject) => {
+        const brand = { schema: { name: "ScVal" } };
 
-      await expect(
-        authorizeEntry(
-          authEntry,
-          () =>
-            Promise.resolve({
-              signatureScVal: {
-                constructor: brand,
-                toXdrObject: "nope",
-              },
-            } as unknown as { signatureScVal: xdr.ScVal }),
-          10,
-          Networks.TESTNET,
-        ),
-      ).rejects.toThrow(/signatureScVal must be an xdr\.ScVal/);
-    });
+        await expect(
+          authorizeEntry(
+            authEntry,
+            () =>
+              Promise.resolve({
+                signatureScVal: {
+                  constructor: brand,
+                  toXdrObject,
+                },
+              } as unknown as { signatureScVal: xdr.ScVal }),
+            10,
+            Networks.TESTNET,
+          ),
+        ).rejects.toThrow(/signatureScVal must be an xdr\.ScVal/);
+      },
+    );
 
     // Stands in for a second copy of the SDK in one process, where
     // `instanceof` fails on a perfectly good value.
@@ -1300,8 +1314,14 @@ describe("building authorization entries", () => {
         Networks.TESTNET,
       );
 
-      // It is stored verbatim, so the field is still the foreign object; what
-      // matters is that the entry serializes and comes back as the right ScVal.
+      // Validating the foreign value against the local schema also rebuilds it
+      // locally, so the stored field is a real ScVal carrying the same bytes.
+      const stored = expectUnionVariant(
+        signed.credentials,
+        "sorobanCredentialsAddress",
+      ).address.signature;
+      expect(stored).toBeInstanceOf(xdr.ScVal);
+
       const roundTripped = xdr.SorobanAuthorizationEntry.fromXdr(
         signed.toXdr(),
       );

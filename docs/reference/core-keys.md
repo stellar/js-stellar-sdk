@@ -240,7 +240,7 @@ signDecorated(data: Uint8Array): DecoratedSignature;
 
 - TransactionBase.addDecoratedSignature
 
-**Source:** [src/base/keypair.ts:386](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/keypair.ts#L386)
+**Source:** [src/base/keypair.ts:394](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/keypair.ts#L394)
 
 ### `keypair.signMessage(message)`
 
@@ -264,13 +264,14 @@ the 64-byte ed25519 signature
 
 **Throws**
 
-- if no secret key is available
+- an `Error` if no secret key is available, or a `TypeError` if
+   `message` is neither a string nor a `Uint8Array`
 
 **See also**
 
 - https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0053.md
 
-**Source:** [src/base/keypair.ts:341](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/keypair.ts#L341)
+**Source:** [src/base/keypair.ts:346](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/keypair.ts#L346)
 
 ### `keypair.signPayloadDecorated(data)`
 
@@ -292,15 +293,15 @@ signPayloadDecorated(data: Uint8Array): DecoratedSignature;
 - - https://github.com/stellar/stellar-protocol/blob/master/core/cap-0040.md#signature-hint
  - TransactionBase.addDecoratedSignature
 
-**Source:** [src/base/keypair.ts:404](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/keypair.ts#L404)
+**Source:** [src/base/keypair.ts:412](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/keypair.ts#L412)
 
 ### `keypair.verify(data, signature)`
 
 Verifies if `signature` for `data` is valid.
 
-A well-formed signature that doesn't match returns `false`; an argument
-that isn't byte-shaped throws, because reporting it as an invalid
-signature would be indistinguishable from a forgery.
+A well-formed signature that doesn't match returns `false`; an argument of
+an unaccepted type throws, because reporting it as an invalid signature
+would be indistinguishable from a forgery.
 
 ```ts
 verify(data: Uint8Array, signature: Uint8Array<ArrayBufferLike> | Signature): boolean;
@@ -314,9 +315,13 @@ verify(data: Uint8Array, signature: Uint8Array<ArrayBufferLike> | Signature): bo
 
 **Throws**
 
-- a `TypeError` if `data` or `signature` is not byte-shaped
+- a `TypeError` if `data` is not a `Uint8Array`, or if `signature` is
+   neither a `Uint8Array` nor an `xdr.Signature` — a hex/base64 string, a
+   plain array of byte values, or the `xdr.DecoratedSignature` that
+   `tx.signatures[0]` holds is rejected rather than reported as an invalid
+   signature.
 
-**Source:** [src/base/keypair.ts:303](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/keypair.ts#L303)
+**Source:** [src/base/keypair.ts:307](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/keypair.ts#L307)
 
 ### `keypair.verifyMessage(message, signature)`
 
@@ -338,13 +343,16 @@ verifyMessage(message: string | Uint8Array<ArrayBufferLike>, signature: Uint8Arr
 
 **Throws**
 
-- a `TypeError` if `message` or `signature` is not byte-shaped
+- a `TypeError` if `message` is neither a string nor a `Uint8Array`,
+   or if `signature` is neither a `Uint8Array` nor an `xdr.Signature` (e.g.
+   a hex/base64 signature string): an unaccepted type is rejected rather
+   than reported as an invalid signature.
 
 **See also**
 
 - https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0053.md
 
-**Source:** [src/base/keypair.ts:355](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/keypair.ts#L355)
+**Source:** [src/base/keypair.ts:363](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/keypair.ts#L363)
 
 ### `keypair.xdrAccountId()`
 

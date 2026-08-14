@@ -291,14 +291,18 @@ export class Keypair {
   /**
    * Verifies if `signature` for `data` is valid.
    *
-   * A well-formed signature that doesn't match returns `false`; an argument
-   * that isn't byte-shaped throws, because reporting it as an invalid
-   * signature would be indistinguishable from a forgery.
+   * A well-formed signature that doesn't match returns `false`; an argument of
+   * an unaccepted type throws, because reporting it as an invalid signature
+   * would be indistinguishable from a forgery.
    *
    * @param data - signed data
    * @param signature - signature to verify, either raw bytes or the
    *    `xdr.Signature` wrapper that `DecoratedSignature.signature` holds
-   * @throws a `TypeError` if `data` or `signature` is not byte-shaped
+   * @throws a `TypeError` if `data` is not a `Uint8Array`, or if `signature` is
+   *    neither a `Uint8Array` nor an `xdr.Signature` — a hex/base64 string, a
+   *    plain array of byte values, or the `xdr.DecoratedSignature` that
+   *    `tx.signatures[0]` holds is rejected rather than reported as an invalid
+   *    signature.
    */
   verify(data: Uint8Array, signature: Uint8Array | Signature): boolean {
     // `isUint8Array`, not `instanceof`: bytes from another realm (an iframe, a
@@ -335,7 +339,8 @@ export class Keypair {
    *
    * @param message - the message to sign (a UTF-8 string or raw bytes)
    * @returns the 64-byte ed25519 signature
-   * @throws if no secret key is available
+   * @throws an `Error` if no secret key is available, or a `TypeError` if
+   *    `message` is neither a string nor a `Uint8Array`
    * @see https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0053.md
    */
   signMessage(message: string | Uint8Array): Uint8Array {
@@ -349,7 +354,10 @@ export class Keypair {
    * @param signature - the 64-byte signature to verify, either raw bytes or an
    *    `xdr.Signature` wrapper
    * @returns `true` if `signature` is valid for `message` and this key
-   * @throws a `TypeError` if `message` or `signature` is not byte-shaped
+   * @throws a `TypeError` if `message` is neither a string nor a `Uint8Array`,
+   *    or if `signature` is neither a `Uint8Array` nor an `xdr.Signature` (e.g.
+   *    a hex/base64 signature string): an unaccepted type is rejected rather
+   *    than reported as an invalid signature.
    * @see https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0053.md
    */
   verifyMessage(

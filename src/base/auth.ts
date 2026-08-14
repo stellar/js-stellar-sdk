@@ -6,6 +6,7 @@ import {
   Int64,
   ScAddress,
   ScVal,
+  type ScValWire,
   SorobanAddressCredentials,
   SorobanAddressCredentialsWithDelegates,
   SorobanAuthorizationEntry,
@@ -64,21 +65,30 @@ export type SigningCallback = (
 >;
 
 /**
- * True for an `xdr.ScVal`, including one built by a *different* copy of the SDK
- * loaded in the same process (a dual ESM/CJS load, or two installed versions),
- * where `instanceof` fails on an otherwise perfectly good value. Every arm
- * class carries the union's own schema name, so the brand covers `scvVec`,
- * `scvMap` and the rest without enumerating them.
+ * Returns `value` as an `xdr.ScVal`, or `null` if it isn't one. Accepts a value
+ * built by a *different* copy of the SDK loaded in the same process (a dual
+ * ESM/CJS load, or two installed versions), where `instanceof` fails on an
+ * otherwise perfectly good value. Every arm class carries the union's own
+ * schema name, so the brand covers `scvVec`, `scvMap` and the rest without
+ * enumerating them.
  */
-function isScVal(value: unknown): value is ScVal {
-  if (value instanceof ScVal) return true;
-  if (typeof value !== "object" || value === null) return false;
+function toScVal(value: unknown): ScVal | null {
+  if (ScVal.is(value)) return value;
+  if (typeof value !== "object" || value === null) return null;
   const ctor = value.constructor as { schema?: { name?: string } } | undefined;
-  if (ctor?.schema?.name !== ScVal.schema.name) return false;
-  // The brand alone isn't enough: the value is written into the credentials
-  // verbatim and only read at serialization time, so a member that is present
-  // but not callable would surface as a `toXdr()` failure much later.
-  return typeof (value as { toXdrObject?: unknown }).toXdrObject === "function";
+  if (ctor?.schema?.name !== ScVal.schema.name) return null;
+  const toXdrObject = (value as { toXdrObject?: () => ScValWire }).toXdrObject;
+  if (typeof toXdrObject !== "function") return null;
+  // The brand is only what the value claims to be, and it is written into the
+  // credentials to be read at serialization time — much later than the call
+  // that produced it. Round-tripping the wire value through the *local* schema
+  // is what proves it, and hands back a local instance rather than storing a
+  // foreign object whose insides were never checked.
+  try {
+    return ScVal.fromXdr(ScVal.schema.encode(toXdrObject.call(value)));
+  } catch {
+    return null;
+  }
 }
 
 /**
@@ -240,12 +250,13 @@ export async function authorizeEntry(
     // scvVec wrapping. Nothing downstream inspects it, so it is checked here or
     // not at all.
     const candidate: unknown = sigResult.signatureScVal;
-    if (!isScVal(candidate)) {
+    const asScVal = toScVal(candidate);
+    if (asScVal === null) {
       throw new TypeError(
         `signatureScVal must be an xdr.ScVal, got ${candidate === null ? "null" : typeof candidate}`,
       );
     }
-    signatureScVal = candidate;
+    signatureScVal = asScVal;
     targetAddress ??= sigResult.address;
   } else {
     let signature: unknown;
