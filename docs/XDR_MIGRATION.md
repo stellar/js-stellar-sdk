@@ -66,7 +66,7 @@ a deprecated alias, so existing calls still work.
 | ----------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `value.toXdrObject()` on **XDR values**   | Bridges instance ↔ wire-shape object. Legacy XDR types held their wire shape directly, so the distinction wasn't meaningful. (On the wrapper classes above it's a rename, not a new method.) |
 | `value.toJson()` / `Class.fromJson(json)` | [SEP-51](https://stellar.org/protocol/sep-51)-compliant JSON serialization. See § 12.                                                                                                        |
-| `value.equals(other)`                     | Structural comparison, and the correct way to compare bytes — `Array.from()` returns `[]` on a byte wrapper, so an assertion built on it passes vacuously (§ 6).                             |
+| `value.equals(other)`                     | Structural comparison of two XDR values — use it for byte wrappers, where `Array.from()` returns `[]` and makes an assertion pass vacuously. Raw byte fields have no `.equals()` (§ 6).      |
 | `bytes.toBytes()` on **byte wrappers**    | Unwraps a `Hash`, `Signature`, `ScBytes`, … to the `Uint8Array` it holds; same as reading `.value` (§ 6).                                                                                    |
 
 Note that `toJson()` (lowercase) is the API to call; the JavaScript-standard
@@ -347,11 +347,14 @@ TS2769); plain JavaScript silently gets `undefined` or `[]`.
 
 (**Note:** XDR _string_ fields are a separate story; see § 11.)
 
-- You compare values with `toEqual` or another deep equality check. Use
-  `.equals()`, which handles both shapes and is class-aware
-  (`new xdr.Hash(x).equals(new xdr.PoolId(x))` is `false`). **Don't use
-  `Array.from()` on a wrapper** — it returns `[]` for both sides, so the
-  assertion passes vacuously. On raw fields it's still the usual fix for
+- You compare values with `toEqual` or another deep equality check. Two
+  wrappers compare with `.equals()`, which is class-aware
+  (`new xdr.Hash(x).equals(new xdr.PoolId(x))` is `false`). It is not a general
+  byte comparison: a raw field has no `.equals()` at all, and a wrapper's
+  `.equals()` returns `false` for raw bytes rather than throwing — so unwrap
+  and compare with `areUint8ArraysEqual()` when the two sides differ in shape.
+  **Don't use `Array.from()` on a wrapper** — it returns `[]` for both sides,
+  so the assertion passes vacuously; on raw fields it's still the usual fix for
   `Buffer` and `Uint8Array` of identical bytes not being deep-equal under
   vitest / Jest.
 - You call Buffer-only methods (e.g. `.toString("hex")`). Wrap at the
@@ -567,9 +570,9 @@ scvBytes(buf)                →   (unchanged; raw bytes still accepted)
 new xdr.Hash(buf)            →   (still works; also accepts hex strings)
 new xdr.Hash(bytes) for PoolId/ContractId  →  use new xdr.PoolId(bytes) /
                                               new xdr.ContractId(bytes)
-// Reading out: the 14 named typedefs (Hash, Signature, ScBytes, …) are wrappers
+// Reading out: the 14 capitalized typedefs (Hash, Signature, ScBytes, …) wrap
 hash.length, hash[0], Array.from(hash)  →  hash.value  (or hash.toBytes())
-deepEqual(Array.from(a), …)             →  a.equals(b)  // Array.from → []
+deepEqual(Array.from(a), …)             →  a.equals(b)   // both wrappers only
 
 // ============== STRINGS ==============
 memo.text                    →   memo.text.toString() or memo.text.bytes
