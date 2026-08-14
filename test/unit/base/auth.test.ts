@@ -683,28 +683,45 @@ describe("building authorization entries", () => {
   });
 
   describe("authorizeInvocation", () => {
-    it("can build from scratch with a Keypair", async () => {
+    // authorizeInvocation defaults to CAP-71 SOROBAN_CREDENTIALS_ADDRESS_V2
+    // entries; the legacy arm is opt-in via `authV2: false`.
+    it.each([
+      [
+        "SOROBAN_CREDENTIALS_ADDRESS_V2 by default",
+        {},
+        "sorobanCredentialsAddressV2",
+      ],
+      [
+        "SOROBAN_CREDENTIALS_ADDRESS_V2 when authV2 is true",
+        { authV2: true },
+        "sorobanCredentialsAddressV2",
+      ],
+      [
+        "legacy SOROBAN_CREDENTIALS_ADDRESS when authV2 is false",
+        { authV2: false },
+        "sorobanCredentialsAddress",
+      ],
+    ] as const)("builds %s", async (_desc, opts, expectedArm) => {
       const signedEntry = await authorizeInvocation({
         signer: kp,
         validUntilLedgerSeq: 10,
         invocation: authEntry.rootInvocation,
         networkPassphrase: Networks.TESTNET,
+        ...opts,
       });
 
       expect(signedEntry.rootInvocation.toXdr()).toEqual(
         authEntry.rootInvocation.toXdr(),
       );
 
-      // authorizeInvocation defaults to CAP-71 SOROBAN_CREDENTIALS_ADDRESS_V2
-      // entries; the legacy arm is opt-in via `authV2: false`.
-      expect(signedEntry.credentials.type).toBe("sorobanCredentialsAddressV2");
-      const signedAddr = (
-        signedEntry.credentials as xdr.SorobanCredentialsAddressV2
-      ).value;
-      expect(signedAddr.signatureExpirationLedger).toBe(10);
-
-      const addrStr = Address.fromScAddress(signedAddr.address).toString();
-      expect(addrStr).toBe(kp.publicKey());
+      const credentials = expectUnionVariant(
+        signedEntry.credentials,
+        expectedArm,
+      );
+      expect(credentials.value.signatureExpirationLedger).toBe(10);
+      expect(Address.fromScAddress(credentials.value.address).toString()).toBe(
+        kp.publicKey(),
+      );
     });
 
     it("can build from scratch with explicit publicKey", async () => {
@@ -722,52 +739,14 @@ describe("building authorization entries", () => {
         publicKey: kp.publicKey(),
       });
 
-      expect(signedEntry.credentials.type).toBe("sorobanCredentialsAddressV2");
-      const signedAddr = (
-        signedEntry.credentials as xdr.SorobanCredentialsAddressV2
-      ).value;
-      expect(signedAddr.signatureExpirationLedger).toBe(10);
-
-      const addrStr = Address.fromScAddress(signedAddr.address).toString();
-      expect(addrStr).toBe(kp.publicKey());
-    });
-
-    it("builds legacy SOROBAN_CREDENTIALS_ADDRESS entries when authV2 is false", async () => {
-      const signedEntry = await authorizeInvocation({
-        signer: kp,
-        validUntilLedgerSeq: 10,
-        invocation: authEntry.rootInvocation,
-        networkPassphrase: Networks.TESTNET,
-        authV2: false,
-      });
-
-      expect(signedEntry.credentials.type).toBe("sorobanCredentialsAddress");
-      const signedAddr = (
-        signedEntry.credentials as xdr.SorobanCredentialsAddress
-      ).value;
-      expect(signedAddr.signatureExpirationLedger).toBe(10);
-
-      const addrStr = Address.fromScAddress(signedAddr.address).toString();
-      expect(addrStr).toBe(kp.publicKey());
-    });
-
-    it("builds SOROBAN_CREDENTIALS_ADDRESS_V2 entries when authV2 is set", async () => {
-      const signedEntry = await authorizeInvocation({
-        signer: kp,
-        validUntilLedgerSeq: 10,
-        invocation: authEntry.rootInvocation,
-        networkPassphrase: Networks.TESTNET,
-        authV2: true,
-      });
-
-      expect(signedEntry.credentials.type).toBe("sorobanCredentialsAddressV2");
-      const signedAddr = (
-        signedEntry.credentials as xdr.SorobanCredentialsAddressV2
-      ).value;
-      expect(signedAddr.signatureExpirationLedger).toBe(10);
-
-      const addrStr = Address.fromScAddress(signedAddr.address).toString();
-      expect(addrStr).toBe(kp.publicKey());
+      const credentials = expectUnionVariant(
+        signedEntry.credentials,
+        "sorobanCredentialsAddressV2",
+      );
+      expect(credentials.value.signatureExpirationLedger).toBe(10);
+      expect(Address.fromScAddress(credentials.value.address).toString()).toBe(
+        kp.publicKey(),
+      );
     });
 
     it("throws when signer has no publicKey method and none provided", () => {
