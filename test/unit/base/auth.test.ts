@@ -1110,8 +1110,12 @@ describe("building authorization entries", () => {
       );
 
       // internal verification passing proves the payload is the signing hash
+      const creds = expectUnionVariant(
+        signed.credentials,
+        "sorobanCredentialsAddress",
+      ).address;
       const sigArgs = expectDefined(
-        signed.credentials.address.signature.value,
+        expectUnionVariant(creds.signature, "scvVec").value,
       ).map((v) => scValToNative(v));
       const sig = sigArgs[0] as {
         public_key: Uint8Array;
@@ -1161,7 +1165,10 @@ describe("building authorization entries", () => {
         Networks.TESTNET,
       );
 
-      const addr = signed.credentials.address;
+      const addr = expectUnionVariant(
+        signed.credentials,
+        "sorobanCredentialsAddress",
+      ).address;
       expect(addr.signatureExpirationLedger).toBe(10);
       // verbatim: not wrapped in an scvVec, byte-identical to what we returned
       expect(addr.signature.toXdr("hex")).toBe(customSig.toXdr("hex"));
@@ -1187,9 +1194,11 @@ describe("building authorization entries", () => {
         Networks.TESTNET,
       );
 
-      expect(signed.credentials.addressV2.signature.toXdr("hex")).toBe(
-        customSig.toXdr("hex"),
-      );
+      const addrV2 = expectUnionVariant(
+        signed.credentials,
+        "sorobanCredentialsAddressV2",
+      ).addressV2;
+      expect(addrV2.signature.toXdr("hex")).toBe(customSig.toXdr("hex"));
     });
 
     it("routes the signature via the returned address, like forAddress", async () => {
@@ -1211,7 +1220,10 @@ describe("building authorization entries", () => {
         Networks.TESTNET,
       );
 
-      const wd = signed.credentials.addressWithDelegates;
+      const wd = expectUnionVariant(
+        signed.credentials,
+        "sorobanCredentialsAddressWithDelegates",
+      ).addressWithDelegates;
       // top-level untouched (still the Void placeholder), delegate node
       // carries the custom ScVal
       expect(wd.addressCredentials.signature.type).toBe("scvVoid");

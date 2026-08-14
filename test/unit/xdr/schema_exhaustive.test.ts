@@ -26,7 +26,7 @@ import { uint8ArrayToHex } from "uint8array-extras";
 import legacyTypes from "../../fixtures/legacy-xdr/curr_generated.js";
 
 import * as classXdr from "../../../src/xdr/index.js";
-import type { XdrType } from "../../../src/xdr/core/xdr-type.js";
+import type { XdrType } from "../../../src/xdr/index.js";
 import { XdrString } from "../../../src/xdr/index.js";
 
 const legacy = legacyTypes as any;
@@ -80,7 +80,6 @@ function defaultWire(schema: XdrType<unknown>): any {
     case "option":
       return null;
     case "array": {
-      const t = s as any;
       // varArray — empty array is a valid value for every union type.
       return [];
     }

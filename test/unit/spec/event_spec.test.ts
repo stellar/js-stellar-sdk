@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { xdr, Address, contract } from "../../../src/index.js";
+import { expectVariant } from "../base/support/xdr.js";
 
 const { Spec } = contract;
 
@@ -510,9 +511,8 @@ describe("Spec events", () => {
     // No values provided: wildcard for both topic-list params
     const filterAll = spec.eventTopicFilter("transfer");
     expect(filterAll.length).toBe(3);
-    expect(xdr.ScVal.fromXdr(filterAll[0], "base64").value.toString()).toBe(
-      "transfer",
-    );
+    const nameTopic = xdr.ScVal.fromXdr(filterAll[0], "base64");
+    expect(expectVariant(nameTopic, "scvSymbol").value).toBe("transfer");
     expect(filterAll[1]).toBe("*");
     expect(filterAll[2]).toBe("*");
 

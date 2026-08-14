@@ -9,10 +9,11 @@ import {
 } from "vitest";
 import { base64ToUint8Array, hexToUint8Array } from "uint8array-extras";
 import * as StellarSdk from "../../../../src/index.js";
+import * as xdr from "../../../../src/xdr/index.js";
 
-import { serverUrl } from "../../../constants";
+import { serverUrl } from "../../../constants.js";
 
-const { xdr, hash, Contract, rpc } = StellarSdk;
+const { hash, Contract, rpc } = StellarSdk;
 
 const { Server } = rpc;
 

@@ -440,10 +440,8 @@ describe("StrKey", () => {
     for (const testCase of happyPaths) {
       it(testCase.desc, () => {
         const signedPayloadBuf = StrKey.decodeSignedPayload(testCase.strkey);
-        const signedPayload = xdr.SignerKeyEd25519SignedPayload.fromXdr(
-          signedPayloadBuf,
-          "raw",
-        );
+        const signedPayload =
+          xdr.SignerKeyEd25519SignedPayload.fromXdr(signedPayloadBuf);
 
         const signer = StrKey.encodeEd25519PublicKey(signedPayload.ed25519);
         expect(signer).toBe(testCase.ed25519);

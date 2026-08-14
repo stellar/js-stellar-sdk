@@ -5,7 +5,7 @@ import {
   parseRegions,
   scanMarkdown,
   snippetRegion,
-} from "../../config/snippets";
+} from "../../config/snippets.js";
 
 // Unit tests for the docs snippet-expansion machinery (config/snippets.ts).
 // The 13 live markers in docs/guides only exercise the happy path; the edge

@@ -25,7 +25,7 @@ describe("humanizing raw events", () => {
       inSuccessfulContractCall: true,
       event: new xdr.ContractEvent({
         ext: xdr.ExtensionPoint.v0(),
-        contractId: new xdr.Hash(StrKey.decodeContract(contractId)),
+        contractId: new xdr.ContractId(StrKey.decodeContract(contractId)),
         type: xdr.ContractEventType.contract,
         body: makeBody({
           topics: topics1,
@@ -73,7 +73,7 @@ describe("humanizing raw events", () => {
     const contractEvents = [
       new xdr.ContractEvent({
         ext: xdr.ExtensionPoint.v0(),
-        contractId: new xdr.Hash(StrKey.decodeContract(contractId)),
+        contractId: new xdr.ContractId(StrKey.decodeContract(contractId)),
         type: xdr.ContractEventType.contract,
         body: makeBody({
           topics: topics1,

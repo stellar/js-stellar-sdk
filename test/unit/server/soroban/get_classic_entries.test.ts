@@ -6,7 +6,7 @@ import {
 } from "uint8array-extras";
 import * as StellarSdk from "../../../../src/index.js";
 
-import { serverUrl } from "../../../constants";
+import { serverUrl } from "../../../constants.js";
 import { Api } from "../../../../src/rpc/index.js";
 
 const { Asset, Keypair, StrKey, xdr, hash, rpc } = StellarSdk;
@@ -81,7 +81,7 @@ function expectLedgerEntryNotFound(
       },
     },
   };
-  mockPost.mockImplementation((url: any, body: any) => {
+  mockPost.mockImplementation((_url: any, body: any) => {
     if (body && body.method === "getLatestLedger") {
       return Promise.resolve({ data: { result: { latestLedger: 0 } } });
     }

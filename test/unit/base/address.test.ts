@@ -89,7 +89,7 @@ describe("Address", () => {
 
       it("parses contract addresses", () => {
         const sc = xdr.ScAddress.scAddressTypeContract(
-          new xdr.Hash(StrKey.decodeContract(CONTRACT)),
+          new xdr.ContractId(StrKey.decodeContract(CONTRACT)),
         );
         const c = Address.fromScAddress(sc);
         expect(c.toString()).toBe(CONTRACT);
@@ -129,7 +129,7 @@ describe("Address", () => {
 
       it("parses liquidity-pool addresses", () => {
         const sc = xdr.ScAddress.scAddressTypeLiquidityPool(
-          new xdr.Hash(new Uint8Array(32)),
+          new xdr.PoolId(new Uint8Array(32)),
         );
         const lp = Address.fromScAddress(sc);
         expect(lp.toString()).toBe(LIQUIDITY_POOL_ZERO);
@@ -152,7 +152,7 @@ describe("Address", () => {
       it("parses contract ScVals", () => {
         const scVal = xdr.ScVal.scvAddress(
           xdr.ScAddress.scAddressTypeContract(
-            new xdr.Hash(StrKey.decodeContract(CONTRACT)),
+            new xdr.ContractId(StrKey.decodeContract(CONTRACT)),
           ),
         );
         const c = Address.fromScVal(scVal);
@@ -187,7 +187,7 @@ describe("Address", () => {
       it("parses liquidity-pool ScVals", () => {
         const scVal = xdr.ScVal.scvAddress(
           xdr.ScAddress.scAddressTypeLiquidityPool(
-            new xdr.Hash(new Uint8Array(32)),
+            new xdr.PoolId(new Uint8Array(32)),
           ),
         );
         const lp = Address.fromScVal(scVal);

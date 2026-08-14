@@ -1,4 +1,8 @@
 {
+  // Typechecks the test suites (`pnpm typecheck:tests`). The vitest runs
+  // compile through esbuild, which strips types without checking them, so
+  // without this a type error in a test file is invisible. Also the config
+  // eslint's type-aware rules run against (see eslint.config.js).
   "extends": "../tsconfig.base.json",
   "compilerOptions": {
     "target": "ES2022",
@@ -13,25 +17,29 @@
     "sourceMap": true,
     "removeComments": false,
     "strict": true,
-    "noImplicitAny": false,
     "strictNullChecks": true,
     "strictFunctionTypes": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedIndexedAccess": false,
-    "exactOptionalPropertyTypes": true,
     "lib": ["ES2022", "DOM"],
     "types": ["node", "vitest/globals"],
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
+    // Matches the root build config; the base config's `true` would require
+    // tslib, which is not a dependency.
+    "importHelpers": false,
     "noEmit": true,
     "rootDir": "../",
     "paths": {
       "@/*": ["../src/*"]
     },
-    "typeRoots": ["../types", "../node_modules/@types"]
+    // `../node_modules` is required for the `vitest/globals` entry above to
+    // resolve: it lives at node_modules/vitest/globals.d.ts, not under
+    // @types. Without it tsc fails with TS2688 and checks nothing at all.
+    "typeRoots": ["../types", "../node_modules/@types", "../node_modules"]
   },
   "include": ["**/*.ts", "**/*.js"],
   "exclude": ["out"]

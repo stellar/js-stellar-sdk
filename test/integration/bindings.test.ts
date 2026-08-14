@@ -1,4 +1,3 @@
-import { XdrString } from "@/xdr/index.js";
 import * as StellarSdk from "../../src/index.js";
 import { describe, it, expect } from "vitest";
 

@@ -4,8 +4,6 @@ import {
   XdrLargeInt,
 } from "../../../../src/base/numbers/xdr_large_int.js";
 
-import * as xdr from "../../../../src/xdr/index.js";
-
 describe("XdrLargeInt", () => {
   describe("constructor", () => {
     describe("accepts single values", () => {

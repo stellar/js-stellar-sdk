@@ -21,6 +21,19 @@ import {
   expectOperationType,
 } from "../support/operation.js";
 
+// `Operation.fromXdrObject` parses signer hashes into bytes, but the
+// `SetOptionsResult` signer is declared with the *input* union
+// (`Uint8Array | string`), so the parsed value needs narrowing here.
+function expectBytes(value: Uint8Array | string): Uint8Array {
+  expect(value).toBeInstanceOf(Uint8Array);
+
+  if (typeof value === "string") {
+    throw new Error("Expected a parsed signer hash, got a string");
+  }
+
+  return value;
+}
+
 describe("Operation.setOptions()", () => {
   it("auth flags are set correctly", () => {
     expect(AuthRequiredFlag).toBe(1);
@@ -88,7 +101,9 @@ describe("Operation.setOptions()", () => {
       "preAuthTx",
     );
 
-    expect(uint8ArrayToHex(signer.preAuthTx)).toBe(uint8ArrayToHex(txHash));
+    expect(uint8ArrayToHex(expectBytes(signer.preAuthTx))).toBe(
+      uint8ArrayToHex(txHash),
+    );
     expect(signer.weight).toBe(10);
   });
 
@@ -113,7 +128,7 @@ describe("Operation.setOptions()", () => {
       "preAuthTx",
     );
 
-    expect(uint8ArrayToHex(signer.preAuthTx)).toBe(txHash);
+    expect(uint8ArrayToHex(expectBytes(signer.preAuthTx))).toBe(txHash);
     expect(signer.weight).toBe(10);
   });
 
@@ -136,7 +151,7 @@ describe("Operation.setOptions()", () => {
       "sha256Hash",
     );
 
-    expect(uint8ArrayToHex(signer.sha256Hash)).toBe(
+    expect(uint8ArrayToHex(expectBytes(signer.sha256Hash))).toBe(
       uint8ArrayToHex(sha256Hash),
     );
     expect(signer.weight).toBe(10);
@@ -163,7 +178,7 @@ describe("Operation.setOptions()", () => {
       "sha256Hash",
     );
 
-    expect(uint8ArrayToHex(signer.sha256Hash)).toBe(sha256Hash);
+    expect(uint8ArrayToHex(expectBytes(signer.sha256Hash))).toBe(sha256Hash);
     expect(signer.weight).toBe(10);
   });
 

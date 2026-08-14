@@ -24,14 +24,6 @@ import { StrKey } from "../../../src/base/strkey.js";
 import { hash } from "../../../src/base/hashing.js";
 import type { PaymentResult } from "../../../src/base/operations/types.js";
 import * as xdr from "../../../src/xdr/index.js";
-import type {
-  TransactionEnvelopeTx,
-  TransactionEnvelopeTxFeeBump,
-  TransactionEnvelopeTxV0,
-  PreconditionsV2 as PreconditionsV2Variant,
-  PreconditionsTime,
-  OperationBodyPayment,
-} from "../../../src/xdr/index.js";
 import { expectVariant } from "./support/xdr.js";
 
 function expectBytesToBeEqual(left: Uint8Array, right: Uint8Array): void {
@@ -265,13 +257,10 @@ describe("Transaction", () => {
 
       const hashBefore = uint8ArrayToHex(tx.hash());
 
-      // Attempt to mutate the XDR via the tx getter — fee is a readonly
-      // bigint in the new class layer; assignment should silently no-op.
-      try {
-        (tx.tx as { fee: bigint }).fee = 999999n;
-      } catch {
-        // strict mode may throw; either way the source must not change
-      }
+      // Attempt to mutate the XDR via the tx getter. `tx.tx` rebuilds its
+      // return value on every access, so the write lands on a throwaway
+      // copy and the source transaction is unaffected.
+      Reflect.set(tx.tx, "fee", 999999n);
 
       const hashAfter = uint8ArrayToHex(tx.hash());
       expect(hashAfter).toBe(hashBefore);
@@ -296,12 +285,8 @@ describe("Transaction", () => {
         .setTimeout(TimeoutInfinite)
         .build();
 
-      // Mutate via the tx getter — should have no effect (readonly fields)
-      try {
-        (tx.tx as { fee: bigint }).fee = 50000n;
-      } catch {
-        // strict mode may throw; either way the source must not change
-      }
+      // Mutate via the tx getter — no effect; `tx.tx` returns a fresh copy
+      Reflect.set(tx.tx, "fee", 50000n);
 
       // Sign and rebuild
       tx.sign(kp);
@@ -366,11 +351,7 @@ describe("Transaction", () => {
       const tx = new Transaction(xdrString, Networks.TESTNET);
 
       const hashBefore = uint8ArrayToHex(tx.hash());
-      try {
-        (tx.tx as { fee: bigint }).fee = 999999n;
-      } catch {
-        // strict mode may throw; readonly assignment must not affect source
-      }
+      Reflect.set(tx.tx, "fee", 999999n);
       const hashAfter = uint8ArrayToHex(tx.hash());
       expect(hashAfter).toBe(hashBefore);
     });
@@ -402,11 +383,7 @@ describe("Transaction", () => {
       ) as Transaction;
 
       const hashBefore = uint8ArrayToHex(tx.hash());
-      try {
-        (tx.tx as { fee: bigint }).fee = 999999n;
-      } catch {
-        // strict mode may throw; readonly assignment must not affect source
-      }
+      Reflect.set(tx.tx, "fee", 999999n);
       const hashAfter = uint8ArrayToHex(tx.hash());
       expect(hashAfter).toBe(hashBefore);
     });
