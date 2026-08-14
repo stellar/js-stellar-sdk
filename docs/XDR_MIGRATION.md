@@ -66,7 +66,8 @@ a deprecated alias, so existing calls still work.
 | ----------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `value.toXdrObject()` on **XDR values**   | Bridges instance ↔ wire-shape object. Legacy XDR types held their wire shape directly, so the distinction wasn't meaningful. (On the wrapper classes above it's a rename, not a new method.) |
 | `value.toJson()` / `Class.fromJson(json)` | [SEP-51](https://stellar.org/protocol/sep-51)-compliant JSON serialization. See § 12.                                                                                                        |
-| `value.equals(other)`                     | Structural comparison. Handy because a `Buffer` and a `Uint8Array` of identical bytes are not deep-equal under vitest/Jest (§ 6).                                                            |
+| `value.equals(other)`                     | Structural comparison, and the correct way to compare bytes — `Array.from()` returns `[]` on a byte wrapper, so an assertion built on it passes vacuously (§ 6).                             |
+| `bytes.toBytes()` on **byte wrappers**    | Unwraps a `Hash`, `Signature`, `ScBytes`, … to the `Uint8Array` it holds; same as reading `.value` (§ 6).                                                                                    |
 
 Note that `toJson()` (lowercase) is the API to call; the JavaScript-standard
 `toJSON()` hook is also implemented as a thin delegate to it, so
@@ -320,22 +321,42 @@ underneath it, so inherited members changed for both classes:
 
 ---
 
-## 6. Bytes: `Uint8Array` everywhere
+## 6. Bytes: `Uint8Array` and byte wrappers
 
-Every fixed-length and variable-length **byte** field (`opaque[N]`, `opaque<N>`,
-`Hash`, `Signature`, `ScBytes`, …) is a `Uint8Array`. The SDK used to surface
-`Buffer` in many places; now it's `Uint8Array`. `Buffer` **is** a `Uint8Array`
-subclass so most code that just reads bytes (indexing, `.length`) keeps working.
-The differences appear when:
+Byte fields come in two shapes. An inline `opaque[N]` / `opaque<N>` (and the
+`uint256` typedef) is a raw `Uint8Array`. The SDK used to surface `Buffer` here;
+`Buffer` **is** a `Uint8Array` subclass, so code that just reads bytes keeps
+working.
+
+The fourteen **capitalized byte typedefs** are not — `AssetCode4`,
+`AssetCode12`, `ContractId`, `DataValue`, `EncodedLedgerKey`, `EncryptedBody`,
+`Hash`, `PoolId`, `ScBytes`, `Signature`, `SignatureHint`, `Thresholds`,
+`UpgradeType`, `Value`. Each is a wrapper holding the bytes at `.value`, also
+read via `.toBytes()`:
+
+```ts
+const h = new xdr.Hash(new Uint8Array(32));
+h instanceof Uint8Array; // false
+h.length; // undefined — likewise h[0]
+Array.from(h); // [] — neither iterable nor array-like
+h.value; // Uint8Array(32)  (h.toBytes() returns the same)
+```
+
+`strict` TypeScript rejects those three reads at the call site (TS2339, TS7053,
+TS2769); plain JavaScript silently gets `undefined` or `[]`.
 
 (**Note:** XDR _string_ fields are a separate story; see § 11.)
 
-- You compare values with `toEqual` or another deep equality check. `Buffer` and
-  `Uint8Array` containing identical bytes are _not_ deep-equal under vitest /
-  Jest. Convert with `Array.from()` on both sides, or compare via
-  `.toXdr("base64")`.
+- You compare values with `toEqual` or another deep equality check. Use
+  `.equals()`, which handles both shapes and is class-aware
+  (`new xdr.Hash(x).equals(new xdr.PoolId(x))` is `false`). **Don't use
+  `Array.from()` on a wrapper** — it returns `[]` for both sides, so the
+  assertion passes vacuously. On raw fields it's still the usual fix for
+  `Buffer` and `Uint8Array` of identical bytes not being deep-equal under
+  vitest / Jest.
 - You call Buffer-only methods (e.g. `.toString("hex")`). Wrap at the
-  boundary: `Buffer.from(uint8array).toString("hex")`, or use
+  boundary: `Buffer.from(uint8array).toString("hex")` — unwrap a wrapper first —
+  or use
   [`uint8array-extras`](https://github.com/sindresorhus/uint8array-extras). See
   [`UINT8ARRAY_MIGRATION.md`](./UINT8ARRAY_MIGRATION.md).
 
@@ -382,8 +403,10 @@ xdr.ScAddress.scAddressTypeLiquidityPool(new xdr.PoolId(bytes));
 This is what lets JSON output (§ 12) render a `PoolId` as an `L`-strkey and a
 `ContractId` as a `C`-strkey while a plain `Hash` stays hex.
 
-Note that this break is type-level: at runtime a `Hash` still encodes to the
-same 32 bytes, so plain JavaScript callers see no error.
+Note that this break is type-level, and applies to _construction_: at runtime a
+`Hash` still encodes to the same 32 bytes, so plain JavaScript callers see no
+error. Reading is a separate hazard — these classes are wrappers, not
+`Uint8Array` (§ 6).
 
 ---
 
@@ -544,6 +567,9 @@ scvBytes(buf)                →   (unchanged; raw bytes still accepted)
 new xdr.Hash(buf)            →   (still works; also accepts hex strings)
 new xdr.Hash(bytes) for PoolId/ContractId  →  use new xdr.PoolId(bytes) /
                                               new xdr.ContractId(bytes)
+// Reading out: the 14 named typedefs (Hash, Signature, ScBytes, …) are wrappers
+hash.length, hash[0], Array.from(hash)  →  hash.value  (or hash.toBytes())
+deepEqual(Array.from(a), …)             →  a.equals(b)  // Array.from → []
 
 // ============== STRINGS ==============
 memo.text                    →   memo.text.toString() or memo.text.bytes
@@ -1090,3 +1116,10 @@ immediately, which is the usual shape, there is nothing to fix.
 handed to a `SigningCallback` are all `Uint8Array` now. `.toString("hex")` on
 any of them silently yields comma-joined decimals. See
 [`UINT8ARRAY_MIGRATION.md`](./UINT8ARRAY_MIGRATION.md).
+
+`DecoratedSignature.signature` and `.hint` — what `tx.signatures[i]` holds — are
+**not** raw bytes, despite the name the first shares with
+`AuthEntrySignature.signature`. They are `xdr.Signature` / `xdr.SignatureHint`
+wrappers; unwrap with `.toBytes()`. Both were a `Buffer` through 16.2.0. The
+rule is the XDR declaration, not the field name: a capitalized byte typedef is
+wrapped, while inline `opaque` and the lowercase `uint256` are raw (§ 6).
