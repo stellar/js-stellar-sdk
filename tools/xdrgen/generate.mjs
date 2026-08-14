@@ -135,7 +135,7 @@ function normalizeFieldName(name) {
  *    ContractIDPreimage   → ContractIdPreimage
  *
  *  A small override table runs first, for names the algorithm can't fix on
- *  its own — see `TYPE_NAME_OVERRIDES`.
+ *  its own — see `typeNameOverride`.
  *
  *  Algorithm: find every run of 2+ consecutive uppercase ASCII letters.
  *  - A 2-letter run followed by a lowercase letter collapses fully (`UI` → `Ui`).
