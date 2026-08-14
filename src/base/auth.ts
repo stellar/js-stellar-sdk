@@ -40,8 +40,10 @@ import { nativeToScVal } from "./scval.js";
  *
  *  - the signature of the payload as a naked `Uint8Array`, implying it is
  *    signed by the key corresponding to the public key in the entry you pass to
- *    {@link authorizeEntry} (decipherable from its
- *    `credentials.address.address`),
+ *    {@link authorizeEntry} (decipherable from the entry's address
+ *    credentials — `credentials.address.address` on the legacy arm or
+ *    `credentials.addressV2.address` on the CAP-71 V2 arm, which is the
+ *    default; {@link inspectAuthEntry} handles both),
  *  - an object with the `signature` alongside an explicit `publicKey` string
  *    identifying the Ed25519 signer, or
  *  - an object with a `signatureScVal`: an arbitrary, caller-built
