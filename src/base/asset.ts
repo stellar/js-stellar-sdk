@@ -238,7 +238,7 @@ export class Asset {
    *  - `native`,
    *  - `credit_alphanum4`,
    *  - `credit_alphanum12`
-   * @throws {Error} Throws `Error` if asset type is unsupported.
+   * @throws if asset type is unsupported.
    */
   getAssetType(): AssetType {
     switch (this.getRawAssetType().value) {
@@ -303,7 +303,7 @@ export class Asset {
   /**
    * Compares two assets according to the criteria:
    *
-   *  1. First compare the type (native < alphanum4 < alphanum12).
+   *  1. First compare the type (`native < alphanum4 < alphanum12`).
    *  2. If the types are equal, compare the assets codes.
    *  3. If the asset codes are equal, compare the issuers.
    *

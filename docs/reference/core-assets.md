@@ -54,7 +54,7 @@ constructor(code: string, issuer?: string);
 
 Compares two assets according to the criteria:
 
- 1. First compare the type (native < alphanum4 < alphanum12).
+ 1. First compare the type (`native < alphanum4 < alphanum12`).
  2. If the types are equal, compare the assets codes.
  3. If the asset codes are equal, compare the issuers.
 
@@ -152,7 +152,7 @@ getAssetType(): AssetType;
 
 **Throws**
 
-- Throws `Error` if asset type is unsupported.
+- if asset type is unsupported.
 
 **See also**
 
@@ -455,8 +455,8 @@ constructor(assetA: Asset, assetB: Asset, fee: number);
 
 **Parameters**
 
-- **`assetA`** — `Asset` (required) — The first asset in the Pool, it must respect the rule assetA < assetB. See `Asset.compare` for more details on how assets are sorted.
-- **`assetB`** — `Asset` (required) — The second asset in the Pool, it must respect the rule assetA < assetB. See `Asset.compare` for more details on how assets are sorted.
+- **`assetA`** — `Asset` (required) — The first asset in the Pool, it must respect the rule `assetA < assetB`. See `Asset.compare` for more details on how assets are sorted.
+- **`assetB`** — `Asset` (required) — The second asset in the Pool, it must respect the rule `assetA < assetB`. See `Asset.compare` for more details on how assets are sorted.
 - **`fee`** — `number` (required) — The liquidity pool fee. For now the only fee supported is `30`.
 
 **Source:** [src/base/liquidity_pool_asset.ts:27](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/liquidity_pool_asset.ts#L27)
@@ -701,6 +701,9 @@ getLiquidityPoolId(liquidityPoolType: "constant_product", liquidityPoolParameter
 
 - **`liquidityPoolType`** — `"constant_product"` (required) — A string representing the liquidity pool type.
 - **`liquidityPoolParameters`** — `ConstantProduct` (required) — The liquidity pool parameters.
+    - `assetA`: The first asset in the Pool, it must respect the rule `assetA < assetB`.
+    - `assetB`: The second asset in the Pool, it must respect the rule `assetA < assetB`.
+    - `fee`: The liquidity pool fee. For now the only fee supported is `30`.
 
 **See also**
 

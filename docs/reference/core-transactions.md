@@ -915,6 +915,9 @@ static accountMerge: (opts: AccountMergeOpts) => Operation;
 **Parameters**
 
 - **`opts`** — `AccountMergeOpts` (required) — options object
+    - `destination`: destination to merge the source account into
+    - `source`: operation source account (defaults to
+      transaction source)
 
 **Source:** [src/base/operation.ts:444](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L444)
 
@@ -932,6 +935,10 @@ static allowTrust: (opts: AllowTrustOpts) => Operation;
 **Parameters**
 
 - **`opts`** — `AllowTrustOpts` (required) — Options object
+    - `trustor`: The trusting account (the one being authorized)
+    - `assetCode`: The asset code being authorized.
+    - `authorize`: `1` to authorize, `2` to authorize to maintain liabilities, and `0` to deauthorize.
+    - `source`: The source account (defaults to transaction source).
 
 **Source:** [src/base/operation.ts:445](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L445)
 
@@ -946,6 +953,8 @@ static beginSponsoringFutureReserves: (opts: BeginSponsoringFutureReservesOpts) 
 **Parameters**
 
 - **`opts`** — `BeginSponsoringFutureReservesOpts` (required) — Options object
+    - `sponsoredId`: The sponsored account id.
+    - `source`: The source account for the operation. Defaults to the transaction's source account.
 
 **Example**
 
@@ -968,6 +977,8 @@ static bumpSequence: (opts: BumpSequenceOpts) => Operation;
 **Parameters**
 
 - **`opts`** — `BumpSequenceOpts` (required) — Options object
+    - `bumpTo`: Sequence number to bump to.
+    - `source`: The optional source account.
 
 **Source:** [src/base/operation.ts:446](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L446)
 
@@ -983,6 +994,10 @@ static changeTrust: (opts: ChangeTrustOpts) => Operation;
 **Parameters**
 
 - **`opts`** — `ChangeTrustOpts` (required) — Options object
+    - `asset`: The asset for the trust line.
+    - `limit`: The limit for the asset, defaults to max int64.
+      If the limit is set to "0" it deletes the trustline.
+    - `source`: The source account (defaults to transaction source).
 
 **Source:** [src/base/operation.ts:447](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L447)
 
@@ -997,6 +1012,8 @@ static claimClaimableBalance: (opts: ClaimClaimableBalanceOpts = ...) => Operati
 **Parameters**
 
 - **`opts`** — `ClaimClaimableBalanceOpts` (optional) (default: `...`) — Options object
+    - `balanceId`: The claimable balance id to be claimed.
+    - `source`: The source account for the operation. Defaults to the transaction's source account.
 
 **Example**
 
@@ -1019,6 +1036,12 @@ static clawback: (opts: ClawbackOpts) => Operation;
 **Parameters**
 
 - **`opts`** — `ClawbackOpts` (required) — Options object
+    - `asset`: The asset being clawed back.
+    - `amount`: The amount of the asset to claw back.
+    - `from`: The public key of the (optionally-muxed)
+      account to claw back from.
+    - `source`: The source account for the operation.
+      Defaults to the transaction's source account.
 
 **See also**
 
@@ -1037,6 +1060,8 @@ static clawbackClaimableBalance: (opts: ClawbackClaimableBalanceOpts = ...) => O
 **Parameters**
 
 - **`opts`** — `ClawbackClaimableBalanceOpts` (optional) (default: `...`) — Options object
+    - `balanceId`: The claimable balance ID to be clawed back.
+    - `source`: The source account for the operation. Defaults to the transaction's source account.
 
 **Example**
 
@@ -1063,6 +1088,10 @@ static createAccount: (opts: CreateAccountOpts) => Operation;
 **Parameters**
 
 - **`opts`** — `CreateAccountOpts` (required) — Options object
+    - `destination`: Destination account ID to create an account for.
+    - `startingBalance`: Amount in XLM the account should be funded for. Must be greater
+      than the `reserve balance amount`.
+    - `source`: The source account for the payment. Defaults to the transaction's source account.
 
 **Source:** [src/base/operation.ts:448](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L448)
 
@@ -1077,6 +1106,10 @@ static createClaimableBalance: (opts: CreateClaimableBalanceOpts) => Operation;
 **Parameters**
 
 - **`opts`** — `CreateClaimableBalanceOpts` (required) — Options object
+    - `asset`: The asset for the claimable balance.
+    - `amount`: Amount.
+    - `claimants`: An array of Claimants
+    - `source`: The source account for the operation. Defaults to the transaction's source account.
 
 **Example**
 
@@ -1114,6 +1147,12 @@ static createCustomContract: (opts: CreateCustomContractOpts) => Operation;
 **Parameters**
 
 - **`opts`** — `CreateCustomContractOpts` (required) — the set of parameters
+    - `address`: the contract uploader address
+    - `wasmHash`: the SHA-256 hash of the contract WASM you're uploading
+    - `constructorArgs`: the optional parameters to pass to the constructor
+    - `salt`: an optional, 32-byte salt to distinguish deployment instances
+    - `auth`: an optional list outlining the tree of authorizations required for the call
+    - `source`: an optional source account
 
 **See also**
 
@@ -1135,6 +1174,13 @@ static createPassiveSellOffer: (opts: CreatePassiveSellOfferOpts) => Operation;
 **Parameters**
 
 - **`opts`** — `CreatePassiveSellOfferOpts` (required) — Options object
+    - `selling`: What you're selling.
+    - `buying`: What you're buying.
+    - `amount`: The total amount you're selling. If 0, deletes the offer.
+    - `price`: Price of 1 unit of `selling` in terms of `buying`.
+      - `n`: If `opts.price` is an object: the price numerator
+      - `d`: If `opts.price` is an object: the price denominator
+    - `source`: The source account (defaults to transaction source).
 
 **Throws**
 
@@ -1153,6 +1199,9 @@ static createStellarAssetContract: (opts: CreateStellarAssetContractOpts) => Ope
 **Parameters**
 
 - **`opts`** — `CreateStellarAssetContractOpts` (required) — the set of parameters
+    - `asset`: the Stellar asset to wrap, either as an `Asset` object or in canonical form (SEP-11, `code:issuer`)
+    - `auth`: an optional list outlining the tree of authorizations required for the upload
+    - `source`: an optional source account
 
 **See also**
 
@@ -1174,6 +1223,7 @@ static endSponsoringFutureReserves: (opts: EndSponsoringFutureReservesOpts = {})
 **Parameters**
 
 - **`opts`** — `EndSponsoringFutureReservesOpts` (optional) (default: `{}`) — Options object
+    - `source`: The source account for the operation. Defaults to the transaction's source account.
 
 **Example**
 
@@ -1210,6 +1260,9 @@ static extendFootprintTtl: (opts: ExtendFootprintTtlOpts) => Operation;
 **Parameters**
 
 - **`opts`** — `ExtendFootprintTtlOpts` (required) — object holding operation parameters
+    - `extendTo`: the minimum TTL that all the entries in
+      the read-only footprint will have
+    - `source`: an optional source account
 
 **Source:** [src/base/operation.ts:476](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L476)
 
@@ -1224,6 +1277,7 @@ static inflation: (opts: InflationOpts = {}) => Operation;
 **Parameters**
 
 - **`opts`** — `InflationOpts` (optional) (default: `{}`) — Options object
+    - `source`: The optional source account.
 
 **Source:** [src/base/operation.ts:453](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L453)
 
@@ -1238,6 +1292,11 @@ static invokeContractFunction: (opts: InvokeContractFunctionOpts) => Operation;
 **Parameters**
 
 - **`opts`** — `InvokeContractFunctionOpts` (required) — the set of parameters
+    - `contract`: a strkey-fied contract address (`C...`)
+    - `function`: the name of the contract fn to invoke
+    - `args`: parameters to pass to the function invocation
+    - `auth`: an optional list outlining the tree of authorizations required for the call
+    - `source`: an optional source account
 
 **See also**
 
@@ -1258,6 +1317,9 @@ static invokeHostFunction: (opts: InvokeHostFunctionOpts) => Operation;
 **Parameters**
 
 - **`opts`** — `InvokeHostFunctionOpts` (required) — options object
+    - `func`: host function to execute (with its wrapped parameters)
+    - `auth`: list outlining the tree of authorizations required for the call
+    - `source`: an optional source account
 
 **See also**
 
@@ -1281,6 +1343,16 @@ static liquidityPoolDeposit: (opts: LiquidityPoolDepositOpts = ...) => Operation
 **Parameters**
 
 - **`opts`** — `LiquidityPoolDepositOpts` (optional) (default: `...`) — Options object
+    - `liquidityPoolId`: The liquidity pool ID.
+    - `maxAmountA`: Maximum amount of first asset to deposit.
+    - `maxAmountB`: Maximum amount of second asset to deposit.
+    - `minPrice`: Minimum depositA/depositB price.
+      - `n`: If `opts.minPrice` is an object: the price numerator
+      - `d`: If `opts.minPrice` is an object: the price denominator
+    - `maxPrice`: Maximum depositA/depositB price.
+      - `n`: If `opts.maxPrice` is an object: the price numerator
+      - `d`: If `opts.maxPrice` is an object: the price denominator
+    - `source`: The source account for the operation. Defaults to the transaction's source account.
 
 **See also**
 
@@ -1299,6 +1371,11 @@ static liquidityPoolWithdraw: (opts: LiquidityPoolWithdrawOpts = ...) => Operati
 **Parameters**
 
 - **`opts`** — `LiquidityPoolWithdrawOpts` (optional) (default: `...`) — Options object
+    - `liquidityPoolId`: The liquidity pool ID.
+    - `amount`: Amount of pool shares to withdraw.
+    - `minAmountA`: Minimum amount of first asset to withdraw.
+    - `minAmountB`: Minimum amount of second asset to withdraw.
+    - `source`: The source account for the operation. Defaults to the transaction's source account.
 
 **See also**
 
@@ -1318,6 +1395,14 @@ static manageBuyOffer: (opts: ManageBuyOfferOpts) => Operation;
 **Parameters**
 
 - **`opts`** — `ManageBuyOfferOpts` (required) — Options object
+    - `selling`: What you're selling.
+    - `buying`: What you're buying.
+    - `buyAmount`: The total amount you're buying. If 0, deletes the offer.
+    - `price`: Price of 1 unit of `buying` in terms of `selling`.
+      - `n`: If `opts.price` is an object: the price numerator
+      - `d`: If `opts.price` is an object: the price denominator
+    - `offerId`: If `0`, will create a new offer (default). Otherwise, edits an existing offer.
+    - `source`: The source account (defaults to transaction source).
 
 **Throws**
 
@@ -1336,6 +1421,9 @@ static manageData: (opts: ManageDataOpts) => Operation;
 **Parameters**
 
 - **`opts`** — `ManageDataOpts` (required) — Options object
+    - `name`: The name of the data entry.
+    - `value`: The value of the data entry.
+    - `source`: The optional source account.
 
 **Source:** [src/base/operation.ts:454](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L454)
 
@@ -1351,6 +1439,14 @@ static manageSellOffer: (opts: ManageSellOfferOpts) => Operation;
 **Parameters**
 
 - **`opts`** — `ManageSellOfferOpts` (required) — Options object
+    - `selling`: What you're selling.
+    - `buying`: What you're buying.
+    - `amount`: The total amount you're selling. If 0, deletes the offer.
+    - `price`: Price of 1 unit of `selling` in terms of `buying`.
+      - `n`: If `opts.price` is an object: the price numerator
+      - `d`: If `opts.price` is an object: the price denominator
+    - `offerId`: If `0`, will create a new offer (default). Otherwise, edits an existing offer.
+    - `source`: The source account (defaults to transaction source).
 
 **Throws**
 
@@ -1375,6 +1471,14 @@ static pathPaymentStrictReceive: (opts: PathPaymentStrictReceiveOpts) => Operati
 **Parameters**
 
 - **`opts`** — `PathPaymentStrictReceiveOpts` (required) — Options object
+    - `sendAsset`: asset to pay with
+    - `sendMax`: maximum amount of sendAsset to send
+    - `destination`: destination account to send to
+    - `destAsset`: asset the destination will receive
+    - `destAmount`: amount the destination receives
+    - `path`: array of Asset objects to use as the path
+    - `source`: The source account for the payment.
+      Defaults to the transaction's source account.
 
 **See also**
 
@@ -1398,6 +1502,13 @@ static pathPaymentStrictSend: (opts: PathPaymentStrictSendOpts) => Operation;
 **Parameters**
 
 - **`opts`** — `PathPaymentStrictSendOpts` (required) — Options object
+    - `sendAsset`: asset to pay with
+    - `sendAmount`: amount of sendAsset to send (excluding fees)
+    - `destination`: destination account to send to
+    - `destAsset`: asset the destination will receive
+    - `destMin`: minimum amount of destAsset to be received
+    - `path`: array of Asset objects to use as the path
+    - `source`: The source account for the payment. Defaults to the transaction's source account.
 
 **See also**
 
@@ -1416,6 +1527,11 @@ static payment: (opts: PaymentOpts) => Operation;
 **Parameters**
 
 - **`opts`** — `PaymentOpts` (required) — options object
+    - `destination`: destination account ID
+    - `asset`: asset to send
+    - `amount`: amount to send
+    - `source`: The source account for the payment.
+      Defaults to the transaction's source account.
 
 **See also**
 
@@ -1444,6 +1560,7 @@ static restoreFootprint: (opts: RestoreFootprintOpts = {}) => Operation;
 **Parameters**
 
 - **`opts`** — `RestoreFootprintOpts` (optional) (default: `{}`) — an optional set of parameters
+    - `source`: an optional source account
 
 **Source:** [src/base/operation.ts:477](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L477)
 
@@ -1458,6 +1575,8 @@ static revokeAccountSponsorship: (opts: RevokeAccountSponsorshipOpts = ...) => O
 **Parameters**
 
 - **`opts`** — `RevokeAccountSponsorshipOpts` (optional) (default: `...`) — Options object
+    - `account`: The sponsored account ID.
+    - `source`: The source account for the operation. Defaults to the transaction's source account.
 
 **Example**
 
@@ -1480,6 +1599,8 @@ static revokeClaimableBalanceSponsorship: (opts: RevokeClaimableBalanceSponsorsh
 **Parameters**
 
 - **`opts`** — `RevokeClaimableBalanceSponsorshipOpts` (optional) (default: `...`) — Options object
+    - `balanceId`: The sponsored claimable balance ID.
+    - `source`: The source account for the operation. Defaults to the transaction's source account.
 
 **Example**
 
@@ -1502,6 +1623,9 @@ static revokeDataSponsorship: (opts: RevokeDataSponsorshipOpts = ...) => Operati
 **Parameters**
 
 - **`opts`** — `RevokeDataSponsorshipOpts` (optional) (default: `...`) — Options object
+    - `account`: The account ID which owns the data entry.
+    - `name`: The name of the data entry.
+    - `source`: The source account for the operation. Defaults to the transaction's source account.
 
 **Example**
 
@@ -1525,6 +1649,8 @@ static revokeLiquidityPoolSponsorship: (opts: RevokeLiquidityPoolSponsorshipOpts
 **Parameters**
 
 - **`opts`** — `RevokeLiquidityPoolSponsorshipOpts` (optional) (default: `...`) — Options object.
+    - `liquidityPoolId`: The sponsored liquidity pool ID in 'hex' string.
+    - `source`: The source account for the operation. Defaults to the transaction's source account.
 
 **Example**
 
@@ -1547,6 +1673,9 @@ static revokeOfferSponsorship: (opts: RevokeOfferSponsorshipOpts = ...) => Opera
 **Parameters**
 
 - **`opts`** — `RevokeOfferSponsorshipOpts` (optional) (default: `...`) — Options object
+    - `seller`: The account ID which created the offer.
+    - `offerId`: The offer ID.
+    - `source`: The source account for the operation. Defaults to the transaction's source account.
 
 **Example**
 
@@ -1570,6 +1699,13 @@ static revokeSignerSponsorship: (opts: RevokeSignerSponsorshipOpts = ...) => Ope
 **Parameters**
 
 - **`opts`** — `RevokeSignerSponsorshipOpts` (optional) (default: `...`) — Options object
+    - `account`: The account ID where the signer sponsorship is being removed from.
+    - `signer`: The signer whose sponsorship is being removed. Exactly one of the following must be set:
+      - `ed25519PublicKey`: (optional) The ed25519 public key of the signer.
+      - `sha256Hash`: (optional) sha256 hash (Uint8Array or hex string).
+      - `preAuthTx`: (optional) Hash (Uint8Array or hex string) of transaction.
+      - `ed25519SignedPayload`: (optional) Signed payload signer (StrKey P... address).
+    - `source`: The source account for the operation. Defaults to the transaction's source account.
 
 **Example**
 
@@ -1595,6 +1731,9 @@ static revokeTrustlineSponsorship: (opts: RevokeTrustlineSponsorshipOpts = ...) 
 **Parameters**
 
 - **`opts`** — `RevokeTrustlineSponsorshipOpts` (optional) (default: `...`) — Options object
+    - `account`: The account ID which owns the trustline.
+    - `asset`: The trustline asset.
+    - `source`: The source account for the operation. Defaults to the transaction's source account.
 
 **Example**
 
@@ -1629,6 +1768,22 @@ static setOptions: <T extends SignerOpts = never>(opts: SetOptionsOpts<T>) => Op
 **Parameters**
 
 - **`opts`** — `SetOptionsOpts<T>` (required) — Options object
+    - `inflationDest`: Set this account ID as the account's inflation destination.
+    - `clearFlags`: Bitmap integer for which account flags to clear.
+    - `setFlags`: Bitmap integer for which account flags to set.
+    - `masterWeight`: The master key weight.
+    - `lowThreshold`: The sum weight for the low threshold.
+    - `medThreshold`: The sum weight for the medium threshold.
+    - `highThreshold`: The sum weight for the high threshold.
+    - `signer`: Add or remove a signer from the account. The signer is
+      deleted if the weight is 0. Only one of `ed25519PublicKey`, `sha256Hash`, `preAuthTx` should be defined.
+      - `ed25519PublicKey`: The ed25519 public key of the signer.
+      - `sha256Hash`: sha256 hash (Uint8Array or hex string) of preimage that will unlock funds. Preimage should be used as signature of future transaction.
+      - `preAuthTx`: Hash (Uint8Array or hex string) of transaction that will unlock funds.
+      - `ed25519SignedPayload`: Signed payload signer (ed25519 public key + raw payload) for atomic transaction signature disclosure.
+      - `weight`: The weight of the new signer (0 to delete or 1-255)
+    - `homeDomain`: sets the home domain used for reverse federation lookup.
+    - `source`: The source account (defaults to transaction source).
 
 **See also**
 
@@ -1654,6 +1809,18 @@ static setTrustLineFlags: (opts: SetTrustLineFlagsOpts) => Operation;
 **Parameters**
 
 - **`opts`** — `SetTrustLineFlagsOpts` (required) — Options object
+    - `trustor`: the account whose trustline this is
+    - `asset`: the asset on the trustline
+    - `flags`: the set of flags to modify
+      - `authorized`: authorize account to perform
+        transactions with its credit
+      - `authorizedToMaintainLiabilities`: authorize
+        account to maintain and reduce liabilities for its credit
+      - `clawbackEnabled`: stop claimable balances on
+        this trustlines from having clawbacks enabled (this flag can only be set
+        to false!)
+    - `source`: The source account for the operation.
+      Defaults to the transaction's source account.
 
 **See also**
 
@@ -1673,6 +1840,9 @@ static uploadContractWasm: (opts: UploadContractWasmOpts) => Operation;
 **Parameters**
 
 - **`opts`** — `UploadContractWasmOpts` (required) — the set of parameters
+    - `wasm`: a WASM blob to upload to the ledger
+    - `auth`: an optional list outlining the tree of authorizations required for the upload
+    - `source`: an optional source account
 
 **See also**
 
@@ -1735,7 +1905,7 @@ class ScInt extends XdrLargeInt {
 **Example**
 
 ```ts
-import { xdr, ScInt, scValToBigInt } from "@stellar/stellar-base";
+import { xdr, ScInt, scValToBigInt } from "@stellar/stellar-sdk";
 
 // You have an ScVal from a contract and want to parse it into JS native.
 const value = xdr.ScVal.fromXdr(someXdr, "base64");
@@ -1777,7 +1947,7 @@ const scv = new xdr.ScVal.scvU256(i.raw);
 const scv = i.toI64();
 ```
 
-**Source:** [src/base/numbers/sc_int.ts:61](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/sc_int.ts#L61)
+**Source:** [src/base/numbers/sc_int.ts:63](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/sc_int.ts#L63)
 
 ### `new ScInt(value, opts)`
 
@@ -1794,8 +1964,11 @@ constructor(value: string | number | bigint, opts?: { type?: ScIntType; [key: st
      you can construct them directly without needing this wrapper, e.g.
      `xdr.ScVal.scvU32(1234)`.
 - **`opts`** — `{ type?: ScIntType; [key: string]: unknown }` (optional) — an optional object controlling optional parameters
+    - `type`: specify a type ('i64', 'u64', 'i128', 'u128', 'i256',
+      or 'u256') to override the default type selection. If not specified, the
+      smallest type that fits the value is used.
 
-**Source:** [src/base/numbers/sc_int.ts:74](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/sc_int.ts#L74)
+**Source:** [src/base/numbers/sc_int.ts:76](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/sc_int.ts#L76)
 
 ### `ScInt.getType(scvType)`
 
@@ -1879,7 +2052,7 @@ toI128(): ScVal;
 
 **Throws**
 
-- if the value cannot fit in 128 bits
+- a `RangeError` if the value cannot fit in 128 bits
 
 **Source:** [src/base/numbers/xdr_large_int.ts:182](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L182)
 
@@ -1893,7 +2066,7 @@ toI256(): ScVal;
 
 **Throws**
 
-- if the value cannot fit in a signed 256-bit integer
+- a `RangeError` if the value cannot fit in a signed 256-bit integer
 
 **Source:** [src/base/numbers/xdr_large_int.ts:217](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L217)
 
@@ -1907,7 +2080,7 @@ toI64(): ScVal;
 
 **Throws**
 
-- if the value cannot fit in 64 bits
+- a `RangeError` if the value cannot fit in 64 bits
 
 **Source:** [src/base/numbers/xdr_large_int.ts:150](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L150)
 
@@ -1942,7 +2115,7 @@ toNumber(): number;
 
 **Throws**
 
-- if the value can't fit into a Number
+- a `RangeError` if the value can't fit into a Number
 
 **Source:** [src/base/numbers/xdr_large_int.ts:129](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L129)
 
@@ -1986,7 +2159,7 @@ toU128(): ScVal;
 
 **Throws**
 
-- if the value cannot fit in 128 bits
+- a `RangeError` if the value cannot fit in 128 bits
 
 **Source:** [src/base/numbers/xdr_large_int.ts:201](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L201)
 
@@ -2424,7 +2597,8 @@ error will be thrown.</p>
 <p>Operations can be added to the transaction via their corresponding builder
 methods, and each returns the TransactionBuilder object so they can be
 chained together. After adding the desired operations, call the `build()`
-method on the `TransactionBuilder` to return a fully constructed [`Transaction`](#transaction) that can be signed. The returned transaction will contain the
+method on the `TransactionBuilder` to return a fully constructed
+`Transaction` that can be signed. The returned transaction will contain the
 sequence number of the source account and include the signature from the
 source account.</p>
 
@@ -2538,7 +2712,7 @@ static buildFeeBumpTransaction(feeSource: string | Keypair, baseFee: string, inn
 
 - https://developers.stellar.org/docs/glossary/fee-bumps/#replace-by-fee
 
-**Source:** [src/base/transaction_builder.ts:1144](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L1144)
+**Source:** [src/base/transaction_builder.ts:1146](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L1146)
 
 ### `TransactionBuilder.cloneFrom(tx, opts)`
 
@@ -2559,7 +2733,7 @@ static cloneFrom(tx: Transaction, opts: Partial<TransactionBuilderOptions> = {})
 
 - **`tx`** — `Transaction` (required) — a "template" transaction to clone exactly
 - **`opts`** — `Partial<TransactionBuilderOptions>` (optional) (default: `{}`) — additional options to override the clone, e.g.
-     {fee: '1000'} will override the existing base fee derived from `tx` (see
+     `{fee: '1000'}` will override the existing base fee derived from `tx` (see
      the `TransactionBuilder` constructor for detailed options)
 
 **Source:** [src/base/transaction_builder.ts:313](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L313)
@@ -2581,7 +2755,7 @@ static fromXdr(envelope: string | TransactionEnvelope, networkPassphrase: string
       Stellar network (e.g. "Public Global Stellar Network ; September
       2015"), see `Networks`.
 
-**Source:** [src/base/transaction_builder.ts:1257](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L1257)
+**Source:** [src/base/transaction_builder.ts:1259](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L1259)
 
 ### `transactionBuilder.baseFee`
 
@@ -2739,7 +2913,7 @@ addSacTransferOperation(destination: string, asset: Asset, amount: string | bigi
 - **`amount`** — `string | bigint` (required) — the amount of tokens to be transferred in 7 decimals. IE 1 token with 7 decimals of precision would be represented as "1_0000000"
 - **`sorobanFees`** — `SorobanFees` (optional) — optional Soroban fees for the transaction to override the default fees used
 
-**Source:** [src/base/transaction_builder.ts:752](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L752)
+**Source:** [src/base/transaction_builder.ts:754](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L754)
 
 ### `transactionBuilder.build()`
 
@@ -2750,7 +2924,7 @@ number by 1.
 build(): Transaction;
 ```
 
-**Source:** [src/base/transaction_builder.ts:972](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L972)
+**Source:** [src/base/transaction_builder.ts:974](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L974)
 
 ### `transactionBuilder.clearOperationAt(index)`
 
@@ -2784,7 +2958,7 @@ Checks whether any v2 preconditions have been set on this builder.
 hasV2Preconditions(): boolean;
 ```
 
-**Source:** [src/base/transaction_builder.ts:1111](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L1111)
+**Source:** [src/base/transaction_builder.ts:1113](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L1113)
 
 ### `transactionBuilder.setExtraSigners(extraSigners)`
 
@@ -2801,7 +2975,7 @@ setExtraSigners(extraSigners: string[]): TransactionBuilder;
 
 - **`extraSigners`** — `string[]` (required) — required extra signers (as `StrKey`s)
 
-**Source:** [src/base/transaction_builder.ts:687](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L687)
+**Source:** [src/base/transaction_builder.ts:689](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L689)
 
 ### `transactionBuilder.setLedgerbounds(minLedger, maxLedger)`
 
@@ -2829,7 +3003,9 @@ setLedgerbounds(minLedger: number, maxLedger: number): TransactionBuilder;
 If you want to prepare a transaction which will be valid only while the
 account sequence number is
 
-    minAccountSequence <= sourceAccountSequence < tx.seqNum
+```
+minAccountSequence <= sourceAccountSequence < tx.seqNum
+```
 
 Note that after execution the account's sequence number is always raised to
 `tx.seqNum`. Internally this will set the `minAccountSequence`
@@ -2843,10 +3019,10 @@ setMinAccountSequence(minAccountSequence: string): TransactionBuilder;
 
 - **`minAccountSequence`** — `string` (required) — The minimum source account sequence
       number this transaction is valid for. If the value is `0` (the
-      default), the transaction is valid when `sourceAccount's sequence
-      number == tx.seqNum- 1`.
+      default), the transaction is valid when
+      `sourceAccount's sequence number == tx.seqNum - 1`.
 
-**Source:** [src/base/transaction_builder.ts:612](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L612)
+**Source:** [src/base/transaction_builder.ts:614](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L614)
 
 ### `transactionBuilder.setMinAccountSequenceAge(durationInSeconds)`
 
@@ -2865,7 +3041,7 @@ setMinAccountSequenceAge(durationInSeconds: bigint): TransactionBuilder;
       will become valid. If the value is `0`, the transaction is unrestricted
       by the account sequence age. Cannot be negative.
 
-**Source:** [src/base/transaction_builder.ts:634](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L634)
+**Source:** [src/base/transaction_builder.ts:636](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L636)
 
 ### `transactionBuilder.setMinAccountSequenceLedgerGap(gap)`
 
@@ -2884,7 +3060,7 @@ setMinAccountSequenceLedgerGap(gap: number): TransactionBuilder;
       If the value is `0`, the transaction is unrestricted by the account
       sequence ledger. Cannot be negative.
 
-**Source:** [src/base/transaction_builder.ts:663](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L663)
+**Source:** [src/base/transaction_builder.ts:665](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L665)
 
 ### `transactionBuilder.setNetworkPassphrase(networkPassphrase)`
 
@@ -2899,7 +3075,7 @@ setNetworkPassphrase(networkPassphrase: string): TransactionBuilder;
 - **`networkPassphrase`** — `string` (required) — passphrase of the target Stellar
       network (e.g. "Public Global Stellar Network ; September 2015").
 
-**Source:** [src/base/transaction_builder.ts:713](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L713)
+**Source:** [src/base/transaction_builder.ts:715](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L715)
 
 ### `transactionBuilder.setSorobanData(sorobanData)`
 
@@ -2923,7 +3099,11 @@ setSorobanData(sorobanData: string | SorobanTransactionData): TransactionBuilder
 - **`sorobanData`** — `string | SorobanTransactionData` (required) — the `xdr.SorobanTransactionData` as a raw xdr
      object or a base64 string to be decoded
 
-**Source:** [src/base/transaction_builder.ts:735](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L735)
+**See also**
+
+- `SorobanDataBuilder`
+
+**Source:** [src/base/transaction_builder.ts:737](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L737)
 
 ### `transactionBuilder.setTimebounds(minEpochOrDate, maxEpochOrDate)`
 
@@ -2963,7 +3143,8 @@ Sets a timeout precondition on the transaction.
 
  A call to `TransactionBuilder.setTimeout` is **required** if Transaction
  does not have `max_time` set. If you don't want to set timeout, use
- [`TimeoutInfinite`](#timeoutinfinite). In general you should set [`TimeoutInfinite`](#timeoutinfinite) only in smart contracts.
+ `TimeoutInfinite`. In general you should set
+ `TimeoutInfinite` only in smart contracts.
 
  Please note that Horizon may still return <code>504 Gateway Timeout</code>
  error, even for short timeouts. In such case you need to resubmit the same
@@ -3125,7 +3306,7 @@ toI128(): ScVal;
 
 **Throws**
 
-- if the value cannot fit in 128 bits
+- a `RangeError` if the value cannot fit in 128 bits
 
 **Source:** [src/base/numbers/xdr_large_int.ts:182](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L182)
 
@@ -3139,7 +3320,7 @@ toI256(): ScVal;
 
 **Throws**
 
-- if the value cannot fit in a signed 256-bit integer
+- a `RangeError` if the value cannot fit in a signed 256-bit integer
 
 **Source:** [src/base/numbers/xdr_large_int.ts:217](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L217)
 
@@ -3153,7 +3334,7 @@ toI64(): ScVal;
 
 **Throws**
 
-- if the value cannot fit in 64 bits
+- a `RangeError` if the value cannot fit in 64 bits
 
 **Source:** [src/base/numbers/xdr_large_int.ts:150](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L150)
 
@@ -3188,7 +3369,7 @@ toNumber(): number;
 
 **Throws**
 
-- if the value can't fit into a Number
+- a `RangeError` if the value can't fit into a Number
 
 **Source:** [src/base/numbers/xdr_large_int.ts:129](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L129)
 
@@ -3232,7 +3413,7 @@ toU128(): ScVal;
 
 **Throws**
 
-- if the value cannot fit in 128 bits
+- a `RangeError` if the value cannot fit in 128 bits
 
 **Source:** [src/base/numbers/xdr_large_int.ts:201](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L201)
 
@@ -3353,7 +3534,7 @@ scValToBigInt(scv: ScVal): bigint
 
 **Throws**
 
-- if the `scv` input value doesn't represent an integer
+- a `TypeError` if the `scv` input value doesn't represent an integer
 
 **Example**
 
@@ -3365,7 +3546,7 @@ new ScInt(bigi);               // if you don't care about types, and
 new XdrLargeInt('i128', bigi); // if you do
 ```
 
-**Source:** [src/base/numbers/index.ts:28](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/index.ts#L28)
+**Source:** [src/base/numbers/index.ts:30](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/index.ts#L30)
 
 ## Types
 

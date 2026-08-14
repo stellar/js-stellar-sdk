@@ -55,6 +55,9 @@ constructor(keys: { publicKey?: string | Uint8Array<ArrayBufferLike>; secretKey:
 **Parameters**
 
 - **`keys`** — `{ publicKey?: string | Uint8Array<ArrayBufferLike>; secretKey: string | Uint8Array<ArrayBufferLike>; type: "ed25519" } | { publicKey: string | Uint8Array<ArrayBufferLike>; type: "ed25519" }` (required) — at least one of keys must be provided.
+    - `type`: public-key signature system name (currently only `ed25519` keys are supported)
+    - `publicKey`: raw public key
+    - `secretKey`: raw secret key (32-byte secret seed in ed25519)
 
 **Source:** [src/base/keypair.ts:60](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/keypair.ts#L60)
 

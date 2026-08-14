@@ -35,22 +35,22 @@ export interface NativeToScValOpts {
  *
  * The conversions are as follows:
  *
- *  - xdr.ScVal -> passthrough
- *  - null/undefined -> scvVoid
- *  - string -> scvString (a copy is made)
- *  - UintArray8 -> scvBytes (a copy is made)
- *  - boolean -> scvBool
+ *  - xdr.ScVal → passthrough
+ *  - null/undefined → scvVoid
+ *  - string → scvString (a copy is made)
+ *  - UintArray8 → scvBytes (a copy is made)
+ *  - boolean → scvBool
  *
- *  - number/bigint -> the smallest possible XDR integer type that will fit the
+ *  - number/bigint → the smallest possible XDR integer type that will fit the
  *    input value (if you want a specific type, use {@link ScInt})
  *
- *  - {@link Address} or {@link Contract} -> scvAddress (for contracts and
+ *  - {@link Address} or {@link Contract} → scvAddress (for contracts and
  *    public keys)
  *
- *  - Array<T> -> scvVec after attempting to convert each item of type `T` to an
+ *  - `Array<T>` → scvVec after attempting to convert each item of type `T` to an
  *    xdr.ScVal (recursively). note that all values must be the same type!
  *
- *  - object -> scvMap after attempting to convert each key and value to an
+ *  - object → scvMap after attempting to convert each key and value to an
  *    xdr.ScVal (recursively). note that there is no restriction on types
  *    matching anywhere (unlike arrays)
  *
@@ -63,8 +63,8 @@ export interface NativeToScValOpts {
  * @param val -       a native (or convertible) input value to wrap
  * @param opts - an optional set of hints around the type of
  *    conversion you'd like to see
- * @param opts.type - there is different behavior for different input
- *    types for `val`:
+ *   - `type`: there is different behavior for different input
+ *     types for `val`:
  *
  *     - when `val` is an integer-like type (i.e. number|bigint), this will be
  *       forwarded to {@link ScInt} or forced to be u32/i32.
@@ -90,7 +90,7 @@ export interface NativeToScValOpts {
  *    return an `scvSymbol`, whereas without the type it would have been an
  *    `scvString`.
  *
- * @throws {TypeError} if...
+ * @throws a `TypeError` if...
  *  - there are arrays with more than one type in them
  *  - there are values that do not have a sensible conversion (e.g. random XDR
  *    types, custom classes)
@@ -102,6 +102,7 @@ export interface NativeToScValOpts {
  * @see scValToNative
  *
  * @example
+ * ```ts
  * nativeToScVal(1000);                   // gives ScValType === scvU64
  * nativeToScVal(1000n);                  // gives ScValType === scvU64
  * nativeToScVal(1n << 100n);             // gives ScValType === scvU128
@@ -127,14 +128,16 @@ export interface NativeToScValOpts {
  * //     [ scvSymbol, scvI128 ],
  * //     [ scvString, scvArray<scvBool> ]
  * // ]
+ * ```
  *
  * @example
+ * ```ts
  * import {
  *   nativeToScVal,
  *   scValToNative,
  *   ScInt,
  *   xdr
- * } from '@stellar/stellar-base';
+ * } from '@stellar/stellar-sdk';
  *
  * let gigaMap = {
  *   bool: true,
@@ -164,6 +167,7 @@ export interface NativeToScValOpts {
  *
  * // Similarly, the inverse should work:
  * scValToNative(scv) == gigaMap;       // true
+ * ```
  */
 export function nativeToScVal(
   val: unknown,
@@ -405,15 +409,15 @@ export function nativeToScVal(
  * Given a smart contract value, attempt to convert it to a native type.
  * Possible conversions include:
  *
- *  - void -> `null`
- *  - u32, i32 -> `number`
- *  - u64, i64, u128, i128, u256, i256, timepoint, duration -> `bigint`
- *  - vec -> `Array` of any of the above (via recursion)
- *  - map -> key-value object of any of the above (via recursion)
- *  - bool -> `boolean`
- *  - bytes -> `Uint8Array`
- *  - symbol -> `string`
- *  - string -> `string` IF the underlying buffer can be decoded as ascii/utf8,
+ *  - void → `null`
+ *  - u32, i32 → `number`
+ *  - u64, i64, u128, i128, u256, i256, timepoint, duration → `bigint`
+ *  - vec → `Array` of any of the above (via recursion)
+ *  - map → key-value object of any of the above (via recursion)
+ *  - bool → `boolean`
+ *  - bytes → `Uint8Array`
+ *  - symbol → `string`
+ *  - string → `string` IF the underlying buffer can be decoded as ascii/utf8,
  *              `Uint8Array` of the raw contents in any error case
  *
  * If no viable conversion can be determined, this just "unwraps" the smart

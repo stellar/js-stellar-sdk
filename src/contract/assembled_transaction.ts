@@ -63,8 +63,6 @@ import {
 import { getAddressCredentials } from "../base/auth.js";
 import { base64ToUint8Array } from "uint8array-extras";
 
-/** @module contract */
-
 /**
  * The main workhorse of {@link Client}. This class is used to wrap a
  * transaction-under-construction and provide high-level interfaces to the most
@@ -1054,7 +1052,7 @@ export class AssembledTransaction<T> {
     signAuthEntry?: ClientOptions["signAuthEntry"];
 
     /**
-     * If you have a pro use-case and need to override the default `authorizeEntry` function, rather than using the one in `@stellar/stellar-base`, you can do that! Your function needs to take at least the first argument, `entry: xdr.SorobanAuthorizationEntry`, and return a `Promise<xdr.SorobanAuthorizationEntry>`.
+     * If you have a pro use-case and need to override the default `authorizeEntry` function, rather than using the one this SDK provides, you can do that! Your function needs to take at least the first argument, `entry: xdr.SorobanAuthorizationEntry`, and return a `Promise<xdr.SorobanAuthorizationEntry>`.
      *
      * Note that you if you pass this, then `signAuthEntry` will be ignored.
      */

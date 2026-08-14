@@ -42,9 +42,9 @@ export class LiquidityPoolId {
   /**
    * Returns the `xdr.TrustLineAsset` object for this liquidity pool ID.
    *
-   * Note: To convert from {@link Asset `Asset`} to `xdr.TrustLineAsset` please
+   * Note: To convert from {@link Asset | `Asset`} to `xdr.TrustLineAsset` please
    * refer to the
-   * {@link Asset.toTrustLineXdrObject `Asset.toTrustLineXdrObject`} method.
+   * {@link Asset.toTrustLineXdrObject | `Asset.toTrustLineXdrObject`} method.
    */
   toXdrObject(): TrustLineAsset {
     const xdrPoolId = new PoolId(this.liquidityPoolId);

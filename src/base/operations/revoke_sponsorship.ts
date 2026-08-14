@@ -38,13 +38,15 @@ import { setSourceAccount } from "../util/operations.js";
  * Create a "revoke sponsorship" operation for an account.
  *
  * @param opts - Options object
- * @param opts.account - The sponsored account ID.
- * @param opts.source - The source account for the operation. Defaults to the transaction's source account.
+ *   - `account`: The sponsored account ID.
+ *   - `source`: The source account for the operation. Defaults to the transaction's source account.
  *
  * @example
+ * ```ts
  * const op = Operation.revokeAccountSponsorship({
  *   account: 'GDGU5OAPHNPU5UCLE5RDJHG7PXZFQYWKCFOEXSXNMR6KRQRI5T6XXCD7'
  * });
+ * ```
  */
 export function revokeAccountSponsorship(
   opts: RevokeAccountSponsorshipOpts = {} as RevokeAccountSponsorshipOpts,
@@ -73,11 +75,12 @@ export function revokeAccountSponsorship(
  * Create a "revoke sponsorship" operation for a trustline.
  *
  * @param opts - Options object
- * @param opts.account - The account ID which owns the trustline.
- * @param opts.asset - The trustline asset.
- * @param opts.source - The source account for the operation. Defaults to the transaction's source account.
+ *   - `account`: The account ID which owns the trustline.
+ *   - `asset`: The trustline asset.
+ *   - `source`: The source account for the operation. Defaults to the transaction's source account.
  *
  * @example
+ * ```ts
  * const op = Operation.revokeTrustlineSponsorship({
  *   account: 'GDGU5OAPHNPU5UCLE5RDJHG7PXZFQYWKCFOEXSXNMR6KRQRI5T6XXCD7',
  *   asset: new StellarBase.LiquidityPoolId(
@@ -85,6 +88,7 @@ export function revokeAccountSponsorship(
  *     'GDGU5OAPHNPU5UCLE5RDJHG7PXZFQYWKCFOEXSXNMR6KRQRI5T6XXCD7'
  *   )
  * });
+ * ```
  */
 export function revokeTrustlineSponsorship(
   opts: RevokeTrustlineSponsorshipOpts = {} as RevokeTrustlineSponsorshipOpts,
@@ -124,15 +128,17 @@ export function revokeTrustlineSponsorship(
  * Create a "revoke sponsorship" operation for an offer.
  *
  * @param opts - Options object
- * @param opts.seller - The account ID which created the offer.
- * @param opts.offerId - The offer ID.
- * @param opts.source - The source account for the operation. Defaults to the transaction's source account.
+ *   - `seller`: The account ID which created the offer.
+ *   - `offerId`: The offer ID.
+ *   - `source`: The source account for the operation. Defaults to the transaction's source account.
  *
  * @example
+ * ```ts
  * const op = Operation.revokeOfferSponsorship({
  *   seller: 'GDGU5OAPHNPU5UCLE5RDJHG7PXZFQYWKCFOEXSXNMR6KRQRI5T6XXCD7',
  *   offerId: '1234'
  * });
+ * ```
  */
 export function revokeOfferSponsorship(
   opts: RevokeOfferSponsorshipOpts = {} as RevokeOfferSponsorshipOpts,
@@ -166,15 +172,17 @@ export function revokeOfferSponsorship(
  * Create a "revoke sponsorship" operation for a data entry.
  *
  * @param opts - Options object
- * @param opts.account - The account ID which owns the data entry.
- * @param opts.name - The name of the data entry.
- * @param opts.source - The source account for the operation. Defaults to the transaction's source account.
+ *   - `account`: The account ID which owns the data entry.
+ *   - `name`: The name of the data entry.
+ *   - `source`: The source account for the operation. Defaults to the transaction's source account.
  *
  * @example
+ * ```ts
  * const op = Operation.revokeDataSponsorship({
  *   account: 'GDGU5OAPHNPU5UCLE5RDJHG7PXZFQYWKCFOEXSXNMR6KRQRI5T6XXCD7',
  *   name: 'foo'
  * });
+ * ```
  */
 export function revokeDataSponsorship(
   opts: RevokeDataSponsorshipOpts = {} as RevokeDataSponsorshipOpts,
@@ -208,13 +216,15 @@ export function revokeDataSponsorship(
  * Create a "revoke sponsorship" operation for a claimable balance.
  *
  * @param opts - Options object
- * @param opts.balanceId - The sponsored claimable balance ID.
- * @param opts.source - The source account for the operation. Defaults to the transaction's source account.
+ *   - `balanceId`: The sponsored claimable balance ID.
+ *   - `source`: The source account for the operation. Defaults to the transaction's source account.
  *
  * @example
+ * ```ts
  * const op = Operation.revokeClaimableBalanceSponsorship({
  *   balanceId: '00000000da0d57da7d4850e7fc10d2a9d0ebc731f7afb40574c03395b17d49149b91f5be',
  * });
+ * ```
  */
 export function revokeClaimableBalanceSponsorship(
   opts: RevokeClaimableBalanceSponsorshipOpts = {} as RevokeClaimableBalanceSponsorshipOpts,
@@ -243,13 +253,15 @@ export function revokeClaimableBalanceSponsorship(
  * Creates a "revoke sponsorship" operation for a liquidity pool.
  *
  * @param opts - Options object.
- * @param opts.liquidityPoolId - The sponsored liquidity pool ID in 'hex' string.
- * @param opts.source - The source account for the operation. Defaults to the transaction's source account.
+ *   - `liquidityPoolId`: The sponsored liquidity pool ID in 'hex' string.
+ *   - `source`: The source account for the operation. Defaults to the transaction's source account.
  *
  * @example
+ * ```ts
  * const op = Operation.revokeLiquidityPoolSponsorship({
  *   liquidityPoolId: 'dd7b1ab831c273310ddbec6f97870aa83c2fbd78ce22aded37ecbf4f3380fac7',
  * });
+ * ```
  */
 export function revokeLiquidityPoolSponsorship(
   opts: RevokeLiquidityPoolSponsorshipOpts = {} as RevokeLiquidityPoolSponsorshipOpts,
@@ -278,21 +290,23 @@ export function revokeLiquidityPoolSponsorship(
  * Create a "revoke sponsorship" operation for a signer.
  *
  * @param opts - Options object
- * @param opts.account - The account ID where the signer sponsorship is being removed from.
- * @param opts.signer - The signer whose sponsorship is being removed. Exactly one of the following must be set:
- * @param opts.signer.ed25519PublicKey - (optional) The ed25519 public key of the signer.
- * @param opts.signer.sha256Hash - (optional) sha256 hash (Uint8Array or hex string).
- * @param opts.signer.preAuthTx - (optional) Hash (Uint8Array or hex string) of transaction.
- * @param opts.signer.ed25519SignedPayload - (optional) Signed payload signer (StrKey P... address).
- * @param opts.source - The source account for the operation. Defaults to the transaction's source account.
+ *   - `account`: The account ID where the signer sponsorship is being removed from.
+ *   - `signer`: The signer whose sponsorship is being removed. Exactly one of the following must be set:
+ *     - `ed25519PublicKey`: (optional) The ed25519 public key of the signer.
+ *     - `sha256Hash`: (optional) sha256 hash (Uint8Array or hex string).
+ *     - `preAuthTx`: (optional) Hash (Uint8Array or hex string) of transaction.
+ *     - `ed25519SignedPayload`: (optional) Signed payload signer (StrKey P... address).
+ *   - `source`: The source account for the operation. Defaults to the transaction's source account.
  *
  * @example
+ * ```ts
  * const op = Operation.revokeSignerSponsorship({
  *   account: 'GDGU5OAPHNPU5UCLE5RDJHG7PXZFQYWKCFOEXSXNMR6KRQRI5T6XXCD7',
  *   signer: {
  *     ed25519PublicKey: 'GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGSNFHEYVXM3XOJMDS674JZ'
  *   }
  * })
+ * ```
  */
 export function revokeSignerSponsorship(
   opts: RevokeSignerSponsorshipOpts = {} as RevokeSignerSponsorshipOpts,

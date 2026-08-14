@@ -20,8 +20,8 @@ export class LiquidityPoolAsset {
   fee: number;
 
   /**
-   * @param assetA - The first asset in the Pool, it must respect the rule assetA < assetB. See {@link Asset.compare} for more details on how assets are sorted.
-   * @param assetB - The second asset in the Pool, it must respect the rule assetA < assetB. See {@link Asset.compare} for more details on how assets are sorted.
+   * @param assetA - The first asset in the Pool, it must respect the rule `assetA < assetB`. See {@link Asset.compare} for more details on how assets are sorted.
+   * @param assetB - The second asset in the Pool, it must respect the rule `assetA < assetB`. See {@link Asset.compare} for more details on how assets are sorted.
    * @param fee - The liquidity pool fee. For now the only fee supported is `30`.
    */
   constructor(assetA: Asset, assetB: Asset, fee: number) {
@@ -71,9 +71,9 @@ export class LiquidityPoolAsset {
   /**
    * Returns the `xdr.ChangeTrustAsset` object for this liquidity pool asset.
    *
-   * Note: To convert from an {@link Asset `Asset`} to `xdr.ChangeTrustAsset`
+   * Note: To convert from an {@link Asset | `Asset`} to `xdr.ChangeTrustAsset`
    * please refer to the
-   * {@link Asset.toChangeTrustXdrObject `Asset.toChangeTrustXdrObject`} method.
+   * {@link Asset.toChangeTrustXdrObject | `Asset.toChangeTrustXdrObject`} method.
    */
   toXdrObject(): ChangeTrustAsset {
     const lpConstantProductParamsXdr =

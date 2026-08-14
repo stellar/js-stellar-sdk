@@ -5,7 +5,7 @@ import { InflationOpts, OperationAttributes } from "./types.js";
 /**
  * This operation generates the inflation.
  * @param opts - Options object
- * @param opts.source - The optional source account.
+ *   - `source`: The optional source account.
  */
 export function inflation(opts: InflationOpts = {}): Operation {
   const opAttributes: OperationAttributes = {

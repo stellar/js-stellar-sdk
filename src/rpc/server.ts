@@ -207,7 +207,6 @@ export class RpcServer {
   constructor(serverURL: string, opts: RpcServer.Options = {}) {
     /**
      * RPC Server URL (ex. `http://localhost:8000/soroban/rpc`).
-     * @member {URL}
      */
     this.serverURL = new URL(serverURL);
     this.httpClient = createHttpClient(opts.headers);

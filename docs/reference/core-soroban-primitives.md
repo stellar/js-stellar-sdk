@@ -342,7 +342,7 @@ static formatTokenAmount(amount: string, decimals: number): string;
 
 **Throws**
 
-- if the given amount has a decimal point already
+- a `TypeError` if the given amount has a decimal point already
 
 **Example**
 
@@ -352,7 +352,7 @@ formatTokenAmount("123000", 3) === "123.0";
 formatTokenAmount("123", 3) === "0.123";
 ```
 
-**Source:** [src/base/soroban.ts:19](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/soroban.ts#L19)
+**Source:** [src/base/soroban.ts:21](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/soroban.ts#L21)
 
 ### `Soroban.parseTokenAmount(value, decimals)`
 
@@ -384,7 +384,7 @@ const parsedAmtForSmartContract = parseTokenAmount(displayValueAmount, 5);
 parsedAmtForSmartContract === "12345600"
 ```
 
-**Source:** [src/base/soroban.ts:73](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/soroban.ts#L73)
+**Source:** [src/base/soroban.ts:77](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/soroban.ts#L77)
 
 ## SorobanDataBuilder
 
@@ -429,7 +429,7 @@ const newData = new SorobanDataBuilder()
   .build();
 ```
 
-**Source:** [src/base/sorobandata_builder.ts:34](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L34)
+**Source:** [src/base/sorobandata_builder.ts:36](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L36)
 
 ### `new SorobanDataBuilder(sorobanData)`
 
@@ -444,7 +444,7 @@ constructor(sorobanData?: string | Uint8Array<ArrayBufferLike> | SorobanTransact
        (it will be copied); if omitted or "falsy" (e.g. an empty string), it
        starts with an empty instance
 
-**Source:** [src/base/sorobandata_builder.ts:43](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L43)
+**Source:** [src/base/sorobandata_builder.ts:45](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L45)
 
 ### `SorobanDataBuilder.fromXdr(data)`
 
@@ -458,7 +458,7 @@ static fromXdr(data: string | Uint8Array<ArrayBufferLike>): SorobanTransactionDa
 
 - **`data`** — `string | Uint8Array<ArrayBufferLike>` (required) — raw input to decode
 
-**Source:** [src/base/sorobandata_builder.ts:74](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L74)
+**Source:** [src/base/sorobandata_builder.ts:76](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L76)
 
 ### `sorobanDataBuilder.appendFootprint(readOnly, readWrite)`
 
@@ -473,7 +473,7 @@ appendFootprint(readOnly: LedgerKey[], readWrite: LedgerKey[]): SorobanDataBuild
 - **`readOnly`** — `LedgerKey[]` (required) — read-only keys to add
 - **`readWrite`** — `LedgerKey[]` (required) — read-write keys to add
 
-**Source:** [src/base/sorobandata_builder.ts:137](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L137)
+**Source:** [src/base/sorobandata_builder.ts:139](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L139)
 
 ### `sorobanDataBuilder.build()`
 
@@ -483,7 +483,7 @@ Returns a copy of the final data structure.
 build(): SorobanTransactionData;
 ```
 
-**Source:** [src/base/sorobandata_builder.ts:218](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L218)
+**Source:** [src/base/sorobandata_builder.ts:220](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L220)
 
 ### `sorobanDataBuilder.getFootprint()`
 
@@ -493,7 +493,7 @@ Returns the storage access pattern.
 getFootprint(): LedgerFootprint;
 ```
 
-**Source:** [src/base/sorobandata_builder.ts:237](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L237)
+**Source:** [src/base/sorobandata_builder.ts:239](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L239)
 
 ### `sorobanDataBuilder.getReadOnly()`
 
@@ -503,7 +503,7 @@ Returns the read-only storage access pattern.
 getReadOnly(): LedgerKey[];
 ```
 
-**Source:** [src/base/sorobandata_builder.ts:227](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L227)
+**Source:** [src/base/sorobandata_builder.ts:229](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L229)
 
 ### `sorobanDataBuilder.getReadWrite()`
 
@@ -513,7 +513,7 @@ Returns the read-write storage access pattern.
 getReadWrite(): LedgerKey[];
 ```
 
-**Source:** [src/base/sorobandata_builder.ts:232](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L232)
+**Source:** [src/base/sorobandata_builder.ts:234](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L234)
 
 ### `sorobanDataBuilder.setFootprint(readOnly, readWrite)`
 
@@ -536,7 +536,7 @@ setFootprint(readOnly?: LedgerKey[] | null, readWrite?: LedgerKey[] | null): Sor
 - **`readOnly`** — `LedgerKey[] | null` (optional) — the set of ledger keys to set in the read-only portion of the transaction's `sorobanData`, or `null | undefined` to keep the existing keys
 - **`readWrite`** — `LedgerKey[] | null` (optional) — the set of ledger keys to set in the read-write portion of the transaction's `sorobanData`, or `null | undefined` to keep the existing keys
 
-**Source:** [src/base/sorobandata_builder.ts:161](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L161)
+**Source:** [src/base/sorobandata_builder.ts:163](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L163)
 
 ### `sorobanDataBuilder.setReadOnly(readOnly)`
 
@@ -550,7 +550,7 @@ setReadOnly(readOnly?: LedgerKey[]): SorobanDataBuilder;
 
 - **`readOnly`** — `LedgerKey[]` (optional) — read-only keys in the access footprint
 
-**Source:** [src/base/sorobandata_builder.ts:180](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L180)
+**Source:** [src/base/sorobandata_builder.ts:182](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L182)
 
 ### `sorobanDataBuilder.setReadWrite(readWrite)`
 
@@ -564,7 +564,7 @@ setReadWrite(readWrite?: LedgerKey[]): SorobanDataBuilder;
 
 - **`readWrite`** — `LedgerKey[]` (optional) — read-write keys in the access footprint
 
-**Source:** [src/base/sorobandata_builder.ts:200](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L200)
+**Source:** [src/base/sorobandata_builder.ts:202](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L202)
 
 ### `sorobanDataBuilder.setResourceFee(fee)`
 
@@ -578,7 +578,7 @@ setResourceFee(fee: IntLike): SorobanDataBuilder;
 
 - **`fee`** — `IntLike` (required) — the resource fee to set (int64)
 
-**Source:** [src/base/sorobandata_builder.ts:95](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L95)
+**Source:** [src/base/sorobandata_builder.ts:97](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L97)
 
 ### `sorobanDataBuilder.setResources(cpuInstrs, diskReadBytes, writeBytes)`
 
@@ -597,7 +597,7 @@ setResources(cpuInstrs: number, diskReadBytes: number, writeBytes: number): Soro
 - **`diskReadBytes`** — `number` (required) — number of bytes being read from disk
 - **`writeBytes`** — `number` (required) — number of bytes being written to disk/memory
 
-**Source:** [src/base/sorobandata_builder.ts:114](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L114)
+**Source:** [src/base/sorobandata_builder.ts:116](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L116)
 
 ## authorizeEntry
 
@@ -964,22 +964,22 @@ native JavaScript types.
 
 The conversions are as follows:
 
- - xdr.ScVal -> passthrough
- - null/undefined -> scvVoid
- - string -> scvString (a copy is made)
- - UintArray8 -> scvBytes (a copy is made)
- - boolean -> scvBool
+ - xdr.ScVal → passthrough
+ - null/undefined → scvVoid
+ - string → scvString (a copy is made)
+ - UintArray8 → scvBytes (a copy is made)
+ - boolean → scvBool
 
- - number/bigint -> the smallest possible XDR integer type that will fit the
+ - number/bigint → the smallest possible XDR integer type that will fit the
    input value (if you want a specific type, use `ScInt`)
 
- - `Address` or `Contract` -> scvAddress (for contracts and
+ - `Address` or `Contract` → scvAddress (for contracts and
    public keys)
 
- - Array<T> -> scvVec after attempting to convert each item of type `T` to an
+ - `Array<T>` → scvVec after attempting to convert each item of type `T` to an
    xdr.ScVal (recursively). note that all values must be the same type!
 
- - object -> scvMap after attempting to convert each key and value to an
+ - object → scvMap after attempting to convert each key and value to an
    xdr.ScVal (recursively). note that there is no restriction on types
    matching anywhere (unlike arrays)
 
@@ -998,10 +998,36 @@ nativeToScVal(val: unknown, opts: NativeToScValOpts = {}): ScVal
 - **`val`** — `unknown` (required) — a native (or convertible) input value to wrap
 - **`opts`** — `NativeToScValOpts` (optional) (default: `{}`) — an optional set of hints around the type of
      conversion you'd like to see
+    - `type`: there is different behavior for different input
+      types for `val`:
+  
+      - when `val` is an integer-like type (i.e. number|bigint), this will be
+        forwarded to `ScInt` or forced to be u32/i32.
+  
+      - when `val` is an array type, this is forwarded to the recursion
+  
+      - when `val` is an object type (key-value entries), this should be an
+        object in which each key has a pair of types (to represent forced types
+        for the key and the value), where `null` (or a missing entry) indicates
+        the default interpretation(s) (refer to the examples, below)
+  
+      - when `val` is a `Map`, this can be a `[keyType, valType]` pair applied
+        to every entry, or (when all keys are strings) the same per-key spec
+        object used for plain objects
+  
+      - when `val` is a string type, this can be 'string' or 'symbol' to force
+        a particular interpretation of `val`.
+  
+      - when `val` is a bytes-like type, this can be 'string', 'symbol', or
+        'bytes' to force a particular interpretation
+  
+     As a simple example, `nativeToScVal("hello", {type: 'symbol'})` will
+     return an `scvSymbol`, whereas without the type it would have been an
+     `scvString`.
 
 **Throws**
 
-- if...
+- a `TypeError` if...
  - there are arrays with more than one type in them
  - there are values that do not have a sensible conversion (e.g. random XDR
    types, custom classes)
@@ -1049,7 +1075,7 @@ import {
   scValToNative,
   ScInt,
   xdr
-} from '@stellar/stellar-base';
+} from '@stellar/stellar-sdk';
 
 let gigaMap = {
   bool: true,
@@ -1085,22 +1111,22 @@ scValToNative(scv) == gigaMap;       // true
 
 - scValToNative
 
-**Source:** [src/base/scval.ts:168](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L168)
+**Source:** [src/base/scval.ts:172](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L172)
 
 ## scValToNative
 
 Given a smart contract value, attempt to convert it to a native type.
 Possible conversions include:
 
- - void -> `null`
- - u32, i32 -> `number`
- - u64, i64, u128, i128, u256, i256, timepoint, duration -> `bigint`
- - vec -> `Array` of any of the above (via recursion)
- - map -> key-value object of any of the above (via recursion)
- - bool -> `boolean`
- - bytes -> `Uint8Array`
- - symbol -> `string`
- - string -> `string` IF the underlying buffer can be decoded as ascii/utf8,
+ - void → `null`
+ - u32, i32 → `number`
+ - u64, i64, u128, i128, u256, i256, timepoint, duration → `bigint`
+ - vec → `Array` of any of the above (via recursion)
+ - map → key-value object of any of the above (via recursion)
+ - bool → `boolean`
+ - bytes → `Uint8Array`
+ - symbol → `string`
+ - string → `string` IF the underlying buffer can be decoded as ascii/utf8,
              `Uint8Array` of the raw contents in any error case
 
 If no viable conversion can be determined, this just "unwraps" the smart
@@ -1118,7 +1144,7 @@ scValToNative(scv: ScVal): any
 
 - nativeToScVal
 
-**Source:** [src/base/scval.ts:427](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L427)
+**Source:** [src/base/scval.ts:431](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L431)
 
 ## scvSortedMap
 
@@ -1132,7 +1158,7 @@ scvSortedMap(items: ScMapEntry[]): ScVal
 
 - **`items`** — `ScMapEntry[]` (required) — the unsorted map entries
 
-**Source:** [src/base/scval.ts:526](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L526)
+**Source:** [src/base/scval.ts:530](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L530)
 
 ## walkInvocationTree
 

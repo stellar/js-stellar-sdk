@@ -28,9 +28,9 @@ import { ExtendFootprintTtlOpts, OperationAttributes } from "./types.js";
  *
  *
  * @param opts - object holding operation parameters
- * @param opts.extendTo - the minimum TTL that all the entries in
- *    the read-only footprint will have
- * @param opts.source - an optional source account
+ *   - `extendTo`: the minimum TTL that all the entries in
+ *     the read-only footprint will have
+ *   - `source`: an optional source account
  */
 export function extendFootprintTtl(opts: ExtendFootprintTtlOpts): Operation {
   if ((opts.extendTo ?? -1) <= 0) {
