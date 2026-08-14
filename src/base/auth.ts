@@ -64,6 +64,24 @@ export type SigningCallback = (
 >;
 
 /**
+ * True for an `xdr.ScVal`, including one built by a *different* copy of the SDK
+ * loaded in the same process (a dual ESM/CJS load, or two installed versions),
+ * where `instanceof` fails on an otherwise perfectly good value. Every arm
+ * class carries the union's own schema name, so the brand covers `scvVec`,
+ * `scvMap` and the rest without enumerating them.
+ */
+function isScVal(value: unknown): value is ScVal {
+  if (value instanceof ScVal) return true;
+  if (typeof value !== "object" || value === null) return false;
+  const ctor = value.constructor as { schema?: { name?: string } } | undefined;
+  if (ctor?.schema?.name !== ScVal.schema.name) return false;
+  // The brand alone isn't enough: the value is written into the credentials
+  // verbatim and only read at serialization time, so a member that is present
+  // but not callable would surface as a `toXdr()` failure much later.
+  return typeof (value as { toXdrObject?: unknown }).toXdrObject === "function";
+}
+
+/**
  * Actually authorizes an existing authorization entry using the given
  * credentials and expiration details, returning a signed copy.
  *
@@ -219,12 +237,19 @@ export async function authorizeEntry(
     // Custom-credential path (smart wallets, passkeys/WebAuthn, etc.): the
     // caller owns the exact ScVal their account contract's `__check_auth`
     // expects, so it is written verbatim — no Ed25519 verification and no
-    // scvVec wrapping.
-    signatureScVal = sigResult.signatureScVal;
+    // scvVec wrapping. Nothing downstream inspects it, so it is checked here or
+    // not at all.
+    const candidate: unknown = sigResult.signatureScVal;
+    if (!isScVal(candidate)) {
+      throw new TypeError(
+        `signatureScVal must be an xdr.ScVal, got ${candidate === null ? "null" : typeof candidate}`,
+      );
+    }
+    signatureScVal = candidate;
     targetAddress ??= sigResult.address;
   } else {
-    let signature: Uint8Array;
-    let publicKey: string;
+    let signature: unknown;
+    let publicKey: unknown;
     if (typeof signer === "function") {
       if (
         sigResult !== null &&
@@ -252,6 +277,20 @@ export async function authorizeEntry(
     } else {
       signature = signer.sign(payload);
       publicKey = signer.publicKey();
+    }
+
+    // `signature` and `publicKey` arrive from three places above — two callback
+    // shapes and a signer object — so they are checked here, where those paths
+    // meet, rather than in each branch.
+    if (typeof publicKey !== "string") {
+      throw new TypeError(
+        `expected a public key string from the signer, got ${typeof publicKey}`,
+      );
+    }
+    if (!isUint8Array(signature)) {
+      throw new TypeError(
+        `expected a Uint8Array signature from the signer, got ${signature === null ? "null" : typeof signature}`,
+      );
     }
 
     if (!Keypair.fromPublicKey(publicKey).verify(payload, signature)) {

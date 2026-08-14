@@ -281,6 +281,77 @@ describe("building authorization entries", () => {
       ).rejects.toThrow(/SigningCallback must resolve to a Uint8Array/);
     });
 
+    // `signature` and `publicKey` reach `verify` from the object callback form
+    // and from a signer object as well as the naked form, so the checks live
+    // where those paths converge. Without them the object form reported
+    // `verify`'s own error, and a wrapper got as far as `nativeToScVal`.
+    it.each([
+      [
+        "a signature that isn't bytes",
+        (sig: Uint8Array) => ({
+          signature: uint8ArrayToBase64(sig),
+          publicKey: kp.publicKey(),
+        }),
+      ],
+      [
+        "an xdr.Signature wrapper",
+        (sig: Uint8Array) => ({
+          signature: new xdr.Signature(sig),
+          publicKey: kp.publicKey(),
+        }),
+      ],
+    ])(
+      "throws when a callback returns %s alongside a publicKey",
+      async (_label, produce) => {
+        const badCallback = ((preimage: xdr.HashIdPreimage) =>
+          Promise.resolve(
+            produce(kp.sign(hash(preimage.toXdr()))),
+          )) as unknown as SigningCallback;
+
+        await expect(
+          authorizeEntry(authEntry, badCallback, 10, Networks.TESTNET),
+        ).rejects.toThrow(/expected a Uint8Array signature from the signer/);
+      },
+    );
+
+    it.each([
+      ["omits publicKey", (sig: Uint8Array) => ({ signature: sig })],
+      [
+        "gives a non-string publicKey",
+        (sig: Uint8Array) => ({
+          signature: sig,
+          publicKey: 42,
+        }),
+      ],
+    ])("throws when a callback %s", async (_label, produce) => {
+      const badCallback = ((preimage: xdr.HashIdPreimage) =>
+        Promise.resolve(
+          produce(kp.sign(hash(preimage.toXdr()))),
+        )) as unknown as SigningCallback;
+
+      await expect(
+        authorizeEntry(authEntry, badCallback, 10, Networks.TESTNET),
+      ).rejects.toThrow(/expected a public key string from the signer/);
+    });
+
+    // A signer object bypasses every callback branch, so it needs the same
+    // convergence check.
+    it("throws when a signer object's sign() returns something else", async () => {
+      const badSigner = {
+        sign: (payload: Uint8Array) => new xdr.Signature(kp.sign(payload)),
+        publicKey: () => kp.publicKey(),
+      };
+
+      await expect(
+        authorizeEntry(
+          authEntry,
+          badSigner as unknown as Keypair,
+          10,
+          Networks.TESTNET,
+        ),
+      ).rejects.toThrow(/expected a Uint8Array signature from the signer/);
+    });
+
     it("produces different signatures for different networks", async () => {
       const signedTestnet = await authorizeEntry(
         authEntry,
@@ -1163,6 +1234,84 @@ describe("building authorization entries", () => {
           Networks.TESTNET,
         ),
       ).rejects.toThrow(/no credential node for address/);
+    });
+
+    // Nothing downstream inspects this value — it is written into the
+    // credentials verbatim — so before this check `authorizeEntry` returned an
+    // entry that only failed later, at `toXdr()`, with an opaque message.
+    it.each([
+      ["undefined", undefined],
+      ["null", null],
+      ["a string", "nonsense"],
+      ["a plain object", {}],
+      ["a Uint8Array", new Uint8Array(4)],
+      ["an xdr.Signature", new xdr.Signature(new Uint8Array(64))],
+    ])("throws when signatureScVal is %s", async (_label, value) => {
+      await expect(
+        authorizeEntry(
+          authEntry,
+          () =>
+            Promise.resolve({
+              signatureScVal: value,
+            } as unknown as { signatureScVal: xdr.ScVal }),
+          10,
+          Networks.TESTNET,
+        ),
+      ).rejects.toThrow(/signatureScVal must be an xdr\.ScVal/);
+    });
+
+    // A brand match is not enough: the value is only read at serialization
+    // time, so a `toXdrObject` that is present but not callable would surface
+    // as a `toXdr()` failure long after the call that caused it.
+    it("throws when signatureScVal carries the brand but no usable toXdrObject", async () => {
+      const brand = { schema: { name: "ScVal" } };
+
+      await expect(
+        authorizeEntry(
+          authEntry,
+          () =>
+            Promise.resolve({
+              signatureScVal: {
+                constructor: brand,
+                toXdrObject: "nope",
+              },
+            } as unknown as { signatureScVal: xdr.ScVal }),
+          10,
+          Networks.TESTNET,
+        ),
+      ).rejects.toThrow(/signatureScVal must be an xdr\.ScVal/);
+    });
+
+    // Stands in for a second copy of the SDK in one process, where
+    // `instanceof` fails on a perfectly good value.
+    it("accepts an ScVal from another copy of the SDK", async () => {
+      const foreign = {
+        constructor: { schema: { name: "ScVal" } },
+        toXdrObject: () => customSig.toXdrObject(),
+      };
+
+      const signed = await authorizeEntry(
+        authEntry,
+        () =>
+          Promise.resolve({
+            signatureScVal: foreign,
+          } as unknown as { signatureScVal: xdr.ScVal }),
+        10,
+        Networks.TESTNET,
+      );
+
+      // It is stored verbatim, so the field is still the foreign object; what
+      // matters is that the entry serializes and comes back as the right ScVal.
+      const roundTripped = xdr.SorobanAuthorizationEntry.fromXdr(
+        signed.toXdr(),
+      );
+      const credentials = expectUnionVariant(
+        roundTripped.credentials,
+        "sorobanCredentialsAddress",
+      );
+      expect(credentials.address.signature.toXdr("hex")).toBe(
+        customSig.toXdr("hex"),
+      );
     });
   });
 });
