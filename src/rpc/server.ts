@@ -1356,8 +1356,6 @@ export class RpcServer {
    *    credentials by default (protocol 28), it becomes a no-op — do not rely
    *    on passing `false` to keep receiving the legacy v1 format.
    *
-   * @defaultValue true
-   *
    * @returns An object with the
    *    cost, footprint, result/auth requirements (if applicable), and error of
    *    the transaction
@@ -1401,7 +1399,7 @@ export class RpcServer {
     tx: Transaction | FeeBumpTransaction,
     addlResources?: RpcServer.ResourceLeeway,
     authMode?: Api.SimulationAuthMode,
-    useUpgradedAuth?: boolean,
+    useUpgradedAuth: boolean = true,
   ): Promise<Api.SimulateTransactionResponse> {
     return this._simulateTransaction(
       tx,
@@ -1415,7 +1413,7 @@ export class RpcServer {
     transaction: Transaction | FeeBumpTransaction,
     addlResources?: RpcServer.ResourceLeeway,
     authMode?: Api.SimulationAuthMode,
-    useUpgradedAuth?: boolean,
+    useUpgradedAuth: boolean = true,
   ): Promise<Api.RawSimulateTransactionResponse> {
     return jsonrpc.postObject(
       this.httpClient,
@@ -1424,7 +1422,7 @@ export class RpcServer {
       {
         transaction: transaction.toXdr(),
         authMode,
-        useUpgradedAuth: useUpgradedAuth ?? true,
+        useUpgradedAuth,
         ...(addlResources !== undefined && {
           resourceConfig: {
             instructionLeeway: addlResources.cpuInstructions,
