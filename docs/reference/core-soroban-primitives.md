@@ -36,7 +36,7 @@ constructor(address: string);
 
 **Parameters**
 
-- **`address`** — `string` (required) — a `StrKey` of the address value
+- **`address`** — `string` (required) — a [`StrKey`](/reference/core-keys/#strkey) of the address value
 
 **Source:** [src/base/address.ts:39](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L39)
 
@@ -342,7 +342,7 @@ static formatTokenAmount(amount: string, decimals: number): string;
 
 **Throws**
 
-- if the given amount has a decimal point already
+- a `TypeError` if the given amount has a decimal point already
 
 **Example**
 
@@ -352,7 +352,7 @@ formatTokenAmount("123000", 3) === "123.0";
 formatTokenAmount("123", 3) === "0.123";
 ```
 
-**Source:** [src/base/soroban.ts:19](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/soroban.ts#L19)
+**Source:** [src/base/soroban.ts:21](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/soroban.ts#L21)
 
 ### `Soroban.parseTokenAmount(value, decimals)`
 
@@ -384,7 +384,7 @@ const parsedAmtForSmartContract = parseTokenAmount(displayValueAmount, 5);
 parsedAmtForSmartContract === "12345600"
 ```
 
-**Source:** [src/base/soroban.ts:73](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/soroban.ts#L73)
+**Source:** [src/base/soroban.ts:77](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/soroban.ts#L77)
 
 ## SorobanDataBuilder
 
@@ -392,8 +392,8 @@ Supports building `xdr.SorobanTransactionData` structures with various
 items set to specific values.
 
 This is recommended for when you are building
-`Operation.extendFootprintTtl` / `Operation.restoreFootprint`
-operations and need to `TransactionBuilder.setSorobanData` to avoid
+[`Operation.extendFootprintTtl`](/reference/core-transactions/#operationextendfootprintttl) / [`Operation.restoreFootprint`](/reference/core-transactions/#operationrestorefootprint)
+operations and need to [`TransactionBuilder.setSorobanData`](/reference/core-transactions/#transactionbuildersetsorobandatasorobandata) to avoid
 (re)building the entire data structure from scratch.
 
 ```ts
@@ -429,7 +429,7 @@ const newData = new SorobanDataBuilder()
   .build();
 ```
 
-**Source:** [src/base/sorobandata_builder.ts:34](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L34)
+**Source:** [src/base/sorobandata_builder.ts:36](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L36)
 
 ### `new SorobanDataBuilder(sorobanData)`
 
@@ -444,7 +444,7 @@ constructor(sorobanData?: string | Uint8Array<ArrayBufferLike> | SorobanTransact
        (it will be copied); if omitted or "falsy" (e.g. an empty string), it
        starts with an empty instance
 
-**Source:** [src/base/sorobandata_builder.ts:43](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L43)
+**Source:** [src/base/sorobandata_builder.ts:45](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L45)
 
 ### `SorobanDataBuilder.fromXdr(data)`
 
@@ -458,7 +458,7 @@ static fromXdr(data: string | Uint8Array<ArrayBufferLike>): SorobanTransactionDa
 
 - **`data`** — `string | Uint8Array<ArrayBufferLike>` (required) — raw input to decode
 
-**Source:** [src/base/sorobandata_builder.ts:74](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L74)
+**Source:** [src/base/sorobandata_builder.ts:76](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L76)
 
 ### `sorobanDataBuilder.appendFootprint(readOnly, readWrite)`
 
@@ -473,7 +473,7 @@ appendFootprint(readOnly: LedgerKey[], readWrite: LedgerKey[]): SorobanDataBuild
 - **`readOnly`** — `LedgerKey[]` (required) — read-only keys to add
 - **`readWrite`** — `LedgerKey[]` (required) — read-write keys to add
 
-**Source:** [src/base/sorobandata_builder.ts:137](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L137)
+**Source:** [src/base/sorobandata_builder.ts:139](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L139)
 
 ### `sorobanDataBuilder.build()`
 
@@ -483,7 +483,7 @@ Returns a copy of the final data structure.
 build(): SorobanTransactionData;
 ```
 
-**Source:** [src/base/sorobandata_builder.ts:218](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L218)
+**Source:** [src/base/sorobandata_builder.ts:220](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L220)
 
 ### `sorobanDataBuilder.getFootprint()`
 
@@ -493,7 +493,7 @@ Returns the storage access pattern.
 getFootprint(): LedgerFootprint;
 ```
 
-**Source:** [src/base/sorobandata_builder.ts:237](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L237)
+**Source:** [src/base/sorobandata_builder.ts:239](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L239)
 
 ### `sorobanDataBuilder.getReadOnly()`
 
@@ -503,7 +503,7 @@ Returns the read-only storage access pattern.
 getReadOnly(): LedgerKey[];
 ```
 
-**Source:** [src/base/sorobandata_builder.ts:227](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L227)
+**Source:** [src/base/sorobandata_builder.ts:229](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L229)
 
 ### `sorobanDataBuilder.getReadWrite()`
 
@@ -513,16 +513,16 @@ Returns the read-write storage access pattern.
 getReadWrite(): LedgerKey[];
 ```
 
-**Source:** [src/base/sorobandata_builder.ts:232](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L232)
+**Source:** [src/base/sorobandata_builder.ts:234](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L234)
 
 ### `sorobanDataBuilder.setFootprint(readOnly, readWrite)`
 
 Sets the storage access footprint to be a certain set of ledger keys.
 
 You can also set each field explicitly via
-`SorobanDataBuilder.setReadOnly` and
-`SorobanDataBuilder.setReadWrite` or add to the existing footprint
-via `SorobanDataBuilder.appendFootprint`.
+[`SorobanDataBuilder.setReadOnly`](#sorobandatabuildersetreadonlyreadonly) and
+[`SorobanDataBuilder.setReadWrite`](#sorobandatabuildersetreadwritereadwrite) or add to the existing footprint
+via [`SorobanDataBuilder.appendFootprint`](#sorobandatabuilderappendfootprintreadonly-readwrite).
 
 Passing `null|undefined` to either parameter will IGNORE the existing
 values. If you want to clear them, pass `[]`, instead.
@@ -536,7 +536,7 @@ setFootprint(readOnly?: LedgerKey[] | null, readWrite?: LedgerKey[] | null): Sor
 - **`readOnly`** — `LedgerKey[] | null` (optional) — the set of ledger keys to set in the read-only portion of the transaction's `sorobanData`, or `null | undefined` to keep the existing keys
 - **`readWrite`** — `LedgerKey[] | null` (optional) — the set of ledger keys to set in the read-write portion of the transaction's `sorobanData`, or `null | undefined` to keep the existing keys
 
-**Source:** [src/base/sorobandata_builder.ts:161](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L161)
+**Source:** [src/base/sorobandata_builder.ts:163](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L163)
 
 ### `sorobanDataBuilder.setReadOnly(readOnly)`
 
@@ -550,7 +550,7 @@ setReadOnly(readOnly?: LedgerKey[]): SorobanDataBuilder;
 
 - **`readOnly`** — `LedgerKey[]` (optional) — read-only keys in the access footprint
 
-**Source:** [src/base/sorobandata_builder.ts:180](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L180)
+**Source:** [src/base/sorobandata_builder.ts:182](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L182)
 
 ### `sorobanDataBuilder.setReadWrite(readWrite)`
 
@@ -564,7 +564,7 @@ setReadWrite(readWrite?: LedgerKey[]): SorobanDataBuilder;
 
 - **`readWrite`** — `LedgerKey[]` (optional) — read-write keys in the access footprint
 
-**Source:** [src/base/sorobandata_builder.ts:200](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L200)
+**Source:** [src/base/sorobandata_builder.ts:202](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L202)
 
 ### `sorobanDataBuilder.setResourceFee(fee)`
 
@@ -578,7 +578,7 @@ setResourceFee(fee: IntLike): SorobanDataBuilder;
 
 - **`fee`** — `IntLike` (required) — the resource fee to set (int64)
 
-**Source:** [src/base/sorobandata_builder.ts:95](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L95)
+**Source:** [src/base/sorobandata_builder.ts:97](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L97)
 
 ### `sorobanDataBuilder.setResources(cpuInstrs, diskReadBytes, writeBytes)`
 
@@ -597,7 +597,7 @@ setResources(cpuInstrs: number, diskReadBytes: number, writeBytes: number): Soro
 - **`diskReadBytes`** — `number` (required) — number of bytes being read from disk
 - **`writeBytes`** — `number` (required) — number of bytes being written to disk/memory
 
-**Source:** [src/base/sorobandata_builder.ts:114](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L114)
+**Source:** [src/base/sorobandata_builder.ts:116](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L116)
 
 ## authorizeEntry
 
@@ -605,17 +605,17 @@ Actually authorizes an existing authorization entry using the given
 credentials and expiration details, returning a signed copy.
 
 This "fills out" the authorization entry with a signature, indicating to the
-`Operation.invokeHostFunction` its attached to that:
-  - a particular identity (i.e. signing `Keypair` or other signer)
+[`Operation.invokeHostFunction`](/reference/core-transactions/#operationinvokehostfunction) its attached to that:
+  - a particular identity (i.e. signing [`Keypair`](/reference/core-keys/#keypair) or other signer)
   - approving the execution of an invocation tree (i.e. a simulation-acquired
     `xdr.SorobanAuthorizedInvocation` or otherwise built)
   - on a particular network (uniquely identified by its passphrase, see
-    `Networks`)
+    [`Networks`](/reference/core-transactions/#networks))
   - until a particular ledger sequence is reached.
 
-This one lets you pass either a `Keypair` (or, more accurately,
+This one lets you pass either a [`Keypair`](/reference/core-keys/#keypair) (or, more accurately,
 anything with a `sign(Uint8Array): Uint8Array` method) or a callback function (see
-`SigningCallback`) to handle signing the envelope hash.
+[`SigningCallback`](#signingcallback)) to handle signing the envelope hash.
 
 ```ts
 authorizeEntry(entry: SorobanAuthorizationEntry, signer: Keypair | SigningCallback, validUntilLedgerSeq: number, networkPassphrase: string, forAddress?: string): Promise<SorobanAuthorizationEntry>
@@ -624,8 +624,8 @@ authorizeEntry(entry: SorobanAuthorizationEntry, signer: Keypair | SigningCallba
 **Parameters**
 
 - **`entry`** — `SorobanAuthorizationEntry` (required) — an unsigned authorization entry
-- **`signer`** — `Keypair | SigningCallback` (required) — either a `Keypair` instance or a function (see
-     `SigningCallback`) which receives the
+- **`signer`** — `Keypair | SigningCallback` (required) — either a [`Keypair`](/reference/core-keys/#keypair) instance or a function (see
+     [`SigningCallback`](#signingcallback)) which receives the
      `xdr.HashIdPreimage` input payload plus its 32-byte signing hash
      and returns EITHER
   
@@ -645,7 +645,7 @@ authorizeEntry(entry: SorobanAuthorizationEntry, signer: Keypair | SigningCallba
      until which this authorization entry should be valid (if
      `currentLedgerSeq==validUntil`, this is expired)
 - **`networkPassphrase`** — `string` (required) — the network passphrase is incorporated into the
-     signature (see `Networks` for options)
+     signature (see [`Networks`](/reference/core-transactions/#networks) for options)
   
   If using the `SigningCallback` variation, the signer is assumed to be
   the entry's credential address unless you use the variant that returns
@@ -729,7 +729,7 @@ authorizeInvocation(params: AuthorizeInvocationParams): Promise<SorobanAuthoriza
 
 Builds the `xdr.HashIdPreimage` whose hash a signer must sign to
 authorize `entry`. This is the low-level signature payload used by
-`authorizeEntry`, exposed for callers that drive signing themselves —
+[`authorizeEntry`](#authorizeentry), exposed for callers that drive signing themselves —
 most notably for `SOROBAN_CREDENTIALS_ADDRESS_WITH_DELEGATES`, where the
 client (not simulation) decides which delegates sign and how.
 
@@ -777,7 +777,7 @@ buildInvocationTree(root: SorobanAuthorizedInvocation): InvocationTree
 
 - **`root`** — `SorobanAuthorizedInvocation` (required) — the raw XDR of the invocation,
      likely acquired from transaction simulation. this is either from the
-     `Operation.invokeHostFunction` itself (the `func` field), or from
+     [`Operation.invokeHostFunction`](/reference/core-transactions/#operationinvokehostfunction) itself (the `func` field), or from
      the authorization entries (`xdr.SorobanAuthorizationEntry`, the
      `rootInvocation` field)
 
@@ -825,8 +825,8 @@ delegated authentication is account-specific policy known only to the client
 (much like a multisig policy). This helper just assembles the wrapper XDR;
 you supply the delegate tree (addresses and, optionally, signatures). To
 produce the signatures, build the shared payload with
-`buildAuthorizationEntryPreimage` on the returned entry and sign it,
-or fill each node afterwards with `authorizeEntry` (passing the
+[`buildAuthorizationEntryPreimage`](#buildauthorizationentrypreimage) on the returned entry and sign it,
+or fill each node afterwards with [`authorizeEntry`](#authorizeentry) (passing the
 signer's address as `forAddress`).
 
 Each delegates array (the top-level set and every `nestedDelegates`) is
@@ -840,7 +840,7 @@ buildWithDelegatesEntry(params: BuildWithDelegatesParams): SorobanAuthorizationE
 
 **Parameters**
 
-- **`params`** — `BuildWithDelegatesParams` (required) — see `BuildWithDelegatesParams`
+- **`params`** — `BuildWithDelegatesParams` (required) — see [`BuildWithDelegatesParams`](#buildwithdelegatesparams)
 
 **Throws**
 
@@ -866,7 +866,7 @@ For `SOROBAN_CREDENTIALS_ADDRESS_WITH_DELEGATES`, this conservatively
 requires *every* node (top-level and all delegates) to be signed. An
 account's policy may accept an unsigned top-level node when its delegates
 have signed (CAP-71-01); if you support that, check
-`inspectAuthEntry`'s `signers` yourself.
+[`inspectAuthEntry`](#inspectauthentry)'s `signers` yourself.
 
 ```ts
 checkAuthEntryReadiness(entry: SorobanAuthorizationEntry, currentLedgerSeq: number): AuthEntryReadiness
@@ -880,7 +880,7 @@ checkAuthEntryReadiness(entry: SorobanAuthorizationEntry, currentLedgerSeq: numb
 
 **Returns**
 
-a `AuthEntryReadiness`: `ready`, `expired`, and which
+a [`AuthEntryReadiness`](#authentryreadiness): `ready`, `expired`, and which
    addresses are still `unsignedBy`
 
 **Throws**
@@ -899,8 +899,8 @@ human-readable, and understandable structure.
 Each element in the returned list has the following properties:
  - `type`: one of `'system'`, `'contract'`, `'diagnostic'`
  - `contractId`: optionally, a `C...` encoded strkey
- - `topics`: a list of `scValToNative` invocations on the topics
- - `data`: a `scValToNative` invocation on the raw event data
+ - `topics`: a list of [`scValToNative`](#scvaltonative) invocations on the topics
+ - `data`: a [`scValToNative`](#scvaltonative) invocation on the raw event data
 
 ```ts
 humanizeEvents(events: ContractEvent[] | DiagnosticEvent[]): SorobanEvent[]
@@ -921,8 +921,8 @@ expiration ledger, and — for every node that can carry a signature (the
 top-level credentials plus any CAP-71 delegates) — whether it is signed and,
 when the payload uses the SDK's standard ed25519 format, by which keys.
 
-This is the read-side complement to `authorizeEntry` /
-`authorizeInvocation`: those fill entries with signatures, this
+This is the read-side complement to [`authorizeEntry`](#authorizeentry) /
+[`authorizeInvocation`](#authorizeinvocation): those fill entries with signatures, this
 inspects what an entry (e.g. one returned by transaction simulation, or
 received from a counterparty in a multi-party signing flow) requires and
 already carries, without reaching into raw XDR accessors.
@@ -937,7 +937,7 @@ inspectAuthEntry(entry: SorobanAuthorizationEntry): AuthEntryInfo
 
 **Returns**
 
-a `AuthEntryInfo` summary of the entry
+a [`AuthEntryInfo`](#authentryinfo) summary of the entry
 
 **Example**
 
@@ -964,22 +964,22 @@ native JavaScript types.
 
 The conversions are as follows:
 
- - xdr.ScVal -> passthrough
- - null/undefined -> scvVoid
- - string -> scvString (a copy is made)
- - UintArray8 -> scvBytes (a copy is made)
- - boolean -> scvBool
+ - xdr.ScVal → passthrough
+ - null/undefined → scvVoid
+ - string → scvString (a copy is made)
+ - Uint8Array → scvBytes (a copy is made)
+ - boolean → scvBool
 
- - number/bigint -> the smallest possible XDR integer type that will fit the
-   input value (if you want a specific type, use `ScInt`)
+ - number/bigint → the smallest possible XDR integer type that will fit the
+   input value (if you want a specific type, use [`ScInt`](/reference/core-transactions/#scint))
 
- - `Address` or `Contract` -> scvAddress (for contracts and
+ - [`Address`](#address) or [`Contract`](#contract) → scvAddress (for contracts and
    public keys)
 
- - Array<T> -> scvVec after attempting to convert each item of type `T` to an
+ - `Array<T>` → scvVec after attempting to convert each item of type `T` to an
    xdr.ScVal (recursively). note that all values must be the same type!
 
- - object -> scvMap after attempting to convert each key and value to an
+ - object → scvMap after attempting to convert each key and value to an
    xdr.ScVal (recursively). note that there is no restriction on types
    matching anywhere (unlike arrays)
 
@@ -998,10 +998,36 @@ nativeToScVal(val: unknown, opts: NativeToScValOpts = {}): ScVal
 - **`val`** — `unknown` (required) — a native (or convertible) input value to wrap
 - **`opts`** — `NativeToScValOpts` (optional) (default: `{}`) — an optional set of hints around the type of
      conversion you'd like to see
+    - `type`: there is different behavior for different input
+      types for `val`:
+  
+      - when `val` is an integer-like type (i.e. number|bigint), this will be
+        forwarded to [`ScInt`](/reference/core-transactions/#scint) or forced to be u32/i32.
+  
+      - when `val` is an array type, this is forwarded to the recursion
+  
+      - when `val` is an object type (key-value entries), this should be an
+        object in which each key has a pair of types (to represent forced types
+        for the key and the value), where `null` (or a missing entry) indicates
+        the default interpretation(s) (refer to the examples, below)
+  
+      - when `val` is a `Map`, this can be a `[keyType, valType]` pair applied
+        to every entry, or (when all keys are strings) the same per-key spec
+        object used for plain objects
+  
+      - when `val` is a string type, this can be 'string' or 'symbol' to force
+        a particular interpretation of `val`.
+  
+      - when `val` is a bytes-like type, this can be 'string', 'symbol', or
+        'bytes' to force a particular interpretation
+  
+     As a simple example, `nativeToScVal("hello", {type: 'symbol'})` will
+     return an `scvSymbol`, whereas without the type it would have been an
+     `scvString`.
 
 **Throws**
 
-- if...
+- a `TypeError` if...
  - there are arrays with more than one type in them
  - there are values that do not have a sensible conversion (e.g. random XDR
    types, custom classes)
@@ -1049,7 +1075,7 @@ import {
   scValToNative,
   ScInt,
   xdr
-} from '@stellar/stellar-base';
+} from '@stellar/stellar-sdk';
 
 let gigaMap = {
   bool: true,
@@ -1085,22 +1111,22 @@ scValToNative(scv) == gigaMap;       // true
 
 - scValToNative
 
-**Source:** [src/base/scval.ts:168](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L168)
+**Source:** [src/base/scval.ts:172](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L172)
 
 ## scValToNative
 
 Given a smart contract value, attempt to convert it to a native type.
 Possible conversions include:
 
- - void -> `null`
- - u32, i32 -> `number`
- - u64, i64, u128, i128, u256, i256, timepoint, duration -> `bigint`
- - vec -> `Array` of any of the above (via recursion)
- - map -> key-value object of any of the above (via recursion)
- - bool -> `boolean`
- - bytes -> `Uint8Array`
- - symbol -> `string`
- - string -> `string` IF the underlying buffer can be decoded as ascii/utf8,
+ - void → `null`
+ - u32, i32 → `number`
+ - u64, i64, u128, i128, u256, i256, timepoint, duration → `bigint`
+ - vec → `Array` of any of the above (via recursion)
+ - map → key-value object of any of the above (via recursion)
+ - bool → `boolean`
+ - bytes → `Uint8Array`
+ - symbol → `string`
+ - string → `string` IF the underlying buffer can be decoded as ascii/utf8,
              `Uint8Array` of the raw contents in any error case
 
 If no viable conversion can be determined, this just "unwraps" the smart
@@ -1118,7 +1144,7 @@ scValToNative(scv: ScVal): any
 
 - nativeToScVal
 
-**Source:** [src/base/scval.ts:427](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L427)
+**Source:** [src/base/scval.ts:431](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L431)
 
 ## scvSortedMap
 
@@ -1132,7 +1158,7 @@ scvSortedMap(items: ScMapEntry[]): ScVal
 
 - **`items`** — `ScMapEntry[]` (required) — the unsorted map entries
 
-**Source:** [src/base/scval.ts:526](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L526)
+**Source:** [src/base/scval.ts:530](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L530)
 
 ## walkInvocationTree
 
@@ -1168,7 +1194,7 @@ type AuthEntryCredentialType = "sourceAccount" | "address" | "addressV2" | "addr
 ### AuthEntryInfo
 
 A structured, read-only view of a `xdr.SorobanAuthorizationEntry`,
-returned by `inspectAuthEntry`.
+returned by [`inspectAuthEntry`](#inspectauthentry).
 
 ```ts
 interface AuthEntryInfo {
@@ -1226,7 +1252,7 @@ nonce: bigint | null;
 
 the (exclusive) ledger sequence until which the signature is valid, or
 `null` for source-account credentials. Note that unsigned entries commonly
-carry a placeholder (often `0`) until `authorizeEntry` sets it.
+carry a placeholder (often `0`) until [`authorizeEntry`](#authorizeentry) sets it.
 
 ```ts
 signatureExpirationLedger: number | null;
@@ -1239,7 +1265,7 @@ signatureExpirationLedger: number | null;
 whether every signer node carries a signature payload. Always `false` for
 source-account credentials (which have no signature nodes — they are
 instead covered by the transaction envelope signature; use
-`checkAuthEntryReadiness` for a submit check). For the delegates
+[`checkAuthEntryReadiness`](#checkauthentryreadiness) for a submit check). For the delegates
 variant note that an account's policy may accept an unsigned top-level
 node when its delegates have signed (CAP-71-01) — consult `signers` if you
 support that.
@@ -1264,7 +1290,7 @@ signers: AuthEntrySigner[];
 
 ### AuthEntryReadiness
 
-The result of `checkAuthEntryReadiness`.
+The result of [`checkAuthEntryReadiness`](#checkauthentryreadiness).
 
 ```ts
 interface AuthEntryReadiness {
@@ -1310,7 +1336,7 @@ unsignedBy: string[];
 ### AuthEntrySignature
 
 A single ed25519 signature parsed out of a credential node's signature
-value, in the map format written by `authorizeEntry`.
+value, in the map format written by [`authorizeEntry`](#authorizeentry).
 
 ```ts
 interface AuthEntrySignature {
@@ -1381,7 +1407,7 @@ rawSignature: ScVal;
 #### `authEntrySigner.signatures`
 
 the signature payload parsed as the SDK's standard ed25519 format (a vec
-of `{public_key, signature}` maps, see `authorizeEntry`), or `null`
+of `{public_key, signature}` maps, see [`authorizeEntry`](#authorizeentry)), or `null`
 when the payload has some other, signer-defined shape (as custom accounts
 such as WebAuthn/passkey wallets use). Of the two unsigned placeholder
 forms, an empty `scvVec` parses as `[]` while `scvVoid` (not a vec at all)
@@ -1411,14 +1437,14 @@ signed: boolean;
 
 This builds an entry from scratch, allowing you to express authorization as a
 function of:
-  - a particular identity (i.e. signing `Keypair` or other signer)
+  - a particular identity (i.e. signing [`Keypair`](/reference/core-keys/#keypair) or other signer)
   - approving the execution of an invocation tree (i.e. a simulation-acquired
     `xdr.SorobanAuthorizedInvocation` or otherwise built)
   - on a particular network (uniquely identified by its passphrase, see
-    `Networks`)
+    [`Networks`](/reference/core-transactions/#networks))
   - until a particular ledger sequence is reached.
 
-This is in contrast to `authorizeEntry`, which signs an existing entry.
+This is in contrast to [`authorizeEntry`](#authorizeentry), which signs an existing entry.
 
 ```ts
 interface AuthorizeInvocationParams {
@@ -1493,7 +1519,7 @@ validUntilLedgerSeq: number;
 
 ### BuildWithDelegatesParams
 
-Parameters for `buildWithDelegatesEntry`.
+Parameters for [`buildWithDelegatesEntry`](#buildwithdelegatesentry).
 
 ```ts
 interface BuildWithDelegatesParams {
@@ -1556,7 +1582,7 @@ Details about a contract creation invocation.
 - `type` indicates if this creation was a custom contract (`'wasm'`), a
   wrapping of an existing Stellar asset (`'sac'`), or a reference to an
   external executable (`'external'`, see CAP-85)
-- `asset` is set when `type=='sac'`, containing the canonical `Asset`
+- `asset` is set when `type=='sac'`, containing the canonical [`Asset`](/reference/core-assets/#asset)
   being wrapped by this Stellar Asset Contract
 - `wasm` is set when `type=='wasm'`, containing additional creation parameters
 - `external` is set when `type=='external'`, containing the referenced
@@ -1609,7 +1635,7 @@ wasm?: WasmCreateDetails;
 
 A delegate signer to attach to a
 `SOROBAN_CREDENTIALS_ADDRESS_WITH_DELEGATES` entry via
-`buildWithDelegatesEntry`.
+[`buildWithDelegatesEntry`](#buildwithdelegatesentry).
 
 ```ts
 interface DelegateSignature {
@@ -1644,7 +1670,7 @@ nestedDelegates?: DelegateSignature[];
 #### `delegateSignature.signature`
 
 the delegate's signature value. Defaults to a `scvVoid` placeholder, which
-you can fill afterwards with `authorizeEntry` (passing this address
+you can fill afterwards with [`authorizeEntry`](#authorizeentry) (passing this address
 as `forAddress`) or by editing the entry directly.
 
 ```ts
@@ -1660,7 +1686,7 @@ Details about a contract function execution invocation.
 - `source` is the strkey of the contract (`C...`) being invoked
 - `function` is the name of the function being invoked
 - `args` are the natively-represented parameters to the function invocation
-  (see `scValToNative` for rules on how they're represented as JS types)
+  (see [`scValToNative`](#scvaltonative) for rules on how they're represented as JS types)
 
 ```ts
 interface ExecuteInvocation {
@@ -1706,7 +1732,7 @@ Details about a contract creation from an external executable (CAP-85).
   `SCString`, so it is not always text: a lenient UTF-8 decode would render
   two distinct tags identically, and the tag is half of what identifies the
   code being deployed. Binary tags come back as raw bytes, matching
-  `scValToNative`
+  [`scValToNative`](#scvaltonative)
 - `address` is the strkey of the deployer and `salt` its hex-encoded salt,
   which together derive the new contract's ID
 

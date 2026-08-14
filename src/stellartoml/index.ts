@@ -4,8 +4,6 @@ import { httpClient } from "../http-client/index.js";
 
 import { Config } from "../config.js";
 
-/** @module StellarToml */
-
 /**
  * The maximum size of stellar.toml file, in bytes
  * @defaultValue 102400

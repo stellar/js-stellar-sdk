@@ -205,7 +205,7 @@ _getEvents(request: GetEventsRequest): Promise<RawGetEventsResponse>;
 
 - **`request`** — `GetEventsRequest` (required)
 
-**Source:** [src/rpc/server.ts:1256](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1256)
+**Source:** [src/rpc/server.ts:1255](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1255)
 
 ### `server._getLatestLedger()`
 
@@ -213,7 +213,7 @@ _getEvents(request: GetEventsRequest): Promise<RawGetEventsResponse>;
 _getLatestLedger(): Promise<RawGetLatestLedgerResponse>;
 ```
 
-**Source:** [src/rpc/server.ts:1327](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1327)
+**Source:** [src/rpc/server.ts:1326](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1326)
 
 ### `server._getLedgerEntries(keys)`
 
@@ -225,7 +225,7 @@ _getLedgerEntries(...keys: LedgerKey[]): Promise<RawGetLedgerEntriesResponse>;
 
 - **`...keys`** — `LedgerKey[]` (required)
 
-**Source:** [src/rpc/server.ts:1021](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1021)
+**Source:** [src/rpc/server.ts:1020](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1020)
 
 ### `server._getLedgers(request)`
 
@@ -237,7 +237,7 @@ _getLedgers(request: GetLedgersRequest): Promise<RawGetLedgersResponse>;
 
 - **`request`** — `GetLedgersRequest` (required)
 
-**Source:** [src/rpc/server.ts:1930](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1930)
+**Source:** [src/rpc/server.ts:1929](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1929)
 
 ### `server._getTransaction(hash)`
 
@@ -249,7 +249,7 @@ _getTransaction(hash: string): Promise<RawGetTransactionResponse>;
 
 - **`hash`** — `string` (required)
 
-**Source:** [src/rpc/server.ts:1144](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1144)
+**Source:** [src/rpc/server.ts:1143](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1143)
 
 ### `server._getTransactions(request)`
 
@@ -261,7 +261,7 @@ _getTransactions(request: GetTransactionsRequest): Promise<RawGetTransactionsRes
 
 - **`request`** — `GetTransactionsRequest` (required)
 
-**Source:** [src/rpc/server.ts:1195](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1195)
+**Source:** [src/rpc/server.ts:1194](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1194)
 
 ### `server._sendTransaction(transaction)`
 
@@ -273,7 +273,7 @@ _sendTransaction(transaction: Transaction | FeeBumpTransaction): Promise<RawSend
 
 - **`transaction`** — `Transaction | FeeBumpTransaction` (required)
 
-**Source:** [src/rpc/server.ts:1569](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1569)
+**Source:** [src/rpc/server.ts:1568](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1568)
 
 ### `server._simulateTransaction(transaction, addlResources, authMode, useUpgradedAuth)`
 
@@ -288,7 +288,7 @@ _simulateTransaction(transaction: Transaction | FeeBumpTransaction, addlResource
 - **`authMode`** — `SimulationAuthMode` (optional)
 - **`useUpgradedAuth`** — `boolean` (optional)
 
-**Source:** [src/rpc/server.ts:1414](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1414)
+**Source:** [src/rpc/server.ts:1413](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1413)
 
 ### `server.fundAddress(address, friendbotUrl)`
 
@@ -306,7 +306,7 @@ fundAddress(address: string, friendbotUrl?: string): Promise<GetSuccessfulTransa
      account (G...) or contract (C...) address.
 - **`friendbotUrl`** — `string` (optional) — (optional) Optionally, an explicit Friendbot URL
      (by default: this calls the Stellar RPC
-     `getNetwork` method to try to
+     [`getNetwork`](#servergetnetwork) method to try to
      discover this network's Friendbot url).
 
 **Returns**
@@ -341,14 +341,14 @@ console.log("Contract funded! Hash:", tx.txHash);
 
 - `Friendbot docs`
 
-**Source:** [src/rpc/server.ts:1689](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1689)
+**Source:** [src/rpc/server.ts:1688](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1688)
 
 ### `server.getAccount(address)`
 
 Fetch a minimal set of current info about a Stellar account.
 
 Needed to get the current sequence number for the account so you can build
-a successful transaction with `TransactionBuilder`.
+a successful transaction with [`TransactionBuilder`](/reference/core-transactions/#transactionbuilder).
 
 ```ts
 getAccount(address: string): Promise<Account>;
@@ -360,7 +360,7 @@ getAccount(address: string): Promise<Account>;
 
 **Returns**
 
-A promise which resolves to the `Account`
+A promise which resolves to the [`Account`](/reference/core-transactions/#account)
 object with a populated sequence number
 
 **Example**
@@ -376,7 +376,7 @@ server.getAccount(accountId).then((account) => {
 
 - `getLedgerEntries docs`
 
-**Source:** [src/rpc/server.ts:241](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L241)
+**Source:** [src/rpc/server.ts:240](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L240)
 
 ### `server.getAccountEntry(address)`
 
@@ -408,14 +408,14 @@ server.getAccountEntry(accountId).then((account) => {
 
 - `getLedgerEntries docs`
 
-**Source:** [src/rpc/server.ts:264](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L264)
+**Source:** [src/rpc/server.ts:263](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L263)
 
 ### `server.getAssetBalance(address, asset, networkPassphrase)`
 
 Fetch the balance of an asset held by an account or contract.
 
-The `address` argument may be provided as a string (as a `StrKey`),
-`Address`, or `Contract`.
+The `address` argument may be provided as a string (as a [`StrKey`](/reference/core-keys/#strkey)),
+[`Address`](/reference/core-soroban-primitives/#address), or [`Contract`](/reference/core-soroban-primitives/#contract).
 
 ```ts
 getAssetBalance(address: string | Address | Contract, asset: Asset, networkPassphrase?: string): Promise<BalanceResponse>;
@@ -429,8 +429,8 @@ getAssetBalance(address: string | Address | Contract, asset: Asset, networkPassp
 - **`networkPassphrase`** — `string` (optional) — (optional) optionally, when requesting the
      balance of a contract, the network passphrase to which this token
      applies. If omitted and necessary, a request about network information
-     will be made (see `getNetwork`), since contract IDs for assets are
-     specific to a network. You can refer to `Networks` for a list of
+     will be made (see [`getNetwork`](#servergetnetwork)), since contract IDs for assets are
+     specific to a network. You can refer to [`Networks`](/reference/core-transactions/#networks) for a list of
      built-in passphrases, e.g., `Networks.TESTNET`.
 
 **Returns**
@@ -454,7 +454,7 @@ const balance = await server.getAssetBalance("GD...", usdc);
 console.log(balance.balanceEntry?.amount);
 ```
 
-**Source:** [src/rpc/server.ts:425](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L425)
+**Source:** [src/rpc/server.ts:424](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L424)
 
 ### `server.getClaimableBalance(id)`
 
@@ -490,7 +490,7 @@ server.getClaimableBalance(id).then((entry) => {
 
 - `getLedgerEntries docs`
 
-**Source:** [src/rpc/server.ts:356](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L356)
+**Source:** [src/rpc/server.ts:355](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L355)
 
 ### `server.getContractData(contract, key, durability)`
 
@@ -498,7 +498,7 @@ Reads the current value of contract data ledger entries directly.
 
 Allows you to directly inspect the current state of a contract. This is a
 backup way to access your contract data which may not be available via
-events or `rpc.Server.simulateTransaction`.
+events or [`rpc.Server.simulateTransaction`](#serversimulatetransactiontx-addlresources-authmode-useupgradedauth).
 
 ```ts
 getContractData(contract: string | Address | Contract, key: ScVal, durability: Durability = Durability.Persistent): Promise<LedgerEntryResult>;
@@ -507,12 +507,12 @@ getContractData(contract: string | Address | Contract, key: ScVal, durability: D
 **Parameters**
 
 - **`contract`** — `string | Address | Contract` (required) — The contract ID containing the
-     data to load as a strkey (`C...` form), a `Contract`, or an
-     `Address` instance
+     data to load as a strkey (`C...` form), a [`Contract`](/reference/core-soroban-primitives/#contract), or an
+     [`Address`](/reference/core-soroban-primitives/#address) instance
 - **`key`** — `ScVal` (required) — The key of the contract data to load
 - **`durability`** — `Durability` (optional) (default: `Durability.Persistent`) — (optional) The "durability
      keyspace" that this ledger key belongs to, which is either 'temporary'
-     or 'persistent' (the default), see `rpc.Durability`.
+     or 'persistent' (the default), see [`rpc.Durability`](#rpcdurability).
 
 **Returns**
 
@@ -538,7 +538,7 @@ server.getContractData(contractId, key, Durability.Temporary).then(data => {
 
 - `getLedgerEntries docs`
 
-**Source:** [src/rpc/server.ts:526](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L526)
+**Source:** [src/rpc/server.ts:525](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L525)
 
 ### `server.getContractInstance(contractId)`
 
@@ -572,7 +572,7 @@ const instance = await server.getContractInstance(
 console.log(instance.executable.type);
 ```
 
-**Source:** [src/rpc/server.ts:595](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L595)
+**Source:** [src/rpc/server.ts:594](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L594)
 
 ### `server.getContractMethods(contractId, networkPassphrase)`
 
@@ -581,11 +581,11 @@ Lists a contract's callable methods and their signatures.
 A discovery helper for tooling, dapps, and agents that need to inspect an
 arbitrary contract without knowing its interface up front. It resolves the
 contract's spec (embedded in the Wasm for regular contracts, or the
-built-in spec for Stellar Asset Contracts — see `contract.Client.from`)
+built-in spec for Stellar Asset Contracts — see [`contract.Client.from`](/reference/contracts-client/#clientfromoptions))
 and reports each declared function's name, inputs, and outputs. No method
 is invoked or simulated; this performs only the spec lookup.
 
-The complement to `queryContract`: list methods here, then call a
+The complement to [`queryContract`](#serverquerycontractcontractid-method-args-networkpassphrase): list methods here, then call a
 read-only one with `server.queryContract(contractId, method, args?)`.
 
 ```ts
@@ -596,8 +596,8 @@ getContractMethods(contractId: string, networkPassphrase?: string): Promise<Cont
 
 - **`contractId`** — `string` (required) — the contract to inspect (`C...`)
 - **`networkPassphrase`** — `string` (optional) — (optional) the network passphrase. If omitted, a
-     request about network information will be made (see `getNetwork`).
-     You can refer to `Networks` for a list of built-in passphrases,
+     request about network information will be made (see [`getNetwork`](#servergetnetwork)).
+     You can refer to [`Networks`](/reference/core-transactions/#networks) for a list of built-in passphrases,
      e.g., `Networks.TESTNET`.
 
 **Returns**
@@ -617,7 +617,7 @@ const methods = await server.getContractMethods(
 // ]
 ```
 
-**Source:** [src/rpc/server.ts:944](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L944)
+**Source:** [src/rpc/server.ts:943](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L943)
 
 ### `server.getContractWasmByContractId(contractId)`
 
@@ -629,9 +629,9 @@ code of the contract.
 
 This only works for Wasm-based contracts, including one created from a
 CAP-85 external executable reference, whose reference is resolved to a Wasm
-hash first (see `getExternalRefWasmHash`). A built-in Stellar Asset
+hash first (see [`getExternalRefWasmHash`](#servergetexternalrefwasmhashref)). A built-in Stellar Asset
 Contract (SAC) has no Wasm bytecode on-chain, so this throws for a SAC; use
-`contract.Client.from` to build a client from the embedded SAC spec.
+[`contract.Client.from`](/reference/contracts-client/#clientfromoptions) to build a client from the embedded SAC spec.
 
 ```ts
 getContractWasmByContractId(contractId: string): Promise<Uint8Array<ArrayBufferLike>>;
@@ -662,7 +662,7 @@ server.getContractWasmByContractId(contractId).then(wasmBytes => {
 });
 ```
 
-**Source:** [src/rpc/server.ts:721](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L721)
+**Source:** [src/rpc/server.ts:720](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L720)
 
 ### `server.getContractWasmByHash(wasmHash, format)`
 
@@ -702,18 +702,18 @@ server.getContractWasmByHash(wasmHash).then(wasmBytes => {
 });
 ```
 
-**Source:** [src/rpc/server.ts:776](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L776)
+**Source:** [src/rpc/server.ts:775](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L775)
 
 ### `server.getEvents(request)`
 
 Fetch all events that match a given set of filters.
 
-The given filters (see `Api.EventFilter`
+The given filters (see [`Api.EventFilter`](#rpcapieventfilter)
 for detailed fields) are combined only in a logical OR fashion, and all of
 the fields in each filter are optional.
 
 To page through events, use the `pagingToken` field on the relevant
-`Api.EventResponse` object to set the `cursor` parameter.
+[`Api.EventResponse`](#rpcapieventresponse) object to set the `cursor` parameter.
 
 ```ts
 getEvents(request: GetEventsRequest): Promise<GetEventsResponse>;
@@ -721,7 +721,7 @@ getEvents(request: GetEventsRequest): Promise<GetEventsResponse>;
 
 **Parameters**
 
-- **`request`** — `GetEventsRequest` (required) — Event filters `Api.GetEventsRequest`,
+- **`request`** — `GetEventsRequest` (required) — Event filters [`Api.GetEventsRequest`](#rpcapigeteventsrequest),
 
 **Returns**
 
@@ -760,7 +760,7 @@ server.getEvents({
 
 - `getEvents docs`
 
-**Source:** [src/rpc/server.ts:1250](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1250)
+**Source:** [src/rpc/server.ts:1249](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1249)
 
 ### `server.getExternalRefWasmHash(ref)`
 
@@ -802,7 +802,7 @@ if (instance.executable.type === "contractExecutableExternalRef") {
 }
 ```
 
-**Source:** [src/rpc/server.ts:650](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L650)
+**Source:** [src/rpc/server.ts:649](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L649)
 
 ### `server.getFeeStats()`
 
@@ -821,7 +821,7 @@ the fee stats
 
 - https://developers.stellar.org/docs/data/rpc/api-reference/methods/getFeeStats
 
-**Source:** [src/rpc/server.ts:1735](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1735)
+**Source:** [src/rpc/server.ts:1734](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1734)
 
 ### `server.getHealth()`
 
@@ -834,7 +834,7 @@ getHealth(): Promise<GetHealthResponse>;
 **Returns**
 
 A promise which resolves to the
-`Api.GetHealthResponse` object with the status of the
+[`Api.GetHealthResponse`](#rpcapigethealthresponse) object with the status of the
 server (e.g. "healthy").
 
 **Example**
@@ -849,7 +849,7 @@ server.getHealth().then((health) => {
 
 - `getLedgerEntries docs`
 
-**Source:** [src/rpc/server.ts:484](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L484)
+**Source:** [src/rpc/server.ts:483](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L483)
 
 ### `server.getLatestLedger()`
 
@@ -879,7 +879,7 @@ server.getLatestLedger().then((response) => {
 
 - `getLatestLedger docs`
 
-**Source:** [src/rpc/server.ts:1323](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1323)
+**Source:** [src/rpc/server.ts:1322](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1322)
 
 ### `server.getLedgerEntries(keys)`
 
@@ -890,7 +890,7 @@ code, accounts, or any other ledger entries.
 
 To fetch a contract's WASM byte-code, built the appropriate
 `xdr.LedgerKeyContractCode` ledger entry key (or see
-`Contract.getFootprint`).
+[`Contract.getFootprint`](/reference/core-soroban-primitives/#contractgetfootprint)).
 
 ```ts
 getLedgerEntries(...keys: LedgerKey[]): Promise<GetLedgerEntriesResponse>;
@@ -929,7 +929,7 @@ server.getLedgerEntries([key]).then(response => {
 - - `getLedgerEntries docs`
  - RpcServer._getLedgerEntries
 
-**Source:** [src/rpc/server.ts:1017](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1017)
+**Source:** [src/rpc/server.ts:1016](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1016)
 
 ### `server.getLedgerEntry(key)`
 
@@ -941,7 +941,7 @@ getLedgerEntry(key: LedgerKey): Promise<LedgerEntryResult>;
 
 - **`key`** — `LedgerKey` (required)
 
-**Source:** [src/rpc/server.ts:1032](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1032)
+**Source:** [src/rpc/server.ts:1031](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1031)
 
 ### `server.getLedgers(request)`
 
@@ -956,12 +956,12 @@ getLedgers(request: GetLedgersRequest): Promise<GetLedgersResponse>;
 
 **Parameters**
 
-- **`request`** — `GetLedgersRequest` (required) — The request parameters for fetching ledgers. `Api.GetLedgersRequest`
+- **`request`** — `GetLedgersRequest` (required) — The request parameters for fetching ledgers. [`Api.GetLedgersRequest`](#rpcapigetledgersrequest)
 
 **Returns**
 
 A promise that resolves to the
-   ledgers response containing an array of ledger data and pagination info. `Api.GetLedgersResponse`
+   ledgers response containing an array of ledger data and pagination info. [`Api.GetLedgersResponse`](#rpcapigetledgersresponse)
 
 **Throws**
 
@@ -1007,7 +1007,7 @@ const nextPage = await server.getLedgers({
 
 - `getLedgers docs`
 
-**Source:** [src/rpc/server.ts:1914](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1914)
+**Source:** [src/rpc/server.ts:1913](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1913)
 
 ### `server.getNetwork()`
 
@@ -1036,15 +1036,15 @@ server.getNetwork().then((network) => {
 
 - `getNetwork docs`
 
-**Source:** [src/rpc/server.ts:1297](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1297)
+**Source:** [src/rpc/server.ts:1296](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1296)
 
 ### `server.getSACBalance(address, sac, networkPassphrase)`
 
-**Deprecated.** Use `getAssetBalance`, instead
+**Deprecated.** Use [`getAssetBalance`](#servergetassetbalanceaddress-asset-networkpassphrase), instead
 
 Returns a contract's balance of a particular SAC asset, if any.
 
-This is a convenience wrapper around `Server.getLedgerEntries`.
+This is a convenience wrapper around [`Server.getLedgerEntries`](#servergetledgerentrieskeys).
 
 ```ts
 getSACBalance(address: string | Address, sac: Asset, networkPassphrase?: string): Promise<BalanceResponse>;
@@ -1058,8 +1058,8 @@ getSACBalance(address: string | Address, sac: Asset, networkPassphrase?: string)
      you are querying from the given `contract`.
 - **`networkPassphrase`** — `string` (optional) — (optional) optionally, the network passphrase to
      which this token applies. If omitted, a request about network
-     information will be made (see `getNetwork`), since contract IDs
-     for assets are specific to a network. You can refer to `Networks`
+     information will be made (see [`getNetwork`](#servergetnetwork)), since contract IDs
+     for assets are specific to a network. You can refer to [`Networks`](/reference/core-transactions/#networks)
      for a list of built-in passphrases, e.g., `Networks.TESTNET`.
 
 **Returns**
@@ -1095,7 +1095,7 @@ console.log(
 - - getLedgerEntries
  - https://developers.stellar.org/docs/tokens/stellar-asset-contract
 
-**Source:** [src/rpc/server.ts:1799](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1799)
+**Source:** [src/rpc/server.ts:1798](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1798)
 
 ### `server.getTransaction(hash)`
 
@@ -1133,7 +1133,7 @@ server.getTransaction(transactionHash).then((tx) => {
 
 - `getTransaction docs`
 
-**Source:** [src/rpc/server.ts:1117](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1117)
+**Source:** [src/rpc/server.ts:1116](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1116)
 
 ### `server.getTransactions(request)`
 
@@ -1169,11 +1169,11 @@ server.getTransactions({
 
 - https://developers.stellar.org/docs/data/rpc/api-reference/methods/getTransactions
 
-**Source:** [src/rpc/server.ts:1177](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1177)
+**Source:** [src/rpc/server.ts:1176](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1176)
 
 ### `server.getTrustline(account, asset)`
 
-**Deprecated.** Use `getAssetBalance`, instead
+**Deprecated.** Use [`getAssetBalance`](#servergetassetbalanceaddress-asset-networkpassphrase), instead
 
 Fetch the full trustline entry for a Stellar account.
 
@@ -1208,7 +1208,7 @@ server.getTrustline(accountId, asset).then((entry) => {
 
 - `getLedgerEntries docs`
 
-**Source:** [src/rpc/server.ts:308](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L308)
+**Source:** [src/rpc/server.ts:307](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L307)
 
 ### `server.getVersionInfo()`
 
@@ -1226,7 +1226,7 @@ the version info
 
 - https://developers.stellar.org/docs/data/rpc/api-reference/methods/getVersionInfo
 
-**Source:** [src/rpc/server.ts:1749](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1749)
+**Source:** [src/rpc/server.ts:1748](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1748)
 
 ### `server.pollTransaction(hash, opts)`
 
@@ -1266,7 +1266,7 @@ const txStatus = await server.pollTransaction(h, {
 }); // this will take 5,050 seconds to complete
 ```
 
-**Source:** [src/rpc/server.ts:1070](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1070)
+**Source:** [src/rpc/server.ts:1069](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1069)
 
 ### `server.prepareTransaction(tx)`
 
@@ -1282,10 +1282,10 @@ from simulation. It is advisable to check the fee on returned transaction
 and validate or take appropriate measures for interaction with user to
 confirm it is acceptable.
 
-You can call the `rpc.Server.simulateTransaction` method
+You can call the [`rpc.Server.simulateTransaction`](#serversimulatetransactiontx-addlresources-authmode-useupgradedauth) method
 directly first if you want to inspect estimated fees for a given
 transaction in detail first, then re-assemble it manually or via
-`rpc.assembleTransaction`.
+[`rpc.assembleTransaction`](#rpcassembletransaction).
 
 ```ts
 prepareTransaction(tx: Transaction | FeeBumpTransaction): Promise<Transaction>;
@@ -1355,20 +1355,20 @@ server.sendTransaction(transaction).then(result => {
 - - module:rpc.assembleTransaction
  - `simulateTransaction docs`
 
-**Source:** [src/rpc/server.ts:1508](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1508)
+**Source:** [src/rpc/server.ts:1507](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1507)
 
 ### `server.queryContract(contractId, method, args, networkPassphrase)`
 
 Performs a read-only call to a contract method and returns the decoded result.
 
 This is a convenience wrapper for one-line contract state queries: it builds
-a `contract.Client` for the contract, simulates the method call, and
+a [`contract.Client`](/reference/contracts-client/#contractclient) for the contract, simulates the method call, and
 returns the spec-decoded return value — no manual transaction assembly,
 signing, or submission required.
 
 Works for both Wasm contracts and built-in Stellar Asset Contracts (SACs):
 the embedded SAC spec is used automatically for SACs (see
-`contract.Client.from`). The query reuses this server's transport
+[`contract.Client.from`](/reference/contracts-client/#clientfromoptions)). The query reuses this server's transport
 (headers, interceptors, `allowHttp`).
 
 ```ts
@@ -1382,8 +1382,8 @@ queryContract<T = any>(contractId: string, method: string, args: Record<string, 
 - **`args`** — `Record<string, unknown>` (optional) (default: `{}`) — named arguments for the method, keyed by parameter name
      (omit for methods that take no arguments)
 - **`networkPassphrase`** — `string` (optional) — (optional) the network passphrase. If omitted, a
-     request about network information will be made (see `getNetwork`).
-     You can refer to `Networks` for a list of built-in passphrases,
+     request about network information will be made (see [`getNetwork`](#servergetnetwork)).
+     You can refer to [`Networks`](/reference/core-transactions/#networks) for a list of built-in passphrases,
      e.g., `Networks.TESTNET`.
 
 **Returns**
@@ -1413,11 +1413,11 @@ const { result: balance } = await server.queryContract<bigint>(
 );
 ```
 
-**Source:** [src/rpc/server.ts:859](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L859)
+**Source:** [src/rpc/server.ts:858](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L858)
 
 ### `server.requestAirdrop(address, friendbotUrl)`
 
-**Deprecated.** Use `Server.fundAddress` instead, which supports both
+**Deprecated.** Use [`Server.fundAddress`](#serverfundaddressaddress-friendboturl) instead, which supports both
    account (G...) and contract (C...) addresses.
 
 Fund a new account using the network's Friendbot faucet, if any.
@@ -1432,12 +1432,12 @@ requestAirdrop(address: string | Pick<Account, "accountId">, friendbotUrl?: stri
      want to create and fund with Friendbot
 - **`friendbotUrl`** — `string` (optional) — (optional) Optionally, an explicit address for
      friendbot (by default: this calls the Soroban RPC
-     `getNetwork` method to try to
+     [`getNetwork`](#servergetnetwork) method to try to
      discover this network's Friendbot url).
 
 **Returns**
 
-An `Account` object for the created
+An [`Account`](/reference/core-transactions/#account) object for the created
    account, or the existing account if it's already funded with the
    populated sequence number (note that the account will not be "topped
    off" if it already exists)
@@ -1461,9 +1461,9 @@ server
 **See also**
 
 - - `Friendbot docs`
- - `Friendbot.Api.Response`
+ - [`Friendbot.Api.Response`](/reference/network-friendbot/#friendbotapiresponse)
 
-**Source:** [src/rpc/server.ts:1614](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1614)
+**Source:** [src/rpc/server.ts:1613](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1613)
 
 ### `server.sendTransaction(transaction)`
 
@@ -1471,7 +1471,7 @@ Submit a real transaction to the Stellar network.
 
 Unlike Horizon, RPC does not wait for transaction completion. It
 simply validates the transaction and enqueues it. Clients should call
-`rpc.Server.getTransaction` to learn about transaction
+[`rpc.Server.getTransaction`](#servergettransactionhash) to learn about transaction
 success/failure.
 
 ```ts
@@ -1524,7 +1524,7 @@ server.sendTransaction(transaction).then((result) => {
 - - `transaction docs`
  - `sendTransaction docs`
 
-**Source:** [src/rpc/server.ts:1563](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1563)
+**Source:** [src/rpc/server.ts:1562](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1562)
 
 ### `server.simulateTransaction(tx, addlResources, authMode, useUpgradedAuth)`
 
@@ -1599,17 +1599,17 @@ server.simulateTransaction(transaction).then((sim) => {
  - module:rpc.Server#prepareTransaction
  - module:rpc.assembleTransaction
 
-**Source:** [src/rpc/server.ts:1400](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1400)
+**Source:** [src/rpc/server.ts:1399](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1399)
 
 ## rpc.assembleTransaction
 
 Combines the given raw transaction alongside the simulation results.
 If the given transaction already has authorization entries in a host
-function invocation (see `Operation.invokeHostFunction`), **the
+function invocation (see [`Operation.invokeHostFunction`](/reference/core-transactions/#operationinvokehostfunction)), **the
 simulation entries are ignored**.
 
 If the given transaction already has authorization entries in a host function
-invocation (see `Operation.invokeHostFunction`), **the simulation
+invocation (see [`Operation.invokeHostFunction`](/reference/core-transactions/#operationinvokehostfunction)), **the simulation
 entries are ignored**.
 
 ```ts
@@ -1619,7 +1619,7 @@ assembleTransaction(raw: Transaction | FeeBumpTransaction, simulation: SimulateT
 **Parameters**
 
 - **`raw`** — `Transaction | FeeBumpTransaction` (required) — the initial transaction, w/o simulation applied
-- **`simulation`** — `SimulateTransactionResponse | RawSimulateTransactionResponse` (required) — the Soroban RPC simulation result (see `rpc.Server.simulateTransaction`)
+- **`simulation`** — `SimulateTransactionResponse | RawSimulateTransactionResponse` (required) — the Soroban RPC simulation result (see [`rpc.Server.simulateTransaction`](#serversimulatetransactiontx-addlresources-authmode-useupgradedauth))
 
 **Returns**
 
@@ -1627,8 +1627,8 @@ a new, cloned transaction with the proper auth and resource (fee, footprint) sim
 
 **See also**
 
-- - `rpc.Server.simulateTransaction`
- - `rpc.Server.prepareTransaction`
+- - [`rpc.Server.simulateTransaction`](#serversimulatetransactiontx-addlresources-authmode-useupgradedauth)
+ - [`rpc.Server.prepareTransaction`](#serverpreparetransactiontx)
 
 **Source:** [src/rpc/transaction.ts:45](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/transaction.ts#L45)
 
@@ -1863,7 +1863,7 @@ outputs: string[];
 
 ### rpc.Api.ContractMethodInput
 
-A single input parameter of a `ContractMethod`.
+A single input parameter of a [`ContractMethod`](#rpcapicontractmethod).
 
 ```ts
 interface ContractMethodInput {
@@ -2457,7 +2457,7 @@ sequence: number;
 
 ### rpc.Api.GetLedgerEntriesResponse
 
-An XDR-parsed version of `RawLedgerEntryResult`
+An XDR-parsed version of [`RawLedgerEntryResult`](#rpcapirawledgerentryresult)
 
 ```ts
 interface GetLedgerEntriesResponse {
@@ -4301,7 +4301,7 @@ latestLedger: number;
 
 ### rpc.Api.SimulateTransactionResponse
 
-Simplifies `RawSimulateTransactionResponse` into separate interfaces
+Simplifies [`RawSimulateTransactionResponse`](#rpcapirawsimulatetransactionresponse) into separate interfaces
 based on status:
   - on success, this includes all fields, though `result` is only present
     if an invocation was simulated (since otherwise there's nothing to
@@ -4707,7 +4707,7 @@ type GetEventsRequest = Api.GetEventsRequest
 
 **See also**
 
-- `Api.GetEventsRequest`
+- [`Api.GetEventsRequest`](#rpcapigeteventsrequest)
 
 **Source:** [src/rpc/server.ts:85](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L85)
 

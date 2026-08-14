@@ -497,7 +497,7 @@ function unionToJsonSchema(udt: ScSpecUdtUnionV0): any {
  * Constructs a new ContractSpec from an array of XDR spec entries.
  *
  * @param entries - the XDR spec entries
- * @throws {Error} if entries is invalid
+ * @throws if entries is invalid
  *
  * @example
  * ```ts

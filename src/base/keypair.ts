@@ -73,9 +73,9 @@ export class Keypair {
 
   /**
    * @param keys - at least one of keys must be provided.
-   * @param keys.type - public-key signature system name (currently only `ed25519` keys are supported)
-   * @param keys.publicKey - raw public key
-   * @param keys.secretKey - raw secret key (32-byte secret seed in ed25519)
+   *   - `type`: public-key signature system name (currently only `ed25519` keys are supported)
+   *   - `publicKey`: raw public key
+   *   - `secretKey`: raw secret key (32-byte secret seed in ed25519)
    */
   constructor(
     keys:
@@ -192,7 +192,7 @@ export class Keypair {
    * You will get a different type of muxed account depending on whether or not
    * you pass an ID.
    *
-   * @param [id] - stringified integer indicating the underlying muxed
+   * @param id - stringified integer indicating the underlying muxed
    *     ID of the new account object
    */
   xdrMuxedAccount(id?: string): MuxedAccount {
@@ -241,7 +241,7 @@ export class Keypair {
    *
    * The secret key is encoded in Stellar format (e.g., `SDAK....`).
    *
-   * @throws {Error} if no secret key is available
+   * @throws if no secret key is available
    */
   secret(): string {
     if (!this._secretSeed) {
@@ -258,7 +258,7 @@ export class Keypair {
   /**
    * Returns raw secret key bytes.
    *
-   * @throws {Error} if no secret seed is available
+   * @throws if no secret seed is available
    */
   rawSecretKey(): Uint8Array {
     if (!this._secretSeed) {
@@ -278,7 +278,7 @@ export class Keypair {
    * Signs data.
    *
    * @param data - data to sign
-   * @throws {Error} if no secret key is available
+   * @throws if no secret key is available
    */
   sign(data: Uint8Array): Uint8Array {
     if (!this._secretKey) {

@@ -7,11 +7,11 @@ description: Client for the Stellar Horizon REST API — accounts, payments, pat
 
 ## Horizon.AccountResponse
 
-Do not create this object directly, use `Horizon.Server#loadAccount`.
+Do not create this object directly, use [`Horizon.Server#loadAccount`](#serverloadaccountaccountid).
 
 Returns information and links relating to a single account.
 The balances section in the returned JSON will also list all the trust lines this account has set up.
-It also contains `BaseAccount` object and exposes it's methods so can be used in `TransactionBuilder`.
+It also contains [`BaseAccount`](/reference/core-transactions/#account) object and exposes it's methods so can be used in [`TransactionBuilder`](/reference/core-transactions/#transactionbuilder).
 
 ```ts
 class AccountResponse implements TransactionSource {
@@ -502,7 +502,7 @@ checkMemoRequired(transaction: Transaction | FeeBumpTransaction): Promise<void>;
 **Returns**
 
 - If any of the destination account
-requires a memo, the promise will throw `AccountRequiresMemoError`.
+requires a memo, the promise will throw [`AccountRequiresMemoError`](/reference/errors/#accountrequiresmemoerror).
 
 **See also**
 
@@ -599,9 +599,9 @@ Promise that resolves to the base fee.
 ### `server.fetchTimebounds(seconds, _isRetry)`
 
 Get timebounds for N seconds from now, when you're creating a transaction
-with `TransactionBuilder`.
+with [`TransactionBuilder`](/reference/core-transactions/#transactionbuilder).
 
-By default, `TransactionBuilder` uses the current local time, but
+By default, [`TransactionBuilder`](/reference/core-transactions/#transactionbuilder) uses the current local time, but
 your machine's local time could be different from Horizon's. This gives you
 more assurance that your timebounds will reflect what you want.
 
@@ -715,7 +715,7 @@ New `LiquidityPoolCallBuilder`
 ### `server.loadAccount(accountId)`
 
 Fetches an account's most current state in the ledger, then creates and
-returns an `AccountResponse` object.
+returns an [`AccountResponse`](#horizonaccountresponse) object.
 
 ```ts
 loadAccount(accountId: string): Promise<AccountResponse>;
@@ -727,7 +727,7 @@ loadAccount(accountId: string): Promise<AccountResponse>;
 
 **Returns**
 
-Returns a promise to the `AccountResponse` object
+Returns a promise to the [`AccountResponse`](#horizonaccountresponse) object
 with populated sequence number.
 
 **Source:** [src/horizon/server.ts:799](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L799)
@@ -956,7 +956,7 @@ Submits an asynchronous transaction to the network. Unlike the synchronous versi
 and waits for the transaction to be ingested in Horizon, this endpoint relays the response from
 core directly back to the user.
 
-By default, this function calls `HorizonServer.checkMemoRequired`, you can
+By default, this function calls [`HorizonServer.checkMemoRequired`](#servercheckmemorequiredtransaction), you can
 skip this check by setting the option `skipMemoRequiredCheck` to `true`.
 
 ```ts
@@ -974,8 +974,8 @@ submitAsyncTransaction(transaction: Transaction | FeeBumpTransaction, opts: Subm
 **Returns**
 
 Promise that resolves with the response from Horizon. Rejects
-with a `TransactionFailedError` when Horizon reports transaction
-result codes, a `BadResponseError` for any other HTTP error
+with a [`TransactionFailedError`](/reference/errors/#transactionfailederror) when Horizon reports transaction
+result codes, a [`BadResponseError`](/reference/errors/#badresponseerror) for any other HTTP error
 response (the underlying client error is preserved as `cause` on both),
 or the original error for network-level failures.
 
@@ -989,7 +989,7 @@ or the original error for network-level failures.
 
 Submits a transaction to the network.
 
-By default this function calls `Horizon.Server.checkMemoRequired`, you can
+By default this function calls [`Horizon.Server.checkMemoRequired`](#servercheckmemorequiredtransaction), you can
 skip this check by setting the option `skipMemoRequiredCheck` to `true`.
 
 If you submit any number of `manageOffer` operations, this will add an
@@ -1024,8 +1024,8 @@ submitTransaction(transaction: Transaction | FeeBumpTransaction, opts: SubmitTra
 **Returns**
 
 Promise that resolves with the response from Horizon. Rejects
-with a `TransactionFailedError` when Horizon reports transaction
-result codes, a `BadResponseError` for any other HTTP error
+with a [`TransactionFailedError`](/reference/errors/#transactionfailederror) when Horizon reports transaction
+result codes, a [`BadResponseError`](/reference/errors/#badresponseerror) for any other HTTP error
 response (the underlying client error is preserved as `cause` on both),
 or the original error for network-level failures.
 
@@ -6889,7 +6889,7 @@ interface Options {
 
 #### `options.allowHttp`
 
-Allow connecting to http servers, default: `false`. This must be set to false in production deployments! You can also use `Config` class to set this globally.
+Allow connecting to http servers, default: `false`. This must be set to false in production deployments! You can also use [`Config`](/reference/cross-cutting/#config) class to set this globally.
 
 ```ts
 allowHttp?: boolean;

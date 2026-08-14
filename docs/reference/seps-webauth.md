@@ -116,8 +116,8 @@ It does not verify that the transaction has been signed by the client or that
 any signatures other than the server's on the transaction are valid. Use one
 of the following functions to completely verify the transaction:
 
-- `WebAuth.verifyChallengeTxThreshold`
-- `WebAuth.verifyChallengeTxSigners`
+- [`WebAuth.verifyChallengeTxThreshold`](#webauthverifychallengetxthreshold)
+- [`WebAuth.verifyChallengeTxSigners`](#webauthverifychallengetxsigners)
 
 ```ts
 readChallengeTx(challengeTx: string, serverAccountID: string, networkPassphrase: string, homeDomains: string | string[], webAuthDomain: string): { clientAccountID: string; matchedHomeDomain: string; memo: string | null; tx: Transaction }
@@ -128,7 +128,7 @@ readChallengeTx(challengeTx: string, serverAccountID: string, networkPassphrase:
 - **`challengeTx`** — `string` (required) — SEP0010 challenge transaction in base64.
 - **`serverAccountID`** — `string` (required) — The server's stellar account (public key).
 - **`networkPassphrase`** — `string` (required) — The network passphrase, e.g.: 'Test SDF
-     Network ; September 2015' (see `Networks`)
+     Network ; September 2015' (see [`Networks`](/reference/core-transactions/#networks))
 - **`homeDomains`** — `string | string[]` (required) — The home domain that is expected
      to be included in the first Manage Data operation's string key. If an
      array is provided, one of the domain names in the array must match.
@@ -165,7 +165,7 @@ ignored.
 
 Errors will be raised if:
 - The transaction is invalid according to
-`WebAuth.readChallengeTx`.
+[`WebAuth.readChallengeTx`](#webauthreadchallengetx).
 - No client signatures are found on the transaction.
 - One or more signatures in the transaction are not identifiable as the
 server account or one of the signers provided in the arguments.
@@ -179,7 +179,7 @@ verifyChallengeTxSigners(challengeTx: string, serverAccountID: string, networkPa
 - **`challengeTx`** — `string` (required) — SEP0010 challenge transaction in base64.
 - **`serverAccountID`** — `string` (required) — The server's stellar account (public key).
 - **`networkPassphrase`** — `string` (required) — The network passphrase, e.g.: 'Test SDF
-     Network ; September 2015' (see `Networks`).
+     Network ; September 2015' (see [`Networks`](/reference/core-transactions/#networks)).
 - **`signers`** — `string[]` (required) — The signers public keys. This list should
      contain the public keys for all signers that have signed the transaction.
 - **`homeDomains`** — `string | string[]` (required) — The home domain(s) that should
@@ -251,7 +251,7 @@ ignored.
 
 Errors will be raised if:
 - The transaction is invalid according to
-`WebAuth.readChallengeTx`.
+[`WebAuth.readChallengeTx`](#webauthreadchallengetx).
 - No client signatures are found on the transaction.
 - One or more signatures in the transaction are not identifiable as the
 server account or one of the signers provided in the arguments.
@@ -266,7 +266,7 @@ verifyChallengeTxThreshold(challengeTx: string, serverAccountID: string, network
 - **`challengeTx`** — `string` (required) — SEP0010 challenge transaction in base64.
 - **`serverAccountID`** — `string` (required) — The server's stellar account (public key).
 - **`networkPassphrase`** — `string` (required) — The network passphrase, e.g.: 'Test SDF
-     Network ; September 2015' (see `Networks`).
+     Network ; September 2015' (see [`Networks`](/reference/core-transactions/#networks)).
 - **`threshold`** — `number` (required) — The required signatures threshold for verifying
      this transaction.
 - **`signerSummary`** — `AccountRecordSigners[]` (required) — a map of all

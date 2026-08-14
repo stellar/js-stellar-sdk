@@ -55,6 +55,9 @@ constructor(keys: { publicKey?: string | Uint8Array<ArrayBufferLike>; secretKey:
 **Parameters**
 
 - **`keys`** — `{ publicKey?: string | Uint8Array<ArrayBufferLike>; secretKey: string | Uint8Array<ArrayBufferLike>; type: "ed25519" } | { publicKey: string | Uint8Array<ArrayBufferLike>; type: "ed25519" }` (required) — at least one of keys must be provided.
+    - `type`: public-key signature system name (currently only `ed25519` keys are supported)
+    - `publicKey`: raw public key
+    - `secretKey`: raw secret key (32-byte secret seed in ed25519)
 
 **Source:** [src/base/keypair.ts:80](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/keypair.ts#L80)
 
@@ -395,10 +398,10 @@ xdrPublicKey(): PublicKeyEd25519;
 ## SignerKey
 
 A container class with helpers to convert between signer keys
-(`xdr.SignerKey`) and `StrKey`s.
+(`xdr.SignerKey`) and [`StrKey`](#strkey)s.
 
 It's primarily used for manipulating the `extraSigners` precondition on a
-`Transaction`.
+[`Transaction`](/reference/core-transactions/#transaction).
 
 ```ts
 class SignerKey {
@@ -410,7 +413,7 @@ class SignerKey {
 
 **See also**
 
-- `TransactionBuilder.setExtraSigners`
+- [`TransactionBuilder.setExtraSigners`](/reference/core-transactions/#transactionbuildersetextrasignersextrasigners)
 
 **Source:** [src/base/signerkey.ts:22](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/signerkey.ts#L22)
 
