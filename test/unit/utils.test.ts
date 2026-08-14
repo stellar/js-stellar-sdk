@@ -9,7 +9,6 @@ import type { TransactionBuilderOptions } from "../../src/base/transaction_build
 
 const {
   WebAuth,
-  Utils,
   Networks,
   Keypair,
   Account,

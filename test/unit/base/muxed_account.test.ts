@@ -2,7 +2,6 @@ import { describe, it, expect } from "vitest";
 import { Account } from "../../../src/base/account.js";
 import { MuxedAccount } from "../../../src/base/muxed_account.js";
 import { StrKey } from "../../../src/base/strkey.js";
-import * as xdr from "../../../src/xdr/index.js";
 import { encodeMuxedAccountToAddress } from "../../../src/base/util/decode_encode_muxed_account.js";
 
 const PUBKEY = "GA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJVSGZ";

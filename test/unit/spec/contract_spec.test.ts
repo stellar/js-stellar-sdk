@@ -3,6 +3,8 @@ import { base64ToUint8Array } from "uint8array-extras";
 import spec from "../spec.json";
 import specStream from "../spec_stream.json";
 import { xdr, Address, Contract, contract } from "../../../src/index.js";
+import { expectVariant } from "../base/support/xdr.js";
+import { expectDefined } from "../base/support/expect_defined.js";
 import type { JSONSchema7 } from "json-schema";
 import type { Spec } from "../../../src/contract/spec.js";
 
@@ -12,6 +14,10 @@ const muxedKey =
 const addr = Address.fromString(publicKey);
 const muxedAddr = Address.fromString(muxedKey);
 let SPEC: Spec;
+
+// base nativeToScVal uses scvString for plain object keys
+const mapKey = (e: xdr.ScMapEntry): string =>
+  expectVariant(e.key, "scvString").value;
 
 function generateTestData(funcName: string, index: number): any {
   const baseValue = index + 1;
@@ -638,8 +644,7 @@ describe("Spec nativeToScVal with scSpecTypeVal", () => {
       [1, 2, 3],
       xdr.ScSpecTypeDef.scSpecTypeVal(),
     );
-    expect(scv.type).toBe("scvVec");
-    const vec = scv.value ?? [];
+    const vec = expectVariant(scv, "scvVec").value ?? [];
     expect(vec.length).toBe(3);
   });
 
@@ -648,8 +653,7 @@ describe("Spec nativeToScVal with scSpecTypeVal", () => {
       ["hello", 42, true],
       xdr.ScSpecTypeDef.scSpecTypeVal(),
     );
-    expect(scv.type).toBe("scvVec");
-    const vec = scv.value ?? [];
+    const vec = expectVariant(scv, "scvVec").value ?? [];
     expect(vec.length).toBe(3);
     expect(vec[0]?.type).toBe("scvString");
     expect(vec[1]?.type).toBe("scvU64");
@@ -664,8 +668,7 @@ describe("Spec nativeToScVal with scSpecTypeVal", () => {
       ],
       xdr.ScSpecTypeDef.scSpecTypeVal(),
     );
-    expect(scv.type).toBe("scvVec");
-    const outer = scv.value ?? [];
+    const outer = expectVariant(scv, "scvVec").value ?? [];
     expect(outer.length).toBe(2);
     expect(outer[0]?.type).toBe("scvVec");
     expect(outer[1]?.type).toBe("scvVec");
@@ -676,8 +679,7 @@ describe("Spec nativeToScVal with scSpecTypeVal", () => {
     m.set("key1", "value1");
     m.set("key2", 42);
     const scv = SPEC.nativeToScVal(m, xdr.ScSpecTypeDef.scSpecTypeVal());
-    expect(scv.type).toBe("scvMap");
-    const entries = scv.value ?? [];
+    const entries = expectVariant(scv, "scvMap").value ?? [];
     expect(entries.length).toBe(2);
   });
 
@@ -686,14 +688,12 @@ describe("Spec nativeToScVal with scSpecTypeVal", () => {
       { a: 1, b: "hello" },
       xdr.ScSpecTypeDef.scSpecTypeVal(),
     );
-    expect(scv.type).toBe("scvMap");
-    const entries = scv.value ?? [];
+    const entries = expectVariant(scv, "scvMap").value ?? [];
     expect(entries.length).toBe(2);
-    // base nativeToScVal uses scvString for plain object keys
-    const keyNames = entries.map((e) => e.key.value.toString()).sort();
+    const keyNames = entries.map(mapKey).sort();
     expect(keyNames).toEqual(["a", "b"]);
     // Value types should be correct
-    const entryA = entries.find((e) => e.key.value.toString() === "a");
+    const entryA = entries.find((e) => mapKey(e) === "a");
     expect(entryA?.val.type).toBe("scvU64");
   });
 
@@ -703,9 +703,8 @@ describe("Spec nativeToScVal with scSpecTypeVal", () => {
       { z: 1, a: 2, m: 3 },
       xdr.ScSpecTypeDef.scSpecTypeVal(),
     );
-    expect(scv.type).toBe("scvMap");
-    const entries = scv.value ?? [];
-    const keys = entries.map((e) => e.key.value.toString());
+    const entries = expectVariant(scv, "scvMap").value ?? [];
+    const keys = entries.map(mapKey);
     expect(keys).toEqual(["a", "m", "z"]);
   });
 
@@ -714,12 +713,10 @@ describe("Spec nativeToScVal with scSpecTypeVal", () => {
       { outer: { inner: 42 } },
       xdr.ScSpecTypeDef.scSpecTypeVal(),
     );
-    expect(scv.type).toBe("scvMap");
-    const outerEntries = scv.value ?? [];
+    const outerEntries = expectVariant(scv, "scvMap").value ?? [];
     expect(outerEntries.length).toBe(1);
-    const innerVal = outerEntries[0]?.val;
-    expect(innerVal?.type).toBe("scvMap");
-    const innerEntries = innerVal?.value ?? [];
+    const innerVal = expectDefined(outerEntries[0]).val;
+    const innerEntries = expectVariant(innerVal, "scvMap").value ?? [];
     expect(innerEntries.length).toBe(1);
     expect(innerEntries[0]?.val.type).toBe("scvU64");
   });
@@ -729,18 +726,16 @@ describe("Spec nativeToScVal with scSpecTypeVal", () => {
       { constructor: "x", name: "test" },
       xdr.ScSpecTypeDef.scSpecTypeVal(),
     );
-    expect(scv.type).toBe("scvMap");
-    const entries = scv.value ?? [];
+    const entries = expectVariant(scv, "scvMap").value ?? [];
     expect(entries.length).toBe(2);
     // Verify the keys are preserved as-is
-    const keys = entries.map((e) => e.key.value.toString()).sort();
+    const keys = entries.map(mapKey).sort();
     expect(keys).toEqual(["constructor", "name"]);
   });
 
   it("converts an empty plain object to empty scvMap", () => {
     const scv = SPEC.nativeToScVal({}, xdr.ScSpecTypeDef.scSpecTypeVal());
-    expect(scv.type).toBe("scvMap");
-    const entries = scv.value ?? [];
+    const entries = expectVariant(scv, "scvMap").value ?? [];
     expect(entries.length).toBe(0);
   });
 
@@ -824,10 +819,10 @@ describe("Spec nativeToScVal with scSpecTypeVal", () => {
       some_val: { x: 1, y: 2 },
     });
     expect(scVals5.length).toBe(1);
-    expect(scVals5[0].type).toBe("scvMap");
-    const entries = scVals5[0].value ?? [];
+    const entries =
+      expectVariant(expectDefined(scVals5[0]), "scvMap").value ?? [];
     expect(entries.length).toBe(2);
-    const keys = entries.map((e) => e.key.value.toString()).sort();
+    const keys = entries.map(mapKey).sort();
     expect(keys).toEqual(["x", "y"]);
 
     // Test with undefined — should produce scvVoid

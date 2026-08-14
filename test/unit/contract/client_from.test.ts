@@ -2,7 +2,7 @@ import { describe, it, beforeEach, expect, vi } from "vitest";
 import { concatUint8Arrays, stringToUint8Array } from "uint8array-extras";
 import * as StellarSdk from "../../../src/index.js";
 
-import { serverUrl } from "../../constants";
+import { serverUrl } from "../../constants.js";
 
 const { xdr, hash, Contract, rpc } = StellarSdk;
 const { Client } = StellarSdk.contract;

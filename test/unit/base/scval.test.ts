@@ -10,6 +10,7 @@ import {
 } from "../../../src/base/index.js";
 import { Contract } from "../../../src/base/contract.js";
 import * as xdr from "../../../src/xdr/index.js";
+import { expectVariant } from "./support/xdr.js";
 import {
   nativeToScVal,
   scValToNative,
@@ -369,9 +370,10 @@ describe("nativeToScVal with Maps", () => {
         ["a", 1],
       ]),
     );
-    expect(scv.type).toBe("scvMap");
-    const entries = scv.value!;
-    expect(entries.map((e) => e.key.value.toString())).toEqual(["a", "b"]);
+    const entries = expectVariant(scv, "scvMap").value ?? [];
+    expect(entries.map((e) => expectVariant(e.key, "scvString").value)).toEqual(
+      ["a", "b"],
+    );
     expect(entries.map((e) => Number(e.val.value))).toEqual([1, 2]);
   });
 
@@ -382,7 +384,7 @@ describe("nativeToScVal with Maps", () => {
   });
 
   it("converts a Map subclass", () => {
-    class MyMap extends Map {}
+    class MyMap extends Map<string, number> {}
     const scv = nativeToScVal(new MyMap([["a", 1]]));
     expect(scv.type).toBe("scvMap");
   });
@@ -395,7 +397,9 @@ describe("nativeToScVal with Maps", () => {
       ]),
       { type: ["symbol", "u32"] },
     );
-    const entries = scv.value!;
+    const entries = expectDefined(expectVariant(scv, "scvMap").value);
+    // asserted so the forEach below cannot pass by iterating nothing
+    expect(entries).toHaveLength(2);
     entries.forEach((e) => {
       expect(e.key.type).toBe("scvSymbol");
       expect(e.val.type).toBe("scvU32");
@@ -404,9 +408,10 @@ describe("nativeToScVal with Maps", () => {
 
   it("allows a partial pair", () => {
     const scv = nativeToScVal(new Map([["a", 1]]), { type: ["symbol"] });
-    const entries = scv.value!;
-    expect(entries[0].key.type).toBe("scvSymbol");
-    expect(entries[0].val.type).toBe("scvU64");
+    const entries = expectVariant(scv, "scvMap").value ?? [];
+    const first = expectDefined(entries[0]);
+    expect(first.key.type).toBe("scvSymbol");
+    expect(first.val.type).toBe("scvU64");
   });
 
   it("applies a per-key spec for string-keyed Maps", () => {
@@ -417,9 +422,9 @@ describe("nativeToScVal with Maps", () => {
       ]),
       { type: { a: ["symbol", "u32"] } },
     );
-    const entries = scv.value!;
-    const a = entries.find((e) => e.key.type === "scvSymbol")!;
-    const b = entries.find((e) => e.key.type === "scvString")!;
+    const entries = expectVariant(scv, "scvMap").value ?? [];
+    const a = expectDefined(entries.find((e) => e.key.type === "scvSymbol"));
+    const b = expectDefined(entries.find((e) => e.key.type === "scvString"));
     expect(a.val.type).toBe("scvU32");
     expect(b.val.type).toBe("scvU64");
   });

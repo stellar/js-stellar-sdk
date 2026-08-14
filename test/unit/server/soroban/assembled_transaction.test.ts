@@ -1,7 +1,10 @@
 import { describe, it, beforeEach, afterEach, expect, vi } from "vitest";
 
-import { serverUrl } from "../../../constants";
+import { serverUrl } from "../../../constants.js";
 import * as StellarSdk from "../../../../src/index.js";
+import * as xdr from "../../../../src/xdr/index.js";
+import { expectDefined } from "../../base/support/expect_defined.js";
+import { expectVariant } from "../../base/support/xdr.js";
 
 const {
   Account,
@@ -13,7 +16,6 @@ const {
   contract,
   SorobanDataBuilder,
   Address,
-  xdr,
 } = StellarSdk;
 const { Server } = rpc;
 
@@ -93,10 +95,10 @@ describe("AssembledTransaction", () => {
         "GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI",
         "1",
       ),
-      52641,
+      "52641",
     );
     const result = await txn.signAndSend({ ...wallet });
-    expect(result.getTransactionResponse.status).toBe(
+    expect(expectDefined(result.getTransactionResponse).status).toBe(
       rpc.Api.GetTransactionStatus.SUCCESS,
     );
 
@@ -150,7 +152,7 @@ describe("AssembledTransaction", () => {
         "GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI",
         "1",
       ),
-      52641,
+      "52641",
     );
     expect(mockPost).toHaveBeenLastCalledWith(
       serverUrl,
@@ -548,7 +550,7 @@ describe("AssembledTransaction auth entry credential types (CAP-71)", () => {
         ? c.addressWithDelegates.addressCredentials
         : c.type === "sorobanCredentialsAddressV2"
           ? c.addressV2
-          : c.address;
+          : expectVariant(c, "sorobanCredentialsAddress").address;
     return Address.fromScAddress(inner.address).toString();
   }
 

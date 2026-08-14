@@ -4,7 +4,6 @@
 // All endpoints from here are tested:
 // https://docs.google.com/document/d/1pXL8kr1a2vfYSap9T67R-g72B_WWbaE1YsLMa04OgoU/edit
 import { describe, it, expect } from "vitest";
-import * as _ from "lodash";
 import * as StellarSdk from "../../src/index.js";
 
 const { Horizon } = StellarSdk;
@@ -59,17 +58,19 @@ describe("tests the /liquidity_pools endpoint", () => {
         .call();
 
       resp.records.forEach((record, i) => {
-        let expectedRecord = data._embedded.records[i];
+        const expectedRecord = data._embedded.records[i];
 
         // TransactionRecord values don't map 1-to-1 to the JSON (see
         // e.g. the ledger vs. ledger_attr properties), so we do a "best
         // effort" validation by checking that at least the keys exist.
         if (suffix === "transactions") {
-          record = Object.keys(record) as any;
-          expectedRecord = Object.keys(expectedRecord);
+          expect(Object.keys(record)).toEqual(
+            expect.arrayContaining(Object.keys(expectedRecord)),
+          );
+          return;
         }
 
-        expect(_.isMatch(record, expectedRecord)).toBe(true);
+        expect(record).toMatchObject(expectedRecord);
       });
     });
   });

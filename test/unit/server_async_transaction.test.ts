@@ -11,7 +11,6 @@ const {
   Asset,
   Networks,
   TimeoutInfinite,
-  Transaction,
   BASE_FEE,
 } = StellarSdk;
 describe("server.js async transaction submission tests", () => {

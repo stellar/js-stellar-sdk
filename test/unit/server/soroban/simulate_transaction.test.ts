@@ -9,8 +9,9 @@ import {
 } from "vitest";
 import { base64ToUint8Array } from "uint8array-extras";
 
-import { serverUrl } from "../../../constants";
+import { serverUrl } from "../../../constants.js";
 import * as StellarSdk from "../../../../src/index.js";
+import * as xdr from "../../../../src/xdr/index.js";
 
 const {
   Account,
@@ -24,7 +25,6 @@ const {
   TimeoutInfinite,
   authorizeInvocation,
   authorizeEntry,
-  xdr,
 } = StellarSdk;
 const { Server, parseRawSimulation } = rpc;
 
