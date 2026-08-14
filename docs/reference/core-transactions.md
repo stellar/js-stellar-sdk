@@ -3534,7 +3534,7 @@ enum Networks
 type AccountMerge = AccountMergeResult
 ```
 
-**Source:** [src/base/operation.ts:615](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L615)
+**Source:** [src/base/operation.ts:617](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L617)
 
 ### Operation.AllowTrust
 
@@ -3542,7 +3542,7 @@ type AccountMerge = AccountMergeResult
 type AllowTrust = AllowTrustResult
 ```
 
-**Source:** [src/base/operation.ts:614](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L614)
+**Source:** [src/base/operation.ts:616](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L616)
 
 ### Operation.BaseOperation
 
@@ -3550,7 +3550,7 @@ type AllowTrust = AllowTrustResult
 type BaseOperation<T extends _OperationType = _OperationType> = _BaseOperation<T>
 ```
 
-**Source:** [src/base/operation.ts:603](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L603)
+**Source:** [src/base/operation.ts:605](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L605)
 
 ### Operation.BeginSponsoringFutureReserves
 
@@ -3558,7 +3558,7 @@ type BaseOperation<T extends _OperationType = _OperationType> = _BaseOperation<T
 type BeginSponsoringFutureReserves = BeginSponsoringFutureReservesResult
 ```
 
-**Source:** [src/base/operation.ts:621](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L621)
+**Source:** [src/base/operation.ts:623](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L623)
 
 ### Operation.BumpSequence
 
@@ -3566,7 +3566,7 @@ type BeginSponsoringFutureReserves = BeginSponsoringFutureReservesResult
 type BumpSequence = BumpSequenceResult
 ```
 
-**Source:** [src/base/operation.ts:618](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L618)
+**Source:** [src/base/operation.ts:620](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L620)
 
 ### Operation.ChangeTrust
 
@@ -3574,7 +3574,7 @@ type BumpSequence = BumpSequenceResult
 type ChangeTrust = ChangeTrustResult
 ```
 
-**Source:** [src/base/operation.ts:613](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L613)
+**Source:** [src/base/operation.ts:615](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L615)
 
 ### Operation.ClaimClaimableBalance
 
@@ -3582,7 +3582,7 @@ type ChangeTrust = ChangeTrustResult
 type ClaimClaimableBalance = ClaimClaimableBalanceResult
 ```
 
-**Source:** [src/base/operation.ts:620](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L620)
+**Source:** [src/base/operation.ts:622](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L622)
 
 ### Operation.Clawback
 
@@ -3590,7 +3590,7 @@ type ClaimClaimableBalance = ClaimClaimableBalanceResult
 type Clawback = ClawbackResult
 ```
 
-**Source:** [src/base/operation.ts:633](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L633)
+**Source:** [src/base/operation.ts:635](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L635)
 
 ### Operation.ClawbackClaimableBalance
 
@@ -3598,7 +3598,7 @@ type Clawback = ClawbackResult
 type ClawbackClaimableBalance = ClawbackClaimableBalanceResult
 ```
 
-**Source:** [src/base/operation.ts:634](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L634)
+**Source:** [src/base/operation.ts:636](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L636)
 
 ### Operation.CreateAccount
 
@@ -3606,7 +3606,7 @@ type ClawbackClaimableBalance = ClawbackClaimableBalanceResult
 type CreateAccount = CreateAccountResult
 ```
 
-**Source:** [src/base/operation.ts:605](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L605)
+**Source:** [src/base/operation.ts:607](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L607)
 
 ### Operation.CreateClaimableBalance
 
@@ -3614,7 +3614,7 @@ type CreateAccount = CreateAccountResult
 type CreateClaimableBalance = CreateClaimableBalanceResult
 ```
 
-**Source:** [src/base/operation.ts:619](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L619)
+**Source:** [src/base/operation.ts:621](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L621)
 
 ### Operation.CreatePassiveSellOffer
 
@@ -3622,7 +3622,7 @@ type CreateClaimableBalance = CreateClaimableBalanceResult
 type CreatePassiveSellOffer = CreatePassiveSellOfferResult
 ```
 
-**Source:** [src/base/operation.ts:609](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L609)
+**Source:** [src/base/operation.ts:611](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L611)
 
 ### Operation.EndSponsoringFutureReserves
 
@@ -3630,7 +3630,7 @@ type CreatePassiveSellOffer = CreatePassiveSellOfferResult
 type EndSponsoringFutureReserves = EndSponsoringFutureReservesResult
 ```
 
-**Source:** [src/base/operation.ts:623](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L623)
+**Source:** [src/base/operation.ts:625](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L625)
 
 ### Operation.ExtendFootprintTTL
 
@@ -3638,7 +3638,7 @@ type EndSponsoringFutureReserves = EndSponsoringFutureReservesResult
 type ExtendFootprintTTL = ExtendFootprintTTLResult
 ```
 
-**Source:** [src/base/operation.ts:639](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L639)
+**Source:** [src/base/operation.ts:641](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L641)
 
 ### Operation.Inflation
 
@@ -3646,7 +3646,7 @@ type ExtendFootprintTTL = ExtendFootprintTTLResult
 type Inflation = InflationResult
 ```
 
-**Source:** [src/base/operation.ts:616](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L616)
+**Source:** [src/base/operation.ts:618](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L618)
 
 ### Operation.InvokeHostFunction
 
@@ -3654,7 +3654,7 @@ type Inflation = InflationResult
 type InvokeHostFunction = InvokeHostFunctionResult
 ```
 
-**Source:** [src/base/operation.ts:638](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L638)
+**Source:** [src/base/operation.ts:640](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L640)
 
 ### Operation.LiquidityPoolDeposit
 
@@ -3662,7 +3662,7 @@ type InvokeHostFunction = InvokeHostFunctionResult
 type LiquidityPoolDeposit = LiquidityPoolDepositResult
 ```
 
-**Source:** [src/base/operation.ts:636](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L636)
+**Source:** [src/base/operation.ts:638](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L638)
 
 ### Operation.LiquidityPoolWithdraw
 
@@ -3670,7 +3670,7 @@ type LiquidityPoolDeposit = LiquidityPoolDepositResult
 type LiquidityPoolWithdraw = LiquidityPoolWithdrawResult
 ```
 
-**Source:** [src/base/operation.ts:637](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L637)
+**Source:** [src/base/operation.ts:639](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L639)
 
 ### Operation.ManageBuyOffer
 
@@ -3678,7 +3678,7 @@ type LiquidityPoolWithdraw = LiquidityPoolWithdrawResult
 type ManageBuyOffer = ManageBuyOfferResult
 ```
 
-**Source:** [src/base/operation.ts:611](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L611)
+**Source:** [src/base/operation.ts:613](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L613)
 
 ### Operation.ManageData
 
@@ -3686,7 +3686,7 @@ type ManageBuyOffer = ManageBuyOfferResult
 type ManageData = ManageDataResult
 ```
 
-**Source:** [src/base/operation.ts:617](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L617)
+**Source:** [src/base/operation.ts:619](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L619)
 
 ### Operation.ManageSellOffer
 
@@ -3694,7 +3694,7 @@ type ManageData = ManageDataResult
 type ManageSellOffer = ManageSellOfferResult
 ```
 
-**Source:** [src/base/operation.ts:610](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L610)
+**Source:** [src/base/operation.ts:612](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L612)
 
 ### Operation.PathPaymentStrictReceive
 
@@ -3702,7 +3702,7 @@ type ManageSellOffer = ManageSellOfferResult
 type PathPaymentStrictReceive = PathPaymentStrictReceiveResult
 ```
 
-**Source:** [src/base/operation.ts:607](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L607)
+**Source:** [src/base/operation.ts:609](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L609)
 
 ### Operation.PathPaymentStrictSend
 
@@ -3710,7 +3710,7 @@ type PathPaymentStrictReceive = PathPaymentStrictReceiveResult
 type PathPaymentStrictSend = PathPaymentStrictSendResult
 ```
 
-**Source:** [src/base/operation.ts:608](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L608)
+**Source:** [src/base/operation.ts:610](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L610)
 
 ### Operation.Payment
 
@@ -3718,7 +3718,7 @@ type PathPaymentStrictSend = PathPaymentStrictSendResult
 type Payment = PaymentResult
 ```
 
-**Source:** [src/base/operation.ts:606](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L606)
+**Source:** [src/base/operation.ts:608](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L608)
 
 ### Operation.RestoreFootprint
 
@@ -3726,7 +3726,7 @@ type Payment = PaymentResult
 type RestoreFootprint = RestoreFootprintResult
 ```
 
-**Source:** [src/base/operation.ts:640](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L640)
+**Source:** [src/base/operation.ts:642](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L642)
 
 ### Operation.RevokeAccountSponsorship
 
@@ -3734,7 +3734,7 @@ type RestoreFootprint = RestoreFootprintResult
 type RevokeAccountSponsorship = RevokeAccountSponsorshipResult
 ```
 
-**Source:** [src/base/operation.ts:624](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L624)
+**Source:** [src/base/operation.ts:626](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L626)
 
 ### Operation.RevokeClaimableBalanceSponsorship
 
@@ -3742,7 +3742,7 @@ type RevokeAccountSponsorship = RevokeAccountSponsorshipResult
 type RevokeClaimableBalanceSponsorship = RevokeClaimableBalanceSponsorshipResult
 ```
 
-**Source:** [src/base/operation.ts:628](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L628)
+**Source:** [src/base/operation.ts:630](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L630)
 
 ### Operation.RevokeDataSponsorship
 
@@ -3750,7 +3750,7 @@ type RevokeClaimableBalanceSponsorship = RevokeClaimableBalanceSponsorshipResult
 type RevokeDataSponsorship = RevokeDataSponsorshipResult
 ```
 
-**Source:** [src/base/operation.ts:627](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L627)
+**Source:** [src/base/operation.ts:629](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L629)
 
 ### Operation.RevokeLiquidityPoolSponsorship
 
@@ -3758,7 +3758,7 @@ type RevokeDataSponsorship = RevokeDataSponsorshipResult
 type RevokeLiquidityPoolSponsorship = RevokeLiquidityPoolSponsorshipResult
 ```
 
-**Source:** [src/base/operation.ts:630](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L630)
+**Source:** [src/base/operation.ts:632](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L632)
 
 ### Operation.RevokeOfferSponsorship
 
@@ -3766,7 +3766,7 @@ type RevokeLiquidityPoolSponsorship = RevokeLiquidityPoolSponsorshipResult
 type RevokeOfferSponsorship = RevokeOfferSponsorshipResult
 ```
 
-**Source:** [src/base/operation.ts:626](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L626)
+**Source:** [src/base/operation.ts:628](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L628)
 
 ### Operation.RevokeSignerSponsorship
 
@@ -3774,7 +3774,7 @@ type RevokeOfferSponsorship = RevokeOfferSponsorshipResult
 type RevokeSignerSponsorship = RevokeSignerSponsorshipResult
 ```
 
-**Source:** [src/base/operation.ts:632](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L632)
+**Source:** [src/base/operation.ts:634](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L634)
 
 ### Operation.RevokeTrustlineSponsorship
 
@@ -3782,7 +3782,7 @@ type RevokeSignerSponsorship = RevokeSignerSponsorshipResult
 type RevokeTrustlineSponsorship = RevokeTrustlineSponsorshipResult
 ```
 
-**Source:** [src/base/operation.ts:625](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L625)
+**Source:** [src/base/operation.ts:627](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L627)
 
 ### Operation.SetOptions
 
@@ -3790,7 +3790,7 @@ type RevokeTrustlineSponsorship = RevokeTrustlineSponsorshipResult
 type SetOptions = SetOptionsResult<Signer>
 ```
 
-**Source:** [src/base/operation.ts:612](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L612)
+**Source:** [src/base/operation.ts:614](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L614)
 
 ### Operation.SetTrustLineFlags
 
@@ -3798,7 +3798,7 @@ type SetOptions = SetOptionsResult<Signer>
 type SetTrustLineFlags = SetTrustLineFlagsResult
 ```
 
-**Source:** [src/base/operation.ts:635](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L635)
+**Source:** [src/base/operation.ts:637](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L637)
 
 ### OperationOptions
 
