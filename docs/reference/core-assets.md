@@ -126,7 +126,7 @@ contractId(networkPassphrase: string): string;
 
 - **`networkPassphrase`** — `string` (required) — indicates which network the contract
      ID should refer to, since every network will have a unique ID for the
-     same contract (see `Networks` for options)
+     same contract (see [`Networks`](/reference/core-transactions/#networks) for options)
 
 **Source:** [src/base/asset.ts:172](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L172)
 
@@ -455,8 +455,8 @@ constructor(assetA: Asset, assetB: Asset, fee: number);
 
 **Parameters**
 
-- **`assetA`** — `Asset` (required) — The first asset in the Pool, it must respect the rule `assetA < assetB`. See `Asset.compare` for more details on how assets are sorted.
-- **`assetB`** — `Asset` (required) — The second asset in the Pool, it must respect the rule `assetA < assetB`. See `Asset.compare` for more details on how assets are sorted.
+- **`assetA`** — `Asset` (required) — The first asset in the Pool, it must respect the rule `assetA < assetB`. See [`Asset.compare`](#assetcompareasseta-assetb) for more details on how assets are sorted.
+- **`assetB`** — `Asset` (required) — The second asset in the Pool, it must respect the rule `assetA < assetB`. See [`Asset.compare`](#assetcompareasseta-assetb) for more details on how assets are sorted.
 - **`fee`** — `number` (required) — The liquidity pool fee. For now the only fee supported is `30`.
 
 **Source:** [src/base/liquidity_pool_asset.ts:27](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/liquidity_pool_asset.ts#L27)
@@ -552,9 +552,9 @@ toString(): string;
 
 Returns the `xdr.ChangeTrustAsset` object for this liquidity pool asset.
 
-Note: To convert from an ``Asset`` to `xdr.ChangeTrustAsset`
+Note: To convert from an [``Asset``](#asset) to `xdr.ChangeTrustAsset`
 please refer to the
-``Asset.toChangeTrustXdrObject`` method.
+[``Asset.toChangeTrustXdrObject``](#assettochangetrustxdrobject) method.
 
 ```ts
 toXdrObject(): ChangeTrustAsset;
@@ -676,9 +676,9 @@ toString(): string;
 
 Returns the `xdr.TrustLineAsset` object for this liquidity pool ID.
 
-Note: To convert from ``Asset`` to `xdr.TrustLineAsset` please
+Note: To convert from [``Asset``](#asset) to `xdr.TrustLineAsset` please
 refer to the
-``Asset.toTrustLineXdrObject`` method.
+[``Asset.toTrustLineXdrObject``](#assettotrustlinexdrobject) method.
 
 ```ts
 toXdrObject(): TrustLineAsset;

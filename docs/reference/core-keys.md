@@ -376,10 +376,10 @@ xdrPublicKey(): PublicKeyEd25519;
 ## SignerKey
 
 A container class with helpers to convert between signer keys
-(`xdr.SignerKey`) and `StrKey`s.
+(`xdr.SignerKey`) and [`StrKey`](#strkey)s.
 
 It's primarily used for manipulating the `extraSigners` precondition on a
-`Transaction`.
+[`Transaction`](/reference/core-transactions/#transaction).
 
 ```ts
 class SignerKey {
@@ -391,7 +391,7 @@ class SignerKey {
 
 **See also**
 
-- `TransactionBuilder.setExtraSigners`
+- [`TransactionBuilder.setExtraSigners`](/reference/core-transactions/#transactionbuildersetextrasignersextrasigners)
 
 **Source:** [src/base/signerkey.ts:22](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/signerkey.ts#L22)
 

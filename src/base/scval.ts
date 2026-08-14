@@ -38,7 +38,7 @@ export interface NativeToScValOpts {
  *  - xdr.ScVal → passthrough
  *  - null/undefined → scvVoid
  *  - string → scvString (a copy is made)
- *  - UintArray8 → scvBytes (a copy is made)
+ *  - Uint8Array → scvBytes (a copy is made)
  *  - boolean → scvBool
  *
  *  - number/bigint → the smallest possible XDR integer type that will fit the

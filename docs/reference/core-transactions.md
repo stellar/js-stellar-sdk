@@ -10,7 +10,7 @@ description: Build, sign, and inspect Stellar transactions with the TransactionB
 Create a new Account object.
 
 `Account` represents a single account in the Stellar network and its sequence
-number. Account tracks the sequence number as it is used by `TransactionBuilder`. See
+number. Account tracks the sequence number as it is used by [`TransactionBuilder`](#transactionbuilder). See
 [Accounts](https://developers.stellar.org/docs/glossary/accounts/) for
 more information about how accounts work in Stellar.
 
@@ -35,7 +35,7 @@ constructor(accountId: string, sequence: string);
 
 - **`accountId`** — `string` (required) — ID of the account (ex.
       `GB3KJPLFUYN5VL6R3GU3EGCGVCKFDSD7BEDX42HWG5BWFKB3KQGJJRMA`). If you
-      provide a muxed account address, this will throw; use `MuxedAccount` instead.
+      provide a muxed account address, this will throw; use [`MuxedAccount`](#muxedaccount) instead.
 - **`sequence`** — `string` (required) — current sequence number of the account
 
 **Source:** [src/base/account.ts:27](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/account.ts#L27)
@@ -153,12 +153,12 @@ const BASE_FEE: "100"
 
 ## FeeBumpTransaction
 
-Use `TransactionBuilder.buildFeeBumpTransaction` to build a
+Use [`TransactionBuilder.buildFeeBumpTransaction`](#transactionbuilderbuildfeebumptransactionfeesource-basefee-innertx-networkpassphrase) to build a
 FeeBumpTransaction object. If you have an object or base64-encoded string of
-the transaction envelope XDR use `TransactionBuilder.fromXdr`.
+the transaction envelope XDR use [`TransactionBuilder.fromXdr`](#transactionbuilderfromxdrenvelope-networkpassphrase).
 
-Once a `FeeBumpTransaction` has been created, its attributes and operations
-should not be changed. You should only add signatures (using `FeeBumpTransaction#sign`) before
+Once a [`FeeBumpTransaction`](#feebumptransaction) has been created, its attributes and operations
+should not be changed. You should only add signatures (using [`FeeBumpTransaction#sign`](#feebumptransactionsignkeypairs)) before
 submitting to the network or forwarding on to additional signers.
 
 ```ts
@@ -311,9 +311,9 @@ base64-encoded XDR string.
 transactions onto your account! Doing so will invalidate this pre-compiled
 transaction!
 - Send this XDR string to your other parties. They can use the instructions
-for `getKeypairSignature` to sign the transaction.
+for [`getKeypairSignature`](#feebumptransactiongetkeypairsignaturekeypair) to sign the transaction.
 - They should send you back their `publicKey` and the `signature` string
-from `getKeypairSignature`, both of which you pass to
+from [`getKeypairSignature`](#feebumptransactiongetkeypairsignaturekeypair), both of which you pass to
 this function.
 
 ```ts
@@ -329,13 +329,13 @@ addSignature(publicKey: string = "", signature: string = ""): void;
 
 ### `feeBumpTransaction.getKeypairSignature(keypair)`
 
-Signs a transaction with the given `Keypair`. Useful if someone sends
+Signs a transaction with the given [`Keypair`](/reference/core-keys/#keypair). Useful if someone sends
 you a transaction XDR for you to sign and return (see
-`addSignature` for more information).
+[`addSignature`](#feebumptransactionaddsignaturepublickey-signature) for more information).
 
 When you get a transaction XDR to sign....
 - Instantiate a `Transaction` object with the XDR
-- Use `Keypair` to generate a keypair object for your Stellar seed.
+- Use [`Keypair`](/reference/core-keys/#keypair) to generate a keypair object for your Stellar seed.
 - Run `getKeypairSignature` with that keypair
 - Send back the signature along with your publicKey (not your secret seed!)
 
@@ -371,7 +371,7 @@ hash(): Uint8Array;
 
 ### `feeBumpTransaction.sign(keypairs)`
 
-Signs the transaction with the given `Keypair`.
+Signs the transaction with the given [`Keypair`](/reference/core-keys/#keypair).
 
 ```ts
 sign(...keypairs: Keypair[]): void;
@@ -472,7 +472,7 @@ constructor(type: "none", value?: null);
 
 ### `Memo.fromXdrObject(object)`
 
-Returns `Memo` from XDR memo object.
+Returns [`Memo`](#memo) from XDR memo object.
 
 ```ts
 static fromXdrObject(object: Memo): Memo;
@@ -588,7 +588,7 @@ toXdrObject(): Memo;
 
 ## MemoHash
 
-Type of `Memo`.
+Type of [`Memo`](#memo).
 
 ```ts
 const MemoHash: "hash"
@@ -598,7 +598,7 @@ const MemoHash: "hash"
 
 ## MemoID
 
-Type of `Memo`.
+Type of [`Memo`](#memo).
 
 ```ts
 const MemoID: "id"
@@ -608,7 +608,7 @@ const MemoID: "id"
 
 ## MemoNone
 
-Type of `Memo`.
+Type of [`Memo`](#memo).
 
 ```ts
 const MemoNone: "none"
@@ -618,7 +618,7 @@ const MemoNone: "none"
 
 ## MemoReturn
 
-Type of `Memo`.
+Type of [`Memo`](#memo).
 
 ```ts
 const MemoReturn: "return"
@@ -628,7 +628,7 @@ const MemoReturn: "return"
 
 ## MemoText
 
-Type of `Memo`.
+Type of [`Memo`](#memo).
 
 ```ts
 const MemoText: "text"
@@ -660,9 +660,9 @@ the raw XDR.
 
 Because muxed accounts are purely an off-chain convention, they all share the
 sequence number tied to their underlying G... account. Thus, this object
-*requires* an `Account` instance to be passed in, so that muxed
+*requires* an [`Account`](#account) instance to be passed in, so that muxed
 instances of an account can collectively modify the sequence number whenever
-a muxed account is used as the source of a `Transaction` with `TransactionBuilder`.
+a muxed account is used as the source of a [`Transaction`](#transaction) with [`TransactionBuilder`](#transactionbuilder).
 
 ```ts
 class MuxedAccount implements TransactionSource {
@@ -693,7 +693,7 @@ constructor(baseAccount: Account, id: string);
 
 **Parameters**
 
-- **`baseAccount`** — `Account` (required) — the `Account` instance representing the
+- **`baseAccount`** — `Account` (required) — the [`Account`](#account) instance representing the
       underlying G... address
 - **`id`** — `string` (required) — a stringified uint64 value that represents the ID of the
       muxed account
@@ -711,7 +711,7 @@ static fromAddress(mAddress: string, sequenceNum: string): MuxedAccount;
 **Parameters**
 
 - **`mAddress`** — `string` (required) — an M-address to transform
-- **`sequenceNum`** — `string` (required) — the sequence number of the underlying `Account`, to use for the underlying base account `MuxedAccount.baseAccount`. If you're using the SDK, you can use
+- **`sequenceNum`** — `string` (required) — the sequence number of the underlying [`Account`](#account), to use for the underlying base account [`MuxedAccount.baseAccount`](#muxedaccountbaseaccount). If you're using the SDK, you can use
       `server.loadAccount` to fetch this if you don't know it.
 
 **Source:** [src/base/muxed_account.ts:96](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L96)
@@ -1199,7 +1199,7 @@ static createStellarAssetContract: (opts: CreateStellarAssetContractOpts) => Ope
 **Parameters**
 
 - **`opts`** — `CreateStellarAssetContractOpts` (required) — the set of parameters
-    - `asset`: the Stellar asset to wrap, either as an `Asset` object or in canonical form (SEP-11, `code:issuer`)
+    - `asset`: the Stellar asset to wrap, either as an [`Asset`](/reference/core-assets/#asset) object or in canonical form (SEP-11, `code:issuer`)
     - `auth`: an optional list outlining the tree of authorizations required for the upload
     - `source`: an optional source account
 
@@ -1249,7 +1249,7 @@ the exact ledger until the entries will live will only be determined
 when transaction has been applied.
 
 The footprint has to be specified in the transaction. See
-`TransactionBuilder`'s `opts.sorobanData` parameter, which is a
+[`TransactionBuilder`](#transactionbuilder)'s `opts.sorobanData` parameter, which is a
 `xdr.SorobanTransactionData` instance that contains fee data & resource
 usage as part of `xdr.SorobanResources`.
 
@@ -1548,8 +1548,8 @@ The ledger keys to restore are specified separately from the operation
 in read-write footprint of the transaction.
 
 It takes no parameters because the relevant footprint is derived from the
-transaction itself. See `TransactionBuilder`'s `opts.sorobanData`
-parameter (or `TransactionBuilder.setSorobanData`), which is a
+transaction itself. See [`TransactionBuilder`](#transactionbuilder)'s `opts.sorobanData`
+parameter (or [`TransactionBuilder.setSorobanData`](#transactionbuildersetsorobandatasorobandata)), which is a
 `xdr.SorobanTransactionData` instance that contains fee data & resource
 usage as part of `xdr.SorobanTransactionData`.
 
@@ -1817,7 +1817,7 @@ static setTrustLineFlags: (opts: SetTrustLineFlagsOpts) => Operation;
       - `authorizedToMaintainLiabilities`: authorize
         account to maintain and reduce liabilities for its credit
       - `clawbackEnabled`: stop claimable balances on
-        this trustlines from having clawbacks enabled (this flag can only be set
+        this trustline from having clawbacks enabled (this flag can only be set
         to false!)
     - `source`: The source account for the operation.
       Defaults to the transaction's source account.
@@ -1874,7 +1874,7 @@ bigints, strings, or numbers (whole numbers, or this will throw).
 
 If you need to create a native BigInt from a list of integer "parts" (for
 example, you have a series of encoded 32-bit integers that represent a larger
-value), you can use the lower level abstraction `XdrLargeInt`. For
+value), you can use the lower level abstraction [`XdrLargeInt`](#xdrlargeint). For
 example, you could do `new XdrLargeInt('u128', bytes...).toBigInt()`.
 
 ```ts
@@ -1973,7 +1973,7 @@ constructor(value: string | number | bigint, opts?: { type?: ScIntType; [key: st
 ### `ScInt.getType(scvType)`
 
 Convert the raw `ScValType` string (e.g. 'scvI128', generated by the XDR)
-to a type description for `XdrLargeInt` construction (e.g. 'i128')
+to a type description for [`XdrLargeInt`](#xdrlargeint) construction (e.g. 'i128')
 
 ```ts
 static getType(scvType: string): ScIntType | undefined;
@@ -1985,7 +1985,7 @@ static getType(scvType: string): ScIntType | undefined;
 
 **Returns**
 
-the corresponding `ScIntType` if it's an integer type, or
+the corresponding [`ScIntType`](#scinttype-1) if it's an integer type, or
    `undefined` if it's not an integer type
 
 **Source:** [src/base/numbers/xdr_large_int.ts:330](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L330)
@@ -2203,7 +2203,7 @@ const TimeoutInfinite: 0
 
 **See also**
 
-- - `TransactionBuilder#setTimeout`
+- - [`TransactionBuilder#setTimeout`](#transactionbuildersettimeouttimeoutseconds)
  - [Timeout](https://developers.stellar.org/api/resources/transactions/post/)
 
 **Source:** [src/base/transaction_builder.ts:76](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L76)
@@ -2258,7 +2258,7 @@ constructor(envelope: string | TransactionEnvelope, networkPassphrase: string);
 
 ### `transaction.extraSigners`
 
-Array of extra signers as XDR objects; use `SignerKey.encodeSignerKey`
+Array of extra signers as XDR objects; use [`SignerKey.encodeSignerKey`](/reference/core-keys/#signerkeyencodesignerkeysignerkey)
 to convert to StrKey strings.
 
 ```ts
@@ -2441,9 +2441,9 @@ base64-encoded XDR string.
 transactions onto your account! Doing so will invalidate this pre-compiled
 transaction!
 - Send this XDR string to your other parties. They can use the instructions
-for `getKeypairSignature` to sign the transaction.
+for [`getKeypairSignature`](#transactiongetkeypairsignaturekeypair) to sign the transaction.
 - They should send you back their `publicKey` and the `signature` string
-from `getKeypairSignature`, both of which you pass to
+from [`getKeypairSignature`](#transactiongetkeypairsignaturekeypair), both of which you pass to
 this function.
 
 ```ts
@@ -2482,13 +2482,13 @@ getClaimableBalanceId(opIndex: number): string;
 
 ### `transaction.getKeypairSignature(keypair)`
 
-Signs a transaction with the given `Keypair`. Useful if someone sends
+Signs a transaction with the given [`Keypair`](/reference/core-keys/#keypair). Useful if someone sends
 you a transaction XDR for you to sign and return (see
-`addSignature` for more information).
+[`addSignature`](#transactionaddsignaturepublickey-signature) for more information).
 
 When you get a transaction XDR to sign....
 - Instantiate a `Transaction` object with the XDR
-- Use `Keypair` to generate a keypair object for your Stellar seed.
+- Use [`Keypair`](/reference/core-keys/#keypair) to generate a keypair object for your Stellar seed.
 - Run `getKeypairSignature` with that keypair
 - Send back the signature along with your publicKey (not your secret seed!)
 
@@ -2524,7 +2524,7 @@ hash(): Uint8Array;
 
 ### `transaction.sign(keypairs)`
 
-Signs the transaction with the given `Keypair`.
+Signs the transaction with the given [`Keypair`](/reference/core-keys/#keypair).
 
 ```ts
 sign(...keypairs: Keypair[]): void;
@@ -2588,7 +2588,7 @@ toXdr(): string;
 ## TransactionBuilder
 
 <p>Transaction builder helps constructs a new [`Transaction`](#transaction) using the
-given `Account` as the transaction's "source account". The transaction
+given [`Account`](#account) as the transaction's "source account". The transaction
 will use the current sequence number of the given account as its sequence
 number and increment the given account's sequence number by one. The given
 source account must include a private key for signing the transaction or an
@@ -2598,7 +2598,7 @@ error will be thrown.</p>
 methods, and each returns the TransactionBuilder object so they can be
 chained together. After adding the desired operations, call the `build()`
 method on the `TransactionBuilder` to return a fully constructed
-`Transaction` that can be signed. The returned transaction will contain the
+[`Transaction`](#transaction) that can be signed. The returned transaction will contain the
 sequence number of the source account and include the signature from the
 source account.</p>
 
@@ -2611,7 +2611,7 @@ account's sequence number with
 [Server.loadAccount](https://stellar.github.io/js-stellar-sdk/Server.html#loadAccount)
 before creating another transaction.</p>
 
-<p>The following code example creates a new transaction with `Operation.createAccount` and `Operation.payment` operations. The
+<p>The following code example creates a new transaction with [`Operation.createAccount`](#operationcreateaccount) and [`Operation.payment`](#operationpayment) operations. The
 Transaction's source account first funds `destinationA`, then sends a payment
 to `destinationB`. The built transaction is then signed by
 `sourceKeypair`.</p>
@@ -2688,7 +2688,7 @@ constructor(sourceAccount: TransactionSource, opts: TransactionBuilderOptions = 
 
 ### `TransactionBuilder.buildFeeBumpTransaction(feeSource, baseFee, innerTx, networkPassphrase)`
 
-Builds a `FeeBumpTransaction`, enabling you to resubmit an existing
+Builds a [`FeeBumpTransaction`](#feebumptransaction), enabling you to resubmit an existing
 transaction with a higher fee.
 
 ```ts
@@ -2702,11 +2702,11 @@ static buildFeeBumpTransaction(feeSource: string | Keypair, baseFee: string, inn
       an account ID (in G... or M... form, but refer to `withMuxing`)
 - **`baseFee`** — `string` (required) — max fee willing to pay per operation
       in inner transaction (**in stroops**)
-- **`innerTx`** — `Transaction` (required) — `Transaction` to be bumped by
+- **`innerTx`** — `Transaction` (required) — [`Transaction`](#transaction) to be bumped by
       the fee bump transaction
 - **`networkPassphrase`** — `string` (required) — passphrase of the target
       Stellar network (e.g. "Public Global Stellar Network ; September 2015",
-      see `Networks`)
+      see [`Networks`](#networks))
 
 **See also**
 
@@ -2716,7 +2716,7 @@ static buildFeeBumpTransaction(feeSource: string | Keypair, baseFee: string, inn
 
 ### `TransactionBuilder.cloneFrom(tx, opts)`
 
-Creates a builder instance using an existing `Transaction` as a
+Creates a builder instance using an existing [`Transaction`](#transaction) as a
 template, ignoring any existing envelope signatures.
 
 Note that the sequence number WILL be cloned, so EITHER this transaction or
@@ -2734,13 +2734,13 @@ static cloneFrom(tx: Transaction, opts: Partial<TransactionBuilderOptions> = {})
 - **`tx`** — `Transaction` (required) — a "template" transaction to clone exactly
 - **`opts`** — `Partial<TransactionBuilderOptions>` (optional) (default: `{}`) — additional options to override the clone, e.g.
      `{fee: '1000'}` will override the existing base fee derived from `tx` (see
-     the `TransactionBuilder` constructor for detailed options)
+     the [`TransactionBuilder`](#transactionbuilder) constructor for detailed options)
 
 **Source:** [src/base/transaction_builder.ts:313](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L313)
 
 ### `TransactionBuilder.fromXdr(envelope, networkPassphrase)`
 
-Build a `Transaction` or `FeeBumpTransaction` from an
+Build a [`Transaction`](#transaction) or [`FeeBumpTransaction`](#feebumptransaction) from an
 xdr.TransactionEnvelope.
 
 ```ts
@@ -2753,7 +2753,7 @@ static fromXdr(envelope: string | TransactionEnvelope, networkPassphrase: string
       object or base64 encoded string.
 - **`networkPassphrase`** — `string` (required) — The network passphrase of the target
       Stellar network (e.g. "Public Global Stellar Network ; September
-      2015"), see `Networks`.
+      2015"), see [`Networks`](#networks).
 
 **Source:** [src/base/transaction_builder.ts:1259](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L1259)
 
@@ -2863,7 +2863,7 @@ addMemo(memo: Memo): TransactionBuilder;
 
 **Parameters**
 
-- **`memo`** — `Memo` (required) — `Memo` object
+- **`memo`** — `Memo` (required) — [`Memo`](#memo) object
 
 **Source:** [src/base/transaction_builder.ts:445](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L445)
 
@@ -2891,7 +2891,7 @@ addOperationAt(operation: Operation, index: number): TransactionBuilder;
 
 **Parameters**
 
-- **`operation`** — `Operation` (required) — The xdr operation object to add, use `Operation` static methods.
+- **`operation`** — `Operation` (required) — The xdr operation object to add, use [`Operation`](#operation) static methods.
 - **`index`** — `number` (required) — The index at which to insert the operation.
 
 **Source:** [src/base/transaction_builder.ts:418](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L418)
@@ -2973,7 +2973,7 @@ setExtraSigners(extraSigners: string[]): TransactionBuilder;
 
 **Parameters**
 
-- **`extraSigners`** — `string[]` (required) — required extra signers (as `StrKey`s)
+- **`extraSigners`** — `string[]` (required) — required extra signers (as [`StrKey`](/reference/core-keys/#strkey)s)
 
 **Source:** [src/base/transaction_builder.ts:689](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L689)
 
@@ -3087,7 +3087,7 @@ the case of Soroban transactions, this is either an instance of
 `xdr.SorobanTransactionData` or a base64-encoded string of said
 structure. This is usually obtained from the simulation response based on a
 transaction with a Soroban operation (e.g.
-`Operation.invokeHostFunction`, providing necessary resource
+[`Operation.invokeHostFunction`](#operationinvokehostfunction), providing necessary resource
 and storage footprint estimations for contract invocation.
 
 ```ts
@@ -3101,7 +3101,7 @@ setSorobanData(sorobanData: string | SorobanTransactionData): TransactionBuilder
 
 **See also**
 
-- `SorobanDataBuilder`
+- [`SorobanDataBuilder`](/reference/core-soroban-primitives/#sorobandatabuilder)
 
 **Source:** [src/base/transaction_builder.ts:737](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L737)
 
@@ -3143,8 +3143,8 @@ Sets a timeout precondition on the transaction.
 
  A call to `TransactionBuilder.setTimeout` is **required** if Transaction
  does not have `max_time` set. If you don't want to set timeout, use
- `TimeoutInfinite`. In general you should set
- `TimeoutInfinite` only in smart contracts.
+ [`TimeoutInfinite`](#timeoutinfinite). In general you should set
+ [`TimeoutInfinite`](#timeoutinfinite) only in smart contracts.
 
  Please note that Horizon may still return <code>504 Gateway Timeout</code>
  error, even for short timeouts. In such case you need to resubmit the same
@@ -3159,12 +3159,12 @@ setTimeout(timeoutSeconds: number): TransactionBuilder;
 **Parameters**
 
 - **`timeoutSeconds`** — `number` (required) — Number of seconds the transaction is good.
-      Can't be negative. If the value is `TimeoutInfinite`, the
+      Can't be negative. If the value is [`TimeoutInfinite`](#timeoutinfinite), the
       transaction is good indefinitely.
 
 **See also**
 
-- - `TimeoutInfinite`
+- - [`TimeoutInfinite`](#timeoutinfinite)
  - https://developers.stellar.org/docs/tutorials/handling-errors/
 
 **Source:** [src/base/transaction_builder.ts:479](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L479)
@@ -3173,7 +3173,7 @@ setTimeout(timeoutSeconds: number): TransactionBuilder;
 
 A wrapper class to represent large XDR-encodable integers.
 
-This operates at a lower level than `ScInt` by forcing you to specify
+This operates at a lower level than [`ScInt`](#scint) by forcing you to specify
 the type / width / size in bits of the integer you're targeting, regardless
 of the input value(s) you provide.
 
@@ -3214,7 +3214,7 @@ constructor(type: ScIntType, values: XdrLargeIntValues);
 
 - **`type`** — `ScIntType` (required) — specifies a data type to use to represent the integer, one
      of: 'i64', 'u64', 'i128', 'u128', 'i256', 'u256', 'timepoint', and 'duration'
-     (see `XdrLargeInt.isType`)
+     (see [`XdrLargeInt.isType`](#xdrlargeintistypetype))
 - **`values`** — `XdrLargeIntValues` (required) — a single integer-like value, or a list of slices in
      **little-endian** order (parts[0] is the least-significant slice),
      matching the legacy `LargeInt` contract — e.g.
@@ -3227,7 +3227,7 @@ constructor(type: ScIntType, values: XdrLargeIntValues);
 ### `XdrLargeInt.getType(scvType)`
 
 Convert the raw `ScValType` string (e.g. 'scvI128', generated by the XDR)
-to a type description for `XdrLargeInt` construction (e.g. 'i128')
+to a type description for [`XdrLargeInt`](#xdrlargeint) construction (e.g. 'i128')
 
 ```ts
 static getType(scvType: string): ScIntType | undefined;
@@ -3239,7 +3239,7 @@ static getType(scvType: string): ScIntType | undefined;
 
 **Returns**
 
-the corresponding `ScIntType` if it's an integer type, or
+the corresponding [`ScIntType`](#scinttype-1) if it's an integer type, or
    `undefined` if it's not an integer type
 
 **Source:** [src/base/numbers/xdr_large_int.ts:330](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L330)
@@ -3522,7 +3522,7 @@ extractBaseAddress(address: string): string
 Transforms an opaque `xdr.ScVal` into a native bigint, if possible.
 
 If you then want to use this in the abstractions provided by this module,
-you can pass it to the constructor of `XdrLargeInt`.
+you can pass it to the constructor of [`XdrLargeInt`](#xdrlargeint).
 
 ```ts
 scValToBigInt(scv: ScVal): bigint
@@ -4462,16 +4462,16 @@ writeBytes: number;
 
 ### TransactionSource
 
-The contract that `TransactionBuilder` requires of a transaction's
+The contract that [`TransactionBuilder`](#transactionbuilder) requires of a transaction's
 source account: a way to read the account's address and sequence number, and
 to advance the sequence number in place (the builder calls
-`TransactionSource.incrementSequenceNumber` when it builds a
+[`TransactionSource.incrementSequenceNumber`](#transactionsourceincrementsequencenumber) when it builds a
 transaction).
 
-Both the concrete `Account` and `MuxedAccount` classes implement
+Both the concrete [`Account`](#account) and [`MuxedAccount`](#muxedaccount) classes implement
 this, as does Horizon's `AccountResponse`. Implement it yourself if you manage
 sequence numbers out-of-band (e.g. a server-side sequence pool) and want to
-pass a custom source to `TransactionBuilder`.
+pass a custom source to [`TransactionBuilder`](#transactionbuilder).
 
 This is intentionally a brand-free structural interface: assignability is by
 shape, not by class identity, so any account-like object that honors the
@@ -4500,7 +4500,7 @@ accountId(): string;
 
 #### `transactionSource.incrementSequenceNumber()`
 
-Increments the sequence number in place by one. `TransactionBuilder`
+Increments the sequence number in place by one. [`TransactionBuilder`](#transactionbuilder)
 calls this when building a transaction so that the next transaction built
 from the same source uses the next sequence number.
 

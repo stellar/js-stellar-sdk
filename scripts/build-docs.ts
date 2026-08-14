@@ -220,6 +220,11 @@ interface SummaryDisplayPart {
   kind: "text" | "code" | "inline-tag";
   text: string;
   tag?: string;
+  // For `{@link}` parts TypeDoc emits either a numeric reflection id (when
+  // it resolved the reference itself) or a string symbol path (when it could
+  // not, e.g. an external name). Both forms have to resolve — see
+  // `buildLinkResolver`.
+  target?: string | number;
 }
 
 interface Comment {
@@ -822,10 +827,16 @@ function validateAnchors(files: RenderedFile[]): void {
         continue;
       }
 
-      const cross = url.match(/^\.?\/?([\w-]+)\.md(?:#(.+))?$/);
+      // Both shapes a cross-file reference link can take: the root-absolute
+      // `/reference/<slug>/#anchor` this generator emits, and a relative
+      // `<slug>.md#anchor`. The relative form is not emitted any more but is
+      // still matched so a hand-written one cannot slip past unvalidated.
+      const cross = url.match(
+        /^(?:\/reference\/([\w-]+)\/?|\.?\/?([\w-]+)\.md)(?:#(.+))?$/,
+      );
       if (cross !== null) {
-        const targetSlug = cross[1];
-        const targetAnchor = cross[2];
+        const targetSlug = cross[1] ?? cross[2];
+        const targetAnchor = cross[3];
         const targetIds = anchorsBySlug.get(targetSlug);
         if (targetIds === undefined) {
           problems.push(
@@ -858,11 +869,18 @@ interface ResolvedLink {
 }
 
 interface LinkResolver {
-  resolve(target: string, currentBucket: BucketName): string | undefined;
+  resolve(
+    target: string | number,
+    currentBucket: BucketName,
+  ): string | undefined;
 }
 
 function buildLinkResolver(records: SymbolRecord[]): LinkResolver {
   const map = new Map<string, ResolvedLink>();
+  // Reflection id → link, for `{@link}` parts TypeDoc already resolved to an
+  // id rather than a name. Without this every such reference falls back to
+  // plain inline code, which is most of them.
+  const byId = new Map<number, ResolvedLink>();
 
   // Group by bucket (one rendered file per bucket) so each file gets its
   // own slugger and dedup namespace.
@@ -882,19 +900,27 @@ function buildLinkResolver(records: SymbolRecord[]): LinkResolver {
     slugger.slug(bucket); // the leading `# <bucket>` page heading
 
     const register = (record: SymbolRecord): void => {
-      map.set(record.qname, {
+      // Each anchor is slugged exactly once and the resulting link shared
+      // between both indexes: `slugger.slug` is stateful (it appends
+      // `-1`/`-2` on repeats), so slugging twice would desync the anchors
+      // from what `renderFile` emits.
+      const link: ResolvedLink = {
         bucket,
         slug,
         anchor: slugger.slug(record.qname),
-      });
+      };
+      map.set(record.qname, link);
+      byId.set(record.refl.id, link);
       for (const m of sortMembers(record.members ?? [])) {
         const memberQname = `${record.qname}.${m.name}`;
         const headingText = memberHeadingText(m, record.refl.name);
-        map.set(memberQname, {
+        const memberLink: ResolvedLink = {
           bucket,
           slug,
           anchor: slugger.slug(headingText),
-        });
+        };
+        map.set(memberQname, memberLink);
+        byId.set(m.id, memberLink);
       }
     };
 
@@ -908,16 +934,21 @@ function buildLinkResolver(records: SymbolRecord[]): LinkResolver {
 
   return {
     resolve(target, currentBucket) {
-      const entry = map.get(target);
+      const entry =
+        typeof target === "number" ? byId.get(target) : map.get(target);
       if (entry === undefined) return undefined;
       // Same-file links keep the relative path empty; cross-file links
       // emit `./<slug>.md#<anchor>` so raw markdown viewers (e.g. plain
       // GitHub view) follow the link to the right file regardless of
       // any specific docs-platform URL scheme.
       const anchor = `#${entry.anchor}`;
+      // Cross-file links must be root-absolute (`/reference/<slug>/#anchor`),
+      // matching the form the authored guides use. A relative `./<slug>.md`
+      // link breaks on the built site — Astro does not rewrite it — and
+      // `build-llms.ts` rejects that shape outright.
       return entry.bucket === currentBucket
         ? anchor
-        : `./${entry.slug}.md${anchor}`;
+        : `/reference/${entry.slug}/${anchor}`;
     },
   };
 }
@@ -949,7 +980,7 @@ let currentBuilderMembers: Map<string, ChainableMethod[]> | undefined;
 const BACKTICKED_LINK_RE =
   /^`?\{@(?:link|linkcode|linkplain)\s+([^}|]+?)(?:\s*\|\s*([^}]+?))?\s*\}`?$/;
 
-function resolveLinkPart(target: string, display: string): string {
+function resolveLinkPart(target: string | number, display: string): string {
   if (currentLinkResolver !== undefined && currentRenderBucket !== undefined) {
     const url = currentLinkResolver.resolve(target, currentRenderBucket);
     if (url !== undefined) {
@@ -992,10 +1023,11 @@ function renderSummary(parts: SummaryDisplayPart[] | undefined): string {
         ) {
           // `{@link Foo | display}` parts arrive with `text` already
           // resolved to the display text by TypeDoc; `target` carries
-          // the symbol path. Use `target` for resolution and `text`
-          // for display, falling back to `text` for both when
-          // `target` is absent.
-          const target = (p as SummaryDisplayPart & { target?: string }).target;
+          // the symbol path or reflection id. Resolve on `target` and
+          // display `text` — never fall back to `text` for resolution
+          // when a target is present, since for the piped form it holds
+          // the display string rather than the symbol.
+          const target = p.target;
           return resolveLinkPart(target ?? p.text, p.text);
         }
         return `{${p.tag} ${p.text}}`;
@@ -1446,6 +1478,20 @@ function renderFile(
 // builders' `{@link Horizon.Server.x}` cross-references don't resolve in
 // isolation and would otherwise trip `treatWarningsAsErrors`.
 function buildCallBuilderMembers(): Map<string, ChainableMethod[]> {
+  // This pass renders summaries from its own typedoc run, whose reflection
+  // ids are a different id space that overlaps api.json's. If the resolver
+  // were already built, `renderSummary` would resolve those ids against the
+  // main pass and silently emit links to unrelated symbols (id 2 here is
+  // `AccountCallBuilder`; in api.json it is `captureStackTrace`). Callers
+  // must run this before `currentLinkResolver` is assigned.
+  if (currentLinkResolver !== undefined) {
+    throw new Error(
+      "buildCallBuilderMembers must run before the link resolver is built: " +
+        "its reflection ids come from a separate typedoc pass and would " +
+        "resolve against the wrong symbols.",
+    );
+  }
+
   const horizonDir = join(REPO_ROOT, "src/horizon");
   // `*_builder.ts` covers both the `*_call_builder.ts` query builders and
   // `friendbot_builder.ts`; `Server.friendbot()` returns a FriendbotBuilder

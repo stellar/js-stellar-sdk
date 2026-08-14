@@ -227,7 +227,7 @@ A promise that resolves to the federation record
 
 ### Federation.Api.Options
 
-Options for configuring connections to federation servers. You can also use `Config` class to set this globally.
+Options for configuring connections to federation servers. You can also use [`Config`](/reference/cross-cutting/#config) class to set this globally.
 
 ```ts
 interface Options {

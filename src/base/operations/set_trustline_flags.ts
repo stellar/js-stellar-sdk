@@ -32,7 +32,7 @@ import { setSourceAccount } from "../util/operations.js";
  *     - `authorizedToMaintainLiabilities`: authorize
  *       account to maintain and reduce liabilities for its credit
  *     - `clawbackEnabled`: stop claimable balances on
- *       this trustlines from having clawbacks enabled (this flag can only be set
+ *       this trustline from having clawbacks enabled (this flag can only be set
  *       to false!)
  *   - `source`: The source account for the operation.
  *     Defaults to the transaction's source account.
