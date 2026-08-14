@@ -68,6 +68,7 @@ Pass `false` to either one for the legacy `ADDRESS` format:
 
 ```ts
 await server.simulateTransaction(tx, undefined, undefined, false);
+await server.prepareTransaction(tx, false);
 await assembled.simulate({ useUpgradedAuth: false });
 await authorizeInvocation({ ...params, authV2: false });
 ```

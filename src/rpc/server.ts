@@ -1460,6 +1460,14 @@ export class RpcServer {
    *    from the simulation. In other words, if you include auth entries, you
    *    don't care about the auth returned from the simulation. Other fields
    *    (footprint, etc.) will be filled as normal.
+   * @param useUpgradedAuth - (optional) whether the underlying simulation
+   *    records v2 address credentials (CAP-71) instead of the legacy v1
+   *    address credentials. Defaults to `true`; pass `false` to ask for the
+   *    legacy v1 format. It only affects the recording auth modes.
+   *
+   *    **Deprecated**: this flag is transitional. Once the RPC server returns v2
+   *    credentials by default (protocol 28), it becomes a no-op — do not rely
+   *    on passing `false` to keep receiving the legacy v1 format.
    * @returns A copy of the
    *    transaction with the expected authorizations (in the case of
    *    invocation), resources, and ledger footprints added. The transaction fee
@@ -1503,8 +1511,16 @@ export class RpcServer {
    * });
    * ```
    */
-  public async prepareTransaction(tx: Transaction | FeeBumpTransaction) {
-    const simResponse = await this.simulateTransaction(tx);
+  public async prepareTransaction(
+    tx: Transaction | FeeBumpTransaction,
+    useUpgradedAuth: boolean = true,
+  ) {
+    const simResponse = await this.simulateTransaction(
+      tx,
+      undefined,
+      undefined,
+      useUpgradedAuth,
+    );
     if (Api.isSimulationError(simResponse)) {
       throw new Error(simResponse.error);
     }
