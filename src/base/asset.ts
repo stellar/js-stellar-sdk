@@ -117,7 +117,7 @@ export class Asset {
         return this.native();
       case "assetTypeCreditAlphanum4":
         anum = assetXdr.alphaNum4;
-        issuer = StrKey.encodeEd25519PublicKey(anum.issuer.ed25519);
+        issuer = StrKey.encodeEd25519PublicKey(anum.issuer.ed25519.toBytes());
         code = trimEnd(
           uint8ArrayToString(anum.assetCode.toBytes()),
           "\0",
@@ -125,7 +125,7 @@ export class Asset {
         return new this(code, issuer);
       case "assetTypeCreditAlphanum12":
         anum = assetXdr.alphaNum12;
-        issuer = StrKey.encodeEd25519PublicKey(anum.issuer.ed25519);
+        issuer = StrKey.encodeEd25519PublicKey(anum.issuer.ed25519.toBytes());
         code = trimEnd(
           uint8ArrayToString(anum.assetCode.toBytes()),
           "\0",

@@ -320,13 +320,15 @@ underneath it, so inherited members changed for both classes:
 
 ---
 
-## 6. Bytes: `Uint8Array` everywhere
+## 6. Bytes: `Uint8Array`, not `Buffer`
 
-Every fixed-length and variable-length **byte** field (`opaque[N]`, `opaque<N>`,
-`Hash`, `Signature`, `ScBytes`, …) is a `Uint8Array`. The SDK used to surface
-`Buffer` in many places; now it's `Uint8Array`. `Buffer` **is** a `Uint8Array`
-subclass so most code that just reads bytes (indexing, `.length`) keeps working.
-The differences appear when:
+Byte fields no longer surface `Buffer`. An anonymous `opaque[N]` / `opaque<N>`
+field is a plain `Uint8Array`; a **named** byte alias (`Hash`, `Signature`,
+`ScBytes`, `AssetCode4`, `PoolId`, `Uint256Bytes`, …) is a small class wrapping
+one, and `.toBytes()` gives you the `Uint8Array` — see §§ 6.1 and 6.2. Either
+way the underlying bytes are a `Uint8Array` where they used to be a `Buffer`.
+`Buffer` **is** a `Uint8Array` subclass so most code that just reads bytes
+(indexing, `.length`) keeps working. The differences appear when:
 
 (**Note:** XDR _string_ fields are a separate story; see § 11.)
 
@@ -384,6 +386,37 @@ This is what lets JSON output (§ 12) render a `PoolId` as an `L`-strkey and a
 
 Note that this break is type-level: at runtime a `Hash` still encodes to the
 same 32 bytes, so plain JavaScript callers see no error.
+
+### 6.2 `uint256` fields are `Uint256Bytes`, not raw bytes
+
+`typedef opaque uint256[32]` gets the same treatment as every other opaque
+typedef: a `BytesValue` subclass. Its lowercase XDR name would collide with the
+numeric `xdr.Uint256` (the bigint wrapper over `Uint256Parts`), so the class is
+named `Uint256Bytes`.
+
+This covers the ed25519 keys, salts, and nonces on `MuxedAccount`,
+`MuxedAccountMed25519`, `MuxedEd25519Account`, `PublicKey` (and its alias
+`AccountId`), `SignerKey`, `SignerKeyEd25519SignedPayload`, `TransactionV0`,
+`ContractIdPreimageFromAddress`, `ClaimOfferAtomV0`, and the overlay messages.
+Note that the `.value` getter on the single-arm `PublicKey` / `AccountId`
+union returns the wrapper too, so `accountId.value` becomes
+`accountId.value.toBytes()`.
+
+Writing is unchanged — the constructors accept `Uint8Array`, a hex string, or a
+`Uint256Bytes`. Reading gives you the wrapper, so unwrap with `.toBytes()`:
+
+```ts
+// Writing — all three work
+xdr.PublicKey.publicKeyTypeEd25519(rawBytes);
+xdr.PublicKey.publicKeyTypeEd25519("3f0c34bf…");
+xdr.PublicKey.publicKeyTypeEd25519(new xdr.Uint256Bytes(rawBytes));
+
+// Reading
+StrKey.encodeEd25519PublicKey(key.ed25519.toBytes());
+```
+
+Length is now checked at construction rather than at encode time, so a
+wrong-sized array throws where you built it.
 
 ---
 
@@ -544,6 +577,9 @@ scvBytes(buf)                →   (unchanged; raw bytes still accepted)
 new xdr.Hash(buf)            →   (still works; also accepts hex strings)
 new xdr.Hash(bytes) for PoolId/ContractId  →  use new xdr.PoolId(bytes) /
                                               new xdr.ContractId(bytes)
+someHash                     →   someHash.toBytes()   // reading a named alias
+key.ed25519, preimage.salt   →   key.ed25519.toBytes(), preimage.salt.toBytes()
+                                 // uint256 fields are xdr.Uint256Bytes now
 
 // ============== STRINGS ==============
 memo.text                    →   memo.text.toString() or memo.text.bytes

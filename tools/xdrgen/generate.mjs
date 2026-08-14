@@ -134,6 +134,9 @@ function normalizeFieldName(name) {
  *    UInt128Parts         → Uint128Parts
  *    ContractIDPreimage   → ContractIdPreimage
  *
+ *  A small override table runs first, for names the algorithm can't fix on
+ *  its own — see `TYPE_NAME_OVERRIDES`.
+ *
  *  Algorithm: find every run of 2+ consecutive uppercase ASCII letters.
  *  - A 2-letter run followed by a lowercase letter collapses fully (`UI` → `Ui`).
  *  - A 3+-letter run followed by a lowercase letter preserves the final
@@ -142,7 +145,30 @@ function normalizeFieldName(name) {
  *    fully (`ID` at end → `Id`, `V0` is just a single cap then digit so no
  *    run, unaffected).
  */
+/** Type names the normalizer can't derive mechanically. Declared as a hoisted
+ *  function, not a const, so the top-of-file `walkAndNormalizeTypeNames` call
+ *  can reach it.
+ *
+ *  `uint256` is `typedef opaque uint256[32]` — a 32-byte blob, not a number.
+ *  Its lowercase name would otherwise route it through the "primitive alias"
+ *  path alongside `uint32`/`int64` and inline it as a bare `Uint8Array` at
+ *  every use site, unlike every other opaque typedef (Hash, Signature,
+ *  AssetCode4, …) which gets a `BytesValue` class. The plain PascalCase form
+ *  `Uint256` is already taken by the DX bigint wrapper over `Uint256Parts`
+ *  (`src/xdr/dx/uint256.ts`), so the byte-valued type takes the `Bytes`
+ *  suffix. */
+function typeNameOverride(name) {
+  switch (name) {
+    case "uint256":
+      return "Uint256Bytes";
+    default:
+      return undefined;
+  }
+}
+
 function normalizeTypeName(name) {
+  const override = typeNameOverride(name);
+  if (override !== undefined) return override;
   return name.replace(/[A-Z]{2,}/g, (run, offset) => {
     const after = name[offset + run.length];
     const followedByLower = after && /[a-z]/.test(after);

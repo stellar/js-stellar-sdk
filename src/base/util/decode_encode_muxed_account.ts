@@ -36,7 +36,7 @@ export function encodeMuxedAccountToAddress(
     return _encodeMuxedAccountFullyToAddress(muxedAccount);
   }
 
-  return StrKey.encodeEd25519PublicKey(muxedAccount.value);
+  return StrKey.encodeEd25519PublicKey(muxedAccount.value.toBytes());
 }
 
 /**
@@ -77,7 +77,7 @@ export function extractBaseAddress(address: string): string {
   if (muxedAccount.type !== "keyTypeMuxedEd25519") {
     throw new TypeError(`expected muxed account (M...), got ${address}`);
   }
-  return StrKey.encodeEd25519PublicKey(muxedAccount.value.ed25519);
+  return StrKey.encodeEd25519PublicKey(muxedAccount.value.ed25519.toBytes());
 }
 
 // Decodes an "M..." account ID into its MuxedAccount object representation.
@@ -114,7 +114,7 @@ function _encodeMuxedAccountFullyToAddress(muxedAccount: MuxedAccount): string {
   const muxed = muxedAccount.value;
   return StrKey.encodeMed25519PublicKey(
     concatUint8Arrays([
-      muxed.ed25519,
+      muxed.ed25519.toBytes(),
       MuxedAccountMed25519.schema.encode(muxed.toXdrObject()).subarray(0, 8),
     ]),
   );

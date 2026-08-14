@@ -28,7 +28,7 @@ describe("MuxedAccount.constructor", () => {
       throw new Error("expected muxed");
     }
     const innerMux = muxXdr.med25519;
-    expect(Array.from(innerMux.ed25519)).toEqual(
+    expect(Array.from(innerMux.ed25519.toBytes())).toEqual(
       Array.from(StrKey.decodeEd25519PublicKey(PUBKEY)),
     );
     expect(innerMux.id).toEqual(BigInt("420"));

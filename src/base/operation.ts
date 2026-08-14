@@ -245,14 +245,14 @@ export class Operation {
           switch (key.type) {
             case "signerKeyTypeEd25519":
               signer.ed25519PublicKey = StrKey.encodeEd25519PublicKey(
-                key.ed25519,
+                key.ed25519.toBytes(),
               );
               break;
             case "signerKeyTypePreAuthTx":
-              signer.preAuthTx = key.preAuthTx.slice();
+              signer.preAuthTx = key.preAuthTx.toBytes().slice();
               break;
             case "signerKeyTypeHashX":
-              signer.sha256Hash = key.hashX.slice();
+              signer.sha256Hash = key.hashX.toBytes().slice();
               break;
             case "signerKeyTypeEd25519SignedPayload":
               signer.ed25519SignedPayload = StrKey.encodeSignedPayload(
@@ -562,15 +562,17 @@ function convertXdrSignerKeyToObject(
 
   switch (signerKey.type) {
     case "signerKeyTypeEd25519": {
-      attrs.ed25519PublicKey = StrKey.encodeEd25519PublicKey(signerKey.value);
+      attrs.ed25519PublicKey = StrKey.encodeEd25519PublicKey(
+        signerKey.value.toBytes(),
+      );
       break;
     }
     case "signerKeyTypePreAuthTx": {
-      attrs.preAuthTx = uint8ArrayToHex(signerKey.value);
+      attrs.preAuthTx = uint8ArrayToHex(signerKey.value.toBytes());
       break;
     }
     case "signerKeyTypeHashX": {
-      attrs.sha256Hash = uint8ArrayToHex(signerKey.value);
+      attrs.sha256Hash = uint8ArrayToHex(signerKey.value.toBytes());
       break;
     }
     case "signerKeyTypeEd25519SignedPayload": {
@@ -591,7 +593,7 @@ function convertXdrSignerKeyToObject(
 }
 
 function accountIdtoAddress(accountId: AccountId): string {
-  return StrKey.encodeEd25519PublicKey(accountId.value);
+  return StrKey.encodeEd25519PublicKey(accountId.value.toBytes());
 }
 
 // Namespace merged with the Operation class to expose operation result types as

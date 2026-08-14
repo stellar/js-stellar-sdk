@@ -357,9 +357,9 @@ describe("StrKey", () => {
 
       expect(decoded).toBeInstanceOf(xdr.MuxedAccount);
       expect(decoded.type).toBe("keyTypeEd25519");
-      expect(Array.from((decoded as xdr.MuxedAccountEd25519).ed25519)).toEqual(
-        Array.from(StrKey.decodeEd25519PublicKey(PUBKEY)),
-      );
+      expect(
+        Array.from((decoded as xdr.MuxedAccountEd25519).ed25519.toBytes()),
+      ).toEqual(Array.from(StrKey.decodeEd25519PublicKey(PUBKEY)));
       expect(encodeMuxedAccountToAddress(decoded)).toBe(PUBKEY);
     });
 
@@ -371,7 +371,9 @@ describe("StrKey", () => {
     it("encodes & decodes unmuxed keys", () => {
       expect(unmuxed).toBeInstanceOf(xdr.MuxedAccount);
       expect(unmuxed.type).toBe("keyTypeEd25519");
-      expect(Array.from(unmuxed.ed25519)).toEqual(Array.from(rawPubkey));
+      expect(Array.from(unmuxed.ed25519.toBytes())).toEqual(
+        Array.from(rawPubkey),
+      );
 
       const pubkey = encodeMuxedAccountToAddress(unmuxed);
       expect(pubkey).toBe(PUBKEY);
@@ -445,7 +447,9 @@ describe("StrKey", () => {
           "raw",
         );
 
-        const signer = StrKey.encodeEd25519PublicKey(signedPayload.ed25519);
+        const signer = StrKey.encodeEd25519PublicKey(
+          signedPayload.ed25519.toBytes(),
+        );
         expect(signer).toBe(testCase.ed25519);
 
         const payload = uint8ArrayToHex(new Uint8Array(signedPayload.payload));

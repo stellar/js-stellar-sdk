@@ -1,10 +1,11 @@
-import { int32, opaque, struct, uint32 } from "@stellar/js-xdr";
+import { int32, struct, uint32 } from "@stellar/js-xdr";
 import type { XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import { XdrString, xdrString } from "../values/xdr-string.js";
 import { Hash, type HashWire } from "./hash.js";
 import { PublicKey, type PublicKeyWire } from "./public-key.js";
 import { AuthCert, type AuthCertWire } from "./auth-cert.js";
+import { Uint256Bytes, type Uint256BytesWire } from "./uint256-bytes.js";
 
 export interface HelloWire {
   ledgerVersion: number;
@@ -15,7 +16,7 @@ export interface HelloWire {
   listeningPort: number;
   peerId: PublicKeyWire;
   cert: AuthCertWire;
-  nonce: Uint8Array;
+  nonce: Uint256BytesWire;
 }
 
 /**
@@ -43,7 +44,7 @@ export class Hello extends XdrValue {
   readonly listeningPort: number;
   readonly peerId: PublicKey;
   readonly cert: AuthCert;
-  readonly nonce: Uint8Array;
+  readonly nonce: Uint256Bytes;
 
   static readonly schema: XdrType<HelloWire> = struct("Hello", {
     ledgerVersion: uint32(),
@@ -54,7 +55,7 @@ export class Hello extends XdrValue {
     listeningPort: int32(),
     peerId: PublicKey.schema,
     cert: AuthCert.schema,
-    nonce: opaque(32),
+    nonce: Uint256Bytes.schema,
   });
 
   constructor(input: {
@@ -66,7 +67,7 @@ export class Hello extends XdrValue {
     listeningPort: number;
     peerId: PublicKey;
     cert: AuthCert;
-    nonce: Uint8Array;
+    nonce: Uint256Bytes | Uint8Array | string;
   }) {
     super();
     this.ledgerVersion = input.ledgerVersion;
@@ -83,7 +84,10 @@ export class Hello extends XdrValue {
     this.listeningPort = input.listeningPort;
     this.peerId = input.peerId;
     this.cert = input.cert;
-    this.nonce = input.nonce;
+    this.nonce =
+      input.nonce instanceof Uint256Bytes
+        ? input.nonce
+        : new Uint256Bytes(input.nonce);
   }
 
   toXdrObject(): HelloWire {
@@ -96,7 +100,7 @@ export class Hello extends XdrValue {
       listeningPort: this.listeningPort,
       peerId: this.peerId.toXdrObject(),
       cert: this.cert.toXdrObject(),
-      nonce: this.nonce,
+      nonce: this.nonce.toXdrObject(),
     };
   }
 
@@ -110,7 +114,7 @@ export class Hello extends XdrValue {
       listeningPort: wire.listeningPort,
       peerId: PublicKey.fromXdrObject(wire.peerId),
       cert: AuthCert.fromXdrObject(wire.cert),
-      nonce: wire.nonce,
+      nonce: Uint256Bytes.fromXdrObject(wire.nonce),
     });
   }
 }

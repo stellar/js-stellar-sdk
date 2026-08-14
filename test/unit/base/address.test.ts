@@ -221,7 +221,7 @@ describe("Address", () => {
       expect(s).toBeInstanceOf(xdr.ScAddress);
       expect(s.type).toBe("scAddressTypeMuxedAccount");
       const muxed = (s as ScAddressMuxedAccount).muxedAccount;
-      expect(muxed.ed25519).toEqual(
+      expect(muxed.ed25519.toBytes()).toEqual(
         StrKey.decodeEd25519PublicKey(MUXED_ADDRESS_BASE),
       );
       expect(muxed.id.toString()).toBe(MUXED_ADDRESS_ID);

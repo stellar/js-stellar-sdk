@@ -1,6 +1,7 @@
-import { array, int64, opaque, option, struct, uint32 } from "@stellar/js-xdr";
+import { array, int64, option, struct, uint32 } from "@stellar/js-xdr";
 import type { XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
+import { Uint256Bytes, type Uint256BytesWire } from "./uint256-bytes.js";
 import { TimeBounds, type TimeBoundsWire } from "./time-bounds.js";
 import { Memo, type MemoWire } from "./memo.js";
 import { Operation, type OperationWire } from "./operation.js";
@@ -10,7 +11,7 @@ import {
 } from "./transaction-v0-ext.js";
 
 export interface TransactionV0Wire {
-  sourceAccountEd25519: Uint8Array;
+  sourceAccountEd25519: Uint256BytesWire;
   fee: number;
   seqNum: bigint;
   timeBounds: TimeBoundsWire | null;
@@ -39,7 +40,7 @@ export interface TransactionV0Wire {
  * ```
  */
 export class TransactionV0 extends XdrValue {
-  readonly sourceAccountEd25519: Uint8Array;
+  readonly sourceAccountEd25519: Uint256Bytes;
   readonly fee: number;
   readonly seqNum: bigint;
   readonly timeBounds: TimeBounds | null;
@@ -48,7 +49,7 @@ export class TransactionV0 extends XdrValue {
   readonly ext: TransactionV0Ext;
 
   static readonly schema: XdrType<TransactionV0Wire> = struct("TransactionV0", {
-    sourceAccountEd25519: opaque(32),
+    sourceAccountEd25519: Uint256Bytes.schema,
     fee: uint32(),
     seqNum: int64(),
     timeBounds: option(TimeBounds.schema),
@@ -58,7 +59,7 @@ export class TransactionV0 extends XdrValue {
   });
 
   constructor(input: {
-    sourceAccountEd25519: Uint8Array;
+    sourceAccountEd25519: Uint256Bytes | Uint8Array | string;
     fee: number;
     seqNum: bigint;
     timeBounds: TimeBounds | null;
@@ -67,7 +68,10 @@ export class TransactionV0 extends XdrValue {
     ext: TransactionV0Ext;
   }) {
     super();
-    this.sourceAccountEd25519 = input.sourceAccountEd25519;
+    this.sourceAccountEd25519 =
+      input.sourceAccountEd25519 instanceof Uint256Bytes
+        ? input.sourceAccountEd25519
+        : new Uint256Bytes(input.sourceAccountEd25519);
     this.fee = input.fee;
     this.seqNum = input.seqNum;
     this.timeBounds = input.timeBounds;
@@ -78,7 +82,7 @@ export class TransactionV0 extends XdrValue {
 
   toXdrObject(): TransactionV0Wire {
     return {
-      sourceAccountEd25519: this.sourceAccountEd25519,
+      sourceAccountEd25519: this.sourceAccountEd25519.toXdrObject(),
       fee: this.fee,
       seqNum: this.seqNum,
       timeBounds:
@@ -91,7 +95,9 @@ export class TransactionV0 extends XdrValue {
 
   static fromXdrObject(wire: TransactionV0Wire): TransactionV0 {
     return new TransactionV0({
-      sourceAccountEd25519: wire.sourceAccountEd25519,
+      sourceAccountEd25519: Uint256Bytes.fromXdrObject(
+        wire.sourceAccountEd25519,
+      ),
       fee: wire.fee,
       seqNum: wire.seqNum,
       timeBounds:
