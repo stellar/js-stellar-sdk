@@ -18,8 +18,8 @@ importers:
         specifier: ^2.2.0
         version: 2.2.0
       '@stellar/js-xdr':
-        specifier: ^5.0.0-rc.1
-        version: 5.0.0-rc.1
+        specifier: ^5.0.0-rc.2
+        version: 5.0.0-rc.2
       '@types/json-schema':
         specifier: ^7.0.15
         version: 7.0.15
@@ -1590,8 +1590,8 @@ packages:
     resolution: {integrity: sha512-+NmNa7Tk5BI5XFdy/6xGTqAN4J9a9KgCrCGhj2uEUTCBhLkch0M+QbKzNH8zEnejWe0p8w+0q5hUVX6L3OzoVA==}
     engines: {node: '>=20.0.0', pnpm: '>=9.0.0'}
 
-  '@stellar/js-xdr@5.0.0-rc.1':
-    resolution: {integrity: sha512-Srb0vLhm9fM3CLtGdMy6tjBW2SiIAnZeAhmMcODWC3eaJ07rzuIPLq2TK5ESQFc24d7y02txmV53zws9UDqfWQ==}
+  '@stellar/js-xdr@5.0.0-rc.2':
+    resolution: {integrity: sha512-aLvQeRXFmEXkLTebNv9VYQJV7SCST+9nB4WKfyfXekK9O2Mig5EMoG/SxLPME1SXIEa7ecHIkD9T32pglLws7g==}
     engines: {node: '>=22.0.0', pnpm: '>=10.0.0'}
 
   '@stellar/stellar-xdr-json@26.0.0':
@@ -5962,7 +5962,7 @@ snapshots:
 
   '@stellar/js-xdr@4.0.0': {}
 
-  '@stellar/js-xdr@5.0.0-rc.1': {}
+  '@stellar/js-xdr@5.0.0-rc.2': {}
 
   '@stellar/stellar-xdr-json@26.0.0': {}
 
