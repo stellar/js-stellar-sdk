@@ -176,6 +176,33 @@ export function decodeStream<Wire, Instance extends XdrValue>(
   return out;
 }
 
+/**
+ * Encode raw bytes into the requested {@link XdrFormat}: the bytes themselves
+ * for `"raw"`, or a `"hex"` / `"base64"` string. This is the encoder behind
+ * every `toXdr(format)` call, exported so consumers can format any
+ * `Uint8Array` the SDK hands back (hashes, signatures, raw keys) without a
+ * helper library.
+ *
+ * ```ts
+ * encodeBytes(new Uint8Array([0xde, 0xad, 0xbe, 0xef]), "hex");    // "deadbeef"
+ * encodeBytes(new Uint8Array([0xde, 0xad, 0xbe, 0xef]), "base64"); // "3q2+7w=="
+ * ```
+ *
+ * @param bytes the bytes to encode
+ * @param format `"raw"` returns `bytes` unchanged; `"hex"` and `"base64"`
+ *   return a string
+ * @throws {XdrError} on an unknown format
+ * @see {@link decodeBytes} for the reverse direction
+ */
+export function encodeBytes(bytes: Uint8Array, format: "raw"): Uint8Array;
+export function encodeBytes(
+  bytes: Uint8Array,
+  format: "hex" | "base64",
+): string;
+export function encodeBytes(
+  bytes: Uint8Array,
+  format: XdrFormat,
+): Uint8Array | string;
 export function encodeBytes(
   bytes: Uint8Array,
   format: XdrFormat,
@@ -194,6 +221,26 @@ export function encodeBytes(
   }
 }
 
+/**
+ * Decode a `"hex"` or `"base64"` string into bytes; a `Uint8Array` input
+ * passes through unchanged. This is the decoder behind every
+ * `fromXdr(input, format)` call, exported so consumers can parse encoded
+ * byte strings without a helper library.
+ *
+ * ```ts
+ * decodeBytes("deadbeef", "hex");  // Uint8Array [0xde, 0xad, 0xbe, 0xef]
+ * decodeBytes("3q2+7w==", "base64");
+ * ```
+ *
+ * Decoding is strict: malformed input throws instead of being silently
+ * truncated the way `Buffer.from(str, "hex")` was.
+ *
+ * @param input the bytes or encoded string to decode
+ * @param format required when `input` is a string; ignored for `Uint8Array`
+ * @throws {XdrError} when a string arrives without a `"hex"` / `"base64"`
+ *   format, or the format is unknown
+ * @see {@link encodeBytes} for the reverse direction
+ */
 export function decodeBytes(
   input: Uint8Array | string,
   format: "raw" | "hex" | "base64" | undefined,
