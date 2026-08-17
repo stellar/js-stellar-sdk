@@ -176,6 +176,24 @@ export function decodeStream<Wire, Instance extends XdrValue>(
   return out;
 }
 
+/** Options shared by {@link encodeArray} and {@link decodeArray}. */
+export interface XdrArrayOptions {
+  /**
+   * Largest element count to accept, defaulting to the XDR maximum of
+   * 2^32 - 1. Both encoding and decoding throw `XdrError` past this many
+   * elements. Pass the bound from the XDR definition, so a field declared
+   * `TimeSlicedPeerData peers<25>` decodes with `maxLength: 25`, or any cap
+   * you want to enforce, to reject an oversized array before its elements are
+   * decoded.
+   */
+  maxLength?: number;
+  /**
+   * How many nested schemas may be entered, counting the array itself as the
+   * first level.
+   */
+  maxDepth?: number;
+}
+
 /**
  * Encode a list of XDR values as a single length-prefixed XDR variable-length
  * array (`T values<>` — a 4-byte count followed by the elements). This is the
@@ -188,25 +206,33 @@ export function decodeStream<Wire, Instance extends XdrValue>(
 export function encodeArray<Wire, Instance extends XdrValue>(
   type: XdrValueConstructor<Wire, Instance>,
   values: readonly Instance[],
+  options?: XdrArrayOptions,
 ): Uint8Array;
 export function encodeArray<Wire, Instance extends XdrValue>(
   type: XdrValueConstructor<Wire, Instance>,
   values: readonly Instance[],
   format: "raw",
+  options?: XdrArrayOptions,
 ): Uint8Array;
 export function encodeArray<Wire, Instance extends XdrValue>(
   type: XdrValueConstructor<Wire, Instance>,
   values: readonly Instance[],
   format: "hex" | "base64",
+  options?: XdrArrayOptions,
 ): string;
 export function encodeArray<Wire, Instance extends XdrValue>(
   type: XdrValueConstructor<Wire, Instance>,
   values: readonly Instance[],
-  format: XdrFormat = "raw",
+  formatOrOptions?: XdrFormat | XdrArrayOptions,
+  maybeOptions?: XdrArrayOptions,
 ): Uint8Array | string {
-  const codec = array(type.schema, UNBOUNDED_MAX_LENGTH);
-  const bytes = codec.encode(values.map((v) => v.toXdrObject() as Wire));
-  return encodeBytes(bytes, format);
+  const [format, options] = splitArrayArgs(formatOrOptions, maybeOptions);
+  const codec = array(type.schema, options.maxLength ?? UNBOUNDED_MAX_LENGTH);
+  const bytes = codec.encode(
+    values.map((v) => v.toXdrObject() as Wire),
+    { maxDepth: options.maxDepth },
+  );
+  return encodeBytes(bytes, format ?? "raw");
 }
 
 /**
@@ -219,20 +245,40 @@ export function encodeArray<Wire, Instance extends XdrValue>(
 export function decodeArray<Wire, Instance extends XdrValue>(
   type: XdrValueConstructor<Wire, Instance>,
   input: Uint8Array,
+  options?: XdrArrayOptions,
 ): Instance[];
 export function decodeArray<Wire, Instance extends XdrValue>(
   type: XdrValueConstructor<Wire, Instance>,
   input: string,
   format: "hex" | "base64",
+  options?: XdrArrayOptions,
 ): Instance[];
 export function decodeArray<Wire, Instance extends XdrValue>(
   type: XdrValueConstructor<Wire, Instance>,
   input: Uint8Array | string,
-  format?: "hex" | "base64",
+  formatOrOptions?: "hex" | "base64" | XdrArrayOptions,
+  maybeOptions?: XdrArrayOptions,
 ): Instance[] {
-  const codec = array(type.schema, UNBOUNDED_MAX_LENGTH);
-  const wires = codec.decode(decodeBytes(input, format));
+  const [format, options] = splitArrayArgs(formatOrOptions, maybeOptions);
+  const codec = array(type.schema, options.maxLength ?? UNBOUNDED_MAX_LENGTH);
+  const wires = codec.decode(
+    decodeBytes(input, format as "hex" | "base64" | undefined),
+    { maxDepth: options.maxDepth },
+  );
   return wires.map((w) => type.fromXdrObject(w));
+}
+
+/**
+ * Sort out the trailing `(format?, options?)` arguments of the array helpers,
+ * where the format may be omitted and the options object take its place.
+ */
+function splitArrayArgs(
+  formatOrOptions?: XdrFormat | XdrArrayOptions,
+  maybeOptions?: XdrArrayOptions,
+): [XdrFormat | undefined, XdrArrayOptions] {
+  return typeof formatOrOptions === "string"
+    ? [formatOrOptions, maybeOptions ?? {}]
+    : [undefined, formatOrOptions ?? maybeOptions ?? {}];
 }
 
 export function encodeBytes(

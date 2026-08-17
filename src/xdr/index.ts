@@ -40,6 +40,7 @@ export {
   decodeStream,
   encodeArray,
   decodeArray,
+  type XdrArrayOptions,
   type XdrFormat,
   type JsonValue,
   type XdrValueConstructor,
