@@ -24,10 +24,10 @@ import { XdrLargeInt, type ScIntType } from "./xdr_large_int.js";
  * sci.toBigInt(); // gives the native BigInt value
  * sci.toU64();    // gives ScValType-specific XDR constructs (with size checks)
  *
- * // You have a number and want to shove it into a contract.
- * sci = new ScInt(0xdeadcafebabe);
- * sci.toBigInt() // returns 244838016400062n
- * sci.toNumber() // throws: too large
+ * // You have a large value and want to shove it into a contract.
+ * sci = new ScInt(0xdeadcafebabedeadn);
+ * sci.toBigInt() // returns 16045704242794520237n
+ * sci.toNumber() // throws: not in range for Number
  *
  * // Pass any to e.g. a Contract.call(), conversion happens automatically
  * // regardless of the initial type.

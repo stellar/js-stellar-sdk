@@ -5,6 +5,7 @@ import {
   Uint128Parts,
   Uint256Parts,
 } from "../../xdr/index.js";
+import { intRange } from "../../xdr/values/bigint-parts.js";
 
 type BigIntLike = { toBigInt(): bigint };
 type XdrLargeIntValues =
@@ -47,6 +48,34 @@ const SIGNED: Readonly<Record<ScIntType, boolean>> = {
 };
 
 /**
+ * Throws a `RangeError` if `value` can't be represented as `name`, a `bits`-wide
+ * integer.
+ *
+ * A negative value for an unsigned type is reported as a sign error rather than
+ * as an overflow, and the valid range appears in the out-of-range message, so
+ * the text states why the value was actually rejected. Both messages match the
+ * ones `js-xdr` produced through v16.
+ */
+function assertInRange(
+  value: bigint,
+  name: string,
+  bits: 64 | 128 | 256,
+  signed: boolean,
+): void {
+  if (!signed && value < 0n) {
+    throw new RangeError(`expected a positive value, got: ${value}`);
+  }
+
+  const [min, max] = intRange(signed, bits);
+
+  if (value < min || value > max) {
+    throw new RangeError(
+      `bigint value ${value} for ${name} out of range [${min}, ${max}]`,
+    );
+  }
+}
+
+/**
  * A wrapper class to represent large XDR-encodable integers.
  *
  * This operates at a lower level than {@link ScInt} by forcing you to specify
@@ -83,7 +112,10 @@ export class XdrLargeInt {
           "toBigInt" in i &&
           typeof (i as BigIntLike).toBigInt === "function"
         ) {
-          return (i as BigIntLike).toBigInt();
+          // `toBigInt()` is a consumer-supplied hook, so its result is coerced
+          // rather than trusted: the range check below compares with `<` and
+          // `>`, which yield `false` instead of throwing for a non-bigint.
+          return BigInt((i as BigIntLike).toBigInt());
         }
         return BigInt(i as number | string);
       },
@@ -103,18 +135,7 @@ export class XdrLargeInt {
     // `LargeInt`-backed implementation enforced this at construction time and
     // several callers (notably `nativeToScVal` via `ScInt`) depend on it.
     if (parts.length === 1) {
-      const bits = SIZE[type];
-      if (SIGNED[type]) {
-        if (BigInt.asIntN(bits, value) !== value) {
-          throw new RangeError(
-            `value too large for ${bits}-bit ${type}: ${value}`,
-          );
-        }
-      } else if (value < 0n || BigInt.asUintN(bits, value) !== value) {
-        throw new RangeError(
-          `value too large for ${bits}-bit ${type}: ${value}`,
-        );
-      }
+      assertInRange(value, type, SIZE[type], SIGNED[type]);
     }
 
     this.value = value;
@@ -131,7 +152,7 @@ export class XdrLargeInt {
     if (bi > Number.MAX_SAFE_INTEGER || bi < Number.MIN_SAFE_INTEGER) {
       throw RangeError(
         `value ${bi} not in range for Number ` +
-          `[${Number.MAX_SAFE_INTEGER}, ${Number.MIN_SAFE_INTEGER}]`,
+          `[${Number.MIN_SAFE_INTEGER}, ${Number.MAX_SAFE_INTEGER}]`,
       );
     }
     return Number(bi);
@@ -150,9 +171,7 @@ export class XdrLargeInt {
   toI64(): ScVal {
     this._sizeCheck(64);
     const v = this.value;
-    if (BigInt.asIntN(64, v) !== v) {
-      throw RangeError(`value too large for i64: ${v}`);
-    }
+    assertInRange(v, "i64", 64, true);
     return ScVal.scvI64(v);
   }
 
@@ -182,9 +201,7 @@ export class XdrLargeInt {
   toI128(): ScVal {
     this._sizeCheck(128);
     const v = this.value;
-    if (BigInt.asIntN(128, v) !== v) {
-      throw RangeError(`value too large for i128: ${v}`);
-    }
+    assertInRange(v, "i128", 128, true);
     return ScVal.scvI128(
       new Int128Parts({
         hi: BigInt.asIntN(64, v >> 64n),
@@ -216,9 +233,7 @@ export class XdrLargeInt {
    */
   toI256(): ScVal {
     const v = this.value;
-    if (BigInt.asIntN(256, v) !== v) {
-      throw RangeError(`value too large for i256: ${v}`);
-    }
+    assertInRange(v, "i256", 256, true);
     return ScVal.scvI256(
       new Int256Parts({
         hiHi: BigInt.asIntN(64, v >> 192n),
@@ -297,8 +312,10 @@ export class XdrLargeInt {
   }
 
   private _sizeCheck(bits: number): void {
+    // This rejects the declared type, not the value: a small `i128` still can't
+    // be encoded as 64 bits, so the message must not blame the value's size.
     if (SIZE[this.type] > bits) {
-      throw RangeError(`value too large for ${bits} bits (${this.type})`);
+      throw RangeError(`cannot encode ${this.type} as ${bits} bits`);
     }
   }
 
