@@ -38,6 +38,8 @@ export {
   encodeBytes,
   decodeBytes,
   decodeStream,
+  encodeArray,
+  decodeArray,
   type XdrFormat,
   type JsonValue,
   type XdrValueConstructor,

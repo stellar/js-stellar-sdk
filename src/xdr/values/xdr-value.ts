@@ -6,7 +6,7 @@ import {
   areUint8ArraysEqual,
 } from "uint8array-extras";
 import type { XdrType } from "@stellar/js-xdr";
-import { Reader, XdrError } from "@stellar/js-xdr";
+import { array, Reader, UNBOUNDED_MAX_LENGTH, XdrError } from "@stellar/js-xdr";
 import { walkToJson, walkFromJson } from "./to-json.js";
 
 export type XdrFormat = "raw" | "hex" | "base64";
@@ -174,6 +174,65 @@ export function decodeStream<Wire, Instance extends XdrValue>(
     out.push(type.fromXdrObject(type.schema._read(reader, path)));
   }
   return out;
+}
+
+/**
+ * Encode a list of XDR values as a single length-prefixed XDR variable-length
+ * array (`T values<>` — a 4-byte count followed by the elements). This is the
+ * wire format of the removed array typedef classes (`LedgerEntryChanges`,
+ * `SorobanAuthorizationEntries`, …); use it where a protocol expects the whole
+ * list as one blob, such as Horizon's `fee_meta_xdr`. For lists exchanged as
+ * one string per element, encode each element with `value.toXdr(format)`
+ * instead.
+ */
+export function encodeArray<Wire, Instance extends XdrValue>(
+  type: XdrValueConstructor<Wire, Instance>,
+  values: readonly Instance[],
+): Uint8Array;
+export function encodeArray<Wire, Instance extends XdrValue>(
+  type: XdrValueConstructor<Wire, Instance>,
+  values: readonly Instance[],
+  format: "raw",
+): Uint8Array;
+export function encodeArray<Wire, Instance extends XdrValue>(
+  type: XdrValueConstructor<Wire, Instance>,
+  values: readonly Instance[],
+  format: "hex" | "base64",
+): string;
+export function encodeArray<Wire, Instance extends XdrValue>(
+  type: XdrValueConstructor<Wire, Instance>,
+  values: readonly Instance[],
+  format: XdrFormat = "raw",
+): Uint8Array | string {
+  const codec = array(type.schema, UNBOUNDED_MAX_LENGTH);
+  const bytes = codec.encode(values.map((v) => v.toXdrObject() as Wire));
+  return encodeBytes(bytes, format);
+}
+
+/**
+ * Decode a single length-prefixed XDR variable-length array (`T values<>`)
+ * into a list of values — the inverse of {@link encodeArray}. Throws
+ * `XdrError` on a short buffer, trailing bytes, or a count that doesn't match
+ * the payload. For a buffer of values concatenated with no length prefix, use
+ * {@link decodeStream}.
+ */
+export function decodeArray<Wire, Instance extends XdrValue>(
+  type: XdrValueConstructor<Wire, Instance>,
+  input: Uint8Array,
+): Instance[];
+export function decodeArray<Wire, Instance extends XdrValue>(
+  type: XdrValueConstructor<Wire, Instance>,
+  input: string,
+  format: "hex" | "base64",
+): Instance[];
+export function decodeArray<Wire, Instance extends XdrValue>(
+  type: XdrValueConstructor<Wire, Instance>,
+  input: Uint8Array | string,
+  format?: "hex" | "base64",
+): Instance[] {
+  const codec = array(type.schema, UNBOUNDED_MAX_LENGTH);
+  const wires = codec.decode(decodeBytes(input, format));
+  return wires.map((w) => type.fromXdrObject(w));
 }
 
 export function encodeBytes(
