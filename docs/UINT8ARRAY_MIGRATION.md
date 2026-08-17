@@ -23,27 +23,47 @@ etc. on an SDK result, that code needs updating.
 
 ## 1. Recipes: replacing Buffer methods on SDK results
 
-The [`uint8array-extras`](https://github.com/sindresorhus/uint8array-extras)
-package (which the SDK itself uses) covers most of these; plain `DataView`
-covers the rest. In Node you can also just wrap the result:
-`Buffer.from(bytes.buffer, bytes.byteOffset, bytes.byteLength)`.
+The SDK ships the hex and base64 conversions itself: `xdr.encodeBytes` and
+`xdr.decodeBytes` (the same functions behind every `toXdr` / `fromXdr` call).
+XDR values need no helper at all, since `toXdr` takes a format directly. Cases
+the SDK does not cover (`equals`, `concat`, `compare`, UTF-8) are handled by
+[`uint8array-extras`](https://github.com/sindresorhus/uint8array-extras) or
+plain `DataView`, as noted per row.
+
+```ts
+import { xdr } from "@stellar/stellar-sdk";
+
+xdr.encodeBytes(tx.hash(), "hex");          // "deadbeef…"
+xdr.encodeBytes(keypair.sign(data), "base64");
+xdr.decodeBytes("deadbeef", "hex");         // Uint8Array
+
+// XDR values encode directly — no helper needed:
+scVal.toXdr("hex");
+entry.toXdr("base64");
+```
 
 | Before (Buffer)                    | After (Uint8Array)                                          |
 | ---------------------------------- | ----------------------------------------------------------- |
-| `buf.toString("hex")`              | `uint8ArrayToHex(bytes)`                                    |
-| `buf.toString("base64")`           | `uint8ArrayToBase64(bytes)`                                 |
-| `buf.toString("utf8")` / `.toString()` | `uint8ArrayToString(bytes)`                             |
-| `Buffer.from(hex, "hex")`          | `hexToUint8Array(hex)`                                      |
-| `Buffer.from(b64, "base64")`       | `base64ToUint8Array(b64)`                                   |
-| `Buffer.from(str)` (UTF-8)         | `stringToUint8Array(str)`                                   |
-| `Buffer.concat([a, b])`            | `concatUint8Arrays([a, b])`                                 |
-| `a.equals(b)`                      | `areUint8ArraysEqual(a, b)`                                 |
-| `a.compare(b)`                     | `compareUint8Arrays(a, b)`                                  |
+| `xdrVal.toXDR("hex")` / `("base64")` | `xdrVal.toXdr("hex")` / `("base64")` — returns `string`, no helper needed |
+| `buf.toString("hex")`              | `xdr.encodeBytes(bytes, "hex")`                             |
+| `buf.toString("base64")`           | `xdr.encodeBytes(bytes, "base64")`                          |
+| `Buffer.from(hex, "hex")`          | `xdr.decodeBytes(hex, "hex")`                               |
+| `Buffer.from(b64, "base64")`       | `xdr.decodeBytes(b64, "base64")`                            |
+| `buf.toString("utf8")` / `.toString()` | `uint8ArrayToString(bytes)` (`uint8array-extras`)       |
+| `Buffer.from(str)` (UTF-8)         | `stringToUint8Array(str)` (`uint8array-extras`)             |
+| `Buffer.concat([a, b])`            | `concatUint8Arrays([a, b])` (`uint8array-extras`)           |
+| `a.equals(b)`                      | `areUint8ArraysEqual(a, b)` (`uint8array-extras`)           |
+| `a.compare(b)`                     | `compareUint8Arrays(a, b)` (`uint8array-extras`)            |
 | `Buffer.alloc(n)`                  | `new Uint8Array(n)`                                         |
 | `Buffer.isBuffer(x)`               | `x instanceof Uint8Array`                                   |
 | `buf.readUInt32BE(o)`              | `new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength).getUint32(o)` |
 | `buf.readBigUInt64BE(o)`           | `…same DataView….getBigUint64(o)`                           |
 | `buf.slice(a, b)` (view)           | `bytes.subarray(a, b)`. Note that `Uint8Array.prototype.slice` **copies**, while `Buffer.prototype.slice` returned a view |
+
+As a stopgap in Node you can wrap a result back into a Buffer:
+`Buffer.from(bytes.buffer, bytes.byteOffset, bytes.byteLength)`. Treat that as
+temporary; it reintroduces the Buffer dependency v17 removed, and it does not
+work in browsers without a polyfill.
 
 Three semantic traps to check for:
 
@@ -62,7 +82,7 @@ Three semantic traps to check for:
   result. Normalize one side, or compare encodings:
 
   ```ts
-  expect(uint8ArrayToHex(actual)).toBe(expectedHex); // preferred
+  expect(xdr.encodeBytes(actual, "hex")).toBe(expectedHex); // preferred
   expect(Array.from(actual)).toEqual(Array.from(expectedBuffer));
   ```
 
