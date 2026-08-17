@@ -5,6 +5,7 @@ import {
   Uint128Parts,
   Uint256Parts,
 } from "../../xdr/index.js";
+import { intRange } from "../../xdr/values/bigint-parts.js";
 
 type BigIntLike = { toBigInt(): bigint };
 type XdrLargeIntValues =
@@ -65,10 +66,7 @@ function assertInRange(
     throw new RangeError(`expected a positive value, got: ${value}`);
   }
 
-  const width = BigInt(bits);
-  const [min, max] = signed
-    ? [-(1n << (width - 1n)), (1n << (width - 1n)) - 1n]
-    : [0n, (1n << width) - 1n];
+  const [min, max] = intRange(signed, bits);
 
   if (value < min || value > max) {
     throw new RangeError(

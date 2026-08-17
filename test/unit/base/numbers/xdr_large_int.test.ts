@@ -31,9 +31,9 @@ describe("XdrLargeInt", () => {
         expect(xdrInt.toBigInt()).toBe(42n);
       });
 
-      it("rejects a toBigInt() that returns a non-bigint", () => {
+      it("rejects a toBigInt() result that cannot be coerced to bigint", () => {
         // the range check compares with < and >, which yield false rather than
-        // throwing for a string or object, so the value must be coerced first
+        // throwing for a non-bigint, so the value must be coerced first
         for (const bad of ["abc", NaN, Infinity, 1.5, null, undefined, {}]) {
           expect(
             () => new XdrLargeInt("u64", { toBigInt: () => bad as never }),
