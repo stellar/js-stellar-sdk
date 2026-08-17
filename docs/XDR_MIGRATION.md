@@ -109,6 +109,21 @@ stood for rather than exporting a name for it:
 These only bite type annotations and `import type` lines. The runtime values
 were always the underlying types.
 
+The one runtime use the array typedefs had was encoding or decoding a whole
+list as a single length-prefixed blob (e.g.
+`xdr.LedgerEntryChanges.fromXDR(feeMetaXdr, "base64")` on Horizon's
+`fee_meta_xdr`). That job moved to the generic `encodeArray` / `decodeArray`
+helpers, which work with any XDR class:
+
+```js
+const changes = xdr.decodeArray(xdr.LedgerEntryChange, feeMetaXdr, "base64");
+const blob = xdr.encodeArray(xdr.LedgerEntryChange, changes, "base64");
+```
+
+This is only for the bare typedef wire format. Lists exchanged as one base64
+string per element (RPC simulation auth entries, `operation.auth`) still use
+`value.toXdr("base64")` / `Type.fromXdr(s, "base64")` per element.
+
 ---
 
 ## 2. Union types: discriminated classes, not switch/value pairs
@@ -895,6 +910,10 @@ const entries = xdr.decodeStream(xdr.ScSpecEntry, bytes);
 
 `decodeStream` decodes until the buffer is exhausted and throws if the remaining
 bytes don't form a complete value. It never returns a partial list.
+
+For a length-prefixed XDR variable-length array (the wire format of the removed
+array typedefs — a 4-byte count, then the elements), use `xdr.encodeArray` and
+`xdr.decodeArray` instead (§ 1).
 
 ### Runtime type constructors
 
