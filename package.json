@@ -1,6 +1,6 @@
 {
   "name": "@stellar/stellar-sdk",
-  "version": "17.0.0-rc.1",
+  "version": "17.0.0-rc.2",
   "type": "module",
   "packageManager": "pnpm@10.28.0",
   "description": "A library for working with the Stellar network, including communication with the Horizon and Soroban RPC servers.",
@@ -197,7 +197,7 @@
     "@exodus/bytes": "^1.15.1",
     "@noble/ed25519": "^3.1.0",
     "@noble/hashes": "^2.2.0",
-    "@stellar/js-xdr": "^5.0.0-rc.1",
+    "@stellar/js-xdr": "^5.0.0-rc.2",
     "@types/json-schema": "^7.0.15",
     "axios": "1.18.0",
     "bignumber.js": "^11.1.4",
