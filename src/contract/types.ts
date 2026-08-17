@@ -233,15 +233,14 @@ export type MethodOptions = {
   restore?: boolean;
 
   /**
-   * If true, simulation records v2 address credentials (CAP-71) instead of
-   * the legacy v1 address credentials. Best-effort: it only affects the
-   * recording auth modes and is silently ignored on protocol versions whose
-   * host cannot emit v2 credentials.
+   * Whether simulation records v2 address credentials (CAP-71) instead of the
+   * legacy v1 address credentials. Set it to false to ask for the legacy v1
+   * format. It only affects the recording auth modes.
    *
    * @deprecated This flag is transitional. Once the network returns v2
    * credentials by default (protocol 28), it becomes a no-op — do not rely on
-   * omitting it to keep receiving the legacy v1 format.
-   * @defaultValue false
+   * passing false to keep receiving the legacy v1 format.
+   * @defaultValue true
    */
   useUpgradedAuth?: boolean;
 

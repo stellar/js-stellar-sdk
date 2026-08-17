@@ -178,6 +178,16 @@ xdr.TransactionMeta.v2(transactionMetaV2);
 xdr.ExtensionPoint.v0();
 ```
 
+The legacy form throws a `TypeError` naming a factory to use instead, so a call
+site TypeScript can't reach — plain JavaScript, or TypeScript run without a
+type-check pass — fails at the `new` rather than later, inside serialization:
+
+```text
+TypeError: new xdr.TransactionMeta(...) is not supported: XDR unions are built
+from per-variant factories. Call xdr.TransactionMeta.operations(...) (or another
+arm factory) instead.
+```
+
 ### Narrowing helpers
 
 Two helpers ship on the `xdr` namespace for narrowing a union to a specific
@@ -323,16 +333,16 @@ underneath it, so inherited members changed for both classes:
 
 ## 6. Bytes: `Uint8Array` and byte wrappers
 
-Byte fields come in two shapes. An inline `opaque[N]` / `opaque<N>` (and the
-`uint256` typedef) is a raw `Uint8Array`. The SDK used to surface `Buffer` here;
-`Buffer` **is** a `Uint8Array` subclass, so code that just reads bytes keeps
-working.
+Byte fields no longer surface `Buffer`, and they come in two shapes. An
+anonymous `opaque[N]` / `opaque<N>` field is a plain `Uint8Array`; a **named**
+byte alias (`Hash`, `Signature`, `ScBytes`, `AssetCode4`, `PoolId`,
+`Uint256Bytes`, …) is a small class wrapping one, and `.toBytes()` gives you the
+`Uint8Array` — see § 6.1. Either way the underlying bytes are a `Uint8Array`
+where they used to be a `Buffer`. `Buffer` **is** a `Uint8Array` subclass, so
+code that just reads raw byte fields (indexing, `.length`) keeps working.
 
-The fourteen **capitalized byte typedefs** are not — `AssetCode4`,
-`AssetCode12`, `ContractId`, `DataValue`, `EncodedLedgerKey`, `EncryptedBody`,
-`Hash`, `PoolId`, `ScBytes`, `Signature`, `SignatureHint`, `Thresholds`,
-`UpgradeType`, `Value`. Each is a wrapper holding the bytes at `.value`, also
-read via `.toBytes()`:
+A wrapper is not a `Uint8Array`, though, so the reads you'd reach for on one
+don't work:
 
 ```ts
 const h = new xdr.Hash(new Uint8Array(32));
@@ -344,6 +354,8 @@ h.value; // Uint8Array(32)  (h.toBytes() returns the same)
 
 `strict` TypeScript rejects those three reads at the call site (TS2339, TS7053,
 TS2769); plain JavaScript silently gets `undefined` or `[]`.
+
+The differences from `Buffer` appear when:
 
 (**Note:** XDR _string_ fields are a separate story; see § 11.)
 
@@ -379,37 +391,69 @@ xdr.ScVal.scvBytes(new xdr.ScBytes(new Uint8Array([1, 2, 3])));
 new xdr.LedgerKeyContractCode({ hash: someBytes });
 ```
 
-The one place a specific class **is** required is the typedef-opaque aliases;
-see § 6.1.
+The one place a specific class **is** required is the named byte aliases; see
+§ 6.1.
 
 Byte-class constructors also accept hex strings as a convenience, so
 `new xdr.Hash("aabbcc…")` works the same as passing 32 bytes.
 
-### 6.1 Typedef-opaque aliases became distinct classes
+### 6.1 Named byte aliases are classes
 
-`PoolId`, `ContractId`, and similar typedef-aliases-of-`Hash` used to be plain
-re-exports (`export const PoolId = Hash`). They now emit as their own
-`BytesValue<"PoolId">` / `BytesValue<"ContractId">` subclasses with distinct
-named schemas. Byte semantics are identical, but class identity isn't.
+Every `typedef opaque` in the schema emits its own `BytesValue` subclass with a
+distinct named schema. Writing is forgiving — a constructor or factory takes raw
+bytes, a string, or the wrapper itself — but **reading gives you the wrapper**,
+so unwrap with `.toBytes()`:
 
 ```ts
-// Before — PoolId === Hash at runtime
-new xdr.Hash(bytes) instanceof xdr.Hash; // true
-xdr.ScAddress.scAddressTypeContract(new xdr.Hash(bytes)); // worked
+// Writing — all three work
+xdr.PublicKey.publicKeyTypeEd25519(rawBytes);
+xdr.PublicKey.publicKeyTypeEd25519("3f0c34bf…");
+xdr.PublicKey.publicKeyTypeEd25519(new xdr.Uint256Bytes(rawBytes));
 
-// After
-new xdr.PoolId(bytes) instanceof xdr.Hash; // false — distinct class
-xdr.ScAddress.scAddressTypeContract(new xdr.ContractId(bytes)); // required
-xdr.ScAddress.scAddressTypeLiquidityPool(new xdr.PoolId(bytes));
+// Reading — the wrapper needs unwrapping
+StrKey.encodeEd25519PublicKey(key.ed25519.toBytes());
 ```
 
-This is what lets JSON output (§ 12) render a `PoolId` as an `L`-strkey and a
-`ContractId` as a `C`-strkey while a plain `Hash` stays hex.
+The string form is hex, except for `AssetCode4` / `AssetCode12`, which take the
+code as ASCII and zero-pad it (`new xdr.AssetCode4("USD")`). Length is checked
+at construction rather than at encode time, so a wrong-sized array throws where
+you built it.
 
-Note that this break is type-level, and applies to _construction_: at runtime a
-`Hash` still encodes to the same 32 bytes, so plain JavaScript callers see no
-error. Reading is a separate hazard — these classes are wrappers, not
-`Uint8Array` (§ 6).
+Here is the full set, and the types whose fields hand you one. `.toBytes()` is
+what you need at every read site below:
+
+| Class | Width | Read it from |
+| --- | --- | --- |
+| `Hash` | 32 | pervasive — ledger headers, SCP statements, `ContractExecutable`, `ContractCodeEntry`, `TtlEntry`, `LedgerKeyContractCode`, `TransactionResultPair`, `HashIdPreimage`, and ~25 more |
+| `Uint256Bytes` | 32 | `MuxedAccount`, `MuxedAccountMed25519`, `MuxedEd25519Account`, `PublicKey` (and its alias `AccountId`), `SignerKey`, `SignerKeyEd25519SignedPayload`, `TransactionV0`, `ContractIdPreimageFromAddress`, `ClaimOfferAtomV0`, `Hello`, `DontHave`, `StellarMessage` |
+| `ContractId` | 32 | `ScAddress`, `ContractEvent`, `ConfigUpgradeSetKey` |
+| `PoolId` | 32 | `ScAddress`, `TrustLineAsset`, `LiquidityPoolEntry`, `LedgerKeyLiquidityPool`, `LiquidityPoolDepositOp`, `LiquidityPoolWithdrawOp`, `HashIdPreimageRevokeId`, `ClaimLiquidityAtom` |
+| `Signature` | ≤64 | `DecoratedSignature`, `ScpEnvelope`, `AuthCert`, `LedgerCloseValueSignature`, the signed survey messages |
+| `SignatureHint` | 4 | `DecoratedSignature` |
+| `ScBytes` | unbounded | `ScVal` |
+| `AssetCode4` / `AssetCode12` | 4 / 12 | `AssetCode`, `AlphaNum4`, `AlphaNum12` |
+| `Thresholds` | 4 | `AccountEntry` |
+| `DataValue` | ≤64 | `DataEntry`, `ManageDataOp` |
+| `Value` | unbounded | `ScpBallot`, `ScpNomination` |
+| `UpgradeType` | ≤128 | `StellarValue` |
+| `EncodedLedgerKey` | unbounded | `FrozenLedgerKeys`, `FrozenLedgerKeysDelta` |
+| `EncryptedBody` | ≤64000 | `SurveyResponseMessage` |
+
+Two of these need extra care:
+
+- **`PoolId` and `ContractId`** used to be plain re-exports of `Hash`
+  (`export const PoolId = Hash`). They are now distinct classes, so
+  `new xdr.PoolId(bytes) instanceof xdr.Hash` is `false` and
+  `xdr.ScAddress.scAddressTypeContract(new xdr.Hash(bytes))` no longer
+  typechecks — pass `new xdr.ContractId(bytes)`. This is what lets JSON output
+  (§ 12) render a `PoolId` as an `L`-strkey and a `ContractId` as a `C`-strkey
+  while a plain `Hash` stays hex. The break is type-level: at runtime all three
+  still encode to the same 32 bytes, so plain JavaScript callers see no error.
+- **`Uint256Bytes`** wraps `typedef opaque uint256[32]`. It carries the `Bytes`
+  suffix because `xdr.Uint256` is the bigint wrapper over `Uint256Parts` — a
+  different type with a confusingly similar name. Watch the `.value` getter on
+  the single-arm `PublicKey` / `AccountId` union, which returns the wrapper too:
+  `accountId.value` becomes `accountId.value.toBytes()`.
 
 ---
 
@@ -570,7 +614,10 @@ scvBytes(buf)                →   (unchanged; raw bytes still accepted)
 new xdr.Hash(buf)            →   (still works; also accepts hex strings)
 new xdr.Hash(bytes) for PoolId/ContractId  →  use new xdr.PoolId(bytes) /
                                               new xdr.ContractId(bytes)
-// Reading out: the 14 capitalized typedefs (Hash, Signature, ScBytes, …) wrap
+// Reading out: the 15 named byte aliases (Hash, Signature, ScBytes, …) wrap
+someHash                     →   someHash.toBytes()
+key.ed25519, preimage.salt   →   key.ed25519.toBytes(), preimage.salt.toBytes()
+                                 // uint256 fields are xdr.Uint256Bytes now
 hash.length, hash[0], Array.from(hash)  →  hash.value  (or hash.toBytes())
 deepEqual(Array.from(a), …)             →  a.equals(b)   // both wrappers only
 
@@ -1124,5 +1171,6 @@ any of them silently yields comma-joined decimals. See
 **not** raw bytes, despite the name the first shares with
 `AuthEntrySignature.signature`. They are `xdr.Signature` / `xdr.SignatureHint`
 wrappers; unwrap with `.toBytes()`. Both were a `Buffer` through 16.2.0. The
-rule is the XDR declaration, not the field name: a capitalized byte typedef is
-wrapped, while inline `opaque` and the lowercase `uint256` are raw (§ 6).
+rule is the XDR declaration, not the field name: a named byte typedef is
+wrapped — `uint256` included, as `xdr.Uint256Bytes` — while an anonymous inline
+`opaque` field is raw (§ 6).

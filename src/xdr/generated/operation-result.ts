@@ -105,6 +105,19 @@ export type OperationResultVariantName =
 abstract class OperationResultBase extends XdrValue {
   abstract readonly type: OperationResultVariantName;
 
+  constructor() {
+    super();
+    // `new.target`, not an unconditional throw: every arm subclass reaches
+    // this constructor through `super()`, void arms via an implicit one
+    if (new.target === OperationResultBase) {
+      throw new TypeError(
+        "new xdr.OperationResult(...) is not supported: XDR unions are built from " +
+          "per-variant factories. Call xdr.OperationResult.opInner(...) " +
+          "(or another arm factory) instead.",
+      );
+    }
+  }
+
   static readonly schema: XdrType<OperationResultWire> = union(
     "OperationResult",
     {

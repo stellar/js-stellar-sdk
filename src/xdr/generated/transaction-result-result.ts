@@ -99,6 +99,19 @@ export type TransactionResultResultVariantName =
 abstract class TransactionResultResultBase extends XdrValue {
   abstract readonly type: TransactionResultResultVariantName;
 
+  constructor() {
+    super();
+    // `new.target`, not an unconditional throw: every arm subclass reaches
+    // this constructor through `super()`, void arms via an implicit one
+    if (new.target === TransactionResultResultBase) {
+      throw new TypeError(
+        "new xdr.TransactionResultResult(...) is not supported: XDR unions are built from " +
+          "per-variant factories. Call xdr.TransactionResultResult.txFeeBumpInnerSuccess(...) " +
+          "(or another arm factory) instead.",
+      );
+    }
+  }
+
   static readonly schema: XdrType<TransactionResultResultWire> = union(
     "TransactionResultResult",
     {

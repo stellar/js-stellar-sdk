@@ -38,6 +38,19 @@ export type ManageDataResultVariantName =
 abstract class ManageDataResultBase extends XdrValue {
   abstract readonly type: ManageDataResultVariantName;
 
+  constructor() {
+    super();
+    // `new.target`, not an unconditional throw: every arm subclass reaches
+    // this constructor through `super()`, void arms via an implicit one
+    if (new.target === ManageDataResultBase) {
+      throw new TypeError(
+        "new xdr.ManageDataResult(...) is not supported: XDR unions are built from " +
+          "per-variant factories. Call xdr.ManageDataResult.manageDataSuccess() " +
+          "(or another arm factory) instead.",
+      );
+    }
+  }
+
   static readonly schema: XdrType<ManageDataResultWire> = union(
     "ManageDataResult",
     {

@@ -33,26 +33,25 @@ It is **not** for:
   [`basicNodeSigner`](/reference/contracts-client/#contractbasicnodesigner), or
   [`authorizeEntry`](/reference/core-soroban-primitives/#authorizeentry)).
   **Bump to the Protocol 27 SDK and change nothing.** Those paths build the
-  correct payload for whichever credential they are handed, so they sign `ADDRESS`
-  today and `AddressV2` after the flip with no code change.
+  correct payload for whichever credential they are handed, so they sign
+  `AddressV2` (now the default from simulation) and legacy `ADDRESS` alike with
+  no code change.
 - **Apps that build entries from scratch with
   [`authorizeInvocation`](/reference/core-soroban-primitives/#authorizeinvocation).**
-  This is the exception: it *constructs* the credential rather than being handed
-  one, so it does not auto-flip. It builds legacy `ADDRESS` by default and emits
-  `AddressV2` only when you pass `authV2: true` (valid on Protocol 27+ networks).
-  See the [Protocol 27 auth guide](/guides/00-protocol-27-soroban-auth/) for the
-  opt-in flag.
+  This one *constructs* the credential rather than being handed one, and it now
+  builds `AddressV2` by default. Pass `authV2: false` for the legacy `ADDRESS`
+  shape. See the [Protocol 27 auth guide](/guides/00-protocol-27-soroban-auth/).
 
 > **What Protocol 27 changes.** Protocol 27 introduces `AddressV2`, an
 > address-bound Soroban authorization credential
 > ([CAP-0071-02](https://github.com/stellar/stellar-protocol/blob/master/core/cap-0071-02.md)).
-> Once Protocol 27 is live on a network (testnet first), Stellar Core accepts
-> `AddressV2`. But RPC simulation still hands you the legacy `ADDRESS` credential
-> by default; that default flips to `AddressV2` at Protocol 28 (see the
+> Stellar Core accepts `AddressV2` on a network running Protocol 27, and the SDK
+> now asks for it by default: simulation requests it via `useUpgradedAuth`, and
+> `authorizeInvocation` builds it (see the
 > [Protocol 27 upgrade guide](https://stellar.org/blog/foundation-news/stellar-zipper-protocol-27-upgrade-guide)).
 > The signing path here builds the correct payload from whichever credential an
-> entry carries, so the same code is right on today's `ADDRESS` and on `AddressV2`
-> after the flip, with no change from you.
+> entry carries, so the same code is right on `AddressV2` and on legacy
+> `ADDRESS`, with no change from you.
 
 ## Two signatures, not one
 

@@ -88,7 +88,7 @@ describe("Transaction", () => {
     const envelope = xdr.TransactionEnvelope.fromXdr(v0EnvelopeXdr, "base64");
     const txe = expectVariant(envelope, "envelopeTypeTxV0").v0;
     const expectedSource = StrKey.encodeEd25519PublicKey(
-      new Uint8Array(txe.tx.sourceAccountEd25519),
+      new Uint8Array(txe.tx.sourceAccountEd25519.toBytes()),
     );
 
     const tx = new Transaction(v0EnvelopeXdr, Networks.TESTNET);

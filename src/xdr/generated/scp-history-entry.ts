@@ -26,6 +26,19 @@ export type ScpHistoryEntryVariantName = "v0";
 abstract class ScpHistoryEntryBase extends XdrValue {
   abstract readonly type: ScpHistoryEntryVariantName;
 
+  constructor() {
+    super();
+    // `new.target`, not an unconditional throw: every arm subclass reaches
+    // this constructor through `super()`, void arms via an implicit one
+    if (new.target === ScpHistoryEntryBase) {
+      throw new TypeError(
+        "new xdr.ScpHistoryEntry(...) is not supported: XDR unions are built from " +
+          "per-variant factories. Call xdr.ScpHistoryEntry.v0(...) " +
+          "(or another arm factory) instead.",
+      );
+    }
+  }
+
   static readonly schema: XdrType<ScpHistoryEntryWire> = union(
     "ScpHistoryEntry",
     {

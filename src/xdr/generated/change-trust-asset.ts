@@ -48,6 +48,19 @@ export type ChangeTrustAssetVariantName =
 abstract class ChangeTrustAssetBase extends XdrValue {
   abstract readonly type: ChangeTrustAssetVariantName;
 
+  constructor() {
+    super();
+    // `new.target`, not an unconditional throw: every arm subclass reaches
+    // this constructor through `super()`, void arms via an implicit one
+    if (new.target === ChangeTrustAssetBase) {
+      throw new TypeError(
+        "new xdr.ChangeTrustAsset(...) is not supported: XDR unions are built from " +
+          "per-variant factories. Call xdr.ChangeTrustAsset.assetTypeNative() " +
+          "(or another arm factory) instead.",
+      );
+    }
+  }
+
   static readonly schema: XdrType<ChangeTrustAssetWire> = union(
     "ChangeTrustAsset",
     {

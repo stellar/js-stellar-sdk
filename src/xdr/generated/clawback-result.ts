@@ -38,6 +38,19 @@ export type ClawbackResultVariantName =
 abstract class ClawbackResultBase extends XdrValue {
   abstract readonly type: ClawbackResultVariantName;
 
+  constructor() {
+    super();
+    // `new.target`, not an unconditional throw: every arm subclass reaches
+    // this constructor through `super()`, void arms via an implicit one
+    if (new.target === ClawbackResultBase) {
+      throw new TypeError(
+        "new xdr.ClawbackResult(...) is not supported: XDR unions are built from " +
+          "per-variant factories. Call xdr.ClawbackResult.clawbackSuccess() " +
+          "(or another arm factory) instead.",
+      );
+    }
+  }
+
   static readonly schema: XdrType<ClawbackResultWire> = union(
     "ClawbackResult",
     {

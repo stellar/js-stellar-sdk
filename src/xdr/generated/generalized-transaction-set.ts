@@ -30,6 +30,19 @@ export type GeneralizedTransactionSetVariantName = "v1TxSet";
 abstract class GeneralizedTransactionSetBase extends XdrValue {
   abstract readonly type: GeneralizedTransactionSetVariantName;
 
+  constructor() {
+    super();
+    // `new.target`, not an unconditional throw: every arm subclass reaches
+    // this constructor through `super()`, void arms via an implicit one
+    if (new.target === GeneralizedTransactionSetBase) {
+      throw new TypeError(
+        "new xdr.GeneralizedTransactionSet(...) is not supported: XDR unions are built from " +
+          "per-variant factories. Call xdr.GeneralizedTransactionSet.v1TxSet(...) " +
+          "(or another arm factory) instead.",
+      );
+    }
+  }
+
   static readonly schema: XdrType<GeneralizedTransactionSetWire> = union(
     "GeneralizedTransactionSet",
     {

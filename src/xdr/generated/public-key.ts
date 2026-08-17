@@ -2,12 +2,13 @@
 // Abstract base ↔ concrete subclass references below are intentional and safe
 // under class hoisting — every reference site runs after both classes are fully
 // initialized.
-import { case as case_, field, opaque, union } from "@stellar/js-xdr";
+import { case as case_, field, union } from "@stellar/js-xdr";
 import { XdrError, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import { PublicKeyType } from "./public-key-type.js";
+import { Uint256Bytes, type Uint256BytesWire } from "./uint256-bytes.js";
 
-export type PublicKeyWire = { type: 0; ed25519: Uint8Array };
+export type PublicKeyWire = { type: 0; ed25519: Uint256BytesWire };
 
 export type PublicKeyVariantName = "publicKeyTypeEd25519";
 
@@ -23,19 +24,36 @@ export type PublicKeyVariantName = "publicKeyTypeEd25519";
 abstract class PublicKeyBase extends XdrValue {
   abstract readonly type: PublicKeyVariantName;
 
+  constructor() {
+    super();
+    // `new.target`, not an unconditional throw: every arm subclass reaches
+    // this constructor through `super()`, void arms via an implicit one
+    if (new.target === PublicKeyBase) {
+      throw new TypeError(
+        "new xdr.PublicKey(...) is not supported: XDR unions are built from " +
+          "per-variant factories. Call xdr.PublicKey.publicKeyTypeEd25519(...) " +
+          "(or another arm factory) instead.",
+      );
+    }
+  }
+
   static readonly schema: XdrType<PublicKeyWire> = union("PublicKey", {
     switchOn: PublicKeyType.schema,
-    cases: [case_("publicKeyTypeEd25519", 0, field("ed25519", opaque(32)))],
+    cases: [
+      case_("publicKeyTypeEd25519", 0, field("ed25519", Uint256Bytes.schema)),
+    ],
   });
 
-  static publicKeyTypeEd25519(ed25519: Uint8Array): PublicKeyEd25519 {
+  static publicKeyTypeEd25519(
+    ed25519: Uint256Bytes | Uint8Array | string,
+  ): PublicKeyEd25519 {
     return new PublicKeyEd25519(ed25519);
   }
 
   static fromXdrObject(wire: PublicKeyWire): PublicKey {
     switch (wire.type) {
       case 0:
-        return new PublicKeyEd25519(wire.ed25519);
+        return new PublicKeyEd25519(Uint256Bytes.fromXdrObject(wire.ed25519));
     }
     // unreachable for a well-typed wire object; a hand-built one can still
     // carry an out-of-range discriminant
@@ -59,19 +77,20 @@ abstract class PublicKeyBase extends XdrValue {
 
 export class PublicKeyEd25519 extends PublicKeyBase {
   readonly type = "publicKeyTypeEd25519" as const;
-  readonly ed25519: Uint8Array;
+  readonly ed25519: Uint256Bytes;
 
-  constructor(ed25519: Uint8Array) {
+  constructor(ed25519: Uint256Bytes | Uint8Array | string) {
     super();
-    this.ed25519 = ed25519;
+    this.ed25519 =
+      ed25519 instanceof Uint256Bytes ? ed25519 : new Uint256Bytes(ed25519);
   }
 
-  get value(): Uint8Array {
+  get value(): Uint256Bytes {
     return this.ed25519;
   }
 
   toXdrObject(): Extract<PublicKeyWire, { type: 0 }> {
-    return { type: 0, ed25519: this.ed25519 };
+    return { type: 0, ed25519: this.ed25519.toXdrObject() };
   }
 }
 

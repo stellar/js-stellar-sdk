@@ -49,6 +49,19 @@ export type MemoVariantName =
 abstract class MemoBase extends XdrValue {
   abstract readonly type: MemoVariantName;
 
+  constructor() {
+    super();
+    // `new.target`, not an unconditional throw: every arm subclass reaches
+    // this constructor through `super()`, void arms via an implicit one
+    if (new.target === MemoBase) {
+      throw new TypeError(
+        "new xdr.Memo(...) is not supported: XDR unions are built from " +
+          "per-variant factories. Call xdr.Memo.memoNone() " +
+          "(or another arm factory) instead.",
+      );
+    }
+  }
+
   static readonly schema: XdrType<MemoWire> = union("Memo", {
     switchOn: MemoType.schema,
     cases: [

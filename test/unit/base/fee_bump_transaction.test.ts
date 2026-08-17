@@ -125,10 +125,12 @@ describe("FeeBumpTransaction", () => {
     ).ed25519;
 
     expect(innerTransaction.source).toEqual(
-      StrKey.encodeEd25519PublicKey(new Uint8Array(innerSourceEd25519)),
+      StrKey.encodeEd25519PublicKey(
+        new Uint8Array(innerSourceEd25519.toBytes()),
+      ),
     );
     expect(transaction.feeSource).toEqual(
-      StrKey.encodeEd25519PublicKey(new Uint8Array(feeSourceEd25519)),
+      StrKey.encodeEd25519PublicKey(new Uint8Array(feeSourceEd25519.toBytes())),
     );
 
     expect(transaction.innerTransaction.fee).toEqual(innerV1.tx.fee.toString());

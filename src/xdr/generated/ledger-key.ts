@@ -133,6 +133,19 @@ export type LedgerKeyVariantName =
 abstract class LedgerKeyBase extends XdrValue {
   abstract readonly type: LedgerKeyVariantName;
 
+  constructor() {
+    super();
+    // `new.target`, not an unconditional throw: every arm subclass reaches
+    // this constructor through `super()`, void arms via an implicit one
+    if (new.target === LedgerKeyBase) {
+      throw new TypeError(
+        "new xdr.LedgerKey(...) is not supported: XDR unions are built from " +
+          "per-variant factories. Call xdr.LedgerKey.account(...) " +
+          "(or another arm factory) instead.",
+      );
+    }
+  }
+
   static readonly schema: XdrType<LedgerKeyWire> = union("LedgerKey", {
     switchOn: LedgerEntryType.schema,
     cases: [

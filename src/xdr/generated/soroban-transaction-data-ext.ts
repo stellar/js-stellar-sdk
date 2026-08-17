@@ -36,6 +36,19 @@ export type SorobanTransactionDataExtVariantName = "v0" | "resourceExt";
 abstract class SorobanTransactionDataExtBase extends XdrValue {
   abstract readonly type: SorobanTransactionDataExtVariantName;
 
+  constructor() {
+    super();
+    // `new.target`, not an unconditional throw: every arm subclass reaches
+    // this constructor through `super()`, void arms via an implicit one
+    if (new.target === SorobanTransactionDataExtBase) {
+      throw new TypeError(
+        "new xdr.SorobanTransactionDataExt(...) is not supported: XDR unions are built from " +
+          "per-variant factories. Call xdr.SorobanTransactionDataExt.v0() " +
+          "(or another arm factory) instead.",
+      );
+    }
+  }
+
   static readonly schema: XdrType<SorobanTransactionDataExtWire> = union(
     "SorobanTransactionDataExt",
     {

@@ -42,6 +42,19 @@ export type InvokeHostFunctionResultVariantName =
 abstract class InvokeHostFunctionResultBase extends XdrValue {
   abstract readonly type: InvokeHostFunctionResultVariantName;
 
+  constructor() {
+    super();
+    // `new.target`, not an unconditional throw: every arm subclass reaches
+    // this constructor through `super()`, void arms via an implicit one
+    if (new.target === InvokeHostFunctionResultBase) {
+      throw new TypeError(
+        "new xdr.InvokeHostFunctionResult(...) is not supported: XDR unions are built from " +
+          "per-variant factories. Call xdr.InvokeHostFunctionResult.invokeHostFunctionSuccess(...) " +
+          "(or another arm factory) instead.",
+      );
+    }
+  }
+
   static readonly schema: XdrType<InvokeHostFunctionResultWire> = union(
     "InvokeHostFunctionResult",
     {

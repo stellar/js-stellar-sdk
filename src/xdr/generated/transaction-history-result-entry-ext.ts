@@ -22,6 +22,19 @@ export type TransactionHistoryResultEntryExtVariantName = "v0";
 abstract class TransactionHistoryResultEntryExtBase extends XdrValue {
   abstract readonly type: TransactionHistoryResultEntryExtVariantName;
 
+  constructor() {
+    super();
+    // `new.target`, not an unconditional throw: every arm subclass reaches
+    // this constructor through `super()`, void arms via an implicit one
+    if (new.target === TransactionHistoryResultEntryExtBase) {
+      throw new TypeError(
+        "new xdr.TransactionHistoryResultEntryExt(...) is not supported: XDR unions are built from " +
+          "per-variant factories. Call xdr.TransactionHistoryResultEntryExt.v0() " +
+          "(or another arm factory) instead.",
+      );
+    }
+  }
+
   static readonly schema: XdrType<TransactionHistoryResultEntryExtWire> = union(
     "TransactionHistoryResultEntryExt",
     {

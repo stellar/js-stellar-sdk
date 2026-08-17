@@ -44,6 +44,19 @@ export type LiquidityPoolWithdrawResultVariantName =
 abstract class LiquidityPoolWithdrawResultBase extends XdrValue {
   abstract readonly type: LiquidityPoolWithdrawResultVariantName;
 
+  constructor() {
+    super();
+    // `new.target`, not an unconditional throw: every arm subclass reaches
+    // this constructor through `super()`, void arms via an implicit one
+    if (new.target === LiquidityPoolWithdrawResultBase) {
+      throw new TypeError(
+        "new xdr.LiquidityPoolWithdrawResult(...) is not supported: XDR unions are built from " +
+          "per-variant factories. Call xdr.LiquidityPoolWithdrawResult.liquidityPoolWithdrawSuccess() " +
+          "(or another arm factory) instead.",
+      );
+    }
+  }
+
   static readonly schema: XdrType<LiquidityPoolWithdrawResultWire> = union(
     "LiquidityPoolWithdrawResult",
     {

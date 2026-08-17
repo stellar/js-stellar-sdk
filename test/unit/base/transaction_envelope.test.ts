@@ -17,7 +17,7 @@ describe("TransactionEnvelope", () => {
     ).v0;
     const sourceAccount = txe.tx.sourceAccountEd25519;
 
-    expect(sourceAccount.length).toBe(32);
+    expect(sourceAccount.toBytes().length).toBe(32);
   });
 
   it("calculates correct hash with non-utf8 strings", () => {

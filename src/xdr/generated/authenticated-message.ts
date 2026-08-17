@@ -31,6 +31,19 @@ export type AuthenticatedMessageVariantName = "v0";
 abstract class AuthenticatedMessageBase extends XdrValue {
   abstract readonly type: AuthenticatedMessageVariantName;
 
+  constructor() {
+    super();
+    // `new.target`, not an unconditional throw: every arm subclass reaches
+    // this constructor through `super()`, void arms via an implicit one
+    if (new.target === AuthenticatedMessageBase) {
+      throw new TypeError(
+        "new xdr.AuthenticatedMessage(...) is not supported: XDR unions are built from " +
+          "per-variant factories. Call xdr.AuthenticatedMessage.v0(...) " +
+          "(or another arm factory) instead.",
+      );
+    }
+  }
+
   static readonly schema: XdrType<AuthenticatedMessageWire> = union(
     "AuthenticatedMessage",
     {

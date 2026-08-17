@@ -99,7 +99,7 @@ export class Transaction extends TransactionBase<
     switch (this._envelopeType) {
       case "envelopeTypeTxV0":
         this._source = StrKey.encodeEd25519PublicKey(
-          (tx as TransactionV0).sourceAccountEd25519,
+          (tx as TransactionV0).sourceAccountEd25519.toBytes(),
         );
         break;
       default:

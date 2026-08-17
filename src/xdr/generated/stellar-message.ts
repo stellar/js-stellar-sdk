@@ -2,14 +2,7 @@
 // Abstract base ↔ concrete subclass references below are intentional and safe
 // under class hoisting — every reference site runs after both classes are fully
 // initialized.
-import {
-  array,
-  case as case_,
-  field,
-  opaque,
-  uint32,
-  union,
-} from "@stellar/js-xdr";
+import { array, case as case_, field, uint32, union } from "@stellar/js-xdr";
 import { XdrError, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import { MessageType } from "./message-type.js";
@@ -18,6 +11,7 @@ import { Hello, type HelloWire } from "./hello.js";
 import { Auth, type AuthWire } from "./auth.js";
 import { DontHave, type DontHaveWire } from "./dont-have.js";
 import { PeerAddress, type PeerAddressWire } from "./peer-address.js";
+import { Uint256Bytes, type Uint256BytesWire } from "./uint256-bytes.js";
 import { TransactionSet, type TransactionSetWire } from "./transaction-set.js";
 import {
   GeneralizedTransactionSet,
@@ -59,7 +53,7 @@ export type StellarMessageWire =
   | { type: 2; auth: AuthWire }
   | { type: 3; dontHave: DontHaveWire }
   | { type: 5; peers: PeerAddressWire[] }
-  | { type: 6; txSetHash: Uint8Array }
+  | { type: 6; txSetHash: Uint256BytesWire }
   | { type: 7; txSet: TransactionSetWire }
   | { type: 17; generalizedTxSet: GeneralizedTransactionSetWire }
   | { type: 8; transaction: TransactionEnvelopeWire }
@@ -79,7 +73,7 @@ export type StellarMessageWire =
       type: 24;
       signedTimeSlicedSurveyStopCollectingMessage: SignedTimeSlicedSurveyStopCollectingMessageWire;
     }
-  | { type: 9; qSetHash: Uint8Array }
+  | { type: 9; qSetHash: Uint256BytesWire }
   | { type: 10; qSet: ScpQuorumSetWire }
   | { type: 11; envelope: ScpEnvelopeWire }
   | { type: 12; getScpLedgerSeq: number }
@@ -174,6 +168,19 @@ export type StellarMessageVariantName =
 abstract class StellarMessageBase extends XdrValue {
   abstract readonly type: StellarMessageVariantName;
 
+  constructor() {
+    super();
+    // `new.target`, not an unconditional throw: every arm subclass reaches
+    // this constructor through `super()`, void arms via an implicit one
+    if (new.target === StellarMessageBase) {
+      throw new TypeError(
+        "new xdr.StellarMessage(...) is not supported: XDR unions are built from " +
+          "per-variant factories. Call xdr.StellarMessage.errorMsg(...) " +
+          "(or another arm factory) instead.",
+      );
+    }
+  }
+
   static readonly schema: XdrType<StellarMessageWire> = union(
     "StellarMessage",
     {
@@ -184,7 +191,7 @@ abstract class StellarMessageBase extends XdrValue {
         case_("auth", 2, field("auth", Auth.schema)),
         case_("dontHave", 3, field("dontHave", DontHave.schema)),
         case_("peers", 5, field("peers", array(PeerAddress.schema, 100))),
-        case_("getTxSet", 6, field("txSetHash", opaque(32))),
+        case_("getTxSet", 6, field("txSetHash", Uint256Bytes.schema)),
         case_("txSet", 7, field("txSet", TransactionSet.schema)),
         case_(
           "generalizedTxSet",
@@ -228,7 +235,7 @@ abstract class StellarMessageBase extends XdrValue {
             SignedTimeSlicedSurveyStopCollectingMessage.schema,
           ),
         ),
-        case_("getScpQuorumset", 9, field("qSetHash", opaque(32))),
+        case_("getScpQuorumset", 9, field("qSetHash", Uint256Bytes.schema)),
         case_("scpQuorumset", 10, field("qSet", ScpQuorumSet.schema)),
         case_("scpMessage", 11, field("envelope", ScpEnvelope.schema)),
         case_("getScpState", 12, field("getScpLedgerSeq", uint32())),
@@ -264,7 +271,9 @@ abstract class StellarMessageBase extends XdrValue {
     return new StellarMessagePeers(peers);
   }
 
-  static getTxSet(txSetHash: Uint8Array): StellarMessageGetTxSet {
+  static getTxSet(
+    txSetHash: Uint256Bytes | Uint8Array | string,
+  ): StellarMessageGetTxSet {
     return new StellarMessageGetTxSet(txSetHash);
   }
 
@@ -316,7 +325,9 @@ abstract class StellarMessageBase extends XdrValue {
     );
   }
 
-  static getScpQuorumset(qSetHash: Uint8Array): StellarMessageGetScpQuorumset {
+  static getScpQuorumset(
+    qSetHash: Uint256Bytes | Uint8Array | string,
+  ): StellarMessageGetScpQuorumset {
     return new StellarMessageGetScpQuorumset(qSetHash);
   }
 
@@ -367,7 +378,9 @@ abstract class StellarMessageBase extends XdrValue {
           wire.peers.map((w) => PeerAddress.fromXdrObject(w)),
         );
       case 6:
-        return new StellarMessageGetTxSet(wire.txSetHash);
+        return new StellarMessageGetTxSet(
+          Uint256Bytes.fromXdrObject(wire.txSetHash),
+        );
       case 7:
         return new StellarMessageTxSet(
           TransactionSet.fromXdrObject(wire.txSet),
@@ -405,7 +418,9 @@ abstract class StellarMessageBase extends XdrValue {
           ),
         );
       case 9:
-        return new StellarMessageGetScpQuorumset(wire.qSetHash);
+        return new StellarMessageGetScpQuorumset(
+          Uint256Bytes.fromXdrObject(wire.qSetHash),
+        );
       case 10:
         return new StellarMessageScpQuorumset(
           ScpQuorumSet.fromXdrObject(wire.qSet),
@@ -545,19 +560,22 @@ export class StellarMessagePeers extends StellarMessageBase {
 
 export class StellarMessageGetTxSet extends StellarMessageBase {
   readonly type = "getTxSet" as const;
-  readonly txSetHash: Uint8Array;
+  readonly txSetHash: Uint256Bytes;
 
-  constructor(txSetHash: Uint8Array) {
+  constructor(txSetHash: Uint256Bytes | Uint8Array | string) {
     super();
-    this.txSetHash = txSetHash;
+    this.txSetHash =
+      txSetHash instanceof Uint256Bytes
+        ? txSetHash
+        : new Uint256Bytes(txSetHash);
   }
 
-  get value(): Uint8Array {
+  get value(): Uint256Bytes {
     return this.txSetHash;
   }
 
   toXdrObject(): Extract<StellarMessageWire, { type: 6 }> {
-    return { type: 6, txSetHash: this.txSetHash };
+    return { type: 6, txSetHash: this.txSetHash.toXdrObject() };
   }
 }
 
@@ -717,19 +735,20 @@ export class StellarMessageTimeSlicedSurveyStopCollecting extends StellarMessage
 
 export class StellarMessageGetScpQuorumset extends StellarMessageBase {
   readonly type = "getScpQuorumset" as const;
-  readonly qSetHash: Uint8Array;
+  readonly qSetHash: Uint256Bytes;
 
-  constructor(qSetHash: Uint8Array) {
+  constructor(qSetHash: Uint256Bytes | Uint8Array | string) {
     super();
-    this.qSetHash = qSetHash;
+    this.qSetHash =
+      qSetHash instanceof Uint256Bytes ? qSetHash : new Uint256Bytes(qSetHash);
   }
 
-  get value(): Uint8Array {
+  get value(): Uint256Bytes {
     return this.qSetHash;
   }
 
   toXdrObject(): Extract<StellarMessageWire, { type: 9 }> {
-    return { type: 9, qSetHash: this.qSetHash };
+    return { type: 9, qSetHash: this.qSetHash.toXdrObject() };
   }
 }
 
