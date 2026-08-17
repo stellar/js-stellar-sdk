@@ -49,6 +49,19 @@ export type SignerKeyVariantName =
 abstract class SignerKeyBase extends XdrValue {
   abstract readonly type: SignerKeyVariantName;
 
+  constructor() {
+    super();
+    // `new.target`, not an unconditional throw: every arm subclass reaches
+    // this constructor through `super()`, void arms via an implicit one
+    if (new.target === SignerKeyBase) {
+      throw new TypeError(
+        "new xdr.SignerKey(...) is not supported: XDR unions are built from " +
+          "per-variant factories. Call xdr.SignerKey.signerKeyTypeEd25519(...) " +
+          "(or another arm factory) instead.",
+      );
+    }
+  }
+
   static readonly schema: XdrType<SignerKeyWire> = union("SignerKey", {
     switchOn: SignerKeyType.schema,
     cases: [

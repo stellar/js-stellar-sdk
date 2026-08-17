@@ -35,6 +35,19 @@ export type MuxedAccountVariantName = "keyTypeEd25519" | "keyTypeMuxedEd25519";
 abstract class MuxedAccountBase extends XdrValue {
   abstract readonly type: MuxedAccountVariantName;
 
+  constructor() {
+    super();
+    // `new.target`, not an unconditional throw: every arm subclass reaches
+    // this constructor through `super()`, void arms via an implicit one
+    if (new.target === MuxedAccountBase) {
+      throw new TypeError(
+        "new xdr.MuxedAccount(...) is not supported: XDR unions are built from " +
+          "per-variant factories. Call xdr.MuxedAccount.keyTypeEd25519(...) " +
+          "(or another arm factory) instead.",
+      );
+    }
+  }
+
   static readonly schema: XdrType<MuxedAccountWire> = union("MuxedAccount", {
     switchOn: CryptoKeyType.schema,
     cases: [

@@ -34,6 +34,19 @@ export type PersistedScpStateVariantName = "v0" | "v1";
 abstract class PersistedScpStateBase extends XdrValue {
   abstract readonly type: PersistedScpStateVariantName;
 
+  constructor() {
+    super();
+    // `new.target`, not an unconditional throw: every arm subclass reaches
+    // this constructor through `super()`, void arms via an implicit one
+    if (new.target === PersistedScpStateBase) {
+      throw new TypeError(
+        "new xdr.PersistedScpState(...) is not supported: XDR unions are built from " +
+          "per-variant factories. Call xdr.PersistedScpState.v0(...) " +
+          "(or another arm factory) instead.",
+      );
+    }
+  }
+
   static readonly schema: XdrType<PersistedScpStateWire> = union(
     "PersistedScpState",
     {

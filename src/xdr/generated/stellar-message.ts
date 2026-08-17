@@ -174,6 +174,19 @@ export type StellarMessageVariantName =
 abstract class StellarMessageBase extends XdrValue {
   abstract readonly type: StellarMessageVariantName;
 
+  constructor() {
+    super();
+    // `new.target`, not an unconditional throw: every arm subclass reaches
+    // this constructor through `super()`, void arms via an implicit one
+    if (new.target === StellarMessageBase) {
+      throw new TypeError(
+        "new xdr.StellarMessage(...) is not supported: XDR unions are built from " +
+          "per-variant factories. Call xdr.StellarMessage.errorMsg(...) " +
+          "(or another arm factory) instead.",
+      );
+    }
+  }
+
   static readonly schema: XdrType<StellarMessageWire> = union(
     "StellarMessage",
     {

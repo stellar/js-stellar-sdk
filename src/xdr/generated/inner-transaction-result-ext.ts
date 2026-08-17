@@ -22,6 +22,19 @@ export type InnerTransactionResultExtVariantName = "v0";
 abstract class InnerTransactionResultExtBase extends XdrValue {
   abstract readonly type: InnerTransactionResultExtVariantName;
 
+  constructor() {
+    super();
+    // `new.target`, not an unconditional throw: every arm subclass reaches
+    // this constructor through `super()`, void arms via an implicit one
+    if (new.target === InnerTransactionResultExtBase) {
+      throw new TypeError(
+        "new xdr.InnerTransactionResultExt(...) is not supported: XDR unions are built from " +
+          "per-variant factories. Call xdr.InnerTransactionResultExt.v0() " +
+          "(or another arm factory) instead.",
+      );
+    }
+  }
+
   static readonly schema: XdrType<InnerTransactionResultExtWire> = union(
     "InnerTransactionResultExt",
     {

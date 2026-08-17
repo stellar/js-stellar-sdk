@@ -208,6 +208,19 @@ export type OperationBodyVariantName =
 abstract class OperationBodyBase extends XdrValue {
   abstract readonly type: OperationBodyVariantName;
 
+  constructor() {
+    super();
+    // `new.target`, not an unconditional throw: every arm subclass reaches
+    // this constructor through `super()`, void arms via an implicit one
+    if (new.target === OperationBodyBase) {
+      throw new TypeError(
+        "new xdr.OperationBody(...) is not supported: XDR unions are built from " +
+          "per-variant factories. Call xdr.OperationBody.createAccount(...) " +
+          "(or another arm factory) instead.",
+      );
+    }
+  }
+
   static readonly schema: XdrType<OperationBodyWire> = union("OperationBody", {
     switchOn: OperationType.schema,
     cases: [

@@ -49,6 +49,19 @@ export type HostFunctionVariantName =
 abstract class HostFunctionBase extends XdrValue {
   abstract readonly type: HostFunctionVariantName;
 
+  constructor() {
+    super();
+    // `new.target`, not an unconditional throw: every arm subclass reaches
+    // this constructor through `super()`, void arms via an implicit one
+    if (new.target === HostFunctionBase) {
+      throw new TypeError(
+        "new xdr.HostFunction(...) is not supported: XDR unions are built from " +
+          "per-variant factories. Call xdr.HostFunction.hostFunctionTypeInvokeContract(...) " +
+          "(or another arm factory) instead.",
+      );
+    }
+  }
+
   static readonly schema: XdrType<HostFunctionWire> = union("HostFunction", {
     switchOn: HostFunctionType.schema,
     cases: [

@@ -23,6 +23,19 @@ export type PublicKeyVariantName = "publicKeyTypeEd25519";
 abstract class PublicKeyBase extends XdrValue {
   abstract readonly type: PublicKeyVariantName;
 
+  constructor() {
+    super();
+    // `new.target`, not an unconditional throw: every arm subclass reaches
+    // this constructor through `super()`, void arms via an implicit one
+    if (new.target === PublicKeyBase) {
+      throw new TypeError(
+        "new xdr.PublicKey(...) is not supported: XDR unions are built from " +
+          "per-variant factories. Call xdr.PublicKey.publicKeyTypeEd25519(...) " +
+          "(or another arm factory) instead.",
+      );
+    }
+  }
+
   static readonly schema: XdrType<PublicKeyWire> = union("PublicKey", {
     switchOn: PublicKeyType.schema,
     cases: [case_("publicKeyTypeEd25519", 0, field("ed25519", opaque(32)))],

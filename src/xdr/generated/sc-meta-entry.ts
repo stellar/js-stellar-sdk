@@ -24,6 +24,19 @@ export type ScMetaEntryVariantName = "scMetaV0";
 abstract class ScMetaEntryBase extends XdrValue {
   abstract readonly type: ScMetaEntryVariantName;
 
+  constructor() {
+    super();
+    // `new.target`, not an unconditional throw: every arm subclass reaches
+    // this constructor through `super()`, void arms via an implicit one
+    if (new.target === ScMetaEntryBase) {
+      throw new TypeError(
+        "new xdr.ScMetaEntry(...) is not supported: XDR unions are built from " +
+          "per-variant factories. Call xdr.ScMetaEntry.scMetaV0(...) " +
+          "(or another arm factory) instead.",
+      );
+    }
+  }
+
   static readonly schema: XdrType<ScMetaEntryWire> = union("ScMetaEntry", {
     switchOn: ScMetaKind.schema,
     cases: [case_("scMetaV0", 0, field("v0", ScMetaV0.schema))],

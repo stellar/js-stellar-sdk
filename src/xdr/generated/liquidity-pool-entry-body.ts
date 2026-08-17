@@ -39,6 +39,19 @@ export type LiquidityPoolEntryBodyVariantName = "liquidityPoolConstantProduct";
 abstract class LiquidityPoolEntryBodyBase extends XdrValue {
   abstract readonly type: LiquidityPoolEntryBodyVariantName;
 
+  constructor() {
+    super();
+    // `new.target`, not an unconditional throw: every arm subclass reaches
+    // this constructor through `super()`, void arms via an implicit one
+    if (new.target === LiquidityPoolEntryBodyBase) {
+      throw new TypeError(
+        "new xdr.LiquidityPoolEntryBody(...) is not supported: XDR unions are built from " +
+          "per-variant factories. Call xdr.LiquidityPoolEntryBody.liquidityPoolConstantProduct(...) " +
+          "(or another arm factory) instead.",
+      );
+    }
+  }
+
   static readonly schema: XdrType<LiquidityPoolEntryBodyWire> = union(
     "LiquidityPoolEntryBody",
     {

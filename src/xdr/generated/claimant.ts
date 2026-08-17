@@ -28,6 +28,19 @@ export type ClaimantVariantName = "claimantTypeV0";
 abstract class ClaimantBase extends XdrValue {
   abstract readonly type: ClaimantVariantName;
 
+  constructor() {
+    super();
+    // `new.target`, not an unconditional throw: every arm subclass reaches
+    // this constructor through `super()`, void arms via an implicit one
+    if (new.target === ClaimantBase) {
+      throw new TypeError(
+        "new xdr.Claimant(...) is not supported: XDR unions are built from " +
+          "per-variant factories. Call xdr.Claimant.claimantTypeV0(...) " +
+          "(or another arm factory) instead.",
+      );
+    }
+  }
+
   static readonly schema: XdrType<ClaimantWire> = union("Claimant", {
     switchOn: ClaimantType.schema,
     cases: [case_("claimantTypeV0", 0, field("v0", ClaimantV0.schema))],

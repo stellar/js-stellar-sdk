@@ -37,6 +37,19 @@ export type ScSpecUdtUnionCaseV0VariantName =
 abstract class ScSpecUdtUnionCaseV0Base extends XdrValue {
   abstract readonly type: ScSpecUdtUnionCaseV0VariantName;
 
+  constructor() {
+    super();
+    // `new.target`, not an unconditional throw: every arm subclass reaches
+    // this constructor through `super()`, void arms via an implicit one
+    if (new.target === ScSpecUdtUnionCaseV0Base) {
+      throw new TypeError(
+        "new xdr.ScSpecUdtUnionCaseV0(...) is not supported: XDR unions are built from " +
+          "per-variant factories. Call xdr.ScSpecUdtUnionCaseV0.scSpecUdtUnionCaseVoidV0(...) " +
+          "(or another arm factory) instead.",
+      );
+    }
+  }
+
   static readonly schema: XdrType<ScSpecUdtUnionCaseV0Wire> = union(
     "ScSpecUdtUnionCaseV0",
     {

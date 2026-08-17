@@ -22,6 +22,19 @@ export type DataEntryExtVariantName = "v0";
 abstract class DataEntryExtBase extends XdrValue {
   abstract readonly type: DataEntryExtVariantName;
 
+  constructor() {
+    super();
+    // `new.target`, not an unconditional throw: every arm subclass reaches
+    // this constructor through `super()`, void arms via an implicit one
+    if (new.target === DataEntryExtBase) {
+      throw new TypeError(
+        "new xdr.DataEntryExt(...) is not supported: XDR unions are built from " +
+          "per-variant factories. Call xdr.DataEntryExt.v0() " +
+          "(or another arm factory) instead.",
+      );
+    }
+  }
+
   static readonly schema: XdrType<DataEntryExtWire> = union("DataEntryExt", {
     switchOn: int32(),
     cases: [case_("v0", 0, voidType())],

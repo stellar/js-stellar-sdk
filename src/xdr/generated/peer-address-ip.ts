@@ -27,6 +27,19 @@ export type PeerAddressIpVariantName = "iPv4" | "iPv6";
 abstract class PeerAddressIpBase extends XdrValue {
   abstract readonly type: PeerAddressIpVariantName;
 
+  constructor() {
+    super();
+    // `new.target`, not an unconditional throw: every arm subclass reaches
+    // this constructor through `super()`, void arms via an implicit one
+    if (new.target === PeerAddressIpBase) {
+      throw new TypeError(
+        "new xdr.PeerAddressIp(...) is not supported: XDR unions are built from " +
+          "per-variant factories. Call xdr.PeerAddressIp.iPv4(...) " +
+          "(or another arm factory) instead.",
+      );
+    }
+  }
+
   static readonly schema: XdrType<PeerAddressIpWire> = union("PeerAddressIp", {
     switchOn: IpAddrType.schema,
     cases: [

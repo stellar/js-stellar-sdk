@@ -177,6 +177,16 @@ xdr.TransactionMeta.v2(transactionMetaV2);
 xdr.ExtensionPoint.v0();
 ```
 
+The legacy form throws a `TypeError` naming a factory to use instead, so a call
+site TypeScript can't reach — plain JavaScript, or TypeScript run without a
+type-check pass — fails at the `new` rather than later, inside serialization:
+
+```text
+TypeError: new xdr.TransactionMeta(...) is not supported: XDR unions are built
+from per-variant factories. Call xdr.TransactionMeta.operations(...) (or another
+arm factory) instead.
+```
+
 ### Narrowing helpers
 
 Two helpers ship on the `xdr` namespace for narrowing a union to a specific

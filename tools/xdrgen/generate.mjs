@@ -1388,6 +1388,31 @@ function bodyOfUnion(rawDef, ctx) {
     })
     .join("\n\n");
 
+  // Legacy-form guard. `abstract` is erased at runtime and the base is exported
+  // as the union's value, so the pre-v17 `new xdr.Union(disc, value)` would
+  // otherwise build a base instance that discards both arguments and only fails
+  // once something serializes it — a `TypeError` from inside XdrValue, naming
+  // neither the union nor the call that created it. Reject it at the call site
+  // instead, the way the `xdr.Int64` / `xdr.Int32` shims do.
+  //
+  // `new.target` rather than an unconditional throw: every arm subclass reaches
+  // this constructor through `super()`, void arms via an implicit one. The
+  // comparison also lands on the decode path, where fromXdrObject builds arms
+  // in bulk; it is a pointer compare against a hoisted binding.
+  const firstArm = armsMeta[0];
+  const legacyGuard = `  constructor() {
+    super();
+    // \`new.target\`, not an unconditional throw: every arm subclass reaches
+    // this constructor through \`super()\`, void arms via an implicit one
+    if (new.target === ${baseName}) {
+      throw new TypeError(
+        "new xdr.${name}(...) is not supported: XDR unions are built from " +
+          "per-variant factories. Call xdr.${name}.${firstArm.discCamel}(${firstArm.isVoid ? "" : "..."}) " +
+          "(or another arm factory) instead.",
+      );
+    }
+  }`;
+
   // fromXdrObject dispatch. `<Name>Wire` types the discriminant as a closed set
   // of literals, so the emitted switch is exhaustive to the compiler and needs
   // no fall-through to typecheck — but a wire object built by hand, or by a JSON
@@ -1494,6 +1519,8 @@ ${variantTypeUnion};
 
 ${sourceDoc(rawDef)}abstract class ${baseName} extends XdrValue {
   abstract readonly type: ${variantNameType};
+
+${legacyGuard}
 
   static readonly schema: XdrType<${wireName}> = union("${name}", {
     switchOn: ${switchOnExpr},

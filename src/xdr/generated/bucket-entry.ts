@@ -40,6 +40,19 @@ export type BucketEntryVariantName =
 abstract class BucketEntryBase extends XdrValue {
   abstract readonly type: BucketEntryVariantName;
 
+  constructor() {
+    super();
+    // `new.target`, not an unconditional throw: every arm subclass reaches
+    // this constructor through `super()`, void arms via an implicit one
+    if (new.target === BucketEntryBase) {
+      throw new TypeError(
+        "new xdr.BucketEntry(...) is not supported: XDR unions are built from " +
+          "per-variant factories. Call xdr.BucketEntry.liveentry(...) " +
+          "(or another arm factory) instead.",
+      );
+    }
+  }
+
   static readonly schema: XdrType<BucketEntryWire> = union("BucketEntry", {
     switchOn: BucketEntryType.schema,
     cases: [

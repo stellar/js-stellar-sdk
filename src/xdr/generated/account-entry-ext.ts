@@ -36,6 +36,19 @@ export type AccountEntryExtVariantName = "v0" | "v1";
 abstract class AccountEntryExtBase extends XdrValue {
   abstract readonly type: AccountEntryExtVariantName;
 
+  constructor() {
+    super();
+    // `new.target`, not an unconditional throw: every arm subclass reaches
+    // this constructor through `super()`, void arms via an implicit one
+    if (new.target === AccountEntryExtBase) {
+      throw new TypeError(
+        "new xdr.AccountEntryExt(...) is not supported: XDR unions are built from " +
+          "per-variant factories. Call xdr.AccountEntryExt.v0() " +
+          "(or another arm factory) instead.",
+      );
+    }
+  }
+
   static readonly schema: XdrType<AccountEntryExtWire> = union(
     "AccountEntryExt",
     {

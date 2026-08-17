@@ -54,6 +54,19 @@ export type ScErrorVariantName =
 abstract class ScErrorBase extends XdrValue {
   abstract readonly type: ScErrorVariantName;
 
+  constructor() {
+    super();
+    // `new.target`, not an unconditional throw: every arm subclass reaches
+    // this constructor through `super()`, void arms via an implicit one
+    if (new.target === ScErrorBase) {
+      throw new TypeError(
+        "new xdr.ScError(...) is not supported: XDR unions are built from " +
+          "per-variant factories. Call xdr.ScError.sceContract(...) " +
+          "(or another arm factory) instead.",
+      );
+    }
+  }
+
   static readonly schema: XdrType<ScErrorWire> = union("ScError", {
     switchOn: ScErrorType.schema,
     cases: [

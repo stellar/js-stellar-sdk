@@ -24,6 +24,19 @@ export type ClaimableBalanceIdVariantName = "claimableBalanceIdTypeV0";
 abstract class ClaimableBalanceIdBase extends XdrValue {
   abstract readonly type: ClaimableBalanceIdVariantName;
 
+  constructor() {
+    super();
+    // `new.target`, not an unconditional throw: every arm subclass reaches
+    // this constructor through `super()`, void arms via an implicit one
+    if (new.target === ClaimableBalanceIdBase) {
+      throw new TypeError(
+        "new xdr.ClaimableBalanceId(...) is not supported: XDR unions are built from " +
+          "per-variant factories. Call xdr.ClaimableBalanceId.claimableBalanceIdTypeV0(...) " +
+          "(or another arm factory) instead.",
+      );
+    }
+  }
+
   static readonly schema: XdrType<ClaimableBalanceIdWire> = union(
     "ClaimableBalanceId",
     {

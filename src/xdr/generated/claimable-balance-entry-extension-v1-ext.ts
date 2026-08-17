@@ -22,6 +22,19 @@ export type ClaimableBalanceEntryExtensionV1ExtVariantName = "v0";
 abstract class ClaimableBalanceEntryExtensionV1ExtBase extends XdrValue {
   abstract readonly type: ClaimableBalanceEntryExtensionV1ExtVariantName;
 
+  constructor() {
+    super();
+    // `new.target`, not an unconditional throw: every arm subclass reaches
+    // this constructor through `super()`, void arms via an implicit one
+    if (new.target === ClaimableBalanceEntryExtensionV1ExtBase) {
+      throw new TypeError(
+        "new xdr.ClaimableBalanceEntryExtensionV1Ext(...) is not supported: XDR unions are built from " +
+          "per-variant factories. Call xdr.ClaimableBalanceEntryExtensionV1Ext.v0() " +
+          "(or another arm factory) instead.",
+      );
+    }
+  }
+
   static readonly schema: XdrType<ClaimableBalanceEntryExtensionV1ExtWire> =
     union("ClaimableBalanceEntryExtensionV1Ext", {
       switchOn: int32(),

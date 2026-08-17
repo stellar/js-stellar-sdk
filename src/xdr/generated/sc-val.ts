@@ -256,6 +256,19 @@ export type ScValVariantName =
 abstract class ScValBase extends XdrValue {
   abstract readonly type: ScValVariantName;
 
+  constructor() {
+    super();
+    // `new.target`, not an unconditional throw: every arm subclass reaches
+    // this constructor through `super()`, void arms via an implicit one
+    if (new.target === ScValBase) {
+      throw new TypeError(
+        "new xdr.ScVal(...) is not supported: XDR unions are built from " +
+          "per-variant factories. Call xdr.ScVal.scvBool(...) " +
+          "(or another arm factory) instead.",
+      );
+    }
+  }
+
   static readonly schema: XdrType<ScValWire> = union("ScVal", {
     switchOn: ScValType.schema,
     cases: [

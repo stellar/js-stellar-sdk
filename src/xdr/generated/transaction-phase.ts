@@ -33,6 +33,19 @@ export type TransactionPhaseVariantName =
 abstract class TransactionPhaseBase extends XdrValue {
   abstract readonly type: TransactionPhaseVariantName;
 
+  constructor() {
+    super();
+    // `new.target`, not an unconditional throw: every arm subclass reaches
+    // this constructor through `super()`, void arms via an implicit one
+    if (new.target === TransactionPhaseBase) {
+      throw new TypeError(
+        "new xdr.TransactionPhase(...) is not supported: XDR unions are built from " +
+          "per-variant factories. Call xdr.TransactionPhase.v0Components(...) " +
+          "(or another arm factory) instead.",
+      );
+    }
+  }
+
   static readonly schema: XdrType<TransactionPhaseWire> = union(
     "TransactionPhase",
     {

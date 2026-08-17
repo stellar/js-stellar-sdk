@@ -66,6 +66,19 @@ export type ManageSellOfferResultVariantName =
 abstract class ManageSellOfferResultBase extends XdrValue {
   abstract readonly type: ManageSellOfferResultVariantName;
 
+  constructor() {
+    super();
+    // `new.target`, not an unconditional throw: every arm subclass reaches
+    // this constructor through `super()`, void arms via an implicit one
+    if (new.target === ManageSellOfferResultBase) {
+      throw new TypeError(
+        "new xdr.ManageSellOfferResult(...) is not supported: XDR unions are built from " +
+          "per-variant factories. Call xdr.ManageSellOfferResult.manageSellOfferSuccess(...) " +
+          "(or another arm factory) instead.",
+      );
+    }
+  }
+
   static readonly schema: XdrType<ManageSellOfferResultWire> = union(
     "ManageSellOfferResult",
     {
