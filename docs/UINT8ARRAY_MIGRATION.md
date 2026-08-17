@@ -106,7 +106,7 @@ Three semantic traps to check for:
 - **Not** `DecoratedSignature.signature` / `.hint`, despite the matching name:
   what `tx.signatures[i]` holds are `xdr.Signature` / `xdr.SignatureHint`
   wrappers, not bytes. Unwrap with `.toBytes()`. See
-  [`XDR_MIGRATION.md`](./XDR_MIGRATION.md) § 6.
+  [`XDR_MIGRATION.md`](./XDR_MIGRATION.md) § 6.1.
 
 ## 3. Inputs that got more flexible
 

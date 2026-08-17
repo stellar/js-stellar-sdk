@@ -364,7 +364,9 @@ The differences from `Buffer` appear when:
   (`new xdr.Hash(x).equals(new xdr.PoolId(x))` is `false`). It is not a general
   byte comparison: a raw field has no `.equals()` at all, and a wrapper's
   `.equals()` returns `false` for raw bytes rather than throwing — so unwrap
-  and compare with `areUint8ArraysEqual()` when the two sides differ in shape.
+  and compare with `areUint8ArraysEqual()` from
+  [`uint8array-extras`](https://github.com/sindresorhus/uint8array-extras) when
+  the two sides differ in shape.
   **Don't use `Array.from()` on a wrapper** — it returns `[]` for both sides,
   so the assertion passes vacuously; on raw fields it's still the usual fix for
   `Buffer` and `Uint8Array` of identical bytes not being deep-equal under
@@ -618,7 +620,7 @@ new xdr.Hash(bytes) for PoolId/ContractId  →  use new xdr.PoolId(bytes) /
 someHash                     →   someHash.toBytes()
 key.ed25519, preimage.salt   →   key.ed25519.toBytes(), preimage.salt.toBytes()
                                  // uint256 fields are xdr.Uint256Bytes now
-hash.length, hash[0], Array.from(hash)  →  hash.value  (or hash.toBytes())
+hash.length, hash[0], Array.from(hash)  →  hash.toBytes()
 deepEqual(Array.from(a), …)             →  a.equals(b)   // both wrappers only
 
 // ============== STRINGS ==============
