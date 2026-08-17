@@ -420,12 +420,12 @@ export class HorizonServer {
                   switch (offerClaimedAtom.type) {
                     case "claimAtomTypeV0":
                       sellerId = StrKey.encodeEd25519PublicKey(
-                        offerClaimed.sellerEd25519,
+                        offerClaimed.sellerEd25519.toBytes(),
                       );
                       break;
                     case "claimAtomTypeOrderBook":
                       sellerId = StrKey.encodeEd25519PublicKey(
-                        offerClaimed.sellerId.ed25519,
+                        offerClaimed.sellerId.ed25519.toBytes(),
                       );
                       break;
                     // It shouldn't be possible for a claimed offer to have type

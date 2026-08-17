@@ -131,13 +131,13 @@ export class Address {
   static fromScAddress(scAddress: ScAddress): Address {
     switch (scAddress.type) {
       case "scAddressTypeAccount":
-        return Address.account(scAddress.accountId.ed25519);
+        return Address.account(scAddress.accountId.ed25519.toBytes());
       case "scAddressTypeContract":
         return Address.contract(scAddress.contractId.value);
       case "scAddressTypeMuxedAccount": {
         const muxed = scAddress.value;
         const raw = concatUint8Arrays([
-          muxed.ed25519,
+          muxed.ed25519.toBytes(),
           MuxedEd25519Account.schema.encode(muxed.toXdrObject()).subarray(0, 8),
         ]);
         return Address.muxedAccount(raw);

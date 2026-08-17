@@ -250,5 +250,5 @@ export function uploadContractWasm(opts: UploadContractWasmOpts): Operation {
 
 /* Returns a random 256-bit "salt" value. */
 function getSalty(): Uint8Array {
-  return Keypair.random().xdrPublicKey().value; // ed25519 is 256 bits, too
+  return Keypair.random().xdrPublicKey().value.toBytes(); // ed25519 is 256 bits, too
 }

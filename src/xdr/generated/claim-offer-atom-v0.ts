@@ -1,10 +1,11 @@
-import { int64, opaque, struct } from "@stellar/js-xdr";
+import { int64, struct } from "@stellar/js-xdr";
 import type { XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
+import { Uint256Bytes, type Uint256BytesWire } from "./uint256-bytes.js";
 import { Asset, type AssetWire } from "./asset.js";
 
 export interface ClaimOfferAtomV0Wire {
-  sellerEd25519: Uint8Array;
+  sellerEd25519: Uint256BytesWire;
   offerId: bigint;
   assetSold: AssetWire;
   amountSold: bigint;
@@ -31,7 +32,7 @@ export interface ClaimOfferAtomV0Wire {
  * ```
  */
 export class ClaimOfferAtomV0 extends XdrValue {
-  readonly sellerEd25519: Uint8Array;
+  readonly sellerEd25519: Uint256Bytes;
   readonly offerId: bigint;
   readonly assetSold: Asset;
   readonly amountSold: bigint;
@@ -41,7 +42,7 @@ export class ClaimOfferAtomV0 extends XdrValue {
   static readonly schema: XdrType<ClaimOfferAtomV0Wire> = struct(
     "ClaimOfferAtomV0",
     {
-      sellerEd25519: opaque(32),
+      sellerEd25519: Uint256Bytes.schema,
       offerId: int64(),
       assetSold: Asset.schema,
       amountSold: int64(),
@@ -51,7 +52,7 @@ export class ClaimOfferAtomV0 extends XdrValue {
   );
 
   constructor(input: {
-    sellerEd25519: Uint8Array;
+    sellerEd25519: Uint256Bytes | Uint8Array | string;
     offerId: bigint;
     assetSold: Asset;
     amountSold: bigint;
@@ -59,7 +60,10 @@ export class ClaimOfferAtomV0 extends XdrValue {
     amountBought: bigint;
   }) {
     super();
-    this.sellerEd25519 = input.sellerEd25519;
+    this.sellerEd25519 =
+      input.sellerEd25519 instanceof Uint256Bytes
+        ? input.sellerEd25519
+        : new Uint256Bytes(input.sellerEd25519);
     this.offerId = input.offerId;
     this.assetSold = input.assetSold;
     this.amountSold = input.amountSold;
@@ -69,7 +73,7 @@ export class ClaimOfferAtomV0 extends XdrValue {
 
   toXdrObject(): ClaimOfferAtomV0Wire {
     return {
-      sellerEd25519: this.sellerEd25519,
+      sellerEd25519: this.sellerEd25519.toXdrObject(),
       offerId: this.offerId,
       assetSold: this.assetSold.toXdrObject(),
       amountSold: this.amountSold,
@@ -80,7 +84,7 @@ export class ClaimOfferAtomV0 extends XdrValue {
 
   static fromXdrObject(wire: ClaimOfferAtomV0Wire): ClaimOfferAtomV0 {
     return new ClaimOfferAtomV0({
-      sellerEd25519: wire.sellerEd25519,
+      sellerEd25519: Uint256Bytes.fromXdrObject(wire.sellerEd25519),
       offerId: wire.offerId,
       assetSold: Asset.fromXdrObject(wire.assetSold),
       amountSold: wire.amountSold,

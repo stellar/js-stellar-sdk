@@ -200,7 +200,7 @@ export function buildInvocationTree(
         const details = preimage.value;
         createInvocation.type = "wasm";
         createInvocation.wasm = {
-          salt: uint8ArrayToHex(details.salt),
+          salt: uint8ArrayToHex(details.salt.toBytes()),
           hash: uint8ArrayToHex(exec.value.value),
           address: Address.fromScAddress(details.address).toString(),
           ...ctorArgs,
@@ -214,7 +214,7 @@ export function buildInvocationTree(
         createInvocation.external = {
           owner: Address.fromScAddress(exec.value.executableOwner).toString(),
           tag: exec.value.tag.asStringOrBytes(),
-          salt: uint8ArrayToHex(details.salt),
+          salt: uint8ArrayToHex(details.salt.toBytes()),
           address: Address.fromScAddress(details.address).toString(),
           ...ctorArgs,
         };

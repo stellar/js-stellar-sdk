@@ -76,17 +76,17 @@ export class SignerKey {
     switch (signerKey.type) {
       case "signerKeyTypeEd25519":
         strkeyType = "ed25519PublicKey";
-        raw = signerKey.value;
+        raw = signerKey.value.toBytes();
         break;
 
       case "signerKeyTypePreAuthTx":
         strkeyType = "preAuthTx";
-        raw = signerKey.value;
+        raw = signerKey.value.toBytes();
         break;
 
       case "signerKeyTypeHashX":
         strkeyType = "sha256Hash";
-        raw = signerKey.value;
+        raw = signerKey.value.toBytes();
         break;
 
       case "signerKeyTypeEd25519SignedPayload":

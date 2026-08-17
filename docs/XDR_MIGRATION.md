@@ -320,13 +320,15 @@ underneath it, so inherited members changed for both classes:
 
 ---
 
-## 6. Bytes: `Uint8Array` everywhere
+## 6. Bytes: `Uint8Array`, not `Buffer`
 
-Every fixed-length and variable-length **byte** field (`opaque[N]`, `opaque<N>`,
-`Hash`, `Signature`, `ScBytes`, …) is a `Uint8Array`. The SDK used to surface
-`Buffer` in many places; now it's `Uint8Array`. `Buffer` **is** a `Uint8Array`
-subclass so most code that just reads bytes (indexing, `.length`) keeps working.
-The differences appear when:
+Byte fields no longer surface `Buffer`. An anonymous `opaque[N]` / `opaque<N>`
+field is a plain `Uint8Array`; a **named** byte alias (`Hash`, `Signature`,
+`ScBytes`, `AssetCode4`, `PoolId`, `Uint256Bytes`, …) is a small class wrapping
+one, and `.toBytes()` gives you the `Uint8Array` — see § 6.1. Either way the
+underlying bytes are a `Uint8Array` where they used to be a `Buffer`.
+`Buffer` **is** a `Uint8Array` subclass so most code that just reads bytes
+(indexing, `.length`) keeps working. The differences appear when:
 
 (**Note:** XDR _string_ fields are a separate story; see § 11.)
 
@@ -355,35 +357,69 @@ xdr.ScVal.scvBytes(new xdr.ScBytes(new Uint8Array([1, 2, 3])));
 new xdr.LedgerKeyContractCode({ hash: someBytes });
 ```
 
-The one place a specific class **is** required is the typedef-opaque aliases;
-see § 6.1.
+The one place a specific class **is** required is the named byte aliases; see
+§ 6.1.
 
 Byte-class constructors also accept hex strings as a convenience, so
 `new xdr.Hash("aabbcc…")` works the same as passing 32 bytes.
 
-### 6.1 Typedef-opaque aliases became distinct classes
+### 6.1 Named byte aliases are classes
 
-`PoolId`, `ContractId`, and similar typedef-aliases-of-`Hash` used to be plain
-re-exports (`export const PoolId = Hash`). They now emit as their own
-`BytesValue<"PoolId">` / `BytesValue<"ContractId">` subclasses with distinct
-named schemas. Byte semantics are identical, but class identity isn't.
+Every `typedef opaque` in the schema emits its own `BytesValue` subclass with a
+distinct named schema. Writing is forgiving — a constructor or factory takes raw
+bytes, a string, or the wrapper itself — but **reading gives you the wrapper**,
+so unwrap with `.toBytes()`:
 
 ```ts
-// Before — PoolId === Hash at runtime
-new xdr.Hash(bytes) instanceof xdr.Hash; // true
-xdr.ScAddress.scAddressTypeContract(new xdr.Hash(bytes)); // worked
+// Writing — all three work
+xdr.PublicKey.publicKeyTypeEd25519(rawBytes);
+xdr.PublicKey.publicKeyTypeEd25519("3f0c34bf…");
+xdr.PublicKey.publicKeyTypeEd25519(new xdr.Uint256Bytes(rawBytes));
 
-// After
-new xdr.PoolId(bytes) instanceof xdr.Hash; // false — distinct class
-xdr.ScAddress.scAddressTypeContract(new xdr.ContractId(bytes)); // required
-xdr.ScAddress.scAddressTypeLiquidityPool(new xdr.PoolId(bytes));
+// Reading — the wrapper needs unwrapping
+StrKey.encodeEd25519PublicKey(key.ed25519.toBytes());
 ```
 
-This is what lets JSON output (§ 12) render a `PoolId` as an `L`-strkey and a
-`ContractId` as a `C`-strkey while a plain `Hash` stays hex.
+The string form is hex, except for `AssetCode4` / `AssetCode12`, which take the
+code as ASCII and zero-pad it (`new xdr.AssetCode4("USD")`). Length is checked
+at construction rather than at encode time, so a wrong-sized array throws where
+you built it.
 
-Note that this break is type-level: at runtime a `Hash` still encodes to the
-same 32 bytes, so plain JavaScript callers see no error.
+Here is the full set, and the types whose fields hand you one. `.toBytes()` is
+what you need at every read site below:
+
+| Class | Width | Read it from |
+| --- | --- | --- |
+| `Hash` | 32 | pervasive — ledger headers, SCP statements, `ContractExecutable`, `ContractCodeEntry`, `TtlEntry`, `LedgerKeyContractCode`, `TransactionResultPair`, `HashIdPreimage`, and ~25 more |
+| `Uint256Bytes` | 32 | `MuxedAccount`, `MuxedAccountMed25519`, `MuxedEd25519Account`, `PublicKey` (and its alias `AccountId`), `SignerKey`, `SignerKeyEd25519SignedPayload`, `TransactionV0`, `ContractIdPreimageFromAddress`, `ClaimOfferAtomV0`, `Hello`, `DontHave`, `StellarMessage` |
+| `ContractId` | 32 | `ScAddress`, `ContractEvent`, `ConfigUpgradeSetKey` |
+| `PoolId` | 32 | `ScAddress`, `TrustLineAsset`, `LiquidityPoolEntry`, `LedgerKeyLiquidityPool`, `LiquidityPoolDepositOp`, `LiquidityPoolWithdrawOp`, `HashIdPreimageRevokeId`, `ClaimLiquidityAtom` |
+| `Signature` | ≤64 | `DecoratedSignature`, `ScpEnvelope`, `AuthCert`, `LedgerCloseValueSignature`, the signed survey messages |
+| `SignatureHint` | 4 | `DecoratedSignature` |
+| `ScBytes` | unbounded | `ScVal` |
+| `AssetCode4` / `AssetCode12` | 4 / 12 | `AssetCode`, `AlphaNum4`, `AlphaNum12` |
+| `Thresholds` | 4 | `AccountEntry` |
+| `DataValue` | ≤64 | `DataEntry`, `ManageDataOp` |
+| `Value` | unbounded | `ScpBallot`, `ScpNomination` |
+| `UpgradeType` | ≤128 | `StellarValue` |
+| `EncodedLedgerKey` | unbounded | `FrozenLedgerKeys`, `FrozenLedgerKeysDelta` |
+| `EncryptedBody` | ≤64000 | `SurveyResponseMessage` |
+
+Two of these need extra care:
+
+- **`PoolId` and `ContractId`** used to be plain re-exports of `Hash`
+  (`export const PoolId = Hash`). They are now distinct classes, so
+  `new xdr.PoolId(bytes) instanceof xdr.Hash` is `false` and
+  `xdr.ScAddress.scAddressTypeContract(new xdr.Hash(bytes))` no longer
+  typechecks — pass `new xdr.ContractId(bytes)`. This is what lets JSON output
+  (§ 12) render a `PoolId` as an `L`-strkey and a `ContractId` as a `C`-strkey
+  while a plain `Hash` stays hex. The break is type-level: at runtime all three
+  still encode to the same 32 bytes, so plain JavaScript callers see no error.
+- **`Uint256Bytes`** wraps `typedef opaque uint256[32]`. It carries the `Bytes`
+  suffix because `xdr.Uint256` is the bigint wrapper over `Uint256Parts` — a
+  different type with a confusingly similar name. Watch the `.value` getter on
+  the single-arm `PublicKey` / `AccountId` union, which returns the wrapper too:
+  `accountId.value` becomes `accountId.value.toBytes()`.
 
 ---
 
@@ -544,6 +580,9 @@ scvBytes(buf)                →   (unchanged; raw bytes still accepted)
 new xdr.Hash(buf)            →   (still works; also accepts hex strings)
 new xdr.Hash(bytes) for PoolId/ContractId  →  use new xdr.PoolId(bytes) /
                                               new xdr.ContractId(bytes)
+someHash                     →   someHash.toBytes()   // reading a named alias
+key.ed25519, preimage.salt   →   key.ed25519.toBytes(), preimage.salt.toBytes()
+                                 // uint256 fields are xdr.Uint256Bytes now
 
 // ============== STRINGS ==============
 memo.text                    →   memo.text.toString() or memo.text.bytes

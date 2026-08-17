@@ -437,6 +437,7 @@ export * from "./tx-set-component.js";
 export * from "./tx-set-component-txs-maybe-discounted-fee.js";
 export * from "./tx-set-component-type.js";
 export * from "./uint128-parts.js";
+export * from "./uint256-bytes.js";
 export * from "./uint256-parts.js";
 export * from "./upgrade-entry-meta.js";
 export * from "./upgrade-type.js";

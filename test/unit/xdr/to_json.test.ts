@@ -1151,7 +1151,7 @@ describe("XDR object → JSON → XDR object round-trip with field validation", 
       expect(r.value.assetCode.value).toEqual(asciiCode("USD", 4));
       expect(r.value.issuer.type).toBe("publicKeyTypeEd25519");
       if (r.value.issuer.type === "publicKeyTypeEd25519") {
-        expect(r.value.issuer.ed25519).toEqual(ED);
+        expect(r.value.issuer.ed25519.toBytes()).toEqual(ED);
       }
     }
   });
@@ -1185,7 +1185,7 @@ describe("XDR object → JSON → XDR object round-trip with field validation", 
     const original = PublicKey.publicKeyTypeEd25519(ED);
     const r = roundTripJson(PublicKey, original);
     if (r.type !== "publicKeyTypeEd25519") throw new Error("wrong arm");
-    expect(r.ed25519).toEqual(ED);
+    expect(r.ed25519.toBytes()).toEqual(ED);
   });
 
   it("MuxedAccount muxed: id and ed25519 preserved through M-strkey", () => {
@@ -1195,7 +1195,7 @@ describe("XDR object → JSON → XDR object round-trip with field validation", 
     const r = roundTripJson(MuxedAccount, original);
     if (r.type !== "keyTypeMuxedEd25519") throw new Error("wrong arm");
     expect(r.med25519.id).toBe(42n);
-    expect(r.med25519.ed25519).toEqual(ED);
+    expect(r.med25519.ed25519.toBytes()).toEqual(ED);
   });
 
   it("ScAddress contract: ContractId bytes preserved through C-strkey", () => {
@@ -1231,7 +1231,7 @@ describe("XDR object → JSON → XDR object round-trip with field validation", 
     const r = roundTripJson(SignerKey, original);
 
     if (r.type !== "signerKeyTypePreAuthTx") throw new Error("wrong arm");
-    expect(r.preAuthTx).toEqual(bytes);
+    expect(r.preAuthTx.toBytes()).toEqual(bytes);
   });
 
   it("SignerKey ed25519SignedPayload: ed25519 + payload preserved through P-strkey", () => {
@@ -1242,7 +1242,7 @@ describe("XDR object → JSON → XDR object round-trip with field validation", 
     const r = roundTripJson(SignerKey, original);
     if (r.type !== "signerKeyTypeEd25519SignedPayload")
       throw new Error("wrong arm");
-    expect(r.ed25519SignedPayload.ed25519).toEqual(ED);
+    expect(r.ed25519SignedPayload.ed25519.toBytes()).toEqual(ED);
     expect(r.ed25519SignedPayload.payload).toEqual(payload);
   });
 
@@ -1251,7 +1251,7 @@ describe("XDR object → JSON → XDR object round-trip with field validation", 
     expect((original.toJson() as string).startsWith("M")).toBe(true);
     const r = roundTripJson(MuxedEd25519Account, original);
     expect(r.id).toBe(7n);
-    expect(r.ed25519).toEqual(ED);
+    expect(r.ed25519.toBytes()).toEqual(ED);
   });
 
   it("MuxedAccountMed25519 (standalone): emits M-strkey and round-trips", () => {
@@ -1259,7 +1259,7 @@ describe("XDR object → JSON → XDR object round-trip with field validation", 
     expect((original.toJson() as string).startsWith("M")).toBe(true);
     const r = roundTripJson(MuxedAccountMed25519, original);
     expect(r.id).toBe(99n);
-    expect(r.ed25519).toEqual(ED);
+    expect(r.ed25519.toBytes()).toEqual(ED);
   });
 
   it("SignerKeyEd25519SignedPayload (standalone): emits P-strkey and round-trips", () => {
@@ -1270,7 +1270,7 @@ describe("XDR object → JSON → XDR object round-trip with field validation", 
     });
     expect((original.toJson() as string).startsWith("P")).toBe(true);
     const r = roundTripJson(SignerKeyEd25519SignedPayload, original);
-    expect(r.ed25519).toEqual(ED);
+    expect(r.ed25519.toBytes()).toEqual(ED);
     expect(r.payload).toEqual(payload);
   });
 
@@ -1282,7 +1282,7 @@ describe("XDR object → JSON → XDR object round-trip with field validation", 
     const r = roundTripJson(ScAddress, original);
     if (r.type !== "scAddressTypeMuxedAccount") throw new Error("wrong arm");
     expect(r.muxedAccount.id).toBe(5n);
-    expect(r.muxedAccount.ed25519).toEqual(ED);
+    expect(r.muxedAccount.ed25519.toBytes()).toEqual(ED);
   });
 
   it("ScAddress liquidity_pool: PoolId bytes preserved through L-strkey", () => {
@@ -1312,14 +1312,14 @@ describe("XDR object → JSON → XDR object round-trip with field validation", 
     const original = MuxedAccount.keyTypeEd25519(ED);
     const r = roundTripJson(MuxedAccount, original);
     if (r.type !== "keyTypeEd25519") throw new Error("wrong arm");
-    expect(r.ed25519).toEqual(ED);
+    expect(r.ed25519.toBytes()).toEqual(ED);
   });
 
   it("SignerKey ed25519 (G): fromJson round-trips the G-strkey arm", () => {
     const original = SignerKey.signerKeyTypeEd25519(ED);
     const r = roundTripJson(SignerKey, original);
     if (r.type !== "signerKeyTypeEd25519") throw new Error("wrong arm");
-    expect(r.ed25519).toEqual(ED);
+    expect(r.ed25519.toBytes()).toEqual(ED);
   });
 
   it("AssetCode union: bare-string fromJson selects alphanum4 by length (<=4)", () => {
