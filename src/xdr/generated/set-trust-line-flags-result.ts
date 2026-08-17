@@ -41,6 +41,19 @@ export type SetTrustLineFlagsResultVariantName =
 abstract class SetTrustLineFlagsResultBase extends XdrValue {
   abstract readonly type: SetTrustLineFlagsResultVariantName;
 
+  constructor() {
+    super();
+    // `new.target`, not an unconditional throw: every arm subclass reaches
+    // this constructor through `super()`, void arms via an implicit one
+    if (new.target === SetTrustLineFlagsResultBase) {
+      throw new TypeError(
+        "new xdr.SetTrustLineFlagsResult(...) is not supported: XDR unions are built from " +
+          "per-variant factories. Call xdr.SetTrustLineFlagsResult.setTrustLineFlagsSuccess() " +
+          "(or another arm factory) instead.",
+      );
+    }
+  }
+
   static readonly schema: XdrType<SetTrustLineFlagsResultWire> = union(
     "SetTrustLineFlagsResult",
     {

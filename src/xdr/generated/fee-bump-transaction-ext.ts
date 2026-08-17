@@ -22,6 +22,19 @@ export type FeeBumpTransactionExtVariantName = "v0";
 abstract class FeeBumpTransactionExtBase extends XdrValue {
   abstract readonly type: FeeBumpTransactionExtVariantName;
 
+  constructor() {
+    super();
+    // `new.target`, not an unconditional throw: every arm subclass reaches
+    // this constructor through `super()`, void arms via an implicit one
+    if (new.target === FeeBumpTransactionExtBase) {
+      throw new TypeError(
+        "new xdr.FeeBumpTransactionExt(...) is not supported: XDR unions are built from " +
+          "per-variant factories. Call xdr.FeeBumpTransactionExt.v0() " +
+          "(or another arm factory) instead.",
+      );
+    }
+  }
+
   static readonly schema: XdrType<FeeBumpTransactionExtWire> = union(
     "FeeBumpTransactionExt",
     {

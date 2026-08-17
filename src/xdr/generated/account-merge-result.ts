@@ -53,6 +53,19 @@ export type AccountMergeResultVariantName =
 abstract class AccountMergeResultBase extends XdrValue {
   abstract readonly type: AccountMergeResultVariantName;
 
+  constructor() {
+    super();
+    // `new.target`, not an unconditional throw: every arm subclass reaches
+    // this constructor through `super()`, void arms via an implicit one
+    if (new.target === AccountMergeResultBase) {
+      throw new TypeError(
+        "new xdr.AccountMergeResult(...) is not supported: XDR unions are built from " +
+          "per-variant factories. Call xdr.AccountMergeResult.accountMergeSuccess(...) " +
+          "(or another arm factory) instead.",
+      );
+    }
+  }
+
   static readonly schema: XdrType<AccountMergeResultWire> = union(
     "AccountMergeResult",
     {

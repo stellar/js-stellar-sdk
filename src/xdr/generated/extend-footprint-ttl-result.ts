@@ -35,6 +35,19 @@ export type ExtendFootprintTtlResultVariantName =
 abstract class ExtendFootprintTtlResultBase extends XdrValue {
   abstract readonly type: ExtendFootprintTtlResultVariantName;
 
+  constructor() {
+    super();
+    // `new.target`, not an unconditional throw: every arm subclass reaches
+    // this constructor through `super()`, void arms via an implicit one
+    if (new.target === ExtendFootprintTtlResultBase) {
+      throw new TypeError(
+        "new xdr.ExtendFootprintTtlResult(...) is not supported: XDR unions are built from " +
+          "per-variant factories. Call xdr.ExtendFootprintTtlResult.extendFootprintTtlSuccess() " +
+          "(or another arm factory) instead.",
+      );
+    }
+  }
+
   static readonly schema: XdrType<ExtendFootprintTtlResultWire> = union(
     "ExtendFootprintTtlResult",
     {

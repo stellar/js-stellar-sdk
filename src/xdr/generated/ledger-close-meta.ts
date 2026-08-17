@@ -41,6 +41,19 @@ export type LedgerCloseMetaVariantName = "v0" | "v1" | "v2";
 abstract class LedgerCloseMetaBase extends XdrValue {
   abstract readonly type: LedgerCloseMetaVariantName;
 
+  constructor() {
+    super();
+    // `new.target`, not an unconditional throw: every arm subclass reaches
+    // this constructor through `super()`, void arms via an implicit one
+    if (new.target === LedgerCloseMetaBase) {
+      throw new TypeError(
+        "new xdr.LedgerCloseMeta(...) is not supported: XDR unions are built from " +
+          "per-variant factories. Call xdr.LedgerCloseMeta.v0(...) " +
+          "(or another arm factory) instead.",
+      );
+    }
+  }
+
   static readonly schema: XdrType<LedgerCloseMetaWire> = union(
     "LedgerCloseMeta",
     {

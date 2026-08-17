@@ -36,6 +36,19 @@ export type LedgerEntryExtVariantName = "v0" | "v1";
 abstract class LedgerEntryExtBase extends XdrValue {
   abstract readonly type: LedgerEntryExtVariantName;
 
+  constructor() {
+    super();
+    // `new.target`, not an unconditional throw: every arm subclass reaches
+    // this constructor through `super()`, void arms via an implicit one
+    if (new.target === LedgerEntryExtBase) {
+      throw new TypeError(
+        "new xdr.LedgerEntryExt(...) is not supported: XDR unions are built from " +
+          "per-variant factories. Call xdr.LedgerEntryExt.v0() " +
+          "(or another arm factory) instead.",
+      );
+    }
+  }
+
   static readonly schema: XdrType<LedgerEntryExtWire> = union(
     "LedgerEntryExt",
     {
