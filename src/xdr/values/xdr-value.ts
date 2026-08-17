@@ -6,7 +6,7 @@ import {
   areUint8ArraysEqual,
 } from "uint8array-extras";
 import type { XdrType } from "@stellar/js-xdr";
-import { Reader, XdrError } from "@stellar/js-xdr";
+import { array, Reader, UNBOUNDED_MAX_LENGTH, XdrError } from "@stellar/js-xdr";
 import { walkToJson, walkFromJson } from "./to-json.js";
 
 export type XdrFormat = "raw" | "hex" | "base64";
@@ -174,6 +174,111 @@ export function decodeStream<Wire, Instance extends XdrValue>(
     out.push(type.fromXdrObject(type.schema._read(reader, path)));
   }
   return out;
+}
+
+/** Options shared by {@link encodeArray} and {@link decodeArray}. */
+export interface XdrArrayOptions {
+  /**
+   * Largest element count to accept, defaulting to the XDR maximum of
+   * 2^32 - 1. Both encoding and decoding throw `XdrError` past this many
+   * elements. Pass the bound from the XDR definition, so a field declared
+   * `TimeSlicedPeerData peers<25>` decodes with `maxLength: 25`, or any cap
+   * you want to enforce, to reject an oversized array before its elements are
+   * decoded.
+   */
+  maxLength?: number;
+  /**
+   * How many nested schemas may be entered, counting the array itself as the
+   * first level.
+   */
+  maxDepth?: number;
+}
+
+/**
+ * Encode a list of XDR values as a single length-prefixed XDR variable-length
+ * array (`T values<>` — a 4-byte count followed by the elements). This is the
+ * wire format of the removed array typedef classes (`LedgerEntryChanges`,
+ * `SorobanAuthorizationEntries`, …); use it where a protocol expects the whole
+ * list as one blob, such as Horizon's `fee_meta_xdr`. For lists exchanged as
+ * one string per element, encode each element with `value.toXdr(format)`
+ * instead.
+ */
+export function encodeArray<Wire, Instance extends XdrValue>(
+  type: XdrValueConstructor<Wire, Instance>,
+  values: readonly Instance[],
+  options?: XdrArrayOptions,
+): Uint8Array;
+export function encodeArray<Wire, Instance extends XdrValue>(
+  type: XdrValueConstructor<Wire, Instance>,
+  values: readonly Instance[],
+  format: "raw",
+  options?: XdrArrayOptions,
+): Uint8Array;
+export function encodeArray<Wire, Instance extends XdrValue>(
+  type: XdrValueConstructor<Wire, Instance>,
+  values: readonly Instance[],
+  format: "hex" | "base64",
+  options?: XdrArrayOptions,
+): string;
+export function encodeArray<Wire, Instance extends XdrValue>(
+  type: XdrValueConstructor<Wire, Instance>,
+  values: readonly Instance[],
+  formatOrOptions?: XdrFormat | XdrArrayOptions,
+  maybeOptions?: XdrArrayOptions,
+): Uint8Array | string {
+  const [format, options] = splitArrayArgs(formatOrOptions, maybeOptions);
+  const codec = array(type.schema, options.maxLength ?? UNBOUNDED_MAX_LENGTH);
+  const bytes = codec.encode(
+    values.map((v) => v.toXdrObject() as Wire),
+    { maxDepth: options.maxDepth },
+  );
+  return encodeBytes(bytes, format ?? "raw");
+}
+
+/**
+ * Decode a single length-prefixed XDR variable-length array (`T values<>`)
+ * into a list of values — the inverse of {@link encodeArray}. Throws
+ * `XdrError` on a short buffer, trailing bytes, or a count that doesn't match
+ * the payload. For a buffer of values concatenated with no length prefix, use
+ * {@link decodeStream}.
+ */
+export function decodeArray<Wire, Instance extends XdrValue>(
+  type: XdrValueConstructor<Wire, Instance>,
+  input: Uint8Array,
+  options?: XdrArrayOptions,
+): Instance[];
+export function decodeArray<Wire, Instance extends XdrValue>(
+  type: XdrValueConstructor<Wire, Instance>,
+  input: string,
+  format: "hex" | "base64",
+  options?: XdrArrayOptions,
+): Instance[];
+export function decodeArray<Wire, Instance extends XdrValue>(
+  type: XdrValueConstructor<Wire, Instance>,
+  input: Uint8Array | string,
+  formatOrOptions?: "hex" | "base64" | XdrArrayOptions,
+  maybeOptions?: XdrArrayOptions,
+): Instance[] {
+  const [format, options] = splitArrayArgs(formatOrOptions, maybeOptions);
+  const codec = array(type.schema, options.maxLength ?? UNBOUNDED_MAX_LENGTH);
+  const wires = codec.decode(
+    decodeBytes(input, format as "hex" | "base64" | undefined),
+    { maxDepth: options.maxDepth },
+  );
+  return wires.map((w) => type.fromXdrObject(w));
+}
+
+/**
+ * Sort out the trailing `(format?, options?)` arguments of the array helpers,
+ * where the format may be omitted and the options object take its place.
+ */
+function splitArrayArgs(
+  formatOrOptions?: XdrFormat | XdrArrayOptions,
+  maybeOptions?: XdrArrayOptions,
+): [XdrFormat | undefined, XdrArrayOptions] {
+  return typeof formatOrOptions === "string"
+    ? [formatOrOptions, maybeOptions ?? {}]
+    : [undefined, formatOrOptions ?? maybeOptions ?? {}];
 }
 
 /**
