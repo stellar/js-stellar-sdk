@@ -4,6 +4,13 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Breaking Changes
+* CAP-71 `SOROBAN_CREDENTIALS_ADDRESS_V2` credentials are now the default, on both ends of the auth flow. `rpc.Server.simulateTransaction`'s `useUpgradedAuth` and `authorizeInvocation`'s `authV2` both default to `true`, so simulation asks RPC to record v2 entries and `authorizeInvocation` builds them. Pass `false` to either one for the legacy `SOROBAN_CREDENTIALS_ADDRESS` format. Both flags are transitional and become no-ops when v2 is mandatory in protocol 28. Two consequences: code that reads the credential arm by hand must handle `addressV2` and not just `address` (or use `inspectAuthEntry`), and a hand-rolled signer that hardcodes the legacy `ENVELOPE_TYPE_SOROBAN_AUTHORIZATION` preimage now produces signatures the network rejects, so use `buildAuthorizationEntryPreimage` or `authorizeEntry`, which pick the address-bound payload off the entry. SDK-driven signing (`contract.Client`, `authorizeEntry`, `signAuthEntries`) needs no change ([#1562](https://github.com/stellar/js-stellar-sdk/issues/1562)).
+* `simulateTransaction` now always sends `useUpgradedAuth` in the JSON-RPC request. It previously omitted the field when the flag was unset ([#1562](https://github.com/stellar/js-stellar-sdk/issues/1562)).
+
+### Added
+* `rpc.Server.prepareTransaction` takes an optional `useUpgradedAuth` parameter, since its internal simulation now requests v2 credentials by default. Pass `false` for the legacy v1 format ([#1562](https://github.com/stellar/js-stellar-sdk/issues/1562)).
+
 ### Fixed
 * `equals()` on XDR values is now callable from TypeScript on union types like `xdr.ScVal`, `xdr.TransactionEnvelope`, and `xdr.Memo` — which is what the SDK's accessors return ([#1630](https://github.com/stellar/js-stellar-sdk/issues/1630)). The parameter was typed as polymorphic `this`, which reduces to `never` on a union, so every call failed with TS2345 even though the runtime worked. The parameter is now `XdrValue`, so comparing two different XDR types compiles and returns `false`.
 

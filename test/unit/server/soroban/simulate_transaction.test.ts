@@ -142,6 +142,7 @@ function buildAuthEntry(address: any) {
     validUntilLedgerSeq: 1,
     invocation: root,
     networkPassphrase,
+    authV2: false, // this fixture asserts on the legacy ADDRESS arm
   }).then((entry) => {
     // Fields are readonly in the new XDR layer — reconstruct the entry with a
     // deterministic nonce, then re-authorize to overwrite the signature.
@@ -432,6 +433,32 @@ describe("Server#simulateTransaction", () => {
       params: {
         transaction: blob,
         authMode: undefined,
+        useUpgradedAuth: true,
+      },
+    });
+    expect(mockPost).toHaveBeenCalledTimes(1);
+  });
+
+  it("simulates a transaction with useUpgradedAuth disabled", async () => {
+    const mockResponse = { data: { id: 1, result: simulationResponse } };
+    mockPost.mockResolvedValue(mockResponse);
+
+    const response = await server.simulateTransaction(
+      transaction,
+      undefined,
+      undefined,
+      false,
+    );
+    const expected = cloneSimulation(parsedSimulationResponse);
+    assert.deepEqual(response, expected);
+    expect(mockPost).toHaveBeenCalledWith(serverUrl, {
+      jsonrpc: "2.0",
+      id: 1,
+      method: "simulateTransaction",
+      params: {
+        transaction: blob,
+        authMode: undefined,
+        useUpgradedAuth: false,
       },
     });
     expect(mockPost).toHaveBeenCalledTimes(1);
@@ -478,6 +505,7 @@ describe("Server#simulateTransaction", () => {
         transaction: blob,
         resourceConfig: { instructionLeeway: 100 },
         authMode: undefined,
+        useUpgradedAuth: true,
       },
     });
   });

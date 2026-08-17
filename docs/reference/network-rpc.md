@@ -110,7 +110,7 @@ class Server {
   _getTransaction(hash: string): Promise<RawGetTransactionResponse>;
   _getTransactions(request: GetTransactionsRequest): Promise<RawGetTransactionsResponse>;
   _sendTransaction(transaction: Transaction | FeeBumpTransaction): Promise<RawSendTransactionResponse>;
-  _simulateTransaction(transaction: Transaction | FeeBumpTransaction, addlResources?: ResourceLeeway, authMode?: SimulationAuthMode, useUpgradedAuth?: boolean): Promise<RawSimulateTransactionResponse>;
+  _simulateTransaction(transaction: Transaction | FeeBumpTransaction, addlResources?: ResourceLeeway, authMode?: SimulationAuthMode, useUpgradedAuth: boolean = true): Promise<RawSimulateTransactionResponse>;
   fundAddress(address: string, friendbotUrl?: string): Promise<GetSuccessfulTransactionResponse>;
   getAccount(address: string): Promise<Account>;
   getAccountEntry(address: string): Promise<AccountEntry>;
@@ -136,11 +136,11 @@ class Server {
   getTrustline(account: string, asset: Asset): Promise<TrustLineEntry>;
   getVersionInfo(): Promise<GetVersionInfoResponse>;
   pollTransaction(hash: string, opts?: PollingOptions): Promise<GetTransactionResponse>;
-  prepareTransaction(tx: Transaction | FeeBumpTransaction): Promise<Transaction>;
+  prepareTransaction(tx: Transaction | FeeBumpTransaction, useUpgradedAuth: boolean = true): Promise<Transaction>;
   queryContract<T = any>(contractId: string, method: string, args: Record<string, unknown> = {}, networkPassphrase?: string): Promise<{ isReadCall: boolean; result: T }>;
   requestAirdrop(address: string | Pick<Account, "accountId">, friendbotUrl?: string): Promise<Account>;
   sendTransaction(transaction: Transaction | FeeBumpTransaction): Promise<SendTransactionResponse>;
-  simulateTransaction(tx: Transaction | FeeBumpTransaction, addlResources?: ResourceLeeway, authMode?: SimulationAuthMode, useUpgradedAuth?: boolean): Promise<SimulateTransactionResponse>;
+  simulateTransaction(tx: Transaction | FeeBumpTransaction, addlResources?: ResourceLeeway, authMode?: SimulationAuthMode, useUpgradedAuth: boolean = true): Promise<SimulateTransactionResponse>;
 }
 ```
 
@@ -237,7 +237,7 @@ _getLedgers(request: GetLedgersRequest): Promise<RawGetLedgersResponse>;
 
 - **`request`** — `GetLedgersRequest` (required)
 
-**Source:** [src/rpc/server.ts:1929](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1929)
+**Source:** [src/rpc/server.ts:1944](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1944)
 
 ### `server._getTransaction(hash)`
 
@@ -273,12 +273,12 @@ _sendTransaction(transaction: Transaction | FeeBumpTransaction): Promise<RawSend
 
 - **`transaction`** — `Transaction | FeeBumpTransaction` (required)
 
-**Source:** [src/rpc/server.ts:1568](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1568)
+**Source:** [src/rpc/server.ts:1583](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1583)
 
 ### `server._simulateTransaction(transaction, addlResources, authMode, useUpgradedAuth)`
 
 ```ts
-_simulateTransaction(transaction: Transaction | FeeBumpTransaction, addlResources?: ResourceLeeway, authMode?: SimulationAuthMode, useUpgradedAuth?: boolean): Promise<RawSimulateTransactionResponse>;
+_simulateTransaction(transaction: Transaction | FeeBumpTransaction, addlResources?: ResourceLeeway, authMode?: SimulationAuthMode, useUpgradedAuth: boolean = true): Promise<RawSimulateTransactionResponse>;
 ```
 
 **Parameters**
@@ -286,9 +286,9 @@ _simulateTransaction(transaction: Transaction | FeeBumpTransaction, addlResource
 - **`transaction`** — `Transaction | FeeBumpTransaction` (required)
 - **`addlResources`** — `ResourceLeeway` (optional)
 - **`authMode`** — `SimulationAuthMode` (optional)
-- **`useUpgradedAuth`** — `boolean` (optional)
+- **`useUpgradedAuth`** — `boolean` (optional) (default: `true`)
 
-**Source:** [src/rpc/server.ts:1413](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1413)
+**Source:** [src/rpc/server.ts:1412](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1412)
 
 ### `server.fundAddress(address, friendbotUrl)`
 
@@ -341,7 +341,7 @@ console.log("Contract funded! Hash:", tx.txHash);
 
 - `Friendbot docs`
 
-**Source:** [src/rpc/server.ts:1688](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1688)
+**Source:** [src/rpc/server.ts:1703](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1703)
 
 ### `server.getAccount(address)`
 
@@ -821,7 +821,7 @@ the fee stats
 
 - https://developers.stellar.org/docs/data/rpc/api-reference/methods/getFeeStats
 
-**Source:** [src/rpc/server.ts:1734](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1734)
+**Source:** [src/rpc/server.ts:1749](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1749)
 
 ### `server.getHealth()`
 
@@ -1007,7 +1007,7 @@ const nextPage = await server.getLedgers({
 
 - `getLedgers docs`
 
-**Source:** [src/rpc/server.ts:1913](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1913)
+**Source:** [src/rpc/server.ts:1928](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1928)
 
 ### `server.getNetwork()`
 
@@ -1095,7 +1095,7 @@ console.log(
 - - getLedgerEntries
  - https://developers.stellar.org/docs/tokens/stellar-asset-contract
 
-**Source:** [src/rpc/server.ts:1798](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1798)
+**Source:** [src/rpc/server.ts:1813](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1813)
 
 ### `server.getTransaction(hash)`
 
@@ -1226,7 +1226,7 @@ the version info
 
 - https://developers.stellar.org/docs/data/rpc/api-reference/methods/getVersionInfo
 
-**Source:** [src/rpc/server.ts:1748](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1748)
+**Source:** [src/rpc/server.ts:1763](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1763)
 
 ### `server.pollTransaction(hash, opts)`
 
@@ -1268,7 +1268,7 @@ const txStatus = await server.pollTransaction(h, {
 
 **Source:** [src/rpc/server.ts:1069](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1069)
 
-### `server.prepareTransaction(tx)`
+### `server.prepareTransaction(tx, useUpgradedAuth)`
 
 Submit a trial contract invocation, first run a simulation of the contract
 invocation as defined on the incoming transaction, and apply the results to
@@ -1288,7 +1288,7 @@ transaction in detail first, then re-assemble it manually or via
 [`rpc.assembleTransaction`](#rpcassembletransaction).
 
 ```ts
-prepareTransaction(tx: Transaction | FeeBumpTransaction): Promise<Transaction>;
+prepareTransaction(tx: Transaction | FeeBumpTransaction, useUpgradedAuth: boolean = true): Promise<Transaction>;
 ```
 
 **Parameters**
@@ -1303,6 +1303,14 @@ prepareTransaction(tx: Transaction | FeeBumpTransaction): Promise<Transaction>;
      from the simulation. In other words, if you include auth entries, you
      don't care about the auth returned from the simulation. Other fields
      (footprint, etc.) will be filled as normal.
+- **`useUpgradedAuth`** — `boolean` (optional) (default: `true`) — (optional) whether the underlying simulation
+     records v2 address credentials (CAP-71) instead of the legacy v1
+     address credentials. Defaults to `true`; pass `false` to ask for the
+     legacy v1 format. It only affects the recording auth modes.
+  
+     **Deprecated**: this flag is transitional. Once the RPC server returns v2
+     credentials by default (protocol 28), it becomes a no-op — do not rely
+     on passing `false` to keep receiving the legacy v1 format.
 
 **Returns**
 
@@ -1355,7 +1363,7 @@ server.sendTransaction(transaction).then(result => {
 - - module:rpc.assembleTransaction
  - `simulateTransaction docs`
 
-**Source:** [src/rpc/server.ts:1507](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1507)
+**Source:** [src/rpc/server.ts:1514](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1514)
 
 ### `server.queryContract(contractId, method, args, networkPassphrase)`
 
@@ -1463,7 +1471,7 @@ server
 - - `Friendbot docs`
  - [`Friendbot.Api.Response`](/reference/network-friendbot/#friendbotapiresponse)
 
-**Source:** [src/rpc/server.ts:1613](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1613)
+**Source:** [src/rpc/server.ts:1628](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1628)
 
 ### `server.sendTransaction(transaction)`
 
@@ -1524,7 +1532,7 @@ server.sendTransaction(transaction).then((result) => {
 - - `transaction docs`
  - `sendTransaction docs`
 
-**Source:** [src/rpc/server.ts:1562](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1562)
+**Source:** [src/rpc/server.ts:1577](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1577)
 
 ### `server.simulateTransaction(tx, addlResources, authMode, useUpgradedAuth)`
 
@@ -1532,7 +1540,7 @@ Submit a trial contract invocation to get back return values, expected
 ledger footprint, expected authorizations, and expected costs.
 
 ```ts
-simulateTransaction(tx: Transaction | FeeBumpTransaction, addlResources?: ResourceLeeway, authMode?: SimulationAuthMode, useUpgradedAuth?: boolean): Promise<SimulateTransactionResponse>;
+simulateTransaction(tx: Transaction | FeeBumpTransaction, addlResources?: ResourceLeeway, authMode?: SimulationAuthMode, useUpgradedAuth: boolean = true): Promise<SimulateTransactionResponse>;
 ```
 
 **Parameters**
@@ -1549,15 +1557,14 @@ simulateTransaction(tx: Transaction | FeeBumpTransaction, addlResources?: Resour
      auth mode to use for simulation: `enforce` for enforcement mode,
      `record` for recording mode, or `record_allow_nonroot` for recording
      mode that allows non-root authorization
-- **`useUpgradedAuth`** — `boolean` (optional) — (optional) opt simulation into recording
-     v2 address credentials (CAP-71) instead of the legacy v1 address
-     credentials. Best-effort: it only affects the recording auth modes and
-     is silently ignored on protocol versions whose host cannot emit v2
-     credentials.
+- **`useUpgradedAuth`** — `boolean` (optional) (default: `true`) — (optional) whether simulation records v2 address
+     credentials (CAP-71) instead of the legacy v1 address credentials.
+     Defaults to `true`; pass `false` to ask for the legacy v1 format.
+     It only affects the recording auth modes.
   
      **Deprecated**: this flag is transitional. Once the network returns v2
      credentials by default (protocol 28), it becomes a no-op — do not rely
-     on omitting it to keep receiving the legacy v1 format.
+     on passing `false` to keep receiving the legacy v1 format.
 
 **Returns**
 
@@ -1599,7 +1606,7 @@ server.simulateTransaction(transaction).then((sim) => {
  - module:rpc.Server#prepareTransaction
  - module:rpc.assembleTransaction
 
-**Source:** [src/rpc/server.ts:1399](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1399)
+**Source:** [src/rpc/server.ts:1398](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1398)
 
 ## rpc.assembleTransaction
 
@@ -1628,7 +1635,7 @@ a new, cloned transaction with the proper auth and resource (fee, footprint) sim
 **See also**
 
 - - [`rpc.Server.simulateTransaction`](#serversimulatetransactiontx-addlresources-authmode-useupgradedauth)
- - [`rpc.Server.prepareTransaction`](#serverpreparetransactiontx)
+ - [`rpc.Server.prepareTransaction`](#serverpreparetransactiontx-useupgradedauth)
 
 **Source:** [src/rpc/transaction.ts:45](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/transaction.ts#L45)
 
