@@ -212,6 +212,48 @@ describe("Memo", () => {
       expect(() => Memo.id("1e18")).toThrow(/Expects a uint64/);
     });
 
+    it("accepts a bigint and normalizes it to a string internally", () => {
+      const memo = Memo.id(90210n);
+      expect(memo.type).toBe(MemoID);
+      expect(memo.value).toBe("90210");
+      expect(typeof memo.value).toBe("string");
+    });
+
+    it("accepts 0n", () => {
+      expect(() => Memo.id(0n)).not.toThrow();
+      expect(Memo.id(0n).value).toBe("0");
+    });
+
+    it("accepts the uint64 max as a bigint", () => {
+      const max = 18446744073709551615n;
+      expect(() => Memo.id(max)).not.toThrow();
+      expect(Memo.id(max).value).toBe("18446744073709551615");
+    });
+
+    it("throws when a bigint exceeds the uint64 max", () => {
+      expect(() => Memo.id(18446744073709551616n)).toThrow(/Expects a uint64/);
+    });
+
+    it("throws for a negative bigint", () => {
+      expect(() => Memo.id(-1n)).toThrow(/Expects a uint64/);
+    });
+
+    it("distinguishes a bigint input from a string/number input in the error message", () => {
+      expect(() => Memo.id(18446744073709551616n)).toThrow(/bigint/);
+    });
+
+    it("converts a bigint to/from xdr object", () => {
+      const memo = Memo.id(90210n);
+      const xdrMemo = memo.toXdrObject();
+      expect(xdrMemo.type).toBe("memoId");
+      if (xdrMemo.type !== "memoId") throw new Error("expected memoId");
+      expect(xdrMemo.id.toString()).toBe("90210");
+
+      const baseMemo = Memo.fromXdrObject(xdrMemo);
+      expect(baseMemo.type).toBe(MemoID);
+      expect(baseMemo.value).toBe("90210");
+    });
+
     it("rejects trailing-zero decimal strings that BigInt cannot parse", () => {
       // "1.0" passes BigNumber.isInteger() but BigInt("1.0") throws.
       expect(() => Memo.id("1.0")).toThrow(/Expects a uint64/);
