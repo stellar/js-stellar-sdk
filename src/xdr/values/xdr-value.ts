@@ -188,10 +188,10 @@ export function decodeStream<Wire, Instance extends XdrValue>(
  * encodeBytes(new Uint8Array([0xde, 0xad, 0xbe, 0xef]), "base64"); // "3q2+7w=="
  * ```
  *
- * @param bytes the bytes to encode
- * @param format `"raw"` returns `bytes` unchanged; `"hex"` and `"base64"`
+ * @param bytes - the bytes to encode
+ * @param format - `"raw"` returns `bytes` unchanged; `"hex"` and `"base64"`
  *   return a string
- * @throws {XdrError} on an unknown format
+ * @throws an {@link XdrError} on an unknown format
  * @see {@link decodeBytes} for the reverse direction
  */
 export function encodeBytes(bytes: Uint8Array, format: "raw"): Uint8Array;
@@ -235,10 +235,10 @@ export function encodeBytes(
  * Decoding is strict: malformed input throws instead of being silently
  * truncated the way `Buffer.from(str, "hex")` was.
  *
- * @param input the bytes or encoded string to decode
- * @param format required when `input` is a string; ignored for `Uint8Array`
- * @throws {XdrError} when a string arrives without a `"hex"` / `"base64"`
- *   format, or the format is unknown
+ * @param input - the bytes or encoded string to decode
+ * @param format - required when `input` is a string; ignored for `Uint8Array`
+ * @throws an {@link XdrError} when a string arrives without a `"hex"` /
+ *   `"base64"` format, or the format is unknown
  * @see {@link encodeBytes} for the reverse direction
  */
 export function decodeBytes(
