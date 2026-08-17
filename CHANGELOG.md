@@ -2,7 +2,7 @@
 
 A breaking change will get clearly marked in this log.
 
-## Unreleased
+## [v17.0.0-rc.2](https://github.com/stellar/js-stellar-sdk/compare/v17.0.0-rc.1...v17.0.0-rc.2)
 
 ### Breaking Changes
 * CAP-71 `SOROBAN_CREDENTIALS_ADDRESS_V2` credentials are now the default, on both ends of the auth flow. `rpc.Server.simulateTransaction`'s `useUpgradedAuth` and `authorizeInvocation`'s `authV2` both default to `true`, so simulation asks RPC to record v2 entries and `authorizeInvocation` builds them. Pass `false` to either one for the legacy `SOROBAN_CREDENTIALS_ADDRESS` format. Both flags are transitional and become no-ops when v2 is mandatory in protocol 28. Two consequences: code that reads the credential arm by hand must handle `addressV2` and not just `address` (or use `inspectAuthEntry`), and a hand-rolled signer that hardcodes the legacy `ENVELOPE_TYPE_SOROBAN_AUTHORIZATION` preimage now produces signatures the network rejects, so use `buildAuthorizationEntryPreimage` or `authorizeEntry`, which pick the address-bound payload off the entry. SDK-driven signing (`contract.Client`, `authorizeEntry`, `signAuthEntries`) needs no change ([#1562](https://github.com/stellar/js-stellar-sdk/issues/1562)).
