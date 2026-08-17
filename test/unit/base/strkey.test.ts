@@ -409,8 +409,8 @@ describe("StrKey", () => {
         expect(muxed.type).toBe("keyTypeMuxedEd25519");
 
         const innerMux = (muxed as xdr.MuxedAccountMuxedEd25519).med25519;
-        expect(Array.from(innerMux.ed25519)).toEqual(
-          Array.from(unmuxed.ed25519),
+        expect(Array.from(innerMux.ed25519.toBytes())).toEqual(
+          Array.from(unmuxed.ed25519.toBytes()),
         );
         expect(innerMux.id).toEqual(BigInt(testCase.id));
 
