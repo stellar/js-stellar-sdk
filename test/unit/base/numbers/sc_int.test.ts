@@ -553,8 +553,8 @@ describe("ScInt", () => {
         let b = new ScInt(sentinel);
         expect(b.toBigInt()).toBe(sentinel);
         expect(() => b.toNumber()).toThrow(/not in range/i);
-        expect(() => b.toU64()).toThrow(/too large/i);
-        expect(() => b.toI64()).toThrow(/too large/i);
+        expect(() => b.toU64()).toThrow(/cannot encode u128 as 64 bits/);
+        expect(() => b.toI64()).toThrow(/cannot encode u128 as 64 bits/);
 
         let scvU = b.toU128();
         if (scvU.type !== "scvU128") throw new Error("expected scvU128");
@@ -672,15 +672,17 @@ describe("ScInt", () => {
         big = new ScInt(Number.MAX_SAFE_INTEGER + 1);
         expect(() => big.toNumber()).toThrow(/not in range/i);
 
+        // the value is 1: these fail on the declared type's width, not on the
+        // value's magnitude, and the message says so
         big = new ScInt(1, { type: "i128" });
-        expect(() => big.toU64()).toThrow(/too large/i);
-        expect(() => big.toI64()).toThrow(/too large/i);
+        expect(() => big.toU64()).toThrow(/cannot encode i128 as 64 bits/);
+        expect(() => big.toI64()).toThrow(/cannot encode i128 as 64 bits/);
 
         big = new ScInt(1, { type: "i256" });
-        expect(() => big.toU64()).toThrow(/too large/i);
-        expect(() => big.toI64()).toThrow(/too large/i);
-        expect(() => big.toI128()).toThrow(/too large/i);
-        expect(() => big.toU128()).toThrow(/too large/i);
+        expect(() => big.toU64()).toThrow(/cannot encode i256 as 64 bits/);
+        expect(() => big.toI64()).toThrow(/cannot encode i256 as 64 bits/);
+        expect(() => big.toI128()).toThrow(/cannot encode i256 as 128 bits/);
+        expect(() => big.toU128()).toThrow(/cannot encode i256 as 128 bits/);
       });
     });
   });

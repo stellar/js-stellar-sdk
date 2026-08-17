@@ -30,6 +30,28 @@ describe("XdrLargeInt", () => {
         const xdrInt = new XdrLargeInt("i64", obj);
         expect(xdrInt.toBigInt()).toBe(42n);
       });
+
+      it("rejects a toBigInt() that returns a non-bigint", () => {
+        // the range check compares with < and >, which yield false rather than
+        // throwing for a string or object, so the value must be coerced first
+        for (const bad of ["abc", NaN, Infinity, 1.5, null, undefined, {}]) {
+          expect(
+            () => new XdrLargeInt("u64", { toBigInt: () => bad as never }),
+          ).toThrow();
+        }
+      });
+
+      it("coerces a numeric toBigInt() result to a bigint", () => {
+        const xdrInt = new XdrLargeInt("u64", { toBigInt: () => 5 as never });
+        expect(xdrInt.value).toBe(5n);
+        expect(typeof xdrInt.toBigInt()).toBe("bigint");
+
+        // BigInt("") and BigInt([]) are both 0n, matching what the direct
+        // string input path already accepts
+        expect(
+          new XdrLargeInt("u64", { toBigInt: () => "" as never }).value,
+        ).toBe(0n);
+      });
     });
 
     describe("accepts array values", () => {
@@ -80,6 +102,84 @@ describe("XdrLargeInt", () => {
         expect(() => new XdrLargeInt("i64", [2n ** 40n, 0n])).toThrow(
           RangeError,
         );
+      });
+    });
+
+    describe("range checks (single value)", () => {
+      // [type, max]; the minimum is 0 for all of these
+      const UNSIGNED: Array<[ScIntType, bigint]> = [
+        ["u64", 2n ** 64n - 1n],
+        ["timepoint", 2n ** 64n - 1n],
+        ["duration", 2n ** 64n - 1n],
+        ["u128", 2n ** 128n - 1n],
+        ["u256", 2n ** 256n - 1n],
+      ];
+      // [type, min, max]
+      const SIGNED: Array<[ScIntType, bigint, bigint]> = [
+        ["i64", -(2n ** 63n), 2n ** 63n - 1n],
+        ["i128", -(2n ** 127n), 2n ** 127n - 1n],
+        ["i256", -(2n ** 255n), 2n ** 255n - 1n],
+      ];
+
+      /** Runs `fn` and returns the error it threw, failing if it threw none. */
+      function thrown(fn: () => unknown): Error {
+        try {
+          fn();
+        } catch (e) {
+          return e as Error;
+        }
+        throw new Error("expected a throw, but none happened");
+      }
+
+      it("accepts the exact boundaries of every type", () => {
+        for (const [type, max] of UNSIGNED) {
+          expect(new XdrLargeInt(type, 0n).toBigInt()).toBe(0n);
+          expect(new XdrLargeInt(type, max).toBigInt()).toBe(max);
+        }
+        for (const [type, min, max] of SIGNED) {
+          expect(new XdrLargeInt(type, min).toBigInt()).toBe(min);
+          expect(new XdrLargeInt(type, max).toBigInt()).toBe(max);
+        }
+      });
+
+      it("reports a negative value for an unsigned type as a sign error", () => {
+        for (const [type] of UNSIGNED) {
+          const err = thrown(() => new XdrLargeInt(type, -1n));
+          expect(err).toBeInstanceOf(RangeError);
+          expect(err.message).toBe("expected a positive value, got: -1");
+          expect(err.message).not.toMatch(/too large/);
+        }
+      });
+
+      it("reports an unsigned overflow with the valid range", () => {
+        for (const [type, max] of UNSIGNED) {
+          const err = thrown(() => new XdrLargeInt(type, max + 1n));
+          expect(err).toBeInstanceOf(RangeError);
+          expect(err.message).toBe(
+            `bigint value ${max + 1n} for ${type} out of range [0, ${max}]`,
+          );
+        }
+      });
+
+      it("reports a signed overflow with the valid range", () => {
+        for (const [type, min, max] of SIGNED) {
+          const err = thrown(() => new XdrLargeInt(type, max + 1n));
+          expect(err).toBeInstanceOf(RangeError);
+          expect(err.message).toBe(
+            `bigint value ${max + 1n} for ${type} out of range [${min}, ${max}]`,
+          );
+        }
+      });
+
+      it("reports a signed underflow as out of range, not as too large", () => {
+        for (const [type, min, max] of SIGNED) {
+          const err = thrown(() => new XdrLargeInt(type, min - 1n));
+          expect(err).toBeInstanceOf(RangeError);
+          expect(err.message).toBe(
+            `bigint value ${min - 1n} for ${type} out of range [${min}, ${max}]`,
+          );
+          expect(err.message).not.toMatch(/too large/);
+        }
       });
     });
 
@@ -224,6 +324,13 @@ describe("XdrLargeInt", () => {
       );
     });
 
+    it("reports the safe-integer range low bound first", () => {
+      const tooLarge = BigInt(Number.MAX_SAFE_INTEGER) + 1n;
+      expect(() => new XdrLargeInt("i128", tooLarge).toNumber()).toThrow(
+        `[${Number.MIN_SAFE_INTEGER}, ${Number.MAX_SAFE_INTEGER}]`,
+      );
+    });
+
     it("handles MAX_SAFE_INTEGER and MIN_SAFE_INTEGER", () => {
       expect(new XdrLargeInt("i64", Number.MAX_SAFE_INTEGER).toNumber()).toBe(
         Number.MAX_SAFE_INTEGER,
@@ -308,17 +415,20 @@ describe("XdrLargeInt", () => {
         expect(scVal.i64).toBe(-42n);
       });
 
-      it("throws RangeError when size exceeds 64 bits", () => {
-        const tooLarge = new XdrLargeInt("i128", 1n << 64n);
-        expect(() => tooLarge.toI64()).toThrow(RangeError);
-        expect(() => tooLarge.toI64()).toThrow(/too large/);
+      it("throws RangeError when the type is wider than 64 bits", () => {
+        const wider = new XdrLargeInt("i128", 1n << 64n);
+        expect(() => wider.toI64()).toThrow(RangeError);
+        expect(() => wider.toI64()).toThrow(/cannot encode i128 as 64 bits/);
       });
 
       it("throws RangeError when value doesn't fit in signed 64 bits", () => {
-        // i64 can't store values beyond signed 64-bit range
-        const tooLarge = new XdrLargeInt("i128", 1n << 63n);
+        // a u64 may hold values beyond the signed 64-bit range
+        const tooLarge = new XdrLargeInt("u64", 1n << 63n);
         expect(() => tooLarge.toI64()).toThrow(RangeError);
-        expect(() => tooLarge.toI64()).toThrow(/too large/);
+        expect(() => tooLarge.toI64()).toThrow(
+          `bigint value ${1n << 63n} for i64 out of range ` +
+            `[${-(2n ** 63n)}, ${2n ** 63n - 1n}]`,
+        );
       });
 
       it("handles boundary values", () => {
@@ -352,10 +462,10 @@ describe("XdrLargeInt", () => {
         expect(scVal.u64).toBe(BigInt.asUintN(64, -1n));
       });
 
-      it("throws RangeError when size exceeds 64 bits", () => {
-        const tooLarge = new XdrLargeInt("u128", 1n << 64n);
-        expect(() => tooLarge.toU64()).toThrow(RangeError);
-        expect(() => tooLarge.toU64()).toThrow(/too large/);
+      it("throws RangeError when the type is wider than 64 bits", () => {
+        const wider = new XdrLargeInt("u128", 1n << 64n);
+        expect(() => wider.toU64()).toThrow(RangeError);
+        expect(() => wider.toU64()).toThrow(/cannot encode u128 as 64 bits/);
       });
 
       it("handles maximum u64 value", () => {
@@ -429,18 +539,26 @@ describe("XdrLargeInt", () => {
         expect(reconstructed).toBe(value);
       });
 
-      it("throws RangeError when size exceeds 128 bits", () => {
-        const tooLarge = new XdrLargeInt("i256", 1n << 128n);
-        expect(() => tooLarge.toI128()).toThrow(RangeError);
-        expect(() => tooLarge.toI128()).toThrow(/too large for 128 bits/);
+      it("throws RangeError when the type is wider than 128 bits", () => {
+        const wider = new XdrLargeInt("i256", 1n << 128n);
+        expect(() => wider.toI128()).toThrow(RangeError);
+        expect(() => wider.toI128()).toThrow(/cannot encode i256 as 128 bits/);
       });
 
       it("throws RangeError for unsigned values exceeding signed i128 range", () => {
+        const range = `[${-(2n ** 127n)}, ${2n ** 127n - 1n}]`;
+
         const u128AtSignedBoundary = new XdrLargeInt("u128", 1n << 127n);
         expect(() => u128AtSignedBoundary.toI128()).toThrow(RangeError);
+        expect(() => u128AtSignedBoundary.toI128()).toThrow(
+          `bigint value ${1n << 127n} for i128 out of range ${range}`,
+        );
 
         const u128Max = new XdrLargeInt("u128", (1n << 128n) - 1n);
         expect(() => u128Max.toI128()).toThrow(RangeError);
+        expect(() => u128Max.toI128()).toThrow(
+          `bigint value ${(1n << 128n) - 1n} for i128 out of range ${range}`,
+        );
       });
 
       it("handles boundary values", () => {
@@ -480,10 +598,10 @@ describe("XdrLargeInt", () => {
         expect(reconstructed).toBe(value);
       });
 
-      it("throws RangeError when size exceeds 128 bits", () => {
-        const tooLarge = new XdrLargeInt("u256", 1n << 128n);
-        expect(() => tooLarge.toU128()).toThrow(RangeError);
-        expect(() => tooLarge.toU128()).toThrow(/too large for 128 bits/);
+      it("throws RangeError when the type is wider than 128 bits", () => {
+        const wider = new XdrLargeInt("u256", 1n << 128n);
+        expect(() => wider.toU128()).toThrow(RangeError);
+        expect(() => wider.toU128()).toThrow(/cannot encode u256 as 128 bits/);
       });
 
       it("handles maximum u128 value", () => {
@@ -534,11 +652,19 @@ describe("XdrLargeInt", () => {
       });
 
       it("throws RangeError for unsigned values exceeding signed i256 range", () => {
+        const range = `[${-(2n ** 255n)}, ${2n ** 255n - 1n}]`;
+
         const u256AtSignedBoundary = new XdrLargeInt("u256", 1n << 255n);
         expect(() => u256AtSignedBoundary.toI256()).toThrow(RangeError);
+        expect(() => u256AtSignedBoundary.toI256()).toThrow(
+          `bigint value ${1n << 255n} for i256 out of range ${range}`,
+        );
 
         const u256Max = new XdrLargeInt("u256", (1n << 256n) - 1n);
         expect(() => u256Max.toI256()).toThrow(RangeError);
+        expect(() => u256Max.toI256()).toThrow(
+          `bigint value ${(1n << 256n) - 1n} for i256 out of range ${range}`,
+        );
       });
 
       it("handles large positive value", () => {

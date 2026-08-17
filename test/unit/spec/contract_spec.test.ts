@@ -549,7 +549,10 @@ describe("Can round trip custom types", () => {
 
   it("u256", () => {
     roundtrip("u256", 1n);
-    expect(() => roundtrip("u256", -1n)).toThrow(/too large for 256-bit u256/);
+    expect(() => roundtrip("u256", -1n)).toThrow(RangeError);
+    expect(() => roundtrip("u256", -1n)).toThrow(
+      "expected a positive value, got: -1",
+    );
   });
 
   it("i256", () => {
