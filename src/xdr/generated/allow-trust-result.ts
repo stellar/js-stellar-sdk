@@ -44,6 +44,19 @@ export type AllowTrustResultVariantName =
 abstract class AllowTrustResultBase extends XdrValue {
   abstract readonly type: AllowTrustResultVariantName;
 
+  constructor() {
+    super();
+    // `new.target`, not an unconditional throw: every arm subclass reaches
+    // this constructor through `super()`, void arms via an implicit one
+    if (new.target === AllowTrustResultBase) {
+      throw new TypeError(
+        "new xdr.AllowTrustResult(...) is not supported: XDR unions are built from " +
+          "per-variant factories. Call xdr.AllowTrustResult.allowTrustSuccess() " +
+          "(or another arm factory) instead.",
+      );
+    }
+  }
+
   static readonly schema: XdrType<AllowTrustResultWire> = union(
     "AllowTrustResult",
     {

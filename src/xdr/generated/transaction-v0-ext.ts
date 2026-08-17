@@ -22,6 +22,19 @@ export type TransactionV0ExtVariantName = "v0";
 abstract class TransactionV0ExtBase extends XdrValue {
   abstract readonly type: TransactionV0ExtVariantName;
 
+  constructor() {
+    super();
+    // `new.target`, not an unconditional throw: every arm subclass reaches
+    // this constructor through `super()`, void arms via an implicit one
+    if (new.target === TransactionV0ExtBase) {
+      throw new TypeError(
+        "new xdr.TransactionV0Ext(...) is not supported: XDR unions are built from " +
+          "per-variant factories. Call xdr.TransactionV0Ext.v0() " +
+          "(or another arm factory) instead.",
+      );
+    }
+  }
+
   static readonly schema: XdrType<TransactionV0ExtWire> = union(
     "TransactionV0Ext",
     {

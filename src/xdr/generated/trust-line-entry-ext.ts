@@ -48,6 +48,19 @@ export type TrustLineEntryExtVariantName = "v0" | "v1";
 abstract class TrustLineEntryExtBase extends XdrValue {
   abstract readonly type: TrustLineEntryExtVariantName;
 
+  constructor() {
+    super();
+    // `new.target`, not an unconditional throw: every arm subclass reaches
+    // this constructor through `super()`, void arms via an implicit one
+    if (new.target === TrustLineEntryExtBase) {
+      throw new TypeError(
+        "new xdr.TrustLineEntryExt(...) is not supported: XDR unions are built from " +
+          "per-variant factories. Call xdr.TrustLineEntryExt.v0() " +
+          "(or another arm factory) instead.",
+      );
+    }
+  }
+
   static readonly schema: XdrType<TrustLineEntryExtWire> = union(
     "TrustLineEntryExt",
     {

@@ -2,17 +2,18 @@
 // Abstract base ↔ concrete subclass references below are intentional and safe
 // under class hoisting — every reference site runs after both classes are fully
 // initialized.
-import { case as case_, field, opaque, union } from "@stellar/js-xdr";
+import { case as case_, field, union } from "@stellar/js-xdr";
 import { XdrError, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import { CryptoKeyType } from "./crypto-key-type.js";
+import { Uint256Bytes, type Uint256BytesWire } from "./uint256-bytes.js";
 import {
   MuxedAccountMed25519,
   type MuxedAccountMed25519Wire,
 } from "./muxed-account-med25519.js";
 
 export type MuxedAccountWire =
-  | { type: 0; ed25519: Uint8Array }
+  | { type: 0; ed25519: Uint256BytesWire }
   | { type: 256; med25519: MuxedAccountMed25519Wire };
 
 export type MuxedAccountVariantName = "keyTypeEd25519" | "keyTypeMuxedEd25519";
@@ -35,10 +36,23 @@ export type MuxedAccountVariantName = "keyTypeEd25519" | "keyTypeMuxedEd25519";
 abstract class MuxedAccountBase extends XdrValue {
   abstract readonly type: MuxedAccountVariantName;
 
+  constructor() {
+    super();
+    // `new.target`, not an unconditional throw: every arm subclass reaches
+    // this constructor through `super()`, void arms via an implicit one
+    if (new.target === MuxedAccountBase) {
+      throw new TypeError(
+        "new xdr.MuxedAccount(...) is not supported: XDR unions are built from " +
+          "per-variant factories. Call xdr.MuxedAccount.keyTypeEd25519(...) " +
+          "(or another arm factory) instead.",
+      );
+    }
+  }
+
   static readonly schema: XdrType<MuxedAccountWire> = union("MuxedAccount", {
     switchOn: CryptoKeyType.schema,
     cases: [
-      case_("keyTypeEd25519", 0, field("ed25519", opaque(32))),
+      case_("keyTypeEd25519", 0, field("ed25519", Uint256Bytes.schema)),
       case_(
         "keyTypeMuxedEd25519",
         256,
@@ -47,7 +61,9 @@ abstract class MuxedAccountBase extends XdrValue {
     ],
   });
 
-  static keyTypeEd25519(ed25519: Uint8Array): MuxedAccountEd25519 {
+  static keyTypeEd25519(
+    ed25519: Uint256Bytes | Uint8Array | string,
+  ): MuxedAccountEd25519 {
     return new MuxedAccountEd25519(ed25519);
   }
 
@@ -60,7 +76,9 @@ abstract class MuxedAccountBase extends XdrValue {
   static fromXdrObject(wire: MuxedAccountWire): MuxedAccount {
     switch (wire.type) {
       case 0:
-        return new MuxedAccountEd25519(wire.ed25519);
+        return new MuxedAccountEd25519(
+          Uint256Bytes.fromXdrObject(wire.ed25519),
+        );
       case 256:
         return new MuxedAccountMuxedEd25519(
           MuxedAccountMed25519.fromXdrObject(wire.med25519),
@@ -88,19 +106,20 @@ abstract class MuxedAccountBase extends XdrValue {
 
 export class MuxedAccountEd25519 extends MuxedAccountBase {
   readonly type = "keyTypeEd25519" as const;
-  readonly ed25519: Uint8Array;
+  readonly ed25519: Uint256Bytes;
 
-  constructor(ed25519: Uint8Array) {
+  constructor(ed25519: Uint256Bytes | Uint8Array | string) {
     super();
-    this.ed25519 = ed25519;
+    this.ed25519 =
+      ed25519 instanceof Uint256Bytes ? ed25519 : new Uint256Bytes(ed25519);
   }
 
-  get value(): Uint8Array {
+  get value(): Uint256Bytes {
     return this.ed25519;
   }
 
   toXdrObject(): Extract<MuxedAccountWire, { type: 0 }> {
-    return { type: 0, ed25519: this.ed25519 };
+    return { type: 0, ed25519: this.ed25519.toXdrObject() };
   }
 }
 

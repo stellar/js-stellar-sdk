@@ -74,6 +74,19 @@ export type PathPaymentStrictReceiveResultVariantName =
 abstract class PathPaymentStrictReceiveResultBase extends XdrValue {
   abstract readonly type: PathPaymentStrictReceiveResultVariantName;
 
+  constructor() {
+    super();
+    // `new.target`, not an unconditional throw: every arm subclass reaches
+    // this constructor through `super()`, void arms via an implicit one
+    if (new.target === PathPaymentStrictReceiveResultBase) {
+      throw new TypeError(
+        "new xdr.PathPaymentStrictReceiveResult(...) is not supported: XDR unions are built from " +
+          "per-variant factories. Call xdr.PathPaymentStrictReceiveResult.pathPaymentStrictReceiveSuccess(...) " +
+          "(or another arm factory) instead.",
+      );
+    }
+  }
+
   static readonly schema: XdrType<PathPaymentStrictReceiveResultWire> = union(
     "PathPaymentStrictReceiveResult",
     {

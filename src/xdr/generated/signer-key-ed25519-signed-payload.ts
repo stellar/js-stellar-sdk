@@ -1,9 +1,10 @@
-import { opaque, struct, varOpaque } from "@stellar/js-xdr";
+import { struct, varOpaque } from "@stellar/js-xdr";
 import type { XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
+import { Uint256Bytes, type Uint256BytesWire } from "./uint256-bytes.js";
 
 export interface SignerKeyEd25519SignedPayloadWire {
-  ed25519: Uint8Array;
+  ed25519: Uint256BytesWire;
   payload: Uint8Array;
 }
 
@@ -19,26 +20,32 @@ export interface SignerKeyEd25519SignedPayloadWire {
  * ```
  */
 export class SignerKeyEd25519SignedPayload extends XdrValue {
-  readonly ed25519: Uint8Array;
+  readonly ed25519: Uint256Bytes;
   readonly payload: Uint8Array;
 
   static readonly schema: XdrType<SignerKeyEd25519SignedPayloadWire> = struct(
     "SignerKeyEd25519SignedPayload",
     {
-      ed25519: opaque(32),
+      ed25519: Uint256Bytes.schema,
       payload: varOpaque(64),
     },
   );
 
-  constructor(input: { ed25519: Uint8Array; payload: Uint8Array }) {
+  constructor(input: {
+    ed25519: Uint256Bytes | Uint8Array | string;
+    payload: Uint8Array;
+  }) {
     super();
-    this.ed25519 = input.ed25519;
+    this.ed25519 =
+      input.ed25519 instanceof Uint256Bytes
+        ? input.ed25519
+        : new Uint256Bytes(input.ed25519);
     this.payload = input.payload;
   }
 
   toXdrObject(): SignerKeyEd25519SignedPayloadWire {
     return {
-      ed25519: this.ed25519,
+      ed25519: this.ed25519.toXdrObject(),
       payload: this.payload,
     };
   }
@@ -47,7 +54,7 @@ export class SignerKeyEd25519SignedPayload extends XdrValue {
     wire: SignerKeyEd25519SignedPayloadWire,
   ): SignerKeyEd25519SignedPayload {
     return new SignerKeyEd25519SignedPayload({
-      ed25519: wire.ed25519,
+      ed25519: Uint256Bytes.fromXdrObject(wire.ed25519),
       payload: wire.payload,
     });
   }

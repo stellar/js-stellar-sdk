@@ -34,6 +34,19 @@ export type TxSetComponentVariantName = "txsetCompTxsMaybeDiscountedFee";
 abstract class TxSetComponentBase extends XdrValue {
   abstract readonly type: TxSetComponentVariantName;
 
+  constructor() {
+    super();
+    // `new.target`, not an unconditional throw: every arm subclass reaches
+    // this constructor through `super()`, void arms via an implicit one
+    if (new.target === TxSetComponentBase) {
+      throw new TypeError(
+        "new xdr.TxSetComponent(...) is not supported: XDR unions are built from " +
+          "per-variant factories. Call xdr.TxSetComponent.txsetCompTxsMaybeDiscountedFee(...) " +
+          "(or another arm factory) instead.",
+      );
+    }
+  }
+
   static readonly schema: XdrType<TxSetComponentWire> = union(
     "TxSetComponent",
     {

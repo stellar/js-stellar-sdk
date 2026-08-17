@@ -38,6 +38,19 @@ export type CreateAccountResultVariantName =
 abstract class CreateAccountResultBase extends XdrValue {
   abstract readonly type: CreateAccountResultVariantName;
 
+  constructor() {
+    super();
+    // `new.target`, not an unconditional throw: every arm subclass reaches
+    // this constructor through `super()`, void arms via an implicit one
+    if (new.target === CreateAccountResultBase) {
+      throw new TypeError(
+        "new xdr.CreateAccountResult(...) is not supported: XDR unions are built from " +
+          "per-variant factories. Call xdr.CreateAccountResult.createAccountSuccess() " +
+          "(or another arm factory) instead.",
+      );
+    }
+  }
+
   static readonly schema: XdrType<CreateAccountResultWire> = union(
     "CreateAccountResult",
     {

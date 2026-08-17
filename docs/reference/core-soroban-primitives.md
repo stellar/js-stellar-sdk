@@ -711,7 +711,7 @@ function multiPartyAuth(
 
 - authorizeInvocation
 
-**Source:** [src/base/auth.ts:196](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L196)
+**Source:** [src/base/auth.ts:198](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L198)
 
 ## authorizeInvocation
 
@@ -1461,15 +1461,13 @@ interface AuthorizeInvocationParams {
 
 - authorizeEntry
 
-**Source:** [src/base/auth.ts:394](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L394)
+**Source:** [src/base/auth.ts:396](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L396)
 
 #### `authorizeInvocationParams.authV2`
 
 Build `SOROBAN_CREDENTIALS_ADDRESS_V2` (CAP-71) credentials instead of the
 legacy `SOROBAN_CREDENTIALS_ADDRESS`. V2 credentials bind the address into
-the signed payload but are only valid on networks that have activated
-CAP-71, so leave this off until the activation vote passes for your target
-network. The default flips to `true` once V2 becomes mandatory.
+the signed payload.
 
 ```ts
 authV2?: boolean;
@@ -1483,7 +1481,7 @@ authV2?: boolean;
 invocation: SorobanAuthorizedInvocation;
 ```
 
-**Source:** [src/base/auth.ts:397](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L397)
+**Source:** [src/base/auth.ts:399](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L399)
 
 #### `authorizeInvocationParams.networkPassphrase`
 
@@ -1491,7 +1489,7 @@ invocation: SorobanAuthorizedInvocation;
 networkPassphrase: string;
 ```
 
-**Source:** [src/base/auth.ts:398](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L398)
+**Source:** [src/base/auth.ts:400](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L400)
 
 #### `authorizeInvocationParams.publicKey`
 
@@ -1499,7 +1497,7 @@ networkPassphrase: string;
 publicKey?: string;
 ```
 
-**Source:** [src/base/auth.ts:399](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L399)
+**Source:** [src/base/auth.ts:401](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L401)
 
 #### `authorizeInvocationParams.signer`
 
@@ -1507,7 +1505,7 @@ publicKey?: string;
 signer: Keypair | SigningCallback;
 ```
 
-**Source:** [src/base/auth.ts:395](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L395)
+**Source:** [src/base/auth.ts:397](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L397)
 
 #### `authorizeInvocationParams.validUntilLedgerSeq`
 
@@ -1515,7 +1513,7 @@ signer: Keypair | SigningCallback;
 validUntilLedgerSeq: number;
 ```
 
-**Source:** [src/base/auth.ts:396](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L396)
+**Source:** [src/base/auth.ts:398](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L398)
 
 ### BuildWithDelegatesParams
 
@@ -1880,7 +1878,7 @@ necessary to authorize an invocation tree.
 type SigningCallback = (preimage: HashIdPreimage, payload: Uint8Array) => Promise<Uint8Array | { publicKey: string; signature: Uint8Array } | { address?: string; signatureScVal: ScVal }>
 ```
 
-**Source:** [src/base/auth.ts:58](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L58)
+**Source:** [src/base/auth.ts:60](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L60)
 
 ### WasmCreateDetails
 

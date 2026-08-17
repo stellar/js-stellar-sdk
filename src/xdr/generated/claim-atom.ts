@@ -42,6 +42,19 @@ export type ClaimAtomVariantName =
 abstract class ClaimAtomBase extends XdrValue {
   abstract readonly type: ClaimAtomVariantName;
 
+  constructor() {
+    super();
+    // `new.target`, not an unconditional throw: every arm subclass reaches
+    // this constructor through `super()`, void arms via an implicit one
+    if (new.target === ClaimAtomBase) {
+      throw new TypeError(
+        "new xdr.ClaimAtom(...) is not supported: XDR unions are built from " +
+          "per-variant factories. Call xdr.ClaimAtom.claimAtomTypeV0(...) " +
+          "(or another arm factory) instead.",
+      );
+    }
+  }
+
   static readonly schema: XdrType<ClaimAtomWire> = union("ClaimAtom", {
     switchOn: ClaimAtomType.schema,
     cases: [

@@ -1342,7 +1342,7 @@ describe("TransactionBuilder", () => {
         "keyTypeEd25519",
       ).ed25519;
       const sourceAccountEd25519 = Keypair.fromPublicKey(
-        StrKey.encodeEd25519PublicKey(new Uint8Array(ed25519Bytes)),
+        StrKey.encodeEd25519PublicKey(new Uint8Array(ed25519Bytes.toBytes())),
       ).xdrAccountId().value;
       const v0Tx = new xdr.TransactionV0({
         sourceAccountEd25519: sourceAccountEd25519,
@@ -1469,7 +1469,9 @@ describe("TransactionBuilder", () => {
         "keyTypeMuxedEd25519",
       ).med25519;
 
-      expect(Array.from(innerMux.ed25519)).toEqual(Array.from(PUBKEY_SRC));
+      expect(Array.from(innerMux.ed25519.toBytes())).toEqual(
+        Array.from(PUBKEY_SRC),
+      );
       expect(encodeMuxedAccountToAddress(rawMuxedSourceAccount)).toBe(
         source.accountId(),
       );
@@ -1552,7 +1554,9 @@ describe("TransactionBuilder", () => {
         rawFeeSource,
         "keyTypeMuxedEd25519",
       ).med25519;
-      expect(Array.from(innerMux.ed25519)).toEqual(Array.from(PUBKEY_SRC));
+      expect(Array.from(innerMux.ed25519.toBytes())).toEqual(
+        Array.from(PUBKEY_SRC),
+      );
       expect(encodeMuxedAccountToAddress(rawFeeSource)).toBe(
         source.accountId(),
       );

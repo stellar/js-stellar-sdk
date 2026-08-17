@@ -30,6 +30,19 @@ export type FeeBumpTransactionInnerTxVariantName = "envelopeTypeTx";
 abstract class FeeBumpTransactionInnerTxBase extends XdrValue {
   abstract readonly type: FeeBumpTransactionInnerTxVariantName;
 
+  constructor() {
+    super();
+    // `new.target`, not an unconditional throw: every arm subclass reaches
+    // this constructor through `super()`, void arms via an implicit one
+    if (new.target === FeeBumpTransactionInnerTxBase) {
+      throw new TypeError(
+        "new xdr.FeeBumpTransactionInnerTx(...) is not supported: XDR unions are built from " +
+          "per-variant factories. Call xdr.FeeBumpTransactionInnerTx.envelopeTypeTx(...) " +
+          "(or another arm factory) instead.",
+      );
+    }
+  }
+
   static readonly schema: XdrType<FeeBumpTransactionInnerTxWire> = union(
     "FeeBumpTransactionInnerTx",
     {

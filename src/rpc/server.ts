@@ -1347,15 +1347,14 @@ export class RpcServer {
    *    auth mode to use for simulation: `enforce` for enforcement mode,
    *    `record` for recording mode, or `record_allow_nonroot` for recording
    *    mode that allows non-root authorization
-   * @param useUpgradedAuth - (optional) opt simulation into recording
-   *    v2 address credentials (CAP-71) instead of the legacy v1 address
-   *    credentials. Best-effort: it only affects the recording auth modes and
-   *    is silently ignored on protocol versions whose host cannot emit v2
-   *    credentials.
+   * @param useUpgradedAuth - (optional) whether simulation records v2 address
+   *    credentials (CAP-71) instead of the legacy v1 address credentials.
+   *    Defaults to `true`; pass `false` to ask for the legacy v1 format.
+   *    It only affects the recording auth modes.
    *
    *    **Deprecated**: this flag is transitional. Once the network returns v2
    *    credentials by default (protocol 28), it becomes a no-op — do not rely
-   *    on omitting it to keep receiving the legacy v1 format.
+   *    on passing `false` to keep receiving the legacy v1 format.
    *
    * @returns An object with the
    *    cost, footprint, result/auth requirements (if applicable), and error of
@@ -1400,7 +1399,7 @@ export class RpcServer {
     tx: Transaction | FeeBumpTransaction,
     addlResources?: RpcServer.ResourceLeeway,
     authMode?: Api.SimulationAuthMode,
-    useUpgradedAuth?: boolean,
+    useUpgradedAuth: boolean = true,
   ): Promise<Api.SimulateTransactionResponse> {
     return this._simulateTransaction(
       tx,
@@ -1414,7 +1413,7 @@ export class RpcServer {
     transaction: Transaction | FeeBumpTransaction,
     addlResources?: RpcServer.ResourceLeeway,
     authMode?: Api.SimulationAuthMode,
-    useUpgradedAuth?: boolean,
+    useUpgradedAuth: boolean = true,
   ): Promise<Api.RawSimulateTransactionResponse> {
     return jsonrpc.postObject(
       this.httpClient,
@@ -1423,7 +1422,7 @@ export class RpcServer {
       {
         transaction: transaction.toXdr(),
         authMode,
-        ...(useUpgradedAuth !== undefined && { useUpgradedAuth }),
+        useUpgradedAuth,
         ...(addlResources !== undefined && {
           resourceConfig: {
             instructionLeeway: addlResources.cpuInstructions,
@@ -1461,6 +1460,14 @@ export class RpcServer {
    *    from the simulation. In other words, if you include auth entries, you
    *    don't care about the auth returned from the simulation. Other fields
    *    (footprint, etc.) will be filled as normal.
+   * @param useUpgradedAuth - (optional) whether the underlying simulation
+   *    records v2 address credentials (CAP-71) instead of the legacy v1
+   *    address credentials. Defaults to `true`; pass `false` to ask for the
+   *    legacy v1 format. It only affects the recording auth modes.
+   *
+   *    **Deprecated**: this flag is transitional. Once the RPC server returns v2
+   *    credentials by default (protocol 28), it becomes a no-op — do not rely
+   *    on passing `false` to keep receiving the legacy v1 format.
    * @returns A copy of the
    *    transaction with the expected authorizations (in the case of
    *    invocation), resources, and ledger footprints added. The transaction fee
@@ -1504,8 +1511,16 @@ export class RpcServer {
    * });
    * ```
    */
-  public async prepareTransaction(tx: Transaction | FeeBumpTransaction) {
-    const simResponse = await this.simulateTransaction(tx);
+  public async prepareTransaction(
+    tx: Transaction | FeeBumpTransaction,
+    useUpgradedAuth: boolean = true,
+  ) {
+    const simResponse = await this.simulateTransaction(
+      tx,
+      undefined,
+      undefined,
+      useUpgradedAuth,
+    );
     if (Api.isSimulationError(simResponse)) {
       throw new Error(simResponse.error);
     }

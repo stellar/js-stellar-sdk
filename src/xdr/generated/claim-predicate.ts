@@ -55,6 +55,19 @@ export type ClaimPredicateVariantName =
 abstract class ClaimPredicateBase extends XdrValue {
   abstract readonly type: ClaimPredicateVariantName;
 
+  constructor() {
+    super();
+    // `new.target`, not an unconditional throw: every arm subclass reaches
+    // this constructor through `super()`, void arms via an implicit one
+    if (new.target === ClaimPredicateBase) {
+      throw new TypeError(
+        "new xdr.ClaimPredicate(...) is not supported: XDR unions are built from " +
+          "per-variant factories. Call xdr.ClaimPredicate.claimPredicateUnconditional() " +
+          "(or another arm factory) instead.",
+      );
+    }
+  }
+
   static readonly schema: XdrType<ClaimPredicateWire> = union(
     "ClaimPredicate",
     {

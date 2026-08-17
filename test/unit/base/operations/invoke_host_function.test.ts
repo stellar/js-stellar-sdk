@@ -85,7 +85,7 @@ describe("Operation", () => {
               expectVariant(decodedOp.func, "hostFunctionTypeCreateContractV2")
                 .value.contractIdPreimage,
               "contractIdPreimageFromAddress",
-            ).value.salt,
+            ).value.salt.toBytes(),
           ),
         ).toEqual(Array.from(h));
         expect(expectDefined(decodedOp.auth)).toHaveLength(0);
@@ -182,7 +182,7 @@ describe("Operation", () => {
               expectVariant(decodedOp.func, "hostFunctionTypeCreateContractV2")
                 .createContractV2.contractIdPreimage,
               "contractIdPreimageFromAddress",
-            ).fromAddress.salt,
+            ).fromAddress.salt.toBytes(),
           ),
         ).toEqual(Array.from(h));
 
@@ -346,7 +346,7 @@ describe("Operation", () => {
           expectVariant(decodedOp.func, "hostFunctionTypeCreateContractV2")
             .createContractV2.contractIdPreimage,
           "contractIdPreimageFromAddress",
-        ).fromAddress.salt;
+        ).fromAddress.salt.toBytes();
         expect(salt).toHaveLength(32);
       });
     });

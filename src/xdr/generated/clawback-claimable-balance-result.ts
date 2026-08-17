@@ -36,6 +36,19 @@ export type ClawbackClaimableBalanceResultVariantName =
 abstract class ClawbackClaimableBalanceResultBase extends XdrValue {
   abstract readonly type: ClawbackClaimableBalanceResultVariantName;
 
+  constructor() {
+    super();
+    // `new.target`, not an unconditional throw: every arm subclass reaches
+    // this constructor through `super()`, void arms via an implicit one
+    if (new.target === ClawbackClaimableBalanceResultBase) {
+      throw new TypeError(
+        "new xdr.ClawbackClaimableBalanceResult(...) is not supported: XDR unions are built from " +
+          "per-variant factories. Call xdr.ClawbackClaimableBalanceResult.clawbackClaimableBalanceSuccess() " +
+          "(or another arm factory) instead.",
+      );
+    }
+  }
+
   static readonly schema: XdrType<ClawbackClaimableBalanceResultWire> = union(
     "ClawbackClaimableBalanceResult",
     {

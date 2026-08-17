@@ -40,8 +40,10 @@ import { nativeToScVal } from "./scval.js";
  *
  *  - the signature of the payload as a naked `Uint8Array`, implying it is
  *    signed by the key corresponding to the public key in the entry you pass to
- *    {@link authorizeEntry} (decipherable from its
- *    `credentials.address.address`),
+ *    {@link authorizeEntry} (decipherable from the entry's address
+ *    credentials — `credentials.address.address` on the legacy arm or
+ *    `credentials.addressV2.address` on the CAP-71 V2 arm, which is the
+ *    default; {@link inspectAuthEntry} handles both),
  *  - an object with the `signature` alongside an explicit `publicKey` string
  *    identifying the Ed25519 signer, or
  *  - an object with a `signatureScVal`: an arbitrary, caller-built
@@ -386,8 +388,8 @@ export async function authorizeEntry(
  *    {@link Keypair} to `signer`, this can be omitted, as it just uses
  *    {@link Keypair.publicKey})
  *   - `authV2`: build `SOROBAN_CREDENTIALS_ADDRESS_V2` (CAP-71) credentials
- *    rather than the legacy `SOROBAN_CREDENTIALS_ADDRESS`. Defaults to `false`;
- *    only enable it for networks that have activated CAP-71.
+ *    rather than the legacy `SOROBAN_CREDENTIALS_ADDRESS`. Defaults to `true`;
+ *    pass `false` for the legacy format.
  *
  * @see authorizeEntry
  */
@@ -400,10 +402,8 @@ export interface AuthorizeInvocationParams {
   /**
    * Build `SOROBAN_CREDENTIALS_ADDRESS_V2` (CAP-71) credentials instead of the
    * legacy `SOROBAN_CREDENTIALS_ADDRESS`. V2 credentials bind the address into
-   * the signed payload but are only valid on networks that have activated
-   * CAP-71, so leave this off until the activation vote passes for your target
-   * network. The default flips to `true` once V2 becomes mandatory.
-   * @defaultValue false
+   * the signed payload.
+   * @defaultValue true
    */
   authV2?: boolean;
 }
@@ -417,7 +417,7 @@ export function authorizeInvocation(
     invocation,
     networkPassphrase,
     publicKey = "",
-    authV2 = false,
+    authV2 = true,
   } = params;
   // We use keypairs as a source of randomness for the nonce to avoid mucking
   // with any crypto dependencies. Note that this just has to be random and

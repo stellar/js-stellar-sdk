@@ -134,6 +134,9 @@ function normalizeFieldName(name) {
  *    UInt128Parts         → Uint128Parts
  *    ContractIDPreimage   → ContractIdPreimage
  *
+ *  A small override table runs first, for names the algorithm can't fix on
+ *  its own — see `typeNameOverride`.
+ *
  *  Algorithm: find every run of 2+ consecutive uppercase ASCII letters.
  *  - A 2-letter run followed by a lowercase letter collapses fully (`UI` → `Ui`).
  *  - A 3+-letter run followed by a lowercase letter preserves the final
@@ -142,7 +145,30 @@ function normalizeFieldName(name) {
  *    fully (`ID` at end → `Id`, `V0` is just a single cap then digit so no
  *    run, unaffected).
  */
+/** Type names the normalizer can't derive mechanically. Declared as a hoisted
+ *  function, not a const, so the top-of-file `walkAndNormalizeTypeNames` call
+ *  can reach it.
+ *
+ *  `uint256` is `typedef opaque uint256[32]` — a 32-byte blob, not a number.
+ *  Its lowercase name would otherwise route it through the "primitive alias"
+ *  path alongside `uint32`/`int64` and inline it as a bare `Uint8Array` at
+ *  every use site, unlike every other opaque typedef (Hash, Signature,
+ *  AssetCode4, …) which gets a `BytesValue` class. The plain PascalCase form
+ *  `Uint256` is already taken by the DX bigint wrapper over `Uint256Parts`
+ *  (`src/xdr/dx/uint256.ts`), so the byte-valued type takes the `Bytes`
+ *  suffix. */
+function typeNameOverride(name) {
+  switch (name) {
+    case "uint256":
+      return "Uint256Bytes";
+    default:
+      return undefined;
+  }
+}
+
 function normalizeTypeName(name) {
+  const override = typeNameOverride(name);
+  if (override !== undefined) return override;
   return name.replace(/[A-Z]{2,}/g, (run, offset) => {
     const after = name[offset + run.length];
     const followedByLower = after && /[a-z]/.test(after);
@@ -1388,6 +1414,31 @@ function bodyOfUnion(rawDef, ctx) {
     })
     .join("\n\n");
 
+  // Legacy-form guard. `abstract` is erased at runtime and the base is exported
+  // as the union's value, so the pre-v17 `new xdr.Union(disc, value)` would
+  // otherwise build a base instance that discards both arguments and only fails
+  // once something serializes it — a `TypeError` from inside XdrValue, naming
+  // neither the union nor the call that created it. Reject it at the call site
+  // instead, the way the `xdr.Int64` / `xdr.Int32` shims do.
+  //
+  // `new.target` rather than an unconditional throw: every arm subclass reaches
+  // this constructor through `super()`, void arms via an implicit one. The
+  // comparison also lands on the decode path, where fromXdrObject builds arms
+  // in bulk; it is a pointer compare against a hoisted binding.
+  const firstArm = armsMeta[0];
+  const legacyGuard = `  constructor() {
+    super();
+    // \`new.target\`, not an unconditional throw: every arm subclass reaches
+    // this constructor through \`super()\`, void arms via an implicit one
+    if (new.target === ${baseName}) {
+      throw new TypeError(
+        "new xdr.${name}(...) is not supported: XDR unions are built from " +
+          "per-variant factories. Call xdr.${name}.${firstArm.discCamel}(${firstArm.isVoid ? "" : "..."}) " +
+          "(or another arm factory) instead.",
+      );
+    }
+  }`;
+
   // fromXdrObject dispatch. `<Name>Wire` types the discriminant as a closed set
   // of literals, so the emitted switch is exhaustive to the compiler and needs
   // no fall-through to typecheck — but a wire object built by hand, or by a JSON
@@ -1494,6 +1545,8 @@ ${variantTypeUnion};
 
 ${sourceDoc(rawDef)}abstract class ${baseName} extends XdrValue {
   abstract readonly type: ${variantNameType};
+
+${legacyGuard}
 
   static readonly schema: XdrType<${wireName}> = union("${name}", {
     switchOn: ${switchOnExpr},

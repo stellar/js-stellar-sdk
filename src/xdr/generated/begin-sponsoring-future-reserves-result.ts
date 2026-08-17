@@ -36,6 +36,19 @@ export type BeginSponsoringFutureReservesResultVariantName =
 abstract class BeginSponsoringFutureReservesResultBase extends XdrValue {
   abstract readonly type: BeginSponsoringFutureReservesResultVariantName;
 
+  constructor() {
+    super();
+    // `new.target`, not an unconditional throw: every arm subclass reaches
+    // this constructor through `super()`, void arms via an implicit one
+    if (new.target === BeginSponsoringFutureReservesResultBase) {
+      throw new TypeError(
+        "new xdr.BeginSponsoringFutureReservesResult(...) is not supported: XDR unions are built from " +
+          "per-variant factories. Call xdr.BeginSponsoringFutureReservesResult.beginSponsoringFutureReservesSuccess() " +
+          "(or another arm factory) instead.",
+      );
+    }
+  }
+
   static readonly schema: XdrType<BeginSponsoringFutureReservesResultWire> =
     union("BeginSponsoringFutureReservesResult", {
       switchOn: BeginSponsoringFutureReservesResultCode.schema,

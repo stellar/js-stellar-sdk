@@ -33,6 +33,19 @@ export type ScEnvMetaEntryVariantName = "scEnvMetaKindInterfaceVersion";
 abstract class ScEnvMetaEntryBase extends XdrValue {
   abstract readonly type: ScEnvMetaEntryVariantName;
 
+  constructor() {
+    super();
+    // `new.target`, not an unconditional throw: every arm subclass reaches
+    // this constructor through `super()`, void arms via an implicit one
+    if (new.target === ScEnvMetaEntryBase) {
+      throw new TypeError(
+        "new xdr.ScEnvMetaEntry(...) is not supported: XDR unions are built from " +
+          "per-variant factories. Call xdr.ScEnvMetaEntry.scEnvMetaKindInterfaceVersion(...) " +
+          "(or another arm factory) instead.",
+      );
+    }
+  }
+
   static readonly schema: XdrType<ScEnvMetaEntryWire> = union(
     "ScEnvMetaEntry",
     {

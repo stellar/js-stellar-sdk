@@ -36,6 +36,19 @@ export type SorobanTransactionMetaExtVariantName = "v0" | "v1";
 abstract class SorobanTransactionMetaExtBase extends XdrValue {
   abstract readonly type: SorobanTransactionMetaExtVariantName;
 
+  constructor() {
+    super();
+    // `new.target`, not an unconditional throw: every arm subclass reaches
+    // this constructor through `super()`, void arms via an implicit one
+    if (new.target === SorobanTransactionMetaExtBase) {
+      throw new TypeError(
+        "new xdr.SorobanTransactionMetaExt(...) is not supported: XDR unions are built from " +
+          "per-variant factories. Call xdr.SorobanTransactionMetaExt.v0() " +
+          "(or another arm factory) instead.",
+      );
+    }
+  }
+
   static readonly schema: XdrType<SorobanTransactionMetaExtWire> = union(
     "SorobanTransactionMetaExt",
     {

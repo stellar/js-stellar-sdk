@@ -53,6 +53,19 @@ export type PaymentResultVariantName =
 abstract class PaymentResultBase extends XdrValue {
   abstract readonly type: PaymentResultVariantName;
 
+  constructor() {
+    super();
+    // `new.target`, not an unconditional throw: every arm subclass reaches
+    // this constructor through `super()`, void arms via an implicit one
+    if (new.target === PaymentResultBase) {
+      throw new TypeError(
+        "new xdr.PaymentResult(...) is not supported: XDR unions are built from " +
+          "per-variant factories. Call xdr.PaymentResult.paymentSuccess() " +
+          "(or another arm factory) instead.",
+      );
+    }
+  }
+
   static readonly schema: XdrType<PaymentResultWire> = union("PaymentResult", {
     switchOn: PaymentResultCode.schema,
     cases: [

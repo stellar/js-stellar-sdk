@@ -38,6 +38,19 @@ export type RevokeSponsorshipOpVariantName =
 abstract class RevokeSponsorshipOpBase extends XdrValue {
   abstract readonly type: RevokeSponsorshipOpVariantName;
 
+  constructor() {
+    super();
+    // `new.target`, not an unconditional throw: every arm subclass reaches
+    // this constructor through `super()`, void arms via an implicit one
+    if (new.target === RevokeSponsorshipOpBase) {
+      throw new TypeError(
+        "new xdr.RevokeSponsorshipOp(...) is not supported: XDR unions are built from " +
+          "per-variant factories. Call xdr.RevokeSponsorshipOp.revokeSponsorshipLedgerEntry(...) " +
+          "(or another arm factory) instead.",
+      );
+    }
+  }
+
   static readonly schema: XdrType<RevokeSponsorshipOpWire> = union(
     "RevokeSponsorshipOp",
     {
