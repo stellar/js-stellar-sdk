@@ -4,6 +4,7 @@ import { Claimant } from "../claimant.js";
 import { LiquidityPoolAsset } from "../liquidity_pool_asset.js";
 import { LiquidityPoolId } from "../liquidity_pool_id.js";
 import {
+  ContractExecutableExternalRef,
   HostFunction,
   MuxedAccount,
   OperationBody,
@@ -266,14 +267,37 @@ export interface InvokeContractFunctionOpts {
   source?: string;
 }
 
-export interface CreateCustomContractOpts {
+/**
+ * A CAP-85 external executable reference: the contract that owns the
+ * executable plus the owner-scoped tag naming it. The tag is an unbounded
+ * `SCString` and may be binary, so it is accepted as raw bytes as well as
+ * text. An {@link ContractExecutableExternalRef} (e.g. pulled from an
+ * existing contract instance) is accepted directly.
+ */
+export type ExternalExecutableRef =
+  | ContractExecutableExternalRef
+  | {
+      owner: Address | string;
+      tag: string | Uint8Array;
+    };
+
+interface CreateCustomContractBaseOpts {
   address: Address;
-  wasmHash: Uint8Array;
   constructorArgs?: ScVal[];
   salt?: Uint8Array;
   auth?: SorobanAuthorizationEntry[];
   source?: string;
 }
+
+export type CreateCustomContractOpts =
+  | (CreateCustomContractBaseOpts & {
+      wasmHash: Uint8Array;
+      externalRef?: never;
+    })
+  | (CreateCustomContractBaseOpts & {
+      externalRef: ExternalExecutableRef;
+      wasmHash?: never;
+    });
 
 export interface CreateStellarAssetContractOpts {
   asset: Asset | string;

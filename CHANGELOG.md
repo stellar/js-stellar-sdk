@@ -2,6 +2,11 @@
 
 A breaking change will get clearly marked in this log.
 
+## Unreleased
+
+### Added
+* `Operation.createCustomContract` can deploy from a [CAP-85](https://stellar.org/protocol/cap-85) external executable reference. Pass `externalRef` — either `{owner, tag}` (owner as a strkey or `Address`, tag as a string or raw bytes) or an `xdr.ContractExecutableExternalRef` pulled from an existing contract instance — instead of `wasmHash`; the two options are mutually exclusive. The owner must be a contract, since only a contract can hold the persistent tag entry that names the WASM, and a binary tag passes through undecoded.
+
 ## [v17.0.0-rc.2](https://github.com/stellar/js-stellar-sdk/compare/v17.0.0-rc.1...v17.0.0-rc.2)
 
 ### Breaking Changes
