@@ -35,6 +35,14 @@ describe("decodeBytes", () => {
     expect(() => new AssetCode4(123 as never)).toThrow(TypeError);
   });
 
+  it("reports the input type before the format, whatever the format", () => {
+    expect(() => decodeBytes(123 as never, "raw")).toThrow(TypeError);
+    expect(() => decodeBytes(123 as never, undefined)).toThrow(TypeError);
+    expect(() => decodeBytes(123 as never, "bogus" as never)).toThrow(
+      TypeError,
+    );
+  });
+
   it("still decodes valid input", () => {
     const hex = "ab".repeat(32);
     expect(decodeBytes(hex, "hex")).toEqual(new Uint8Array(32).fill(0xab));

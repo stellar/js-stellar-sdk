@@ -352,19 +352,20 @@ export function decodeBytes(
   format: "raw" | "hex" | "base64" | undefined,
 ): Uint8Array {
   if (input instanceof Uint8Array) return input;
+  // A non-string argument is a caller mistake, not malformed data, so it stays
+  // a TypeError — the same split `Keypair.verify` uses. Checked ahead of every
+  // `format` branch so the class never depends on the other argument.
+  if (typeof input !== "string") {
+    throw new TypeError(
+      `fromXdr: expected a string or Uint8Array, got ${typeof input}`,
+    );
+  }
   if (format === undefined || format === "raw") {
     throw new XdrError(
       "fromXdr: string input requires format ('hex' | 'base64')",
     );
   }
   if (format === "hex" || format === "base64") {
-    // A non-string argument is a caller mistake, not malformed data, so it
-    // stays a TypeError — same split `Keypair.verify` uses.
-    if (typeof input !== "string") {
-      throw new TypeError(
-        `fromXdr: expected a string or Uint8Array, got ${typeof input}`,
-      );
-    }
     try {
       return format === "hex"
         ? hexToUint8Array(input)
