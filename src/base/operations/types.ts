@@ -281,20 +281,36 @@ export type ExternalExecutableRef =
       tag: string | Uint8Array;
     };
 
+/**
+ * Parameters shared by every {@link Operation.createCustomContract} call,
+ * regardless of which executable the contract deploys from.
+ */
 interface CreateCustomContractBaseOpts {
+  /** the contract deployer address, which (with the salt) derives the new contract's ID */
   address: Address;
+  /** the optional parameters to pass to the constructor */
   constructorArgs?: ScVal[];
+  /** an optional, 32-byte salt to distinguish deployment instances */
   salt?: Uint8Array;
+  /** an optional list outlining the tree of authorizations required for the call */
   auth?: SorobanAuthorizationEntry[];
+  /** an optional source account */
   source?: string;
 }
 
+/**
+ * Options for {@link Operation.createCustomContract}: the shared parameters
+ * plus exactly one executable — the SHA-256 hash of uploaded contract WASM
+ * (`wasmHash`), or a CAP-85 external executable reference (`externalRef`).
+ */
 export type CreateCustomContractOpts =
   | (CreateCustomContractBaseOpts & {
+      /** the SHA-256 hash of the contract WASM you're deploying */
       wasmHash: Uint8Array;
       externalRef?: never;
     })
   | (CreateCustomContractBaseOpts & {
+      /** an external executable reference to deploy from instead of a WASM hash */
       externalRef: ExternalExecutableRef;
       wasmHash?: never;
     });
