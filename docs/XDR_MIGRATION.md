@@ -1008,8 +1008,9 @@ In JSON output an unset optional is `null` too (§ 12).
 
 ## 15. Errors and validation
 
-Every failure in the XDR layer now throws **`XdrError`**, which the SDK exports,
-so you can finally match on the class instead of on message text:
+Every encode, decode, and validation failure in the XDR layer throws
+**`XdrError`**, which the SDK exports, so you can finally match on the class
+instead of on message text:
 
 ```ts
 import { xdr } from "@stellar/stellar-sdk";
@@ -1028,9 +1029,11 @@ Two things to know when migrating:
   the only option) with text like `"XDR Write Error: invalid i32 value"`. The
   equivalent is now `"Uint32: value 4294967296 out of range [0, 4294967295]"`.
   Any `catch` block matching on error text needs rewriting.
-- There is one exception to the rule. Invalid base64 surfaces as a
-  `DOMException: Invalid character` from the platform decoder, not an
-  `XdrError`. Catch broadly if you accept untrusted base64.
+- Only the `xdr` namespace follows this rule. SDK entry points that decode
+  base64 or hex themselves — `new Transaction(envelope)`,
+  `Operation.setOptions`'s hex signer keys — still surface the platform
+  decoder's error, which Node words `DOMException: Invalid character` and other
+  runtimes word differently.
 
 Strictness itself is mostly unchanged. v4 also rejected buffers it didn't fully
 consume (`"source buffer not entirely consumed"`), which is now

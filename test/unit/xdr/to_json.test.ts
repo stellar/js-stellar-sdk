@@ -711,6 +711,13 @@ describe("walker — fromJson input validation", () => {
     expect(() => ScVal.fromJson({ bytes: "zz" })).toThrow(/hex/);
     expect(() => ScVal.fromJson({ bytes: "abc" })).toThrow(/hex/);
   });
+
+  it("rejects malformed string escapes with an XdrError, not SyntaxError", () => {
+    expect(() => ScVal.fromJson({ string: "\\q" })).toThrow(jsxdr.XdrError);
+    expect(() => ScVal.fromJson({ string: "\\xZZ" })).toThrow(jsxdr.XdrError);
+    expect(() => ScVal.fromJson({ string: "\\x4" })).toThrow(jsxdr.XdrError);
+    expect(() => ScVal.fromJson({ string: "é" })).toThrow(jsxdr.XdrError);
+  });
 });
 
 describe("walker — omitted option fields parse as null", () => {
