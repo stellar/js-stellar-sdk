@@ -175,7 +175,7 @@ describe("Operation", () => {
             } as unknown as Parameters<
               typeof Operation.createCustomContract
             >[0]),
-          ).toThrow(/mutually exclusive/);
+          ).toThrow(/Must provide only one of/);
         });
 
         it("throws when the owner is not a contract", () => {
