@@ -1,5 +1,5 @@
 import type { JSONSchema7, JSONSchema7Definition } from "json-schema";
-import { base64ToUint8Array, uint8ArrayToBase64 } from "uint8array-extras";
+import { base64ToUint8Array, uint8ArrayToBase64 } from "../base/util/base64.js";
 import {
   type ScIntType,
   XdrLargeInt,

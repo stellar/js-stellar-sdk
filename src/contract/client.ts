@@ -6,7 +6,8 @@ import { AssembledTransaction } from "./assembled_transaction.js";
 import type { ClientOptions, MethodOptions } from "./types.js";
 import { sanitizeIdentifier } from "../bindings/utils.js";
 import { ContractExecutableExternalRef, ScVal } from "../xdr/index.js";
-import { base64ToUint8Array, hexToUint8Array } from "uint8array-extras";
+import { hexToUint8Array } from "uint8array-extras";
+import { base64ToUint8Array } from "../base/util/base64.js";
 
 const CONSTRUCTOR_FUNC = "__constructor";
 

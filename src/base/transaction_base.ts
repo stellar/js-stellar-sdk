@@ -1,8 +1,5 @@
-import {
-  base64ToUint8Array,
-  hexToUint8Array,
-  uint8ArrayToBase64,
-} from "uint8array-extras";
+import { hexToUint8Array } from "uint8array-extras";
+import { base64ToUint8Array, uint8ArrayToBase64 } from "./util/base64.js";
 import {
   DecoratedSignature,
   FeeBumpTransaction,

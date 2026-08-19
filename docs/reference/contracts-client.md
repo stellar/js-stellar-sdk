@@ -670,7 +670,7 @@ class Client {
 }
 ```
 
-**Source:** [src/contract/client.ts:25](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L25)
+**Source:** [src/contract/client.ts:26](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L26)
 
 ### `new Client(spec, options)`
 
@@ -683,7 +683,7 @@ constructor(spec: Spec, options: ClientOptions);
 - **`spec`** — `Spec` (required)
 - **`options`** — `ClientOptions` (required)
 
-**Source:** [src/contract/client.ts:134](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L134)
+**Source:** [src/contract/client.ts:135](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L135)
 
 ### `Client.deploy(args, options)`
 
@@ -696,7 +696,7 @@ static deploy<T = Client>(args: Record<string, any> | null, options: MethodOptio
 - **`args`** — `Record<string, any> | null` (required) — Constructor/Initialization Args for the contract's `__constructor` method
 - **`options`** — `MethodOptions & Omit<ClientOptions, "contractId"> & { salt?: Uint8Array<ArrayBufferLike> | undefined; address?: string | undefined; } & ({ wasmHash: string | Uint8Array<ArrayBufferLike>; format?: "hex" | ... 1 more ... | undefined; externalRef?: undefined; } | { ...; })` (required) — Options for initializing a Client as well as for calling a method, with extras specific to deploying.
 
-**Source:** [src/contract/client.ts:26](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L26)
+**Source:** [src/contract/client.ts:27](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L27)
 
 ### `Client.from(options)`
 
@@ -737,7 +737,7 @@ const client = await contract.Client.from<MyContract>(options);
 const tx = await client.increment(); // typed
 ```
 
-**Source:** [src/contract/client.ts:284](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L284)
+**Source:** [src/contract/client.ts:285](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L285)
 
 ### `Client.fromWasm(wasm, options)`
 
@@ -770,7 +770,7 @@ const client = await contract.Client.fromWasm<MyContract>(wasm, options);
 const tx = await client.increment(); // typed
 ```
 
-**Source:** [src/contract/client.ts:246](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L246)
+**Source:** [src/contract/client.ts:247](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L247)
 
 ### `Client.fromWasmHash(wasmHash, options, format)`
 
@@ -805,7 +805,7 @@ const client = await contract.Client.fromWasmHash<MyContract>(hash, options);
 const tx = await client.increment(); // typed
 ```
 
-**Source:** [src/contract/client.ts:204](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L204)
+**Source:** [src/contract/client.ts:205](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L205)
 
 ### `client.options`
 
@@ -813,7 +813,7 @@ const tx = await client.increment(); // typed
 readonly options: ClientOptions;
 ```
 
-**Source:** [src/contract/client.ts:136](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L136)
+**Source:** [src/contract/client.ts:137](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L137)
 
 ### `client.spec`
 
@@ -821,7 +821,7 @@ readonly options: ClientOptions;
 readonly spec: Spec;
 ```
 
-**Source:** [src/contract/client.ts:135](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L135)
+**Source:** [src/contract/client.ts:136](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L136)
 
 ### `client.txFromJSON`
 
@@ -835,7 +835,7 @@ txFromJSON: <T>(json: string) => AssembledTransaction<T>;
 
 - **`json`** — `string` (required)
 
-**Source:** [src/contract/client.ts:336](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L336)
+**Source:** [src/contract/client.ts:337](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L337)
 
 ### `client.txFromJson(json)`
 
@@ -847,7 +847,7 @@ txFromJson<T>(json: string): AssembledTransaction<T>;
 
 - **`json`** — `string` (required)
 
-**Source:** [src/contract/client.ts:320](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L320)
+**Source:** [src/contract/client.ts:321](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L321)
 
 ### `client.txFromXDR(xdrBase64)`
 
@@ -859,7 +859,7 @@ txFromXDR<T>(xdrBase64: string): AssembledTransaction<T>;
 
 - **`xdrBase64`** — `string` (required)
 
-**Source:** [src/contract/client.ts:338](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L338)
+**Source:** [src/contract/client.ts:339](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L339)
 
 ## contract.DEFAULT_TIMEOUT
 

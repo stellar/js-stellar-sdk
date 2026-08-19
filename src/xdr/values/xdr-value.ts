@@ -1,10 +1,12 @@
 import {
   hexToUint8Array,
   uint8ArrayToHex,
-  base64ToUint8Array,
-  uint8ArrayToBase64,
   areUint8ArraysEqual,
 } from "uint8array-extras";
+import {
+  base64ToUint8Array,
+  uint8ArrayToBase64,
+} from "../../base/util/base64.js";
 import type { XdrType } from "@stellar/js-xdr";
 import { array, Reader, UNBOUNDED_MAX_LENGTH, XdrError } from "@stellar/js-xdr";
 import { walkToJson, walkFromJson } from "./to-json.js";
