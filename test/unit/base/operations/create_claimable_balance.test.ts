@@ -89,4 +89,160 @@ describe("Operation.createClaimableBalance()", () => {
     const roundtripped = xdr.Operation.fromXdr(hex, "hex");
     expect(roundtripped.body.type).toBe("createClaimableBalance");
   });
+
+  describe("rejects what stellar-core rejects", () => {
+    const other = "GDGU5OAPHNPU5UCLE5RDJHG7PXZFQYWKCFOEXSXNMR6KRQRI5T6XXCD7";
+    const first = expectDefined(claimants[0]);
+
+    const nest = (levels: number) => {
+      let predicate = Claimant.predicateUnconditional();
+      for (let i = 0; i < levels; i += 1) {
+        predicate = Claimant.predicateNot(predicate);
+      }
+      return predicate;
+    };
+
+    it("throws on a duplicate claimant destination", () => {
+      expect(() =>
+        Operation.createClaimableBalance({
+          asset,
+          amount,
+          claimants: [first, new Claimant(first.destination)],
+        }),
+      ).toThrow(/duplicate claimant destination/);
+    });
+
+    it("accepts distinct claimant destinations", () => {
+      expect(() =>
+        Operation.createClaimableBalance({
+          asset,
+          amount,
+          claimants: [first, new Claimant(other)],
+        }),
+      ).not.toThrow();
+    });
+
+    it("throws on a predicate nested more than four levels deep", () => {
+      expect(() =>
+        Operation.createClaimableBalance({
+          asset,
+          amount,
+          claimants: [new Claimant(first.destination, nest(4))],
+        }),
+      ).toThrow(/nested deeper than 4 levels/);
+    });
+
+    it("accepts a predicate nested exactly four levels deep", () => {
+      expect(() =>
+        Operation.createClaimableBalance({
+          asset,
+          amount,
+          claimants: [
+            new Claimant(
+              first.destination,
+              Claimant.predicateAnd(
+                Claimant.predicateOr(
+                  Claimant.predicateNot(Claimant.predicateUnconditional()),
+                  Claimant.predicateUnconditional(),
+                ),
+                Claimant.predicateUnconditional(),
+              ),
+            ),
+          ],
+        }),
+      ).not.toThrow();
+    });
+
+    it("throws on a negative absBefore", () => {
+      expect(() =>
+        Operation.createClaimableBalance({
+          asset,
+          amount,
+          claimants: [
+            new Claimant(
+              first.destination,
+              Claimant.predicateBeforeAbsoluteTime("-1"),
+            ),
+          ],
+        }),
+      ).toThrow(/absBefore must not be negative/);
+    });
+
+    it("throws on a negative relBefore", () => {
+      expect(() =>
+        Operation.createClaimableBalance({
+          asset,
+          amount,
+          claimants: [
+            new Claimant(
+              first.destination,
+              Claimant.predicateBeforeRelativeTime("-1"),
+            ),
+          ],
+        }),
+      ).toThrow(/relBefore must not be negative/);
+    });
+
+    it("accepts a zero absBefore", () => {
+      expect(() =>
+        Operation.createClaimableBalance({
+          asset,
+          amount,
+          claimants: [
+            new Claimant(
+              first.destination,
+              Claimant.predicateBeforeAbsoluteTime("0"),
+            ),
+          ],
+        }),
+      ).not.toThrow();
+    });
+
+    it("throws when and holds fewer than two predicates", () => {
+      expect(() =>
+        Operation.createClaimableBalance({
+          asset,
+          amount,
+          claimants: [
+            new Claimant(
+              first.destination,
+              xdr.ClaimPredicate.claimPredicateAnd([
+                Claimant.predicateUnconditional(),
+              ]),
+            ),
+          ],
+        }),
+      ).toThrow(/claimPredicateAnd requires exactly two predicates, got 1/);
+    });
+
+    it("throws when or holds fewer than two predicates", () => {
+      expect(() =>
+        Operation.createClaimableBalance({
+          asset,
+          amount,
+          claimants: [
+            new Claimant(
+              first.destination,
+              xdr.ClaimPredicate.claimPredicateOr([]),
+            ),
+          ],
+        }),
+      ).toThrow(/claimPredicateOr requires exactly two predicates, got 0/);
+    });
+
+    it("throws when not holds no predicate", () => {
+      expect(() =>
+        Operation.createClaimableBalance({
+          asset,
+          amount,
+          claimants: [
+            new Claimant(
+              first.destination,
+              xdr.ClaimPredicate.claimPredicateNot(null),
+            ),
+          ],
+        }),
+      ).toThrow(/claimPredicateNot requires a predicate/);
+    });
+  });
 });

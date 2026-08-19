@@ -2,6 +2,12 @@
 
 A breaking change will get clearly marked in this log.
 
+## Unreleased
+
+### Fixed
+
+* `Operation.createClaimableBalance` rejects claimants that stellar-core would reject, instead of building an operation the network refuses. It validated three things: that `asset` is an `Asset`, that `amount` parses, and that `claimants` is a non-empty array. `CreateClaimableBalanceOpFrame::doCheckValid` checks three more, and every one of them fails the whole transaction with a single `CREATE_CLAIMABLE_BALANCE_MALFORMED` that names neither the claimant nor the predicate at fault. The builder now mirrors those checks and throws locally: a destination that appears on two claimants, a predicate nested deeper than four levels (the root predicate is depth 1), a `not` holding no predicate, an `and` or `or` holding other than exactly two predicates, and a negative `absBefore` or `relBefore`. Over-length `and`/`or` arrays and an eleventh claimant already threw an `XdrError` at encoding time from the array bounds; the new checks are the cases that encoded cleanly and only failed on the network.
+
 ## [v17.0.0-rc.2](https://github.com/stellar/js-stellar-sdk/compare/v17.0.0-rc.1...v17.0.0-rc.2)
 
 ### Breaking Changes

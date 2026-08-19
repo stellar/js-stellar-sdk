@@ -1,6 +1,7 @@
 import {
   Asset as XdrAsset,
   Claimant,
+  ClaimPredicate,
   CreateClaimableBalanceOp,
   Int64,
   Operation,
@@ -14,6 +15,73 @@ import {
   setSourceAccount,
   toXdrAmount,
 } from "../util/operations.js";
+
+/**
+ * Deepest claim predicate stellar-core accepts. The root predicate is depth 1,
+ * so three further levels of nesting fit underneath it.
+ */
+const MAX_PREDICATE_DEPTH = 4;
+
+/**
+ * Rejects predicates that stellar-core would reject.
+ *
+ * This mirrors `validatePredicate` in `CreateClaimableBalanceOpFrame.cpp`, which
+ * bounds nesting depth, requires `and` and `or` to hold exactly two predicates,
+ * requires `not` to hold one, and forbids negative times. Every one of those
+ * failures reaches the submitter as a single `CREATE_CLAIMABLE_BALANCE_MALFORMED`
+ * with no indication of which claimant or which predicate was at fault.
+ */
+function validateClaimPredicate(
+  predicate: ClaimPredicate,
+  depth: number,
+): void {
+  if (depth > MAX_PREDICATE_DEPTH) {
+    throw new Error(
+      `claim predicate is nested deeper than ${MAX_PREDICATE_DEPTH} levels`,
+    );
+  }
+
+  switch (predicate.type) {
+    case "claimPredicateUnconditional":
+      return;
+
+    case "claimPredicateAnd":
+    case "claimPredicateOr": {
+      const children =
+        predicate.type === "claimPredicateAnd"
+          ? predicate.andPredicates
+          : predicate.orPredicates;
+
+      if (children.length !== 2) {
+        throw new Error(
+          `${predicate.type} requires exactly two predicates, got ${children.length}`,
+        );
+      }
+
+      children.forEach((child) => validateClaimPredicate(child, depth + 1));
+      return;
+    }
+
+    case "claimPredicateNot":
+      if (!predicate.notPredicate) {
+        throw new Error("claimPredicateNot requires a predicate");
+      }
+      validateClaimPredicate(predicate.notPredicate, depth + 1);
+      return;
+
+    case "claimPredicateBeforeAbsoluteTime":
+      if (predicate.absBefore < 0n) {
+        throw new Error("absBefore must not be negative");
+      }
+      return;
+
+    case "claimPredicateBeforeRelativeTime":
+      if (predicate.relBefore < 0n) {
+        throw new Error("relBefore must not be negative");
+      }
+      return;
+  }
+}
 
 /**
  * Create a new claimable balance operation.
@@ -62,6 +130,18 @@ export function createClaimableBalance(
   if (!Array.isArray(opts.claimants) || opts.claimants.length === 0) {
     throw new Error("must provide at least one claimant");
   }
+
+  const destinations = new Set<string>();
+  opts.claimants.forEach((claimant) => {
+    if (destinations.has(claimant.destination)) {
+      throw new Error(
+        `duplicate claimant destination: ${claimant.destination}`,
+      );
+    }
+    destinations.add(claimant.destination);
+
+    validateClaimPredicate(claimant.predicate, 1);
+  });
 
   const asset: XdrAsset = opts.asset.toXdrObject();
   const amount: Int64 = toXdrAmount(opts.amount);
