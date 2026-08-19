@@ -42,6 +42,7 @@ export {
 } from "./operation.js";
 export type {
   AuthFlag,
+  ExternalExecutableRef,
   TrustLineFlag,
   OperationOptions,
   OperationType,

@@ -2,7 +2,7 @@
 
 exports[`Bindings Snapshot Test > generates bindings that match snapshot for custom-types contract > custom-types-client.ts 1`] = `
 "import {RoyalCard, SimpleEnum, Test, ComplexEnum, TupleStruct, RecursiveEnum, ContractEvent} from './types.js';
-import {Result, Spec, AssembledTransaction, Client as ContractClient, ClientOptions as ContractClientOptions, MethodOptions} from '@stellar/stellar-sdk/contract';
+import {Result, Spec, AssembledTransaction, Client as ContractClient, ClientOptions as ContractClientOptions, MethodOptions, ExternalExecutableRef} from '@stellar/stellar-sdk/contract';
 import {xdr, Address} from '@stellar/stellar-sdk';
 
 export interface Client {
@@ -62,7 +62,7 @@ export class Client extends ContractClient {
     );
   }
 
-   static deploy<T = Client>(options: MethodOptions & Omit<ContractClientOptions, 'contractId'> & { wasmHash: Uint8Array | string; salt?: Uint8Array; format?: "hex" | "base64"; address?: string; }): Promise<AssembledTransaction<T>> {
+   static deploy<T = Client>(options: MethodOptions & Omit<ContractClientOptions, 'contractId'> & { salt?: Uint8Array; address?: string; } & ({ wasmHash: Uint8Array | string; format?: "hex" | "base64"; externalRef?: never; } | { externalRef: ExternalExecutableRef; wasmHash?: never; format?: never; })): Promise<AssembledTransaction<T>> {
     return ContractClient.deploy(null, options);
   }
   public readonly fromJson = {
