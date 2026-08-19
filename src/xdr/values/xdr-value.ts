@@ -342,8 +342,9 @@ export function encodeBytes(
  *
  * @param input - the bytes or encoded string to decode
  * @param format - required when `input` is a string; ignored for `Uint8Array`
- * @throws an {@link XdrError} when a string arrives without a `"hex"` /
- *   `"base64"` format, or the format is unknown
+ * @throws an {@link XdrError} when `input` is not valid `format`, when a string
+ *   arrives without a `"hex"` / `"base64"` format, or when the format is
+ *   unknown; a `TypeError` when `input` is neither a string nor a `Uint8Array`
  * @see {@link encodeBytes} for the reverse direction
  */
 export function decodeBytes(
@@ -351,13 +352,30 @@ export function decodeBytes(
   format: "raw" | "hex" | "base64" | undefined,
 ): Uint8Array {
   if (input instanceof Uint8Array) return input;
+  // A non-string argument is a caller mistake, not malformed data, so it stays
+  // a TypeError — the same split `Keypair.verify` uses. Checked ahead of every
+  // `format` branch so the class never depends on the other argument.
+  if (typeof input !== "string") {
+    throw new TypeError(
+      `fromXdr: expected a string or Uint8Array, got ${typeof input}`,
+    );
+  }
   if (format === undefined || format === "raw") {
     throw new XdrError(
       "fromXdr: string input requires format ('hex' | 'base64')",
     );
   }
-  if (format === "hex") return hexToUint8Array(input);
-  if (format === "base64") return base64ToUint8Array(input);
+  if (format === "hex" || format === "base64") {
+    try {
+      return format === "hex"
+        ? hexToUint8Array(input)
+        : base64ToUint8Array(input);
+    } catch {
+      // The decoders report through the platform: a plain Error for hex, a
+      // runtime-worded DOMException for base64. Neither is matchable.
+      throw new XdrError(`invalid ${format} input`);
+    }
+  }
   // Plain-JS callers get no TS checking; treating an unknown format as
   // base64 would silently decode garbage bytes.
   throw new XdrError(`fromXdr: unknown format "${String(format)}"`);
