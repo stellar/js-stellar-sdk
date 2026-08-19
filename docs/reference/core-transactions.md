@@ -3606,6 +3606,20 @@ type revocable = 2
 
 **Source:** [src/base/operations/types.ts:496](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L496)
 
+### ExternalExecutableRef
+
+A CAP-85 external executable reference: the contract that owns the
+executable plus the owner-scoped tag naming it. The tag is an unbounded
+`SCString` and may be binary, so it is accepted as raw bytes as well as
+text. An `ContractExecutableExternalRef` (e.g. pulled from an
+existing contract instance) is accepted directly.
+
+```ts
+type ExternalExecutableRef = ContractExecutableExternalRef | { owner: Address | string; tag: string | Uint8Array }
+```
+
+**Source:** [src/base/operations/types.ts:277](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L277)
+
 ### MemoType
 
 ```ts
