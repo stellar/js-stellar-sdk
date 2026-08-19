@@ -77,7 +77,7 @@ jobs:
     # degraded Ubuntu mirror wedges it inside `apt-get update` with no output
     # and no failure. Without this, the job would hang for GitHub's 360-minute
     # default; healthy runs finish in under 6 minutes.
-    timeout-minutes: 15
+    timeout-minutes: 20
 
     strategy:
       fail-fast: false
@@ -128,4 +128,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: No-op
-        run: echo "Node 20 is no longer supported; placeholder for the required status check."
+        run:
+          echo "Node 20 is no longer supported; placeholder for the required
+          status check."
