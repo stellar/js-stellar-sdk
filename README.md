@@ -198,10 +198,15 @@ Tell Jest to transform those packages instead of skipping them:
 // jest.config.js
 module.exports = {
   transformIgnorePatterns: [
-    "node_modules/(?!(@noble|@exodus|uint8array-extras)/)",
+    "node_modules/(?!(\\.pnpm|@noble|@exodus|uint8array-extras)/)",
   ],
 };
 ```
+
+`.pnpm` belongs in that list even though it is not a package. Under pnpm the
+real path is `node_modules/.pnpm/<pkg>@<version>/node_modules/<pkg>/…`, so
+without it the pattern matches at the first `node_modules/` segment and the
+package is skipped before the name is ever compared.
 
 If you compile tests with ts-jest or Babel, also make sure the compilation
 target is `es2020` or later — the SDK and its crypto dependencies use native
