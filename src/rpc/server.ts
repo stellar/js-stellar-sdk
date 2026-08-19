@@ -13,11 +13,11 @@ import {
 } from "../base/index.js";
 
 import {
-  base64ToUint8Array,
   concatUint8Arrays,
   hexToUint8Array,
   stringToUint8Array,
 } from "uint8array-extras";
+import { base64ToUint8Array } from "../base/util/base64.js";
 import type { TransactionBuilder } from "../base/index.js";
 import type { Config } from "../config.js";
 import { createHttpClient } from "./axios.js";

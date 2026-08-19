@@ -61,7 +61,7 @@ import {
   TransactionEnvelope,
 } from "../xdr/index.js";
 import { getAddressCredentials } from "../base/auth.js";
-import { base64ToUint8Array } from "uint8array-extras";
+import { base64ToUint8Array } from "../base/util/base64.js";
 
 /**
  * The main workhorse of {@link Client}. This class is used to wrap a

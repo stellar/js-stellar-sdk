@@ -18,11 +18,10 @@ import { Utils } from "../utils.js";
 import { ServerApi } from "../horizon/server_api.js";
 import {
   areUint8ArraysEqual,
-  base64ToUint8Array,
   stringToUint8Array,
-  uint8ArrayToBase64,
   uint8ArrayToString,
 } from "uint8array-extras";
+import { base64ToUint8Array, uint8ArrayToBase64 } from "../base/util/base64.js";
 
 /**
  * Returns a valid {@link https://stellar.org/protocol/sep-10 | SEP-10}

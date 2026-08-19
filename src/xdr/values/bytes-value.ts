@@ -1,8 +1,5 @@
-import {
-  hexToUint8Array,
-  base64ToUint8Array,
-  stringToUint8Array,
-} from "uint8array-extras";
+import { hexToUint8Array, stringToUint8Array } from "uint8array-extras";
+import { base64ToUint8Array } from "../../base/util/base64.js";
 import { XdrError } from "@stellar/js-xdr";
 import { XdrValue } from "./xdr-value.js";
 
