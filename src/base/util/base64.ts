@@ -1,12 +1,12 @@
 /**
  * Fast base64 to/from Uint8Array conversions.
  *
- * `uint8array-extras` implements these portably but slowly: its decoder runs a
- * per-character JS callback through the iterator protocol, and its encoder
- * builds an intermediate binary string with `String.fromCodePoint`. Both sit
- * under every `fromXdr` / `toXdr("base64")` call, so decode with `atob` plus a
- * preallocated `charCodeAt` loop and encode with chunked `String.fromCharCode`
- * plus `btoa`, which avoids the callback-per-byte cost on every runtime.
+ * `uint8array-extras` implements these portably but its decoder runs a
+ * per-byte JS callback through `Uint8Array.from`, which sits under every
+ * `fromXdr` call, so decode with `atob` plus a preallocated `charCodeAt` loop
+ * instead. The encoder keeps upstream's chunked-`btoa` shape (same chunk
+ * size); the only change is `String.fromCharCode` in place of
+ * `String.fromCodePoint`, safe because `atob`-domain bytes are all <= 0xff.
  */
 
 /**
@@ -42,8 +42,12 @@ const ENCODE_CHUNK_SIZE = 65535;
  * Encode bytes as a base64 string.
  * @param bytes - the bytes to encode
  * @returns the base64-encoded output
+ * @throws TypeError if the input is not a Uint8Array
  */
 export function uint8ArrayToBase64(bytes: Uint8Array): string {
+  if (!(bytes instanceof Uint8Array)) {
+    throw new TypeError(`Expected \`Uint8Array\`, got \`${typeof bytes}\``);
+  }
   let base64 = "";
   for (let i = 0; i < bytes.length; i += ENCODE_CHUNK_SIZE) {
     const chunk = bytes.subarray(i, i + ENCODE_CHUNK_SIZE);

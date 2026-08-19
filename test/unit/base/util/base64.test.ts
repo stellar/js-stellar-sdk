@@ -29,6 +29,25 @@ describe("uint8ArrayToBase64", () => {
     expect(uint8ArrayToBase64(bytes)).toBe(referenceEncode(bytes));
   });
 
+  it("throws TypeError on non-Uint8Array input", () => {
+    const inputs = [
+      null,
+      undefined,
+      "AQID",
+      [1, 2, 3],
+      new Uint8Array([1, 2, 3]).buffer,
+      new DataView(new Uint8Array([1, 2, 3]).buffer),
+    ];
+    for (const input of inputs) {
+      expect(() => uint8ArrayToBase64(input as never)).toThrow(TypeError);
+    }
+  });
+
+  it("accepts Uint8Array subclasses like Buffer", () => {
+    class Sub extends Uint8Array {}
+    expect(uint8ArrayToBase64(new Sub([1, 2, 3]))).toBe("AQID");
+  });
+
   it("respects the view's offset and length", () => {
     const backing = new Uint8Array([9, 9, 1, 2, 3, 9, 9]);
     const view = backing.subarray(2, 5);
@@ -75,5 +94,26 @@ describe("base64ToUint8Array", () => {
     for (const input of ["not base64!!", "AAAA=", "A", "å∫ç", "AB=A"]) {
       expect(() => base64ToUint8Array(input), input).toThrow();
     }
+  });
+
+  // The two cases below pin deliberate divergences from the Buffer-era and
+  // uint8array-extras decoders, which both re-padded short input and (Buffer
+  // only) silently skipped invalid characters.
+  it("rejects short-padded input that Buffer and uint8array-extras accepted", () => {
+    for (const input of ["QQ=", "AA=", "AAAAQQ="]) {
+      expect(() => base64ToUint8Array(input), input).toThrow();
+    }
+  });
+
+  it("rejects invalid characters that Buffer silently skipped", () => {
+    for (const input of ["QQ$$", "AQ*ID"]) {
+      expect(() => base64ToUint8Array(input), input).toThrow();
+    }
+  });
+
+  it("ignores ASCII whitespace like the Buffer-era decoder did", () => {
+    expect(base64ToUint8Array("AA A A")).toEqual(new Uint8Array([0, 0, 0]));
+    expect(base64ToUint8Array("\nQQ==\n")).toEqual(new Uint8Array([0x41]));
+    expect(base64ToUint8Array(" AQ\tID ")).toEqual(new Uint8Array([1, 2, 3]));
   });
 });
