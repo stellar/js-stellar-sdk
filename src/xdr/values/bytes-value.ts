@@ -1,10 +1,6 @@
-import {
-  hexToUint8Array,
-  base64ToUint8Array,
-  stringToUint8Array,
-} from "uint8array-extras";
+import { stringToUint8Array } from "uint8array-extras";
 import { XdrError } from "@stellar/js-xdr";
-import { XdrValue } from "./xdr-value.js";
+import { XdrValue, decodeBytes } from "./xdr-value.js";
 
 export type BytesEncoding = "hex" | "base64" | "ascii";
 
@@ -13,14 +9,8 @@ function decodeBytesInput(
   encoding: BytesEncoding,
 ): Uint8Array {
   if (input instanceof Uint8Array) return input;
-  switch (encoding) {
-    case "hex":
-      return hexToUint8Array(input);
-    case "base64":
-      return base64ToUint8Array(input);
-    case "ascii":
-      return stringToUint8Array(input);
-  }
+  if (encoding === "ascii") return stringToUint8Array(input);
+  return decodeBytes(input, encoding);
 }
 
 /**

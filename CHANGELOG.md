@@ -2,6 +2,12 @@
 
 A breaking change will get clearly marked in this log.
 
+## Unreleased
+
+### Fixed
+* Malformed input to the XDR layer throws `XdrError`, matchable by class, instead of escaping as a bare `Error` (hex), a runtime-specific `DOMException` (base64), or a `SyntaxError` (a bad SEP-0051 escape in `fromJson`) ([#1666](https://github.com/stellar/js-stellar-sdk/pull/1666)).
+* Previously undocumented: v17 rejects malformed base64 outright, where v16's `Buffer.from(str, "base64")` silently dropped any character outside the alphabet ([#1666](https://github.com/stellar/js-stellar-sdk/pull/1666)).
+
 ## [v17.0.0-rc.2](https://github.com/stellar/js-stellar-sdk/compare/v17.0.0-rc.1...v17.0.0-rc.2)
 
 ### Breaking Changes
