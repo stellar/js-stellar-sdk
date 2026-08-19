@@ -166,14 +166,14 @@ export class XdrString {
           case 0x78 /* `x` */:
           case 0x58 /* `X` */: {
             if (i + 3 >= escaped.length) {
-              throw new SyntaxError(
+              throw new XdrError(
                 `XdrString: truncated \\x escape at index ${i}`,
               );
             }
             const hi = hexDigit(escaped.charCodeAt(i + 2));
             const lo = hexDigit(escaped.charCodeAt(i + 3));
             if (hi < 0 || lo < 0) {
-              throw new SyntaxError(
+              throw new XdrError(
                 `XdrString: invalid \\x escape "${escaped.slice(i, i + 4)}"`,
               );
             }
@@ -182,14 +182,14 @@ export class XdrString {
             break;
           }
           default:
-            throw new SyntaxError(
+            throw new XdrError(
               `XdrString: unsupported escape \\${escaped[i + 1] ?? ""}`,
             );
         }
       } else if (ch >= 0x20 && ch <= 0x7e) {
         out.push(ch);
       } else {
-        throw new SyntaxError(
+        throw new XdrError(
           `XdrString: non-ASCII char (code 0x${ch.toString(16)}) at index ${i}`,
         );
       }
