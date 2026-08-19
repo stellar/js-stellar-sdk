@@ -73,6 +73,12 @@ jobs:
   browser_test:
     runs-on: ubuntu-latest
 
+    # `playwright install-deps` is the only step here that touches apt, so a
+    # degraded Ubuntu mirror wedges it inside `apt-get update` with no output
+    # and no failure. Without this, the job would hang for GitHub's 360-minute
+    # default; healthy runs finish in under 6 minutes.
+    timeout-minutes: 15
+
     strategy:
       fail-fast: false
       matrix:
