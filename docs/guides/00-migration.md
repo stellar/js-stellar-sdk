@@ -49,6 +49,16 @@ at all**:
 The method renames (`toXDR` → `toXdr`, `fromXDRObject` → `fromXdrObject`, and
 eleven more) ship without back-compat aliases, so those at least fail loudly.
 
+### Installation: the Node floor is now 22.12.0
+
+`engines.node` is `>=22.12.0` (16.x said `>=22.0.0`). The CommonJS build loads
+ESM-only dependencies through `require()`, which Node only supports unflagged
+from 22.12.0 — on 22.0–22.11 `require("@stellar/stellar-sdk")` fails with
+`ERR_REQUIRE_ESM`. Installing on an earlier 22.x now produces an `EBADENGINE`
+warning instead of a package that cannot be required
+([#1664](https://github.com/stellar/js-stellar-sdk/issues/1664)). ESM consumers
+were never affected. Upgrade Node, or use the ESM entry point.
+
 ### Auth: CAP-71 v2 address credentials are now the default
 
 Protocol 27 ([CAP-71](https://github.com/stellar/stellar-protocol/blob/master/core/cap-0071.md))
