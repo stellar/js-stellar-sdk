@@ -6,6 +6,7 @@ A breaking change will get clearly marked in this log.
 
 ### Added
 * `Operation.createCustomContract` can deploy from a [CAP-85](https://stellar.org/protocol/cap-85) external executable reference. Pass `externalRef` — either `{owner, tag}` (owner as a strkey or `Address`, tag as a string or raw bytes) or an `xdr.ContractExecutableExternalRef` pulled from an existing contract instance — instead of `wasmHash`; the two options are mutually exclusive. The owner must be a contract, since only a contract can hold the persistent tag entry that names the WASM, and a binary tag passes through undecoded ([#1665](https://github.com/stellar/js-stellar-sdk/pull/1665)).
+* `contract.Client.deploy` accepts the same `externalRef` option in place of `wasmHash`. The reference is resolved on-chain (via `rpc.Server.getExternalRefWasmHash`) to fetch the contract spec for constructor arguments, while the deploy operation itself carries the external reference, so the deployed contract keeps following the tag ([#1665](https://github.com/stellar/js-stellar-sdk/pull/1665)).
 
 ## [v17.0.0-rc.2](https://github.com/stellar/js-stellar-sdk/compare/v17.0.0-rc.1...v17.0.0-rc.2)
 
