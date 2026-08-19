@@ -131,12 +131,11 @@ Soroban contract authorization entries.
 
 ### Installation: Node 22 is now required
 
-The minimum Node version is now `22` (up from `20`), raised again to `22.12.0`
-in 17.x.x. Installing on older Node produces an `EBADENGINE` warning. Two
-runtime globals are now assumed and are built into Node 22: `fetch` (the
-default transport) and `crypto.getRandomValues` (used by SEP-10
-`buildChallengeTx`, which dropped the `randombytes` dependency). Constrained
-runtimes such as React Native need polyfills for both.
+The minimum Node version is now `22` (up from `20`). Installing on older Node
+produces an `EBADENGINE` warning. Two runtime globals are now assumed and are
+built into Node 22: `fetch` (the default transport) and `crypto.getRandomValues`
+(used by SEP-10 `buildChallengeTx`, which dropped the `randombytes` dependency).
+Constrained runtimes such as React Native need polyfills for both.
 
 A `.nvmrc` pinned to `v22` is included:
 
