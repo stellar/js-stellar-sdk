@@ -185,10 +185,10 @@ You can also refer to:
 ### Usage with Jest
 
 Some of the SDK's dependencies (`@noble/hashes`, `@noble/ed25519`,
-`uint8array-extras`, `smol-toml`, `eventsource`) ship only ES modules. Node
-itself handles this (`require(esm)` is on by default from Node 22.12.0; on
-22.0–22.11 it needs `--experimental-require-module`), but Jest's default
-transform pipeline does not: tests that load the SDK fail with
+`uint8array-extras`, `@exodus/bytes`) ship only ES modules. Node itself handles
+this (`require(esm)` is unflagged from Node 22.12.0, the minimum this SDK
+supports), but Jest's default transform pipeline does not: tests that load the
+SDK fail with
 `SyntaxError: Cannot use import statement outside a module` coming from inside
 `node_modules`.
 
@@ -198,7 +198,7 @@ Tell Jest to transform those packages instead of skipping them:
 // jest.config.js
 module.exports = {
   transformIgnorePatterns: [
-    "node_modules/(?!(@noble|uint8array-extras|smol-toml|eventsource)/)",
+    "node_modules/(?!(@noble|@exodus|uint8array-extras)/)",
   ],
 };
 ```

@@ -2,6 +2,11 @@
 
 A breaking change will get clearly marked in this log.
 
+## Unreleased
+
+### Breaking Changes
+* `engines.node` is now `>=22.12.0`, up from `>=22.0.0`. The CommonJS build `require()`s ESM-only dependencies, and `require(esm)` is only unflagged from Node 22.12.0, so on Node 22.0–22.11 `require("@stellar/stellar-sdk")` failed with `ERR_REQUIRE_ESM` even though the declared range allowed it. Installing on one of those versions now produces an `EBADENGINE` warning instead of a package that cannot be required. Nothing changes for ESM consumers, or on Node 22.12 and later ([#1664](https://github.com/stellar/js-stellar-sdk/issues/1664)).
+
 ## [v17.0.0-rc.2](https://github.com/stellar/js-stellar-sdk/compare/v17.0.0-rc.1...v17.0.0-rc.2)
 
 ### Breaking Changes
