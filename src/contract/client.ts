@@ -1,29 +1,15 @@
 import { Operation, Address } from "../base/index.js";
+import type { ExternalExecutableRef } from "../base/operations/types.js";
 import { Spec } from "./spec.js";
 import { Server } from "../rpc/index.js";
 import { AssembledTransaction } from "./assembled_transaction.js";
 import type { ClientOptions, MethodOptions } from "./types.js";
 import { sanitizeIdentifier } from "../bindings/utils.js";
-import { ScVal } from "../xdr/index.js";
+import { ContractExecutableExternalRef, ScVal } from "../xdr/index.js";
 import { hexToUint8Array } from "uint8array-extras";
 import { base64ToUint8Array } from "../base/util/base64.js";
 
 const CONSTRUCTOR_FUNC = "__constructor";
-
-async function specFromWasmHash(
-  wasmHash: Uint8Array | string,
-  options: Server.Options & { rpcUrl: string },
-  format: "hex" | "base64" = "hex",
-): Promise<Spec> {
-  if (!options || !options.rpcUrl) {
-    throw new TypeError("options must contain rpcUrl");
-  }
-  const { rpcUrl, allowHttp, headers } = options;
-  const serverOpts: Server.Options = { allowHttp, headers };
-  const server = new Server(rpcUrl, serverOpts);
-  const wasm = await server.getContractWasmByHash(wasmHash, format);
-  return Spec.fromWasm(wasm);
-}
 
 /**
  * Generate a class from the contract spec that where each contract method
@@ -44,18 +30,35 @@ export class Client {
     /** Options for initializing a Client as well as for calling a method, with extras specific to deploying. */
     options: MethodOptions &
       Omit<ClientOptions, "contractId"> & {
-        /** The hash of the Wasm blob, which must already be installed on-chain. */
-        wasmHash: Uint8Array | string;
         /** Salt used to generate the contract's ID. Passed through to {@link Operation.createCustomContract}. Default: random. */
         salt?: Uint8Array;
-        /** The format used to decode `wasmHash`, if it's provided as a string. */
-        format?: "hex" | "base64";
         /** The address to use to deploy the custom contract */
         address?: string;
-      },
+      } & (
+        | {
+            /** The hash of the Wasm blob, which must already be installed on-chain. */
+            wasmHash: Uint8Array | string;
+            /** The format used to decode `wasmHash`, if it's provided as a string. */
+            format?: "hex" | "base64";
+            externalRef?: never;
+          }
+        | {
+            /**
+             * A CAP-85 external executable reference to deploy from instead of
+             * a Wasm hash: the owner contract plus the tag under which it
+             * publishes the Wasm hash. Passed through to
+             * {@link Operation.createCustomContract}; the reference is also
+             * resolved on-chain here to fetch the contract's spec.
+             */
+            externalRef: ExternalExecutableRef;
+            wasmHash?: never;
+            format?: never;
+          }
+      ),
   ): Promise<AssembledTransaction<T>> {
     const {
       wasmHash,
+      externalRef,
       salt,
       format,
       fee,
@@ -63,16 +66,51 @@ export class Client {
       simulate,
       ...clientOptions
     } = options;
-    const spec = await specFromWasmHash(wasmHash, clientOptions, format);
 
-    const operation = Operation.createCustomContract({
-      address: new Address(options.address || options.publicKey!),
-      wasmHash:
+    if (!clientOptions.rpcUrl) {
+      throw new TypeError("options must contain rpcUrl");
+    }
+    const { rpcUrl, allowHttp, headers } = clientOptions;
+    const server =
+      clientOptions.server ?? new Server(rpcUrl, { allowHttp, headers });
+
+    // The operation deploys either from a Wasm hash or from an external ref,
+    // but the constructor's spec always has to be read from actual Wasm: an
+    // external ref is resolved to the Wasm hash it currently names.
+    let executableOpts:
+      | { wasmHash: Uint8Array }
+      | { externalRef: ContractExecutableExternalRef };
+    let specWasmHash: Uint8Array;
+    if (externalRef !== undefined) {
+      const ref =
+        externalRef instanceof ContractExecutableExternalRef
+          ? externalRef
+          : new ContractExecutableExternalRef({
+              executableOwner: (externalRef.owner instanceof Address
+                ? externalRef.owner
+                : new Address(externalRef.owner)
+              ).toScAddress(),
+              tag: externalRef.tag,
+            });
+      specWasmHash = await server.getExternalRefWasmHash(ref);
+      executableOpts = { externalRef: ref };
+    } else {
+      specWasmHash =
         typeof wasmHash === "string"
           ? (format ?? "hex") === "base64"
             ? base64ToUint8Array(wasmHash)
             : hexToUint8Array(wasmHash)
-          : wasmHash,
+          : wasmHash!;
+      executableOpts = { wasmHash: specWasmHash };
+    }
+
+    const spec = Spec.fromWasm(
+      await server.getContractWasmByHash(specWasmHash),
+    );
+
+    const operation = Operation.createCustomContract({
+      address: new Address(options.address || options.publicKey!),
+      ...executableOpts,
       salt,
       constructorArgs: args
         ? spec.funcArgsToScVals(CONSTRUCTOR_FUNC, args)

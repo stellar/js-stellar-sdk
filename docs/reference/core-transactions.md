@@ -1137,8 +1137,13 @@ const op = Operation.createClaimableBalance({
 
 ### `Operation.createCustomContract`
 
-Returns an operation that creates a custom WASM contract and atomically
-invokes its constructor.
+Returns an operation that creates a custom contract and atomically invokes
+its constructor.
+
+The contract's executable is either the hash of uploaded WASM (`wasmHash`)
+or a CAP-85 external executable reference (`externalRef`), naming an owner
+contract and the tag under which it publishes the WASM hash. Exactly one of
+the two must be given.
 
 ```ts
 static createCustomContract: (opts: CreateCustomContractOpts) => Operation;
@@ -1147,8 +1152,10 @@ static createCustomContract: (opts: CreateCustomContractOpts) => Operation;
 **Parameters**
 
 - **`opts`** — `CreateCustomContractOpts` (required) — the set of parameters
-    - `address`: the contract uploader address
-    - `wasmHash`: the SHA-256 hash of the contract WASM you're uploading
+    - `address`: the contract deployer address
+    - `wasmHash`: the SHA-256 hash of the contract WASM you're deploying
+    - `externalRef`: an external executable reference to deploy from instead,
+      as either `{owner, tag}` or an `ContractExecutableExternalRef`
     - `constructorArgs`: the optional parameters to pass to the constructor
     - `salt`: an optional, 32-byte salt to distinguish deployment instances
     - `auth`: an optional list outlining the tree of authorizations required for the call
@@ -1156,7 +1163,8 @@ static createCustomContract: (opts: CreateCustomContractOpts) => Operation;
 
 **See also**
 
-- https://soroban.stellar.org/docs/fundamentals-and-concepts/invoking-contracts-with-transactions#function
+- - https://soroban.stellar.org/docs/fundamentals-and-concepts/invoking-contracts-with-transactions#function
+ - https://stellar.org/protocol/cap-85
 
 **Source:** [src/base/operation.ts:483](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operation.ts#L483)
 
@@ -3556,7 +3564,7 @@ new XdrLargeInt('i128', bigi); // if you do
 type AuthFlag = { readonly clawbackEnabled: 8; readonly immutable: 4; readonly required: 1; readonly revocable: 2 }
 ```
 
-**Source:** [src/base/operations/types.ts:445](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L445)
+**Source:** [src/base/operations/types.ts:485](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L485)
 
 ### AuthFlag
 
@@ -3564,7 +3572,7 @@ type AuthFlag = { readonly clawbackEnabled: 8; readonly immutable: 4; readonly r
 type AuthFlag = typeof AuthFlag[keyof typeof AuthFlag]
 ```
 
-**Source:** [src/base/operations/types.ts:445](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L445)
+**Source:** [src/base/operations/types.ts:485](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L485)
 
 ### AuthFlag.clawbackEnabled
 
@@ -3572,7 +3580,7 @@ type AuthFlag = typeof AuthFlag[keyof typeof AuthFlag]
 type clawbackEnabled = 8
 ```
 
-**Source:** [src/base/operations/types.ts:458](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L458)
+**Source:** [src/base/operations/types.ts:498](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L498)
 
 ### AuthFlag.immutable
 
@@ -3580,7 +3588,7 @@ type clawbackEnabled = 8
 type immutable = 4
 ```
 
-**Source:** [src/base/operations/types.ts:457](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L457)
+**Source:** [src/base/operations/types.ts:497](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L497)
 
 ### AuthFlag.required
 
@@ -3588,7 +3596,7 @@ type immutable = 4
 type required = 1
 ```
 
-**Source:** [src/base/operations/types.ts:455](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L455)
+**Source:** [src/base/operations/types.ts:495](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L495)
 
 ### AuthFlag.revocable
 
@@ -3596,7 +3604,21 @@ type required = 1
 type revocable = 2
 ```
 
-**Source:** [src/base/operations/types.ts:456](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L456)
+**Source:** [src/base/operations/types.ts:496](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L496)
+
+### ExternalExecutableRef
+
+A CAP-85 external executable reference: the contract that owns the
+executable plus the owner-scoped tag naming it. The tag is an unbounded
+`SCString` and may be binary, so it is accepted as raw bytes as well as
+text. An `ContractExecutableExternalRef` (e.g. pulled from an
+existing contract instance) is accepted directly.
+
+```ts
+type ExternalExecutableRef = ContractExecutableExternalRef | { owner: Address | string; tag: string | Uint8Array }
+```
+
+**Source:** [src/base/operations/types.ts:277](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L277)
 
 ### MemoType
 
@@ -3987,7 +4009,7 @@ type SetTrustLineFlags = SetTrustLineFlagsResult
 type OperationOptions = AccountMergeOpts | AllowTrustOpts | BeginSponsoringFutureReservesOpts | BumpSequenceOpts | ChangeTrustOpts | ClaimClaimableBalanceOpts | ClawbackClaimableBalanceOpts | ClawbackOpts | CreateAccountOpts | CreateClaimableBalanceOpts | CreateCustomContractOpts | CreatePassiveSellOfferOpts | CreateStellarAssetContractOpts | EndSponsoringFutureReservesOpts | ExtendFootprintTtlOpts | InflationOpts | InvokeContractFunctionOpts | InvokeHostFunctionOpts | LiquidityPoolDepositOpts | LiquidityPoolWithdrawOpts | ManageBuyOfferOpts | ManageDataOpts | ManageSellOfferOpts | PathPaymentStrictReceiveOpts | PathPaymentStrictSendOpts | PaymentOpts | RestoreFootprintOpts | RevokeAccountSponsorshipOpts | RevokeClaimableBalanceSponsorshipOpts | RevokeDataSponsorshipOpts | RevokeLiquidityPoolSponsorshipOpts | RevokeOfferSponsorshipOpts | RevokeSignerSponsorshipOpts | RevokeTrustlineSponsorshipOpts | SetOptionsOpts | SetTrustLineFlagsOpts | UploadContractWasmOpts
 ```
 
-**Source:** [src/base/operations/types.ts:325](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L325)
+**Source:** [src/base/operations/types.ts:365](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L365)
 
 ### OperationRecord
 
@@ -3997,7 +4019,7 @@ Union of all possible operation objects returned by Operation.fromXdrObject.
 type OperationRecord = AccountMergeResult | AllowTrustResult | BeginSponsoringFutureReservesResult | BumpSequenceResult | ChangeTrustResult | ClaimClaimableBalanceResult | ClawbackClaimableBalanceResult | ClawbackResult | CreateAccountResult | CreateClaimableBalanceResult | CreatePassiveSellOfferResult | EndSponsoringFutureReservesResult | ExtendFootprintTTLResult | InflationResult | InvokeHostFunctionResult | LiquidityPoolDepositResult | LiquidityPoolWithdrawResult | ManageBuyOfferResult | ManageDataResult | ManageSellOfferResult | PathPaymentStrictReceiveResult | PathPaymentStrictSendResult | PaymentResult | RestoreFootprintResult | RevokeAccountSponsorshipResult | RevokeClaimableBalanceSponsorshipResult | RevokeDataSponsorshipResult | RevokeLiquidityPoolSponsorshipResult | RevokeOfferSponsorshipResult | RevokeSignerSponsorshipResult | RevokeTrustlineSponsorshipResult | SetOptionsResult<SignerOpts> | SetTrustLineFlagsResult
 ```
 
-**Source:** [src/base/operations/types.ts:700](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L700)
+**Source:** [src/base/operations/types.ts:740](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L740)
 
 ### OperationType
 
@@ -4005,7 +4027,7 @@ type OperationRecord = AccountMergeResult | AllowTrustResult | BeginSponsoringFu
 type OperationType = OperationType.AccountMerge | OperationType.AllowTrust | OperationType.BeginSponsoringFutureReserves | OperationType.BumpSequence | OperationType.ChangeTrust | OperationType.ClaimClaimableBalance | OperationType.Clawback | OperationType.ClawbackClaimableBalance | OperationType.CreateAccount | OperationType.CreateClaimableBalance | OperationType.CreatePassiveSellOffer | OperationType.EndSponsoringFutureReserves | OperationType.ExtendFootprintTTL | OperationType.Inflation | OperationType.InvokeHostFunction | OperationType.LiquidityPoolDeposit | OperationType.LiquidityPoolWithdraw | OperationType.ManageBuyOffer | OperationType.ManageData | OperationType.ManageSellOffer | OperationType.PathPaymentStrictReceive | OperationType.PathPaymentStrictSend | OperationType.Payment | OperationType.RestoreFootprint | OperationType.RevokeAccountSponsorship | OperationType.RevokeClaimableBalanceSponsorship | OperationType.RevokeDataSponsorship | OperationType.RevokeLiquidityPoolSponsorship | OperationType.RevokeOfferSponsorship | OperationType.RevokeSignerSponsorship | OperationType.RevokeTrustlineSponsorship | OperationType.SetOptions | OperationType.SetTrustLineFlags
 ```
 
-**Source:** [src/base/operations/types.ts:368](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L368)
+**Source:** [src/base/operations/types.ts:408](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L408)
 
 ### OperationType.AccountMerge
 
@@ -4013,7 +4035,7 @@ type OperationType = OperationType.AccountMerge | OperationType.AllowTrust | Ope
 type AccountMerge = "accountMerge"
 ```
 
-**Source:** [src/base/operations/types.ts:379](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L379)
+**Source:** [src/base/operations/types.ts:419](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L419)
 
 ### OperationType.AllowTrust
 
@@ -4021,7 +4043,7 @@ type AccountMerge = "accountMerge"
 type AllowTrust = "allowTrust"
 ```
 
-**Source:** [src/base/operations/types.ts:378](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L378)
+**Source:** [src/base/operations/types.ts:418](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L418)
 
 ### OperationType.BeginSponsoringFutureReserves
 
@@ -4029,7 +4051,7 @@ type AllowTrust = "allowTrust"
 type BeginSponsoringFutureReserves = "beginSponsoringFutureReserves"
 ```
 
-**Source:** [src/base/operations/types.ts:385](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L385)
+**Source:** [src/base/operations/types.ts:425](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L425)
 
 ### OperationType.BumpSequence
 
@@ -4037,7 +4059,7 @@ type BeginSponsoringFutureReserves = "beginSponsoringFutureReserves"
 type BumpSequence = "bumpSequence"
 ```
 
-**Source:** [src/base/operations/types.ts:382](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L382)
+**Source:** [src/base/operations/types.ts:422](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L422)
 
 ### OperationType.ChangeTrust
 
@@ -4045,7 +4067,7 @@ type BumpSequence = "bumpSequence"
 type ChangeTrust = "changeTrust"
 ```
 
-**Source:** [src/base/operations/types.ts:377](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L377)
+**Source:** [src/base/operations/types.ts:417](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L417)
 
 ### OperationType.ClaimClaimableBalance
 
@@ -4053,7 +4075,7 @@ type ChangeTrust = "changeTrust"
 type ClaimClaimableBalance = "claimClaimableBalance"
 ```
 
-**Source:** [src/base/operations/types.ts:384](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L384)
+**Source:** [src/base/operations/types.ts:424](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L424)
 
 ### OperationType.Clawback
 
@@ -4061,7 +4083,7 @@ type ClaimClaimableBalance = "claimClaimableBalance"
 type Clawback = "clawback"
 ```
 
-**Source:** [src/base/operations/types.ts:397](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L397)
+**Source:** [src/base/operations/types.ts:437](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L437)
 
 ### OperationType.ClawbackClaimableBalance
 
@@ -4069,7 +4091,7 @@ type Clawback = "clawback"
 type ClawbackClaimableBalance = "clawbackClaimableBalance"
 ```
 
-**Source:** [src/base/operations/types.ts:398](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L398)
+**Source:** [src/base/operations/types.ts:438](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L438)
 
 ### OperationType.CreateAccount
 
@@ -4077,7 +4099,7 @@ type ClawbackClaimableBalance = "clawbackClaimableBalance"
 type CreateAccount = "createAccount"
 ```
 
-**Source:** [src/base/operations/types.ts:369](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L369)
+**Source:** [src/base/operations/types.ts:409](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L409)
 
 ### OperationType.CreateClaimableBalance
 
@@ -4085,7 +4107,7 @@ type CreateAccount = "createAccount"
 type CreateClaimableBalance = "createClaimableBalance"
 ```
 
-**Source:** [src/base/operations/types.ts:383](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L383)
+**Source:** [src/base/operations/types.ts:423](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L423)
 
 ### OperationType.CreatePassiveSellOffer
 
@@ -4093,7 +4115,7 @@ type CreateClaimableBalance = "createClaimableBalance"
 type CreatePassiveSellOffer = "createPassiveSellOffer"
 ```
 
-**Source:** [src/base/operations/types.ts:373](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L373)
+**Source:** [src/base/operations/types.ts:413](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L413)
 
 ### OperationType.EndSponsoringFutureReserves
 
@@ -4101,7 +4123,7 @@ type CreatePassiveSellOffer = "createPassiveSellOffer"
 type EndSponsoringFutureReserves = "endSponsoringFutureReserves"
 ```
 
-**Source:** [src/base/operations/types.ts:386](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L386)
+**Source:** [src/base/operations/types.ts:426](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L426)
 
 ### OperationType.ExtendFootprintTTL
 
@@ -4109,7 +4131,7 @@ type EndSponsoringFutureReserves = "endSponsoringFutureReserves"
 type ExtendFootprintTTL = "extendFootprintTtl"
 ```
 
-**Source:** [src/base/operations/types.ts:403](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L403)
+**Source:** [src/base/operations/types.ts:443](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L443)
 
 ### OperationType.Inflation
 
@@ -4117,7 +4139,7 @@ type ExtendFootprintTTL = "extendFootprintTtl"
 type Inflation = "inflation"
 ```
 
-**Source:** [src/base/operations/types.ts:380](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L380)
+**Source:** [src/base/operations/types.ts:420](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L420)
 
 ### OperationType.InvokeHostFunction
 
@@ -4125,7 +4147,7 @@ type Inflation = "inflation"
 type InvokeHostFunction = "invokeHostFunction"
 ```
 
-**Source:** [src/base/operations/types.ts:402](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L402)
+**Source:** [src/base/operations/types.ts:442](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L442)
 
 ### OperationType.LiquidityPoolDeposit
 
@@ -4133,7 +4155,7 @@ type InvokeHostFunction = "invokeHostFunction"
 type LiquidityPoolDeposit = "liquidityPoolDeposit"
 ```
 
-**Source:** [src/base/operations/types.ts:400](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L400)
+**Source:** [src/base/operations/types.ts:440](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L440)
 
 ### OperationType.LiquidityPoolWithdraw
 
@@ -4141,7 +4163,7 @@ type LiquidityPoolDeposit = "liquidityPoolDeposit"
 type LiquidityPoolWithdraw = "liquidityPoolWithdraw"
 ```
 
-**Source:** [src/base/operations/types.ts:401](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L401)
+**Source:** [src/base/operations/types.ts:441](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L441)
 
 ### OperationType.ManageBuyOffer
 
@@ -4149,7 +4171,7 @@ type LiquidityPoolWithdraw = "liquidityPoolWithdraw"
 type ManageBuyOffer = "manageBuyOffer"
 ```
 
-**Source:** [src/base/operations/types.ts:375](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L375)
+**Source:** [src/base/operations/types.ts:415](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L415)
 
 ### OperationType.ManageData
 
@@ -4157,7 +4179,7 @@ type ManageBuyOffer = "manageBuyOffer"
 type ManageData = "manageData"
 ```
 
-**Source:** [src/base/operations/types.ts:381](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L381)
+**Source:** [src/base/operations/types.ts:421](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L421)
 
 ### OperationType.ManageSellOffer
 
@@ -4165,7 +4187,7 @@ type ManageData = "manageData"
 type ManageSellOffer = "manageSellOffer"
 ```
 
-**Source:** [src/base/operations/types.ts:374](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L374)
+**Source:** [src/base/operations/types.ts:414](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L414)
 
 ### OperationType.PathPaymentStrictReceive
 
@@ -4173,7 +4195,7 @@ type ManageSellOffer = "manageSellOffer"
 type PathPaymentStrictReceive = "pathPaymentStrictReceive"
 ```
 
-**Source:** [src/base/operations/types.ts:371](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L371)
+**Source:** [src/base/operations/types.ts:411](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L411)
 
 ### OperationType.PathPaymentStrictSend
 
@@ -4181,7 +4203,7 @@ type PathPaymentStrictReceive = "pathPaymentStrictReceive"
 type PathPaymentStrictSend = "pathPaymentStrictSend"
 ```
 
-**Source:** [src/base/operations/types.ts:372](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L372)
+**Source:** [src/base/operations/types.ts:412](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L412)
 
 ### OperationType.Payment
 
@@ -4189,7 +4211,7 @@ type PathPaymentStrictSend = "pathPaymentStrictSend"
 type Payment = "payment"
 ```
 
-**Source:** [src/base/operations/types.ts:370](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L370)
+**Source:** [src/base/operations/types.ts:410](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L410)
 
 ### OperationType.RestoreFootprint
 
@@ -4197,7 +4219,7 @@ type Payment = "payment"
 type RestoreFootprint = "restoreFootprint"
 ```
 
-**Source:** [src/base/operations/types.ts:404](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L404)
+**Source:** [src/base/operations/types.ts:444](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L444)
 
 ### OperationType.RevokeAccountSponsorship
 
@@ -4205,7 +4227,7 @@ type RestoreFootprint = "restoreFootprint"
 type RevokeAccountSponsorship = "revokeAccountSponsorship"
 ```
 
-**Source:** [src/base/operations/types.ts:389](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L389)
+**Source:** [src/base/operations/types.ts:429](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L429)
 
 ### OperationType.RevokeClaimableBalanceSponsorship
 
@@ -4213,7 +4235,7 @@ type RevokeAccountSponsorship = "revokeAccountSponsorship"
 type RevokeClaimableBalanceSponsorship = "revokeClaimableBalanceSponsorship"
 ```
 
-**Source:** [src/base/operations/types.ts:393](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L393)
+**Source:** [src/base/operations/types.ts:433](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L433)
 
 ### OperationType.RevokeDataSponsorship
 
@@ -4221,7 +4243,7 @@ type RevokeClaimableBalanceSponsorship = "revokeClaimableBalanceSponsorship"
 type RevokeDataSponsorship = "revokeDataSponsorship"
 ```
 
-**Source:** [src/base/operations/types.ts:392](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L392)
+**Source:** [src/base/operations/types.ts:432](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L432)
 
 ### OperationType.RevokeLiquidityPoolSponsorship
 
@@ -4229,7 +4251,7 @@ type RevokeDataSponsorship = "revokeDataSponsorship"
 type RevokeLiquidityPoolSponsorship = "revokeLiquidityPoolSponsorship"
 ```
 
-**Source:** [src/base/operations/types.ts:395](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L395)
+**Source:** [src/base/operations/types.ts:435](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L435)
 
 ### OperationType.RevokeOfferSponsorship
 
@@ -4237,7 +4259,7 @@ type RevokeLiquidityPoolSponsorship = "revokeLiquidityPoolSponsorship"
 type RevokeOfferSponsorship = "revokeOfferSponsorship"
 ```
 
-**Source:** [src/base/operations/types.ts:391](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L391)
+**Source:** [src/base/operations/types.ts:431](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L431)
 
 ### OperationType.RevokeSignerSponsorship
 
@@ -4245,7 +4267,7 @@ type RevokeOfferSponsorship = "revokeOfferSponsorship"
 type RevokeSignerSponsorship = "revokeSignerSponsorship"
 ```
 
-**Source:** [src/base/operations/types.ts:396](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L396)
+**Source:** [src/base/operations/types.ts:436](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L436)
 
 ### OperationType.RevokeSponsorship
 
@@ -4255,7 +4277,7 @@ type RevokeSignerSponsorship = "revokeSignerSponsorship"
 type RevokeSponsorship = "revokeSponsorship"
 ```
 
-**Source:** [src/base/operations/types.ts:388](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L388)
+**Source:** [src/base/operations/types.ts:428](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L428)
 
 ### OperationType.RevokeTrustlineSponsorship
 
@@ -4263,7 +4285,7 @@ type RevokeSponsorship = "revokeSponsorship"
 type RevokeTrustlineSponsorship = "revokeTrustlineSponsorship"
 ```
 
-**Source:** [src/base/operations/types.ts:390](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L390)
+**Source:** [src/base/operations/types.ts:430](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L430)
 
 ### OperationType.SetOptions
 
@@ -4271,7 +4293,7 @@ type RevokeTrustlineSponsorship = "revokeTrustlineSponsorship"
 type SetOptions = "setOptions"
 ```
 
-**Source:** [src/base/operations/types.ts:376](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L376)
+**Source:** [src/base/operations/types.ts:416](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L416)
 
 ### OperationType.SetTrustLineFlags
 
@@ -4279,7 +4301,7 @@ type SetOptions = "setOptions"
 type SetTrustLineFlags = "setTrustLineFlags"
 ```
 
-**Source:** [src/base/operations/types.ts:399](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L399)
+**Source:** [src/base/operations/types.ts:439](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L439)
 
 ### ScIntType
 
@@ -4295,7 +4317,7 @@ type ScIntType = "duration" | "i64" | "i128" | "i256" | "timepoint" | "u64" | "u
 type Signer = Signer.Ed25519PublicKey | Signer.Ed25519SignedPayload | Signer.PreAuthTx | Signer.Sha256Hash
 ```
 
-**Source:** [src/base/operations/types.ts:476](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L476)
+**Source:** [src/base/operations/types.ts:516](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L516)
 
 ### Signer.Ed25519PublicKey
 
@@ -4306,7 +4328,7 @@ interface Ed25519PublicKey {
 }
 ```
 
-**Source:** [src/base/operations/types.ts:477](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L477)
+**Source:** [src/base/operations/types.ts:517](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L517)
 
 #### `ed25519PublicKey.ed25519PublicKey`
 
@@ -4314,7 +4336,7 @@ interface Ed25519PublicKey {
 ed25519PublicKey: string;
 ```
 
-**Source:** [src/base/operations/types.ts:478](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L478)
+**Source:** [src/base/operations/types.ts:518](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L518)
 
 #### `ed25519PublicKey.weight`
 
@@ -4322,7 +4344,7 @@ ed25519PublicKey: string;
 weight?: number;
 ```
 
-**Source:** [src/base/operations/types.ts:479](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L479)
+**Source:** [src/base/operations/types.ts:519](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L519)
 
 ### Signer.Ed25519SignedPayload
 
@@ -4333,7 +4355,7 @@ interface Ed25519SignedPayload {
 }
 ```
 
-**Source:** [src/base/operations/types.ts:489](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L489)
+**Source:** [src/base/operations/types.ts:529](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L529)
 
 #### `ed25519SignedPayload.ed25519SignedPayload`
 
@@ -4341,7 +4363,7 @@ interface Ed25519SignedPayload {
 ed25519SignedPayload: string;
 ```
 
-**Source:** [src/base/operations/types.ts:490](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L490)
+**Source:** [src/base/operations/types.ts:530](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L530)
 
 #### `ed25519SignedPayload.weight`
 
@@ -4349,7 +4371,7 @@ ed25519SignedPayload: string;
 weight?: number;
 ```
 
-**Source:** [src/base/operations/types.ts:491](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L491)
+**Source:** [src/base/operations/types.ts:531](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L531)
 
 ### Signer.PreAuthTx
 
@@ -4360,7 +4382,7 @@ interface PreAuthTx {
 }
 ```
 
-**Source:** [src/base/operations/types.ts:485](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L485)
+**Source:** [src/base/operations/types.ts:525](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L525)
 
 #### `preAuthTx.preAuthTx`
 
@@ -4368,7 +4390,7 @@ interface PreAuthTx {
 preAuthTx: Uint8Array;
 ```
 
-**Source:** [src/base/operations/types.ts:486](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L486)
+**Source:** [src/base/operations/types.ts:526](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L526)
 
 #### `preAuthTx.weight`
 
@@ -4376,7 +4398,7 @@ preAuthTx: Uint8Array;
 weight?: number;
 ```
 
-**Source:** [src/base/operations/types.ts:487](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L487)
+**Source:** [src/base/operations/types.ts:527](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L527)
 
 ### Signer.Sha256Hash
 
@@ -4387,7 +4409,7 @@ interface Sha256Hash {
 }
 ```
 
-**Source:** [src/base/operations/types.ts:481](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L481)
+**Source:** [src/base/operations/types.ts:521](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L521)
 
 #### `sha256Hash.sha256Hash`
 
@@ -4395,7 +4417,7 @@ interface Sha256Hash {
 sha256Hash: Uint8Array;
 ```
 
-**Source:** [src/base/operations/types.ts:482](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L482)
+**Source:** [src/base/operations/types.ts:522](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L522)
 
 #### `sha256Hash.weight`
 
@@ -4403,7 +4425,7 @@ sha256Hash: Uint8Array;
 weight?: number;
 ```
 
-**Source:** [src/base/operations/types.ts:483](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L483)
+**Source:** [src/base/operations/types.ts:523](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L523)
 
 ### SorobanFees
 
@@ -4526,7 +4548,7 @@ sequenceNumber(): string;
 type TrustLineFlag = TrustLineFlag.authorize | TrustLineFlag.authorizeToMaintainLiabilities | TrustLineFlag.deauthorize
 ```
 
-**Source:** [src/base/operations/types.ts:465](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L465)
+**Source:** [src/base/operations/types.ts:505](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L505)
 
 ### TrustLineFlag.authorize
 
@@ -4534,7 +4556,7 @@ type TrustLineFlag = TrustLineFlag.authorize | TrustLineFlag.authorizeToMaintain
 type authorize = 1
 ```
 
-**Source:** [src/base/operations/types.ts:467](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L467)
+**Source:** [src/base/operations/types.ts:507](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L507)
 
 ### TrustLineFlag.authorizeToMaintainLiabilities
 
@@ -4542,7 +4564,7 @@ type authorize = 1
 type authorizeToMaintainLiabilities = 2
 ```
 
-**Source:** [src/base/operations/types.ts:468](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L468)
+**Source:** [src/base/operations/types.ts:508](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L508)
 
 ### TrustLineFlag.deauthorize
 
@@ -4550,4 +4572,4 @@ type authorizeToMaintainLiabilities = 2
 type deauthorize = 0
 ```
 
-**Source:** [src/base/operations/types.ts:466](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L466)
+**Source:** [src/base/operations/types.ts:506](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L506)
