@@ -157,7 +157,7 @@ export function createCustomContract(
   if (opts.externalRef !== undefined) {
     if (opts.wasmHash !== undefined) {
       throw new TypeError(
-        `'opts.wasmHash' and 'opts.externalRef' are mutually exclusive`,
+        `Must provide only one of: 'opts.wasmHash' or 'opts.externalRef'`,
       );
     }
 
