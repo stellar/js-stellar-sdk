@@ -124,8 +124,8 @@ Three semantic traps to check for:
 - `AuthEntrySignature.signature` (from `inspectAuthEntry`) is a `Uint8Array`.
 - **Not** `DecoratedSignature.signature` / `.hint`, despite the matching name:
   what `tx.signatures[i]` holds are `xdr.Signature` / `xdr.SignatureHint`
-  wrappers, not bytes. Unwrap with `.toBytes()`. See
-  [`XDR_MIGRATION.md`](./XDR_MIGRATION.md) § 6.1.
+  wrappers, not bytes. Unwrap with `.toBytes()`. See the
+  [XDR migration guide](/migration/xdr-migration/) § 6.1.
 
 ## 3. Inputs that got more flexible
 

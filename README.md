@@ -438,8 +438,8 @@ git clone https://github.com/stellar/js-stellar-sdk.git
 Because we support the oldest maintenance version of Node, please install and
 develop on the version pinned in
 [`.nvmrc`](https://github.com/stellar/js-stellar-sdk/blob/main/.nvmrc)
-(currently Node 22) so you don't get surprised when your code works locally but
-breaks in CI.
+(currently Node 22; the minimum supported is 22.12.0) so you don't get
+surprised when your code works locally but breaks in CI.
 
 Here's how to install `nvm` if you haven't: https://github.com/creationix/nvm
 

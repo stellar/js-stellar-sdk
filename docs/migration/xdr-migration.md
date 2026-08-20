@@ -15,9 +15,10 @@ This guide documents every user-visible change so you can update existing code.
 
 The same release also switches the SDK's public byte-returning APIs from
 `Buffer` to `Uint8Array`. That change reaches beyond the XDR layer and has its
-own guide: [`UINT8ARRAY_MIGRATION.md`](./UINT8ARRAY_MIGRATION.md). Read both,
-because `Buffer` methods like `.toString("hex")` and `.toString("utf8")` fail _silently_
-on a `Uint8Array`, which is the most common way this migration goes wrong.
+own guide: the [Uint8Array migration guide](/migration/uint8array-migration/).
+Read both, because `Buffer` methods like `.toString("hex")` and
+`.toString("utf8")` fail _silently_ on a `Uint8Array`, which is the most common
+way this migration goes wrong.
 
 ---
 
@@ -390,7 +391,7 @@ The differences from `Buffer` appear when:
   boundary: `Buffer.from(uint8array).toString("hex")` — unwrap a wrapper first —
   or use
   [`uint8array-extras`](https://github.com/sindresorhus/uint8array-extras). See
-  [`UINT8ARRAY_MIGRATION.md`](./UINT8ARRAY_MIGRATION.md).
+  the [Uint8Array migration guide](/migration/uint8array-migration/).
 
 ### Passing bytes in
 
@@ -785,9 +786,9 @@ If you previously did `someMemo.value === "expected-string"`, switch to
 
 > **Don't reach for `.toString("utf8")`.** It's a `Buffer` method, and
 > `Uint8Array.prototype.toString` ignores the argument, so you get `"104,105"`, a
-> comma-joined byte list, and nothing throws. See
-> [`UINT8ARRAY_MIGRATION.md`](./UINT8ARRAY_MIGRATION.md) for the full set of
-> `Buffer`-method replacements.
+> comma-joined byte list, and nothing throws. See the
+> [Uint8Array migration guide](/migration/uint8array-migration/) for the full
+> set of `Buffer`-method replacements.
 
 Note that this only affects the decode path. A `Memo` you constructed yourself
 (`Memo.text("hi")`) still holds the `string` you passed.
@@ -1221,8 +1222,8 @@ immediately, which is the usual shape, there is nothing to fix.
 
 `getLiquidityPoolId()`, `AuthEntrySignature.signature`, and the second argument
 handed to a `SigningCallback` are all `Uint8Array` now. `.toString("hex")` on
-any of them silently yields comma-joined decimals. See
-[`UINT8ARRAY_MIGRATION.md`](./UINT8ARRAY_MIGRATION.md).
+any of them silently yields comma-joined decimals. See the
+[Uint8Array migration guide](/migration/uint8array-migration/).
 
 `DecoratedSignature.signature` and `.hint` — what `tx.signatures[i]` holds — are
 **not** raw bytes, despite the name the first shares with

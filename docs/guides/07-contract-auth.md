@@ -40,7 +40,7 @@ It is **not** for:
   [`authorizeInvocation`](/reference/core-soroban-primitives/#authorizeinvocation).**
   This one *constructs* the credential rather than being handed one, and it now
   builds `AddressV2` by default. Pass `authV2: false` for the legacy `ADDRESS`
-  shape. See the [Protocol 27 auth guide](/guides/00-protocol-27-soroban-auth/).
+  shape. See the [Protocol 27 auth guide](/migration/protocol-27-soroban-auth/).
 
 > **What Protocol 27 changes.** Protocol 27 introduces `AddressV2`, an
 > address-bound Soroban authorization credential
