@@ -124,21 +124,24 @@ export type InvocationWalker = (
  * `tx`, which we assume has an `Operation.invokeHostFunction` inside of it:
  *
  * ```typescript
- * import { Server, buildInvocationTree } from '@stellar/stellar-sdk';
+ * import { rpc, buildInvocationTree } from '@stellar/stellar-sdk';
  *
- * const s = new Server("fill in accordingly");
+ * const s = new rpc.Server("fill in accordingly");
  *
  * s.simulateTransaction(tx).then(
- *  (resp: SorobanRpc.SimulateTransactionResponse) => {
- *    if (SorobanRpc.isSuccessfulSim(resp) && resp.result) {
+ *  (resp: rpc.Api.SimulateTransactionResponse) => {
+ *    if (rpc.Api.isSimulationSuccess(resp) && resp.result) {
  *      // bold assumption: there's a valid result with an auth entry
  *      const auth = resp.result.auth;
  *      if (auth && auth.length > 0) {
  *        alert(
  *          "You are authorizing the following invocation:\n" +
+ *          // args decode via `scValToNative`, so wide ints arrive as `bigint`,
+ *          // which plain JSON.stringify throws on — hence the replacer.
  *          JSON.stringify(
- *            buildInvocationTree(auth[0].rootInvocation()),
- *            null,
+ *            buildInvocationTree(auth[0].rootInvocation),
+ *            (_key, value) =>
+ *              typeof value === 'bigint' ? value.toString() : value,
  *            2
  *          )
  *        );

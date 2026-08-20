@@ -160,7 +160,7 @@ The usage documentation for this library lives in a handful of places:
   which also publishes
   [agent-friendly bundles, raw markdown siblings, and a crawler policy](https://stellar.github.io/js-stellar-sdk/agents/)
   for AI tools. The site's URL, base path, and AI policy values live in
-  [`config/site.ts`](config/site.ts).
+  [`config/site.ts`](https://github.com/stellar/js-stellar-sdk/blob/main/config/site.ts).
 
 ### AI agent documentation
 
@@ -436,8 +436,10 @@ git clone https://github.com/stellar/js-stellar-sdk.git
 2. Install Node
 
 Because we support the oldest maintenance version of Node, please install and
-develop on the version pinned in [`.nvmrc`](.nvmrc) (currently Node 22) so you
-don't get surprised when your code works locally but breaks in CI.
+develop on the version pinned in
+[`.nvmrc`](https://github.com/stellar/js-stellar-sdk/blob/main/.nvmrc)
+(currently Node 22) so you don't get surprised when your code works locally but
+breaks in CI.
 
 Here's how to install `nvm` if you haven't: https://github.com/creationix/nvm
 

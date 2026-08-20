@@ -97,12 +97,11 @@ Three semantic traps to check for:
 | `Keypair.sign(data)` / `signMessage(message)` |
 | `Keypair.signatureHint()` |
 | `StrKey.decodeEd25519PublicKey` / `decodeEd25519SecretSeed` / `decodeMed25519PublicKey` / `decodePreAuthTx` / `decodeSha256Hash` / `decodeSignedPayload` / `decodeContract` / `decodeClaimableBalance` / `decodeLiquidityPool` |
-| `decodeCheck(versionByteName, encoded)` |
 | `Transaction.hash()` / `signatureBase()` (also on `FeeBumpTransaction`) |
 | `Memo.value` for `MemoHash` / `MemoReturn` (and the decoded bytes of a `MemoText` read back via `Memo.fromXdrObject`) |
 | `Address.toBuffer()` (name kept, now returns `Uint8Array`) |
 | `Operation.fromXdrObject` records: `manageData`'s `value`, `setOptions`/`revokeSponsorship` signer `sha256Hash` / `preAuthTx` |
-| signing helpers: `generate`, `sign` |
+| `sign(data, rawSecret)` (the top-level signing helper) |
 | `getLiquidityPoolId(type, params)` |
 
 ### rpc / contract / horizon

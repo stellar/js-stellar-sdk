@@ -182,7 +182,7 @@ moved. Use the subpath exports instead.
 
 ```ts del={1} ins={2}
 import { Server } from "@stellar/stellar-sdk/lib/rpc/index.js"
-import { rpc } from "@stellar/stellar-sdk/rpc"
+import { Server } from "@stellar/stellar-sdk/rpc"
 ```
 
 Available subpaths: `.`, `./rpc`, `./contract`, `./axios`, `./axios/rpc`,

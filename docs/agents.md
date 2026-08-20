@@ -31,7 +31,7 @@ Every rendered docs page has a `.md` sibling at the same URL with
 
 | HTML page | Raw markdown |
 | --- | --- |
-| `…/guides/01-getting-started/` | `…/guides/01-getting-started.md` |
+| `…/guides/01-connect-and-fund/` | `…/guides/01-connect-and-fund.md` |
 | `…/reference/core-keys/` | `…/reference/core-keys.md` |
 
 Agents that prefer parsing markdown directly (instead of stripping HTML

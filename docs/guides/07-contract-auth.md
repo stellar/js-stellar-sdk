@@ -150,13 +150,13 @@ and the network rejects it. A latent bug:
 // ❌ Before: hardcodes the legacy ENVELOPE_TYPE_SOROBAN_AUTHORIZATION payload.
 const preimage = xdr.HashIdPreimage.envelopeTypeSorobanAuthorization(
   new xdr.HashIdPreimageSorobanAuthorization({
-    networkId: hash(Buffer.from(networkPassphrase)),
-    nonce: credentials.nonce(),
-    invocation: entry.rootInvocation(),
+    networkId: hash(networkPassphrase),
+    nonce: credentials.nonce,
+    invocation: entry.rootInvocation,
     signatureExpirationLedger: validUntil,
   }),
 );
-const signature = keypair.sign(hash(preimage.toXDR()));
+const signature = keypair.sign(hash(preimage.toXdr()));
 ```
 
 **After.** Swap the hand-built preimage for
@@ -168,7 +168,7 @@ signing line is unchanged, and the same code is now correct on both `ADDRESS` an
 ```ts
 // ✅ After: picks the right payload from the entry's own credential type.
 const preimage = buildAuthorizationEntryPreimage(entry, validUntil, networkPassphrase);
-const signature = keypair.sign(hash(preimage.toXDR()));
+const signature = keypair.sign(hash(preimage.toXdr()));
 ```
 
 Better still, drop the preimage step entirely and hand the whole entry to

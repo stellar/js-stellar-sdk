@@ -153,7 +153,7 @@ function toScVal(value: unknown): ScVal | null {
  * @example
  * ```ts
  * import {
- *   SorobanRpc,
+ *   rpc,
  *   Transaction,
  *   Networks,
  *   authorizeEntry
@@ -170,28 +170,37 @@ function toScVal(value: unknown): ScVal | null {
  *    return signer.sign(payload);
  * }
  *
- * function multiPartyAuth(
- *    server: SorobanRpc.Server,
+ * async function multiPartyAuth(
+ *    server: rpc.Server,
  *    // assume this involves multi-party auth
  *    tx: Transaction,
  * ) {
- *    return server
- *      .simulateTransaction(tx)
- *      .then((simResult) => {
- *          tx.operations[0].auth.map(entry =>
- *            authorizeEntry(
- *              entry,
- *              signPayloadCallback,
- *              currentLedger + 1000,
- *              Networks.TESTNET)
- *          );
+ *    const sim = await server.simulateTransaction(tx);
+ *    if (!rpc.Api.isSimulationSuccess(sim)) {
+ *      throw new Error('simulation failed');
+ *    }
  *
- *          return server.prepareTransaction(tx, simResult);
- *      })
- *      .then((preppedTx) => {
- *        preppedTx.sign(source);
- *        return server.sendTransaction(preppedTx);
- *      });
+ *    // Assemble first: simulation supplies the resources and the auth entries.
+ *    const built = rpc.assembleTransaction(tx, sim).build();
+ *
+ *    const op = built.operations[0];
+ *    if (op.type !== 'invokeHostFunction') {
+ *      throw new Error('expected an invokeHostFunction operation');
+ *    }
+ *
+ *    // `authorizeEntry` returns a signed *copy*, so write each result back.
+ *    const entries = op.auth ?? [];
+ *    for (const [i, entry] of entries.entries()) {
+ *      entries[i] = await authorizeEntry(
+ *        entry,
+ *        signPayloadCallback,
+ *        currentLedger + 1000,
+ *        Networks.TESTNET,
+ *      );
+ *    }
+ *
+ *    built.sign(source);
+ *    return server.sendTransaction(built);
  * }
  * ```
  */
