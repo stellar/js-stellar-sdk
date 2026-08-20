@@ -60,7 +60,6 @@ import {
   SorobanTransactionData,
   TransactionEnvelope,
 } from "../xdr/index.js";
-import { getAddressCredentials } from "../base/auth.js";
 import { base64ToUint8Array } from "../base/util/base64.js";
 
 /**
@@ -1014,17 +1013,23 @@ export class AssembledTransaction<T> {
       ...new Set(
         (rawInvokeHostFunctionOp.auth ?? [])
           .map((entry) => inspectAuthEntry(entry))
-          .filter(
-            (info) =>
-              // skip source-account credentials (no address payload), which
-              // are covered by the envelope signature on the source account.
-              // Only the top-level credentials (signers[0]) matter here — this
-              // method reports (and signAuthEntries signs) the top-level
-              // address, so unsigned delegate nodes must not keep it listed.
-              info.address !== null &&
-              (includeAlreadySigned || !info.signers[0].signed),
-          )
-          .map((info) => info.address as string),
+          // Every signer node that can carry a signature: the top-level
+          // credentials and, for SOROBAN_CREDENTIALS_ADDRESS_WITH_DELEGATES,
+          // each (possibly nested) delegate (see inspectAuthEntry's own
+          // `signers`, populated depth-first by collectSignatureNodes).
+          // Source-account credentials contribute no nodes here (their
+          // `signers` array is empty), so they're excluded without a
+          // separate check. Walking every node, not just signers[0], is
+          // the fix: signers[0] alone reported the top-level address even
+          // when an account's policy accepts an unsigned top-level node in
+          // favor of a signed delegate (CAP-71-01), or missed an unsigned
+          // delegate entirely when the top-level happened to already be
+          // signed.
+          .flatMap((info) =>
+            info.signers
+              .filter((signer) => includeAlreadySigned || !signer.signed)
+              .map((signer) => signer.address),
+          ),
       ),
     ];
   };
@@ -1115,20 +1120,37 @@ export class AssembledTransaction<T> {
     for (const [i, entry] of authEntries.entries()) {
       // workaround for https://github.com/stellar/js-stellar-sdk/issues/1070
       const credentials = SorobanCredentials.fromXdr(entry.credentials.toXdr());
-      const addrAuth = getAddressCredentials(credentials);
-      if (addrAuth === null) {
+      const info = inspectAuthEntry(
+        new SorobanAuthorizationEntry({
+          credentials,
+          rootInvocation: entry.rootInvocation,
+        }),
+      );
+      if (info.address === null) {
         // if the invoker/source account, then the entry doesn't need explicit
         // signature, since the tx envelope is already signed by the source
         // account, so only address-based credentials need signing here
         continue;
       }
-      const authEntryAddress = Address.fromScAddress(
-        addrAuth.address,
-      ).toString();
 
-      // this auth entry needs to be signed by a different account
-      // (or maybe already was!)
-      if (authEntryAddress !== address) continue;
+      // This entry needs a signature from `address` if it appears on ANY
+      // signer node: the top-level credentials, or (for
+      // SOROBAN_CREDENTIALS_ADDRESS_WITH_DELEGATES) any (possibly nested)
+      // delegate. Checking only the top-level address here was the bug:
+      // it skipped entries entirely when `address` was a delegate rather
+      // than the top-level signer.
+      //
+      // `address` is typed as possibly `undefined` (its default falls
+      // through to `this.options.publicKey`, which may not be set), but
+      // `.some()` matching a real string here means it can't have been
+      // undefined for THIS entry: `signer.address` is always a string, so
+      // `signer.address === undefined` is never true. Narrowed into its
+      // own binding once, rather than asserted with `as string` at every
+      // use below.
+      const target = info.signers.find(
+        (signer) => signer.address === address,
+      )?.address;
+      if (target === undefined) continue;
 
       const sign: SignAuthEntry = signAuth ?? Promise.resolve;
 
@@ -1138,14 +1160,35 @@ export class AssembledTransaction<T> {
           const { signedAuthEntry, error } = await sign(
             preimage.toXdr("base64"),
             {
-              address,
+              address: target,
             },
           );
           this.handleWalletError(error);
-          return base64ToUint8Array(signedAuthEntry);
+          // Returning { signature, publicKey } explicitly, not a naked
+          // Uint8Array: authorizeEntry's deprecated bare-signature path
+          // infers the signer's public key from the entry's TOP-LEVEL
+          // address unconditionally (getAddressCredentials(credentials),
+          // which never sees a delegate), regardless of `forAddress`
+          // below. That's correct when `address` is the top level, but
+          // verifies the delegate's signature against the wrong public
+          // key otherwise. Naming the actual signer here sidesteps that
+          // inference entirely.
+          return {
+            signature: base64ToUint8Array(signedAuthEntry),
+            publicKey: target,
+          };
         },
         await expiration,
         this.options.networkPassphrase,
+        // Write the signature to whichever node(s) actually carry
+        // `target` (rebuildDelegatesWithSignature in base/auth.ts
+        // matches every node at any depth, not just the first). Passing
+        // this unconditionally is safe for the non-delegates case too:
+        // when `target` is the top-level address on a plain ADDRESS/
+        // ADDRESS_V2 entry, `applyExpirationAndSignature` treats an
+        // explicit `forAddress` equal to the top-level address the same
+        // as omitting it.
+        target,
       );
     }
   };
