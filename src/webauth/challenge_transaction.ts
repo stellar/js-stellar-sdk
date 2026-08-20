@@ -54,7 +54,7 @@ import { base64ToUint8Array, uint8ArrayToBase64 } from "../base/util/base64.js";
  * @see {@link https://stellar.org/protocol/sep-10 | SEP-10: Stellar Web Auth}
  * @example
  * ```ts
- * import { Keypair, Networks, WebAuth } from 'stellar-sdk'
+ * import { Keypair, Networks, WebAuth } from '@stellar/stellar-sdk'
  *
  * let serverKeyPair = Keypair.fromSecret("server-secret")
  * let challenge = WebAuth.buildChallengeTx(
@@ -62,7 +62,8 @@ import { base64ToUint8Array, uint8ArrayToBase64 } from "../base/util/base64.js";
  *    "client-stellar-account-id",
  *    "stellar.org",
  *    300,
- *    Networks.TESTNET);
+ *    Networks.TESTNET,
+ *    "auth.stellar.org");
  * ```
  */
 export function buildChallengeTx(
@@ -394,7 +395,7 @@ export function readChallengeTx(
  * @see {@link https://stellar.org/protocol/sep-10 | SEP-10: Stellar Web Auth}
  * @example
  * ```ts
- * import { Networks, TransactionBuilder, WebAuth }  from 'stellar-sdk';
+ * import { Keypair, Networks, TransactionBuilder, WebAuth } from '@stellar/stellar-sdk';
  *
  * const serverKP = Keypair.random();
  * const clientKP1 = Keypair.random();
@@ -406,7 +407,8 @@ export function readChallengeTx(
  *   clientKP1.publicKey(),
  *   "SDF",
  *   300,
- *   Networks.TESTNET
+ *   Networks.TESTNET,
+ *   "auth.example.com"
  * );
  *
  * // clock.tick(200);  // Simulates a 200 ms delay when communicating from server to client
@@ -414,18 +416,16 @@ export function readChallengeTx(
  * // Transaction gathered from a challenge, possibly from the client side
  * const transaction = TransactionBuilder.fromXdr(challenge, Networks.TESTNET);
  * transaction.sign(clientKP1, clientKP2);
- * const signedChallenge = transaction
- *         .toEnvelope()
- *         .toXdr("base64")
- *         .toString();
+ * const signedChallenge = transaction.toEnvelope().toXdr("base64");
  *
  * // The result below should be equal to [clientKP1.publicKey(), clientKP2.publicKey()]
  * WebAuth.verifyChallengeTxSigners(
  *    signedChallenge,
  *    serverKP.publicKey(),
  *    Networks.TESTNET,
- *    threshold,
- *    [clientKP1.publicKey(), clientKP2.publicKey()]
+ *    [clientKP1.publicKey(), clientKP2.publicKey()],
+ *    "SDF",
+ *    "auth.example.com"
  * );
  * ```
  */
@@ -607,7 +607,7 @@ export function verifyChallengeTxSigners(
  * @see {@link https://stellar.org/protocol/sep-10 | SEP-10: Stellar Web Auth}
  * @example
  * ```ts
- * import { Networks, TransactionBuilder, WebAuth } from 'stellar-sdk';
+ * import { Keypair, Networks, TransactionBuilder, WebAuth } from '@stellar/stellar-sdk';
  *
  * const serverKP = Keypair.random();
  * const clientKP1 = Keypair.random();
@@ -619,7 +619,8 @@ export function verifyChallengeTxSigners(
  *   clientKP1.publicKey(),
  *   "SDF",
  *   300,
- *   Networks.TESTNET
+ *   Networks.TESTNET,
+ *   "auth.example.com"
  * );
  *
  * // clock.tick(200);  // Simulates a 200 ms delay when communicating from server to client
@@ -627,20 +628,17 @@ export function verifyChallengeTxSigners(
  * // Transaction gathered from a challenge, possibly from the client side
  * const transaction = TransactionBuilder.fromXdr(challenge, Networks.TESTNET);
  * transaction.sign(clientKP1, clientKP2);
- * const signedChallenge = transaction
- *         .toEnvelope()
- *         .toXdr("base64")
- *         .toString();
+ * const signedChallenge = transaction.toEnvelope().toXdr("base64");
  *
  * // Defining the threshold and signerSummary
  * const threshold = 3;
  * const signerSummary = [
  *    {
- *      key: this.clientKP1.publicKey(),
+ *      key: clientKP1.publicKey(),
  *      weight: 1,
  *    },
  *    {
- *      key: this.clientKP2.publicKey(),
+ *      key: clientKP2.publicKey(),
  *      weight: 2,
  *    },
  *  ];
@@ -651,7 +649,9 @@ export function verifyChallengeTxSigners(
  *    serverKP.publicKey(),
  *    Networks.TESTNET,
  *    threshold,
- *    signerSummary
+ *    signerSummary,
+ *    "SDF",
+ *    "auth.example.com"
  * );
  * ```
  */

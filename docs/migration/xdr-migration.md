@@ -15,9 +15,10 @@ This guide documents every user-visible change so you can update existing code.
 
 The same release also switches the SDK's public byte-returning APIs from
 `Buffer` to `Uint8Array`. That change reaches beyond the XDR layer and has its
-own guide: [`UINT8ARRAY_MIGRATION.md`](./UINT8ARRAY_MIGRATION.md). Read both,
-because `Buffer` methods like `.toString("hex")` and `.toString("utf8")` fail _silently_
-on a `Uint8Array`, which is the most common way this migration goes wrong.
+own guide: the [Uint8Array migration guide](/migration/uint8array-migration/).
+Read both, because `Buffer` methods like `.toString("hex")` and
+`.toString("utf8")` fail _silently_ on a `Uint8Array`, which is the most common
+way this migration goes wrong.
 
 ---
 
@@ -390,7 +391,7 @@ The differences from `Buffer` appear when:
   boundary: `Buffer.from(uint8array).toString("hex")` — unwrap a wrapper first —
   or use
   [`uint8array-extras`](https://github.com/sindresorhus/uint8array-extras). See
-  [`UINT8ARRAY_MIGRATION.md`](./UINT8ARRAY_MIGRATION.md).
+  the [Uint8Array migration guide](/migration/uint8array-migration/).
 
 ### Passing bytes in
 
@@ -441,7 +442,7 @@ what you need at every read site below:
 
 | Class | Width | Read it from |
 | --- | --- | --- |
-| `Hash` | 32 | pervasive — ledger headers, SCP statements, `ContractExecutable`, `ContractCodeEntry`, `TtlEntry`, `LedgerKeyContractCode`, `TransactionResultPair`, `HashIdPreimage`, and ~25 more |
+| `Hash` | 32 | pervasive — ledger headers, SCP statements, `ContractExecutable`, `ContractCodeEntry`, `TtlEntry`, `LedgerKeyContractCode`, `TransactionResultPair`, `HashIdPreimage`, `Memo` (the `memoHash` / `memoReturn` arms), and ~25 more |
 | `Uint256Bytes` | 32 | `MuxedAccount`, `MuxedAccountMed25519`, `MuxedEd25519Account`, `PublicKey` (and its alias `AccountId`), `SignerKey`, `SignerKeyEd25519SignedPayload`, `TransactionV0`, `ContractIdPreimageFromAddress`, `ClaimOfferAtomV0`, `Hello`, `DontHave`, `StellarMessage` |
 | `ContractId` | 32 | `ScAddress`, `ContractEvent`, `ConfigUpgradeSetKey` |
 | `PoolId` | 32 | `ScAddress`, `TrustLineAsset`, `LiquidityPoolEntry`, `LedgerKeyLiquidityPool`, `LiquidityPoolDepositOp`, `LiquidityPoolWithdrawOp`, `HashIdPreimageRevokeId`, `ClaimLiquidityAtom` |
@@ -750,6 +751,21 @@ scv.str.bytes; // Uint8Array
 This split keeps the `.value` shortcut convenient for the 99% case while still
 letting binary callers reach the raw bytes through the arm field.
 
+The decode is specific to `string<N>` arms, so don't generalize it to the rest
+of `xdr.Memo`: `memoHash` and `memoReturn` hand back an `xdr.Hash` wrapper from
+both the arm field and `.value`, and need `.toBytes()` (§ 6.1).
+
+| Arm | Arm field | You get |
+| --- | --- | --- |
+| `memoText` | `text` | `XdrString`; `.value` is the decoded `string` |
+| `memoId` | `id` | `bigint` |
+| `memoHash` | `hash` | `xdr.Hash` — `.value` is the wrapper too |
+| `memoReturn` | `retHash` | `xdr.Hash` — `.value` is the wrapper too |
+
+The SDK-level `Memo` class is different again: it unwraps, so
+`Memo.fromXdrObject(...).value` for a hash memo is a `Uint8Array` — see the
+round-trip caveat below.
+
 ### Round-trip caveat: `Memo.fromXdrObject`
 
 The SDK-level `Memo` class (in `src/base/memo.ts`) now surfaces decoded
@@ -770,9 +786,9 @@ If you previously did `someMemo.value === "expected-string"`, switch to
 
 > **Don't reach for `.toString("utf8")`.** It's a `Buffer` method, and
 > `Uint8Array.prototype.toString` ignores the argument, so you get `"104,105"`, a
-> comma-joined byte list, and nothing throws. See
-> [`UINT8ARRAY_MIGRATION.md`](./UINT8ARRAY_MIGRATION.md) for the full set of
-> `Buffer`-method replacements.
+> comma-joined byte list, and nothing throws. See the
+> [Uint8Array migration guide](/migration/uint8array-migration/) for the full
+> set of `Buffer`-method replacements.
 
 Note that this only affects the decode path. A `Memo` you constructed yourself
 (`Memo.text("hi")`) still holds the `string` you passed.
@@ -995,12 +1011,20 @@ if (!v2.timeBounds) { … }
 ```
 
 Construct absent fields with `null`, not `undefined`. TypeScript already
-requires it (`timeBounds: TimeBounds | null`), and the runtime holds you to it
-at encode time: the constructor stores whatever you pass, so `undefined` or an
-omitted key still builds an instance, but `toXdr()` / `toXdrObject()` on that
-instance then throws: a `TypeError` for struct-typed optionals, an
-`xdr.XdrError` for primitive ones. Decoded values are always `null`. Prefer
-`== null` / falsy checks over `=== undefined` everywhere.
+requires it (`timeBounds: TimeBounds | null`), and the runtime holds you to it,
+though where it does so depends on the field's type:
+
+- **Struct- or union-typed optionals** (`TimeBounds*`, `AccountId*`) store
+  whatever you pass, so an instance still builds; `toXdr()` / `toXdrObject()`
+  then throws a `TypeError` ("Cannot read properties of undefined").
+- **Primitive optionals** (`uint32*`, `int64*`) likewise build, then throw an
+  `xdr.XdrError` at encode time naming the field.
+- **`string<N>` and byte-typedef optionals** (`homeDomain`, `DataValue*`)
+  coerce their input in the constructor, so they throw a `TypeError` right
+  there — `new xdr.SetOptionsOp({})` never reaches an encode call.
+
+Decoded values are always `null`. Prefer `== null` / falsy checks over
+`=== undefined` everywhere.
 
 In JSON output an unset optional is `null` too (§ 12).
 
@@ -1029,11 +1053,21 @@ Two things to know when migrating:
   the only option) with text like `"XDR Write Error: invalid i32 value"`. The
   equivalent is now `"Uint32: value 4294967296 out of range [0, 4294967295]"`.
   Any `catch` block matching on error text needs rewriting.
-- `XdrError` covers the `xdr` namespace only. SDK entry points that decode
-  base64 or hex themselves — `new Transaction(envelope)`,
-  `Operation.setOptions`'s hex signer keys — still surface the platform
-  decoder's error, which Node words `DOMException: Invalid character` and other
-  runtimes word differently.
+- `XdrError` covers the `xdr` namespace only. A few SDK entry points decode
+  base64 or hex themselves, before the `xdr` layer sees the bytes, and surface
+  their decoder's error instead:
+  - `new Transaction(envelope)`, `new FeeBumpTransaction(envelope)`, and
+    `tx.addSignature(key, sig)` decode base64 with the platform `atob`, which
+    Node words `DOMException: Invalid character` and other runtimes word
+    differently.
+  - `Operation.setOptions`'s hex signer keys (`sha256Hash`, `preAuthTx`) decode
+    with `uint8array-extras`, which throws a plain `Error` reading
+    `Invalid Hex character encountered at position 0` — the same wording on
+    every runtime.
+
+  Entry points that hand the string straight to the `xdr` layer do throw
+  `XdrError`, including `TransactionBuilder.fromXdr` and `SorobanDataBuilder`'s
+  constructor and `fromXdr`.
 
 Strictness itself is mostly unchanged. v4 also rejected buffers it didn't fully
 consume (`"source buffer not entirely consumed"`), which is now
@@ -1188,8 +1222,8 @@ immediately, which is the usual shape, there is nothing to fix.
 
 `getLiquidityPoolId()`, `AuthEntrySignature.signature`, and the second argument
 handed to a `SigningCallback` are all `Uint8Array` now. `.toString("hex")` on
-any of them silently yields comma-joined decimals. See
-[`UINT8ARRAY_MIGRATION.md`](./UINT8ARRAY_MIGRATION.md).
+any of them silently yields comma-joined decimals. See the
+[Uint8Array migration guide](/migration/uint8array-migration/).
 
 `DecoratedSignature.signature` and `.hint` — what `tx.signatures[i]` holds — are
 **not** raw bytes, despite the name the first shares with

@@ -40,7 +40,7 @@ It is **not** for:
   [`authorizeInvocation`](/reference/core-soroban-primitives/#authorizeinvocation).**
   This one *constructs* the credential rather than being handed one, and it now
   builds `AddressV2` by default. Pass `authV2: false` for the legacy `ADDRESS`
-  shape. See the [Protocol 27 auth guide](/guides/00-protocol-27-soroban-auth/).
+  shape. See the [Protocol 27 auth guide](/migration/protocol-27-soroban-auth/).
 
 > **What Protocol 27 changes.** Protocol 27 introduces `AddressV2`, an
 > address-bound Soroban authorization credential
@@ -150,13 +150,13 @@ and the network rejects it. A latent bug:
 // ❌ Before: hardcodes the legacy ENVELOPE_TYPE_SOROBAN_AUTHORIZATION payload.
 const preimage = xdr.HashIdPreimage.envelopeTypeSorobanAuthorization(
   new xdr.HashIdPreimageSorobanAuthorization({
-    networkId: hash(Buffer.from(networkPassphrase)),
-    nonce: credentials.nonce(),
-    invocation: entry.rootInvocation(),
+    networkId: hash(networkPassphrase),
+    nonce: credentials.nonce,
+    invocation: entry.rootInvocation,
     signatureExpirationLedger: validUntil,
   }),
 );
-const signature = keypair.sign(hash(preimage.toXDR()));
+const signature = keypair.sign(hash(preimage.toXdr()));
 ```
 
 **After.** Swap the hand-built preimage for
@@ -168,7 +168,7 @@ signing line is unchanged, and the same code is now correct on both `ADDRESS` an
 ```ts
 // ✅ After: picks the right payload from the entry's own credential type.
 const preimage = buildAuthorizationEntryPreimage(entry, validUntil, networkPassphrase);
-const signature = keypair.sign(hash(preimage.toXDR()));
+const signature = keypair.sign(hash(preimage.toXdr()));
 ```
 
 Better still, drop the preimage step entirely and hand the whole entry to

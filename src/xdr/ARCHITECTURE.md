@@ -8,7 +8,7 @@ description:
 This document describes the internal architecture of the SDK's XDR layer under
 `src/xdr/`. It's intended for SDK contributors — people fixing bugs, adding
 types, or extending the layer. For consumer-facing migration guidance, see
-[`XDR_MIGRATION.md`](./XDR_MIGRATION.md).
+[`xdr-migration.md`](../../docs/migration/xdr-migration.md).
 
 The layer sits on top of `@stellar/js-xdr` v5, which provides the generic RFC
 4506 runtime: the `Reader`/`Writer` byte I/O, the abstract `BaseType<T>` schema

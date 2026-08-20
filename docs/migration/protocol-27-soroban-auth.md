@@ -18,6 +18,19 @@ This guide is for the other case: **you hand-craft `SorobanAuthorizationEntry`
 values and/or compute the signature payload yourself.** Those code paths need
 changes, because the bytes you sign are different now.
 
+> **Upgrading from v15? Go through v16 first.** The examples below use the v16
+> `xdr` API — `entry.credentials()` as a method call, and in-place mutation of
+> the credentials struct. v17 rebuilt `xdr` as immutable classes where
+> `credentials` is a read-only property, so these snippets do not run unchanged
+> there. Land the auth change on v16, then move to v17 with the
+> [XDR migration guide](/migration/xdr-migration/) and the
+> [Uint8Array migration guide](/migration/uint8array-migration/).
+>
+> The `authV2` defaults described below are v17's. The flag is transitional —
+> opt-in on v16 (`authV2: true`), the default on v17, and a no-op from protocol
+> 28, where v2 is the only format — so it is not something you will need to
+> revisit once you are on v17.
+
 ## What changed, in one paragraph
 
 Before P27, an address credential's signature committed to the network, nonce,

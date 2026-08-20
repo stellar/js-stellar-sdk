@@ -6,7 +6,7 @@
  * `fromXdr` call, so decode with `atob` plus a preallocated `charCodeAt` loop
  * instead. The encoder keeps upstream's chunked-`btoa` shape (same chunk
  * size); the only change is `String.fromCharCode` in place of
- * `String.fromCodePoint`, safe because `atob`-domain bytes are all <= 0xff.
+ * `String.fromCodePoint`, safe because `atob`-domain bytes are all `<=` 0xff.
  */
 
 /**

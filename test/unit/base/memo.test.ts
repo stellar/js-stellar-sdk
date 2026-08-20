@@ -142,7 +142,7 @@ describe("Memo", () => {
 
     // 16.2.0 and earlier accepted a plain array, encoding each element as one
     // byte. That input is documented as removed in 17.x (CHANGELOG, and
-    // docs/UINT8ARRAY_MIGRATION.md § 3), so pin the rejection.
+    // docs/migration/uint8array-migration.md § 3), so pin the rejection.
     it("rejects a plain array of bytes", () => {
       // @ts-expect-error testing input removed in 17.x
       expect(() => Memo.text([104, 105])).toThrow(
