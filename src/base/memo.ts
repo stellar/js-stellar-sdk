@@ -38,11 +38,7 @@ export namespace MemoType {
   export type Return = MemoTypeReturn;
 }
 export type MemoType =
-  | MemoTypeHash
-  | MemoTypeID
-  | MemoTypeNone
-  | MemoTypeReturn
-  | MemoTypeText;
+  MemoTypeHash | MemoTypeID | MemoTypeNone | MemoTypeReturn | MemoTypeText;
 
 export type MemoValue = string | null | Uint8Array;
 
@@ -66,6 +62,7 @@ export class Memo<T extends MemoType = MemoType> {
 
   constructor(type: MemoType.None, value?: null);
   constructor(type: MemoType.Hash | MemoType.Return, value: Uint8Array);
+  constructor(type: MemoType.ID, value: string | bigint);
   constructor(
     type: MemoType.Hash | MemoType.ID | MemoType.Return | MemoType.Text,
     value: string,
@@ -75,22 +72,22 @@ export class Memo<T extends MemoType = MemoType> {
    * @param type - `MemoNone`, `MemoID`, `MemoText`, `MemoHash` or `MemoReturn`
    * @param value - `string` for `MemoID`, `MemoText`, `Uint8Array` or hex string for `MemoHash` or `MemoReturn`
    */
-  constructor(type: T, value: MemoValue = null) {
+  constructor(type: T, value: MemoValue | bigint = null) {
     this._type = type;
-    this._value = value;
+    this._value = typeof value === "bigint" ? value.toString() : value;
 
     switch (this._type) {
       case MemoNone:
         break;
       case MemoID:
-        Memo._validateIdValue(value as string);
+        Memo._validateIdValue(value as string | bigint);
         break;
       case MemoText:
-        Memo._validateTextValue(value);
+        Memo._validateTextValue(value as MemoValue);
         break;
       case MemoHash:
       case MemoReturn:
-        Memo._validateHashValue(value);
+        Memo._validateHashValue(value as MemoValue);
         // We want MemoHash and MemoReturn to have Uint8Array as a value
         if (typeof value === "string") {
           this._value = hexToUint8Array(value);
@@ -140,23 +137,35 @@ export class Memo<T extends MemoType = MemoType> {
     throw new Error("Memo is immutable");
   }
 
-  private static _validateIdValue(value: string): void {
-    const error = new Error(`Expects a uint64 as a string. Got ${value}`);
+  private static _validateIdValue(value: string | bigint): void {
+    const originalType = typeof value;
+    const error = new Error(
+      originalType === "bigint"
+        ? `Expects a uint64 as a string or bigint. Got ${value} (bigint) out of uint64 range.`
+        : `Expects a uint64 as a string or bigint. Got ${value}${
+            originalType !== "string" ? ` (${originalType})` : ""
+          }.`,
+    );
 
-    if (typeof value !== "string") {
+    if (originalType !== "string" && originalType !== "bigint") {
       throw error;
     }
+
+    const stringValue =
+      originalType === "bigint"
+        ? (value as bigint).toString()
+        : (value as string);
 
     // Only plain decimal digit strings are accepted. Scientific notation
     // ("1e18") and trailing-zero decimals ("1.0") pass BigNumber validation
     // but crash in BigInt() during XDR serialization.
-    if (!/^[0-9]+$/.test(value)) {
+    if (!/^[0-9]+$/.test(stringValue)) {
       throw error;
     }
 
     let number: BigNumber;
     try {
-      number = new CustomBigNumber(value);
+      number = new CustomBigNumber(stringValue);
     } catch {
       throw error;
     }
@@ -250,7 +259,7 @@ export class Memo<T extends MemoType = MemoType> {
    *
    * @param id - 64-bit number represented as a string
    */
-  static id(id: string): Memo<MemoTypeID> {
+  static id(id: string | bigint): Memo<MemoTypeID> {
     return new Memo(MemoID, id);
   }
 
