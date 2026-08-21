@@ -45,7 +45,7 @@ npm install --save @stellar/stellar-sdk
 pnpm add @stellar/stellar-sdk
 # or
 yarn add @stellar/stellar-sdk
-# or, with Deno
+# or
 deno add npm:@stellar/stellar-sdk
 ```
 
