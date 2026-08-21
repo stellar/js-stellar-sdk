@@ -284,7 +284,7 @@ Two Deno-specific things to keep in mind:
   `--allow-net` (or scope it, e.g.
   `--allow-net=horizon-testnet.stellar.org,soroban-testnet.stellar.org`).
 - **The CLI.** Run it without installing anything:
-  `deno run -A npm:@stellar/stellar-sdk generate …` (see [CLI](#cli)).
+  `deno run -A npm:@stellar/stellar-sdk` (see [CLI](#cli)).
 
 ## CLI
 
