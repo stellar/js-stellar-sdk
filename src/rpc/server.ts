@@ -561,9 +561,18 @@ export class RpcServer {
       }),
     );
 
-    try {
-      return await this.getLedgerEntry(contractKey);
-    } catch {
+    // `getLedgerEntries` rejects only on transport failure, so a 429, a 5xx or
+    // a timeout propagates to the caller untouched. Absence is then decided
+    // here, by the entry count. The previous `try/catch` around
+    // `getLedgerEntry` collapsed both routes into the same 404, which turned
+    // every rate-limited poll into "this entry is gone". Callers branch on that
+    // to drive deployment status, eviction detection and cache invalidation, so
+    // a misclassified transport error became a wrong state transition instead
+    // of a retry.
+    const { entries } = await this.getLedgerEntries(contractKey);
+    if (entries.length !== 1) {
+      // Shape unchanged on purpose: `e.code === 404` keeps matching exactly
+      // when the entry is absent, which is the only case it ever meant.
       throw {
         code: 404,
         message: `Contract data not found for ${Address.fromScAddress(
@@ -571,6 +580,7 @@ export class RpcServer {
         ).toString()} with key ${key.toXdr("base64")} and durability: ${durability}`,
       };
     }
+    return entries[0];
   }
 
   /**
