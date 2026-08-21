@@ -283,13 +283,6 @@ import * as StellarSdk from "@stellar/stellar-sdk";
 import * as StellarSdk from "npm:@stellar/stellar-sdk";
 ```
 
-Subpath imports work the same way, e.g.
-`import { Server } from "npm:@stellar/stellar-sdk/rpc"`.
-
-No polyfills are needed. As of v17 the SDK relies only on web APIs that Deno
-provides natively — `fetch`, `crypto.getRandomValues()`, `TextDecoder`, and
-`ReadableStream` — and it no longer uses `Buffer`.
-
 Two Deno-specific things to keep in mind:
 
 - **Permissions.** Horizon and RPC calls need network access, so run with
