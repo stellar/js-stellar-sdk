@@ -146,7 +146,11 @@ describe("Server#requestAirdrop", () => {
     const friendbotError = {
       response: {
         status: 400,
-        data: { detail: "createAccountAlreadyExist" },
+        // El detail real que devuelve friendbot. El valor anterior de este
+        // fixture era "createAccountAlreadyExist", el nombre del enum XDR, que
+        // friendbot no emite nunca: el test le daba al codigo exactamente el
+        // string que el codigo buscaba, asi que pasaba sin probar nada.
+        data: { detail: "account already funded to starting balance" },
       },
     };
 
@@ -195,6 +199,102 @@ describe("Server#requestAirdrop", () => {
       params: { keys: [ledgerKey.toXdr("base64")] },
     });
     expect(mockPost).toHaveBeenCalledTimes(3);
+  });
+
+  // Friendbot's `detail` is prose, not a spec'd value, so the guard matches the
+  // shape of the phrase rather than one exact string. These pin both the real
+  // wording and the legacy enum name, so neither can regress silently.
+  it.each([
+    [
+      "the current friendbot wording",
+      "account already funded to starting balance",
+    ],
+    ["a shorter variant", "account already funded"],
+    ["the legacy XDR enum name", "createAccountAlreadyExist"],
+    ["op_already_exists style wording", "account already exists"],
+  ])("returns the existing account for %s", async (_label, detail) => {
+    const friendbotUrl = "https://friendbot.stellar.org";
+    const accountId =
+      "GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI";
+
+    const networkResponse = {
+      data: {
+        result: {
+          friendbotUrl,
+          passphrase: Networks.FUTURENET,
+          protocolVersion: 20,
+        },
+      },
+    };
+
+    const friendbotError = {
+      response: { status: 400, data: { detail } },
+    };
+
+    const accountEntry = accountLedgerEntryData();
+    const ledgerKey = xdr.LedgerKey.account(
+      new xdr.LedgerKeyAccount({
+        accountId: Keypair.fromPublicKey(accountId).xdrPublicKey(),
+      }),
+    );
+    const ledgerEntryResponse = {
+      data: {
+        result: {
+          latestLedger: 0,
+          entries: [
+            {
+              key: ledgerKey.toXdr("base64"),
+              xdr: accountEntry.toXdr("base64"),
+            },
+          ],
+        },
+      },
+    };
+
+    mockPost
+      .mockResolvedValueOnce(networkResponse)
+      .mockRejectedValueOnce(friendbotError)
+      .mockResolvedValueOnce(ledgerEntryResponse);
+
+    const result = await server.requestAirdrop(accountId);
+    expect(result).toBeInstanceOf(Account);
+    expect(result.accountId()).toBe(accountId);
+  });
+
+  // The guard must stay narrow: a 400 that is not about existing funds has to
+  // keep propagating, or a real failure gets silently turned into a lookup.
+  it.each([
+    ["a malformed address", "invalid address format"],
+    ["a rate limit", "too many requests from this IP"],
+    ["an empty detail", ""],
+    ["a missing detail", undefined],
+    ["a non-string detail", { code: "createAccountAlreadyExist" }],
+  ])("rethrows a 400 caused by %s", async (_label, detail) => {
+    const friendbotUrl = "https://friendbot.stellar.org";
+    const accountId =
+      "GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI";
+
+    const networkResponse = {
+      data: {
+        result: {
+          friendbotUrl,
+          passphrase: Networks.FUTURENET,
+          protocolVersion: 20,
+        },
+      },
+    };
+
+    const friendbotError = {
+      response: { status: 400, data: { detail } },
+    };
+
+    mockPost
+      .mockResolvedValueOnce(networkResponse)
+      .mockRejectedValueOnce(friendbotError);
+
+    await expect(server.requestAirdrop(accountId)).rejects.toBe(friendbotError);
+    // Sin llamada a getLedgerEntries: getNetwork y friendbot, y nada mas.
+    expect(mockPost).toHaveBeenCalledTimes(2);
   });
 
   it("throws an error if friendbot is not available", async () => {
