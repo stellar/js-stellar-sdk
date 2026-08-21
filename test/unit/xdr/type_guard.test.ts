@@ -253,11 +253,18 @@ describe("the message names the argument accurately", () => {
     ).toContain("an instance of ContractDataDurability");
   });
 
-  it("names an anonymous class without dumping its source", () => {
-    const Anon = (() => class extends BytesValue {})();
-    const msg = messageFrom(() => encodeArray(Anon as any, []));
-    expect(msg).toContain("an anonymous class");
-    expect(msg).not.toContain("extends");
+  it("names an unnamed callable without dumping its source", () => {
+    // Anonymous classes and anonymous functions share this branch, since
+    // `typeof` cannot separate them, so the wording must fit both.
+    // Declared inline: a function assigned to a `const` would inherit that
+    // name, which would skip the branch under test.
+    const AnonClass = (() => class extends BytesValue {})();
+    for (const value of [AnonClass, () => undefined]) {
+      const msg = messageFrom(() => encodeArray(value as any, []));
+      expect(msg).toContain("an anonymous function or class");
+      expect(msg).not.toContain("extends");
+      expect(msg).not.toContain("=>");
+    }
   });
 });
 
@@ -308,12 +315,33 @@ describe("consumer-defined XDR classes", () => {
     ).toHaveLength(1);
   });
 
-  // Accepted residual: the guard checks `schema` only, so a subclass that
-  // declares one but no `fromXdrObject` reaches the decode path and fails
-  // there. That message already names the missing member.
-  it("reports a missing fromXdrObject from the decode path", () => {
-    expect(() => (SchemaOnly as any).fromXdr(new Uint8Array(32))).toThrow(
-      /fromXdrObject/,
-    );
+  // A schema without a `fromXdrObject` can encode but not decode, so the
+  // requirement is checked per direction: the decode paths name the missing
+  // member at the call site, and the encode paths must not reject the type.
+  it("names the missing fromXdrObject on every decode path", () => {
+    const bytes = new Uint8Array(32).fill(9);
+    const arr = new Uint8Array([0, 0, 0, 1, ...bytes]);
+    for (const [fn, call] of [
+      ["fromXdr", () => (SchemaOnly as any).fromXdr(bytes)],
+      ["fromJson", () => (SchemaOnly as any).fromJson("09".repeat(32))],
+      ["decodeArray", () => decodeArray(SchemaOnly as any, arr)],
+      ["decodeStream", () => decodeStream(SchemaOnly as any, bytes)],
+    ] as [string, () => unknown][]) {
+      expect(call).toThrow(TypeError);
+      expect(call).toThrow(
+        new RegExp(`${fn}: SchemaOnly has a static schema but no static`),
+      );
+      expect(call).toThrow(/fromXdrObject/);
+    }
+  });
+
+  it("still encodes a schema-only subclass, which needs no fromXdrObject", () => {
+    const bytes = new Uint8Array(32).fill(9);
+    const encoded = encodeArray(SchemaOnly as any, [new SchemaOnly(bytes)]);
+    expect(encoded).toHaveLength(36);
+    expect(Array.from(encoded.subarray(0, 4))).toEqual([0, 0, 0, 1]);
+    // `as any`: the `XdrValueConstructor` type requires `fromXdrObject` for
+    // both directions, so tsc rejects this call even though it works.
+    expect((SchemaOnly as any).validateXdr(bytes)).toBe(true);
   });
 });

@@ -5,7 +5,7 @@ A breaking change will get clearly marked in this log.
 ## Unreleased
 
 ### Fixed
-* The type-generic `xdr` helpers — `encodeArray`, `decodeArray`, `decodeStream` and the `fromXdr` / `validateXdr` / `fromJson` statics — now throw a `TypeError` naming the helper and the argument when it has no static schema, such as an `Int64`/`Uint32` shim or an abstract base ([#1680](https://github.com/stellar/js-stellar-sdk/issues/1680)). `xdr.encodeArray(xdr.Uint32, [1])` previously threw `TypeError: v.toXdrObject is not a function`, and on an empty list returned a valid-looking 4-byte count. Valid types are unaffected.
+* The type-generic `xdr` helpers — `encodeArray`, `decodeArray`, `decodeStream` and the `fromXdr` / `validateXdr` / `fromJson` statics — now throw a `TypeError` naming the helper and the argument when it has no static schema, such as an `Int64`/`Uint32` shim or an abstract base ([#1682](https://github.com/stellar/js-stellar-sdk/pull/1682)). `xdr.encodeArray(xdr.Uint32, [1])` previously threw `TypeError: v.toXdrObject is not a function`, and on an empty list returned a valid-looking 4-byte count. The four decode paths also name a missing `static fromXdrObject`, which only they need. Valid types are unaffected.
 * `xdr.Int32`, `xdr.Uint32`, `xdr.Int64` and `xdr.Uint64` report their XDR type name from `.name`, instead of the internal `"Shim"`.
 
 ## [v17.0.0](https://github.com/stellar/js-stellar-sdk/compare/v16.2.0...v17.0.0)

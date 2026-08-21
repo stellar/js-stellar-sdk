@@ -109,7 +109,7 @@ export abstract class XdrValue {
     input: Uint8Array | string,
     format?: "hex" | "base64",
   ): Instance {
-    assertXdrType(this, "fromXdr");
+    assertXdrType(this, "fromXdr", true);
     const bytes = decodeBytes(input, format);
     return this.fromXdrObject(this.schema.decode(bytes));
   }
@@ -152,7 +152,7 @@ export abstract class XdrValue {
     this: XdrValueConstructor<Wire, Instance>,
     json: JsonValue,
   ): Instance {
-    assertXdrType(this, "fromJson");
+    assertXdrType(this, "fromJson", true);
     return this.fromXdrObject(walkFromJson(json, this.schema) as Wire);
   }
 }
@@ -162,7 +162,8 @@ export abstract class XdrValue {
  * back-to-back (e.g. a contract spec's `ScSpecEntry` stream). Throws
  * `XdrError` if the buffer ends mid-value.
  *
- * @throws a `TypeError` when `type` carries no static schema
+ * @throws a `TypeError` when `type` carries no static schema, or no static
+ * `fromXdrObject` to build values with
  */
 export function decodeStream<Wire, Instance extends XdrValue>(
   type: XdrValueConstructor<Wire, Instance>,
@@ -178,7 +179,7 @@ export function decodeStream<Wire, Instance extends XdrValue>(
   input: Uint8Array | string,
   format?: "hex" | "base64",
 ): Instance[] {
-  assertXdrType(type, "decodeStream");
+  assertXdrType(type, "decodeStream", true);
   const reader = new Reader(decodeBytes(input, format));
   const path = type.schema.name ?? type.name;
   const out: Instance[] = [];
@@ -257,7 +258,8 @@ export function encodeArray<Wire, Instance extends XdrValue>(
  * the payload. For a buffer of values concatenated with no length prefix, use
  * {@link decodeStream}.
  *
- * @throws a `TypeError` when `type` carries no static schema
+ * @throws a `TypeError` when `type` carries no static schema, or no static
+ * `fromXdrObject` to build values with
  */
 export function decodeArray<Wire, Instance extends XdrValue>(
   type: XdrValueConstructor<Wire, Instance>,
@@ -277,7 +279,7 @@ export function decodeArray<Wire, Instance extends XdrValue>(
   maybeOptions?: XdrArrayOptions,
 ): Instance[] {
   const [format, options] = splitArrayArgs(formatOrOptions, maybeOptions);
-  assertXdrType(type, "decodeArray");
+  assertXdrType(type, "decodeArray", true);
   const codec = array(type.schema, options.maxLength ?? UNBOUNDED_MAX_LENGTH);
   const wires = codec.decode(
     decodeBytes(input, format as "hex" | "base64" | undefined),
@@ -294,6 +296,7 @@ export function decodeArray<Wire, Instance extends XdrValue>(
 interface UncheckedXdrType {
   readonly schema?: unknown;
   readonly name?: string;
+  readonly fromXdrObject?: unknown;
 }
 
 /**
@@ -303,7 +306,11 @@ interface UncheckedXdrType {
  * and a null-prototype object throws on `String()`.
  */
 function describeType(type: unknown): string {
-  if (typeof type === "function") return type.name || "an anonymous class";
+  // `typeof` cannot tell a class from an ordinary or arrow function, and an
+  // unnamed one of any kind lands here, so the wording covers both.
+  if (typeof type === "function") {
+    return type.name || "an anonymous function or class";
+  }
   if (type === null || type === undefined) return String(type);
   if (typeof type === "object") {
     return `an instance of ${type.constructor?.name || "an anonymous object"}`;
@@ -323,17 +330,31 @@ function describeType(type: unknown): string {
  * Only a bad *type* throws here. Thin or malformed *data* keeps its existing
  * behaviour, so an empty list still round-trips and `validateXdr` still
  * returns `false` rather than throwing.
+ *
+ * The requirement differs by direction, so `needsFromXdrObject` is set only by
+ * the decode paths. `encodeArray` and `validateXdr` never call
+ * `fromXdrObject`, and a class that declares a schema without one encodes
+ * correctly — requiring it there would reject a type that works.
  */
 function assertXdrType(
   type: UncheckedXdrType | null | undefined,
   fn: string,
+  needsFromXdrObject = false,
 ): void {
-  if (type?.schema) return;
-  throw new TypeError(
-    `${fn}: ${describeType(type)} has no static schema, so it is not a ` +
-      `usable XDR type. Pass a generated class such as xdr.ScVal, or ` +
-      "declare `static readonly schema` on a class of your own.",
-  );
+  if (!type?.schema) {
+    throw new TypeError(
+      `${fn}: ${describeType(type)} has no static schema, so it is not a ` +
+        `usable XDR type. Pass a generated class such as xdr.ScVal, or ` +
+        "declare `static readonly schema` on a class of your own.",
+    );
+  }
+  if (needsFromXdrObject && typeof type.fromXdrObject !== "function") {
+    throw new TypeError(
+      `${fn}: ${describeType(type)} has a static schema but no static ` +
+        "fromXdrObject, so it can encode but not decode. Declare " +
+        "`static fromXdrObject(wire)` on it.",
+    );
+  }
 }
 
 /**
