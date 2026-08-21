@@ -29,6 +29,7 @@ The library provides:
   - [...with React Native](#usage-with-react-native)
   - [...with Expo](#usage-with-expo-managed-workflows)
   - [...with CloudFlare Workers](#usage-with-cloudflare-workers)
+  - [...with Deno](#usage-with-deno)
 - [CLI](#cli): generate TypeScript bindings for Stellar smart contracts
 - [Migrating](#migrating): migration guides for breaking changes
 - [Developing](#developing): contribute to the project!
@@ -44,6 +45,8 @@ npm install --save @stellar/stellar-sdk
 pnpm add @stellar/stellar-sdk
 # or
 yarn add @stellar/stellar-sdk
+# or
+deno add npm:@stellar/stellar-sdk
 ```
 
 Then, require or import it in your JavaScript code:
@@ -262,6 +265,26 @@ flag is no longer required for it. The one thing to watch for:
 - **Streaming.** Horizon's `.stream()` depends on `EventSource`; long-lived
   streaming connections don't fit the Workers request model well, so prefer
   polling (`.call()` / `.cursor()`) for Horizon data in a Worker.
+
+### Usage with Deno
+
+Deno pulls the SDK in through its npm compatibility layer. Add it to your
+`deno.json` (see [Installation](#installation)) and import the bare specifier,
+or skip that step and import the `npm:` specifier directly:
+
+```js
+import * as StellarSdk from "@stellar/stellar-sdk";
+// or, without adding it to deno.json
+import * as StellarSdk from "npm:@stellar/stellar-sdk";
+```
+
+Two Deno-specific things to keep in mind:
+
+- **Permissions.** Horizon and RPC calls need network access, so run with
+  `--allow-net` (or scope it, e.g.
+  `--allow-net=horizon-testnet.stellar.org,soroban-testnet.stellar.org`).
+- **The CLI.** Run it without installing anything:
+  `deno run -A npm:@stellar/stellar-sdk` (see [CLI](#cli)).
 
 ## CLI
 
