@@ -1157,7 +1157,7 @@ export class AssembledTransaction<T> {
       authEntries[i] = await authorizeEntry(
         entry,
         async (preimage) => {
-          const { signedAuthEntry, error } = await sign(
+          const { signedAuthEntry, signerAddress, error } = await sign(
             preimage.toXdr("base64"),
             {
               address: target,
@@ -1173,9 +1173,19 @@ export class AssembledTransaction<T> {
           // verifies the delegate's signature against the wrong public
           // key otherwise. Naming the actual signer here sidesteps that
           // inference entirely.
+          //
+          // `target` is only a request, not a guarantee of who actually
+          // signed: a delegate node's own address may be a contract
+          // (Signer::Delegated) or the `sign` callback may have signed
+          // with a different Ed25519 key than the one asked for, and
+          // `SignAuthEntry`'s return type carries an optional
+          // `signerAddress` for exactly this case. Preferring it over
+          // `target` when present is required, not cosmetic: passing
+          // the wrong `publicKey` here makes `authorizeEntry` verify the
+          // signature against the wrong key.
           return {
             signature: base64ToUint8Array(signedAuthEntry),
-            publicKey: target,
+            publicKey: signerAddress ?? target,
           };
         },
         await expiration,

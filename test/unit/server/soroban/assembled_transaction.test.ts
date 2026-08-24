@@ -602,9 +602,12 @@ describe("AssembledTransaction auth entry credential types (CAP-71)", () => {
     // https://github.com/stellar/js-stellar-sdk/issues/1655: this method
     // used to inspect only info.signers[0] (the top-level node), so an
     // unsigned delegate on an otherwise-signed top level was silently
-    // dropped from the result, both real cases from the original report,
-    // built the same way (buildWithDelegatesEntry / authorizeEntry, not
-    // hand-constructed XDR).
+    // dropped from the result, both real cases from the original report.
+    // Built directly via hand-constructed
+    // SorobanAddressCredentialsWithDelegates XDR (addrCreds / authEntry
+    // above), with a placeholder scvBytes(new Uint8Array(64))/scvVoid()
+    // standing in for a real signature, not via
+    // buildWithDelegatesEntry / authorizeEntry.
     it("reports an unsigned delegate even when the top level is already signed (#1655 case 2)", () => {
       const entry = authEntry(
         xdr.SorobanCredentials.sorobanCredentialsAddressWithDelegates(
@@ -904,6 +907,46 @@ describe("AssembledTransaction auth entry credential types (CAP-71)", () => {
           address: signer.publicKey(),
         }),
       ).rejects.toThrow(contract.AssembledTransaction.Errors.NoSigner);
+    });
+
+    // Regression coverage for
+    // https://github.com/stellar/js-stellar-sdk/issues/1672: the default
+    // authorizeEntry callback used to hand it { signature, publicKey: target }
+    // unconditionally, ignoring a `signerAddress` the signing callback
+    // reported back. `target` is only who was ASKED to sign; a delegate
+    // whose real signer differs from the delegate node's own address (e.g.
+    // a smart-account delegate proxying to an underlying Ed25519 key) must
+    // still verify, which needs the signer's own reported address, not the
+    // requested one.
+    it("verifies against the signer's own reported address, not the requested one, when they differ", async () => {
+      const requestedSigner = Keypair.random(); // who `address` asks to sign
+      const actualSigner = Keypair.random(); // who really signs
+
+      const assembled = assembledWith(
+        [authEntry(addressV2Cred(requestedSigner.publicKey()))],
+        {
+          signAuthEntry: new contract.KeypairSigner(
+            actualSigner,
+            networkPassphrase,
+          ).signAuthEntry,
+        },
+      );
+
+      // Previously this verified the signature against
+      // requestedSigner.publicKey() (== target) regardless of who actually
+      // produced it, so a signer honestly reporting a different
+      // signerAddress made the default authorizeEntry's
+      // Keypair.fromPublicKey(target).verify(...) check fail even though
+      // the signature is genuinely valid for actualSigner.
+      await assembled.signAuthEntries({
+        expiration: 1000,
+        address: requestedSigner.publicKey(),
+      });
+
+      const signed = (assembled.built as any).operations[0].auth[0].credentials
+        .addressV2;
+      expect(signed.signature.type).toBe("scvVec");
+      expect(signed.signature.vec).toHaveLength(1);
     });
   });
 });
