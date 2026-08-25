@@ -5,7 +5,7 @@ A breaking change will get clearly marked in this log.
 ## Unreleased
 
 ### Added
-- `xdr.*` values regain `toXDR()` and the static `fromXDR()` / `validateXDR()` as deprecated aliases of `toXdr()` / `fromXdr()` / `validateXdr()`, easing migration from v16. The aliases have v17 semantics: `toXDR()` returns a `Uint8Array` (not a `Buffer`), and `fromXDR()` requires a format for string input. `Transaction` and `FeeBumpTransaction` also regain `toXDR()` (via `TransactionBase`), which returns a base64 string as it did in v16. The other v17 renames (`toXdrObject` and the remaining wrapper-class methods such as `TransactionBuilder.fromXdr`) keep no alias ([#1690](https://github.com/stellar/js-stellar-sdk/pull/1690)).
+- Every v16 `toXDR()` / `fromXDR()` spelling works again as a deprecated alias of the v17 name, easing migration. That covers `xdr.*` values (which also regain the static `validateXDR()`), `Transaction` / `FeeBumpTransaction`, `TransactionBuilder`, `contract.AssembledTransaction`, `Claimant`, and `SorobanDataBuilder`. The aliases delegate to the v17 methods and keep their semantics: on `xdr.*` values, `toXDR()` returns a `Uint8Array` (not a `Buffer`) and `fromXDR()` requires a format for string input; the wrapper-class aliases behave as they did in v16. The `toXdrObject` / `fromXdrObject` family keeps no alias ([#1690](https://github.com/stellar/js-stellar-sdk/pull/1690)).
 
 ## [v17.0.0](https://github.com/stellar/js-stellar-sdk/compare/v16.2.0...v17.0.0)
 

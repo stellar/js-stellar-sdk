@@ -1270,6 +1270,17 @@ export class TransactionBuilder {
 
     return new Transaction(envelope, networkPassphrase);
   }
+
+  /**
+   * @deprecated Use {@link TransactionBuilder.fromXdr} instead.
+   * Deprecated in version v17.0.0
+   */
+  static fromXDR(
+    envelope: TransactionEnvelope | string,
+    networkPassphrase: string,
+  ): FeeBumpTransaction | Transaction {
+    return TransactionBuilder.fromXdr(envelope, networkPassphrase);
+  }
 }
 
 /**

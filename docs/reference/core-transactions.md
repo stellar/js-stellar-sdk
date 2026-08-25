@@ -180,6 +180,7 @@ class FeeBumpTransaction {
   signHashX(preimage: string | Uint8Array<ArrayBufferLike>): void;
   toEnvelope(): TransactionEnvelope;
   toXdr(): string;
+  toXDR(): string;
 }
 ```
 
@@ -431,6 +432,17 @@ toXdr(): string;
 ```
 
 **Source:** [src/base/transaction_base.ts:247](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L247)
+
+### `feeBumpTransaction.toXDR()`
+
+**Deprecated.** Use [`toXdr`](#feebumptransactiontoxdr) instead.
+Deprecated in version v17.0.0
+
+```ts
+toXDR(): string;
+```
+
+**Source:** [src/base/transaction_base.ts:255](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L255)
 
 ## Memo
 
@@ -2246,6 +2258,7 @@ class Transaction {
   signHashX(preimage: string | Uint8Array<ArrayBufferLike>): void;
   toEnvelope(): TransactionEnvelope;
   toXdr(): string;
+  toXDR(): string;
 }
 ```
 
@@ -2594,6 +2607,17 @@ toXdr(): string;
 
 **Source:** [src/base/transaction_base.ts:247](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L247)
 
+### `transaction.toXDR()`
+
+**Deprecated.** Use [`toXdr`](#transactiontoxdr) instead.
+Deprecated in version v17.0.0
+
+```ts
+toXDR(): string;
+```
+
+**Source:** [src/base/transaction_base.ts:255](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L255)
+
 ## TransactionBuilder
 
 <p>Transaction builder helps constructs a new [`Transaction`](#transaction) using the
@@ -2648,6 +2672,7 @@ class TransactionBuilder {
   static buildFeeBumpTransaction(feeSource: string | Keypair, baseFee: string, innerTx: Transaction, networkPassphrase: string): FeeBumpTransaction;
   static cloneFrom(tx: Transaction, opts: Partial<TransactionBuilderOptions> = {}): TransactionBuilder;
   static fromXdr(envelope: string | TransactionEnvelope, networkPassphrase: string): Transaction | FeeBumpTransaction;
+  static fromXDR(envelope: string | TransactionEnvelope, networkPassphrase: string): Transaction | FeeBumpTransaction;
   baseFee: string;
   extraSigners: string[] | null;
   ledgerbounds: { maxLedger?: number; minLedger?: number } | null;
@@ -2765,6 +2790,22 @@ static fromXdr(envelope: string | TransactionEnvelope, networkPassphrase: string
       2015"), see [`Networks`](#networks).
 
 **Source:** [src/base/transaction_builder.ts:1259](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L1259)
+
+### `TransactionBuilder.fromXDR(envelope, networkPassphrase)`
+
+**Deprecated.** Use [`TransactionBuilder.fromXdr`](#transactionbuilderfromxdrenvelope-networkpassphrase) instead.
+Deprecated in version v17.0.0
+
+```ts
+static fromXDR(envelope: string | TransactionEnvelope, networkPassphrase: string): Transaction | FeeBumpTransaction;
+```
+
+**Parameters**
+
+- **`envelope`** — `string | TransactionEnvelope` (required)
+- **`networkPassphrase`** — `string` (required)
+
+**Source:** [src/base/transaction_builder.ts:1278](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L1278)
 
 ### `transactionBuilder.baseFee`
 

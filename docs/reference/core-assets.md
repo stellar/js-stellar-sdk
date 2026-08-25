@@ -265,6 +265,7 @@ The claim predicate is optional, it defaults to unconditional if none is specifi
 class Claimant {
   constructor(destination: string, predicate?: ClaimPredicate);
   static fromXdr(claimantXdr: ClaimantV0Arm): Claimant;
+  static fromXDR(claimantXdr: ClaimantV0Arm): Claimant;
   static predicateAnd(left: ClaimPredicate, right: ClaimPredicate): ClaimPredicate;
   static predicateBeforeAbsoluteTime(absBefore: string): ClaimPredicate;
   static predicateBeforeRelativeTime(seconds: string): ClaimPredicate;
@@ -305,6 +306,21 @@ static fromXdr(claimantXdr: ClaimantV0Arm): Claimant;
 - **`claimantXdr`** — `ClaimantV0Arm` (required) — The claimant xdr object.
 
 **Source:** [src/base/claimant.ts:129](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L129)
+
+### `Claimant.fromXDR(claimantXdr)`
+
+**Deprecated.** Use [`Claimant.fromXdr`](#claimantfromxdrclaimantxdr) instead.
+Deprecated in version v17.0.0
+
+```ts
+static fromXDR(claimantXdr: ClaimantV0Arm): Claimant;
+```
+
+**Parameters**
+
+- **`claimantXdr`** — `ClaimantV0Arm` (required)
+
+**Source:** [src/base/claimant.ts:147](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L147)
 
 ### `Claimant.predicateAnd(left, right)`
 
@@ -404,7 +420,7 @@ The destination account ID.
 destination: string;
 ```
 
-**Source:** [src/base/claimant.ts:158](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L158)
+**Source:** [src/base/claimant.ts:166](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L166)
 
 ### `claimant.predicate`
 
@@ -414,7 +430,7 @@ The claim predicate.
 predicate: ClaimPredicate;
 ```
 
-**Source:** [src/base/claimant.ts:169](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L169)
+**Source:** [src/base/claimant.ts:177](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L177)
 
 ### `claimant.toXdrObject()`
 
@@ -424,7 +440,7 @@ Returns the xdr object for this claimant.
 toXdrObject(): ClaimantV0Arm;
 ```
 
-**Source:** [src/base/claimant.ts:146](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L146)
+**Source:** [src/base/claimant.ts:154](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L154)
 
 ## LiquidityPoolAsset
 
