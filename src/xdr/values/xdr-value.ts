@@ -60,6 +60,23 @@ export abstract class XdrValue {
     return encodeBytes(bytes, format);
   }
 
+  /**
+   * @deprecated Use {@link toXdr} instead.
+   * Deprecated in version v17
+   */
+  toXDR(): Uint8Array;
+  /**
+   * @deprecated Use {@link toXdr} instead.
+   * Deprecated in version v17
+   */ toXDR(format: "raw"): Uint8Array;
+  /**
+   * @deprecated Use {@link toXdr} instead.
+   * Deprecated in version v17
+   */ toXDR(format: "hex" | "base64"): string;
+  toXDR(format: XdrFormat = "raw"): Uint8Array | string {
+    return encodeBytes(this.toXdr(), format);
+  }
+
   toString(): string {
     return uint8ArrayToBase64(this.toXdr());
   }
@@ -114,6 +131,36 @@ export abstract class XdrValue {
   }
 
   /**
+   * @deprecated Use {@link XdrValue.fromXdr} instead.
+   * Deprecated in version v17.0.0
+   */
+  static fromXDR<Wire, Instance extends XdrValue>(
+    this: XdrValueConstructor<Wire, Instance>,
+    input: Uint8Array,
+  ): Instance;
+  /**
+   * @deprecated Use {@link XdrValue.fromXdr} instead.
+   * Deprecated in version v17.0.0
+   */
+  static fromXDR<Wire, Instance extends XdrValue>(
+    this: XdrValueConstructor<Wire, Instance>,
+    input: string,
+    format: "hex" | "base64",
+  ): Instance;
+  /**
+   * @deprecated Use {@link XdrValue.fromXdr} instead.
+   * Deprecated in version v17.0.0
+   */
+  static fromXDR<Wire, Instance extends XdrValue>(
+    this: XdrValueConstructor<Wire, Instance>,
+    input: Uint8Array | string,
+    format?: "hex" | "base64",
+  ): Instance {
+    const bytes = decodeBytes(input, format);
+    return this.fromXdrObject(this.schema.decode(bytes));
+  }
+
+  /**
    * Check whether `input` decodes as this type — {@link XdrValue.fromXdr}
    * without the throw. Returns `false` on any failure (bad hex/base64, wrong
    * shape, trailing bytes) and discards the error detail; decode directly
@@ -129,6 +176,41 @@ export abstract class XdrValue {
     format: "hex" | "base64",
   ): boolean;
   static validateXdr<Wire, Instance extends XdrValue>(
+    this: XdrValueConstructor<Wire, Instance>,
+    input: Uint8Array | string,
+    format?: "hex" | "base64",
+  ): boolean {
+    let bytes: Uint8Array;
+    try {
+      bytes = decodeBytes(input, format);
+    } catch {
+      return false;
+    }
+    return this.schema.validateXdr(bytes);
+  }
+
+  /**
+   * @deprecated Use {@link XdrValue.validateXdr} instead.
+   * Deprecated in version v17.0.0
+   */
+  static validateXDR<Wire, Instance extends XdrValue>(
+    this: XdrValueConstructor<Wire, Instance>,
+    input: Uint8Array,
+  ): boolean;
+  /**
+   * @deprecated Use {@link XdrValue.validateXdr} instead.
+   * Deprecated in version v17.0.0
+   */
+  static validateXDR<Wire, Instance extends XdrValue>(
+    this: XdrValueConstructor<Wire, Instance>,
+    input: string,
+    format: "hex" | "base64",
+  ): boolean;
+  /**
+   * @deprecated Use {@link XdrValue.validateXdr} instead.
+   * Deprecated in version v17.0.0
+   */
+  static validateXDR<Wire, Instance extends XdrValue>(
     this: XdrValueConstructor<Wire, Instance>,
     input: Uint8Array | string,
     format?: "hex" | "base64",
