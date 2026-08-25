@@ -2,6 +2,11 @@
 
 A breaking change will get clearly marked in this log.
 
+## Unreleased
+
+### Fixed
+* `BytesValue#toString()` on the named byte aliases (`Hash`, `Signature`, `AssetCode4`, `AssetCode12`, `PoolId`, `ContractId`, …) now returns the class's declared encoding instead of base64 for every wrapper: `new xdr.AssetCode4("KHL1").toString()` is now `"KHL1"`, was `"S0hMMQ=="`. Use `.toXdr("base64")` for the wire form ([#1689](https://github.com/stellar/js-stellar-sdk/pull/1689)).
+
 ## [v17.0.0](https://github.com/stellar/js-stellar-sdk/compare/v16.2.0...v17.0.0)
 
 ### Breaking Changes
