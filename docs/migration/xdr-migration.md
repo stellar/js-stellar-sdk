@@ -119,12 +119,15 @@ The one runtime use the array typedefs had was encoding or decoding a whole
 list as a single length-prefixed blob (e.g.
 `xdr.LedgerEntryChanges.fromXDR(feeMetaXdr, "base64")` on Horizon's
 `fee_meta_xdr`). That job moved to the generic `encodeArray` / `decodeArray`
-helpers, which work with any XDR class:
+helpers, which work with any generated XDR class:
 
 ```js
 const changes = xdr.decodeArray(xdr.LedgerEntryChange, feeMetaXdr, "base64");
 const blob = xdr.encodeArray(xdr.LedgerEntryChange, changes, "base64");
 ```
+
+Both throw a `TypeError` naming the argument if it has no static schema: the
+integer shims (§ 4) and the abstract base classes are not usable here.
 
 This is only for the bare typedef wire format. Lists exchanged as one base64
 string per element (RPC simulation auth entries, `operation.auth`) still use

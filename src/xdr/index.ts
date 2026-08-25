@@ -133,6 +133,9 @@ function makeBigIntShim(signed: boolean, bits: 64) {
   };
   Shim.MAX_VALUE = max;
   Shim.MIN_VALUE = min;
+  // Both factories declare `function Shim`, so without this every message that
+  // interpolates the type name reads "Shim".
+  Object.defineProperty(Shim, "name", { value: name });
   return new Proxy(Shim, {
     construct(_target, args) {
       // A construct trap must return an object, and a boxed bigint fails the
@@ -180,6 +183,9 @@ function makeIntShim(signed: boolean, bits: 32) {
   };
   Shim.MAX_VALUE = max;
   Shim.MIN_VALUE = min;
+  // Both factories declare `function Shim`, so without this every message that
+  // interpolates the type name reads "Shim".
+  Object.defineProperty(Shim, "name", { value: name });
   return new Proxy(Shim, {
     construct(_target, args) {
       // Without this trap, `new` would discard the primitive return value
