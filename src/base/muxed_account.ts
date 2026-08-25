@@ -167,6 +167,14 @@ export class MuxedAccount implements TransactionSource {
   }
 
   /**
+   * @deprecated Use {@link toXdrObject} instead.
+   * Deprecated in version v17.0.0
+   */
+  toXDRObject(): XdrMuxedAccount {
+    return this.toXdrObject();
+  }
+
+  /**
    * Checks whether two muxed accounts are equal by comparing their M-addresses.
    *
    * @param otherMuxedAccount - the MuxedAccount to compare against

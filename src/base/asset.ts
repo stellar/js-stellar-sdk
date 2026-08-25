@@ -159,6 +159,30 @@ export class Asset {
   }
 
   /**
+   * @deprecated Use {@link toXdrObject} instead.
+   * Deprecated in version v17.0.0
+   */
+  toXDRObject(): XdrAsset {
+    return this.toXdrObject();
+  }
+
+  /**
+   * @deprecated Use {@link toChangeTrustXdrObject} instead.
+   * Deprecated in version v17.0.0
+   */
+  toChangeTrustXDRObject(): ChangeTrustAsset {
+    return this.toChangeTrustXdrObject();
+  }
+
+  /**
+   * @deprecated Use {@link toTrustLineXdrObject} instead.
+   * Deprecated in version v17.0.0
+   */
+  toTrustLineXDRObject(): TrustLineAsset {
+    return this.toTrustLineXdrObject();
+  }
+
+  /**
    * Returns the would-be contract ID (`C...` format) for this asset on a given
    * network.
    *

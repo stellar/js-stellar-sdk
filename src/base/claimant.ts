@@ -161,6 +161,14 @@ export class Claimant {
   }
 
   /**
+   * @deprecated Use {@link toXdrObject} instead.
+   * Deprecated in version v17.0.0
+   */
+  toXDRObject(): XdrClaimant {
+    return this.toXdrObject();
+  }
+
+  /**
    * The destination account ID.
    */
   get destination() {
