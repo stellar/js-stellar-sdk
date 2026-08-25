@@ -4,9 +4,13 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Added
+- Every v16 XDR-acronym method spelling works again as a deprecated alias of its v17 name, easing migration. `toXDR()` / `fromXDR()` come back on `xdr.*` values (plus the static `validateXDR()`) and on `Transaction` / `FeeBumpTransaction`, `TransactionBuilder`, `contract.AssembledTransaction`, `Claimant`, and `SorobanDataBuilder`; `toXDRObject()` / `fromXDRObject()` come back on `Asset` (including `toChangeTrustXDRObject()` / `toTrustLineXDRObject()`), `Memo`, `Operation`, `Claimant`, `MuxedAccount`, `LiquidityPoolAsset`, and `LiquidityPoolId`. The aliases delegate to the v17 methods and keep their semantics: on `xdr.*` values, `toXDR()` returns a `Uint8Array` (not a `Buffer`) and `fromXDR()` requires a format for string input; the wrapper-class aliases behave as they did in v16. `toXdrObject()` / `fromXdrObject()` on `xdr.*` values are net-new methods with no legacy spelling, so they get no alias ([#1690](https://github.com/stellar/js-stellar-sdk/pull/1690)).
+
 ### Fixed
 * The type-generic `xdr` helpers — `encodeArray`, `decodeArray`, `decodeStream` and the `fromXdr` / `validateXdr` / `fromJson` statics — now throw a `TypeError` naming the helper and the argument when it has no static schema, such as an `Int64`/`Uint32` shim or an abstract base ([#1682](https://github.com/stellar/js-stellar-sdk/pull/1682)). `xdr.encodeArray(xdr.Uint32, [1])` previously threw `TypeError: v.toXdrObject is not a function`, and on an empty list returned a valid-looking 4-byte count. The four decode paths also name a missing `static fromXdrObject`, which only they need. Valid types are unaffected.
 * `xdr.Int32`, `xdr.Uint32`, `xdr.Int64` and `xdr.Uint64` report their XDR type name from `.name`, instead of the internal `"Shim"`.
+* `BytesValue#toString()` on the named byte aliases (`Hash`, `Signature`, `AssetCode4`, `AssetCode12`, `PoolId`, `ContractId`, …) now returns the class's declared encoding instead of base64 for every wrapper: `new xdr.AssetCode4("KHL1").toString()` is now `"KHL1"`, was `"S0hMMQ=="`. Use `.toXdr("base64")` for the wire form ([#1689](https://github.com/stellar/js-stellar-sdk/pull/1689)).
 
 ## [v17.0.0](https://github.com/stellar/js-stellar-sdk/compare/v16.2.0...v17.0.0)
 

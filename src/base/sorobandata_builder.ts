@@ -81,6 +81,14 @@ export class SorobanDataBuilder {
     }
   }
 
+  /**
+   * @deprecated Use {@link SorobanDataBuilder.fromXdr} instead.
+   * Deprecated in version v17.0.0
+   */
+  static fromXDR(data: Uint8Array | string): SorobanTransactionData {
+    return SorobanDataBuilder.fromXdr(data);
+  }
+
   private replaceResources(next: SorobanResources): void {
     this._data = new SorobanTransactionData({
       resources: next,

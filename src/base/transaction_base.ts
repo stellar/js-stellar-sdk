@@ -247,4 +247,12 @@ export class TransactionBase<
   toXdr(): string {
     return this.toEnvelope().toXdr("base64");
   }
+
+  /**
+   * @deprecated Use {@link toXdr} instead.
+   * Deprecated in version v17.0.0
+   */
+  toXDR(): string {
+    return this.toXdr();
+  }
 }

@@ -400,6 +400,7 @@ operations and need to [`TransactionBuilder.setSorobanData`](/reference/core-tra
 class SorobanDataBuilder {
   constructor(sorobanData?: string | Uint8Array<ArrayBufferLike> | SorobanTransactionData);
   static fromXdr(data: string | Uint8Array<ArrayBufferLike>): SorobanTransactionData;
+  static fromXDR(data: string | Uint8Array<ArrayBufferLike>): SorobanTransactionData;
   appendFootprint(readOnly: LedgerKey[], readWrite: LedgerKey[]): SorobanDataBuilder;
   build(): SorobanTransactionData;
   getFootprint(): LedgerFootprint;
@@ -460,6 +461,21 @@ static fromXdr(data: string | Uint8Array<ArrayBufferLike>): SorobanTransactionDa
 
 **Source:** [src/base/sorobandata_builder.ts:76](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L76)
 
+### `SorobanDataBuilder.fromXDR(data)`
+
+**Deprecated.** Use [`SorobanDataBuilder.fromXdr`](#sorobandatabuilderfromxdrdata) instead.
+Deprecated in version v17.0.0
+
+```ts
+static fromXDR(data: string | Uint8Array<ArrayBufferLike>): SorobanTransactionData;
+```
+
+**Parameters**
+
+- **`data`** — `string | Uint8Array<ArrayBufferLike>` (required)
+
+**Source:** [src/base/sorobandata_builder.ts:88](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L88)
+
 ### `sorobanDataBuilder.appendFootprint(readOnly, readWrite)`
 
 Appends the given ledger keys to the existing storage access footprint.
@@ -473,7 +489,7 @@ appendFootprint(readOnly: LedgerKey[], readWrite: LedgerKey[]): SorobanDataBuild
 - **`readOnly`** — `LedgerKey[]` (required) — read-only keys to add
 - **`readWrite`** — `LedgerKey[]` (required) — read-write keys to add
 
-**Source:** [src/base/sorobandata_builder.ts:139](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L139)
+**Source:** [src/base/sorobandata_builder.ts:147](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L147)
 
 ### `sorobanDataBuilder.build()`
 
@@ -483,7 +499,7 @@ Returns a copy of the final data structure.
 build(): SorobanTransactionData;
 ```
 
-**Source:** [src/base/sorobandata_builder.ts:220](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L220)
+**Source:** [src/base/sorobandata_builder.ts:228](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L228)
 
 ### `sorobanDataBuilder.getFootprint()`
 
@@ -493,7 +509,7 @@ Returns the storage access pattern.
 getFootprint(): LedgerFootprint;
 ```
 
-**Source:** [src/base/sorobandata_builder.ts:239](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L239)
+**Source:** [src/base/sorobandata_builder.ts:247](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L247)
 
 ### `sorobanDataBuilder.getReadOnly()`
 
@@ -503,7 +519,7 @@ Returns the read-only storage access pattern.
 getReadOnly(): LedgerKey[];
 ```
 
-**Source:** [src/base/sorobandata_builder.ts:229](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L229)
+**Source:** [src/base/sorobandata_builder.ts:237](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L237)
 
 ### `sorobanDataBuilder.getReadWrite()`
 
@@ -513,7 +529,7 @@ Returns the read-write storage access pattern.
 getReadWrite(): LedgerKey[];
 ```
 
-**Source:** [src/base/sorobandata_builder.ts:234](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L234)
+**Source:** [src/base/sorobandata_builder.ts:242](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L242)
 
 ### `sorobanDataBuilder.setFootprint(readOnly, readWrite)`
 
@@ -536,7 +552,7 @@ setFootprint(readOnly?: LedgerKey[] | null, readWrite?: LedgerKey[] | null): Sor
 - **`readOnly`** — `LedgerKey[] | null` (optional) — the set of ledger keys to set in the read-only portion of the transaction's `sorobanData`, or `null | undefined` to keep the existing keys
 - **`readWrite`** — `LedgerKey[] | null` (optional) — the set of ledger keys to set in the read-write portion of the transaction's `sorobanData`, or `null | undefined` to keep the existing keys
 
-**Source:** [src/base/sorobandata_builder.ts:163](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L163)
+**Source:** [src/base/sorobandata_builder.ts:171](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L171)
 
 ### `sorobanDataBuilder.setReadOnly(readOnly)`
 
@@ -550,7 +566,7 @@ setReadOnly(readOnly?: LedgerKey[]): SorobanDataBuilder;
 
 - **`readOnly`** — `LedgerKey[]` (optional) — read-only keys in the access footprint
 
-**Source:** [src/base/sorobandata_builder.ts:182](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L182)
+**Source:** [src/base/sorobandata_builder.ts:190](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L190)
 
 ### `sorobanDataBuilder.setReadWrite(readWrite)`
 
@@ -564,7 +580,7 @@ setReadWrite(readWrite?: LedgerKey[]): SorobanDataBuilder;
 
 - **`readWrite`** — `LedgerKey[]` (optional) — read-write keys in the access footprint
 
-**Source:** [src/base/sorobandata_builder.ts:202](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L202)
+**Source:** [src/base/sorobandata_builder.ts:210](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L210)
 
 ### `sorobanDataBuilder.setResourceFee(fee)`
 
@@ -578,7 +594,7 @@ setResourceFee(fee: IntLike): SorobanDataBuilder;
 
 - **`fee`** — `IntLike` (required) — the resource fee to set (int64)
 
-**Source:** [src/base/sorobandata_builder.ts:97](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L97)
+**Source:** [src/base/sorobandata_builder.ts:105](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L105)
 
 ### `sorobanDataBuilder.setResources(cpuInstrs, diskReadBytes, writeBytes)`
 
@@ -597,7 +613,7 @@ setResources(cpuInstrs: number, diskReadBytes: number, writeBytes: number): Soro
 - **`diskReadBytes`** — `number` (required) — number of bytes being read from disk
 - **`writeBytes`** — `number` (required) — number of bytes being written to disk/memory
 
-**Source:** [src/base/sorobandata_builder.ts:116](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L116)
+**Source:** [src/base/sorobandata_builder.ts:124](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/sorobandata_builder.ts#L124)
 
 ## authorizeEntry
 

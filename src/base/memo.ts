@@ -318,4 +318,20 @@ export class Memo<T extends MemoType = MemoType> {
 
     throw new Error("Unknown type");
   }
+
+  /**
+   * @deprecated Use {@link toXdrObject} instead.
+   * Deprecated in version v17.0.0
+   */
+  toXDRObject(): XdrMemo {
+    return this.toXdrObject();
+  }
+
+  /**
+   * @deprecated Use {@link Memo.fromXdrObject} instead.
+   * Deprecated in version v17.0.0
+   */
+  static fromXDRObject(object: XdrMemo): Memo {
+    return Memo.fromXdrObject(object);
+  }
 }
