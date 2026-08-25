@@ -60,6 +60,12 @@ export abstract class BytesValue<Tag extends string = string> extends XdrValue {
     this.value = bytes;
   }
 
+  /**
+   * Render the bytes in the class's declared `encoding`.
+   *
+   * For the XDR wire form regardless of the declared encoding, use
+   * {@link XdrValue.toXdr | `toXdr("base64")`}.
+   */
   toString(): string {
     const ctor = this.constructor as typeof BytesValue & {
       readonly encoding: BytesEncoding;
