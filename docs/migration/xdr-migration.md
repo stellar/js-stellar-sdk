@@ -27,14 +27,15 @@ way this migration goes wrong.
 The all-caps acronyms in method names normalize to single-initial-cap form. This
 affects application code that called the renamed methods directly.
 
-**True renames**, where the legacy method existed with the all-caps name. Three
-exceptions keep working: on `xdr.*` values, `toXDR()` and the static `fromXDR()`
-and `validateXDR()` remain as deprecated aliases of the new names. The aliases
+**True renames**, where the legacy method existed with the all-caps name. A few
+exceptions keep working as deprecated aliases of the new names: on `xdr.*`
+values, `toXDR()` and the static `fromXDR()` and `validateXDR()`; and on
+`Transaction` / `FeeBumpTransaction`, `toXDR()`. On `xdr.*` values the aliases
 have the new semantics (§ 7): `toXDR()` returns a `Uint8Array`, not a `Buffer`,
-so `.toXDR().toString("base64")` still breaks. Every other row, and every
-wrapper-class rename below, kept no alias, so those call sites are a hard
-failure (TypeScript error; `TypeError: … is not a function` in plain
-JavaScript):
+so `.toXDR().toString("base64")` still breaks. `Transaction.toXDR()` returns a
+base64 string, as it always did. Every other row, and every other wrapper-class
+rename below, kept no alias, so those call sites are a hard failure (TypeScript
+error; `TypeError: … is not a function` in plain JavaScript):
 
 | Before                           | After                            |
 | -------------------------------- | -------------------------------- |
@@ -52,7 +53,7 @@ full list of renamed public methods:
 
 | Class                                   | Renamed                                                                   |
 | --------------------------------------- | ------------------------------------------------------------------------- |
-| `Transaction`, `FeeBumpTransaction`     | `toXDR()` → `toXdr()`                                                     |
+| `Transaction`, `FeeBumpTransaction`     | `toXDR()` → `toXdr()` (deprecated alias kept)                             |
 | `TransactionBuilder`                    | `fromXDR()` → `fromXdr()`                                                 |
 | `contract.AssembledTransaction`         | `toXDR()` / `fromXDR()` → `toXdr()` / `fromXdr()`                         |
 | `SorobanDataBuilder`                    | `fromXDR()` → `fromXdr()`                                                 |
@@ -628,7 +629,8 @@ new xdr.Int32(v)             →   Number(v)
 
 // ============== METHODS (renames) ==============
 // toXDR/fromXDR/validateXDR survive on xdr.* values as deprecated aliases
-// (with the new Uint8Array semantics); the wrapper classes have no alias.
+// (with the new Uint8Array semantics), and Transaction/FeeBumpTransaction
+// keep toXDR(); the other wrapper classes have no alias.
 .toXDR()                     →   .toXdr()
 .toXDR().toString("base64")  →   .toXdr("base64")
 .fromXDR(buf, "base64")      →   .fromXdr(buf, "base64")
