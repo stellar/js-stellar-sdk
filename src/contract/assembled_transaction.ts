@@ -548,6 +548,24 @@ export class AssembledTransaction<T> {
     return txn;
   }
 
+  /**
+   * @deprecated Use {@link toXdr} instead.
+   * Deprecated in version v17.0.0
+   */
+  toXDR(): string {
+    return this.toXdr();
+  }
+
+  /**
+   * @deprecated Use {@link AssembledTransaction.fromXdr} instead.
+   * Deprecated in version v17.0.0
+   */
+  static fromXDR<T>(
+    ...args: Parameters<typeof AssembledTransaction.fromXdr<T>>
+  ): AssembledTransaction<T> {
+    return AssembledTransaction.fromXdr(...args);
+  }
+
   private handleWalletError(error?: WalletError): void {
     if (!error) return;
 

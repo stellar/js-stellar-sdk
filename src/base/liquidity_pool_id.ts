@@ -52,6 +52,14 @@ export class LiquidityPoolId {
   }
 
   /**
+   * @deprecated Use {@link toXdrObject} instead.
+   * Deprecated in version v17.0.0
+   */
+  toXDRObject(): TrustLineAsset {
+    return this.toXdrObject();
+  }
+
+  /**
    * Returns the liquidity pool ID as a hex string.
    */
   getLiquidityPoolId(): string {

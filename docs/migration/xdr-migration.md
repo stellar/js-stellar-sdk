@@ -27,9 +27,13 @@ way this migration goes wrong.
 The all-caps acronyms in method names normalize to single-initial-cap form. This
 affects application code that called the renamed methods directly.
 
-**True renames**, where the legacy method existed with the all-caps name. None of
-these kept a back-compat alias, so every call site is a hard failure (TypeScript
-error; `TypeError: … is not a function` in plain JavaScript):
+**True renames**, where the legacy method existed with the all-caps name. Every
+one of these keeps working as a deprecated alias of the new name, so existing
+call sites compile and run — but on `xdr.*` values the aliases have the new
+semantics (§ 7): `toXDR()` returns a `Uint8Array`, not a `Buffer`, so
+`.toXDR().toString("base64")` still breaks. The wrapper-class aliases behave as
+they did in v16 (`Transaction.toXDR()` returns a base64 string). Rename the
+calls when you touch them:
 
 | Before                           | After                            |
 | -------------------------------- | -------------------------------- |
@@ -42,8 +46,9 @@ error; `TypeError: … is not a function` in plain JavaScript):
 | `asset.toTrustLineXDRObject()`   | `asset.toTrustLineXdrObject()`   |
 
 This reaches well beyond the `xdr` namespace: the wrapper classes you use every
-day carry these methods too, including some of the SDK's most-called APIs. The
-full list of renamed public methods:
+day carry these methods too, including some of the SDK's most-called APIs. Each
+keeps its all-caps spelling as a deprecated alias. The full list of renamed
+public methods:
 
 | Class                                   | Renamed                                                                   |
 | --------------------------------------- | ------------------------------------------------------------------------- |
@@ -483,6 +488,11 @@ string. The new `toXdr()` returns `Uint8Array` by default; `toXdr("base64")` or
 pattern.** That was a Buffer idiom and will now produce comma-separated bytes
 instead of base64.
 
+`toXDR()` and `fromXDR()` still exist on `xdr.*` values as deprecated aliases,
+but they delegate to the new methods and share their behavior — including the
+`Uint8Array` return above, so the `.toString("base64")` pattern breaks even
+through the old name. Rename the calls when you touch them.
+
 ```ts
 // Before — relied on Buffer.toString("base64")
 tx.toEnvelope().toXDR().toString("base64");
@@ -617,6 +627,10 @@ new xdr.Uint64(v)            →   BigInt(v)
 new xdr.Int32(v)             →   Number(v)
 
 // ============== METHODS (renames) ==============
+// Every legacy all-caps spelling (toXDR/fromXDR/validateXDR/toXDRObject/…)
+// survives as a deprecated alias — on xdr.* values with the new Uint8Array
+// semantics. Note xdr.* values' toXdrObject/fromXdrObject are net-new and
+// never had an all-caps form.
 .toXDR()                     →   .toXdr()
 .toXDR().toString("base64")  →   .toXdr("base64")
 .fromXDR(buf, "base64")      →   .fromXdr(buf, "base64")

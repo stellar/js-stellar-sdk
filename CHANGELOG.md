@@ -4,6 +4,9 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Added
+- Every v16 XDR-acronym method spelling works again as a deprecated alias of its v17 name, easing migration. `toXDR()` / `fromXDR()` come back on `xdr.*` values (plus the static `validateXDR()`) and on `Transaction` / `FeeBumpTransaction`, `TransactionBuilder`, `contract.AssembledTransaction`, `Claimant`, and `SorobanDataBuilder`; `toXDRObject()` / `fromXDRObject()` come back on `Asset` (including `toChangeTrustXDRObject()` / `toTrustLineXDRObject()`), `Memo`, `Operation`, `Claimant`, `MuxedAccount`, `LiquidityPoolAsset`, and `LiquidityPoolId`. The aliases delegate to the v17 methods and keep their semantics: on `xdr.*` values, `toXDR()` returns a `Uint8Array` (not a `Buffer`) and `fromXDR()` requires a format for string input; the wrapper-class aliases behave as they did in v16. `toXdrObject()` / `fromXdrObject()` on `xdr.*` values are net-new methods with no legacy spelling, so they get no alias ([#1690](https://github.com/stellar/js-stellar-sdk/pull/1690)).
+
 ### Fixed
 * `BytesValue#toString()` on the named byte aliases (`Hash`, `Signature`, `AssetCode4`, `AssetCode12`, `PoolId`, `ContractId`, …) now returns the class's declared encoding instead of base64 for every wrapper: `new xdr.AssetCode4("KHL1").toString()` is now `"KHL1"`, was `"S0hMMQ=="`. Use `.toXdr("base64")` for the wire form ([#1689](https://github.com/stellar/js-stellar-sdk/pull/1689)).
 

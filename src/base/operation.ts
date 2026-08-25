@@ -138,6 +138,16 @@ export const AuthClawbackEnabledFlag = 1 << 3;
  */
 export class Operation {
   /**
+   * @deprecated Use {@link Operation.fromXdrObject} instead.
+   * Deprecated in version v17.0.0
+   */
+  static fromXDRObject<T extends OperationRecord = OperationRecord>(
+    operation: XdrOperation,
+  ): T {
+    return Operation.fromXdrObject(operation);
+  }
+
+  /**
    * Deconstructs the raw XDR operation object into the structured object that
    * was used to create the operation (i.e. the `opts` parameter to most ops).
    *

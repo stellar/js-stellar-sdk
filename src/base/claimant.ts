@@ -141,6 +141,14 @@ export class Claimant {
   }
 
   /**
+   * @deprecated Use {@link Claimant.fromXdr} instead.
+   * Deprecated in version v17.0.0
+   */
+  static fromXDR(claimantXdr: XdrClaimant): Claimant {
+    return Claimant.fromXdr(claimantXdr);
+  }
+
+  /**
    * Returns the xdr object for this claimant.
    */
   toXdrObject(): XdrClaimant {
@@ -150,6 +158,14 @@ export class Claimant {
     });
 
     return XdrClaimant.claimantTypeV0(claimant);
+  }
+
+  /**
+   * @deprecated Use {@link toXdrObject} instead.
+   * Deprecated in version v17.0.0
+   */
+  toXDRObject(): XdrClaimant {
+    return this.toXdrObject();
   }
 
   /**
