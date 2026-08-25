@@ -2,6 +2,11 @@
 
 A breaking change will get clearly marked in this log.
 
+## Unreleased
+
+### Fixed
+* Named byte aliases (`Hash`, `Signature`, `AssetCode4`, `AssetCode12`, `PoolId`, `ContractId`, …) now honor their declared string encoding in `toString()`, matching what the constructor accepts: hex classes return hex, and the asset-code classes return the code as text (`new xdr.AssetCode4("KHL1").toString()` is now `"KHL1"`, was the base64 `"S0hMMQ=="`). Previously every wrapper inherited the base-class behavior and returned base64 regardless of its declared encoding, so a `Hash` built from a hex string handed back base64 with no error. Code that relied on the base64 output should use `.toXdr("base64")` ([#1687](https://github.com/stellar/js-stellar-sdk/issues/1687)).
+
 ## [v17.0.0](https://github.com/stellar/js-stellar-sdk/compare/v16.2.0...v17.0.0)
 
 ### Breaking Changes

@@ -1,6 +1,6 @@
-import { stringToUint8Array } from "uint8array-extras";
+import { stringToUint8Array, uint8ArrayToString } from "uint8array-extras";
 import { XdrError } from "@stellar/js-xdr";
-import { XdrValue, decodeBytes } from "./xdr-value.js";
+import { XdrValue, decodeBytes, encodeBytes } from "./xdr-value.js";
 
 export type BytesEncoding = "hex" | "base64" | "ascii";
 
@@ -11,6 +11,11 @@ function decodeBytesInput(
   if (input instanceof Uint8Array) return input;
   if (encoding === "ascii") return stringToUint8Array(input);
   return decodeBytes(input, encoding);
+}
+
+function encodeBytesOutput(bytes: Uint8Array, encoding: BytesEncoding): string {
+  if (encoding === "ascii") return uint8ArrayToString(bytes);
+  return encodeBytes(bytes, encoding);
 }
 
 /**
@@ -53,6 +58,13 @@ export abstract class BytesValue<Tag extends string = string> extends XdrValue {
       );
     }
     this.value = bytes;
+  }
+
+  toString(): string {
+    const ctor = this.constructor as typeof BytesValue & {
+      readonly encoding: BytesEncoding;
+    };
+    return encodeBytesOutput(this.value, ctor.encoding);
   }
 
   toXdrObject(): Uint8Array {
