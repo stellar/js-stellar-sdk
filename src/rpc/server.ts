@@ -164,6 +164,31 @@ function findCreatedAccountSequenceInTransactionMeta(
  * `scSpecTypeU32` becomes `U32` and `scSpecTypeAddress` becomes `Address`.
  * User-defined types (structs/enums/unions) are shown by their declared name.
  */
+/**
+ * Whether a Friendbot 400 means "this account already has funds".
+ *
+ * Friendbot answers a request for an already-funded account with a
+ * human-readable `detail`, currently `"account already funded to starting
+ * balance"`. It does not return `createAccountAlreadyExist`: that is the name
+ * of the XDR `CreateAccountResultCode` enum member, which never reaches the
+ * HTTP body.
+ *
+ * The match is deliberately loose because the wording is Friendbot's, not part
+ * of any spec, and it has changed before. Matching the shape of the phrase
+ * rather than one exact string keeps this working when the wording shifts
+ * again. The legacy enum name stays accepted so any caller or fixture still
+ * producing it keeps working.
+ */
+function isAlreadyFundedDetail(detail: unknown): boolean {
+  if (typeof detail !== "string") {
+    return false;
+  }
+  return (
+    /already\s+(funded|exists?)/i.test(detail) ||
+    detail.includes("createAccountAlreadyExist")
+  );
+}
+
 function contractSpecTypeName(td: ScSpecTypeDef): string {
   if (td.type === "scSpecTypeUdt") {
     return td.value.name.toString();
@@ -1654,13 +1679,12 @@ export class RpcServer {
       const sequence = findCreatedAccountSequenceInTransactionMeta(meta);
       return new Account(account, sequence);
     } catch (error: any) {
-      if (error.response?.status === 400) {
-        if (
-          error.response.data?.detail?.includes("createAccountAlreadyExist")
-        ) {
-          // Account already exists, load the sequence number
-          return this.getAccount(account);
-        }
+      if (
+        error.response?.status === 400 &&
+        isAlreadyFundedDetail(error.response.data?.detail)
+      ) {
+        // Account already exists, load the sequence number
+        return this.getAccount(account);
       }
       throw error;
     }
