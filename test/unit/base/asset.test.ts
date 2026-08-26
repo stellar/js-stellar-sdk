@@ -282,6 +282,21 @@ describe("Asset", () => {
       expect(asset.getCode()).toBe(assetCode);
       expect(asset.getIssuer()).toBe(ISSUER);
     });
+
+    it("preserves an alphanum12 arm when the decoded code is short", () => {
+      const assetCode = "USD";
+      const assetType = new xdr.AlphaNum12({
+        assetCode: stringToUint8Array(assetCode.padEnd(12, "\0")),
+        issuer: Keypair.fromPublicKey(ISSUER).xdrAccountId(),
+      });
+      const assetXdr = xdr.Asset.assetTypeCreditAlphanum12(assetType);
+
+      const asset = Asset.fromOperation(assetXdr);
+
+      expect(asset.getCode()).toBe(assetCode);
+      expect(asset.getAssetType()).toBe("credit_alphanum12");
+      expect(asset.toXdrObject().toXdr()).toEqual(assetXdr.toXdr());
+    });
   });
 
   describe("toString()", () => {
@@ -369,6 +384,21 @@ describe("Asset", () => {
       const lower = new Asset("a", issuer);
 
       expect(Asset.compare(upper, lower)).toBe(-1);
+    });
+
+    it("distinguishes a short alphanum12 asset from an alphanum4 asset", () => {
+      const assetType = new xdr.AlphaNum12({
+        assetCode: stringToUint8Array("USD".padEnd(12, "\0")),
+        issuer: Keypair.fromPublicKey(ISSUER).xdrAccountId(),
+      });
+      const alphanum12 = Asset.fromOperation(
+        xdr.Asset.assetTypeCreditAlphanum12(assetType),
+      );
+      const alphanum4 = new Asset("USD", ISSUER);
+
+      expect(alphanum12.equals(alphanum4)).toBe(false);
+      expect(Asset.compare(alphanum4, alphanum12)).toBe(-1);
+      expect(Asset.compare(alphanum12, alphanum4)).toBe(1);
     });
   });
 

@@ -36,6 +36,8 @@ export namespace AssetType {
   export type liquidityPoolShares = "liquidity_pool_shares";
 }
 
+const decodedAssetTypes = new WeakMap<Asset, XdrAssetType>();
+
 interface XdrAssetConstructor<TNative, TAlpha4, TAlpha12> {
   assetTypeNative(): TNative;
   assetTypeCreditAlphanum4(value: AlphaNum4): TAlpha4;
@@ -123,14 +125,17 @@ export class Asset {
           "\0",
         ) as string;
         return new this(code, issuer);
-      case "assetTypeCreditAlphanum12":
+      case "assetTypeCreditAlphanum12": {
         anum = assetXdr.alphaNum12;
         issuer = StrKey.encodeEd25519PublicKey(anum.issuer.ed25519.toBytes());
         code = trimEnd(
           uint8ArrayToString(anum.assetCode.toBytes()),
           "\0",
         ) as string;
-        return new this(code, issuer);
+        const asset = new this(code, issuer);
+        decodedAssetTypes.set(asset, XdrAssetType.assetTypeCreditAlphanum12);
+        return asset;
+      }
       default:
         // @ts-expect-error this should be unreachable if the XDR types are correct, but we throw just in case
         throw new Error("Invalid asset type received: " + assetXdr.type);
@@ -223,7 +228,10 @@ export class Asset {
       throw new Error("Issuer cannot be null for non-native asset");
     }
 
-    if (this.code.length <= 4) {
+    if (
+      this.getRawAssetType().value ===
+      XdrAssetType.assetTypeCreditAlphanum4.value
+    ) {
       const assetType = new AlphaNum4({
         assetCode: stringToUint8Array(this.code.padEnd(4, "\0")),
         issuer: Keypair.fromPublicKey(this.issuer).xdrAccountId(),
@@ -288,6 +296,11 @@ export class Asset {
       return XdrAssetType.assetTypeNative;
     }
 
+    const decodedAssetType = decodedAssetTypes.get(this);
+    if (decodedAssetType) {
+      return decodedAssetType;
+    }
+
     if (this.code.length <= 4) {
       return XdrAssetType.assetTypeCreditAlphanum4;
     }
@@ -308,7 +321,11 @@ export class Asset {
    * @param asset - Asset to compare
    */
   equals(asset: Asset): boolean {
-    return this.code === asset.getCode() && this.issuer === asset.getIssuer();
+    return (
+      this.code === asset.getCode() &&
+      this.issuer === asset.getIssuer() &&
+      this.getRawAssetType().value === asset.getRawAssetType().value
+    );
   }
 
   /**
