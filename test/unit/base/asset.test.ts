@@ -282,6 +282,21 @@ describe("Asset", () => {
       expect(asset.getCode()).toBe(assetCode);
       expect(asset.getIssuer()).toBe(ISSUER);
     });
+
+    it("preserves an alphanum12 arm when the decoded code is short", () => {
+      const assetCode = "USD";
+      const assetType = new xdr.AlphaNum12({
+        assetCode: stringToUint8Array(assetCode.padEnd(12, "\0")),
+        issuer: Keypair.fromPublicKey(ISSUER).xdrAccountId(),
+      });
+      const assetXdr = xdr.Asset.assetTypeCreditAlphanum12(assetType);
+
+      const asset = Asset.fromOperation(assetXdr);
+
+      expect(asset.getCode()).toBe(assetCode);
+      expect(asset.getAssetType()).toBe("credit_alphanum12");
+      expect(asset.toXdrObject().toXdr()).toEqual(assetXdr.toXdr());
+    });
   });
 
   describe("toString()", () => {
@@ -410,6 +425,33 @@ describe("Asset", () => {
       expect(asset.isNative()).toBe(true);
       expect(asset.getIssuer()).toBeUndefined();
     });
+
+    it("keeps the JSON shape to code and issuer", () => {
+      expect(JSON.parse(JSON.stringify(new Asset("USD", ISSUER)))).toEqual({
+        code: "USD",
+        issuer: ISSUER,
+      });
+    });
+
+    it("derives the asset type on a rehydrated instance", () => {
+      const rehydrate = (asset: Asset): Asset =>
+        Object.assign(
+          Object.create(Asset.prototype),
+          JSON.parse(JSON.stringify(asset)),
+        );
+
+      const credit4 = rehydrate(new Asset("USD", ISSUER));
+      expect(credit4.getAssetType()).toBe("credit_alphanum4");
+      expect(credit4.equals(new Asset("USD", ISSUER))).toBe(true);
+      expect(credit4.toXdrObject().toXdr()).toEqual(
+        new Asset("USD", ISSUER).toXdrObject().toXdr(),
+      );
+
+      const credit12 = rehydrate(new Asset("LONGCODE", ISSUER));
+      expect(credit12.getAssetType()).toBe("credit_alphanum12");
+
+      expect(rehydrate(Asset.native()).getAssetType()).toBe("native");
+    });
   });
 
   describe("isNative()", () => {
@@ -443,6 +485,21 @@ describe("Asset", () => {
 
     it("returns true for two native assets", () => {
       expect(Asset.native().equals(Asset.native())).toBe(true);
+    });
+
+    it("distinguishes a short alphanum12 asset from an alphanum4 asset", () => {
+      const assetType = new xdr.AlphaNum12({
+        assetCode: stringToUint8Array("USD".padEnd(12, "\0")),
+        issuer: Keypair.fromPublicKey(ISSUER).xdrAccountId(),
+      });
+      const alphanum12 = Asset.fromOperation(
+        xdr.Asset.assetTypeCreditAlphanum12(assetType),
+      );
+      const alphanum4 = new Asset("USD", ISSUER);
+
+      expect(alphanum12.equals(alphanum4)).toBe(false);
+      expect(Asset.compare(alphanum4, alphanum12)).toBe(-1);
+      expect(Asset.compare(alphanum12, alphanum4)).toBe(1);
     });
   });
 
