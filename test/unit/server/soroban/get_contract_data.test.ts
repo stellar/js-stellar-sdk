@@ -117,6 +117,56 @@ describe("Server#getContractData", () => {
     });
   });
 
+  // Absence and "could not ask" are different answers. Callers branch on the
+  // first to drive deployment status, eviction detection and cache
+  // invalidation; for them a transport error misread as 404 is a wrong state
+  // transition rather than a retry. Public RPC endpoints rate-limit routinely,
+  // so this fires on ordinary polling, not on an exotic edge.
+  it.each([
+    [
+      "a rate limit",
+      { response: { status: 429, data: { error: "too many requests" } } },
+    ],
+    [
+      "a server error",
+      { response: { status: 503, data: { error: "unavailable" } } },
+    ],
+    [
+      "a network failure",
+      Object.assign(new Error("socket hang up"), { code: "ECONNRESET" }),
+    ],
+  ])(
+    "propagates %s instead of reporting a missing entry",
+    async (_label, transportError) => {
+      mockPost.mockRejectedValue(transportError);
+
+      await expect(
+        server.getContractData(address, key, Durability.Persistent),
+      ).rejects.toBe(transportError);
+    },
+  );
+
+  it("still reports 404 when the RPC answers with no entry", async () => {
+    mockPost.mockResolvedValue({ data: { result: { entries: [] } } });
+
+    await expect(
+      server.getContractData(address, key, Durability.Persistent),
+    ).rejects.toMatchObject({ code: 404 });
+  });
+
+  it("reports 404 when the RPC answers with more than one entry", async () => {
+    const raw = {
+      key: ledgerKey.toXdr("base64"),
+      xdr: ledgerEntry.toXdr("base64"),
+      lastModifiedLedgerSeq: 1,
+    };
+    mockPost.mockResolvedValue({ data: { result: { entries: [raw, raw] } } });
+
+    await expect(
+      server.getContractData(address, key, Durability.Persistent),
+    ).rejects.toMatchObject({ code: 404 });
+  });
+
   it("fails on hex address (was deprecated now unsupported)", async () => {
     const hexAddress = `${"0".repeat(63)}1`;
     await expect(
