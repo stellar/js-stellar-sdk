@@ -193,7 +193,9 @@ export class BindingGenerator {
    *
    * Retrieves the contract's WASM from the network using the contract ID,
    * then parses the specification. If the contract is a Stellar Asset Contract (SAC),
-   * returns a generator with the standard SAC specification.
+   * returns a generator with the standard SAC specification. If the contract was
+   * created from a CAP-85 external executable reference, the reference is
+   * resolved to a Wasm hash first and the spec is read from that Wasm.
    *
    * @param contractId - The contract ID (C... address) of the deployed contract
    * @param rpcServer - The Stellar RPC server instance

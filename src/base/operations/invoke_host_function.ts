@@ -122,28 +122,72 @@ export function invokeContractFunction(
 }
 
 /**
- * Returns an operation that creates a custom WASM contract and atomically
- * invokes its constructor.
+ * Returns an operation that creates a custom contract and atomically invokes
+ * its constructor.
  *
+ * The contract's executable is either the hash of uploaded WASM (`wasmHash`)
+ * or a CAP-85 external executable reference (`externalRef`), naming an owner
+ * contract and the tag under which it publishes the WASM hash. Exactly one of
+ * the two must be given.
  *
  * @param opts - the set of parameters
- *   - `address`: the contract uploader address
- *   - `wasmHash`: the SHA-256 hash of the contract WASM you're uploading
+ *   - `address`: the contract deployer address
+ *   - `wasmHash`: the SHA-256 hash of the contract WASM you're deploying
+ *   - `externalRef`: an external executable reference to deploy from instead,
+ *     as either `{owner, tag}` or an {@link xdr.ContractExecutableExternalRef}
  *   - `constructorArgs`: the optional parameters to pass to the constructor
  *   - `salt`: an optional, 32-byte salt to distinguish deployment instances
  *   - `auth`: an optional list outlining the tree of authorizations required for the call
  *   - `source`: an optional source account
  *
  * @see https://soroban.stellar.org/docs/fundamentals-and-concepts/invoking-contracts-with-transactions#function
+ * @see https://stellar.org/protocol/cap-85
  */
 export function createCustomContract(
   opts: CreateCustomContractOpts,
 ): xdr.Operation<InvokeHostFunctionResult> {
   const salt = Buffer.from(opts.salt || getSalty());
 
-  if (!opts.wasmHash || opts.wasmHash.length !== 32) {
-    throw new TypeError(
-      `expected hash(contract WASM) in 'opts.wasmHash', got ${String(opts.wasmHash)}`,
+  let executable: xdr.ContractExecutable;
+  if (opts.externalRef !== undefined) {
+    if (opts.wasmHash !== undefined) {
+      throw new TypeError(
+        `Must provide only one of: 'opts.wasmHash' or 'opts.externalRef'`,
+      );
+    }
+
+    let ref = opts.externalRef;
+    if (!(ref instanceof xdr.ContractExecutableExternalRef)) {
+      const owner =
+        ref.owner instanceof Address ? ref.owner : new Address(ref.owner);
+      ref = new xdr.ContractExecutableExternalRef({
+        executableOwner: owner.toScAddress(),
+        tag: typeof ref.tag === "string" ? ref.tag : Buffer.from(ref.tag),
+      });
+    }
+
+    // Only a contract can hold the persistent tag entry that names the WASM,
+    // so any other owner is unresolvable and the deploy would fail on-chain.
+    if (
+      ref.executableOwner().switch() !==
+      xdr.ScAddressType.scAddressTypeContract()
+    ) {
+      throw new TypeError(
+        `expected contract address in 'opts.externalRef.owner', got ` +
+          Address.fromScAddress(ref.executableOwner()).toString(),
+      );
+    }
+
+    executable = xdr.ContractExecutable.contractExecutableExternalRef(ref);
+  } else {
+    if (!opts.wasmHash || opts.wasmHash.length !== 32) {
+      throw new TypeError(
+        `expected hash(contract WASM) in 'opts.wasmHash', got ${String(opts.wasmHash)}`,
+      );
+    }
+
+    executable = xdr.ContractExecutable.contractExecutableWasm(
+      Buffer.from(opts.wasmHash),
     );
   }
 
@@ -156,9 +200,7 @@ export function createCustomContract(
   return invokeHostFunction({
     func: xdr.HostFunction.hostFunctionTypeCreateContractV2(
       new xdr.CreateContractArgsV2({
-        executable: xdr.ContractExecutable.contractExecutableWasm(
-          Buffer.from(opts.wasmHash),
-        ),
+        executable,
         contractIdPreimage:
           xdr.ContractIdPreimage.contractIdPreimageFromAddress(
             new xdr.ContractIdPreimageFromAddress({

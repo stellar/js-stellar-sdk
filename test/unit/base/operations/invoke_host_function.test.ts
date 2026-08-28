@@ -91,6 +91,100 @@ describe("Operation", () => {
         expect(expectDefined(decodedOp.auth)).toHaveLength(0);
       });
 
+      describe("lets you create contracts from an external executable ref", () => {
+        const ownerId =
+          "CCJZ5DGASBWQXR5MPFCJXMBI333XE5U3FSJTNQU7RIKE3P5GN2K2WYD5";
+
+        const decodeExternalRef = (
+          op: xdr.Operation,
+        ): xdr.ContractExecutableExternalRef => {
+          const decodedOp = expectOperationType(
+            Operation.fromXDRObject(xdr.Operation.fromXDR(op.toXDR())),
+            "invokeHostFunction",
+          );
+          expect(decodedOp.func.switch().name).toBe(
+            "hostFunctionTypeCreateContractV2",
+          );
+          const executable = decodedOp.func.createContractV2().executable();
+          expect(executable.switch().name).toBe(
+            "contractExecutableExternalRef",
+          );
+          return executable.externalRef();
+        };
+
+        const cases: [string, Address | string, string | Buffer][] = [
+          ["a strkey owner and text tag", ownerId, "my-executable"],
+          [
+            "an Address owner and text tag",
+            new Address(ownerId),
+            "my-executable",
+          ],
+          [
+            "a binary tag",
+            ownerId,
+            Buffer.from([0xc0, 0xff, 0xee, 0x00, 0x01]),
+          ],
+        ];
+
+        cases.forEach(([label, owner, tag]) => {
+          it(`with ${label}`, () => {
+            const h = hash(Buffer.from("random stuff"));
+            const op = Operation.createCustomContract({
+              address: c.address(),
+              externalRef: { owner, tag },
+              salt: h,
+            });
+            expect(op.body().switch().name).toBe("invokeHostFunction");
+
+            const ref = decodeExternalRef(op);
+            expect(
+              Address.fromScAddress(ref.executableOwner()).toString(),
+            ).toBe(ownerId);
+            expect(Buffer.from(ref.tag()).equals(Buffer.from(tag))).toBe(true);
+          });
+        });
+
+        it("accepts a ContractExecutableExternalRef directly", () => {
+          const ref = new xdr.ContractExecutableExternalRef({
+            executableOwner: new Address(ownerId).toScAddress(),
+            tag: "my-executable",
+          });
+          const op = Operation.createCustomContract({
+            address: c.address(),
+            externalRef: ref,
+            salt: hash(Buffer.from("random stuff")),
+          });
+
+          const decodedRef = decodeExternalRef(op);
+          expect(decodedRef.tag().toString()).toBe("my-executable");
+        });
+
+        it("throws when both wasmHash and externalRef are given", () => {
+          expect(() =>
+            Operation.createCustomContract({
+              address: c.address(),
+              wasmHash: hash(Buffer.from("random stuff")),
+              externalRef: { owner: ownerId, tag: "my-executable" },
+            } as unknown as Parameters<
+              typeof Operation.createCustomContract
+            >[0]),
+          ).toThrow(/Must provide only one of/);
+        });
+
+        it("throws when the owner is not a contract", () => {
+          expect(() =>
+            Operation.createCustomContract({
+              address: c.address(),
+              externalRef: {
+                owner:
+                  "GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGSNFHEYVXM3XOJMDS674JZ",
+                tag: "my-executable",
+              },
+            }),
+          ).toThrow(/expected contract address/);
+        });
+      });
+
       describe("lets you wrap tokens", () => {
         [
           "USD:GCP2QKBFLLEEWYVKAIXIJIJNCZ6XEBIE4PCDB6BF3GUB6FGE2RQ3HDVP",

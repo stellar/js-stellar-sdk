@@ -28,6 +28,7 @@
       "TradesCallBuilder": "#",
       "TransactionBuilderOptions": "#",
       "TransactionCallBuilder": "#",
+      "xdr.ContractExecutableExternalRef": "#",
       "xdr.DiagnosticEvent": "#",
       "xdr.ExtendFootprintTtlOp": "#",
       "xdr.HashIdPreimage": "#",

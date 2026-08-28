@@ -41,6 +41,7 @@ export { extendFootprintTtl } from "./extend_footprint_ttl.js";
 export { restoreFootprint } from "./restore_footprint.js";
 export type {
   AuthFlag,
+  ExternalExecutableRef,
   TrustLineFlag,
   OperationOptions,
   OperationType,

@@ -61,7 +61,9 @@ Creates a BindingGenerator by fetching contract info from a deployed contract ID
 
 Retrieves the contract's WASM from the network using the contract ID,
 then parses the specification. If the contract is a Stellar Asset Contract (SAC),
-returns a generator with the standard SAC specification.
+returns a generator with the standard SAC specification. If the contract was
+created from a CAP-85 external executable reference, the reference is
+resolved to a Wasm hash first and the spec is read from that Wasm.
 
 ```ts
 static fromContractId(contractId: string, rpcServer: RpcServer): Promise<BindingGenerator>;
@@ -89,7 +91,7 @@ const generator = await BindingGenerator.fromContractId(
 );
 ```
 
-**Source:** [src/bindings/generator.ts:211](https://github.com/stellar/js-stellar-sdk/blob/main/src/bindings/generator.ts#L211)
+**Source:** [src/bindings/generator.ts:213](https://github.com/stellar/js-stellar-sdk/blob/main/src/bindings/generator.ts#L213)
 
 ### `BindingGenerator.fromSpec(spec)`
 
@@ -233,4 +235,4 @@ fs.writeFileSync("./src/client.ts", bindings.client);
 fs.writeFileSync("./src/types.ts", bindings.types);
 ```
 
-**Source:** [src/bindings/generator.ts:255](https://github.com/stellar/js-stellar-sdk/blob/main/src/bindings/generator.ts#L255)
+**Source:** [src/bindings/generator.ts:257](https://github.com/stellar/js-stellar-sdk/blob/main/src/bindings/generator.ts#L257)

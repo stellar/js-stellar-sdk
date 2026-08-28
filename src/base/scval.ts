@@ -502,6 +502,23 @@ export function scValToNative(scv: xdr.ScVal): any {
       return v; // string already
     }
 
+    // Unlike strings, the tag is decoded strictly: it is half of what
+    // identifies the code being deployed (CAP-85), and a lenient decode would
+    // render two distinct binary tags identically. Valid UTF-8 becomes a
+    // string; anything else stays raw bytes.
+    case xdr.ScValType.scvExecutableTag().value: {
+      const v = scv.executableTag();
+
+      if (typeof v === "string") {
+        return v;
+      }
+      try {
+        return new TextDecoder("utf-8", { fatal: true }).decode(v);
+      } catch {
+        return v; // raw bytes
+      }
+    }
+
     // these can be converted to bigint
     case xdr.ScValType.scvTimepoint().value:
     case xdr.ScValType.scvDuration().value:

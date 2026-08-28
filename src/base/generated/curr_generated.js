@@ -2168,13 +2168,15 @@ var types = XDR.config((xdr) => {
   //   enum StellarValueType
   //   {
   //       STELLAR_VALUE_BASIC = 0,
-  //       STELLAR_VALUE_SIGNED = 1
+  //       STELLAR_VALUE_SIGNED = 1,
+  //       STELLAR_VALUE_EMPTY_TX_SET = 2
   //   };
   //
   // ===========================================================================
   xdr.enum("StellarValueType", {
     stellarValueBasic: 0,
     stellarValueSigned: 1,
+    stellarValueEmptyTxSet: 2,
   });
 
   // === xdr source ============================================================
@@ -2193,12 +2195,38 @@ var types = XDR.config((xdr) => {
 
   // === xdr source ============================================================
   //
+  //   struct
+  //           {
+  //               Hash txSetHash;
+  //               Hash previousLedgerHash;
+  //               uint32 previousLedgerVersion;
+  //               LedgerCloseValueSignature lcValueSignature;
+  //           }
+  //
+  // ===========================================================================
+  xdr.struct("StellarValueProposedValue", [
+    ["txSetHash", xdr.lookup("Hash")],
+    ["previousLedgerHash", xdr.lookup("Hash")],
+    ["previousLedgerVersion", xdr.lookup("Uint32")],
+    ["lcValueSignature", xdr.lookup("LedgerCloseValueSignature")],
+  ]);
+
+  // === xdr source ============================================================
+  //
   //   union switch (StellarValueType v)
   //       {
   //       case STELLAR_VALUE_BASIC:
   //           void;
   //       case STELLAR_VALUE_SIGNED:
   //           LedgerCloseValueSignature lcValueSignature;
+  //       case STELLAR_VALUE_EMPTY_TX_SET:
+  //           struct
+  //           {
+  //               Hash txSetHash;
+  //               Hash previousLedgerHash;
+  //               uint32 previousLedgerVersion;
+  //               LedgerCloseValueSignature lcValueSignature;
+  //           } proposedValue;
   //       }
   //
   // ===========================================================================
@@ -2208,9 +2236,11 @@ var types = XDR.config((xdr) => {
     switches: [
       ["stellarValueBasic", xdr.void()],
       ["stellarValueSigned", "lcValueSignature"],
+      ["stellarValueEmptyTxSet", "proposedValue"],
     ],
     arms: {
       lcValueSignature: xdr.lookup("LedgerCloseValueSignature"),
+      proposedValue: xdr.lookup("StellarValueProposedValue"),
     },
   });
 
@@ -2235,6 +2265,14 @@ var types = XDR.config((xdr) => {
   //           void;
   //       case STELLAR_VALUE_SIGNED:
   //           LedgerCloseValueSignature lcValueSignature;
+  //       case STELLAR_VALUE_EMPTY_TX_SET:
+  //           struct
+  //           {
+  //               Hash txSetHash;
+  //               Hash previousLedgerHash;
+  //               uint32 previousLedgerVersion;
+  //               LedgerCloseValueSignature lcValueSignature;
+  //           } proposedValue;
   //       }
   //       ext;
   //   };
@@ -3084,7 +3122,7 @@ var types = XDR.config((xdr) => {
   //       // transactions, this will be `0` for failed transactions.
   //       int64 totalRefundableResourceFeeCharged;
   //       // Amount (in stroops) that has been charged for rent.
-  //       // This is a part of `totalNonRefundableResourceFeeCharged`.
+  //       // This is a part of `totalRefundableResourceFeeCharged`.
   //       int64 rentFeeCharged;
   //   };
   //
@@ -9073,6 +9111,34 @@ var types = XDR.config((xdr) => {
 
   // === xdr source ============================================================
   //
+  //   typedef opaque SCBytes<>;
+  //
+  // ===========================================================================
+  xdr.typedef("ScBytes", xdr.varOpaque());
+
+  // === xdr source ============================================================
+  //
+  //   typedef string SCString<>;
+  //
+  // ===========================================================================
+  xdr.typedef("ScString", xdr.string());
+
+  // === xdr source ============================================================
+  //
+  //   const SCSYMBOL_LIMIT = 32;
+  //
+  // ===========================================================================
+  xdr.const("SCSYMBOL_LIMIT", 32);
+
+  // === xdr source ============================================================
+  //
+  //   typedef string SCSymbol<SCSYMBOL_LIMIT>;
+  //
+  // ===========================================================================
+  xdr.typedef("ScSymbol", xdr.string(SCSYMBOL_LIMIT));
+
+  // === xdr source ============================================================
+  //
   //   enum SCValType
   //   {
   //       SCV_BOOL = 0,
@@ -9125,7 +9191,9 @@ var types = XDR.config((xdr) => {
   //       // symbolic SCVals used as the key for ledger entries for a contract's
   //       // instance and an address' nonce, respectively.
   //       SCV_LEDGER_KEY_CONTRACT_INSTANCE = 20,
-  //       SCV_LEDGER_KEY_NONCE = 21
+  //       SCV_LEDGER_KEY_NONCE = 21,
+  //
+  //       SCV_EXECUTABLE_TAG = 22
   //   };
   //
   // ===========================================================================
@@ -9152,6 +9220,7 @@ var types = XDR.config((xdr) => {
     scvContractInstance: 19,
     scvLedgerKeyContractInstance: 20,
     scvLedgerKeyNonce: 21,
+    scvExecutableTag: 22,
   });
 
   // === xdr source ============================================================
@@ -9319,36 +9388,15 @@ var types = XDR.config((xdr) => {
   //   enum ContractExecutableType
   //   {
   //       CONTRACT_EXECUTABLE_WASM = 0,
-  //       CONTRACT_EXECUTABLE_STELLAR_ASSET = 1
+  //       CONTRACT_EXECUTABLE_STELLAR_ASSET = 1,
+  //       CONTRACT_EXECUTABLE_EXTERNAL_REF = 2
   //   };
   //
   // ===========================================================================
   xdr.enum("ContractExecutableType", {
     contractExecutableWasm: 0,
     contractExecutableStellarAsset: 1,
-  });
-
-  // === xdr source ============================================================
-  //
-  //   union ContractExecutable switch (ContractExecutableType type)
-  //   {
-  //   case CONTRACT_EXECUTABLE_WASM:
-  //       Hash wasm_hash;
-  //   case CONTRACT_EXECUTABLE_STELLAR_ASSET:
-  //       void;
-  //   };
-  //
-  // ===========================================================================
-  xdr.union("ContractExecutable", {
-    switchOn: xdr.lookup("ContractExecutableType"),
-    switchName: "type",
-    switches: [
-      ["contractExecutableWasm", "wasmHash"],
-      ["contractExecutableStellarAsset", xdr.void()],
-    ],
-    arms: {
-      wasmHash: xdr.lookup("Hash"),
-    },
+    contractExecutableExternalRef: 2,
   });
 
   // === xdr source ============================================================
@@ -9423,10 +9471,43 @@ var types = XDR.config((xdr) => {
 
   // === xdr source ============================================================
   //
-  //   const SCSYMBOL_LIMIT = 32;
+  //   struct ContractExecutableExternalRef {
+  //       SCAddress executable_owner;
+  //       SCString tag;
+  //   };
   //
   // ===========================================================================
-  xdr.const("SCSYMBOL_LIMIT", 32);
+  xdr.struct("ContractExecutableExternalRef", [
+    ["executableOwner", xdr.lookup("ScAddress")],
+    ["tag", xdr.lookup("ScString")],
+  ]);
+
+  // === xdr source ============================================================
+  //
+  //   union ContractExecutable switch (ContractExecutableType type)
+  //   {
+  //   case CONTRACT_EXECUTABLE_WASM:
+  //       Hash wasm_hash;
+  //   case CONTRACT_EXECUTABLE_STELLAR_ASSET:
+  //       void;
+  //   case CONTRACT_EXECUTABLE_EXTERNAL_REF:
+  //       ContractExecutableExternalRef external_ref;
+  //   };
+  //
+  // ===========================================================================
+  xdr.union("ContractExecutable", {
+    switchOn: xdr.lookup("ContractExecutableType"),
+    switchName: "type",
+    switches: [
+      ["contractExecutableWasm", "wasmHash"],
+      ["contractExecutableStellarAsset", xdr.void()],
+      ["contractExecutableExternalRef", "externalRef"],
+    ],
+    arms: {
+      wasmHash: xdr.lookup("Hash"),
+      externalRef: xdr.lookup("ContractExecutableExternalRef"),
+    },
+  });
 
   // === xdr source ============================================================
   //
@@ -9441,27 +9522,6 @@ var types = XDR.config((xdr) => {
   //
   // ===========================================================================
   xdr.typedef("ScMap", xdr.varArray(xdr.lookup("ScMapEntry"), 2147483647));
-
-  // === xdr source ============================================================
-  //
-  //   typedef opaque SCBytes<>;
-  //
-  // ===========================================================================
-  xdr.typedef("ScBytes", xdr.varOpaque());
-
-  // === xdr source ============================================================
-  //
-  //   typedef string SCString<>;
-  //
-  // ===========================================================================
-  xdr.typedef("ScString", xdr.string());
-
-  // === xdr source ============================================================
-  //
-  //   typedef string SCSymbol<SCSYMBOL_LIMIT>;
-  //
-  // ===========================================================================
-  xdr.typedef("ScSymbol", xdr.string(SCSYMBOL_LIMIT));
 
   // === xdr source ============================================================
   //
@@ -9546,6 +9606,9 @@ var types = XDR.config((xdr) => {
   //       void;
   //   case SCV_LEDGER_KEY_NONCE:
   //       SCNonceKey nonce_key;
+  //
+  //   case SCV_EXECUTABLE_TAG:
+  //       SCString executable_tag;
   //   };
   //
   // ===========================================================================
@@ -9575,6 +9638,7 @@ var types = XDR.config((xdr) => {
       ["scvContractInstance", "instance"],
       ["scvLedgerKeyContractInstance", xdr.void()],
       ["scvLedgerKeyNonce", "nonceKey"],
+      ["scvExecutableTag", "executableTag"],
     ],
     arms: {
       b: xdr.bool(),
@@ -9597,6 +9661,7 @@ var types = XDR.config((xdr) => {
       address: xdr.lookup("ScAddress"),
       instance: xdr.lookup("ScContractInstance"),
       nonceKey: xdr.lookup("ScNonceKey"),
+      executableTag: xdr.lookup("ScString"),
     },
   });
 
