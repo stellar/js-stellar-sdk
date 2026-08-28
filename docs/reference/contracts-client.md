@@ -800,7 +800,7 @@ txFromJSON<T>(json: string): AssembledTransaction<T>;
 
 - **`json`** — `string` (required)
 
-**Source:** [src/contract/client.ts:310](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L310)
+**Source:** [src/contract/client.ts:318](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L318)
 
 ### `client.txFromXDR(xdrBase64)`
 
@@ -812,7 +812,7 @@ txFromXDR<T>(xdrBase64: string): AssembledTransaction<T>;
 
 - **`xdrBase64`** — `string` (required)
 
-**Source:** [src/contract/client.ts:323](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L323)
+**Source:** [src/contract/client.ts:331](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L331)
 
 ## contract.DEFAULT_TIMEOUT
 
