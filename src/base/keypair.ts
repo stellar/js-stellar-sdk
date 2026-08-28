@@ -1,6 +1,5 @@
 import * as ed from "@noble/ed25519";
 import { sha512 } from "@noble/hashes/sha2.js";
-import { isUint8Array } from "uint8array-extras";
 import { sign, verify, generate } from "./signing.js";
 import { StrKey } from "./strkey.js";
 import { hash } from "./hashing.js";
@@ -249,33 +248,13 @@ export class Keypair {
   /**
    * Verifies if `signature` for `data` is valid.
    *
-   * A well-formed signature that doesn't match returns `false`; an argument of
-   * an unaccepted type throws, because reporting it as an invalid signature
-   * would be indistinguishable from a forgery.
-   *
    * @param data - signed data
    * @param signature - signature to verify
-   * @throws a `TypeError` if `data` or `signature` is not a byte array — a
-   *    hex/base64 string, a plain array of byte values, or an
-   *    `xdr.DecoratedSignature` is rejected rather than reported as invalid
    */
   verify(data: Buffer, signature: Buffer): boolean {
-    // `isUint8Array`, not `instanceof`: bytes from another realm (an iframe, a
-    // worker, `node:vm`) are perfectly good and would fail an `instanceof`
-    // check.
-    if (!isUint8Array(data)) {
-      throw new TypeError(`expected Uint8Array for data, got ${typeof data}`);
-    }
-    if (!isUint8Array(signature)) {
-      throw new TypeError(
-        `expected Uint8Array for signature, got ${typeof signature}`,
-      );
-    }
-
     try {
       return verify(data, signature, this._publicKey);
     } catch {
-      // A well-formed but invalid signature is a verdict, not an error.
       return false;
     }
   }
@@ -302,14 +281,15 @@ export class Keypair {
    * @param message - the original message (a UTF-8 string or raw bytes)
    * @param signature - the 64-byte signature to verify
    * @returns `true` if `signature` is valid for `message` and this key
-   * @throws a `TypeError` if `message` is neither a string nor a byte array,
-   *    or if `signature` is not a byte array (e.g. a hex/base64 signature
-   *    string): an unaccepted type is rejected rather than reported as an
-   *    invalid signature.
    * @see https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0053.md
    */
   verifyMessage(message: string | Buffer, signature: Buffer): boolean {
-    return this.verify(this._hashMessage(message), signature);
+    try {
+      return this.verify(this._hashMessage(message), signature);
+    } catch {
+      // Mirror `verify`: never throw on bad input, just report invalid.
+      return false;
+    }
   }
 
   /**
@@ -317,11 +297,6 @@ export class Keypair {
    * `SHA-256("Stellar Signed Message:\n" + message)`.
    */
   private _hashMessage(message: string | Buffer): Buffer {
-    if (typeof message !== "string" && !isUint8Array(message)) {
-      throw new TypeError(
-        `expected string or Uint8Array for message, got ${typeof message}`,
-      );
-    }
     const messageBytes =
       typeof message === "string" ? Buffer.from(message, "utf8") : message;
     return hash(Buffer.concat([MESSAGE_PREFIX, messageBytes]));

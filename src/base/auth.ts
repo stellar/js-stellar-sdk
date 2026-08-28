@@ -1,4 +1,3 @@
-import { isUint8Array } from "uint8array-extras";
 import xdr from "./xdr.js";
 
 import { Keypair } from "./keypair.js";
@@ -17,32 +16,6 @@ function toBuffer(value: BufferLike): Buffer {
     return Buffer.from(new Uint8Array(value));
   }
   return Buffer.from(value);
-}
-
-function isBufferLike(value: unknown): value is BufferLike {
-  return value instanceof ArrayBuffer || isUint8Array(value);
-}
-
-/**
- * Returns `value` as an `xdr.ScVal`, or `null` if it isn't one. Accepts a value
- * built by a *different* copy of the SDK loaded in the same process (a dual
- * ESM/CJS load, or two installed versions), where `instanceof` fails on an
- * otherwise perfectly good value.
- */
-function toScVal(value: unknown): xdr.ScVal | null {
-  if (value instanceof xdr.ScVal) return value;
-  if (typeof value !== "object" || value === null) return null;
-  const encode = (value as { toXDR?: () => Buffer }).toXDR;
-  if (typeof encode !== "function") return null;
-  // The value is written into the credentials to be read at serialization
-  // time — much later than the call that produced it. Round-tripping its wire
-  // form through the *local* schema proves it, and hands back a local instance
-  // rather than storing a foreign object whose insides were never checked.
-  try {
-    return xdr.ScVal.fromXDR(encode.call(value));
-  } catch {
-    return null;
-  }
 }
 
 /**
@@ -243,63 +216,29 @@ export async function authorizeEntry(
     // Custom-credential path (smart wallets, passkeys/WebAuthn, etc.): the
     // caller owns the exact ScVal their account contract's `__check_auth`
     // expects, so it is written verbatim — no Ed25519 verification and no
-    // scvVec wrapping. Nothing downstream inspects it, so it is checked here
-    // or not at all.
-    const candidate: unknown = sigResult.signatureScVal;
-    const asScVal = toScVal(candidate);
-    if (asScVal === null) {
-      throw new TypeError(
-        `signatureScVal must be an xdr.ScVal, got ${candidate === null ? "null" : typeof candidate}`,
-      );
-    }
-    signatureScVal = asScVal;
+    // scvVec wrapping.
+    signatureScVal = sigResult.signatureScVal;
     targetAddress ??= sigResult.address;
   } else {
-    let rawSignature: unknown;
-    let rawPublicKey: unknown;
+    let signature: Buffer;
+    let publicKey: string;
     if (typeof signer === "function") {
       if (
         sigResult !== null &&
         typeof sigResult === "object" &&
         "signature" in sigResult
       ) {
-        rawSignature = sigResult.signature;
-        rawPublicKey = sigResult.publicKey;
-      } else if (isBufferLike(sigResult)) {
-        // if using the deprecated form, assume it's for the entry
-        rawSignature = sigResult;
-        rawPublicKey = Address.fromScAddress(addrAuth.address()).toString();
+        signature = toBuffer(sigResult.signature);
+        publicKey = sigResult.publicKey;
       } else {
-        // Without this the value reached `verify` unchecked: a wrong shape
-        // either got a forgery verdict for a valid signature or surfaced an
-        // error that names a parameter the caller never passed.
-        throw new TypeError(
-          "SigningCallback must resolve to a byte array, " +
-            "{ signature, publicKey }, or { signatureScVal }; got " +
-            `${sigResult === null ? "null" : typeof sigResult}`,
-        );
+        // if using the deprecated form, assume it's for the entry
+        signature = toBuffer(sigResult as BufferLike);
+        publicKey = Address.fromScAddress(addrAuth.address()).toString();
       }
     } else {
-      rawSignature = signer.sign(payload);
-      rawPublicKey = signer.publicKey();
+      signature = toBuffer(signer.sign(payload));
+      publicKey = signer.publicKey();
     }
-
-    // `rawSignature` and `rawPublicKey` arrive from three places above — two
-    // callback shapes and a signer object — so they are checked here, where
-    // those paths meet, rather than in each branch.
-    if (typeof rawPublicKey !== "string") {
-      throw new TypeError(
-        `expected a public key string from the signer, got ${typeof rawPublicKey}`,
-      );
-    }
-    if (!isBufferLike(rawSignature)) {
-      throw new TypeError(
-        `expected a byte-array signature from the signer, got ${rawSignature === null ? "null" : typeof rawSignature}`,
-      );
-    }
-
-    const signature: Buffer = toBuffer(rawSignature);
-    const publicKey: string = rawPublicKey;
 
     if (!Keypair.fromPublicKey(publicKey).verify(payload, signature)) {
       throw new Error(`signature doesn't match payload`);

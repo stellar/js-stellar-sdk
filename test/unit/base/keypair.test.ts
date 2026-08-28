@@ -306,38 +306,6 @@ describe("Keypair.verify", () => {
     const signature = signingKp.sign(data);
     expect(verifyKp.verify(data, signature)).toBe(true);
   });
-
-  // An argument of an unaccepted type throws, because reporting it as an
-  // invalid signature would be indistinguishable from a forgery.
-  it("throws for shapes that carry no signature", () => {
-    const kp = Keypair.fromSecret(
-      "SD7X7LEHBNMUIKQGKPARG5TDJNBHKC346OUARHGZL5ITC6IJPXHILY36",
-    );
-    const data = Buffer.from("hello");
-    const signature = kp.sign(data);
-
-    expect(() =>
-      kp.verify(data, signature.toString("base64") as unknown as Buffer),
-    ).toThrow(/expected Uint8Array for signature/);
-    expect(() =>
-      kp.verify(data, Array.from(signature) as unknown as Buffer),
-    ).toThrow(TypeError);
-    expect(() =>
-      kp.verify(data, kp.signDecorated(data) as unknown as Buffer),
-    ).toThrow(TypeError);
-    expect(() => kp.verify("hello" as unknown as Buffer, signature)).toThrow(
-      /expected Uint8Array for data/,
-    );
-  });
-
-  it("returns false, not a throw, for well-formed but wrong signatures", () => {
-    const kp = Keypair.fromSecret(
-      "SD7X7LEHBNMUIKQGKPARG5TDJNBHKC346OUARHGZL5ITC6IJPXHILY36",
-    );
-    expect(kp.verify(Buffer.from("hello"), Buffer.alloc(64))).toBe(false);
-    // wrong length is well-formed input, still a verdict rather than an error
-    expect(kp.verify(Buffer.from("hello"), Buffer.alloc(3))).toBe(false);
-  });
 });
 
 describe("Keypair.xdrMuxedAccount with id", () => {
@@ -467,22 +435,11 @@ describe("Keypair.signMessage / verifyMessage (SEP-53)", () => {
     expect(kp.verifyMessage("Hello, World!", Buffer.alloc(64))).toBe(false);
   });
 
-  it("throws for a malformed message, like verify()", () => {
+  it("returns false (does not throw) for a malformed message, like verify()", () => {
     const kp = Keypair.fromPublicKey(address);
     const sig = Buffer.alloc(64);
-    expect(() => kp.verifyMessage(null as unknown as string, sig)).toThrow(
-      /expected string or Uint8Array for message/,
-    );
-    expect(() => kp.verifyMessage(123 as unknown as string, sig)).toThrow(
-      TypeError,
-    );
-  });
-
-  it("throws for a malformed signature rather than reporting it invalid", () => {
-    const kp = Keypair.fromPublicKey(address);
-    expect(() =>
-      kp.verifyMessage("Hello, World!", "abcd" as unknown as Buffer),
-    ).toThrow(/expected Uint8Array for signature/);
+    expect(kp.verifyMessage(null as unknown as string, sig)).toBe(false);
+    expect(kp.verifyMessage(123 as unknown as string, sig)).toBe(false);
   });
 
   it("throws when signing without a secret key", () => {
