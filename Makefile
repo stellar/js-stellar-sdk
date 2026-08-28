@@ -1,4 +1,4 @@
-XDR_BASE_URL_CURR=https://github.com/stellar/stellar-xdr/raw/68fa1ac55692f68ad2a2ca549d0a283273554439
+XDR_BASE_URL_CURR=https://github.com/stellar/stellar-xdr/raw/9c9c145953e80990d6ff1ae3a6a973a0ce6d0694
 XDR_BASE_LOCAL_CURR=xdr/curr
 XDR_FILES_CURR= \
 	Stellar-SCP.x \
@@ -15,7 +15,7 @@ XDR_FILES_CURR= \
 	Stellar-exporter.x
 XDR_FILES_LOCAL_CURR=$(addprefix xdr/curr/,$(XDR_FILES_CURR))
 
-XDR_BASE_URL_NEXT=https://github.com/stellar/stellar-xdr/raw/68fa1ac55692f68ad2a2ca549d0a283273554439
+XDR_BASE_URL_NEXT=https://github.com/stellar/stellar-xdr/raw/9c9c145953e80990d6ff1ae3a6a973a0ce6d0694
 XDR_BASE_LOCAL_NEXT=xdr/next
 XDR_FILES_NEXT= \
 	Stellar-SCP.x \
@@ -32,7 +32,9 @@ XDR_FILES_NEXT= \
 	Stellar-exporter.x
 XDR_FILES_LOCAL_NEXT=$(addprefix xdr/next/,$(XDR_FILES_NEXT))
 
-XDRGEN_COMMIT=master
+# Last stellar/xdrgen commit with the JavaScript generator; it was removed
+# upstream in 6f2c5b8c (#233), so master no longer works for this repo.
+XDRGEN_COMMIT=d54959f8949b8f354541bf0cc2af6a9130f0f3a9
 DTSXDR_COMMIT=master
 PNPM_VERSION=10.28.0
 
@@ -43,23 +45,27 @@ generate: src/base/generated/curr_generated.js src/base/generated/curr.d.ts src/
 src/base/generated/curr_generated.js: $(XDR_FILES_LOCAL_CURR)
 	mkdir -p $(dir $@)
 	> $@
-	docker run -it --rm -v $$PWD:/wd -w /wd ruby:3.1 /bin/bash -c '\
-		gem install specific_install -v 0.3.8 && \
-		gem specific_install https://github.com/stellar/xdrgen.git -b $(XDRGEN_COMMIT) && \
+	docker run -i --rm -v $$PWD:/wd -w /wd ruby:3.1 /bin/bash -c '\
+		git clone https://github.com/stellar/xdrgen.git /xdrgen && \
+		git -C /xdrgen checkout $(XDRGEN_COMMIT) && \
+		gem build -C /xdrgen xdrgen.gemspec -o /tmp/xdrgen.gem && \
+		gem install /tmp/xdrgen.gem && \
 		xdrgen --language javascript --namespace curr --output src/base/generated $^ \
 		'
 
 src/base/generated/next_generated.js: $(XDR_FILES_LOCAL_NEXT)
 	mkdir -p $(dir $@)
 	> $@
-	docker run -it --rm -v $$PWD:/wd -w /wd ruby:3.1 /bin/bash -c '\
-		gem install specific_install -v 0.3.8 && \
-		gem specific_install https://github.com/stellar/xdrgen.git -b $(XDRGEN_COMMIT) && \
+	docker run -i --rm -v $$PWD:/wd -w /wd ruby:3.1 /bin/bash -c '\
+		git clone https://github.com/stellar/xdrgen.git /xdrgen && \
+		git -C /xdrgen checkout $(XDRGEN_COMMIT) && \
+		gem build -C /xdrgen xdrgen.gemspec -o /tmp/xdrgen.gem && \
+		gem install /tmp/xdrgen.gem && \
 		xdrgen --language javascript --namespace next --output src/base/generated $^ \
 		'
 
 src/base/generated/curr.d.ts: src/base/generated/curr_generated.js
-	docker run -it --rm -v $$PWD:/wd -w / --entrypoint /bin/sh node:22-alpine -c '\
+	docker run -i --rm -v $$PWD:/wd -w / --entrypoint /bin/sh node:22-alpine -c '\
 		apk add --update git && \
 		corepack enable && \
 		corepack prepare pnpm@$(PNPM_VERSION) --activate && \
@@ -73,7 +79,7 @@ src/base/generated/curr.d.ts: src/base/generated/curr_generated.js
 		'
 
 src/base/generated/next.d.ts: src/base/generated/next_generated.js
-	docker run -it --rm -v $$PWD:/wd -w / --entrypoint /bin/sh node:22-alpine -c '\
+	docker run -i --rm -v $$PWD:/wd -w / --entrypoint /bin/sh node:22-alpine -c '\
 		apk add --update git && \
 		corepack enable && \
 		corepack prepare pnpm@$(PNPM_VERSION) --activate && \

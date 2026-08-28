@@ -533,13 +533,18 @@ export namespace xdr {
   }
 
   class StellarValueType {
-    readonly name: "stellarValueBasic" | "stellarValueSigned";
+    readonly name:
+      | "stellarValueBasic"
+      | "stellarValueSigned"
+      | "stellarValueEmptyTxSet";
 
-    readonly value: 0 | 1;
+    readonly value: 0 | 1 | 2;
 
     static stellarValueBasic(): StellarValueType;
 
     static stellarValueSigned(): StellarValueType;
+
+    static stellarValueEmptyTxSet(): StellarValueType;
   }
 
   class LedgerHeaderFlags {
@@ -1975,7 +1980,8 @@ export namespace xdr {
       | "scvAddress"
       | "scvContractInstance"
       | "scvLedgerKeyContractInstance"
-      | "scvLedgerKeyNonce";
+      | "scvLedgerKeyNonce"
+      | "scvExecutableTag";
 
     readonly value:
       | 0
@@ -2044,6 +2050,8 @@ export namespace xdr {
     static scvLedgerKeyContractInstance(): ScValType;
 
     static scvLedgerKeyNonce(): ScValType;
+
+    static scvExecutableTag(): ScValType;
   }
 
   class ScErrorType {
@@ -2119,13 +2127,18 @@ export namespace xdr {
   }
 
   class ContractExecutableType {
-    readonly name: "contractExecutableWasm" | "contractExecutableStellarAsset";
+    readonly name:
+      | "contractExecutableWasm"
+      | "contractExecutableStellarAsset"
+      | "contractExecutableExternalRef";
 
-    readonly value: 0 | 1;
+    readonly value: 0 | 1 | 2;
 
     static contractExecutableWasm(): ContractExecutableType;
 
     static contractExecutableStellarAsset(): ContractExecutableType;
+
+    static contractExecutableExternalRef(): ContractExecutableType;
   }
 
   class ScAddressType {
@@ -4481,6 +4494,48 @@ export namespace xdr {
       input: string,
       format: "hex" | "base64",
     ): LedgerCloseValueSignature;
+
+    static validateXDR(input: Buffer, format?: "raw"): boolean;
+
+    static validateXDR(input: string, format: "hex" | "base64"): boolean;
+  }
+
+  class StellarValueProposedValue {
+    constructor(attributes: {
+      txSetHash: Buffer;
+      previousLedgerHash: Buffer;
+      previousLedgerVersion: number;
+      lcValueSignature: LedgerCloseValueSignature;
+    });
+
+    txSetHash(value?: Buffer): Buffer;
+
+    previousLedgerHash(value?: Buffer): Buffer;
+
+    previousLedgerVersion(value?: number): number;
+
+    lcValueSignature(
+      value?: LedgerCloseValueSignature,
+    ): LedgerCloseValueSignature;
+
+    toXDR(format?: "raw"): Buffer;
+
+    toXDR(format: "hex" | "base64"): string;
+
+    static read(io: Buffer): StellarValueProposedValue;
+
+    static write(value: StellarValueProposedValue, io: Buffer): void;
+
+    static isValid(value: StellarValueProposedValue): boolean;
+
+    static toXDR(value: StellarValueProposedValue): Buffer;
+
+    static fromXDR(input: Buffer, format?: "raw"): StellarValueProposedValue;
+
+    static fromXDR(
+      input: string,
+      format: "hex" | "base64",
+    ): StellarValueProposedValue;
 
     static validateXDR(input: Buffer, format?: "raw"): boolean;
 
@@ -11970,13 +12025,19 @@ export namespace xdr {
       value?: LedgerCloseValueSignature,
     ): LedgerCloseValueSignature;
 
+    proposedValue(value?: StellarValueProposedValue): StellarValueProposedValue;
+
     static stellarValueBasic(): StellarValueExt;
 
     static stellarValueSigned(
       value: LedgerCloseValueSignature,
     ): StellarValueExt;
 
-    value(): LedgerCloseValueSignature | void;
+    static stellarValueEmptyTxSet(
+      value: StellarValueProposedValue,
+    ): StellarValueExt;
+
+    value(): LedgerCloseValueSignature | StellarValueProposedValue | void;
 
     toXDR(format?: "raw"): Buffer;
 
@@ -15616,16 +15677,61 @@ export namespace xdr {
     static validateXDR(input: string, format: "hex" | "base64"): boolean;
   }
 
+  class ContractExecutableExternalRef {
+    constructor(attributes: {
+      executableOwner: ScAddress;
+      tag: string | Buffer;
+    });
+
+    executableOwner(value?: ScAddress): ScAddress;
+
+    tag(value?: string | Buffer): string | Buffer;
+
+    toXDR(format?: "raw"): Buffer;
+
+    toXDR(format: "hex" | "base64"): string;
+
+    static read(io: Buffer): ContractExecutableExternalRef;
+
+    static write(value: ContractExecutableExternalRef, io: Buffer): void;
+
+    static isValid(value: ContractExecutableExternalRef): boolean;
+
+    static toXDR(value: ContractExecutableExternalRef): Buffer;
+
+    static fromXDR(
+      input: Buffer,
+      format?: "raw",
+    ): ContractExecutableExternalRef;
+
+    static fromXDR(
+      input: string,
+      format: "hex" | "base64",
+    ): ContractExecutableExternalRef;
+
+    static validateXDR(input: Buffer, format?: "raw"): boolean;
+
+    static validateXDR(input: string, format: "hex" | "base64"): boolean;
+  }
+
   class ContractExecutable {
     switch(): ContractExecutableType;
 
     wasmHash(value?: Buffer): Buffer;
 
+    externalRef(
+      value?: ContractExecutableExternalRef,
+    ): ContractExecutableExternalRef;
+
     static contractExecutableWasm(value: Buffer): ContractExecutable;
 
     static contractExecutableStellarAsset(): ContractExecutable;
 
-    value(): Buffer | void;
+    static contractExecutableExternalRef(
+      value: ContractExecutableExternalRef,
+    ): ContractExecutable;
+
+    value(): Buffer | ContractExecutableExternalRef | void;
 
     toXDR(format?: "raw"): Buffer;
 
@@ -15742,6 +15848,8 @@ export namespace xdr {
 
     nonceKey(value?: ScNonceKey): ScNonceKey;
 
+    executableTag(value?: string | Buffer): string | Buffer;
+
     static scvBool(value: boolean): ScVal;
 
     static scvVoid(): ScVal;
@@ -15785,6 +15893,8 @@ export namespace xdr {
     static scvLedgerKeyContractInstance(): ScVal;
 
     static scvLedgerKeyNonce(value: ScNonceKey): ScVal;
+
+    static scvExecutableTag(value: string | Buffer): ScVal;
 
     value():
       | boolean
