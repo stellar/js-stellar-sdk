@@ -976,6 +976,113 @@ describe("building authorization entries", () => {
     });
   });
 
+  describe("signer result validation", () => {
+    // Each of these carries no usable signature at all, so `verify` would
+    // report a TypeError naming *its* parameter — a confusing place to land
+    // for a mistake the caller made in a callback.
+    it.each([
+      ["a base64 string", (sig: Buffer) => sig.toString("base64")],
+      ["a plain number[]", (sig: Buffer) => Array.from(sig)],
+      ["null", () => null],
+      ["undefined", () => undefined],
+    ])("throws when a callback resolves to %s", async (_label, produce) => {
+      const badCallback = ((preimage: xdr.HashIdPreimage) =>
+        Promise.resolve(
+          produce(kp.sign(hash(preimage.toXDR()))),
+        )) as unknown as SigningCallback;
+
+      await expect(
+        authorizeEntry(authEntry, badCallback, 10, Networks.TESTNET),
+      ).rejects.toThrow(/SigningCallback must resolve to a byte array/);
+    });
+
+    // `signature` and `publicKey` reach `verify` from the object callback form
+    // and from a signer object as well as the naked form, so the checks live
+    // where those paths converge.
+    it("throws when a callback returns a non-byte signature alongside a publicKey", async () => {
+      const badCallback = ((preimage: xdr.HashIdPreimage) =>
+        Promise.resolve({
+          signature: kp.sign(hash(preimage.toXDR())).toString("base64"),
+          publicKey: kp.publicKey(),
+        })) as unknown as SigningCallback;
+
+      await expect(
+        authorizeEntry(authEntry, badCallback, 10, Networks.TESTNET),
+      ).rejects.toThrow(/expected a byte-array signature from the signer/);
+    });
+
+    it.each([
+      ["omits publicKey", (sig: Buffer) => ({ signature: sig })],
+      [
+        "gives a non-string publicKey",
+        (sig: Buffer) => ({ signature: sig, publicKey: 42 }),
+      ],
+    ])("throws when a callback %s", async (_label, produce) => {
+      const badCallback = ((preimage: xdr.HashIdPreimage) =>
+        Promise.resolve(
+          produce(kp.sign(hash(preimage.toXDR()))),
+        )) as unknown as SigningCallback;
+
+      await expect(
+        authorizeEntry(authEntry, badCallback, 10, Networks.TESTNET),
+      ).rejects.toThrow(/expected a public key string from the signer/);
+    });
+
+    // A signer object bypasses every callback branch, so it needs the same
+    // convergence check.
+    it("throws when a signer object's sign() returns something else", async () => {
+      const badSigner = {
+        sign: () => "not bytes",
+        publicKey: () => kp.publicKey(),
+      } as unknown as Keypair;
+
+      await expect(
+        authorizeEntry(authEntry, badSigner, 10, Networks.TESTNET),
+      ).rejects.toThrow(/expected a byte-array signature from the signer/);
+    });
+
+    // The custom-credential ScVal is written verbatim into the credentials, so
+    // it is checked at the door or not at all.
+    it.each([
+      ["a string", "scval, honest"],
+      ["a plain object", { switch: () => 0 }],
+      ["null", null],
+    ])(
+      "throws when signatureScVal is %s instead of an ScVal",
+      async (_label, bad) => {
+        const badCallback = (() =>
+          Promise.resolve({
+            signatureScVal: bad,
+          })) as unknown as SigningCallback;
+
+        await expect(
+          authorizeEntry(authEntry, badCallback, 10, Networks.TESTNET),
+        ).rejects.toThrow(/signatureScVal must be an xdr.ScVal/);
+      },
+    );
+
+    it("accepts an ScVal from another copy of the SDK", async () => {
+      const local = xdr.ScVal.scvVec([xdr.ScVal.scvSymbol("ok")]);
+      // simulate a value built by a second SDK copy: right wire form, wrong
+      // prototype chain, so `instanceof` fails
+      const foreign = { toXDR: () => local.toXDR() };
+      const badCallback = (() =>
+        Promise.resolve({
+          signatureScVal: foreign,
+        })) as unknown as SigningCallback;
+
+      const signed = await authorizeEntry(
+        authEntry,
+        badCallback,
+        10,
+        Networks.TESTNET,
+      );
+      expect(signed.credentials().address().signature().toXDR("hex")).toBe(
+        local.toXDR("hex"),
+      );
+    });
+  });
+
   describe("custom signature ScVal (non-Ed25519 signers)", () => {
     // an opaque signature structure like a smart-wallet __check_auth expects;
     // deliberately NOT a valid Ed25519 signature map
