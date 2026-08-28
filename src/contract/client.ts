@@ -300,9 +300,17 @@ export class Client {
       return new Client(new Spec(SAC_SPEC), options) as unknown as Client & T;
     }
 
-    const wasm = await server.getContractWasmByHash(
-      instance.executable().wasmHash(),
-    );
+    // A CAP-85 external reference names its code indirectly: the owner contract
+    // holds a persistent entry keyed by the tag whose value is the Wasm hash.
+    // Resolve that, then load the spec from the Wasm as usual.
+    const executable = instance.executable();
+    const wasmHash =
+      executable.switch() ===
+      xdr.ContractExecutableType.contractExecutableExternalRef()
+        ? await server.getExternalRefWasmHash(executable.externalRef())
+        : executable.wasmHash();
+
+    const wasm = await server.getContractWasmByHash(wasmHash);
 
     return Client.fromWasm<T>(wasm, options);
   }
