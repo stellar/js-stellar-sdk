@@ -42,4 +42,8 @@ jobs:
         run: pnpm run preversion
 
       - name: Publish npm package
-        run: npm publish --access public --provenance
+        # --tag keeps this v16 maintenance line off the `latest` dist-tag,
+        # which belongs to v17. (`v16` itself is not a legal dist-tag name —
+        # npm rejects anything that parses as a semver range — and
+        # publishConfig.tag is not reliably honored, so the flag is explicit.)
+        run: npm publish --access public --provenance --tag lts-16
