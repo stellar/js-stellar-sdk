@@ -2,7 +2,7 @@
 
 A breaking change will get clearly marked in this log.
 
-## Unreleased
+## [v16.3.0](https://github.com/stellar/js-stellar-sdk/compare/v16.2.0...v16.3.0)
 
 ### Added
 - Protocol 28 XDR: the bundled schema is regenerated from [stellar-xdr@`9c9c1459`](https://github.com/stellar/stellar-xdr/commit/9c9c145953e80990d6ff1ae3a6a973a0ce6d0694), picking up CAP-85 external executable references (`xdr.ContractExecutableExternalRef`, the `contractExecutableExternalRef` arm of `ContractExecutable`, and the `scvExecutableTag` `ScVal` arm) and CAP-83's `STELLAR_VALUE_EMPTY_TX_SET` (`xdr.StellarValueProposedValue`).
