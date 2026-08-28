@@ -1,4 +1,7 @@
 export * from "./assembled_transaction.js";
+// Re-exported for generated bindings, whose `deploy` method references it and
+// which already import from `@stellar/stellar-sdk/contract`.
+export type { ExternalExecutableRef } from "../base/operations/types.js";
 export * from "./basic_node_signer.js";
 export * from "./client.js";
 export type { ParsedEvent } from "./event_spec.js";

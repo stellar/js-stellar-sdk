@@ -139,6 +139,7 @@ ${eventMethods}
         "Client as ContractClient",
         "ClientOptions as ContractClientOptions",
         "MethodOptions",
+        "ExternalExecutableRef",
       ],
     });
   }
@@ -410,7 +411,7 @@ ${eventMethods}
     }
 
     params.push(
-      'options: MethodOptions & Omit<ContractClientOptions, \'contractId\'> & { wasmHash: Buffer | string; salt?: Buffer | Uint8Array; format?: "hex" | "base64"; address?: string; }',
+      `options: MethodOptions & Omit<ContractClientOptions, 'contractId'> & { salt?: Buffer | Uint8Array; address?: string; } & ({ wasmHash: Buffer | string; format?: "hex" | "base64"; externalRef?: never; } | { externalRef: ExternalExecutableRef; wasmHash?: never; format?: never; })`,
     );
 
     return params.join(", ");

@@ -72,6 +72,30 @@ function isStellarAssetContract(instance: xdr.ScContractInstance): boolean {
 }
 
 /**
+ * Resolve a CAP-85 external executable reference to the Wasm hash it names.
+ *
+ * The lookup itself lives on the server (`getExternalRefWasmHash`); this only
+ * restates its failures as a `WasmFetchError`, since the server rejects with a
+ * plain `{ code, message }` object rather than an `Error`.
+ */
+async function resolveExternalRef(
+  server: RpcServer,
+  ref: xdr.ContractExecutableExternalRef,
+): Promise<Buffer> {
+  try {
+    return await server.getExternalRefWasmHash(ref);
+  } catch (error) {
+    const message = (error as { message?: string })?.message;
+    throw new WasmFetchError(
+      `Failed to resolve external executable reference${
+        message ? `: ${message}` : ""
+      }`,
+      error instanceof Error ? error : undefined,
+    );
+  }
+}
+
+/**
  * Fetch WASM bytes from a deployed contract
  */
 async function fetchWasmFromContract(
@@ -96,6 +120,21 @@ async function fetchWasmFromContract(
 
     if (isStellarAssetContract(instance)) {
       return { type: "stellar-asset-contract" };
+    }
+
+    if (
+      instance.executable().switch() ===
+      xdr.ContractExecutableType.contractExecutableExternalRef()
+    ) {
+      // A CAP-85 reference carries no code hash of its own: the owner contract
+      // holds a persistent entry keyed by the tag whose value is the hash of an
+      // existing Wasm. Resolve that, then fetch the code as for any Wasm
+      // contract.
+      const wasmBytes = await getRemoteWasmFromHash(
+        server,
+        await resolveExternalRef(server, instance.executable().externalRef()),
+      );
+      return { type: "wasm", wasmBytes };
     }
 
     const wasmHash = instance.executable().wasmHash();
