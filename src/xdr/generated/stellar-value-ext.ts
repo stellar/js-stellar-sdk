@@ -14,16 +14,28 @@ import {
   StellarValueProposedValue,
   type StellarValueProposedValueWire,
 } from "./stellar-value-proposed-value.js";
+import {
+  StellarValueSignedMsValue,
+  type StellarValueSignedMsValueWire,
+} from "./stellar-value-signed-ms-value.js";
+import {
+  StellarValueProposedMsValue,
+  type StellarValueProposedMsValueWire,
+} from "./stellar-value-proposed-ms-value.js";
 
 export type StellarValueExtWire =
   | { v: 0 }
   | { v: 1; lcValueSignature: LedgerCloseValueSignatureWire }
-  | { v: 2; proposedValue: StellarValueProposedValueWire };
+  | { v: 2; proposedValue: StellarValueProposedValueWire }
+  | { v: 3; signedMsValue: StellarValueSignedMsValueWire }
+  | { v: 4; proposedMsValue: StellarValueProposedMsValueWire };
 
 export type StellarValueExtVariantName =
   | "stellarValueBasic"
   | "stellarValueSigned"
-  | "stellarValueEmptyTxSet";
+  | "stellarValueEmptyTxSet"
+  | "stellarValueSignedMs"
+  | "stellarValueEmptyTxSetMs";
 
 /**
  * ```xdr
@@ -41,6 +53,23 @@ export type StellarValueExtVariantName =
  *             uint32 previousLedgerVersion;
  *             LedgerCloseValueSignature lcValueSignature;
  *         } proposedValue;
+ * #ifdef MS_CLOSE_TIME
+ *     case STELLAR_VALUE_SIGNED_MS:
+ *         struct
+ *         {
+ *             TimePointMilliseconds closeTimeMs; // closeTime == closeTimeMs / 1000
+ *             LedgerCloseValueSignature lcValueSignature;
+ *         } signedMsValue;
+ *     case STELLAR_VALUE_EMPTY_TX_SET_MS:
+ *         struct
+ *         {
+ *             TimePointMilliseconds closeTimeMs; // closeTime == closeTimeMs / 1000
+ *             Hash txSetHash;
+ *             Hash previousLedgerHash;
+ *             uint32 previousLedgerVersion;
+ *             LedgerCloseValueSignature lcValueSignature;
+ *         } proposedMsValue;
+ * #endif // MS_CLOSE_TIME
  *     }
  * ```
  */
@@ -76,6 +105,16 @@ abstract class StellarValueExtBase extends XdrValue {
           2,
           field("proposedValue", StellarValueProposedValue.schema),
         ),
+        case_(
+          "stellarValueSignedMs",
+          3,
+          field("signedMsValue", StellarValueSignedMsValue.schema),
+        ),
+        case_(
+          "stellarValueEmptyTxSetMs",
+          4,
+          field("proposedMsValue", StellarValueProposedMsValue.schema),
+        ),
       ],
       switchKey: "v",
     },
@@ -97,6 +136,18 @@ abstract class StellarValueExtBase extends XdrValue {
     return new StellarValueExtEmptyTxSet(proposedValue);
   }
 
+  static stellarValueSignedMs(
+    signedMsValue: StellarValueSignedMsValue,
+  ): StellarValueExtSignedMs {
+    return new StellarValueExtSignedMs(signedMsValue);
+  }
+
+  static stellarValueEmptyTxSetMs(
+    proposedMsValue: StellarValueProposedMsValue,
+  ): StellarValueExtEmptyTxSetMs {
+    return new StellarValueExtEmptyTxSetMs(proposedMsValue);
+  }
+
   static fromXdrObject(wire: StellarValueExtWire): StellarValueExt {
     switch (wire.v) {
       case 0:
@@ -108,6 +159,14 @@ abstract class StellarValueExtBase extends XdrValue {
       case 2:
         return new StellarValueExtEmptyTxSet(
           StellarValueProposedValue.fromXdrObject(wire.proposedValue),
+        );
+      case 3:
+        return new StellarValueExtSignedMs(
+          StellarValueSignedMsValue.fromXdrObject(wire.signedMsValue),
+        );
+      case 4:
+        return new StellarValueExtEmptyTxSetMs(
+          StellarValueProposedMsValue.fromXdrObject(wire.proposedMsValue),
         );
     }
     // unreachable for a well-typed wire object; a hand-built one can still
@@ -178,8 +237,46 @@ export class StellarValueExtEmptyTxSet extends StellarValueExtBase {
   }
 }
 
+export class StellarValueExtSignedMs extends StellarValueExtBase {
+  readonly type = "stellarValueSignedMs" as const;
+  readonly signedMsValue: StellarValueSignedMsValue;
+
+  constructor(signedMsValue: StellarValueSignedMsValue) {
+    super();
+    this.signedMsValue = signedMsValue;
+  }
+
+  get value(): StellarValueSignedMsValue {
+    return this.signedMsValue;
+  }
+
+  toXdrObject(): Extract<StellarValueExtWire, { v: 3 }> {
+    return { v: 3, signedMsValue: this.signedMsValue.toXdrObject() };
+  }
+}
+
+export class StellarValueExtEmptyTxSetMs extends StellarValueExtBase {
+  readonly type = "stellarValueEmptyTxSetMs" as const;
+  readonly proposedMsValue: StellarValueProposedMsValue;
+
+  constructor(proposedMsValue: StellarValueProposedMsValue) {
+    super();
+    this.proposedMsValue = proposedMsValue;
+  }
+
+  get value(): StellarValueProposedMsValue {
+    return this.proposedMsValue;
+  }
+
+  toXdrObject(): Extract<StellarValueExtWire, { v: 4 }> {
+    return { v: 4, proposedMsValue: this.proposedMsValue.toXdrObject() };
+  }
+}
+
 export type StellarValueExt =
   | StellarValueExtBasic
   | StellarValueExtSigned
-  | StellarValueExtEmptyTxSet;
+  | StellarValueExtEmptyTxSet
+  | StellarValueExtSignedMs
+  | StellarValueExtEmptyTxSetMs;
 export const StellarValueExt = StellarValueExtBase;
