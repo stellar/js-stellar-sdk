@@ -4,6 +4,9 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Fixed
+* `Asset.fromOperation` preserves the `assetTypeCreditAlphanum12` union arm even when the decoded code is four characters or shorter, instead of re-deriving the arm from code length. Such an asset now re-encodes to the same XDR bytes it was decoded from, and its `getAssetType()`, `contractId()`, `equals()`, and `Asset.compare()` results reflect the alphanum12 arm. `equals()` now also compares the asset type, so a decoded short-code alphanum12 asset is no longer equal to the alphanum4 asset with the same code and issuer. User-constructed assets are unaffected: `new Asset(code, issuer)` still derives the type from code length ([#1584](https://github.com/stellar/js-stellar-sdk/issues/1584)).
+
 ## [v17.0.1](https://github.com/stellar/js-stellar-sdk/compare/v17.0.0...v17.0.1)
 
 ### Added
