@@ -4,6 +4,9 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Added
+- CAP-0088 (Protocol 30): millisecond-resolution close times. `xdr.StellarValueExt` gains `stellarValueSignedMs`/`stellarValueEmptyTxSetMs` variants carrying `closeTimeMs` (`TimePointMilliseconds`); the existing whole-second `closeTime` and its variants are unchanged.
+
 ## [v17.0.1](https://github.com/stellar/js-stellar-sdk/compare/v17.0.0...v17.0.1)
 
 ### Added

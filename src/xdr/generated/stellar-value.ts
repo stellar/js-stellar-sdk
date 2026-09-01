@@ -44,6 +44,23 @@ export interface StellarValueWire {
  *             uint32 previousLedgerVersion;
  *             LedgerCloseValueSignature lcValueSignature;
  *         } proposedValue;
+ * #ifdef MS_CLOSE_TIME
+ *     case STELLAR_VALUE_SIGNED_MS:
+ *         struct
+ *         {
+ *             TimePointMilliseconds closeTimeMs; // closeTime == closeTimeMs / 1000
+ *             LedgerCloseValueSignature lcValueSignature;
+ *         } signedMsValue;
+ *     case STELLAR_VALUE_EMPTY_TX_SET_MS:
+ *         struct
+ *         {
+ *             TimePointMilliseconds closeTimeMs; // closeTime == closeTimeMs / 1000
+ *             Hash txSetHash;
+ *             Hash previousLedgerHash;
+ *             uint32 previousLedgerVersion;
+ *             LedgerCloseValueSignature lcValueSignature;
+ *         } proposedMsValue;
+ * #endif // MS_CLOSE_TIME
  *     }
  *     ext;
  * };

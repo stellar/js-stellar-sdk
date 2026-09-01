@@ -11,7 +11,9 @@ export type StellarValueTypeWire = number;
 export type StellarValueTypeName =
   | "stellarValueBasic"
   | "stellarValueSigned"
-  | "stellarValueEmptyTxSet";
+  | "stellarValueEmptyTxSet"
+  | "stellarValueSignedMs"
+  | "stellarValueEmptyTxSetMs";
 
 /**
  * ```xdr
@@ -20,6 +22,11 @@ export type StellarValueTypeName =
  *     STELLAR_VALUE_BASIC = 0,
  *     STELLAR_VALUE_SIGNED = 1,
  *     STELLAR_VALUE_EMPTY_TX_SET = 2
+ * #ifdef MS_CLOSE_TIME
+ *     ,
+ *     STELLAR_VALUE_SIGNED_MS = 3,
+ *     STELLAR_VALUE_EMPTY_TX_SET_MS = 4
+ * #endif // MS_CLOSE_TIME
  * };
  * ```
  */
@@ -36,12 +43,22 @@ export class StellarValueType extends EnumValue<StellarValueTypeName> {
     "stellarValueEmptyTxSet",
     2,
   );
+  static readonly stellarValueSignedMs = new StellarValueType(
+    "stellarValueSignedMs",
+    3,
+  );
+  static readonly stellarValueEmptyTxSetMs = new StellarValueType(
+    "stellarValueEmptyTxSetMs",
+    4,
+  );
 
   static readonly schema = withMemberPrefix(
     enumType("StellarValueType", {
       stellarValueBasic: 0,
       stellarValueSigned: 1,
       stellarValueEmptyTxSet: 2,
+      stellarValueSignedMs: 3,
+      stellarValueEmptyTxSetMs: 4,
     }),
     "stellarValue",
   );
