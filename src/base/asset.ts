@@ -71,6 +71,12 @@ export class Asset {
   readonly issuer: string | undefined;
 
   /**
+   * The XDR union arm this asset encodes to. A private field so the object's
+   * JSON/spread shape keeps only the code and issuer.
+   */
+  #rawAssetType: XdrAssetType;
+
+  /**
    * @param code - The asset code.
    * @param issuer - The account ID of the issuer.
    */
@@ -95,6 +101,19 @@ export class Asset {
     }
 
     this.issuer = issuer;
+    this.#rawAssetType = Asset.#deriveRawAssetType(this.code, issuer);
+  }
+
+  static #deriveRawAssetType(
+    code: string,
+    issuer: string | undefined,
+  ): XdrAssetType {
+    if (!issuer) {
+      return XdrAssetType.assetTypeNative;
+    }
+    return code.length <= 4
+      ? XdrAssetType.assetTypeCreditAlphanum4
+      : XdrAssetType.assetTypeCreditAlphanum12;
   }
 
   /**
@@ -123,14 +142,19 @@ export class Asset {
           "\0",
         ) as string;
         return new this(code, issuer);
-      case "assetTypeCreditAlphanum12":
+      case "assetTypeCreditAlphanum12": {
         anum = assetXdr.alphaNum12;
         issuer = StrKey.encodeEd25519PublicKey(anum.issuer.ed25519.toBytes());
         code = trimEnd(
           uint8ArrayToString(anum.assetCode.toBytes()),
           "\0",
         ) as string;
-        return new this(code, issuer);
+        // Preserve the decoded arm: a short code inferred from length alone
+        // would re-encode as alphanum4.
+        const asset = new this(code, issuer);
+        asset.#rawAssetType = XdrAssetType.assetTypeCreditAlphanum12;
+        return asset;
+      }
       default:
         // @ts-expect-error this should be unreachable if the XDR types are correct, but we throw just in case
         throw new Error("Invalid asset type received: " + assetXdr.type);
@@ -223,7 +247,10 @@ export class Asset {
       throw new Error("Issuer cannot be null for non-native asset");
     }
 
-    if (this.code.length <= 4) {
+    if (
+      this.getRawAssetType().value ===
+      XdrAssetType.assetTypeCreditAlphanum4.value
+    ) {
       const assetType = new AlphaNum4({
         assetCode: stringToUint8Array(this.code.padEnd(4, "\0")),
         issuer: Keypair.fromPublicKey(this.issuer).xdrAccountId(),
@@ -284,15 +311,14 @@ export class Asset {
    * Returns the raw XDR representation of the asset type
    */
   getRawAssetType(): XdrAssetType {
-    if (this.isNative()) {
-      return XdrAssetType.assetTypeNative;
+    // An object that never ran the constructor (a structural clone or a
+    // JSON-rehydrated instance) lacks the private field; derive the arm from
+    // code and issuer as before v17.1.
+    const { code, issuer } = this;
+    if (#rawAssetType in this) {
+      return this.#rawAssetType;
     }
-
-    if (this.code.length <= 4) {
-      return XdrAssetType.assetTypeCreditAlphanum4;
-    }
-
-    return XdrAssetType.assetTypeCreditAlphanum12;
+    return Asset.#deriveRawAssetType(code, issuer);
   }
 
   /**
@@ -308,7 +334,11 @@ export class Asset {
    * @param asset - Asset to compare
    */
   equals(asset: Asset): boolean {
-    return this.code === asset.getCode() && this.issuer === asset.getIssuer();
+    return (
+      this.code === asset.getCode() &&
+      this.issuer === asset.getIssuer() &&
+      this.getRawAssetType().value === asset.getRawAssetType().value
+    );
   }
 
   /**
