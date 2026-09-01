@@ -294,9 +294,15 @@ export async function authorizeEntry(
         signature = sigResult.signature;
         publicKey = sigResult.publicKey;
       } else if (isUint8Array(sigResult)) {
-        // if using the deprecated form, assume it's for the entry
+        // If using the deprecated form, verify against `forAddress` when the
+        // caller named one (a CAP-71 delegate, say) — falling back to the
+        // entry's own top-level address only when no target was given.
+        // `targetAddress` is already resolved above from `forAddress`, so
+        // this stays behavior-identical for every caller that doesn't pass
+        // one.
         signature = sigResult;
-        publicKey = Address.fromScAddress(addrAuth.address).toString();
+        publicKey =
+          targetAddress ?? Address.fromScAddress(addrAuth.address).toString();
       } else {
         // Without this the value reached `verify` unchecked. A wrong shape that
         // still carries a signature (an `xdr.Signature` wrapper) got a forgery

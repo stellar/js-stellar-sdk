@@ -761,7 +761,7 @@ authorizeInvocation(params: AuthorizeInvocationParams): Promise<SorobanAuthoriza
 
 - **`params`** — `AuthorizeInvocationParams` (required)
 
-**Source:** [src/base/auth.ts:433](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L433)
+**Source:** [src/base/auth.ts:439](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L439)
 
 ## buildAuthorizationEntryPreimage
 
@@ -796,7 +796,7 @@ buildAuthorizationEntryPreimage(entry: SorobanAuthorizationEntry, validUntilLedg
 - `Error` if `entry` carries source-account or otherwise non-address
    credentials
 
-**Source:** [src/base/auth.ts:499](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L499)
+**Source:** [src/base/auth.ts:505](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L505)
 
 ## buildInvocationTree
 
@@ -888,7 +888,7 @@ buildWithDelegatesEntry(params: BuildWithDelegatesParams): SorobanAuthorizationE
 - `Error` if `entry` is not an `ADDRESS`/`ADDRESS_V2` entry, or if any
    delegates array contains a duplicate address.
 
-**Source:** [src/base/auth.ts:606](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L606)
+**Source:** [src/base/auth.ts:612](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L612)
 
 ## checkAuthEntryReadiness
 
@@ -930,7 +930,7 @@ a [`AuthEntryReadiness`](#authentryreadiness): `ready`, `expired`, and which
    sequence (non-integer, negative, or above 2^32 - 1), which would make the
    expiration comparison unreliable
 
-**Source:** [src/base/auth.ts:1061](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L1061)
+**Source:** [src/base/auth.ts:1067](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L1067)
 
 ## humanizeEvents
 
@@ -993,7 +993,7 @@ if (!info.signed && info.address !== null) {
 
 - checkAuthEntryReadiness
 
-**Source:** [src/base/auth.ts:941](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L941)
+**Source:** [src/base/auth.ts:947](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L947)
 
 ## nativeToScVal
 
@@ -1230,7 +1230,7 @@ The credential arm of a `xdr.SorobanAuthorizationEntry`.
 type AuthEntryCredentialType = "sourceAccount" | "address" | "addressV2" | "addressWithDelegates"
 ```
 
-**Source:** [src/base/auth.ts:821](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L821)
+**Source:** [src/base/auth.ts:827](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L827)
 
 ### AuthEntryInfo
 
@@ -1249,7 +1249,7 @@ interface AuthEntryInfo {
 }
 ```
 
-**Source:** [src/base/auth.ts:871](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L871)
+**Source:** [src/base/auth.ts:877](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L877)
 
 #### `authEntryInfo.address`
 
@@ -1259,7 +1259,7 @@ the authorizing address, or `null` for source-account credentials.
 address: string | null;
 ```
 
-**Source:** [src/base/auth.ts:874](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L874)
+**Source:** [src/base/auth.ts:880](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L880)
 
 #### `authEntryInfo.credentialType`
 
@@ -1267,7 +1267,7 @@ address: string | null;
 credentialType: AuthEntryCredentialType;
 ```
 
-**Source:** [src/base/auth.ts:872](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L872)
+**Source:** [src/base/auth.ts:878](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L878)
 
 #### `authEntryInfo.invocation`
 
@@ -1277,7 +1277,7 @@ the invocation tree this entry authorizes.
 invocation: SorobanAuthorizedInvocation;
 ```
 
-**Source:** [src/base/auth.ts:900](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L900)
+**Source:** [src/base/auth.ts:906](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L906)
 
 #### `authEntryInfo.nonce`
 
@@ -1287,7 +1287,7 @@ the credential nonce, or `null` for source-account credentials.
 nonce: bigint | null;
 ```
 
-**Source:** [src/base/auth.ts:876](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L876)
+**Source:** [src/base/auth.ts:882](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L882)
 
 #### `authEntryInfo.signatureExpirationLedger`
 
@@ -1299,7 +1299,7 @@ carry a placeholder (often `0`) until [`authorizeEntry`](#authorizeentry) sets i
 signatureExpirationLedger: number | null;
 ```
 
-**Source:** [src/base/auth.ts:882](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L882)
+**Source:** [src/base/auth.ts:888](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L888)
 
 #### `authEntryInfo.signed`
 
@@ -1315,7 +1315,7 @@ support that.
 signed: boolean;
 ```
 
-**Source:** [src/base/auth.ts:898](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L898)
+**Source:** [src/base/auth.ts:904](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L904)
 
 #### `authEntryInfo.signers`
 
@@ -1327,7 +1327,7 @@ source-account credentials.
 signers: AuthEntrySigner[];
 ```
 
-**Source:** [src/base/auth.ts:888](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L888)
+**Source:** [src/base/auth.ts:894](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L894)
 
 ### AuthEntryReadiness
 
@@ -1341,7 +1341,7 @@ interface AuthEntryReadiness {
 }
 ```
 
-**Source:** [src/base/auth.ts:904](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L904)
+**Source:** [src/base/auth.ts:910](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L910)
 
 #### `authEntryReadiness.expired`
 
@@ -1352,7 +1352,7 @@ exclusive). Always `false` for source-account credentials.
 expired: boolean;
 ```
 
-**Source:** [src/base/auth.ts:911](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L911)
+**Source:** [src/base/auth.ts:917](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L917)
 
 #### `authEntryReadiness.ready`
 
@@ -1362,7 +1362,7 @@ expired: boolean;
 ready: boolean;
 ```
 
-**Source:** [src/base/auth.ts:906](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L906)
+**Source:** [src/base/auth.ts:912](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L912)
 
 #### `authEntryReadiness.unsignedBy`
 
@@ -1372,7 +1372,7 @@ addresses of signer nodes that carry no signature payload.
 unsignedBy: string[];
 ```
 
-**Source:** [src/base/auth.ts:913](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L913)
+**Source:** [src/base/auth.ts:919](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L919)
 
 ### AuthEntrySignature
 
@@ -1386,7 +1386,7 @@ interface AuthEntrySignature {
 }
 ```
 
-**Source:** [src/base/auth.ts:831](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L831)
+**Source:** [src/base/auth.ts:837](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L837)
 
 #### `authEntrySignature.publicKey`
 
@@ -1396,7 +1396,7 @@ the signer's public key, as a `G…` strkey.
 publicKey: string;
 ```
 
-**Source:** [src/base/auth.ts:833](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L833)
+**Source:** [src/base/auth.ts:839](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L839)
 
 #### `authEntrySignature.signature`
 
@@ -1406,7 +1406,7 @@ the raw 64-byte ed25519 signature.
 signature: Uint8Array;
 ```
 
-**Source:** [src/base/auth.ts:835](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L835)
+**Source:** [src/base/auth.ts:841](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L841)
 
 ### AuthEntrySigner
 
@@ -1423,7 +1423,7 @@ interface AuthEntrySigner {
 }
 ```
 
-**Source:** [src/base/auth.ts:843](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L843)
+**Source:** [src/base/auth.ts:849](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L849)
 
 #### `authEntrySigner.address`
 
@@ -1433,7 +1433,7 @@ the node's address (`G…` account or `C…` contract).
 address: string;
 ```
 
-**Source:** [src/base/auth.ts:845](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L845)
+**Source:** [src/base/auth.ts:851](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L851)
 
 #### `authEntrySigner.rawSignature`
 
@@ -1443,7 +1443,7 @@ the raw signature value, whatever its shape.
 rawSignature: ScVal;
 ```
 
-**Source:** [src/base/auth.ts:864](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L864)
+**Source:** [src/base/auth.ts:870](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L870)
 
 #### `authEntrySigner.signatures`
 
@@ -1459,7 +1459,7 @@ node is unsigned.
 signatures: AuthEntrySignature[] | null;
 ```
 
-**Source:** [src/base/auth.ts:862](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L862)
+**Source:** [src/base/auth.ts:868](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L868)
 
 #### `authEntrySigner.signed`
 
@@ -1472,7 +1472,7 @@ contract's `__check_auth` cannot be verified client-side.
 signed: boolean;
 ```
 
-**Source:** [src/base/auth.ts:852](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L852)
+**Source:** [src/base/auth.ts:858](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L858)
 
 ### AuthorizeInvocationParams
 
@@ -1502,7 +1502,7 @@ interface AuthorizeInvocationParams {
 
 - authorizeEntry
 
-**Source:** [src/base/auth.ts:418](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L418)
+**Source:** [src/base/auth.ts:424](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L424)
 
 #### `authorizeInvocationParams.authV2`
 
@@ -1514,7 +1514,7 @@ the signed payload.
 authV2?: boolean;
 ```
 
-**Source:** [src/base/auth.ts:430](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L430)
+**Source:** [src/base/auth.ts:436](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L436)
 
 #### `authorizeInvocationParams.invocation`
 
@@ -1522,7 +1522,7 @@ authV2?: boolean;
 invocation: SorobanAuthorizedInvocation;
 ```
 
-**Source:** [src/base/auth.ts:421](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L421)
+**Source:** [src/base/auth.ts:427](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L427)
 
 #### `authorizeInvocationParams.networkPassphrase`
 
@@ -1530,7 +1530,7 @@ invocation: SorobanAuthorizedInvocation;
 networkPassphrase: string;
 ```
 
-**Source:** [src/base/auth.ts:422](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L422)
+**Source:** [src/base/auth.ts:428](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L428)
 
 #### `authorizeInvocationParams.publicKey`
 
@@ -1538,7 +1538,7 @@ networkPassphrase: string;
 publicKey?: string;
 ```
 
-**Source:** [src/base/auth.ts:423](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L423)
+**Source:** [src/base/auth.ts:429](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L429)
 
 #### `authorizeInvocationParams.signer`
 
@@ -1546,7 +1546,7 @@ publicKey?: string;
 signer: Keypair | SigningCallback;
 ```
 
-**Source:** [src/base/auth.ts:419](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L419)
+**Source:** [src/base/auth.ts:425](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L425)
 
 #### `authorizeInvocationParams.validUntilLedgerSeq`
 
@@ -1554,7 +1554,7 @@ signer: Keypair | SigningCallback;
 validUntilLedgerSeq: number;
 ```
 
-**Source:** [src/base/auth.ts:420](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L420)
+**Source:** [src/base/auth.ts:426](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L426)
 
 ### BuildWithDelegatesParams
 
@@ -1569,7 +1569,7 @@ interface BuildWithDelegatesParams {
 }
 ```
 
-**Source:** [src/base/auth.ts:564](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L564)
+**Source:** [src/base/auth.ts:570](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L570)
 
 #### `buildWithDelegatesParams.delegates`
 
@@ -1579,7 +1579,7 @@ the delegate signers to attach.
 delegates: DelegateSignature[];
 ```
 
-**Source:** [src/base/auth.ts:574](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L574)
+**Source:** [src/base/auth.ts:580](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L580)
 
 #### `buildWithDelegatesParams.entry`
 
@@ -1591,7 +1591,7 @@ simulation — whose address credentials should be wrapped.
 entry: SorobanAuthorizationEntry;
 ```
 
-**Source:** [src/base/auth.ts:570](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L570)
+**Source:** [src/base/auth.ts:576](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L576)
 
 #### `buildWithDelegatesParams.signature`
 
@@ -1602,7 +1602,7 @@ for accounts that authorize purely via delegated signers (CAP-71-01).
 signature?: ScVal;
 ```
 
-**Source:** [src/base/auth.ts:579](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L579)
+**Source:** [src/base/auth.ts:585](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L585)
 
 #### `buildWithDelegatesParams.validUntilLedgerSeq`
 
@@ -1612,7 +1612,7 @@ the expiration ledger sequence stored on the top-level credentials.
 validUntilLedgerSeq: number;
 ```
 
-**Source:** [src/base/auth.ts:572](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L572)
+**Source:** [src/base/auth.ts:578](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L578)
 
 ### CreateInvocation
 
@@ -1684,7 +1684,7 @@ interface DelegateSignature {
 }
 ```
 
-**Source:** [src/base/auth.ts:550](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L550)
+**Source:** [src/base/auth.ts:556](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L556)
 
 #### `delegateSignature.address`
 
@@ -1694,7 +1694,7 @@ the delegate's address (`G…` account or `C…` contract).
 address: string;
 ```
 
-**Source:** [src/base/auth.ts:552](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L552)
+**Source:** [src/base/auth.ts:558](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L558)
 
 #### `delegateSignature.nestedDelegates`
 
@@ -1704,7 +1704,7 @@ signers this delegate in turn delegates to (recursive).
 nestedDelegates?: DelegateSignature[];
 ```
 
-**Source:** [src/base/auth.ts:560](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L560)
+**Source:** [src/base/auth.ts:566](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L566)
 
 #### `delegateSignature.signature`
 
@@ -1716,7 +1716,7 @@ as `forAddress`) or by editing the entry directly.
 signature?: ScVal;
 ```
 
-**Source:** [src/base/auth.ts:558](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L558)
+**Source:** [src/base/auth.ts:564](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/auth.ts#L564)
 
 ### ExecuteInvocation
 

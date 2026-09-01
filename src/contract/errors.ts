@@ -18,6 +18,8 @@ export class InternalWalletError extends Error {}
 export class ExternalServiceError extends Error {}
 export class InvalidClientRequestError extends Error {}
 export class UserRejectedError extends Error {}
+export class UnsupportedDelegateSignerError extends Error {}
+export class AuthorizeEntryMissingForAddressError extends Error {}
 
 // contract.SentTransaction.Errors
 export class SendFailedError extends Error {}

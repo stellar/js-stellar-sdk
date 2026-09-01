@@ -7,6 +7,7 @@ import {
   Contract,
   Operation,
   SorobanDataBuilder,
+  StrKey,
   TransactionBuilder,
   authorizeEntry as stellarBaseAuthorizeEntry,
   inspectAuthEntry,
@@ -36,6 +37,7 @@ import { DEFAULT_TIMEOUT } from "./types.js";
 import { SentTransaction, Watcher } from "./sent_transaction.js";
 import { Spec } from "./spec.js";
 import {
+  AuthorizeEntryMissingForAddressError,
   ExpiredStateError,
   ExternalServiceError,
   FakeAccountError,
@@ -48,6 +50,7 @@ import {
   NoUnsignedNonInvokerAuthEntriesError,
   RestoreFailureError,
   SimulationFailedError,
+  UnsupportedDelegateSignerError,
   UserRejectedError,
 } from "./errors.js";
 import {
@@ -361,6 +364,8 @@ export class AssembledTransaction<T> {
     ExternalServiceError,
     InvalidClientRequest: InvalidClientRequestError,
     UserRejected: UserRejectedError,
+    UnsupportedDelegateSigner: UnsupportedDelegateSignerError,
+    AuthorizeEntryMissingForAddress: AuthorizeEntryMissingForAddressError,
   };
 
   /**
@@ -1134,11 +1139,16 @@ export class AssembledTransaction<T> {
       }
 
       // This entry needs a signature from `address` if it appears on ANY
-      // signer node: the top-level credentials, or (for
+      // *unsigned* signer node: the top-level credentials, or (for
       // SOROBAN_CREDENTIALS_ADDRESS_WITH_DELEGATES) any (possibly nested)
       // delegate. Checking only the top-level address here was the bug:
       // it skipped entries entirely when `address` was a delegate rather
-      // than the top-level signer.
+      // than the top-level signer. Requiring `!signer.signed` matters too:
+      // matching an already-signed node would re-sign it, invoking the
+      // wallet needlessly and, since every signature on an entry commits
+      // to the same shared `signatureExpirationLedger`, risking the same
+      // invalidation `entryExpiration` below guards against — just
+      // triggered by a redundant call rather than a second real signer.
       //
       // `address` is typed as possibly `undefined` (its default falls
       // through to `this.options.publicKey`, which may not be set), but
@@ -1148,11 +1158,66 @@ export class AssembledTransaction<T> {
       // own binding once, rather than asserted with `as string` at every
       // use below.
       const target = info.signers.find(
-        (signer) => signer.address === address,
+        (signer) => signer.address === address && !signer.signed,
       )?.address;
       if (target === undefined) continue;
 
+      if (StrKey.isValidContract(target)) {
+        // A contract-address delegate (Signer::Delegated) needs its own
+        // account contract's `__check_auth`-defined signature ScVal, not an
+        // Ed25519 signature verified against its own address as a public
+        // key — `Keypair.fromPublicKey` would throw an opaque strkey error
+        // on it below. Nothing in this loop can produce that ScVal yet:
+        // failing clearly here, before calling the wallet at all, beats a
+        // wallet call that can only ever fail afterward.
+        throw new AssembledTransaction.Errors.UnsupportedDelegateSigner(
+          `Cannot sign for contract address delegate "${target}": ` +
+            "signAuthEntries doesn't yet support Signer::Delegated-style " +
+            "contract signers, only Ed25519 keys. Provide a signatureScVal " +
+            "directly via a custom authorizeEntry instead.",
+        );
+      }
+
+      if (
+        authorizeEntry !== stellarBaseAuthorizeEntry &&
+        target !== info.address &&
+        authorizeEntry.length < 5
+      ) {
+        // `target` is a delegate, not the top-level address, so it must be
+        // written to that specific node via `authorizeEntry`'s 5th
+        // parameter, `forAddress` — the caller's custom `authorizeEntry`
+        // doesn't declare enough parameters to accept it (a pre-existing
+        // implementation, from before this parameter existed). Silently
+        // omitting it would write the signature to the top-level node
+        // instead, leaving the actual delegate unsigned with no error
+        // until the network rejects it.
+        throw new AssembledTransaction.Errors.AuthorizeEntryMissingForAddress(
+          "The custom `authorizeEntry` passed to signAuthEntries only " +
+            `accepts ${authorizeEntry.length} argument(s), but signing "` +
+            `${target}" (a delegate, not this entry's top-level address) ` +
+            "requires passing it as the 5th argument, `forAddress`. Add a " +
+            "5th parameter to your `authorizeEntry` and forward it.",
+        );
+      }
+
       const sign: SignAuthEntry = signAuth ?? Promise.resolve;
+
+      // Every signature on this entry commits to the same shared
+      // `signatureExpirationLedger` (it's one field on the top-level
+      // credentials, not per-signer). If a prior call already signed some
+      // node here, its signature's own preimage already committed to
+      // `info.signatureExpirationLedger` — reuse that value rather than
+      // `expiration`'s fresh default, or this signature silently
+      // invalidates the earlier one by changing what every signature was
+      // actually computed over. `signatureExpirationLedger` is commonly a
+      // `0` placeholder before the first signature (see
+      // `inspectAuthEntry`'s own doc comment), so a truthy check doubles
+      // as "has this been set for real yet".
+      const entryExpiration =
+        info.signers.some((signer) => signer.signed) &&
+        info.signatureExpirationLedger
+          ? info.signatureExpirationLedger
+          : await expiration;
 
       authEntries[i] = await authorizeEntry(
         entry,
@@ -1188,7 +1253,7 @@ export class AssembledTransaction<T> {
             publicKey: signerAddress ?? target,
           };
         },
-        await expiration,
+        entryExpiration,
         this.options.networkPassphrase,
         // Write the signature to whichever node(s) actually carry
         // `target` (rebuildDelegatesWithSignature in base/auth.ts
