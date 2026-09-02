@@ -90,6 +90,14 @@ export class LiquidityPoolAsset {
   }
 
   /**
+   * @deprecated Use {@link toXdrObject} instead.
+   * Deprecated in version v17.0.0
+   */
+  toXDRObject(): ChangeTrustAsset {
+    return this.toXdrObject();
+  }
+
+  /**
    * Returns liquidity pool parameters.
    */
   getLiquidityPoolParameters(): LiquidityPoolParameters {

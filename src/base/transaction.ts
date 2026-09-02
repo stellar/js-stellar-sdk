@@ -1,4 +1,5 @@
-import { base64ToUint8Array, concatUint8Arrays } from "uint8array-extras";
+import { concatUint8Arrays } from "uint8array-extras";
+import { base64ToUint8Array } from "./util/base64.js";
 import {
   ClaimableBalanceId,
   Hash,

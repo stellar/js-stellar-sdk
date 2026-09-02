@@ -1,6 +1,6 @@
 {
   "name": "@stellar/stellar-sdk",
-  "version": "17.0.0-rc.2",
+  "version": "17.0.1",
   "type": "module",
   "packageManager": "pnpm@10.28.0",
   "description": "A library for working with the Stellar network, including communication with the Horizon and Soroban RPC servers.",
@@ -117,7 +117,7 @@
     "test:e2e": "./test/e2e/initialize.sh && vitest run --config config/vitest.config.e2e.ts --coverage",
     "test:node": "vitest run test/unit --config config/vitest.config.ts --coverage",
     "test:types": "tsc -p test/types/tsconfig.json",
-  "typecheck:tests": "tsc -p test/tsconfig.json",
+    "typecheck:tests": "tsc -p test/tsconfig.json",
     "test:node:axios": "cross-env TRANSPORT=axios vitest run test/unit --config config/vitest.config.ts",
     "test:e2e:noeval": "NODE_OPTIONS=--disallow-code-generation-from-strings pnpm run test:e2e",
     "test:integration": "vitest run test/integration --config config/vitest.config.ts --coverage",
@@ -142,12 +142,12 @@
     ]
   },
   "engines": {
-    "node": ">=22.0.0"
+    "node": ">=22.12.0"
   },
   "devDependencies": {
-    "@astrojs/markdown-remark": "^7.2.0",
+    "@astrojs/markdown-remark": "^7.2.4",
     "@astrojs/sitemap": "^3.7.3",
-    "@astrojs/starlight": "^0.41.3",
+    "@astrojs/starlight": "^0.41.8",
     "@eslint/compat": "^1.4.1",
     "@eslint/js": "^9.39.4",
     "@noble/curves": "^2.2.0",
@@ -159,16 +159,16 @@
     "@types/detect-node": "^2.0.2",
     "@types/node": "^22.19.17",
     "@types/sha.js": "^2.4.4",
-    "@vitest/browser": "^4.1.9",
-    "@vitest/browser-playwright": "^4.1.9",
-    "@vitest/coverage-istanbul": "4.1.9",
-    "@vitest/coverage-v8": "^4.1.9",
-    "@vitest/ui": "^4.1.9",
-    "astro": "^7.1.0",
+    "@vitest/browser": "^4.1.11",
+    "@vitest/browser-playwright": "^4.1.11",
+    "@vitest/coverage-istanbul": "4.1.11",
+    "@vitest/coverage-v8": "^4.1.11",
+    "@vitest/ui": "^4.1.11",
+    "astro": "^7.2.6",
     "browserify-zlib": "^0.2.0",
     "cross-env": "^10.1.0",
     "dotenv": "^17.4.2",
-    "esbuild": "^0.27.7",
+    "esbuild": "^0.28.2",
     "eslint": "^9.39.1",
     "eslint-config-prettier": "^10.1.8",
     "eslint-import-resolver-typescript": "^4.4.5",
@@ -191,13 +191,13 @@
     "typedoc": "^0.28.19",
     "typescript": "5.9.3",
     "typescript-eslint": "^8.61.1",
-    "vitest": "^4.1.9"
+    "vitest": "^4.1.11"
   },
   "dependencies": {
     "@exodus/bytes": "^1.15.1",
     "@noble/ed25519": "^3.1.0",
     "@noble/hashes": "^2.2.0",
-    "@stellar/js-xdr": "^5.0.0-rc.2",
+    "@stellar/js-xdr": "^5.0.0",
     "@types/json-schema": "^7.0.15",
     "axios": "1.18.0",
     "bignumber.js": "^11.1.4",

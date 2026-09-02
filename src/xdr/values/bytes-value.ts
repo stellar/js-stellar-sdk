@@ -1,10 +1,6 @@
-import {
-  hexToUint8Array,
-  base64ToUint8Array,
-  stringToUint8Array,
-} from "uint8array-extras";
+import { stringToUint8Array, uint8ArrayToString } from "uint8array-extras";
 import { XdrError } from "@stellar/js-xdr";
-import { XdrValue } from "./xdr-value.js";
+import { XdrValue, decodeBytes, encodeBytes } from "./xdr-value.js";
 
 export type BytesEncoding = "hex" | "base64" | "ascii";
 
@@ -13,14 +9,13 @@ function decodeBytesInput(
   encoding: BytesEncoding,
 ): Uint8Array {
   if (input instanceof Uint8Array) return input;
-  switch (encoding) {
-    case "hex":
-      return hexToUint8Array(input);
-    case "base64":
-      return base64ToUint8Array(input);
-    case "ascii":
-      return stringToUint8Array(input);
-  }
+  if (encoding === "ascii") return stringToUint8Array(input);
+  return decodeBytes(input, encoding);
+}
+
+function encodeBytesOutput(bytes: Uint8Array, encoding: BytesEncoding): string {
+  if (encoding === "ascii") return uint8ArrayToString(bytes);
+  return encodeBytes(bytes, encoding);
 }
 
 /**
@@ -63,6 +58,19 @@ export abstract class BytesValue<Tag extends string = string> extends XdrValue {
       );
     }
     this.value = bytes;
+  }
+
+  /**
+   * Render the bytes in the class's declared `encoding`.
+   *
+   * For the XDR wire form regardless of the declared encoding, use
+   * {@link XdrValue.toXdr | `toXdr("base64")`}.
+   */
+  toString(): string {
+    const ctor = this.constructor as typeof BytesValue & {
+      readonly encoding: BytesEncoding;
+    };
+    return encodeBytesOutput(this.value, ctor.encoding);
   }
 
   toXdrObject(): Uint8Array {

@@ -42,17 +42,18 @@ import { XdrLargeInt, type ScIntType } from "./xdr_large_int.js";
  * new ScInt(-42);
  * new ScInt(scValToBigInt(scValU128)); // from above
  *
- * // If you know the type ahead of time (accessing `.raw` is faster than
- * // conversions), you can specify the type directly (otherwise, it's
- * // interpreted from the numbers you pass in):
+ * // If you know the type ahead of time you can specify it directly, rather
+ * // than letting it be interpreted from the value you pass in:
  * const i = new ScInt(123456789n, { type: "u256" });
  *
- * // For example, you can use the underlying `sdk.U256` and convert it to an
- * // `xdr.ScVal` directly like so:
- * const scv = new xdr.ScVal.scvU256(i.raw);
+ * // `.value` is the underlying bigint, and each `to*()` hands back a ready
+ * // `xdr.ScVal` — there is nothing further to wrap:
+ * i.value;                // 123456789n
+ * const scv = i.toU256(); // xdr.ScVal, ScValType = U256
  *
- * // Or reinterpret it as a different type (size permitting):
- * const scv = i.toI64();
+ * // The declared type pins the width: a `u256` cannot be re-encoded narrower,
+ * // even when the value itself would fit.
+ * i.toI64(); // throws RangeError: cannot encode u256 as 64 bits
  * ```
  *
  * @throws a `TypeError` if the `value` is invalid (e.g. floating point), too

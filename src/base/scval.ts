@@ -107,7 +107,7 @@ export interface NativeToScValOpts {
  * nativeToScVal(1000n);                  // gives ScValType === scvU64
  * nativeToScVal(1n << 100n);             // gives ScValType === scvU128
  * nativeToScVal(1000, { type: 'u32' });  // gives ScValType === scvU32
- * nativeToScVal(1000, { type: 'i125' }); // gives ScValType === scvI256
+ * nativeToScVal(1000, { type: 'i256' }); // gives ScValType === scvI256
  * nativeToScVal("a string");                     // gives ScValType === scvString
  * nativeToScVal("a string", { type: 'symbol' }); // gives scvSymbol
  * nativeToScVal(new Uint8Array(5));                      // scvBytes

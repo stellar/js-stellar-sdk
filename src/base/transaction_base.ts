@@ -1,8 +1,5 @@
-import {
-  base64ToUint8Array,
-  hexToUint8Array,
-  uint8ArrayToBase64,
-} from "uint8array-extras";
+import { hexToUint8Array } from "uint8array-extras";
+import { base64ToUint8Array, uint8ArrayToBase64 } from "./util/base64.js";
 import {
   DecoratedSignature,
   FeeBumpTransaction,
@@ -249,5 +246,13 @@ export class TransactionBase<
    */
   toXdr(): string {
     return this.toEnvelope().toXdr("base64");
+  }
+
+  /**
+   * @deprecated Use {@link toXdr} instead.
+   * Deprecated in version v17.0.0
+   */
+  toXDR(): string {
+    return this.toXdr();
   }
 }

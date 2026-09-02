@@ -1,4 +1,4 @@
-import { base64ToUint8Array, uint8ArrayToBase64 } from "uint8array-extras";
+import { base64ToUint8Array, uint8ArrayToBase64 } from "../base/util/base64.js";
 import { Keypair, TransactionBuilder, hash } from "../base/index.js";
 import type { SignAuthEntry, SignTransaction } from "./types.js";
 

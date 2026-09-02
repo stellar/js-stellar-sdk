@@ -153,7 +153,8 @@ function toScVal(value: unknown): ScVal | null {
  * @example
  * ```ts
  * import {
- *   SorobanRpc,
+ *   rpc,
+ *   Operation,
  *   Transaction,
  *   Networks,
  *   authorizeEntry
@@ -164,34 +165,55 @@ function toScVal(value: unknown): ScVal | null {
  * // It might, for example, pop up a modal from a browser extension, send the
  * // transaction to a third-party service for signing, or just do simple
  * // signing via Keypair like it does here:
- * function signPayloadCallback(preimage, payload) {
+ * async function signPayloadCallback(preimage, payload) {
  *    // `payload` is hash(preimage.toXdr()) — inspect `preimage` if you want
  *    // to display/verify what is being authorized before signing.
  *    return signer.sign(payload);
  * }
  *
- * function multiPartyAuth(
- *    server: SorobanRpc.Server,
+ * async function multiPartyAuth(
+ *    server: rpc.Server,
  *    // assume this involves multi-party auth
  *    tx: Transaction,
  * ) {
- *    return server
- *      .simulateTransaction(tx)
- *      .then((simResult) => {
- *          tx.operations[0].auth.map(entry =>
- *            authorizeEntry(
- *              entry,
- *              signPayloadCallback,
- *              currentLedger + 1000,
- *              Networks.TESTNET)
- *          );
+ *    const sim = await server.simulateTransaction(tx);
+ *    if (!rpc.Api.isSimulationSuccess(sim)) {
+ *      throw new Error('simulation failed');
+ *    }
  *
- *          return server.prepareTransaction(tx, simResult);
- *      })
- *      .then((preppedTx) => {
- *        preppedTx.sign(source);
- *        return server.sendTransaction(preppedTx);
- *      });
+ *    const invoke = tx.operations[0];
+ *    if (invoke.type !== 'invokeHostFunction') {
+ *      throw new Error('expected an invokeHostFunction operation');
+ *    }
+ *
+ *    // Simulation supplies the entries to authorize. `authorizeEntry` returns
+ *    // a signed *copy*, so collect the results rather than discarding them.
+ *    const auth = await Promise.all(
+ *      (sim.result?.auth ?? []).map((entry) =>
+ *        authorizeEntry(
+ *          entry,
+ *          signPayloadCallback,
+ *          currentLedger + 1000,
+ *          Networks.TESTNET,
+ *        ),
+ *      ),
+ *    );
+ *
+ *    // Replace the operation rather than mutating it: a built `Transaction`'s
+ *    // operations must not be changed. `assembleTransaction` applies the
+ *    // resources and fee from simulation, and keeps auth that is already
+ *    // present. Call `build()` once — each call consumes a sequence number.
+ *    const built = rpc.assembleTransaction(tx, sim)
+ *      .clearOperations()
+ *      .addOperation(Operation.invokeHostFunction({
+ *        source: invoke.source,
+ *        func: invoke.func,
+ *        auth,
+ *      }))
+ *      .build();
+ *
+ *    built.sign(source);
+ *    return server.sendTransaction(built);
  * }
  * ```
  */

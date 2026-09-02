@@ -1,4 +1,4 @@
-import { base64ToUint8Array } from "uint8array-extras";
+import { base64ToUint8Array } from "./util/base64.js";
 import {
   FeeBumpTransaction as XdrFeeBumpTransaction,
   FeeBumpTransactionEnvelope,

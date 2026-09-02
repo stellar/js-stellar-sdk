@@ -27,13 +27,14 @@ and base64 written by older SDKs still decode.
 Each has a dedicated deep-dive guide, because the surface is too large to
 summarize here:
 
-- **[XDR migration guide](/xdr_migration/)** covers the class-based `xdr`
-  namespace, built on js-xdr v5. Affects anyone who reads or builds `xdr.*`
-  values, plus anyone calling `tx.toXDR()` or `TransactionBuilder.fromXDR()`,
-  which were renamed.
-- **[Uint8Array migration guide](/uint8array_migration/)** covers `Buffer` →
-  `Uint8Array` on every byte-returning public API. Affects anyone calling
-  `.toString("hex")`, `.equals()`, or another Buffer method on an SDK result.
+- **[XDR migration guide](/migration/xdr-migration/)** covers the class-based
+  `xdr` namespace, built on js-xdr v5. Affects anyone who reads or builds
+  `xdr.*` values, plus anyone calling `tx.toXDR()` or
+  `TransactionBuilder.fromXDR()`, which were renamed.
+- **[Uint8Array migration guide](/migration/uint8array-migration/)** covers
+  `Buffer` → `Uint8Array` on every byte-returning public API. Affects anyone
+  calling `.toString("hex")`, `.equals()`, or another Buffer method on an SDK
+  result.
 
 Read both. The two interact, and each has failure modes that produce **no error
 at all**:
@@ -48,6 +49,16 @@ at all**:
 
 The method renames (`toXDR` → `toXdr`, `fromXDRObject` → `fromXdrObject`, and
 eleven more) ship without back-compat aliases, so those at least fail loudly.
+
+### Installation: the Node floor is now 22.12.0
+
+`engines.node` is `>=22.12.0` (16.x said `>=22.0.0`). The CommonJS build loads
+ESM-only dependencies through `require()`, which Node only supports unflagged
+from 22.12.0 — on 22.0–22.11 `require("@stellar/stellar-sdk")` fails with
+`ERR_REQUIRE_ESM`. Installing on an earlier 22.x now produces an `EBADENGINE`
+warning instead of a package that cannot be required
+([#1664](https://github.com/stellar/js-stellar-sdk/issues/1664)). ESM consumers
+were never affected. Upgrade Node, or use the ESM entry point.
 
 ### Auth: CAP-71 v2 address credentials are now the default
 
@@ -100,7 +111,7 @@ sign whichever credential the entry carries, and pick the address-bound payload
 for `ADDRESS_V2`. A hand-rolled signer that hardcodes the legacy
 `ENVELOPE_TYPE_SOROBAN_AUTHORIZATION` preimage now produces signatures the
 network rejects. See
-[Protocol 27 Soroban auth](/guides/00-protocol-27-soroban-auth/) for the
+[Protocol 27 Soroban auth](/migration/protocol-27-soroban-auth/) for the
 address-bound payload.
 
 ## 16.x.x Breaking changes
@@ -172,7 +183,7 @@ moved. Use the subpath exports instead.
 
 ```ts del={1} ins={2}
 import { Server } from "@stellar/stellar-sdk/lib/rpc/index.js"
-import { rpc } from "@stellar/stellar-sdk/rpc"
+import { Server } from "@stellar/stellar-sdk/rpc"
 ```
 
 Available subpaths: `.`, `./rpc`, `./contract`, `./axios`, `./axios/rpc`,
@@ -494,6 +505,11 @@ Protocol 27 ([CAP-71](https://github.com/stellar/stellar-protocol/blob/master/co
 adds two address-bound Soroban credential types, `AddressV2` and
 `AddressWithDelegates`. This only affects code that signs Soroban authorization
 entries or inspects their credential arms.
+
+The full deep dive lives in
+[Protocol 27 Soroban auth](/migration/protocol-27-soroban-auth/): the
+address-bound signature payload, the `AddressV2` and `AddressWithDelegates`
+credential types, and how to migrate a hand-rolled signer.
 
 In 16.x the SDK used the legacy `ADDRESS` credential everywhere by default:
 simulation returned `ADDRESS` entries and `authorizeInvocation` built them.

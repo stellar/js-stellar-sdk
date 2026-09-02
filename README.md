@@ -29,6 +29,7 @@ The library provides:
   - [...with React Native](#usage-with-react-native)
   - [...with Expo](#usage-with-expo-managed-workflows)
   - [...with CloudFlare Workers](#usage-with-cloudflare-workers)
+  - [...with Deno](#usage-with-deno)
 - [CLI](#cli): generate TypeScript bindings for Stellar smart contracts
 - [Migrating](#migrating): migration guides for breaking changes
 - [Developing](#developing): contribute to the project!
@@ -44,6 +45,8 @@ npm install --save @stellar/stellar-sdk
 pnpm add @stellar/stellar-sdk
 # or
 yarn add @stellar/stellar-sdk
+# or
+deno add npm:@stellar/stellar-sdk
 ```
 
 Then, require or import it in your JavaScript code:
@@ -160,7 +163,7 @@ The usage documentation for this library lives in a handful of places:
   which also publishes
   [agent-friendly bundles, raw markdown siblings, and a crawler policy](https://stellar.github.io/js-stellar-sdk/agents/)
   for AI tools. The site's URL, base path, and AI policy values live in
-  [`config/site.ts`](config/site.ts).
+  [`config/site.ts`](https://github.com/stellar/js-stellar-sdk/blob/main/config/site.ts).
 
 ### AI agent documentation
 
@@ -185,10 +188,10 @@ You can also refer to:
 ### Usage with Jest
 
 Some of the SDK's dependencies (`@noble/hashes`, `@noble/ed25519`,
-`uint8array-extras`, `smol-toml`, `eventsource`) ship only ES modules. Node
-itself handles this (`require(esm)` is on by default from Node 22.12.0; on
-22.0–22.11 it needs `--experimental-require-module`), but Jest's default
-transform pipeline does not: tests that load the SDK fail with
+`uint8array-extras`, `@exodus/bytes`) ship only ES modules. Node itself handles
+this (`require(esm)` is unflagged from Node 22.12.0, the minimum this SDK
+supports), but Jest's default transform pipeline does not: tests that load the
+SDK fail with
 `SyntaxError: Cannot use import statement outside a module` coming from inside
 `node_modules`.
 
@@ -198,10 +201,15 @@ Tell Jest to transform those packages instead of skipping them:
 // jest.config.js
 module.exports = {
   transformIgnorePatterns: [
-    "node_modules/(?!(@noble|uint8array-extras|smol-toml|eventsource)/)",
+    "node_modules/(?!(\\.pnpm|@noble|@exodus|uint8array-extras)/)",
   ],
 };
 ```
+
+`.pnpm` belongs in that list even though it is not a package. Under pnpm the
+real path is `node_modules/.pnpm/<pkg>@<version>/node_modules/<pkg>/…`, so
+without it the pattern matches at the first `node_modules/` segment and the
+package is skipped before the name is ever compared.
 
 If you compile tests with ts-jest or Babel, also make sure the compilation
 target is `es2020` or later — the SDK and its crypto dependencies use native
@@ -257,6 +265,26 @@ flag is no longer required for it. The one thing to watch for:
 - **Streaming.** Horizon's `.stream()` depends on `EventSource`; long-lived
   streaming connections don't fit the Workers request model well, so prefer
   polling (`.call()` / `.cursor()`) for Horizon data in a Worker.
+
+### Usage with Deno
+
+Deno pulls the SDK in through its npm compatibility layer. Add it to your
+`deno.json` (see [Installation](#installation)) and import the bare specifier,
+or skip that step and import the `npm:` specifier directly:
+
+```js
+import * as StellarSdk from "@stellar/stellar-sdk";
+// or, without adding it to deno.json
+import * as StellarSdk from "npm:@stellar/stellar-sdk";
+```
+
+Two Deno-specific things to keep in mind:
+
+- **Permissions.** Horizon and RPC calls need network access, so run with
+  `--allow-net` (or scope it, e.g.
+  `--allow-net=horizon-testnet.stellar.org,soroban-testnet.stellar.org`).
+- **The CLI.** Run it without installing anything:
+  `deno run -A npm:@stellar/stellar-sdk` (see [CLI](#cli)).
 
 ## CLI
 
@@ -431,8 +459,10 @@ git clone https://github.com/stellar/js-stellar-sdk.git
 2. Install Node
 
 Because we support the oldest maintenance version of Node, please install and
-develop on the version pinned in [`.nvmrc`](.nvmrc) (currently Node 22) so you
-don't get surprised when your code works locally but breaks in CI.
+develop on the version pinned in
+[`.nvmrc`](https://github.com/stellar/js-stellar-sdk/blob/main/.nvmrc)
+(currently Node 22; the minimum supported is 22.12.0) so you don't get
+surprised when your code works locally but breaks in CI.
 
 Here's how to install `nvm` if you haven't: https://github.com/creationix/nvm
 

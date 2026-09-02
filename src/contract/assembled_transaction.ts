@@ -61,7 +61,7 @@ import {
   TransactionEnvelope,
 } from "../xdr/index.js";
 import { getAddressCredentials } from "../base/auth.js";
-import { base64ToUint8Array } from "uint8array-extras";
+import { base64ToUint8Array } from "../base/util/base64.js";
 
 /**
  * The main workhorse of {@link Client}. This class is used to wrap a
@@ -546,6 +546,24 @@ export class AssembledTransaction<T> {
     });
     txn.built = built;
     return txn;
+  }
+
+  /**
+   * @deprecated Use {@link toXdr} instead.
+   * Deprecated in version v17.0.0
+   */
+  toXDR(): string {
+    return this.toXdr();
+  }
+
+  /**
+   * @deprecated Use {@link AssembledTransaction.fromXdr} instead.
+   * Deprecated in version v17.0.0
+   */
+  static fromXDR<T>(
+    ...args: Parameters<typeof AssembledTransaction.fromXdr<T>>
+  ): AssembledTransaction<T> {
+    return AssembledTransaction.fromXdr(...args);
   }
 
   private handleWalletError(error?: WalletError): void {
