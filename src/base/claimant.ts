@@ -280,9 +280,9 @@ export class Claimant {
   /**
    * Returns a `BeforeAbsoluteTime` claim predicate
    *
-   * This predicate will be fulfilled if the closing time of the ledger that
-   * includes the CreateClaimableBalance operation is less than this (absolute)
-   * Unix timestamp (expressed in seconds).
+   * This predicate will be fulfilled if the closing time of the ledger in
+   * which the balance is claimed is less than this (absolute) Unix timestamp
+   * (expressed in seconds).
    *
    * @param absBefore - Unix epoch (in seconds) as a string
    */
@@ -295,9 +295,11 @@ export class Claimant {
   /**
    * Returns a `BeforeRelativeTime` claim predicate
    *
-   * This predicate will be fulfilled if the closing time of the ledger that
-   * includes the CreateClaimableBalance operation plus this relative time delta
-   * (in seconds) is less than the current time.
+   * When the balance is created, this is converted to a `BeforeAbsoluteTime`
+   * predicate by adding this relative time delta (in seconds) to the closing
+   * time of the ledger that includes the CreateClaimableBalance operation. The
+   * predicate is then fulfilled while the closing time of the ledger in which
+   * the balance is claimed is less than that sum.
    *
    * @param seconds - seconds since closeTime of the ledger in which the ClaimableBalanceEntry was created (as string)
    */

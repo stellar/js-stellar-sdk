@@ -362,7 +362,7 @@ static fromXdr(claimantXdr: ClaimantV0Arm): Claimant;
 
 - **`claimantXdr`** — `ClaimantV0Arm` (required) — The claimant xdr object.
 
-**Source:** [src/base/claimant.ts:542](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L542)
+**Source:** [src/base/claimant.ts:544](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L544)
 
 ### `Claimant.fromXDR(claimantXdr)`
 
@@ -377,7 +377,7 @@ static fromXDR(claimantXdr: ClaimantV0Arm): Claimant;
 
 - **`claimantXdr`** — `ClaimantV0Arm` (required)
 
-**Source:** [src/base/claimant.ts:560](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L560)
+**Source:** [src/base/claimant.ts:562](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L562)
 
 ### `Claimant.predicateAnd(left, right)`
 
@@ -398,9 +398,9 @@ static predicateAnd(left: ClaimPredicate, right: ClaimPredicate): ClaimPredicate
 
 Returns a `BeforeAbsoluteTime` claim predicate
 
-This predicate will be fulfilled if the closing time of the ledger that
-includes the CreateClaimableBalance operation is less than this (absolute)
-Unix timestamp (expressed in seconds).
+This predicate will be fulfilled if the closing time of the ledger in
+which the balance is claimed is less than this (absolute) Unix timestamp
+(expressed in seconds).
 
 ```ts
 static predicateBeforeAbsoluteTime(absBefore: string): ClaimPredicate;
@@ -416,9 +416,11 @@ static predicateBeforeAbsoluteTime(absBefore: string): ClaimPredicate;
 
 Returns a `BeforeRelativeTime` claim predicate
 
-This predicate will be fulfilled if the closing time of the ledger that
-includes the CreateClaimableBalance operation plus this relative time delta
-(in seconds) is less than the current time.
+When the balance is created, this is converted to a `BeforeAbsoluteTime`
+predicate by adding this relative time delta (in seconds) to the closing
+time of the ledger that includes the CreateClaimableBalance operation. The
+predicate is then fulfilled while the closing time of the ledger in which
+the balance is claimed is less than that sum.
 
 ```ts
 static predicateBeforeRelativeTime(seconds: string): ClaimPredicate;
@@ -428,7 +430,7 @@ static predicateBeforeRelativeTime(seconds: string): ClaimPredicate;
 
 - **`seconds`** — `string` (required) — seconds since closeTime of the ledger in which the ClaimableBalanceEntry was created (as string)
 
-**Source:** [src/base/claimant.ts:304](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L304)
+**Source:** [src/base/claimant.ts:306](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L306)
 
 ### `Claimant.predicateFromHorizonJson(json)`
 
@@ -470,7 +472,7 @@ const predicate = Claimant.predicateFromHorizonJson({
 });
 ```
 
-**Source:** [src/base/claimant.ts:336](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L336)
+**Source:** [src/base/claimant.ts:338](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L338)
 
 ### `Claimant.predicateNot(predicate)`
 
@@ -529,7 +531,7 @@ alone when the time is past the JS `Date` range
 
 - an `Error` when stellar-core would reject the predicate
 
-**Source:** [src/base/claimant.ts:444](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L444)
+**Source:** [src/base/claimant.ts:446](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L446)
 
 ### `Claimant.predicateUnconditional()`
 
@@ -549,7 +551,7 @@ The destination account ID.
 destination: string;
 ```
 
-**Source:** [src/base/claimant.ts:587](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L587)
+**Source:** [src/base/claimant.ts:589](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L589)
 
 ### `claimant.predicate`
 
@@ -559,7 +561,7 @@ The claim predicate.
 predicate: ClaimPredicate;
 ```
 
-**Source:** [src/base/claimant.ts:598](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L598)
+**Source:** [src/base/claimant.ts:600](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L600)
 
 ### `claimant.toXdrObject()`
 
@@ -569,7 +571,7 @@ Returns the xdr object for this claimant.
 toXdrObject(): ClaimantV0Arm;
 ```
 
-**Source:** [src/base/claimant.ts:567](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L567)
+**Source:** [src/base/claimant.ts:569](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L569)
 
 ### `claimant.toXDRObject()`
 
@@ -580,7 +582,7 @@ Deprecated in version v17.0.0
 toXDRObject(): ClaimantV0Arm;
 ```
 
-**Source:** [src/base/claimant.ts:580](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L580)
+**Source:** [src/base/claimant.ts:582](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L582)
 
 ## LiquidityPoolAsset
 
