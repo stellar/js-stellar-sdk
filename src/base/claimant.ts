@@ -4,6 +4,10 @@ import {
   ClaimPredicate,
   Int64,
 } from "../xdr/index.js";
+import {
+  assertDecimalDigitBudget,
+  intRange,
+} from "../xdr/values/bigint-parts.js";
 import { Keypair } from "./keypair.js";
 import { StrKey } from "./strkey.js";
 
@@ -36,7 +40,7 @@ const HORIZON_PREDICATE_KEYS = [
 /** stellar-core rejects `depth > 4`, counting the top-level predicate as 1. */
 const MAX_PREDICATE_DEPTH = 4;
 
-const INT64_MAX = 9223372036854775807n;
+const [, INT64_MAX] = intRange(true, 64);
 
 function tooDeep(): Error {
   return new Error(
@@ -62,6 +66,11 @@ function describeValue(value: unknown): string {
 
 /** `Int64.fromString` coerces: `""` is 0 and `"  12"` is 12. */
 function toNonNegativeInt64(value: unknown, field: string): Int64 {
+  // Length first: `describeValue` and `BigInt` both cost work per byte, so a
+  // multi-megabyte payload must be rejected before either one runs.
+  if (typeof value === "string") {
+    assertDecimalDigitBudget(value, 64, field);
+  }
   if (typeof value !== "string" || !/^-?\d+$/.test(value)) {
     throw new Error(
       `${field} must be a decimal integer string, got ${describeValue(value)}`,
@@ -121,7 +130,11 @@ function toSeconds(value: unknown, field: string): bigint {
  * Go rejects those too, parsing with `time.RFC3339`.
  */
 const ISO_8601 =
-  /^([+-]?\d{4,})(-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2}))$/;
+  /^([+-]?\d{4,})-(\d{2})-(\d{2})(T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2}))$/;
+
+function notValidDate(iso: unknown): Error {
+  return new Error(`abs_before ${describeValue(iso)} is not a valid date`);
+}
 
 function isoToEpoch(iso: unknown): string {
   const match = typeof iso === "string" ? ISO_8601.exec(iso) : null;
@@ -131,29 +144,31 @@ function isoToEpoch(iso: unknown): string {
         `${describeValue(iso)}`,
     );
   }
-  // `text` is the whole match, so it equals `iso` — and unlike `iso` it is
-  // typed as a string, since the narrowing above does not carry through.
-  const [text, year, rest] = match;
+  const [, year, month, day, time] = match;
   // Go accepts 4+ year digits with an optional sign; ES accepts only `YYYY` or
   // a signed, exactly-6-digit expanded year. Normalize anything else.
   const sign = /^[+-]/.test(year) ? year.slice(0, 1) : "";
   const digits = sign ? year.slice(1) : year;
-  const milliseconds = Date.parse(
+  const date =
     sign || digits.length > 4
-      ? `${sign || "+"}${digits.padStart(6, "0")}${rest}`
-      : text,
-  );
+      ? `${sign || "+"}${digits.padStart(6, "0")}-${month}-${day}`
+      : `${year}-${month}-${day}`;
+  const milliseconds = Date.parse(`${date}${time}`);
   if (Number.isNaN(milliseconds)) {
     // An out-of-range year and a bad month, hour or offset both give NaN, so
     // reparse under an in-range year to tell them apart.
-    const yearOutOfRange = !Number.isNaN(Date.parse(`2000${rest}`));
+    if (Number.isNaN(Date.parse(`2000-${month}-${day}${time}`))) {
+      throw notValidDate(iso);
+    }
     throw new Error(
-      `abs_before ${describeValue(iso)} ` +
-        (yearOutOfRange
-          ? `is outside the range Date can represent; ` +
-            `pass abs_before_epoch instead`
-          : `is not a valid date`),
+      `abs_before ${describeValue(iso)} is outside the range Date can ` +
+        `represent; pass abs_before_epoch instead`,
     );
+  }
+  // V8 rolls a day-of-month overflow over — Feb 30 becomes Mar 2 — so ask Date
+  // which day it landed on, in UTC where no offset can shift it.
+  if (new Date(`${date}T00:00:00Z`).getUTCDate() !== Number(day)) {
+    throw notValidDate(iso);
   }
   // The XDR field is int64 seconds, so any fractional part truncates.
   return String(Math.floor(milliseconds / 1000));
@@ -351,7 +366,8 @@ export class Claimant {
     if (present.length === 0 || (present.length > 1 && !isTimePair)) {
       throw new Error(
         `claim predicate must have exactly one of: ` +
-          `${HORIZON_PREDICATE_KEYS.join(", ")}`,
+          `${HORIZON_PREDICATE_KEYS.join(", ")} — or abs_before with ` +
+          `abs_before_epoch, as Horizon sends them`,
       );
     }
 

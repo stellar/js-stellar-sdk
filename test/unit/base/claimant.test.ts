@@ -414,6 +414,14 @@ describe("Claimant", () => {
           Claimant.predicateFromHorizonJson(json as HorizonPredicateJson),
         ).toThrow(/must have exactly one of/);
       });
+
+      it("names the one legal key pair in the error", () => {
+        // The pair Horizon always sends is the exception to "exactly one",
+        // so the message must not read as forbidding it.
+        expect(() => Claimant.predicateFromHorizonJson({})).toThrow(
+          /abs_before with abs_before_epoch/,
+        );
+      });
     });
 
     it("ignores an unrecognized key beside a recognized one", () => {
@@ -490,6 +498,34 @@ describe("Claimant", () => {
           abs_before: "+275770-09-13T00:00:00Z",
         }),
       ).toThrow(/abs_before .* is outside the range Date can represent/);
+    });
+
+    describe("rejects a day the month does not have", () => {
+      // `Date.parse` rolls a day-of-month overflow over instead of rejecting
+      // it, so Feb 30 would silently become Mar 2. Go rejects these.
+      it.each([
+        ["Feb 29 in a common year", "2026-02-29T00:00:00Z"],
+        ["Feb 30", "2026-02-30T00:00:00Z"],
+        ["Apr 31", "2026-04-31T00:00:00Z"],
+        ["Feb 29 in a non-leap century", "2100-02-29T00:00:00Z"],
+      ])("throws on %s", (_label, abs_before) => {
+        expect(() => Claimant.predicateFromHorizonJson({ abs_before })).toThrow(
+          /abs_before .* is not a valid date/,
+        );
+      });
+
+      it.each([
+        ["a leap year", "2024-02-29T00:00:00Z"],
+        ["a leap century", "2000-02-29T00:00:00Z"],
+        [
+          "the last day of a month behind an offset",
+          "2026-01-31T23:00:00+05:00",
+        ],
+      ])("accepts Feb 29 in %s", (_label, abs_before) => {
+        expect(Claimant.predicateFromHorizonJson({ abs_before }).type).toBe(
+          "claimPredicateBeforeAbsoluteTime",
+        );
+      });
     });
 
     describe("separates an invalid `abs_before` from an unrepresentable one", () => {
@@ -767,6 +803,21 @@ describe("Claimant", () => {
           ),
         ),
       ).toThrow(/abs_before_epoch must be within int64 range/);
+    });
+
+    it("rejects a huge digit string without parsing it", () => {
+      // `BigInt` costs work per byte and the value would land in the error
+      // message, so the length alone must end it.
+      const digits = "9".repeat(5000);
+      const call = () =>
+        Claimant.predicateFromHorizonJson({ abs_before_epoch: digits });
+      expect(call).toThrow(/exceeds the 22-character budget/);
+      try {
+        call();
+      } catch (error) {
+        expect((error as Error).message).not.toContain(digits);
+        expect((error as Error).message.length).toBeLessThan(200);
+      }
     });
 
     it("names the field when reading a time outside int64", () => {

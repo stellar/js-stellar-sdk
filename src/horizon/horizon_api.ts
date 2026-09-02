@@ -442,14 +442,17 @@ export namespace HorizonApi {
     bump_to: string;
   }
   /**
-   * A claim predicate as Horizon serves it. Aliases
-   * {@link HorizonPredicateJson}, which adds the `unconditional` and
+   * A claim predicate as Horizon serves it. Extends
+   * {@link HorizonPredicateJson}, which carries the `unconditional` and
    * `abs_before_epoch` fields this type previously omitted.
    *
    * Convert with `Claimant.predicateFromHorizonJson` /
    * `predicateToHorizonJson`. RPC serves the SEP-0051 dialect instead.
    */
-  export type Predicate = HorizonPredicateJson;
+  // Interface, not a type alias: consumers augment `HorizonApi.Predicate`
+  // through declaration merging, which a type alias cannot support.
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+  export interface Predicate extends HorizonPredicateJson {}
 
   export interface Claimant {
     destination: string;
