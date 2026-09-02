@@ -144,9 +144,15 @@ function isoToEpoch(iso: unknown): string {
       : text,
   );
   if (Number.isNaN(milliseconds)) {
+    // An out-of-range year and a bad month, hour or offset both give NaN, so
+    // reparse under an in-range year to tell them apart.
+    const yearOutOfRange = !Number.isNaN(Date.parse(`2000${rest}`));
     throw new Error(
-      `abs_before ${describeValue(iso)} is not a representable date; ` +
-        `pass abs_before_epoch instead`,
+      `abs_before ${describeValue(iso)} ` +
+        (yearOutOfRange
+          ? `is outside the range Date can represent; ` +
+            `pass abs_before_epoch instead`
+          : `is not a valid date`),
     );
   }
   // The XDR field is int64 seconds, so any fractional part truncates.
@@ -294,8 +300,8 @@ export class Claimant {
    *
    * Stricter than Horizon's marshaller: it enforces stellar-core's submission
    * rules (`and`/`or` of exactly 2, at most 4 levels deep, non-negative times)
-   * and refuses an object matching no known key, which would otherwise read as
-   * unconditional and fail open.
+   * and refuses an object with no recognized key, which would otherwise read
+   * as unconditional and fail open.
    *
    * `abs_before` needs an explicit timezone, as Horizon always sends one:
    * without it `Date.parse` resolves in the host timezone.
@@ -335,19 +341,14 @@ export class Claimant {
         ? json.unconditional === true
         : json[key] !== undefined,
     );
-    const unknown = Object.keys(json).filter(
-      (key) => !(HORIZON_PREDICATE_KEYS as readonly string[]).includes(key),
-    );
     // Horizon always sends this pair together; it is the one legal combination.
     const isTimePair =
       present.length === 2 &&
       present.includes("abs_before") &&
       present.includes("abs_before_epoch");
-    if (
-      unknown.length > 0 ||
-      present.length === 0 ||
-      (present.length > 1 && !isTimePair)
-    ) {
+    // A key Horizon adds later must not break reads of a predicate a
+    // recognized key already describes, so ignore unrecognized keys.
+    if (present.length === 0 || (present.length > 1 && !isTimePair)) {
       throw new Error(
         `claim predicate must have exactly one of: ` +
           `${HORIZON_PREDICATE_KEYS.join(", ")}`,

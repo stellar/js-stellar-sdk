@@ -405,7 +405,6 @@ describe("Claimant", () => {
         ["an empty object", {}],
         ["`unconditional: false`", { unconditional: false }],
         ["an unknown key only", { abs_after: "1700000000" }],
-        ["an unknown key beside a valid one", { unconditional: true, oops: 1 }],
         [
           "two unrelated sibling keys",
           { rel_before: "1", unconditional: true },
@@ -415,6 +414,16 @@ describe("Claimant", () => {
           Claimant.predicateFromHorizonJson(json as HorizonPredicateJson),
         ).toThrow(/must have exactly one of/);
       });
+    });
+
+    it("ignores an unrecognized key beside a recognized one", () => {
+      // A key Horizon adds later must not break reads of a predicate a
+      // recognized key already describes.
+      const predicate = Claimant.predicateFromHorizonJson({
+        unconditional: true,
+        oops: 1,
+      } as HorizonPredicateJson);
+      expect(predicate.type).toBe("claimPredicateUnconditional");
     });
 
     describe("rejects time strings that Int64.fromString would silently coerce", () => {
@@ -480,7 +489,21 @@ describe("Claimant", () => {
         Claimant.predicateFromHorizonJson({
           abs_before: "+275770-09-13T00:00:00Z",
         }),
-      ).toThrow(/abs_before .* is not a representable date/);
+      ).toThrow(/abs_before .* is outside the range Date can represent/);
+    });
+
+    describe("separates an invalid `abs_before` from an unrepresentable one", () => {
+      // Date.parse gives NaN for both, so the message must not tell a caller
+      // with a typo to pass abs_before_epoch instead.
+      it.each([
+        ["a month and day out of range", "2026-13-45T00:00:00Z"],
+        ["an offset out of range", "2026-01-01T00:00:00+99:99"],
+        ["an hour out of range", "2026-01-01T25:00:00Z"],
+      ])("throws on %s", (_label, abs_before) => {
+        expect(() => Claimant.predicateFromHorizonJson({ abs_before })).toThrow(
+          /abs_before .* is not a valid date/,
+        );
+      });
     });
   });
 
