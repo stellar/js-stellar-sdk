@@ -76,34 +76,70 @@ function toNonNegativeInt64(value: unknown, field: string): Int64 {
   return int64;
 }
 
-/** Horizon renders `abs_before` as RFC 3339 with no fractional seconds. */
-function epochToIso(seconds: bigint, field: string): string {
-  const milliseconds = Number(seconds) * 1000;
+/**
+ * Horizon's `abs_before`: RFC 3339, no fractional seconds, and past year 9999
+ * a "+" with an *unpadded* year — `toISOString` pads it to 6 digits.
+ * `undefined` past the JS Date range, where no ISO form exists.
+ */
+function epochToIso(seconds: bigint): string | undefined {
   try {
-    return new Date(milliseconds).toISOString().replace(/\.\d{3}Z$/, "Z");
+    return new Date(Number(seconds) * 1000)
+      .toISOString()
+      .replace(/\.\d{3}Z$/, "Z")
+      .replace(/^\+0*(\d{5,})/, "+$1");
   } catch {
-    // `new Date(...).toISOString()` throws RangeError past ~8.64e12 seconds.
-    throw new Error(
-      `${field} ${seconds} is not a representable date; a JS Date cannot hold it`,
-    );
+    return undefined;
   }
 }
 
+/** Guards `BigInt`, which throws a raw `SyntaxError` on a non-integer. */
+function toSeconds(value: unknown, field: string): bigint {
+  if (value == null) {
+    throw new Error(`${field} is missing from the predicate`);
+  }
+  const text = String(value);
+  if (!/^-?\d+$/.test(text)) {
+    throw new Error(`${field} must be an integer, got ${describeValue(value)}`);
+  }
+  const seconds = BigInt(text);
+  if (seconds < 0n) {
+    throw new Error(`${field} must not be negative, got ${seconds}`);
+  }
+  return seconds;
+}
+
+/**
+ * The offset is mandatory: `Date.parse` reads an offset-less timestamp in the
+ * host timezone, so the same JSON would mean different instants per machine.
+ * Go rejects those too, parsing with `time.RFC3339`.
+ */
+const ISO_8601 =
+  /^([+-]\d{4,}|\d{4})(-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2}))$/;
+
 function isoToEpoch(iso: unknown): string {
-  if (typeof iso !== "string") {
+  const match = typeof iso === "string" ? ISO_8601.exec(iso) : null;
+  if (!match) {
     throw new Error(
-      `abs_before must be an ISO-8601 string, got ${describeValue(iso)}`,
+      `abs_before must be an ISO-8601 timestamp with a timezone, got ` +
+        `${describeValue(iso)}`,
     );
   }
-  // The XDR field is int64 seconds, so any fractional part truncates.
-  const milliseconds = Date.parse(iso);
+  // `text` is the whole match, so it equals `iso` — and unlike `iso` it is
+  // typed as a string, since the narrowing above does not carry through.
+  const [text, year, rest] = match;
+  // Go leaves an expanded year unpadded; Date.parse wants exactly 6 digits.
+  const milliseconds = Date.parse(
+    /^[+-]/.test(year)
+      ? `${year[0]}${year.slice(1).padStart(6, "0")}${rest}`
+      : text,
+  );
   if (Number.isNaN(milliseconds)) {
-    // int64 seconds outranges Date, so Date.parse gives NaN. Never emit "NaN".
     throw new Error(
       `abs_before ${describeValue(iso)} is not a representable date; ` +
         `pass abs_before_epoch instead`,
     );
   }
+  // The XDR field is int64 seconds, so any fractional part truncates.
   return String(Math.floor(milliseconds / 1000));
 }
 
@@ -251,6 +287,9 @@ export class Claimant {
    * and refuses an object matching no known key, which would otherwise read as
    * unconditional and fail open.
    *
+   * `abs_before` needs an explicit timezone, as Horizon always sends one:
+   * without it `Date.parse` resolves in the host timezone.
+   *
    * @param json - a claim predicate as Horizon serves it
    * @returns the equivalent `xdr.ClaimPredicate`
    * @throws an `Error` when the object is malformed, or stellar-core would
@@ -371,9 +410,9 @@ export class Claimant {
    *
    * @param predicate - the predicate to render
    * @returns the predicate in Horizon's dialect; absolute times carry both
-   * `abs_before` and `abs_before_epoch`, as Horizon sends them
-   * @throws an `Error` when stellar-core would reject the predicate, or its
-   * absolute time is one no `Date` can represent
+   * `abs_before` and `abs_before_epoch` as Horizon sends them, or the epoch
+   * alone when the time is past the JS `Date` range
+   * @throws an `Error` when stellar-core would reject the predicate
    */
   static predicateToHorizonJson(
     predicate: ClaimPredicate,
@@ -429,32 +468,19 @@ export class Claimant {
         };
 
       case "claimPredicateBeforeAbsoluteTime": {
-        if (predicate.absBefore == null) {
-          throw new Error("abs_before_epoch is missing from the predicate");
-        }
-        const seconds = BigInt(predicate.absBefore.toString());
-        if (seconds < 0n) {
-          throw new Error(
-            `abs_before_epoch must not be negative, got ${seconds}`,
-          );
-        }
-        // Horizon never sends one without the other.
-        return {
-          abs_before: epochToIso(seconds, "abs_before_epoch"),
-          abs_before_epoch: seconds.toString(),
-        };
+        const seconds = toSeconds(predicate.absBefore, "abs_before_epoch");
+        const iso = epochToIso(seconds);
+        // Horizon sends both, but core accepts times the JS Date range cannot
+        // express, and dropping `abs_before` beats refusing to render.
+        return iso === undefined
+          ? { abs_before_epoch: seconds.toString() }
+          : { abs_before: iso, abs_before_epoch: seconds.toString() };
       }
 
-      case "claimPredicateBeforeRelativeTime": {
-        if (predicate.relBefore == null) {
-          throw new Error("rel_before is missing from the predicate");
-        }
-        const seconds = BigInt(predicate.relBefore.toString());
-        if (seconds < 0n) {
-          throw new Error(`rel_before must not be negative, got ${seconds}`);
-        }
-        return { rel_before: seconds.toString() };
-      }
+      case "claimPredicateBeforeRelativeTime":
+        return {
+          rel_before: toSeconds(predicate.relBefore, "rel_before").toString(),
+        };
 
       default:
         throw new Error(

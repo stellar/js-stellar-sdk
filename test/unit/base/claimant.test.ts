@@ -590,15 +590,15 @@ describe("Claimant", () => {
         ).toThrow(/rel_before must not be negative/);
       });
 
-      it("throws on an absolute time no Date can represent", () => {
-        // Date tops out near 8.64e12 seconds; "Invalid Date" would corrupt.
-        expect(() =>
-          Claimant.predicateToHorizonJson(
-            Claimant.predicateBeforeAbsoluteTime("9223372036854775807"),
-          ),
-        ).toThrow(
-          /abs_before_epoch 9223372036854775807 is not a representable date/,
-        );
+      it("throws on a time member of the wrong type", () => {
+        // Duck-typed input: BigInt("1.5") would leak a raw SyntaxError.
+        const call = () =>
+          Claimant.predicateToHorizonJson({
+            type: "claimPredicateBeforeAbsoluteTime",
+            absBefore: 1.5,
+          } as unknown as xdr.ClaimPredicate);
+        expect(call).toThrow(/abs_before_epoch must be an integer/);
+        expect(call).not.toThrow(SyntaxError);
       });
     });
   });
@@ -629,6 +629,97 @@ describe("Claimant", () => {
           type: "claimPredicateBeforeRelativeTime",
         } as unknown as xdr.ClaimPredicate),
       ).toThrow(/rel_before is missing/);
+    });
+  });
+
+  describe("absolute times outside the JS Date range", () => {
+    it("emits the epoch alone when no ISO form exists", () => {
+      // Date tops out near 8.64e12 seconds, but core accepts any non-negative
+      // int64, so dropping `abs_before` beats refusing to render at all.
+      expect(
+        Claimant.predicateToHorizonJson(
+          Claimant.predicateBeforeAbsoluteTime("9223372036854775807"),
+        ),
+      ).toEqual({ abs_before_epoch: "9223372036854775807" });
+    });
+
+    it("still emits both keys at the last representable second", () => {
+      expect(
+        Claimant.predicateToHorizonJson(
+          Claimant.predicateBeforeAbsoluteTime("8640000000000"),
+        ),
+      ).toEqual({
+        abs_before: "+275760-09-13T00:00:00Z",
+        abs_before_epoch: "8640000000000",
+      });
+    });
+
+    it("round-trips an epoch that has no ISO form", () => {
+      const json = { abs_before_epoch: "9223372036854775807" };
+      const predicate = Claimant.predicateFromHorizonJson(json);
+      expect(Claimant.predicateToHorizonJson(predicate)).toEqual(json);
+    });
+  });
+
+  describe("expanded years match Go's format", () => {
+    // Go: `ts := Format(RFC3339); if Year() > 9999 { ts = "+" + ts }` — so the
+    // year is unpadded. JS toISOString pads it to 6 digits and Date.parse
+    // accepts only that padded form.
+    it("emits an unpadded expanded year, as Horizon does", () => {
+      expect(
+        Claimant.predicateToHorizonJson(
+          Claimant.predicateBeforeAbsoluteTime("253402300800"),
+        ),
+      ).toEqual({
+        abs_before: "+10000-01-01T00:00:00Z",
+        abs_before_epoch: "253402300800",
+      });
+    });
+
+    it("reads Horizon's unpadded expanded year", () => {
+      const predicate = Claimant.predicateFromHorizonJson({
+        abs_before: "+10000-01-01T00:00:00Z",
+      });
+      const abs = expectVariant(predicate, "claimPredicateBeforeAbsoluteTime");
+      expect(abs.absBefore.toString()).toBe("253402300800");
+    });
+
+    it("round-trips an expanded year", () => {
+      const json = {
+        abs_before: "+10000-01-01T00:00:00Z",
+        abs_before_epoch: "253402300800",
+      };
+      expect(
+        Claimant.predicateToHorizonJson(
+          Claimant.predicateFromHorizonJson(json),
+        ),
+      ).toEqual(json);
+    });
+  });
+
+  describe("`abs_before` requires an explicit timezone", () => {
+    // Date.parse resolves an offset-less timestamp in the host timezone, so the
+    // same JSON would mean different instants on different machines. Go rejects
+    // these too: it parses with time.RFC3339, where the offset is mandatory.
+    it.each([
+      ["no timezone", "2100-01-01T00:00:00"],
+      ["date only", "2100-01-01"],
+      ["not a timestamp", "tomorrow"],
+    ])("throws on %s", (_label, abs_before) => {
+      expect(() => Claimant.predicateFromHorizonJson({ abs_before })).toThrow(
+        /abs_before must be an ISO-8601 timestamp with a timezone/,
+      );
+    });
+
+    it.each([
+      ["Z", "2100-01-01T00:00:00Z", "4102444800"],
+      ["a positive offset", "2100-01-01T00:00:00+02:00", "4102437600"],
+      ["a negative offset", "2100-01-01T00:00:00-05:00", "4102462800"],
+      ["fractional seconds", "2100-01-01T00:00:00.500Z", "4102444800"],
+    ])("accepts %s", (_label, abs_before, epoch) => {
+      const predicate = Claimant.predicateFromHorizonJson({ abs_before });
+      const abs = expectVariant(predicate, "claimPredicateBeforeAbsoluteTime");
+      expect(abs.absBefore.toString()).toBe(epoch);
     });
   });
 
