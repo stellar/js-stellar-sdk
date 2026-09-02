@@ -4,6 +4,12 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Added
+* `Claimant.predicateFromHorizonJson(json)` and `Claimant.predicateToHorizonJson(predicate)` convert claim predicates to and from Horizon's JSON dialect, typed as the new `HorizonPredicateJson` ([#1701](https://github.com/stellar/js-stellar-sdk/pull/1701)). Both enforce stellar-core's rules — `and`/`or` of exactly 2 sub-predicates, at most 4 levels of nesting, non-negative times — and reject an unrecognized object instead of reading it as unconditional. `abs_before` needs an explicit timezone offset and must name a real date and hour, so `2026-02-30T00:00:00Z` is rejected instead of read as March 2, and `2026-01-01T24:00:00Z` instead of read as January 2. When both time keys are present, `abs_before` decides, as it does in Horizon. An unrecognized key beside a recognized one is ignored, so a field Horizon adds later does not break reads. `predicateToHorizonJson` always writes both `abs_before` and `abs_before_epoch`, as Horizon does, using an expanded year for a time past the JS `Date` range — Horizon's own reader has no `abs_before_epoch` branch, so the epoch alone would decode as unconditional there. For RPC's SEP-0051 dialect use `predicate.toJson()` and `xdr.ClaimPredicate.fromJson(json)` instead.
+
+### Changed
+* `HorizonApi.Predicate` now extends `HorizonPredicateJson`, adding the `unconditional` and `abs_before_epoch` fields it previously omitted. It stays an `interface`, so a consumer who augments it through declaration merging is unaffected, at the root and in nested predicates. Non-breaking ([#1701](https://github.com/stellar/js-stellar-sdk/pull/1701)).
+
 ### Fixed
 * `Asset.fromOperation` preserves the `assetTypeCreditAlphanum12` union arm even when the decoded code is four characters or shorter, instead of re-deriving the arm from code length. Such an asset now re-encodes to the same XDR bytes it was decoded from, and its `getAssetType()`, `contractId()`, `equals()`, and `Asset.compare()` results reflect the alphanum12 arm. `equals()` now also compares the asset type, so a decoded short-code alphanum12 asset is no longer equal to the alphanum4 asset with the same code and issuer. User-constructed assets are unaffected: `new Asset(code, issuer)` still derives the type from code length ([#1584](https://github.com/stellar/js-stellar-sdk/issues/1584)).
 
