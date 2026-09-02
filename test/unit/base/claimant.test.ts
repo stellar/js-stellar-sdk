@@ -1,5 +1,8 @@
 import { describe, it, expect } from "vitest";
-import { Claimant } from "../../../src/base/claimant.js";
+import {
+  Claimant,
+  type HorizonPredicateJson,
+} from "../../../src/base/claimant.js";
 import { StrKey } from "../../../src/base/strkey.js";
 import * as xdr from "../../../src/xdr/index.js";
 import { expectVariant } from "./support/xdr.js";
@@ -215,6 +218,457 @@ describe("Claimant", () => {
       expect(() => Claimant.predicateNot("bad" as any)).toThrow(
         /Predicate should be an xdr.ClaimPredicate/,
       );
+    });
+  });
+
+  // Issue #588 — Horizon's JSON dialect only. SEP-0051 (what RPC serves) is
+  // already handled by `toJson`/`fromJson`; the two are pinned to one meaning
+  // by the cross-dialect test at the bottom.
+
+  describe("predicateFromHorizonJson()", () => {
+    it("reads `unconditional: true`", () => {
+      const predicate = Claimant.predicateFromHorizonJson({
+        unconditional: true,
+      });
+      expect(predicate.type).toBe("claimPredicateUnconditional");
+    });
+
+    it("reads `abs_before_epoch`", () => {
+      const predicate = Claimant.predicateFromHorizonJson({
+        abs_before_epoch: "4102444800",
+      });
+      const abs = expectVariant(predicate, "claimPredicateBeforeAbsoluteTime");
+      expect(abs.absBefore.toString()).toBe("4102444800");
+    });
+
+    it("converts an ISO-8601 `abs_before` to epoch seconds", () => {
+      // Guards passing the ISO string through, and the missing /1000.
+      const predicate = Claimant.predicateFromHorizonJson({
+        abs_before: "2100-01-01T00:00:00Z",
+      });
+      const abs = expectVariant(predicate, "claimPredicateBeforeAbsoluteTime");
+      expect(abs.absBefore.toString()).toBe("4102444800");
+    });
+
+    it("reads `rel_before`", () => {
+      const predicate = Claimant.predicateFromHorizonJson({
+        rel_before: "3600",
+      });
+      const rel = expectVariant(predicate, "claimPredicateBeforeRelativeTime");
+      expect(rel.relBefore.toString()).toBe("3600");
+    });
+
+    it("prefers `abs_before_epoch` when both time keys are present", () => {
+      // Horizon always sends both. The epoch field cannot lose range.
+      const predicate = Claimant.predicateFromHorizonJson({
+        abs_before: "2100-01-01T00:00:00Z",
+        abs_before_epoch: "4102444800",
+      });
+      const abs = expectVariant(predicate, "claimPredicateBeforeAbsoluteTime");
+      expect(abs.absBefore.toString()).toBe("4102444800");
+    });
+
+    it("prefers `abs_before_epoch` even when the two disagree", () => {
+      const predicate = Claimant.predicateFromHorizonJson({
+        abs_before: "2100-01-01T00:00:00Z",
+        abs_before_epoch: "1700000000",
+      });
+      const abs = expectVariant(predicate, "claimPredicateBeforeAbsoluteTime");
+      expect(abs.absBefore.toString()).toBe("1700000000");
+    });
+
+    it("reads a `not`", () => {
+      const predicate = Claimant.predicateFromHorizonJson({
+        not: { rel_before: "3600" },
+      });
+      const not = expectVariant(predicate, "claimPredicateNot");
+      const inner = not.notPredicate;
+      if (inner == null) {
+        expect.fail("Expected notPredicate to be defined");
+      }
+      const rel = expectVariant(inner, "claimPredicateBeforeRelativeTime");
+      expect(rel.relBefore.toString()).toBe("3600");
+    });
+
+    it("reads the most common real Horizon shape", () => {
+      // 57 of 1,995 sampled mainnet claimants, and `unconditional` is the
+      // key HorizonApi.Predicate omitted.
+      const predicate = Claimant.predicateFromHorizonJson({
+        not: { unconditional: true },
+      });
+      const not = expectVariant(predicate, "claimPredicateNot");
+      const inner = not.notPredicate;
+      if (inner == null) {
+        expect.fail("Expected notPredicate to be defined");
+      }
+      expect(inner.type).toBe("claimPredicateUnconditional");
+    });
+
+    it("reads an `and` with exactly 2 sub-predicates", () => {
+      const predicate = Claimant.predicateFromHorizonJson({
+        and: [{ rel_before: "800" }, { rel_before: "1200" }],
+      });
+      const and = expectVariant(predicate, "claimPredicateAnd");
+      expect(and.andPredicates.length).toBe(2);
+      const [first, second] = and.andPredicates;
+      if (first == null || second == null) {
+        expect.fail("Expected 2 sub-predicates");
+      }
+      expect(
+        expectVariant(
+          first,
+          "claimPredicateBeforeRelativeTime",
+        ).relBefore.toString(),
+      ).toBe("800");
+      expect(
+        expectVariant(
+          second,
+          "claimPredicateBeforeRelativeTime",
+        ).relBefore.toString(),
+      ).toBe("1200");
+    });
+
+    it("reads an `or` with exactly 2 sub-predicates", () => {
+      const predicate = Claimant.predicateFromHorizonJson({
+        or: [{ rel_before: "800" }, { unconditional: true }],
+      });
+      const or = expectVariant(predicate, "claimPredicateOr");
+      expect(or.orPredicates.length).toBe(2);
+    });
+
+    it("accepts a tree 4 nodes deep", () => {
+      // core counts the top-level predicate as depth 1 and rejects depth > 4.
+      const predicate = Claimant.predicateFromHorizonJson({
+        not: { not: { not: { unconditional: true } } },
+      });
+      expect(predicate.type).toBe("claimPredicateNot");
+    });
+
+    describe("rejects what stellar-core would reject", () => {
+      it("throws on a tree 5 nodes deep", () => {
+        expect(() =>
+          Claimant.predicateFromHorizonJson({
+            not: { not: { not: { not: { unconditional: true } } } },
+          }),
+        ).toThrow(/nested more than 4 levels deep/);
+      });
+
+      it.each([
+        ["0", [] as HorizonPredicateJson[]],
+        ["1", [{ unconditional: true }]],
+        [
+          "3",
+          [
+            { unconditional: true },
+            { unconditional: true },
+            { unconditional: true },
+          ],
+        ],
+      ])("throws on an `and` of arity %s", (_label, and) => {
+        expect(() => Claimant.predicateFromHorizonJson({ and })).toThrow(
+          /and must have exactly 2 sub-predicates/,
+        );
+      });
+
+      it("throws on an `or` of the wrong arity", () => {
+        expect(() =>
+          Claimant.predicateFromHorizonJson({ or: [{ unconditional: true }] }),
+        ).toThrow(/or must have exactly 2 sub-predicates/);
+      });
+
+      it("throws on a negative `rel_before`", () => {
+        expect(() =>
+          Claimant.predicateFromHorizonJson({ rel_before: "-1" }),
+        ).toThrow(/rel_before must not be negative/);
+      });
+
+      it("throws on a negative `abs_before_epoch`", () => {
+        expect(() =>
+          Claimant.predicateFromHorizonJson({ abs_before_epoch: "-1" }),
+        ).toThrow(/abs_before_epoch must not be negative/);
+      });
+
+      it("throws on a `not` with a null sub-predicate", () => {
+        // XDR models the child as an option, so null is representable.
+        expect(() =>
+          Claimant.predicateFromHorizonJson({
+            not: null as unknown as HorizonPredicateJson,
+          }),
+        ).toThrow(/not must have a sub-predicate/);
+      });
+    });
+
+    describe("fails closed on an unrecognized object", () => {
+      // Go falls through to the zero value, which is UNCONDITIONAL — the
+      // least restrictive predicate. A typo meaning "anytime" fails open.
+      it.each([
+        ["an empty object", {}],
+        ["`unconditional: false`", { unconditional: false }],
+        ["an unknown key only", { abs_after: "1700000000" }],
+        ["an unknown key beside a valid one", { unconditional: true, oops: 1 }],
+        [
+          "two unrelated sibling keys",
+          { rel_before: "1", unconditional: true },
+        ],
+      ])("throws on %s", (_label, json) => {
+        expect(() =>
+          Claimant.predicateFromHorizonJson(json as HorizonPredicateJson),
+        ).toThrow(/must have exactly one of/);
+      });
+    });
+
+    describe("rejects time strings that Int64.fromString would silently coerce", () => {
+      // Int64.fromString("") is 0, so an empty epoch would mean "before 1970".
+      it.each([
+        ["an empty string", ""],
+        ["leading whitespace", "  12"],
+        ["a non-numeric string", "abc"],
+        ["a decimal", "1.5"],
+      ])("throws on %s", (_label, abs_before_epoch) => {
+        expect(() =>
+          Claimant.predicateFromHorizonJson({ abs_before_epoch }),
+        ).toThrow(/abs_before_epoch must be a decimal integer string/);
+      });
+
+      it("throws on a JSON number where a string is required", () => {
+        expect(() =>
+          Claimant.predicateFromHorizonJson({
+            rel_before: 3600 as unknown as string,
+          }),
+        ).toThrow(/rel_before must be a decimal integer string/);
+      });
+    });
+
+    describe("rejects a bigint without leaking a raw TypeError", () => {
+      // int64 fields invite BigInt, so the rejection must be our own Error,
+      // not a TypeError thrown while formatting the message.
+      it.each([
+        ["abs_before_epoch", { abs_before_epoch: 1n }],
+        ["rel_before", { rel_before: 10n }],
+      ])("throws an Error naming %s", (field, json) => {
+        const call = () =>
+          Claimant.predicateFromHorizonJson(
+            json as unknown as HorizonPredicateJson,
+          );
+        expect(call).toThrow(
+          new RegExp(`${field} must be a decimal integer string`),
+        );
+        expect(call).not.toThrow(TypeError);
+      });
+
+      it("throws an Error when the predicate itself is a bigint", () => {
+        const call = () =>
+          Claimant.predicateFromHorizonJson(
+            1n as unknown as HorizonPredicateJson,
+          );
+        expect(call).toThrow(/claim predicate must be an object/);
+        expect(call).not.toThrow(TypeError);
+      });
+    });
+
+    it("names the shape, not a phantom count, for a non-array `and`", () => {
+      expect(() =>
+        Claimant.predicateFromHorizonJson({
+          and: "nope" as unknown as HorizonPredicateJson[],
+        }),
+      ).toThrow(/and must be an array of 2 sub-predicates/);
+    });
+
+    it("throws when `abs_before` is unrepresentable and no epoch is given", () => {
+      // int64 seconds outrange Date, so Date.parse gives NaN.
+      expect(() =>
+        Claimant.predicateFromHorizonJson({
+          abs_before: "+275770-09-13T00:00:00Z",
+        }),
+      ).toThrow(/abs_before .* is not a representable date/);
+    });
+  });
+
+  describe("predicateToHorizonJson()", () => {
+    it("writes `unconditional: true`", () => {
+      expect(
+        Claimant.predicateToHorizonJson(Claimant.predicateUnconditional()),
+      ).toEqual({ unconditional: true });
+    });
+
+    it("writes both `abs_before` and `abs_before_epoch`", () => {
+      // Go emits both; Horizon never sends one without the other.
+      expect(
+        Claimant.predicateToHorizonJson(
+          Claimant.predicateBeforeAbsoluteTime("4102444800"),
+        ),
+      ).toEqual({
+        abs_before: "2100-01-01T00:00:00Z",
+        abs_before_epoch: "4102444800",
+      });
+    });
+
+    it("writes `rel_before`", () => {
+      expect(
+        Claimant.predicateToHorizonJson(
+          Claimant.predicateBeforeRelativeTime("3600"),
+        ),
+      ).toEqual({ rel_before: "3600" });
+    });
+
+    it("writes a `not`", () => {
+      expect(
+        Claimant.predicateToHorizonJson(
+          Claimant.predicateNot(Claimant.predicateUnconditional()),
+        ),
+      ).toEqual({ not: { unconditional: true } });
+    });
+
+    it("recurses into nested composites", () => {
+      const predicate = Claimant.predicateAnd(
+        Claimant.predicateOr(
+          Claimant.predicateBeforeRelativeTime("800"),
+          Claimant.predicateUnconditional(),
+        ),
+        Claimant.predicateNot(
+          Claimant.predicateBeforeAbsoluteTime("4102444800"),
+        ),
+      );
+      expect(Claimant.predicateToHorizonJson(predicate)).toEqual({
+        and: [
+          { or: [{ rel_before: "800" }, { unconditional: true }] },
+          {
+            not: {
+              abs_before: "2100-01-01T00:00:00Z",
+              abs_before_epoch: "4102444800",
+            },
+          },
+        ],
+      });
+    });
+
+    describe("refuses to emit a predicate stellar-core would reject", () => {
+      // The xdr factories accept all of these, so they are reachable.
+      it("throws on a 0-arity `and`", () => {
+        expect(() =>
+          Claimant.predicateToHorizonJson(
+            xdr.ClaimPredicate.claimPredicateAnd([]),
+          ),
+        ).toThrow(/and must have exactly 2 sub-predicates/);
+      });
+
+      it("throws on a 1-arity `or`", () => {
+        expect(() =>
+          Claimant.predicateToHorizonJson(
+            xdr.ClaimPredicate.claimPredicateOr([
+              xdr.ClaimPredicate.claimPredicateUnconditional(),
+            ]),
+          ),
+        ).toThrow(/or must have exactly 2 sub-predicates/);
+      });
+
+      it("throws on a `not` with a null sub-predicate", () => {
+        expect(() =>
+          Claimant.predicateToHorizonJson(
+            xdr.ClaimPredicate.claimPredicateNot(
+              null as unknown as xdr.ClaimPredicate,
+            ),
+          ),
+        ).toThrow(/not must have a sub-predicate/);
+      });
+
+      it("throws on a tree 5 nodes deep", () => {
+        let predicate = Claimant.predicateUnconditional();
+        for (let i = 0; i < 4; i++) {
+          predicate = Claimant.predicateNot(predicate);
+        }
+        expect(() => Claimant.predicateToHorizonJson(predicate)).toThrow(
+          /nested more than 4 levels deep/,
+        );
+      });
+
+      it("throws on a negative time", () => {
+        expect(() =>
+          Claimant.predicateToHorizonJson(
+            Claimant.predicateBeforeRelativeTime("-1"),
+          ),
+        ).toThrow(/rel_before must not be negative/);
+      });
+
+      it("throws on an absolute time no Date can represent", () => {
+        // Date tops out near 8.64e12 seconds; "Invalid Date" would corrupt.
+        expect(() =>
+          Claimant.predicateToHorizonJson(
+            Claimant.predicateBeforeAbsoluteTime("9223372036854775807"),
+          ),
+        ).toThrow(
+          /abs_before_epoch 9223372036854775807 is not a representable date/,
+        );
+      });
+    });
+  });
+
+  describe("predicateToHorizonJson() accepts predicates from another build", () => {
+    // The CJS and ESM builds carry distinct class objects, so `instanceof`
+    // would reject a valid predicate that crossed between them.
+    it("renders a structurally valid predicate that is not an instance", () => {
+      const foreign = { type: "claimPredicateUnconditional" };
+      expect(
+        Claimant.predicateToHorizonJson(
+          foreign as unknown as xdr.ClaimPredicate,
+        ),
+      ).toEqual({ unconditional: true });
+    });
+
+    it("still throws its own Error when a needed member is missing", () => {
+      expect(() =>
+        Claimant.predicateToHorizonJson({
+          type: "claimPredicateAnd",
+        } as unknown as xdr.ClaimPredicate),
+      ).toThrow(/and must be an array of 2 sub-predicates/);
+    });
+
+    it("still throws its own Error when a time member is missing", () => {
+      expect(() =>
+        Claimant.predicateToHorizonJson({
+          type: "claimPredicateBeforeRelativeTime",
+        } as unknown as xdr.ClaimPredicate),
+      ).toThrow(/rel_before is missing/);
+    });
+  });
+
+  describe("Horizon JSON round-trips", () => {
+    it("preserves a real Horizon response fixture exactly", () => {
+      // Verbatim from mainnet balance 0000000047d06a6d…. Catches silent
+      // corruption in the int64 conversions.
+      const fixture = {
+        not: {
+          abs_before: "2026-09-03T13:49:59Z",
+          abs_before_epoch: "1788443399",
+        },
+      };
+      const predicate = Claimant.predicateFromHorizonJson(fixture);
+      expect(Claimant.predicateToHorizonJson(predicate)).toEqual(fixture);
+    });
+
+    it("normalizes an ISO-only input to carry both time keys", () => {
+      // Horizon always sends the pair, so output emits both regardless.
+      const predicate = Claimant.predicateFromHorizonJson({
+        abs_before: "2100-01-01T00:00:00Z",
+      });
+      expect(Claimant.predicateToHorizonJson(predicate)).toEqual({
+        abs_before: "2100-01-01T00:00:00Z",
+        abs_before_epoch: "4102444800",
+      });
+    });
+
+    it("agrees with the SEP-0051 dialect on the same predicate", () => {
+      // Regression guard for the RPC path: both dialects, one meaning.
+      const fromHorizon = Claimant.predicateFromHorizonJson({
+        not: {
+          abs_before: "2026-09-03T13:49:59Z",
+          abs_before_epoch: "1788443399",
+        },
+      });
+      const fromSep51 = xdr.ClaimPredicate.fromJson({
+        not: { before_absolute_time: "1788443399" },
+      });
+      expect(fromHorizon.equals(fromSep51)).toBe(true);
     });
   });
 

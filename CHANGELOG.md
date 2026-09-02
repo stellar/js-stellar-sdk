@@ -4,6 +4,12 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Added
+* `Claimant.predicateFromHorizonJson(json)` and `Claimant.predicateToHorizonJson(predicate)` convert claim predicates to and from Horizon's JSON dialect, typed as the new `HorizonPredicateJson` ([#588](https://github.com/stellar/js-stellar-sdk/issues/588)). Both enforce stellar-core's rules — `and`/`or` of exactly 2 sub-predicates, at most 4 levels of nesting, non-negative times — and reject an unrecognized object instead of reading it as unconditional. For RPC's SEP-0051 dialect use `predicate.toJson()` and `xdr.ClaimPredicate.fromJson(json)` instead.
+
+### Changed
+* `HorizonApi.Predicate` now aliases `HorizonPredicateJson`, adding the `unconditional` and `abs_before_epoch` fields it previously omitted. Non-breaking.
+
 ### Fixed
 * `Asset.fromOperation` preserves the `assetTypeCreditAlphanum12` union arm even when the decoded code is four characters or shorter, instead of re-deriving the arm from code length. Such an asset now re-encodes to the same XDR bytes it was decoded from, and its `getAssetType()`, `contractId()`, `equals()`, and `Asset.compare()` results reflect the alphanum12 arm. `equals()` now also compares the asset type, so a decoded short-code alphanum12 asset is no longer equal to the alphanum4 asset with the same code and issuer. User-constructed assets are unaffected: `new Asset(code, issuer)` still derives the type from code length ([#1584](https://github.com/stellar/js-stellar-sdk/issues/1584)).
 

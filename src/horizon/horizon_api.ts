@@ -1,4 +1,8 @@
-import type { AssetType, MemoType } from "../base/index.js";
+import type {
+  AssetType,
+  HorizonPredicateJson,
+  MemoType,
+} from "../base/index.js";
 
 /* tslint:disable-next-line:no-namespace */
 export namespace HorizonApi {
@@ -437,13 +441,15 @@ export namespace HorizonApi {
   > {
     bump_to: string;
   }
-  export interface Predicate {
-    and?: Predicate[];
-    or?: Predicate[];
-    not?: Predicate;
-    abs_before?: string;
-    rel_before?: string;
-  }
+  /**
+   * A claim predicate as Horizon serves it. Aliases
+   * {@link HorizonPredicateJson}, which adds the `unconditional` and
+   * `abs_before_epoch` fields this type previously omitted.
+   *
+   * Convert with `Claimant.predicateFromHorizonJson` /
+   * `predicateToHorizonJson`. RPC serves the SEP-0051 dialect instead.
+   */
+  export type Predicate = HorizonPredicateJson;
 
   export interface Claimant {
     destination: string;
