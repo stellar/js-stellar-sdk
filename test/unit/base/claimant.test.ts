@@ -692,14 +692,40 @@ describe("Claimant", () => {
   });
 
   describe("absolute times outside the JS Date range", () => {
-    it("emits the epoch alone when no ISO form exists", () => {
+    it("writes an expanded year past the end of the Date range", () => {
       // Date tops out near 8.64e12 seconds, but core accepts any non-negative
-      // int64, so dropping `abs_before` beats refusing to render at all.
+      // int64. Horizon's `iso8601Time` reads a year of any width, so shift by
+      // whole 400-year cycles instead of dropping the field.
       expect(
         Claimant.predicateToHorizonJson(
           Claimant.predicateBeforeAbsoluteTime("9223372036854775807"),
         ),
-      ).toEqual({ abs_before_epoch: "9223372036854775807" });
+      ).toEqual({
+        abs_before: "+292277026596-12-04T15:30:07Z",
+        abs_before_epoch: "9223372036854775807",
+      });
+    });
+
+    it("never emits `abs_before_epoch` without `abs_before`", () => {
+      // Horizon's own reader defines this dialect, and its
+      // `claimPredicateJSON.toXDR()` has no `abs_before_epoch` branch: the
+      // epoch alone matches no case, so Go keeps its zero value and decodes
+      // UNCONDITIONAL — a time lock silently becomes claimable anytime.
+      const times = [
+        "0",
+        "1700000000",
+        "8640000000000",
+        "8640000000001",
+        "1000000000000000",
+        "9223372036854775807",
+      ];
+      for (const time of times) {
+        const json = Claimant.predicateToHorizonJson(
+          Claimant.predicateBeforeAbsoluteTime(time),
+        );
+        expect(json.abs_before_epoch).toBe(time);
+        expect(typeof json.abs_before).toBe("string");
+      }
     });
 
     it("still emits both keys at the last representable second", () => {
@@ -713,10 +739,27 @@ describe("Claimant", () => {
       });
     });
 
-    it("round-trips an epoch that has no ISO form", () => {
-      const json = { abs_before_epoch: "9223372036854775807" };
-      const predicate = Claimant.predicateFromHorizonJson(json);
-      expect(Claimant.predicateToHorizonJson(predicate)).toEqual(json);
+    it("round-trips an epoch past the Date range", () => {
+      // Reading still accepts the epoch alone, since that is what older
+      // callers hold; writing now always carries `abs_before` too.
+      const predicate = Claimant.predicateFromHorizonJson({
+        abs_before_epoch: "9223372036854775807",
+      });
+      expect(Claimant.predicateToHorizonJson(predicate)).toEqual({
+        abs_before: "+292277026596-12-04T15:30:07Z",
+        abs_before_epoch: "9223372036854775807",
+      });
+    });
+
+    it("keeps the expanded year readable on the way back in", () => {
+      const json = Claimant.predicateToHorizonJson(
+        Claimant.predicateBeforeAbsoluteTime("1000000000000000"),
+      );
+      expect(json.abs_before).toBe("+31690708-07-05T01:46:40Z");
+      const back = Claimant.predicateToHorizonJson(
+        Claimant.predicateFromHorizonJson(json),
+      );
+      expect(back).toEqual(json);
     });
   });
 
@@ -820,6 +863,32 @@ describe("Claimant", () => {
       }
     });
 
+    it("rejects a huge `abs_before` without describing it", () => {
+      // `describeValue` stringifies the whole input into the message, so the
+      // ISO path needs the same length guard as the epoch path.
+      const long = "a".repeat(5000);
+      const call = () =>
+        Claimant.predicateFromHorizonJson({ abs_before: long });
+      expect(call).toThrow(/abs_before must be at most 64 characters/);
+      try {
+        call();
+      } catch (error) {
+        expect((error as Error).message).not.toContain(long);
+        expect((error as Error).message.length).toBeLessThan(200);
+      }
+    });
+
+    it("accepts the longest `abs_before` it can itself emit", () => {
+      // int64 max renders a 12-digit year, so the cap must clear 29 chars.
+      const json = Claimant.predicateToHorizonJson(
+        Claimant.predicateBeforeAbsoluteTime("9223372036854775807"),
+      );
+      expect(json.abs_before?.length).toBeLessThanOrEqual(64);
+      expect(Claimant.predicateFromHorizonJson(json).type).toBe(
+        "claimPredicateBeforeAbsoluteTime",
+      );
+    });
+
     it("names the field when reading a time outside int64", () => {
       // `Int64.fromString` raises an XdrError that never names the field.
       expect(() =>
@@ -830,12 +899,17 @@ describe("Claimant", () => {
     });
 
     it("still accepts int64 max in both directions", () => {
-      const json = { abs_before_epoch: "9223372036854775807" };
+      const epoch = "9223372036854775807";
+      const written = Claimant.predicateToHorizonJson(
+        Claimant.predicateFromHorizonJson({ abs_before_epoch: epoch }),
+      );
+      // Writing always adds `abs_before`, so the epoch is what round-trips.
+      expect(written.abs_before_epoch).toBe(epoch);
       expect(
         Claimant.predicateToHorizonJson(
-          Claimant.predicateFromHorizonJson(json),
+          Claimant.predicateFromHorizonJson(written),
         ),
-      ).toEqual(json);
+      ).toEqual(written);
     });
   });
 

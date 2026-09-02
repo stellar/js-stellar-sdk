@@ -92,20 +92,30 @@ function requireNonNegativeInt64(seconds: bigint, field: string): string {
   return seconds.toString();
 }
 
+/** 400 Gregorian years is exactly 146097 days, so the calendar repeats. */
+const CYCLE_SECONDS = 146097n * 86400n;
+const CYCLE_YEARS = 400n;
+
 /**
  * Horizon's `abs_before`: RFC 3339, no fractional seconds, and past year 9999
- * a "+" with an *unpadded* year — `toISOString` pads it to 6 digits.
- * `undefined` past the JS Date range, where no ISO form exists.
+ * a "+" with an *unpadded* year, which is what Go's `iso8601Time` writes.
+ *
+ * `Date` tops out near 8.64e12 seconds while the XDR field is int64, so fold
+ * the time into one 400-year cycle before formatting and add the cycles back
+ * to the year. `Date` still does every calendar rule; only the year shifts.
+ * Emitting the epoch alone instead is not an option: Horizon's own reader has
+ * no `abs_before_epoch` branch, so it would decode as UNCONDITIONAL.
  */
-function epochToIso(seconds: bigint): string | undefined {
-  try {
-    return new Date(Number(seconds) * 1000)
-      .toISOString()
-      .replace(/\.\d{3}Z$/, "Z")
-      .replace(/^\+0*(\d{5,})/, "+$1");
-  } catch {
-    return undefined;
-  }
+function epochToIso(seconds: bigint): string {
+  const cycles = seconds / CYCLE_SECONDS;
+  const rest = seconds % CYCLE_SECONDS;
+  const iso = new Date(Number(rest) * 1000)
+    .toISOString()
+    .replace(/\.\d{3}Z$/, "Z");
+  // `rest` always lands in 1970..2369, so the year is exactly 4 digits here.
+  const year = BigInt(iso.slice(0, 4)) + cycles * CYCLE_YEARS;
+  const tail = iso.slice(4);
+  return year > 9999n ? `+${year}${tail}` : `${year}${tail}`;
 }
 
 /**
@@ -132,11 +142,22 @@ function toSeconds(value: unknown, field: string): bigint {
 const ISO_8601 =
   /^([+-]?\d{4,})-(\d{2})-(\d{2})(T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2}))$/;
 
+/** The longest we emit is 29 characters, at int64 max; the rest is headroom. */
+const MAX_ISO_LENGTH = 64;
+
 function notValidDate(iso: unknown): Error {
   return new Error(`abs_before ${describeValue(iso)} is not a valid date`);
 }
 
 function isoToEpoch(iso: unknown): string {
+  // Length before anything else: every message below feeds the input through
+  // `describeValue`, which would stringify a multi-megabyte payload in full.
+  if (typeof iso === "string" && iso.length > MAX_ISO_LENGTH) {
+    throw new Error(
+      `abs_before must be at most ${MAX_ISO_LENGTH} characters, ` +
+        `got ${iso.length}`,
+    );
+  }
   const match = typeof iso === "string" ? ISO_8601.exec(iso) : null;
   if (!match) {
     throw new Error(
@@ -165,8 +186,8 @@ function isoToEpoch(iso: unknown): string {
         `represent; pass abs_before_epoch instead`,
     );
   }
-  // V8 rolls a day-of-month overflow over — Feb 30 becomes Mar 2 — so ask Date
-  // which day it landed on, in UTC where no offset can shift it.
+  // V8 rolls a day-of-month overflow over — Feb 30 lands in March — so ask
+  // Date which day it landed on, in UTC where no offset can shift it.
   if (new Date(`${date}T00:00:00Z`).getUTCDate() !== Number(day)) {
     throw notValidDate(iso);
   }
@@ -438,9 +459,9 @@ export class Claimant {
    * the `xdr` factories can violate any of them.
    *
    * @param predicate - the predicate to render
-   * @returns the predicate in Horizon's dialect; absolute times carry both
-   * `abs_before` and `abs_before_epoch` as Horizon sends them, or the epoch
-   * alone when the time is past the JS `Date` range
+   * @returns the predicate in Horizon's dialect; an absolute time always
+   * carries both `abs_before` and `abs_before_epoch`, as Horizon sends them,
+   * with an expanded year past the JS `Date` range
    * @throws an `Error` when stellar-core would reject the predicate
    */
   static predicateToHorizonJson(
@@ -498,12 +519,10 @@ export class Claimant {
 
       case "claimPredicateBeforeAbsoluteTime": {
         const seconds = toSeconds(predicate.absBefore, "abs_before_epoch");
-        const iso = epochToIso(seconds);
-        // Horizon sends both, but core accepts times the JS Date range cannot
-        // express, and dropping `abs_before` beats refusing to render.
-        return iso === undefined
-          ? { abs_before_epoch: seconds.toString() }
-          : { abs_before: iso, abs_before_epoch: seconds.toString() };
+        return {
+          abs_before: epochToIso(seconds),
+          abs_before_epoch: seconds.toString(),
+        };
       }
 
       case "claimPredicateBeforeRelativeTime":

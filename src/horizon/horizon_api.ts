@@ -450,9 +450,14 @@ export namespace HorizonApi {
    * `predicateToHorizonJson`. RPC serves the SEP-0051 dialect instead.
    */
   // Interface, not a type alias: consumers augment `HorizonApi.Predicate`
-  // through declaration merging, which a type alias cannot support.
-  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-  export interface Predicate extends HorizonPredicateJson {}
+  // through declaration merging, which a type alias cannot support. The
+  // recursive members are redeclared so an augmented field reaches nested
+  // predicates too; inherited as `HorizonPredicateJson` they would not.
+  export interface Predicate extends HorizonPredicateJson {
+    and?: Predicate[];
+    or?: Predicate[];
+    not?: Predicate;
+  }
 
   export interface Claimant {
     destination: string;

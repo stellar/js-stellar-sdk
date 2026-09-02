@@ -24,3 +24,19 @@ export const augmented: HorizonApi.Predicate = {
 };
 
 export const unconditional: HorizonApi.Predicate = { unconditional: true };
+
+// Augmentation must reach the recursive positions too. `and`, `or` and `not`
+// are redeclared as `Predicate` for exactly this reason: inherited as
+// `HorizonPredicateJson`, a nested augmented field fails excess-property
+// checking (TS2353) even though the root works.
+export const nested: HorizonApi.Predicate = {
+  not: { abs_after: "2026-09-03T13:49:59Z" },
+};
+
+export const inAnd: HorizonApi.Predicate = {
+  and: [{ abs_after: "2026-09-03T13:49:59Z" }, { unconditional: true }],
+};
+
+export const inOr: HorizonApi.Predicate = {
+  or: [{ not: { abs_after: "2026-09-03T13:49:59Z" } }, { unconditional: true }],
+};
