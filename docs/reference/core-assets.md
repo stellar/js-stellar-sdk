@@ -342,7 +342,7 @@ static fromXdr(claimantXdr: ClaimantV0Arm): Claimant;
 
 - **`claimantXdr`** — `ClaimantV0Arm` (required) — The claimant xdr object.
 
-**Source:** [src/base/claimant.ts:129](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L129)
+**Source:** [src/base/claimant.ts:131](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L131)
 
 ### `Claimant.fromXDR(claimantXdr)`
 
@@ -357,7 +357,7 @@ static fromXDR(claimantXdr: ClaimantV0Arm): Claimant;
 
 - **`claimantXdr`** — `ClaimantV0Arm` (required)
 
-**Source:** [src/base/claimant.ts:147](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L147)
+**Source:** [src/base/claimant.ts:149](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L149)
 
 ### `Claimant.predicateAnd(left, right)`
 
@@ -378,9 +378,9 @@ static predicateAnd(left: ClaimPredicate, right: ClaimPredicate): ClaimPredicate
 
 Returns a `BeforeAbsoluteTime` claim predicate
 
-This predicate will be fulfilled if the closing time of the ledger that
-includes the CreateClaimableBalance operation is less than this (absolute)
-Unix timestamp (expressed in seconds).
+This predicate will be fulfilled if the closing time of the ledger in
+which the balance is claimed is less than this (absolute) Unix timestamp
+(expressed in seconds).
 
 ```ts
 static predicateBeforeAbsoluteTime(absBefore: string): ClaimPredicate;
@@ -396,9 +396,11 @@ static predicateBeforeAbsoluteTime(absBefore: string): ClaimPredicate;
 
 Returns a `BeforeRelativeTime` claim predicate
 
-This predicate will be fulfilled if the closing time of the ledger that
-includes the CreateClaimableBalance operation plus this relative time delta
-(in seconds) is less than the current time.
+When the balance is created, this is converted to a `BeforeAbsoluteTime`
+predicate by adding this relative time delta (in seconds) to the closing
+time of the ledger that includes the CreateClaimableBalance operation. The
+predicate is then fulfilled while the closing time of the ledger in which
+the balance is claimed is less than that sum.
 
 ```ts
 static predicateBeforeRelativeTime(seconds: string): ClaimPredicate;
@@ -408,7 +410,7 @@ static predicateBeforeRelativeTime(seconds: string): ClaimPredicate;
 
 - **`seconds`** — `string` (required) — seconds since closeTime of the ledger in which the ClaimableBalanceEntry was created (as string)
 
-**Source:** [src/base/claimant.ts:119](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L119)
+**Source:** [src/base/claimant.ts:121](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L121)
 
 ### `Claimant.predicateNot(predicate)`
 
@@ -457,7 +459,7 @@ The destination account ID.
 destination: string;
 ```
 
-**Source:** [src/base/claimant.ts:174](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L174)
+**Source:** [src/base/claimant.ts:176](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L176)
 
 ### `claimant.predicate`
 
@@ -467,7 +469,7 @@ The claim predicate.
 predicate: ClaimPredicate;
 ```
 
-**Source:** [src/base/claimant.ts:185](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L185)
+**Source:** [src/base/claimant.ts:187](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L187)
 
 ### `claimant.toXdrObject()`
 
@@ -477,7 +479,7 @@ Returns the xdr object for this claimant.
 toXdrObject(): ClaimantV0Arm;
 ```
 
-**Source:** [src/base/claimant.ts:154](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L154)
+**Source:** [src/base/claimant.ts:156](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L156)
 
 ### `claimant.toXDRObject()`
 
@@ -488,7 +490,7 @@ Deprecated in version v17.0.0
 toXDRObject(): ClaimantV0Arm;
 ```
 
-**Source:** [src/base/claimant.ts:167](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L167)
+**Source:** [src/base/claimant.ts:169](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L169)
 
 ## LiquidityPoolAsset
 
