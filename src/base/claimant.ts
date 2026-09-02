@@ -36,6 +36,8 @@ const HORIZON_PREDICATE_KEYS = [
 /** stellar-core rejects `depth > 4`, counting the top-level predicate as 1. */
 const MAX_PREDICATE_DEPTH = 4;
 
+const INT64_MAX = 9223372036854775807n;
+
 function tooDeep(): Error {
   return new Error(
     `claim predicate is nested more than ${MAX_PREDICATE_DEPTH} levels deep`,
@@ -65,15 +67,20 @@ function toNonNegativeInt64(value: unknown, field: string): Int64 {
       `${field} must be a decimal integer string, got ${describeValue(value)}`,
     );
   }
-  const seconds = BigInt(value);
+  // Range first: `Int64.fromString` raises an XdrError that never names the
+  // field, so checking here is what keeps the message consistent.
+  return Int64.fromString(requireNonNegativeInt64(BigInt(value), field));
+}
+
+/** Shared range and sign check; returns the value as a decimal string. */
+function requireNonNegativeInt64(seconds: bigint, field: string): string {
   if (seconds < 0n) {
-    throw new Error(`${field} must not be negative, got ${value}`);
+    throw new Error(`${field} must not be negative, got ${seconds}`);
   }
-  const int64 = Int64.fromString(value);
-  if (BigInt(int64.toString()) !== seconds) {
-    throw new Error(`${field} ${value} did not survive conversion to int64`);
+  if (seconds > INT64_MAX) {
+    throw new Error(`${field} must be within int64 range, got ${seconds}`);
   }
-  return int64;
+  return seconds.toString();
 }
 
 /**
@@ -92,20 +99,20 @@ function epochToIso(seconds: bigint): string | undefined {
   }
 }
 
-/** Guards `BigInt`, which throws a raw `SyntaxError` on a non-integer. */
+/**
+ * The XDR member is a `bigint` primitive, so accept nothing else: `String()`
+ * would coerce `[1]` to "1", and `BigInt` raises a bare `SyntaxError`. The arm
+ * factories do not range-check, so an out-of-range time is reachable here.
+ */
 function toSeconds(value: unknown, field: string): bigint {
   if (value == null) {
     throw new Error(`${field} is missing from the predicate`);
   }
-  const text = String(value);
-  if (!/^-?\d+$/.test(text)) {
-    throw new Error(`${field} must be an integer, got ${describeValue(value)}`);
+  if (typeof value !== "bigint") {
+    throw new Error(`${field} must be a bigint, got ${describeValue(value)}`);
   }
-  const seconds = BigInt(text);
-  if (seconds < 0n) {
-    throw new Error(`${field} must not be negative, got ${seconds}`);
-  }
-  return seconds;
+  requireNonNegativeInt64(value, field);
+  return value;
 }
 
 /**
@@ -114,7 +121,7 @@ function toSeconds(value: unknown, field: string): bigint {
  * Go rejects those too, parsing with `time.RFC3339`.
  */
 const ISO_8601 =
-  /^([+-]\d{4,}|\d{4})(-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2}))$/;
+  /^([+-]?\d{4,})(-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2}))$/;
 
 function isoToEpoch(iso: unknown): string {
   const match = typeof iso === "string" ? ISO_8601.exec(iso) : null;
@@ -127,10 +134,13 @@ function isoToEpoch(iso: unknown): string {
   // `text` is the whole match, so it equals `iso` — and unlike `iso` it is
   // typed as a string, since the narrowing above does not carry through.
   const [text, year, rest] = match;
-  // Go leaves an expanded year unpadded; Date.parse wants exactly 6 digits.
+  // Go accepts 4+ year digits with an optional sign; ES accepts only `YYYY` or
+  // a signed, exactly-6-digit expanded year. Normalize anything else.
+  const sign = /^[+-]/.test(year) ? year.slice(0, 1) : "";
+  const digits = sign ? year.slice(1) : year;
   const milliseconds = Date.parse(
-    /^[+-]/.test(year)
-      ? `${year[0]}${year.slice(1).padStart(6, "0")}${rest}`
+    sign || digits.length > 4
+      ? `${sign || "+"}${digits.padStart(6, "0")}${rest}`
       : text,
   );
   if (Number.isNaN(milliseconds)) {

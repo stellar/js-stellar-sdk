@@ -335,7 +335,7 @@ class Claimant {
 }
 ```
 
-**Source:** [src/base/claimant.ts:169](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L169)
+**Source:** [src/base/claimant.ts:179](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L179)
 
 ### `new Claimant(destination, predicate)`
 
@@ -348,7 +348,7 @@ constructor(destination: string, predicate?: ClaimPredicate);
 - **`destination`** — `string` (required) — The destination account ID.
 - **`predicate`** — `ClaimPredicate` (optional) — The claim predicate.
 
-**Source:** [src/base/claimant.ts:177](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L177)
+**Source:** [src/base/claimant.ts:187](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L187)
 
 ### `Claimant.fromXdr(claimantXdr)`
 
@@ -362,7 +362,7 @@ static fromXdr(claimantXdr: ClaimantV0Arm): Claimant;
 
 - **`claimantXdr`** — `ClaimantV0Arm` (required) — The claimant xdr object.
 
-**Source:** [src/base/claimant.ts:515](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L515)
+**Source:** [src/base/claimant.ts:525](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L525)
 
 ### `Claimant.fromXDR(claimantXdr)`
 
@@ -377,7 +377,7 @@ static fromXDR(claimantXdr: ClaimantV0Arm): Claimant;
 
 - **`claimantXdr`** — `ClaimantV0Arm` (required)
 
-**Source:** [src/base/claimant.ts:533](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L533)
+**Source:** [src/base/claimant.ts:543](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L543)
 
 ### `Claimant.predicateAnd(left, right)`
 
@@ -392,7 +392,7 @@ static predicateAnd(left: ClaimPredicate, right: ClaimPredicate): ClaimPredicate
 - **`left`** — `ClaimPredicate` (required) — an xdr.ClaimPredicate
 - **`right`** — `ClaimPredicate` (required) — an xdr.ClaimPredicate
 
-**Source:** [src/base/claimant.ts:204](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L204)
+**Source:** [src/base/claimant.ts:214](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L214)
 
 ### `Claimant.predicateBeforeAbsoluteTime(absBefore)`
 
@@ -410,7 +410,7 @@ static predicateBeforeAbsoluteTime(absBefore: string): ClaimPredicate;
 
 - **`absBefore`** — `string` (required) — Unix epoch (in seconds) as a string
 
-**Source:** [src/base/claimant.ts:258](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L258)
+**Source:** [src/base/claimant.ts:268](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L268)
 
 ### `Claimant.predicateBeforeRelativeTime(seconds)`
 
@@ -428,7 +428,7 @@ static predicateBeforeRelativeTime(seconds: string): ClaimPredicate;
 
 - **`seconds`** — `string` (required) — seconds since closeTime of the ledger in which the ClaimableBalanceEntry was created (as string)
 
-**Source:** [src/base/claimant.ts:273](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L273)
+**Source:** [src/base/claimant.ts:283](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L283)
 
 ### `Claimant.predicateFromHorizonJson(json)`
 
@@ -470,7 +470,7 @@ const predicate = Claimant.predicateFromHorizonJson({
 });
 ```
 
-**Source:** [src/base/claimant.ts:305](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L305)
+**Source:** [src/base/claimant.ts:315](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L315)
 
 ### `Claimant.predicateNot(predicate)`
 
@@ -484,7 +484,7 @@ static predicateNot(predicate: ClaimPredicate): ClaimPredicate;
 
 - **`predicate`** — `ClaimPredicate` (required) — an xdr.ClaimPredicate
 
-**Source:** [src/base/claimant.ts:241](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L241)
+**Source:** [src/base/claimant.ts:251](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L251)
 
 ### `Claimant.predicateOr(left, right)`
 
@@ -499,7 +499,7 @@ static predicateOr(left: ClaimPredicate, right: ClaimPredicate): ClaimPredicate;
 - **`left`** — `ClaimPredicate` (required) — an xdr.ClaimPredicate
 - **`right`** — `ClaimPredicate` (required) — an xdr.ClaimPredicate
 
-**Source:** [src/base/claimant.ts:223](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L223)
+**Source:** [src/base/claimant.ts:233](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L233)
 
 ### `Claimant.predicateToHorizonJson(predicate)`
 
@@ -529,7 +529,7 @@ alone when the time is past the JS `Date` range
 
 - an `Error` when stellar-core would reject the predicate
 
-**Source:** [src/base/claimant.ts:417](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L417)
+**Source:** [src/base/claimant.ts:427](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L427)
 
 ### `Claimant.predicateUnconditional()`
 
@@ -539,7 +539,7 @@ Returns an unconditional claim predicate
 static predicateUnconditional(): ClaimPredicate;
 ```
 
-**Source:** [src/base/claimant.ts:195](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L195)
+**Source:** [src/base/claimant.ts:205](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L205)
 
 ### `claimant.destination`
 
@@ -549,7 +549,7 @@ The destination account ID.
 destination: string;
 ```
 
-**Source:** [src/base/claimant.ts:560](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L560)
+**Source:** [src/base/claimant.ts:570](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L570)
 
 ### `claimant.predicate`
 
@@ -559,7 +559,7 @@ The claim predicate.
 predicate: ClaimPredicate;
 ```
 
-**Source:** [src/base/claimant.ts:571](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L571)
+**Source:** [src/base/claimant.ts:581](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L581)
 
 ### `claimant.toXdrObject()`
 
@@ -569,7 +569,7 @@ Returns the xdr object for this claimant.
 toXdrObject(): ClaimantV0Arm;
 ```
 
-**Source:** [src/base/claimant.ts:540](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L540)
+**Source:** [src/base/claimant.ts:550](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L550)
 
 ### `claimant.toXDRObject()`
 
@@ -580,7 +580,7 @@ Deprecated in version v17.0.0
 toXDRObject(): ClaimantV0Arm;
 ```
 
-**Source:** [src/base/claimant.ts:553](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L553)
+**Source:** [src/base/claimant.ts:563](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L563)
 
 ## LiquidityPoolAsset
 

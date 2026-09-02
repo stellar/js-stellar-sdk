@@ -597,7 +597,7 @@ describe("Claimant", () => {
             type: "claimPredicateBeforeAbsoluteTime",
             absBefore: 1.5,
           } as unknown as xdr.ClaimPredicate);
-        expect(call).toThrow(/abs_before_epoch must be an integer/);
+        expect(call).toThrow(/abs_before_epoch must be a bigint/);
         expect(call).not.toThrow(SyntaxError);
       });
     });
@@ -684,6 +684,16 @@ describe("Claimant", () => {
       expect(abs.absBefore.toString()).toBe("253402300800");
     });
 
+    it("reads an unsigned expanded year, as Go's reader accepts", () => {
+      // Go: `^([-+]?\d{4,})-…`. ES needs a sign and exactly 6 digits, so
+      // neither "10000-…" nor "+10000-…" parses without normalizing.
+      const predicate = Claimant.predicateFromHorizonJson({
+        abs_before: "10000-01-01T00:00:00Z",
+      });
+      const abs = expectVariant(predicate, "claimPredicateBeforeAbsoluteTime");
+      expect(abs.absBefore.toString()).toBe("253402300800");
+    });
+
     it("round-trips an expanded year", () => {
       const json = {
         abs_before: "+10000-01-01T00:00:00Z",
@@ -720,6 +730,54 @@ describe("Claimant", () => {
       const predicate = Claimant.predicateFromHorizonJson({ abs_before });
       const abs = expectVariant(predicate, "claimPredicateBeforeAbsoluteTime");
       expect(abs.absBefore.toString()).toBe(epoch);
+    });
+  });
+
+  describe("int64 range is enforced in both directions", () => {
+    // The arm factories do not range-check, so an out-of-range predicate is
+    // reachable from public API — only `toXdr()` rejects it later.
+    it("refuses to render a time outside int64", () => {
+      expect(() =>
+        Claimant.predicateToHorizonJson(
+          xdr.ClaimPredicate.claimPredicateBeforeAbsoluteTime(
+            (10n ** 20n) as never,
+          ),
+        ),
+      ).toThrow(/abs_before_epoch must be within int64 range/);
+    });
+
+    it("names the field when reading a time outside int64", () => {
+      // `Int64.fromString` raises an XdrError that never names the field.
+      expect(() =>
+        Claimant.predicateFromHorizonJson({
+          abs_before_epoch: "100000000000000000000",
+        }),
+      ).toThrow(/abs_before_epoch must be within int64 range/);
+    });
+
+    it("still accepts int64 max in both directions", () => {
+      const json = { abs_before_epoch: "9223372036854775807" };
+      expect(
+        Claimant.predicateToHorizonJson(
+          Claimant.predicateFromHorizonJson(json),
+        ),
+      ).toEqual(json);
+    });
+  });
+
+  describe("time members are not coerced", () => {
+    // `String(value)` would turn `[1]` into "1"; the real member is a bigint.
+    it.each([
+      ["an array", [1]],
+      ["a boxed string", new String("5")],
+      ["a numeric string", "5"],
+    ])("throws on %s", (_label, absBefore) => {
+      expect(() =>
+        Claimant.predicateToHorizonJson({
+          type: "claimPredicateBeforeAbsoluteTime",
+          absBefore,
+        } as unknown as xdr.ClaimPredicate),
+      ).toThrow(/abs_before_epoch must be a bigint/);
     });
   });
 
