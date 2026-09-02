@@ -258,8 +258,8 @@ describe("Claimant", () => {
       expect(rel.relBefore.toString()).toBe("3600");
     });
 
-    it("prefers `abs_before_epoch` when both time keys are present", () => {
-      // Horizon always sends both. The epoch field cannot lose range.
+    it("reads either time key to the same value when both agree", () => {
+      // Horizon always sends both, derived from one value.
       const predicate = Claimant.predicateFromHorizonJson({
         abs_before: "2100-01-01T00:00:00Z",
         abs_before_epoch: "4102444800",
@@ -268,13 +268,39 @@ describe("Claimant", () => {
       expect(abs.absBefore.toString()).toBe("4102444800");
     });
 
-    it("prefers `abs_before_epoch` even when the two disagree", () => {
+    it("prefers `abs_before` when the two disagree, as Horizon does", () => {
+      // Horizon's `claimPredicateJSON.toXDR()` reads `abs_before` and never
+      // reads `abs_before_epoch`, so the same JSON must mean the same here.
       const predicate = Claimant.predicateFromHorizonJson({
         abs_before: "2100-01-01T00:00:00Z",
         abs_before_epoch: "1700000000",
       });
       const abs = expectVariant(predicate, "claimPredicateBeforeAbsoluteTime");
-      expect(abs.absBefore.toString()).toBe("1700000000");
+      expect(abs.absBefore.toString()).toBe("4102444800");
+    });
+
+    it("still validates `abs_before_epoch` when it does not decide", () => {
+      // Go's `,string` tag fails the whole unmarshal on a non-numeric value,
+      // so a corrupt epoch must surface even though `abs_before` wins.
+      const cases: unknown[] = ["abc", "", "-1", "9".repeat(30), 42];
+      for (const abs_before_epoch of cases) {
+        expect(() =>
+          Claimant.predicateFromHorizonJson({
+            abs_before: "2100-01-01T00:00:00Z",
+            abs_before_epoch,
+          } as HorizonPredicateJson),
+        ).toThrow(/abs_before_epoch/);
+      }
+    });
+
+    it("reads an `abs_before` past the JS Date range on its own", () => {
+      // The reader folds the year the same way the writer unfolds it, so the
+      // field it emits is one it can also read back alone.
+      const predicate = Claimant.predicateFromHorizonJson({
+        abs_before: "+292277026596-12-04T15:30:07Z",
+      });
+      const abs = expectVariant(predicate, "claimPredicateBeforeAbsoluteTime");
+      expect(abs.absBefore.toString()).toBe("9223372036854775807");
     });
 
     it("reads a `not`", () => {
@@ -491,13 +517,21 @@ describe("Claimant", () => {
       ).toThrow(/and must be an array of 2 sub-predicates/);
     });
 
-    it("throws when `abs_before` is unrepresentable and no epoch is given", () => {
-      // int64 seconds outrange Date, so Date.parse gives NaN.
+    it("reads a year past the end of the JS Date range", () => {
+      const predicate = Claimant.predicateFromHorizonJson({
+        abs_before: "+275770-09-13T00:00:00Z",
+      });
+      expect(predicate.type).toBe("claimPredicateBeforeAbsoluteTime");
+    });
+
+    it("reports a pre-epoch `abs_before` as negative, not unrepresentable", () => {
+      // Folding the year means the parse succeeds, so the sign check is what
+      // rejects it — and it names the real problem.
       expect(() =>
         Claimant.predicateFromHorizonJson({
-          abs_before: "+275770-09-13T00:00:00Z",
+          abs_before: "-271821-04-19T20:00:00-05:00",
         }),
-      ).toThrow(/abs_before .* is outside the range Date can represent/);
+      ).toThrow(/abs_before must not be negative/);
     });
 
     describe("rejects a day the month does not have", () => {
@@ -535,6 +569,11 @@ describe("Claimant", () => {
         ["a month and day out of range", "2026-13-45T00:00:00Z"],
         ["an offset out of range", "2026-01-01T00:00:00+99:99"],
         ["an hour out of range", "2026-01-01T25:00:00Z"],
+        // RFC 3339 caps the hour at 23, but `Date` reads 24:00:00 as midnight
+        // the next day — and the day check looks at the date part only.
+        ["hour 24", "2026-01-01T24:00:00Z"],
+        ["hour 24 at a month end", "2026-01-31T24:00:00Z"],
+        ["hour 24 at a year end", "2026-12-31T24:00:00Z"],
       ])("throws on %s", (_label, abs_before) => {
         expect(() => Claimant.predicateFromHorizonJson({ abs_before })).toThrow(
           /abs_before .* is not a valid date/,

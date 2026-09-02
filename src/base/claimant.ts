@@ -140,7 +140,7 @@ function toSeconds(value: unknown, field: string): bigint {
  * Go rejects those too, parsing with `time.RFC3339`.
  */
 const ISO_8601 =
-  /^([+-]?\d{4,})-(\d{2})-(\d{2})(T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2}))$/;
+  /^([+-]?\d{4,})-(\d{2})-(\d{2})T(\d{2}):(\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2}))$/;
 
 /** The longest we emit is 29 characters, at int64 max; the rest is headroom. */
 const MAX_ISO_LENGTH = 64;
@@ -165,34 +165,37 @@ function isoToEpoch(iso: unknown): string {
         `${describeValue(iso)}`,
     );
   }
-  const [, year, month, day, time] = match;
-  // Go accepts 4+ year digits with an optional sign; ES accepts only `YYYY` or
-  // a signed, exactly-6-digit expanded year. Normalize anything else.
-  const sign = /^[+-]/.test(year) ? year.slice(0, 1) : "";
-  const digits = sign ? year.slice(1) : year;
-  const date =
-    sign || digits.length > 4
-      ? `${sign || "+"}${digits.padStart(6, "0")}-${month}-${day}`
-      : `${year}-${month}-${day}`;
+  const [, yearText, month, day, hour, rest] = match;
+  const time = `T${hour}:${rest}`;
+  // The inverse of `epochToIso`: fold the year into the 400-year window that
+  // `Date` can hold, then add the cycles back in seconds. Go reads a year of
+  // any width, so a year outside the `Date` range is valid input, not an
+  // error. The cycle is a whole number of days and the leap pattern repeats,
+  // so month, day and leap-year validity are unchanged by the shift.
+  const year = BigInt(yearText);
+  const shifted =
+    ((((year - 1970n) % CYCLE_YEARS) + CYCLE_YEARS) % CYCLE_YEARS) + 1970n;
+  const cycles = (year - shifted) / CYCLE_YEARS;
+  const date = `${shifted}-${month}-${day}`;
   const milliseconds = Date.parse(`${date}${time}`);
   if (Number.isNaN(milliseconds)) {
-    // An out-of-range year and a bad month, hour or offset both give NaN, so
-    // reparse under an in-range year to tell them apart.
-    if (Number.isNaN(Date.parse(`2000-${month}-${day}${time}`))) {
-      throw notValidDate(iso);
-    }
-    throw new Error(
-      `abs_before ${describeValue(iso)} is outside the range Date can ` +
-        `represent; pass abs_before_epoch instead`,
-    );
+    throw notValidDate(iso);
   }
-  // V8 rolls a day-of-month overflow over — Feb 30 lands in March — so ask
-  // Date which day it landed on, in UTC where no offset can shift it.
-  if (new Date(`${date}T00:00:00Z`).getUTCDate() !== Number(day)) {
+  // `Date` reads hour 24 as midnight the next day, and rolls a day-of-month
+  // overflow over — Feb 30 lands in March. RFC 3339 allows neither, so check
+  // that the parse landed on the hour and day the string names. The day check
+  // reads the date part in UTC, where no offset can shift it.
+  if (
+    Number(hour) > 23 ||
+    new Date(`${date}T00:00:00Z`).getUTCDate() !== Number(day)
+  ) {
     throw notValidDate(iso);
   }
   // The XDR field is int64 seconds, so any fractional part truncates.
-  return String(Math.floor(milliseconds / 1000));
+  return (
+    BigInt(Math.floor(milliseconds / 1000)) +
+    cycles * CYCLE_SECONDS
+  ).toString();
 }
 
 /**
@@ -344,6 +347,10 @@ export class Claimant {
    * `abs_before` needs an explicit timezone, as Horizon always sends one:
    * without it `Date.parse` resolves in the host timezone.
    *
+   * When both `abs_before` and `abs_before_epoch` are present, `abs_before`
+   * decides, as it does in Horizon. The two only disagree in a hand-built
+   * object; Horizon derives both from one value.
+   *
    * @param json - a claim predicate as Horizon serves it
    * @returns the equivalent `xdr.ClaimPredicate`
    * @throws an `Error` when the object is malformed, or stellar-core would
@@ -415,15 +422,23 @@ export class Claimant {
         Claimant.horizonSubPredicates(json.or, "or", depth),
       );
     }
-    // Prefer the epoch field: an ISO timestamp through `Date` can lose range.
+    // `abs_before` wins, as it does in Horizon: its `claimPredicateJSON`
+    // reads that field and never reads `abs_before_epoch`, so an inconsistent
+    // pair has to mean here what it means there.
+    if (json.abs_before !== undefined) {
+      // Shape-check the epoch even though it does not decide: Go's `,string`
+      // tag fails the whole unmarshal on a non-numeric value, so a corrupt
+      // field must surface here too.
+      if (json.abs_before_epoch !== undefined) {
+        toNonNegativeInt64(json.abs_before_epoch, "abs_before_epoch");
+      }
+      return ClaimPredicate.claimPredicateBeforeAbsoluteTime(
+        toNonNegativeInt64(isoToEpoch(json.abs_before), "abs_before"),
+      );
+    }
     if (json.abs_before_epoch !== undefined) {
       return ClaimPredicate.claimPredicateBeforeAbsoluteTime(
         toNonNegativeInt64(json.abs_before_epoch, "abs_before_epoch"),
-      );
-    }
-    if (json.abs_before !== undefined) {
-      return ClaimPredicate.claimPredicateBeforeAbsoluteTime(
-        toNonNegativeInt64(isoToEpoch(json.abs_before), "abs_before"),
       );
     }
     return ClaimPredicate.claimPredicateBeforeRelativeTime(
