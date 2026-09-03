@@ -16,6 +16,22 @@ import { expandUriTemplate } from "../utils/url.js";
 // query-param.
 const JOINABLE = ["transaction"];
 
+// Each filter element is exactly one path segment, so a raw "/", a dot segment
+// or an empty value would re-point the request at a different endpoint. Nullish
+// is checked because JS callers reach this despite the `string` type.
+function encodeSegment(segment: string): string {
+  if (
+    segment === null ||
+    segment === undefined ||
+    segment === "" ||
+    segment === "." ||
+    segment === ".."
+  ) {
+    throw new BadRequestError("Invalid path segment", segment);
+  }
+  return encodeURIComponent(segment);
+}
+
 export interface EventSourceOptions<T> {
   onmessage?: (
     value: T extends ServerApi.CollectionPage<infer U> ? U : T,
@@ -314,7 +330,9 @@ export class CallBuilder<
 
     if (this.filter.length === 1) {
       // append filters to original segments
-      const newSegment = this.originalSegments.concat(this.filter[0]);
+      const newSegment = this.originalSegments.concat(
+        this.filter[0].map(encodeSegment),
+      );
       this.url.pathname = newSegment.join("/");
     }
   }
