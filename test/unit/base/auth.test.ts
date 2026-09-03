@@ -680,6 +680,63 @@ describe("building authorization entries", () => {
         kp.publicKey(),
       );
     });
+
+    // Regression coverage for
+    // https://github.com/stellar/js-stellar-sdk/issues/1683: the
+    // naked-signature (backwards-compat) path derived the public key to
+    // verify against from the entry's own top-level address
+    // unconditionally, ignoring `forAddress` entirely. A caller signing for
+    // a delegate through this specific callback shape got
+    // "signature doesn't match payload" even for a genuinely correct
+    // signature, because it was checked against the wrong key.
+    it("verifies against forAddress, not the top-level address, on the naked-signature path", async () => {
+      const delegate = Keypair.random();
+      const entry = entryWith(
+        xdr.SorobanCredentials.sorobanCredentialsAddressWithDelegates(
+          new xdr.SorobanAddressCredentialsWithDelegates({
+            addressCredentials: makeAddrCreds(), // top-level: kp, unsigned
+            delegates: [
+              new xdr.SorobanDelegateSignature({
+                address: new Address(delegate.publicKey()).toScAddress(),
+                signature: xdr.ScVal.scvVoid(),
+                nestedDelegates: [],
+              }),
+            ],
+          }),
+        ),
+      );
+
+      const signed = await authorizeEntry(
+        entry,
+        // Naked Uint8Array return, not { signature, publicKey } — the
+        // exact callback shape #1683 is about.
+        // eslint-disable-next-line @typescript-eslint/require-await
+        async (preimage) => delegate.sign(hash(preimage.toXdr())),
+        EXPIRATION,
+        Networks.TESTNET,
+        delegate.publicKey(), // forAddress: the delegate, not the top level
+      );
+
+      const wd = (
+        signed.credentials as xdr.SorobanCredentialsAddressWithDelegates
+      ).value;
+      // top-level stays unsigned (makeAddrCreds()'s own placeholder is an
+      // empty vec, not scvVoid); only the targeted delegate got a signature
+      expect(wd.addressCredentials.signature.type).toBe("scvVec");
+      expect(
+        expectDefined((wd.addressCredentials.signature as xdr.ScValVec).vec),
+      ).toHaveLength(0);
+      const sigArgs = expectDefined(
+        (wd.delegates[0].signature as xdr.ScValVec).vec,
+      ).map((v) => scValToNative(v));
+      const sig = sigArgs[0] as {
+        public_key: Uint8Array;
+        signature: Uint8Array;
+      };
+      expect(StrKey.encodeEd25519PublicKey(sig.public_key)).toBe(
+        delegate.publicKey(),
+      );
+    });
   });
 
   describe("authorizeInvocation", () => {

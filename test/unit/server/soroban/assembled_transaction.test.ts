@@ -598,11 +598,21 @@ describe("AssembledTransaction auth entry credential types (CAP-71)", () => {
       expect(assembled.needsNonInvokerSigningBy()).toEqual([kpA.publicKey()]);
     });
 
-    it("keeps top-level semantics for delegate entries: a signed top level is excluded even with unsigned delegates", () => {
+    // Regression coverage for
+    // https://github.com/stellar/js-stellar-sdk/issues/1655: this method
+    // used to inspect only info.signers[0] (the top-level node), so an
+    // unsigned delegate on an otherwise-signed top level was silently
+    // dropped from the result, both real cases from the original report.
+    // Built directly via hand-constructed
+    // SorobanAddressCredentialsWithDelegates XDR (addrCreds / authEntry
+    // above), with a placeholder scvBytes(new Uint8Array(64))/scvVoid()
+    // standing in for a real signature, not via
+    // buildWithDelegatesEntry / authorizeEntry.
+    it("reports an unsigned delegate even when the top level is already signed (#1655 case 2)", () => {
       const entry = authEntry(
         xdr.SorobanCredentials.sorobanCredentialsAddressWithDelegates(
           new xdr.SorobanAddressCredentialsWithDelegates({
-            addressCredentials: addrCreds(kpB.publicKey(), true),
+            addressCredentials: addrCreds(kpB.publicKey(), true), // signed
             delegates: [
               new xdr.SorobanDelegateSignature({
                 address: new Address(kpC.publicKey()).toScAddress(),
@@ -615,7 +625,95 @@ describe("AssembledTransaction auth entry credential types (CAP-71)", () => {
       );
       const assembled = assembledWith([entry]);
 
-      expect(assembled.needsNonInvokerSigningBy()).toEqual([]);
+      // The top level is already signed, so only the delegate is
+      // outstanding: the caller following the documented
+      // needsNonInvokerSigningBy -> sign -> repeat workflow must see it,
+      // not an empty array implying nothing is left to sign.
+      expect(assembled.needsNonInvokerSigningBy()).toEqual([kpC.publicKey()]);
+    });
+
+    it("reports an unsigned delegate alongside an unsigned-by-design top level (#1655 case 1)", () => {
+      const entry = authEntry(
+        xdr.SorobanCredentials.sorobanCredentialsAddressWithDelegates(
+          new xdr.SorobanAddressCredentialsWithDelegates({
+            // Unsigned by design (CAP-71-01: an account whose policy
+            // authorizes purely via delegated signers), not merely
+            // "not yet signed".
+            addressCredentials: addrCreds(kpB.publicKey(), false),
+            delegates: [
+              new xdr.SorobanDelegateSignature({
+                address: new Address(kpC.publicKey()).toScAddress(),
+                signature: xdr.ScVal.scvVoid(), // unsigned delegate
+                nestedDelegates: [],
+              }),
+            ],
+          }),
+        ),
+      );
+      const assembled = assembledWith([entry]);
+
+      // Both nodes are unsigned; both must be reported. Previously this
+      // reported only the top-level address (kpB), which per this
+      // account's own policy may never need a signature at all, while
+      // the delegate that actually needs to sign (kpC) never appeared.
+      expect(assembled.needsNonInvokerSigningBy().sort()).toEqual(
+        [kpB.publicKey(), kpC.publicKey()].sort(),
+      );
+    });
+
+    it("does not report an already-signed delegate on an unsigned top level, unless includeAlreadySigned is set", () => {
+      const entry = authEntry(
+        xdr.SorobanCredentials.sorobanCredentialsAddressWithDelegates(
+          new xdr.SorobanAddressCredentialsWithDelegates({
+            addressCredentials: addrCreds(kpB.publicKey(), false), // unsigned
+            delegates: [
+              new xdr.SorobanDelegateSignature({
+                address: new Address(kpC.publicKey()).toScAddress(),
+                signature: xdr.ScVal.scvVec([
+                  xdr.ScVal.scvBytes(new Uint8Array(64)),
+                ]), // already signed
+                nestedDelegates: [],
+              }),
+            ],
+          }),
+        ),
+      );
+      const assembled = assembledWith([entry]);
+
+      expect(assembled.needsNonInvokerSigningBy()).toEqual([kpB.publicKey()]);
+      expect(
+        assembled
+          .needsNonInvokerSigningBy({ includeAlreadySigned: true })
+          .sort(),
+      ).toEqual([kpB.publicKey(), kpC.publicKey()].sort());
+    });
+
+    it("walks nested delegates, not just the first level", () => {
+      const entry = authEntry(
+        xdr.SorobanCredentials.sorobanCredentialsAddressWithDelegates(
+          new xdr.SorobanAddressCredentialsWithDelegates({
+            addressCredentials: addrCreds(kpA.publicKey(), true),
+            delegates: [
+              new xdr.SorobanDelegateSignature({
+                address: new Address(kpB.publicKey()).toScAddress(),
+                signature: xdr.ScVal.scvVec([
+                  xdr.ScVal.scvBytes(new Uint8Array(64)),
+                ]), // signed
+                nestedDelegates: [
+                  new xdr.SorobanDelegateSignature({
+                    address: new Address(kpC.publicKey()).toScAddress(),
+                    signature: xdr.ScVal.scvVoid(), // unsigned, one level deeper
+                    nestedDelegates: [],
+                  }),
+                ],
+              }),
+            ],
+          }),
+        ),
+      );
+      const assembled = assembledWith([entry]);
+
+      expect(assembled.needsNonInvokerSigningBy()).toEqual([kpC.publicKey()]);
     });
 
     it("deduplicates repeated addresses across credential types", () => {
@@ -650,6 +748,93 @@ describe("AssembledTransaction auth entry credential types (CAP-71)", () => {
         credAddress(entry),
       );
       expect(authorized).toEqual([kpA.publicKey(), kpA.publicKey()]);
+    });
+
+    // Regression coverage for
+    // https://github.com/stellar/js-stellar-sdk/issues/1655: previously
+    // this method resolved an entry's signer via getAddressCredentials(),
+    // which only ever exposes the top-level address, so a delegate never
+    // matched `address` and the entry was silently skipped, whatever the
+    // delegate's own address was.
+    it("authorizes a delegate node, not just the top level, when address targets a delegate", async () => {
+      const entry = authEntry(
+        xdr.SorobanCredentials.sorobanCredentialsAddressWithDelegates(
+          new xdr.SorobanAddressCredentialsWithDelegates({
+            addressCredentials: addrCreds(kpB.publicKey(), true), // already signed
+            delegates: [
+              new xdr.SorobanDelegateSignature({
+                address: new Address(kpC.publicKey()).toScAddress(),
+                signature: xdr.ScVal.scvVoid(), // unsigned
+                nestedDelegates: [],
+              }),
+            ],
+          }),
+        ),
+      );
+      const assembled = assembledWith([entry]);
+
+      // 5 declared parameters: signals this stub can receive `forAddress`,
+      // required to target a delegate since #1672's own review round added
+      // a guard rejecting shorter, pre-forAddress-shaped custom callbacks.
+      const authorizeEntry = vi.fn(
+        (
+          e: any,
+          _signer: any,
+          _validUntil: any,
+          _passphrase: any,
+          _forAddress?: any,
+        ) => Promise.resolve(e),
+      );
+
+      await assembled.signAuthEntries({
+        expiration: 1000,
+        address: kpC.publicKey(), // the delegate, not the top-level kpB
+        authorizeEntry,
+      });
+
+      // The entry has a matching signer node (the delegate), so it must
+      // be handed to authorizeEntry, previously it was skipped entirely
+      // because kpC never matched the top-level-only address check.
+      expect(authorizeEntry).toHaveBeenCalledTimes(1);
+    });
+
+    it("end-to-end signs a delegate node via the default authorizeEntry + basicNodeSigner", async () => {
+      const topSigner = Keypair.random();
+      const delegateSigner = Keypair.random();
+      const entry = authEntry(
+        xdr.SorobanCredentials.sorobanCredentialsAddressWithDelegates(
+          new xdr.SorobanAddressCredentialsWithDelegates({
+            addressCredentials: addrCreds(topSigner.publicKey(), false),
+            delegates: [
+              new xdr.SorobanDelegateSignature({
+                address: new Address(delegateSigner.publicKey()).toScAddress(),
+                signature: xdr.ScVal.scvVoid(),
+                nestedDelegates: [],
+              }),
+            ],
+          }),
+        ),
+      );
+      const assembled = assembledWith(
+        [entry],
+        contract.basicNodeSigner(delegateSigner, networkPassphrase),
+      );
+
+      await assembled.signAuthEntries({
+        expiration: 1000,
+        address: delegateSigner.publicKey(),
+      });
+
+      const credentials = (assembled.built as any).operations[0].auth[0]
+        .credentials.addressWithDelegates;
+      // The delegate node received a real signature.
+      const delegateSig = credentials.delegates[0].signature;
+      expect(delegateSig.type).toBe("scvVec");
+      expect(delegateSig.vec).toHaveLength(1);
+      // The top-level node, unsigned by design (CAP-71-01), was left
+      // untouched: signAuthEntries must write only to the node(s) that
+      // actually match `address`, not blanket-sign the whole entry.
+      expect(credentials.addressCredentials.signature.type).toBe("scvVoid");
     });
 
     it("end-to-end signs an ADDRESS_V2 entry via the default authorizeEntry + basicNodeSigner", async () => {
@@ -733,6 +918,214 @@ describe("AssembledTransaction auth entry credential types (CAP-71)", () => {
           address: signer.publicKey(),
         }),
       ).rejects.toThrow(contract.AssembledTransaction.Errors.NoSigner);
+    });
+
+    // Regression coverage for
+    // https://github.com/stellar/js-stellar-sdk/issues/1672: the default
+    // authorizeEntry callback used to hand it { signature, publicKey: target }
+    // unconditionally, ignoring a `signerAddress` the signing callback
+    // reported back. `target` is only who was ASKED to sign; a delegate
+    // whose real signer differs from the delegate node's own address (e.g.
+    // a smart-account delegate proxying to an underlying Ed25519 key) must
+    // still verify, which needs the signer's own reported address, not the
+    // requested one.
+    it("verifies against the signer's own reported address, not the requested one, when they differ", async () => {
+      const requestedSigner = Keypair.random(); // who `address` asks to sign
+      const actualSigner = Keypair.random(); // who really signs
+
+      const assembled = assembledWith(
+        [authEntry(addressV2Cred(requestedSigner.publicKey()))],
+        {
+          signAuthEntry: new contract.KeypairSigner(
+            actualSigner,
+            networkPassphrase,
+          ).signAuthEntry,
+        },
+      );
+
+      // Previously this verified the signature against
+      // requestedSigner.publicKey() (== target) regardless of who actually
+      // produced it, so a signer honestly reporting a different
+      // signerAddress made the default authorizeEntry's
+      // Keypair.fromPublicKey(target).verify(...) check fail even though
+      // the signature is genuinely valid for actualSigner.
+      await assembled.signAuthEntries({
+        expiration: 1000,
+        address: requestedSigner.publicKey(),
+      });
+
+      const signed = (assembled.built as any).operations[0].auth[0].credentials
+        .addressV2;
+      expect(signed.signature.type).toBe("scvVec");
+      expect(signed.signature.vec).toHaveLength(1);
+    });
+
+    // Regression coverage for the sequential multi-party signing bug found
+    // in review of #1672: every signature on an entry commits to the same
+    // shared signatureExpirationLedger, so a second signer picking a fresh
+    // default silently invalidated the first signer's already-produced
+    // signature, e2e-verified as a real Error(Auth, InvalidAction) with no
+    // client-side error beforehand.
+    it("reuses the entry's already-stored expiration for a later signer, instead of a fresh default", async () => {
+      const entry = authEntry(
+        xdr.SorobanCredentials.sorobanCredentialsAddressWithDelegates(
+          new xdr.SorobanAddressCredentialsWithDelegates({
+            addressCredentials: addrCreds(kpB.publicKey(), false),
+            delegates: [
+              new xdr.SorobanDelegateSignature({
+                address: new Address(kpC.publicKey()).toScAddress(),
+                signature: xdr.ScVal.scvVoid(),
+                nestedDelegates: [],
+              }),
+            ],
+          }),
+        ),
+      );
+      const assembled = assembledWith([entry]);
+
+      // Real signing (not a passthrough mock) for both calls: the fix
+      // being tested depends on the entry actually carrying a real
+      // signature + expiration after the first call, which a mock that
+      // just returns its input unchanged would never produce.
+      await assembled.signAuthEntries({
+        expiration: 1000,
+        address: kpC.publicKey(),
+        signAuthEntry: contract.basicNodeSigner(kpC, networkPassphrase)
+          .signAuthEntry,
+      });
+
+      const afterFirst = (assembled.built as any).operations[0].auth[0]
+        .credentials.addressWithDelegates;
+      expect(afterFirst.delegates[0].signature.type).toBe("scvVec");
+      expect(afterFirst.addressCredentials.signatureExpirationLedger).toBe(
+        1000,
+      );
+
+      // Second signer: the top level, requesting a different expiration.
+      // Since the delegate already signed against 1000, the fix must reuse
+      // 1000 instead of silently invalidating that signature with 2000.
+      await assembled.signAuthEntries({
+        expiration: 2000,
+        address: kpB.publicKey(),
+        signAuthEntry: contract.basicNodeSigner(kpB, networkPassphrase)
+          .signAuthEntry,
+      });
+
+      const afterSecond = (assembled.built as any).operations[0].auth[0]
+        .credentials.addressWithDelegates;
+      expect(afterSecond.addressCredentials.signature.type).toBe("scvVec");
+      expect(afterSecond.addressCredentials.signatureExpirationLedger).toBe(
+        1000,
+      );
+      // The delegate's earlier signature must still be present, not
+      // clobbered by the second signAuthEntries() call.
+      expect(afterSecond.delegates[0].signature.type).toBe("scvVec");
+    });
+
+    // Regression coverage for the same review round: matching an
+    // already-signed node re-signs it needlessly and, without the
+    // expiration-reuse fix above, through a second door.
+    it("does not re-authorize a node that's already signed", async () => {
+      const entry = authEntry(
+        withDelegatesCred(kpB.publicKey(), true), // already signed
+      );
+      const assembled = assembledWith([entry]);
+      const authorizeEntry = vi.fn((e: any) => Promise.resolve(e));
+
+      await assembled.signAuthEntries({
+        expiration: 1000,
+        address: kpB.publicKey(),
+        authorizeEntry,
+      });
+
+      expect(authorizeEntry).not.toHaveBeenCalled();
+    });
+
+    // Regression coverage: a contract-address (Signer::Delegated-style)
+    // delegate can't be signed via this path at all yet (it needs a
+    // signatureScVal from its own account contract's __check_auth, not an
+    // Ed25519 signature), and previously failed deep inside verification
+    // with an opaque strkey error instead of a clear one up front.
+    it("throws a clear error instead of signing for a contract-address delegate", async () => {
+      const entry = authEntry(
+        xdr.SorobanCredentials.sorobanCredentialsAddressWithDelegates(
+          new xdr.SorobanAddressCredentialsWithDelegates({
+            addressCredentials: addrCreds(kpB.publicKey(), false),
+            delegates: [
+              new xdr.SorobanDelegateSignature({
+                address: new Address(contractId).toScAddress(),
+                signature: xdr.ScVal.scvVoid(),
+                nestedDelegates: [],
+              }),
+            ],
+          }),
+        ),
+      );
+      const assembled = assembledWith([entry]);
+
+      await expect(
+        assembled.signAuthEntries({
+          expiration: 1000,
+          address: contractId,
+          authorizeEntry: vi.fn((e: any) => Promise.resolve(e)),
+        }),
+      ).rejects.toThrow(
+        contract.AssembledTransaction.Errors.UnsupportedDelegateSigner,
+      );
+    });
+
+    // Regression coverage: a custom authorizeEntry written before the
+    // forAddress (5th) parameter existed silently drops it, so signing a
+    // delegate through it wrote the signature to the top-level node
+    // instead, leaving the actual delegate unsigned with no error until
+    // the network rejected it.
+    it("throws a clear error when a custom authorizeEntry can't accept forAddress for a delegate target", async () => {
+      const entry = authEntry(
+        xdr.SorobanCredentials.sorobanCredentialsAddressWithDelegates(
+          new xdr.SorobanAddressCredentialsWithDelegates({
+            addressCredentials: addrCreds(kpB.publicKey(), false),
+            delegates: [
+              new xdr.SorobanDelegateSignature({
+                address: new Address(kpC.publicKey()).toScAddress(),
+                signature: xdr.ScVal.scvVoid(),
+                nestedDelegates: [],
+              }),
+            ],
+          }),
+        ),
+      );
+      const assembled = assembledWith([entry]);
+      // Only 4 parameters: a pre-forAddress custom authorizeEntry.
+      const legacyAuthorizeEntry = vi.fn(
+        (
+          e: xdr.SorobanAuthorizationEntry,
+          _signer: any,
+          _validUntil: number,
+          _passphrase: string,
+        ) => Promise.resolve(e),
+      );
+      expect(legacyAuthorizeEntry.length).toBe(4);
+
+      await expect(
+        assembled.signAuthEntries({
+          expiration: 1000,
+          address: kpC.publicKey(), // the delegate, not the top level
+          authorizeEntry: legacyAuthorizeEntry as any,
+        }),
+      ).rejects.toThrow(
+        contract.AssembledTransaction.Errors.AuthorizeEntryMissingForAddress,
+      );
+
+      // The same legacy authorizeEntry is fine for a top-level target: it
+      // never needs forAddress, so the guard must not fire for it.
+      const topLevelEntry = authEntry(addressV2Cred(kpA.publicKey(), false));
+      const assembledTopLevel = assembledWith([topLevelEntry]);
+      await assembledTopLevel.signAuthEntries({
+        expiration: 1000,
+        address: kpA.publicKey(),
+        authorizeEntry: legacyAuthorizeEntry as any,
+      });
+      expect(legacyAuthorizeEntry).toHaveBeenCalled();
     });
   });
 });
