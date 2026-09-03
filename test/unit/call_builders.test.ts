@@ -177,11 +177,13 @@ describe("CallBuilder path segments", () => {
     );
   });
 
+  // The base path must not be re-encoded: originalSegments come from
+  // URL.pathname, which the parser has already percent-encoded.
   it("appends to a base URL that already has path segments", async () => {
-    const { server, get } = mockServer("https://horizon.example.com/folder");
+    const { server, get } = mockServer("https://horizon.example.com/a%20b");
     await server.accounts().accountId(EVIL).call();
     expect(get).toHaveBeenCalledWith(
-      `https://horizon.example.com/folder/accounts/${ENCODED_EVIL}`,
+      `https://horizon.example.com/a%20b/accounts/${ENCODED_EVIL}`,
     );
   });
 
