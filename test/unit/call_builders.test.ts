@@ -1,7 +1,6 @@
 import { describe, it, afterEach, expect, vi } from "vitest";
 import { CallBuilder } from "../../src/horizon/call_builder.js";
 import { Horizon } from "../../src/index.js";
-import { BadRequestError } from "../../src/errors/index.js";
 import { httpClient } from "../../src/http-client/index.js";
 
 describe("CallBuilder functions", () => {
@@ -191,13 +190,11 @@ describe("CallBuilder path segments", () => {
   it("rejects a dot segment, which encoding alone does not escape", () => {
     const { server, get } = mockServer();
     expect(() => server.accounts().accountId("..").call()).toThrow(
-      BadRequestError,
+      'expected a single non-empty path segment, not ".."',
     );
-    expect(() => server.accounts().accountId(".").call()).toThrow(
-      /Invalid path segment/,
-    );
+    expect(() => server.accounts().accountId(".").call()).toThrow(TypeError);
     expect(() => server.transactions().forAccount("..").stream()).toThrow(
-      /Invalid path segment/,
+      /expected a single non-empty path segment/,
     );
     expect(get).not.toHaveBeenCalled();
   });
@@ -205,10 +202,10 @@ describe("CallBuilder path segments", () => {
   it("rejects an empty identifier instead of hitting the collection", () => {
     const { server, get } = mockServer();
     expect(() => server.accounts().accountId("").call()).toThrow(
-      BadRequestError,
+      'expected a single non-empty path segment, not ""',
     );
     expect(() => server.transactions().forAccount("").call()).toThrow(
-      /Invalid path segment/,
+      /expected a single non-empty path segment/,
     );
     expect(get).not.toHaveBeenCalled();
   });
@@ -220,9 +217,9 @@ describe("CallBuilder path segments", () => {
     const untyped = (v: unknown) => v as string;
     expect(() =>
       server.accounts().accountId(untyped(undefined)).call(),
-    ).toThrow(/Invalid path segment/);
+    ).toThrow(/expected a single non-empty path segment/);
     expect(() => server.accounts().accountId(untyped(null)).call()).toThrow(
-      /Invalid path segment/,
+      /expected a single non-empty path segment/,
     );
     expect(get).not.toHaveBeenCalled();
   });

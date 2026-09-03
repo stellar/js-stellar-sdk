@@ -27,7 +27,9 @@ function encodeSegment(segment: string): string {
     segment === "." ||
     segment === ".."
   ) {
-    throw new BadRequestError("Invalid path segment", segment);
+    throw new TypeError(
+      `expected a single non-empty path segment, not ${JSON.stringify(segment)}`,
+    );
   }
   return encodeURIComponent(segment);
 }
