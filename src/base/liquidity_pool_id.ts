@@ -28,7 +28,7 @@ export class LiquidityPoolId {
       throw new Error("Liquidity pool ID is not a valid hash");
     }
 
-    this.liquidityPoolId = liquidityPoolId;
+    this.liquidityPoolId = liquidityPoolId.toLowerCase();
   }
 
   /**

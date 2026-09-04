@@ -35,9 +35,8 @@ describe("LiquidityPoolId", () => {
 
     it("accepts valid lowercase and mixed-case hashes", () => {
       expect(() => new LiquidityPoolId(POOL_ID)).not.toThrow();
-      expect(
-        () => new LiquidityPoolId(`DD7B1AB8${POOL_ID.slice(8)}`),
-      ).not.toThrow();
+      const asset = new LiquidityPoolId(`DD7B1AB8${POOL_ID.slice(8)}`);
+      expect(asset.getLiquidityPoolId()).toBe(POOL_ID);
     });
   });
 
@@ -135,6 +134,12 @@ describe("LiquidityPoolId", () => {
       expect(a.equals(b)).toBe(true);
     });
 
+    it("returns true when pool IDs differ only in case", () => {
+      const a = new LiquidityPoolId(POOL_ID);
+      const b = new LiquidityPoolId(POOL_ID.toUpperCase());
+      expect(a.equals(b)).toBe(true);
+    });
+
     it("returns false when pool IDs differ", () => {
       const a = new LiquidityPoolId(POOL_ID);
       const b = new LiquidityPoolId(
@@ -149,6 +154,13 @@ describe("LiquidityPoolId", () => {
       const original = new LiquidityPoolId(POOL_ID);
       const restored = LiquidityPoolId.fromOperation(original.toXdrObject());
       expect(original.equals(restored)).toBe(true);
+    });
+
+    it("round-trips uppercase input as a canonical lowercase ID", () => {
+      const original = new LiquidityPoolId(POOL_ID.toUpperCase());
+      const restored = LiquidityPoolId.fromOperation(original.toXdrObject());
+      expect(original.equals(restored)).toBe(true);
+      expect(restored.getLiquidityPoolId()).toBe(POOL_ID);
     });
   });
 });
