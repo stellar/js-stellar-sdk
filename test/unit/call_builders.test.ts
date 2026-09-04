@@ -187,6 +187,29 @@ describe("CallBuilder path segments", () => {
     );
   });
 
+  // `%2e%2e` is a WHATWG double-dot path segment, so the `%` must stay escaped.
+  // Skipping encoding for input that already looks encoded would reopen the
+  // traversal this fix closed.
+  it("escapes a percent-encoded dot segment", async () => {
+    const { server, get } = mockServer();
+    await server.accounts().accountId("%2e%2e").call();
+    expect(get).toHaveBeenCalledWith(
+      "https://horizon.example.com/accounts/%252e%252e",
+    );
+  });
+
+  // checkFilter() rebuilds from originalSegments rather than the current
+  // pathname, so a reused builder must not encode the segment a second time.
+  it("does not re-encode when call() runs twice", async () => {
+    const { server, get } = mockServer();
+    const url = "https://horizon.example.com/accounts/a%25b";
+    const builder = server.accounts().accountId("a%b");
+    await builder.call();
+    await builder.call();
+    expect(get).toHaveBeenNthCalledWith(1, url);
+    expect(get).toHaveBeenNthCalledWith(2, url);
+  });
+
   // `call()` is not async, so checkFilter() throws synchronously — same as the
   // sibling "Too many filters" error.
   it("rejects a dot segment, which encoding alone does not escape", () => {
@@ -219,9 +242,49 @@ describe("CallBuilder path segments", () => {
     const untyped = (v: unknown) => v as string;
     expect(() =>
       server.accounts().accountId(untyped(undefined)).call(),
-    ).toThrow(/expected a single non-empty path segment/);
+    ).toThrow(
+      "expected a string, number or bigint path segment, not undefined",
+    );
     expect(() => server.accounts().accountId(untyped(null)).call()).toThrow(
-      /expected a single non-empty path segment/,
+      "expected a string, number or bigint path segment, not object",
+    );
+    expect(get).not.toHaveBeenCalled();
+  });
+
+  // `encodeURIComponent` String-coerces its argument and leaves `.` unescaped,
+  // so a non-string that stringifies to a dot segment would survive encoding and
+  // re-point the request. The type check must run before the value checks.
+  it("rejects a non-string that stringifies to a dot segment", () => {
+    const { server, get } = mockServer();
+    const untyped = (v: unknown) => v as string;
+    for (const value of [
+      [".."],
+      [""],
+      ["."],
+      new String(".."),
+      { toString: () => ".." },
+    ]) {
+      expect(() => server.accounts().accountId(untyped(value)).call()).toThrow(
+        TypeError,
+      );
+      expect(() =>
+        server.transactions().forAccount(untyped(value)).call(),
+      ).toThrow(TypeError);
+    }
+    expect(get).not.toHaveBeenCalled();
+  });
+
+  it("rejects an identifier that is neither a string nor a number", () => {
+    const { server, get } = mockServer();
+    const untyped = (v: unknown) => v as string;
+    expect(() => server.accounts().accountId(untyped({})).call()).toThrow(
+      "expected a string, number or bigint path segment, not object",
+    );
+    expect(() => server.offers().offer(untyped(NaN)).call()).toThrow(
+      "expected a finite number path segment, not NaN",
+    );
+    expect(() => server.offers().offer(untyped(Infinity)).call()).toThrow(
+      "expected a finite number path segment, not Infinity",
     );
     expect(get).not.toHaveBeenCalled();
   });
@@ -242,6 +305,13 @@ describe("CallBuilder path segments", () => {
     await server.transactions().forLedger(0).call();
     expect(get).toHaveBeenCalledWith(
       "https://horizon.example.com/ledgers/0/transactions",
+    );
+
+    // Operation ids exceed 2^53, so a bigint is the lossless way to pass one.
+    get.mockClear();
+    await server.operations().operation(untyped(240518172673n)).call();
+    expect(get).toHaveBeenCalledWith(
+      "https://horizon.example.com/operations/240518172673",
     );
   });
 

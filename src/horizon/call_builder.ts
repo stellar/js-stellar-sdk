@@ -17,21 +17,36 @@ import { expandUriTemplate } from "../utils/url.js";
 const JOINABLE = ["transaction"];
 
 // Each filter element is exactly one path segment, so a raw "/", a dot segment
-// or an empty value would re-point the request at a different endpoint. Nullish
-// is checked because JS callers reach this despite the `string` type.
+// or an empty value would re-point the request at a different endpoint.
+// Non-strings reach this despite the `string` type, because JS callers exist and
+// `offer()` and `operation()` push the raw value. `encodeURIComponent` would
+// String-coerce them and leave `.` unescaped, so the coercion happens here where
+// the result is checked.
+// TODO: reject numbers and bigints too in the next major, and drop the coercion.
+// A decimal offer or operation id passed as a number works today.
 function encodeSegment(segment: string): string {
-  if (
-    segment === null ||
-    segment === undefined ||
-    segment === "" ||
-    segment === "." ||
-    segment === ".."
-  ) {
+  if (typeof segment === "number" && !Number.isFinite(segment)) {
     throw new TypeError(
-      `expected a single non-empty path segment, not ${JSON.stringify(segment)}`,
+      `expected a finite number path segment, not ${segment}`,
     );
   }
-  return encodeURIComponent(segment);
+
+  const value =
+    typeof segment === "number" || typeof segment === "bigint"
+      ? String(segment)
+      : segment;
+
+  if (typeof value !== "string") {
+    throw new TypeError(
+      `expected a string, number or bigint path segment, not ${typeof value}`,
+    );
+  }
+  if (value === "" || value === "." || value === "..") {
+    throw new TypeError(
+      `expected a single non-empty path segment, not ${JSON.stringify(value)}`,
+    );
+  }
+  return encodeURIComponent(value);
 }
 
 export interface EventSourceOptions<T> {
