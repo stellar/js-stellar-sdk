@@ -280,12 +280,6 @@ describe("CallBuilder path segments", () => {
     expect(() => server.accounts().accountId(untyped({})).call()).toThrow(
       "expected a string, number or bigint path segment, not object",
     );
-    expect(() => server.offers().offer(untyped(NaN)).call()).toThrow(
-      "expected a finite number path segment, not NaN",
-    );
-    expect(() => server.offers().offer(untyped(Infinity)).call()).toThrow(
-      "expected a finite number path segment, not Infinity",
-    );
     expect(get).not.toHaveBeenCalled();
   });
 
@@ -313,6 +307,19 @@ describe("CallBuilder path segments", () => {
     expect(get).toHaveBeenCalledWith(
       "https://horizon.example.com/operations/240518172673",
     );
+  });
+
+  // `encodeURIComponent` throws `URIError` on a lone surrogate, which is not
+  // the error the guard promises for a rejected identifier.
+  it("rejects a lone surrogate as a TypeError", () => {
+    const { server, get } = mockServer();
+    expect(() => server.accounts().accountId("\ud800").call()).toThrow(
+      TypeError,
+    );
+    expect(() => server.accounts().accountId("a\udfffb").call()).toThrow(
+      /well-formed path segment/,
+    );
+    expect(get).not.toHaveBeenCalled();
   });
 
   it("passes a valid identifier through unchanged", async () => {

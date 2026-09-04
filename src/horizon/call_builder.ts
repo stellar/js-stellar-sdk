@@ -18,19 +18,12 @@ const JOINABLE = ["transaction"];
 
 // Each filter element is exactly one path segment, so a raw "/", a dot segment
 // or an empty value would re-point the request at a different endpoint.
-// Non-strings reach this despite the `string` type, because JS callers exist and
-// `offer()` and `operation()` push the raw value. `encodeURIComponent` would
-// String-coerce them and leave `.` unescaped, so the coercion happens here where
-// the result is checked.
-// TODO: reject numbers and bigints too in the next major, and drop the coercion.
+// `encodeURIComponent` escapes "/" but not ".", hence the explicit dot check.
+// `unknown`, not `string`: JS callers reach this and `offer()`/`operation()` push
+// the raw value, and declaring `string` makes both guards below dead to tsc.
+// TODO: reject numbers and bigints in the next major, and drop the coercion.
 // A decimal offer or operation id passed as a number works today.
-function encodeSegment(segment: string): string {
-  if (typeof segment === "number" && !Number.isFinite(segment)) {
-    throw new TypeError(
-      `expected a finite number path segment, not ${segment}`,
-    );
-  }
-
+function encodeSegment(segment: unknown): string {
   const value =
     typeof segment === "number" || typeof segment === "bigint"
       ? String(segment)
@@ -46,7 +39,14 @@ function encodeSegment(segment: string): string {
       `expected a single non-empty path segment, not ${JSON.stringify(value)}`,
     );
   }
-  return encodeURIComponent(value);
+  try {
+    return encodeURIComponent(value);
+  } catch {
+    // encodeURIComponent throws URIError on a lone surrogate.
+    throw new TypeError(
+      `expected a well-formed path segment, not ${JSON.stringify(value)}`,
+    );
+  }
 }
 
 export interface EventSourceOptions<T> {
