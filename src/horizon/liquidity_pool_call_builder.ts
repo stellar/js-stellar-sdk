@@ -1,4 +1,5 @@
 import { Asset } from "../base/index.js";
+import { isValidLiquidityPoolId } from "../base/liquidity_pool_id.js";
 
 import { CallBuilder } from "./call_builder.js";
 import { ServerApi } from "./server_api.js";
@@ -53,7 +54,7 @@ export class LiquidityPoolCallBuilder extends CallBuilder<
   public liquidityPoolId(
     id: string,
   ): CallBuilder<ServerApi.LiquidityPoolRecord> {
-    if (!id.match(/[a-fA-F0-9]{64}/)) {
+    if (!isValidLiquidityPoolId(id)) {
       throw new TypeError(`${id} does not look like a liquidity pool ID`);
     }
 

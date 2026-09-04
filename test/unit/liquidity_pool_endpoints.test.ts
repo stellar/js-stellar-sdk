@@ -182,11 +182,36 @@ describe("/liquidity_pools tests", () => {
     const lpId =
       "ae44a51f6191ce24414fbd1326e93ccb0ae656f07fc1e37602b11d0802f74b9a";
 
-    it("checks for valid IDs", () => {
-      expect(() =>
-        server.liquidityPools().liquidityPoolId("nonsense"),
-      ).toThrow();
+    it("accepts valid lowercase and mixed-case IDs", () => {
       expect(() => server.liquidityPools().liquidityPoolId(lpId)).not.toThrow();
+      expect(() =>
+        server.liquidityPools().liquidityPoolId(lpId.toUpperCase()),
+      ).not.toThrow();
+    });
+
+    it.each([
+      ["fewer than 64 characters", lpId.slice(1)],
+      ["more than 64 characters", `${lpId}a`],
+      ["a prefix", `prefix-${lpId}`],
+      ["a suffix", `${lpId}-suffix`],
+      ["non-hexadecimal characters", `${lpId.slice(0, -1)}g`],
+    ])("rejects an ID with %s", (_description, invalidId) => {
+      const getBuilder = () =>
+        server.liquidityPools().liquidityPoolId(invalidId);
+
+      expect(getBuilder).toThrow(TypeError);
+      expect(getBuilder).toThrow(
+        `${invalidId} does not look like a liquidity pool ID`,
+      );
+    });
+
+    it("normalizes mixed-case IDs to lowercase", async () => {
+      const mixedCaseId = `AE44A51F${lpId.slice(8)}`;
+      mockGet.mockResolvedValue({ data: {} });
+
+      await server.liquidityPools().liquidityPoolId(mixedCaseId).call();
+
+      expect(mockGet).toHaveBeenCalledWith(`${LP_URL}/${lpId}`);
     });
 
     it("filters by specific ID", async () => {
