@@ -21,23 +21,23 @@ describe("LiquidityPoolId", () => {
       );
     });
 
-    it("throws an error when pool ID is not a valid hash", () => {
-      expect(() => new LiquidityPoolId("abc")).toThrow(
+    it.each([
+      ["fewer than 64 characters", POOL_ID.slice(1)],
+      ["more than 64 characters", `${POOL_ID}a`],
+      ["a prefix", `prefix-${POOL_ID}`],
+      ["a suffix", `${POOL_ID}-suffix`],
+      ["non-hexadecimal characters", `${POOL_ID.slice(0, -1)}g`],
+    ])("throws an error when pool ID has %s", (_description, invalidId) => {
+      expect(() => new LiquidityPoolId(invalidId)).toThrow(
         /Liquidity pool ID is not a valid hash/,
       );
     });
 
-    it("throws an error when pool ID is not all lowercase", () => {
-      expect(
-        () =>
-          new LiquidityPoolId(
-            "DD7b1ab831c273310ddbec6f97870aa83c2fbd78ce22aded37ecbf4f3380fac7",
-          ),
-      ).toThrow(/Liquidity pool ID is not a valid hash/);
-    });
-
-    it("does not throw an error when pool ID is a valid hash", () => {
+    it("accepts valid lowercase and mixed-case hashes", () => {
       expect(() => new LiquidityPoolId(POOL_ID)).not.toThrow();
+      expect(
+        () => new LiquidityPoolId(`DD7B1AB8${POOL_ID.slice(8)}`),
+      ).not.toThrow();
     });
   });
 
