@@ -143,16 +143,17 @@ export namespace Api {
   export interface RawGetTransactionResponse {
     status: GetTransactionStatus;
     latestLedger: number;
-    latestLedgerCloseTime: number;
+    // RPC may return these as JSON strings; parsers coerce to number.
+    latestLedgerCloseTime: number | string;
     oldestLedger: number;
-    oldestLedgerCloseTime: number;
+    oldestLedgerCloseTime: number | string;
     txHash: string;
 
     // the fields below are set if status is SUCCESS
     applicationOrder?: number;
     feeBump?: boolean;
     ledger?: number;
-    createdAt?: number;
+    createdAt?: number | string;
 
     envelopeXdr?: string;
     resultXdr?: string;
@@ -373,7 +374,10 @@ export namespace Api {
     diagnosticEvents?: DiagnosticEvent[];
   }
 
-  export interface RawSendTransactionResponse extends BaseSendTransactionResponse {
+  export interface RawSendTransactionResponse
+    extends Omit<BaseSendTransactionResponse, "latestLedgerCloseTime"> {
+    // RPC may return this as a JSON string; parsers coerce to number.
+    latestLedgerCloseTime: number | string;
     /**
      * This is a base64-encoded instance of {@link TransactionResult}, set
      * only when `status` is `"ERROR"`.
