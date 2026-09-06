@@ -28,6 +28,17 @@ export function coerceUnixTimestamp(
   value: number | string | undefined | null,
   fieldName: string,
 ): number {
+  // Number(null) and Number("") are both 0 (finite), so reject missing/blank
+  // wire values before coercion to avoid silently mapping them to epoch start.
+  if (
+    value === null ||
+    value === undefined ||
+    (typeof value === "string" && value.trim() === "")
+  ) {
+    throw new TypeError(
+      `invalid ${fieldName}: expected a unix timestamp number or numeric string, got ${JSON.stringify(value)}`,
+    );
+  }
   const n = Number(value);
   if (!Number.isFinite(n)) {
     throw new TypeError(

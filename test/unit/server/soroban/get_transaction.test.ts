@@ -175,4 +175,16 @@ describe("Server#getTransaction", () => {
     expect(response.oldestLedgerCloseTime).toEqual(500);
   });
 
+  it("rejects null, empty, and whitespace-only createdAt timestamps", async () => {
+    for (const bad of [null, "", "   "]) {
+      const result = makeTxResult("SUCCESS");
+      result.createdAt = bad as any;
+      const mockResponse = { data: { id: 1, result } };
+      mockPost.mockResolvedValue(mockResponse);
+      await expect(server.getTransaction(result.txHash)).rejects.toThrow(
+        /invalid createdAt/,
+      );
+    }
+  });
+
 });

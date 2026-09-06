@@ -152,4 +152,23 @@ describe("Server#sendTransaction", () => {
     expect(r.latestLedgerCloseTime).toEqual(12345);
   });
 
+  it("rejects null, empty, and whitespace-only latestLedgerCloseTime", async () => {
+    for (const bad of [null, "", "   ", undefined]) {
+      mockPost.mockResolvedValue({
+        data: {
+          id: 1,
+          result: {
+            hash,
+            status: "PENDING",
+            latestLedger: 100,
+            latestLedgerCloseTime: bad,
+          },
+        },
+      });
+      await expect(server.sendTransaction(transaction)).rejects.toThrow(
+        /invalid latestLedgerCloseTime/,
+      );
+    }
+  });
+
 });
