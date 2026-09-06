@@ -55,12 +55,21 @@ describe("Server#sendTransaction", () => {
 
   it("sends a transaction", async () => {
     const mockResponse = {
-      data: { id: 1, result: { id: hash, status: "PENDING" } },
+      data: {
+        id: 1,
+        result: {
+          hash,
+          status: "PENDING",
+          latestLedger: 100,
+          latestLedgerCloseTime: 12345,
+        },
+      },
     };
     mockPost.mockResolvedValue(mockResponse);
 
     const r = await server.sendTransaction(transaction);
     expect(r.status).toEqual("PENDING");
+    expect(r.hash).toEqual(hash);
     expect(r.errorResult).toBeUndefined();
     expect(r.errorResultXdr).toBeUndefined();
     expect(r.diagnosticEvents).toBeUndefined();
@@ -85,8 +94,10 @@ describe("Server#sendTransaction", () => {
       data: {
         id: 1,
         result: {
-          id: hash,
+          hash,
           status: "ERROR",
+          latestLedger: 100,
+          latestLedgerCloseTime: 12345,
           errorResultXdr: txResult.toXdr("base64"),
           diagnosticEventsXdr: [
             "AAAAAQAAAAAAAAAAAAAAAgAAAAAAAAADAAAADwAAAAdmbl9jYWxsAAAAAA0AAAAgr/p6gt6h8MrmSw+WNJnu3+sCP9dHXx7jR8IH0sG6Cy0AAAAPAAAABWhlbGxvAAAAAAAADwAAAAVBbG9oYQAAAA==",
@@ -125,7 +136,7 @@ describe("Server#sendTransaction", () => {
       data: {
         id: 1,
         result: {
-          id: hash,
+          hash,
           status: "PENDING",
           latestLedger: 100,
           latestLedgerCloseTime: "12345",
@@ -136,6 +147,7 @@ describe("Server#sendTransaction", () => {
 
     const r = await server.sendTransaction(transaction);
     expect(r.status).toEqual("PENDING");
+    expect(r.hash).toEqual(hash);
     expect(typeof r.latestLedgerCloseTime).toEqual("number");
     expect(r.latestLedgerCloseTime).toEqual(12345);
   });

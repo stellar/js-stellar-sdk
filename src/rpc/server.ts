@@ -26,6 +26,7 @@ import * as jsonrpc from "./jsonrpc.js";
 import { Api } from "./api.js";
 import { assembleTransaction } from "./transaction.js";
 import {
+  coerceUnixTimestamp,
   parseRawSendTransaction,
   parseRawSimulation,
   parseRawLedgerEntries,
@@ -1140,9 +1141,15 @@ export class RpcServer {
         status: raw.status,
         txHash: hash,
         latestLedger: raw.latestLedger,
-        latestLedgerCloseTime: Number(raw.latestLedgerCloseTime),
+        latestLedgerCloseTime: coerceUnixTimestamp(
+          raw.latestLedgerCloseTime,
+          "latestLedgerCloseTime",
+        ),
         oldestLedger: raw.oldestLedger,
-        oldestLedgerCloseTime: Number(raw.oldestLedgerCloseTime),
+        oldestLedgerCloseTime: coerceUnixTimestamp(
+          raw.oldestLedgerCloseTime,
+          "oldestLedgerCloseTime",
+        ),
         ...foundInfo,
       };
 

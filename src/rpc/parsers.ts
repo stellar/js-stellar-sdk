@@ -19,6 +19,24 @@ import {
   TransactionResult,
 } from "../xdr/index.js";
 
+
+/**
+ * Coerce an RPC unix timestamp that may arrive as a number or numeric string.
+ * Throws rather than returning NaN so public response types keep a real number.
+ */
+export function coerceUnixTimestamp(
+  value: number | string | undefined | null,
+  fieldName: string,
+): number {
+  const n = Number(value);
+  if (!Number.isFinite(n)) {
+    throw new TypeError(
+      `invalid ${fieldName}: expected a unix timestamp number or numeric string, got ${JSON.stringify(value)}`,
+    );
+  }
+  return n;
+}
+
 /**
  * Parse the response from invoking the `submitTransaction` method of a RPC server.
  * @hidden
@@ -33,7 +51,10 @@ export function parseRawSendTransaction(
   delete raw.errorResultXdr;
   delete raw.diagnosticEventsXdr;
 
-  const latestLedgerCloseTime = Number(raw.latestLedgerCloseTime);
+  const latestLedgerCloseTime = coerceUnixTimestamp(
+    raw.latestLedgerCloseTime,
+    "latestLedgerCloseTime",
+  );
 
   if (errorResultXdr) {
     return {
@@ -61,7 +82,7 @@ export function parseTransactionInfo(
   const meta = TransactionMeta.fromXdr(raw.resultMetaXdr!, "base64");
   const info: Omit<Api.TransactionInfo, "status" | "txHash"> = {
     ledger: raw.ledger!,
-    createdAt: Number(raw.createdAt!),
+    createdAt: coerceUnixTimestamp(raw.createdAt, "createdAt"),
     applicationOrder: raw.applicationOrder!,
     feeBump: raw.feeBump!,
     envelopeXdr: TransactionEnvelope.fromXdr(raw.envelopeXdr!, "base64"),
