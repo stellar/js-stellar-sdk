@@ -33,9 +33,12 @@ export function parseRawSendTransaction(
   delete raw.errorResultXdr;
   delete raw.diagnosticEventsXdr;
 
+  const latestLedgerCloseTime = Number(raw.latestLedgerCloseTime);
+
   if (errorResultXdr) {
     return {
       ...raw,
+      latestLedgerCloseTime,
       ...(diagnosticEventsXdr !== undefined &&
         diagnosticEventsXdr.length > 0 && {
           diagnosticEvents: diagnosticEventsXdr.map((evt) =>
@@ -46,7 +49,10 @@ export function parseRawSendTransaction(
     };
   }
 
-  return { ...raw } as Api.BaseSendTransactionResponse;
+  return {
+    ...raw,
+    latestLedgerCloseTime,
+  } as Api.BaseSendTransactionResponse;
 }
 
 export function parseTransactionInfo(
@@ -55,7 +61,7 @@ export function parseTransactionInfo(
   const meta = TransactionMeta.fromXdr(raw.resultMetaXdr!, "base64");
   const info: Omit<Api.TransactionInfo, "status" | "txHash"> = {
     ledger: raw.ledger!,
-    createdAt: raw.createdAt!,
+    createdAt: Number(raw.createdAt!),
     applicationOrder: raw.applicationOrder!,
     feeBump: raw.feeBump!,
     envelopeXdr: TransactionEnvelope.fromXdr(raw.envelopeXdr!, "base64"),

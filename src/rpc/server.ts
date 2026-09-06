@@ -1140,9 +1140,9 @@ export class RpcServer {
         status: raw.status,
         txHash: hash,
         latestLedger: raw.latestLedger,
-        latestLedgerCloseTime: raw.latestLedgerCloseTime,
+        latestLedgerCloseTime: Number(raw.latestLedgerCloseTime),
         oldestLedger: raw.oldestLedger,
-        oldestLedgerCloseTime: raw.oldestLedgerCloseTime,
+        oldestLedgerCloseTime: Number(raw.oldestLedgerCloseTime),
         ...foundInfo,
       };
 

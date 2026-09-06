@@ -119,4 +119,25 @@ describe("Server#sendTransaction", () => {
   it("doesnt add metadata to non-offers");
   it("adds metadata about offers, even if some ops are not");
   it("submits fee bump transactions");
+
+  it("coerces string latestLedgerCloseTime from sendTransaction wire format", async () => {
+    const mockResponse = {
+      data: {
+        id: 1,
+        result: {
+          id: hash,
+          status: "PENDING",
+          latestLedger: 100,
+          latestLedgerCloseTime: "12345",
+        },
+      },
+    };
+    mockPost.mockResolvedValue(mockResponse);
+
+    const r = await server.sendTransaction(transaction);
+    expect(r.status).toEqual("PENDING");
+    expect(typeof r.latestLedgerCloseTime).toEqual("number");
+    expect(r.latestLedgerCloseTime).toEqual(12345);
+  });
+
 });

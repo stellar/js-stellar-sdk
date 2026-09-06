@@ -156,4 +156,23 @@ describe("Server#getTransaction", () => {
     });
     expect(mockPost).toHaveBeenCalledTimes(1);
   });
+
+  it("coerces string unix timestamps from getTransaction wire format", async () => {
+    const result = makeTxResult("SUCCESS");
+    result.createdAt = String(result.createdAt);
+    result.latestLedgerCloseTime = String(result.latestLedgerCloseTime);
+    result.oldestLedgerCloseTime = String(result.oldestLedgerCloseTime);
+    const mockResponse = { data: { id: 1, result } };
+    mockPost.mockResolvedValue(mockResponse);
+
+    const response = await server.getTransaction(result.txHash);
+    expect(response.status).toEqual("SUCCESS");
+    expect(typeof response.createdAt).toEqual("number");
+    expect(response.createdAt).toEqual(123456789010);
+    expect(typeof response.latestLedgerCloseTime).toEqual("number");
+    expect(response.latestLedgerCloseTime).toEqual(12345);
+    expect(typeof response.oldestLedgerCloseTime).toEqual("number");
+    expect(response.oldestLedgerCloseTime).toEqual(500);
+  });
+
 });
