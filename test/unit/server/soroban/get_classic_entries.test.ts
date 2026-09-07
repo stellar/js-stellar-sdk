@@ -302,15 +302,33 @@ describe("Server#getClaimableBalance", () => {
     concatUint8Arrays([Uint8Array.of(0), balanceId.v0.value]),
   );
 
-  it("returns the claimable balance entry when found", () =>
+  it.each([
+    ["strkey", balanceIdStrKey],
+    ["72-character hex", balanceIdHex],
+    ["64-character hex", balanceIdHex.slice(8)],
+    ["uppercase hex", balanceIdHex.toUpperCase()],
+  ])("returns the claimable balance entry for a %s ID", (_, id) =>
     expectLedgerEntryFound(
       mockPost,
       ledgerKeyXDR,
       ledgerEntryXDR,
-      () => server.getClaimableBalance(balanceIdStrKey),
+      () => server.getClaimableBalance(id),
       xdr.ClaimableBalanceEntry,
       claimableBalanceEntry.toXdr("base64"),
-    ));
+    ),
+  );
+
+  it.each([
+    ["a prefix before 64 hex characters", `x${balanceIdHex.slice(8)}`],
+    ["a suffix after 64 hex characters", `${balanceIdHex.slice(8)}x`],
+    ["a prefix before 72 hex characters", `x${balanceIdHex}`],
+    ["a suffix after 72 hex characters", `${balanceIdHex}x`],
+    ["an extra hex byte", `${balanceIdHex}00`],
+    ["a trailing newline", `${balanceIdHex}\n`],
+  ])("rejects an ID with %s before making an RPC request", async (_, id) => {
+    await expect(server.getClaimableBalance(id)).rejects.toThrow(TypeError);
+    expect(mockPost).not.toHaveBeenCalled();
+  });
 
   it("throws an error when the claimable balance does not exist", () =>
     expectLedgerEntryNotFound(

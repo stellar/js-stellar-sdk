@@ -364,9 +364,9 @@ export class RpcServer {
       balanceId = ClaimableBalanceId.fromXdr(
         concatUint8Arrays([v, buffer.subarray(1)]),
       );
-    } else if (id.match(/[a-f0-9]{72}/i)) {
+    } else if (id.match(/^[a-f0-9]{72}$/i)) {
       balanceId = ClaimableBalanceId.fromXdr(id, "hex");
-    } else if (id.match(/[a-f0-9]{64}/i)) {
+    } else if (id.match(/^[a-f0-9]{64}$/i)) {
       balanceId = ClaimableBalanceId.fromXdr(id.padStart(72, "0"), "hex");
     } else {
       throw new TypeError(`expected 72-char hex ID or strkey, not ${id}`);
