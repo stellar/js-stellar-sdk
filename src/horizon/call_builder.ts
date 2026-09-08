@@ -10,44 +10,11 @@ import { version } from "./horizon_axios_client.js";
 import type { HttpClient } from "../http-client/index.js";
 import { ServerApi } from "./server_api.js";
 import type { Server } from "../federation/index.js";
-import { expandUriTemplate } from "../utils/url.js";
+import { encodeSegment, expandUriTemplate } from "../utils/url.js";
 
 // Resources which can be included in the Horizon response via the `join`
 // query-param.
 const JOINABLE = ["transaction"];
-
-// Each filter element is exactly one path segment, so a raw "/", a dot segment
-// or an empty value would re-point the request at a different endpoint.
-// `encodeURIComponent` escapes "/" but not ".", hence the explicit dot check.
-// `unknown`, not `string`: JS callers reach this and `offer()`/`operation()` push
-// the raw value, and declaring `string` makes both guards below dead to tsc.
-// TODO: reject numbers and bigints in the next major, and drop the coercion.
-// A decimal offer or operation id passed as a number works today.
-function encodeSegment(segment: unknown): string {
-  const value =
-    typeof segment === "number" || typeof segment === "bigint"
-      ? String(segment)
-      : segment;
-
-  if (typeof value !== "string") {
-    throw new TypeError(
-      `expected a string, number or bigint path segment, not ${typeof value}`,
-    );
-  }
-  if (value === "" || value === "." || value === "..") {
-    throw new TypeError(
-      `expected a single non-empty path segment, not ${JSON.stringify(value)}`,
-    );
-  }
-  try {
-    return encodeURIComponent(value);
-  } catch {
-    // encodeURIComponent throws URIError on a lone surrogate.
-    throw new TypeError(
-      `expected a well-formed path segment, not ${JSON.stringify(value)}`,
-    );
-  }
-}
 
 export interface EventSourceOptions<T> {
   onmessage?: (
