@@ -3623,6 +3623,42 @@ extractBaseAddress(address: string): string
 
 **Source:** [src/base/util/decode_encode_muxed_account.ts:67](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/util/decode_encode_muxed_account.ts#L67)
 
+## getClaimableBalanceIdFromResult
+
+Read the claimable balance ID out of a submitted transaction's result.
+
+Use this after submission. To derive the ID beforehand, use
+[`Transaction.getClaimableBalanceId`](#transactiongetclaimablebalanceidopindex) instead. Both return the balance
+ID in its 72-character hex form.
+
+Horizon returns the result as base64 in `result_xdr`, so decode it first
+with `xdr.TransactionResult.fromXdr(result_xdr, "base64")`. RPC's
+`getTransaction` already returns a parsed `resultXdr`.
+
+```ts
+getClaimableBalanceIdFromResult(result: TransactionResult, opIndex: number): string
+```
+
+**Parameters**
+
+- **`result`** — `TransactionResult` (required) — the result of the transaction that ran the
+     `CreateClaimableBalance` op
+- **`opIndex`** — `number` (required) — the index of the `CreateClaimableBalance` op
+
+**Throws**
+
+- `RangeError` for an `opIndex` that is not an index into the
+   transaction's operation results
+- `TypeError` if `result` is not a transaction result, if the
+   transaction did not succeed, or if the operation at `opIndex` is not a
+   successful `CreateClaimableBalance`
+
+**See also**
+
+- https://developers.stellar.org/docs/learn/encyclopedia/transactions-specialized/claimable-balances
+
+**Source:** [src/base/get_claimable_balance_id.ts:80](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/get_claimable_balance_id.ts#L80)
+
 ## scValToBigInt
 
 Transforms an opaque `xdr.ScVal` into a native bigint, if possible.
