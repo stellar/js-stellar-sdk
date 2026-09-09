@@ -158,6 +158,10 @@ export default defineConfig({
           items: [{ autogenerate: { directory: ".docs-build/guides" } }],
         },
         {
+          label: "Migration",
+          items: [{ autogenerate: { directory: ".docs-build/migration" } }],
+        },
+        {
           label: "Reference",
           items: [{ autogenerate: { directory: ".docs-build/reference" } }],
         },

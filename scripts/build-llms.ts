@@ -150,6 +150,14 @@ function listGuideFiles(): string[] {
     .map((f) => `guides/${f}`);
 }
 
+function listMigrationFiles(): string[] {
+  const dir = join(DOCS_DIR, "migration");
+  return readdirSync(dir)
+    .filter((f) => f.endsWith(".md"))
+    .sort()
+    .map((f) => `migration/${f}`);
+}
+
 function listReferenceFiles(): string[] {
   return REFERENCE_SLUG_ORDER.map((slug) => `reference/${slug}.md`);
 }
@@ -174,6 +182,7 @@ function renderLlmsTxt(opts: {
   version: string;
   sourceRef: string;
   guides: DocPage[];
+  migration: DocPage[];
   reference: DocPage[];
   agents: DocPage;
 }): string {
@@ -189,6 +198,10 @@ function renderLlmsTxt(opts: {
   lines.push("");
   for (const g of opts.guides) lines.push(renderEntryWithDescription(g));
   lines.push("");
+  lines.push("## Migration");
+  lines.push("");
+  for (const m of opts.migration) lines.push(renderEntryWithDescription(m));
+  lines.push("");
   lines.push("## Reference");
   lines.push("");
   for (const r of opts.reference) lines.push(renderEntryTitleOnly(r));
@@ -197,7 +210,7 @@ function renderLlmsTxt(opts: {
   lines.push("");
   lines.push(renderEntryWithDescription(opts.agents));
   lines.push(
-    "- [Full bundle](llms-full.txt): All guide and reference content plus CHANGELOG, in one file.",
+    "- [Full bundle](llms-full.txt): All guide, migration, and reference content plus CHANGELOG, in one file.",
   );
   return `${lines.join("\n")}\n`;
 }
@@ -220,8 +233,9 @@ function rewriteBodyForBundle(page: DocPage): string {
 }
 
 // Fails the build on dead internal links. Strict (throws) for the pages we
-// author by hand (guides/, reference/); warnings only for index.md (README)
-// and agents.md so pre-existing content can't break the bundle build.
+// author by hand (guides/, migration/, reference/); warnings only for
+// index.md (README) and agents.md so pre-existing content can't break the
+// bundle build.
 function validateLinks(pages: DocPage[]): void {
   const idsByPath = new Map(
     pages.map((p) => [p.docsRelPath, headingIds(p.body)]),
@@ -233,6 +247,7 @@ function validateLinks(pages: DocPage[]): void {
   for (const p of pages) {
     const strict =
       p.docsRelPath.startsWith("guides/") ||
+      p.docsRelPath.startsWith("migration/") ||
       p.docsRelPath.startsWith("reference/");
     const report = (msg: string): void => {
       (strict ? errors : warnings).push(`${p.docsRelPath}: ${msg}`);
@@ -269,7 +284,7 @@ function validateLinks(pages: DocPage[]): void {
       // Relative `.md` links break on the site (Astro does not rewrite them).
       if (/\.md(#|$)/.test(href)) {
         report(
-          `relative link "${href}" — use a root-absolute /guides/... or /reference/... link`,
+          `relative link "${href}" - use a root-absolute /guides/..., /migration/..., or /reference/... link`,
         );
       }
     }
@@ -295,6 +310,7 @@ function renderSection(repoRelPath: string, body: string): string {
 function renderLlmsFullTxt(opts: {
   index: DocPage;
   guides: DocPage[];
+  migration: DocPage[];
   reference: DocPage[];
   agents: DocPage;
   changelog: string;
@@ -305,6 +321,8 @@ function renderLlmsFullTxt(opts: {
   );
   for (const g of opts.guides)
     sections.push(renderSection(g.repoRelPath, rewriteBodyForBundle(g)));
+  for (const m of opts.migration)
+    sections.push(renderSection(m.repoRelPath, rewriteBodyForBundle(m)));
   for (const r of opts.reference)
     sections.push(renderSection(r.repoRelPath, rewriteBodyForBundle(r)));
   sections.push(
@@ -351,9 +369,16 @@ function main(): void {
   const indexPage = readDoc("index.md");
   const agentsPage = readDoc("agents.md");
   const guidesPages = listGuideFiles().map(readDoc);
+  const migrationPages = listMigrationFiles().map(readDoc);
   const referencePages = listReferenceFiles().map(readDoc);
 
-  validateLinks([indexPage, agentsPage, ...guidesPages, ...referencePages]);
+  validateLinks([
+    indexPage,
+    agentsPage,
+    ...guidesPages,
+    ...migrationPages,
+    ...referencePages,
+  ]);
 
   const changelog = readFileSync(CHANGELOG_PATH, "utf8")
     .replace(/^\n+/, "")
@@ -364,6 +389,7 @@ function main(): void {
     version: pkg.version,
     sourceRef: DOCS_SOURCE_REF,
     guides: guidesPages,
+    migration: migrationPages,
     reference: referencePages,
     agents: agentsPage,
   });
@@ -371,6 +397,7 @@ function main(): void {
   const llmsFullTxt = renderLlmsFullTxt({
     index: indexPage,
     guides: guidesPages,
+    migration: migrationPages,
     reference: referencePages,
     agents: agentsPage,
     changelog,
