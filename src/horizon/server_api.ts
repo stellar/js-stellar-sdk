@@ -179,6 +179,7 @@ export namespace ServerApi {
     precedes: CallFunction<OperationRecord>;
     effects: CallCollectionFunction<EffectRecord>;
     transaction: CallFunction<TransactionRecord>;
+    transaction_attr?: TransactionRecord;
   }
   export interface CreateAccountOperationRecord
     extends

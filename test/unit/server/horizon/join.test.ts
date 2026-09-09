@@ -160,8 +160,14 @@ describe("Server - CallBuilder#join", () => {
 
       const record = response.records[0];
       expect(record.transaction).toBeTypeOf("function");
+      expect(record.transaction_attr).toBeDefined();
+      expect(record.transaction_attr.hash).toEqual(
+        "de8ca055af7972f817e9d3f7c7a0b480de82593bc378f0e48f83b8e31985e4e5",
+      );
+      expect(record.transaction_attr.ledger_attr).toEqual(679846);
 
       const tx = await record.transaction();
+      expect(tx).toEqual(record.transaction_attr);
       expect(tx).toEqual(transaction);
     });
   });

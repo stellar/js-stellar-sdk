@@ -269,9 +269,10 @@ export class CallBuilder<
    * Sets `join` parameter for the current call. The `join` parameter
    * includes the requested resource in the response. Currently, the
    * only valid value for the parameter is `transactions` and is only
-   * supported on the operations and payments endpoints. The response
-   * will include a `transaction` field for each operation in the
-   * response.
+   * supported on the operations and payments endpoints. For each
+   * operation in the response, the joined transaction is exposed as
+   * `transaction_attr`, and `transaction` remains a callable that
+   * resolves from the join when present.
    *
    * @param include - join Records to be included in the response.
    * @returns current CallBuilder instance.
