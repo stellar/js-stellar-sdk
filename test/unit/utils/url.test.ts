@@ -127,4 +127,26 @@ describe("expandUriTemplate", () => {
 
     expect(expanded).toBe("https://horizon.stellar.org/accounts/GA");
   });
+
+  it("requires a base URL when the template is a relative path", () => {
+    expect(() =>
+      expandUriTemplate("/accounts/{account_id}/data/{key}", {
+        account_id: "GA",
+        key: "config",
+      }),
+    ).toThrow(/Invalid URL/);
+
+    const expanded = expandUriTemplate(
+      "/accounts/{account_id}/data/{key}",
+      {
+        account_id: "GA",
+        key: "config",
+      },
+      "https://horizon.example.com",
+    );
+
+    expect(expanded).toBe(
+      "https://horizon.example.com/accounts/GA/data/config",
+    );
+  });
 });

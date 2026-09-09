@@ -56,6 +56,34 @@ describe("CallBuilder functions", () => {
     );
   });
 
+  it("resolves relative templated Horizon links against the CallBuilder base URL", async () => {
+    const mockHttpClient = {
+      defaults: {},
+      get: vi.fn().mockResolvedValue({ data: { value: "ok" } }),
+    } as any;
+    const builder = new CallBuilder(
+      new URL("https://proxy.example.com"),
+      mockHttpClient,
+    );
+    const response = builder["_parseResponse"]({
+      _links: {
+        data: {
+          href: "/accounts/{account_id}/data/{key}",
+          templated: true,
+        },
+      },
+    });
+
+    await response.data({
+      account_id: "GABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ABCD",
+      key: "config",
+    });
+
+    expect(mockHttpClient.get).toHaveBeenCalledWith(
+      "https://proxy.example.com/accounts/GABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ABCD/data/config",
+    );
+  });
+
   it("uses the configured Horizon authority for absolute page links", async () => {
     const mockHttpClient = {
       defaults: {},

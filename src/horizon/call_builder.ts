@@ -334,7 +334,7 @@ export class CallBuilder<
       let uri;
 
       if (link.templated) {
-        uri = new URL(expandUriTemplate(link.href, opts), this.url);
+        uri = new URL(expandUriTemplate(link.href, opts, this.url));
       } else {
         uri = new URL(link.href, this.url);
       }
