@@ -675,7 +675,9 @@ i128.size, i128.unsigned     →   (no longer exposed — pick the right class)
 scInt.int / xli.int          →   scInt.value / xli.value  (bigint) — `.int` is gone
 
 // ============== OPTIONALS (§ 14) ==============
-x === undefined              →   x == null    // decoded absent = null now
+x === undefined (raw xdr.*)  →   x == null    // raw decoded absent = null;
+                                              // Operation.fromXdrObject still
+                                              // uses undefined — leave those
 
 // ============== REMOVED (§ 13) ==============
 xdr.scvSortedMap(entries)    →   scvSortedMap(entries)   // top-level export
@@ -997,24 +999,31 @@ runtime for legacy code, install it under an alias:
 
 ---
 
-## 14. Optional fields: `null`, not `undefined`
+## 14. Optional fields on raw `xdr.*`: `null`, not `undefined`
 
-An absent optional (`T*` in the XDR) now decodes to **`null`**. The legacy layer
-used `undefined`:
+An absent optional (`T*` in the XDR) on a **raw `xdr.*` value** now decodes to
+**`null`**. The legacy XDR layer used `undefined`:
 
 ```ts
 // Legacy: an unset optional read back as undefined
 tx.cond().v2().timeBounds(); // undefined
 
-// Now: null
+// Now: null on the raw layer
 xdr.PreconditionsV2.fromXdr(bytes).timeBounds; // null
 ```
 
-This is a **silent** change. The shape of the check is what breaks, not the
-type:
+This does **not** apply to parsed operation records. `Operation.fromXdrObject`
+still normalizes absent optionals to `undefined` (for example
+`parsed.homeDomain`, `parsed.inflationDest`, `parsed.lowThreshold` on a
+`setOptions` operation). Leave `=== undefined` checks on those records alone —
+rewriting them to `== null` can invent phantom "cleared" rows for fields the
+transaction never touched.
+
+On the raw XDR layer this is a **silent** change. The shape of the check is what
+breaks, not the type:
 
 ```ts
-// ⚠ Compiles, never matches any more
+// ⚠ Compiles, never matches any more (raw xdr.*)
 if (v2.timeBounds === undefined) { … }
 
 // ⚠ Worse: the guard passes for null, then the access throws
@@ -1022,7 +1031,7 @@ if (v2.timeBounds !== undefined) {
   v2.timeBounds.minTime; // TypeError: … of null
 }
 
-// ✅ Covers both
+// ✅ Covers both on the raw layer
 if (v2.timeBounds == null) { … }
 if (!v2.timeBounds) { … }
 ```
@@ -1040,8 +1049,9 @@ though where it does so depends on the field's type:
   coerce their input in the constructor, so they throw a `TypeError` right
   there — `new xdr.SetOptionsOp({})` never reaches an encode call.
 
-Decoded values are always `null`. Prefer `== null` / falsy checks over
-`=== undefined` everywhere.
+On raw `xdr.*` values, decoded optionals are always `null`. Prefer `== null` /
+falsy checks over `=== undefined` there. Do not apply that rewrite to parsed
+operation records from `Operation.fromXdrObject`.
 
 In JSON output an unset optional is `null` too (§ 12).
 
