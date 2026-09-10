@@ -1,8 +1,4 @@
-import type {
-  AssetType,
-  HorizonPredicateJson,
-  MemoType,
-} from "../base/index.js";
+import type { AssetType, MemoType } from "../base/index.js";
 
 /* tslint:disable-next-line:no-namespace */
 export namespace HorizonApi {
@@ -442,21 +438,21 @@ export namespace HorizonApi {
     bump_to: string;
   }
   /**
-   * A claim predicate as Horizon serves it. Extends
-   * {@link HorizonPredicateJson}, which carries the `unconditional` and
-   * `abs_before_epoch` fields this type previously omitted.
+   * A claim predicate as Horizon serves it.
    *
-   * Convert with `Claimant.predicateFromHorizonJson` /
-   * `predicateToHorizonJson`. RPC serves the SEP-0051 dialect instead.
+   * Horizon's dialect, not SEP-0051's: `abs_before` is an ISO-8601 timestamp,
+   * where SEP-0051's `before_absolute_time` is epoch seconds. RPC serves
+   * SEP-0051; build a predicate from that dialect with
+   * `xdr.ClaimPredicate.fromJson()`.
    */
-  // Interface, not a type alias: consumers augment `HorizonApi.Predicate`
-  // through declaration merging, which a type alias cannot support. The
-  // recursive members are redeclared so an augmented field reaches nested
-  // predicates too; inherited as `HorizonPredicateJson` they would not.
-  export interface Predicate extends HorizonPredicateJson {
+  export interface Predicate {
     and?: Predicate[];
     or?: Predicate[];
     not?: Predicate;
+    unconditional?: boolean;
+    abs_before?: string;
+    abs_before_epoch?: string;
+    rel_before?: string;
   }
 
   export interface Claimant {
