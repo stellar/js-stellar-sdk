@@ -3,10 +3,11 @@ export type UrlTemplateValue = string | number | boolean | string[];
 // A path segment addresses exactly one resource, so a raw "/", a dot segment or
 // an empty value would re-point the request at a different endpoint.
 // `encodeURIComponent` escapes "/" but not ".", hence the explicit dot check.
-// `unknown`, not `string`: JS callers reach this, and declaring `string` makes
-// both guards below dead to tsc.
+// `unknown`, not `string`: `UrlTemplateValue` admits a boolean or a `string[]`,
+// and JS callers push a raw value into `CallBuilder.filter`. Declaring `string`
+// would make the `typeof` guard below dead to tsc.
 // TODO: reject numbers and bigints in the next major, and drop the coercion (see #1706).
-// A decimal offer or operation id passed as a number works today.
+// A number works today, both as a `UrlTemplateValue` and as a JS caller's id.
 export function encodeSegment(segment: unknown): string {
   const value =
     typeof segment === "number" || typeof segment === "bigint"
