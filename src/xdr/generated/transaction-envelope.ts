@@ -25,9 +25,7 @@ export type TransactionEnvelopeWire =
   | { type: 5; feeBump: FeeBumpTransactionEnvelopeWire };
 
 export type TransactionEnvelopeVariantName =
-  | "envelopeTypeTxV0"
-  | "envelopeTypeTx"
-  | "envelopeTypeTxFeeBump";
+  "envelopeTypeTxV0" | "envelopeTypeTx" | "envelopeTypeTxFeeBump";
 
 /**
  * ```xdr

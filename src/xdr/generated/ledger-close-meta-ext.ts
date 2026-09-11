@@ -17,8 +17,7 @@ import {
 } from "./ledger-close-meta-ext-v1.js";
 
 export type LedgerCloseMetaExtWire =
-  | { v: 0 }
-  | { v: 1; v1: LedgerCloseMetaExtV1Wire };
+  { v: 0 } | { v: 1; v1: LedgerCloseMetaExtV1Wire };
 
 export type LedgerCloseMetaExtVariantName = "v0" | "v1";
 

@@ -15,8 +15,7 @@ import {
 } from "./persisted-scp-state-v1.js";
 
 export type PersistedScpStateWire =
-  | { v: 0; v0: PersistedScpStateV0Wire }
-  | { v: 1; v1: PersistedScpStateV1Wire };
+  { v: 0; v0: PersistedScpStateV0Wire } | { v: 1; v1: PersistedScpStateV1Wire };
 
 export type PersistedScpStateVariantName = "v0" | "v1";
 

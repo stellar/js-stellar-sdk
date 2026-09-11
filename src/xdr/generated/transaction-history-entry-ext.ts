@@ -17,8 +17,7 @@ import {
 } from "./generalized-transaction-set.js";
 
 export type TransactionHistoryEntryExtWire =
-  | { v: 0 }
-  | { v: 1; generalizedTxSet: GeneralizedTransactionSetWire };
+  { v: 0 } | { v: 1; generalizedTxSet: GeneralizedTransactionSetWire };
 
 export type TransactionHistoryEntryExtVariantName = "v0" | "generalizedTxSet";
 
@@ -137,6 +136,5 @@ export class TransactionHistoryEntryExtGeneralizedTxSet extends TransactionHisto
 }
 
 export type TransactionHistoryEntryExt =
-  | TransactionHistoryEntryExtV0
-  | TransactionHistoryEntryExtGeneralizedTxSet;
+  TransactionHistoryEntryExtV0 | TransactionHistoryEntryExtGeneralizedTxSet;
 export const TransactionHistoryEntryExt = TransactionHistoryEntryExtBase;

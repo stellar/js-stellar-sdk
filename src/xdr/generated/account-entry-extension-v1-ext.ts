@@ -17,8 +17,7 @@ import {
 } from "./account-entry-extension-v2.js";
 
 export type AccountEntryExtensionV1ExtWire =
-  | { v: 0 }
-  | { v: 2; v2: AccountEntryExtensionV2Wire };
+  { v: 0 } | { v: 2; v2: AccountEntryExtensionV2Wire };
 
 export type AccountEntryExtensionV1ExtVariantName = "v0" | "v2";
 
@@ -131,6 +130,5 @@ export class AccountEntryExtensionV1ExtV2 extends AccountEntryExtensionV1ExtBase
 }
 
 export type AccountEntryExtensionV1Ext =
-  | AccountEntryExtensionV1ExtV0
-  | AccountEntryExtensionV1ExtV2;
+  AccountEntryExtensionV1ExtV0 | AccountEntryExtensionV1ExtV2;
 export const AccountEntryExtensionV1Ext = AccountEntryExtensionV1ExtBase;

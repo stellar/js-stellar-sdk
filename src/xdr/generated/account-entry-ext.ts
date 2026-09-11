@@ -17,8 +17,7 @@ import {
 } from "./account-entry-extension-v1.js";
 
 export type AccountEntryExtWire =
-  | { v: 0 }
-  | { v: 1; v1: AccountEntryExtensionV1Wire };
+  { v: 0 } | { v: 1; v1: AccountEntryExtensionV1Wire };
 
 export type AccountEntryExtVariantName = "v0" | "v1";
 

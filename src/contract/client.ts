@@ -78,8 +78,7 @@ export class Client {
     // but the constructor's spec always has to be read from actual Wasm: an
     // external ref is resolved to the Wasm hash it currently names.
     let executableOpts:
-      | { wasmHash: Uint8Array }
-      | { externalRef: ContractExecutableExternalRef };
+      { wasmHash: Uint8Array } | { externalRef: ContractExecutableExternalRef };
     let specWasmHash: Uint8Array;
     if (externalRef !== undefined) {
       const ref =

@@ -8,11 +8,7 @@ import { XdrValue } from "../values/xdr-value.js";
 import { ManageDataResultCode } from "./manage-data-result-code.js";
 
 export type ManageDataResultWire =
-  | { code: 0 }
-  | { code: -1 }
-  | { code: -2 }
-  | { code: -3 }
-  | { code: -4 };
+  { code: 0 } | { code: -1 } | { code: -2 } | { code: -3 } | { code: -4 };
 
 export type ManageDataResultVariantName =
   | "manageDataSuccess"

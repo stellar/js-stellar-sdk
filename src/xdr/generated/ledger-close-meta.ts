@@ -169,7 +169,5 @@ export class LedgerCloseMetaV2Arm extends LedgerCloseMetaBase {
 }
 
 export type LedgerCloseMeta =
-  | LedgerCloseMetaV0Arm
-  | LedgerCloseMetaV1Arm
-  | LedgerCloseMetaV2Arm;
+  LedgerCloseMetaV0Arm | LedgerCloseMetaV1Arm | LedgerCloseMetaV2Arm;
 export const LedgerCloseMeta = LedgerCloseMetaBase;

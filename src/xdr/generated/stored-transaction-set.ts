@@ -138,6 +138,5 @@ export class StoredTransactionSetGeneralizedTxSet extends StoredTransactionSetBa
 }
 
 export type StoredTransactionSet =
-  | StoredTransactionSetTxSet
-  | StoredTransactionSetGeneralizedTxSet;
+  StoredTransactionSetTxSet | StoredTransactionSetGeneralizedTxSet;
 export const StoredTransactionSet = StoredTransactionSetBase;

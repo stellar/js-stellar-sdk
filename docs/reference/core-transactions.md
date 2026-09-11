@@ -469,7 +469,7 @@ class Memo<T extends MemoType = MemoType> {
 
 - [Transactions concept](https://developers.stellar.org/docs/glossary/transactions/)
 
-**Source:** [src/base/memo.ts:63](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L63)
+**Source:** [src/base/memo.ts:59](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L59)
 
 ### `new Memo(type, value)`
 
@@ -482,7 +482,7 @@ constructor(type: "none", value?: null);
 - **`type`** — `"none"` (required)
 - **`value`** — `null` (optional)
 
-**Source:** [src/base/memo.ts:67](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L67)
+**Source:** [src/base/memo.ts:63](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L63)
 
 ### `Memo.fromXdrObject(object)`
 
@@ -496,7 +496,7 @@ static fromXdrObject(object: Memo): Memo;
 
 - **`object`** — `Memo` (required) — XDR memo object
 
-**Source:** [src/base/memo.ts:303](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L303)
+**Source:** [src/base/memo.ts:299](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L299)
 
 ### `Memo.fromXDRObject(object)`
 
@@ -511,7 +511,7 @@ static fromXDRObject(object: Memo): Memo;
 
 - **`object`** — `Memo` (required)
 
-**Source:** [src/base/memo.ts:334](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L334)
+**Source:** [src/base/memo.ts:330](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L330)
 
 ### `Memo.hash(hash)`
 
@@ -525,7 +525,7 @@ static hash(hash: string | Uint8Array<ArrayBufferLike>): Memo<"hash">;
 
 - **`hash`** — `string | Uint8Array<ArrayBufferLike>` (required) — 32 byte hash or hex encoded string
 
-**Source:** [src/base/memo.ts:262](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L262)
+**Source:** [src/base/memo.ts:258](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L258)
 
 ### `Memo.id(id)`
 
@@ -539,7 +539,7 @@ static id(id: string): Memo<"id">;
 
 - **`id`** — `string` (required) — 64-bit number represented as a string
 
-**Source:** [src/base/memo.ts:253](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L253)
+**Source:** [src/base/memo.ts:249](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L249)
 
 ### `Memo.none()`
 
@@ -549,7 +549,7 @@ Returns an empty memo (`MemoNone`).
 static none(): Memo<"none">;
 ```
 
-**Source:** [src/base/memo.ts:233](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L233)
+**Source:** [src/base/memo.ts:229](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L229)
 
 ### `Memo.return(hash)`
 
@@ -563,7 +563,7 @@ static return(hash: string | Uint8Array<ArrayBufferLike>): Memo<"return">;
 
 - **`hash`** — `string | Uint8Array<ArrayBufferLike>` (required) — 32 byte hash or hex encoded string
 
-**Source:** [src/base/memo.ts:271](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L271)
+**Source:** [src/base/memo.ts:267](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L267)
 
 ### `Memo.text(text)`
 
@@ -579,7 +579,7 @@ static text(text: string | Uint8Array<ArrayBufferLike>): Memo<"text">;
     pass a `Uint8Array` for byte-exact content. A plain `number[]` is not
     accepted (16.2.0 and earlier took one); wrap it: `new Uint8Array(arr)`.
 
-**Source:** [src/base/memo.ts:244](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L244)
+**Source:** [src/base/memo.ts:240](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L240)
 
 ### `memo.type`
 
@@ -589,7 +589,7 @@ Contains memo type: `MemoNone`, `MemoID`, `MemoText`, `MemoHash` or `MemoReturn`
 type: T;
 ```
 
-**Source:** [src/base/memo.ts:107](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L107)
+**Source:** [src/base/memo.ts:103](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L103)
 
 ### `memo.value`
 
@@ -603,7 +603,7 @@ Contains memo value:
 value: MemoTypeToValue<T>;
 ```
 
-**Source:** [src/base/memo.ts:122](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L122)
+**Source:** [src/base/memo.ts:118](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L118)
 
 ### `memo.toXdrObject()`
 
@@ -613,7 +613,7 @@ Returns XDR memo object.
 toXdrObject(): Memo;
 ```
 
-**Source:** [src/base/memo.ts:278](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L278)
+**Source:** [src/base/memo.ts:274](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L274)
 
 ### `memo.toXDRObject()`
 
@@ -624,7 +624,7 @@ Deprecated in version v17.0.0
 toXDRObject(): Memo;
 ```
 
-**Source:** [src/base/memo.ts:326](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L326)
+**Source:** [src/base/memo.ts:322](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L322)
 
 ## MemoHash
 
@@ -2065,7 +2065,7 @@ static getType(scvType: string): ScIntType | undefined;
 the corresponding [`ScIntType`](#scinttype-1) if it's an integer type, or
    `undefined` if it's not an integer type
 
-**Source:** [src/base/numbers/xdr_large_int.ts:347](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L347)
+**Source:** [src/base/numbers/xdr_large_int.ts:340](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L340)
 
 ### `ScInt.isType(type)`
 
@@ -2079,7 +2079,7 @@ static isType(type: string): type is ScIntType;
 
 - **`type`** — `string` (required)
 
-**Source:** [src/base/numbers/xdr_large_int.ts:323](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L323)
+**Source:** [src/base/numbers/xdr_large_int.ts:316](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L316)
 
 ### `scInt.type`
 
@@ -2087,7 +2087,7 @@ static isType(type: string): type is ScIntType;
 readonly type: ScIntType;
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:88](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L88)
+**Source:** [src/base/numbers/xdr_large_int.ts:81](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L81)
 
 ### `scInt.value`
 
@@ -2097,7 +2097,7 @@ The underlying bigint value (always exact, untruncated).
 readonly value: bigint;
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:87](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L87)
+**Source:** [src/base/numbers/xdr_large_int.ts:80](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L80)
 
 ### `scInt.toBigInt()`
 
@@ -2107,7 +2107,7 @@ Converts to a native BigInt.
 toBigInt(): bigint;
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:162](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L162)
+**Source:** [src/base/numbers/xdr_large_int.ts:155](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L155)
 
 ### `scInt.toDuration()`
 
@@ -2117,7 +2117,7 @@ The integer encoded with `ScValType = Duration`
 toDuration(): ScVal;
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:191](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L191)
+**Source:** [src/base/numbers/xdr_large_int.ts:184](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L184)
 
 ### `scInt.toI128()`
 
@@ -2131,7 +2131,7 @@ toI128(): ScVal;
 
 - a `RangeError` if the value cannot fit in 128 bits
 
-**Source:** [src/base/numbers/xdr_large_int.ts:201](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L201)
+**Source:** [src/base/numbers/xdr_large_int.ts:194](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L194)
 
 ### `scInt.toI256()`
 
@@ -2145,7 +2145,7 @@ toI256(): ScVal;
 
 - a `RangeError` if the value cannot fit in a signed 256-bit integer
 
-**Source:** [src/base/numbers/xdr_large_int.ts:234](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L234)
+**Source:** [src/base/numbers/xdr_large_int.ts:227](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L227)
 
 ### `scInt.toI64()`
 
@@ -2159,7 +2159,7 @@ toI64(): ScVal;
 
 - a `RangeError` if the value cannot fit in 64 bits
 
-**Source:** [src/base/numbers/xdr_large_int.ts:171](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L171)
+**Source:** [src/base/numbers/xdr_large_int.ts:164](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L164)
 
 ### `scInt.toJson()`
 
@@ -2169,7 +2169,7 @@ Returns a JSON-friendly representation with `value` and `type` fields.
 toJson(): { type: string; value: string };
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:299](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L299)
+**Source:** [src/base/numbers/xdr_large_int.ts:292](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L292)
 
 ### `scInt.toJSON()`
 
@@ -2180,7 +2180,7 @@ enumerate the bigint `value` field and throw a TypeError.
 toJSON(): { type: string; value: string };
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:310](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L310)
+**Source:** [src/base/numbers/xdr_large_int.ts:303](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L303)
 
 ### `scInt.toNumber()`
 
@@ -2194,7 +2194,7 @@ toNumber(): number;
 
 - a `RangeError` if the value can't fit into a Number
 
-**Source:** [src/base/numbers/xdr_large_int.ts:150](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L150)
+**Source:** [src/base/numbers/xdr_large_int.ts:143](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L143)
 
 ### `scInt.toScVal()`
 
@@ -2204,7 +2204,7 @@ The smallest interpretation of the stored value
 toScVal(): ScVal;
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:265](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L265)
+**Source:** [src/base/numbers/xdr_large_int.ts:258](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L258)
 
 ### `scInt.toString()`
 
@@ -2214,7 +2214,7 @@ Returns the string representation of this integer.
 toString(): string;
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:294](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L294)
+**Source:** [src/base/numbers/xdr_large_int.ts:287](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L287)
 
 ### `scInt.toTimepoint()`
 
@@ -2224,7 +2224,7 @@ The integer encoded with `ScValType = Timepoint`
 toTimepoint(): ScVal;
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:185](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L185)
+**Source:** [src/base/numbers/xdr_large_int.ts:178](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L178)
 
 ### `scInt.toU128()`
 
@@ -2238,7 +2238,7 @@ toU128(): ScVal;
 
 - a `RangeError` if the value cannot fit in 128 bits
 
-**Source:** [src/base/numbers/xdr_large_int.ts:218](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L218)
+**Source:** [src/base/numbers/xdr_large_int.ts:211](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L211)
 
 ### `scInt.toU256()`
 
@@ -2250,7 +2250,7 @@ Note: No size check needed - U256 is the largest unsigned type.
 toU256(): ScVal;
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:252](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L252)
+**Source:** [src/base/numbers/xdr_large_int.ts:245](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L245)
 
 ### `scInt.toU64()`
 
@@ -2260,7 +2260,7 @@ The integer encoded with `ScValType = U64`
 toU64(): ScVal;
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:179](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L179)
+**Source:** [src/base/numbers/xdr_large_int.ts:172](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L172)
 
 ### `scInt.valueOf()`
 
@@ -2270,7 +2270,7 @@ Returns the primitive value of this integer.
 valueOf(): bigint;
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:289](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L289)
+**Source:** [src/base/numbers/xdr_large_int.ts:282](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L282)
 
 ## TimeoutInfinite
 
@@ -2343,7 +2343,7 @@ to convert to StrKey strings.
 extraSigners: SignerKey[] | undefined;
 ```
 
-**Source:** [src/base/transaction.ts:224](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L224)
+**Source:** [src/base/transaction.ts:223](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L223)
 
 ### `transaction.fee`
 
@@ -2364,7 +2364,7 @@ The ledger bounds for this transaction, with `minLedger` (uint32) and
 ledgerBounds: { maxLedger: number; minLedger: number } | undefined;
 ```
 
-**Source:** [src/base/transaction.ts:189](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L189)
+**Source:** [src/base/transaction.ts:188](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L188)
 
 ### `transaction.memo`
 
@@ -2374,7 +2374,7 @@ The memo attached to this transaction.
 memo: Memo<MemoType>;
 ```
 
-**Source:** [src/base/transaction.ts:256](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L256)
+**Source:** [src/base/transaction.ts:255](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L255)
 
 ### `transaction.minAccountSequence`
 
@@ -2384,7 +2384,7 @@ The minimum account sequence (64-bit, as a string).
 minAccountSequence: string | undefined;
 ```
 
-**Source:** [src/base/transaction.ts:197](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L197)
+**Source:** [src/base/transaction.ts:196](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L196)
 
 ### `transaction.minAccountSequenceAge`
 
@@ -2394,7 +2394,7 @@ The minimum account sequence age (64-bit number of seconds).
 minAccountSequenceAge: bigint | undefined;
 ```
 
-**Source:** [src/base/transaction.ts:205](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L205)
+**Source:** [src/base/transaction.ts:204](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L204)
 
 ### `transaction.minAccountSequenceLedgerGap`
 
@@ -2404,7 +2404,7 @@ The minimum account sequence ledger gap (32-bit number of ledgers).
 minAccountSequenceLedgerGap: number | undefined;
 ```
 
-**Source:** [src/base/transaction.ts:213](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L213)
+**Source:** [src/base/transaction.ts:212](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L212)
 
 ### `transaction.networkPassphrase`
 
@@ -2424,7 +2424,7 @@ The list of operations in this transaction.
 operations: OperationRecord[];
 ```
 
-**Source:** [src/base/transaction.ts:248](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L248)
+**Source:** [src/base/transaction.ts:247](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L247)
 
 ### `transaction.sequence`
 
@@ -2434,7 +2434,7 @@ The sequence number for this transaction.
 sequence: string;
 ```
 
-**Source:** [src/base/transaction.ts:232](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L232)
+**Source:** [src/base/transaction.ts:231](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L231)
 
 ### `transaction.signatures`
 
@@ -2454,7 +2454,7 @@ The source account for this transaction.
 source: string;
 ```
 
-**Source:** [src/base/transaction.ts:240](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L240)
+**Source:** [src/base/transaction.ts:239](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L239)
 
 ### `transaction.timeBounds`
 
@@ -2465,7 +2465,7 @@ The time bounds for this transaction, with `minTime` and `maxTime` as
 timeBounds: { maxTime: string; minTime: string } | undefined;
 ```
 
-**Source:** [src/base/transaction.ts:178](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L178)
+**Source:** [src/base/transaction.ts:177](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L177)
 
 ### `transaction.tx`
 
@@ -2556,7 +2556,7 @@ getClaimableBalanceId(opIndex: number): string;
 
 - https://github.com/stellar/go/blob/d712346e61e288d450b0c08038c158f8848cc3e4/txnbuild/transaction.go#L392-L435
 
-**Source:** [src/base/transaction.ts:346](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L346)
+**Source:** [src/base/transaction.ts:345](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L345)
 
 ### `transaction.getKeypairSignature(keypair)`
 
@@ -2627,7 +2627,7 @@ of this transaction.
 signatureBase(): Uint8Array;
 ```
 
-**Source:** [src/base/transaction.ts:271](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L271)
+**Source:** [src/base/transaction.ts:270](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L270)
 
 ### `transaction.signHashX(preimage)`
 
@@ -2651,7 +2651,7 @@ To envelope returns a xdr.TransactionEnvelope which can be submitted to the netw
 toEnvelope(): TransactionEnvelope;
 ```
 
-**Source:** [src/base/transaction.ts:304](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L304)
+**Source:** [src/base/transaction.ts:303](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L303)
 
 ### `transaction.toXdr()`
 
@@ -3308,7 +3308,7 @@ class XdrLargeInt {
 }
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:85](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L85)
+**Source:** [src/base/numbers/xdr_large_int.ts:78](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L78)
 
 ### `new XdrLargeInt(type, values)`
 
@@ -3328,7 +3328,7 @@ constructor(type: ScIntType, values: XdrLargeIntValues);
      `SIZE[type] / values.length`; each slice must fit its width or a
      `RangeError` is thrown.
 
-**Source:** [src/base/numbers/xdr_large_int.ts:101](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L101)
+**Source:** [src/base/numbers/xdr_large_int.ts:94](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L94)
 
 ### `XdrLargeInt.getType(scvType)`
 
@@ -3348,7 +3348,7 @@ static getType(scvType: string): ScIntType | undefined;
 the corresponding [`ScIntType`](#scinttype-1) if it's an integer type, or
    `undefined` if it's not an integer type
 
-**Source:** [src/base/numbers/xdr_large_int.ts:347](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L347)
+**Source:** [src/base/numbers/xdr_large_int.ts:340](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L340)
 
 ### `XdrLargeInt.isType(type)`
 
@@ -3362,7 +3362,7 @@ static isType(type: string): type is ScIntType;
 
 - **`type`** — `string` (required)
 
-**Source:** [src/base/numbers/xdr_large_int.ts:323](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L323)
+**Source:** [src/base/numbers/xdr_large_int.ts:316](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L316)
 
 ### `xdrLargeInt.type`
 
@@ -3370,7 +3370,7 @@ static isType(type: string): type is ScIntType;
 readonly type: ScIntType;
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:88](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L88)
+**Source:** [src/base/numbers/xdr_large_int.ts:81](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L81)
 
 ### `xdrLargeInt.value`
 
@@ -3380,7 +3380,7 @@ The underlying bigint value (always exact, untruncated).
 readonly value: bigint;
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:87](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L87)
+**Source:** [src/base/numbers/xdr_large_int.ts:80](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L80)
 
 ### `xdrLargeInt.toBigInt()`
 
@@ -3390,7 +3390,7 @@ Converts to a native BigInt.
 toBigInt(): bigint;
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:162](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L162)
+**Source:** [src/base/numbers/xdr_large_int.ts:155](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L155)
 
 ### `xdrLargeInt.toDuration()`
 
@@ -3400,7 +3400,7 @@ The integer encoded with `ScValType = Duration`
 toDuration(): ScVal;
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:191](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L191)
+**Source:** [src/base/numbers/xdr_large_int.ts:184](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L184)
 
 ### `xdrLargeInt.toI128()`
 
@@ -3414,7 +3414,7 @@ toI128(): ScVal;
 
 - a `RangeError` if the value cannot fit in 128 bits
 
-**Source:** [src/base/numbers/xdr_large_int.ts:201](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L201)
+**Source:** [src/base/numbers/xdr_large_int.ts:194](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L194)
 
 ### `xdrLargeInt.toI256()`
 
@@ -3428,7 +3428,7 @@ toI256(): ScVal;
 
 - a `RangeError` if the value cannot fit in a signed 256-bit integer
 
-**Source:** [src/base/numbers/xdr_large_int.ts:234](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L234)
+**Source:** [src/base/numbers/xdr_large_int.ts:227](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L227)
 
 ### `xdrLargeInt.toI64()`
 
@@ -3442,7 +3442,7 @@ toI64(): ScVal;
 
 - a `RangeError` if the value cannot fit in 64 bits
 
-**Source:** [src/base/numbers/xdr_large_int.ts:171](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L171)
+**Source:** [src/base/numbers/xdr_large_int.ts:164](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L164)
 
 ### `xdrLargeInt.toJson()`
 
@@ -3452,7 +3452,7 @@ Returns a JSON-friendly representation with `value` and `type` fields.
 toJson(): { type: string; value: string };
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:299](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L299)
+**Source:** [src/base/numbers/xdr_large_int.ts:292](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L292)
 
 ### `xdrLargeInt.toJSON()`
 
@@ -3463,7 +3463,7 @@ enumerate the bigint `value` field and throw a TypeError.
 toJSON(): { type: string; value: string };
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:310](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L310)
+**Source:** [src/base/numbers/xdr_large_int.ts:303](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L303)
 
 ### `xdrLargeInt.toNumber()`
 
@@ -3477,7 +3477,7 @@ toNumber(): number;
 
 - a `RangeError` if the value can't fit into a Number
 
-**Source:** [src/base/numbers/xdr_large_int.ts:150](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L150)
+**Source:** [src/base/numbers/xdr_large_int.ts:143](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L143)
 
 ### `xdrLargeInt.toScVal()`
 
@@ -3487,7 +3487,7 @@ The smallest interpretation of the stored value
 toScVal(): ScVal;
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:265](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L265)
+**Source:** [src/base/numbers/xdr_large_int.ts:258](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L258)
 
 ### `xdrLargeInt.toString()`
 
@@ -3497,7 +3497,7 @@ Returns the string representation of this integer.
 toString(): string;
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:294](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L294)
+**Source:** [src/base/numbers/xdr_large_int.ts:287](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L287)
 
 ### `xdrLargeInt.toTimepoint()`
 
@@ -3507,7 +3507,7 @@ The integer encoded with `ScValType = Timepoint`
 toTimepoint(): ScVal;
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:185](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L185)
+**Source:** [src/base/numbers/xdr_large_int.ts:178](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L178)
 
 ### `xdrLargeInt.toU128()`
 
@@ -3521,7 +3521,7 @@ toU128(): ScVal;
 
 - a `RangeError` if the value cannot fit in 128 bits
 
-**Source:** [src/base/numbers/xdr_large_int.ts:218](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L218)
+**Source:** [src/base/numbers/xdr_large_int.ts:211](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L211)
 
 ### `xdrLargeInt.toU256()`
 
@@ -3533,7 +3533,7 @@ Note: No size check needed - U256 is the largest unsigned type.
 toU256(): ScVal;
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:252](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L252)
+**Source:** [src/base/numbers/xdr_large_int.ts:245](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L245)
 
 ### `xdrLargeInt.toU64()`
 
@@ -3543,7 +3543,7 @@ The integer encoded with `ScValType = U64`
 toU64(): ScVal;
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:179](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L179)
+**Source:** [src/base/numbers/xdr_large_int.ts:172](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L172)
 
 ### `xdrLargeInt.valueOf()`
 
@@ -3553,7 +3553,7 @@ Returns the primitive value of this integer.
 valueOf(): bigint;
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:289](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L289)
+**Source:** [src/base/numbers/xdr_large_int.ts:282](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L282)
 
 ## decodeAddressToMuxedAccount
 
@@ -3848,7 +3848,7 @@ type MemoTypeText = typeof MemoText
 type MemoValue = string | null | Uint8Array
 ```
 
-**Source:** [src/base/memo.ts:47](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L47)
+**Source:** [src/base/memo.ts:43](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L43)
 
 ### Networks
 

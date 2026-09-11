@@ -27,10 +27,7 @@ export type ScpStatementPledgesWire =
   | { type: 3; nominate: ScpNominationWire };
 
 export type ScpStatementPledgesVariantName =
-  | "scpStPrepare"
-  | "scpStConfirm"
-  | "scpStExternalize"
-  | "scpStNominate";
+  "scpStPrepare" | "scpStConfirm" | "scpStExternalize" | "scpStNominate";
 
 /**
  * ```xdr

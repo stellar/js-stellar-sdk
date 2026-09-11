@@ -9,10 +9,7 @@ import {
 export type ScpStatementTypeWire = number;
 
 export type ScpStatementTypeName =
-  | "scpStPrepare"
-  | "scpStConfirm"
-  | "scpStExternalize"
-  | "scpStNominate";
+  "scpStPrepare" | "scpStConfirm" | "scpStExternalize" | "scpStNominate";
 
 /**
  * ```xdr
