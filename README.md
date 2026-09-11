@@ -541,7 +541,7 @@ pnpm docs:dev
 
 ## Release & support policy
 
-See [RELEASE_POLICY.md](./RELEASE_POLICY.md) for how the SDK is versioned, how long each release line is supported, and the table of currently supported versions.
+See [RELEASE_POLICY.md](https://github.com/stellar/js-stellar-sdk/blob/main/RELEASE_POLICY.md) for how the SDK is versioned, how long each release line is supported, and the table of currently supported versions.
 
 ### Publishing
 
