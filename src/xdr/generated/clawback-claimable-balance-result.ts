@@ -8,10 +8,7 @@ import { XdrValue } from "../values/xdr-value.js";
 import { ClawbackClaimableBalanceResultCode } from "./clawback-claimable-balance-result-code.js";
 
 export type ClawbackClaimableBalanceResultWire =
-  | { code: 0 }
-  | { code: -1 }
-  | { code: -2 }
-  | { code: -3 };
+  { code: 0 } | { code: -1 } | { code: -2 } | { code: -3 };
 
 export type ClawbackClaimableBalanceResultVariantName =
   | "clawbackClaimableBalanceSuccess"

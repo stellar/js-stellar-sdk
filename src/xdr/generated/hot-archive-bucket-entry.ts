@@ -16,9 +16,7 @@ export type HotArchiveBucketEntryWire =
   | { type: -1; metaEntry: BucketMetadataWire };
 
 export type HotArchiveBucketEntryVariantName =
-  | "hotArchiveArchived"
-  | "hotArchiveLive"
-  | "hotArchiveMetaentry";
+  "hotArchiveArchived" | "hotArchiveLive" | "hotArchiveMetaentry";
 
 /**
  * ```xdr

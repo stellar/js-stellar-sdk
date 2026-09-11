@@ -819,10 +819,7 @@ function rebuildDelegatesWithSignature(
 
 /** The credential arm of a {@link xdr.SorobanAuthorizationEntry}. */
 export type AuthEntryCredentialType =
-  | "sourceAccount"
-  | "address"
-  | "addressV2"
-  | "addressWithDelegates";
+  "sourceAccount" | "address" | "addressV2" | "addressWithDelegates";
 
 /**
  * A single ed25519 signature parsed out of a credential node's signature

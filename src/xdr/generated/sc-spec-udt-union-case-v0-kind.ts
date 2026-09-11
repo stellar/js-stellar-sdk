@@ -9,8 +9,7 @@ import {
 export type ScSpecUdtUnionCaseV0KindWire = number;
 
 export type ScSpecUdtUnionCaseV0KindName =
-  | "scSpecUdtUnionCaseVoidV0"
-  | "scSpecUdtUnionCaseTupleV0";
+  "scSpecUdtUnionCaseVoidV0" | "scSpecUdtUnionCaseTupleV0";
 
 /**
  * ```xdr

@@ -8,10 +8,7 @@ import {
 export type BucketEntryTypeWire = number;
 
 export type BucketEntryTypeName =
-  | "metaentry"
-  | "liveentry"
-  | "deadentry"
-  | "initentry";
+  "metaentry" | "liveentry" | "deadentry" | "initentry";
 
 /**
  * ```xdr

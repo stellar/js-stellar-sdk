@@ -28,8 +28,7 @@ function unionExports(): UnionExport[] {
   const bySchema = new Map<object, UnionExport>();
   for (const exported of Object.values(classXdr)) {
     const schema = (exported as { schema?: { kind?: string } })?.schema as
-      | { kind: string; name: string; switchKey: string }
-      | undefined;
+      { kind: string; name: string; switchKey: string } | undefined;
     if (schema?.kind !== "union" || bySchema.has(schema)) continue;
     bySchema.set(schema, {
       name: schema.name,

@@ -17,8 +17,7 @@ import {
 } from "./soroban-transaction-data.js";
 
 export type TransactionExtWire =
-  | { v: 0 }
-  | { v: 1; sorobanData: SorobanTransactionDataWire };
+  { v: 0 } | { v: 1; sorobanData: SorobanTransactionDataWire };
 
 export type TransactionExtVariantName = "v0" | "sorobanData";
 

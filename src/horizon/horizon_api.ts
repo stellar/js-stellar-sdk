@@ -101,8 +101,7 @@ export namespace HorizonApi {
   }
   export interface BalanceLineAsset<
     T extends AssetType.credit4 | AssetType.credit12 =
-      | AssetType.credit4
-      | AssetType.credit12,
+      AssetType.credit4 | AssetType.credit12,
   > {
     balance: string;
     limit: string;
@@ -391,9 +390,7 @@ export namespace HorizonApi {
     OperationResponseTypeI.changeTrust
   > {
     asset_type:
-      | AssetType.credit4
-      | AssetType.credit12
-      | AssetType.liquidityPoolShares;
+      AssetType.credit4 | AssetType.credit12 | AssetType.liquidityPoolShares;
     asset_code?: string;
     asset_issuer?: string;
     liquidity_pool_id?: string;

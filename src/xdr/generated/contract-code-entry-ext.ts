@@ -17,8 +17,7 @@ import {
 } from "./contract-code-entry-v1.js";
 
 export type ContractCodeEntryExtWire =
-  | { v: 0 }
-  | { v: 1; v1: ContractCodeEntryV1Wire };
+  { v: 0 } | { v: 1; v1: ContractCodeEntryV1Wire };
 
 export type ContractCodeEntryExtVariantName = "v0" | "v1";
 
@@ -133,6 +132,5 @@ export class ContractCodeEntryExtV1 extends ContractCodeEntryExtBase {
 }
 
 export type ContractCodeEntryExt =
-  | ContractCodeEntryExtV0
-  | ContractCodeEntryExtV1;
+  ContractCodeEntryExtV0 | ContractCodeEntryExtV1;
 export const ContractCodeEntryExt = ContractCodeEntryExtBase;

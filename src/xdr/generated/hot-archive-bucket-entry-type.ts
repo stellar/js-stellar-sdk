@@ -9,9 +9,7 @@ import {
 export type HotArchiveBucketEntryTypeWire = number;
 
 export type HotArchiveBucketEntryTypeName =
-  | "hotArchiveMetaentry"
-  | "hotArchiveArchived"
-  | "hotArchiveLive";
+  "hotArchiveMetaentry" | "hotArchiveArchived" | "hotArchiveLive";
 
 /**
  * ```xdr

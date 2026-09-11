@@ -14,8 +14,7 @@ import { XdrValue } from "../values/xdr-value.js";
 import { BucketListType, type BucketListTypeWire } from "./bucket-list-type.js";
 
 export type BucketMetadataExtWire =
-  | { v: 0 }
-  | { v: 1; bucketListType: BucketListTypeWire };
+  { v: 0 } | { v: 1; bucketListType: BucketListTypeWire };
 
 export type BucketMetadataExtVariantName = "v0" | "bucketListType";
 
@@ -132,6 +131,5 @@ export class BucketMetadataExtBucketListType extends BucketMetadataExtBase {
 }
 
 export type BucketMetadataExt =
-  | BucketMetadataExtV0
-  | BucketMetadataExtBucketListType;
+  BucketMetadataExtV0 | BucketMetadataExtBucketListType;
 export const BucketMetadataExt = BucketMetadataExtBase;

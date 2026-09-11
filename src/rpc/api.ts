@@ -363,10 +363,7 @@ export namespace Api {
   }
 
   export type SendTransactionStatus =
-    | "PENDING"
-    | "DUPLICATE"
-    | "TRY_AGAIN_LATER"
-    | "ERROR";
+    "PENDING" | "DUPLICATE" | "TRY_AGAIN_LATER" | "ERROR";
 
   export interface SendTransactionResponse extends BaseSendTransactionResponse {
     errorResult?: TransactionResult;
@@ -402,9 +399,7 @@ export namespace Api {
   }
 
   export type SimulationAuthMode =
-    | "enforce"
-    | "record"
-    | "record_allow_nonroot";
+    "enforce" | "record" | "record_allow_nonroot";
 
   /**
    * Simplifies {@link RawSimulateTransactionResponse} into separate interfaces

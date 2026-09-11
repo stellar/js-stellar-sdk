@@ -8,10 +8,7 @@ import { XdrValue } from "../values/xdr-value.js";
 import { RestoreFootprintResultCode } from "./restore-footprint-result-code.js";
 
 export type RestoreFootprintResultWire =
-  | { code: 0 }
-  | { code: -1 }
-  | { code: -2 }
-  | { code: -3 };
+  { code: 0 } | { code: -1 } | { code: -2 } | { code: -3 };
 
 export type RestoreFootprintResultVariantName =
   | "restoreFootprintSuccess"

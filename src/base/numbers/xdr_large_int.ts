@@ -16,14 +16,7 @@ type XdrLargeIntValues =
   | string;
 
 export type ScIntType =
-  | "duration"
-  | "i64"
-  | "i128"
-  | "i256"
-  | "timepoint"
-  | "u64"
-  | "u128"
-  | "u256";
+  "duration" | "i64" | "i128" | "i256" | "timepoint" | "u64" | "u128" | "u256";
 
 const SIZE: Readonly<Record<ScIntType, 64 | 128 | 256>> = {
   i64: 64,

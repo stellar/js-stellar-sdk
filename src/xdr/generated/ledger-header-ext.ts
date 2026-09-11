@@ -17,8 +17,7 @@ import {
 } from "./ledger-header-extension-v1.js";
 
 export type LedgerHeaderExtWire =
-  | { v: 0 }
-  | { v: 1; v1: LedgerHeaderExtensionV1Wire };
+  { v: 0 } | { v: 1; v1: LedgerHeaderExtensionV1Wire };
 
 export type LedgerHeaderExtVariantName = "v0" | "v1";
 

@@ -9,9 +9,7 @@ import {
 export type StellarValueTypeWire = number;
 
 export type StellarValueTypeName =
-  | "stellarValueBasic"
-  | "stellarValueSigned"
-  | "stellarValueEmptyTxSet";
+  "stellarValueBasic" | "stellarValueSigned" | "stellarValueEmptyTxSet";
 
 /**
  * ```xdr

@@ -38,11 +38,7 @@ export namespace MemoType {
   export type Return = MemoTypeReturn;
 }
 export type MemoType =
-  | MemoTypeHash
-  | MemoTypeID
-  | MemoTypeNone
-  | MemoTypeReturn
-  | MemoTypeText;
+  MemoTypeHash | MemoTypeID | MemoTypeNone | MemoTypeReturn | MemoTypeText;
 
 export type MemoValue = string | null | Uint8Array;
 

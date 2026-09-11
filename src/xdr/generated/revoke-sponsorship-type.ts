@@ -9,8 +9,7 @@ import {
 export type RevokeSponsorshipTypeWire = number;
 
 export type RevokeSponsorshipTypeName =
-  | "revokeSponsorshipLedgerEntry"
-  | "revokeSponsorshipSigner";
+  "revokeSponsorshipLedgerEntry" | "revokeSponsorshipSigner";
 
 /**
  * ```xdr

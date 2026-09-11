@@ -17,8 +17,7 @@ export type TransactionSignaturePayloadTaggedTransactionWire =
   | { type: 5; feeBump: FeeBumpTransactionWire };
 
 export type TransactionSignaturePayloadTaggedTransactionVariantName =
-  | "envelopeTypeTx"
-  | "envelopeTypeTxFeeBump";
+  "envelopeTypeTx" | "envelopeTypeTxFeeBump";
 
 /**
  * ```xdr

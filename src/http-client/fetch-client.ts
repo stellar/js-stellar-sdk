@@ -600,8 +600,7 @@ function createFetchClient(
                 | ((
                     val: HttpClientRequestConfig,
                   ) =>
-                    | HttpClientRequestConfig
-                    | Promise<HttpClientRequestConfig>)
+                    HttpClientRequestConfig | Promise<HttpClientRequestConfig>)
                 | undefined,
               chain[i + 1] as InterceptorRejected | undefined,
             );
