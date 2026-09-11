@@ -2,8 +2,74 @@
 
 ## How to contribute
 
-Please read the
-[Contribution Guide](https://github.com/stellar/docs/blob/main/CONTRIBUTING.md).
+Thanks for taking the time to contribute.
+
+Start with the
+[Stellar Contribution Guide](https://github.com/stellar/.github/blob/master/CONTRIBUTING.md)
+for the code of conduct and contributor license agreement that apply to every
+Stellar repository. The rules below are specific to this repository and take
+precedence where they are stricter.
+
+### Before contributing
+
+This SDK builds and signs live financial transactions for many downstream
+applications. Correctness matters, and maintainer and reviewer time is limited.
+We welcome contributions that address a demonstrated, material problem or that
+advance work maintainers have agreed is a priority.
+
+### Start with an issue
+
+Search the [existing issues](https://github.com/stellar/js-stellar-sdk/issues)
+first and join the discussion if one already covers your topic. When opening a
+new issue, establish:
+
+- The concrete problem to solve.
+- For a bug, a minimal reproducer with the expected and actual behavior, the SDK
+  version, and the runtime (Node version, browser, bundler).
+- Relevant alternatives, if any, and their tradeoffs.
+- For a performance change, measurements that show the current problem and give
+  a baseline for judging a fix.
+
+Verify findings yourself before reporting them. Do not submit speculative
+findings or generated lists of possible issues.
+
+Opening an issue does not reserve the work or mean a code change is wanted. An
+issue with the `help wanted` label is open for implementation, but discuss your
+proposed approach on the issue before starting substantial work.
+
+### Participation and review
+
+Keep participation to issues. Do not comment on pull requests unless you are the
+author or a maintainer asked you to. Issue comments should be specific and
+evidence-based. Do not propose implementation strategies unless a maintainer
+invites them. Maintainers will delete comments that are not relevant to the
+issue.
+
+Open a pull request only when a maintainer invites you to, including for issues
+labeled `help wanted`.
+
+### Opening a pull request
+
+We only accept pull requests for issues with the `help wanted` label where a
+maintainer has agreed to the approach. Unsolicited pull requests will be closed
+without explanation and may be reported as spam. Changes to the SDK need
+knowledge of the protocol, the XDR layer, the public API surface, and the
+release roadmap. External contributions without that context tend to target
+low-priority issues and pull maintainer attention away from higher-priority
+work.
+
+When you do open a pull request:
+
+- Fork `stellar/js-stellar-sdk` and submit from a branch in your fork.
+- Link the approved issue and keep the change within the agreed scope.
+- Keep the branch focused on one issue.
+- Rebase on `stellar/js-stellar-sdk` `main` to stay current.
+- Run `pnpm run preversion` (clean, format, build, test) and make sure it
+  passes.
+- Regenerate docs if you touched exported symbols; see [CI rule](#ci-rule).
+- Add an entry under `## Unreleased` in [CHANGELOG.md](CHANGELOG.md) for any
+  user-visible change.
+- Use a descriptive commit message. Commits are squashed on merge.
 
 ## Releasing
 
