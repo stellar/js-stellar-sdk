@@ -415,7 +415,7 @@ class SignerKey {
 
 - [`TransactionBuilder.setExtraSigners`](/reference/core-transactions/#transactionbuildersetextrasignersextrasigners)
 
-**Source:** [src/base/signerkey.ts:22](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/signerkey.ts#L22)
+**Source:** [src/base/signerkey.ts:19](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/signerkey.ts#L19)
 
 ### `new SignerKey()`
 
@@ -438,7 +438,7 @@ static decodeAddress(address: string): SignerKey;
 
 - **`address`** — `string` (required) — a StrKey-encoded signer address
 
-**Source:** [src/base/signerkey.ts:31](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/signerkey.ts#L31)
+**Source:** [src/base/signerkey.ts:28](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/signerkey.ts#L28)
 
 ### `SignerKey.encodeSignerKey(signerKey)`
 
@@ -452,7 +452,7 @@ static encodeSignerKey(signerKey: SignerKey): string;
 
 - **`signerKey`** — `SignerKey` (required) — the signer
 
-**Source:** [src/base/signerkey.ts:72](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/signerkey.ts#L72)
+**Source:** [src/base/signerkey.ts:69](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/signerkey.ts#L69)
 
 ## StrKey
 
