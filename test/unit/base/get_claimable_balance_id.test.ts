@@ -68,6 +68,20 @@ function feeBumpResult(inner: InnerTransactionResultResult): TransactionResult {
   );
 }
 
+// A result built by a *different* copy of the SDK: the schema brand resolves,
+// but `instanceof` does not. A plain function's `prototype.constructor`
+// already points back at it, which is what carries the brand.
+function foreign(result: unknown): unknown {
+  const Ctor = function () {} as unknown as {
+    schema: { name?: string };
+    prototype: object;
+  };
+  Ctor.schema = { name: TransactionResult.schema.name };
+  const value = Object.create(Ctor.prototype) as Record<string, unknown>;
+  value.result = result;
+  return value;
+}
+
 describe("getClaimableBalanceIdFromResult", () => {
   describe("success", () => {
     it("extracts the balance ID from a single-operation result", () => {
@@ -144,17 +158,26 @@ describe("getClaimableBalanceIdFromResult", () => {
       expect(() => getClaimableBalanceIdFromResult(result, -1)).toThrow(
         RangeError,
       );
+      expect(() => getClaimableBalanceIdFromResult(result, -1)).toThrow(
+        /invalid operation index -1; the transaction has 1 operation result\(s\)/,
+      );
     });
 
     it("throws for a non-integer index", () => {
       expect(() => getClaimableBalanceIdFromResult(result, 1.5)).toThrow(
         RangeError,
       );
+      expect(() => getClaimableBalanceIdFromResult(result, 1.5)).toThrow(
+        /invalid operation index 1.5; the transaction has 1 operation result\(s\)/,
+      );
     });
 
     it("throws for an index past the last operation result", () => {
       expect(() => getClaimableBalanceIdFromResult(result, 1)).toThrow(
         RangeError,
+      );
+      expect(() => getClaimableBalanceIdFromResult(result, 1)).toThrow(
+        /invalid operation index 1; the transaction has 1 operation result\(s\)/,
       );
     });
 
@@ -165,6 +188,32 @@ describe("getClaimableBalanceIdFromResult", () => {
 
       expect(() => getClaimableBalanceIdFromResult(feeBump, 1)).toThrow(
         RangeError,
+      );
+      expect(() => getClaimableBalanceIdFromResult(feeBump, 1)).toThrow(
+        /invalid operation index 1; the transaction has 1 operation result\(s\)/,
+      );
+    });
+
+    it("throws for any index into an empty operation results array", () => {
+      const empty = txResult(TransactionResultResult.txSuccess([]));
+
+      expect(() => getClaimableBalanceIdFromResult(empty, 0)).toThrow(
+        /invalid operation index 0; the transaction has 0 operation result\(s\)/,
+      );
+    });
+
+    // The index is checked against the operation results, so it can only be
+    // checked once the transaction is known to have produced any.
+    it("reports the transaction failure before the index", () => {
+      const failed = txResult(
+        TransactionResultResult.txFailed([balanceIdOpResult()]),
+      );
+
+      expect(() => getClaimableBalanceIdFromResult(failed, -1)).toThrow(
+        TypeError,
+      );
+      expect(() => getClaimableBalanceIdFromResult(failed, -1)).toThrow(
+        /txFailed/,
       );
     });
   });
@@ -266,26 +315,55 @@ describe("getClaimableBalanceIdFromResult", () => {
       ["a number", 42],
       ["a boolean", true],
       ["an object whose result arm is missing", { result: null }],
+      ["a plain object with a result arm", { result: { type: "txSuccess" } }],
+      [
+        "a plain object with a fee-bump arm",
+        {
+          result: {
+            type: "txFeeBumpInnerSuccess",
+            innerResultPair: { result: { result: { type: "txSuccess" } } },
+          },
+        },
+      ],
     ])("throws a TypeError for %s", (_label, value) => {
       expect(() => callUntyped(value, 0)).toThrow(TypeError);
       expect(() => callUntyped(value, 0)).toThrow(/xdr\.TransactionResult/);
     });
 
     it("throws for an arm name without an operation results array", () => {
-      expect(() => callUntyped({ result: { type: "txSuccess" } }, 0)).toThrow(
+      expect(() => callUntyped(foreign({ type: "txSuccess" }), 0)).toThrow(
         /operation results are missing/,
       );
       expect(() =>
         callUntyped(
-          {
-            result: {
-              type: "txFeeBumpInnerSuccess",
-              innerResultPair: { result: { result: { type: "txSuccess" } } },
-            },
-          },
+          foreign({
+            type: "txFeeBumpInnerSuccess",
+            innerResultPair: { result: { result: { type: "txSuccess" } } },
+          }),
           0,
         ),
       ).toThrow(/operation results are missing/);
+    });
+
+    it("rejects a plain object that mimics a transaction result", () => {
+      const real = txResult(
+        TransactionResultResult.txSuccess([balanceIdOpResult()]),
+      );
+
+      expect(() => callUntyped({ result: real.result }, 0)).toThrow(TypeError);
+      expect(() => callUntyped({ result: real.result }, 0)).toThrow(
+        /xdr\.TransactionResult/,
+      );
+    });
+
+    it("accepts a result built by another copy of the SDK", () => {
+      const real = txResult(
+        TransactionResultResult.txSuccess([balanceIdOpResult()]),
+      );
+      const value = foreign(real.result);
+
+      expect(value).not.toBeInstanceOf(TransactionResult);
+      expect(callUntyped(value, 0)).toBe(BALANCE_ID_HEX);
     });
 
     it("names the decode step when handed an undecoded base64 result", () => {

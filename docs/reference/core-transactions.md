@@ -3657,7 +3657,7 @@ getClaimableBalanceIdFromResult(result: TransactionResult, opIndex: number): str
 
 - https://developers.stellar.org/docs/learn/encyclopedia/transactions-specialized/claimable-balances
 
-**Source:** [src/base/get_claimable_balance_id.ts:80](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/get_claimable_balance_id.ts#L80)
+**Source:** [src/base/get_claimable_balance_id.ts:75](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/get_claimable_balance_id.ts#L75)
 
 ## scValToBigInt
 

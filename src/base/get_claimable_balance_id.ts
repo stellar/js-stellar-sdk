@@ -1,24 +1,19 @@
-import type { OperationResult, TransactionResult } from "../xdr/index.js";
+import { TransactionResult } from "../xdr/index.js";
+import type { OperationResult } from "../xdr/index.js";
 
 /**
- * Check that a value carries the arms this helper reads, without an
- * `instanceof`: the package ships CJS and ESM builds whose classes are
- * distinct objects, so a result built through another entry point is valid
- * but fails an identity check.
+ * True for an `xdr.TransactionResult`, including one built by a *different*
+ * copy of the SDK loaded in the same process (a dual ESM/CJS load, or two
+ * installed versions), where `instanceof` fails on an otherwise perfectly good
+ * result. The generated schema carries its XDR type name as a string literal,
+ * so unlike `constructor.name` it survives both the module boundary and
+ * minification.
  */
-function isTransactionResultLike(value: unknown): boolean {
-  if (typeof value !== "object" || value === null || !("result" in value)) {
-    return false;
-  }
-
-  const txResult: unknown = value.result;
-
-  return (
-    typeof txResult === "object" &&
-    txResult !== null &&
-    "type" in txResult &&
-    typeof txResult.type === "string"
-  );
+function isTransactionResult(value: unknown): boolean {
+  if (value instanceof TransactionResult) return true;
+  if (typeof value !== "object" || value === null) return false;
+  const ctor = value.constructor as { schema?: { name?: string } } | undefined;
+  return ctor?.schema?.name === TransactionResult.schema.name;
 }
 
 /**
@@ -81,14 +76,10 @@ export function getClaimableBalanceIdFromResult(
   result: TransactionResult,
   opIndex: number,
 ): string {
-  if (!isTransactionResultLike(result)) {
+  if (!isTransactionResult(result)) {
     throw new TypeError(
       'expected an xdr.TransactionResult; decode a base64 `result_xdr` with xdr.TransactionResult.fromXdr(result_xdr, "base64") first',
     );
-  }
-
-  if (!Number.isInteger(opIndex) || opIndex < 0) {
-    throw new RangeError("invalid operation index");
   }
 
   const opResults = successfulOperationResults(result);
@@ -100,11 +91,17 @@ export function getClaimableBalanceIdFromResult(
     );
   }
 
-  const opResult = opResults[opIndex];
-
-  if (opResult === undefined) {
-    throw new RangeError("invalid operation index");
+  if (
+    !Number.isInteger(opIndex) ||
+    opIndex < 0 ||
+    opIndex >= opResults.length
+  ) {
+    throw new RangeError(
+      `invalid operation index ${opIndex}; the transaction has ${opResults.length} operation result(s)`,
+    );
   }
+
+  const opResult = opResults[opIndex];
 
   if (opResult.type !== "opInner") {
     throw new TypeError(
