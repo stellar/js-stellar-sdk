@@ -16,6 +16,7 @@ export {
   getLiquidityPoolId,
   LiquidityPoolFeeV18,
 } from "./get_liquidity_pool_id.js";
+export { getClaimableBalanceIdFromResult } from "./get_claimable_balance_id.js";
 export { Keypair } from "./keypair.js";
 export { TransactionBase } from "./transaction_base.js";
 export { Transaction } from "./transaction.js";

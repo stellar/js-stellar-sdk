@@ -257,5 +257,109 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
         tempServer.close();
       }
     });
+
+    describe("domain validation", () => {
+      it.each([
+        "legitimate-bank.com@127.0.0.1:8000",
+        "legitimate-bank.com:pw@127.0.0.1:8000",
+        "acme.com/evil.com",
+        "acme.com\\evil.com",
+        "acme.com?evil=1",
+        "acme.com#evil",
+        "//evil.com",
+        "/evil.com",
+        "\\evil.com",
+        "@evil.com",
+        ":@evil.com",
+        "acme.com/..",
+        "acme.com/%2e%2e",
+        // Only trailing separators are stripped, so these still name another host.
+        "/",
+        "//",
+        "",
+        " ",
+        // Whitespace inside the name survives the trim. The URL parser deletes a
+        // tab from the host, so the parse alone reports no error.
+        "ac\tme.com",
+        "ac me.com",
+        // Chromium maps this to a space inside the host, where Node and Firefox
+        // refuse the URL.
+        "\u00a8acme.com",
+      ])("rejects %j and makes no request", async (domain) => {
+        // Resolve rather than reject, so a request that slips past the guard
+        // fails the assertion below instead of hitting the network.
+        mockHttpClient.mockResolvedValue({ data: "" });
+
+        await expect(Resolver.resolve(domain)).rejects.toThrow(
+          /Invalid domain/,
+        );
+        expect(mockHttpClient).not.toHaveBeenCalled();
+      });
+
+      it.each([
+        "acme.com",
+        "sub.acme.com",
+        "localhost:8000",
+        "127.0.0.1:8000",
+        "[::1]:8000",
+      ])("accepts %j and requests it unchanged", async (domain) => {
+        mockHttpClient.mockResolvedValue({
+          data: 'FEDERATION_SERVER="https://api.stellar.org/federation"',
+        });
+
+        const stellarToml = await Resolver.resolve(domain);
+
+        expect(stellarToml.FEDERATION_SERVER).toEqual(
+          "https://api.stellar.org/federation",
+        );
+        expect(mockHttpClient).toHaveBeenCalledWith(
+          `https://${domain}/.well-known/stellar.toml`,
+          expect.anything(),
+        );
+      });
+
+      it("applies to http when allowHttp is set", async () => {
+        mockHttpClient.mockResolvedValue({ data: "" });
+
+        await expect(
+          Resolver.resolve("legit.com@evil.com", { allowHttp: true }),
+        ).rejects.toThrow(/Invalid domain/);
+        expect(mockHttpClient).not.toHaveBeenCalled();
+
+        await Resolver.resolve("acme.com:8000", { allowHttp: true });
+        expect(mockHttpClient).toHaveBeenCalledWith(
+          "http://acme.com:8000/.well-known/stellar.toml",
+          expect.anything(),
+        );
+      });
+
+      it.each([
+        ["ACME.com", "acme.com"],
+        ["b\u00fccher.example", "xn--bcher-kva.example"],
+        // Percent-encoded input reached these hosts before the domain check
+        // existed, so it must keep working.
+        ["b%C3%BCcher.example", "xn--bcher-kva.example"],
+        ["acme%2Ecom", "acme.com"],
+        // A trailing separator or surrounding whitespace is stripped, not rejected.
+        ["acme.com/", "acme.com"],
+        ["acme.com//", "acme.com"],
+        ["acme.com\\", "acme.com"],
+        [" acme.com", "acme.com"],
+        ["acme.com\n", "acme.com"],
+        ["acme.com\t", "acme.com"],
+        ["  acme.com/  ", "acme.com"],
+      ])("normalizes %j to %j", async (domain, expectedHost) => {
+        mockHttpClient.mockResolvedValue({
+          data: 'FEDERATION_SERVER="https://api.stellar.org/federation"',
+        });
+
+        await Resolver.resolve(domain);
+
+        expect(mockHttpClient).toHaveBeenCalledWith(
+          `https://${expectedHost}/.well-known/stellar.toml`,
+          expect.anything(),
+        );
+      });
+    });
   });
 });
