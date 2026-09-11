@@ -4,6 +4,9 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Changed
+* `HorizonApi.Predicate` gains the `unconditional` and `abs_before_epoch` fields it previously omitted, so the type now describes every predicate Horizon serves ([#1701](https://github.com/stellar/js-stellar-sdk/pull/1701)). It stays an `interface`, so declaration merging still works. One case does break at compile time: a consumer who already augmented the namespace to declare `unconditional` or `abs_before_epoch` with a different type than the SDK now uses gets `TS2717` and must drop that part of their augmentation.
+
 ### Added
 - `getClaimableBalanceIdFromResult(result, opIndex)`: reads the claimable balance ID created by a `CreateClaimableBalance` operation out of a submitted transaction's `xdr.TransactionResult`, unwrapping a fee bump when there is one. It returns the same 72-character hex form as `Transaction.getClaimableBalanceId(opIndex)`, which derives the ID before submission; use this one when you only have the result. Horizon's `result_xdr` is base64, so decode it first with `xdr.TransactionResult.fromXdr(result_xdr, "base64")`, while `rpc.Server.getTransaction` already returns a parsed `resultXdr`. It throws a `RangeError` for an out-of-range `opIndex`, and a `TypeError` when `result` is not a transaction result, when the transaction failed, or when the operation at `opIndex` is not a successful `CreateClaimableBalance` ([#1719](https://github.com/stellar/js-stellar-sdk/pull/1719)).
 

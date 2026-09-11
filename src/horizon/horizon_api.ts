@@ -437,11 +437,21 @@ export namespace HorizonApi {
   > {
     bump_to: string;
   }
+  /**
+   * A claim predicate as Horizon serves it.
+   *
+   * Horizon's dialect, not SEP-0051's: `abs_before` is an ISO-8601 timestamp,
+   * where SEP-0051's `before_absolute_time` is epoch seconds. RPC serves
+   * SEP-0051; build a predicate from that dialect with
+   * `xdr.ClaimPredicate.fromJson()`.
+   */
   export interface Predicate {
     and?: Predicate[];
     or?: Predicate[];
     not?: Predicate;
+    unconditional?: boolean;
     abs_before?: string;
+    abs_before_epoch?: string;
     rel_before?: string;
   }
 
