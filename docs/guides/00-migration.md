@@ -42,8 +42,11 @@ at all**:
 - `Buffer` methods on a `Uint8Array` fail silently. `.toString("hex")` returns
   comma-joined decimals (`"185,77,39,…"`), and `.toString("utf8")` returns
   `"104,105"`. Nothing throws, so the wrong string is used downstream.
-- Absent optional XDR fields decode to `null` instead of `undefined`, so
-  `=== undefined` checks stop matching. Prefer `== null`.
+- Absent optional fields on raw `xdr.*` values decode to `null` instead of
+  `undefined`, so `=== undefined` checks stop matching there. Prefer `== null`
+  on the raw XDR layer. Parsed operation records from
+  `Operation.fromXdrObject` still normalize absent optionals to `undefined` —
+  do not rewrite those call sites.
 - `scValToNative` can now return a `Uint8Array` for a `scvString` or `scvSymbol`
   whose contents aren't valid UTF-8, where it always returned a string before.
 
@@ -59,6 +62,37 @@ from 22.12.0 — on 22.0–22.11 `require("@stellar/stellar-sdk")` fails with
 warning instead of a package that cannot be required
 ([#1664](https://github.com/stellar/js-stellar-sdk/issues/1664)). ESM consumers
 were never affected. Upgrade Node, or use the ESM entry point.
+
+### Test runners and bundlers: Jest cannot load the CJS build as-is
+
+Node 22.12+ can `require()` the ESM-only dependencies that the CJS build pulls
+in. **Jest's CJS module registry cannot.** It hands those files to babel, which
+sees a bare `import` and fails. In a 17.0.0 install the ESM-only packages that
+commonly trip this are `@exodus/bytes`, `smol-toml`, `uint8array-extras`, and
+`eventsource`.
+
+Tell Jest to transform them (and the SDK itself if you resolve through
+`node_modules`) via `transformIgnorePatterns`. Freighter's fix was two entries
+in `jest.config.js`:
+
+```js
+const esModules = [
+  "@stellar/stellar-sdk",
+  "@exodus/bytes",
+  "smol-toml",
+  "uint8array-extras",
+  "eventsource",
+  // plus any other ESM-only deps your suite already transforms
+];
+
+module.exports = {
+  transformIgnorePatterns: [`/node_modules/(?!${esModules.join("|")})`],
+};
+```
+
+If you already maintain an allowlist like this for `@noble/*` / `js-xdr`, add the
+four packages above. Bundlers that already handle ESM in `node_modules` do not
+need this change; the gap is specific to Jest's default CJS transform skip list.
 
 ### Auth: CAP-71 v2 address credentials are now the default
 
