@@ -20,7 +20,7 @@ The SDK follows [Semantic Versioning](https://semver.org/) (`MAJOR.MINOR.PATCH`)
 
 ### Protocol changes are decoupled from major versions
 
-SDK releases are independent of Stellar protocol releases. Support for a new protocol version ships in a **minor** release of every supported line, provided the change is non-breaking at the SDK API layer. A protocol upgrade never, on its own, requires a major SDK release.
+SDK releases are independent of Stellar protocol releases. Support for a new protocol version ships in a **minor** release of every supported line, provided the change is non-breaking at the SDK API layer. A protocol upgrade requires a major SDK release only when it introduces breaking changes to the XDR definitions.
 
 If a protocol change *cannot* be supported without breaking the SDK API, support for that protocol lands in the next major version only. This will be announced ahead of the protocol's mainnet activation so affected users can plan an upgrade.
 
