@@ -4,6 +4,7 @@ import {
   generateTypeImports,
   sanitizeIdentifier,
   escapeStringLiteral,
+  propertyKey,
   formatJSDocComment,
   formatImports,
   isTupleStruct,
@@ -165,7 +166,9 @@ export class TypeGenerator {
 
     const fields = struct.fields
       .map((field) => {
-        const fieldName = sanitizeIdentifier(field.name.toString());
+        // nativeToScVal and scValToNative key struct fields by their raw spec
+        // names, so the interface must use them too.
+        const fieldName = propertyKey(field.name.toString());
         const fieldType = parseTypeFromTypeDef(field.type);
         const fieldDoc = formatJSDocComment(field.doc.toString(), 2);
 
@@ -402,13 +405,6 @@ ${members}
       0,
     );
 
-    // parseEvent keys its output by the raw param names, so the interface
-    // must use them too — quoted when they aren't valid identifiers.
-    const fieldKey = (rawParamName: string): string =>
-      /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(rawParamName)
-        ? rawParamName
-        : `"${escapeStringLiteral(rawParamName)}"`;
-
     // Map-format data entries may be absent from an emitted event's map, in
     // which case parseEvent omits the key — so those fields are optional.
     const dataIsMapFormat =
@@ -419,7 +415,9 @@ ${members}
     // flat `data` record; generate one field per param in declaration order.
     const dataFields = event.params
       .map((param) => {
-        const fieldName = fieldKey(param.name.toString());
+        // parseEvent keys its output by the raw param names, so the
+        // interface must use them too.
+        const fieldName = propertyKey(param.name.toString());
         const fieldType = parseTypeFromTypeDef(param.type);
         const fieldDoc = formatJSDocComment(param.doc.toString(), 4);
         const optional =

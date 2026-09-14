@@ -4,6 +4,7 @@ import {
   generateTypeImports,
   sanitizeIdentifier,
   escapeStringLiteral,
+  propertyKey,
   formatJSDocComment,
   formatImports,
   toCamelCase,
@@ -11,8 +12,15 @@ import {
 import {
   ScSpecEventParamLocationV0,
   ScSpecEventV0,
+  ScSpecFunctionInputV0,
   ScSpecFunctionV0,
 } from "../xdr/index.js";
+
+interface MethodInput {
+  /** Property key in the args object type: the raw spec name, quoted if needed. */
+  key: string;
+  type: string;
+}
 
 /**
  * Generates TypeScript client class for contract methods
@@ -285,14 +293,10 @@ ${eventMethods}
     );
 
     // eventTopicFilter looks values up by the raw param names, so the
-    // parameter type must use them too — quoted when they aren't valid
-    // identifiers.
+    // parameter type must use them too.
     const fields = topicParams
       .map((param) => {
-        const rawParamName = param.name.toString();
-        const fieldName = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(rawParamName)
-          ? rawParamName
-          : `"${escapeStringLiteral(rawParamName)}"`;
+        const fieldName = propertyKey(param.name.toString());
         const fieldType = parseTypeFromTypeDef(param.type, true);
         return `${fieldName}?: ${fieldType}`;
       })
@@ -324,14 +328,11 @@ ${eventMethods}
    */
   private generateInterfaceMethod(func: ScSpecFunctionV0): string {
     const name = sanitizeIdentifier(func.name.toString());
-    const inputs = func.inputs.map((input: any) => ({
-      name: sanitizeIdentifier(input.name.toString()),
-      type: parseTypeFromTypeDef(input.type, true),
-    }));
+    const inputs = func.inputs.map(ClientGenerator.methodInput);
     const outputType =
       func.outputs.length > 0 ? parseTypeFromTypeDef(func.outputs[0]) : "void";
     const docs = formatJSDocComment(func.doc.toString(), 2);
-    const params = this.formatMethodParameters(inputs);
+    const params = ClientGenerator.formatParameters(inputs);
 
     return `${docs}  ${name}(${params}): Promise<AssembledTransaction<${outputType}>>;`;
   }
@@ -349,66 +350,53 @@ ${eventMethods}
   private generateDeployMethod(
     constructorFunc: ScSpecFunctionV0 | undefined,
   ): string {
-    // If no constructor, generate deploy with no params
-    if (!constructorFunc) {
-      const params = this.formatConstructorParameters([]);
-      return `  static deploy<T = Client>(${params}): Promise<AssembledTransaction<T>> {
-    return ContractClient.deploy(null, options);
-  }`;
-    }
-    const inputs = constructorFunc.inputs.map((input) => ({
-      name: sanitizeIdentifier(input.name.toString()),
-      type: parseTypeFromTypeDef(input.type, true),
-    }));
-
-    const params = this.formatConstructorParameters(inputs);
-    const inputsDestructure =
-      inputs.length > 0 ? `{ ${inputs.map((i) => i.name).join(", ")} }, ` : "";
+    const inputs =
+      constructorFunc?.inputs.map(ClientGenerator.methodInput) ?? [];
+    const params = ClientGenerator.formatParameters(
+      inputs,
+      ClientGenerator.DEPLOY_OPTIONS_PARAM,
+    );
+    const inputsArg = inputs.length > 0 ? "args" : "null";
 
     return `  static deploy<T = Client>(${params}): Promise<AssembledTransaction<T>> {
-    return ContractClient.deploy(${inputsDestructure}options);
+    return ContractClient.deploy(${inputsArg}, options);
   }`;
   }
 
   /**
-   * Format method parameters
+   * Describe one function input for the generated signature. `key` is the
+   * raw spec name as a property key, since the runtime reads arguments by
+   * that name.
    */
-  private formatMethodParameters(
-    inputs: Array<{ name: string; type: string }>,
-  ): string {
-    const params: string[] = [];
-
-    if (inputs.length > 0) {
-      const inputsParam = `{ ${inputs.map((i) => `${i.name}: ${i.type}`).join("; ")} }`;
-      params.push(
-        `{ ${inputs.map((i) => i.name).join(", ")} }: ${inputsParam}`,
-      );
-    }
-
-    params.push("options?: MethodOptions");
-
-    return params.join(", ");
+  private static methodInput(input: ScSpecFunctionInputV0): MethodInput {
+    return {
+      key: propertyKey(input.name.toString()),
+      type: parseTypeFromTypeDef(input.type, true),
+    };
   }
 
+  private static inputsType(inputs: MethodInput[]): string {
+    return `{ ${inputs.map((i) => `${i.key}: ${i.type}`).join("; ")} }`;
+  }
+
+  private static readonly DEPLOY_OPTIONS_PARAM = `options: MethodOptions & Omit<ContractClientOptions, 'contractId'> & { salt?: Uint8Array; address?: string; } & ({ wasmHash: Uint8Array | string; format?: "hex" | "base64"; externalRef?: never; } | { externalRef: ExternalExecutableRef; wasmHash?: never; format?: never; })`;
+
   /**
-   * Format constructor parameters
+   * Format the parameter list for a generated method or `deploy`. The inputs
+   * are always a single `args` object, never destructured: a reserved word,
+   * a strict-mode restricted name or a quoted key can't be a binding, and an
+   * alias in a bodiless interface method is an error (TS2842), so one shape
+   * for every method keeps the output uniform.
    */
-  private formatConstructorParameters(
-    inputs: Array<{ name: string; type: string }>,
+  private static formatParameters(
+    inputs: MethodInput[],
+    optionsParam = "options?: MethodOptions",
   ): string {
     const params: string[] = [];
-
     if (inputs.length > 0) {
-      const inputsParam = `{ ${inputs.map((i) => `${i.name}: ${i.type}`).join("; ")} }`;
-      params.push(
-        `{ ${inputs.map((i) => i.name).join(", ")} }: ${inputsParam}`,
-      );
+      params.push(`args: ${ClientGenerator.inputsType(inputs)}`);
     }
-
-    params.push(
-      `options: MethodOptions & Omit<ContractClientOptions, 'contractId'> & { salt?: Uint8Array; address?: string; } & ({ wasmHash: Uint8Array | string; format?: "hex" | "base64"; externalRef?: never; } | { externalRef: ExternalExecutableRef; wasmHash?: never; format?: never; })`,
-    );
-
+    params.push(optionsParam);
     return params.join(", ");
   }
 }
