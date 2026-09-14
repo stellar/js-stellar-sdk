@@ -7,50 +7,50 @@ import {xdr, Address} from '@stellar/stellar-sdk';
 
 export interface Client {
   inc(options?: MethodOptions): Promise<AssembledTransaction<number>>;
-  map({ map }: { map: Map<number, boolean> }, options?: MethodOptions): Promise<AssembledTransaction<Map<number, boolean>>>;
+  map(args: { map: Map<number, boolean> }, options?: MethodOptions): Promise<AssembledTransaction<Map<number, boolean>>>;
   /**
    * Negates a boolean value
    */
-  not({ boolean }: { boolean: boolean }, options?: MethodOptions): Promise<AssembledTransaction<boolean>>;
+  not(args: { boolean: boolean }, options?: MethodOptions): Promise<AssembledTransaction<boolean>>;
   val(options?: MethodOptions): Promise<AssembledTransaction<any>>;
-  vec({ vec }: { vec: Array<number> }, options?: MethodOptions): Promise<AssembledTransaction<Array<number>>>;
-  auth({ addr, world }: { addr: string | Address; world: string }, options?: MethodOptions): Promise<AssembledTransaction<string>>;
-  card({ card }: { card: RoyalCard }, options?: MethodOptions): Promise<AssembledTransaction<RoyalCard>>;
-  i128({ i128 }: { i128: bigint }, options?: MethodOptions): Promise<AssembledTransaction<bigint>>;
-  i256({ i256 }: { i256: bigint }, options?: MethodOptions): Promise<AssembledTransaction<bigint>>;
-  i32_({ i32_ }: { i32_: number }, options?: MethodOptions): Promise<AssembledTransaction<number>>;
-  i64_({ i64_ }: { i64_: bigint }, options?: MethodOptions): Promise<AssembledTransaction<bigint>>;
-  u128({ u128 }: { u128: bigint }, options?: MethodOptions): Promise<AssembledTransaction<bigint>>;
-  u256({ u256 }: { u256: bigint }, options?: MethodOptions): Promise<AssembledTransaction<bigint>>;
-  u32_({ u32_ }: { u32_: number }, options?: MethodOptions): Promise<AssembledTransaction<number>>;
+  vec(args: { vec: Array<number> }, options?: MethodOptions): Promise<AssembledTransaction<Array<number>>>;
+  auth(args: { addr: string | Address; world: string }, options?: MethodOptions): Promise<AssembledTransaction<string>>;
+  card(args: { card: RoyalCard }, options?: MethodOptions): Promise<AssembledTransaction<RoyalCard>>;
+  i128(args: { i128: bigint }, options?: MethodOptions): Promise<AssembledTransaction<bigint>>;
+  i256(args: { i256: bigint }, options?: MethodOptions): Promise<AssembledTransaction<bigint>>;
+  i32_(args: { i32_: number }, options?: MethodOptions): Promise<AssembledTransaction<number>>;
+  i64_(args: { i64_: bigint }, options?: MethodOptions): Promise<AssembledTransaction<bigint>>;
+  u128(args: { u128: bigint }, options?: MethodOptions): Promise<AssembledTransaction<bigint>>;
+  u256(args: { u256: bigint }, options?: MethodOptions): Promise<AssembledTransaction<bigint>>;
+  u32_(args: { u32_: number }, options?: MethodOptions): Promise<AssembledTransaction<number>>;
   woid(options?: MethodOptions): Promise<AssembledTransaction<void>>;
-  bytes({ bytes }: { bytes: Uint8Array }, options?: MethodOptions): Promise<AssembledTransaction<Uint8Array>>;
-  hello({ hello }: { hello: string }, options?: MethodOptions): Promise<AssembledTransaction<string>>;
-  tuple({ tuple }: { tuple: [string, number] }, options?: MethodOptions): Promise<AssembledTransaction<[string, number]>>;
+  bytes(args: { bytes: Uint8Array }, options?: MethodOptions): Promise<AssembledTransaction<Uint8Array>>;
+  hello(args: { hello: string }, options?: MethodOptions): Promise<AssembledTransaction<string>>;
+  tuple(args: { tuple: [string, number] }, options?: MethodOptions): Promise<AssembledTransaction<[string, number]>>;
   /**
    * Example of an optional argument
    */
-  option({ option }: { option: number | null }, options?: MethodOptions): Promise<AssembledTransaction<number | null>>;
-  simple({ simple }: { simple: SimpleEnum }, options?: MethodOptions): Promise<AssembledTransaction<SimpleEnum>>;
-  string({ string }: { string: string }, options?: MethodOptions): Promise<AssembledTransaction<string>>;
-  strukt({ strukt }: { strukt: Test }, options?: MethodOptions): Promise<AssembledTransaction<Test>>;
-  boolean({ boolean }: { boolean: boolean }, options?: MethodOptions): Promise<AssembledTransaction<boolean>>;
-  bytes_n({ bytes_n }: { bytes_n: Uint8Array }, options?: MethodOptions): Promise<AssembledTransaction<Uint8Array>>;
-  complex({ complex }: { complex: ComplexEnum }, options?: MethodOptions): Promise<AssembledTransaction<ComplexEnum>>;
-  addresse({ addresse }: { addresse: string | Address }, options?: MethodOptions): Promise<AssembledTransaction<string>>;
-  duration({ duration }: { duration: bigint }, options?: MethodOptions): Promise<AssembledTransaction<bigint>>;
-  emit_swap({ from, card, strukt, complex }: { from: string | Address; card: RoyalCard; strukt: Test; complex: ComplexEnum }, options?: MethodOptions): Promise<AssembledTransaction<void>>;
+  option(args: { option: number | null }, options?: MethodOptions): Promise<AssembledTransaction<number | null>>;
+  simple(args: { simple: SimpleEnum }, options?: MethodOptions): Promise<AssembledTransaction<SimpleEnum>>;
+  string(args: { string: string }, options?: MethodOptions): Promise<AssembledTransaction<string>>;
+  strukt(args: { strukt: Test }, options?: MethodOptions): Promise<AssembledTransaction<Test>>;
+  boolean(args: { boolean: boolean }, options?: MethodOptions): Promise<AssembledTransaction<boolean>>;
+  bytes_n(args: { bytes_n: Uint8Array }, options?: MethodOptions): Promise<AssembledTransaction<Uint8Array>>;
+  complex(args: { complex: ComplexEnum }, options?: MethodOptions): Promise<AssembledTransaction<ComplexEnum>>;
+  addresse(args: { addresse: string | Address }, options?: MethodOptions): Promise<AssembledTransaction<string>>;
+  duration(args: { duration: bigint }, options?: MethodOptions): Promise<AssembledTransaction<bigint>>;
+  emit_swap(args: { from: string | Address; card: RoyalCard; strukt: Test; complex: ComplexEnum }, options?: MethodOptions): Promise<AssembledTransaction<void>>;
   get_count(options?: MethodOptions): Promise<AssembledTransaction<number>>;
-  timepoint({ timepoint }: { timepoint: bigint }, options?: MethodOptions): Promise<AssembledTransaction<bigint>>;
-  multi_args({ a, b }: { a: number; b: boolean }, options?: MethodOptions): Promise<AssembledTransaction<number>>;
+  timepoint(args: { timepoint: bigint }, options?: MethodOptions): Promise<AssembledTransaction<bigint>>;
+  multi_args(args: { a: number; b: boolean }, options?: MethodOptions): Promise<AssembledTransaction<number>>;
   /**
    * Example contract method which takes a struct
    */
-  strukt_hel({ strukt }: { strukt: Test }, options?: MethodOptions): Promise<AssembledTransaction<Array<string>>>;
-  emit_nested({ simple, tuple_strukt }: { simple: SimpleEnum; tuple_strukt: TupleStruct }, options?: MethodOptions): Promise<AssembledTransaction<void>>;
-  tuple_strukt({ tuple_strukt }: { tuple_strukt: TupleStruct }, options?: MethodOptions): Promise<AssembledTransaction<TupleStruct>>;
-  recursive_enum({ recursive }: { recursive: RecursiveEnum }, options?: MethodOptions): Promise<AssembledTransaction<RecursiveEnum>>;
-  u32_fail_on_even({ u32_ }: { u32_: number }, options?: MethodOptions): Promise<AssembledTransaction<Result<number, Error>>>;
+  strukt_hel(args: { strukt: Test }, options?: MethodOptions): Promise<AssembledTransaction<Array<string>>>;
+  emit_nested(args: { simple: SimpleEnum; tuple_strukt: TupleStruct }, options?: MethodOptions): Promise<AssembledTransaction<void>>;
+  tuple_strukt(args: { tuple_strukt: TupleStruct }, options?: MethodOptions): Promise<AssembledTransaction<TupleStruct>>;
+  recursive_enum(args: { recursive: RecursiveEnum }, options?: MethodOptions): Promise<AssembledTransaction<RecursiveEnum>>;
+  u32_fail_on_even(args: { u32_: number }, options?: MethodOptions): Promise<AssembledTransaction<Result<number, Error>>>;
   get_object_vec_option(options?: MethodOptions): Promise<AssembledTransaction<Array<Test> | null>>;
 }
 
