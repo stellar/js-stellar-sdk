@@ -31,7 +31,8 @@
     "/bin"
   ],
   "bin": {
-    "stellar-js": "./bin/stellar-js"
+    "stellar-js": "./bin/stellar-js",
+    "stellar-contract-bindings-typescript": "./bin/stellar-contract-bindings-typescript"
   },
   "exports": {
     ".": {
