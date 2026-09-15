@@ -26,7 +26,7 @@ export interface ScSpecEventV0Wire {
  * {
  *     string doc<SC_SPEC_DOC_LIMIT>;
  *     string lib<80>;
- *     SCSymbol name;
+ *     string name<SC_SPEC_TYPE_NAME_LIMIT>;
  *     SCSymbol prefixTopics<2>;
  *     SCSpecEventParamV0 params<>;
  *     SCSpecEventDataFormat dataFormat;
@@ -44,7 +44,7 @@ export class ScSpecEventV0 extends XdrValue {
   static readonly schema: XdrType<ScSpecEventV0Wire> = struct("ScSpecEventV0", {
     doc: xdrString(1024),
     lib: xdrString(80),
-    name: xdrString(32),
+    name: xdrString(1024),
     prefixTopics: array(xdrString(32), 2),
     params: array(ScSpecEventParamV0.schema, UNBOUNDED_MAX_LENGTH),
     dataFormat: ScSpecEventDataFormat.schema,

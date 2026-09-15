@@ -93,7 +93,16 @@ export type ContractCostTypeName =
   | "bn254FrMul"
   | "bn254FrPow"
   | "bn254FrInv"
-  | "bn254G1Msm";
+  | "bn254G1Msm"
+  | "mlDsa44DecodeVerifyingKey"
+  | "mlDsa65DecodeVerifyingKey"
+  | "mlDsa87DecodeVerifyingKey"
+  | "mlDsa44DecodeSignature"
+  | "mlDsa65DecodeSignature"
+  | "mlDsa87DecodeSignature"
+  | "verifyMlDsa44Sig"
+  | "verifyMlDsa65Sig"
+  | "verifyMlDsa87Sig";
 
 /**
  * ```xdr
@@ -281,6 +290,27 @@ export type ContractCostTypeName =
  *     Bn254FrInv = 84,
  *     // Cost of performing BN254 G1 multi-scalar multiplication (MSM)
  *     Bn254G1Msm = 85
+ * #ifdef CAP_0087_ML_DSA
+ *     ,
+ *     // Cost of decoding and expanding an ML-DSA-44 verifying key
+ *     MlDsa44DecodeVerifyingKey = 86,
+ *     // Cost of decoding and expanding an ML-DSA-65 verifying key
+ *     MlDsa65DecodeVerifyingKey = 87,
+ *     // Cost of decoding and expanding an ML-DSA-87 verifying key
+ *     MlDsa87DecodeVerifyingKey = 88,
+ *     // Cost of decoding an ML-DSA-44 signature
+ *     MlDsa44DecodeSignature = 89,
+ *     // Cost of decoding an ML-DSA-65 signature
+ *     MlDsa65DecodeSignature = 90,
+ *     // Cost of decoding an ML-DSA-87 signature
+ *     MlDsa87DecodeSignature = 91,
+ *     // Cost of verifying an ML-DSA-44 signature, linear in message + context length
+ *     VerifyMlDsa44Sig = 92,
+ *     // Cost of verifying an ML-DSA-65 signature, linear in message + context length
+ *     VerifyMlDsa65Sig = 93,
+ *     // Cost of verifying an ML-DSA-87 signature, linear in message + context length
+ *     VerifyMlDsa87Sig = 94
+ * #endif
  * };
  * ```
  */
@@ -521,6 +551,42 @@ export class ContractCostType extends EnumValue<ContractCostTypeName> {
   static readonly bn254FrPow = new ContractCostType("bn254FrPow", 83);
   static readonly bn254FrInv = new ContractCostType("bn254FrInv", 84);
   static readonly bn254G1Msm = new ContractCostType("bn254G1Msm", 85);
+  static readonly mlDsa44DecodeVerifyingKey = new ContractCostType(
+    "mlDsa44DecodeVerifyingKey",
+    86,
+  );
+  static readonly mlDsa65DecodeVerifyingKey = new ContractCostType(
+    "mlDsa65DecodeVerifyingKey",
+    87,
+  );
+  static readonly mlDsa87DecodeVerifyingKey = new ContractCostType(
+    "mlDsa87DecodeVerifyingKey",
+    88,
+  );
+  static readonly mlDsa44DecodeSignature = new ContractCostType(
+    "mlDsa44DecodeSignature",
+    89,
+  );
+  static readonly mlDsa65DecodeSignature = new ContractCostType(
+    "mlDsa65DecodeSignature",
+    90,
+  );
+  static readonly mlDsa87DecodeSignature = new ContractCostType(
+    "mlDsa87DecodeSignature",
+    91,
+  );
+  static readonly verifyMlDsa44Sig = new ContractCostType(
+    "verifyMlDsa44Sig",
+    92,
+  );
+  static readonly verifyMlDsa65Sig = new ContractCostType(
+    "verifyMlDsa65Sig",
+    93,
+  );
+  static readonly verifyMlDsa87Sig = new ContractCostType(
+    "verifyMlDsa87Sig",
+    94,
+  );
 
   static readonly schema = enumType("ContractCostType", {
     wasmInsnExec: 0,
@@ -609,6 +675,15 @@ export class ContractCostType extends EnumValue<ContractCostTypeName> {
     bn254FrPow: 83,
     bn254FrInv: 84,
     bn254G1Msm: 85,
+    mlDsa44DecodeVerifyingKey: 86,
+    mlDsa65DecodeVerifyingKey: 87,
+    mlDsa87DecodeVerifyingKey: 88,
+    mlDsa44DecodeSignature: 89,
+    mlDsa65DecodeSignature: 90,
+    mlDsa87DecodeSignature: 91,
+    verifyMlDsa44Sig: 92,
+    verifyMlDsa65Sig: 93,
+    verifyMlDsa87Sig: 94,
   });
 
   static fromValue(value: number): ContractCostType {
