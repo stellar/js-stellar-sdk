@@ -307,6 +307,21 @@ npx @stellar/stellar-sdk generate [options]
 stellar-js generate [options]
 ```
 
+### Stellar CLI plugin
+
+When the SDK is installed globally it also registers a
+`stellar-contract-bindings-typescript` binary. This follows the
+[Stellar CLI plugin convention](https://developers.stellar.org/docs/tools/cli/plugins):
+the CLI discovers any executable on your `PATH` named `stellar-*` and exposes it
+as a subcommand. The binary maps directly onto `stellar-js generate`, forwarding
+every option unchanged, so the flags documented below apply identically.
+
+Note that the Stellar CLI currently ships its own native
+`stellar contract bindings typescript` command (now deprecated). While that
+built-in command exists it takes precedence over the plugin. Once the CLI drops
+its native implementation, `stellar contract bindings typescript` (and the
+dashed `stellar contract-bindings-typescript`) will resolve to this plugin.
+
 ### Generating Bindings
 
 You can generate bindings from three different sources:
