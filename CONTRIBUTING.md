@@ -219,8 +219,9 @@ Don't add new TSDoc tags to influence frontmatter — the generator handles it.
 ### `llms.txt` and `llms-full.txt`
 
 - `llms.txt` is the LLM sitemap: project H1, blockquote tagline, version
-  metadata, and per-area `## Guides` / `## Reference` / `## Other` sections with
-  link lists to every published doc page.
+  metadata, and per-area `## Guides` / `## Migration` / `## Reference` /
+  `## Other` sections with link lists to every published doc page. The sections
+  mirror the top-level folders under `docs/` that the pipeline picks up.
 - `llms-full.txt` concatenates the full content of every doc page into one
   bundle for AI-agent ingestion.
 
