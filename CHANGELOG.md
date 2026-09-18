@@ -4,9 +4,6 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
-### Added
-- The migration guides under `docs/migration/` now appear in the docs site sidebar and in the `llms.txt` / `llms-full.txt` bundles, and their internal links are link-checked like the guides' ([#1725](https://github.com/stellar/js-stellar-sdk/pull/1725)).
-
 ## [v17.1.0](https://github.com/stellar/js-stellar-sdk/compare/v17.0.1...v17.1.0)
 
 ### Changed
