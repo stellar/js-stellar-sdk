@@ -179,7 +179,7 @@
     "globals": "^17.5.0",
     "husky": "^9.1.7",
     "js-xdr-v4": "npm:@stellar/js-xdr@4.0.0",
-    "jsdom": "^29.1.1",
+    "jsdom": "^30.0.1",
     "lint-staged": "^17.0.8",
     "msw": "^2.14.6",
     "playwright": "^1.61.0",
