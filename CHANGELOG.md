@@ -4,6 +4,9 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Added
+- CAP-0087 (Protocol 30): host functions for ML-DSA signature verification. `xdr.ContractCostType` gains nine new cost types (`MlDsa{44,65,87}DecodeVerifyingKey`, `MlDsa{44,65,87}DecodeSignature`, `VerifyMlDsa{44,65,87}Sig`, values 86–94).
+
 ## [v17.1.0](https://github.com/stellar/js-stellar-sdk/compare/v17.0.1...v17.1.0)
 
 ### Changed

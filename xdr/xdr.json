@@ -19,7 +19,7 @@
     },
     {
       "name": "xdr/Stellar-contract-spec.x",
-      "sha256": "f0655f82e0a28a79e067c02f427cc709db1e4323a50c9b85f730f812b9612dbd"
+      "sha256": "38910bfa0f616916659db405c37e8c63ac7e0b46ce1bf10bd53b5fafc4f599fe"
     },
     {
       "name": "xdr/Stellar-contract.x",
@@ -54,7 +54,9 @@
       "sha256": "1bf41da09307489c04c454d9081a3ddcd52d04ed9af173abeb308fe4907dc590"
     }
   ],
-  "resolved_features": [],
+  "resolved_features": [
+    "cap_0087_ml_dsa"
+  ],
   "definitions": [
     {
       "kind": "typedef",
@@ -724,7 +726,7 @@
     {
       "kind": "enum",
       "name": "ContractCostType",
-      "source": "enum ContractCostType {\n    // Cost of running 1 wasm instruction\n    WasmInsnExec = 0,\n    // Cost of allocating a slice of memory (in bytes)\n    MemAlloc = 1,\n    // Cost of copying a slice of bytes into a pre-allocated memory\n    MemCpy = 2,\n    // Cost of comparing two slices of memory\n    MemCmp = 3,\n    // Cost of a host function dispatch, not including the actual work done by\n    // the function nor the cost of VM invocation machinary\n    DispatchHostFunction = 4,\n    // Cost of visiting a host object from the host object storage. Exists to \n    // make sure some baseline cost coverage, i.e. repeatly visiting objects\n    // by the guest will always incur some charges.\n    VisitObject = 5,\n    // Cost of serializing an xdr object to bytes\n    ValSer = 6,\n    // Cost of deserializing an xdr object from bytes\n    ValDeser = 7,\n    // Cost of computing the sha256 hash from bytes\n    ComputeSha256Hash = 8,\n    // Cost of computing the ed25519 pubkey from bytes\n    ComputeEd25519PubKey = 9,\n    // Cost of verifying ed25519 signature of a payload.\n    VerifyEd25519Sig = 10,\n    // Cost of instantiation a VM from wasm bytes code.\n    VmInstantiation = 11,\n    // Cost of instantiation a VM from a cached state.\n    VmCachedInstantiation = 12,\n    // Cost of invoking a function on the VM. If the function is a host function,\n    // additional cost will be covered by `DispatchHostFunction`.\n    InvokeVmFunction = 13,\n    // Cost of computing a keccak256 hash from bytes.\n    ComputeKeccak256Hash = 14,\n    // Cost of decoding an ECDSA signature computed from a 256-bit prime modulus\n    // curve (e.g. secp256k1 and secp256r1)\n    DecodeEcdsaCurve256Sig = 15,\n    // Cost of recovering an ECDSA secp256k1 key from a signature.\n    RecoverEcdsaSecp256k1Key = 16,\n    // Cost of int256 addition (`+`) and subtraction (`-`) operations\n    Int256AddSub = 17,\n    // Cost of int256 multiplication (`*`) operation\n    Int256Mul = 18,\n    // Cost of int256 division (`/`) operation\n    Int256Div = 19,\n    // Cost of int256 power (`exp`) operation\n    Int256Pow = 20,\n    // Cost of int256 shift (`shl`, `shr`) operation\n    Int256Shift = 21,\n    // Cost of drawing random bytes using a ChaCha20 PRNG\n    ChaCha20DrawBytes = 22,\n\n    // Cost of parsing wasm bytes that only encode instructions.\n    ParseWasmInstructions = 23,\n    // Cost of parsing a known number of wasm functions.\n    ParseWasmFunctions = 24,\n    // Cost of parsing a known number of wasm globals.\n    ParseWasmGlobals = 25,\n    // Cost of parsing a known number of wasm table entries.\n    ParseWasmTableEntries = 26,\n    // Cost of parsing a known number of wasm types.\n    ParseWasmTypes = 27,\n    // Cost of parsing a known number of wasm data segments.\n    ParseWasmDataSegments = 28,\n    // Cost of parsing a known number of wasm element segments.\n    ParseWasmElemSegments = 29,\n    // Cost of parsing a known number of wasm imports.\n    ParseWasmImports = 30,\n    // Cost of parsing a known number of wasm exports.\n    ParseWasmExports = 31,\n    // Cost of parsing a known number of data segment bytes.\n    ParseWasmDataSegmentBytes = 32,\n\n    // Cost of instantiating wasm bytes that only encode instructions.\n    InstantiateWasmInstructions = 33,\n    // Cost of instantiating a known number of wasm functions.\n    InstantiateWasmFunctions = 34,\n    // Cost of instantiating a known number of wasm globals.\n    InstantiateWasmGlobals = 35,\n    // Cost of instantiating a known number of wasm table entries.\n    InstantiateWasmTableEntries = 36,\n    // Cost of instantiating a known number of wasm types.\n    InstantiateWasmTypes = 37,\n    // Cost of instantiating a known number of wasm data segments.\n    InstantiateWasmDataSegments = 38,\n    // Cost of instantiating a known number of wasm element segments.\n    InstantiateWasmElemSegments = 39,\n    // Cost of instantiating a known number of wasm imports.\n    InstantiateWasmImports = 40,\n    // Cost of instantiating a known number of wasm exports.\n    InstantiateWasmExports = 41,\n    // Cost of instantiating a known number of data segment bytes.\n    InstantiateWasmDataSegmentBytes = 42,\n\n    // Cost of decoding a bytes array representing an uncompressed SEC-1 encoded\n    // point on a 256-bit elliptic curve\n    Sec1DecodePointUncompressed = 43,\n    // Cost of verifying an ECDSA Secp256r1 signature\n    VerifyEcdsaSecp256r1Sig = 44,\n\n    // Cost of encoding a BLS12-381 Fp (base field element)\n    Bls12381EncodeFp = 45,\n    // Cost of decoding a BLS12-381 Fp (base field element)\n    Bls12381DecodeFp = 46,\n    // Cost of checking a G1 point lies on the curve\n    Bls12381G1CheckPointOnCurve = 47,\n    // Cost of checking a G1 point belongs to the correct subgroup\n    Bls12381G1CheckPointInSubgroup = 48,\n    // Cost of checking a G2 point lies on the curve\n    Bls12381G2CheckPointOnCurve = 49,\n    // Cost of checking a G2 point belongs to the correct subgroup\n    Bls12381G2CheckPointInSubgroup = 50,\n    // Cost of converting a BLS12-381 G1 point from projective to affine coordinates\n    Bls12381G1ProjectiveToAffine = 51,\n    // Cost of converting a BLS12-381 G2 point from projective to affine coordinates\n    Bls12381G2ProjectiveToAffine = 52,\n    // Cost of performing BLS12-381 G1 point addition\n    Bls12381G1Add = 53,\n    // Cost of performing BLS12-381 G1 scalar multiplication\n    Bls12381G1Mul = 54,\n    // Cost of performing BLS12-381 G1 multi-scalar multiplication (MSM)\n    Bls12381G1Msm = 55,\n    // Cost of mapping a BLS12-381 Fp field element to a G1 point\n    Bls12381MapFpToG1 = 56,\n    // Cost of hashing to a BLS12-381 G1 point\n    Bls12381HashToG1 = 57,\n    // Cost of performing BLS12-381 G2 point addition\n    Bls12381G2Add = 58,\n    // Cost of performing BLS12-381 G2 scalar multiplication\n    Bls12381G2Mul = 59,\n    // Cost of performing BLS12-381 G2 multi-scalar multiplication (MSM)\n    Bls12381G2Msm = 60,\n    // Cost of mapping a BLS12-381 Fp2 field element to a G2 point\n    Bls12381MapFp2ToG2 = 61,\n    // Cost of hashing to a BLS12-381 G2 point\n    Bls12381HashToG2 = 62,\n    // Cost of performing BLS12-381 pairing operation\n    Bls12381Pairing = 63,\n    // Cost of converting a BLS12-381 scalar element from U256\n    Bls12381FrFromU256 = 64,\n    // Cost of converting a BLS12-381 scalar element to U256\n    Bls12381FrToU256 = 65,\n    // Cost of performing BLS12-381 scalar element addition/subtraction\n    Bls12381FrAddSub = 66,\n    // Cost of performing BLS12-381 scalar element multiplication\n    Bls12381FrMul = 67,\n    // Cost of performing BLS12-381 scalar element exponentiation\n    Bls12381FrPow = 68,\n    // Cost of performing BLS12-381 scalar element inversion\n    Bls12381FrInv = 69,\n\n    // Cost of encoding a BN254 Fp (base field element)\n    Bn254EncodeFp = 70,\n    // Cost of decoding a BN254 Fp (base field element)\n    Bn254DecodeFp = 71,\n    // Cost of checking a G1 point lies on the curve\n    Bn254G1CheckPointOnCurve = 72,\n    // Cost of checking a G2 point lies on the curve\n    Bn254G2CheckPointOnCurve = 73,\n    // Cost of checking a G2 point belongs to the correct subgroup\n    Bn254G2CheckPointInSubgroup = 74,\n    // Cost of converting a BN254 G1 point from projective to affine coordinates\n    Bn254G1ProjectiveToAffine = 75,\n    // Cost of performing BN254 G1 point addition\n    Bn254G1Add = 76,\n    // Cost of performing BN254 G1 scalar multiplication\n    Bn254G1Mul = 77,\n    // Cost of performing BN254 pairing operation\n    Bn254Pairing = 78,\n    // Cost of converting a BN254 scalar element from U256\n    Bn254FrFromU256 = 79,\n    // Cost of converting a BN254 scalar element to U256\n    Bn254FrToU256 = 80,\n    // // Cost of performing BN254 scalar element addition/subtraction\n    Bn254FrAddSub = 81,\n    // Cost of performing BN254 scalar element multiplication\n    Bn254FrMul = 82,\n    // Cost of performing BN254 scalar element exponentiation\n    Bn254FrPow = 83,\n     // Cost of performing BN254 scalar element inversion\n    Bn254FrInv = 84,\n    // Cost of performing BN254 G1 multi-scalar multiplication (MSM)\n    Bn254G1Msm = 85\n};",
+      "source": "enum ContractCostType {\n    // Cost of running 1 wasm instruction\n    WasmInsnExec = 0,\n    // Cost of allocating a slice of memory (in bytes)\n    MemAlloc = 1,\n    // Cost of copying a slice of bytes into a pre-allocated memory\n    MemCpy = 2,\n    // Cost of comparing two slices of memory\n    MemCmp = 3,\n    // Cost of a host function dispatch, not including the actual work done by\n    // the function nor the cost of VM invocation machinary\n    DispatchHostFunction = 4,\n    // Cost of visiting a host object from the host object storage. Exists to \n    // make sure some baseline cost coverage, i.e. repeatly visiting objects\n    // by the guest will always incur some charges.\n    VisitObject = 5,\n    // Cost of serializing an xdr object to bytes\n    ValSer = 6,\n    // Cost of deserializing an xdr object from bytes\n    ValDeser = 7,\n    // Cost of computing the sha256 hash from bytes\n    ComputeSha256Hash = 8,\n    // Cost of computing the ed25519 pubkey from bytes\n    ComputeEd25519PubKey = 9,\n    // Cost of verifying ed25519 signature of a payload.\n    VerifyEd25519Sig = 10,\n    // Cost of instantiation a VM from wasm bytes code.\n    VmInstantiation = 11,\n    // Cost of instantiation a VM from a cached state.\n    VmCachedInstantiation = 12,\n    // Cost of invoking a function on the VM. If the function is a host function,\n    // additional cost will be covered by `DispatchHostFunction`.\n    InvokeVmFunction = 13,\n    // Cost of computing a keccak256 hash from bytes.\n    ComputeKeccak256Hash = 14,\n    // Cost of decoding an ECDSA signature computed from a 256-bit prime modulus\n    // curve (e.g. secp256k1 and secp256r1)\n    DecodeEcdsaCurve256Sig = 15,\n    // Cost of recovering an ECDSA secp256k1 key from a signature.\n    RecoverEcdsaSecp256k1Key = 16,\n    // Cost of int256 addition (`+`) and subtraction (`-`) operations\n    Int256AddSub = 17,\n    // Cost of int256 multiplication (`*`) operation\n    Int256Mul = 18,\n    // Cost of int256 division (`/`) operation\n    Int256Div = 19,\n    // Cost of int256 power (`exp`) operation\n    Int256Pow = 20,\n    // Cost of int256 shift (`shl`, `shr`) operation\n    Int256Shift = 21,\n    // Cost of drawing random bytes using a ChaCha20 PRNG\n    ChaCha20DrawBytes = 22,\n\n    // Cost of parsing wasm bytes that only encode instructions.\n    ParseWasmInstructions = 23,\n    // Cost of parsing a known number of wasm functions.\n    ParseWasmFunctions = 24,\n    // Cost of parsing a known number of wasm globals.\n    ParseWasmGlobals = 25,\n    // Cost of parsing a known number of wasm table entries.\n    ParseWasmTableEntries = 26,\n    // Cost of parsing a known number of wasm types.\n    ParseWasmTypes = 27,\n    // Cost of parsing a known number of wasm data segments.\n    ParseWasmDataSegments = 28,\n    // Cost of parsing a known number of wasm element segments.\n    ParseWasmElemSegments = 29,\n    // Cost of parsing a known number of wasm imports.\n    ParseWasmImports = 30,\n    // Cost of parsing a known number of wasm exports.\n    ParseWasmExports = 31,\n    // Cost of parsing a known number of data segment bytes.\n    ParseWasmDataSegmentBytes = 32,\n\n    // Cost of instantiating wasm bytes that only encode instructions.\n    InstantiateWasmInstructions = 33,\n    // Cost of instantiating a known number of wasm functions.\n    InstantiateWasmFunctions = 34,\n    // Cost of instantiating a known number of wasm globals.\n    InstantiateWasmGlobals = 35,\n    // Cost of instantiating a known number of wasm table entries.\n    InstantiateWasmTableEntries = 36,\n    // Cost of instantiating a known number of wasm types.\n    InstantiateWasmTypes = 37,\n    // Cost of instantiating a known number of wasm data segments.\n    InstantiateWasmDataSegments = 38,\n    // Cost of instantiating a known number of wasm element segments.\n    InstantiateWasmElemSegments = 39,\n    // Cost of instantiating a known number of wasm imports.\n    InstantiateWasmImports = 40,\n    // Cost of instantiating a known number of wasm exports.\n    InstantiateWasmExports = 41,\n    // Cost of instantiating a known number of data segment bytes.\n    InstantiateWasmDataSegmentBytes = 42,\n\n    // Cost of decoding a bytes array representing an uncompressed SEC-1 encoded\n    // point on a 256-bit elliptic curve\n    Sec1DecodePointUncompressed = 43,\n    // Cost of verifying an ECDSA Secp256r1 signature\n    VerifyEcdsaSecp256r1Sig = 44,\n\n    // Cost of encoding a BLS12-381 Fp (base field element)\n    Bls12381EncodeFp = 45,\n    // Cost of decoding a BLS12-381 Fp (base field element)\n    Bls12381DecodeFp = 46,\n    // Cost of checking a G1 point lies on the curve\n    Bls12381G1CheckPointOnCurve = 47,\n    // Cost of checking a G1 point belongs to the correct subgroup\n    Bls12381G1CheckPointInSubgroup = 48,\n    // Cost of checking a G2 point lies on the curve\n    Bls12381G2CheckPointOnCurve = 49,\n    // Cost of checking a G2 point belongs to the correct subgroup\n    Bls12381G2CheckPointInSubgroup = 50,\n    // Cost of converting a BLS12-381 G1 point from projective to affine coordinates\n    Bls12381G1ProjectiveToAffine = 51,\n    // Cost of converting a BLS12-381 G2 point from projective to affine coordinates\n    Bls12381G2ProjectiveToAffine = 52,\n    // Cost of performing BLS12-381 G1 point addition\n    Bls12381G1Add = 53,\n    // Cost of performing BLS12-381 G1 scalar multiplication\n    Bls12381G1Mul = 54,\n    // Cost of performing BLS12-381 G1 multi-scalar multiplication (MSM)\n    Bls12381G1Msm = 55,\n    // Cost of mapping a BLS12-381 Fp field element to a G1 point\n    Bls12381MapFpToG1 = 56,\n    // Cost of hashing to a BLS12-381 G1 point\n    Bls12381HashToG1 = 57,\n    // Cost of performing BLS12-381 G2 point addition\n    Bls12381G2Add = 58,\n    // Cost of performing BLS12-381 G2 scalar multiplication\n    Bls12381G2Mul = 59,\n    // Cost of performing BLS12-381 G2 multi-scalar multiplication (MSM)\n    Bls12381G2Msm = 60,\n    // Cost of mapping a BLS12-381 Fp2 field element to a G2 point\n    Bls12381MapFp2ToG2 = 61,\n    // Cost of hashing to a BLS12-381 G2 point\n    Bls12381HashToG2 = 62,\n    // Cost of performing BLS12-381 pairing operation\n    Bls12381Pairing = 63,\n    // Cost of converting a BLS12-381 scalar element from U256\n    Bls12381FrFromU256 = 64,\n    // Cost of converting a BLS12-381 scalar element to U256\n    Bls12381FrToU256 = 65,\n    // Cost of performing BLS12-381 scalar element addition/subtraction\n    Bls12381FrAddSub = 66,\n    // Cost of performing BLS12-381 scalar element multiplication\n    Bls12381FrMul = 67,\n    // Cost of performing BLS12-381 scalar element exponentiation\n    Bls12381FrPow = 68,\n    // Cost of performing BLS12-381 scalar element inversion\n    Bls12381FrInv = 69,\n\n    // Cost of encoding a BN254 Fp (base field element)\n    Bn254EncodeFp = 70,\n    // Cost of decoding a BN254 Fp (base field element)\n    Bn254DecodeFp = 71,\n    // Cost of checking a G1 point lies on the curve\n    Bn254G1CheckPointOnCurve = 72,\n    // Cost of checking a G2 point lies on the curve\n    Bn254G2CheckPointOnCurve = 73,\n    // Cost of checking a G2 point belongs to the correct subgroup\n    Bn254G2CheckPointInSubgroup = 74,\n    // Cost of converting a BN254 G1 point from projective to affine coordinates\n    Bn254G1ProjectiveToAffine = 75,\n    // Cost of performing BN254 G1 point addition\n    Bn254G1Add = 76,\n    // Cost of performing BN254 G1 scalar multiplication\n    Bn254G1Mul = 77,\n    // Cost of performing BN254 pairing operation\n    Bn254Pairing = 78,\n    // Cost of converting a BN254 scalar element from U256\n    Bn254FrFromU256 = 79,\n    // Cost of converting a BN254 scalar element to U256\n    Bn254FrToU256 = 80,\n    // // Cost of performing BN254 scalar element addition/subtraction\n    Bn254FrAddSub = 81,\n    // Cost of performing BN254 scalar element multiplication\n    Bn254FrMul = 82,\n    // Cost of performing BN254 scalar element exponentiation\n    Bn254FrPow = 83,\n     // Cost of performing BN254 scalar element inversion\n    Bn254FrInv = 84,\n    // Cost of performing BN254 G1 multi-scalar multiplication (MSM)\n    Bn254G1Msm = 85\n#ifdef CAP_0087_ML_DSA\n    ,\n    // Cost of decoding and expanding an ML-DSA-44 verifying key\n    MlDsa44DecodeVerifyingKey = 86,\n    // Cost of decoding and expanding an ML-DSA-65 verifying key\n    MlDsa65DecodeVerifyingKey = 87,\n    // Cost of decoding and expanding an ML-DSA-87 verifying key\n    MlDsa87DecodeVerifyingKey = 88,\n    // Cost of decoding an ML-DSA-44 signature\n    MlDsa44DecodeSignature = 89,\n    // Cost of decoding an ML-DSA-65 signature\n    MlDsa65DecodeSignature = 90,\n    // Cost of decoding an ML-DSA-87 signature\n    MlDsa87DecodeSignature = 91,\n    // Cost of verifying an ML-DSA-44 signature, linear in message + context length\n    VerifyMlDsa44Sig = 92,\n    // Cost of verifying an ML-DSA-65 signature, linear in message + context length\n    VerifyMlDsa65Sig = 93,\n    // Cost of verifying an ML-DSA-87 signature, linear in message + context length\n    VerifyMlDsa87Sig = 94\n#endif\n};",
       "file_index": 1,
       "member_prefix": "",
       "members": [
@@ -1071,6 +1073,42 @@
         {
           "name": "Bn254G1Msm",
           "value": 85
+        },
+        {
+          "name": "MlDsa44DecodeVerifyingKey",
+          "value": 86
+        },
+        {
+          "name": "MlDsa65DecodeVerifyingKey",
+          "value": 87
+        },
+        {
+          "name": "MlDsa87DecodeVerifyingKey",
+          "value": 88
+        },
+        {
+          "name": "MlDsa44DecodeSignature",
+          "value": 89
+        },
+        {
+          "name": "MlDsa65DecodeSignature",
+          "value": 90
+        },
+        {
+          "name": "MlDsa87DecodeSignature",
+          "value": 91
+        },
+        {
+          "name": "VerifyMlDsa44Sig",
+          "value": 92
+        },
+        {
+          "name": "VerifyMlDsa65Sig",
+          "value": 93
+        },
+        {
+          "name": "VerifyMlDsa87Sig",
+          "value": 94
         }
       ]
     },
@@ -1894,6 +1932,13 @@
       "file_index": 4
     },
     {
+      "kind": "const",
+      "name": "SC_SPEC_TYPE_NAME_LIMIT",
+      "value": 1024,
+      "source": "const SC_SPEC_TYPE_NAME_LIMIT = 1024;",
+      "file_index": 4
+    },
+    {
       "kind": "enum",
       "name": "SCSpecType",
       "source": "enum SCSpecType\n{\n    SC_SPEC_TYPE_VAL = 0,\n\n    // Types with no parameters.\n    SC_SPEC_TYPE_BOOL = 1,\n    SC_SPEC_TYPE_VOID = 2,\n    SC_SPEC_TYPE_ERROR = 3,\n    SC_SPEC_TYPE_U32 = 4,\n    SC_SPEC_TYPE_I32 = 5,\n    SC_SPEC_TYPE_U64 = 6,\n    SC_SPEC_TYPE_I64 = 7,\n    SC_SPEC_TYPE_TIMEPOINT = 8,\n    SC_SPEC_TYPE_DURATION = 9,\n    SC_SPEC_TYPE_U128 = 10,\n    SC_SPEC_TYPE_I128 = 11,\n    SC_SPEC_TYPE_U256 = 12,\n    SC_SPEC_TYPE_I256 = 13,\n    SC_SPEC_TYPE_BYTES = 14,\n    SC_SPEC_TYPE_STRING = 16,\n    SC_SPEC_TYPE_SYMBOL = 17,\n    SC_SPEC_TYPE_ADDRESS = 19,\n    SC_SPEC_TYPE_MUXED_ADDRESS = 20,\n\n    // Types with parameters.\n    SC_SPEC_TYPE_OPTION = 1000,\n    SC_SPEC_TYPE_RESULT = 1001,\n    SC_SPEC_TYPE_VEC = 1002,\n    SC_SPEC_TYPE_MAP = 1004,\n    SC_SPEC_TYPE_TUPLE = 1005,\n    SC_SPEC_TYPE_BYTES_N = 1006,\n\n    // User defined types.\n    SC_SPEC_TYPE_UDT = 2000\n};",
@@ -2124,14 +2169,14 @@
       "kind": "struct",
       "name": "SCSpecTypeUDT",
       "fixed_size": null,
-      "source": "struct SCSpecTypeUDT\n{\n    string name<60>;\n};",
+      "source": "struct SCSpecTypeUDT\n{\n    string name<SC_SPEC_TYPE_NAME_LIMIT>;\n};",
       "file_index": 4,
       "fields": [
         {
           "name": "name",
           "type": {
             "kind": "string",
-            "max_size": 60
+            "max_size": 1024
           }
         }
       ]
@@ -2358,7 +2403,7 @@
       "kind": "struct",
       "name": "SCSpecUDTStructV0",
       "fixed_size": null,
-      "source": "struct SCSpecUDTStructV0\n{\n    string doc<SC_SPEC_DOC_LIMIT>;\n    string lib<80>;\n    string name<60>;\n    SCSpecUDTStructFieldV0 fields<>;\n};",
+      "source": "struct SCSpecUDTStructV0\n{\n    string doc<SC_SPEC_DOC_LIMIT>;\n    string lib<80>;\n    string name<SC_SPEC_TYPE_NAME_LIMIT>;\n    SCSpecUDTStructFieldV0 fields<>;\n};",
       "file_index": 4,
       "fields": [
         {
@@ -2379,7 +2424,7 @@
           "name": "name",
           "type": {
             "kind": "string",
-            "max_size": 60
+            "max_size": 1024
           }
         },
         {
@@ -2513,7 +2558,7 @@
       "kind": "struct",
       "name": "SCSpecUDTUnionV0",
       "fixed_size": null,
-      "source": "struct SCSpecUDTUnionV0\n{\n    string doc<SC_SPEC_DOC_LIMIT>;\n    string lib<80>;\n    string name<60>;\n    SCSpecUDTUnionCaseV0 cases<>;\n};",
+      "source": "struct SCSpecUDTUnionV0\n{\n    string doc<SC_SPEC_DOC_LIMIT>;\n    string lib<80>;\n    string name<SC_SPEC_TYPE_NAME_LIMIT>;\n    SCSpecUDTUnionCaseV0 cases<>;\n};",
       "file_index": 4,
       "fields": [
         {
@@ -2534,7 +2579,7 @@
           "name": "name",
           "type": {
             "kind": "string",
-            "max_size": 60
+            "max_size": 1024
           }
         },
         {
@@ -2583,7 +2628,7 @@
       "kind": "struct",
       "name": "SCSpecUDTEnumV0",
       "fixed_size": null,
-      "source": "struct SCSpecUDTEnumV0\n{\n    string doc<SC_SPEC_DOC_LIMIT>;\n    string lib<80>;\n    string name<60>;\n    SCSpecUDTEnumCaseV0 cases<>;\n};",
+      "source": "struct SCSpecUDTEnumV0\n{\n    string doc<SC_SPEC_DOC_LIMIT>;\n    string lib<80>;\n    string name<SC_SPEC_TYPE_NAME_LIMIT>;\n    SCSpecUDTEnumCaseV0 cases<>;\n};",
       "file_index": 4,
       "fields": [
         {
@@ -2604,7 +2649,7 @@
           "name": "name",
           "type": {
             "kind": "string",
-            "max_size": 60
+            "max_size": 1024
           }
         },
         {
@@ -2653,7 +2698,7 @@
       "kind": "struct",
       "name": "SCSpecUDTErrorEnumV0",
       "fixed_size": null,
-      "source": "struct SCSpecUDTErrorEnumV0\n{\n    string doc<SC_SPEC_DOC_LIMIT>;\n    string lib<80>;\n    string name<60>;\n    SCSpecUDTErrorEnumCaseV0 cases<>;\n};",
+      "source": "struct SCSpecUDTErrorEnumV0\n{\n    string doc<SC_SPEC_DOC_LIMIT>;\n    string lib<80>;\n    string name<SC_SPEC_TYPE_NAME_LIMIT>;\n    SCSpecUDTErrorEnumCaseV0 cases<>;\n};",
       "file_index": 4,
       "fields": [
         {
@@ -2674,7 +2719,7 @@
           "name": "name",
           "type": {
             "kind": "string",
-            "max_size": 60
+            "max_size": 1024
           }
         },
         {
@@ -2842,7 +2887,7 @@
       "kind": "struct",
       "name": "SCSpecEventV0",
       "fixed_size": null,
-      "source": "struct SCSpecEventV0\n{\n    string doc<SC_SPEC_DOC_LIMIT>;\n    string lib<80>;\n    SCSymbol name;\n    SCSymbol prefixTopics<2>;\n    SCSpecEventParamV0 params<>;\n    SCSpecEventDataFormat dataFormat;\n};",
+      "source": "struct SCSpecEventV0\n{\n    string doc<SC_SPEC_DOC_LIMIT>;\n    string lib<80>;\n    string name<SC_SPEC_TYPE_NAME_LIMIT>;\n    SCSymbol prefixTopics<2>;\n    SCSpecEventParamV0 params<>;\n    SCSpecEventDataFormat dataFormat;\n};",
       "file_index": 4,
       "fields": [
         {
@@ -2862,8 +2907,8 @@
         {
           "name": "name",
           "type": {
-            "kind": "ref",
-            "name": "SCSymbol"
+            "kind": "string",
+            "max_size": 1024
           }
         },
         {
@@ -7119,7 +7164,7 @@
     {
       "kind": "enum",
       "name": "StellarValueType",
-      "source": "enum StellarValueType\n{\n    STELLAR_VALUE_BASIC = 0,\n    STELLAR_VALUE_SIGNED = 1,\n    STELLAR_VALUE_EMPTY_TX_SET = 2\n};",
+      "source": "enum StellarValueType\n{\n    STELLAR_VALUE_BASIC = 0,\n    STELLAR_VALUE_SIGNED = 1,\n    STELLAR_VALUE_EMPTY_TX_SET = 2\n#ifdef MS_CLOSE_TIME\n    ,\n    STELLAR_VALUE_SIGNED_MS = 3,\n    STELLAR_VALUE_EMPTY_TX_SET_MS = 4\n#endif // MS_CLOSE_TIME\n};",
       "file_index": 9,
       "member_prefix": "STELLAR_VALUE_",
       "members": [
@@ -7201,7 +7246,7 @@
       "kind": "union",
       "name": "StellarValueExt",
       "fixed_size": null,
-      "source": "union switch (StellarValueType v)\n    {\n    case STELLAR_VALUE_BASIC:\n        void;\n    case STELLAR_VALUE_SIGNED:\n        LedgerCloseValueSignature lcValueSignature;\n    case STELLAR_VALUE_EMPTY_TX_SET:\n        struct\n        {\n            Hash txSetHash;\n            Hash previousLedgerHash;\n            uint32 previousLedgerVersion;\n            LedgerCloseValueSignature lcValueSignature;\n        } proposedValue;\n    }",
+      "source": "union switch (StellarValueType v)\n    {\n    case STELLAR_VALUE_BASIC:\n        void;\n    case STELLAR_VALUE_SIGNED:\n        LedgerCloseValueSignature lcValueSignature;\n    case STELLAR_VALUE_EMPTY_TX_SET:\n        struct\n        {\n            Hash txSetHash;\n            Hash previousLedgerHash;\n            uint32 previousLedgerVersion;\n            LedgerCloseValueSignature lcValueSignature;\n        } proposedValue;\n#ifdef MS_CLOSE_TIME\n    case STELLAR_VALUE_SIGNED_MS:\n        struct\n        {\n            TimePointMilliseconds closeTimeMs; // closeTime == closeTimeMs / 1000\n            LedgerCloseValueSignature lcValueSignature;\n        } signedMsValue;\n    case STELLAR_VALUE_EMPTY_TX_SET_MS:\n        struct\n        {\n            TimePointMilliseconds closeTimeMs; // closeTime == closeTimeMs / 1000\n            Hash txSetHash;\n            Hash previousLedgerHash;\n            uint32 previousLedgerVersion;\n            LedgerCloseValueSignature lcValueSignature;\n        } proposedMsValue;\n#endif // MS_CLOSE_TIME\n    }",
       "file_index": 9,
       "discriminant": {
         "name": "v",
@@ -7252,7 +7297,7 @@
       "kind": "struct",
       "name": "StellarValue",
       "fixed_size": null,
-      "source": "struct StellarValue\n{\n    Hash txSetHash;      // transaction set to apply to previous ledger\n    TimePoint closeTime; // network close time\n\n    // upgrades to apply to the previous ledger (usually empty)\n    // this is a vector of encoded 'LedgerUpgrade' so that nodes can drop\n    // unknown steps during consensus if needed.\n    // see notes below on 'LedgerUpgrade' for more detail\n    // max size is dictated by number of upgrade types (+ room for future)\n    UpgradeType upgrades<6>;\n\n    // reserved for future use\n    union switch (StellarValueType v)\n    {\n    case STELLAR_VALUE_BASIC:\n        void;\n    case STELLAR_VALUE_SIGNED:\n        LedgerCloseValueSignature lcValueSignature;\n    case STELLAR_VALUE_EMPTY_TX_SET:\n        struct\n        {\n            Hash txSetHash;\n            Hash previousLedgerHash;\n            uint32 previousLedgerVersion;\n            LedgerCloseValueSignature lcValueSignature;\n        } proposedValue;\n    }\n    ext;\n};",
+      "source": "struct StellarValue\n{\n    Hash txSetHash;      // transaction set to apply to previous ledger\n    TimePoint closeTime; // network close time\n\n    // upgrades to apply to the previous ledger (usually empty)\n    // this is a vector of encoded 'LedgerUpgrade' so that nodes can drop\n    // unknown steps during consensus if needed.\n    // see notes below on 'LedgerUpgrade' for more detail\n    // max size is dictated by number of upgrade types (+ room for future)\n    UpgradeType upgrades<6>;\n\n    // reserved for future use\n    union switch (StellarValueType v)\n    {\n    case STELLAR_VALUE_BASIC:\n        void;\n    case STELLAR_VALUE_SIGNED:\n        LedgerCloseValueSignature lcValueSignature;\n    case STELLAR_VALUE_EMPTY_TX_SET:\n        struct\n        {\n            Hash txSetHash;\n            Hash previousLedgerHash;\n            uint32 previousLedgerVersion;\n            LedgerCloseValueSignature lcValueSignature;\n        } proposedValue;\n#ifdef MS_CLOSE_TIME\n    case STELLAR_VALUE_SIGNED_MS:\n        struct\n        {\n            TimePointMilliseconds closeTimeMs; // closeTime == closeTimeMs / 1000\n            LedgerCloseValueSignature lcValueSignature;\n        } signedMsValue;\n    case STELLAR_VALUE_EMPTY_TX_SET_MS:\n        struct\n        {\n            TimePointMilliseconds closeTimeMs; // closeTime == closeTimeMs / 1000\n            Hash txSetHash;\n            Hash previousLedgerHash;\n            uint32 previousLedgerVersion;\n            LedgerCloseValueSignature lcValueSignature;\n        } proposedMsValue;\n#endif // MS_CLOSE_TIME\n    }\n    ext;\n};",
       "file_index": 9,
       "fields": [
         {
