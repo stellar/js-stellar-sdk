@@ -27,7 +27,7 @@
  * `pnpm test:guides` (run by `preversion` at release time, or manually)
  * executes the same snippets against real testnet with no redirection.
  */
-import { Networks } from "@stellar/stellar-sdk";
+import { Keypair, Networks } from "@stellar/stellar-sdk";
 
 const LOCAL = process.env.QUICKSTART_URL ?? "http://localhost:8000";
 
@@ -92,3 +92,37 @@ if (
   );
 }
 (Networks as { TESTNET: string }).TESTNET = passphrase;
+
+// quickstart reports healthy once Soroban RPC and friendbot answer, but
+// Horizon keeps returning 503 still_ingesting on data endpoints for a while
+// after that. Both snippets call loadAccount straight after funding, so wait
+// for /accounts to stop returning 503 before the first test runs.
+const READY_TIMEOUT_MS = 120_000;
+const READY_POLL_MS = 1_000;
+
+const probe = `https://horizon-testnet.stellar.org/accounts/${Keypair.random().publicKey()}`;
+const deadline = Date.now() + READY_TIMEOUT_MS;
+let lastStatus: number | string = "no response";
+for (;;) {
+  try {
+    // Bound each attempt: the deadline below is only checked between them.
+    const res = await fetch(probe, {
+      signal: AbortSignal.timeout(READY_POLL_MS * 5),
+    });
+    // 404 is the ready signal: Horizon served a data endpoint and the
+    // random account simply does not exist.
+    if (res.ok || res.status === 404) break;
+    lastStatus = res.status;
+  } catch (e) {
+    lastStatus = e instanceof Error ? e.message : String(e);
+  }
+  if (Date.now() >= deadline) {
+    throw new Error(
+      `guides-local-setup: Horizon at ${LOCAL} is not serving data after ` +
+        `${READY_TIMEOUT_MS / 1000}s (last result: ${lastStatus}). The ` +
+        `container reports healthy before ingestion catches up, so the ` +
+        `suite waits for it here.`,
+    );
+  }
+  await new Promise((resolve) => setTimeout(resolve, READY_POLL_MS));
+}
