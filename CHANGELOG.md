@@ -4,6 +4,9 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Added
+* A `stellar-contract-bindings-typescript` binary implementing the [Stellar CLI plugin convention](https://developers.stellar.org/docs/tools/cli/plugins), reachable as `stellar contract bindings typescript`. It delegates to `stellar-js generate` ([#1738](https://github.com/stellar/js-stellar-sdk/pull/1738)).
+
 ## [v17.1.0](https://github.com/stellar/js-stellar-sdk/compare/v17.0.1...v17.1.0)
 
 ### Changed
