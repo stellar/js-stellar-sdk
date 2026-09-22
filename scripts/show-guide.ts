@@ -6,9 +6,10 @@
  * the page will actually render. This prints that expansion for a single
  * file, with no docs build and no Docker.
  *
- * Run via `pnpm docs:snippets:show <doc>`, where <doc> is a markdown file
- * under docs/. Paths resolve from the repo root, because pnpm runs the script
- * there, either as typed or relative to docs/:
+ * Run via `pnpm docs:snippets:show <doc>`, where <doc> is a .md file under
+ * docs/ — the build expands nothing else, so neither does this. Paths resolve
+ * from the repo root, because pnpm runs the script there, either as typed or
+ * relative to docs/:
  *
  *   pnpm docs:snippets:show docs/guides/03-issue-an-asset.md
  *   pnpm docs:snippets:show guides/03-issue-an-asset.md
@@ -19,7 +20,7 @@
  */
 
 import { readFileSync, statSync } from "node:fs";
-import { dirname, join, resolve } from "node:path";
+import { dirname, isAbsolute, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { expandSnippetMarkers } from "../config/snippets.js";
@@ -55,12 +56,25 @@ function isFile(path: string): boolean {
   }
 }
 
+// The build only ever expands .md under docs/, so anything else is a mistyped
+// path. Without this, a source file gets scanned for markers and reports a
+// near-miss error that reads like a real docs defect.
+function isDoc(path: string): boolean {
+  const rel = relative(DOCS_DIR, path);
+  return !rel.startsWith("..") && !isAbsolute(rel) && path.endsWith(".md");
+}
+
 // Accept the path as typed (shell completion from the repo root) or relative
 // to docs/, so the docs/ prefix is optional.
 const candidates = [resolve(arg), resolve(DOCS_DIR, arg)];
-const path = candidates.find(isFile);
+const existing = candidates.filter(isFile);
+const path = existing.find(isDoc);
 if (path === undefined) {
-  fail(`no such file, tried:\n  ${candidates.join("\n  ")}\n\n${USAGE}`);
+  fail(
+    existing.length > 0
+      ? `not a .md file under docs/:\n  ${existing.join("\n  ")}\n\n${USAGE}`
+      : `no such file, tried:\n  ${candidates.join("\n  ")}\n\n${USAGE}`,
+  );
 }
 
 let expanded: string;
