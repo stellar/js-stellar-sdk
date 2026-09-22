@@ -144,7 +144,8 @@ weights, or evaluate a custom account's policy, so an empty signature may be
 intentional, and a filled one does not prove the entry will pass.
 
 Two kinds of requirement are invisible to it. Simulation never returns a CAP-71
-`AddressWithDelegates` entry (it returns `ADDRESS_V2`), so delegated signing is
+`AddressWithDelegates` entry (it returns `ADDRESS_V2`, or legacy `ADDRESS` with
+`useUpgradedAuth: false`), so delegated signing is
 up to you: wrap the simulated entry with `buildWithDelegatesEntry`, then sign
 each delegate node with `authorizeEntry` and its `forAddress` argument. The
 heuristic does not report those delegate nodes, and `signAuthEntries` does not
@@ -154,8 +155,11 @@ returned entries at all. Such a requirement needs an auth entry built by hand,
 and enforcement-mode simulation to check it.
 
 `sign` and `signAndSend` run this heuristic before signing the envelope but skip
-contract (`C…`) addresses, so for delegates and custom accounts the risk is the
-check passing while a signature is still missing, not a false rejection. Check
+contract (`C…`) addresses. Only a contract account can authorize through
+delegates alone. A `G…` account must always sign its own top-level entry, even
+with delegates attached, so an empty `G…` signature fails on the network too.
+For delegates and custom accounts, the risk is the check passing while a
+signature is still missing, not a false rejection. Check
 such entries yourself with `inspectAuthEntry` or
 `needsNonInvokerSigningBy({ includeAlreadySigned: true })`.
 
