@@ -456,7 +456,7 @@ returns `false`, then you need to call `signAndSend` on this transaction.
 readonly isReadCall: boolean;
 ```
 
-**Source:** [src/contract/assembled_transaction.ts:1159](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L1159)
+**Source:** [src/contract/assembled_transaction.ts:1155](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L1155)
 
 ### `assembledTransaction.result`
 
@@ -476,23 +476,16 @@ readonly simulationData: { result: SimulateHostFunctionResult; transactionData: 
 
 ### `assembledTransaction.needsNonInvokerSigningBy(__namedParameters)`
 
-Get a list of accounts, other than the invoker of the simulation, that
-need to sign auth entries in this transaction.
+Lists the top-level address of each address-credential auth entry that
+still lacks a signature payload (or of every such entry, with
+`includeAlreadySigned`). Source account credentials are skipped, since the
+envelope signature covers them; address credentials are listed even when
+their address is the transaction source.
 
-Soroban allows multiple people to sign a transaction. Someone needs to
-sign the final transaction envelope; this person/account is called the
-_invoker_, or _source_. Other accounts might need to sign individual auth
-entries in the transaction, if they're not also the invoker.
-
-This function returns a list of accounts that need to sign auth entries,
-assuming that the same invoker/source account will sign the final
-transaction envelope as signed the initial simulation.
-
-One at a time, for each public key in this array, you will need to
-serialize this transaction with `toJson`, send to the owner of that key,
-deserialize the transaction with `txFromJson`, and call
-[`AssembledTransaction.signAuthEntries`](#assembledtransactionsignauthentries__namedparameters). Then re-serialize and send to
-the next account in this list.
+This is a signature-presence heuristic, not an authorization check: it
+does not see delegate nodes, custom account policy, or requirements raised
+inside `__check_auth`. The contract auth guide covers the caveats and the
+multi-party signing flow.
 
 ```ts
 needsNonInvokerSigningBy(__namedParameters: { includeAlreadySigned?: boolean } = {}): string[];
@@ -502,7 +495,7 @@ needsNonInvokerSigningBy(__namedParameters: { includeAlreadySigned?: boolean } =
 
 - **`__namedParameters`** — `{ includeAlreadySigned?: boolean }` (optional) (default: `{}`)
 
-**Source:** [src/contract/assembled_transaction.ts:987](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L987)
+**Source:** [src/contract/assembled_transaction.ts:980](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L980)
 
 ### `assembledTransaction.restoreFootprint(restorePreamble, account)`
 
@@ -537,7 +530,7 @@ Client initialization.
 - - Throws a custom error if the
 restore transaction fails, providing the details of the failure.
 
-**Source:** [src/contract/assembled_transaction.ts:1186](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L1186)
+**Source:** [src/contract/assembled_transaction.ts:1182](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L1182)
 
 ### `assembledTransaction.send(watcher)`
 
@@ -607,6 +600,9 @@ network.
 Sending to all `needsNonInvokerSigningBy` owners in parallel is not
 currently supported!
 
+Only top-level address credentials are selected; delegate nodes and
+requirements raised inside a custom account's `__check_auth` are not.
+
 ```ts
 signAuthEntries(__namedParameters: { address?: string; authorizeEntry?: (entry: SorobanAuthorizationEntry, signer: Keypair | SigningCallback, validUntilLedgerSeq: number, networkPassphrase: string, forAddress?: string) => Promise<SorobanAuthorizationEntry>; expiration?: number | Promise<number>; signAuthEntry?: SignAuthEntryLike } = {}): Promise<void>;
 ```
@@ -615,7 +611,7 @@ signAuthEntries(__namedParameters: { address?: string; authorizeEntry?: (entry: 
 
 - **`__namedParameters`** — `{ address?: string; authorizeEntry?: (entry: SorobanAuthorizationEntry, signer: Keypair | SigningCallback, validUntilLedgerSeq: number, networkPassphrase: string, forAddress?: string) => Promise<SorobanAuthorizationEntry>; expiration?: number | Promise<number>; signAuthEntry?: SignAuthEntryLike }` (optional) (default: `{}`)
 
-**Source:** [src/contract/assembled_transaction.ts:1048](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L1048)
+**Source:** [src/contract/assembled_transaction.ts:1044](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L1044)
 
 ### `assembledTransaction.simulate(__namedParameters)`
 
