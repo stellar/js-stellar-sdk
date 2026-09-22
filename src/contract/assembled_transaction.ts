@@ -1061,8 +1061,8 @@ export class AssembledTransaction<T> {
     /**
      * Sign all auth entries for this account. Defaults to a `Signer`'s or
      * `Keypair`'s own address, otherwise to the account that constructed the
-     * transaction (`publicKey`). A plain `SignAuthEntry` function carries no
-     * address, so pass this whenever it signs for a different account.
+     * transaction (`publicKey`). Pass it when `signAuthEntry` is a plain
+     * function signing for a different account.
      */
     address?: string;
     /**
@@ -1083,13 +1083,10 @@ export class AssembledTransaction<T> {
     const derivedAddress = signerAddress(signAuthEntry);
     const address = addressArg ?? derivedAddress ?? this.options.publicKey;
 
-    // A plain `SignAuthEntry` function names no account, so `address` falls
-    // back to `publicKey`, which may have nothing to do with the signer. The
-    // hint keys off how `address` was chosen, not on whether its value happens
-    // to equal `publicKey`. See #1610, #1681.
+    // Adds a hint when `address` fell back to `publicKey`, which may not be
+    // the signer (#1681).
     const noEntriesFor = (): string => {
       const base = `No auth entries for public key "${address}"`;
-      // `!= null` to match the `??` above: an explicit `null` also defaulted.
       if (addressArg != null || derivedAddress !== undefined) return base;
       const unnamed =
         "`address` was not given and `signAuthEntry` does not name one";
@@ -1170,10 +1167,7 @@ export class AssembledTransaction<T> {
       signedAny = true;
     }
 
-    // The pre-flight above catches a mismatch for the default authorizer, but
-    // a custom one skips it, and then an `address` matching no entry left the
-    // loop having signed nothing and the call returned as if it had. Reported
-    // once it has happened, so that every call which does sign is unaffected.
+    // A custom authorizer skips the pre-flight, so catch a no-match here.
     if (!signedAny) {
       throw new AssembledTransaction.Errors.NoSignatureNeeded(noEntriesFor());
     }
