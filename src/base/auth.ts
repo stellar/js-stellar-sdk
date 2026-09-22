@@ -134,10 +134,6 @@ function toScVal(value: unknown): ScVal | null {
  * @param networkPassphrase - the network passphrase is incorporated into the
  *    signature (see {@link Networks} for options)
  *
- * For a bare-signature callback, the verification key is `forAddress` when
- * supplied, otherwise the entry's top-level credential address. If the actual
- * signing key differs from that address, return `{ signature, publicKey }`.
- *
  * @param forAddress - which credential node the signature should be written
  *    to. Only relevant for `SOROBAN_CREDENTIALS_ADDRESS_WITH_DELEGATES`, where
  *    a single entry can be signed by the top-level account and/or any of its
@@ -147,9 +143,8 @@ function toScVal(value: unknown): ScVal | null {
  *    `forAddress`. When omitted, the signature is written to the top-level
  *    credentials, which preserves the behavior for `SOROBAN_CREDENTIALS_ADDRESS`
  *    / `SOROBAN_CREDENTIALS_ADDRESS_V2` and for accounts whose signing key
- *    differs from the credential address (e.g. multisig). A bare-signature
- *    callback is verified against this address, and an address that names no
- *    node in the entry is rejected before the signer runs.
+ *    differs from the credential address (e.g. multisig). A bare signature is
+ *    verified against this address.
  *
  * @see authorizeInvocation
  * @example
@@ -242,11 +237,7 @@ export async function authorizeEntry(
     throw new Error(`unsupported credential type ${credentials.type}`);
   }
 
-  // A `forAddress` naming no node used to surface only after the signer ran:
-  // as "signature doesn't match payload" for a bare callback (verified against
-  // that address), or as "no credential node" otherwise. Checking membership
-  // first reports the address problem as such, and spares a wallet a prompt
-  // for a signature that would be thrown away.
+  // Checked before signing, so a wallet isn't prompted for a discarded signature.
   if (
     forAddress !== undefined &&
     !collectSignatureNodes(credentials).some(
@@ -346,14 +337,8 @@ export async function authorizeEntry(
       );
     }
 
-    // `forAddress` can name a contract node (a smart-wallet delegate), and a
-    // top-level credential address can be a contract too. Neither has an
-    // Ed25519 key to verify against, so this reports the remedy instead of
-    // StrKey's "invalid version byte". A direct caller can return
-    // `{ signatureScVal }`; through `signAuthEntries` the wallet callback
-    // returns raw bytes, so there the remedy is a custom `authorizeEntry`.
-    // Anything else that is not a G address (a muxed account, an empty string)
-    // gets a plain message, since neither remedy applies to it.
+    // A contract address has no Ed25519 key; name the remedy instead of
+    // surfacing StrKey's "invalid version byte".
     if (!StrKey.isValidEd25519PublicKey(publicKey)) {
       throw new TypeError(
         StrKey.isValidContract(publicKey)
