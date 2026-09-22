@@ -19,7 +19,7 @@
  * ahead of the markdown.
  */
 
-import { readFileSync, statSync } from "node:fs";
+import { readFileSync, realpathSync, statSync } from "node:fs";
 import { dirname, isAbsolute, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -27,6 +27,7 @@ import { expandSnippetMarkers } from "../config/snippets.js";
 
 const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const DOCS_DIR = join(REPO_ROOT, "docs");
+const DOCS_REAL = realpathSync(DOCS_DIR);
 
 const USAGE =
   "usage: pnpm docs:snippets:show <doc>\n" +
@@ -48,26 +49,33 @@ if (arg === undefined || arg === "") {
   fail(USAGE);
 }
 
-function isFile(path: string): boolean {
+// Resolve symlinks before judging the path: statSync follows them, so a
+// lexical check would accept a .md symlink under docs/ that points anywhere.
+// Returns null for a missing file and for a dangling symlink, which throws.
+function realFile(path: string): string | null {
   try {
-    return statSync(path).isFile();
+    const real = realpathSync(path);
+    return statSync(real).isFile() ? real : null;
   } catch {
-    return false;
+    return null;
   }
 }
 
 // The build only ever expands .md under docs/, so anything else is a mistyped
 // path. Without this, a source file gets scanned for markers and reports a
-// near-miss error that reads like a real docs defect.
-function isDoc(path: string): boolean {
-  const rel = relative(DOCS_DIR, path);
-  return !rel.startsWith("..") && !isAbsolute(rel) && path.endsWith(".md");
+// near-miss error that reads like a real docs defect. Both sides are real
+// paths, so a checkout reached through a symlink still resolves.
+function isDoc(real: string): boolean {
+  const rel = relative(DOCS_REAL, real);
+  return !rel.startsWith("..") && !isAbsolute(rel) && real.endsWith(".md");
 }
 
 // Accept the path as typed (shell completion from the repo root) or relative
 // to docs/, so the docs/ prefix is optional.
 const candidates = [resolve(arg), resolve(DOCS_DIR, arg)];
-const existing = candidates.filter(isFile);
+const existing = candidates
+  .map(realFile)
+  .filter((p): p is string => p !== null);
 const path = existing.find(isDoc);
 if (path === undefined) {
   fail(
