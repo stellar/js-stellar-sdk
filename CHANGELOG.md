@@ -8,7 +8,7 @@ A breaking change will get clearly marked in this log.
 * A `stellar-contract-bindings-typescript` binary implementing the [Stellar CLI plugin convention](https://developers.stellar.org/docs/tools/cli/plugins), reachable as `stellar contract bindings typescript`. It delegates to `stellar-js generate` ([#1738](https://github.com/stellar/js-stellar-sdk/pull/1738)).
 
 ### Fixed
-* `AssembledTransaction.signAuthEntries()` forwards a wallet's returned `signerAddress` to the default authorizer, so a classic-multisig signature made by a key other than the account being authorized is no longer rejected ([#1681](https://github.com/stellar/js-stellar-sdk/issues/1681)). A muxed `M…` `signerAddress` resolves to its base account; `null` or an empty string counts as omitted, and any other value that is not an account address is rejected by name. A custom `authorizeEntry` still receives raw bytes.
+* `AssembledTransaction.signAuthEntries()` forwards a wallet's returned `signerAddress` to the default authorizer, so a classic-multisig signature made by a key other than the account being authorized is no longer rejected ([#1681](https://github.com/stellar/js-stellar-sdk/issues/1681)). A muxed `M…` `signerAddress` resolves to its base account; `null` or an empty string counts as omitted, and any other value that is not an account address is rejected by name. A custom `authorizeEntry` still receives raw bytes. A wallet that returns a `signerAddress` other than the key it signed with now fails with "signature doesn't match payload" instead of having the value ignored.
 
 ## [v17.1.0](https://github.com/stellar/js-stellar-sdk/compare/v17.0.1...v17.1.0)
 
