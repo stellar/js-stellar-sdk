@@ -1049,7 +1049,7 @@ export class AssembledTransaction<T> {
     expiration = (async () =>
       (await this.server.getLatestLedger()).sequence + 100)(),
     signAuthEntry = this.options.signAuthEntry,
-    address = signerAddress(signAuthEntry) ?? this.options.publicKey,
+    address: addressArg,
     authorizeEntry = stellarBaseAuthorizeEntry,
   }: {
     /**
@@ -1059,9 +1059,10 @@ export class AssembledTransaction<T> {
      */
     expiration?: number | Promise<number>;
     /**
-     * Sign all auth entries for this account. Default: when `signAuthEntry`
-     * is a `Signer` or `Keypair`, its own address; otherwise the account that
-     * constructed the transaction (`publicKey`).
+     * Sign all auth entries for this account. Defaults to a `Signer`'s or
+     * `Keypair`'s own address, otherwise to the account that constructed the
+     * transaction (`publicKey`). A plain `SignAuthEntry` function carries no
+     * address, so pass this whenever it signs for a different account.
      */
     address?: string;
     /**
@@ -1078,6 +1079,26 @@ export class AssembledTransaction<T> {
   } = {}): Promise<void> => {
     if (!this.built)
       throw new Error("Transaction has not yet been assembled or simulated");
+
+    const derivedAddress = signerAddress(signAuthEntry);
+    const address = addressArg ?? derivedAddress ?? this.options.publicKey;
+
+    // A plain `SignAuthEntry` function names no account, so `address` falls
+    // back to `publicKey`, which may have nothing to do with the signer. The
+    // hint keys off how `address` was chosen, not on whether its value happens
+    // to equal `publicKey`. See #1610, #1681.
+    const noEntriesFor = (): string => {
+      const base = `No auth entries for public key "${address}"`;
+      // `!= null` to match the `??` above: an explicit `null` also defaulted.
+      if (addressArg != null || derivedAddress !== undefined) return base;
+      const unnamed =
+        "`address` was not given and `signAuthEntry` does not name one";
+      const fix = "Pass `address` to say who is signing.";
+      return address === undefined
+        ? `No account to sign for: ${unnamed}. ${fix}`
+        : `${base}; ${unnamed}, so it defaulted to the account that built ` +
+            `this transaction. ${fix}`;
+    };
 
     // Reduced up front, not at the call site below, so that the `!signAuth`
     // check reports a `Signer` that omits the optional `signAuthEntry` the same
@@ -1096,9 +1117,7 @@ export class AssembledTransaction<T> {
         );
       }
       if (needsNonInvokerSigningBy.indexOf(address ?? "") === -1) {
-        throw new AssembledTransaction.Errors.NoSignatureNeeded(
-          `No auth entries for public key "${address}"`,
-        );
+        throw new AssembledTransaction.Errors.NoSignatureNeeded(noEntriesFor());
       }
       if (!signAuth) {
         throw new AssembledTransaction.Errors.NoSigner(
@@ -1111,6 +1130,7 @@ export class AssembledTransaction<T> {
       .operations[0] as Operation.InvokeHostFunction;
 
     const authEntries = rawInvokeHostFunctionOp.auth ?? [];
+    let signedAny = false;
 
     for (const [i, entry] of authEntries.entries()) {
       // workaround for https://github.com/stellar/js-stellar-sdk/issues/1070
@@ -1147,6 +1167,15 @@ export class AssembledTransaction<T> {
         await expiration,
         this.options.networkPassphrase,
       );
+      signedAny = true;
+    }
+
+    // The pre-flight above catches a mismatch for the default authorizer, but
+    // a custom one skips it, and then an `address` matching no entry left the
+    // loop having signed nothing and the call returned as if it had. Reported
+    // once it has happened, so that every call which does sign is unaffected.
+    if (!signedAny) {
+      throw new AssembledTransaction.Errors.NoSignatureNeeded(noEntriesFor());
     }
   };
 

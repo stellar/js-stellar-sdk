@@ -7,6 +7,9 @@ A breaking change will get clearly marked in this log.
 ### Added
 * A `stellar-contract-bindings-typescript` binary implementing the [Stellar CLI plugin convention](https://developers.stellar.org/docs/tools/cli/plugins), reachable as `stellar contract bindings typescript`. It delegates to `stellar-js generate` ([#1738](https://github.com/stellar/js-stellar-sdk/pull/1738)).
 
+### Fixed
+* `AssembledTransaction.signAuthEntries()` throws `NoSignatureNeeded` when it matched no auth entry, instead of returning as if it had signed ([#1681](https://github.com/stellar/js-stellar-sdk/issues/1681), [#1610](https://github.com/stellar/js-stellar-sdk/issues/1610)). A custom `authorizeEntry` skips the pre-flight check that reports this for the default authorizer, so a wrong `address` was silent there. When `address` came from its `publicKey` default, the error says so. Every call that signs at least one entry is unaffected.
+
 ## [v17.1.0](https://github.com/stellar/js-stellar-sdk/compare/v17.0.1...v17.1.0)
 
 ### Changed
