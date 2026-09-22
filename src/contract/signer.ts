@@ -169,13 +169,9 @@ export function signerAddress(
 }
 
 /**
- * The Ed25519 account a wallet's returned `signerAddress` names, or
- * `undefined` when the wallet omitted it (absent, `null`, or empty, so a
- * plain-JS wallet that is loose about the field is treated as if it had left
- * it out). A muxed `M…` address resolves to its base account, since the mux ID
- * is no part of the key. Anything else is rejected by name: silently falling
- * back to the entry address would turn a wallet bug into a bare "signature
- * doesn't match payload" (#1681).
+ * Resolves a wallet's returned `signerAddress` to the `G…` key to verify
+ * against: `undefined` when omitted (absent, `null`, or empty), the base
+ * account for a muxed `M…` address, and a `TypeError` for anything else.
  * @internal
  */
 export function walletSigningKey(signerAddress: unknown): string | undefined {

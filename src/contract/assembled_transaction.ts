@@ -1075,19 +1075,16 @@ export class AssembledTransaction<T> {
     /**
      * You must provide this here if you did not provide one before and you are
      * not passing `authorizeEntry`. Defaults to the Client's `signAuthEntry`.
-     * Return the actual Ed25519 signing key as `signerAddress` when it differs
-     * from `address`; a muxed `M…` address resolves to its base account. Omit
-     * it (or return `null` or an empty string) to sign as `address`. Any other
-     * value is rejected.
+     * If it signs with a key other than `address`, it should return that key
+     * as `signerAddress`.
      */
     signAuthEntry?: ClientOptions["signAuthEntry"];
 
     /**
      * If you have a pro use-case and need to override the default `authorizeEntry` function, rather than using the one this SDK provides, you can do that! Your function needs to take at least the first argument, `entry: xdr.SorobanAuthorizationEntry`, and return a `Promise<xdr.SorobanAuthorizationEntry>`.
      *
-     * Custom authorizers control how the supplied signing callback is used.
-     * For compatibility, that callback returns raw `Uint8Array` bytes and
-     * does not forward the wallet's `signerAddress`.
+     * The signing callback passed to it returns raw signature bytes and does
+     * not forward the wallet's `signerAddress`.
      */
     authorizeEntry?: typeof stellarBaseAuthorizeEntry;
   } = {}): Promise<void> => {
@@ -1159,10 +1156,6 @@ export class AssembledTransaction<T> {
           });
           this.handleWalletError(error);
           const signature = base64ToUint8Array(signedAuthEntry);
-          // A wallet returning `null` or an empty string is treated as if it
-          // had omitted `signerAddress`, which is what happened before the
-          // field was read at all. Anything that is not an account address is
-          // rejected by name rather than misreported as a bad signature.
           const signingKey =
             authorizeEntry === stellarBaseAuthorizeEntry
               ? walletSigningKey(resultAddress)
