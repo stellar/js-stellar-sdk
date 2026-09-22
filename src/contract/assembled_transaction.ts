@@ -21,7 +21,12 @@ import type {
   WalletError,
   XDR_BASE64,
 } from "./types.js";
-import { signerAddress, toSignAuthEntry, toSignTransaction } from "./signer.js";
+import {
+  signerAddress,
+  toSignAuthEntry,
+  toSignTransaction,
+  walletSigningKey,
+} from "./signer.js";
 import { Server } from "../rpc/index.js";
 import { Api } from "../rpc/api.js";
 import { assembleTransaction } from "../rpc/transaction.js";
@@ -1044,6 +1049,9 @@ export class AssembledTransaction<T> {
    *
    * Sending to all `needsNonInvokerSigningBy` owners in parallel is not
    * currently supported!
+   *
+   * With the default authorizer, the wallet's returned `signerAddress` names
+   * the key the signature is verified against, which may differ from `address`.
    */
   signAuthEntries = async ({
     expiration = (async () =>
@@ -1065,14 +1073,21 @@ export class AssembledTransaction<T> {
      */
     address?: string;
     /**
-     * You must provide this here if you did not provide one before and you are not passing `authorizeEntry`. Default: the `signAuthEntry` from the `Client` options. Must sign things as the given `address`.
+     * You must provide this here if you did not provide one before and you are
+     * not passing `authorizeEntry`. Defaults to the Client's `signAuthEntry`.
+     * Return the actual Ed25519 signing key as `signerAddress` when it differs
+     * from `address`; a muxed `M…` address resolves to its base account. Omit
+     * it (or return `null` or an empty string) to sign as `address`. Any other
+     * value is rejected.
      */
     signAuthEntry?: ClientOptions["signAuthEntry"];
 
     /**
      * If you have a pro use-case and need to override the default `authorizeEntry` function, rather than using the one this SDK provides, you can do that! Your function needs to take at least the first argument, `entry: xdr.SorobanAuthorizationEntry`, and return a `Promise<xdr.SorobanAuthorizationEntry>`.
      *
-     * Note that you if you pass this, then `signAuthEntry` will be ignored.
+     * Custom authorizers control how the supplied signing callback is used.
+     * For compatibility, that callback returns raw `Uint8Array` bytes and
+     * does not forward the wallet's `signerAddress`.
      */
     authorizeEntry?: typeof stellarBaseAuthorizeEntry;
   } = {}): Promise<void> => {
@@ -1135,14 +1150,26 @@ export class AssembledTransaction<T> {
       authEntries[i] = await authorizeEntry(
         entry,
         async (preimage) => {
-          const { signedAuthEntry, error } = await sign(
-            preimage.toXdr("base64"),
-            {
-              address,
-            },
-          );
+          const {
+            signedAuthEntry,
+            signerAddress: resultAddress,
+            error,
+          } = await sign(preimage.toXdr("base64"), {
+            address,
+          });
           this.handleWalletError(error);
-          return base64ToUint8Array(signedAuthEntry);
+          const signature = base64ToUint8Array(signedAuthEntry);
+          // A wallet returning `null` or an empty string is treated as if it
+          // had omitted `signerAddress`, which is what happened before the
+          // field was read at all. Anything that is not an account address is
+          // rejected by name rather than misreported as a bad signature.
+          const signingKey =
+            authorizeEntry === stellarBaseAuthorizeEntry
+              ? walletSigningKey(resultAddress)
+              : undefined;
+          return signingKey === undefined
+            ? signature
+            : { signature, publicKey: signingKey };
         },
         await expiration,
         this.options.networkPassphrase,

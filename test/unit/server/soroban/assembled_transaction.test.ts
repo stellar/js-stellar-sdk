@@ -652,6 +652,280 @@ describe("AssembledTransaction auth entry credential types (CAP-71)", () => {
       expect(authorized).toEqual([kpA.publicKey(), kpA.publicKey()]);
     });
 
+    it.each([
+      ["ADDRESS", addressCred],
+      ["ADDRESS_V2", addressV2Cred],
+    ] as const)(
+      "uses the wallet's returned signing key for a different %s account",
+      async (_name, makeCredentials) => {
+        const entry = authEntry(makeCredentials(kpA.publicKey()));
+        const signAuthEntry = vi.fn(
+          contract.basicNodeSigner(kpB, networkPassphrase).signAuthEntry,
+        );
+        const assembled = assembledWith([entry], { signAuthEntry });
+
+        await assembled.signAuthEntries({
+          expiration: 1000,
+          address: kpA.publicKey(),
+        });
+
+        expect(signAuthEntry).toHaveBeenCalledExactlyOnceWith(
+          expect.any(String),
+          { address: kpA.publicKey() },
+        );
+        const operation = expectDefined(assembled.built).operations[0];
+        if (operation.type !== "invokeHostFunction") {
+          throw new Error("Expected an invokeHostFunction operation");
+        }
+        const signed = expectDefined(operation.auth)[0];
+        const info = StellarSdk.inspectAuthEntry(signed);
+        expect(info.address).toBe(kpA.publicKey());
+        expect(info.nonce).toBe(1n);
+        expect(info.signatureExpirationLedger).toBe(1000);
+        expect(signed.rootInvocation.toXdr()).toEqual(
+          entry.rootInvocation.toXdr(),
+        );
+        const signature = StellarSdk.scValToNative(
+          info.signers[0].rawSignature,
+        )[0] as { public_key: Uint8Array; signature: Uint8Array };
+        expect(
+          StellarSdk.StrKey.encodeEd25519PublicKey(signature.public_key),
+        ).toBe(kpB.publicKey());
+        const preimage = StellarSdk.buildAuthorizationEntryPreimage(
+          signed,
+          1000,
+          networkPassphrase,
+        );
+        expect(
+          kpB.verify(StellarSdk.hash(preimage.toXdr()), signature.signature),
+        ).toBe(true);
+      },
+    );
+
+    it("rejects a signature that does not match the wallet's returned signing key", async () => {
+      const wallet = contract.basicNodeSigner(kpB, networkPassphrase);
+      const assembled = assembledWith(
+        [authEntry(addressCred(kpA.publicKey()))],
+        {
+          signAuthEntry: async (preimage: string) => ({
+            ...(await wallet.signAuthEntry(preimage)),
+            signerAddress: kpC.publicKey(),
+          }),
+        },
+      );
+
+      await expect(
+        assembled.signAuthEntries({
+          expiration: 1000,
+          address: kpA.publicKey(),
+        }),
+      ).rejects.toThrow(/signature doesn't match payload/);
+    });
+
+    it("preserves the source-address default and fallback when the wallet omits signerAddress", async () => {
+      const entry = authEntry(addressCred(kpA.publicKey()));
+      const wallet = contract.basicNodeSigner(kpA, networkPassphrase);
+      const assembled = assembledWith([entry], {
+        publicKey: kpA.publicKey(),
+        signAuthEntry: async (preimage: string) => ({
+          signedAuthEntry: (await wallet.signAuthEntry(preimage))
+            .signedAuthEntry,
+        }),
+      });
+
+      await assembled.signAuthEntries({
+        expiration: 1000,
+        address: kpA.publicKey(),
+      });
+
+      const operation = expectDefined(assembled.built).operations[0];
+      if (operation.type !== "invokeHostFunction") {
+        throw new Error("Expected an invokeHostFunction operation");
+      }
+      const expected = await StellarSdk.authorizeEntry(
+        entry,
+        kpA,
+        1000,
+        networkPassphrase,
+      );
+      expect(expectDefined(operation.auth)[0].toXdr()).toEqual(
+        expected.toXdr(),
+      );
+    });
+
+    it("preserves raw callback bytes for custom authorizers of contract accounts", async () => {
+      const entry = authEntry(addressCred(contractId));
+      const assembled = assembledWith(
+        [entry],
+        contract.basicNodeSigner(kpB, networkPassphrase),
+      );
+      let callbackResult: unknown;
+      const authorizeEntry: typeof StellarSdk.authorizeEntry = async (
+        original,
+        signer,
+        expiration,
+        network,
+      ) => {
+        if (typeof signer !== "function") {
+          throw new Error("Expected a signing callback");
+        }
+        const preimage = StellarSdk.buildAuthorizationEntryPreimage(
+          original,
+          expiration,
+          network,
+        );
+        callbackResult = await signer(
+          preimage,
+          StellarSdk.hash(preimage.toXdr()),
+        );
+        return original;
+      };
+
+      await assembled.signAuthEntries({
+        expiration: 1000,
+        address: contractId,
+        authorizeEntry,
+      });
+
+      expect(callbackResult).toBeInstanceOf(Uint8Array);
+      const preimage = StellarSdk.buildAuthorizationEntryPreimage(
+        entry,
+        1000,
+        networkPassphrase,
+      );
+      expect(
+        kpB.verify(
+          StellarSdk.hash(preimage.toXdr()),
+          callbackResult as Uint8Array,
+        ),
+      ).toBe(true);
+    });
+
+    it.each([null, ""])(
+      "treats a wallet signerAddress of %j as omitted",
+      async (signerAddress) => {
+        // Plain-JS wallets are not held to the types; before the field was
+        // read at all, these signed fine against the entry's own address.
+        const entry = authEntry(addressCred(kpA.publicKey()));
+        const wallet = contract.basicNodeSigner(kpA, networkPassphrase);
+        const assembled = assembledWith([entry], {
+          signAuthEntry: async (preimage: string) => ({
+            signedAuthEntry: (await wallet.signAuthEntry(preimage))
+              .signedAuthEntry,
+            signerAddress: signerAddress as unknown as string,
+          }),
+        });
+
+        await assembled.signAuthEntries({
+          expiration: 1000,
+          address: kpA.publicKey(),
+        });
+
+        const operation = expectDefined(assembled.built).operations[0];
+        if (operation.type !== "invokeHostFunction") {
+          throw new Error("Expected an invokeHostFunction operation");
+        }
+        const expected = await StellarSdk.authorizeEntry(
+          entry,
+          kpA,
+          1000,
+          networkPassphrase,
+        );
+        expect(expectDefined(operation.auth)[0].toXdr()).toEqual(
+          expected.toXdr(),
+        );
+      },
+    );
+
+    it("resolves a muxed signerAddress to its base account", async () => {
+      const entry = authEntry(addressCred(kpA.publicKey()));
+      const wallet = contract.basicNodeSigner(kpB, networkPassphrase);
+      const muxed = new StellarSdk.MuxedAccount(
+        new Account(kpB.publicKey(), "0"),
+        "7",
+      ).accountId();
+      expect(muxed.startsWith("M")).toBe(true);
+      const assembled = assembledWith([entry], {
+        signAuthEntry: async (preimage: string) => ({
+          ...(await wallet.signAuthEntry(preimage)),
+          signerAddress: muxed,
+        }),
+      });
+
+      await assembled.signAuthEntries({
+        expiration: 1000,
+        address: kpA.publicKey(),
+      });
+
+      const operation = expectDefined(assembled.built).operations[0];
+      if (operation.type !== "invokeHostFunction") {
+        throw new Error("Expected an invokeHostFunction operation");
+      }
+      const info = StellarSdk.inspectAuthEntry(
+        expectDefined(operation.auth)[0],
+      );
+      expect(info.address).toBe(kpA.publicKey());
+      const signature = StellarSdk.scValToNative(
+        info.signers[0].rawSignature,
+      )[0] as { public_key: Uint8Array; signature: Uint8Array };
+      expect(
+        StellarSdk.StrKey.encodeEd25519PublicKey(signature.public_key),
+      ).toBe(kpB.publicKey());
+    });
+
+    it("rejects a wallet signerAddress that is not an account address, naming it", async () => {
+      // A typo'd key must not fall back to the entry address and surface as
+      // "signature doesn't match payload" (#1681).
+      const entry = authEntry(addressCred(kpA.publicKey()));
+      const wallet = contract.basicNodeSigner(kpA, networkPassphrase);
+      const bad = `${kpB.publicKey().slice(0, -1)}A`;
+      const assembled = assembledWith([entry], {
+        signAuthEntry: async (preimage: string) => ({
+          ...(await wallet.signAuthEntry(preimage)),
+          signerAddress: bad,
+        }),
+      });
+
+      await expect(
+        assembled.signAuthEntries({
+          expiration: 1000,
+          address: kpA.publicKey(),
+        }),
+      ).rejects.toThrow(
+        new TypeError(
+          "expected the wallet's signerAddress to be an account address (G... " +
+            `or M...), got ${JSON.stringify(bad)}`,
+        ),
+      );
+    });
+
+    it("rejects a contract signerAddress and points at a custom authorizeEntry", async () => {
+      const entry = authEntry(addressCred(kpA.publicKey()));
+      const wallet = contract.basicNodeSigner(kpA, networkPassphrase);
+      const contractId = StellarSdk.StrKey.encodeContract(
+        new Uint8Array(32).fill(7),
+      );
+      const assembled = assembledWith([entry], {
+        signAuthEntry: async (preimage: string) => ({
+          ...(await wallet.signAuthEntry(preimage)),
+          signerAddress: contractId,
+        }),
+      });
+
+      await expect(
+        assembled.signAuthEntries({
+          expiration: 1000,
+          address: kpA.publicKey(),
+        }),
+      ).rejects.toThrow(
+        new TypeError(
+          `the wallet's signerAddress names contract ${contractId}, but the ` +
+            "default authorizer verifies Ed25519 signatures only; sign for a " +
+            "contract account with a custom `authorizeEntry`",
+        ),
+      );
+    });
+
     it("end-to-end signs an ADDRESS_V2 entry via the default authorizeEntry + basicNodeSigner", async () => {
       const signer = Keypair.random();
       const assembled = assembledWith(
