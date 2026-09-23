@@ -735,25 +735,49 @@ describe("AssembledTransaction auth entry credential types (CAP-71)", () => {
       ).toEqual([]);
     });
 
-    it("lists every node with includeAlreadySigned and includeDelegates", () => {
+    it("lists delegates in place of a contract account with includeAlreadySigned and includeDelegates", () => {
       const assembled = assembledWith([
         delegatesEntry(accountC, [
           { address: kpB.publicKey(), signed: true },
           { address: innerC, nested: [{ address: kpC.publicKey() }] },
         ]),
       ]);
+      const all = assembled.needsNonInvokerSigningBy({
+        includeAlreadySigned: true,
+        includeDelegates: true,
+      });
 
-      expect(
-        assembled
-          .needsNonInvokerSigningBy({
-            includeAlreadySigned: true,
-            includeDelegates: true,
-          })
-          .sort(),
-      ).toEqual([accountC, kpB.publicKey(), innerC, kpC.publicKey()].sort());
+      expect([...all].sort()).toEqual(
+        [kpB.publicKey(), kpC.publicKey()].sort(),
+      );
+      const pending = assembled.needsNonInvokerSigningBy({
+        includeDelegates: true,
+      });
+      expect(pending).toEqual([kpC.publicKey()]);
+      expect(all).toEqual(expect.arrayContaining(pending));
       expect(
         assembled.needsNonInvokerSigningBy({ includeAlreadySigned: true }),
       ).toEqual([accountC]);
+    });
+
+    it("lists a G account, not its delegates, with includeAlreadySigned and includeDelegates", () => {
+      const assembled = assembledWith([
+        delegatesEntry(
+          kpA.publicKey(),
+          [{ address: kpB.publicKey(), signed: true }],
+          true,
+        ),
+      ]);
+
+      expect(
+        assembled.needsNonInvokerSigningBy({
+          includeAlreadySigned: true,
+          includeDelegates: true,
+        }),
+      ).toEqual([kpA.publicKey()]);
+      expect(
+        assembled.needsNonInvokerSigningBy({ includeDelegates: true }),
+      ).toEqual([]);
     });
 
     it("skips contract delegates entries with ignoreContractDelegates, and nothing else", () => {

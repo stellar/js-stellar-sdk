@@ -482,11 +482,12 @@ still lacks a signature (or of every such entry, with
 envelope signature covers them; address credentials are listed even when
 their address is the transaction source.
 
-For a CAP-71 delegates entry, a `G…` account always needs its own
-signature, while an unsigned `C…` account is assumed covered once its
-delegates have signed (its `__check_auth` decides). This is a signature-presence heuristic, not an authorization
-check: it does not see custom account policy or requirements raised inside
-`__check_auth`. The contract auth guide covers the caveats.
+For a CAP-71 delegates entry, a `G…` account needs its own signature on
+p27, while an unsigned `C…` account is assumed covered once its delegates
+have signed (its `__check_auth` decides). This is a signature-presence
+heuristic, not an authorization check: it does not see custom account
+policy or requirements raised inside `__check_auth`. The contract auth
+guide covers the caveats.
 
 ```ts
 needsNonInvokerSigningBy(__namedParameters: { ignoreContractDelegates?: boolean; includeAlreadySigned?: boolean; includeDelegates?: boolean } = {}): string[];
@@ -496,7 +497,7 @@ needsNonInvokerSigningBy(__namedParameters: { ignoreContractDelegates?: boolean;
 
 - **`__namedParameters`** — `{ ignoreContractDelegates?: boolean; includeAlreadySigned?: boolean; includeDelegates?: boolean }` (optional) (default: `{}`)
 
-**Source:** [src/contract/assembled_transaction.ts:1002](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L1002)
+**Source:** [src/contract/assembled_transaction.ts:1003](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L1003)
 
 ### `assembledTransaction.restoreFootprint(restorePreamble, account)`
 

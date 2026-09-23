@@ -206,29 +206,41 @@ const pendingAt = (
   address: ScAddress,
   signature: ScVal,
   delegates: SorobanDelegateSignature[],
+  includeSigned: boolean,
 ): string[] => {
-  if (signaturePresent(signature)) return [];
+  if (!includeSigned && signaturePresent(signature)) return [];
+  // On p27 (CAP-71 only) the built-in G… check ignores delegates, so a G… node
+  // needs its own signature. CAP-72 changes this; revisit when it ships.
   if (address.type !== "scAddressTypeContract" || delegates.length === 0) {
     return [Address.fromScAddress(address).toString()];
   }
   return delegates.flatMap((d) =>
-    pendingAt(d.address, d.signature, d.nestedDelegates),
+    pendingAt(d.address, d.signature, d.nestedDelegates, includeSigned),
   );
 };
 
 /**
- * Addresses in `credentials` that still have to sign. A `G…` node always needs
- * its own signature (a host rule); an unsigned `C…` node with delegates is
- * assumed covered once they are, since only its `__check_auth` knows. A signed
- * node's delegates are not checked. Source-account credentials return `[]`.
+ * Addresses in `credentials` that still have to sign, or with `includeSigned`
+ * every address that has to sign. On p27 a `G…` node needs its own signature;
+ * an unsigned `C…` node with delegates is assumed covered once they are, since
+ * only its `__check_auth` knows. A signed node's delegates are not checked
+ * unless `includeSigned` is set. Source-account credentials return `[]`.
  * @hidden
  */
-export function pendingSigners(credentials: SorobanCredentials): string[] {
+export function pendingSigners(
+  credentials: SorobanCredentials,
+  includeSigned = false,
+): string[] {
   const addrAuth = getAddressCredentials(credentials);
   if (addrAuth === null) return [];
   const delegates =
     credentials.type === "sorobanCredentialsAddressWithDelegates"
       ? credentials.addressWithDelegates.delegates
       : [];
-  return pendingAt(addrAuth.address, addrAuth.signature, delegates);
+  return pendingAt(
+    addrAuth.address,
+    addrAuth.signature,
+    delegates,
+    includeSigned,
+  );
 }

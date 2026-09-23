@@ -993,11 +993,12 @@ export class AssembledTransaction<T> {
    * envelope signature covers them; address credentials are listed even when
    * their address is the transaction source.
    *
-   * For a CAP-71 delegates entry, a `G…` account always needs its own
-   * signature, while an unsigned `C…` account is assumed covered once its
-   * delegates have signed (its `__check_auth` decides). This is a signature-presence heuristic, not an authorization
-   * check: it does not see custom account policy or requirements raised inside
-   * `__check_auth`. The contract auth guide covers the caveats.
+   * For a CAP-71 delegates entry, a `G…` account needs its own signature on
+   * p27, while an unsigned `C…` account is assumed covered once its delegates
+   * have signed (its `__check_auth` decides). This is a signature-presence
+   * heuristic, not an authorization check: it does not see custom account
+   * policy or requirements raised inside `__check_auth`. The contract auth
+   * guide covers the caveats.
    */
   needsNonInvokerSigningBy = ({
     includeAlreadySigned = false,
@@ -1010,8 +1011,9 @@ export class AssembledTransaction<T> {
      */
     includeAlreadySigned?: boolean;
     /**
-     * List the delegate addresses that still have to sign in place of their
-     * entry's top-level address. `signAuthEntries` signs top-level addresses
+     * List the delegate addresses that still have to sign (or all of them,
+     * with `includeAlreadySigned`) in place of their entry's top-level
+     * address. `signAuthEntries` signs top-level addresses
      * only; sign delegates with `authorizeEntry` and `forAddress`.
      * Default: false
      */
@@ -1053,14 +1055,12 @@ export class AssembledTransaction<T> {
           ) {
             return [];
           }
-          if (includeAlreadySigned) {
-            return includeDelegates
-              ? info.signers.map((signer) => signer.address)
-              : [info.address];
-          }
-          const pending = pendingSigners(entry.credentials);
-          if (pending.length === 0) return [];
-          return includeDelegates ? pending : [info.address];
+          const signers = pendingSigners(
+            entry.credentials,
+            includeAlreadySigned,
+          );
+          if (signers.length === 0) return [];
+          return includeDelegates ? signers : [info.address];
         }),
       ),
     ];
