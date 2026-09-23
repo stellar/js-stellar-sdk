@@ -56,9 +56,9 @@ executes it. If an SDK change breaks a guide example, CI fails.
    each displayed block in a region:
 
    ```ts
-   // #region create-keypair
-   const keypair = Keypair.random();
-   // #endregion create-keypair
+   // #region define-asset
+   const astro = new Asset("ASTRO", issuer.publicKey());
+   // #endregion define-asset
    ```
 
    Rules that make this work:
@@ -91,7 +91,7 @@ executes it. If an SDK change breaks a guide example, CI fails.
    instead of a code block:
 
    ```markdown
-   <!-- snippet: issue-an-asset.ts#create-keypair -->
+   <!-- snippet: issue-an-asset.ts#define-asset -->
    ```
 
    Do not put a code fence after the marker. `check-snippets` rejects it,
