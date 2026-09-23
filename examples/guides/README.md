@@ -36,9 +36,11 @@ executes it. If an SDK change breaks a guide example, CI fails.
    - **Local-network execution PR gate** `pnpm test:guides:local` (runs in
      `guides_pr.yml` on every PR against a stellar/quickstart service
      container): `test/guides/snippets.test.ts` auto-discovers every file in
-     `examples/guides/` and executes it. Snippets keep their real testnet URLs
-     and passphrase; `config/guides-local-setup.ts` redirects them to the local
-     network at the transport layer. To run locally, start quickstart first:
+     `examples/guides/` and executes each one in its own node process. Snippets
+     keep their real testnet URLs and passphrase;
+     `config/guides-snippet-preload.ts` redirects them to the local network at
+     the transport layer, inside each snippet's process. To run locally, start
+     quickstart first:
      `docker run --rm -p 8000:8000 -e NETWORK=local -e ENABLE_SOROBAN_RPC=true stellar/quickstart:testing`
    - **Real-testnet execution** `pnpm test:guides` (run by `preversion` at
      release time, or manually): the same tests with no redirection. This tier
@@ -125,9 +127,12 @@ tested. Prefer markers for anything a reader might copy.
   funds its own accounts. The quickstart tier runs Soroban RPC, so this works on
   every PR.
 - Never reassign `globalThis.fetch` or mutate `Networks` inside a snippet. The
-  local-network tier redirects transport by patching exactly those, and all
-  snippets share one process; a snippet that touches them breaks every snippet
-  after it.
+  local-network tier redirects transport by patching exactly those, before the
+  snippet starts; a snippet that touches them can send itself to real testnet.
+- A snippet must let its process exit. If a stream, timer or socket is still
+  open 5 seconds after the snippet's last line, the run fails with "left open
+  handles". Close streams in hidden teardown.
+- A snippet's console output appears only when it fails, as part of the error.
 - If the site sidebar ever loses its groups, check the `autogenerate`
   directories in `astro.config.mjs`. They must be prefixed `.docs-build/`,
   matching the collection root.
@@ -143,6 +148,5 @@ due. Do the item when its trigger arrives, not before.
 | Untested-fence opt-out annotation plus a tested/untested count in `check-snippets` (makes silent partial conversions visible) | Before the first partial guide conversion (invoke-a-contract is the likely first) |
 | Fence metadata passthrough in markers (for `title=` and `del=`/`ins=` annotations)                                            | Before converting the before/after guides (contract-auth, protocol-27, migration) |
 | Checked-in wasm fixture plus deploy-in-hidden-setup pattern                                                                   | Before converting invoke-a-contract or contract-auth                              |
-| Child-process snippet execution (isolates shared-process state; dynamic import caches failures, so vitest retry is a no-op)   | Before converting the streaming or error-handling guides                          |
 | Reviewer preview: a command that prints a guide's expanded markdown, or a CI artifact of the `.docs-build/` diff              | Strongly recommended before conversions start                                     |
 | Sidebar canary: post-build assertion that the Guides and Reference groups render                                              | Any time; value grows with guide count                                            |

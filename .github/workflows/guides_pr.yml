@@ -3,7 +3,7 @@ name: Guide snippets (local network)
 # Executes the docs guide snippets (examples/guides/*.ts) on every PR
 # against a local stellar/quickstart network, so a change that breaks the
 # documented flows at runtime cannot merge. The snippets keep their real
-# testnet URLs and passphrase; config/guides-local-setup.ts redirects them
+# testnet URLs and passphrase; config/guides-snippet-preload.ts redirects them
 # to the service container at the transport layer. Depends on nothing
 # outside the runner, so it is reliable enough to be a required check.
 # Real-testnet drift (Horizon deployments, friendbot changes, protocol
