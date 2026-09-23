@@ -143,25 +143,30 @@ account can appear in the list. It does not verify signatures, check signer
 weights, or evaluate a custom account's policy, so an empty signature may be
 intentional, and a filled one does not prove the entry will pass.
 
-Two kinds of requirement are invisible to it. Simulation never returns a CAP-71
-`AddressWithDelegates` entry (it returns `ADDRESS_V2`, or legacy `ADDRESS` with
-`useUpgradedAuth: false`), so delegated signing is
-up to you: wrap the simulated entry with `buildWithDelegatesEntry`, then sign
-each delegate node with `authorizeEntry` and its `forAddress` argument. The
-heuristic does not report those delegate nodes, and `signAuthEntries` does not
-select them. And recording-mode simulation does not run a custom account's
-`__check_auth`, so a `require_auth_for_args` made inside it never appears in the
-returned entries at all. Such a requirement needs an auth entry built by hand,
-and enforcement-mode simulation to check it.
+Simulation never returns a CAP-71 `AddressWithDelegates` entry (it returns
+`ADDRESS_V2`, or legacy `ADDRESS` with `useUpgradedAuth: false`), so delegated
+signing is up to you: wrap the simulated entry with `buildWithDelegatesEntry`,
+then sign each delegate node with `authorizeEntry` and its `forAddress`
+argument. `signAuthEntries` does not select delegate nodes.
 
-`sign` and `signAndSend` run this heuristic before signing the envelope but skip
-contract (`C…`) addresses. Only a contract account can authorize through
-delegates alone. A `G…` account must always sign its own top-level entry, even
-with delegates attached, so an empty `G…` signature fails on the network too.
-For delegates and custom accounts, the risk is the check passing while a
-signature is still missing, not a false rejection. Check
-such entries yourself with `inspectAuthEntry` or
-`needsNonInvokerSigningBy({ includeAlreadySigned: true })`.
+Once delegates are attached, the heuristic follows the network's rules. Only a
+contract account can authorize through delegates alone, so an unsigned `C…`
+account drops off the list once its delegates have signed. A `G…` account must
+always sign its own top-level entry, even with delegates attached, so it stays
+listed until it does. Pass `includeDelegates: true` to list the delegates that
+still have to sign in place of their entry's top-level address.
+
+One kind of requirement stays invisible to it. Recording-mode simulation does
+not run a custom account's `__check_auth`, so a `require_auth_for_args` made
+inside it never appears in the returned entries at all. Such a requirement
+needs an auth entry built by hand, and enforcement-mode simulation to check it.
+
+`sign` and `signAndSend` run this heuristic, with delegates included, before
+signing the envelope, and reject any `G…` address still listed. They skip
+contract (`C…`) addresses, since a contract's own policy can't be checked
+locally. For custom accounts, the risk is the check passing while a signature
+is still missing, not a false rejection. Check such entries yourself with
+`inspectAuthEntry`.
 
 For ordinary multi-party signing, serialize the transaction with `toJson`, send
 it to the next account's signer, have them deserialize it with `txFromJson` and

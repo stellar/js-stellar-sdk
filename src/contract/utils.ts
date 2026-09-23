@@ -1,7 +1,15 @@
-import { Account } from "../base/index.js";
+import { Account, Address } from "../base/index.js";
+import { getAddressCredentials } from "../base/auth.js";
 import { Server } from "../rpc/index.js";
 import { NULL_ACCOUNT, type AssembledTransactionOptions } from "./types.js";
-import { ScSpecEntry, decodeStream } from "../xdr/index.js";
+import {
+  ScSpecEntry,
+  decodeStream,
+  type ScAddress,
+  type ScVal,
+  type SorobanCredentials,
+  type SorobanDelegateSignature,
+} from "../xdr/index.js";
 
 /**
  * Keep calling a `fn` for `timeoutInSeconds` seconds, if `keepWaitingIf` is
@@ -186,4 +194,41 @@ export async function getAccount<T>(
   return options.publicKey
     ? server.getAccount(options.publicKey)
     : new Account(NULL_ACCOUNT, "0");
+}
+
+// Same rule as `inspectAuthEntry`: `scvVoid` and an empty `scvVec` are unsigned.
+const signaturePresent = (signature: ScVal): boolean =>
+  signature.type === "scvVec"
+    ? (signature.value ?? []).length > 0
+    : signature.type !== "scvVoid";
+
+const pendingAt = (
+  address: ScAddress,
+  signature: ScVal,
+  delegates: SorobanDelegateSignature[],
+): string[] => {
+  if (signaturePresent(signature)) return [];
+  if (address.type !== "scAddressTypeContract" || delegates.length === 0) {
+    return [Address.fromScAddress(address).toString()];
+  }
+  return delegates.flatMap((d) =>
+    pendingAt(d.address, d.signature, d.nestedDelegates),
+  );
+};
+
+/**
+ * Addresses in `credentials` that still have to sign, by the host's rules: a
+ * `G…` node always needs its own signature, while an unsigned `C…` node with
+ * delegates attached is covered once they are. Source-account credentials
+ * return `[]`.
+ * @hidden
+ */
+export function pendingSigners(credentials: SorobanCredentials): string[] {
+  const addrAuth = getAddressCredentials(credentials);
+  if (addrAuth === null) return [];
+  const delegates =
+    credentials.type === "sorobanCredentialsAddressWithDelegates"
+      ? credentials.addressWithDelegates.delegates
+      : [];
+  return pendingAt(addrAuth.address, addrAuth.signature, delegates);
 }

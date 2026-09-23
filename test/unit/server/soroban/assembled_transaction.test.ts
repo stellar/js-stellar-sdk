@@ -628,6 +628,185 @@ describe("AssembledTransaction auth entry credential types (CAP-71)", () => {
     });
   });
 
+  describe("delegate trees (CAP-71)", () => {
+    const contractAddr = () =>
+      StellarSdk.StrKey.encodeContract(Keypair.random().rawPublicKey());
+    const accountC = contractAddr();
+    const innerC = contractAddr();
+
+    type Node = { address: string; signed?: boolean; nested?: Node[] };
+    const delegate = ({
+      address,
+      signed = false,
+      nested = [],
+    }: Node): xdr.SorobanDelegateSignature =>
+      new xdr.SorobanDelegateSignature({
+        address: new Address(address).toScAddress(),
+        signature: signed
+          ? xdr.ScVal.scvVec([xdr.ScVal.scvBytes(new Uint8Array(64))])
+          : xdr.ScVal.scvVoid(),
+        nestedDelegates: nested.map(delegate),
+      });
+    const delegatesEntry = (top: string, delegates: Node[], signed = false) =>
+      authEntry(
+        xdr.SorobanCredentials.sorobanCredentialsAddressWithDelegates(
+          new xdr.SorobanAddressCredentialsWithDelegates({
+            addressCredentials: addrCreds(top, signed),
+            delegates: delegates.map(delegate),
+          }),
+        ),
+      );
+
+    it("treats an unsigned contract account as covered once its delegates have signed", () => {
+      const assembled = assembledWith([
+        delegatesEntry(accountC, [{ address: kpB.publicKey(), signed: true }]),
+      ]);
+
+      expect(assembled.needsNonInvokerSigningBy()).toEqual([]);
+      expect(
+        assembled.needsNonInvokerSigningBy({ includeDelegates: true }),
+      ).toEqual([]);
+    });
+
+    it("lists the account by default, and the missing delegate with includeDelegates", () => {
+      const assembled = assembledWith([
+        delegatesEntry(accountC, [
+          { address: kpB.publicKey(), signed: true },
+          { address: kpC.publicKey() },
+        ]),
+      ]);
+
+      expect(assembled.needsNonInvokerSigningBy()).toEqual([accountC]);
+      expect(
+        assembled.needsNonInvokerSigningBy({ includeDelegates: true }),
+      ).toEqual([kpC.publicKey()]);
+    });
+
+    it("walks nested delegates down to the missing leaf", () => {
+      const tree = (leafSigned: boolean) => [
+        {
+          address: innerC,
+          nested: [{ address: kpB.publicKey(), signed: leafSigned }],
+        },
+      ];
+
+      expect(
+        assembledWith([
+          delegatesEntry(accountC, tree(true)),
+        ]).needsNonInvokerSigningBy({ includeDelegates: true }),
+      ).toEqual([]);
+      expect(
+        assembledWith([
+          delegatesEntry(accountC, tree(false)),
+        ]).needsNonInvokerSigningBy({ includeDelegates: true }),
+      ).toEqual([kpB.publicKey()]);
+    });
+
+    it("still requires a G account's own signature when delegates are attached", () => {
+      const assembled = assembledWith([
+        delegatesEntry(kpA.publicKey(), [
+          { address: kpB.publicKey(), signed: true },
+        ]),
+      ]);
+
+      expect(assembled.needsNonInvokerSigningBy()).toEqual([kpA.publicKey()]);
+      expect(
+        assembled.needsNonInvokerSigningBy({ includeDelegates: true }),
+      ).toEqual([kpA.publicKey()]);
+    });
+
+    it("lists an unsigned contract account with no delegates attached", () => {
+      expect(
+        assembledWith([
+          delegatesEntry(accountC, []),
+        ]).needsNonInvokerSigningBy(),
+      ).toEqual([accountC]);
+    });
+
+    it("does not descend below a signed node", () => {
+      // e.g. a hybrid account that signed as its owner, with a delegate
+      // placeholder left unsigned
+      const assembled = assembledWith([
+        delegatesEntry(accountC, [{ address: kpB.publicKey() }], true),
+      ]);
+
+      expect(
+        assembled.needsNonInvokerSigningBy({ includeDelegates: true }),
+      ).toEqual([]);
+    });
+
+    it("lists every node with includeAlreadySigned and includeDelegates", () => {
+      const assembled = assembledWith([
+        delegatesEntry(accountC, [
+          { address: kpB.publicKey(), signed: true },
+          { address: innerC, nested: [{ address: kpC.publicKey() }] },
+        ]),
+      ]);
+
+      expect(
+        assembled
+          .needsNonInvokerSigningBy({
+            includeAlreadySigned: true,
+            includeDelegates: true,
+          })
+          .sort(),
+      ).toEqual([accountC, kpB.publicKey(), innerC, kpC.publicKey()].sort());
+      expect(
+        assembled.needsNonInvokerSigningBy({ includeAlreadySigned: true }),
+      ).toEqual([accountC]);
+    });
+
+    describe("sign()", () => {
+      const signing = (auth: xdr.SorobanAuthorizationEntry[]) => {
+        const assembled = assembledWith(auth, {
+          publicKey: kpA.publicKey(),
+          ...contract.basicNodeSigner(kpA, networkPassphrase),
+        });
+        vi.spyOn(assembled, "simulationData", "get").mockReturnValue({
+          result: { auth, retval: xdr.ScVal.scvU32(0) },
+          transactionData: new SorobanDataBuilder().build(),
+        });
+        return assembled;
+      };
+
+      it("signs when a delegates-only contract account's delegates have signed", async () => {
+        const assembled = signing([
+          delegatesEntry(accountC, [
+            { address: kpB.publicKey(), signed: true },
+          ]),
+        ]);
+
+        await assembled.sign();
+        expect(assembled.signed).toBeDefined();
+      });
+
+      it("rejects an unsigned G delegate under a contract account", async () => {
+        const assembled = signing([
+          delegatesEntry(accountC, [{ address: kpC.publicKey() }]),
+        ]);
+
+        await expect(assembled.sign()).rejects.toThrow(
+          new contract.AssembledTransaction.Errors.NeedsMoreSignatures(
+            `Transaction requires signatures from ${kpC.publicKey()}. ` +
+              "See `needsNonInvokerSigningBy` for details.",
+          ),
+        );
+      });
+
+      it("rejects a G account whose top level is unsigned, even with signed delegates", async () => {
+        const assembled = signing([
+          delegatesEntry(kpB.publicKey(), [
+            { address: kpC.publicKey(), signed: true },
+          ]),
+        ]);
+
+        await expect(assembled.sign()).rejects.toThrow(
+          contract.AssembledTransaction.Errors.NeedsMoreSignatures,
+        );
+      });
+    });
+  });
+
   describe("signAuthEntries", () => {
     it("authorizes ADDRESS_V2 and ADDRESS_WITH_DELEGATES entries for the target address, skipping source account and other addresses", async () => {
       const assembled = assembledWith([
