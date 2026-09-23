@@ -1,0 +1,94 @@
+/**
+ * Prints one doc's markdown with its snippet markers expanded, exactly as the
+ * docs build renders it (see config/snippets.ts for the mechanism).
+ *
+ * Markers hide a guide's code from a PR diff, so a reviewer cannot see what
+ * the page will actually render. This prints that expansion for a single
+ * file, with no docs build and no Docker.
+ *
+ * Run via `pnpm docs:snippets:show <doc>`, where <doc> is a .md file under
+ * docs/ — the build expands nothing else, so neither does this. Paths resolve
+ * from the repo root, because pnpm runs the script there, either as typed or
+ * relative to docs/:
+ *
+ *   pnpm docs:snippets:show docs/guides/03-issue-an-asset.md
+ *   pnpm docs:snippets:show guides/03-issue-an-asset.md
+ *
+ * Output is byte-identical to the file the build writes into .docs-build/.
+ * Redirect it with `pnpm --silent`, or pnpm's own banner lands on stdout
+ * ahead of the markdown.
+ */
+
+import { readFileSync, realpathSync, statSync } from "node:fs";
+import { dirname, isAbsolute, join, relative, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+
+import { expandSnippetMarkers } from "../config/snippets.js";
+
+const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
+const DOCS_DIR = join(REPO_ROOT, "docs");
+const DOCS_REAL = realpathSync(DOCS_DIR);
+
+const USAGE =
+  "usage: pnpm docs:snippets:show <doc>\n" +
+  "  <doc> is a markdown file under docs/, for example:\n" +
+  "    pnpm docs:snippets:show docs/guides/03-issue-an-asset.md\n" +
+  "    pnpm docs:snippets:show guides/03-issue-an-asset.md";
+
+function fail(message: string): never {
+  console.error(message);
+  process.exit(1);
+}
+
+const arg = process.argv[2];
+if (arg === "-h" || arg === "--help") {
+  console.log(USAGE);
+  process.exit(0);
+}
+if (arg === undefined || arg === "") {
+  fail(USAGE);
+}
+
+// Resolve symlinks before judging the path: statSync follows them, so a
+// lexical check would accept a .md symlink under docs/ that points anywhere.
+// Returns null for a missing file and for a dangling symlink, which throws.
+function realFile(path: string): string | null {
+  try {
+    const real = realpathSync(path);
+    return statSync(real).isFile() ? real : null;
+  } catch {
+    return null;
+  }
+}
+
+// The build only ever expands .md under docs/, so anything else is a mistyped
+// path. Without this, a source file gets scanned for markers and reports a
+// near-miss error that reads like a real docs defect. Both sides are real
+// paths, so a checkout reached through a symlink still resolves.
+function isDoc(real: string): boolean {
+  const rel = relative(DOCS_REAL, real);
+  return !rel.startsWith("..") && !isAbsolute(rel) && real.endsWith(".md");
+}
+
+// Accept the path as typed (shell completion from the repo root) or relative
+// to docs/, so the docs/ prefix is optional.
+const candidates = [resolve(arg), resolve(DOCS_DIR, arg)];
+const existing = candidates
+  .map(realFile)
+  .filter((p): p is string => p !== null);
+const path = existing.find(isDoc);
+if (path === undefined) {
+  fail(
+    existing.length > 0
+      ? `not a .md file under docs/:\n  ${existing.join("\n  ")}\n\n${USAGE}`
+      : `no such file, tried:\n  ${candidates.join("\n  ")}\n\n${USAGE}`,
+  );
+}
+
+let expanded: string;
+try {
+  expanded = expandSnippetMarkers(readFileSync(path, "utf8"));
+} catch (e) {
+  fail(`${arg}: ${(e as Error).message}`);
+}
+process.stdout.write(expanded);

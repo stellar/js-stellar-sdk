@@ -154,10 +154,13 @@ describe("parseRegions", () => {
 
 describe("scanMarkdown", () => {
   it("classifies markers and captures file/region", () => {
-    const [scanned] = scanMarkdown("<!-- snippet: send-a-payment.ts#build -->");
-    expect(scanned.kind).toBe("marker");
-    expect(scanned.file).toBe("send-a-payment.ts");
-    expect(scanned.region).toBe("build");
+    const line = "<!-- snippet: send-a-payment.ts#build -->";
+    expect(scanMarkdown(line)[0]).toEqual({
+      line,
+      kind: "marker",
+      file: "send-a-payment.ts",
+      region: "build",
+    });
   });
 
   it("flags near-miss markers (typos, indentation) instead of ignoring them", () => {

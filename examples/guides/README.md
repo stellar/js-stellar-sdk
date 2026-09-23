@@ -99,12 +99,31 @@ executes it. If an SDK change breaks a guide example, CI fails.
 
 3. **Verify**: `pnpm docs:snippets:check` for fast validation and typecheck,
    `pnpm test:guides:local` to execute against a local quickstart container (the
-   day-to-day loop, a few seconds per run), and `pnpm docs:dev` to see the
+   day-to-day loop, a few seconds per run), `pnpm docs:snippets:show <doc>` to
+   print one file's expanded markdown, and `pnpm docs:dev` to see the
    rendered guide. In dev, editing a snippet hot reloads the pages that embed
    it. No Docker? Run the check locally and let the `guides_pr.yml` workflow
    execute the snippets on your PR. There is no test wiring step:
    `test/guides/snippets.test.ts` auto-discovers every snippet file, so a
    snippet that typechecks but never runs cannot happen.
+
+## Reviewing a snippet change
+
+A marker hides the code from the diff, so a reviewer cannot see what the page
+will render. Print one file's expanded markdown:
+
+```sh
+pnpm docs:snippets:show guides/03-issue-an-asset.md
+```
+
+Paths resolve from the repo root, either as typed or relative to `docs/`, so
+the `docs/` prefix is optional. The output is what the build writes into
+`.docs-build/`, byte for byte. To capture it, silence pnpm's banner — it goes
+to stdout, ahead of the markdown:
+
+```sh
+pnpm --silent docs:snippets:show guides/03-issue-an-asset.md > rendered.md
+```
 
 ## Intentionally unverified code
 
@@ -144,5 +163,5 @@ due. Do the item when its trigger arrives, not before.
 | Fence metadata passthrough in markers (for `title=` and `del=`/`ins=` annotations)                                            | Before converting the before/after guides (contract-auth, protocol-27, migration) |
 | Checked-in wasm fixture plus deploy-in-hidden-setup pattern                                                                   | Before converting invoke-a-contract or contract-auth                              |
 | Child-process snippet execution (isolates shared-process state; dynamic import caches failures, so vitest retry is a no-op)   | Before converting the streaming or error-handling guides                          |
-| Reviewer preview: a command that prints a guide's expanded markdown, or a CI artifact of the `.docs-build/` diff              | Strongly recommended before conversions start                                     |
+| Reviewer preview as a CI artifact of the expanded `.docs-build/guides/` output (the local command half is done: `pnpm docs:snippets:show`) | If reviewers find checking out the branch too slow                                |
 | Sidebar canary: post-build assertion that the Guides and Reference groups render                                              | Any time; value grows with guide count                                            |
