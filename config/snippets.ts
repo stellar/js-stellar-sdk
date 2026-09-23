@@ -210,14 +210,17 @@ function langOf(file: string): string {
   return file.split(".").pop() ?? "ts";
 }
 
-/** One markdown line, classified by the shared fence-aware scanner. */
-export interface ScannedLine {
-  line: string;
-  kind: "text" | "marker" | "near-miss" | "fence-open" | "fence-close" | "code";
-  // Set when kind is "marker".
-  file?: string;
-  region?: string;
-}
+/**
+ * One markdown line, classified by the shared fence-aware scanner. A marker
+ * carries its file#region; no other kind does, so a consumer must narrow on
+ * `kind` before reading them.
+ */
+export type ScannedLine =
+  | { line: string; kind: "marker"; file: string; region: string }
+  | {
+      line: string;
+      kind: "text" | "near-miss" | "fence-open" | "fence-close" | "code";
+    };
 
 /**
  * Classifies markdown lines with CommonMark-style fence tracking, so every
@@ -290,7 +293,7 @@ export function expandSnippetMarkers(markdown: string): string {
   return scanMarkdown(markdown)
     .map((scanned, i) => {
       if (scanned.kind === "marker") {
-        const { file, region } = scanned as Required<ScannedLine>;
+        const { file, region } = scanned;
         return `\`\`\`${langOf(file)}\n${snippetRegion(file, region)}\n\`\`\``;
       }
       if (scanned.kind === "near-miss") {

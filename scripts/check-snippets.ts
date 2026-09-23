@@ -41,18 +41,19 @@ for (const path of walkMarkdown(DOCS_DIR)) {
   const scanned = scanMarkdown(readFileSync(path, "utf8"));
 
   for (let i = 0; i < scanned.length; i += 1) {
-    const { line, kind, file, region } = scanned[i];
+    const scan = scanned[i];
+    const { line } = scan;
 
-    if (kind === "near-miss") {
+    if (scan.kind === "near-miss") {
       problems.push(`${doc}: ${nearMissError(i + 1, line).message}`);
       continue;
     }
-    if (kind !== "marker") continue;
+    if (scan.kind !== "marker") continue;
     markers += 1;
 
     // The reference must resolve to a real snippet file and region.
     try {
-      snippetRegion(file!, region!);
+      snippetRegion(scan.file, scan.region);
     } catch (e) {
       problems.push(`${doc}:${i + 1}: ${(e as Error).message}`);
     }
@@ -70,12 +71,15 @@ for (const path of walkMarkdown(DOCS_DIR)) {
   }
 }
 
+// Set exitCode rather than calling process.exit: stderr to a pipe is async
+// on POSIX, and exiting mid-write truncates a long problem list in CI.
 if (problems.length > 0) {
   console.error(problems.join("\n"));
-  process.exit(1);
+  process.exitCode = 1;
+} else {
+  console.log(
+    `${markers} snippet marker(s) OK (hermetic check — snippets also execute ` +
+      `on every PR against a local network via guides_pr.yml, and against ` +
+      `real testnet at release)`,
+  );
 }
-console.log(
-  `${markers} snippet marker(s) OK (hermetic check — snippets also execute ` +
-    `on every PR against a local network via guides_pr.yml, and against ` +
-    `real testnet at release)`,
-);
