@@ -878,7 +878,8 @@ describe("AssembledTransaction auth entry credential types (CAP-71)", () => {
       // "signature doesn't match payload" (#1681).
       const entry = authEntry(addressCred(kpA.publicKey()));
       const wallet = contract.basicNodeSigner(kpA, networkPassphrase);
-      const bad = `${kpB.publicKey().slice(0, -1)}A`;
+      const good = kpB.publicKey();
+      const bad = `${good.slice(0, -1)}${good.endsWith("A") ? "B" : "A"}`;
       const assembled = assembledWith([entry], {
         signAuthEntry: async (preimage: string) => ({
           ...(await wallet.signAuthEntry(preimage)),
