@@ -17,26 +17,37 @@
 // build-time define that vitest does not inject into globalSetup.
 import { Keypair } from "../src/base/keypair.js";
 
-const LOCAL = process.env.QUICKSTART_URL ?? "http://localhost:8000";
-
 // quickstart reports healthy once Soroban RPC and friendbot answer, but
 // Horizon keeps returning 503 still_ingesting on data endpoints for a while
 // after that. Snippets call loadAccount straight after funding, so wait for
 // /accounts to stop returning 503 before the first snippet runs.
 const READY_TIMEOUT_MS = 120_000;
 const READY_POLL_MS = 1_000;
+const ATTEMPT_TIMEOUT_MS = 5_000;
 
 export default async function setup(): Promise<void> {
+  // Read per call, not at module scope, so a caller can point it elsewhere.
+  const LOCAL = process.env.QUICKSTART_URL ?? "http://localhost:8000";
+
+  let root: Response;
   try {
-    await fetch(`${LOCAL}/`);
-  } catch {
+    root = await fetch(`${LOCAL}/`, {
+      signal: AbortSignal.timeout(ATTEMPT_TIMEOUT_MS),
+    });
+  } catch (e) {
     throw new Error(
-      `guides-local-setup: quickstart is not reachable at ${LOCAL}. ` +
-        `Start it with:\n\n  docker run --rm -p 8000:8000 -e NETWORK=local ` +
+      `guides-local-setup: quickstart is not reachable at ${LOCAL} ` +
+        `(${e instanceof Error ? e.message : String(e)}). Start it with:\n\n  docker run --rm -p 8000:8000 -e NETWORK=local ` +
         `-e ENABLE_SOROBAN_RPC=true stellar/quickstart:testing\n\n(see ` +
         `examples/guides/README.md). Without Docker, run ` +
         `\`pnpm docs:snippets:check\` locally and let the guides_pr.yml ` +
         `workflow execute the snippets.`,
+    );
+  }
+  if (!root.ok) {
+    throw new Error(
+      `guides-local-setup: ${LOCAL}/ answered HTTP ${root.status}, so it is ` +
+        `not a quickstart Horizon root. Check what is listening there.`,
     );
   }
 
@@ -47,7 +58,7 @@ export default async function setup(): Promise<void> {
     try {
       // Bound each attempt: the deadline below is only checked between them.
       const res = await fetch(probe, {
-        signal: AbortSignal.timeout(READY_POLL_MS * 5),
+        signal: AbortSignal.timeout(ATTEMPT_TIMEOUT_MS),
       });
       // 404 is the ready signal: Horizon served a data endpoint and the
       // random account simply does not exist.

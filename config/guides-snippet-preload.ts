@@ -62,7 +62,9 @@ if (process.env.GUIDES_TARGET === "local") {
   // Canary: fetch the local Horizon root THROUGH the patched fetch. This proves in every child that the redirect is intercepting testnet URLs, and it supplies the local passphrase without hardcoding it here.
   let passphrase: unknown;
   try {
-    const res = await fetch("https://horizon-testnet.stellar.org/");
+    const res = await fetch("https://horizon-testnet.stellar.org/", {
+      signal: AbortSignal.timeout(5_000),
+    });
     const body: unknown = await res.json();
     if (
       typeof body === "object" &&

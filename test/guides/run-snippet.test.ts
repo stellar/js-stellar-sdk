@@ -1,5 +1,6 @@
 import { spawnSync } from "node:child_process";
 import { mkdtempSync, rmSync } from "node:fs";
+import { createServer } from "node:net";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -69,6 +70,41 @@ describe("runSnippet isolates each snippet", { timeout: 30_000 }, () => {
       { env, encoding: "utf8" },
     );
     expect(child.status).not.toBe(0);
+    expect(child.stderr).toContain(
+      "guides-snippet-preload: @stellar/stellar-sdk resolves to",
+    );
+  });
+
+  it("fails fast when the canary cannot read the Horizon root", async ({
+    signal,
+  }) => {
+    // Accepts the connection and never answers.
+    const stalled = createServer(() => {});
+    await new Promise<void>((resolve) => stalled.listen(0, resolve));
+    const address = stalled.address();
+    if (address === null || typeof address === "string") {
+      throw new Error("test server has no TCP port");
+    }
+    const previous = {
+      GUIDES_TARGET: process.env.GUIDES_TARGET,
+      QUICKSTART_URL: process.env.QUICKSTART_URL,
+    };
+    process.env.GUIDES_TARGET = "local";
+    process.env.QUICKSTART_URL = `http://localhost:${address.port}`;
+    try {
+      await expect(runSnippet(fixture("set-global"), signal)).rejects.toThrow(
+        "redirect canary could not read the local Horizon root",
+      );
+    } finally {
+      for (const [key, value] of Object.entries(previous)) {
+        if (value === undefined) {
+          delete process.env[key];
+        } else {
+          process.env[key] = value;
+        }
+      }
+      stalled.close();
+    }
   });
 
   it.runIf(process.env.GUIDES_TARGET === "local")(
