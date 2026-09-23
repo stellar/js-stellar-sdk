@@ -149,16 +149,17 @@ signing is up to you: wrap the simulated entry with `buildWithDelegatesEntry`,
 then sign each delegate node with `authorizeEntry` and its `forAddress`
 argument. `signAuthEntries` does not select delegate nodes.
 
-Once delegates are attached, the heuristic applies what it can know. A `G…`
-account must always sign its own top-level entry, even with delegates attached,
-so it stays listed until it does. A contract account's `__check_auth` decides
-what it needs: some accept their delegates alone, others need their own
-signature as well, and the signatures can't tell the two apart. The heuristic
-assumes delegates are enough, so an unsigned `C…` account drops off the list
-once its delegates have signed, and a signed node's delegates are not checked.
-Pass `ignoreContractDelegates: true` to skip contract accounts' delegates
-entries entirely and leave their policy to you. Pass `includeDelegates: true` to list the delegates that
-still have to sign in place of their entry's top-level address.
+Once delegates are attached, the heuristic reports only what the signatures
+show. A `G…` account must sign its own top-level entry on protocol 27, and its
+delegates are ignored there. A contract account's `__check_auth` decides what
+it needs: some accept their delegates alone, others need their own signature
+as well, and the signatures can't tell the two apart. So an unsigned `C…`
+account stays listed even after its delegates have signed; if yours
+authorizes only through delegates, filter its address out. A signed node's
+delegates are not checked. Pass `includeDelegates: true` to also list the
+delegates of an unsigned `C…` account that still have to sign. Pass
+`ignoreContractDelegates: true` to skip contract accounts' delegates entries
+entirely and leave their policy to you.
 
 One kind of requirement stays invisible to it. Recording-mode simulation does
 not run a custom account's `__check_auth`, so a `require_auth_for_args` made

@@ -209,22 +209,25 @@ const pendingAt = (
   includeSigned: boolean,
 ): string[] => {
   if (!includeSigned && signaturePresent(signature)) return [];
-  // On p27 (CAP-71 only) the built-in G… check ignores delegates, so a G… node
-  // needs its own signature. CAP-72 changes this; revisit when it ships.
-  if (address.type !== "scAddressTypeContract" || delegates.length === 0) {
-    return [Address.fromScAddress(address).toString()];
-  }
-  return delegates.flatMap((d) =>
-    pendingAt(d.address, d.signature, d.nestedDelegates, includeSigned),
-  );
+  const self = Address.fromScAddress(address).toString();
+  // On p27 (CAP-71 only) the built-in G… check ignores delegates, so a G…
+  // node's delegates never count. CAP-72 changes this; revisit when it ships.
+  if (address.type !== "scAddressTypeContract") return [self];
+  return [
+    self,
+    ...delegates.flatMap((d) =>
+      pendingAt(d.address, d.signature, d.nestedDelegates, includeSigned),
+    ),
+  ];
 };
 
 /**
- * Addresses in `credentials` that still have to sign, or with `includeSigned`
- * every address that has to sign. On p27 a `G…` node needs its own signature;
- * an unsigned `C…` node with delegates is assumed covered once they are, since
- * only its `__check_auth` knows. A signed node's delegates are not checked
- * unless `includeSigned` is set. Source-account credentials return `[]`.
+ * Addresses in `credentials` whose signature is still empty, or with
+ * `includeSigned` every address that may sign. An empty `C…` node is listed
+ * even when its delegates have signed, since only its `__check_auth` knows
+ * whether it needs its own signature. On p27 a `G…` node's delegates are not
+ * listed, and a signed node's delegates are not checked unless
+ * `includeSigned` is set. Source-account credentials return `[]`.
  * @hidden
  */
 export function pendingSigners(

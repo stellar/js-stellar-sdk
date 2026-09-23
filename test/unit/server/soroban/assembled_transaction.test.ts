@@ -657,18 +657,20 @@ describe("AssembledTransaction auth entry credential types (CAP-71)", () => {
         ),
       );
 
-    it("treats an unsigned contract account as covered once its delegates have signed", () => {
+    it("keeps an unsigned contract account listed after its delegates have signed", () => {
+      // its `__check_auth` may need its own signature too (an owner plus
+      // delegates), which the signatures can't show
       const assembled = assembledWith([
         delegatesEntry(accountC, [{ address: kpB.publicKey(), signed: true }]),
       ]);
 
-      expect(assembled.needsNonInvokerSigningBy()).toEqual([]);
+      expect(assembled.needsNonInvokerSigningBy()).toEqual([accountC]);
       expect(
         assembled.needsNonInvokerSigningBy({ includeDelegates: true }),
-      ).toEqual([]);
+      ).toEqual([accountC]);
     });
 
-    it("lists the account by default, and the missing delegate with includeDelegates", () => {
+    it("lists the account by default, and the missing delegate too with includeDelegates", () => {
       const assembled = assembledWith([
         delegatesEntry(accountC, [
           { address: kpB.publicKey(), signed: true },
@@ -679,7 +681,7 @@ describe("AssembledTransaction auth entry credential types (CAP-71)", () => {
       expect(assembled.needsNonInvokerSigningBy()).toEqual([accountC]);
       expect(
         assembled.needsNonInvokerSigningBy({ includeDelegates: true }),
-      ).toEqual([kpC.publicKey()]);
+      ).toEqual([accountC, kpC.publicKey()]);
     });
 
     it("walks nested delegates down to the missing leaf", () => {
@@ -694,12 +696,12 @@ describe("AssembledTransaction auth entry credential types (CAP-71)", () => {
         assembledWith([
           delegatesEntry(accountC, tree(true)),
         ]).needsNonInvokerSigningBy({ includeDelegates: true }),
-      ).toEqual([]);
+      ).toEqual([accountC, innerC]);
       expect(
         assembledWith([
           delegatesEntry(accountC, tree(false)),
         ]).needsNonInvokerSigningBy({ includeDelegates: true }),
-      ).toEqual([kpB.publicKey()]);
+      ).toEqual([accountC, innerC, kpB.publicKey()]);
     });
 
     it("still requires a G account's own signature when delegates are attached", () => {
@@ -735,7 +737,7 @@ describe("AssembledTransaction auth entry credential types (CAP-71)", () => {
       ).toEqual([]);
     });
 
-    it("lists delegates in place of a contract account with includeAlreadySigned and includeDelegates", () => {
+    it("lists a contract account and its delegates with includeAlreadySigned and includeDelegates", () => {
       const assembled = assembledWith([
         delegatesEntry(accountC, [
           { address: kpB.publicKey(), signed: true },
@@ -748,12 +750,12 @@ describe("AssembledTransaction auth entry credential types (CAP-71)", () => {
       });
 
       expect([...all].sort()).toEqual(
-        [kpB.publicKey(), kpC.publicKey()].sort(),
+        [accountC, kpB.publicKey(), innerC, kpC.publicKey()].sort(),
       );
       const pending = assembled.needsNonInvokerSigningBy({
         includeDelegates: true,
       });
-      expect(pending).toEqual([kpC.publicKey()]);
+      expect(pending).toEqual([accountC, innerC, kpC.publicKey()]);
       expect(all).toEqual(expect.arrayContaining(pending));
       expect(
         assembled.needsNonInvokerSigningBy({ includeAlreadySigned: true }),

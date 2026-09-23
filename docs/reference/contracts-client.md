@@ -482,12 +482,12 @@ still lacks a signature (or of every such entry, with
 envelope signature covers them; address credentials are listed even when
 their address is the transaction source.
 
-For a CAP-71 delegates entry, a `G…` account needs its own signature on
-p27, while an unsigned `C…` account is assumed covered once its delegates
-have signed (its `__check_auth` decides). This is a signature-presence
-heuristic, not an authorization check: it does not see custom account
-policy or requirements raised inside `__check_auth`. The contract auth
-guide covers the caveats.
+A CAP-71 delegates entry stays listed while its top-level signature is
+empty, even once its delegates have signed; filter out a `C…` account that
+authorizes only through delegates (or pass `ignoreContractDelegates`).
+This is a signature-presence heuristic, not an authorization check: it
+does not see custom account policy or requirements raised inside
+`__check_auth`. The contract auth guide covers the caveats.
 
 ```ts
 needsNonInvokerSigningBy(__namedParameters: { ignoreContractDelegates?: boolean; includeAlreadySigned?: boolean; includeDelegates?: boolean } = {}): string[];
