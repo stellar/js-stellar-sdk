@@ -37,13 +37,16 @@ export default async function setup(): Promise<void> {
   } catch (e) {
     throw new Error(
       `guides-local-setup: quickstart is not reachable at ${LOCAL} ` +
-        `(${e instanceof Error ? e.message : String(e)}). Start it with:\n\n  docker run --rm -p 8000:8000 -e NETWORK=local ` +
+        `(${e instanceof Error ? e.message : String(e)}). Start it ` +
+        `with:\n\n  docker run --rm -p 8000:8000 -e NETWORK=local ` +
         `-e ENABLE_SOROBAN_RPC=true stellar/quickstart:testing\n\n(see ` +
         `examples/guides/README.md). Without Docker, run ` +
         `\`pnpm docs:snippets:check\` locally and let the guides_pr.yml ` +
         `workflow execute the snippets.`,
     );
   }
+  // Only the status matters here, and an unread body keeps its socket open.
+  await root.body?.cancel();
   if (!root.ok) {
     throw new Error(
       `guides-local-setup: ${LOCAL}/ answered HTTP ${root.status}, so it is ` +
@@ -60,6 +63,7 @@ export default async function setup(): Promise<void> {
       const res = await fetch(probe, {
         signal: AbortSignal.timeout(ATTEMPT_TIMEOUT_MS),
       });
+      await res.body?.cancel();
       // 404 is the ready signal: Horizon served a data endpoint and the
       // random account simply does not exist.
       if (res.ok || res.status === 404) return;
