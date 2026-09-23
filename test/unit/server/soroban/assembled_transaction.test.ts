@@ -756,6 +756,31 @@ describe("AssembledTransaction auth entry credential types (CAP-71)", () => {
       ).toEqual([accountC]);
     });
 
+    it("skips contract delegates entries with ignoreContractDelegates, and nothing else", () => {
+      const assembled = assembledWith([
+        delegatesEntry(accountC, [{ address: kpB.publicKey() }]),
+        delegatesEntry(kpA.publicKey(), [
+          { address: kpB.publicKey(), signed: true },
+        ]),
+        authEntry(addressV2Cred(innerC)),
+      ]);
+      const opts = { ignoreContractDelegates: true };
+
+      expect(assembled.needsNonInvokerSigningBy(opts).sort()).toEqual(
+        [kpA.publicKey(), innerC].sort(),
+      );
+      expect(
+        assembled
+          .needsNonInvokerSigningBy({ ...opts, includeDelegates: true })
+          .sort(),
+      ).toEqual([kpA.publicKey(), innerC].sort());
+      expect(
+        assembled
+          .needsNonInvokerSigningBy({ ...opts, includeAlreadySigned: true })
+          .sort(),
+      ).toEqual([kpA.publicKey(), innerC].sort());
+    });
+
     describe("sign()", () => {
       const signing = (auth: xdr.SorobanAuthorizationEntry[]) => {
         const assembled = assembledWith(auth, {
@@ -790,6 +815,42 @@ describe("AssembledTransaction auth entry credential types (CAP-71)", () => {
             `Transaction requires signatures from ${kpC.publicKey()}. ` +
               "See `needsNonInvokerSigningBy` for details.",
           ),
+        );
+      });
+
+      it("signs past an unsigned delegate of a contract account with ignoreContractDelegates", async () => {
+        const assembled = signing([
+          delegatesEntry(accountC, [{ address: kpC.publicKey() }]),
+        ]);
+
+        await assembled.sign({ ignoreContractDelegates: true });
+        expect(assembled.signed).toBeDefined();
+      });
+
+      it("forwards ignoreContractDelegates through signAndSend", async () => {
+        const assembled = signing([
+          delegatesEntry(accountC, [{ address: kpC.publicKey() }]),
+        ]);
+        const send = vi.spyOn(assembled, "send").mockResolvedValue({} as any);
+
+        await expect(assembled.signAndSend()).rejects.toThrow(
+          contract.AssembledTransaction.Errors.NeedsMoreSignatures,
+        );
+        await assembled.signAndSend({ ignoreContractDelegates: true });
+        expect(send).toHaveBeenCalledOnce();
+      });
+
+      it("still rejects an unsigned G account with ignoreContractDelegates", async () => {
+        const assembled = signing([
+          delegatesEntry(kpB.publicKey(), [
+            { address: kpC.publicKey(), signed: true },
+          ]),
+        ]);
+
+        await expect(
+          assembled.sign({ ignoreContractDelegates: true }),
+        ).rejects.toThrow(
+          contract.AssembledTransaction.Errors.NeedsMoreSignatures,
         );
       });
 

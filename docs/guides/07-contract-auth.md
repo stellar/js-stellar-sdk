@@ -156,7 +156,8 @@ what it needs: some accept their delegates alone, others need their own
 signature as well, and the signatures can't tell the two apart. The heuristic
 assumes delegates are enough, so an unsigned `C…` account drops off the list
 once its delegates have signed, and a signed node's delegates are not checked.
-Pass `includeDelegates: true` to list the delegates that
+Pass `ignoreContractDelegates: true` to skip contract accounts' delegates
+entries entirely and leave their policy to you. Pass `includeDelegates: true` to list the delegates that
 still have to sign in place of their entry's top-level address.
 
 One kind of requirement stays invisible to it. Recording-mode simulation does
