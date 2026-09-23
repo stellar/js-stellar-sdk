@@ -217,10 +217,10 @@ const pendingAt = (
 };
 
 /**
- * Addresses in `credentials` that still have to sign, by the host's rules: a
- * `G…` node always needs its own signature, while an unsigned `C…` node with
- * delegates attached is covered once they are. Source-account credentials
- * return `[]`.
+ * Addresses in `credentials` that still have to sign. A `G…` node always needs
+ * its own signature (a host rule); an unsigned `C…` node with delegates is
+ * assumed covered once they are, since only its `__check_auth` knows. A signed
+ * node's delegates are not checked. Source-account credentials return `[]`.
  * @hidden
  */
 export function pendingSigners(credentials: SorobanCredentials): string[] {

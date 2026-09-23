@@ -974,9 +974,9 @@ export class AssembledTransaction<T> {
    * envelope signature covers them; address credentials are listed even when
    * their address is the transaction source.
    *
-   * For a CAP-71 delegates entry, an unsigned `C…` account counts as signed
-   * once its delegates have signed; a `G…` account always needs its own
-   * signature. This is a signature-presence heuristic, not an authorization
+   * For a CAP-71 delegates entry, a `G…` account always needs its own
+   * signature, while an unsigned `C…` account is assumed covered once its
+   * delegates have signed (its `__check_auth` decides). This is a signature-presence heuristic, not an authorization
    * check: it does not see custom account policy or requirements raised inside
    * `__check_auth`. The contract auth guide covers the caveats.
    */

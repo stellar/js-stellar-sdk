@@ -149,11 +149,14 @@ signing is up to you: wrap the simulated entry with `buildWithDelegatesEntry`,
 then sign each delegate node with `authorizeEntry` and its `forAddress`
 argument. `signAuthEntries` does not select delegate nodes.
 
-Once delegates are attached, the heuristic follows the network's rules. Only a
-contract account can authorize through delegates alone, so an unsigned `C…`
-account drops off the list once its delegates have signed. A `G…` account must
-always sign its own top-level entry, even with delegates attached, so it stays
-listed until it does. Pass `includeDelegates: true` to list the delegates that
+Once delegates are attached, the heuristic applies what it can know. A `G…`
+account must always sign its own top-level entry, even with delegates attached,
+so it stays listed until it does. A contract account's `__check_auth` decides
+what it needs: some accept their delegates alone, others need their own
+signature as well, and the signatures can't tell the two apart. The heuristic
+assumes delegates are enough, so an unsigned `C…` account drops off the list
+once its delegates have signed, and a signed node's delegates are not checked.
+Pass `includeDelegates: true` to list the delegates that
 still have to sign in place of their entry's top-level address.
 
 One kind of requirement stays invisible to it. Recording-mode simulation does
@@ -165,8 +168,9 @@ needs an auth entry built by hand, and enforcement-mode simulation to check it.
 signing the envelope, and reject any `G…` address still listed. They skip
 contract (`C…`) addresses, since a contract's own policy can't be checked
 locally. For custom accounts, the risk is the check passing while a signature
-is still missing, not a false rejection. Check such entries yourself with
-`inspectAuthEntry`.
+is still missing, not a false rejection. To check a custom account's entries,
+call `simulate()` again after signing: enforcement-mode simulation runs
+`__check_auth` and fails if a signature is still missing.
 
 For ordinary multi-party signing, serialize the transaction with `toJson`, send
 it to the next account's signer, have them deserialize it with `txFromJson` and
