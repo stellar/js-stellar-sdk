@@ -142,9 +142,14 @@ tested. Prefer markers for anything a reader might copy.
   `connect-and-fund.ts`); a second snippet file is the last resort, only for
   genuinely incompatible alternative programs.
 - Snippets that need contract infrastructure can deploy their own contract (from
-  a checked-in wasm fixture) in hidden setup, the same way the payment snippet
-  funds its own accounts. The quickstart tier runs Soroban RPC, so this works on
-  every PR.
+  a checked-in wasm fixture in `wasm/`) in hidden setup, the same way the
+  payment snippet funds its own accounts. The quickstart tier runs Soroban RPC,
+  so this works on every PR. Upload the wasm with
+  `Operation.uploadContractWasm`, and wait for the result. Then call
+  `contract.Client.deploy`. It reads the wasm back from the network by its hash.
+  From a snippet, read the fixture with
+  `readFileSync(new URL("wasm/increment.wasm", import.meta.url))`.
+  `test/guides/fixtures/deploy-increment.ts` shows the full pattern.
 - Never reassign `globalThis.fetch` or mutate `Networks` inside a snippet. The
   local-network tier redirects transport by patching exactly those, before the
   snippet starts; a snippet that touches them can send itself to real testnet.
@@ -167,6 +172,5 @@ due. Do the item when its trigger arrives, not before.
 | One-time GitHub setup: add `guides-local` to the protect-main ruleset as a required check                                     | When this system first lands on the remote                                        |
 | Untested-fence opt-out annotation plus a tested/untested count in `check-snippets` (makes silent partial conversions visible) | Before the first partial guide conversion (invoke-a-contract is the likely first) |
 | Fence metadata passthrough in markers (for `title=` and `del=`/`ins=` annotations)                                            | Before converting the before/after guides (contract-auth, protocol-27, migration) |
-| Checked-in wasm fixture plus deploy-in-hidden-setup pattern                                                                   | Before converting invoke-a-contract or contract-auth                              |
 | Reviewer preview as a CI artifact of the expanded `.docs-build/guides/` output (the local command half is done: `pnpm docs:snippets:show`) | If reviewers find checking out the branch too slow                                |
 | Sidebar canary: post-build assertion that the Guides and Reference groups render                                              | Any time; value grows with guide count                                            |
