@@ -73,9 +73,13 @@ const close = horizon
 const timer = setTimeout(close, 30000);
 // #endregion full
 
+// The stream is opened and closed but not asserted: proving onmessage fires
+// would change the displayed callback.
 // #region stream
 // Later, stop listening:
 close();
 // #endregion stream
 
+// The recap binds `timer` only so this teardown can clear it; unbound, the
+// pending timeout fails the open-handle check.
 clearTimeout(timer);
