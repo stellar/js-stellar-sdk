@@ -132,6 +132,13 @@ const sent = await tx.signAndSend();
 `basicNodeSigner` signs the exact payload the SDK builds, so the same call is
 correct on either credential.
 
+### When a wallet signs with a different key
+
+When a wallet signs with a key other than the account being authorized (classic
+multisig), it should return that key as `signerAddress`, and the SDK verifies the
+signature against it. That check proves the key signed the payload, not that the
+key is a signer on the account with enough weight; the network decides that.
+
 ## If you sign the payload yourself
 
 If you build and sign the authorization payload yourself, here is the one change
