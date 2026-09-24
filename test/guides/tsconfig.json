@@ -30,6 +30,7 @@
   "include": [
     "**/*.ts",
     "../../examples/guides/**/*.ts",
-    "../../config/guides-local-setup.ts"
+    "../../config/guides-local-setup.ts",
+    "../../config/guides-snippet-preload.ts"
   ]
 }
