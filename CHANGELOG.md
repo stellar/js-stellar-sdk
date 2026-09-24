@@ -7,6 +7,10 @@ A breaking change will get clearly marked in this log.
 ### Added
 * A `stellar-contract-bindings-typescript` binary implementing the [Stellar CLI plugin convention](https://developers.stellar.org/docs/tools/cli/plugins), reachable as `stellar contract bindings typescript`. It delegates to `stellar-js generate` ([#1738](https://github.com/stellar/js-stellar-sdk/pull/1738)).
 
+### Fixed
+* `authorizeEntry` verifies a bare-`Uint8Array` signing callback against `forAddress` when one is given, rather than always against the entry's top-level credential address. A valid CAP-71 delegate signature was previously rejected with `signature doesn't match payload` ([#1683](https://github.com/stellar/js-stellar-sdk/issues/1683)). A `forAddress` that names no credential node is now rejected before the signer runs.
+* `authorizeEntry` throws a `TypeError` naming `signatureScVal` when the address it would verify against is a contract, instead of StrKey's `invalid version byte`.
+
 ## [v17.1.0](https://github.com/stellar/js-stellar-sdk/compare/v17.0.1...v17.1.0)
 
 ### Changed
