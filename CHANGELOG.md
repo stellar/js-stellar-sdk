@@ -9,6 +9,9 @@ A breaking change will get clearly marked in this log.
 
 ### Fixed
 * `AssembledTransaction.signAuthEntries()` forwards a wallet's returned `signerAddress` to the default authorizer, so a classic-multisig signature made by a key other than the account being authorized is no longer rejected ([#1681](https://github.com/stellar/js-stellar-sdk/issues/1681)). A muxed `M…` `signerAddress` resolves to its base account; `null` or an empty string counts as omitted, and any other value that is not an account address is rejected by name. A custom `authorizeEntry` still receives raw bytes. A wallet that returns a `signerAddress` other than the key it signed with now fails with "signature doesn't match payload" instead of having the value ignored.
+* `AssembledTransaction.signAuthEntries()` throws `NoSignatureNeeded` when it matched no auth entry, instead of returning as if it had signed ([#1681](https://github.com/stellar/js-stellar-sdk/issues/1681), [#1610](https://github.com/stellar/js-stellar-sdk/issues/1610)). A custom `authorizeEntry` skips the pre-flight check that reports this for the default authorizer, so a wrong `address` was silent there. When `address` came from its `publicKey` default, the error says so. Every call that signs at least one entry is unaffected.
+* `authorizeEntry` verifies a bare-`Uint8Array` signing callback against `forAddress` when one is given, rather than always against the entry's top-level credential address. A valid CAP-71 delegate signature was previously rejected with `signature doesn't match payload` ([#1683](https://github.com/stellar/js-stellar-sdk/issues/1683)). A `forAddress` that names no credential node is now rejected before the signer runs.
+* `authorizeEntry` throws a `TypeError` naming `signatureScVal` when the address it would verify against is a contract, instead of StrKey's `invalid version byte`.
 
 ## [v17.1.0](https://github.com/stellar/js-stellar-sdk/compare/v17.0.1...v17.1.0)
 

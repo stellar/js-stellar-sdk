@@ -927,6 +927,166 @@ describe("AssembledTransaction auth entry credential types (CAP-71)", () => {
       );
     });
 
+    it("reports a custom authorizer that signed nothing, naming the address default", async () => {
+      // A custom authorizer skips the `needsNonInvokerSigningBy` pre-flight, so
+      // a wrong `address` used to leave the loop having matched no entry and
+      // return as if it had signed.
+      const assembled = assembledWith(
+        [authEntry(addressCred(kpB.publicKey()))],
+        { publicKey: kpA.publicKey() },
+      );
+      let authorizerRan = false;
+
+      await expect(
+        assembled.signAuthEntries({
+          expiration: 1000,
+          signAuthEntry: contract.basicNodeSigner(kpB, networkPassphrase)
+            .signAuthEntry,
+          authorizeEntry: (entry) => {
+            authorizerRan = true;
+            return Promise.resolve(entry);
+          },
+        }),
+      ).rejects.toThrow(/defaulted to the account that built this transaction/);
+      expect(authorizerRan).toBe(false);
+    });
+
+    it("names the address default in the pre-flight for the default authorizer", async () => {
+      // The common shape from #1681: a plain `signAuthEntry` function for
+      // another account, `address` left to default.
+      const assembled = assembledWith(
+        [authEntry(addressCred(kpB.publicKey()))],
+        {
+          publicKey: kpA.publicKey(),
+          signAuthEntry: contract.basicNodeSigner(kpB, networkPassphrase)
+            .signAuthEntry,
+        },
+      );
+
+      await expect(
+        assembled.signAuthEntries({ expiration: 1000 }),
+      ).rejects.toThrow(
+        new contract.AssembledTransaction.Errors.NoSignatureNeeded(
+          `No auth entries for public key "${kpA.publicKey()}"; \`address\` ` +
+            "was not given and `signAuthEntry` does not name one, so it " +
+            "defaulted to the account that built this transaction. Pass " +
+            "`address` to say who is signing.",
+        ),
+      );
+    });
+
+    it("treats an explicit null address as not given", async () => {
+      // `address` is chosen with `??`, so a JS caller's `null` defaults to
+      // `publicKey`; the hint has to agree that it defaulted.
+      const assembled = assembledWith(
+        [authEntry(addressCred(kpB.publicKey()))],
+        { publicKey: kpA.publicKey() },
+      );
+
+      await expect(
+        assembled.signAuthEntries({
+          expiration: 1000,
+          address: null as unknown as undefined,
+          signAuthEntry: contract.basicNodeSigner(kpB, networkPassphrase)
+            .signAuthEntry,
+          authorizeEntry: (entry) => Promise.resolve(entry),
+        }),
+      ).rejects.toThrow(/defaulted to the account that built this transaction/);
+    });
+
+    it("does not claim the address defaulted when it was passed explicitly", async () => {
+      const assembled = assembledWith(
+        [authEntry(addressCred(kpB.publicKey()))],
+        { publicKey: kpA.publicKey() },
+      );
+
+      await expect(
+        assembled.signAuthEntries({
+          expiration: 1000,
+          address: kpA.publicKey(),
+          signAuthEntry: contract.basicNodeSigner(kpB, networkPassphrase)
+            .signAuthEntry,
+          authorizeEntry: (entry) => Promise.resolve(entry),
+        }),
+      ).rejects.toThrow(
+        new contract.AssembledTransaction.Errors.NoSignatureNeeded(
+          `No auth entries for public key "${kpA.publicKey()}"`,
+        ),
+      );
+    });
+
+    it("reports a missing address when the Client has no publicKey", async () => {
+      const assembled = assembledWith([
+        authEntry(addressCred(kpB.publicKey())),
+      ]);
+
+      await expect(
+        assembled.signAuthEntries({
+          expiration: 1000,
+          signAuthEntry: contract.basicNodeSigner(kpB, networkPassphrase)
+            .signAuthEntry,
+          authorizeEntry: (entry) => Promise.resolve(entry),
+        }),
+      ).rejects.toThrow(
+        new contract.AssembledTransaction.Errors.NoSignatureNeeded(
+          "No account to sign for: `address` was not given and `signAuthEntry` " +
+            "does not name one. Pass `address` to say who is signing.",
+        ),
+      );
+    });
+
+    it("signs through a call-site signAuthEntry function without an address", async () => {
+      // The signer is overridden per call, `address` is not, and the wallet
+      // signs for the account that built the transaction: this must work.
+      const entry = authEntry(addressCred(kpA.publicKey()));
+      const assembled = assembledWith([entry], { publicKey: kpA.publicKey() });
+
+      await assembled.signAuthEntries({
+        expiration: 1000,
+        signAuthEntry: contract.basicNodeSigner(kpA, networkPassphrase)
+          .signAuthEntry,
+      });
+
+      const operation = expectDefined(assembled.built).operations[0];
+      if (operation.type !== "invokeHostFunction") {
+        throw new Error("Expected an invokeHostFunction operation");
+      }
+      const expected = await StellarSdk.authorizeEntry(
+        entry,
+        kpA,
+        1000,
+        networkPassphrase,
+      );
+      expect(expectDefined(operation.auth)[0].toXdr()).toEqual(
+        expected.toXdr(),
+      );
+    });
+
+    it("keeps the publicKey default for the client's own signer", async () => {
+      const entry = authEntry(addressCred(kpB.publicKey()));
+      const assembled = assembledWith([entry], {
+        publicKey: kpB.publicKey(),
+        signAuthEntry: contract.basicNodeSigner(kpB, networkPassphrase)
+          .signAuthEntry,
+      });
+
+      await assembled.signAuthEntries({ expiration: 1000 });
+
+      const operation = expectDefined(assembled.built).operations[0];
+      if (operation.type !== "invokeHostFunction") {
+        throw new Error("Expected an invokeHostFunction operation");
+      }
+      const expected = await StellarSdk.authorizeEntry(
+        entry,
+        kpB,
+        1000,
+        networkPassphrase,
+      );
+      expect(expectDefined(operation.auth)[0].toXdr()).toEqual(
+        expected.toXdr(),
+      );
+    });
+
     it("end-to-end signs an ADDRESS_V2 entry via the default authorizeEntry + basicNodeSigner", async () => {
       const signer = Keypair.random();
       const assembled = assembledWith(
