@@ -39,11 +39,10 @@ import { nativeToScVal } from "./scval.js";
  * @returns one of the following:
  *
  *  - the signature of the payload as a naked `Uint8Array`, implying it is
- *    signed by the key corresponding to the public key in the entry you pass to
- *    {@link authorizeEntry} (decipherable from the entry's address
- *    credentials — `credentials.address.address` on the legacy arm or
- *    `credentials.addressV2.address` on the CAP-71 V2 arm, which is the
- *    default; {@link inspectAuthEntry} handles both),
+ *    signed by the key corresponding to `forAddress` when supplied to
+ *    {@link authorizeEntry}, otherwise the entry's top-level credential
+ *    address. Use the explicit `publicKey` form when the signing key differs
+ *    from the target address,
  *  - an object with the `signature` alongside an explicit `publicKey` string
  *    identifying the Ed25519 signer, or
  *  - an object with a `signatureScVal`: an arbitrary, caller-built
@@ -120,7 +119,8 @@ function toScVal(value: unknown): ScVal | null {
  *          bytes as a `Uint8Array` and a `publicKey` string representing who just
  *          created this signature,
  *      (b) just the naked signature of the hash of the raw payload bytes (where
- *          the signing key is implied to be the address in the `entry`), or
+ *          the signing key is implied to be `forAddress` when supplied,
+ *          otherwise the entry's top-level credential address), or
  *      (c) an object containing a `signatureScVal` — an arbitrary, caller-built
  *          {@link xdr.ScVal} written verbatim as the credentials' signature,
  *          for custom account contracts (smart wallets, passkey/WebAuthn
@@ -134,10 +134,6 @@ function toScVal(value: unknown): ScVal | null {
  * @param networkPassphrase - the network passphrase is incorporated into the
  *    signature (see {@link Networks} for options)
  *
- * If using the `SigningCallback` variation, the signer is assumed to be
- * the entry's credential address unless you use the variant that returns
- * the object.
- *
  * @param forAddress - which credential node the signature should be written
  *    to. Only relevant for `SOROBAN_CREDENTIALS_ADDRESS_WITH_DELEGATES`, where
  *    a single entry can be signed by the top-level account and/or any of its
@@ -147,7 +143,8 @@ function toScVal(value: unknown): ScVal | null {
  *    `forAddress`. When omitted, the signature is written to the top-level
  *    credentials, which preserves the behavior for `SOROBAN_CREDENTIALS_ADDRESS`
  *    / `SOROBAN_CREDENTIALS_ADDRESS_V2` and for accounts whose signing key
- *    differs from the credential address (e.g. multisig).
+ *    differs from the credential address (e.g. multisig). A bare signature is
+ *    verified against this address.
  *
  * @see authorizeInvocation
  * @example
@@ -240,6 +237,18 @@ export async function authorizeEntry(
     throw new Error(`unsupported credential type ${credentials.type}`);
   }
 
+  // Checked before signing, so a wallet isn't prompted for a discarded signature.
+  if (
+    forAddress !== undefined &&
+    !collectSignatureNodes(credentials).some(
+      (node) => Address.fromScAddress(node.address).toString() === forAddress,
+    )
+  ) {
+    throw new Error(
+      `the authorization entry has no credential node for address ${forAddress}`,
+    );
+  }
+
   // The preimage commits to the (updated) expiration ledger, so build it with
   // `validUntilLedgerSeq` directly; the same value gets written back onto the
   // credentials below, keeping the signed hash and the stored expiration in
@@ -294,9 +303,9 @@ export async function authorizeEntry(
         signature = sigResult.signature;
         publicKey = sigResult.publicKey;
       } else if (isUint8Array(sigResult)) {
-        // if using the deprecated form, assume it's for the entry
         signature = sigResult;
-        publicKey = Address.fromScAddress(addrAuth.address).toString();
+        publicKey =
+          targetAddress ?? Address.fromScAddress(addrAuth.address).toString();
       } else {
         // Without this the value reached `verify` unchecked. A wrong shape that
         // still carries a signature (an `xdr.Signature` wrapper) got a forgery
@@ -325,6 +334,20 @@ export async function authorizeEntry(
     if (!isUint8Array(signature)) {
       throw new TypeError(
         `expected a Uint8Array signature from the signer, got ${signature === null ? "null" : typeof signature}`,
+      );
+    }
+
+    // A contract address has no Ed25519 key; name the remedy instead of
+    // surfacing StrKey's "invalid version byte".
+    if (!StrKey.isValidEd25519PublicKey(publicKey)) {
+      throw new TypeError(
+        StrKey.isValidContract(publicKey)
+          ? `cannot verify an Ed25519 signature against contract ${publicKey}; ` +
+              "sign for a contract address with a callback returning " +
+              "{ signatureScVal }, or with a custom `authorizeEntry` when " +
+              "signing through signAuthEntries"
+          : "expected an Ed25519 public key (G...) to verify the signature " +
+              `against, got ${JSON.stringify(publicKey)}`,
       );
     }
 
