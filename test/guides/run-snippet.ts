@@ -9,7 +9,7 @@ const PRELOAD = new URL(
 const TSCONFIG = fileURLToPath(new URL("tsconfig.json", import.meta.url));
 
 /**
- * Runs one snippet file in its own node process, so its globals, module cache and open handles cannot reach another snippet. Rejects with the child's output when it exits non-zero. Pass the vitest test context's `signal`: it aborts on a test timeout or a cancelled run, and aborting kills the child.
+ * Runs one snippet file in its own node process, so its globals, module cache and open handles cannot reach another snippet. Rejects with the child's output when it exits non-zero. Pass the vitest test context's `signal`: it aborts on a test timeout or a cancelled run, and aborting kills the child and prints its output so far.
  */
 export function runSnippet(file: string, signal?: AbortSignal): Promise<void> {
   return new Promise((resolve, reject) => {
@@ -28,8 +28,13 @@ export function runSnippet(file: string, signal?: AbortSignal): Promise<void> {
     let output = "";
     child.stdout.on("data", (chunk: string) => (output += chunk));
     child.stderr.on("data", (chunk: string) => (output += chunk));
+    // Must be synchronous: vitest drops a rejection or log that arrives after its test timeout.
+    const printOutput = () =>
+      console.error(`${file} was aborted. Output so far:\n${output}`);
+    signal?.addEventListener("abort", printOutput, { once: true });
     child.on("error", reject);
     child.on("close", (code, killSignal) => {
+      signal?.removeEventListener("abort", printOutput);
       if (code === 0) {
         resolve();
         return;

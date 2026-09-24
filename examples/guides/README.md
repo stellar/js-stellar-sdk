@@ -151,7 +151,8 @@ tested. Prefer markers for anything a reader might copy.
 - A snippet must let its process exit. If a stream, timer or socket is still
   open 5 seconds after the snippet's last line, the run fails with "left open
   handles". Close streams in hidden teardown.
-- A snippet's console output appears only when it fails, as part of the error.
+- A snippet's console output appears only when it fails: in the error when it
+  exits non-zero, or as a stderr block when it times out.
 - If the site sidebar ever loses its groups, check the `autogenerate`
   directories in `astro.config.mjs`. They must be prefixed `.docs-build/`,
   matching the collection root.

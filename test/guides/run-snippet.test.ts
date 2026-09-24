@@ -4,7 +4,7 @@ import { createServer } from "node:net";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { runSnippet } from "./run-snippet.js";
 
 const fixture = (name: string) =>
@@ -48,12 +48,36 @@ describe("runSnippet isolates each snippet", { timeout: 30_000 }, () => {
     );
   });
 
-  it("kills the snippet when the signal aborts", async () => {
+  it("kills the snippet and prints its output when the signal aborts", async () => {
+    const consoleError = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
     const started = Date.now();
-    await expect(
-      runSnippet(fixture("hang"), AbortSignal.timeout(1_000)),
-    ).rejects.toThrow();
-    expect(Date.now() - started).toBeLessThan(10_000);
+    try {
+      await expect(
+        runSnippet(fixture("hang"), AbortSignal.timeout(5_000)),
+      ).rejects.toThrow();
+      expect(Date.now() - started).toBeLessThan(15_000);
+      expect(consoleError).toHaveBeenCalledWith(
+        expect.stringContaining("hang fixture started"),
+      );
+    } finally {
+      consoleError.mockRestore();
+    }
+  });
+
+  it("prints nothing when the signal aborts after the snippet finished", async () => {
+    const controller = new AbortController();
+    await runSnippet(fixture("set-global"), controller.signal);
+    const consoleError = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
+    try {
+      controller.abort();
+      expect(consoleError).not.toHaveBeenCalled();
+    } finally {
+      consoleError.mockRestore();
+    }
   });
 
   it("refuses to run when the SDK does not resolve to src/", () => {
