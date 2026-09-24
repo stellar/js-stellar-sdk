@@ -5,7 +5,7 @@ A breaking change will get clearly marked in this log.
 ## Unreleased
 
 ### Fixed
-* `AssembledTransaction.needsNonInvokerSigningBy()` walks CAP-71 delegate trees: the new `includeDelegates` option also lists the delegates that still have to sign ([#1655](https://github.com/stellar/js-stellar-sdk/issues/1655)). `sign()` and `signAndSend()` now also reject an unsigned `G…` delegate, which the network would reject too. All three accept `ignoreContractDelegates` to skip delegates entries whose top-level address is a contract, since only that contract's `__check_auth` knows what it needs.
+* `AssembledTransaction.needsNonInvokerSigningBy()` walks CAP-71 delegate trees: the new `includeDelegates` option also lists the delegates that still have to sign ([#1655](https://github.com/stellar/js-stellar-sdk/issues/1655)). `sign()` and `signAndSend()` now also reject an unsigned `G…` delegate under an unsigned contract account. This assumes every listed delegate must sign, so it can reject a transaction the network would accept when `__check_auth` uses only some of them. All three accept `ignoreContractDelegates` to skip delegates entries whose top-level address is a contract, since only that contract's `__check_auth` knows what it needs.
 
 ## [v17.1.0](https://github.com/stellar/js-stellar-sdk/compare/v17.0.1...v17.1.0)
 

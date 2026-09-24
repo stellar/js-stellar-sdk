@@ -169,10 +169,13 @@ needs an auth entry built by hand, and enforcement-mode simulation to check it.
 `sign` and `signAndSend` run this heuristic, with delegates included, before
 signing the envelope, and reject any `G…` address still listed. They skip
 contract (`C…`) addresses, since a contract's own policy can't be checked
-locally. For custom accounts, the risk is the check passing while a signature
-is still missing, not a false rejection. To check a custom account's entries,
-call `simulate()` again after signing: enforcement-mode simulation runs
-`__check_auth` and fails if a signature is still missing.
+locally. The delegate check assumes every listed delegate must sign. If a
+custom account's `__check_auth` uses only some of its delegates (a 2-of-3
+multisig, say), `sign` rejects the unused ones even though the network would
+accept the transaction; pass `ignoreContractDelegates: true` for such accounts.
+To check a custom account's entries, call `simulate()` again after signing:
+enforcement-mode simulation runs `__check_auth` and fails if a signature is
+still missing.
 
 For ordinary multi-party signing, serialize the transaction with `toJson`, send
 it to the next account's signer, have them deserialize it with `txFromJson` and

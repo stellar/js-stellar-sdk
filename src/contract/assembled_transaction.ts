@@ -870,7 +870,8 @@ export class AssembledTransaction<T> {
     }
 
     // A contract's own policy can't be checked here, so only `G…` signers
-    // (top-level or delegate) block signing.
+    // (top-level or delegate) block signing. This assumes every listed
+    // delegate must sign, which is stricter than a subset-using `__check_auth`.
     const sigsNeeded = this.needsNonInvokerSigningBy({
       includeDelegates: true,
       ignoreContractDelegates,
