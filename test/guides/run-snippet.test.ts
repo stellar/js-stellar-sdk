@@ -91,7 +91,7 @@ describe("runSnippet isolates each snippet", { timeout: 30_000 }, () => {
         new URL("../../config/guides-snippet-preload.ts", import.meta.url).href,
         fixture("set-global"),
       ],
-      { env, encoding: "utf8" },
+      { env, encoding: "utf8", timeout: 10_000 },
     );
     expect(child.status).not.toBe(0);
     expect(child.stderr).toContain(

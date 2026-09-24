@@ -52,7 +52,7 @@ if (verifier.verifyMessage("Goodbye, World!", signature)) {
 }
 
 // No value assertions here: the local-network test harness remaps
-// Networks.TESTNET (see config/guides-local-setup.ts).
+// Networks.TESTNET (see config/guides-snippet-preload.ts).
 // #region networks
 import { Networks } from "@stellar/stellar-sdk";
 
