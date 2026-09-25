@@ -2,7 +2,7 @@
 
 ## Supported versions
 
-Security fixes are released for the **Active** and **Maintenance** release lines of `@stellar/stellar-sdk`. The table of currently supported versions and their support end dates lives in [RELEASE_POLICY.md](./RELEASE_POLICY.md#currently-supported-versions), which is the single source of truth.
+All security fixes are released on the **Active** release line of `@stellar/stellar-sdk`. **Maintenance** lines receive critical security fixes only. The table of currently supported versions and their support end dates lives in [RELEASE_POLICY.md](./RELEASE_POLICY.md#currently-supported-versions), which is the single source of truth.
 
 ## Reporting a vulnerability
 
