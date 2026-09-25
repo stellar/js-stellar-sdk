@@ -456,7 +456,7 @@ returns `false`, then you need to call `signAndSend` on this transaction.
 readonly isReadCall: boolean;
 ```
 
-**Source:** [src/contract/assembled_transaction.ts:1340](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L1340)
+**Source:** [src/contract/assembled_transaction.ts:1343](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L1343)
 
 ### `assembledTransaction.result`
 
@@ -549,7 +549,7 @@ Client initialization.
 - - Throws a custom error if the
 restore transaction fails, providing the details of the failure.
 
-**Source:** [src/contract/assembled_transaction.ts:1367](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L1367)
+**Source:** [src/contract/assembled_transaction.ts:1370](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L1370)
 
 ### `assembledTransaction.send(watcher)`
 
