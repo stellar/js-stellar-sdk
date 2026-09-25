@@ -20,7 +20,8 @@
  *    would leave stale pages in the persisted .astro/ cache.)
  *  - expandSnippetMarkers: string-level expansion for the raw-markdown
  *    consumers (scripts/build-llms.ts, scripts/build-md-siblings.ts)
- *  - scripts/check-snippets.ts validates that every marker resolves
+ *  - scripts/check-snippets.ts validates that every marker resolves, with
+ *    the per-file rules in checkDoc
  *
  * A region name may appear multiple times in one snippet file; its parts are
  * joined with a blank line, which lets a displayed fragment (an import plus
@@ -212,14 +213,16 @@ function langOf(file: string): string {
 
 /**
  * One markdown line, classified by the shared fence-aware scanner. A marker
- * carries its file#region; no other kind does, so a consumer must narrow on
- * `kind` before reading them.
+ * carries its file#region, and a fence opener carries whether its info string
+ * has the `untested` opt-out word; a consumer must narrow on `kind` before
+ * reading them.
  */
 export type ScannedLine =
   | { line: string; kind: "marker"; file: string; region: string }
+  | { line: string; kind: "fence-open"; untested: boolean }
   | {
       line: string;
-      kind: "text" | "near-miss" | "fence-open" | "fence-close" | "code";
+      kind: "text" | "near-miss" | "fence-close" | "code";
     };
 
 /**
@@ -242,7 +245,13 @@ export function scanMarkdown(markdown: string): ScannedLine[] {
       const len = run[1].length;
       if (fence === null) {
         fence = { char, len };
-        out.push({ line, kind: "fence-open" });
+        // The first word is the language, so `untested` must come after it.
+        const info = line.slice(run[0].length).trim().split(/\s+/);
+        out.push({
+          line,
+          kind: "fence-open",
+          untested: info.slice(1).includes("untested"),
+        });
         continue;
       }
       // A closing fence is a bare same-char run at least as long as the
@@ -283,6 +292,64 @@ export function nearMissError(lineNumber: number, line: string): Error {
       `word "snippet" in docs HTML comments (or put the example in a ` +
       `code fence, which is skipped).`,
   );
+}
+
+/**
+ * The check-snippets rules for one docs file (see scripts/check-snippets.ts).
+ * `doc` prefixes each problem; `isGuide` turns on the rule that every fence
+ * is a marker or is marked `untested`.
+ */
+export function checkDoc(
+  doc: string,
+  markdown: string,
+  isGuide: boolean,
+): { problems: string[]; tested: number; untested: number } {
+  const scanned = scanMarkdown(markdown);
+  const problems: string[] = [];
+  let tested = 0;
+  let untested = 0;
+
+  for (let i = 0; i < scanned.length; i += 1) {
+    const scan = scanned[i];
+    const { line } = scan;
+
+    if (scan.kind === "fence-open") {
+      // No inline code copy after a marker. Checked first, so such a fence
+      // gets this error and not the untested one.
+      let k = i - 1;
+      while (k >= 0 && scanned[k].line.trim() === "") k -= 1;
+      if (k >= 0 && scanned[k].kind === "marker") {
+        problems.push(
+          `${doc}:${i + 1}: inline code block after snippet marker ` +
+            `"${scanned[k].line.trim()}" — remove it; the snippet is ` +
+            `injected at build time`,
+        );
+      } else if (isGuide && scan.untested) {
+        untested += 1;
+      } else if (isGuide) {
+        problems.push(
+          `${doc}:${i + 1}: untested code block — replace it with a ` +
+            `snippet marker, or add "untested" to its fence line`,
+        );
+      }
+      continue;
+    }
+    if (scan.kind === "near-miss") {
+      problems.push(`${doc}: ${nearMissError(i + 1, line).message}`);
+      continue;
+    }
+    if (scan.kind !== "marker") continue;
+    tested += 1;
+
+    // The reference must resolve to a real snippet file and region.
+    try {
+      snippetRegion(scan.file, scan.region);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      problems.push(`${doc}:${i + 1}: ${message}`);
+    }
+  }
+  return { problems, tested, untested };
 }
 
 /**

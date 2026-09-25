@@ -106,7 +106,7 @@ authorization entry that account must sign. Build the transaction as in
 [Invoke a Contract](/guides/06-invoke-a-contract/), then ask which accounts still
 need to sign:
 
-```ts
+```ts untested
 const tx = await client.increment({ user: signer.publicKey(), value: 1 });
 
 tx.needsNonInvokerSigningBy(); // [signer.publicKey()]
@@ -121,7 +121,7 @@ a `signAuthEntry` callback.
 [`basicNodeSigner`](/reference/contracts-client/#contractbasicnodesigner) is the
 simple Node signer (a browser app swaps in a wallet such as Freighter):
 
-```ts
+```ts untested
 const { signAuthEntry } = contract.basicNodeSigner(signer, networkPassphrase);
 
 await tx.signAuthEntries({ address: signer.publicKey(), signAuthEntry });
@@ -146,7 +146,7 @@ non-address-bound credential. It is silently fine on today's `ADDRESS` entry, bu
 the moment an entry is `AddressV2` (the Protocol 28 flip) it signs the wrong bytes
 and the network rejects it. A latent bug:
 
-```ts
+```ts untested
 // ❌ Before: hardcodes the legacy ENVELOPE_TYPE_SOROBAN_AUTHORIZATION payload.
 const preimage = xdr.HashIdPreimage.envelopeTypeSorobanAuthorization(
   new xdr.HashIdPreimageSorobanAuthorization({
@@ -165,7 +165,7 @@ which reads the entry's credential type and builds the matching payload. The
 signing line is unchanged, and the same code is now correct on both `ADDRESS` and
 `AddressV2`:
 
-```ts
+```ts untested
 // ✅ After: picks the right payload from the entry's own credential type.
 const preimage = buildAuthorizationEntryPreimage(entry, validUntil, networkPassphrase);
 const signature = keypair.sign(hash(preimage.toXdr()));
@@ -175,7 +175,7 @@ Better still, drop the preimage step entirely and hand the whole entry to
 [`authorizeEntry`](/reference/core-soroban-primitives/#authorizeentry), which
 builds the payload, signs it, verifies it, and writes the signature back:
 
-```ts
+```ts untested
 // ✅ Even simpler: authorizeEntry does the whole thing.
 const signed = await authorizeEntry(entry, keypair, validUntil, networkPassphrase);
 ```
@@ -210,7 +210,7 @@ separate `signer` account, builds a call that requires the signer's
 authorization, signs that entry with `basicNodeSigner`, and submits. Set
 `contractId` to your deployed Auth contract (see Prerequisites).
 
-```ts
+```ts untested
 import { contract, rpc, Keypair, Networks } from "@stellar/stellar-sdk";
 
 const rpcUrl = "https://soroban-testnet.stellar.org";
