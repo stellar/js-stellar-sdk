@@ -1,9 +1,11 @@
 # Testable guide snippets
 
 Every code example in `docs/guides/*.md` lives in exactly one place: a runnable
-TypeScript file in `examples/guides/`. Guides never contain code, only markers.
-The docs build injects the code at build time, and the test suite typechecks and
-executes it. If an SDK change breaks a guide example, CI fails.
+TypeScript file in `examples/guides/`. Guides contain only markers, except for
+code blocks marked `untested` (see
+[Intentionally unverified code](#intentionally-unverified-code)). The docs build
+injects the code at build time, and the test suite typechecks and executes it.
+If an SDK change breaks a guide example, CI fails.
 
 ## How it works
 
@@ -30,9 +32,10 @@ executes it. If an SDK change breaks a guide example, CI fails.
    - **Hermetic PR gate** `pnpm docs:snippets:check` (runs in `pnpm test`,
      `pnpm docs`, and the tests and docs-build workflows on every PR): every
      marker resolves to a real file and region, no inline code block follows a
-     marker, malformed markers (typos, indented markers) are hard errors, and
+     marker, malformed markers (typos, indented markers) are hard errors, every
+     fenced code block in a guide is a marker or is marked `untested`, and
      snippets typecheck against `src/` with the same strictness as the SDK
-     build.
+     build. It also prints a tested/untested count for each guide.
    - **Local-network execution PR gate** `pnpm test:guides:local` (runs in
      `guides_pr.yml` on every PR against a stellar/quickstart service
      container): `test/guides/snippets.test.ts` auto-discovers every file in
@@ -129,9 +132,23 @@ pnpm --silent docs:snippets:show guides/03-issue-an-asset.md > rendered.md
 
 ## Intentionally unverified code
 
-Code that must not compile or run (the migration guide's before examples,
-pseudocode) stays as a plain fenced block with no marker. Only marked blocks are
-tested. Prefer markers for anything a reader might copy.
+In `docs/guides/`, every fenced code block must be a marker. `check-snippets`
+fails on a plain fenced block there. To keep a block that is not tested (a
+"before" example, pseudocode, or a guide not yet converted), add the word
+`untested` to its fence line, after the language:
+
+````markdown
+```ts untested
+```
+````
+
+The first word is always the language, so ` ```untested ` does not count. The
+site ignores the word after the language, but it stays in the raw `.md`
+siblings and `llms-full.txt`. Prefer markers for anything a reader might copy.
+
+Outside `docs/guides/`, plain fenced blocks are allowed: `docs/reference/` is
+generated, `docs/migration/` shows old APIs on purpose, and `docs/index.md` is
+synced from the root README. The marker rules still apply there.
 
 ## Gotchas
 
@@ -170,7 +187,6 @@ due. Do the item when its trigger arrives, not before.
 | Item                                                                                                                          | Trigger                                                                           |
 | ----------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
 | One-time GitHub setup: add `guides-local` to the protect-main ruleset as a required check                                     | When this system first lands on the remote                                        |
-| Untested-fence opt-out annotation plus a tested/untested count in `check-snippets` (makes silent partial conversions visible) | Before the first partial guide conversion (invoke-a-contract is the likely first) |
 | Fence metadata passthrough in markers (for `title=` and `del=`/`ins=` annotations)                                            | Before converting the before/after guides (contract-auth, protocol-27, migration) |
 | Reviewer preview as a CI artifact of the expanded `.docs-build/guides/` output (the local command half is done: `pnpm docs:snippets:show`) | If reviewers find checking out the branch too slow                                |
 | Sidebar canary: post-build assertion that the Guides and Reference groups render                                              | Any time; value grows with guide count                                            |

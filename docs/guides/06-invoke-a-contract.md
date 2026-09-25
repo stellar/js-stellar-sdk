@@ -36,7 +36,7 @@ guides. Build a [`contract.Client`](/reference/contracts-client/#contractclient)
 from your deployed contract ID. The client reads the contract's interface from
 the network, which is what lets you call its methods by name:
 
-```ts
+```ts untested
 import { contract, Keypair, Networks } from "@stellar/stellar-sdk";
 
 const rpcUrl = "https://soroban-testnet.stellar.org";
@@ -89,7 +89,7 @@ call and returns the decoded result. It simulates the call the same way the prev
 below does, so it needs no signing or fee, but it hands you the value directly. Here
 both run against a token contract — discover its methods, then read one:
 
-```ts
+```ts untested
 import { rpc } from "@stellar/stellar-sdk";
 
 const server = new rpc.Server(rpcUrl);
@@ -132,7 +132,7 @@ and returns the result without committing anything, so a preview is free and nee
 no signature. Read the predicted return value from
 [`tx.result`](/reference/contracts-client/#contractassembledtransaction):
 
-```ts
+```ts untested
 const tx = await client.increment();
 
 tx.result; // the value the call would return; nothing has been sent
@@ -154,7 +154,7 @@ waits for the network, returning a
 [`SentTransaction`](/reference/contracts-client/#contractsenttransaction) whose
 `result` is the value the contract returned on-chain:
 
-```ts
+```ts untested
 const sent = await tx.signAndSend();
 
 sent.result; // the applied result; send again and the counter advances
@@ -171,7 +171,7 @@ increment contract (see Prerequisites); the script funds a throwaway source
 account with friendbot so it runs end to end. In your app, replace the
 `Keypair.random()` call with your existing funded keypair.
 
-```ts
+```ts untested
 import { contract, rpc, Keypair, Networks } from "@stellar/stellar-sdk";
 
 const rpcUrl = "https://soroban-testnet.stellar.org";

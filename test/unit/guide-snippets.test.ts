@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  checkDoc,
   expandSnippetMarkers,
   parseRegions,
   scanMarkdown,
@@ -201,6 +202,100 @@ describe("scanMarkdown", () => {
       (s) => s.kind,
     );
     expect(kinds).toEqual(["fence-open", "code", "code", "fence-close"]);
+  });
+
+  it("marks a fence untested only when its info string has the word untested", () => {
+    for (const [line, untested] of [
+      ["```ts", false],
+      ["```", false],
+      ["```ts untested", true],
+      ["~~~ts untested", true],
+      ["```ts title=x untested", true],
+      ['```ts title="untested"', false],
+      ["```ts untested-later", false],
+      // The first word is the language, so the site would render "untested".
+      ["```untested", false],
+      ["``` untested", false],
+    ] as const) {
+      expect(scanMarkdown(line)[0], line).toEqual({
+        line,
+        kind: "fence-open",
+        untested,
+      });
+    }
+  });
+
+  it("treats an untested fence nested in another fence as code", () => {
+    const kinds = scanMarkdown(
+      ["````md", "```ts untested", "code();", "```", "````"].join("\n"),
+    ).map((s) => s.kind);
+    expect(kinds).toEqual([
+      "fence-open",
+      "code",
+      "code",
+      "code",
+      "fence-close",
+    ]);
+  });
+});
+
+describe("checkDoc", () => {
+  const MARKER_LINE = "<!-- snippet: connect-and-fund.ts#create-keypair -->";
+
+  it("rejects a plain fence in a guide", () => {
+    expect(checkDoc("g.md", "text\n```ts\nx();\n```", true)).toEqual({
+      problems: [
+        'g.md:2: untested code block — replace it with a snippet marker, or add "untested" to its fence line',
+      ],
+      tested: 0,
+      untested: 0,
+    });
+  });
+
+  it("counts markers as tested and untested fences as untested", () => {
+    const md = [MARKER_LINE, "prose", "```ts untested", "x();", "```"];
+    expect(checkDoc("g.md", md.join("\n"), true)).toEqual({
+      problems: [],
+      tested: 1,
+      untested: 1,
+    });
+  });
+
+  it("allows plain and untested fences outside guides, without counting them", () => {
+    for (const fence of ["```ts", "```ts untested"]) {
+      expect(checkDoc("m.md", `${fence}\nx();\n\`\`\``, false), fence).toEqual({
+        problems: [],
+        tested: 0,
+        untested: 0,
+      });
+    }
+  });
+
+  it("reports only the after-marker error for a fence after a marker", () => {
+    for (const fence of ["```ts", "```ts untested"]) {
+      for (const isGuide of [true, false]) {
+        const md = [MARKER_LINE, "", fence, "x();", "```"].join("\n");
+        expect(checkDoc("d.md", md, isGuide), `${fence} ${isGuide}`).toEqual({
+          problems: [
+            `d.md:3: inline code block after snippet marker "${MARKER_LINE}" — remove it; the snippet is injected at build time`,
+          ],
+          tested: 1,
+          untested: 0,
+        });
+      }
+    }
+  });
+
+  it("reports a marker that does not resolve and a near-miss marker", () => {
+    const md = [
+      "<!-- snippet: connect-and-fund.ts#no-such-region -->",
+      "<!-- snippet connect-and-fund.ts#create-keypair -->",
+    ].join("\n");
+    const { problems, tested } = checkDoc("d.md", md, true);
+    expect(tested).toBe(0);
+    expect(problems).toHaveLength(2);
+    expect(problems[0]).toMatch(/^d\.md:1: .*no-such-region/);
+    expect(problems[1]).toMatch(/^d\.md: line 2: malformed snippet marker/);
   });
 });
 
