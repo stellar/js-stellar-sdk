@@ -3,7 +3,8 @@
  *
  * The authoring convention for links between docs pages is a root-absolute,
  * base-agnostic path: `/reference/<slug>/#<anchor>`, `/guides/<slug>/#<anchor>`,
- * or `/` for the home page. Same-page links stay as `#<anchor>`.
+ * `/migration/<slug>/#<anchor>`, or `/` for the home page. Same-page links
+ * stay as `#<anchor>`.
  *
  * Authors never write the deploy base (`/js-stellar-sdk`) or `.md` extensions.
  * The base is added at build time from the single source in config/site.ts:
@@ -110,7 +111,12 @@ export function hrefToDocsRelPath(path: string): string | null {
   const p = path.replace(/^\/+/, "").replace(/\/+$/, "");
   if (p === "") return "index.md";
   if (p === "agents") return "agents.md";
-  if (p.startsWith("guides/") || p.startsWith("reference/")) return `${p}.md`;
+  if (
+    p.startsWith("guides/") ||
+    p.startsWith("reference/") ||
+    p.startsWith("migration/")
+  )
+    return `${p}.md`;
   return null;
 }
 

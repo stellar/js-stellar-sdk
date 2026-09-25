@@ -105,9 +105,9 @@ The docs system has four parts:
 
 1. **TSDoc comments in `src/`** — the source of truth for API reference. Edited
    inline alongside code.
-2. **Markdown guides in `docs/guides/`** — task-oriented prose, hand-written.
-   Guides contain no code blocks for tested examples; they reference snippets
-   with `<!-- snippet: file.ts#region -->` markers.
+2. **Markdown guides in `docs/guides/` and `docs/migration/`** — hand-written
+   prose. Guides in `docs/guides/` contain no code blocks for tested examples;
+   they reference snippets with `<!-- snippet: file.ts#region -->` markers.
 3. **Guide snippets in `examples/guides/`** — runnable TypeScript scripts that
    are the single source for every code block in the guides. They are
    typechecked against `src/` and executed in CI, so an SDK change that breaks a
@@ -136,9 +136,15 @@ pipeline, do not introduce platform-specific syntax in the generated output:
   `:::caution`).
 - Frontmatter limited to the universal `title` / `description` convention. Avoid
   platform-private fields.
-- Cross-references between pages emitted as relative markdown links
-  (`./other-bucket.md#anchor`), never absolute URLs that bake in any one
-  platform's routing.
+- Cross-references between pages written as root-absolute, base-agnostic paths:
+  `/guides/<slug>/#<anchor>`, `/migration/<slug>/#<anchor>`,
+  `/reference/<slug>/#<anchor>`, or `/` for the home page. Same-page links stay
+  as `#<anchor>`. Never write the deploy base (`/js-stellar-sdk`), a `.md`
+  extension, or a full `https://` URL — the base is added at build time from
+  `config/site.ts`, which is what keeps the paths portable. Relative `.md` links
+  break on the rendered site, because Astro does not rewrite them, and
+  `pnpm docs:llms` fails the build on them. See `scripts/doc-links.ts` for the
+  resolution rules.
 
 Renderer-specific configuration belongs in `astro.config.mjs` and
 `src/content.config.ts`, not in the markdown.
@@ -156,6 +162,7 @@ one hop away in `examples/guides/`.
   markers).
 - `examples/guides/*.ts` — tested guide snippets (authored; single source for
   guide code blocks).
+- `docs/migration/*.md` — version-migration guides (authored).
 - `.docs-build/` — snippet-expanded mirror of `docs/` that the site builds from
   (generated; gitignored; do not edit).
 - `docs/reference/*.md` — API reference (generated; do not edit).
@@ -219,8 +226,9 @@ Don't add new TSDoc tags to influence frontmatter — the generator handles it.
 ### `llms.txt` and `llms-full.txt`
 
 - `llms.txt` is the LLM sitemap: project H1, blockquote tagline, version
-  metadata, and per-area `## Guides` / `## Reference` / `## Other` sections with
-  link lists to every published doc page.
+  metadata, and per-area `## Guides` / `## Migration` / `## Reference` /
+  `## Other` sections with link lists to every published doc page. The sections
+  mirror the top-level folders under `docs/` that the pipeline picks up.
 - `llms-full.txt` concatenates the full content of every doc page into one
   bundle for AI-agent ingestion.
 

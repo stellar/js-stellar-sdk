@@ -12,10 +12,9 @@ description:
 If you are coming from an earlier version of `@stellar/stellar-sdk`, update the
 APIs listed below.
 
-> **Versioning.** Always run the latest `@stellar/stellar-sdk`; an older SDK may
-> fail to decode newer network data as the protocol upgrades. These docs cover
-> the latest version only. See
-> [Versioning and compatibility](/#versioning-and-compatibility).
+> **Versioning.** See
+> [Versioning and compatibility](/#versioning-and-compatibility) for active
+> versions.
 
 ## 17.x.x Breaking changes
 

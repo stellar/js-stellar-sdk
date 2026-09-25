@@ -21,7 +21,12 @@ import type {
   WalletError,
   XDR_BASE64,
 } from "./types.js";
-import { signerAddress, toSignAuthEntry, toSignTransaction } from "./signer.js";
+import {
+  signerAddress,
+  toSignAuthEntry,
+  toSignTransaction,
+  walletSigningKey,
+} from "./signer.js";
 import { Server } from "../rpc/index.js";
 import { Api } from "../rpc/api.js";
 import { assembleTransaction } from "../rpc/transaction.js";
@@ -1085,12 +1090,15 @@ export class AssembledTransaction<T> {
    *
    * Only top-level address credentials are selected; delegate nodes and
    * requirements raised inside a custom account's `__check_auth` are not.
+   *
+   * With the default authorizer, the wallet's returned `signerAddress` names
+   * the key the signature is verified against, which may differ from `address`.
    */
   signAuthEntries = async ({
     expiration = (async () =>
       (await this.server.getLatestLedger()).sequence + 100)(),
     signAuthEntry = this.options.signAuthEntry,
-    address = signerAddress(signAuthEntry) ?? this.options.publicKey,
+    address: addressArg,
     authorizeEntry = stellarBaseAuthorizeEntry,
   }: {
     /**
@@ -1100,25 +1108,47 @@ export class AssembledTransaction<T> {
      */
     expiration?: number | Promise<number>;
     /**
-     * Sign all auth entries for this account. Default: when `signAuthEntry`
-     * is a `Signer` or `Keypair`, its own address; otherwise the account that
-     * constructed the transaction (`publicKey`).
+     * Sign all auth entries for this account. Defaults to a `Signer`'s or
+     * `Keypair`'s own address, otherwise to the account that constructed the
+     * transaction (`publicKey`). Pass it when `signAuthEntry` is a plain
+     * function signing for a different account.
      */
     address?: string;
     /**
-     * You must provide this here if you did not provide one before and you are not passing `authorizeEntry`. Default: the `signAuthEntry` from the `Client` options. Must sign things as the given `address`.
+     * You must provide this here if you did not provide one before and you are
+     * not passing `authorizeEntry`. Defaults to the Client's `signAuthEntry`.
+     * If it signs with a key other than `address`, it should return that key
+     * as `signerAddress`.
      */
     signAuthEntry?: ClientOptions["signAuthEntry"];
 
     /**
      * If you have a pro use-case and need to override the default `authorizeEntry` function, rather than using the one this SDK provides, you can do that! Your function needs to take at least the first argument, `entry: xdr.SorobanAuthorizationEntry`, and return a `Promise<xdr.SorobanAuthorizationEntry>`.
      *
-     * Note that you if you pass this, then `signAuthEntry` will be ignored.
+     * The signing callback passed to it returns raw signature bytes and does
+     * not forward the wallet's `signerAddress`.
      */
     authorizeEntry?: typeof stellarBaseAuthorizeEntry;
   } = {}): Promise<void> => {
     if (!this.built)
       throw new Error("Transaction has not yet been assembled or simulated");
+
+    const derivedAddress = signerAddress(signAuthEntry);
+    const address = addressArg ?? derivedAddress ?? this.options.publicKey;
+
+    // Adds a hint when `address` fell back to `publicKey`, which may not be
+    // the signer (#1681).
+    const noEntriesFor = (): string => {
+      const base = `No auth entries for public key "${address}"`;
+      if (addressArg != null || derivedAddress !== undefined) return base;
+      const unnamed =
+        "`address` was not given and `signAuthEntry` does not name one";
+      const fix = "Pass `address` to say who is signing.";
+      return address === undefined
+        ? `No account to sign for: ${unnamed}. ${fix}`
+        : `${base}; ${unnamed}, so it defaulted to the account that built ` +
+            `this transaction. ${fix}`;
+    };
 
     // Reduced up front, not at the call site below, so that the `!signAuth`
     // check reports a `Signer` that omits the optional `signAuthEntry` the same
@@ -1137,9 +1167,7 @@ export class AssembledTransaction<T> {
         );
       }
       if (needsNonInvokerSigningBy.indexOf(address ?? "") === -1) {
-        throw new AssembledTransaction.Errors.NoSignatureNeeded(
-          `No auth entries for public key "${address}"`,
-        );
+        throw new AssembledTransaction.Errors.NoSignatureNeeded(noEntriesFor());
       }
       if (!signAuth) {
         throw new AssembledTransaction.Errors.NoSigner(
@@ -1152,6 +1180,7 @@ export class AssembledTransaction<T> {
       .operations[0] as Operation.InvokeHostFunction;
 
     const authEntries = rawInvokeHostFunctionOp.auth ?? [];
+    let signedAny = false;
 
     for (const [i, entry] of authEntries.entries()) {
       // workaround for https://github.com/stellar/js-stellar-sdk/issues/1070
@@ -1176,18 +1205,32 @@ export class AssembledTransaction<T> {
       authEntries[i] = await authorizeEntry(
         entry,
         async (preimage) => {
-          const { signedAuthEntry, error } = await sign(
-            preimage.toXdr("base64"),
-            {
-              address,
-            },
-          );
+          const {
+            signedAuthEntry,
+            signerAddress: resultAddress,
+            error,
+          } = await sign(preimage.toXdr("base64"), {
+            address,
+          });
           this.handleWalletError(error);
-          return base64ToUint8Array(signedAuthEntry);
+          const signature = base64ToUint8Array(signedAuthEntry);
+          const signingKey =
+            authorizeEntry === stellarBaseAuthorizeEntry
+              ? walletSigningKey(resultAddress)
+              : undefined;
+          return signingKey === undefined
+            ? signature
+            : { signature, publicKey: signingKey };
         },
         await expiration,
         this.options.networkPassphrase,
       );
+      signedAny = true;
+    }
+
+    // A custom authorizer skips the pre-flight, so catch a no-match here.
+    if (!signedAny) {
+      throw new AssembledTransaction.Errors.NoSignatureNeeded(noEntriesFor());
     }
   };
 
