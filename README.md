@@ -140,12 +140,14 @@ root barrel — this is noticeably leaner and avoids pulling in dependencies lik
 
 ## Versioning and compatibility
 
-Always use the latest `@stellar/stellar-sdk`. The Stellar network upgrades its
-protocol periodically, and an older SDK may fail to decode newer data (for
-example, newer XDR). You can check the protocol a network currently runs in the
-`current_protocol_version` field of its Horizon root (for example
-[horizon.stellar.org](https://horizon.stellar.org/) for Mainnet; Testnet and
-Futurenet expose their own).
+Use either the latest version (v17) or v16 of `@stellar/stellar-sdk` depending
+on your migration needs. Version 16 remains supported through March 2027 for
+protocol compatibility and security fixes. The Stellar network upgrades its
+protocol periodically, and older unsupported SDK versions may fail to decode
+newer data (for example, newer XDR). You can check the protocol a network
+currently runs in the `current_protocol_version` field of its Horizon root (for
+example [horizon.stellar.org](https://horizon.stellar.org/) for Mainnet; Testnet
+and Futurenet expose their own).
 
 These docs and the API reference cover the latest version only. To read docs for
 an older version, find its Git tag on the
@@ -302,6 +304,21 @@ npx @stellar/stellar-sdk generate [options]
 stellar-js generate [options]
 ```
 
+### Stellar CLI plugin
+
+When the SDK is installed globally it also registers a
+`stellar-contract-bindings-typescript` binary. This follows the
+[Stellar CLI plugin convention](https://developers.stellar.org/docs/tools/cli/plugins):
+the CLI discovers any executable on your `PATH` named `stellar-*` and exposes it
+as a subcommand. The binary maps directly onto `stellar-js generate`, forwarding
+every option unchanged, so the flags documented below apply identically.
+
+Note that the Stellar CLI currently ships its own native
+`stellar contract bindings typescript` command (now deprecated). While that
+built-in command exists it takes precedence over the plugin. Once the CLI drops
+its native implementation, `stellar contract bindings typescript` (and the
+dashed `stellar contract-bindings-typescript`) will resolve to this plugin.
+
 ### Generating Bindings
 
 You can generate bindings from three different sources:
@@ -440,7 +457,7 @@ const result = await client.transfer({
 ## Migrating
 
 Upgrading from an earlier version? The
-[Migration Guide](https://stellar.github.io/js-stellar-sdk/guides/00-migration/)
+[Migration Guide](https://stellar.github.io/js-stellar-sdk/migration/00-migration/)
 lists every breaking change by SDK version, newest first, and links to the
 deep-dive guides for the largest ones.
 

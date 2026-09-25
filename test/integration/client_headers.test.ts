@@ -1,17 +1,11 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect } from "vitest";
 import * as http from "http";
 import * as url from "url";
 import * as StellarSdk from "../../src/index.js";
+import { listenOnFreePort } from "./helpers.js";
 
 const { Horizon } = StellarSdk;
 const versionPattern = /^[0-9]+\.[0-9]+\.[0-9]+(-[a-z]+(\.[0-9])?)?$/;
-
-// Use different ports for each test to avoid conflicts
-const getPort = () => Math.floor(Math.random() * 10000) + 3000;
-let port = getPort();
-beforeEach(() => {
-  port = getPort();
-});
 
 describe("integration tests: client headers", () => {
   if (typeof window !== "undefined") {
@@ -19,8 +13,6 @@ describe("integration tests: client headers", () => {
   }
 
   it("sends client via headers", async () => {
-    let server: http.Server;
-
     const requestHandler = (
       request: http.IncomingMessage,
       response: http.ServerResponse,
@@ -31,17 +23,9 @@ describe("integration tests: client headers", () => {
       server.close();
     };
 
-    server = http.createServer(requestHandler);
+    const server = http.createServer(requestHandler);
 
-    await new Promise<void>((resolve, reject) => {
-      server.listen(port, (err?: Error) => {
-        if (err) {
-          reject(err);
-          return;
-        }
-        resolve();
-      });
-    });
+    const port = await listenOnFreePort(server);
 
     await new Horizon.Server(`http://localhost:${port}`, { allowHttp: true })
       .operations()
@@ -49,9 +33,6 @@ describe("integration tests: client headers", () => {
   });
 
   it("sends client data via get params when streaming", async () => {
-    let server: http.Server;
-    let closeStream: () => void;
-
     const requestHandler = (
       request: http.IncomingMessage,
       response: http.ServerResponse,
@@ -72,19 +53,11 @@ describe("integration tests: client headers", () => {
       });
     };
 
-    server = http.createServer(requestHandler);
+    const server = http.createServer(requestHandler);
 
-    await new Promise<void>((resolve, reject) => {
-      server.listen(port, (err?: Error) => {
-        if (err) {
-          reject(err);
-          return;
-        }
-        resolve();
-      });
-    });
+    const port = await listenOnFreePort(server);
 
-    closeStream = new Horizon.Server(`http://localhost:${port}`, {
+    const closeStream = new Horizon.Server(`http://localhost:${port}`, {
       allowHttp: true,
     })
       .operations()
@@ -100,8 +73,6 @@ describe("integration tests: client headers", () => {
   });
 
   it("sends client via custom headers", async () => {
-    let server: http.Server;
-
     const requestHandler = (
       request: http.IncomingMessage,
       response: http.ServerResponse,
@@ -111,17 +82,9 @@ describe("integration tests: client headers", () => {
       server.close();
     };
 
-    server = http.createServer(requestHandler);
+    const server = http.createServer(requestHandler);
 
-    await new Promise<void>((resolve, reject) => {
-      server.listen(port, (err?: Error) => {
-        if (err) {
-          reject(err);
-          return;
-        }
-        resolve();
-      });
-    });
+    const port = await listenOnFreePort(server);
 
     await new Horizon.Server(`http://localhost:${port}`, {
       headers: { authorization: "123456789" },
@@ -132,7 +95,6 @@ describe("integration tests: client headers", () => {
   });
 
   it("uses configured server URL for pagination links (reverse proxy support)", async () => {
-    let server: http.Server;
     let requestCount = 0;
 
     const requestHandler = (
@@ -184,17 +146,9 @@ describe("integration tests: client headers", () => {
       }
     };
 
-    server = http.createServer(requestHandler);
+    const server = http.createServer(requestHandler);
 
-    await new Promise<void>((resolve, reject) => {
-      server.listen(port, (err?: Error) => {
-        if (err) {
-          reject(err);
-          return;
-        }
-        resolve();
-      });
-    });
+    const port = await listenOnFreePort(server);
 
     const horizonServer = new Horizon.Server(`http://localhost:${port}`, {
       allowHttp: true,
@@ -217,8 +171,6 @@ describe("integration tests: client headers", () => {
   });
 
   it("sends appName and appVersion via headers for HTTP requests", async () => {
-    let server: http.Server;
-
     const requestHandler = (
       request: http.IncomingMessage,
       response: http.ServerResponse,
@@ -229,17 +181,9 @@ describe("integration tests: client headers", () => {
       server.close();
     };
 
-    server = http.createServer(requestHandler);
+    const server = http.createServer(requestHandler);
 
-    await new Promise<void>((resolve, reject) => {
-      server.listen(port, (err?: Error) => {
-        if (err) {
-          reject(err);
-          return;
-        }
-        resolve();
-      });
-    });
+    const port = await listenOnFreePort(server);
 
     await new Horizon.Server(`http://localhost:${port}`, {
       appName: "my-app",
@@ -251,9 +195,6 @@ describe("integration tests: client headers", () => {
   });
 
   it("sends appName and appVersion via query params when streaming", async () => {
-    let server: http.Server;
-    let closeStream: () => void;
-
     const requestHandler = (
       request: http.IncomingMessage,
       response: http.ServerResponse,
@@ -273,19 +214,11 @@ describe("integration tests: client headers", () => {
       });
     };
 
-    server = http.createServer(requestHandler);
+    const server = http.createServer(requestHandler);
 
-    await new Promise<void>((resolve, reject) => {
-      server.listen(port, (err?: Error) => {
-        if (err) {
-          reject(err);
-          return;
-        }
-        resolve();
-      });
-    });
+    const port = await listenOnFreePort(server);
 
-    closeStream = new Horizon.Server(`http://localhost:${port}`, {
+    const closeStream = new Horizon.Server(`http://localhost:${port}`, {
       appName: "my-app",
       appVersion: "1.0.0",
       allowHttp: true,
