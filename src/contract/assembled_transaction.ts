@@ -36,6 +36,7 @@ import {
   contractErrorPattern,
   implementsToString,
   getAccount,
+  pendingSigners,
 } from "./utils.js";
 import { DEFAULT_TIMEOUT } from "./types.js";
 import { SentTransaction, Watcher } from "./sent_transaction.js";
@@ -827,6 +828,7 @@ export class AssembledTransaction<T> {
   sign = async ({
     force = false,
     signTransaction = this.options.signTransaction,
+    ignoreContractDelegates = false,
   }: {
     /**
      * If `true`, sign and send the transaction even if it is a read call
@@ -836,6 +838,12 @@ export class AssembledTransaction<T> {
      * You must provide this here if you did not provide one before
      */
     signTransaction?: ClientOptions["signTransaction"];
+    /**
+     * Skip CAP-71 delegates entries whose top-level address is a contract,
+     * leaving that account's policy to the caller (re-simulate after signing
+     * to check it). Default: false
+     */
+    ignoreContractDelegates?: boolean;
   } = {}): Promise<void> => {
     if (!this.built) {
       throw new Error("Transaction has not yet been simulated");
@@ -866,10 +874,13 @@ export class AssembledTransaction<T> {
       );
     }
 
-    // filter out contracts, as these are dealt with via cross contract calls
-    const sigsNeeded = this.needsNonInvokerSigningBy().filter(
-      (id) => !id.startsWith("C"),
-    );
+    // A contract's own policy can't be checked here, so only `G…` signers
+    // (top-level or delegate) block signing. This assumes every listed
+    // delegate must sign, which is stricter than a subset-using `__check_auth`.
+    const sigsNeeded = this.needsNonInvokerSigningBy({
+      includeDelegates: true,
+      ignoreContractDelegates,
+    }).filter((id) => !id.startsWith("C"));
     if (sigsNeeded.length) {
       throw new AssembledTransaction.Errors.NeedsMoreSignatures(
         `Transaction requires signatures from ${sigsNeeded}. ` +
@@ -935,6 +946,7 @@ export class AssembledTransaction<T> {
   signAndSend = async ({
     force = false,
     signTransaction = this.options.signTransaction,
+    ignoreContractDelegates = false,
     watcher,
   }: {
     /**
@@ -945,6 +957,12 @@ export class AssembledTransaction<T> {
      * You must provide this here if you did not provide one before
      */
     signTransaction?: ClientOptions["signTransaction"];
+    /**
+     * Skip CAP-71 delegates entries whose top-level address is a contract,
+     * leaving that account's policy to the caller (re-simulate after signing
+     * to check it). Default: false
+     */
+    ignoreContractDelegates?: boolean;
     /**
      * A {@link Watcher} to notify after the transaction is successfully
      * submitted to the network (`onSubmitted`) and as the transaction is
@@ -965,31 +983,53 @@ export class AssembledTransaction<T> {
           ? (tx, opts) => signer(tx, { ...opts, submit: false })
           : signTransaction;
 
-      await this.sign({ force, signTransaction: wrappedSignTransaction });
+      await this.sign({
+        force,
+        signTransaction: wrappedSignTransaction,
+        ignoreContractDelegates,
+      });
     }
     return this.send(watcher);
   };
 
   /**
    * Lists the top-level address of each address-credential auth entry that
-   * still lacks a signature payload (or of every such entry, with
+   * still lacks a signature (or of every such entry, with
    * `includeAlreadySigned`). Source account credentials are skipped, since the
    * envelope signature covers them; address credentials are listed even when
    * their address is the transaction source.
    *
+   * A CAP-71 delegates entry stays listed while its top-level signature is
+   * empty, even once its delegates have signed; filter out a `C…` account that
+   * authorizes only through delegates (or pass `ignoreContractDelegates`).
    * This is a signature-presence heuristic, not an authorization check: it
-   * does not see delegate nodes, custom account policy, or requirements raised
-   * inside `__check_auth`. The contract auth guide covers the caveats and the
-   * multi-party signing flow.
+   * does not see custom account policy or requirements raised inside
+   * `__check_auth`. The contract auth guide covers the caveats.
    */
   needsNonInvokerSigningBy = ({
     includeAlreadySigned = false,
+    includeDelegates = false,
+    ignoreContractDelegates = false,
   }: {
     /**
      * Whether or not to include auth entries that have already been signed.
      * Default: false
      */
     includeAlreadySigned?: boolean;
+    /**
+     * Also list the delegate addresses that still have to sign (or all of
+     * them, with `includeAlreadySigned`) under an unsigned `C…` account. On
+     * p27 a `G…` account's delegates are never listed. `signAuthEntries` signs top-level addresses
+     * only; sign delegates with `authorizeEntry` and `forAddress`.
+     * Default: false
+     */
+    includeDelegates?: boolean;
+    /**
+     * Skip CAP-71 delegates entries whose top-level address is a contract,
+     * leaving that account's policy to the caller (re-simulate after signing
+     * to check it). Default: false
+     */
+    ignoreContractDelegates?: boolean;
   } = {}): string[] => {
     if (!this.built) {
       throw new Error("Transaction has not yet been simulated");
@@ -1010,19 +1050,24 @@ export class AssembledTransaction<T> {
 
     return [
       ...new Set(
-        (rawInvokeHostFunctionOp.auth ?? [])
-          .map((entry) => inspectAuthEntry(entry))
-          .filter(
-            (info) =>
-              // skip source-account credentials (no address payload), which
-              // are covered by the envelope signature on the source account.
-              // Only the top-level credentials (signers[0]) matter here — this
-              // method reports (and signAuthEntries signs) the top-level
-              // address, so unsigned delegate nodes must not keep it listed.
-              info.address !== null &&
-              (includeAlreadySigned || !info.signers[0].signed),
-          )
-          .map((info) => info.address as string),
+        (rawInvokeHostFunctionOp.auth ?? []).flatMap((entry) => {
+          const info = inspectAuthEntry(entry);
+          // source-account credentials: covered by the envelope signature
+          if (info.address === null) return [];
+          if (
+            ignoreContractDelegates &&
+            info.credentialType === "addressWithDelegates" &&
+            info.address.startsWith("C")
+          ) {
+            return [];
+          }
+          const signers = pendingSigners(
+            entry.credentials,
+            includeAlreadySigned,
+          );
+          if (signers.length === 0) return [];
+          return includeDelegates ? signers : [info.address];
+        }),
       ),
     ];
   };
