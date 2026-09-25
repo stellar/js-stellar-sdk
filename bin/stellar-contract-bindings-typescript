@@ -1,0 +1,13 @@
+#!/usr/bin/env node
+
+// Stellar CLI plugin entry point.
+//
+// The Stellar CLI invokes plugins named `stellar-<name>` as subcommands, so
+// this binary is reachable via `stellar contract bindings typescript`. It maps
+// straight onto `stellar-js generate` by injecting the `generate` subcommand,
+// forwarding every argument, then delegating to the shared CLI in-process.
+// See https://developers.stellar.org/docs/tools/cli/plugins
+process.argv.splice(2, 0, "generate");
+
+import { runCli } from "../lib/esm/cli/index.js";
+runCli();

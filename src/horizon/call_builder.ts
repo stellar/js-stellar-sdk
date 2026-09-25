@@ -10,7 +10,7 @@ import { version } from "./horizon_axios_client.js";
 import type { HttpClient } from "../http-client/index.js";
 import { ServerApi } from "./server_api.js";
 import type { Server } from "../federation/index.js";
-import { expandUriTemplate } from "../utils/url.js";
+import { encodeSegment, expandUriTemplate } from "../utils/url.js";
 
 // Resources which can be included in the Horizon response via the `join`
 // query-param.
@@ -314,7 +314,9 @@ export class CallBuilder<
 
     if (this.filter.length === 1) {
       // append filters to original segments
-      const newSegment = this.originalSegments.concat(this.filter[0]);
+      const newSegment = this.originalSegments.concat(
+        this.filter[0].map(encodeSegment),
+      );
       this.url.pathname = newSegment.join("/");
     }
   }

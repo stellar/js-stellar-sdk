@@ -101,8 +101,7 @@ export namespace HorizonApi {
   }
   export interface BalanceLineAsset<
     T extends AssetType.credit4 | AssetType.credit12 =
-      | AssetType.credit4
-      | AssetType.credit12,
+      AssetType.credit4 | AssetType.credit12,
   > {
     balance: string;
     limit: string;
@@ -391,9 +390,7 @@ export namespace HorizonApi {
     OperationResponseTypeI.changeTrust
   > {
     asset_type:
-      | AssetType.credit4
-      | AssetType.credit12
-      | AssetType.liquidityPoolShares;
+      AssetType.credit4 | AssetType.credit12 | AssetType.liquidityPoolShares;
     asset_code?: string;
     asset_issuer?: string;
     liquidity_pool_id?: string;
@@ -437,11 +434,21 @@ export namespace HorizonApi {
   > {
     bump_to: string;
   }
+  /**
+   * A claim predicate as Horizon serves it.
+   *
+   * Horizon's dialect, not SEP-0051's: `abs_before` is an ISO-8601 timestamp,
+   * where SEP-0051's `before_absolute_time` is epoch seconds. RPC serves
+   * SEP-0051; build a predicate from that dialect with
+   * `xdr.ClaimPredicate.fromJson()`.
+   */
   export interface Predicate {
     and?: Predicate[];
     or?: Predicate[];
     not?: Predicate;
+    unconditional?: boolean;
     abs_before?: string;
+    abs_before_epoch?: string;
     rel_before?: string;
   }
 

@@ -20,8 +20,7 @@ export type ScSpecUdtUnionCaseV0Wire =
   | { kind: 1; tupleCase: ScSpecUdtUnionCaseTupleV0Wire };
 
 export type ScSpecUdtUnionCaseV0VariantName =
-  | "scSpecUdtUnionCaseVoidV0"
-  | "scSpecUdtUnionCaseTupleV0";
+  "scSpecUdtUnionCaseVoidV0" | "scSpecUdtUnionCaseTupleV0";
 
 /**
  * ```xdr
@@ -150,6 +149,5 @@ export class ScSpecUdtUnionCaseV0TupleV0 extends ScSpecUdtUnionCaseV0Base {
 }
 
 export type ScSpecUdtUnionCaseV0 =
-  | ScSpecUdtUnionCaseV0VoidV0
-  | ScSpecUdtUnionCaseV0TupleV0;
+  ScSpecUdtUnionCaseV0VoidV0 | ScSpecUdtUnionCaseV0TupleV0;
 export const ScSpecUdtUnionCaseV0 = ScSpecUdtUnionCaseV0Base;

@@ -773,17 +773,47 @@ describe("AssembledTransaction auth entry credential types (CAP-71)", () => {
       );
       const assembled = assembledWith([entry]);
 
-      // 5 declared parameters: signals this stub can receive `forAddress`,
-      // required to target a delegate since #1672's own review round added
-      // a guard rejecting shorter, pre-forAddress-shaped custom callbacks.
+      // Writes the delegate's own node, not just any node — a custom
+      // authorizeEntry that ignored `forAddress` (always passed as the
+      // 5th argument) and left the delegate unsigned would now be caught
+      // by signAuthEntries's own post-call check; see the dedicated test
+      // below for that case.
       const authorizeEntry = vi.fn(
         (
-          e: any,
+          e: xdr.SorobanAuthorizationEntry,
           _signer: any,
-          _validUntil: any,
-          _passphrase: any,
-          _forAddress?: any,
-        ) => Promise.resolve(e),
+          _validUntil: number,
+          _passphrase: string,
+          forAddress?: string,
+        ) => {
+          const withDelegates = expectVariant(
+            e.credentials,
+            "sorobanCredentialsAddressWithDelegates",
+          ).addressWithDelegates;
+          const delegates = withDelegates.delegates.map((delegate) =>
+            Address.fromScAddress(delegate.address).toString() === forAddress
+              ? new xdr.SorobanDelegateSignature({
+                  address: delegate.address,
+                  signature: xdr.ScVal.scvVec([
+                    xdr.ScVal.scvBytes(new Uint8Array(64)),
+                  ]),
+                  nestedDelegates: delegate.nestedDelegates,
+                })
+              : delegate,
+          );
+          return Promise.resolve(
+            new xdr.SorobanAuthorizationEntry({
+              rootInvocation: e.rootInvocation,
+              credentials:
+                xdr.SorobanCredentials.sorobanCredentialsAddressWithDelegates(
+                  new xdr.SorobanAddressCredentialsWithDelegates({
+                    addressCredentials: withDelegates.addressCredentials,
+                    delegates,
+                  }),
+                ),
+            }),
+          );
+        },
       );
 
       await assembled.signAuthEntries({
@@ -835,6 +865,441 @@ describe("AssembledTransaction auth entry credential types (CAP-71)", () => {
       // untouched: signAuthEntries must write only to the node(s) that
       // actually match `address`, not blanket-sign the whole entry.
       expect(credentials.addressCredentials.signature.type).toBe("scvVoid");
+    });
+
+    it.each([
+      ["ADDRESS", addressCred],
+      ["ADDRESS_V2", addressV2Cred],
+    ] as const)(
+      "uses the wallet's returned signing key for a different %s account",
+      async (_name, makeCredentials) => {
+        const entry = authEntry(makeCredentials(kpA.publicKey()));
+        const signAuthEntry = vi.fn(
+          contract.basicNodeSigner(kpB, networkPassphrase).signAuthEntry,
+        );
+        const assembled = assembledWith([entry], { signAuthEntry });
+
+        await assembled.signAuthEntries({
+          expiration: 1000,
+          address: kpA.publicKey(),
+        });
+
+        expect(signAuthEntry).toHaveBeenCalledExactlyOnceWith(
+          expect.any(String),
+          { address: kpA.publicKey() },
+        );
+        const operation = expectDefined(assembled.built).operations[0];
+        if (operation.type !== "invokeHostFunction") {
+          throw new Error("Expected an invokeHostFunction operation");
+        }
+        const signed = expectDefined(operation.auth)[0];
+        const info = StellarSdk.inspectAuthEntry(signed);
+        expect(info.address).toBe(kpA.publicKey());
+        expect(info.nonce).toBe(1n);
+        expect(info.signatureExpirationLedger).toBe(1000);
+        expect(signed.rootInvocation.toXdr()).toEqual(
+          entry.rootInvocation.toXdr(),
+        );
+        const signature = StellarSdk.scValToNative(
+          info.signers[0].rawSignature,
+        )[0] as { public_key: Uint8Array; signature: Uint8Array };
+        expect(
+          StellarSdk.StrKey.encodeEd25519PublicKey(signature.public_key),
+        ).toBe(kpB.publicKey());
+        const preimage = StellarSdk.buildAuthorizationEntryPreimage(
+          signed,
+          1000,
+          networkPassphrase,
+        );
+        expect(
+          kpB.verify(StellarSdk.hash(preimage.toXdr()), signature.signature),
+        ).toBe(true);
+      },
+    );
+
+    it("rejects a signature that does not match the wallet's returned signing key", async () => {
+      const wallet = contract.basicNodeSigner(kpB, networkPassphrase);
+      const assembled = assembledWith(
+        [authEntry(addressCred(kpA.publicKey()))],
+        {
+          signAuthEntry: async (preimage: string) => ({
+            ...(await wallet.signAuthEntry(preimage)),
+            signerAddress: kpC.publicKey(),
+          }),
+        },
+      );
+
+      await expect(
+        assembled.signAuthEntries({
+          expiration: 1000,
+          address: kpA.publicKey(),
+        }),
+      ).rejects.toThrow(/signature doesn't match payload/);
+    });
+
+    it("preserves the source-address default and fallback when the wallet omits signerAddress", async () => {
+      const entry = authEntry(addressCred(kpA.publicKey()));
+      const wallet = contract.basicNodeSigner(kpA, networkPassphrase);
+      const assembled = assembledWith([entry], {
+        publicKey: kpA.publicKey(),
+        signAuthEntry: async (preimage: string) => ({
+          signedAuthEntry: (await wallet.signAuthEntry(preimage))
+            .signedAuthEntry,
+        }),
+      });
+
+      await assembled.signAuthEntries({
+        expiration: 1000,
+        address: kpA.publicKey(),
+      });
+
+      const operation = expectDefined(assembled.built).operations[0];
+      if (operation.type !== "invokeHostFunction") {
+        throw new Error("Expected an invokeHostFunction operation");
+      }
+      const expected = await StellarSdk.authorizeEntry(
+        entry,
+        kpA,
+        1000,
+        networkPassphrase,
+      );
+      expect(expectDefined(operation.auth)[0].toXdr()).toEqual(
+        expected.toXdr(),
+      );
+    });
+
+    it("preserves raw callback bytes for custom authorizers of contract accounts", async () => {
+      const entry = authEntry(addressCred(contractId));
+      const assembled = assembledWith(
+        [entry],
+        contract.basicNodeSigner(kpB, networkPassphrase),
+      );
+      let callbackResult: unknown;
+      const authorizeEntry: typeof StellarSdk.authorizeEntry = async (
+        original,
+        signer,
+        expiration,
+        network,
+      ) => {
+        if (typeof signer !== "function") {
+          throw new Error("Expected a signing callback");
+        }
+        const preimage = StellarSdk.buildAuthorizationEntryPreimage(
+          original,
+          expiration,
+          network,
+        );
+        callbackResult = await signer(
+          preimage,
+          StellarSdk.hash(preimage.toXdr()),
+        );
+        return original;
+      };
+
+      await assembled.signAuthEntries({
+        expiration: 1000,
+        address: contractId,
+        authorizeEntry,
+      });
+
+      expect(callbackResult).toBeInstanceOf(Uint8Array);
+      const preimage = StellarSdk.buildAuthorizationEntryPreimage(
+        entry,
+        1000,
+        networkPassphrase,
+      );
+      expect(
+        kpB.verify(
+          StellarSdk.hash(preimage.toXdr()),
+          callbackResult as Uint8Array,
+        ),
+      ).toBe(true);
+    });
+
+    it.each([null, ""])(
+      "treats a wallet signerAddress of %j as omitted",
+      async (signerAddress) => {
+        // Plain-JS wallets are not held to the types; before the field was
+        // read at all, these signed fine against the entry's own address.
+        const entry = authEntry(addressCred(kpA.publicKey()));
+        const wallet = contract.basicNodeSigner(kpA, networkPassphrase);
+        const assembled = assembledWith([entry], {
+          signAuthEntry: async (preimage: string) => ({
+            signedAuthEntry: (await wallet.signAuthEntry(preimage))
+              .signedAuthEntry,
+            signerAddress: signerAddress as unknown as string,
+          }),
+        });
+
+        await assembled.signAuthEntries({
+          expiration: 1000,
+          address: kpA.publicKey(),
+        });
+
+        const operation = expectDefined(assembled.built).operations[0];
+        if (operation.type !== "invokeHostFunction") {
+          throw new Error("Expected an invokeHostFunction operation");
+        }
+        const expected = await StellarSdk.authorizeEntry(
+          entry,
+          kpA,
+          1000,
+          networkPassphrase,
+        );
+        expect(expectDefined(operation.auth)[0].toXdr()).toEqual(
+          expected.toXdr(),
+        );
+      },
+    );
+
+    it("resolves a muxed signerAddress to its base account", async () => {
+      const entry = authEntry(addressCred(kpA.publicKey()));
+      const wallet = contract.basicNodeSigner(kpB, networkPassphrase);
+      const muxed = new StellarSdk.MuxedAccount(
+        new Account(kpB.publicKey(), "0"),
+        "7",
+      ).accountId();
+      expect(muxed.startsWith("M")).toBe(true);
+      const assembled = assembledWith([entry], {
+        signAuthEntry: async (preimage: string) => ({
+          ...(await wallet.signAuthEntry(preimage)),
+          signerAddress: muxed,
+        }),
+      });
+
+      await assembled.signAuthEntries({
+        expiration: 1000,
+        address: kpA.publicKey(),
+      });
+
+      const operation = expectDefined(assembled.built).operations[0];
+      if (operation.type !== "invokeHostFunction") {
+        throw new Error("Expected an invokeHostFunction operation");
+      }
+      const info = StellarSdk.inspectAuthEntry(
+        expectDefined(operation.auth)[0],
+      );
+      expect(info.address).toBe(kpA.publicKey());
+      const signature = StellarSdk.scValToNative(
+        info.signers[0].rawSignature,
+      )[0] as { public_key: Uint8Array; signature: Uint8Array };
+      expect(
+        StellarSdk.StrKey.encodeEd25519PublicKey(signature.public_key),
+      ).toBe(kpB.publicKey());
+    });
+
+    it("rejects a wallet signerAddress that is not an account address, naming it", async () => {
+      // A typo'd key must not fall back to the entry address and surface as
+      // "signature doesn't match payload" (#1681).
+      const entry = authEntry(addressCred(kpA.publicKey()));
+      const wallet = contract.basicNodeSigner(kpA, networkPassphrase);
+      const good = kpB.publicKey();
+      const bad = `${good.slice(0, -1)}${good.endsWith("A") ? "B" : "A"}`;
+      const assembled = assembledWith([entry], {
+        signAuthEntry: async (preimage: string) => ({
+          ...(await wallet.signAuthEntry(preimage)),
+          signerAddress: bad,
+        }),
+      });
+
+      await expect(
+        assembled.signAuthEntries({
+          expiration: 1000,
+          address: kpA.publicKey(),
+        }),
+      ).rejects.toThrow(
+        new TypeError(
+          "expected the wallet's signerAddress to be an account address (G... " +
+            `or M...), got ${JSON.stringify(bad)}`,
+        ),
+      );
+    });
+
+    it("rejects a contract signerAddress and points at a custom authorizeEntry", async () => {
+      const entry = authEntry(addressCred(kpA.publicKey()));
+      const wallet = contract.basicNodeSigner(kpA, networkPassphrase);
+      const contractId = StellarSdk.StrKey.encodeContract(
+        new Uint8Array(32).fill(7),
+      );
+      const assembled = assembledWith([entry], {
+        signAuthEntry: async (preimage: string) => ({
+          ...(await wallet.signAuthEntry(preimage)),
+          signerAddress: contractId,
+        }),
+      });
+
+      await expect(
+        assembled.signAuthEntries({
+          expiration: 1000,
+          address: kpA.publicKey(),
+        }),
+      ).rejects.toThrow(
+        new TypeError(
+          `the wallet's signerAddress names contract ${contractId}, but the ` +
+            "default authorizer verifies Ed25519 signatures only; sign for a " +
+            "contract account with a custom `authorizeEntry`",
+        ),
+      );
+    });
+
+    it("reports a custom authorizer that signed nothing, naming the address default", async () => {
+      // A custom authorizer skips the `needsNonInvokerSigningBy` pre-flight, so
+      // a wrong `address` used to leave the loop having matched no entry and
+      // return as if it had signed.
+      const assembled = assembledWith(
+        [authEntry(addressCred(kpB.publicKey()))],
+        { publicKey: kpA.publicKey() },
+      );
+      let authorizerRan = false;
+
+      await expect(
+        assembled.signAuthEntries({
+          expiration: 1000,
+          signAuthEntry: contract.basicNodeSigner(kpB, networkPassphrase)
+            .signAuthEntry,
+          authorizeEntry: (entry) => {
+            authorizerRan = true;
+            return Promise.resolve(entry);
+          },
+        }),
+      ).rejects.toThrow(/defaulted to the account that built this transaction/);
+      expect(authorizerRan).toBe(false);
+    });
+
+    it("names the address default in the pre-flight for the default authorizer", async () => {
+      // The common shape from #1681: a plain `signAuthEntry` function for
+      // another account, `address` left to default.
+      const assembled = assembledWith(
+        [authEntry(addressCred(kpB.publicKey()))],
+        {
+          publicKey: kpA.publicKey(),
+          signAuthEntry: contract.basicNodeSigner(kpB, networkPassphrase)
+            .signAuthEntry,
+        },
+      );
+
+      await expect(
+        assembled.signAuthEntries({ expiration: 1000 }),
+      ).rejects.toThrow(
+        new contract.AssembledTransaction.Errors.NoSignatureNeeded(
+          `No auth entries for public key "${kpA.publicKey()}"; \`address\` ` +
+            "was not given and `signAuthEntry` does not name one, so it " +
+            "defaulted to the account that built this transaction. Pass " +
+            "`address` to say who is signing.",
+        ),
+      );
+    });
+
+    it("treats an explicit null address as not given", async () => {
+      // `address` is chosen with `??`, so a JS caller's `null` defaults to
+      // `publicKey`; the hint has to agree that it defaulted.
+      const assembled = assembledWith(
+        [authEntry(addressCred(kpB.publicKey()))],
+        { publicKey: kpA.publicKey() },
+      );
+
+      await expect(
+        assembled.signAuthEntries({
+          expiration: 1000,
+          address: null as unknown as undefined,
+          signAuthEntry: contract.basicNodeSigner(kpB, networkPassphrase)
+            .signAuthEntry,
+          authorizeEntry: (entry) => Promise.resolve(entry),
+        }),
+      ).rejects.toThrow(/defaulted to the account that built this transaction/);
+    });
+
+    it("does not claim the address defaulted when it was passed explicitly", async () => {
+      const assembled = assembledWith(
+        [authEntry(addressCred(kpB.publicKey()))],
+        { publicKey: kpA.publicKey() },
+      );
+
+      await expect(
+        assembled.signAuthEntries({
+          expiration: 1000,
+          address: kpA.publicKey(),
+          signAuthEntry: contract.basicNodeSigner(kpB, networkPassphrase)
+            .signAuthEntry,
+          authorizeEntry: (entry) => Promise.resolve(entry),
+        }),
+      ).rejects.toThrow(
+        new contract.AssembledTransaction.Errors.NoSignatureNeeded(
+          `No auth entries for public key "${kpA.publicKey()}"`,
+        ),
+      );
+    });
+
+    it("reports a missing address when the Client has no publicKey", async () => {
+      const assembled = assembledWith([
+        authEntry(addressCred(kpB.publicKey())),
+      ]);
+
+      await expect(
+        assembled.signAuthEntries({
+          expiration: 1000,
+          signAuthEntry: contract.basicNodeSigner(kpB, networkPassphrase)
+            .signAuthEntry,
+          authorizeEntry: (entry) => Promise.resolve(entry),
+        }),
+      ).rejects.toThrow(
+        new contract.AssembledTransaction.Errors.NoSignatureNeeded(
+          "No account to sign for: `address` was not given and `signAuthEntry` " +
+            "does not name one. Pass `address` to say who is signing.",
+        ),
+      );
+    });
+
+    it("signs through a call-site signAuthEntry function without an address", async () => {
+      // The signer is overridden per call, `address` is not, and the wallet
+      // signs for the account that built the transaction: this must work.
+      const entry = authEntry(addressCred(kpA.publicKey()));
+      const assembled = assembledWith([entry], { publicKey: kpA.publicKey() });
+
+      await assembled.signAuthEntries({
+        expiration: 1000,
+        signAuthEntry: contract.basicNodeSigner(kpA, networkPassphrase)
+          .signAuthEntry,
+      });
+
+      const operation = expectDefined(assembled.built).operations[0];
+      if (operation.type !== "invokeHostFunction") {
+        throw new Error("Expected an invokeHostFunction operation");
+      }
+      const expected = await StellarSdk.authorizeEntry(
+        entry,
+        kpA,
+        1000,
+        networkPassphrase,
+      );
+      expect(expectDefined(operation.auth)[0].toXdr()).toEqual(
+        expected.toXdr(),
+      );
+    });
+
+    it("keeps the publicKey default for the client's own signer", async () => {
+      const entry = authEntry(addressCred(kpB.publicKey()));
+      const assembled = assembledWith([entry], {
+        publicKey: kpB.publicKey(),
+        signAuthEntry: contract.basicNodeSigner(kpB, networkPassphrase)
+          .signAuthEntry,
+      });
+
+      await assembled.signAuthEntries({ expiration: 1000 });
+
+      const operation = expectDefined(assembled.built).operations[0];
+      if (operation.type !== "invokeHostFunction") {
+        throw new Error("Expected an invokeHostFunction operation");
+      }
+      const expected = await StellarSdk.authorizeEntry(
+        entry,
+        kpB,
+        1000,
+        networkPassphrase,
+      );
+      expect(expectDefined(operation.auth)[0].toXdr()).toEqual(
+        expected.toXdr(),
+      );
     });
 
     it("end-to-end signs an ADDRESS_V2 entry via the default authorizeEntry + basicNodeSigner", async () => {
@@ -1024,7 +1489,11 @@ describe("AssembledTransaction auth entry credential types (CAP-71)", () => {
 
     // Regression coverage for the same review round: matching an
     // already-signed node re-signs it needlessly and, without the
-    // expiration-reuse fix above, through a second door.
+    // expiration-reuse fix above, through a second door. Rejects with
+    // `NoSignatureNeeded` rather than resolving silently, per the
+    // no-match-at-all check `signAuthEntries` now applies even for a
+    // custom authorizer (landed separately, see the `#1681`-referencing
+    // tests above).
     it("does not re-authorize a node that's already signed", async () => {
       const entry = authEntry(
         withDelegatesCred(kpB.publicKey(), true), // already signed
@@ -1032,21 +1501,58 @@ describe("AssembledTransaction auth entry credential types (CAP-71)", () => {
       const assembled = assembledWith([entry]);
       const authorizeEntry = vi.fn((e: any) => Promise.resolve(e));
 
-      await assembled.signAuthEntries({
-        expiration: 1000,
-        address: kpB.publicKey(),
-        authorizeEntry,
-      });
+      await expect(
+        assembled.signAuthEntries({
+          expiration: 1000,
+          address: kpB.publicKey(),
+          authorizeEntry,
+        }),
+      ).rejects.toThrow(contract.AssembledTransaction.Errors.NoSignatureNeeded);
 
       expect(authorizeEntry).not.toHaveBeenCalled();
     });
 
-    // Regression coverage: a contract-address (Signer::Delegated-style)
-    // delegate can't be signed via this path at all yet (it needs a
+    // Regression coverage: the SDK's default authorizer can't sign for a
+    // contract-address (Signer::Delegated-style) delegate — it needs a
     // signatureScVal from its own account contract's __check_auth, not an
-    // Ed25519 signature), and previously failed deep inside verification
-    // with an opaque strkey error instead of a clear one up front.
-    it("throws a clear error instead of signing for a contract-address delegate", async () => {
+    // Ed25519 signature — and previously failed deep inside verification
+    // with an opaque strkey error instead of a clear one up front. Scoped
+    // to the default authorizer only: see the next test for a custom one.
+    it("throws a clear error instead of signing for a contract-address delegate via the default authorizer", async () => {
+      const entry = authEntry(
+        xdr.SorobanCredentials.sorobanCredentialsAddressWithDelegates(
+          new xdr.SorobanAddressCredentialsWithDelegates({
+            addressCredentials: addrCreds(kpB.publicKey(), false),
+            delegates: [
+              new xdr.SorobanDelegateSignature({
+                address: new Address(contractId).toScAddress(),
+                signature: xdr.ScVal.scvVoid(),
+                nestedDelegates: [],
+              }),
+            ],
+          }),
+        ),
+      );
+      const assembled = assembledWith(
+        [entry],
+        contract.basicNodeSigner(kpB, networkPassphrase),
+      );
+
+      await expect(
+        assembled.signAuthEntries({
+          expiration: 1000,
+          address: contractId,
+        }),
+      ).rejects.toThrow(
+        contract.AssembledTransaction.Errors.UnsupportedDelegateSigner,
+      );
+    });
+
+    // A custom authorizeEntry is not held to the default authorizer's
+    // Ed25519-only limitation: it owns `entry` directly and can build
+    // whatever `signatureScVal` the contract delegate's own __check_auth
+    // expects, so signAuthEntries must not reject it pre-emptively.
+    it("lets a custom authorizeEntry sign for a contract-address delegate", async () => {
       const entry = authEntry(
         xdr.SorobanCredentials.sorobanCredentialsAddressWithDelegates(
           new xdr.SorobanAddressCredentialsWithDelegates({
@@ -1063,23 +1569,67 @@ describe("AssembledTransaction auth entry credential types (CAP-71)", () => {
       );
       const assembled = assembledWith([entry]);
 
-      await expect(
-        assembled.signAuthEntries({
-          expiration: 1000,
-          address: contractId,
-          authorizeEntry: vi.fn((e: any) => Promise.resolve(e)),
-        }),
-      ).rejects.toThrow(
-        contract.AssembledTransaction.Errors.UnsupportedDelegateSigner,
+      const authorizeEntry = vi.fn(
+        (
+          e: xdr.SorobanAuthorizationEntry,
+          _signer: any,
+          _validUntil: number,
+          _passphrase: string,
+          forAddress?: string,
+        ) => {
+          const withDelegates = expectVariant(
+            e.credentials,
+            "sorobanCredentialsAddressWithDelegates",
+          ).addressWithDelegates;
+          const delegates = withDelegates.delegates.map((delegate) =>
+            Address.fromScAddress(delegate.address).toString() === forAddress
+              ? new xdr.SorobanDelegateSignature({
+                  address: delegate.address,
+                  // whatever this contract's __check_auth expects — an
+                  // arbitrary ScVal is fine, the default authorizer never
+                  // touches it
+                  signature: xdr.ScVal.scvSymbol("approved"),
+                  nestedDelegates: delegate.nestedDelegates,
+                })
+              : delegate,
+          );
+          return Promise.resolve(
+            new xdr.SorobanAuthorizationEntry({
+              rootInvocation: e.rootInvocation,
+              credentials:
+                xdr.SorobanCredentials.sorobanCredentialsAddressWithDelegates(
+                  new xdr.SorobanAddressCredentialsWithDelegates({
+                    addressCredentials: withDelegates.addressCredentials,
+                    delegates,
+                  }),
+                ),
+            }),
+          );
+        },
       );
+
+      await assembled.signAuthEntries({
+        expiration: 1000,
+        address: contractId,
+        authorizeEntry,
+      });
+
+      expect(authorizeEntry).toHaveBeenCalledTimes(1);
     });
 
-    // Regression coverage: a custom authorizeEntry written before the
-    // forAddress (5th) parameter existed silently drops it, so signing a
-    // delegate through it wrote the signature to the top-level node
-    // instead, leaving the actual delegate unsigned with no error until
-    // the network rejected it.
-    it("throws a clear error when a custom authorizeEntry can't accept forAddress for a delegate target", async () => {
+    // Regression coverage: `forAddress` is always passed as the 5th
+    // argument to a custom authorizeEntry (even a legacy one written
+    // before that parameter existed simply ignores an extra argument it
+    // never declared), so signAuthEntries can't tell ahead of time from
+    // arity alone whether a custom authorizeEntry will actually honor it
+    // — Function.length lies for default/rest parameters either way, and
+    // a delegate can coincidentally share the top-level address. It
+    // verifies the *result* instead: if the delegate node this iteration
+    // was signing for still isn't signed afterward, the custom
+    // authorizeEntry silently wrote elsewhere (or nowhere), which
+    // previously left the delegate unsigned with no error until the
+    // network rejected it.
+    it("throws a clear error when a custom authorizeEntry leaves a delegate target unsigned", async () => {
       const entry = authEntry(
         xdr.SorobanCredentials.sorobanCredentialsAddressWithDelegates(
           new xdr.SorobanAddressCredentialsWithDelegates({
@@ -1095,7 +1645,9 @@ describe("AssembledTransaction auth entry credential types (CAP-71)", () => {
         ),
       );
       const assembled = assembledWith([entry]);
-      // Only 4 parameters: a pre-forAddress custom authorizeEntry.
+      // A pre-forAddress custom authorizeEntry: declares 4 parameters,
+      // ignores the 5th it's actually called with, and returns the entry
+      // unchanged — the delegate stays unsigned.
       const legacyAuthorizeEntry = vi.fn(
         (
           e: xdr.SorobanAuthorizationEntry,

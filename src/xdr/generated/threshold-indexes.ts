@@ -9,10 +9,7 @@ import {
 export type ThresholdIndexesWire = number;
 
 export type ThresholdIndexesName =
-  | "thresholdMasterWeight"
-  | "thresholdLow"
-  | "thresholdMed"
-  | "thresholdHigh";
+  "thresholdMasterWeight" | "thresholdLow" | "thresholdMed" | "thresholdHigh";
 
 /**
  * ```xdr

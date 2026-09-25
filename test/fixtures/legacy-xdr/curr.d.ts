@@ -267,10 +267,7 @@ export namespace xdr {
 
   class ScpStatementType {
     readonly name:
-      | "scpStPrepare"
-      | "scpStConfirm"
-      | "scpStExternalize"
-      | "scpStNominate";
+      "scpStPrepare" | "scpStConfirm" | "scpStExternalize" | "scpStNominate";
 
     readonly value: 0 | 1 | 2 | 3;
 
@@ -519,9 +516,7 @@ export namespace xdr {
 
   class HotArchiveBucketEntryType {
     readonly name:
-      | "hotArchiveMetaentry"
-      | "hotArchiveArchived"
-      | "hotArchiveLive";
+      "hotArchiveMetaentry" | "hotArchiveArchived" | "hotArchiveLive";
 
     readonly value: -1 | 0 | 1;
 
@@ -916,8 +911,7 @@ export namespace xdr {
 
   class ContractIdPreimageType {
     readonly name:
-      | "contractIdPreimageFromAddress"
-      | "contractIdPreimageFromAsset";
+      "contractIdPreimageFromAddress" | "contractIdPreimageFromAsset";
 
     readonly value: 0 | 1;
 
@@ -961,11 +955,7 @@ export namespace xdr {
 
   class MemoType {
     readonly name:
-      | "memoNone"
-      | "memoText"
-      | "memoId"
-      | "memoHash"
-      | "memoReturn";
+      "memoNone" | "memoText" | "memoId" | "memoHash" | "memoReturn";
 
     readonly value: 0 | 1 | 2 | 3 | 4;
 
@@ -1081,19 +1071,7 @@ export namespace xdr {
       | "pathPaymentStrictReceiveOverSendmax";
 
     readonly value:
-      | 0
-      | -1
-      | -2
-      | -3
-      | -4
-      | -5
-      | -6
-      | -7
-      | -8
-      | -9
-      | -10
-      | -11
-      | -12;
+      0 | -1 | -2 | -3 | -4 | -5 | -6 | -7 | -8 | -9 | -10 | -11 | -12;
 
     static pathPaymentStrictReceiveSuccess(): PathPaymentStrictReceiveResultCode;
 
@@ -1139,19 +1117,7 @@ export namespace xdr {
       | "pathPaymentStrictSendUnderDestmin";
 
     readonly value:
-      | 0
-      | -1
-      | -2
-      | -3
-      | -4
-      | -5
-      | -6
-      | -7
-      | -8
-      | -9
-      | -10
-      | -11
-      | -12;
+      0 | -1 | -2 | -3 | -4 | -5 | -6 | -7 | -8 | -9 | -10 | -11 | -12;
 
     static pathPaymentStrictSendSuccess(): PathPaymentStrictSendResultCode;
 
@@ -1197,19 +1163,7 @@ export namespace xdr {
       | "manageSellOfferLowReserve";
 
     readonly value:
-      | 0
-      | -1
-      | -2
-      | -3
-      | -4
-      | -5
-      | -6
-      | -7
-      | -8
-      | -9
-      | -10
-      | -11
-      | -12;
+      0 | -1 | -2 | -3 | -4 | -5 | -6 | -7 | -8 | -9 | -10 | -11 | -12;
 
     static manageSellOfferSuccess(): ManageSellOfferResultCode;
 
@@ -1240,9 +1194,7 @@ export namespace xdr {
 
   class ManageOfferEffect {
     readonly name:
-      | "manageOfferCreated"
-      | "manageOfferUpdated"
-      | "manageOfferDeleted";
+      "manageOfferCreated" | "manageOfferUpdated" | "manageOfferDeleted";
 
     readonly value: 0 | 1 | 2;
 
@@ -1270,19 +1222,7 @@ export namespace xdr {
       | "manageBuyOfferLowReserve";
 
     readonly value:
-      | 0
-      | -1
-      | -2
-      | -3
-      | -4
-      | -5
-      | -6
-      | -7
-      | -8
-      | -9
-      | -10
-      | -11
-      | -12;
+      0 | -1 | -2 | -3 | -4 | -5 | -6 | -7 | -8 | -9 | -10 | -11 | -12;
 
     static manageBuyOfferSuccess(): ManageBuyOfferResultCode;
 
@@ -2287,8 +2227,7 @@ export namespace xdr {
 
   class ScSpecEventParamLocationV0 {
     readonly name:
-      | "scSpecEventParamLocationData"
-      | "scSpecEventParamLocationTopicList";
+      "scSpecEventParamLocationData" | "scSpecEventParamLocationTopicList";
 
     readonly value: 0 | 1;
 
@@ -13044,10 +12983,7 @@ export namespace xdr {
     ): HostFunction;
 
     value():
-      | InvokeContractArgs
-      | CreateContractArgs
-      | Buffer
-      | CreateContractArgsV2;
+      InvokeContractArgs | CreateContractArgs | Buffer | CreateContractArgsV2;
 
     toXDR(format?: "raw"): Buffer;
 
@@ -13143,9 +13079,7 @@ export namespace xdr {
     ): SorobanCredentials;
 
     value():
-      | SorobanAddressCredentials
-      | SorobanAddressCredentialsWithDelegates
-      | void;
+      SorobanAddressCredentials | SorobanAddressCredentialsWithDelegates | void;
 
     toXDR(format?: "raw"): Buffer;
 

@@ -5,10 +5,7 @@ import {
 import { StrKey, encodeCheck, decodeCheck } from "./strkey.js";
 
 type SignerStrKeyType =
-  | "ed25519PublicKey"
-  | "preAuthTx"
-  | "sha256Hash"
-  | "signedPayload";
+  "ed25519PublicKey" | "preAuthTx" | "sha256Hash" | "signedPayload";
 
 /**
  * A container class with helpers to convert between signer keys

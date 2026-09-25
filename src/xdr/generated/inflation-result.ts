@@ -18,12 +18,10 @@ import {
 } from "./inflation-payout.js";
 
 export type InflationResultWire =
-  | { code: 0; payouts: InflationPayoutWire[] }
-  | { code: -1 };
+  { code: 0; payouts: InflationPayoutWire[] } | { code: -1 };
 
 export type InflationResultVariantName =
-  | "inflationSuccess"
-  | "inflationNotTime";
+  "inflationSuccess" | "inflationNotTime";
 
 /**
  * ```xdr

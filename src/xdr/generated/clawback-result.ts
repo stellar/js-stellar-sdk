@@ -8,11 +8,7 @@ import { XdrValue } from "../values/xdr-value.js";
 import { ClawbackResultCode } from "./clawback-result-code.js";
 
 export type ClawbackResultWire =
-  | { code: 0 }
-  | { code: -1 }
-  | { code: -2 }
-  | { code: -3 }
-  | { code: -4 };
+  { code: 0 } | { code: -1 } | { code: -2 } | { code: -3 } | { code: -4 };
 
 export type ClawbackResultVariantName =
   | "clawbackSuccess"

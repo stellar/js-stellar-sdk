@@ -59,7 +59,10 @@ export function isNameReserved(name: string): boolean {
   return reservedNames.includes(name);
 }
 /**
- * Sanitize a name to avoid reserved keywords
+ * Sanitize a name into a bare identifier for something the generated code
+ * declares itself: a method, type, or enum member. Never use it for a key
+ * the runtime looks up by spec name (function arguments, struct fields,
+ * event params); those go through {@link propertyKey}.
  * @param identifier - The identifier to sanitize
  * @returns The sanitized identifier
  */
@@ -94,6 +97,21 @@ export function escapeStringLiteral(str: string): string {
     .replace(/\r/g, "\\r")
     .replace(/\u2028/g, "\\u2028")
     .replace(/\u2029/g, "\\u2029");
+}
+
+/**
+ * Render a spec name as a TypeScript property key. The runtime keys function
+ * arguments and struct fields by their raw spec names, so the key is kept
+ * verbatim: bare when it is a valid identifier (reserved words are legal
+ * property names), quoted and escaped otherwise.
+ */
+export function propertyKey(rawName: string): string {
+  return isIdentifier(rawName) ? rawName : `"${escapeStringLiteral(rawName)}"`;
+}
+
+/** Whether a name is a bare ASCII identifier (reserved words included). */
+function isIdentifier(name: string): boolean {
+  return /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(name);
 }
 
 /**

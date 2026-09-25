@@ -9,8 +9,7 @@ import {
 export type BumpSequenceResultCodeWire = number;
 
 export type BumpSequenceResultCodeName =
-  | "bumpSequenceSuccess"
-  | "bumpSequenceBadSeq";
+  "bumpSequenceSuccess" | "bumpSequenceBadSeq";
 
 /**
  * ```xdr

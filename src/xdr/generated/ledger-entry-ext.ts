@@ -17,8 +17,7 @@ import {
 } from "./ledger-entry-extension-v1.js";
 
 export type LedgerEntryExtWire =
-  | { v: 0 }
-  | { v: 1; v1: LedgerEntryExtensionV1Wire };
+  { v: 0 } | { v: 1; v1: LedgerEntryExtensionV1Wire };
 
 export type LedgerEntryExtVariantName = "v0" | "v1";
 

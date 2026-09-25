@@ -21,7 +21,7 @@ isSimulationError(sim: SimulateTransactionResponse): sim is SimulateTransactionE
 
 True if the response indicates an error, false otherwise.
 
-**Source:** [src/rpc/api.ts:484](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L484)
+**Source:** [src/rpc/api.ts:479](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L479)
 
 ## rpc.Api.isSimulationRaw
 
@@ -39,7 +39,7 @@ isSimulationRaw(sim: SimulateTransactionResponse | RawSimulateTransactionRespons
 
 True if the response is raw, false otherwise.
 
-**Source:** [src/rpc/api.ts:521](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L521)
+**Source:** [src/rpc/api.ts:516](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L516)
 
 ## rpc.Api.isSimulationRestore
 
@@ -57,7 +57,7 @@ isSimulationRestore(sim: SimulateTransactionResponse): sim is SimulateTransactio
 
 True if the response indicates a restoration is needed, false otherwise.
 
-**Source:** [src/rpc/api.ts:506](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L506)
+**Source:** [src/rpc/api.ts:501](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L501)
 
 ## rpc.Api.isSimulationSuccess
 
@@ -75,7 +75,7 @@ isSimulationSuccess(sim: SimulateTransactionResponse): sim is SimulateTransactio
 
 True if the response indicates success, false otherwise.
 
-**Source:** [src/rpc/api.ts:495](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L495)
+**Source:** [src/rpc/api.ts:490](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L490)
 
 ## rpc.BasicSleepStrategy
 
@@ -1692,7 +1692,7 @@ interface BalanceResponse {
 }
 ```
 
-**Source:** [src/rpc/api.ts:602](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L602)
+**Source:** [src/rpc/api.ts:597](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L597)
 
 #### `balanceResponse.balanceEntry`
 
@@ -1702,7 +1702,7 @@ present only on success, otherwise request malformed or no balance
 balanceEntry?: { amount: string; authorized: boolean; authorizedToMaintainLiabilities?: boolean; clawback: boolean; lastModifiedLedgerSeq?: number; liveUntilLedgerSeq?: number; revocable?: boolean };
 ```
 
-**Source:** [src/rpc/api.ts:605](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L605)
+**Source:** [src/rpc/api.ts:600](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L600)
 
 #### `balanceResponse.latestLedger`
 
@@ -1710,7 +1710,7 @@ balanceEntry?: { amount: string; authorized: boolean; authorizedToMaintainLiabil
 latestLedger: number;
 ```
 
-**Source:** [src/rpc/api.ts:603](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L603)
+**Source:** [src/rpc/api.ts:598](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L598)
 
 ### rpc.Api.BaseSendTransactionResponse
 
@@ -1723,7 +1723,7 @@ interface BaseSendTransactionResponse {
 }
 ```
 
-**Source:** [src/rpc/api.ts:392](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L392)
+**Source:** [src/rpc/api.ts:389](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L389)
 
 #### `baseSendTransactionResponse.hash`
 
@@ -1731,7 +1731,7 @@ interface BaseSendTransactionResponse {
 hash: string;
 ```
 
-**Source:** [src/rpc/api.ts:394](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L394)
+**Source:** [src/rpc/api.ts:391](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L391)
 
 #### `baseSendTransactionResponse.latestLedger`
 
@@ -1739,7 +1739,7 @@ hash: string;
 latestLedger: number;
 ```
 
-**Source:** [src/rpc/api.ts:395](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L395)
+**Source:** [src/rpc/api.ts:392](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L392)
 
 #### `baseSendTransactionResponse.latestLedgerCloseTime`
 
@@ -1747,7 +1747,7 @@ latestLedger: number;
 latestLedgerCloseTime: number;
 ```
 
-**Source:** [src/rpc/api.ts:396](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L396)
+**Source:** [src/rpc/api.ts:393](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L393)
 
 #### `baseSendTransactionResponse.status`
 
@@ -1755,7 +1755,7 @@ latestLedgerCloseTime: number;
 status: SendTransactionStatus;
 ```
 
-**Source:** [src/rpc/api.ts:393](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L393)
+**Source:** [src/rpc/api.ts:390](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L390)
 
 ### rpc.Api.BaseSimulateTransactionResponse
 
@@ -1768,7 +1768,7 @@ interface BaseSimulateTransactionResponse {
 }
 ```
 
-**Source:** [src/rpc/api.ts:426](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L426)
+**Source:** [src/rpc/api.ts:421](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L421)
 
 #### `baseSimulateTransactionResponse._parsed`
 
@@ -1778,7 +1778,7 @@ a private field to mark the schema as parsed
 _parsed: boolean;
 ```
 
-**Source:** [src/rpc/api.ts:441](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L441)
+**Source:** [src/rpc/api.ts:436](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L436)
 
 #### `baseSimulateTransactionResponse.events`
 
@@ -1790,7 +1790,7 @@ The field is always present, but may be empty in cases where:
 events: DiagnosticEvent[];
 ```
 
-**Source:** [src/rpc/api.ts:438](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L438)
+**Source:** [src/rpc/api.ts:433](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L433)
 
 #### `baseSimulateTransactionResponse.id`
 
@@ -1800,7 +1800,7 @@ always present: the JSON-RPC request ID
 id: string;
 ```
 
-**Source:** [src/rpc/api.ts:428](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L428)
+**Source:** [src/rpc/api.ts:423](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L423)
 
 #### `baseSimulateTransactionResponse.latestLedger`
 
@@ -1810,7 +1810,7 @@ always present: the LCL known to the server when responding
 latestLedger: number;
 ```
 
-**Source:** [src/rpc/api.ts:431](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L431)
+**Source:** [src/rpc/api.ts:426](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L426)
 
 ### rpc.Api.ContractMethod
 
@@ -1826,7 +1826,7 @@ interface ContractMethod {
 }
 ```
 
-**Source:** [src/rpc/api.ts:733](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L733)
+**Source:** [src/rpc/api.ts:728](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L728)
 
 #### `contractMethod.doc`
 
@@ -1836,7 +1836,7 @@ the method's spec doc string, when the contract declares one
 doc?: string;
 ```
 
-**Source:** [src/rpc/api.ts:741](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L741)
+**Source:** [src/rpc/api.ts:736](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L736)
 
 #### `contractMethod.inputs`
 
@@ -1846,7 +1846,7 @@ the method's parameters, in declaration order
 inputs: ContractMethodInput[];
 ```
 
-**Source:** [src/rpc/api.ts:737](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L737)
+**Source:** [src/rpc/api.ts:732](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L732)
 
 #### `contractMethod.name`
 
@@ -1856,7 +1856,7 @@ the on-chain method name
 name: string;
 ```
 
-**Source:** [src/rpc/api.ts:735](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L735)
+**Source:** [src/rpc/api.ts:730](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L730)
 
 #### `contractMethod.outputs`
 
@@ -1866,7 +1866,7 @@ human-readable return type name(s); empty when the method returns void
 outputs: string[];
 ```
 
-**Source:** [src/rpc/api.ts:739](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L739)
+**Source:** [src/rpc/api.ts:734](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L734)
 
 ### rpc.Api.ContractMethodInput
 
@@ -1879,7 +1879,7 @@ interface ContractMethodInput {
 }
 ```
 
-**Source:** [src/rpc/api.ts:722](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L722)
+**Source:** [src/rpc/api.ts:717](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L717)
 
 #### `contractMethodInput.name`
 
@@ -1889,7 +1889,7 @@ the declared parameter name
 name: string;
 ```
 
-**Source:** [src/rpc/api.ts:724](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L724)
+**Source:** [src/rpc/api.ts:719](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L719)
 
 #### `contractMethodInput.type`
 
@@ -1899,7 +1899,7 @@ a human-readable type name, e.g. `U32`, `Address`, or a UDT's name
 type: string;
 ```
 
-**Source:** [src/rpc/api.ts:726](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L726)
+**Source:** [src/rpc/api.ts:721](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L721)
 
 ### rpc.Api.EventFilter
 
@@ -2324,7 +2324,7 @@ interface GetFeeStatsResponse {
 }
 ```
 
-**Source:** [src/rpc/api.ts:576](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L576)
+**Source:** [src/rpc/api.ts:571](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L571)
 
 #### `getFeeStatsResponse.inclusionFee`
 
@@ -2332,7 +2332,7 @@ interface GetFeeStatsResponse {
 inclusionFee: FeeDistribution;
 ```
 
-**Source:** [src/rpc/api.ts:578](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L578)
+**Source:** [src/rpc/api.ts:573](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L573)
 
 #### `getFeeStatsResponse.latestLedger`
 
@@ -2340,7 +2340,7 @@ inclusionFee: FeeDistribution;
 latestLedger: number;
 ```
 
-**Source:** [src/rpc/api.ts:579](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L579)
+**Source:** [src/rpc/api.ts:574](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L574)
 
 #### `getFeeStatsResponse.sorobanInclusionFee`
 
@@ -2348,7 +2348,7 @@ latestLedger: number;
 sorobanInclusionFee: FeeDistribution;
 ```
 
-**Source:** [src/rpc/api.ts:577](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L577)
+**Source:** [src/rpc/api.ts:572](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L572)
 
 ### rpc.Api.GetHealthResponse
 
@@ -2531,7 +2531,7 @@ const cursorRequest: GetLedgersRequest = {
 
 - `getLedgers API reference`
 
-**Source:** [src/rpc/api.ts:649](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L649)
+**Source:** [src/rpc/api.ts:644](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L644)
 
 ### rpc.Api.GetLedgersResponse
 
@@ -2550,7 +2550,7 @@ interface GetLedgersResponse {
 
 - https://developers.stellar.org/docs/data/rpc/api-reference/methods/getLedgers
 
-**Source:** [src/rpc/api.ts:685](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L685)
+**Source:** [src/rpc/api.ts:680](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L680)
 
 #### `getLedgersResponse.cursor`
 
@@ -2558,7 +2558,7 @@ interface GetLedgersResponse {
 cursor: string;
 ```
 
-**Source:** [src/rpc/api.ts:691](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L691)
+**Source:** [src/rpc/api.ts:686](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L686)
 
 #### `getLedgersResponse.latestLedger`
 
@@ -2566,7 +2566,7 @@ cursor: string;
 latestLedger: number;
 ```
 
-**Source:** [src/rpc/api.ts:687](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L687)
+**Source:** [src/rpc/api.ts:682](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L682)
 
 #### `getLedgersResponse.latestLedgerCloseTime`
 
@@ -2574,7 +2574,7 @@ latestLedger: number;
 latestLedgerCloseTime: number;
 ```
 
-**Source:** [src/rpc/api.ts:688](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L688)
+**Source:** [src/rpc/api.ts:683](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L683)
 
 #### `getLedgersResponse.ledgers`
 
@@ -2582,7 +2582,7 @@ latestLedgerCloseTime: number;
 ledgers: LedgerResponse[];
 ```
 
-**Source:** [src/rpc/api.ts:686](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L686)
+**Source:** [src/rpc/api.ts:681](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L681)
 
 #### `getLedgersResponse.oldestLedger`
 
@@ -2590,7 +2590,7 @@ ledgers: LedgerResponse[];
 oldestLedger: number;
 ```
 
-**Source:** [src/rpc/api.ts:689](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L689)
+**Source:** [src/rpc/api.ts:684](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L684)
 
 #### `getLedgersResponse.oldestLedgerCloseTime`
 
@@ -2598,7 +2598,7 @@ oldestLedger: number;
 oldestLedgerCloseTime: number;
 ```
 
-**Source:** [src/rpc/api.ts:690](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L690)
+**Source:** [src/rpc/api.ts:685](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L685)
 
 ### rpc.Api.GetMissingTransactionResponse
 
@@ -2963,7 +2963,7 @@ interface GetVersionInfoResponse {
 }
 ```
 
-**Source:** [src/rpc/api.ts:559](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L559)
+**Source:** [src/rpc/api.ts:554](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L554)
 
 #### `getVersionInfoResponse.build_timestamp`
 
@@ -2971,7 +2971,7 @@ interface GetVersionInfoResponse {
 build_timestamp: string;
 ```
 
-**Source:** [src/rpc/api.ts:569](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L569)
+**Source:** [src/rpc/api.ts:564](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L564)
 
 #### `getVersionInfoResponse.buildTimestamp`
 
@@ -2979,7 +2979,7 @@ build_timestamp: string;
 buildTimestamp: string;
 ```
 
-**Source:** [src/rpc/api.ts:562](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L562)
+**Source:** [src/rpc/api.ts:557](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L557)
 
 #### `getVersionInfoResponse.captive_core_version`
 
@@ -2987,7 +2987,7 @@ buildTimestamp: string;
 captive_core_version: string;
 ```
 
-**Source:** [src/rpc/api.ts:571](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L571)
+**Source:** [src/rpc/api.ts:566](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L566)
 
 #### `getVersionInfoResponse.captiveCoreVersion`
 
@@ -2995,7 +2995,7 @@ captive_core_version: string;
 captiveCoreVersion: string;
 ```
 
-**Source:** [src/rpc/api.ts:563](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L563)
+**Source:** [src/rpc/api.ts:558](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L558)
 
 #### `getVersionInfoResponse.commit_hash`
 
@@ -3003,7 +3003,7 @@ captiveCoreVersion: string;
 commit_hash: string;
 ```
 
-**Source:** [src/rpc/api.ts:567](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L567)
+**Source:** [src/rpc/api.ts:562](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L562)
 
 #### `getVersionInfoResponse.commitHash`
 
@@ -3011,7 +3011,7 @@ commit_hash: string;
 commitHash: string;
 ```
 
-**Source:** [src/rpc/api.ts:561](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L561)
+**Source:** [src/rpc/api.ts:556](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L556)
 
 #### `getVersionInfoResponse.protocol_version`
 
@@ -3019,7 +3019,7 @@ commitHash: string;
 protocol_version: number;
 ```
 
-**Source:** [src/rpc/api.ts:573](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L573)
+**Source:** [src/rpc/api.ts:568](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L568)
 
 #### `getVersionInfoResponse.protocolVersion`
 
@@ -3027,7 +3027,7 @@ protocol_version: number;
 protocolVersion: number;
 ```
 
-**Source:** [src/rpc/api.ts:564](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L564)
+**Source:** [src/rpc/api.ts:559](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L559)
 
 #### `getVersionInfoResponse.version`
 
@@ -3035,7 +3035,7 @@ protocolVersion: number;
 version: string;
 ```
 
-**Source:** [src/rpc/api.ts:560](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L560)
+**Source:** [src/rpc/api.ts:555](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L555)
 
 ### rpc.Api.LedgerEntryChange
 
@@ -3139,7 +3139,7 @@ interface LedgerResponse {
 }
 ```
 
-**Source:** [src/rpc/api.ts:703](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L703)
+**Source:** [src/rpc/api.ts:698](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L698)
 
 #### `ledgerResponse.hash`
 
@@ -3147,7 +3147,7 @@ interface LedgerResponse {
 hash: string;
 ```
 
-**Source:** [src/rpc/api.ts:704](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L704)
+**Source:** [src/rpc/api.ts:699](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L699)
 
 #### `ledgerResponse.headerXdr`
 
@@ -3155,7 +3155,7 @@ hash: string;
 headerXdr: LedgerHeaderHistoryEntry;
 ```
 
-**Source:** [src/rpc/api.ts:707](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L707)
+**Source:** [src/rpc/api.ts:702](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L702)
 
 #### `ledgerResponse.ledgerCloseTime`
 
@@ -3163,7 +3163,7 @@ headerXdr: LedgerHeaderHistoryEntry;
 ledgerCloseTime: string;
 ```
 
-**Source:** [src/rpc/api.ts:706](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L706)
+**Source:** [src/rpc/api.ts:701](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L701)
 
 #### `ledgerResponse.metadataXdr`
 
@@ -3171,7 +3171,7 @@ ledgerCloseTime: string;
 metadataXdr: LedgerCloseMeta;
 ```
 
-**Source:** [src/rpc/api.ts:708](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L708)
+**Source:** [src/rpc/api.ts:703](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L703)
 
 #### `ledgerResponse.sequence`
 
@@ -3179,7 +3179,7 @@ metadataXdr: LedgerCloseMeta;
 sequence: number;
 ```
 
-**Source:** [src/rpc/api.ts:705](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L705)
+**Source:** [src/rpc/api.ts:700](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L700)
 
 ### rpc.Api.RawEventResponse
 
@@ -3463,7 +3463,7 @@ interface RawGetLedgersResponse {
 }
 ```
 
-**Source:** [src/rpc/api.ts:694](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L694)
+**Source:** [src/rpc/api.ts:689](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L689)
 
 #### `rawGetLedgersResponse.cursor`
 
@@ -3471,7 +3471,7 @@ interface RawGetLedgersResponse {
 cursor: string;
 ```
 
-**Source:** [src/rpc/api.ts:700](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L700)
+**Source:** [src/rpc/api.ts:695](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L695)
 
 #### `rawGetLedgersResponse.latestLedger`
 
@@ -3479,7 +3479,7 @@ cursor: string;
 latestLedger: number;
 ```
 
-**Source:** [src/rpc/api.ts:696](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L696)
+**Source:** [src/rpc/api.ts:691](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L691)
 
 #### `rawGetLedgersResponse.latestLedgerCloseTime`
 
@@ -3487,7 +3487,7 @@ latestLedger: number;
 latestLedgerCloseTime: number;
 ```
 
-**Source:** [src/rpc/api.ts:697](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L697)
+**Source:** [src/rpc/api.ts:692](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L692)
 
 #### `rawGetLedgersResponse.ledgers`
 
@@ -3495,7 +3495,7 @@ latestLedgerCloseTime: number;
 ledgers: RawLedgerResponse[];
 ```
 
-**Source:** [src/rpc/api.ts:695](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L695)
+**Source:** [src/rpc/api.ts:690](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L690)
 
 #### `rawGetLedgersResponse.oldestLedger`
 
@@ -3503,7 +3503,7 @@ ledgers: RawLedgerResponse[];
 oldestLedger: number;
 ```
 
-**Source:** [src/rpc/api.ts:698](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L698)
+**Source:** [src/rpc/api.ts:693](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L693)
 
 #### `rawGetLedgersResponse.oldestLedgerCloseTime`
 
@@ -3511,7 +3511,7 @@ oldestLedger: number;
 oldestLedgerCloseTime: number;
 ```
 
-**Source:** [src/rpc/api.ts:699](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L699)
+**Source:** [src/rpc/api.ts:694](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L694)
 
 ### rpc.Api.RawGetTransactionResponse
 
@@ -3784,7 +3784,7 @@ interface RawLedgerResponse {
 }
 ```
 
-**Source:** [src/rpc/api.ts:711](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L711)
+**Source:** [src/rpc/api.ts:706](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L706)
 
 #### `rawLedgerResponse.hash`
 
@@ -3792,7 +3792,7 @@ interface RawLedgerResponse {
 hash: string;
 ```
 
-**Source:** [src/rpc/api.ts:712](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L712)
+**Source:** [src/rpc/api.ts:707](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L707)
 
 #### `rawLedgerResponse.headerXdr`
 
@@ -3802,7 +3802,7 @@ a base-64 encoded `LedgerHeaderHistoryEntry` instance
 headerXdr: string;
 ```
 
-**Source:** [src/rpc/api.ts:716](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L716)
+**Source:** [src/rpc/api.ts:711](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L711)
 
 #### `rawLedgerResponse.ledgerCloseTime`
 
@@ -3810,7 +3810,7 @@ headerXdr: string;
 ledgerCloseTime: string;
 ```
 
-**Source:** [src/rpc/api.ts:714](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L714)
+**Source:** [src/rpc/api.ts:709](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L709)
 
 #### `rawLedgerResponse.metadataXdr`
 
@@ -3820,7 +3820,7 @@ a base-64 encoded `LedgerCloseMeta` instance
 metadataXdr: string;
 ```
 
-**Source:** [src/rpc/api.ts:718](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L718)
+**Source:** [src/rpc/api.ts:713](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L713)
 
 #### `rawLedgerResponse.sequence`
 
@@ -3828,7 +3828,7 @@ metadataXdr: string;
 sequence: number;
 ```
 
-**Source:** [src/rpc/api.ts:713](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L713)
+**Source:** [src/rpc/api.ts:708](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L708)
 
 ### rpc.Api.RawSendTransactionResponse
 
@@ -3843,7 +3843,7 @@ interface RawSendTransactionResponse extends BaseSendTransactionResponse {
 }
 ```
 
-**Source:** [src/rpc/api.ts:376](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L376)
+**Source:** [src/rpc/api.ts:373](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L373)
 
 #### `rawSendTransactionResponse.diagnosticEventsXdr`
 
@@ -3855,7 +3855,7 @@ diagnostic events are enabled on the server.
 diagnosticEventsXdr?: string[];
 ```
 
-**Source:** [src/rpc/api.ts:389](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L389)
+**Source:** [src/rpc/api.ts:386](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L386)
 
 #### `rawSendTransactionResponse.errorResultXdr`
 
@@ -3868,7 +3868,7 @@ It contains details on why the network rejected the transaction.
 errorResultXdr?: string;
 ```
 
-**Source:** [src/rpc/api.ts:383](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L383)
+**Source:** [src/rpc/api.ts:380](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L380)
 
 #### `rawSendTransactionResponse.hash`
 
@@ -3876,7 +3876,7 @@ errorResultXdr?: string;
 hash: string;
 ```
 
-**Source:** [src/rpc/api.ts:394](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L394)
+**Source:** [src/rpc/api.ts:391](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L391)
 
 #### `rawSendTransactionResponse.latestLedger`
 
@@ -3884,7 +3884,7 @@ hash: string;
 latestLedger: number;
 ```
 
-**Source:** [src/rpc/api.ts:395](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L395)
+**Source:** [src/rpc/api.ts:392](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L392)
 
 #### `rawSendTransactionResponse.latestLedgerCloseTime`
 
@@ -3892,7 +3892,7 @@ latestLedger: number;
 latestLedgerCloseTime: number;
 ```
 
-**Source:** [src/rpc/api.ts:396](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L396)
+**Source:** [src/rpc/api.ts:393](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L393)
 
 #### `rawSendTransactionResponse.status`
 
@@ -3900,7 +3900,7 @@ latestLedgerCloseTime: number;
 status: SendTransactionStatus;
 ```
 
-**Source:** [src/rpc/api.ts:393](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L393)
+**Source:** [src/rpc/api.ts:390](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L390)
 
 ### rpc.Api.RawSimulateTransactionResponse
 
@@ -3922,7 +3922,7 @@ interface RawSimulateTransactionResponse {
 
 - https://developers.stellar.org/docs/data/rpc/api-reference/methods/simulateTransaction
 
-**Source:** [src/rpc/api.ts:535](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L535)
+**Source:** [src/rpc/api.ts:530](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L530)
 
 #### `rawSimulateTransactionResponse.error`
 
@@ -3930,7 +3930,7 @@ interface RawSimulateTransactionResponse {
 error?: string;
 ```
 
-**Source:** [src/rpc/api.ts:538](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L538)
+**Source:** [src/rpc/api.ts:533](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L533)
 
 #### `rawSimulateTransactionResponse.events`
 
@@ -3940,7 +3940,7 @@ These are DiagnosticEvents in base64
 events?: string[];
 ```
 
-**Source:** [src/rpc/api.ts:542](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L542)
+**Source:** [src/rpc/api.ts:537](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L537)
 
 #### `rawSimulateTransactionResponse.id`
 
@@ -3948,7 +3948,7 @@ events?: string[];
 id: string;
 ```
 
-**Source:** [src/rpc/api.ts:536](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L536)
+**Source:** [src/rpc/api.ts:531](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L531)
 
 #### `rawSimulateTransactionResponse.latestLedger`
 
@@ -3956,7 +3956,7 @@ id: string;
 latestLedger: number;
 ```
 
-**Source:** [src/rpc/api.ts:537](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L537)
+**Source:** [src/rpc/api.ts:532](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L532)
 
 #### `rawSimulateTransactionResponse.minResourceFee`
 
@@ -3964,7 +3964,7 @@ latestLedger: number;
 minResourceFee?: string;
 ```
 
-**Source:** [src/rpc/api.ts:543](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L543)
+**Source:** [src/rpc/api.ts:538](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L538)
 
 #### `rawSimulateTransactionResponse.restorePreamble`
 
@@ -3974,7 +3974,7 @@ Present if succeeded but has expired ledger entries
 restorePreamble?: { minResourceFee: string; transactionData: string };
 ```
 
-**Source:** [src/rpc/api.ts:550](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L550)
+**Source:** [src/rpc/api.ts:545](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L545)
 
 #### `rawSimulateTransactionResponse.results`
 
@@ -3985,7 +3985,7 @@ invokeHostFunctionOperation is supported per transaction.
 results?: RawSimulateHostFunctionResult[];
 ```
 
-**Source:** [src/rpc/api.ts:548](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L548)
+**Source:** [src/rpc/api.ts:543](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L543)
 
 #### `rawSimulateTransactionResponse.stateChanges`
 
@@ -3995,7 +3995,7 @@ State difference information
 stateChanges?: RawLedgerEntryChange[];
 ```
 
-**Source:** [src/rpc/api.ts:556](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L556)
+**Source:** [src/rpc/api.ts:551](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L551)
 
 #### `rawSimulateTransactionResponse.transactionData`
 
@@ -4005,7 +4005,7 @@ This is an SorobanTransactionData in base64
 transactionData?: string;
 ```
 
-**Source:** [src/rpc/api.ts:540](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L540)
+**Source:** [src/rpc/api.ts:535](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L535)
 
 ### rpc.Api.RawTransactionEvents
 
@@ -4155,7 +4155,7 @@ interface SendTransactionResponse extends BaseSendTransactionResponse {
 }
 ```
 
-**Source:** [src/rpc/api.ts:371](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L371)
+**Source:** [src/rpc/api.ts:368](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L368)
 
 #### `sendTransactionResponse.diagnosticEvents`
 
@@ -4163,7 +4163,7 @@ interface SendTransactionResponse extends BaseSendTransactionResponse {
 diagnosticEvents?: DiagnosticEvent[];
 ```
 
-**Source:** [src/rpc/api.ts:373](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L373)
+**Source:** [src/rpc/api.ts:370](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L370)
 
 #### `sendTransactionResponse.errorResult`
 
@@ -4171,7 +4171,7 @@ diagnosticEvents?: DiagnosticEvent[];
 errorResult?: TransactionResult;
 ```
 
-**Source:** [src/rpc/api.ts:372](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L372)
+**Source:** [src/rpc/api.ts:369](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L369)
 
 #### `sendTransactionResponse.hash`
 
@@ -4179,7 +4179,7 @@ errorResult?: TransactionResult;
 hash: string;
 ```
 
-**Source:** [src/rpc/api.ts:394](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L394)
+**Source:** [src/rpc/api.ts:391](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L391)
 
 #### `sendTransactionResponse.latestLedger`
 
@@ -4187,7 +4187,7 @@ hash: string;
 latestLedger: number;
 ```
 
-**Source:** [src/rpc/api.ts:395](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L395)
+**Source:** [src/rpc/api.ts:392](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L392)
 
 #### `sendTransactionResponse.latestLedgerCloseTime`
 
@@ -4195,7 +4195,7 @@ latestLedger: number;
 latestLedgerCloseTime: number;
 ```
 
-**Source:** [src/rpc/api.ts:396](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L396)
+**Source:** [src/rpc/api.ts:393](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L393)
 
 #### `sendTransactionResponse.status`
 
@@ -4203,7 +4203,7 @@ latestLedgerCloseTime: number;
 status: SendTransactionStatus;
 ```
 
-**Source:** [src/rpc/api.ts:393](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L393)
+**Source:** [src/rpc/api.ts:390](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L390)
 
 ### rpc.Api.SendTransactionStatus
 
@@ -4222,7 +4222,7 @@ interface SimulateHostFunctionResult {
 }
 ```
 
-**Source:** [src/rpc/api.ts:399](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L399)
+**Source:** [src/rpc/api.ts:396](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L396)
 
 #### `simulateHostFunctionResult.auth`
 
@@ -4230,7 +4230,7 @@ interface SimulateHostFunctionResult {
 auth: SorobanAuthorizationEntry[];
 ```
 
-**Source:** [src/rpc/api.ts:400](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L400)
+**Source:** [src/rpc/api.ts:397](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L397)
 
 #### `simulateHostFunctionResult.retval`
 
@@ -4238,7 +4238,7 @@ auth: SorobanAuthorizationEntry[];
 retval: ScVal;
 ```
 
-**Source:** [src/rpc/api.ts:401](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L401)
+**Source:** [src/rpc/api.ts:398](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L398)
 
 ### rpc.Api.SimulateTransactionErrorResponse
 
@@ -4254,7 +4254,7 @@ interface SimulateTransactionErrorResponse extends BaseSimulateTransactionRespon
 }
 ```
 
-**Source:** [src/rpc/api.ts:457](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L457)
+**Source:** [src/rpc/api.ts:452](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L452)
 
 #### `simulateTransactionErrorResponse._parsed`
 
@@ -4264,7 +4264,7 @@ a private field to mark the schema as parsed
 _parsed: boolean;
 ```
 
-**Source:** [src/rpc/api.ts:441](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L441)
+**Source:** [src/rpc/api.ts:436](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L436)
 
 #### `simulateTransactionErrorResponse.error`
 
@@ -4272,7 +4272,7 @@ _parsed: boolean;
 error: string;
 ```
 
-**Source:** [src/rpc/api.ts:458](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L458)
+**Source:** [src/rpc/api.ts:453](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L453)
 
 #### `simulateTransactionErrorResponse.events`
 
@@ -4284,7 +4284,7 @@ The field is always present, but may be empty in cases where:
 events: DiagnosticEvent[];
 ```
 
-**Source:** [src/rpc/api.ts:459](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L459)
+**Source:** [src/rpc/api.ts:454](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L454)
 
 #### `simulateTransactionErrorResponse.id`
 
@@ -4294,7 +4294,7 @@ always present: the JSON-RPC request ID
 id: string;
 ```
 
-**Source:** [src/rpc/api.ts:428](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L428)
+**Source:** [src/rpc/api.ts:423](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L423)
 
 #### `simulateTransactionErrorResponse.latestLedger`
 
@@ -4304,7 +4304,7 @@ always present: the LCL known to the server when responding
 latestLedger: number;
 ```
 
-**Source:** [src/rpc/api.ts:431](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L431)
+**Source:** [src/rpc/api.ts:426](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L426)
 
 ### rpc.Api.SimulateTransactionResponse
 
@@ -4325,7 +4325,7 @@ type SimulateTransactionResponse = SimulateTransactionSuccessResponse | Simulate
 
 - https://developers.stellar.org/docs/data/rpc/api-reference/methods/simulateTransaction
 
-**Source:** [src/rpc/api.ts:421](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L421)
+**Source:** [src/rpc/api.ts:416](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L416)
 
 ### rpc.Api.SimulateTransactionRestoreResponse
 
@@ -4345,7 +4345,7 @@ interface SimulateTransactionRestoreResponse extends SimulateTransactionSuccessR
 }
 ```
 
-**Source:** [src/rpc/api.ts:462](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L462)
+**Source:** [src/rpc/api.ts:457](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L457)
 
 #### `simulateTransactionRestoreResponse._parsed`
 
@@ -4355,7 +4355,7 @@ a private field to mark the schema as parsed
 _parsed: boolean;
 ```
 
-**Source:** [src/rpc/api.ts:441](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L441)
+**Source:** [src/rpc/api.ts:436](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L436)
 
 #### `simulateTransactionRestoreResponse.events`
 
@@ -4367,7 +4367,7 @@ The field is always present, but may be empty in cases where:
 events: DiagnosticEvent[];
 ```
 
-**Source:** [src/rpc/api.ts:438](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L438)
+**Source:** [src/rpc/api.ts:433](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L433)
 
 #### `simulateTransactionRestoreResponse.id`
 
@@ -4377,7 +4377,7 @@ always present: the JSON-RPC request ID
 id: string;
 ```
 
-**Source:** [src/rpc/api.ts:428](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L428)
+**Source:** [src/rpc/api.ts:423](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L423)
 
 #### `simulateTransactionRestoreResponse.latestLedger`
 
@@ -4387,7 +4387,7 @@ always present: the LCL known to the server when responding
 latestLedger: number;
 ```
 
-**Source:** [src/rpc/api.ts:431](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L431)
+**Source:** [src/rpc/api.ts:426](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L426)
 
 #### `simulateTransactionRestoreResponse.minResourceFee`
 
@@ -4395,7 +4395,7 @@ latestLedger: number;
 minResourceFee: string;
 ```
 
-**Source:** [src/rpc/api.ts:447](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L447)
+**Source:** [src/rpc/api.ts:442](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L442)
 
 #### `simulateTransactionRestoreResponse.restorePreamble`
 
@@ -4410,7 +4410,7 @@ simulation to succeed.
 restorePreamble: { minResourceFee: string; transactionData: SorobanDataBuilder };
 ```
 
-**Source:** [src/rpc/api.ts:473](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L473)
+**Source:** [src/rpc/api.ts:468](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L468)
 
 #### `simulateTransactionRestoreResponse.result`
 
@@ -4420,7 +4420,7 @@ present only for invocation simulation
 result: SimulateHostFunctionResult;
 ```
 
-**Source:** [src/rpc/api.ts:463](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L463)
+**Source:** [src/rpc/api.ts:458](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L458)
 
 #### `simulateTransactionRestoreResponse.stateChanges`
 
@@ -4430,7 +4430,7 @@ State Difference information
 stateChanges?: LedgerEntryChange[];
 ```
 
-**Source:** [src/rpc/api.ts:453](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L453)
+**Source:** [src/rpc/api.ts:448](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L448)
 
 #### `simulateTransactionRestoreResponse.transactionData`
 
@@ -4438,7 +4438,7 @@ stateChanges?: LedgerEntryChange[];
 transactionData: SorobanDataBuilder;
 ```
 
-**Source:** [src/rpc/api.ts:446](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L446)
+**Source:** [src/rpc/api.ts:441](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L441)
 
 ### rpc.Api.SimulateTransactionSuccessResponse
 
@@ -4457,7 +4457,7 @@ interface SimulateTransactionSuccessResponse extends BaseSimulateTransactionResp
 }
 ```
 
-**Source:** [src/rpc/api.ts:445](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L445)
+**Source:** [src/rpc/api.ts:440](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L440)
 
 #### `simulateTransactionSuccessResponse._parsed`
 
@@ -4467,7 +4467,7 @@ a private field to mark the schema as parsed
 _parsed: boolean;
 ```
 
-**Source:** [src/rpc/api.ts:441](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L441)
+**Source:** [src/rpc/api.ts:436](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L436)
 
 #### `simulateTransactionSuccessResponse.events`
 
@@ -4479,7 +4479,7 @@ The field is always present, but may be empty in cases where:
 events: DiagnosticEvent[];
 ```
 
-**Source:** [src/rpc/api.ts:438](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L438)
+**Source:** [src/rpc/api.ts:433](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L433)
 
 #### `simulateTransactionSuccessResponse.id`
 
@@ -4489,7 +4489,7 @@ always present: the JSON-RPC request ID
 id: string;
 ```
 
-**Source:** [src/rpc/api.ts:428](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L428)
+**Source:** [src/rpc/api.ts:423](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L423)
 
 #### `simulateTransactionSuccessResponse.latestLedger`
 
@@ -4499,7 +4499,7 @@ always present: the LCL known to the server when responding
 latestLedger: number;
 ```
 
-**Source:** [src/rpc/api.ts:431](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L431)
+**Source:** [src/rpc/api.ts:426](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L426)
 
 #### `simulateTransactionSuccessResponse.minResourceFee`
 
@@ -4507,7 +4507,7 @@ latestLedger: number;
 minResourceFee: string;
 ```
 
-**Source:** [src/rpc/api.ts:447](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L447)
+**Source:** [src/rpc/api.ts:442](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L442)
 
 #### `simulateTransactionSuccessResponse.result`
 
@@ -4517,7 +4517,7 @@ present only for invocation simulation
 result?: SimulateHostFunctionResult;
 ```
 
-**Source:** [src/rpc/api.ts:450](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L450)
+**Source:** [src/rpc/api.ts:445](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L445)
 
 #### `simulateTransactionSuccessResponse.stateChanges`
 
@@ -4527,7 +4527,7 @@ State Difference information
 stateChanges?: LedgerEntryChange[];
 ```
 
-**Source:** [src/rpc/api.ts:453](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L453)
+**Source:** [src/rpc/api.ts:448](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L448)
 
 #### `simulateTransactionSuccessResponse.transactionData`
 
@@ -4535,7 +4535,7 @@ stateChanges?: LedgerEntryChange[];
 transactionData: SorobanDataBuilder;
 ```
 
-**Source:** [src/rpc/api.ts:446](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L446)
+**Source:** [src/rpc/api.ts:441](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L441)
 
 ### rpc.Api.SimulationAuthMode
 
@@ -4543,7 +4543,7 @@ transactionData: SorobanDataBuilder;
 type SimulationAuthMode = "enforce" | "record" | "record_allow_nonroot"
 ```
 
-**Source:** [src/rpc/api.ts:404](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L404)
+**Source:** [src/rpc/api.ts:401](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L401)
 
 ### rpc.Api.TransactionEvents
 

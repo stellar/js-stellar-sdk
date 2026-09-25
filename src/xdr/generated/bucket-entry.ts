@@ -17,10 +17,7 @@ export type BucketEntryWire =
   | { type: -1; metaEntry: BucketMetadataWire };
 
 export type BucketEntryVariantName =
-  | "liveentry"
-  | "initentry"
-  | "deadentry"
-  | "metaentry";
+  "liveentry" | "initentry" | "deadentry" | "metaentry";
 
 /**
  * ```xdr

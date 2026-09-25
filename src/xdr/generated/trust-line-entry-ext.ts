@@ -17,8 +17,7 @@ import {
 } from "./trust-line-entry-v1.js";
 
 export type TrustLineEntryExtWire =
-  | { v: 0 }
-  | { v: 1; v1: TrustLineEntryV1Wire };
+  { v: 0 } | { v: 1; v1: TrustLineEntryV1Wire };
 
 export type TrustLineEntryExtVariantName = "v0" | "v1";
 

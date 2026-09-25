@@ -8,11 +8,7 @@ import { XdrValue } from "../values/xdr-value.js";
 import { CreateAccountResultCode } from "./create-account-result-code.js";
 
 export type CreateAccountResultWire =
-  | { code: 0 }
-  | { code: -1 }
-  | { code: -2 }
-  | { code: -3 }
-  | { code: -4 };
+  { code: 0 } | { code: -1 } | { code: -2 } | { code: -3 } | { code: -4 };
 
 export type CreateAccountResultVariantName =
   | "createAccountSuccess"

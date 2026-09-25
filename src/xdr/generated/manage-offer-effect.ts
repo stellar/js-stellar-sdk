@@ -9,9 +9,7 @@ import {
 export type ManageOfferEffectWire = number;
 
 export type ManageOfferEffectName =
-  | "manageOfferCreated"
-  | "manageOfferUpdated"
-  | "manageOfferDeleted";
+  "manageOfferCreated" | "manageOfferUpdated" | "manageOfferDeleted";
 
 /**
  * ```xdr

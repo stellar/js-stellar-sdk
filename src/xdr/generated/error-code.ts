@@ -9,11 +9,7 @@ import {
 export type ErrorCodeWire = number;
 
 export type ErrorCodeName =
-  | "errMisc"
-  | "errData"
-  | "errConf"
-  | "errAuth"
-  | "errLoad";
+  "errMisc" | "errData" | "errConf" | "errAuth" | "errLoad";
 
 /**
  * ```xdr

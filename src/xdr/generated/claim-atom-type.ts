@@ -9,9 +9,7 @@ import {
 export type ClaimAtomTypeWire = number;
 
 export type ClaimAtomTypeName =
-  | "claimAtomTypeV0"
-  | "claimAtomTypeOrderBook"
-  | "claimAtomTypeLiquidityPool";
+  "claimAtomTypeV0" | "claimAtomTypeOrderBook" | "claimAtomTypeLiquidityPool";
 
 /**
  * ```xdr

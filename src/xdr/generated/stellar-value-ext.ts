@@ -21,9 +21,7 @@ export type StellarValueExtWire =
   | { v: 2; proposedValue: StellarValueProposedValueWire };
 
 export type StellarValueExtVariantName =
-  | "stellarValueBasic"
-  | "stellarValueSigned"
-  | "stellarValueEmptyTxSet";
+  "stellarValueBasic" | "stellarValueSigned" | "stellarValueEmptyTxSet";
 
 /**
  * ```xdr
@@ -179,7 +177,5 @@ export class StellarValueExtEmptyTxSet extends StellarValueExtBase {
 }
 
 export type StellarValueExt =
-  | StellarValueExtBasic
-  | StellarValueExtSigned
-  | StellarValueExtEmptyTxSet;
+  StellarValueExtBasic | StellarValueExtSigned | StellarValueExtEmptyTxSet;
 export const StellarValueExt = StellarValueExtBase;

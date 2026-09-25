@@ -9,8 +9,7 @@ import {
 export type ScSpecEventParamLocationV0Wire = number;
 
 export type ScSpecEventParamLocationV0Name =
-  | "scSpecEventParamLocationData"
-  | "scSpecEventParamLocationTopicList";
+  "scSpecEventParamLocationData" | "scSpecEventParamLocationTopicList";
 
 /**
  * ```xdr

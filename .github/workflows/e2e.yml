@@ -54,7 +54,7 @@ jobs:
           node-version: ${{ env.NODE }}
           cache: pnpm
           cache-dependency-path: pnpm-lock.yaml
-      - uses: stellar/stellar-cli@v27.1.0
+      - uses: stellar/stellar-cli@v28.0.0
 
       # Install system dependencies required for Stellar CLI
       - name: Install system dependencies

@@ -17,8 +17,7 @@ export type ContractIdPreimageWire =
   | { type: 1; fromAsset: AssetWire };
 
 export type ContractIdPreimageVariantName =
-  | "contractIdPreimageFromAddress"
-  | "contractIdPreimageFromAsset";
+  "contractIdPreimageFromAddress" | "contractIdPreimageFromAsset";
 
 /**
  * ```xdr
@@ -148,6 +147,5 @@ export class ContractIdPreimageAsset extends ContractIdPreimageBase {
 }
 
 export type ContractIdPreimage =
-  | ContractIdPreimageAddress
-  | ContractIdPreimageAsset;
+  ContractIdPreimageAddress | ContractIdPreimageAsset;
 export const ContractIdPreimage = ContractIdPreimageBase;

@@ -8,10 +8,7 @@ import { XdrValue } from "../values/xdr-value.js";
 import { BeginSponsoringFutureReservesResultCode } from "./begin-sponsoring-future-reserves-result-code.js";
 
 export type BeginSponsoringFutureReservesResultWire =
-  | { code: 0 }
-  | { code: -1 }
-  | { code: -2 }
-  | { code: -3 };
+  { code: 0 } | { code: -1 } | { code: -2 } | { code: -3 };
 
 export type BeginSponsoringFutureReservesResultVariantName =
   | "beginSponsoringFutureReservesSuccess"

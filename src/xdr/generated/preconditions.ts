@@ -18,9 +18,7 @@ export type PreconditionsWire =
   | { type: 2; v2: PreconditionsV2Wire };
 
 export type PreconditionsVariantName =
-  | "precondNone"
-  | "precondTime"
-  | "precondV2";
+  "precondNone" | "precondTime" | "precondV2";
 
 /**
  * ```xdr
@@ -150,7 +148,5 @@ export class PreconditionsV2Arm extends PreconditionsBase {
 }
 
 export type Preconditions =
-  | PreconditionsNone
-  | PreconditionsTime
-  | PreconditionsV2Arm;
+  PreconditionsNone | PreconditionsTime | PreconditionsV2Arm;
 export const Preconditions = PreconditionsBase;

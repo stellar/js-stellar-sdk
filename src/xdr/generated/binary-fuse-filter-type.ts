@@ -9,9 +9,7 @@ import {
 export type BinaryFuseFilterTypeWire = number;
 
 export type BinaryFuseFilterTypeName =
-  | "binaryFuseFilter8Bit"
-  | "binaryFuseFilter16Bit"
-  | "binaryFuseFilter32Bit";
+  "binaryFuseFilter8Bit" | "binaryFuseFilter16Bit" | "binaryFuseFilter32Bit";
 
 /**
  * ```xdr

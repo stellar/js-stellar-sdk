@@ -2,8 +2,74 @@
 
 ## How to contribute
 
-Please read the
-[Contribution Guide](https://github.com/stellar/docs/blob/main/CONTRIBUTING.md).
+Thanks for taking the time to contribute.
+
+Start with the
+[Stellar Contribution Guide](https://github.com/stellar/.github/blob/master/CONTRIBUTING.md)
+for the code of conduct and contributor license agreement that apply to every
+Stellar repository. The rules below are specific to this repository and take
+precedence where they are stricter.
+
+### Before contributing
+
+This SDK builds and signs live financial transactions for many downstream
+applications. Correctness matters, and maintainer and reviewer time is limited.
+We welcome contributions that address a demonstrated, material problem or that
+advance work maintainers have agreed is a priority.
+
+### Start with an issue
+
+Search the [existing issues](https://github.com/stellar/js-stellar-sdk/issues)
+first and join the discussion if one already covers your topic. When opening a
+new issue, establish:
+
+- The concrete problem to solve.
+- For a bug, a minimal reproducer with the expected and actual behavior, the SDK
+  version, and the runtime (Node version, browser, bundler).
+- Relevant alternatives, if any, and their tradeoffs.
+- For a performance change, measurements that show the current problem and give
+  a baseline for judging a fix.
+
+Verify findings yourself before reporting them. Do not submit speculative
+findings or generated lists of possible issues.
+
+Opening an issue does not reserve the work or mean a code change is wanted. An
+issue with the `help wanted` label is open for implementation, but discuss your
+proposed approach on the issue before starting substantial work.
+
+### Participation and review
+
+Keep participation to issues. Do not comment on pull requests unless you are the
+author or a maintainer asked you to. Issue comments should be specific and
+evidence-based. Do not propose implementation strategies unless a maintainer
+invites them. Maintainers will delete comments that are not relevant to the
+issue.
+
+Open a pull request only when a maintainer invites you to, including for issues
+labeled `help wanted`.
+
+### Opening a pull request
+
+We only accept pull requests for issues with the `help wanted` label where a
+maintainer has agreed to the approach. Unsolicited pull requests will be closed
+without explanation and may be reported as spam. Changes to the SDK need
+knowledge of the protocol, the XDR layer, the public API surface, and the
+release roadmap. External contributions without that context tend to target
+low-priority issues and pull maintainer attention away from higher-priority
+work.
+
+When you do open a pull request:
+
+- Fork `stellar/js-stellar-sdk` and submit from a branch in your fork.
+- Link the approved issue and keep the change within the agreed scope.
+- Keep the branch focused on one issue.
+- Rebase on `stellar/js-stellar-sdk` `main` to stay current.
+- Run `pnpm run preversion` (clean, format, build, test) and make sure it
+  passes.
+- Regenerate docs if you touched exported symbols; see [CI rule](#ci-rule).
+- Add an entry under `## Unreleased` in [CHANGELOG.md](CHANGELOG.md) for any
+  user-visible change.
+- Use a descriptive commit message. Commits are squashed on merge.
 
 ## Releasing
 
@@ -39,9 +105,9 @@ The docs system has four parts:
 
 1. **TSDoc comments in `src/`** — the source of truth for API reference. Edited
    inline alongside code.
-2. **Markdown guides in `docs/guides/`** — task-oriented prose, hand-written.
-   Guides contain no code blocks for tested examples; they reference snippets
-   with `<!-- snippet: file.ts#region -->` markers.
+2. **Markdown guides in `docs/guides/` and `docs/migration/`** — hand-written
+   prose. Guides in `docs/guides/` contain no code blocks for tested examples;
+   they reference snippets with `<!-- snippet: file.ts#region -->` markers.
 3. **Guide snippets in `examples/guides/`** — runnable TypeScript scripts that
    are the single source for every code block in the guides. They are
    typechecked against `src/` and executed in CI, so an SDK change that breaks a
@@ -70,9 +136,15 @@ pipeline, do not introduce platform-specific syntax in the generated output:
   `:::caution`).
 - Frontmatter limited to the universal `title` / `description` convention. Avoid
   platform-private fields.
-- Cross-references between pages emitted as relative markdown links
-  (`./other-bucket.md#anchor`), never absolute URLs that bake in any one
-  platform's routing.
+- Cross-references between pages written as root-absolute, base-agnostic paths:
+  `/guides/<slug>/#<anchor>`, `/migration/<slug>/#<anchor>`,
+  `/reference/<slug>/#<anchor>`, or `/` for the home page. Same-page links stay
+  as `#<anchor>`. Never write the deploy base (`/js-stellar-sdk`), a `.md`
+  extension, or a full `https://` URL — the base is added at build time from
+  `config/site.ts`, which is what keeps the paths portable. Relative `.md` links
+  break on the rendered site, because Astro does not rewrite them, and
+  `pnpm docs:llms` fails the build on them. See `scripts/doc-links.ts` for the
+  resolution rules.
 
 Renderer-specific configuration belongs in `astro.config.mjs` and
 `src/content.config.ts`, not in the markdown.
@@ -90,6 +162,7 @@ one hop away in `examples/guides/`.
   markers).
 - `examples/guides/*.ts` — tested guide snippets (authored; single source for
   guide code blocks).
+- `docs/migration/*.md` — version-migration guides (authored).
 - `.docs-build/` — snippet-expanded mirror of `docs/` that the site builds from
   (generated; gitignored; do not edit).
 - `docs/reference/*.md` — API reference (generated; do not edit).
@@ -153,8 +226,9 @@ Don't add new TSDoc tags to influence frontmatter — the generator handles it.
 ### `llms.txt` and `llms-full.txt`
 
 - `llms.txt` is the LLM sitemap: project H1, blockquote tagline, version
-  metadata, and per-area `## Guides` / `## Reference` / `## Other` sections with
-  link lists to every published doc page.
+  metadata, and per-area `## Guides` / `## Migration` / `## Reference` /
+  `## Other` sections with link lists to every published doc page. The sections
+  mirror the top-level folders under `docs/` that the pipeline picks up.
 - `llms-full.txt` concatenates the full content of every doc page into one
   bundle for AI-agent ingestion.
 

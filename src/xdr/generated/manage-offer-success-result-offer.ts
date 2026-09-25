@@ -14,9 +14,7 @@ export type ManageOfferSuccessResultOfferWire =
   | { effect: 2 };
 
 export type ManageOfferSuccessResultOfferVariantName =
-  | "manageOfferCreated"
-  | "manageOfferUpdated"
-  | "manageOfferDeleted";
+  "manageOfferCreated" | "manageOfferUpdated" | "manageOfferDeleted";
 
 /**
  * ```xdr

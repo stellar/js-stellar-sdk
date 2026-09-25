@@ -45,8 +45,7 @@ function isSorobanTransaction(tx: Transaction): boolean {
 export function assembleTransaction(
   raw: Transaction | FeeBumpTransaction,
   simulation:
-    | Api.SimulateTransactionResponse
-    | Api.RawSimulateTransactionResponse,
+    Api.SimulateTransactionResponse | Api.RawSimulateTransactionResponse,
 ): TransactionBuilder {
   if ("innerTransaction" in raw) {
     // TODO: Handle feebump transactions

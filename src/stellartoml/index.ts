@@ -10,6 +10,19 @@ import { Config } from "../config.js";
  */
 export const STELLAR_TOML_MAX_SIZE = 100 * 1024;
 
+const STELLAR_TOML_PATH = "/.well-known/stellar.toml";
+
+// These characters end the authority section of a URL, so the parser reads what
+// follows as a host, a path, or credentials. Whitespace is here because it does
+// not parse the same way everywhere: the parser deletes a tab from the host, and
+// Chromium encodes a space into it.
+const INVALID_DOMAIN_CHARS = /[\s@/?#\\]/;
+
+// A trailing separator, and surrounding whitespace, reached the right host
+// before this check existed, so strip them rather than reject them. Only the
+// trailing ones: a leading `/` names a different host.
+const TRAILING_SEPARATORS = /[/\\]+$/;
+
 /**
  * Resolver allows resolving `stellar.toml` files.
  */
@@ -18,11 +31,12 @@ export class Resolver {
    * Returns a parsed `stellar.toml` file for a given domain.
    * @see {@link https://developers.stellar.org/docs/tokens/publishing-asset-info | Stellar.toml doc}
    *
-   * @param domain - Domain to get stellar.toml file for
+   * @param domain - Domain to get stellar.toml file for. Must be a host name with an optional port; surrounding whitespace and a trailing `/` are ignored.
    * @param opts - (optional) Options object
    *   - `allowHttp` (optional): Allow connecting to http servers. This must be set to false in production deployments!
    *   - `timeout` (optional): Allow a timeout. Allows user to avoid nasty lag due to TOML resolve issue.
    * @returns A `Promise` that resolves to the parsed stellar.toml object
+   * @throws `Error` if `domain` is not a plain host name, before any request is made
    *
    * @example
    * ```ts
@@ -31,7 +45,7 @@ export class Resolver {
    *     // stellarToml in an object representing domain stellar.toml file.
    *   })
    *   .catch(error => {
-   *     // stellar.toml does not exist or is invalid
+   *     // domain is invalid, or stellar.toml does not exist or is invalid
    *   });
    * ```
    */
@@ -51,8 +65,33 @@ export class Resolver {
 
     const protocol = allowHttp ? "http" : "https";
 
+    const name = String(domain).trim().replace(TRAILING_SEPARATORS, "");
+
+    // The character test alone misses an empty domain, which promotes
+    // `.well-known` to the host. The parse test alone misses a leading
+    // delimiter, because `//evil.com` and `@evil.com` build a clean URL.
+    let url: URL | undefined;
+    try {
+      url = new URL(`${protocol}://${name}${STELLAR_TOML_PATH}`);
+    } catch {
+      // Reported below, with the same error as a domain that parses wrong.
+    }
+    // A real host is ASCII or punycode, so a percent-encoding in it means the
+    // parser kept a character that does not belong. Chromium reaches here for
+    // `*` and for spacing diacritics; Node and Firefox refuse the URL instead.
+    if (
+      !url ||
+      INVALID_DOMAIN_CHARS.test(name) ||
+      url.host.includes("%") ||
+      url.href !== `${protocol}://${url.host}${STELLAR_TOML_PATH}`
+    ) {
+      throw new Error(
+        `Invalid domain: ${JSON.stringify(domain)}. A domain must be a host name with an optional port.`,
+      );
+    }
+
     return httpClient
-      .get(`${protocol}://${domain}/.well-known/stellar.toml`, {
+      .get(url.href, {
         maxRedirects: opts.allowedRedirects ?? 0,
         maxContentLength: STELLAR_TOML_MAX_SIZE,
         cancelToken: timeout

@@ -14,8 +14,7 @@ export type AssetCodeWire =
   | { type: 2; assetCode12: AssetCode12Wire };
 
 export type AssetCodeVariantName =
-  | "assetTypeCreditAlphanum4"
-  | "assetTypeCreditAlphanum12";
+  "assetTypeCreditAlphanum4" | "assetTypeCreditAlphanum12";
 
 /**
  * ```xdr

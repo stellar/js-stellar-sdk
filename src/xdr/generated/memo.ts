@@ -23,11 +23,7 @@ export type MemoWire =
   | { type: 4; retHash: HashWire };
 
 export type MemoVariantName =
-  | "memoNone"
-  | "memoText"
-  | "memoId"
-  | "memoHash"
-  | "memoReturn";
+  "memoNone" | "memoText" | "memoId" | "memoHash" | "memoReturn";
 
 /**
  * ```xdr

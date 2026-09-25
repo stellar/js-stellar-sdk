@@ -16,8 +16,7 @@ export type TransactionPhaseWire =
   | { v: 1; parallelTxsComponent: ParallelTxsComponentWire };
 
 export type TransactionPhaseVariantName =
-  | "v0Components"
-  | "parallelTxsComponent";
+  "v0Components" | "parallelTxsComponent";
 
 /**
  * ```xdr
@@ -155,6 +154,5 @@ export class TransactionPhaseParallelTxsComponent extends TransactionPhaseBase {
 }
 
 export type TransactionPhase =
-  | TransactionPhaseV0Components
-  | TransactionPhaseParallelTxsComponent;
+  TransactionPhaseV0Components | TransactionPhaseParallelTxsComponent;
 export const TransactionPhase = TransactionPhaseBase;

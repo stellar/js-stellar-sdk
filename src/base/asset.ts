@@ -52,9 +52,7 @@ function asciiCompare(a: string, b: string): -1 | 0 | 1 {
   // Asset codes and issuers are pure ASCII, so UTF-8 bytes match the old
   // "ascii" encoding byte-for-byte.
   return compareUint8Arrays(stringToUint8Array(a), stringToUint8Array(b)) as
-    | -1
-    | 0
-    | 1;
+    -1 | 0 | 1;
 }
 
 /**

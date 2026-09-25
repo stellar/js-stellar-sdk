@@ -85,8 +85,7 @@ export class Transaction extends TransactionBase<
     }
 
     const txEnvelope = envelope.value as
-      | TransactionV0Envelope
-      | TransactionV1Envelope;
+      TransactionV0Envelope | TransactionV1Envelope;
     const tx = txEnvelope.tx;
     const fee = tx.fee.toString();
     const signatures = (txEnvelope.signatures || []).slice();

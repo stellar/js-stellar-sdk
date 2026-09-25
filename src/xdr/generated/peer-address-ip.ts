@@ -8,8 +8,7 @@ import { XdrValue } from "../values/xdr-value.js";
 import { IpAddrType } from "./ip-addr-type.js";
 
 export type PeerAddressIpWire =
-  | { type: 0; ipv4: Uint8Array }
-  | { type: 1; ipv6: Uint8Array };
+  { type: 0; ipv4: Uint8Array } | { type: 1; ipv6: Uint8Array };
 
 export type PeerAddressIpVariantName = "iPv4" | "iPv6";
 

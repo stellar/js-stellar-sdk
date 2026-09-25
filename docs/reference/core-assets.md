@@ -38,7 +38,7 @@ class Asset {
 }
 ```
 
-**Source:** [src/base/asset.ts:67](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L67)
+**Source:** [src/base/asset.ts:65](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L65)
 
 ### `new Asset(code, issuer)`
 
@@ -51,7 +51,7 @@ constructor(code: string, issuer?: string);
 - **`code`** — `string` (required) — The asset code.
 - **`issuer`** — `string` (optional) — The account ID of the issuer.
 
-**Source:** [src/base/asset.ts:83](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L83)
+**Source:** [src/base/asset.ts:81](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L81)
 
 ### `Asset.compare(assetA, assetB)`
 
@@ -70,7 +70,7 @@ static compare(assetA: Asset, assetB: Asset): -1 | 0 | 1;
 - **`assetA`** — `Asset` (required) — the first asset
 - **`assetB`** — `Asset` (required) — the second asset
 
-**Source:** [src/base/asset.ts:367](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L367)
+**Source:** [src/base/asset.ts:365](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L365)
 
 ### `Asset.fromOperation(assetXdr)`
 
@@ -84,7 +84,7 @@ static fromOperation(assetXdr: Asset): Asset;
 
 - **`assetXdr`** — `Asset` (required) — The asset xdr object.
 
-**Source:** [src/base/asset.ts:130](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L130)
+**Source:** [src/base/asset.ts:128](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L128)
 
 ### `Asset.native()`
 
@@ -94,7 +94,7 @@ Returns an asset object for the native asset.
 static native(): Asset;
 ```
 
-**Source:** [src/base/asset.ts:122](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L122)
+**Source:** [src/base/asset.ts:120](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L120)
 
 ### `asset.code`
 
@@ -104,7 +104,7 @@ The asset code.
 readonly code: string;
 ```
 
-**Source:** [src/base/asset.ts:69](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L69)
+**Source:** [src/base/asset.ts:67](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L67)
 
 ### `asset.issuer`
 
@@ -114,7 +114,7 @@ The account ID of the issuer. Undefined for the native asset.
 readonly issuer: string | undefined;
 ```
 
-**Source:** [src/base/asset.ts:71](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L71)
+**Source:** [src/base/asset.ts:69](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L69)
 
 ### `asset.contractId(networkPassphrase)`
 
@@ -131,7 +131,7 @@ contractId(networkPassphrase: string): string;
      ID should refer to, since every network will have a unique ID for the
      same contract (see [`Networks`](/reference/core-transactions/#networks) for options)
 
-**Source:** [src/base/asset.ts:220](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L220)
+**Source:** [src/base/asset.ts:218](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L218)
 
 ### `asset.equals(asset)`
 
@@ -145,7 +145,7 @@ equals(asset: Asset): boolean;
 
 - **`asset`** — `Asset` (required) — Asset to compare
 
-**Source:** [src/base/asset.ts:336](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L336)
+**Source:** [src/base/asset.ts:334](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L334)
 
 ### `asset.getAssetType()`
 
@@ -166,7 +166,7 @@ Returns the asset type. Can be one of following types:
  - `credit_alphanum4`,
  - `credit_alphanum12`
 
-**Source:** [src/base/asset.ts:294](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L294)
+**Source:** [src/base/asset.ts:292](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L292)
 
 ### `asset.getCode()`
 
@@ -176,7 +176,7 @@ Returns the asset code
 getCode(): string;
 ```
 
-**Source:** [src/base/asset.ts:271](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L271)
+**Source:** [src/base/asset.ts:269](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L269)
 
 ### `asset.getIssuer()`
 
@@ -186,7 +186,7 @@ Returns the asset issuer
 getIssuer(): string | undefined;
 ```
 
-**Source:** [src/base/asset.ts:278](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L278)
+**Source:** [src/base/asset.ts:276](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L276)
 
 ### `asset.getRawAssetType()`
 
@@ -196,7 +196,7 @@ Returns the raw XDR representation of the asset type
 getRawAssetType(): AssetType;
 ```
 
-**Source:** [src/base/asset.ts:313](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L313)
+**Source:** [src/base/asset.ts:311](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L311)
 
 ### `asset.isNative()`
 
@@ -206,7 +206,7 @@ Returns true if this asset object is the native asset.
 isNative(): boolean;
 ```
 
-**Source:** [src/base/asset.ts:327](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L327)
+**Source:** [src/base/asset.ts:325](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L325)
 
 ### `asset.toChangeTrustXdrObject()`
 
@@ -216,7 +216,7 @@ Returns the xdr.ChangeTrustAsset object for this asset.
 toChangeTrustXdrObject(): ChangeTrustAsset;
 ```
 
-**Source:** [src/base/asset.ts:174](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L174)
+**Source:** [src/base/asset.ts:172](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L172)
 
 ### `asset.toChangeTrustXDRObject()`
 
@@ -227,7 +227,7 @@ Deprecated in version v17.0.0
 toChangeTrustXDRObject(): ChangeTrustAsset;
 ```
 
-**Source:** [src/base/asset.ts:197](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L197)
+**Source:** [src/base/asset.ts:195](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L195)
 
 ### `asset.toString()`
 
@@ -239,7 +239,7 @@ Native assets return `"native"`. Non-native assets return `"code:issuer"`.
 toString(): string;
 ```
 
-**Source:** [src/base/asset.ts:349](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L349)
+**Source:** [src/base/asset.ts:347](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L347)
 
 ### `asset.toTrustLineXdrObject()`
 
@@ -249,7 +249,7 @@ Returns the xdr.TrustLineAsset object for this asset.
 toTrustLineXdrObject(): TrustLineAsset;
 ```
 
-**Source:** [src/base/asset.ts:181](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L181)
+**Source:** [src/base/asset.ts:179](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L179)
 
 ### `asset.toTrustLineXDRObject()`
 
@@ -260,7 +260,7 @@ Deprecated in version v17.0.0
 toTrustLineXDRObject(): TrustLineAsset;
 ```
 
-**Source:** [src/base/asset.ts:205](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L205)
+**Source:** [src/base/asset.ts:203](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L203)
 
 ### `asset.toXdrObject()`
 
@@ -270,7 +270,7 @@ Returns the xdr.Asset object for this asset.
 toXdrObject(): Asset;
 ```
 
-**Source:** [src/base/asset.ts:167](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L167)
+**Source:** [src/base/asset.ts:165](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L165)
 
 ### `asset.toXDRObject()`
 
@@ -281,7 +281,7 @@ Deprecated in version v17.0.0
 toXDRObject(): Asset;
 ```
 
-**Source:** [src/base/asset.ts:189](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L189)
+**Source:** [src/base/asset.ts:187](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L187)
 
 ## AssetType
 
@@ -296,6 +296,26 @@ const AssetType: { readonly credit12: "credit_alphanum12"; readonly credit4: "cr
 Claimant class represents an xdr.Claimant
 
 The claim predicate is optional, it defaults to unconditional if none is specified.
+
+To build a predicate from a plain object rather than the `predicate*`
+helpers below, use the SEP-0051 dialect, which RPC serves:
+
+```ts
+const predicate = xdr.ClaimPredicate.fromJson({
+  not: { before_absolute_time: "1788443399" },
+});
+```
+
+Horizon serves a different dialect, and it does not map key for key.
+`{ unconditional: true }` becomes the string `"unconditional"`,
+`abs_before_epoch` and `rel_before` become `before_absolute_time` and
+`before_relative_time`, and Horizon's ISO-8601 `abs_before` has no
+SEP-0051 counterpart. `and`, `or` and `not` carry over unchanged.
+
+Two of stellar-core's limits go unchecked here: at most 4 levels of
+nesting, and non-negative times. A predicate that breaks either is built
+without complaint and rejected at submit time — see
+[#1727](https://github.com/stellar/js-stellar-sdk/issues/1727).
 
 ```ts
 class Claimant {
@@ -315,7 +335,7 @@ class Claimant {
 }
 ```
 
-**Source:** [src/base/claimant.ts:15](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L15)
+**Source:** [src/base/claimant.ts:35](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L35)
 
 ### `new Claimant(destination, predicate)`
 
@@ -328,7 +348,7 @@ constructor(destination: string, predicate?: ClaimPredicate);
 - **`destination`** — `string` (required) — The destination account ID.
 - **`predicate`** — `ClaimPredicate` (optional) — The claim predicate.
 
-**Source:** [src/base/claimant.ts:23](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L23)
+**Source:** [src/base/claimant.ts:43](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L43)
 
 ### `Claimant.fromXdr(claimantXdr)`
 
@@ -342,7 +362,7 @@ static fromXdr(claimantXdr: ClaimantV0Arm): Claimant;
 
 - **`claimantXdr`** — `ClaimantV0Arm` (required) — The claimant xdr object.
 
-**Source:** [src/base/claimant.ts:129](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L129)
+**Source:** [src/base/claimant.ts:151](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L151)
 
 ### `Claimant.fromXDR(claimantXdr)`
 
@@ -357,7 +377,7 @@ static fromXDR(claimantXdr: ClaimantV0Arm): Claimant;
 
 - **`claimantXdr`** — `ClaimantV0Arm` (required)
 
-**Source:** [src/base/claimant.ts:147](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L147)
+**Source:** [src/base/claimant.ts:169](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L169)
 
 ### `Claimant.predicateAnd(left, right)`
 
@@ -372,15 +392,15 @@ static predicateAnd(left: ClaimPredicate, right: ClaimPredicate): ClaimPredicate
 - **`left`** — `ClaimPredicate` (required) — an xdr.ClaimPredicate
 - **`right`** — `ClaimPredicate` (required) — an xdr.ClaimPredicate
 
-**Source:** [src/base/claimant.ts:50](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L50)
+**Source:** [src/base/claimant.ts:70](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L70)
 
 ### `Claimant.predicateBeforeAbsoluteTime(absBefore)`
 
 Returns a `BeforeAbsoluteTime` claim predicate
 
-This predicate will be fulfilled if the closing time of the ledger that
-includes the CreateClaimableBalance operation is less than this (absolute)
-Unix timestamp (expressed in seconds).
+This predicate will be fulfilled if the closing time of the ledger in
+which the balance is claimed is less than this (absolute) Unix timestamp
+(expressed in seconds).
 
 ```ts
 static predicateBeforeAbsoluteTime(absBefore: string): ClaimPredicate;
@@ -390,15 +410,17 @@ static predicateBeforeAbsoluteTime(absBefore: string): ClaimPredicate;
 
 - **`absBefore`** — `string` (required) — Unix epoch (in seconds) as a string
 
-**Source:** [src/base/claimant.ts:104](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L104)
+**Source:** [src/base/claimant.ts:124](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L124)
 
 ### `Claimant.predicateBeforeRelativeTime(seconds)`
 
 Returns a `BeforeRelativeTime` claim predicate
 
-This predicate will be fulfilled if the closing time of the ledger that
-includes the CreateClaimableBalance operation plus this relative time delta
-(in seconds) is less than the current time.
+When the balance is created, this is converted to a `BeforeAbsoluteTime`
+predicate by adding this relative time delta (in seconds) to the closing
+time of the ledger that includes the CreateClaimableBalance operation. The
+predicate is then fulfilled while the closing time of the ledger in which
+the balance is claimed is less than that sum.
 
 ```ts
 static predicateBeforeRelativeTime(seconds: string): ClaimPredicate;
@@ -408,7 +430,7 @@ static predicateBeforeRelativeTime(seconds: string): ClaimPredicate;
 
 - **`seconds`** — `string` (required) — seconds since closeTime of the ledger in which the ClaimableBalanceEntry was created (as string)
 
-**Source:** [src/base/claimant.ts:119](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L119)
+**Source:** [src/base/claimant.ts:141](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L141)
 
 ### `Claimant.predicateNot(predicate)`
 
@@ -422,7 +444,7 @@ static predicateNot(predicate: ClaimPredicate): ClaimPredicate;
 
 - **`predicate`** — `ClaimPredicate` (required) — an xdr.ClaimPredicate
 
-**Source:** [src/base/claimant.ts:87](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L87)
+**Source:** [src/base/claimant.ts:107](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L107)
 
 ### `Claimant.predicateOr(left, right)`
 
@@ -437,7 +459,7 @@ static predicateOr(left: ClaimPredicate, right: ClaimPredicate): ClaimPredicate;
 - **`left`** — `ClaimPredicate` (required) — an xdr.ClaimPredicate
 - **`right`** — `ClaimPredicate` (required) — an xdr.ClaimPredicate
 
-**Source:** [src/base/claimant.ts:69](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L69)
+**Source:** [src/base/claimant.ts:89](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L89)
 
 ### `Claimant.predicateUnconditional()`
 
@@ -447,7 +469,7 @@ Returns an unconditional claim predicate
 static predicateUnconditional(): ClaimPredicate;
 ```
 
-**Source:** [src/base/claimant.ts:41](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L41)
+**Source:** [src/base/claimant.ts:61](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L61)
 
 ### `claimant.destination`
 
@@ -457,7 +479,7 @@ The destination account ID.
 destination: string;
 ```
 
-**Source:** [src/base/claimant.ts:174](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L174)
+**Source:** [src/base/claimant.ts:196](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L196)
 
 ### `claimant.predicate`
 
@@ -467,7 +489,7 @@ The claim predicate.
 predicate: ClaimPredicate;
 ```
 
-**Source:** [src/base/claimant.ts:185](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L185)
+**Source:** [src/base/claimant.ts:207](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L207)
 
 ### `claimant.toXdrObject()`
 
@@ -477,7 +499,7 @@ Returns the xdr object for this claimant.
 toXdrObject(): ClaimantV0Arm;
 ```
 
-**Source:** [src/base/claimant.ts:154](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L154)
+**Source:** [src/base/claimant.ts:176](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L176)
 
 ### `claimant.toXDRObject()`
 
@@ -488,7 +510,7 @@ Deprecated in version v17.0.0
 toXDRObject(): ClaimantV0Arm;
 ```
 
-**Source:** [src/base/claimant.ts:167](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L167)
+**Source:** [src/base/claimant.ts:189](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/claimant.ts#L189)
 
 ## LiquidityPoolAsset
 

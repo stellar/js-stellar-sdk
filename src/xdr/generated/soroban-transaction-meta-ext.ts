@@ -17,8 +17,7 @@ import {
 } from "./soroban-transaction-meta-ext-v1.js";
 
 export type SorobanTransactionMetaExtWire =
-  | { v: 0 }
-  | { v: 1; v1: SorobanTransactionMetaExtV1Wire };
+  { v: 0 } | { v: 1; v1: SorobanTransactionMetaExtV1Wire };
 
 export type SorobanTransactionMetaExtVariantName = "v0" | "v1";
 
@@ -131,6 +130,5 @@ export class SorobanTransactionMetaExtV1Arm extends SorobanTransactionMetaExtBas
 }
 
 export type SorobanTransactionMetaExt =
-  | SorobanTransactionMetaExtV0
-  | SorobanTransactionMetaExtV1Arm;
+  SorobanTransactionMetaExtV0 | SorobanTransactionMetaExtV1Arm;
 export const SorobanTransactionMetaExt = SorobanTransactionMetaExtBase;

@@ -22,7 +22,12 @@ import type {
   WalletError,
   XDR_BASE64,
 } from "./types.js";
-import { signerAddress, toSignAuthEntry, toSignTransaction } from "./signer.js";
+import {
+  signerAddress,
+  toSignAuthEntry,
+  toSignTransaction,
+  walletSigningKey,
+} from "./signer.js";
 import { Server } from "../rpc/index.js";
 import { Api } from "../rpc/api.js";
 import { assembleTransaction } from "../rpc/transaction.js";
@@ -987,6 +992,18 @@ export class AssembledTransaction<T> {
    * deserialize the transaction with `txFromJson`, and call
    * {@link AssembledTransaction.signAuthEntries}. Then re-serialize and send to
    * the next account in this list.
+   *
+   * For `SOROBAN_CREDENTIALS_ADDRESS_WITH_DELEGATES` this is intentionally
+   * conservative: it returns every unsigned signer node — the top-level
+   * address and any (possibly nested) delegate — with no way to know from
+   * the entry's XDR alone which combination actually satisfies the
+   * account's authorization policy (an arbitrary contract check). A
+   * top-level node the policy would accept unsigned in favor of a signed
+   * delegate is still reported here, so signing everyone this method lists
+   * is always sufficient but is not always necessary. If your account's
+   * policy is known, inspect the auth entries directly with
+   * {@link inspectAuthEntry} to decide which of these addresses you can
+   * skip, rather than treating this list as the minimal signing set.
    */
   needsNonInvokerSigningBy = ({
     includeAlreadySigned = false,
@@ -1054,12 +1071,15 @@ export class AssembledTransaction<T> {
    *
    * Sending to all `needsNonInvokerSigningBy` owners in parallel is not
    * currently supported!
+   *
+   * With the default authorizer, the wallet's returned `signerAddress` names
+   * the key the signature is verified against, which may differ from `address`.
    */
   signAuthEntries = async ({
     expiration = (async () =>
       (await this.server.getLatestLedger()).sequence + 100)(),
     signAuthEntry = this.options.signAuthEntry,
-    address = signerAddress(signAuthEntry) ?? this.options.publicKey,
+    address: addressArg,
     authorizeEntry = stellarBaseAuthorizeEntry,
   }: {
     /**
@@ -1069,25 +1089,47 @@ export class AssembledTransaction<T> {
      */
     expiration?: number | Promise<number>;
     /**
-     * Sign all auth entries for this account. Default: when `signAuthEntry`
-     * is a `Signer` or `Keypair`, its own address; otherwise the account that
-     * constructed the transaction (`publicKey`).
+     * Sign all auth entries for this account. Defaults to a `Signer`'s or
+     * `Keypair`'s own address, otherwise to the account that constructed the
+     * transaction (`publicKey`). Pass it when `signAuthEntry` is a plain
+     * function signing for a different account.
      */
     address?: string;
     /**
-     * You must provide this here if you did not provide one before and you are not passing `authorizeEntry`. Default: the `signAuthEntry` from the `Client` options. Must sign things as the given `address`.
+     * You must provide this here if you did not provide one before and you are
+     * not passing `authorizeEntry`. Defaults to the Client's `signAuthEntry`.
+     * If it signs with a key other than `address`, it should return that key
+     * as `signerAddress`.
      */
     signAuthEntry?: ClientOptions["signAuthEntry"];
 
     /**
      * If you have a pro use-case and need to override the default `authorizeEntry` function, rather than using the one this SDK provides, you can do that! Your function needs to take at least the first argument, `entry: xdr.SorobanAuthorizationEntry`, and return a `Promise<xdr.SorobanAuthorizationEntry>`.
      *
-     * Note that you if you pass this, then `signAuthEntry` will be ignored.
+     * The signing callback passed to it returns raw signature bytes and does
+     * not forward the wallet's `signerAddress`.
      */
     authorizeEntry?: typeof stellarBaseAuthorizeEntry;
   } = {}): Promise<void> => {
     if (!this.built)
       throw new Error("Transaction has not yet been assembled or simulated");
+
+    const derivedAddress = signerAddress(signAuthEntry);
+    const address = addressArg ?? derivedAddress ?? this.options.publicKey;
+
+    // Adds a hint when `address` fell back to `publicKey`, which may not be
+    // the signer (#1681).
+    const noEntriesFor = (): string => {
+      const base = `No auth entries for public key "${address}"`;
+      if (addressArg != null || derivedAddress !== undefined) return base;
+      const unnamed =
+        "`address` was not given and `signAuthEntry` does not name one";
+      const fix = "Pass `address` to say who is signing.";
+      return address === undefined
+        ? `No account to sign for: ${unnamed}. ${fix}`
+        : `${base}; ${unnamed}, so it defaulted to the account that built ` +
+            `this transaction. ${fix}`;
+    };
 
     // Reduced up front, not at the call site below, so that the `!signAuth`
     // check reports a `Signer` that omits the optional `signAuthEntry` the same
@@ -1106,9 +1148,7 @@ export class AssembledTransaction<T> {
         );
       }
       if (needsNonInvokerSigningBy.indexOf(address ?? "") === -1) {
-        throw new AssembledTransaction.Errors.NoSignatureNeeded(
-          `No auth entries for public key "${address}"`,
-        );
+        throw new AssembledTransaction.Errors.NoSignatureNeeded(noEntriesFor());
       }
       if (!signAuth) {
         throw new AssembledTransaction.Errors.NoSigner(
@@ -1121,6 +1161,7 @@ export class AssembledTransaction<T> {
       .operations[0] as Operation.InvokeHostFunction;
 
     const authEntries = rawInvokeHostFunctionOp.auth ?? [];
+    let signedAny = false;
 
     for (const [i, entry] of authEntries.entries()) {
       // workaround for https://github.com/stellar/js-stellar-sdk/issues/1070
@@ -1162,41 +1203,26 @@ export class AssembledTransaction<T> {
       )?.address;
       if (target === undefined) continue;
 
-      if (StrKey.isValidContract(target)) {
+      if (
+        authorizeEntry === stellarBaseAuthorizeEntry &&
+        StrKey.isValidContract(target)
+      ) {
         // A contract-address delegate (Signer::Delegated) needs its own
         // account contract's `__check_auth`-defined signature ScVal, not an
         // Ed25519 signature verified against its own address as a public
         // key — `Keypair.fromPublicKey` would throw an opaque strkey error
-        // on it below. Nothing in this loop can produce that ScVal yet:
-        // failing clearly here, before calling the wallet at all, beats a
-        // wallet call that can only ever fail afterward.
+        // on it below. The SDK's own default authorizer can't produce that
+        // ScVal, so fail clearly here, before calling the wallet at all,
+        // rather than after. Scoped to the default authorizer: a *custom*
+        // one may well know how to build `signatureScVal` for this
+        // contract, so it gets to try — see the post-signing check below,
+        // which catches it if it doesn't.
         throw new AssembledTransaction.Errors.UnsupportedDelegateSigner(
           `Cannot sign for contract address delegate "${target}": ` +
-            "signAuthEntries doesn't yet support Signer::Delegated-style " +
-            "contract signers, only Ed25519 keys. Provide a signatureScVal " +
-            "directly via a custom authorizeEntry instead.",
-        );
-      }
-
-      if (
-        authorizeEntry !== stellarBaseAuthorizeEntry &&
-        target !== info.address &&
-        authorizeEntry.length < 5
-      ) {
-        // `target` is a delegate, not the top-level address, so it must be
-        // written to that specific node via `authorizeEntry`'s 5th
-        // parameter, `forAddress` — the caller's custom `authorizeEntry`
-        // doesn't declare enough parameters to accept it (a pre-existing
-        // implementation, from before this parameter existed). Silently
-        // omitting it would write the signature to the top-level node
-        // instead, leaving the actual delegate unsigned with no error
-        // until the network rejects it.
-        throw new AssembledTransaction.Errors.AuthorizeEntryMissingForAddress(
-          "The custom `authorizeEntry` passed to signAuthEntries only " +
-            `accepts ${authorizeEntry.length} argument(s), but signing "` +
-            `${target}" (a delegate, not this entry's top-level address) ` +
-            "requires passing it as the 5th argument, `forAddress`. Add a " +
-            "5th parameter to your `authorizeEntry` and forward it.",
+            "signAuthEntries's default authorizer doesn't support " +
+            "Signer::Delegated-style contract signers, only Ed25519 keys. " +
+            "Provide a signatureScVal directly via a custom authorizeEntry " +
+            "instead.",
         );
       }
 
@@ -1222,36 +1248,37 @@ export class AssembledTransaction<T> {
       authEntries[i] = await authorizeEntry(
         entry,
         async (preimage) => {
-          const { signedAuthEntry, signerAddress, error } = await sign(
-            preimage.toXdr("base64"),
-            {
-              address: target,
-            },
-          );
+          // Ask the wallet to sign for `target` (this entry's matched signer
+          // node — a delegate, or the top level), not the outer `address`:
+          // they agree by construction here (`target` was derived above as
+          // the signer whose `.address === address`), but naming the actual
+          // node being signed keeps this correct if that invariant ever
+          // changes.
+          const {
+            signedAuthEntry,
+            signerAddress: resultAddress,
+            error,
+          } = await sign(preimage.toXdr("base64"), {
+            address: target,
+          });
           this.handleWalletError(error);
-          // Returning { signature, publicKey } explicitly, not a naked
-          // Uint8Array: authorizeEntry's deprecated bare-signature path
-          // infers the signer's public key from the entry's TOP-LEVEL
-          // address unconditionally (getAddressCredentials(credentials),
-          // which never sees a delegate), regardless of `forAddress`
-          // below. That's correct when `address` is the top level, but
-          // verifies the delegate's signature against the wrong public
-          // key otherwise. Naming the actual signer here sidesteps that
-          // inference entirely.
-          //
+          const signature = base64ToUint8Array(signedAuthEntry);
           // `target` is only a request, not a guarantee of who actually
-          // signed: a delegate node's own address may be a contract
-          // (Signer::Delegated) or the `sign` callback may have signed
-          // with a different Ed25519 key than the one asked for, and
-          // `SignAuthEntry`'s return type carries an optional
-          // `signerAddress` for exactly this case. Preferring it over
-          // `target` when present is required, not cosmetic: passing
-          // the wrong `publicKey` here makes `authorizeEntry` verify the
-          // signature against the wrong key.
-          return {
-            signature: base64ToUint8Array(signedAuthEntry),
-            publicKey: signerAddress ?? target,
-          };
+          // signed: `SignAuthEntry`'s return type carries an optional
+          // `signerAddress` for exactly the case where the wallet signed
+          // with a different (but still valid) key than the one asked for.
+          // `walletSigningKey` validates and normalizes that value (muxed
+          // M... to its base G..., a clear error for anything else); a
+          // custom `authorizeEntry` gets the raw signature unconditionally,
+          // since only the SDK's default authorizer's naked-signature path
+          // needs `publicKey` named explicitly (see base/auth.ts).
+          const signingKey =
+            authorizeEntry === stellarBaseAuthorizeEntry
+              ? walletSigningKey(resultAddress)
+              : undefined;
+          return signingKey === undefined
+            ? signature
+            : { signature, publicKey: signingKey };
         },
         entryExpiration,
         this.options.networkPassphrase,
@@ -1265,6 +1292,45 @@ export class AssembledTransaction<T> {
         // as omitting it.
         target,
       );
+
+      if (
+        authorizeEntry !== stellarBaseAuthorizeEntry &&
+        target !== info.address
+      ) {
+        // A custom `authorizeEntry` is free to ignore `forAddress` entirely
+        // (it may not even declare the parameter) and write wherever its own
+        // logic decides — checking its declared arity to guess whether it
+        // will honor `forAddress` is unreliable, since `Function.length`
+        // doesn't count parameters with defaults or gathered via `...rest`,
+        // and `target !== info.address` doesn't rule out a delegate that
+        // happens to share the top-level address. Verify the actual result
+        // instead: if the node this iteration was signing for still isn't
+        // signed, the custom authorizer didn't honor `forAddress`, and the
+        // delegate would otherwise be left unsigned with no error until the
+        // network rejects it — surface that now.
+        const resultSigner = inspectAuthEntry(authEntries[i]).signers.find(
+          (signer) => signer.address === target,
+        );
+        if (!resultSigner?.signed) {
+          throw new AssembledTransaction.Errors.AuthorizeEntryMissingForAddress(
+            `Signing "${target}" (a delegate, not this entry's top-level ` +
+              `address "${info.address}") requires the custom ` +
+              "`authorizeEntry` to write the signature to that node via " +
+              "its 5th argument, `forAddress` (already passed here) — but " +
+              "the node it returned is still unsigned. Add a 5th " +
+              "parameter to your `authorizeEntry` and forward it to " +
+              "`authorizeEntry` from `@stellar/stellar-sdk/base`, or " +
+              "handle `forAddress` yourself when building the credentials.",
+          );
+        }
+      }
+
+      signedAny = true;
+    }
+
+    // A custom authorizer skips the pre-flight, so catch a no-match here.
+    if (!signedAny) {
+      throw new AssembledTransaction.Errors.NoSignatureNeeded(noEntriesFor());
     }
   };
 

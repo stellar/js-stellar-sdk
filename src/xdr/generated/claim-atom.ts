@@ -22,9 +22,7 @@ export type ClaimAtomWire =
   | { type: 2; liquidityPool: ClaimLiquidityAtomWire };
 
 export type ClaimAtomVariantName =
-  | "claimAtomTypeV0"
-  | "claimAtomTypeOrderBook"
-  | "claimAtomTypeLiquidityPool";
+  "claimAtomTypeV0" | "claimAtomTypeOrderBook" | "claimAtomTypeLiquidityPool";
 
 /**
  * ```xdr
@@ -174,7 +172,5 @@ export class ClaimAtomLiquidityPool extends ClaimAtomBase {
 }
 
 export type ClaimAtom =
-  | ClaimAtomV0
-  | ClaimAtomOrderBook
-  | ClaimAtomLiquidityPool;
+  ClaimAtomV0 | ClaimAtomOrderBook | ClaimAtomLiquidityPool;
 export const ClaimAtom = ClaimAtomBase;

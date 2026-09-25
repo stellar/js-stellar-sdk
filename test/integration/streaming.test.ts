@@ -1,15 +1,9 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect } from "vitest";
 import * as http from "http";
 import * as StellarSdk from "../../src/index.js";
+import { listenOnFreePort } from "./helpers.js";
 
 const { Horizon } = StellarSdk;
-
-// Use different ports for each test to avoid conflicts
-const getPort = () => Math.floor(Math.random() * 10000) + 3000;
-let port = getPort();
-beforeEach(() => {
-  port = getPort();
-});
 
 describe("integration tests: streaming", () => {
   if (typeof window !== "undefined") {
@@ -17,7 +11,6 @@ describe("integration tests: streaming", () => {
   }
 
   it("handles onerror", async () => {
-    let server: http.Server;
     let closeStream: () => void;
 
     const requestHandler = (
@@ -30,17 +23,9 @@ describe("integration tests: streaming", () => {
       server.close();
     };
 
-    server = http.createServer(requestHandler);
+    const server = http.createServer(requestHandler);
 
-    await new Promise<void>((resolve, reject) => {
-      server.listen(port, (err?: Error) => {
-        if (err) {
-          reject(err);
-          return;
-        }
-        resolve();
-      });
-    });
+    const port = await listenOnFreePort(server);
 
     await new Promise<void>((resolve) => {
       closeStream = new Horizon.Server(`http://localhost:${port}`, {
@@ -72,15 +57,7 @@ describe("integration tests: streaming", () => {
 
     const server = http.createServer(requestHandler);
 
-    await new Promise<void>((resolve, reject) => {
-      server.listen(port, (err?: Error) => {
-        if (err) {
-          reject(err);
-          return;
-        }
-        resolve();
-      });
-    });
+    const port = await listenOnFreePort(server);
 
     // Start the stream and immediately close it
     const closeStream = new Horizon.Server(`http://localhost:${port}`, {
@@ -107,8 +84,6 @@ describe("integration tests: streaming", () => {
   });
 
   it("includes the last paging_token as ?cursor on reconnect", async () => {
-    let server: http.Server;
-    let closeStream: () => void;
     let resolveSecondCursor: (value: string | null) => void;
     const secondRequestCursor = new Promise<string | null>((resolve) => {
       resolveSecondCursor = resolve;
@@ -140,15 +115,10 @@ describe("integration tests: streaming", () => {
       response.end();
     };
 
-    server = http.createServer(requestHandler);
-    await new Promise<void>((resolve, reject) => {
-      server.listen(port, (err?: Error) => {
-        if (err) reject(err);
-        else resolve();
-      });
-    });
+    const server = http.createServer(requestHandler);
+    const port = await listenOnFreePort(server);
 
-    closeStream = new Horizon.Server(`http://localhost:${port}`, {
+    const closeStream = new Horizon.Server(`http://localhost:${port}`, {
       allowHttp: true,
     })
       .operations()
@@ -166,8 +136,6 @@ describe("integration tests: streaming", () => {
   });
 
   it("reconnects when no messages arrive within reconnectTimeout", async () => {
-    let server: http.Server;
-    let closeStream: () => void;
     let resolveSecondRequest: () => void;
     const secondRequestArrived = new Promise<void>((resolve) => {
       resolveSecondRequest = resolve;
@@ -187,16 +155,11 @@ describe("integration tests: streaming", () => {
       }
     };
 
-    server = http.createServer(requestHandler);
-    await new Promise<void>((resolve, reject) => {
-      server.listen(port, (err?: Error) => {
-        if (err) reject(err);
-        else resolve();
-      });
-    });
+    const server = http.createServer(requestHandler);
+    const port = await listenOnFreePort(server);
 
     const started = Date.now();
-    closeStream = new Horizon.Server(`http://localhost:${port}`, {
+    const closeStream = new Horizon.Server(`http://localhost:${port}`, {
       allowHttp: true,
     })
       .operations()
@@ -218,8 +181,6 @@ describe("integration tests: streaming", () => {
   });
 
   it("does not send further requests after closeStream()", async () => {
-    let server: http.Server;
-    let closeStream: () => void;
     let resolveFirstMessage: () => void;
     const firstMessageReceived = new Promise<void>((resolve) => {
       resolveFirstMessage = resolve;
@@ -239,15 +200,10 @@ describe("integration tests: streaming", () => {
       // down, not a server-side EOF.
     };
 
-    server = http.createServer(requestHandler);
-    await new Promise<void>((resolve, reject) => {
-      server.listen(port, (err?: Error) => {
-        if (err) reject(err);
-        else resolve();
-      });
-    });
+    const server = http.createServer(requestHandler);
+    const port = await listenOnFreePort(server);
 
-    closeStream = new Horizon.Server(`http://localhost:${port}`, {
+    const closeStream = new Horizon.Server(`http://localhost:${port}`, {
       allowHttp: true,
     })
       .operations()
@@ -285,9 +241,6 @@ describe("end-to-end tests: real streaming", () => {
 
     const transactions: any[] = [];
 
-    let closeHandler: () => void;
-    let timeout: NodeJS.Timeout;
-
     const finishTest = (err?: any) => {
       clearTimeout(timeout);
       closeHandler();
@@ -302,7 +255,7 @@ describe("end-to-end tests: real streaming", () => {
       }
     };
 
-    closeHandler = server
+    const closeHandler = server
       .transactions()
       .cursor("now")
       .stream({
@@ -312,6 +265,6 @@ describe("end-to-end tests: real streaming", () => {
         onerror: finishTest,
       });
 
-    timeout = setTimeout(finishTest, DURATION * 1000);
+    const timeout = setTimeout(finishTest, DURATION * 1000);
   }, 35000); // Set timeout for this specific test
 });

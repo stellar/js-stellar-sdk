@@ -17,8 +17,7 @@ import {
 } from "./soroban-resources-ext-v0.js";
 
 export type SorobanTransactionDataExtWire =
-  | { v: 0 }
-  | { v: 1; resourceExt: SorobanResourcesExtV0Wire };
+  { v: 0 } | { v: 1; resourceExt: SorobanResourcesExtV0Wire };
 
 export type SorobanTransactionDataExtVariantName = "v0" | "resourceExt";
 
@@ -137,6 +136,5 @@ export class SorobanTransactionDataExtResourceExt extends SorobanTransactionData
 }
 
 export type SorobanTransactionDataExt =
-  | SorobanTransactionDataExtV0
-  | SorobanTransactionDataExtResourceExt;
+  SorobanTransactionDataExtV0 | SorobanTransactionDataExtResourceExt;
 export const SorobanTransactionDataExt = SorobanTransactionDataExtBase;

@@ -14,8 +14,7 @@ import {
  * Types of contract data that can be fetched
  */
 export type ContractData =
-  | { type: "wasm"; wasmBytes: Uint8Array }
-  | { type: "stellar-asset-contract" };
+  { type: "wasm"; wasmBytes: Uint8Array } | { type: "stellar-asset-contract" };
 
 /**
  * Errors that can occur during WASM fetching

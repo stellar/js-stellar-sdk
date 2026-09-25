@@ -9,11 +9,7 @@ import {
 export type MemoTypeWire = number;
 
 export type MemoTypeName =
-  | "memoNone"
-  | "memoText"
-  | "memoId"
-  | "memoHash"
-  | "memoReturn";
+  "memoNone" | "memoText" | "memoId" | "memoHash" | "memoReturn";
 
 /**
  * ```xdr

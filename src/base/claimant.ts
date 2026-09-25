@@ -11,6 +11,26 @@ import { StrKey } from "./strkey.js";
  * Claimant class represents an xdr.Claimant
  *
  * The claim predicate is optional, it defaults to unconditional if none is specified.
+ *
+ * To build a predicate from a plain object rather than the `predicate*`
+ * helpers below, use the SEP-0051 dialect, which RPC serves:
+ *
+ * ```ts
+ * const predicate = xdr.ClaimPredicate.fromJson({
+ *   not: { before_absolute_time: "1788443399" },
+ * });
+ * ```
+ *
+ * Horizon serves a different dialect, and it does not map key for key.
+ * `{ unconditional: true }` becomes the string `"unconditional"`,
+ * `abs_before_epoch` and `rel_before` become `before_absolute_time` and
+ * `before_relative_time`, and Horizon's ISO-8601 `abs_before` has no
+ * SEP-0051 counterpart. `and`, `or` and `not` carry over unchanged.
+ *
+ * Two of stellar-core's limits go unchecked here: at most 4 levels of
+ * nesting, and non-negative times. A predicate that breaks either is built
+ * without complaint and rejected at submit time — see
+ * [#1727](https://github.com/stellar/js-stellar-sdk/issues/1727).
  */
 export class Claimant {
   private _destination: string;
@@ -95,9 +115,9 @@ export class Claimant {
   /**
    * Returns a `BeforeAbsoluteTime` claim predicate
    *
-   * This predicate will be fulfilled if the closing time of the ledger that
-   * includes the CreateClaimableBalance operation is less than this (absolute)
-   * Unix timestamp (expressed in seconds).
+   * This predicate will be fulfilled if the closing time of the ledger in
+   * which the balance is claimed is less than this (absolute) Unix timestamp
+   * (expressed in seconds).
    *
    * @param absBefore - Unix epoch (in seconds) as a string
    */
@@ -110,9 +130,11 @@ export class Claimant {
   /**
    * Returns a `BeforeRelativeTime` claim predicate
    *
-   * This predicate will be fulfilled if the closing time of the ledger that
-   * includes the CreateClaimableBalance operation plus this relative time delta
-   * (in seconds) is less than the current time.
+   * When the balance is created, this is converted to a `BeforeAbsoluteTime`
+   * predicate by adding this relative time delta (in seconds) to the closing
+   * time of the ledger that includes the CreateClaimableBalance operation. The
+   * predicate is then fulfilled while the closing time of the ledger in which
+   * the balance is claimed is less than that sum.
    *
    * @param seconds - seconds since closeTime of the ledger in which the ClaimableBalanceEntry was created (as string)
    */

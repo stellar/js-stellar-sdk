@@ -31,11 +31,7 @@ export type TransactionMetaWire =
   | { v: 4; v4: TransactionMetaV4Wire };
 
 export type TransactionMetaVariantName =
-  | "operations"
-  | "v1"
-  | "v2"
-  | "v3"
-  | "v4";
+  "operations" | "v1" | "v2" | "v3" | "v4";
 
 /**
  * ```xdr

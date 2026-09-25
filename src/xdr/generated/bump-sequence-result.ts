@@ -10,8 +10,7 @@ import { BumpSequenceResultCode } from "./bump-sequence-result-code.js";
 export type BumpSequenceResultWire = { code: 0 } | { code: -1 };
 
 export type BumpSequenceResultVariantName =
-  | "bumpSequenceSuccess"
-  | "bumpSequenceBadSeq";
+  "bumpSequenceSuccess" | "bumpSequenceBadSeq";
 
 /**
  * ```xdr
@@ -112,6 +111,5 @@ export class BumpSequenceResultBadSeq extends BumpSequenceResultBase {
 }
 
 export type BumpSequenceResult =
-  | BumpSequenceResultSuccess
-  | BumpSequenceResultBadSeq;
+  BumpSequenceResultSuccess | BumpSequenceResultBadSeq;
 export const BumpSequenceResult = BumpSequenceResultBase;

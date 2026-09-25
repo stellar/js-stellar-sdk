@@ -9,8 +9,7 @@ import {
 export type ContractIdPreimageTypeWire = number;
 
 export type ContractIdPreimageTypeName =
-  | "contractIdPreimageFromAddress"
-  | "contractIdPreimageFromAsset";
+  "contractIdPreimageFromAddress" | "contractIdPreimageFromAsset";
 
 /**
  * ```xdr

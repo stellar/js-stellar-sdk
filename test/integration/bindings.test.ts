@@ -147,7 +147,7 @@ describe("BindingGenerator", () => {
       const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
 
       expect(result.client).toContain("set_value(");
-      expect(result.client).toContain("{ value }: { value: number }");
+      expect(result.client).toContain("args: { value: number }");
     });
 
     it("generates method with multiple inputs", () => {
@@ -476,7 +476,10 @@ describe("BindingGenerator", () => {
       expect(result.client).toContain("static deploy<T = Client>");
       expect(result.client).toContain("admin: string | Address");
       expect(result.client).toContain("initial_value: number");
-      expect(result.client).toContain("{ admin, initial_value }, options");
+      expect(result.client).toContain(
+        "args: { admin: string | Address; initial_value: number }",
+      );
+      expect(result.client).toContain("ContractClient.deploy(args, options)");
     });
   });
 
@@ -1051,7 +1054,7 @@ describe("BindingGenerator", () => {
       expect(result.types).toContain('has \\"quotes\\" inside');
     });
 
-    it("strips non-identifier characters from struct field names", () => {
+    it("quotes struct field names that are not valid identifiers", () => {
       const structSpec = createStructSpec("MyStruct", [
         {
           name: "field;name{bad}",
@@ -1061,9 +1064,113 @@ describe("BindingGenerator", () => {
       const spec = new contract.Spec([structSpec.toXdr("base64")]);
       const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
 
-      // Special characters should be replaced with underscores
-      expect(result.types).toContain("field_name_bad_: number");
+      // The raw name is kept (the runtime keys the struct by it) but quoted
+      // so it can't break out of the interface.
+      expect(result.types).toContain('"field;name{bad}": number');
       expect(result.types).toContain("export interface MyStruct");
+    });
+
+    it("keeps reserved words as struct field names, since they are legal property keys", () => {
+      const structSpec = createStructSpec("Cfg", [
+        { name: "default", type: xdr.ScSpecTypeDef.scSpecTypeU32() },
+        { name: "class", type: xdr.ScSpecTypeDef.scSpecTypeU32() },
+      ]);
+      const spec = new contract.Spec([structSpec.toXdr("base64")]);
+      const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
+
+      expect(result.types).toContain("  default: number;");
+      expect(result.types).toContain("  class: number;");
+      expect(result.types).not.toContain("default_");
+      expect(result.types).not.toContain("class_");
+
+      // The declared keys are the ones the runtime encodes and decodes.
+      const cfgType = xdr.ScSpecTypeDef.scSpecTypeUdt(
+        new xdr.ScSpecTypeUdt({ name: "Cfg" }),
+      );
+      const scv = spec.nativeToScVal({ default: 1, class: 2 }, cfgType);
+      expect(spec.scValToNative(scv, cfgType)).toEqual({
+        default: 1,
+        class: 2,
+      });
+    });
+
+    it("keeps reserved words as method parameter names", () => {
+      const funcSpec = createFunctionSpec("set", [
+        { name: "new", type: xdr.ScSpecTypeDef.scSpecTypeU32() },
+        { name: "amount", type: xdr.ScSpecTypeDef.scSpecTypeI128() },
+      ]);
+      const spec = new contract.Spec([funcSpec.toXdr("base64")]);
+      const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
+
+      expect(result.client).toContain(
+        "set(args: { new: number; amount: bigint }, options?: MethodOptions)",
+      );
+
+      // The declared keys are the ones funcArgsToScVals reads.
+      expect(() =>
+        spec.funcArgsToScVals("set", { new: 1, amount: 2n }),
+      ).not.toThrow();
+    });
+
+    it("keeps a strict-mode restricted parameter name", () => {
+      // `arguments` and `eval` are legal property keys but can't be bound in a
+      // module, which is one reason the inputs are never destructured.
+      const funcSpec = createFunctionSpec("set", [
+        { name: "arguments", type: xdr.ScSpecTypeDef.scSpecTypeU32() },
+      ]);
+      const spec = new contract.Spec([funcSpec.toXdr("base64")]);
+      const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
+
+      expect(result.client).toContain(
+        "set(args: { arguments: number }, options?: MethodOptions)",
+      );
+    });
+
+    it("keeps a parameter named options alongside the options parameter", () => {
+      const funcSpec = createFunctionSpec("set", [
+        { name: "options", type: xdr.ScSpecTypeDef.scSpecTypeU32() },
+      ]);
+      const spec = new contract.Spec([funcSpec.toXdr("base64")]);
+      const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
+
+      expect(result.client).toContain(
+        "set(args: { options: number }, options?: MethodOptions)",
+      );
+    });
+
+    it("passes null args to deploy for a constructor with no inputs", () => {
+      const constructorSpec = createFunctionSpec("__constructor", []);
+      const spec = new contract.Spec([constructorSpec.toXdr("base64")]);
+      const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
+
+      expect(result.client).toContain("static deploy<T = Client>(options:");
+      expect(result.client).toContain("ContractClient.deploy(null, options)");
+    });
+
+    it("quotes a parameter name with a leading digit", () => {
+      const funcSpec = createFunctionSpec("set", [
+        { name: "1st", type: xdr.ScSpecTypeDef.scSpecTypeU32() },
+      ]);
+      const spec = new contract.Spec([funcSpec.toXdr("base64")]);
+      const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
+
+      expect(result.client).toContain(
+        'set(args: { "1st": number }, options?: MethodOptions)',
+      );
+    });
+
+    it("passes constructor args through to deploy under their raw names", () => {
+      const constructorSpec = createFunctionSpec("__constructor", [
+        { name: "new", type: xdr.ScSpecTypeDef.scSpecTypeU32() },
+      ]);
+      const spec = new contract.Spec([constructorSpec.toXdr("base64")]);
+      const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
+
+      expect(result.client).toContain(
+        "static deploy<T = Client>(args: { new: number }, options:",
+      );
+      expect(result.client).toContain("ContractClient.deploy(args, options)");
+      expect(result.client).not.toContain("new_");
     });
 
     it("escapes special characters in union case tag strings", () => {
@@ -1159,7 +1266,7 @@ describe("BindingGenerator", () => {
       expect(result.types).toContain("path\\\\to\\\\file");
     });
 
-    it("falls back to _unnamed for identifiers with only special characters", () => {
+    it("escapes a struct field name made only of special characters", () => {
       const structSpec = createStructSpec("MyStruct", [
         {
           name: '";{}',
@@ -1169,7 +1276,15 @@ describe("BindingGenerator", () => {
       const spec = new contract.Spec([structSpec.toXdr("base64")]);
       const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
 
-      expect(result.types).toContain("_unnamed: number");
+      expect(result.types).toContain('"\\";{}": number');
+    });
+
+    it("falls back to _unnamed for a method name made only of special characters", () => {
+      const funcSpec = createFunctionSpec('";{}', []);
+      const spec = new contract.Spec([funcSpec.toXdr("base64")]);
+      const result = BindingGenerator.fromSpec(spec).generate(defaultOptions);
+
+      expect(result.client).toContain("_unnamed(options?: MethodOptions)");
     });
   });
 
@@ -1237,7 +1352,9 @@ describe("BindingGenerator", () => {
       expect(result.client).toContain("name(");
 
       // Deploy has constructor params
-      expect(result.client).toContain("{ admin, name, symbol, decimals }");
+      expect(result.client).toContain(
+        "args: { admin: string | Address; name: string; symbol: string; decimals: number }",
+      );
 
       // Types
       expect(result.types).toContain("export interface BalanceInfo");

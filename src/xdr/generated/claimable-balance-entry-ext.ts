@@ -17,8 +17,7 @@ import {
 } from "./claimable-balance-entry-extension-v1.js";
 
 export type ClaimableBalanceEntryExtWire =
-  | { v: 0 }
-  | { v: 1; v1: ClaimableBalanceEntryExtensionV1Wire };
+  { v: 0 } | { v: 1; v1: ClaimableBalanceEntryExtensionV1Wire };
 
 export type ClaimableBalanceEntryExtVariantName = "v0" | "v1";
 
@@ -131,6 +130,5 @@ export class ClaimableBalanceEntryExtV1 extends ClaimableBalanceEntryExtBase {
 }
 
 export type ClaimableBalanceEntryExt =
-  | ClaimableBalanceEntryExtV0
-  | ClaimableBalanceEntryExtV1;
+  ClaimableBalanceEntryExtV0 | ClaimableBalanceEntryExtV1;
 export const ClaimableBalanceEntryExt = ClaimableBalanceEntryExtBase;

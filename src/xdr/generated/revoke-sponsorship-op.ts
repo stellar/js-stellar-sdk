@@ -17,8 +17,7 @@ export type RevokeSponsorshipOpWire =
   | { type: 1; signer: RevokeSponsorshipOpSignerWire };
 
 export type RevokeSponsorshipOpVariantName =
-  | "revokeSponsorshipLedgerEntry"
-  | "revokeSponsorshipSigner";
+  "revokeSponsorshipLedgerEntry" | "revokeSponsorshipSigner";
 
 /**
  * ```xdr
@@ -150,6 +149,5 @@ export class RevokeSponsorshipOpSignerArm extends RevokeSponsorshipOpBase {
 }
 
 export type RevokeSponsorshipOp =
-  | RevokeSponsorshipOpLedgerEntry
-  | RevokeSponsorshipOpSignerArm;
+  RevokeSponsorshipOpLedgerEntry | RevokeSponsorshipOpSignerArm;
 export const RevokeSponsorshipOp = RevokeSponsorshipOpBase;
