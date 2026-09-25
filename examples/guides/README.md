@@ -146,9 +146,9 @@ The first word is always the language, so ` ```untested ` does not count. The
 site ignores the word after the language, but it stays in the raw `.md`
 siblings and `llms-full.txt`. Prefer markers for anything a reader might copy.
 
-Outside `docs/guides/` nothing is enforced: `docs/reference/` is generated,
-`docs/migration/` shows old APIs on purpose, and `docs/index.md` is synced from
-the root README.
+Outside `docs/guides/`, plain fenced blocks are allowed: `docs/reference/` is
+generated, `docs/migration/` shows old APIs on purpose, and `docs/index.md` is
+synced from the root README. The marker rules still apply there.
 
 ## Gotchas
 

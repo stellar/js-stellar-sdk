@@ -324,13 +324,15 @@ export function checkDoc(
             `"${scanned[k].line.trim()}" — remove it; the snippet is ` +
             `injected at build time`,
         );
-      } else if (isGuide && scan.untested) {
-        untested += 1;
       } else if (isGuide) {
-        problems.push(
-          `${doc}:${i + 1}: untested code block — replace it with a ` +
-            `snippet marker, or add "untested" to its fence line`,
-        );
+        if (scan.untested) {
+          untested += 1;
+        } else {
+          problems.push(
+            `${doc}:${i + 1}: untested code block — replace it with a ` +
+              `snippet marker, or add "untested" to its fence line`,
+          );
+        }
       }
       continue;
     }
@@ -339,11 +341,11 @@ export function checkDoc(
       continue;
     }
     if (scan.kind !== "marker") continue;
-    tested += 1;
 
     // The reference must resolve to a real snippet file and region.
     try {
       snippetRegion(scan.file, scan.region);
+      tested += 1;
     } catch (e) {
       const message = e instanceof Error ? e.message : String(e);
       problems.push(`${doc}:${i + 1}: ${message}`);

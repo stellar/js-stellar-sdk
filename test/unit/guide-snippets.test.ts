@@ -261,12 +261,14 @@ describe("checkDoc", () => {
     });
   });
 
-  it("allows a plain fence outside guides", () => {
-    expect(checkDoc("m.md", "```ts\nx();\n```", false)).toEqual({
-      problems: [],
-      tested: 0,
-      untested: 0,
-    });
+  it("allows plain and untested fences outside guides, without counting them", () => {
+    for (const fence of ["```ts", "```ts untested"]) {
+      expect(checkDoc("m.md", `${fence}\nx();\n\`\`\``, false), fence).toEqual({
+        problems: [],
+        tested: 0,
+        untested: 0,
+      });
+    }
   });
 
   it("reports only the after-marker error for a fence after a marker", () => {
@@ -289,7 +291,8 @@ describe("checkDoc", () => {
       "<!-- snippet: connect-and-fund.ts#no-such-region -->",
       "<!-- snippet connect-and-fund.ts#create-keypair -->",
     ].join("\n");
-    const { problems } = checkDoc("d.md", md, true);
+    const { problems, tested } = checkDoc("d.md", md, true);
+    expect(tested).toBe(0);
     expect(problems).toHaveLength(2);
     expect(problems[0]).toMatch(/^d\.md:1: .*no-such-region/);
     expect(problems[1]).toMatch(/^d\.md: line 2: malformed snippet marker/);
