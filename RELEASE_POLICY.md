@@ -15,12 +15,14 @@ The SDK follows [Semantic Versioning](https://semver.org/) (`MAJOR.MINOR.PATCH`)
 | Change type | Version bump |
 | :---- | :---- |
 | Breaking change to the SDK's public API, minimum runtime, or build/distribution format | **Major** |
-| New protocol support (non-breaking), new SDK features, new deprecations | **Minor** |
-| Bug fixes, security fixes, protocol parsing fixes, XDR updates that add no new public surface | **Patch** |
+| New protocol support via regenerated XDR (non-breaking), new SDK features, new deprecations | **Minor** |
+| Bug fixes, security fixes, protocol parsing fixes, XDR corrections that add no new types | **Patch** |
 
 ### Protocol changes are decoupled from major versions
 
-SDK releases are independent of Stellar protocol releases. Support for a new protocol version ships in a **minor** release of every supported line, provided the change is non-breaking at the SDK API layer. A protocol upgrade requires a major SDK release only when it introduces breaking changes to the XDR definitions.
+SDK releases are independent of Stellar protocol releases. Support for a new protocol version ships in a **minor** release of every supported line, provided the change is non-breaking at the SDK API layer.
+
+Protocol support means the XDR definitions are regenerated, so new types can be decoded when they arrive from RPC or Horizon. It does not include higher-level SDK support for those types, such as convenience methods or accepting them in the transaction builder. That work is a new SDK feature and ships only on the Active line.
 
 If a protocol change *cannot* be supported without breaking the SDK API, support for that protocol lands in the next major version only. This will be announced ahead of the protocol's mainnet activation so affected users can plan an upgrade.
 
@@ -31,7 +33,7 @@ At any time the SDK has one **Active** line and may have one or more **Maintenan
 | Tier | What it receives |
 | :---- | :---- |
 | **Active** | All new features, protocol support, bug fixes, and security fixes. This is where development happens. |
-| **Maintenance** | Non-breaking protocol support (XDR updates, parsing fixes) and critical security fixes only. No new SDK features or general bug fixes are backported. |
+| **Maintenance** | Non-breaking protocol support (regenerated XDR, parsing fixes) and critical security fixes only. No new SDK features or general bug fixes are backported. |
 | **End of Life (EOL)** | No updates of any kind. Users should upgrade to a supported line. |
 
 ### Support windows
