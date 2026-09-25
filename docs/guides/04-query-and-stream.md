@@ -26,17 +26,7 @@ Horizon data is reached through **call builders**. You start one from the server
 narrow it with filters, then call `.call()` to run the request. The result is a
 page of records:
 
-```ts
-import { Horizon } from "@stellar/stellar-sdk";
-
-const horizon = new Horizon.Server("https://horizon-testnet.stellar.org");
-
-const page = await horizon.payments().forAccount(accountId).call();
-
-for (const payment of page.records) {
-  console.log(payment.type, payment.id);
-}
-```
+<!-- snippet: query-and-stream.ts#query -->
 
 The same pattern works for other endpoints on
 [`Horizon.Server`](/reference/network-horizon/#horizonserver):
@@ -50,22 +40,7 @@ Horizon returns results in pages. Control them with `.limit()` (page size, up to
 paging token). Each page carries `.next()` and `.prev()` to fetch the adjacent
 page using the embedded cursor:
 
-```ts
-let page = await horizon
-  .payments()
-  .forAccount(accountId)
-  .order("desc")
-  .limit(20)
-  .call();
-
-while (page.records.length > 0) {
-  for (const payment of page.records) {
-    console.log(payment.id);
-  }
-  // next() returns an empty page once history is exhausted, ending the loop.
-  page = await page.next();
-}
-```
+<!-- snippet: query-and-stream.ts#paging -->
 
 Each record's `paging_token` is the cursor you would pass to `.cursor()` to
 resume later.
@@ -79,19 +54,7 @@ server pushes records over it) and calls `onmessage` for each record. Existing
 records are replayed first; pass `cursor("now")` to receive only new ones.
 `.stream()` returns a function that closes the connection:
 
-```ts
-const close = horizon
-  .payments()
-  .forAccount(accountId)
-  .cursor("now")
-  .stream({
-    onmessage: (payment) => console.log("new payment:", payment.type),
-    onerror: (e) => console.error("stream error:", e),
-  });
-
-// Later, stop listening:
-close();
-```
+<!-- snippet: query-and-stream.ts#stream -->
 
 ## Put it together
 
@@ -102,37 +65,7 @@ stream output. To watch `onmessage` fire, send a payment to the account from
 another terminal (see [Send a Payment](/guides/02-send-a-payment/)). Either way
 the script exits after 30 seconds.
 
-```ts
-import { Keypair, Horizon } from "@stellar/stellar-sdk";
-
-const horizon = new Horizon.Server("https://horizon-testnet.stellar.org");
-
-async function main() {
-  const account = Keypair.random();
-  await horizon.friendbot(account.publicKey()).call();
-  const accountId = account.publicKey();
-
-  // Read recent payments.
-  const page = await horizon
-    .payments()
-    .forAccount(accountId)
-    .order("desc")
-    .limit(10)
-    .call();
-  for (const payment of page.records) {
-    console.log(payment.type, payment.id);
-  }
-
-  // Watch for new payments; stop after 30 seconds.
-  const close = horizon.payments().forAccount(accountId).cursor("now").stream({
-    onmessage: (payment) => console.log("new payment:", payment.type),
-    onerror: (e) => console.error("stream error:", e),
-  });
-  setTimeout(close, 30000);
-}
-
-main().catch(console.error);
-```
+<!-- snippet: query-and-stream.ts#full -->
 
 You can now read history and react to it live. The same call builders back most
 of what an app needs to display from the network. Reads can still fail (a missing
