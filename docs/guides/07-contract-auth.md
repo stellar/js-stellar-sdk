@@ -132,6 +132,42 @@ const sent = await tx.signAndSend();
 `basicNodeSigner` signs the exact payload the SDK builds, so the same call is
 correct on either credential.
 
+### What `needsNonInvokerSigningBy` can and cannot see
+
+`needsNonInvokerSigningBy` is a signature-presence heuristic, not an
+authorization check. It lists the top-level address of every address-credential
+entry whose signature payload is still empty. Only source-account credentials
+are skipped, since the envelope signature covers them; an address-credential
+entry is listed even when its address is the transaction source, so your own
+account can appear in the list. It does not verify signatures, check signer
+weights, or evaluate a custom account's policy, so an empty signature may be
+intentional, and a filled one does not prove the entry will pass.
+
+Two kinds of requirement are invisible to it. Simulation never returns a CAP-71
+`AddressWithDelegates` entry (it returns `ADDRESS_V2`, or legacy `ADDRESS` with
+`useUpgradedAuth: false`), so delegated signing is
+up to you: wrap the simulated entry with `buildWithDelegatesEntry`, then sign
+each delegate node with `authorizeEntry` and its `forAddress` argument. The
+heuristic does not report those delegate nodes, and `signAuthEntries` does not
+select them. And recording-mode simulation does not run a custom account's
+`__check_auth`, so a `require_auth_for_args` made inside it never appears in the
+returned entries at all. Such a requirement needs an auth entry built by hand,
+and enforcement-mode simulation to check it.
+
+`sign` and `signAndSend` run this heuristic before signing the envelope but skip
+contract (`C…`) addresses. Only a contract account can authorize through
+delegates alone. A `G…` account must always sign its own top-level entry, even
+with delegates attached, so an empty `G…` signature fails on the network too.
+For delegates and custom accounts, the risk is the check passing while a
+signature is still missing, not a false rejection. Check
+such entries yourself with `inspectAuthEntry` or
+`needsNonInvokerSigningBy({ includeAlreadySigned: true })`.
+
+For ordinary multi-party signing, serialize the transaction with `toJson`, send
+it to the next account's signer, have them deserialize it with `txFromJson` and
+call `signAuthEntries`, then re-serialize before passing it on. Signers go one
+at a time, since the SDK does not merge separately signed copies.
+
 ### When a wallet signs with a different key
 
 When a wallet signs with a key other than the account being authorized (classic
