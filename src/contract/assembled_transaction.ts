@@ -1076,6 +1076,10 @@ export class AssembledTransaction<T> {
    *
    * Only top-level address credentials are selected; delegate nodes and
    * requirements raised inside a custom account's `__check_auth` are not.
+   * `needsNonInvokerSigningBy` also lists `C…` delegates, which this method
+   * rejects, and keeps a `C…` account listed after its delegates sign, so a
+   * loop until that list is empty may never finish. Sign delegates with
+   * `authorizeEntry` and `forAddress` instead.
    *
    * With the default authorizer, the wallet's returned `signerAddress` names
    * the key the signature is verified against, which may differ from `address`.
