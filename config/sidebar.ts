@@ -1,9 +1,13 @@
 /**
- * The sidebar group check (see scripts/check-sidebar.ts). Reads the rendered Starlight sidebar from one built page: each group is a `<details>` whose `<summary>` holds the label and whose body holds one `<a>` per page.
+ * The sidebar group check (see scripts/check-sidebar.ts). It reads the rendered Starlight sidebar from one built page. Each group is a `<details>` element. Its `<summary>` holds the label, and its body holds one `<a>` per page.
  */
 
-// Mirrors the group labels in astro.config.mjs.
-export const SIDEBAR_GROUPS = ["Guides", "Migration", "Reference"];
+// The sidebar groups in nav order. astro.config.mjs builds its autogenerate entries from this list, so the check and the config cannot drift. `directory` is relative to docs/.
+export const SIDEBAR_GROUPS = [
+  { label: "Guides", directory: "guides" },
+  { label: "Migration", directory: "migration" },
+  { label: "Reference", directory: "reference" },
+];
 
 const DETAILS_RE =
   /<details[^>]*>\s*<summary[^>]*>([\s\S]*?)<\/summary>([\s\S]*?)<\/details>/g;
@@ -35,8 +39,8 @@ export function checkSidebar(
     links.set(label, count);
     if (count === 0) {
       problems.push(
-        `sidebar group "${label}" has no links — check its autogenerate ` +
-          `directory in astro.config.mjs (it must be prefixed .docs-build/)`,
+        `sidebar group "${label}" has no links — check its directory in ` +
+          `config/sidebar.ts and the .docs-build/ prefix in astro.config.mjs`,
       );
     }
   }

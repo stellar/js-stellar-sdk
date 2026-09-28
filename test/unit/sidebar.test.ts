@@ -38,7 +38,7 @@ describe("checkSidebar", () => {
     );
     expect(checkSidebar(html, GROUPS)).toEqual({
       problems: [
-        'sidebar group "Guides" has no links — check its autogenerate directory in astro.config.mjs (it must be prefixed .docs-build/)',
+        'sidebar group "Guides" has no links — check its directory in config/sidebar.ts and the .docs-build/ prefix in astro.config.mjs',
       ],
       links: new Map([
         ["Guides", 0],

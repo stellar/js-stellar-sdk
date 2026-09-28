@@ -5,6 +5,7 @@ import sitemap from "@astrojs/sitemap";
 import GithubSlugger from "github-slugger";
 
 import { SITE_URL, BASE_PATH } from "./config/site.js";
+import { SIDEBAR_GROUPS } from "./config/sidebar.js";
 import { snippetsIntegration } from "./config/snippets.js";
 
 const headingText = (node) =>
@@ -146,25 +147,18 @@ export default defineConfig({
         },
       ],
       sidebar: [
-        {
-          label: "Guides",
-          // The `.docs-build/` prefix is required because Starlight's
-          // autogenerate filter strips a hardcoded `src/content/docs/`
-          // prefix from each route's `filePath` before matching
-          // `directory`. With our content collection rooted at
-          // `./.docs-build/` (the snippet-expanded mirror of docs/, see
-          // config/snippets.ts), that strip is a no-op, so paths still
-          // start with `.docs-build/` at filter time.
-          items: [{ autogenerate: { directory: ".docs-build/guides" } }],
-        },
-        {
-          label: "Migration",
-          items: [{ autogenerate: { directory: ".docs-build/migration" } }],
-        },
-        {
-          label: "Reference",
-          items: [{ autogenerate: { directory: ".docs-build/reference" } }],
-        },
+        // The `.docs-build/` prefix is required because Starlight's
+        // autogenerate filter strips a hardcoded `src/content/docs/`
+        // prefix from each route's `filePath` before matching
+        // `directory`. With our content collection rooted at
+        // `./.docs-build/` (the snippet-expanded mirror of docs/, see
+        // config/snippets.ts), that strip is a no-op, so paths still
+        // start with `.docs-build/` at filter time. scripts/check-sidebar.ts
+        // fails the build if a group renders empty.
+        ...SIDEBAR_GROUPS.map(({ label, directory }) => ({
+          label,
+          items: [{ autogenerate: { directory: `.docs-build/${directory}` } }],
+        })),
         { slug: "agents" },
       ],
     }),
