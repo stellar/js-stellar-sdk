@@ -1110,7 +1110,7 @@ export function checkAuthEntryReadiness(
  * (the delegate/CAP-71 placeholder) or an empty `scvVec` (the placeholder
  * {@link authorizeInvocation} writes); anything else is a signature payload.
  */
-function signaturePresent(signature: ScVal): boolean {
+export function signaturePresent(signature: ScVal): boolean {
   switch (signature.type) {
     case "scvVoid":
       return false;

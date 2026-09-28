@@ -9,7 +9,6 @@ import {
   SorobanDataBuilder,
   TransactionBuilder,
   authorizeEntry as stellarBaseAuthorizeEntry,
-  inspectAuthEntry,
 } from "../base/index.js";
 import type {
   AssembledTransactionOptions,
@@ -36,6 +35,7 @@ import {
   contractErrorPattern,
   implementsToString,
   getAccount,
+  pendingSigners,
 } from "./utils.js";
 import { DEFAULT_TIMEOUT } from "./types.js";
 import { SentTransaction, Watcher } from "./sent_transaction.js";
@@ -827,6 +827,7 @@ export class AssembledTransaction<T> {
   sign = async ({
     force = false,
     signTransaction = this.options.signTransaction,
+    ignoreContractDelegates = false,
   }: {
     /**
      * If `true`, sign and send the transaction even if it is a read call
@@ -836,6 +837,12 @@ export class AssembledTransaction<T> {
      * You must provide this here if you did not provide one before
      */
     signTransaction?: ClientOptions["signTransaction"];
+    /**
+     * Don't reject unsigned CAP-71 delegates under a contract account, for
+     * accounts whose `__check_auth` uses only some of them (re-simulate after
+     * signing to check it). Default: false
+     */
+    ignoreContractDelegates?: boolean;
   } = {}): Promise<void> => {
     if (!this.built) {
       throw new Error("Transaction has not yet been simulated");
@@ -866,10 +873,14 @@ export class AssembledTransaction<T> {
       );
     }
 
-    // filter out contracts, as these are dealt with via cross contract calls
-    const sigsNeeded = this.needsNonInvokerSigningBy().filter(
-      (id) => !id.startsWith("C"),
-    );
+    // A contract's own policy can't be checked here, so only `G…` signers
+    // (top-level or delegate) block signing. This assumes every listed
+    // delegate must sign, which is stricter than a subset-using `__check_auth`.
+    // Only `C…` accounts' delegates are ever listed, so ignoring them leaves
+    // the top level.
+    const sigsNeeded = this.unsignedAddresses({
+      includeDelegates: !ignoreContractDelegates,
+    }).filter((id) => !id.startsWith("C"));
     if (sigsNeeded.length) {
       throw new AssembledTransaction.Errors.NeedsMoreSignatures(
         `Transaction requires signatures from ${sigsNeeded}. ` +
@@ -935,6 +946,7 @@ export class AssembledTransaction<T> {
   signAndSend = async ({
     force = false,
     signTransaction = this.options.signTransaction,
+    ignoreContractDelegates = false,
     watcher,
   }: {
     /**
@@ -945,6 +957,12 @@ export class AssembledTransaction<T> {
      * You must provide this here if you did not provide one before
      */
     signTransaction?: ClientOptions["signTransaction"];
+    /**
+     * Don't reject unsigned CAP-71 delegates under a contract account, for
+     * accounts whose `__check_auth` uses only some of them (re-simulate after
+     * signing to check it). Default: false
+     */
+    ignoreContractDelegates?: boolean;
     /**
      * A {@link Watcher} to notify after the transaction is successfully
      * submitted to the network (`onSubmitted`) and as the transaction is
@@ -965,22 +983,31 @@ export class AssembledTransaction<T> {
           ? (tx, opts) => signer(tx, { ...opts, submit: false })
           : signTransaction;
 
-      await this.sign({ force, signTransaction: wrappedSignTransaction });
+      await this.sign({
+        force,
+        signTransaction: wrappedSignTransaction,
+        ignoreContractDelegates,
+      });
     }
     return this.send(watcher);
   };
 
   /**
-   * Lists the top-level address of each address-credential auth entry that
-   * still lacks a signature payload (or of every such entry, with
-   * `includeAlreadySigned`). Source account credentials are skipped, since the
-   * envelope signature covers them; address credentials are listed even when
-   * their address is the transaction source.
+   * Lists each address in the address-credential auth entries that still
+   * lacks a signature (or every such address, with `includeAlreadySigned`):
+   * the top-level address, plus the CAP-71 delegates under a `C…` account,
+   * signed or not. On p27 a `G…` account's delegates are never listed. Source
+   * account credentials are skipped, since the envelope signature covers them;
+   * address credentials are listed even when their address is the transaction
+   * source.
    *
+   * An unsigned `C…` account stays listed even once its delegates have signed;
+   * filter it out if it authorizes only through delegates. `signAuthEntries`
+   * signs top-level addresses only; sign delegates with `authorizeEntry` and
+   * `forAddress`.
    * This is a signature-presence heuristic, not an authorization check: it
-   * does not see delegate nodes, custom account policy, or requirements raised
-   * inside `__check_auth`. The contract auth guide covers the caveats and the
-   * multi-party signing flow.
+   * does not see custom account policy or requirements raised inside
+   * `__check_auth`. The contract auth guide covers the caveats.
    */
   needsNonInvokerSigningBy = ({
     includeAlreadySigned = false,
@@ -990,7 +1017,16 @@ export class AssembledTransaction<T> {
      * Default: false
      */
     includeAlreadySigned?: boolean;
-  } = {}): string[] => {
+  } = {}): string[] =>
+    this.unsignedAddresses({ includeAlreadySigned, includeDelegates: true });
+
+  private unsignedAddresses({
+    includeAlreadySigned = false,
+    includeDelegates,
+  }: {
+    includeAlreadySigned?: boolean;
+    includeDelegates: boolean;
+  }): string[] {
     if (!this.built) {
       throw new Error("Transaction has not yet been simulated");
     }
@@ -1008,24 +1044,19 @@ export class AssembledTransaction<T> {
     const rawInvokeHostFunctionOp = this.built
       .operations[0] as Operation.InvokeHostFunction;
 
+    // source-account credentials yield nothing: the envelope signature
+    // covers them
     return [
       ...new Set(
-        (rawInvokeHostFunctionOp.auth ?? [])
-          .map((entry) => inspectAuthEntry(entry))
-          .filter(
-            (info) =>
-              // skip source-account credentials (no address payload), which
-              // are covered by the envelope signature on the source account.
-              // Only the top-level credentials (signers[0]) matter here — this
-              // method reports (and signAuthEntries signs) the top-level
-              // address, so unsigned delegate nodes must not keep it listed.
-              info.address !== null &&
-              (includeAlreadySigned || !info.signers[0].signed),
-          )
-          .map((info) => info.address as string),
+        (rawInvokeHostFunctionOp.auth ?? []).flatMap((entry) =>
+          pendingSigners(entry.credentials, {
+            includeSigned: includeAlreadySigned,
+            includeDelegates,
+          }),
+        ),
       ),
     ];
-  };
+  }
 
   /**
    * If {@link AssembledTransaction#needsNonInvokerSigningBy} returns a
@@ -1045,6 +1076,10 @@ export class AssembledTransaction<T> {
    *
    * Only top-level address credentials are selected; delegate nodes and
    * requirements raised inside a custom account's `__check_auth` are not.
+   * `needsNonInvokerSigningBy` also lists `C…` delegates, which this method
+   * rejects, and keeps a `C…` account listed after its delegates sign, so a
+   * loop until that list is empty may never finish. Sign delegates with
+   * `authorizeEntry` and `forAddress` instead.
    *
    * With the default authorizer, the wallet's returned `signerAddress` names
    * the key the signature is verified against, which may differ from `address`.
@@ -1115,13 +1150,25 @@ export class AssembledTransaction<T> {
 
     // Likely if we're using a custom authorizeEntry then we know better than the `needsNonInvokerSigningBy` logic.
     if (authorizeEntry === stellarBaseAuthorizeEntry) {
-      const needsNonInvokerSigningBy = this.needsNonInvokerSigningBy();
-      if (needsNonInvokerSigningBy.length === 0) {
+      // top level only: these are the entries this method can sign
+      const unsigned = this.unsignedAddresses({ includeDelegates: false });
+      if (
+        address !== undefined &&
+        !unsigned.includes(address) &&
+        this.needsNonInvokerSigningBy().includes(address)
+      ) {
+        throw new AssembledTransaction.Errors.NoSignatureNeeded(
+          `"${address}" is an unsigned delegate, and \`signAuthEntries\` ` +
+            "signs top-level addresses only. Sign it with `authorizeEntry` " +
+            "and `forAddress`.",
+        );
+      }
+      if (unsigned.length === 0) {
         throw new AssembledTransaction.Errors.NoUnsignedNonInvokerAuthEntries(
           "No unsigned non-invoker auth entries; maybe you already signed?",
         );
       }
-      if (needsNonInvokerSigningBy.indexOf(address ?? "") === -1) {
+      if (unsigned.indexOf(address ?? "") === -1) {
         throw new AssembledTransaction.Errors.NoSignatureNeeded(noEntriesFor());
       }
       if (!signAuth) {

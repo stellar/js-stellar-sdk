@@ -229,8 +229,8 @@ class AssembledTransaction<T> {
   needsNonInvokerSigningBy(__namedParameters: { includeAlreadySigned?: boolean } = {}): string[];
   restoreFootprint(restorePreamble: { minResourceFee: string; transactionData: SorobanDataBuilder }, account?: Account): Promise<GetTransactionResponse>;
   send(watcher?: Watcher): Promise<SentTransaction<T>>;
-  sign(__namedParameters: { force?: boolean; signTransaction?: SignTransactionLike } = {}): Promise<void>;
-  signAndSend(__namedParameters: { force?: boolean; signTransaction?: SignTransactionLike; watcher?: Watcher } = {}): Promise<SentTransaction<T>>;
+  sign(__namedParameters: { force?: boolean; ignoreContractDelegates?: boolean; signTransaction?: SignTransactionLike } = {}): Promise<void>;
+  signAndSend(__namedParameters: { force?: boolean; ignoreContractDelegates?: boolean; signTransaction?: SignTransactionLike; watcher?: Watcher } = {}): Promise<SentTransaction<T>>;
   signAuthEntries(__namedParameters: { address?: string; authorizeEntry?: (entry: SorobanAuthorizationEntry, signer: Keypair | SigningCallback, validUntilLedgerSeq: number, networkPassphrase: string, forAddress?: string) => Promise<SorobanAuthorizationEntry>; expiration?: number | Promise<number>; signAuthEntry?: SignAuthEntryLike } = {}): Promise<void>;
   simulate(__namedParameters: { restore?: boolean; useUpgradedAuth?: boolean } = {}): Promise<AssembledTransaction<T>>;
   toJson(): string;
@@ -456,7 +456,7 @@ returns `false`, then you need to call `signAndSend` on this transaction.
 readonly isReadCall: boolean;
 ```
 
-**Source:** [src/contract/assembled_transaction.ts:1198](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L1198)
+**Source:** [src/contract/assembled_transaction.ts:1245](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L1245)
 
 ### `assembledTransaction.result`
 
@@ -476,16 +476,21 @@ readonly simulationData: { result: SimulateHostFunctionResult; transactionData: 
 
 ### `assembledTransaction.needsNonInvokerSigningBy(__namedParameters)`
 
-Lists the top-level address of each address-credential auth entry that
-still lacks a signature payload (or of every such entry, with
-`includeAlreadySigned`). Source account credentials are skipped, since the
-envelope signature covers them; address credentials are listed even when
-their address is the transaction source.
+Lists each address in the address-credential auth entries that still
+lacks a signature (or every such address, with `includeAlreadySigned`):
+the top-level address, plus the CAP-71 delegates under a `C…` account,
+signed or not. On p27 a `G…` account's delegates are never listed. Source
+account credentials are skipped, since the envelope signature covers them;
+address credentials are listed even when their address is the transaction
+source.
 
+An unsigned `C…` account stays listed even once its delegates have signed;
+filter it out if it authorizes only through delegates. `signAuthEntries`
+signs top-level addresses only; sign delegates with `authorizeEntry` and
+`forAddress`.
 This is a signature-presence heuristic, not an authorization check: it
-does not see delegate nodes, custom account policy, or requirements raised
-inside `__check_auth`. The contract auth guide covers the caveats and the
-multi-party signing flow.
+does not see custom account policy or requirements raised inside
+`__check_auth`. The contract auth guide covers the caveats.
 
 ```ts
 needsNonInvokerSigningBy(__namedParameters: { includeAlreadySigned?: boolean } = {}): string[];
@@ -495,7 +500,7 @@ needsNonInvokerSigningBy(__namedParameters: { includeAlreadySigned?: boolean } =
 
 - **`__namedParameters`** — `{ includeAlreadySigned?: boolean }` (optional) (default: `{}`)
 
-**Source:** [src/contract/assembled_transaction.ts:985](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L985)
+**Source:** [src/contract/assembled_transaction.ts:1012](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L1012)
 
 ### `assembledTransaction.restoreFootprint(restorePreamble, account)`
 
@@ -530,7 +535,7 @@ Client initialization.
 - - Throws a custom error if the
 restore transaction fails, providing the details of the failure.
 
-**Source:** [src/contract/assembled_transaction.ts:1225](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L1225)
+**Source:** [src/contract/assembled_transaction.ts:1272](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L1272)
 
 ### `assembledTransaction.send(watcher)`
 
@@ -547,7 +552,7 @@ send(watcher?: Watcher): Promise<SentTransaction<T>>;
 
 - **`watcher`** — `Watcher` (optional)
 
-**Source:** [src/contract/assembled_transaction.ts:917](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L917)
+**Source:** [src/contract/assembled_transaction.ts:928](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L928)
 
 ### `assembledTransaction.sign(__namedParameters)`
 
@@ -555,12 +560,12 @@ Sign the transaction with the signTransaction function included previously.
 If you did not previously include one, you need to include one now.
 
 ```ts
-sign(__namedParameters: { force?: boolean; signTransaction?: SignTransactionLike } = {}): Promise<void>;
+sign(__namedParameters: { force?: boolean; ignoreContractDelegates?: boolean; signTransaction?: SignTransactionLike } = {}): Promise<void>;
 ```
 
 **Parameters**
 
-- **`__namedParameters`** — `{ force?: boolean; signTransaction?: SignTransactionLike }` (optional) (default: `{}`)
+- **`__namedParameters`** — `{ force?: boolean; ignoreContractDelegates?: boolean; signTransaction?: SignTransactionLike }` (optional) (default: `{}`)
 
 **Source:** [src/contract/assembled_transaction.ts:827](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L827)
 
@@ -574,14 +579,14 @@ the transaction. You may pass a [`Watcher`](#contractwatcher) to keep
 track of this progress.
 
 ```ts
-signAndSend(__namedParameters: { force?: boolean; signTransaction?: SignTransactionLike; watcher?: Watcher } = {}): Promise<SentTransaction<T>>;
+signAndSend(__namedParameters: { force?: boolean; ignoreContractDelegates?: boolean; signTransaction?: SignTransactionLike; watcher?: Watcher } = {}): Promise<SentTransaction<T>>;
 ```
 
 **Parameters**
 
-- **`__namedParameters`** — `{ force?: boolean; signTransaction?: SignTransactionLike; watcher?: Watcher }` (optional) (default: `{}`)
+- **`__namedParameters`** — `{ force?: boolean; ignoreContractDelegates?: boolean; signTransaction?: SignTransactionLike; watcher?: Watcher }` (optional) (default: `{}`)
 
-**Source:** [src/contract/assembled_transaction.ts:935](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L935)
+**Source:** [src/contract/assembled_transaction.ts:946](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L946)
 
 ### `assembledTransaction.signAuthEntries(__namedParameters)`
 
@@ -602,6 +607,10 @@ currently supported!
 
 Only top-level address credentials are selected; delegate nodes and
 requirements raised inside a custom account's `__check_auth` are not.
+`needsNonInvokerSigningBy` also lists `C…` delegates, which this method
+rejects, and keeps a `C…` account listed after its delegates sign, so a
+loop until that list is empty may never finish. Sign delegates with
+`authorizeEntry` and `forAddress` instead.
 
 With the default authorizer, the wallet's returned `signerAddress` names
 the key the signature is verified against, which may differ from `address`.
@@ -614,7 +623,7 @@ signAuthEntries(__namedParameters: { address?: string; authorizeEntry?: (entry: 
 
 - **`__namedParameters`** — `{ address?: string; authorizeEntry?: (entry: SorobanAuthorizationEntry, signer: Keypair | SigningCallback, validUntilLedgerSeq: number, networkPassphrase: string, forAddress?: string) => Promise<SorobanAuthorizationEntry>; expiration?: number | Promise<number>; signAuthEntry?: SignAuthEntryLike }` (optional) (default: `{}`)
 
-**Source:** [src/contract/assembled_transaction.ts:1052](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L1052)
+**Source:** [src/contract/assembled_transaction.ts:1087](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L1087)
 
 ### `assembledTransaction.simulate(__namedParameters)`
 
