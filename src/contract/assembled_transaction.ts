@@ -9,7 +9,6 @@ import {
   SorobanDataBuilder,
   TransactionBuilder,
   authorizeEntry as stellarBaseAuthorizeEntry,
-  inspectAuthEntry,
 } from "../base/index.js";
 import type {
   AssembledTransactionOptions,
@@ -877,8 +876,8 @@ export class AssembledTransaction<T> {
     // A contract's own policy can't be checked here, so only `G…` signers
     // (top-level or delegate) block signing. This assumes every listed
     // delegate must sign, which is stricter than a subset-using `__check_auth`.
-    // Only contract accounts' delegates are listed, so skipping them is the
-    // same as listing top-level addresses only.
+    // Only `C…` accounts' delegates are ever listed, so ignoring them leaves
+    // the top level.
     const sigsNeeded = this.unsignedAddresses({
       includeDelegates: !ignoreContractDelegates,
     }).filter((id) => !id.startsWith("C"));
@@ -1045,20 +1044,16 @@ export class AssembledTransaction<T> {
     const rawInvokeHostFunctionOp = this.built
       .operations[0] as Operation.InvokeHostFunction;
 
+    // source-account credentials yield nothing: the envelope signature
+    // covers them
     return [
       ...new Set(
-        (rawInvokeHostFunctionOp.auth ?? []).flatMap((entry) => {
-          const info = inspectAuthEntry(entry);
-          // source-account credentials: covered by the envelope signature
-          if (info.address === null) return [];
-          if (!includeDelegates) {
-            // signers[0] is the top-level node
-            return includeAlreadySigned || !info.signers[0].signed
-              ? [info.address]
-              : [];
-          }
-          return pendingSigners(entry.credentials, includeAlreadySigned);
-        }),
+        (rawInvokeHostFunctionOp.auth ?? []).flatMap((entry) =>
+          pendingSigners(entry.credentials, {
+            includeSigned: includeAlreadySigned,
+            includeDelegates,
+          }),
+        ),
       ),
     ];
   }
@@ -1152,15 +1147,13 @@ export class AssembledTransaction<T> {
     // Likely if we're using a custom authorizeEntry then we know better than the `needsNonInvokerSigningBy` logic.
     if (authorizeEntry === stellarBaseAuthorizeEntry) {
       // top level only: these are the entries this method can sign
-      const needsNonInvokerSigningBy = this.unsignedAddresses({
-        includeDelegates: false,
-      });
-      if (needsNonInvokerSigningBy.length === 0) {
+      const unsigned = this.unsignedAddresses({ includeDelegates: false });
+      if (unsigned.length === 0) {
         throw new AssembledTransaction.Errors.NoUnsignedNonInvokerAuthEntries(
           "No unsigned non-invoker auth entries; maybe you already signed?",
         );
       }
-      if (needsNonInvokerSigningBy.indexOf(address ?? "") === -1) {
+      if (unsigned.indexOf(address ?? "") === -1) {
         throw new AssembledTransaction.Errors.NoSignatureNeeded(noEntriesFor());
       }
       if (!signAuth) {

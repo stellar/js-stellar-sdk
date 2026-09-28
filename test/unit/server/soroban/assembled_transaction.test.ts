@@ -866,21 +866,7 @@ describe("AssembledTransaction auth entry credential types (CAP-71)", () => {
         expect(send).toHaveBeenCalledOnce();
       });
 
-      it("still rejects an unsigned G account with ignoreContractDelegates", async () => {
-        const assembled = signing([
-          delegatesEntry(kpB.publicKey(), [
-            { address: kpC.publicKey(), signed: true },
-          ]),
-        ]);
-
-        await expect(
-          assembled.sign({ ignoreContractDelegates: true }),
-        ).rejects.toThrow(
-          contract.AssembledTransaction.Errors.NeedsMoreSignatures,
-        );
-      });
-
-      it("rejects a G account whose top level is unsigned, even with signed delegates", async () => {
+      it("rejects an unsigned G account with signed delegates, even with ignoreContractDelegates", async () => {
         const assembled = signing([
           delegatesEntry(kpB.publicKey(), [
             { address: kpC.publicKey(), signed: true },
@@ -888,6 +874,11 @@ describe("AssembledTransaction auth entry credential types (CAP-71)", () => {
         ]);
 
         await expect(assembled.sign()).rejects.toThrow(
+          contract.AssembledTransaction.Errors.NeedsMoreSignatures,
+        );
+        await expect(
+          assembled.sign({ ignoreContractDelegates: true }),
+        ).rejects.toThrow(
           contract.AssembledTransaction.Errors.NeedsMoreSignatures,
         );
       });

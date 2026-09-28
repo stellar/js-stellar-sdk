@@ -1,5 +1,5 @@
 import { Account, Address } from "../base/index.js";
-import { getAddressCredentials } from "../base/auth.js";
+import { getAddressCredentials, signaturePresent } from "../base/auth.js";
 import { Server } from "../rpc/index.js";
 import { NULL_ACCOUNT, type AssembledTransactionOptions } from "./types.js";
 import {
@@ -196,12 +196,6 @@ export async function getAccount<T>(
     : new Account(NULL_ACCOUNT, "0");
 }
 
-// Same rule as `inspectAuthEntry`: `scvVoid` and an empty `scvVec` are unsigned.
-const signaturePresent = (signature: ScVal): boolean =>
-  signature.type === "scvVec"
-    ? (signature.value ?? []).length > 0
-    : signature.type !== "scvVoid";
-
 const pendingAt = (
   address: ScAddress,
   signature: ScVal,
@@ -230,17 +224,19 @@ const pendingAt = (
  * `includeSigned` every address that may sign. An empty `C…` node is listed
  * even when its delegates have signed, and a `C…` node's delegates are checked
  * even when it has signed, since only its `__check_auth` knows what it needs.
- * On p27 a `G…` node's delegates are not listed. Source-account credentials
- * return `[]`.
+ * On p27 a `G…` node's delegates are not listed. Without `includeDelegates`
+ * only the top-level address is checked. Source-account credentials return
+ * `[]`.
  * @hidden
  */
 export function pendingSigners(
   credentials: SorobanCredentials,
-  includeSigned = false,
+  { includeSigned = false, includeDelegates = true } = {},
 ): string[] {
   const addrAuth = getAddressCredentials(credentials);
   if (addrAuth === null) return [];
   const delegates =
+    includeDelegates &&
     credentials.type === "sorobanCredentialsAddressWithDelegates"
       ? credentials.addressWithDelegates.delegates
       : [];
