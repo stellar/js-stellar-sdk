@@ -208,13 +208,17 @@ const pendingAt = (
   delegates: SorobanDelegateSignature[],
   includeSigned: boolean,
 ): string[] => {
-  if (!includeSigned && signaturePresent(signature)) return [];
-  const self = Address.fromScAddress(address).toString();
+  const self =
+    includeSigned || !signaturePresent(signature)
+      ? [Address.fromScAddress(address).toString()]
+      : [];
   // On p27 (CAP-71 only) the built-in G… check ignores delegates, so a G…
   // node's delegates never count. CAP-72 changes this; revisit when it ships.
-  if (address.type !== "scAddressTypeContract") return [self];
+  if (address.type !== "scAddressTypeContract") return self;
+  // A signed C… node's `__check_auth` may still call `delegate_account_auth`,
+  // so its delegates are walked either way.
   return [
-    self,
+    ...self,
     ...delegates.flatMap((d) =>
       pendingAt(d.address, d.signature, d.nestedDelegates, includeSigned),
     ),
@@ -224,10 +228,10 @@ const pendingAt = (
 /**
  * Addresses in `credentials` whose signature is still empty, or with
  * `includeSigned` every address that may sign. An empty `C…` node is listed
- * even when its delegates have signed, since only its `__check_auth` knows
- * whether it needs its own signature. On p27 a `G…` node's delegates are not
- * listed, and a signed node's delegates are not checked unless
- * `includeSigned` is set. Source-account credentials return `[]`.
+ * even when its delegates have signed, and a `C…` node's delegates are checked
+ * even when it has signed, since only its `__check_auth` knows what it needs.
+ * On p27 a `G…` node's delegates are not listed. Source-account credentials
+ * return `[]`.
  * @hidden
  */
 export function pendingSigners(

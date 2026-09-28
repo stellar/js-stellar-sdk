@@ -155,9 +155,9 @@ delegates are ignored there. A contract account's `__check_auth` decides what
 it needs: some accept their delegates alone, others need their own signature
 as well, and the signatures can't tell the two apart. So an unsigned `C…`
 account stays listed even after its delegates have signed; if yours
-authorizes only through delegates, filter its address out. A signed node's
-delegates are not checked. Pass `includeDelegates: true` to also list the
-delegates of an unsigned `C…` account that still have to sign. Pass
+authorizes only through delegates, filter its address out. Pass
+`includeDelegates: true` to also list the delegates of a `C…` account that
+still have to sign, even when the account itself has signed. Pass
 `ignoreContractDelegates: true` to skip contract accounts' delegates entries
 entirely and leave their policy to you.
 

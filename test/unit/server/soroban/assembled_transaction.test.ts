@@ -725,16 +725,27 @@ describe("AssembledTransaction auth entry credential types (CAP-71)", () => {
       ).toEqual([accountC]);
     });
 
-    it("does not descend below a signed node", () => {
-      // e.g. a hybrid account that signed as its owner, with a delegate
-      // placeholder left unsigned
+    it("reports an unsigned delegate even when the contract account has signed", () => {
+      // its `__check_auth` may check its own signature and still call
+      // `delegate_account_auth`
       const assembled = assembledWith([
-        delegatesEntry(accountC, [{ address: kpB.publicKey() }], true),
+        delegatesEntry(
+          accountC,
+          [
+            {
+              address: innerC,
+              signed: true,
+              nested: [{ address: kpB.publicKey() }],
+            },
+          ],
+          true,
+        ),
       ]);
 
+      expect(assembled.needsNonInvokerSigningBy()).toEqual([]);
       expect(
         assembled.needsNonInvokerSigningBy({ includeDelegates: true }),
-      ).toEqual([]);
+      ).toEqual([kpB.publicKey()]);
     });
 
     it("lists a contract account and its delegates with includeAlreadySigned and includeDelegates", () => {
@@ -842,6 +853,21 @@ describe("AssembledTransaction auth entry credential types (CAP-71)", () => {
               "See `needsNonInvokerSigningBy` for details.",
           ),
         );
+      });
+
+      it("rejects an unsigned G delegate under a signed contract account", async () => {
+        const assembled = signing([
+          delegatesEntry(accountC, [{ address: kpC.publicKey() }], true),
+        ]);
+
+        await expect(assembled.sign()).rejects.toThrow(
+          new contract.AssembledTransaction.Errors.NeedsMoreSignatures(
+            `Transaction requires signatures from ${kpC.publicKey()}. ` +
+              "See `needsNonInvokerSigningBy` for details.",
+          ),
+        );
+        await assembled.sign({ ignoreContractDelegates: true });
+        expect(assembled.signed).toBeDefined();
       });
 
       it("signs past an unsigned delegate of a contract account with ignoreContractDelegates", async () => {

@@ -1018,8 +1018,8 @@ export class AssembledTransaction<T> {
     includeAlreadySigned?: boolean;
     /**
      * Also list the delegate addresses that still have to sign (or all of
-     * them, with `includeAlreadySigned`) under an unsigned `C…` account. On
-     * p27 a `G…` account's delegates are never listed. `signAuthEntries` signs top-level addresses
+     * them, with `includeAlreadySigned`) under a `C…` account, signed or not.
+     * On p27 a `G…` account's delegates are never listed. `signAuthEntries` signs top-level addresses
      * only; sign delegates with `authorizeEntry` and `forAddress`.
      * Default: false
      */
@@ -1061,12 +1061,13 @@ export class AssembledTransaction<T> {
           ) {
             return [];
           }
-          const signers = pendingSigners(
-            entry.credentials,
-            includeAlreadySigned,
-          );
-          if (signers.length === 0) return [];
-          return includeDelegates ? signers : [info.address];
+          if (!includeDelegates) {
+            // signers[0] is the top-level node
+            return includeAlreadySigned || !info.signers[0].signed
+              ? [info.address]
+              : [];
+          }
+          return pendingSigners(entry.credentials, includeAlreadySigned);
         }),
       ),
     ];
