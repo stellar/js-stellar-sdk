@@ -109,11 +109,10 @@ the method options and simulation will restore it before the call; see
 
 ## Put it together
 
-The whole flow as one script. Declare `contractId` as your deployed increment
-contract's ID (see Prerequisites) before you run it. The script funds a
-throwaway source account with friendbot so it runs end to end. In your app,
-replace the `Keypair.random()` and `fundAddress` lines with your existing funded
-keypair.
+The whole flow as one script. Set `contractId` to your deployed increment
+contract's ID (see Prerequisites). The script funds a throwaway source account
+with friendbot so it runs end to end. In your app, replace the
+`Keypair.random()` and `fundAddress` lines with your existing funded keypair.
 
 <!-- snippet: invoke-a-contract.ts#full -->
 

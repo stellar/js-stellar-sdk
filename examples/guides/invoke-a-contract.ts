@@ -34,8 +34,11 @@ import {
 // #region connect
 const rpcUrl = "https://soroban-testnet.stellar.org";
 const networkPassphrase = Networks.TESTNET;
-
+// #endregion connect
+let contractId = "C..."; // your deployed increment contract (see Prerequisites)
 // #endregion full
+
+// #region connect
 // Describe just the methods you call. `Client.from<T>()` uses this to type the
 // returned client, so the calls below are checked and autocompleted — no code
 // generation needed.
@@ -102,7 +105,7 @@ const { result: deployed } = await (
     signTransaction,
   })
 ).signAndSend();
-const { contractId } = deployed.options;
+contractId = deployed.options.contractId;
 
 // The native SAC can already exist (testnet), and creating it twice fails.
 const tokenId = Asset.native().contractId(networkPassphrase);
