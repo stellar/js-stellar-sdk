@@ -773,7 +773,7 @@ describe("AssembledTransaction auth entry credential types (CAP-71)", () => {
       expect(assembled.needsNonInvokerSigningBy()).toEqual([]);
     });
 
-    it("keeps signAuthEntries' pre-flight to top-level addresses", async () => {
+    it("points an unsigned delegate from signAuthEntries to authorizeEntry", async () => {
       // a delegate is listed, but `signAuthEntries` can't sign it
       const assembled = assembledWith(
         [delegatesEntry(accountC, [{ address: kpC.publicKey() }], true)],
@@ -788,8 +788,29 @@ describe("AssembledTransaction auth entry credential types (CAP-71)", () => {
             .signAuthEntry,
         }),
       ).rejects.toThrow(
-        contract.AssembledTransaction.Errors.NoUnsignedNonInvokerAuthEntries,
+        new contract.AssembledTransaction.Errors.NoSignatureNeeded(
+          `"${kpC.publicKey()}" is an unsigned delegate, and \`signAuthEntries\` ` +
+            "signs top-level addresses only. Sign it with `authorizeEntry` " +
+            "and `forAddress`.",
+        ),
       );
+    });
+
+    it("signs a top-level entry when the address is also a delegate elsewhere", async () => {
+      const assembled = assembledWith(
+        [
+          delegatesEntry(accountC, [{ address: kpC.publicKey() }], true),
+          authEntry(addressV2Cred(kpC.publicKey())),
+        ],
+        { publicKey: kpC.publicKey() },
+      );
+
+      await assembled.signAuthEntries({
+        expiration: 1000,
+        signAuthEntry: contract.basicNodeSigner(kpC, networkPassphrase)
+          .signAuthEntry,
+      });
+      expect(assembled.needsNonInvokerSigningBy()).toEqual([kpC.publicKey()]);
     });
 
     describe("sign()", () => {

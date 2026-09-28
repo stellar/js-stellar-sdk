@@ -156,9 +156,9 @@ delegates are ignored there. A contract account's `__check_auth` decides what
 it needs: some accept their delegates alone, others need their own signature
 as well, and the signatures can't tell the two apart. So an unsigned `C…`
 account stays listed even after its delegates have signed; if yours
-authorizes only through delegates, filter its address out. The delegates of a
-`C…` account that still have to sign are listed too, even when the account
-itself has signed. Sign them with `authorizeEntry` and `forAddress`, since
+authorizes only through delegates, filter its address out. The unsigned
+delegates of a `C…` account are listed too, even when the account itself has
+signed. Sign them with `authorizeEntry` and `forAddress`, since
 `signAuthEntries` signs top-level addresses only.
 
 One kind of requirement stays invisible to it. Recording-mode simulation does

@@ -1148,6 +1148,17 @@ export class AssembledTransaction<T> {
     if (authorizeEntry === stellarBaseAuthorizeEntry) {
       // top level only: these are the entries this method can sign
       const unsigned = this.unsignedAddresses({ includeDelegates: false });
+      if (
+        address !== undefined &&
+        !unsigned.includes(address) &&
+        this.needsNonInvokerSigningBy().includes(address)
+      ) {
+        throw new AssembledTransaction.Errors.NoSignatureNeeded(
+          `"${address}" is an unsigned delegate, and \`signAuthEntries\` ` +
+            "signs top-level addresses only. Sign it with `authorizeEntry` " +
+            "and `forAddress`.",
+        );
+      }
       if (unsigned.length === 0) {
         throw new AssembledTransaction.Errors.NoUnsignedNonInvokerAuthEntries(
           "No unsigned non-invoker auth entries; maybe you already signed?",
