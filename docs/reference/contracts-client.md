@@ -456,7 +456,7 @@ returns `false`, then you need to call `signAndSend` on this transaction.
 readonly isReadCall: boolean;
 ```
 
-**Source:** [src/contract/assembled_transaction.ts:1241](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L1241)
+**Source:** [src/contract/assembled_transaction.ts:1245](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L1245)
 
 ### `assembledTransaction.result`
 
@@ -535,7 +535,7 @@ Client initialization.
 - - Throws a custom error if the
 restore transaction fails, providing the details of the failure.
 
-**Source:** [src/contract/assembled_transaction.ts:1268](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L1268)
+**Source:** [src/contract/assembled_transaction.ts:1272](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L1272)
 
 ### `assembledTransaction.send(watcher)`
 
@@ -607,6 +607,10 @@ currently supported!
 
 Only top-level address credentials are selected; delegate nodes and
 requirements raised inside a custom account's `__check_auth` are not.
+`needsNonInvokerSigningBy` also lists `C…` delegates, which this method
+rejects, and keeps a `C…` account listed after its delegates sign, so a
+loop until that list is empty may never finish. Sign delegates with
+`authorizeEntry` and `forAddress` instead.
 
 With the default authorizer, the wallet's returned `signerAddress` names
 the key the signature is verified against, which may differ from `address`.
@@ -619,7 +623,7 @@ signAuthEntries(__namedParameters: { address?: string; authorizeEntry?: (entry: 
 
 - **`__namedParameters`** — `{ address?: string; authorizeEntry?: (entry: SorobanAuthorizationEntry, signer: Keypair | SigningCallback, validUntilLedgerSeq: number, networkPassphrase: string, forAddress?: string) => Promise<SorobanAuthorizationEntry>; expiration?: number | Promise<number>; signAuthEntry?: SignAuthEntryLike }` (optional) (default: `{}`)
 
-**Source:** [src/contract/assembled_transaction.ts:1083](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L1083)
+**Source:** [src/contract/assembled_transaction.ts:1087](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L1087)
 
 ### `assembledTransaction.simulate(__namedParameters)`
 
