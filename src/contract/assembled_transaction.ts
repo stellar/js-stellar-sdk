@@ -879,7 +879,7 @@ export class AssembledTransaction<T> {
     // delegate must sign, which is stricter than a subset-using `__check_auth`.
     // Only contract accounts' delegates are listed, so skipping them is the
     // same as listing top-level addresses only.
-    const sigsNeeded = this.needsNonInvokerSigningBy({
+    const sigsNeeded = this.unsignedAddresses({
       includeDelegates: !ignoreContractDelegates,
     }).filter((id) => !id.startsWith("C"));
     if (sigsNeeded.length) {
@@ -994,37 +994,40 @@ export class AssembledTransaction<T> {
   };
 
   /**
-   * Lists the top-level address of each address-credential auth entry that
-   * still lacks a signature (or of every such entry, with
-   * `includeAlreadySigned`). Source account credentials are skipped, since the
-   * envelope signature covers them; address credentials are listed even when
-   * their address is the transaction source.
+   * Lists each address in the address-credential auth entries that still
+   * lacks a signature (or every such address, with `includeAlreadySigned`):
+   * the top-level address, plus the CAP-71 delegates under a `C…` account,
+   * signed or not. On p27 a `G…` account's delegates are never listed. Source
+   * account credentials are skipped, since the envelope signature covers them;
+   * address credentials are listed even when their address is the transaction
+   * source.
    *
-   * A CAP-71 delegates entry stays listed while its top-level signature is
-   * empty, even once its delegates have signed; filter out a `C…` account that
-   * authorizes only through delegates.
+   * An unsigned `C…` account stays listed even once its delegates have signed;
+   * filter it out if it authorizes only through delegates. `signAuthEntries`
+   * signs top-level addresses only; sign delegates with `authorizeEntry` and
+   * `forAddress`.
    * This is a signature-presence heuristic, not an authorization check: it
    * does not see custom account policy or requirements raised inside
    * `__check_auth`. The contract auth guide covers the caveats.
    */
   needsNonInvokerSigningBy = ({
     includeAlreadySigned = false,
-    includeDelegates = false,
   }: {
     /**
      * Whether or not to include auth entries that have already been signed.
      * Default: false
      */
     includeAlreadySigned?: boolean;
-    /**
-     * Also list the delegate addresses that still have to sign (or all of
-     * them, with `includeAlreadySigned`) under a `C…` account, signed or not.
-     * On p27 a `G…` account's delegates are never listed. `signAuthEntries` signs top-level addresses
-     * only; sign delegates with `authorizeEntry` and `forAddress`.
-     * Default: false
-     */
-    includeDelegates?: boolean;
-  } = {}): string[] => {
+  } = {}): string[] =>
+    this.unsignedAddresses({ includeAlreadySigned, includeDelegates: true });
+
+  private unsignedAddresses({
+    includeAlreadySigned = false,
+    includeDelegates,
+  }: {
+    includeAlreadySigned?: boolean;
+    includeDelegates: boolean;
+  }): string[] {
     if (!this.built) {
       throw new Error("Transaction has not yet been simulated");
     }
@@ -1058,7 +1061,7 @@ export class AssembledTransaction<T> {
         }),
       ),
     ];
-  };
+  }
 
   /**
    * If {@link AssembledTransaction#needsNonInvokerSigningBy} returns a
@@ -1148,7 +1151,10 @@ export class AssembledTransaction<T> {
 
     // Likely if we're using a custom authorizeEntry then we know better than the `needsNonInvokerSigningBy` logic.
     if (authorizeEntry === stellarBaseAuthorizeEntry) {
-      const needsNonInvokerSigningBy = this.needsNonInvokerSigningBy();
+      // top level only: these are the entries this method can sign
+      const needsNonInvokerSigningBy = this.unsignedAddresses({
+        includeDelegates: false,
+      });
       if (needsNonInvokerSigningBy.length === 0) {
         throw new AssembledTransaction.Errors.NoUnsignedNonInvokerAuthEntries(
           "No unsigned non-invoker auth entries; maybe you already signed?",
