@@ -8,9 +8,15 @@
  *  - a marker is followed by an inline fenced code block (code for tested
  *    examples must live only in examples/guides/, injected at build
  *    time — an inline copy would silently go stale)
+ *  - a code block in docs/guides/ is neither a marker nor opted out with
+ *    the word `untested` in its fence line
  *
- * All line classification comes from scanMarkdown in config/snippets.ts, so
- * this script and the expander cannot disagree about fences or markers.
+ * It also prints a tested/untested count for each guide, so a partly
+ * converted guide is visible.
+ *
+ * The rules live in checkDoc, and all line classification comes from
+ * scanMarkdown, both in config/snippets.ts, so this script and the expander
+ * cannot disagree about fences or markers.
  *
  * Run via `pnpm docs:snippets:check`, which also typechecks the snippet
  * files themselves. This is the hermetic tier: it proves the markers and
@@ -20,56 +26,33 @@
  */
 
 import { readFileSync } from "node:fs";
-import { dirname, join, relative } from "node:path";
+import { dirname, join, relative, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import {
-  nearMissError,
-  scanMarkdown,
-  snippetRegion,
-  walkMarkdown,
-} from "../config/snippets.js";
+import { checkDoc, walkMarkdown } from "../config/snippets.js";
 
 const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const DOCS_DIR = join(REPO_ROOT, "docs");
+// Only guides must be fully tested: reference/ is generated, migration/ shows
+// old APIs on purpose, and index.md is synced from the README.
+const GUIDES_DIR = join(DOCS_DIR, "guides");
 
 const problems: string[] = [];
+const counts: string[] = [];
 let markers = 0;
 
-for (const path of walkMarkdown(DOCS_DIR)) {
+for (const path of walkMarkdown(DOCS_DIR).sort()) {
   const doc = relative(DOCS_DIR, path);
-  const scanned = scanMarkdown(readFileSync(path, "utf8"));
-
-  for (let i = 0; i < scanned.length; i += 1) {
-    const scan = scanned[i];
-    const { line } = scan;
-
-    if (scan.kind === "near-miss") {
-      problems.push(`${doc}: ${nearMissError(i + 1, line).message}`);
-      continue;
-    }
-    if (scan.kind !== "marker") continue;
-    markers += 1;
-
-    // The reference must resolve to a real snippet file and region.
-    try {
-      snippetRegion(scan.file, scan.region);
-    } catch (e) {
-      problems.push(`${doc}:${i + 1}: ${(e as Error).message}`);
-    }
-
-    // No inline code copy after the marker.
-    let j = i + 1;
-    while (j < scanned.length && scanned[j].line.trim() === "") j += 1;
-    if (j < scanned.length && scanned[j].kind === "fence-open") {
-      problems.push(
-        `${doc}:${j + 1}: inline code block after snippet marker ` +
-          `"${line.trim()}" — remove it; the snippet is injected at ` +
-          `build time`,
-      );
-    }
+  const isGuide = path.startsWith(GUIDES_DIR + sep);
+  const result = checkDoc(doc, readFileSync(path, "utf8"), isGuide);
+  problems.push(...result.problems);
+  markers += result.tested;
+  if (isGuide) {
+    counts.push(`${doc}: ${result.tested} tested, ${result.untested} untested`);
   }
 }
+
+console.log(counts.join("\n"));
 
 // Set exitCode rather than calling process.exit: stderr to a pipe is async
 // on POSIX, and exiting mid-write truncates a long problem list in CI.
