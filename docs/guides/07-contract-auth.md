@@ -157,9 +157,7 @@ as well, and the signatures can't tell the two apart. So an unsigned `C…`
 account stays listed even after its delegates have signed; if yours
 authorizes only through delegates, filter its address out. Pass
 `includeDelegates: true` to also list the delegates of a `C…` account that
-still have to sign, even when the account itself has signed. Pass
-`ignoreContractDelegates: true` to skip contract accounts' delegates entries
-entirely and leave their policy to you.
+still have to sign, even when the account itself has signed.
 
 One kind of requirement stays invisible to it. Recording-mode simulation does
 not run a custom account's `__check_auth`, so a `require_auth_for_args` made
@@ -172,10 +170,11 @@ contract (`C…`) addresses, since a contract's own policy can't be checked
 locally. The delegate check assumes every listed delegate must sign. If a
 custom account's `__check_auth` uses only some of its delegates (a 2-of-3
 multisig, say), `sign` rejects the unused ones even though the network would
-accept the transaction; pass `ignoreContractDelegates: true` for such accounts.
-To check a custom account's entries, call `simulate()` again after signing:
-enforcement-mode simulation runs `__check_auth` and fails if a signature is
-still missing.
+accept the transaction. Pass `ignoreContractDelegates: true` to `sign` or
+`signAndSend` to skip that check for contract accounts' delegates; `G…`
+addresses are still checked. To check a custom account's entries, call
+`simulate()` again after signing: enforcement-mode simulation runs
+`__check_auth` and fails if a signature is still missing.
 
 For ordinary multi-party signing, serialize the transaction with `toJson`, send
 it to the next account's signer, have them deserialize it with `txFromJson` and

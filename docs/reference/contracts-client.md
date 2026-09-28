@@ -226,7 +226,7 @@ class AssembledTransaction<T> {
   readonly isReadCall: boolean;
   readonly result: T;
   readonly simulationData: { result: SimulateHostFunctionResult; transactionData: SorobanTransactionData };
-  needsNonInvokerSigningBy(__namedParameters: { ignoreContractDelegates?: boolean; includeAlreadySigned?: boolean; includeDelegates?: boolean } = {}): string[];
+  needsNonInvokerSigningBy(__namedParameters: { includeAlreadySigned?: boolean; includeDelegates?: boolean } = {}): string[];
   restoreFootprint(restorePreamble: { minResourceFee: string; transactionData: SorobanDataBuilder }, account?: Account): Promise<GetTransactionResponse>;
   send(watcher?: Watcher): Promise<SentTransaction<T>>;
   sign(__namedParameters: { force?: boolean; ignoreContractDelegates?: boolean; signTransaction?: SignTransactionLike } = {}): Promise<void>;
@@ -456,7 +456,7 @@ returns `false`, then you need to call `signAndSend` on this transaction.
 readonly isReadCall: boolean;
 ```
 
-**Source:** [src/contract/assembled_transaction.ts:1244](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L1244)
+**Source:** [src/contract/assembled_transaction.ts:1231](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L1231)
 
 ### `assembledTransaction.result`
 
@@ -484,20 +484,20 @@ their address is the transaction source.
 
 A CAP-71 delegates entry stays listed while its top-level signature is
 empty, even once its delegates have signed; filter out a `C…` account that
-authorizes only through delegates (or pass `ignoreContractDelegates`).
+authorizes only through delegates.
 This is a signature-presence heuristic, not an authorization check: it
 does not see custom account policy or requirements raised inside
 `__check_auth`. The contract auth guide covers the caveats.
 
 ```ts
-needsNonInvokerSigningBy(__namedParameters: { ignoreContractDelegates?: boolean; includeAlreadySigned?: boolean; includeDelegates?: boolean } = {}): string[];
+needsNonInvokerSigningBy(__namedParameters: { includeAlreadySigned?: boolean; includeDelegates?: boolean } = {}): string[];
 ```
 
 **Parameters**
 
-- **`__namedParameters`** — `{ ignoreContractDelegates?: boolean; includeAlreadySigned?: boolean; includeDelegates?: boolean }` (optional) (default: `{}`)
+- **`__namedParameters`** — `{ includeAlreadySigned?: boolean; includeDelegates?: boolean }` (optional) (default: `{}`)
 
-**Source:** [src/contract/assembled_transaction.ts:1009](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L1009)
+**Source:** [src/contract/assembled_transaction.ts:1010](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L1010)
 
 ### `assembledTransaction.restoreFootprint(restorePreamble, account)`
 
@@ -532,7 +532,7 @@ Client initialization.
 - - Throws a custom error if the
 restore transaction fails, providing the details of the failure.
 
-**Source:** [src/contract/assembled_transaction.ts:1271](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L1271)
+**Source:** [src/contract/assembled_transaction.ts:1258](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L1258)
 
 ### `assembledTransaction.send(watcher)`
 
@@ -549,7 +549,7 @@ send(watcher?: Watcher): Promise<SentTransaction<T>>;
 
 - **`watcher`** — `Watcher` (optional)
 
-**Source:** [src/contract/assembled_transaction.ts:928](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L928)
+**Source:** [src/contract/assembled_transaction.ts:929](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L929)
 
 ### `assembledTransaction.sign(__namedParameters)`
 
@@ -583,7 +583,7 @@ signAndSend(__namedParameters: { force?: boolean; ignoreContractDelegates?: bool
 
 - **`__namedParameters`** — `{ force?: boolean; ignoreContractDelegates?: boolean; signTransaction?: SignTransactionLike; watcher?: Watcher }` (optional) (default: `{}`)
 
-**Source:** [src/contract/assembled_transaction.ts:946](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L946)
+**Source:** [src/contract/assembled_transaction.ts:947](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L947)
 
 ### `assembledTransaction.signAuthEntries(__namedParameters)`
 
@@ -616,7 +616,7 @@ signAuthEntries(__namedParameters: { address?: string; authorizeEntry?: (entry: 
 
 - **`__namedParameters`** — `{ address?: string; authorizeEntry?: (entry: SorobanAuthorizationEntry, signer: Keypair | SigningCallback, validUntilLedgerSeq: number, networkPassphrase: string, forAddress?: string) => Promise<SorobanAuthorizationEntry>; expiration?: number | Promise<number>; signAuthEntry?: SignAuthEntryLike }` (optional) (default: `{}`)
 
-**Source:** [src/contract/assembled_transaction.ts:1098](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L1098)
+**Source:** [src/contract/assembled_transaction.ts:1085](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/assembled_transaction.ts#L1085)
 
 ### `assembledTransaction.simulate(__namedParameters)`
 

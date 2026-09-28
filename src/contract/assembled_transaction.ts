@@ -839,9 +839,9 @@ export class AssembledTransaction<T> {
      */
     signTransaction?: ClientOptions["signTransaction"];
     /**
-     * Skip CAP-71 delegates entries whose top-level address is a contract,
-     * leaving that account's policy to the caller (re-simulate after signing
-     * to check it). Default: false
+     * Don't reject unsigned CAP-71 delegates under a contract account, for
+     * accounts whose `__check_auth` uses only some of them (re-simulate after
+     * signing to check it). Default: false
      */
     ignoreContractDelegates?: boolean;
   } = {}): Promise<void> => {
@@ -877,9 +877,10 @@ export class AssembledTransaction<T> {
     // A contract's own policy can't be checked here, so only `G…` signers
     // (top-level or delegate) block signing. This assumes every listed
     // delegate must sign, which is stricter than a subset-using `__check_auth`.
+    // Only contract accounts' delegates are listed, so skipping them is the
+    // same as listing top-level addresses only.
     const sigsNeeded = this.needsNonInvokerSigningBy({
-      includeDelegates: true,
-      ignoreContractDelegates,
+      includeDelegates: !ignoreContractDelegates,
     }).filter((id) => !id.startsWith("C"));
     if (sigsNeeded.length) {
       throw new AssembledTransaction.Errors.NeedsMoreSignatures(
@@ -958,9 +959,9 @@ export class AssembledTransaction<T> {
      */
     signTransaction?: ClientOptions["signTransaction"];
     /**
-     * Skip CAP-71 delegates entries whose top-level address is a contract,
-     * leaving that account's policy to the caller (re-simulate after signing
-     * to check it). Default: false
+     * Don't reject unsigned CAP-71 delegates under a contract account, for
+     * accounts whose `__check_auth` uses only some of them (re-simulate after
+     * signing to check it). Default: false
      */
     ignoreContractDelegates?: boolean;
     /**
@@ -1001,7 +1002,7 @@ export class AssembledTransaction<T> {
    *
    * A CAP-71 delegates entry stays listed while its top-level signature is
    * empty, even once its delegates have signed; filter out a `C…` account that
-   * authorizes only through delegates (or pass `ignoreContractDelegates`).
+   * authorizes only through delegates.
    * This is a signature-presence heuristic, not an authorization check: it
    * does not see custom account policy or requirements raised inside
    * `__check_auth`. The contract auth guide covers the caveats.
@@ -1009,7 +1010,6 @@ export class AssembledTransaction<T> {
   needsNonInvokerSigningBy = ({
     includeAlreadySigned = false,
     includeDelegates = false,
-    ignoreContractDelegates = false,
   }: {
     /**
      * Whether or not to include auth entries that have already been signed.
@@ -1024,12 +1024,6 @@ export class AssembledTransaction<T> {
      * Default: false
      */
     includeDelegates?: boolean;
-    /**
-     * Skip CAP-71 delegates entries whose top-level address is a contract,
-     * leaving that account's policy to the caller (re-simulate after signing
-     * to check it). Default: false
-     */
-    ignoreContractDelegates?: boolean;
   } = {}): string[] => {
     if (!this.built) {
       throw new Error("Transaction has not yet been simulated");
@@ -1054,13 +1048,6 @@ export class AssembledTransaction<T> {
           const info = inspectAuthEntry(entry);
           // source-account credentials: covered by the envelope signature
           if (info.address === null) return [];
-          if (
-            ignoreContractDelegates &&
-            info.credentialType === "addressWithDelegates" &&
-            info.address.startsWith("C")
-          ) {
-            return [];
-          }
           if (!includeDelegates) {
             // signers[0] is the top-level node
             return includeAlreadySigned || !info.signers[0].signed

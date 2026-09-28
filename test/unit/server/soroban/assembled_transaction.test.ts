@@ -793,31 +793,6 @@ describe("AssembledTransaction auth entry credential types (CAP-71)", () => {
       ).toEqual([]);
     });
 
-    it("skips contract delegates entries with ignoreContractDelegates, and nothing else", () => {
-      const assembled = assembledWith([
-        delegatesEntry(accountC, [{ address: kpB.publicKey() }]),
-        delegatesEntry(kpA.publicKey(), [
-          { address: kpB.publicKey(), signed: true },
-        ]),
-        authEntry(addressV2Cred(innerC)),
-      ]);
-      const opts = { ignoreContractDelegates: true };
-
-      expect(assembled.needsNonInvokerSigningBy(opts).sort()).toEqual(
-        [kpA.publicKey(), innerC].sort(),
-      );
-      expect(
-        assembled
-          .needsNonInvokerSigningBy({ ...opts, includeDelegates: true })
-          .sort(),
-      ).toEqual([kpA.publicKey(), innerC].sort());
-      expect(
-        assembled
-          .needsNonInvokerSigningBy({ ...opts, includeAlreadySigned: true })
-          .sort(),
-      ).toEqual([kpA.publicKey(), innerC].sort());
-    });
-
     describe("sign()", () => {
       const signing = (auth: xdr.SorobanAuthorizationEntry[]) => {
         const assembled = assembledWith(auth, {
