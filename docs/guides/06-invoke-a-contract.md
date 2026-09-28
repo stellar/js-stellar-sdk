@@ -21,8 +21,8 @@ free and safe to repeat.
   **increment** contract. Deploying is a one-time setup with a different toolchain
   (the Stellar CLI and Rust): follow Stellar's
   [Deploy the Increment Contract](https://developers.stellar.org/docs/build/smart-contracts/getting-started/deploy-increment-contract)
-  tutorial once (about 20 to 30 minutes), then paste the contract ID it prints
-  into `contractId` below. You will not touch the CLI again in this guide.
+  tutorial once (about 20 to 30 minutes), then use the contract ID it prints as
+  `contractId`. You will not touch the CLI again in this guide.
   This guide types the client with a small hand-written interface; generating one
   from a contract's spec is covered later in the series.
 - The examples use testnet RPC at `https://soroban-testnet.stellar.org`.
@@ -36,31 +36,7 @@ guides. Build a [`contract.Client`](/reference/contracts-client/#contractclient)
 from your deployed contract ID. The client reads the contract's interface from
 the network, which is what lets you call its methods by name:
 
-```ts untested
-import { contract, Keypair, Networks } from "@stellar/stellar-sdk";
-
-const rpcUrl = "https://soroban-testnet.stellar.org";
-const networkPassphrase = Networks.TESTNET;
-
-// Describe just the methods you call. `Client.from<T>()` uses this to type the
-// returned client, so the calls below are checked and autocompleted — no code
-// generation needed.
-interface IncrementContract {
-  increment: (
-    options?: contract.MethodOptions,
-  ) => Promise<contract.AssembledTransaction<number>>;
-}
-
-const { signTransaction } = contract.basicNodeSigner(keypair, networkPassphrase);
-
-const client = await contract.Client.from<IncrementContract>({
-  contractId,
-  rpcUrl,
-  networkPassphrase,
-  publicKey: keypair.publicKey(),
-  signTransaction,
-});
-```
+<!-- snippet: invoke-a-contract.ts#connect -->
 
 Here `keypair` is your funded account from
 [Connect and Fund an Account](/guides/01-connect-and-fund/) and `contractId` is
@@ -87,35 +63,10 @@ it with `queryContract` and read its `isReadCall` (see below).
 runs a **read-only**
 call and returns the decoded result. It simulates the call the same way the preview
 below does, so it needs no signing or fee, but it hands you the value directly. Here
-both run against a token contract — discover its methods, then read one:
+both run against a token contract (`tokenId`, its `C...` ID) — discover its
+methods, then read its decimals and your account's balance:
 
-```ts untested
-import { rpc } from "@stellar/stellar-sdk";
-
-const server = new rpc.Server(rpcUrl);
-
-// Discover what the contract exposes, from just its ID.
-const methods = await server.getContractMethods(tokenId);
-// [
-//   { name: "decimals", inputs: [], outputs: ["U32"] },
-//   { name: "balance", inputs: [{ name: "id", type: "Address" }], outputs: ["I128"] },
-//   { name: "transfer", inputs: [...], outputs: [] },
-// ]
-
-// Read one of its read-only methods in a single line.
-const { result: decimals, isReadCall } = await server.queryContract<number>(
-  tokenId,
-  "decimals",
-);
-
-const { result: balance } = await server.queryContract<bigint>(
-  tokenId,
-  "balance",
-  {
-    id: "G...", // named arguments, keyed by the method's parameter names
-  },
-);
-```
+<!-- snippet: invoke-a-contract.ts#query -->
 
 Alongside the decoded `result`, `queryContract` returns `isReadCall`: whether
 *this* call — for the exact arguments given — wrote no state and needed no
@@ -132,11 +83,7 @@ and returns the result without committing anything, so a preview is free and nee
 no signature. Read the predicted return value from
 [`tx.result`](/reference/contracts-client/#contractassembledtransaction):
 
-```ts untested
-const tx = await client.increment();
-
-tx.result; // the value the call would return; nothing has been sent
-```
+<!-- snippet: invoke-a-contract.ts#preview -->
 
 Nothing changed on-chain: simulate again and you get the same answer. A read-only
 method (one that does not change state) stops here. `tx.isReadCall` is `true`, and
@@ -154,11 +101,7 @@ waits for the network, returning a
 [`SentTransaction`](/reference/contracts-client/#contractsenttransaction) whose
 `result` is the value the contract returned on-chain:
 
-```ts untested
-const sent = await tx.signAndSend();
-
-sent.result; // the applied result; send again and the counter advances
-```
+<!-- snippet: invoke-a-contract.ts#send -->
 
 If a method depends on contract state that has expired, pass `restore: true` in
 the method options and simulation will restore it before the call; see
@@ -166,58 +109,13 @@ the method options and simulation will restore it before the call; see
 
 ## Put it together
 
-The whole flow as one runnable script. Set `contractId` to your deployed
-increment contract (see Prerequisites); the script funds a throwaway source
-account with friendbot so it runs end to end. In your app, replace the
-`Keypair.random()` call with your existing funded keypair.
+The whole flow as one script. Declare `contractId` as your deployed increment
+contract's ID (see Prerequisites) before you run it. The script funds a
+throwaway source account with friendbot so it runs end to end. In your app,
+replace the `Keypair.random()` and `fundAddress` lines with your existing funded
+keypair.
 
-```ts untested
-import { contract, rpc, Keypair, Networks } from "@stellar/stellar-sdk";
-
-const rpcUrl = "https://soroban-testnet.stellar.org";
-const networkPassphrase = Networks.TESTNET;
-const contractId = "C..."; // your deployed increment contract (see Prerequisites)
-
-interface IncrementContract {
-  increment: (
-    options?: contract.MethodOptions,
-  ) => Promise<contract.AssembledTransaction<number>>;
-}
-
-async function main() {
-  const server = new rpc.Server(rpcUrl);
-  const keypair = Keypair.random();
-  const { signTransaction } = contract.basicNodeSigner(
-    keypair,
-    networkPassphrase,
-  );
-
-  try {
-    // Fund a throwaway account to invoke from (the RPC-side friendbot).
-    await server.fundAddress(keypair.publicKey());
-
-    const client = await contract.Client.from<IncrementContract>({
-      contractId,
-      rpcUrl,
-      networkPassphrase,
-      publicKey: keypair.publicKey(),
-      signTransaction,
-    });
-
-    // Preview the call for free with simulation.
-    const tx = await client.increment();
-    console.log("preview:", tx.result);
-
-    // Sign and send to apply it on-chain.
-    const sent = await tx.signAndSend();
-    console.log("applied:", sent.result);
-  } catch (e) {
-    console.error("Invocation failed:", e);
-  }
-}
-
-main().catch(console.error);
-```
+<!-- snippet: invoke-a-contract.ts#full -->
 
 You can now read from and write to a deployed contract from JavaScript. Next,
 learn to [authorize calls that more than one account must sign](/guides/07-contract-auth/).
