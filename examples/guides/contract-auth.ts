@@ -18,6 +18,7 @@ import {
   authorizeEntry,
   buildAuthorizationEntryPreimage,
   hash,
+  inspectAuthEntry,
 } from "@stellar/stellar-sdk";
 import { deployWasm } from "./setup/deploy.js";
 
@@ -140,18 +141,12 @@ if (sent2.result !== 2) {
 }
 
 // Ed25519 signing is deterministic, so the hand-built signature must equal the one the network just accepted.
-const creds = signed.credentials;
-const accepted =
-  creds.type === "sorobanCredentialsAddressV2"
-    ? creds.addressV2
-    : creds.type === "sorobanCredentialsAddress"
-      ? creds.address
-      : undefined;
+const acceptedSignatures =
+  inspectAuthEntry(signed).signers[0]?.signatures ?? [];
 if (
-  accepted === undefined ||
-  !Buffer.from(accepted.signature.toXdr()).includes(Buffer.from(signature))
+  !acceptedSignatures.some((s) =>
+    Buffer.from(s.signature).equals(Buffer.from(signature)),
+  )
 ) {
-  throw new Error(
-    `the hand-built signature does not match the accepted ${creds.type} entry`,
-  );
+  throw new Error("the hand-built signature does not match the accepted entry");
 }

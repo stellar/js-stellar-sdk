@@ -159,7 +159,7 @@ signing line is unchanged, and the same code is now correct on both `ADDRESS` an
 
 Better still, drop the preimage step entirely and hand the whole entry to
 [`authorizeEntry`](/reference/core-soroban-primitives/#authorizeentry), which
-builds the payload, signs it, verifies it, and writes the signature back:
+builds the payload, signs it, verifies it, and returns a new, signed entry:
 
 <!-- snippet: contract-auth.ts#after-authorize -->
 
