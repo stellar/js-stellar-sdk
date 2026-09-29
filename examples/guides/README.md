@@ -161,12 +161,11 @@ synced from the root README. The marker rules still apply there.
 - Snippets that need contract infrastructure can deploy their own contract (from
   a checked-in wasm fixture in `wasm/`) in hidden setup, the same way the
   payment snippet funds its own accounts. The quickstart tier runs Soroban RPC,
-  so this works on every PR. Upload the wasm with
-  `Operation.uploadContractWasm`, and wait for the result. Then call
-  `contract.Client.deploy`. It reads the wasm back from the network by its hash.
-  From a snippet, read the fixture with
-  `readFileSync(new URL("wasm/increment.wasm", import.meta.url))`.
-  `test/guides/fixtures/deploy-increment.ts` shows the full pattern.
+  so this works on every PR. Call `deployWasm` from `setup/deploy.ts` with
+  `{ rpcUrl, networkPassphrase, keypair }` (a funded keypair) and the wasm file
+  name. It returns the contract ID.
+  `invoke-a-contract.ts` shows the pattern. Files in `setup/` are not snippets:
+  only the top-level `*.ts` files in this directory run as guide snippets.
 - Never reassign `globalThis.fetch` or mutate `Networks` inside a snippet. The
   local-network tier redirects transport by patching exactly those, before the
   snippet starts; a snippet that touches them can send itself to real testnet.
@@ -188,5 +187,5 @@ due. Do the item when its trigger arrives, not before.
 | Item                                                                                                                          | Trigger                                                                           |
 | ----------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
 | One-time GitHub setup: add `guides-local` to the protect-main ruleset as a required check                                     | When this system first lands on the remote                                        |
-| Fence metadata passthrough in markers (for `title=` and `del=`/`ins=` annotations)                                            | Before converting the before/after guides (contract-auth, protocol-27, migration) |
+| Fence metadata passthrough in markers (for `title=` and `del=`/`ins=` annotations)                                            | When a guide in `docs/guides/` needs an annotated fence (`docs/migration/` is out of scope) |
 | Reviewer preview as a CI artifact of the expanded `.docs-build/guides/` output (the local command half is done: `pnpm docs:snippets:show`) | If reviewers find checking out the branch too slow                                |

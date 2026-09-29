@@ -106,11 +106,7 @@ authorization entry that account must sign. Build the transaction as in
 [Invoke a Contract](/guides/06-invoke-a-contract/), then ask which accounts still
 need to sign:
 
-```ts untested
-const tx = await client.increment({ user: signer.publicKey(), value: 1 });
-
-tx.needsNonInvokerSigningBy(); // [signer.publicKey()]
-```
+<!-- snippet: contract-auth.ts#needs-signing -->
 
 Awaiting the method call simulates it, which is what populates the authorization
 entries; `needsNonInvokerSigningBy` then reads them back, skipping source-account
@@ -121,13 +117,7 @@ a `signAuthEntry` callback.
 [`basicNodeSigner`](/reference/contracts-client/#contractbasicnodesigner) is the
 simple Node signer (a browser app swaps in a wallet such as Freighter):
 
-```ts untested
-const { signAuthEntry } = contract.basicNodeSigner(signer, networkPassphrase);
-
-await tx.signAuthEntries({ address: signer.publicKey(), signAuthEntry });
-
-const sent = await tx.signAndSend();
-```
+<!-- snippet: contract-auth.ts#sign-entry -->
 
 `basicNodeSigner` signs the exact payload the SDK builds, so the same call is
 correct on either credential.
@@ -165,20 +155,13 @@ which reads the entry's credential type and builds the matching payload. The
 signing line is unchanged, and the same code is now correct on both `ADDRESS` and
 `AddressV2`:
 
-```ts untested
-// ✅ After: picks the right payload from the entry's own credential type.
-const preimage = buildAuthorizationEntryPreimage(entry, validUntil, networkPassphrase);
-const signature = keypair.sign(hash(preimage.toXdr()));
-```
+<!-- snippet: contract-auth.ts#after-preimage -->
 
 Better still, drop the preimage step entirely and hand the whole entry to
 [`authorizeEntry`](/reference/core-soroban-primitives/#authorizeentry), which
-builds the payload, signs it, verifies it, and writes the signature back:
+builds the payload, signs it, verifies it, and returns a new, signed entry:
 
-```ts untested
-// ✅ Even simpler: authorizeEntry does the whole thing.
-const signed = await authorizeEntry(entry, keypair, validUntil, networkPassphrase);
-```
+<!-- snippet: contract-auth.ts#after-authorize -->
 
 For a custom signer that is not a `Keypair`, pass a `SigningCallback` to
 `authorizeEntry`. It receives the full `xdr.HashIdPreimage`, so it can inspect
@@ -210,68 +193,7 @@ separate `signer` account, builds a call that requires the signer's
 authorization, signs that entry with `basicNodeSigner`, and submits. Set
 `contractId` to your deployed Auth contract (see Prerequisites).
 
-```ts untested
-import { contract, rpc, Keypair, Networks } from "@stellar/stellar-sdk";
-
-const rpcUrl = "https://soroban-testnet.stellar.org";
-const networkPassphrase = Networks.TESTNET;
-const contractId = "C..."; // your deployed Auth contract (see Prerequisites)
-
-interface AuthContract {
-  increment: (
-    args: { user: string; value: number },
-    options?: contract.MethodOptions,
-  ) => Promise<contract.AssembledTransaction<number>>;
-}
-
-async function main() {
-  const server = new rpc.Server(rpcUrl);
-
-  // The transaction source (signs the envelope) and a separate account whose
-  // authorization the call requires.
-  const source = Keypair.random();
-  const signer = Keypair.random();
-
-  try {
-    await server.fundAddress(source.publicKey());
-    await server.fundAddress(signer.publicKey());
-
-    const { signTransaction } = contract.basicNodeSigner(
-      source,
-      networkPassphrase,
-    );
-    const client = await contract.Client.from<AuthContract>({
-      contractId,
-      rpcUrl,
-      networkPassphrase,
-      publicKey: source.publicKey(),
-      signTransaction,
-    });
-
-    // A call that requires `signer` (not the source) to authorize it.
-    const tx = await client.increment({
-      user: signer.publicKey(),
-      value: 1,
-    });
-    console.log("needs signing by:", tx.needsNonInvokerSigningBy());
-
-    // Sign that entry as `signer`. basicNodeSigner signs the payload the SDK
-    // builds, so this is correct on whichever credential the network returns.
-    const { signAuthEntry } = contract.basicNodeSigner(
-      signer,
-      networkPassphrase,
-    );
-    await tx.signAuthEntries({ address: signer.publicKey(), signAuthEntry });
-
-    const sent = await tx.signAndSend();
-    console.log("applied:", sent.result);
-  } catch (e) {
-    console.error("Authorized call failed:", e);
-  }
-}
-
-main().catch(console.error);
-```
+<!-- snippet: contract-auth.ts#full -->
 
 You can now authorize a contract call that more than one account must sign, and
 your signer is correct on both credentials, on today's `ADDRESS` and after the

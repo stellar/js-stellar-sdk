@@ -19,16 +19,8 @@ import { contract, Keypair, Networks } from "@stellar/stellar-sdk";
 import { rpc } from "@stellar/stellar-sdk";
 // #endregion query
 // #endregion full
-import { readFileSync } from "node:fs";
-import {
-  Asset,
-  BASE_FEE,
-  Contract,
-  hash,
-  Operation,
-  TransactionBuilder,
-  xdr,
-} from "@stellar/stellar-sdk";
+import { Asset, Contract, Operation } from "@stellar/stellar-sdk";
+import { deployWasm, submit } from "./setup/deploy.js";
 
 // #region full
 // #region connect
@@ -65,47 +57,8 @@ const { signTransaction } = contract.basicNodeSigner(
 await server.fundAddress(keypair.publicKey());
 // #endregion full
 
-async function submit(op: xdr.Operation) {
-  const prepared = await server.prepareTransaction(
-    new TransactionBuilder(await server.getAccount(keypair.publicKey()), {
-      fee: BASE_FEE,
-      networkPassphrase,
-    })
-      .addOperation(op)
-      .setTimeout(30)
-      .build(),
-  );
-  prepared.sign(keypair);
-  const sent = await server.sendTransaction(prepared);
-  if (sent.status !== "PENDING") {
-    throw new Error(
-      `setup transaction was not accepted: ${sent.status} ${sent.errorResult?.result.type ?? ""}`,
-    );
-  }
-  const applied = await server.pollTransaction(sent.hash);
-  if (applied.status === rpc.Api.GetTransactionStatus.FAILED) {
-    throw new Error(
-      `setup transaction failed: ${applied.resultXdr.result.type}`,
-    );
-  }
-  if (applied.status !== rpc.Api.GetTransactionStatus.SUCCESS) {
-    throw new Error(`setup transaction failed: ${applied.status}`);
-  }
-}
-
-// Client.deploy reads the wasm back from the network by its hash, so the upload must be confirmed first.
-const wasm = readFileSync(new URL("wasm/increment.wasm", import.meta.url));
-await submit(Operation.uploadContractWasm({ wasm }));
-const { result: deployed } = await (
-  await contract.Client.deploy(null, {
-    wasmHash: hash(wasm),
-    rpcUrl,
-    networkPassphrase,
-    publicKey: keypair.publicKey(),
-    signTransaction,
-  })
-).signAndSend();
-contractId = deployed.options.contractId;
+const deployer = { rpcUrl, networkPassphrase, keypair };
+contractId = await deployWasm(deployer, "increment.wasm");
 
 // The native SAC can already exist (testnet), and creating it twice fails.
 const tokenId = Asset.native().contractId(networkPassphrase);
@@ -113,7 +66,10 @@ const { entries } = await server.getLedgerEntries(
   new Contract(tokenId).getFootprint(),
 );
 if (entries.length === 0) {
-  await submit(Operation.createStellarAssetContract({ asset: Asset.native() }));
+  await submit(
+    deployer,
+    Operation.createStellarAssetContract({ asset: Asset.native() }),
+  );
 }
 
 // #region full
