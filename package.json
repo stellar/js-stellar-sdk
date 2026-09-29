@@ -112,7 +112,7 @@
     "docs:llms": "tsx scripts/build-llms.ts",
     "docs:robots": "tsx scripts/build-robots.ts",
     "docs:htaccess": "tsx scripts/build-htaccess.ts",
-    "docs:site": "astro build && tsx scripts/build-md-siblings.ts",
+    "docs:site": "astro build && tsx scripts/build-md-siblings.ts && tsx scripts/check-sidebar.ts",
     "docs:dev": "astro dev",
     "docs:preview": "astro preview",
     "test": "pnpm run docs:snippets:check && pnpm run test:types && pnpm run typecheck:tests && pnpm run test:node && pnpm run test:node:axios && pnpm run test:integration && pnpm run test:browser",
