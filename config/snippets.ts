@@ -364,8 +364,9 @@ export function scanMarkdown(markdown: string): ScannedLine[] {
 export function nearMissError(lineNumber: number, line: string): Error {
   return new Error(
     `line ${lineNumber}: malformed snippet marker "${line.trim()}". ` +
-      `A snippet reference must be exactly ` +
-      `\`<!-- snippet: file.ts#region -->\` at the start of its own ` +
+      `A snippet reference must be ` +
+      `\`<!-- snippet: file.ts#region -->\`, optionally with fence ` +
+      `metadata before \`-->\`, at the start of its own ` +
       `line. If this comment is prose and not a marker, avoid the ` +
       `word "snippet" in docs HTML comments (or put the example in a ` +
       `code fence, which is skipped).`,

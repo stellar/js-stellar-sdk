@@ -32,10 +32,12 @@ If an SDK change breaks a guide example, CI fails.
    - **Hermetic PR gate** `pnpm docs:snippets:check` (runs in `pnpm test`,
      `pnpm docs`, and the tests and docs-build workflows on every PR): every
      marker resolves to a real file and region, no inline code block follows a
-     marker, malformed markers (typos, indented markers) are hard errors, every
-     fenced code block in a guide is a marker or is marked `untested`, and
-     snippets typecheck against `src/` with the same strictness as the SDK
-     build. It also prints a tested/untested count for each guide.
+     marker, malformed markers (typos, indented markers) are hard errors,
+     marker fence metadata is only `title`, `del` or `ins` with line numbers
+     inside the region, every fenced code block in a guide is a marker or is
+     marked `untested`, and snippets typecheck against `src/` with the same
+     strictness as the SDK build. It also prints a tested/untested count for
+     each guide.
    - **Local-network execution PR gate** `pnpm test:guides:local` (runs in
      `guides_pr.yml` on every PR against a stellar/quickstart service
      container): `test/guides/snippets.test.ts` auto-discovers every file in
