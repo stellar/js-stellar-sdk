@@ -45,6 +45,12 @@ If an SDK change breaks a guide example, CI fails.
      the transport layer, inside each snippet's process. To run locally, start
      quickstart first:
      `docker run --rm -p 8000:8000 -e NETWORK=local -e ENABLE_SOROBAN_RPC=true stellar/quickstart:testing`
+     The network starts at the image's default protocol. The quickstart docs
+     say that this is the latest version, but an older image can start lower,
+     so check it with the RPC `getNetwork` method. To choose the version, add
+     `-e PROTOCOL_VERSION=<n>`. It must not be more than the version that the
+     image's stellar-core supports. To match CI, use the image and the version
+     that `guides_pr.yml` pins.
    - **Real-testnet execution** `pnpm test:guides` (run by `preversion` at
      release time, or manually): the same tests with no redirection. This tier
      catches drift a local network cannot: Horizon deployments, friendbot API
@@ -102,6 +108,18 @@ If an SDK change breaks a guide example, CI fails.
    Do not put a code fence after the marker. `check-snippets` rejects it,
    because an inline copy would go stale silently.
 
+   A marker can carry fence metadata after the region. The build copies it onto
+   the fence line. Use it for a before/after pair:
+
+   ```markdown
+   <!-- snippet: contract-auth.ts#after-preimage title="After" ins={2-6} -->
+   ```
+
+   Only `title="…"`, `del={…}` and `ins={…}` are allowed. Line numbers count
+   from the first line of the region. `check-snippets` and the docs build fail
+   on a line past its end, but they cannot see a region edit that keeps the
+   length, so check the highlights when you change a region.
+
 3. **Verify**: `pnpm docs:snippets:check` for fast validation and typecheck,
    `pnpm test:guides:local` to execute against a local quickstart container (the
    day-to-day loop, a few seconds per run), `pnpm docs:snippets:show <doc>` to
@@ -145,6 +163,8 @@ fails on a plain fenced block there. To keep a block that is not tested (a
 The first word is always the language, so ` ```untested ` does not count. The
 site ignores the word after the language, but it stays in the raw `.md`
 siblings and `llms-full.txt`. Prefer markers for anything a reader might copy.
+The word can sit next to fence metadata (` ```ts untested title="Before" `). A
+quoted title that contains the word does not count.
 
 Outside `docs/guides/`, plain fenced blocks are allowed: `docs/reference/` is
 generated, `docs/migration/` shows old APIs on purpose, and `docs/index.md` is
@@ -186,6 +206,5 @@ due. Do the item when its trigger arrives, not before.
 | Item                                                                                                                          | Trigger                                                                           |
 | ----------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
 | One-time GitHub setup: add `guides-local` to the protect-main ruleset as a required check                                     | When this system first lands on the remote                                        |
-| Fence metadata passthrough in markers (for `title=` and `del=`/`ins=` annotations)                                            | When a guide in `docs/guides/` needs an annotated fence (`docs/migration/` is out of scope) |
 | Reviewer preview as a CI artifact of the expanded `.docs-build/guides/` output (the local command half is done: `pnpm docs:snippets:show`) | If reviewers find checking out the branch too slow                                |
 | Sidebar canary: post-build assertion that the Guides and Reference groups render                                              | Any time; value grows with guide count                                            |
