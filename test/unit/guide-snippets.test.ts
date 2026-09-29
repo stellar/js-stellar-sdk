@@ -229,6 +229,8 @@ describe("scanMarkdown", () => {
       ['```ts title="Before" untested del={1}', true],
       ["```ts title='an untested one'", false],
       ["```ts title='Before' untested", true],
+      // Expressive Code reads an unclosed brace as part of one word.
+      ["```ts {untested", false],
       ["```ts untested-later", false],
       // The first word is the language, so the site would render "untested".
       ["```untested", false],
@@ -349,6 +351,12 @@ describe("checkDoc", () => {
       ["ins={0,0}", /invalid line range "ins=\{0,0\}"/],
       // A backtick in a backtick fence's info string stops it opening a fence.
       ['title="`x`"', /unsupported fence metadata "title="`x`""/],
+      // A lone or unclosed delimiter stays in its word, so it is reported once.
+      ['"', /unsupported fence metadata """/],
+      ["'", /unsupported fence metadata "'"/],
+      ['title="x" {', /unsupported fence metadata "\{"/],
+      ['title="x', /unsupported fence metadata "title="x"/],
+      ["ins={1", /invalid line range "ins=\{1"/],
     ] as const) {
       const { problems, tested } = checkDoc("g.md", withMeta(meta), true);
       expect(tested, meta).toBe(0);

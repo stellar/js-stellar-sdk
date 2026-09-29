@@ -223,10 +223,11 @@ function langOf(file: string): string {
 /**
  * Splits a fence info string into words, keeping a quoted string or a
  * `{…}` range list inside its word, so `title="an untested one"` is one word.
- * Expressive Code accepts both quote styles.
+ * Expressive Code accepts both quote styles. An unclosed quote or brace stays
+ * in its word, so the metadata check reports it.
  */
 function infoWords(info: string): string[] {
-  return info.match(/(?:[^\s"'{]|"[^"]*"|'[^']*'|\{[^}]*\})+/g) ?? [];
+  return info.match(/(?:[^\s"'{]|"[^"]*"|'[^']*'|\{[^}]*\}|["'{])+/g) ?? [];
 }
 
 const RANGE_LIST = /^\{\d+(?:-\d+)?(?:,\d+(?:-\d+)?)*\}$/;
