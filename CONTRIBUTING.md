@@ -186,13 +186,13 @@ Don't add new TSDoc tags to influence frontmatter — the generator handles it.
 
 ### Build commands
 
-| Command                    | Purpose                                             |
-| -------------------------- | --------------------------------------------------- |
-| `pnpm docs:snippets:check` | Validate snippet markers, typecheck guide snippets. |
-| `pnpm docs:reference`      | Regenerate API reference markdown from TSDoc.       |
-| `pnpm docs:llms`           | Regenerate site-root `llms.txt` bundles.            |
-| `pnpm docs:site`           | Build the static Starlight site to `dist/site/`.    |
-| `pnpm docs`                | Run all of the above in order.                      |
+| Command                    | Purpose                                                                  |
+| -------------------------- | ------------------------------------------------------------------------ |
+| `pnpm docs:snippets:check` | Validate snippet markers, typecheck guide snippets.                      |
+| `pnpm docs:reference`      | Regenerate API reference markdown from TSDoc.                            |
+| `pnpm docs:llms`           | Regenerate site-root `llms.txt` bundles.                                 |
+| `pnpm docs:site`           | Build the Starlight site to `dist/site/`, then check its sidebar groups. |
+| `pnpm docs`                | Run all of the above in order.                                           |
 
 ### Local preview
 

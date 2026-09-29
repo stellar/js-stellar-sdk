@@ -198,7 +198,8 @@ synced from the root README. The marker rules still apply there.
   exits non-zero, or as a stderr block when it times out.
 - If the site sidebar ever loses its groups, check the `autogenerate`
   directories in `astro.config.mjs`. They must be prefixed `.docs-build/`,
-  matching the collection root.
+  matching the collection root. `pnpm docs:site` fails on an empty group
+  (`scripts/check-sidebar.ts`).
 
 ## Backlog
 
@@ -209,4 +210,3 @@ due. Do the item when its trigger arrives, not before.
 | ----------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
 | One-time GitHub setup: add `guides-local` to the protect-main ruleset as a required check                                     | When this system first lands on the remote                                        |
 | Reviewer preview as a CI artifact of the expanded `.docs-build/guides/` output (the local command half is done: `pnpm docs:snippets:show`) | If reviewers find checking out the branch too slow                                |
-| Sidebar canary: post-build assertion that the Guides and Reference groups render                                              | Any time; value grows with guide count                                            |
