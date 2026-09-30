@@ -181,13 +181,15 @@ describe("guides-local-setup", { timeout: 15_000 }, () => {
     expect(message).toContain("HTTP 502");
   });
 
-  it("does not take a missing friendbot route for a ready one", async () => {
+  it("rejects a missing friendbot route at once", async () => {
+    const started = Date.now();
     const message = await setupError(
       `http://localhost:${noFriendbotPort}`,
-      1_000,
+      10_000,
     );
-    expect(message).toContain("friendbot");
+    expect(Date.now() - started).toBeLessThan(5_000);
     expect(message).toContain("HTTP 404");
+    expect(message).toContain("no friendbot route");
   });
 
   it.each([

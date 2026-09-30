@@ -155,10 +155,19 @@ export async function waitForQuickstart(
   );
 
   // Without an addr, a ready friendbot answers 400, as the CI health check
-  // expects. A 404 means there is no friendbot route at all.
+  // expects. Any other 4xx means no friendbot is there, so that fails at once.
   await pollUntil(
     `${local}/friendbot`,
-    (status) => status === 400,
+    (status) => {
+      if (status === 400) return true;
+      if (status < 500) {
+        throw new Error(
+          `guides-local-setup: ${local}/friendbot answered HTTP ${status}, so ` +
+            `there is no friendbot route. Check what is listening there.`,
+        );
+      }
+      return false;
+    },
     wait,
     (last) =>
       new Error(

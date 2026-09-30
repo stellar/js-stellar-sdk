@@ -163,8 +163,9 @@ fails on a plain fenced block there. To keep a block that is not tested (a
 ````
 
 The first word is always the language, so ` ```untested ` does not count. The
-site ignores the word after the language, but it stays in the raw `.md`
-siblings and `llms-full.txt`. Prefer markers for anything a reader might copy.
+word stays in the source file, where `check-snippets` reads it, and the
+expanded outputs (the site, the raw `.md` siblings and `llms-full.txt`) drop
+it. Prefer markers for anything a reader might copy.
 The word can sit next to fence metadata (` ```ts untested title="Before" `). A
 quoted title that contains the word does not count.
 
