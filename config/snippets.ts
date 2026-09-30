@@ -28,6 +28,14 @@
  * one line of a builder chain, say) be carved out of a larger compiling
  * program. Code outside any region is setup/assertion context that never
  * appears in the docs.
+ *
+ * A marker may carry fence metadata after the region, which is copied onto
+ * the expanded fence line:
+ *
+ *   <!-- snippet: contract-auth.ts#after-preimage title="After" ins={2-6} -->
+ *
+ * Only title="…", del={…} and ins={…} are accepted, with line numbers inside
+ * the region; checkDoc reports anything else and the expander throws on it.
  */
 
 import {
@@ -46,7 +54,8 @@ export const SNIPPETS_DIR = join(REPO_ROOT, "examples", "guides");
 const DOCS_DIR = join(REPO_ROOT, "docs");
 export const DOCS_BUILD_DIR = join(REPO_ROOT, ".docs-build");
 
-export const MARKER = /^<!--\s*snippet:\s*([\w./-]+)#([\w-]+)\s*-->\s*$/;
+export const MARKER =
+  /^<!--\s*snippet:\s*([\w./-]+)#([\w-]+)(?:\s+(.*?))?\s*-->\s*$/;
 
 // Anything that mentions "snippet" in an HTML comment but is not an exact
 // marker (missing colon, indented inside a list item, typo in the region
@@ -212,14 +221,88 @@ function langOf(file: string): string {
 }
 
 /**
+ * Splits a fence info string into words, keeping a quoted string or a
+ * `{…}` range list inside its word, so `title="an untested one"` is one word.
+ * Expressive Code accepts both quote styles. An unclosed quote or brace stays
+ * in its word, so the metadata check reports it.
+ */
+function infoWords(info: string): string[] {
+  return info.match(/(?:[^\s"'{]|"[^"]*"|'[^']*'|\{[^}]*\}|["'{])+/g) ?? [];
+}
+
+const RANGE_LIST = /^\{\d+(?:-\d+)?(?:,\d+(?:-\d+)?)*\}$/;
+
+/**
+ * The problems with a marker's fence metadata for the region's `code`. Line
+ * numbers count from the first line of the region, so they must stay inside
+ * it. Exported so it is unit-testable.
+ */
+export function metaProblems(meta: string, code: string): string[] {
+  // "".split("\n") has one element, but an empty region has no lines.
+  const lineCount = code === "" ? 0 : code.split("\n").length;
+  const problems: string[] = [];
+  const seen = new Set<string>();
+  for (const word of infoWords(meta)) {
+    // A backtick in a backtick fence's info string stops it opening a fence.
+    const m = /^(?:(title)="[^"`]*"|(del|ins)=(.*))$/.exec(word);
+    const key = m?.[1] ?? m?.[2];
+    if (m === null || key === undefined) {
+      problems.push(
+        `unsupported fence metadata "${word}" — a snippet marker accepts ` +
+          `only title="…", del={…} and ins={…}`,
+      );
+      continue;
+    }
+    if (seen.has(key)) {
+      problems.push(`duplicate fence metadata "${key}"`);
+      continue;
+    }
+    seen.add(key);
+    const ranges = m[3];
+    if (ranges === undefined) continue;
+    if (!RANGE_LIST.test(ranges)) {
+      problems.push(`invalid line range "${word}"`);
+      continue;
+    }
+    for (const range of ranges.slice(1, -1).split(",")) {
+      const [from, to = from] = range.split("-").map(Number);
+      if (from < 1 || from > to) {
+        problems.push(`invalid line range "${word}"`);
+        break;
+      }
+      if (to > lineCount) {
+        problems.push(
+          `${word} reaches line ${to}, but the region has ${lineCount} lines`,
+        );
+        break;
+      }
+    }
+  }
+  return problems;
+}
+
+/**
  * One markdown line, classified by the shared fence-aware scanner. A marker
- * carries its file#region, and a fence opener carries whether its info string
- * has the `untested` opt-out word; a consumer must narrow on `kind` before
- * reading them.
+ * carries its file#region and fence metadata, and a fence opener carries its
+ * opening run (`opener`, with any indent), its info words (`info`) and
+ * whether they have the `untested` opt-out word; a consumer must narrow on
+ * `kind` before reading them.
  */
 export type ScannedLine =
-  | { line: string; kind: "marker"; file: string; region: string }
-  | { line: string; kind: "fence-open"; untested: boolean }
+  | {
+      line: string;
+      kind: "marker";
+      file: string;
+      region: string;
+      meta: string;
+    }
+  | {
+      line: string;
+      kind: "fence-open";
+      opener: string;
+      info: string[];
+      untested: boolean;
+    }
   | {
       line: string;
       kind: "text" | "near-miss" | "fence-close" | "code";
@@ -246,10 +329,12 @@ export function scanMarkdown(markdown: string): ScannedLine[] {
       if (fence === null) {
         fence = { char, len };
         // The first word is the language, so `untested` must come after it.
-        const info = line.slice(run[0].length).trim().split(/\s+/);
+        const info = infoWords(line.slice(run[0].length));
         out.push({
           line,
           kind: "fence-open",
+          opener: run[0],
+          info,
           untested: info.slice(1).includes("untested"),
         });
         continue;
@@ -271,7 +356,13 @@ export function scanMarkdown(markdown: string): ScannedLine[] {
     }
     const m = line.match(MARKER);
     if (m) {
-      out.push({ line, kind: "marker", file: m[1], region: m[2] });
+      out.push({
+        line,
+        kind: "marker",
+        file: m[1],
+        region: m[2],
+        meta: m[3] ?? "",
+      });
       continue;
     }
     if (MARKER_NEAR_MISS.test(line)) {
@@ -286,8 +377,9 @@ export function scanMarkdown(markdown: string): ScannedLine[] {
 export function nearMissError(lineNumber: number, line: string): Error {
   return new Error(
     `line ${lineNumber}: malformed snippet marker "${line.trim()}". ` +
-      `A snippet reference must be exactly ` +
-      `\`<!-- snippet: file.ts#region -->\` at the start of its own ` +
+      `A snippet reference must be ` +
+      `\`<!-- snippet: file.ts#region -->\`, optionally with fence ` +
+      `metadata before \`-->\`, at the start of its own ` +
       `line. If this comment is prose and not a marker, avoid the ` +
       `word "snippet" in docs HTML comments (or put the example in a ` +
       `code fence, which is skipped).`,
@@ -344,8 +436,10 @@ export function checkDoc(
 
     // The reference must resolve to a real snippet file and region.
     try {
-      snippetRegion(scan.file, scan.region);
-      tested += 1;
+      const code = snippetRegion(scan.file, scan.region);
+      const bad = metaProblems(scan.meta, code);
+      for (const problem of bad) problems.push(`${doc}:${i + 1}: ${problem}`);
+      if (bad.length === 0) tested += 1;
     } catch (e) {
       const message = e instanceof Error ? e.message : String(e);
       problems.push(`${doc}:${i + 1}: ${message}`);
@@ -356,14 +450,27 @@ export function checkDoc(
 
 /**
  * Replaces every snippet marker line in a markdown string with a fenced
- * code block. For consumers that work on raw markdown text.
+ * code block, and strips the `untested` opt-out word from hand-written fence
+ * lines (their info words are re-joined with single spaces). For consumers
+ * that work on raw markdown text.
  */
 export function expandSnippetMarkers(markdown: string): string {
   return scanMarkdown(markdown)
     .map((scanned, i) => {
       if (scanned.kind === "marker") {
-        const { file, region } = scanned;
-        return `\`\`\`${langOf(file)}\n${snippetRegion(file, region)}\n\`\`\``;
+        const { file, region, meta } = scanned;
+        const code = snippetRegion(file, region);
+        const [problem] = metaProblems(meta, code);
+        if (problem !== undefined) {
+          throw new Error(`line ${i + 1}: ${problem}`);
+        }
+        const info = meta === "" ? langOf(file) : `${langOf(file)} ${meta}`;
+        return `\`\`\`${info}\n${code}\n\`\`\``;
+      }
+      if (scanned.kind === "fence-open" && scanned.untested) {
+        const [lang, ...rest] = scanned.info;
+        const kept = rest.filter((word) => word !== "untested");
+        return `${scanned.opener}${[lang, ...kept].join(" ")}`;
       }
       if (scanned.kind === "near-miss") {
         throw nearMissError(i + 1, scanned.line);

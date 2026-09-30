@@ -65,6 +65,12 @@ if (process.env.GUIDES_TARGET === "local") {
     const res = await fetch("https://horizon-testnet.stellar.org/", {
       signal: AbortSignal.timeout(5_000),
     });
+    if (!res.ok) {
+      await res.body?.cancel();
+      throw new Error(
+        `answered HTTP ${res.status}, so it may still be starting`,
+      );
+    }
     const body: unknown = await res.json();
     if (
       typeof body === "object" &&

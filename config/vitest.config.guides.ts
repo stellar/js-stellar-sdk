@@ -22,6 +22,19 @@ const config = mergeConfig(
           ? [resolve(__dirname, "guides-local-setup.ts")]
           : [],
     },
+    resolve: {
+      // The snippet children resolve the package to src/ through tsconfig
+      // `paths`, and tsc checks test/guides against src/. No test imports
+      // the package in the vitest parent today; without this, one that does
+      // would silently test lib/. Exact match, as `paths` is: a string alias
+      // also matches subpaths and would break `…/rpc`.
+      alias: [
+        {
+          find: /^@stellar\/stellar-sdk$/,
+          replacement: resolve(__dirname, "../src/index.ts"),
+        },
+      ],
+    },
   }),
 );
 
