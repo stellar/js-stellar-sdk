@@ -6,6 +6,8 @@ const PRELOAD = new URL(
   "../../config/guides-snippet-preload.ts",
   import.meta.url,
 ).href;
+/** The node flags that load tsx and the preload before a snippet. */
+export const PRELOAD_ARGV = ["--import", "tsx", "--import", PRELOAD];
 const TSCONFIG = fileURLToPath(new URL("tsconfig.json", import.meta.url));
 
 /**
@@ -13,15 +15,11 @@ const TSCONFIG = fileURLToPath(new URL("tsconfig.json", import.meta.url));
  */
 export function runSnippet(file: string, signal?: AbortSignal): Promise<void> {
   return new Promise((resolve, reject) => {
-    const child = spawn(
-      process.execPath,
-      ["--import", "tsx", "--import", PRELOAD, ENTRY, file],
-      {
-        env: { ...process.env, TSX_TSCONFIG_PATH: TSCONFIG },
-        stdio: ["ignore", "pipe", "pipe"],
-        signal,
-      },
-    );
+    const child = spawn(process.execPath, [...PRELOAD_ARGV, ENTRY, file], {
+      env: { ...process.env, TSX_TSCONFIG_PATH: TSCONFIG },
+      stdio: ["ignore", "pipe", "pipe"],
+      signal,
+    });
     // Decode per stream, so a character split across two chunks survives.
     child.stdout.setEncoding("utf8");
     child.stderr.setEncoding("utf8");
