@@ -265,7 +265,7 @@ describe("checkDoc", () => {
   it("rejects a plain fence in a guide", () => {
     expect(checkDoc("g.md", "text\n```ts\nx();\n```", true)).toEqual({
       problems: [
-        'g.md:2: untested code block — replace it with a snippet marker, or add "untested" to its fence line',
+        'g.md:2: untested code block — replace it with a snippet marker, or add "untested" after the language on its fence line (```ts untested)',
       ],
       tested: 0,
       untested: 0,

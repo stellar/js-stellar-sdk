@@ -422,7 +422,8 @@ export function checkDoc(
         } else {
           problems.push(
             `${doc}:${i + 1}: untested code block — replace it with a ` +
-              `snippet marker, or add "untested" to its fence line`,
+              `snippet marker, or add "untested" after the language on its ` +
+              "fence line (```ts untested)",
           );
         }
       }
