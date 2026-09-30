@@ -9,7 +9,6 @@ import {
   SorobanDataBuilder,
   TransactionBuilder,
   authorizeEntry as stellarBaseAuthorizeEntry,
-  inspectAuthEntry,
 } from "../base/index.js";
 import type {
   AssembledTransactionOptions,
@@ -21,7 +20,12 @@ import type {
   WalletError,
   XDR_BASE64,
 } from "./types.js";
-import { signerAddress, toSignAuthEntry, toSignTransaction } from "./signer.js";
+import {
+  signerAddress,
+  toSignAuthEntry,
+  toSignTransaction,
+  walletSigningKey,
+} from "./signer.js";
 import { Server } from "../rpc/index.js";
 import { Api } from "../rpc/api.js";
 import { assembleTransaction } from "../rpc/transaction.js";
@@ -31,6 +35,7 @@ import {
   contractErrorPattern,
   implementsToString,
   getAccount,
+  pendingSigners,
 } from "./utils.js";
 import { DEFAULT_TIMEOUT } from "./types.js";
 import { SentTransaction, Watcher } from "./sent_transaction.js";
@@ -822,6 +827,7 @@ export class AssembledTransaction<T> {
   sign = async ({
     force = false,
     signTransaction = this.options.signTransaction,
+    ignoreContractDelegates = false,
   }: {
     /**
      * If `true`, sign and send the transaction even if it is a read call
@@ -831,6 +837,12 @@ export class AssembledTransaction<T> {
      * You must provide this here if you did not provide one before
      */
     signTransaction?: ClientOptions["signTransaction"];
+    /**
+     * Don't reject unsigned CAP-71 delegates under a contract account, for
+     * accounts whose `__check_auth` uses only some of them (re-simulate after
+     * signing to check it). Default: false
+     */
+    ignoreContractDelegates?: boolean;
   } = {}): Promise<void> => {
     if (!this.built) {
       throw new Error("Transaction has not yet been simulated");
@@ -861,10 +873,14 @@ export class AssembledTransaction<T> {
       );
     }
 
-    // filter out contracts, as these are dealt with via cross contract calls
-    const sigsNeeded = this.needsNonInvokerSigningBy().filter(
-      (id) => !id.startsWith("C"),
-    );
+    // A contract's own policy can't be checked here, so only `G…` signers
+    // (top-level or delegate) block signing. This assumes every listed
+    // delegate must sign, which is stricter than a subset-using `__check_auth`.
+    // Only `C…` accounts' delegates are ever listed, so ignoring them leaves
+    // the top level.
+    const sigsNeeded = this.unsignedAddresses({
+      includeDelegates: !ignoreContractDelegates,
+    }).filter((id) => !id.startsWith("C"));
     if (sigsNeeded.length) {
       throw new AssembledTransaction.Errors.NeedsMoreSignatures(
         `Transaction requires signatures from ${sigsNeeded}. ` +
@@ -930,6 +946,7 @@ export class AssembledTransaction<T> {
   signAndSend = async ({
     force = false,
     signTransaction = this.options.signTransaction,
+    ignoreContractDelegates = false,
     watcher,
   }: {
     /**
@@ -940,6 +957,12 @@ export class AssembledTransaction<T> {
      * You must provide this here if you did not provide one before
      */
     signTransaction?: ClientOptions["signTransaction"];
+    /**
+     * Don't reject unsigned CAP-71 delegates under a contract account, for
+     * accounts whose `__check_auth` uses only some of them (re-simulate after
+     * signing to check it). Default: false
+     */
+    ignoreContractDelegates?: boolean;
     /**
      * A {@link Watcher} to notify after the transaction is successfully
      * submitted to the network (`onSubmitted`) and as the transaction is
@@ -960,29 +983,31 @@ export class AssembledTransaction<T> {
           ? (tx, opts) => signer(tx, { ...opts, submit: false })
           : signTransaction;
 
-      await this.sign({ force, signTransaction: wrappedSignTransaction });
+      await this.sign({
+        force,
+        signTransaction: wrappedSignTransaction,
+        ignoreContractDelegates,
+      });
     }
     return this.send(watcher);
   };
 
   /**
-   * Get a list of accounts, other than the invoker of the simulation, that
-   * need to sign auth entries in this transaction.
+   * Lists each address in the address-credential auth entries that still
+   * lacks a signature (or every such address, with `includeAlreadySigned`):
+   * the top-level address, plus the CAP-71 delegates under a `C…` account,
+   * signed or not. On p27 a `G…` account's delegates are never listed. Source
+   * account credentials are skipped, since the envelope signature covers them;
+   * address credentials are listed even when their address is the transaction
+   * source.
    *
-   * Soroban allows multiple people to sign a transaction. Someone needs to
-   * sign the final transaction envelope; this person/account is called the
-   * _invoker_, or _source_. Other accounts might need to sign individual auth
-   * entries in the transaction, if they're not also the invoker.
-   *
-   * This function returns a list of accounts that need to sign auth entries,
-   * assuming that the same invoker/source account will sign the final
-   * transaction envelope as signed the initial simulation.
-   *
-   * One at a time, for each public key in this array, you will need to
-   * serialize this transaction with `toJson`, send to the owner of that key,
-   * deserialize the transaction with `txFromJson`, and call
-   * {@link AssembledTransaction.signAuthEntries}. Then re-serialize and send to
-   * the next account in this list.
+   * An unsigned `C…` account stays listed even once its delegates have signed;
+   * filter it out if it authorizes only through delegates. `signAuthEntries`
+   * signs top-level addresses only; sign delegates with `authorizeEntry` and
+   * `forAddress`.
+   * This is a signature-presence heuristic, not an authorization check: it
+   * does not see custom account policy or requirements raised inside
+   * `__check_auth`. The contract auth guide covers the caveats.
    */
   needsNonInvokerSigningBy = ({
     includeAlreadySigned = false,
@@ -992,7 +1017,16 @@ export class AssembledTransaction<T> {
      * Default: false
      */
     includeAlreadySigned?: boolean;
-  } = {}): string[] => {
+  } = {}): string[] =>
+    this.unsignedAddresses({ includeAlreadySigned, includeDelegates: true });
+
+  private unsignedAddresses({
+    includeAlreadySigned = false,
+    includeDelegates,
+  }: {
+    includeAlreadySigned?: boolean;
+    includeDelegates: boolean;
+  }): string[] {
     if (!this.built) {
       throw new Error("Transaction has not yet been simulated");
     }
@@ -1010,24 +1044,19 @@ export class AssembledTransaction<T> {
     const rawInvokeHostFunctionOp = this.built
       .operations[0] as Operation.InvokeHostFunction;
 
+    // source-account credentials yield nothing: the envelope signature
+    // covers them
     return [
       ...new Set(
-        (rawInvokeHostFunctionOp.auth ?? [])
-          .map((entry) => inspectAuthEntry(entry))
-          .filter(
-            (info) =>
-              // skip source-account credentials (no address payload), which
-              // are covered by the envelope signature on the source account.
-              // Only the top-level credentials (signers[0]) matter here — this
-              // method reports (and signAuthEntries signs) the top-level
-              // address, so unsigned delegate nodes must not keep it listed.
-              info.address !== null &&
-              (includeAlreadySigned || !info.signers[0].signed),
-          )
-          .map((info) => info.address as string),
+        (rawInvokeHostFunctionOp.auth ?? []).flatMap((entry) =>
+          pendingSigners(entry.credentials, {
+            includeSigned: includeAlreadySigned,
+            includeDelegates,
+          }),
+        ),
       ),
     ];
-  };
+  }
 
   /**
    * If {@link AssembledTransaction#needsNonInvokerSigningBy} returns a
@@ -1044,12 +1073,22 @@ export class AssembledTransaction<T> {
    *
    * Sending to all `needsNonInvokerSigningBy` owners in parallel is not
    * currently supported!
+   *
+   * Only top-level address credentials are selected; delegate nodes and
+   * requirements raised inside a custom account's `__check_auth` are not.
+   * `needsNonInvokerSigningBy` also lists `C…` delegates, which this method
+   * rejects, and keeps a `C…` account listed after its delegates sign, so a
+   * loop until that list is empty may never finish. Sign delegates with
+   * `authorizeEntry` and `forAddress` instead.
+   *
+   * With the default authorizer, the wallet's returned `signerAddress` names
+   * the key the signature is verified against, which may differ from `address`.
    */
   signAuthEntries = async ({
     expiration = (async () =>
       (await this.server.getLatestLedger()).sequence + 100)(),
     signAuthEntry = this.options.signAuthEntry,
-    address = signerAddress(signAuthEntry) ?? this.options.publicKey,
+    address: addressArg,
     authorizeEntry = stellarBaseAuthorizeEntry,
   }: {
     /**
@@ -1059,25 +1098,47 @@ export class AssembledTransaction<T> {
      */
     expiration?: number | Promise<number>;
     /**
-     * Sign all auth entries for this account. Default: when `signAuthEntry`
-     * is a `Signer` or `Keypair`, its own address; otherwise the account that
-     * constructed the transaction (`publicKey`).
+     * Sign all auth entries for this account. Defaults to a `Signer`'s or
+     * `Keypair`'s own address, otherwise to the account that constructed the
+     * transaction (`publicKey`). Pass it when `signAuthEntry` is a plain
+     * function signing for a different account.
      */
     address?: string;
     /**
-     * You must provide this here if you did not provide one before and you are not passing `authorizeEntry`. Default: the `signAuthEntry` from the `Client` options. Must sign things as the given `address`.
+     * You must provide this here if you did not provide one before and you are
+     * not passing `authorizeEntry`. Defaults to the Client's `signAuthEntry`.
+     * If it signs with a key other than `address`, it should return that key
+     * as `signerAddress`.
      */
     signAuthEntry?: ClientOptions["signAuthEntry"];
 
     /**
      * If you have a pro use-case and need to override the default `authorizeEntry` function, rather than using the one this SDK provides, you can do that! Your function needs to take at least the first argument, `entry: xdr.SorobanAuthorizationEntry`, and return a `Promise<xdr.SorobanAuthorizationEntry>`.
      *
-     * Note that you if you pass this, then `signAuthEntry` will be ignored.
+     * The signing callback passed to it returns raw signature bytes and does
+     * not forward the wallet's `signerAddress`.
      */
     authorizeEntry?: typeof stellarBaseAuthorizeEntry;
   } = {}): Promise<void> => {
     if (!this.built)
       throw new Error("Transaction has not yet been assembled or simulated");
+
+    const derivedAddress = signerAddress(signAuthEntry);
+    const address = addressArg ?? derivedAddress ?? this.options.publicKey;
+
+    // Adds a hint when `address` fell back to `publicKey`, which may not be
+    // the signer (#1681).
+    const noEntriesFor = (): string => {
+      const base = `No auth entries for public key "${address}"`;
+      if (addressArg != null || derivedAddress !== undefined) return base;
+      const unnamed =
+        "`address` was not given and `signAuthEntry` does not name one";
+      const fix = "Pass `address` to say who is signing.";
+      return address === undefined
+        ? `No account to sign for: ${unnamed}. ${fix}`
+        : `${base}; ${unnamed}, so it defaulted to the account that built ` +
+            `this transaction. ${fix}`;
+    };
 
     // Reduced up front, not at the call site below, so that the `!signAuth`
     // check reports a `Signer` that omits the optional `signAuthEntry` the same
@@ -1089,16 +1150,26 @@ export class AssembledTransaction<T> {
 
     // Likely if we're using a custom authorizeEntry then we know better than the `needsNonInvokerSigningBy` logic.
     if (authorizeEntry === stellarBaseAuthorizeEntry) {
-      const needsNonInvokerSigningBy = this.needsNonInvokerSigningBy();
-      if (needsNonInvokerSigningBy.length === 0) {
+      // top level only: these are the entries this method can sign
+      const unsigned = this.unsignedAddresses({ includeDelegates: false });
+      if (
+        address !== undefined &&
+        !unsigned.includes(address) &&
+        this.needsNonInvokerSigningBy().includes(address)
+      ) {
+        throw new AssembledTransaction.Errors.NoSignatureNeeded(
+          `"${address}" is an unsigned delegate, and \`signAuthEntries\` ` +
+            "signs top-level addresses only. Sign it with `authorizeEntry` " +
+            "and `forAddress`.",
+        );
+      }
+      if (unsigned.length === 0) {
         throw new AssembledTransaction.Errors.NoUnsignedNonInvokerAuthEntries(
           "No unsigned non-invoker auth entries; maybe you already signed?",
         );
       }
-      if (needsNonInvokerSigningBy.indexOf(address ?? "") === -1) {
-        throw new AssembledTransaction.Errors.NoSignatureNeeded(
-          `No auth entries for public key "${address}"`,
-        );
+      if (unsigned.indexOf(address ?? "") === -1) {
+        throw new AssembledTransaction.Errors.NoSignatureNeeded(noEntriesFor());
       }
       if (!signAuth) {
         throw new AssembledTransaction.Errors.NoSigner(
@@ -1111,6 +1182,7 @@ export class AssembledTransaction<T> {
       .operations[0] as Operation.InvokeHostFunction;
 
     const authEntries = rawInvokeHostFunctionOp.auth ?? [];
+    let signedAny = false;
 
     for (const [i, entry] of authEntries.entries()) {
       // workaround for https://github.com/stellar/js-stellar-sdk/issues/1070
@@ -1135,18 +1207,32 @@ export class AssembledTransaction<T> {
       authEntries[i] = await authorizeEntry(
         entry,
         async (preimage) => {
-          const { signedAuthEntry, error } = await sign(
-            preimage.toXdr("base64"),
-            {
-              address,
-            },
-          );
+          const {
+            signedAuthEntry,
+            signerAddress: resultAddress,
+            error,
+          } = await sign(preimage.toXdr("base64"), {
+            address,
+          });
           this.handleWalletError(error);
-          return base64ToUint8Array(signedAuthEntry);
+          const signature = base64ToUint8Array(signedAuthEntry);
+          const signingKey =
+            authorizeEntry === stellarBaseAuthorizeEntry
+              ? walletSigningKey(resultAddress)
+              : undefined;
+          return signingKey === undefined
+            ? signature
+            : { signature, publicKey: signingKey };
         },
         await expiration,
         this.options.networkPassphrase,
       );
+      signedAny = true;
+    }
+
+    // A custom authorizer skips the pre-flight, so catch a no-match here.
+    if (!signedAny) {
+      throw new AssembledTransaction.Errors.NoSignatureNeeded(noEntriesFor());
     }
   };
 

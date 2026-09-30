@@ -1,7 +1,15 @@
-import { Account } from "../base/index.js";
+import { Account, Address } from "../base/index.js";
+import { getAddressCredentials, signaturePresent } from "../base/auth.js";
 import { Server } from "../rpc/index.js";
 import { NULL_ACCOUNT, type AssembledTransactionOptions } from "./types.js";
-import { ScSpecEntry, decodeStream } from "../xdr/index.js";
+import {
+  ScSpecEntry,
+  decodeStream,
+  type ScAddress,
+  type ScVal,
+  type SorobanCredentials,
+  type SorobanDelegateSignature,
+} from "../xdr/index.js";
 
 /**
  * Keep calling a `fn` for `timeoutInSeconds` seconds, if `keepWaitingIf` is
@@ -186,4 +194,56 @@ export async function getAccount<T>(
   return options.publicKey
     ? server.getAccount(options.publicKey)
     : new Account(NULL_ACCOUNT, "0");
+}
+
+const pendingAt = (
+  address: ScAddress,
+  signature: ScVal,
+  delegates: SorobanDelegateSignature[],
+  includeSigned: boolean,
+): string[] => {
+  const self =
+    includeSigned || !signaturePresent(signature)
+      ? [Address.fromScAddress(address).toString()]
+      : [];
+  // On p27 (CAP-71 only) the built-in G… check ignores delegates, so a G…
+  // node's delegates never count. CAP-72 changes this; revisit when it ships.
+  if (address.type !== "scAddressTypeContract") return self;
+  // A signed C… node's `__check_auth` may still call `delegate_account_auth`,
+  // so its delegates are walked either way.
+  return [
+    ...self,
+    ...delegates.flatMap((d) =>
+      pendingAt(d.address, d.signature, d.nestedDelegates, includeSigned),
+    ),
+  ];
+};
+
+/**
+ * Addresses in `credentials` whose signature is still empty, or with
+ * `includeSigned` every address that may sign. An empty `C…` node is listed
+ * even when its delegates have signed, and a `C…` node's delegates are checked
+ * even when it has signed, since only its `__check_auth` knows what it needs.
+ * On p27 a `G…` node's delegates are not listed. Without `includeDelegates`
+ * only the top-level address is checked. Source-account credentials return
+ * `[]`.
+ * @hidden
+ */
+export function pendingSigners(
+  credentials: SorobanCredentials,
+  { includeSigned = false, includeDelegates = true } = {},
+): string[] {
+  const addrAuth = getAddressCredentials(credentials);
+  if (addrAuth === null) return [];
+  const delegates =
+    includeDelegates &&
+    credentials.type === "sorobanCredentialsAddressWithDelegates"
+      ? credentials.addressWithDelegates.delegates
+      : [];
+  return pendingAt(
+    addrAuth.address,
+    addrAuth.signature,
+    delegates,
+    includeSigned,
+  );
 }

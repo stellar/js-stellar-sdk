@@ -122,6 +122,63 @@ simple Node signer (a browser app swaps in a wallet such as Freighter):
 `basicNodeSigner` signs the exact payload the SDK builds, so the same call is
 correct on either credential.
 
+### What `needsNonInvokerSigningBy` can and cannot see
+
+`needsNonInvokerSigningBy` is a signature-presence heuristic, not an
+authorization check. It lists every address in an address-credential entry
+whose signature payload is still empty: the top-level address, plus any CAP-71
+delegates under a contract account (see below). Only source-account credentials
+are skipped, since the envelope signature covers them; an address-credential
+entry is listed even when its address is the transaction source, so your own
+account can appear in the list. It does not verify signatures, check signer
+weights, or evaluate a custom account's policy, so an empty signature may be
+intentional, and a filled one does not prove the entry will pass.
+
+Simulation never returns a CAP-71 `AddressWithDelegates` entry (it returns
+`ADDRESS_V2`, or legacy `ADDRESS` with `useUpgradedAuth: false`), so delegated
+signing is up to you: wrap the simulated entry with `buildWithDelegatesEntry`,
+then sign each delegate node with `authorizeEntry` and its `forAddress`
+argument. `signAuthEntries` does not select delegate nodes.
+
+Once delegates are attached, the heuristic reports only what the signatures
+show. A `G…` account must sign its own top-level entry on protocol 27, and its
+delegates are ignored there. A contract account's `__check_auth` decides what
+it needs: some accept their delegates alone, others need their own signature
+as well, and the signatures can't tell the two apart. So an unsigned `C…`
+account stays listed even after its delegates have signed; if yours
+authorizes only through delegates, filter its address out. The unsigned
+delegates of a `C…` account are listed too, even when the account itself has
+signed. Sign them with `authorizeEntry` and `forAddress`, since
+`signAuthEntries` signs top-level addresses only.
+
+One kind of requirement stays invisible to it. Recording-mode simulation does
+not run a custom account's `__check_auth`, so a `require_auth_for_args` made
+inside it never appears in the returned entries at all. Such a requirement
+needs an auth entry built by hand, and enforcement-mode simulation to check it.
+
+`sign` and `signAndSend` run this heuristic before signing the envelope, and reject any `G…` address still listed. They skip
+contract (`C…`) addresses, since a contract's own policy can't be checked
+locally. The delegate check assumes every listed delegate must sign. If a
+custom account's `__check_auth` uses only some of its delegates (a 2-of-3
+multisig, say), `sign` rejects the unused ones even though the network would
+accept the transaction. Pass `ignoreContractDelegates: true` to `sign` or
+`signAndSend` to skip that check for contract accounts' delegates; `G…`
+addresses are still checked. To check a custom account's entries, call
+`simulate()` again after signing: enforcement-mode simulation runs
+`__check_auth` and fails if a signature is still missing.
+
+For ordinary multi-party signing, serialize the transaction with `toJson`, send
+it to the next account's signer, have them deserialize it with `txFromJson` and
+call `signAuthEntries`, then re-serialize before passing it on. Signers go one
+at a time, since the SDK does not merge separately signed copies.
+
+### When a wallet signs with a different key
+
+When a wallet signs with a key other than the account being authorized (classic
+multisig), it should return that key as `signerAddress`, and the SDK verifies the
+signature against it. That check proves the key signed the payload, not that the
+key is a signer on the account with enough weight; the network decides that.
+
 ## If you sign the payload yourself
 
 If you build and sign the authorization payload yourself, here is the one change

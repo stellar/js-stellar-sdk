@@ -1,5 +1,11 @@
 import { base64ToUint8Array, uint8ArrayToBase64 } from "../base/util/base64.js";
-import { Keypair, TransactionBuilder, hash } from "../base/index.js";
+import {
+  Keypair,
+  StrKey,
+  TransactionBuilder,
+  extractBaseAddress,
+  hash,
+} from "../base/index.js";
 import type { SignAuthEntry, SignTransaction } from "./types.js";
 
 /**
@@ -160,6 +166,35 @@ export function signerAddress(
     return value.address;
   }
   return isKeypairLike(value) ? value.publicKey() : undefined;
+}
+
+/**
+ * Resolves a wallet's returned `signerAddress` to the `G…` key to verify
+ * against: `undefined` when omitted (absent, `null`, or empty), the base
+ * account for a muxed `M…` address, and a `TypeError` for anything else.
+ * @internal
+ */
+export function walletSigningKey(signerAddress: unknown): string | undefined {
+  if (signerAddress == null || signerAddress === "") return undefined;
+  if (typeof signerAddress !== "string") {
+    throw new TypeError(
+      `expected the wallet's signerAddress to be a string, got ${typeof signerAddress}`,
+    );
+  }
+  if (
+    StrKey.isValidEd25519PublicKey(signerAddress) ||
+    StrKey.isValidMed25519PublicKey(signerAddress)
+  ) {
+    return extractBaseAddress(signerAddress);
+  }
+  throw new TypeError(
+    StrKey.isValidContract(signerAddress)
+      ? `the wallet's signerAddress names contract ${signerAddress}, but the ` +
+          "default authorizer verifies Ed25519 signatures only; sign for a " +
+          "contract account with a custom `authorizeEntry`"
+      : "expected the wallet's signerAddress to be an account address (G... " +
+          `or M...), got ${JSON.stringify(signerAddress)}`,
+  );
 }
 
 /**

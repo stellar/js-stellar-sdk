@@ -582,6 +582,110 @@ describe("building authorization entries", () => {
       );
     });
 
+    it.each([false, true])(
+      "verifies a bare signature callback against forAddress (nested: %s)",
+      async (nested) => {
+        const delegate = Keypair.random();
+        const delegateNode = new xdr.SorobanDelegateSignature({
+          address: new Address(delegate.publicKey()).toScAddress(),
+          signature: xdr.ScVal.scvVoid(),
+          nestedDelegates: [],
+        });
+        const delegates = nested
+          ? [
+              new xdr.SorobanDelegateSignature({
+                address: new Address(contractId).toScAddress(),
+                signature: xdr.ScVal.scvVoid(),
+                nestedDelegates: [delegateNode],
+              }),
+            ]
+          : [delegateNode];
+        const entry = entryWith(
+          xdr.SorobanCredentials.sorobanCredentialsAddressWithDelegates(
+            new xdr.SorobanAddressCredentialsWithDelegates({
+              addressCredentials: makeAddrCreds(),
+              delegates,
+            }),
+          ),
+        );
+        const original = entry.toXdr("base64");
+
+        const signed = await authorizeEntry(
+          entry,
+          (_preimage, payload) => Promise.resolve(delegate.sign(payload)),
+          EXPIRATION,
+          Networks.TESTNET,
+          delegate.publicKey(),
+        );
+
+        const info = inspectAuthEntry(signed);
+        const target = expectDefined(
+          info.signers.find((node) => node.address === delegate.publicKey()),
+        );
+        const signature = scValToNative(target.rawSignature)[0] as {
+          public_key: Uint8Array;
+          signature: Uint8Array;
+        };
+        expect(StrKey.encodeEd25519PublicKey(signature.public_key)).toBe(
+          delegate.publicKey(),
+        );
+        const preimage = buildAuthorizationEntryPreimage(
+          signed,
+          EXPIRATION,
+          Networks.TESTNET,
+        );
+        expect(
+          delegate.verify(hash(preimage.toXdr()), signature.signature),
+        ).toBe(true);
+        expect(
+          info.signers
+            .filter((node) => node.address !== delegate.publicKey())
+            .every((node) => !node.signed),
+        ).toBe(true);
+        expect(entry.toXdr("base64")).toBe(original);
+        expect(signed.rootInvocation.toXdr()).toEqual(
+          entry.rootInvocation.toXdr(),
+        );
+
+        await expect(
+          authorizeEntry(
+            entry,
+            (_preimage, payload) => Promise.resolve(kp.sign(payload)),
+            EXPIRATION,
+            Networks.TESTNET,
+            delegate.publicKey(),
+          ),
+        ).rejects.toThrow(/signature doesn't match payload/);
+      },
+    );
+
+    it("names the signatureScVal shape when forAddress is a contract", async () => {
+      const entry = entryWith(
+        xdr.SorobanCredentials.sorobanCredentialsAddressWithDelegates(
+          new xdr.SorobanAddressCredentialsWithDelegates({
+            addressCredentials: makeAddrCreds(),
+            delegates: [
+              new xdr.SorobanDelegateSignature({
+                address: new Address(contractId).toScAddress(),
+                signature: xdr.ScVal.scvVoid(),
+                nestedDelegates: [],
+              }),
+            ],
+          }),
+        ),
+      );
+
+      await expect(
+        authorizeEntry(
+          entry,
+          (_preimage, payload) => Promise.resolve(kp.sign(payload)),
+          EXPIRATION,
+          Networks.TESTNET,
+          contractId,
+        ),
+      ).rejects.toThrow(/signatureScVal/);
+    });
+
     it("throws when forAddress matches no node in the entry", async () => {
       const stranger = Keypair.random();
       await expect(
@@ -600,6 +704,48 @@ describe("building authorization entries", () => {
           stranger.publicKey(),
         ),
       ).rejects.toThrow(/no credential node for address/);
+    });
+
+    it("rejects an unknown forAddress before calling the signer", async () => {
+      // Verified against `forAddress` since #1683, a bare signature for an
+      // address absent from the entry used to fail as a bad signature, after
+      // the wallet had already been asked for it.
+      const stranger = Keypair.random();
+      const signer = vi.fn(
+        (_preimage: xdr.HashIdPreimage, payload: Uint8Array) =>
+          Promise.resolve(stranger.sign(payload)),
+      );
+
+      await expect(
+        authorizeEntry(
+          entryWith(
+            xdr.SorobanCredentials.sorobanCredentialsAddressV2(makeAddrCreds()),
+          ),
+          signer,
+          EXPIRATION,
+          Networks.TESTNET,
+          stranger.publicKey(),
+        ),
+      ).rejects.toThrow(
+        `the authorization entry has no credential node for address ${stranger.publicKey()}`,
+      );
+      expect(signer).not.toHaveBeenCalled();
+    });
+
+    it("reports a publicKey that is no address without the contract remedy", async () => {
+      await expect(
+        authorizeEntry(
+          entryWith(
+            xdr.SorobanCredentials.sorobanCredentialsAddressV2(makeAddrCreds()),
+          ),
+          (_preimage, payload) =>
+            Promise.resolve({ signature: kp.sign(payload), publicKey: "" }),
+          EXPIRATION,
+          Networks.TESTNET,
+        ),
+      ).rejects.toThrow(
+        'expected an Ed25519 public key (G...) to verify the signature against, got ""',
+      );
     });
 
     it("commits the expiration ledger into the signed payload (not the original)", async () => {
