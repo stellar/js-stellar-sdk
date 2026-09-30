@@ -15,8 +15,13 @@ async function listen(server: Server): Promise<number> {
 async function setupError(
   url: string,
   readyTimeoutMs: number,
+  refusedGraceMs?: number,
 ): Promise<string> {
-  const error = await waitForQuickstart(url, readyTimeoutMs).then(
+  const error = await waitForQuickstart(
+    url,
+    readyTimeoutMs,
+    refusedGraceMs,
+  ).then(
     () => undefined,
     (e: unknown) => e,
   );
@@ -37,14 +42,18 @@ describe("guides-local-setup", { timeout: 15_000 }, () => {
     res.statusCode = 503;
     res.end();
   });
+  // A ready friendbot answers 400 when the request has no addr.
+  const friendbotReady = (url: string | undefined) => url === "/friendbot";
   // Answers 503 twice, as quickstart does while it starts, then serves.
   let startingRequests = 0;
-  const slowStart = createHttpServer((_, res) => {
+  const slowStart = createHttpServer((req, res) => {
     startingRequests += 1;
     if (startingRequests <= 2) res.statusCode = 503;
+    else if (friendbotReady(req.url)) res.statusCode = 400;
     res.end("{}");
   });
-  const healthy = createHttpServer((_, res) => {
+  const healthy = createHttpServer((req, res) => {
+    if (friendbotReady(req.url)) res.statusCode = 400;
     res.end("{}");
   });
   // Serves Horizon, but friendbot answers 502 twice before it is ready.
@@ -60,6 +69,11 @@ describe("guides-local-setup", { timeout: 15_000 }, () => {
     if (req.url === "/friendbot") res.statusCode = 502;
     res.end("{}");
   });
+  // Serves Horizon but has no /friendbot route.
+  const noFriendbot = createHttpServer((req, res) => {
+    if (req.url === "/friendbot") res.statusCode = 404;
+    res.end("{}");
+  });
   let stalledPort = 0;
   let notHorizonPort = 0;
   let startingPort = 0;
@@ -67,6 +81,9 @@ describe("guides-local-setup", { timeout: 15_000 }, () => {
   let healthyPort = 0;
   let slowFriendbotPort = 0;
   let deadFriendbotPort = 0;
+  let noFriendbotPort = 0;
+  // A port with nothing listening, so a connection to it is refused.
+  let refusedPort = 0;
 
   beforeAll(async () => {
     stalledPort = await listen(stalled);
@@ -76,6 +93,10 @@ describe("guides-local-setup", { timeout: 15_000 }, () => {
     healthyPort = await listen(healthy);
     slowFriendbotPort = await listen(slowFriendbot);
     deadFriendbotPort = await listen(deadFriendbot);
+    noFriendbotPort = await listen(noFriendbot);
+    const closed = createServer();
+    refusedPort = await listen(closed);
+    await new Promise((resolve) => closed.close(resolve));
   });
 
   afterAll(() => {
@@ -86,6 +107,7 @@ describe("guides-local-setup", { timeout: 15_000 }, () => {
     healthy.close();
     slowFriendbot.close();
     deadFriendbot.close();
+    noFriendbot.close();
   });
 
   it("gives up on a quickstart that accepts but never answers", async () => {
@@ -94,6 +116,18 @@ describe("guides-local-setup", { timeout: 15_000 }, () => {
       `quickstart is not reachable at http://localhost:${stalledPort}`,
     );
     expect(message).toContain("timeout");
+  });
+
+  it("stops retrying a refused connection after the grace window", async () => {
+    const started = Date.now();
+    const message = await setupError(
+      `http://localhost:${refusedPort}`,
+      30_000,
+      500,
+    );
+    expect(Date.now() - started).toBeLessThan(5_000);
+    expect(message).toContain("ECONNREFUSED");
+    expect(message).toContain("docker run");
   });
 
   it("rejects a server that is not a Horizon root at once", async () => {
@@ -145,6 +179,15 @@ describe("guides-local-setup", { timeout: 15_000 }, () => {
     );
     expect(message).toContain("friendbot");
     expect(message).toContain("HTTP 502");
+  });
+
+  it("does not take a missing friendbot route for a ready one", async () => {
+    const message = await setupError(
+      `http://localhost:${noFriendbotPort}`,
+      1_000,
+    );
+    expect(message).toContain("friendbot");
+    expect(message).toContain("HTTP 404");
   });
 
   it.each([

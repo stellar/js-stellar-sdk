@@ -61,7 +61,9 @@ describe("runSnippet isolates each snippet", { timeout: 30_000 }, () => {
     );
   });
 
-  it("kills the snippet and prints its output when the signal aborts", async () => {
+  it("kills the snippet and prints its output when the signal aborts", async ({
+    signal,
+  }) => {
     const dir = mkdtempSync(join(tmpdir(), "guide-fixture-"));
     const started = join(dir, "started");
     vi.stubEnv("GUIDE_FIXTURE_MARKER", started);
@@ -70,7 +72,11 @@ describe("runSnippet isolates each snippet", { timeout: 30_000 }, () => {
       .mockImplementation(() => {});
     const controller = new AbortController();
     try {
-      const run = runSnippet(fixture("hang"), controller.signal);
+      // The test signal also kills the child if vitest times the test out.
+      const run = runSnippet(
+        fixture("hang"),
+        AbortSignal.any([signal, controller.signal]),
+      );
       let settled = false;
       run.then(
         () => (settled = true),
