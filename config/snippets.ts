@@ -233,10 +233,13 @@ function infoWords(info: string): string[] {
 const RANGE_LIST = /^\{\d+(?:-\d+)?(?:,\d+(?:-\d+)?)*\}$/;
 
 /**
- * The problems with a marker's fence metadata. Line numbers count from the
- * first line of the region, so they must stay inside it.
+ * The problems with a marker's fence metadata for the region's `code`. Line
+ * numbers count from the first line of the region, so they must stay inside
+ * it. Exported so it is unit-testable.
  */
-function metaProblems(meta: string, lineCount: number): string[] {
+export function metaProblems(meta: string, code: string): string[] {
+  // "".split("\n") has one element, but an empty region has no lines.
+  const lineCount = code === "" ? 0 : code.split("\n").length;
   const problems: string[] = [];
   const seen = new Set<string>();
   for (const word of infoWords(meta)) {
@@ -434,7 +437,7 @@ export function checkDoc(
     // The reference must resolve to a real snippet file and region.
     try {
       const code = snippetRegion(scan.file, scan.region);
-      const bad = metaProblems(scan.meta, code.split("\n").length);
+      const bad = metaProblems(scan.meta, code);
       for (const problem of bad) problems.push(`${doc}:${i + 1}: ${problem}`);
       if (bad.length === 0) tested += 1;
     } catch (e) {
@@ -457,7 +460,7 @@ export function expandSnippetMarkers(markdown: string): string {
       if (scanned.kind === "marker") {
         const { file, region, meta } = scanned;
         const code = snippetRegion(file, region);
-        const [problem] = metaProblems(meta, code.split("\n").length);
+        const [problem] = metaProblems(meta, code);
         if (problem !== undefined) {
           throw new Error(`line ${i + 1}: ${problem}`);
         }

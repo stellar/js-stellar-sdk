@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   checkDoc,
   expandSnippetMarkers,
+  metaProblems,
   parseRegions,
   scanMarkdown,
   snippetRegion,
@@ -364,6 +365,15 @@ describe("checkDoc", () => {
       expect(problems[0], meta).toMatch(/^g\.md:1: /);
       expect(problems[0], meta).toMatch(reason);
     }
+  });
+});
+
+describe("metaProblems", () => {
+  it("counts an empty region as zero lines", () => {
+    expect(metaProblems("ins={1}", "")).toEqual([
+      "ins={1} reaches line 1, but the region has 0 lines",
+    ]);
+    expect(metaProblems("", "")).toEqual([]);
   });
 });
 
