@@ -1,27 +1,24 @@
 import { createServer as createHttpServer } from "node:http";
-import { createServer, type Server } from "node:net";
+import { createServer } from "node:net";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
-import setup, { waitForQuickstart } from "../../config/guides-local-setup.js";
+import setup, {
+  waitForQuickstart,
+  type WaitOptions,
+} from "../../config/guides-local-setup.js";
+import { listen } from "./test-server.js";
 
-async function listen(server: Server): Promise<number> {
-  await new Promise<void>((resolve) => server.listen(0, resolve));
-  const address = server.address();
-  if (address === null || typeof address === "string") {
-    throw new Error("test server has no TCP port");
-  }
-  return address.port;
-}
+// Short waits: the logic under test needs milliseconds, not the real defaults.
+const FAST: WaitOptions = { attemptTimeoutMs: 200, pollMs: 50 };
 
 async function setupError(
   url: string,
   readyTimeoutMs: number,
-  refusedGraceMs?: number,
+  options: WaitOptions = {},
 ): Promise<string> {
-  const error = await waitForQuickstart(
-    url,
-    readyTimeoutMs,
-    refusedGraceMs,
-  ).then(
+  const error = await waitForQuickstart(url, readyTimeoutMs, {
+    ...FAST,
+    ...options,
+  }).then(
     () => undefined,
     (e: unknown) => e,
   );
@@ -123,7 +120,7 @@ describe("guides-local-setup", { timeout: 15_000 }, () => {
     const message = await setupError(
       `http://localhost:${refusedPort}`,
       30_000,
-      500,
+      { refusedGraceMs: 500 },
     );
     expect(Date.now() - started).toBeLessThan(5_000);
     expect(message).toContain("ECONNREFUSED");
@@ -160,14 +157,14 @@ describe("guides-local-setup", { timeout: 15_000 }, () => {
 
   it("retries the root while quickstart starts", async () => {
     await expect(
-      waitForQuickstart(`http://localhost:${slowStartPort}`, 10_000),
+      waitForQuickstart(`http://localhost:${slowStartPort}`, 10_000, FAST),
     ).resolves.toBeUndefined();
     expect(startingRequests).toBeGreaterThan(2);
   });
 
   it("waits for friendbot after Horizon serves data", async () => {
     await expect(
-      waitForQuickstart(`http://localhost:${slowFriendbotPort}`, 10_000),
+      waitForQuickstart(`http://localhost:${slowFriendbotPort}`, 10_000, FAST),
     ).resolves.toBeUndefined();
     expect(friendbotRequests).toBeGreaterThan(2);
   });
@@ -209,7 +206,7 @@ describe("guides-local-setup", { timeout: 15_000 }, () => {
         },
       );
     try {
-      await waitForQuickstart(`http://localhost:${port()}`, 1_000).catch(
+      await waitForQuickstart(`http://localhost:${port()}`, 1_000, FAST).catch(
         () => undefined,
       );
     } finally {

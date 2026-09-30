@@ -46,13 +46,12 @@ If an SDK change breaks a guide example, CI fails.
      `config/guides-snippet-preload.ts` redirects them to the local network at
      the transport layer, inside each snippet's process. To run locally, start
      quickstart first:
-     `docker run --rm -p 8000:8000 -e NETWORK=local -e ENABLE_SOROBAN_RPC=true stellar/quickstart:testing`
-     The network starts at the image's default protocol. The quickstart docs
-     say that this is the latest version, but an older image can start lower,
-     so check it with the RPC `getNetwork` method. To choose the version, add
-     `-e PROTOCOL_VERSION=<n>`. It must not be more than the version that the
-     image's stellar-core supports. To match CI, use the image and the version
-     that `guides_pr.yml` pins.
+     `docker run --rm -p 8000:8000 -e NETWORK=local -e ENABLE_SOROBAN_RPC=true -e PROTOCOL_VERSION=28 stellar/quickstart:testing`
+     Without `PROTOCOL_VERSION`, the network starts at the image's default
+     protocol, and an older image can start below what the checked-in wasm
+     fixtures need (see `wasm/README.md`). The version must not be more than
+     the one that the image's stellar-core supports. To match CI, use the
+     image and the version that `guides_pr.yml` pins.
    - **Real-testnet execution** `pnpm test:guides` (run by `preversion` at
      release time, or manually): the same tests with no redirection. This tier
      catches drift a local network cannot: Horizon deployments, friendbot API

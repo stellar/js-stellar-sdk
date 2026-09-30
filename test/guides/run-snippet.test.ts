@@ -1,24 +1,16 @@
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdtempSync, rmSync } from "node:fs";
 import { createServer as createHttpServer } from "node:http";
-import { createServer, type Server } from "node:net";
+import { createServer } from "node:net";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { PRELOAD_ARGV, runSnippet } from "./run-snippet.js";
+import { listen } from "./test-server.js";
 
 const fixture = (name: string) =>
   fileURLToPath(new URL(`fixtures/${name}.ts`, import.meta.url));
-
-async function listen(server: Server): Promise<number> {
-  await new Promise<void>((resolve) => server.listen(0, resolve));
-  const address = server.address();
-  if (address === null || typeof address === "string") {
-    throw new Error("test server has no TCP port");
-  }
-  return address.port;
-}
 
 describe("runSnippet isolates each snippet", { timeout: 30_000 }, () => {
   afterEach(() => {

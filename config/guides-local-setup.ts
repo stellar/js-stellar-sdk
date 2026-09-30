@@ -8,7 +8,7 @@
  * Used by the guides_pr.yml workflow (quickstart service container) and by
  * `pnpm test:guides:local` with a local container:
  *
- *   docker run --rm -p 8000:8000 -e NETWORK=local -e ENABLE_SOROBAN_RPC=true stellar/quickstart:testing
+ *   docker run --rm -p 8000:8000 -e NETWORK=local -e ENABLE_SOROBAN_RPC=true -e PROTOCOL_VERSION=28 stellar/quickstart:testing
  *
  * `pnpm test:guides` (run by `preversion` at release time, or manually)
  * executes the same snippets against real testnet with no redirection.
@@ -25,13 +25,13 @@ const REFUSED_GRACE_MS = 10_000;
 const READY_POLL_MS = 1_000;
 const ATTEMPT_TIMEOUT_MS = 5_000;
 
-const pause = () =>
-  new Promise((resolve) => setTimeout(resolve, READY_POLL_MS));
+const pause = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 function startHint(): string {
   return (
     `Start it with:\n\n  docker run --rm -p 8000:8000 -e NETWORK=local ` +
-    `-e ENABLE_SOROBAN_RPC=true stellar/quickstart:testing\n\n(see ` +
+    `-e ENABLE_SOROBAN_RPC=true -e PROTOCOL_VERSION=28 ` +
+    `stellar/quickstart:testing\n\n(see ` +
     `examples/guides/README.md). Without Docker, run ` +
     `\`pnpm docs:snippets:check\` locally and let the guides_pr.yml ` +
     `workflow execute the snippets.`
@@ -53,6 +53,15 @@ interface Wait {
   local: string;
   deadline: number;
   refusedDeadline: number;
+  attemptTimeoutMs: number;
+  pollMs: number;
+}
+
+/** Timing knobs with the quickstart defaults; tests pass small values. */
+export interface WaitOptions {
+  refusedGraceMs?: number;
+  attemptTimeoutMs?: number;
+  pollMs?: number;
 }
 
 /**
@@ -72,7 +81,7 @@ async function pollUntil(
     try {
       // Bound each attempt: the deadline below is only checked between them.
       const res = await fetch(url, {
-        signal: AbortSignal.timeout(ATTEMPT_TIMEOUT_MS),
+        signal: AbortSignal.timeout(wait.attemptTimeoutMs),
       });
       // Only the status matters here, and an unread body keeps its socket open.
       await res.body?.cancel();
@@ -94,7 +103,7 @@ async function pollUntil(
       last = `HTTP ${status}`;
     }
     if (Date.now() >= wait.deadline) throw timeoutError(last);
-    await pause();
+    await pause(wait.pollMs);
   }
 }
 
@@ -109,13 +118,19 @@ export default async function setup(): Promise<void> {
 export async function waitForQuickstart(
   local: string,
   readyTimeoutMs: number,
-  refusedGraceMs = REFUSED_GRACE_MS,
+  {
+    refusedGraceMs = REFUSED_GRACE_MS,
+    attemptTimeoutMs = ATTEMPT_TIMEOUT_MS,
+    pollMs = READY_POLL_MS,
+  }: WaitOptions = {},
 ): Promise<void> {
   const started = Date.now();
   const wait: Wait = {
     local,
     deadline: started + readyTimeoutMs,
     refusedDeadline: started + refusedGraceMs,
+    attemptTimeoutMs,
+    pollMs,
   };
   const seconds = readyTimeoutMs / 1000;
 

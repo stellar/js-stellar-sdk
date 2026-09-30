@@ -1,22 +1,14 @@
 /**
- * Prints one doc's markdown with its snippet markers expanded, exactly as the
- * docs build renders it (see config/snippets.ts for the mechanism).
+ * Prints one doc's markdown with its snippet markers expanded, exactly as the docs build renders it (see config/snippets.ts for the mechanism).
  *
- * Markers hide a guide's code from a PR diff, so a reviewer cannot see what
- * the page will actually render. This prints that expansion for a single
- * file, with no docs build and no Docker.
+ * Markers hide a guide's code from a PR diff, so a reviewer cannot see what the page will actually render. This prints that expansion for a single file, with no docs build and no Docker.
  *
- * Run via `pnpm docs:snippets:show <doc>`, where <doc> is a .md file under
- * docs/ — the build expands nothing else, so neither does this. Paths resolve
- * from the repo root, because pnpm runs the script there, either as typed or
- * relative to docs/:
+ * Run via `pnpm docs:snippets:show <doc>`, where <doc> is a .md file under docs/ — the build expands nothing else, so neither does this. Paths resolve from the repo root, because pnpm runs the script there, either as typed or relative to docs/:
  *
  *   pnpm docs:snippets:show docs/guides/03-issue-an-asset.md
  *   pnpm docs:snippets:show guides/03-issue-an-asset.md
  *
- * Output is byte-identical to the file the build writes into .docs-build/.
- * Redirect it with `pnpm --silent`, or pnpm's own banner lands on stdout
- * ahead of the markdown.
+ * Output is byte-identical to the file the build writes into .docs-build/. Redirect it with `pnpm --silent`, or pnpm's own banner lands on stdout ahead of the markdown.
  */
 
 import { readFileSync, realpathSync, statSync } from "node:fs";
@@ -35,16 +27,13 @@ const USAGE =
   "    pnpm docs:snippets:show docs/guides/03-issue-an-asset.md\n" +
   "    pnpm docs:snippets:show guides/03-issue-an-asset.md";
 
-// Sets the exit code instead of calling process.exit(), which can cut off
-// stderr that is still being written to a pipe.
+// Sets the exit code instead of calling process.exit(), which can cut off stderr that is still being written to a pipe.
 function fail(message: string): void {
   console.error(message);
   process.exitCode = 1;
 }
 
-// Resolve symlinks before judging the path: statSync follows them, so a
-// lexical check would accept a .md symlink under docs/ that points anywhere.
-// Returns null for a missing file and for a dangling symlink, which throws.
+// Resolve symlinks before judging the path: statSync follows them, so a lexical check would accept a .md symlink under docs/ that points anywhere. Returns null for a missing file and for a dangling symlink, which throws.
 function realFile(path: string): string | null {
   try {
     const real = realpathSync(path);
@@ -54,10 +43,7 @@ function realFile(path: string): string | null {
   }
 }
 
-// The build only ever expands .md under docs/, so anything else is a mistyped
-// path. Without this, a source file gets scanned for markers and reports a
-// near-miss error that reads like a real docs defect. Both sides are real
-// paths, so a checkout reached through a symlink still resolves.
+// The build only ever expands .md under docs/, so anything else is a mistyped path. Without this, a source file gets scanned for markers and reports a near-miss error that reads like a real docs defect. Both sides are real paths, so a checkout reached through a symlink still resolves.
 function isDoc(real: string): boolean {
   const rel = relative(DOCS_REAL, real);
   return !rel.startsWith("..") && !isAbsolute(rel) && real.endsWith(".md");
@@ -73,9 +59,7 @@ function main(): void {
     return fail(USAGE);
   }
 
-  // Accept the path as typed (shell completion from the repo root) or
-  // relative to docs/, so the docs/ prefix is optional. An absolute path
-  // resolves to itself both ways.
+  // Accept the path as typed (shell completion from the repo root) or relative to docs/, so the docs/ prefix is optional. An absolute path resolves to itself both ways.
   const candidates = [...new Set([resolve(arg), resolve(DOCS_DIR, arg)])];
   const existing = candidates
     .map(realFile)
