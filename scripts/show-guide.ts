@@ -35,18 +35,11 @@ const USAGE =
   "    pnpm docs:snippets:show docs/guides/03-issue-an-asset.md\n" +
   "    pnpm docs:snippets:show guides/03-issue-an-asset.md";
 
-function fail(message: string): never {
+// Sets the exit code instead of calling process.exit(), which can cut off
+// stderr that is still being written to a pipe.
+function fail(message: string): void {
   console.error(message);
-  process.exit(1);
-}
-
-const arg = process.argv[2];
-if (arg === "-h" || arg === "--help") {
-  console.log(USAGE);
-  process.exit(0);
-}
-if (arg === undefined || arg === "") {
-  fail(USAGE);
+  process.exitCode = 1;
 }
 
 // Resolve symlinks before judging the path: statSync follows them, so a
@@ -70,25 +63,39 @@ function isDoc(real: string): boolean {
   return !rel.startsWith("..") && !isAbsolute(rel) && real.endsWith(".md");
 }
 
-// Accept the path as typed (shell completion from the repo root) or relative
-// to docs/, so the docs/ prefix is optional.
-const candidates = [resolve(arg), resolve(DOCS_DIR, arg)];
-const existing = candidates
-  .map(realFile)
-  .filter((p): p is string => p !== null);
-const path = existing.find(isDoc);
-if (path === undefined) {
-  fail(
-    existing.length > 0
-      ? `not a .md file under docs/:\n  ${existing.join("\n  ")}\n\n${USAGE}`
-      : `no such file, tried:\n  ${candidates.join("\n  ")}\n\n${USAGE}`,
-  );
+function main(): void {
+  const arg = process.argv[2];
+  if (arg === "-h" || arg === "--help") {
+    console.log(USAGE);
+    return;
+  }
+  if (arg === undefined || arg === "") {
+    return fail(USAGE);
+  }
+
+  // Accept the path as typed (shell completion from the repo root) or
+  // relative to docs/, so the docs/ prefix is optional. An absolute path
+  // resolves to itself both ways.
+  const candidates = [...new Set([resolve(arg), resolve(DOCS_DIR, arg)])];
+  const existing = candidates
+    .map(realFile)
+    .filter((p): p is string => p !== null);
+  const path = existing.find(isDoc);
+  if (path === undefined) {
+    return fail(
+      existing.length > 0
+        ? `not a .md file under docs/:\n  ${existing.join("\n  ")}\n\n${USAGE}`
+        : `no such file, tried:\n  ${candidates.join("\n  ")}\n\n${USAGE}`,
+    );
+  }
+
+  let expanded: string;
+  try {
+    expanded = expandSnippetMarkers(readFileSync(path, "utf8"));
+  } catch (e) {
+    return fail(`${arg}: ${e instanceof Error ? e.message : String(e)}`);
+  }
+  process.stdout.write(expanded);
 }
 
-let expanded: string;
-try {
-  expanded = expandSnippetMarkers(readFileSync(path, "utf8"));
-} catch (e) {
-  fail(`${arg}: ${(e as Error).message}`);
-}
-process.stdout.write(expanded);
+main();

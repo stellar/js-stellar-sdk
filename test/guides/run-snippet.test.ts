@@ -1,16 +1,30 @@
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, rmSync } from "node:fs";
-import { createServer } from "node:net";
+import { existsSync, mkdtempSync, rmSync } from "node:fs";
+import { createServer as createHttpServer } from "node:http";
+import { createServer, type Server } from "node:net";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { describe, expect, it, vi } from "vitest";
-import { runSnippet } from "./run-snippet.js";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { PRELOAD_ARGV, runSnippet } from "./run-snippet.js";
 
 const fixture = (name: string) =>
   fileURLToPath(new URL(`fixtures/${name}.ts`, import.meta.url));
 
+async function listen(server: Server): Promise<number> {
+  await new Promise<void>((resolve) => server.listen(0, resolve));
+  const address = server.address();
+  if (address === null || typeof address === "string") {
+    throw new Error("test server has no TCP port");
+  }
+  return address.port;
+}
+
 describe("runSnippet isolates each snippet", { timeout: 30_000 }, () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
   it("does not leak global state into the next snippet", async ({ signal }) => {
     await runSnippet(fixture("set-global"), signal);
     await expect(
@@ -28,7 +42,7 @@ describe("runSnippet isolates each snippet", { timeout: 30_000 }, () => {
     signal,
   }) => {
     const dir = mkdtempSync(join(tmpdir(), "guide-fixture-"));
-    process.env.GUIDE_FIXTURE_MARKER = join(dir, "ran");
+    vi.stubEnv("GUIDE_FIXTURE_MARKER", join(dir, "ran"));
     try {
       await expect(runSnippet(fixture("flaky"), signal)).rejects.toThrow(
         "fixture fails on its first run",
@@ -37,7 +51,6 @@ describe("runSnippet isolates each snippet", { timeout: 30_000 }, () => {
         runSnippet(fixture("flaky"), signal),
       ).resolves.toBeUndefined();
     } finally {
-      delete process.env.GUIDE_FIXTURE_MARKER;
       rmSync(dir, { recursive: true, force: true });
     }
   });
@@ -49,20 +62,38 @@ describe("runSnippet isolates each snippet", { timeout: 30_000 }, () => {
   });
 
   it("kills the snippet and prints its output when the signal aborts", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "guide-fixture-"));
+    const started = join(dir, "started");
+    vi.stubEnv("GUIDE_FIXTURE_MARKER", started);
     const consoleError = vi
       .spyOn(console, "error")
       .mockImplementation(() => {});
-    const started = Date.now();
+    const controller = new AbortController();
     try {
-      await expect(
-        runSnippet(fixture("hang"), AbortSignal.timeout(5_000)),
-      ).rejects.toThrow();
-      expect(Date.now() - started).toBeLessThan(15_000);
+      const run = runSnippet(fixture("hang"), controller.signal);
+      let settled = false;
+      run.then(
+        () => (settled = true),
+        () => (settled = true),
+      );
+      // Abort only once the child runs, so its start-up is not in the budget.
+      while (!settled && !existsSync(started)) {
+        await new Promise((resolve) => setTimeout(resolve, 50));
+      }
+      // A child that died before the marker shows its own error here.
+      if (settled) await run;
+      // One I/O turn, so the parent reads the line the child printed first.
+      await new Promise((resolve) => setImmediate(resolve));
+      const aborted = Date.now();
+      controller.abort();
+      await expect(run).rejects.toThrow();
+      expect(Date.now() - aborted).toBeLessThan(5_000);
       expect(consoleError).toHaveBeenCalledWith(
         expect.stringContaining("hang fixture started"),
       );
     } finally {
       consoleError.mockRestore();
+      rmSync(dir, { recursive: true, force: true });
     }
   });
 
@@ -84,13 +115,7 @@ describe("runSnippet isolates each snippet", { timeout: 30_000 }, () => {
     const { TSX_TSCONFIG_PATH: _, ...env } = process.env;
     const child = spawnSync(
       process.execPath,
-      [
-        "--import",
-        "tsx",
-        "--import",
-        new URL("../../config/guides-snippet-preload.ts", import.meta.url).href,
-        fixture("set-global"),
-      ],
+      [...PRELOAD_ARGV, fixture("set-global")],
       { env, encoding: "utf8", timeout: 10_000 },
     );
     expect(child.status).not.toBe(0);
@@ -104,30 +129,34 @@ describe("runSnippet isolates each snippet", { timeout: 30_000 }, () => {
   }) => {
     // Accepts the connection and never answers.
     const stalled = createServer(() => {});
-    await new Promise<void>((resolve) => stalled.listen(0, resolve));
-    const address = stalled.address();
-    if (address === null || typeof address === "string") {
-      throw new Error("test server has no TCP port");
-    }
-    const previous = {
-      GUIDES_TARGET: process.env.GUIDES_TARGET,
-      QUICKSTART_URL: process.env.QUICKSTART_URL,
-    };
-    process.env.GUIDES_TARGET = "local";
-    process.env.QUICKSTART_URL = `http://localhost:${address.port}`;
+    const port = await listen(stalled);
+    vi.stubEnv("GUIDES_TARGET", "local");
+    vi.stubEnv("QUICKSTART_URL", `http://localhost:${port}`);
     try {
       await expect(runSnippet(fixture("set-global"), signal)).rejects.toThrow(
         "redirect canary could not read the local Horizon root",
       );
     } finally {
-      for (const [key, value] of Object.entries(previous)) {
-        if (value === undefined) {
-          delete process.env[key];
-        } else {
-          process.env[key] = value;
-        }
-      }
       stalled.close();
+    }
+  });
+
+  it("reports the status when the canary gets a non-2xx root", async ({
+    signal,
+  }) => {
+    const starting = createHttpServer((_, res) => {
+      res.statusCode = 503;
+      res.end("{}");
+    });
+    const port = await listen(starting);
+    vi.stubEnv("GUIDES_TARGET", "local");
+    vi.stubEnv("QUICKSTART_URL", `http://localhost:${port}`);
+    try {
+      await expect(runSnippet(fixture("set-global"), signal)).rejects.toThrow(
+        "answered HTTP 503, so it may still be starting",
+      );
+    } finally {
+      starting.close();
     }
   });
 
