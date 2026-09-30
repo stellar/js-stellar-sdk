@@ -165,8 +165,8 @@ builds the payload, signs it, verifies it, and returns a new, signed entry:
 
 For a custom signer that is not a `Keypair`, pass a `SigningCallback` to
 `authorizeEntry`. It receives the full `xdr.HashIdPreimage`, so it can inspect
-what it signs, and it should return `{ signature, publicKey }` (the bare `Buffer`
-return is deprecated).
+what it signs, and it should return `{ signature, publicKey }` (the bare
+`Uint8Array` return is deprecated).
 
 ## Why one call covers both
 

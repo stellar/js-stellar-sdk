@@ -236,7 +236,7 @@ describe("scanMarkdown", () => {
       ["```untested", false],
       ["``` untested", false],
     ] as const) {
-      expect(scanMarkdown(line)[0], line).toEqual({
+      expect(scanMarkdown(line)[0], line).toMatchObject({
         line,
         kind: "fence-open",
         untested,
@@ -407,6 +407,20 @@ describe("expandSnippetMarkers", () => {
     expect(() =>
       expandSnippetMarkers("<!-- snippet: connect-and-fund.ts#nope -->"),
     ).toThrow(/no #region nope/);
+  });
+
+  it("strips the untested word from a hand-written fence line", () => {
+    expect(expandSnippetMarkers("```ts untested\nconst x = 1;\n```")).toBe(
+      "```ts\nconst x = 1;\n```",
+    );
+  });
+
+  it("keeps other fence metadata and a quoted untested", () => {
+    expect(
+      expandSnippetMarkers(
+        '```ts title="an untested one" untested del={1}\nx\n```',
+      ),
+    ).toBe('```ts title="an untested one" del={1}\nx\n```');
   });
 });
 

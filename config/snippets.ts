@@ -280,9 +280,10 @@ function metaProblems(meta: string, lineCount: number): string[] {
 
 /**
  * One markdown line, classified by the shared fence-aware scanner. A marker
- * carries its file#region and fence metadata, and a fence opener carries
- * whether its info string has the `untested` opt-out word; a consumer must
- * narrow on `kind` before reading them.
+ * carries its file#region and fence metadata, and a fence opener carries its
+ * opening run (`opener`, with any indent), its info words (`info`) and
+ * whether they have the `untested` opt-out word; a consumer must narrow on
+ * `kind` before reading them.
  */
 export type ScannedLine =
   | {
@@ -292,7 +293,13 @@ export type ScannedLine =
       region: string;
       meta: string;
     }
-  | { line: string; kind: "fence-open"; untested: boolean }
+  | {
+      line: string;
+      kind: "fence-open";
+      opener: string;
+      info: string[];
+      untested: boolean;
+    }
   | {
       line: string;
       kind: "text" | "near-miss" | "fence-close" | "code";
@@ -323,6 +330,8 @@ export function scanMarkdown(markdown: string): ScannedLine[] {
         out.push({
           line,
           kind: "fence-open",
+          opener: run[0],
+          info,
           untested: info.slice(1).includes("untested"),
         });
         continue;
@@ -438,7 +447,9 @@ export function checkDoc(
 
 /**
  * Replaces every snippet marker line in a markdown string with a fenced
- * code block. For consumers that work on raw markdown text.
+ * code block, and strips the `untested` opt-out word from hand-written fence
+ * lines (their info words are re-joined with single spaces). For consumers
+ * that work on raw markdown text.
  */
 export function expandSnippetMarkers(markdown: string): string {
   return scanMarkdown(markdown)
@@ -452,6 +463,11 @@ export function expandSnippetMarkers(markdown: string): string {
         }
         const info = meta === "" ? langOf(file) : `${langOf(file)} ${meta}`;
         return `\`\`\`${info}\n${code}\n\`\`\``;
+      }
+      if (scanned.kind === "fence-open" && scanned.untested) {
+        const [lang, ...rest] = scanned.info;
+        const kept = rest.filter((word) => word !== "untested");
+        return `${scanned.opener}${[lang, ...kept].join(" ")}`;
       }
       if (scanned.kind === "near-miss") {
         throw nearMissError(i + 1, scanned.line);
