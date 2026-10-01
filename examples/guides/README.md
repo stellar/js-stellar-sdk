@@ -1,9 +1,11 @@
 # Testable guide snippets
 
 Every code example in `docs/guides/*.md` lives in exactly one place: a runnable
-TypeScript file in `examples/guides/`. Guides never contain code, only markers.
-The docs build injects the code at build time, and the test suite typechecks and
-executes it. If an SDK change breaks a guide example, CI fails.
+TypeScript file in `examples/guides/`. Guides contain only markers, except for
+code blocks marked `untested` (see
+[Intentionally unverified code](#intentionally-unverified-code)). The docs build
+injects the code at build time, and the test suite typechecks and executes it.
+If an SDK change breaks a guide example, CI fails.
 
 ## How it works
 
@@ -30,16 +32,26 @@ executes it. If an SDK change breaks a guide example, CI fails.
    - **Hermetic PR gate** `pnpm docs:snippets:check` (runs in `pnpm test`,
      `pnpm docs`, and the tests and docs-build workflows on every PR): every
      marker resolves to a real file and region, no inline code block follows a
-     marker, malformed markers (typos, indented markers) are hard errors, and
-     snippets typecheck against `src/` with the same strictness as the SDK
-     build.
+     marker, malformed markers (typos, indented markers) are hard errors,
+     marker fence metadata is only `title`, `del` or `ins` with line numbers
+     inside the region, every fenced code block in a guide is a marker or is
+     marked `untested`, and snippets typecheck against `src/` with the same
+     strictness as the SDK build. It also prints a tested/untested count for
+     each guide.
    - **Local-network execution PR gate** `pnpm test:guides:local` (runs in
      `guides_pr.yml` on every PR against a stellar/quickstart service
      container): `test/guides/snippets.test.ts` auto-discovers every file in
-     `examples/guides/` and executes it. Snippets keep their real testnet URLs
-     and passphrase; `config/guides-local-setup.ts` redirects them to the local
-     network at the transport layer. To run locally, start quickstart first:
-     `docker run --rm -p 8000:8000 -e NETWORK=local -e ENABLE_SOROBAN_RPC=true stellar/quickstart:testing`
+     `examples/guides/` and executes each one in its own node process. Snippets
+     keep their real testnet URLs and passphrase;
+     `config/guides-snippet-preload.ts` redirects them to the local network at
+     the transport layer, inside each snippet's process. To run locally, start
+     quickstart first:
+     `docker run --rm -p 8000:8000 -e NETWORK=local -e ENABLE_SOROBAN_RPC=true -e PROTOCOL_VERSION=28 stellar/quickstart:testing`
+     Without `PROTOCOL_VERSION`, the network starts at the image's default
+     protocol, and an older image can start below what the checked-in wasm
+     fixtures need (see `wasm/README.md`). The version must not be more than
+     the one that the image's stellar-core supports. To match CI, use the
+     image and the version that `guides_pr.yml` pins.
    - **Real-testnet execution** `pnpm test:guides` (run by `preversion` at
      release time, or manually): the same tests with no redirection. This tier
      catches drift a local network cannot: Horizon deployments, friendbot API
@@ -56,9 +68,9 @@ executes it. If an SDK change breaks a guide example, CI fails.
    each displayed block in a region:
 
    ```ts
-   // #region create-keypair
-   const keypair = Keypair.random();
-   // #endregion create-keypair
+   // #region define-asset
+   const astro = new Asset("ASTRO", issuer.publicKey());
+   // #endregion define-asset
    ```
 
    Rules that make this work:
@@ -91,26 +103,74 @@ executes it. If an SDK change breaks a guide example, CI fails.
    instead of a code block:
 
    ```markdown
-   <!-- snippet: issue-an-asset.ts#create-keypair -->
+   <!-- snippet: issue-an-asset.ts#define-asset -->
    ```
 
    Do not put a code fence after the marker. `check-snippets` rejects it,
    because an inline copy would go stale silently.
 
+   A marker can carry fence metadata after the region. The build copies it onto
+   the fence line. Use it for a before/after pair:
+
+   ```markdown
+   <!-- snippet: contract-auth.ts#after-preimage title="After" ins={2-6} -->
+   ```
+
+   Only `title="…"`, `del={…}` and `ins={…}` are allowed. Line numbers count
+   from the first line of the region. `check-snippets` and the docs build fail
+   on a line past its end, but they cannot see a region edit that keeps the
+   length, so check the highlights when you change a region.
+
 3. **Verify**: `pnpm docs:snippets:check` for fast validation and typecheck,
    `pnpm test:guides:local` to execute against a local quickstart container (the
-   day-to-day loop, a few seconds per run), and `pnpm docs:dev` to see the
+   day-to-day loop, a few seconds per run), `pnpm docs:snippets:show <doc>` to
+   print one file's expanded markdown, and `pnpm docs:dev` to see the
    rendered guide. In dev, editing a snippet hot reloads the pages that embed
    it. No Docker? Run the check locally and let the `guides_pr.yml` workflow
    execute the snippets on your PR. There is no test wiring step:
    `test/guides/snippets.test.ts` auto-discovers every snippet file, so a
    snippet that typechecks but never runs cannot happen.
 
+## Reviewing a snippet change
+
+A marker hides the code from the diff, so a reviewer cannot see what the page
+will render. Print one file's expanded markdown:
+
+```sh
+pnpm docs:snippets:show guides/03-issue-an-asset.md
+```
+
+Paths resolve from the repo root, either as typed or relative to `docs/`, so
+the `docs/` prefix is optional. The output is what the build writes into
+`.docs-build/`, byte for byte. To capture it, silence pnpm's banner — it goes
+to stdout, ahead of the markdown:
+
+```sh
+pnpm --silent docs:snippets:show guides/03-issue-an-asset.md > rendered.md
+```
+
 ## Intentionally unverified code
 
-Code that must not compile or run (the migration guide's before examples,
-pseudocode) stays as a plain fenced block with no marker. Only marked blocks are
-tested. Prefer markers for anything a reader might copy.
+In `docs/guides/`, every fenced code block must be a marker. `check-snippets`
+fails on a plain fenced block there. To keep a block that is not tested (a
+"before" example, pseudocode, or a guide not yet converted), add the word
+`untested` to its fence line, after the language:
+
+````markdown
+```ts untested
+```
+````
+
+The first word is always the language, so ` ```untested ` does not count. The
+word stays in the source file, where `check-snippets` reads it, and the
+expanded outputs (the site, the raw `.md` siblings and `llms-full.txt`) drop
+it. Prefer markers for anything a reader might copy.
+The word can sit next to fence metadata (` ```ts untested title="Before" `). A
+quoted title that contains the word does not count.
+
+Outside `docs/guides/`, plain fenced blocks are allowed: `docs/reference/` is
+generated, `docs/migration/` shows old APIs on purpose, and `docs/index.md` is
+synced from the root README. The marker rules still apply there.
 
 ## Gotchas
 
@@ -121,16 +181,25 @@ tested. Prefer markers for anything a reader might copy.
   `connect-and-fund.ts`); a second snippet file is the last resort, only for
   genuinely incompatible alternative programs.
 - Snippets that need contract infrastructure can deploy their own contract (from
-  a checked-in wasm fixture) in hidden setup, the same way the payment snippet
-  funds its own accounts. The quickstart tier runs Soroban RPC, so this works on
-  every PR.
+  a checked-in wasm fixture in `wasm/`) in hidden setup, the same way the
+  payment snippet funds its own accounts. The quickstart tier runs Soroban RPC,
+  so this works on every PR. Call `deployWasm` from `setup/deploy.ts` with
+  `{ rpcUrl, networkPassphrase, keypair }` (a funded keypair) and the wasm file
+  name. It returns the contract ID.
+  `invoke-a-contract.ts` shows the pattern. Files in `setup/` are not snippets:
+  only the top-level `*.ts` files in this directory run as guide snippets.
 - Never reassign `globalThis.fetch` or mutate `Networks` inside a snippet. The
-  local-network tier redirects transport by patching exactly those, and all
-  snippets share one process; a snippet that touches them breaks every snippet
-  after it.
+  local-network tier redirects transport by patching exactly those, before the
+  snippet starts; a snippet that touches them can send itself to real testnet.
+- A snippet must let its process exit. If a stream, timer or socket is still
+  open 5 seconds after the snippet's last line, the run fails with "left open
+  handles". Close streams in hidden teardown.
+- A snippet's console output appears only when it fails: in the error when it
+  exits non-zero, or as a stderr block when it times out.
 - If the site sidebar ever loses its groups, check the `autogenerate`
   directories in `astro.config.mjs`. They must be prefixed `.docs-build/`,
-  matching the collection root.
+  matching the collection root. `pnpm docs:site` fails on an empty group
+  (`scripts/check-sidebar.ts`).
 
 ## Backlog
 
@@ -140,9 +209,4 @@ due. Do the item when its trigger arrives, not before.
 | Item                                                                                                                          | Trigger                                                                           |
 | ----------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
 | One-time GitHub setup: add `guides-local` to the protect-main ruleset as a required check                                     | When this system first lands on the remote                                        |
-| Untested-fence opt-out annotation plus a tested/untested count in `check-snippets` (makes silent partial conversions visible) | Before the first partial guide conversion (invoke-a-contract is the likely first) |
-| Fence metadata passthrough in markers (for `title=` and `del=`/`ins=` annotations)                                            | Before converting the before/after guides (contract-auth, protocol-27, migration) |
-| Checked-in wasm fixture plus deploy-in-hidden-setup pattern                                                                   | Before converting invoke-a-contract or contract-auth                              |
-| Child-process snippet execution (isolates shared-process state; dynamic import caches failures, so vitest retry is a no-op)   | Before converting the streaming or error-handling guides                          |
-| Reviewer preview: a command that prints a guide's expanded markdown, or a CI artifact of the `.docs-build/` diff              | Strongly recommended before conversions start                                     |
-| Sidebar canary: post-build assertion that the Guides and Reference groups render                                              | Any time; value grows with guide count                                            |
+| Reviewer preview as a CI artifact of the expanded `.docs-build/guides/` output (the local command half is done: `pnpm docs:snippets:show`) | If reviewers find checking out the branch too slow                                |

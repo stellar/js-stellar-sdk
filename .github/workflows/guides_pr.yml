@@ -3,7 +3,7 @@ name: Guide snippets (local network)
 # Executes the docs guide snippets (examples/guides/*.ts) on every PR
 # against a local stellar/quickstart network, so a change that breaks the
 # documented flows at runtime cannot merge. The snippets keep their real
-# testnet URLs and passphrase; config/guides-local-setup.ts redirects them
+# testnet URLs and passphrase; config/guides-snippet-preload.ts redirects them
 # to the service container at the transport layer. Depends on nothing
 # outside the runner, so it is reliable enough to be a required check.
 # Real-testnet drift (Horizon deployments, friendbot changes, protocol
@@ -26,7 +26,7 @@ concurrency:
 
 jobs:
   run_guides_local:
-    # Stable, short status-check context: this name is (to be) listed in the
+    # Stable, short status-check context: this name is listed in the
     # protect-main ruleset as a required check. Renaming it strands every PR
     # on an "Expected" check (see the build_and_test (20) placeholder in
     # tests.yml for how that ends). Never add a paths: filter to this
@@ -37,20 +37,21 @@ jobs:
     timeout-minutes: 30
     services:
       quickstart:
-        # Protocol 27 to match what the SDK and the guides document (the
-        # protocol-27 Soroban auth guide depends on it). This digest is
-        # deliberately NEWER than e2e.yml's pin, whose core only supports
-        # protocol 25 — when bumping either workflow's image, check the
-        # other and confirm PROTOCOL_VERSION is still <= the image's
+        # Protocol 28 is the highest that a released quickstart tag
+        # (testing, latest, future) supports (core v28.0.1). Testnet runs a
+        # newer protocol, and the release tier (pnpm test:guides) covers it.
+        # 07-contract-auth needs protocol 27 or later (AddressV2). e2e.yml
+        # pins its own image and protocol: when bumping either workflow's
+        # image, confirm PROTOCOL_VERSION is still <= that image's
         # core_supported_protocol_version.
-        image: stellar/quickstart:testing@sha256:3b98cc624a235215bbb2dedd18bd3ec3a498053b6b6533533b6a0d94354a7885
+        image: stellar/quickstart:testing@sha256:1d57fcdc3bc3775f841c4eed877cfc10e406ab7b879c0531844549aeff52ff0a
         ports:
           - 8000:8000
         env:
           ENABLE_LOGS: true
           NETWORK: local
           ENABLE_SOROBAN_RPC: true
-          PROTOCOL_VERSION: 27
+          PROTOCOL_VERSION: 28
         options: >-
           --health-cmd "curl --no-progress-meter --fail-with-body -X POST
           \"http://localhost:8000/soroban/rpc\" -H 'Content-Type:
