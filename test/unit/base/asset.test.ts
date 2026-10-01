@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import { areUint8ArraysEqual } from "uint8array-extras";
 import { Asset } from "../../../src/base/asset.js";
 import { Keypair } from "../../../src/base/keypair.js";
+import { StrKey } from "../../../src/base/strkey.js";
 import { Networks } from "../../../src/base/network.js";
 import { expectDefined } from "./support/expect_defined.js";
 import { stringToUint8Array } from "uint8array-extras";
@@ -376,6 +377,20 @@ describe("Asset", () => {
 
       expect(Asset.compare(assetIssuerB, assetIssuerA)).toBe(1);
       expect(Asset.compare(assetIssuerB, assetIssuerB)).toBe(0);
+    });
+
+    it("orders issuers by key bytes, not strkey text", () => {
+      // 0x00… encodes as GAA… and 0x3a… as GA5…, so text order is reversed
+      const low = StrKey.encodeEd25519PublicKey(new Uint8Array(32));
+      const high = StrKey.encodeEd25519PublicKey(new Uint8Array(32).fill(0x3a));
+      expect(high < low).toBe(true);
+
+      expect(
+        Asset.compare(new Asset("ARST", low), new Asset("ARST", high)),
+      ).toBe(-1);
+      expect(
+        Asset.compare(new Asset("ARST", high), new Asset("ARST", low)),
+      ).toBe(1);
     });
 
     it("sorts upper-case letters before lower-case letters", () => {

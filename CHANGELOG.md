@@ -4,6 +4,9 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Fixed
+* `Asset.compare()` orders two assets with the same code by their issuers' key bytes, as stellar-core does, instead of by the `G…` strkey text. The two orders can differ, so `getLiquidityPoolId()` and `new LiquidityPoolAsset()` rejected some valid asset pairs as out of order.
+
 ## [v17.2.0](https://github.com/stellar/js-stellar-sdk/compare/v17.1.0...v17.2.0)
 
 ### Added
