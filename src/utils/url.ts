@@ -52,6 +52,8 @@ function expandPlaceholders(
 export function expandUriTemplate(
   template: string,
   variables: Record<string, UrlTemplateValue | undefined>,
+  // Optional because an absolute template ignores it. A relative one throws
+  // `Invalid URL` without it, so a caller expanding Horizon `_links` must pass it.
   baseUrl?: string | URL,
 ): string {
   const queryNames: string[] = [];
