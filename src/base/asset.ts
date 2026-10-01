@@ -317,6 +317,9 @@ export class Asset {
     if (issuerA === undefined || issuerB === undefined) {
       throw new Error("Issuer is undefined for non-native asset");
     }
-    return asciiCompare(issuerA, issuerB);
+    return Buffer.compare(
+      StrKey.decodeEd25519PublicKey(issuerA),
+      StrKey.decodeEd25519PublicKey(issuerB),
+    );
   }
 }

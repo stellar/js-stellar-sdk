@@ -2,6 +2,11 @@
 
 A breaking change will get clearly marked in this log.
 
+## [v16.3.1](https://github.com/stellar/js-stellar-sdk/compare/v16.3.0...v16.3.1)
+
+### Fixed
+* `Asset.compare()` orders two assets with the same code by their issuers' key bytes, as stellar-core does, instead of by the `G…` strkey text. The two orders can differ, so decoding a valid pool-share `ChangeTrust` with `Operation.fromXDRObject()` or `TransactionBuilder.fromXDR()` threw `Assets are not in lexicographic order`, and `getLiquidityPoolId()` and `new LiquidityPoolAsset()` rejected the same asset pairs (backport of [#1766](https://github.com/stellar/js-stellar-sdk/pull/1766)).
+
 ## [v16.3.0](https://github.com/stellar/js-stellar-sdk/compare/v16.2.0...v16.3.0)
 
 ### Added

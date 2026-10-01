@@ -3,6 +3,7 @@ import { Operation } from "../../../../src/base/operation.js";
 import { Asset } from "../../../../src/base/asset.js";
 import { LiquidityPoolAsset } from "../../../../src/base/liquidity_pool_asset.js";
 import { LiquidityPoolFeeV18 } from "../../../../src/base/get_liquidity_pool_id.js";
+import { StrKey } from "../../../../src/base/strkey.js";
 import xdr from "../../../../src/base/xdr.js";
 import { expectOperationType } from "../support/operation.js";
 
@@ -129,6 +130,40 @@ describe("Operation.changeTrust()", () => {
     const rebuilt = Operation.changeTrust(parsed);
     expect(rebuilt).toBeInstanceOf(xdr.Operation);
     expect(rebuilt.toXDR("hex")).toBe(xdrHex);
+  });
+
+  it("decodes a pool share whose issuers sort differently as strkey text", () => {
+    // Core orders issuers by key bytes: 0x00… (GAA…) before 0x3a… (GA5…)
+    const assetA = new Asset(
+      "USD",
+      StrKey.encodeEd25519PublicKey(Buffer.alloc(32, 0)),
+    );
+    const assetB = new Asset(
+      "USD",
+      StrKey.encodeEd25519PublicKey(Buffer.alloc(32, 0x3a)),
+    );
+    const params = xdr.LiquidityPoolParameters.liquidityPoolConstantProduct(
+      new xdr.LiquidityPoolConstantProductParameters({
+        assetA: assetA.toXDRObject(),
+        assetB: assetB.toXDRObject(),
+        fee: LiquidityPoolFeeV18,
+      }),
+    );
+    const op = new xdr.Operation({
+      sourceAccount: null,
+      body: xdr.OperationBody.changeTrust(
+        new xdr.ChangeTrustOp({
+          line: xdr.ChangeTrustAsset.assetTypePoolShare(params),
+          limit: xdr.Int64.fromString("1000"),
+        }),
+      ),
+    });
+
+    const obj = Operation.fromXDRObject(op);
+    expectOperationType(obj, "changeTrust");
+    const line = obj.line as LiquidityPoolAsset;
+    expect(line.assetA.equals(assetA)).toBe(true);
+    expect(line.assetB.equals(assetB)).toBe(true);
   });
 
   it("preserves an optional source account", () => {
