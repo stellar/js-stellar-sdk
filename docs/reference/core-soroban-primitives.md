@@ -1150,7 +1150,7 @@ scValToNative(scv) == gigaMap;       // true
 
 - scValToNative
 
-**Source:** [src/base/scval.ts:172](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L172)
+**Source:** [src/base/scval.ts:174](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L174)
 
 ## scValToNative
 
@@ -1183,11 +1183,12 @@ scValToNative(scv: ScVal): any
 
 - nativeToScVal
 
-**Source:** [src/base/scval.ts:431](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L431)
+**Source:** [src/base/scval.ts:430](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L430)
 
 ## scvSortedMap
 
-Build a sorted ScVal map from unsorted entries, sorted by key.
+Build a sorted ScVal map from unsorted entries, sorted by key in the order
+the Soroban host requires.
 
 ```ts
 scvSortedMap(items: ScMapEntry[]): ScVal
@@ -1898,7 +1899,7 @@ interface NativeToScValOpts {
 }
 ```
 
-**Source:** [src/base/scval.ts:25](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L25)
+**Source:** [src/base/scval.ts:27](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L27)
 
 #### `nativeToScValOpts.type`
 
@@ -1906,7 +1907,7 @@ interface NativeToScValOpts {
 type?: ScValType | ScValMapTypeSpec | ScValType | null[];
 ```
 
-**Source:** [src/base/scval.ts:26](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L26)
+**Source:** [src/base/scval.ts:28](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L28)
 
 ### SigningCallback
 
