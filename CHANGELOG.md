@@ -4,6 +4,8 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+## [v17.2.1](https://github.com/stellar/js-stellar-sdk/compare/v17.2.0...v17.2.1)
+
 ### Fixed
 * `Asset.compare()` orders two assets with the same code by their issuers' key bytes, as stellar-core does, instead of by the `G…` strkey text. The two orders can differ, so `getLiquidityPoolId()` and `new LiquidityPoolAsset()` rejected some valid asset pairs as out of order ([#1766](https://github.com/stellar/js-stellar-sdk/pull/1766)).
 * `scvSortedMap()` and `nativeToScVal()` now sort map keys in the order the Soroban host requires: by ScVal type, then by value. They previously compared the keys' native string forms, so address, bytes, and mixed-type keys could come out in an order the host rejects. A plain object's keys are now sorted after conversion, so `{ 10: …, 9: … }` with `u32` keys becomes `[9, 10]`. Maps that mix key types change order: `scvString` keys now come before `scvSymbol` keys, whatever their names ([#1766](https://github.com/stellar/js-stellar-sdk/pull/1766)).
