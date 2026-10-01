@@ -5,6 +5,7 @@ import {
   ScInt,
   Address,
   Keypair,
+  StrKey,
   XdrLargeInt,
   scValToBigInt,
 } from "../../../src/base/index.js";
@@ -220,14 +221,15 @@ describe("parsing and building ScVals - from scval_test.js", () => {
     let e;
     expect(scv.type).toBe("scvMap");
 
+    // scvString keys sort before scvSymbol keys
     e = (scv.value as any[])[0];
-    expect(e.key.type).toBe("scvSymbol");
-    expect(e.val.type).toBe("scvString");
-
-    e = (scv.value as any[])[1];
     expect(e.key.type).toBe("scvString");
     expect(e.val.type).toBe("scvVec");
     expect(e.val.value[0].type).toBe("scvI32");
+
+    e = (scv.value as any[])[1];
+    expect(e.key.type).toBe("scvSymbol");
+    expect(e.val.type).toBe("scvString");
   });
 
   it("doesnt throw on arrays with mixed types", () => {
@@ -321,6 +323,16 @@ describe("parsing and building ScVals - from scval_test.js", () => {
     ["a", "b", "c"].forEach((val, idx) => {
       expect((sorted.value as any[])[idx].key.value).toBe(val);
     });
+  });
+
+  it("sorts object keys by their converted value", () => {
+    const sample = nativeToScVal(
+      { 10: "a", 9: "b" },
+      { type: { 10: ["u32", "symbol"], 9: ["u32", "symbol"] } },
+    );
+    expect(
+      (sample.value as xdr.ScMapEntry[]).map((e) => scValToNative(e.key)),
+    ).toEqual([9, 10]);
   });
 
   it("can sort number-like maps", () => {
@@ -1106,12 +1118,11 @@ describe("nativeToScVal", () => {
         },
       );
       const entries = scv.value as any[];
-      // "hinted" comes first alphabetically
-      expect(entries[0].key.type).toBe("scvSymbol");
-      expect(entries[0].val.type).toBe("scvI32");
-      // "unhinted" falls back to default
-      expect(entries[1].key.type).toBe("scvString");
-      expect(entries[1].val.type).toBe("scvString");
+      // "unhinted" falls back to default, and scvString sorts before scvSymbol
+      expect(entries[0].key.type).toBe("scvString");
+      expect(entries[0].val.type).toBe("scvString");
+      expect(entries[1].key.type).toBe("scvSymbol");
+      expect(entries[1].val.type).toBe("scvI32");
     });
 
     it("uses null in type hint pair for default", () => {
@@ -1676,6 +1687,78 @@ describe("scvSortedMap", () => {
     const result = sorted.value as any[];
     expect(result[0].key.value).toBe("a");
     expect(result[1].key.value).toBe("b");
+  });
+
+  const keysOf = (map: xdr.ScVal) =>
+    (map.value as xdr.ScMapEntry[]).map((e) => e.key.toXdr("base64"));
+  const entry = (key: xdr.ScVal) =>
+    new xdr.ScMapEntry({ key, val: xdr.ScVal.scvVoid() });
+
+  it("sorts address keys by address type, then key bytes", () => {
+    // 0x00… encodes as GAA… and 0x3a… as GA5…, so strkey text order differs
+    const accLow = new Address(
+      StrKey.encodeEd25519PublicKey(new Uint8Array(32)),
+    ).toScVal();
+    const accHigh = new Address(
+      StrKey.encodeEd25519PublicKey(new Uint8Array(32).fill(0x3a)),
+    ).toScVal();
+    const contract = new Address(
+      StrKey.encodeContract(new Uint8Array(32)),
+    ).toScVal();
+
+    const sorted = scvSortedMap([contract, accHigh, accLow].map(entry));
+    expect(keysOf(sorted)).toEqual(
+      [accLow, accHigh, contract].map((k) => k.toXdr("base64")),
+    );
+  });
+
+  it("sorts bytes keys by byte order", () => {
+    const keys = [[10], [9], [1, 2], [2]].map((b) =>
+      xdr.ScVal.scvBytes(new Uint8Array(b)),
+    );
+    const sorted = scvSortedMap(keys.map(entry));
+    expect(
+      (sorted.value as xdr.ScMapEntry[]).map((e) =>
+        Array.from(scValToNative(e.key) as Uint8Array),
+      ),
+    ).toEqual([[1, 2], [2], [9], [10]]);
+  });
+
+  it("sorts string keys by bytes, not by length", () => {
+    const sorted = scvSortedMap(
+      ["b", "aa", "a"].map((s) => entry(xdr.ScVal.scvSymbol(s))),
+    );
+    expect(
+      (sorted.value as xdr.ScMapEntry[]).map((e) => scValToNative(e.key)),
+    ).toEqual(["a", "aa", "b"]);
+  });
+
+  it("sorts negative integer keys before positive ones", () => {
+    const sorted = scvSortedMap(
+      [1, -1, 0, -200].map((n) => entry(new ScInt(n).toI128())),
+    );
+    expect(
+      (sorted.value as xdr.ScMapEntry[]).map((e) => scValToNative(e.key)),
+    ).toEqual([-200n, -1n, 0n, 1n]);
+  });
+
+  it("sorts keys of different types by ScVal type", () => {
+    const sym = xdr.ScVal.scvSymbol("a");
+    const u32 = xdr.ScVal.scvU32(100);
+    const bool = xdr.ScVal.scvBool(true);
+    const sorted = scvSortedMap([sym, u32, bool].map(entry));
+    expect(keysOf(sorted)).toEqual(
+      [bool, u32, sym].map((k) => k.toXdr("base64")),
+    );
+  });
+
+  it("sorts vec keys element by element, then by length", () => {
+    const vec = (...ns: number[]) =>
+      xdr.ScVal.scvVec(ns.map((n) => xdr.ScVal.scvU32(n)));
+    const sorted = scvSortedMap([vec(2), vec(1, 5), vec(1)].map(entry));
+    expect(keysOf(sorted)).toEqual(
+      [vec(1), vec(1, 5), vec(2)].map((k) => k.toXdr("base64")),
+    );
   });
 
   it("sorts mixed-case string keys by codepoint order, not locale order", () => {

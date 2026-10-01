@@ -49,7 +49,7 @@ interface XdrAssetConstructor<TNative, TAlpha4, TAlpha12> {
  * @param b - the second string to compare
  */
 function asciiCompare(a: string, b: string): -1 | 0 | 1 {
-  // Asset codes and issuers are pure ASCII, so UTF-8 bytes match the old
+  // Asset codes are pure ASCII, so UTF-8 bytes match the old
   // "ascii" encoding byte-for-byte.
   return compareUint8Arrays(stringToUint8Array(a), stringToUint8Array(b)) as
     -1 | 0 | 1;
@@ -394,6 +394,9 @@ export class Asset {
     if (issuerA === undefined || issuerB === undefined) {
       throw new Error("Issuer is undefined for non-native asset");
     }
-    return asciiCompare(issuerA, issuerB);
+    return compareUint8Arrays(
+      StrKey.decodeEd25519PublicKey(issuerA),
+      StrKey.decodeEd25519PublicKey(issuerB),
+    );
   }
 }

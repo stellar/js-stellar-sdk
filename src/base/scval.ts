@@ -1,9 +1,11 @@
+import { compareUint8Arrays } from "uint8array-extras";
 import {
   Int32,
   ScBytes,
   ScErrorCode,
   ScMapEntry,
   ScVal,
+  ScValType as XdrScValType,
   Uint32,
 } from "../xdr/index.js";
 import { Keypair } from "./keypair.js";
@@ -293,27 +295,24 @@ export function nativeToScVal(
 
       const mapTypeSpec = (opts?.type ?? {}) as ScValMapTypeSpec;
 
-      return ScVal.scvMap(
-        Object.entries(val as Record<string, unknown>)
-          // The Soroban runtime expects maps to have their keys in sorted
-          // order, so let's do that here as part of the conversion to prevent
-          // confusing error messages on execution.
-          .sort(([key1], [key2]) => (key1 < key2 ? -1 : key1 > key2 ? 1 : 0))
-          .map(([k, v]) => {
-            // the type can be specified with an entry for the key and the value,
-            // e.g. val = { 'hello': 1 } and opts.type = { hello: [ 'symbol',
-            // 'u128' ]} or you can use `null` for the default interpretation
-            const [keyType, valType] = Object.hasOwn(mapTypeSpec, k)
-              ? (mapTypeSpec[k] ?? [null, null])
-              : [null, null];
-            const keyOpts: NativeToScValOpts = keyType ? { type: keyType } : {};
-            const valOpts: NativeToScValOpts = valType ? { type: valType } : {};
+      // The Soroban runtime expects maps to have their keys in sorted order,
+      // so sort the converted entries to prevent confusing errors on execution.
+      return scvSortedMap(
+        Object.entries(val as Record<string, unknown>).map(([k, v]) => {
+          // the type can be specified with an entry for the key and the value,
+          // e.g. val = { 'hello': 1 } and opts.type = { hello: [ 'symbol',
+          // 'u128' ]} or you can use `null` for the default interpretation
+          const [keyType, valType] = Object.hasOwn(mapTypeSpec, k)
+            ? (mapTypeSpec[k] ?? [null, null])
+            : [null, null];
+          const keyOpts: NativeToScValOpts = keyType ? { type: keyType } : {};
+          const valOpts: NativeToScValOpts = valType ? { type: valType } : {};
 
-            return new ScMapEntry({
-              key: nativeToScVal(k, keyOpts),
-              val: nativeToScVal(v, valOpts),
-            });
-          }),
+          return new ScMapEntry({
+            key: nativeToScVal(k, keyOpts),
+            val: nativeToScVal(v, valOpts),
+          });
+        }),
       );
     }
 
@@ -523,33 +522,98 @@ export function scValToNative(scv: ScVal): any {
 }
 
 /**
- * Build a sorted ScVal map from unsorted entries, sorted by key.
+ * Build a sorted ScVal map from unsorted entries, sorted by key in the order
+ * the Soroban host requires.
  *
  * @param items - the unsorted map entries
  */
 export function scvSortedMap(items: ScMapEntry[]): ScVal {
-  const sorted = Array.from(items).sort((a, b) => {
-    // Both a and b are `ScMapEntry`s, so we need to sort by underlying key.
-    //
-    // We couldn't possibly handle every combination of keys since Soroban
-    // maps don't enforce consistent types, so we do a best-effort and try
-    // sorting by "number-like" or "string-like."
-    const nativeA = scValToNative(a.key) as bigint | number | string;
-    const nativeB = scValToNative(b.key) as bigint | number | string;
-
-    switch (typeof nativeA) {
-      case "number":
-      case "bigint":
-        if (nativeA === nativeB) return 0;
-        return nativeA < (nativeB as bigint | number) ? -1 : 1;
-
-      default: {
-        const strA = nativeA.toString();
-        const strB = nativeB.toString();
-        return strA < strB ? -1 : strA > strB ? 1 : 0;
-      }
-    }
-  });
-
+  const sorted = Array.from(items).sort((a, b) => compareScVal(a.key, b.key));
   return ScVal.scvMap(sorted);
+}
+
+/**
+ * Compares two ScVals the way the Soroban host orders them: by type first,
+ * then by value. Raw XDR bytes don't work for this, since lengths prefix
+ * variable-size values and signed integers are two's complement.
+ */
+function compareScVal(a: ScVal, b: ScVal): number {
+  if (a.type !== b.type) {
+    return XdrScValType[a.type].value - XdrScValType[b.type].value;
+  }
+
+  switch (a.type) {
+    case "scvBool":
+      return Number(a.b) - Number((b as typeof a).b);
+
+    case "scvVoid":
+    case "scvLedgerKeyContractInstance":
+      return 0;
+
+    case "scvU32":
+    case "scvI32":
+    case "scvU64":
+    case "scvI64":
+    case "scvTimepoint":
+    case "scvDuration":
+    case "scvU128":
+    case "scvI128":
+    case "scvU256":
+    case "scvI256":
+      return compareBigInts(scValToBigInt(a), scValToBigInt(b));
+
+    case "scvBytes":
+      return compareUint8Arrays(a.bytes.value, (b as typeof a).bytes.value);
+
+    case "scvString":
+      return compareUint8Arrays(a.str.bytes, (b as typeof a).str.bytes);
+
+    case "scvSymbol":
+      return compareUint8Arrays(a.sym.bytes, (b as typeof a).sym.bytes);
+
+    case "scvExecutableTag":
+      return compareUint8Arrays(
+        a.executableTag.bytes,
+        (b as typeof a).executableTag.bytes,
+      );
+
+    case "scvVec":
+      return compareOptionalLists(a.vec, (b as typeof a).vec, compareScVal);
+
+    case "scvMap":
+      return compareOptionalLists(
+        a.map,
+        (b as typeof a).map,
+        (x, y) => compareScVal(x.key, y.key) || compareScVal(x.val, y.val),
+      );
+
+    case "scvLedgerKeyNonce":
+      return compareBigInts(a.nonceKey.nonce, (b as typeof a).nonceKey.nonce);
+
+    // Errors and addresses hold only fixed-size unsigned fields, so their XDR
+    // bytes sort the same as their values. Contract instances are never
+    // sensible map keys, so best-effort byte order is enough there.
+    default:
+      return compareUint8Arrays(a.toXdr(), b.toXdr());
+  }
+}
+
+function compareBigInts(a: bigint, b: bigint): number {
+  return a < b ? -1 : a > b ? 1 : 0;
+}
+
+/** Orders lists element by element, then by length, with null first. */
+function compareOptionalLists<T>(
+  a: T[] | null,
+  b: T[] | null,
+  compare: (x: T, y: T) => number,
+): number {
+  if (a === null || b === null) {
+    return Number(a !== null) - Number(b !== null);
+  }
+  for (let i = 0; i < Math.min(a.length, b.length); i++) {
+    const result = compare(a[i] as T, b[i] as T);
+    if (result !== 0) return result;
+  }
+  return a.length - b.length;
 }
