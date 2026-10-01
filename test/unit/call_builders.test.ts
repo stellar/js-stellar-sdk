@@ -56,6 +56,60 @@ describe("CallBuilder functions", () => {
     );
   });
 
+  it("resolves relative templated Horizon links against the builder URL", async () => {
+    const mockHttpClient = {
+      defaults: {},
+      get: vi.fn().mockResolvedValue({ data: { id: "loaded-account" } }),
+    } as any;
+    const builder = new CallBuilder(
+      new URL("https://proxy.example.com"),
+      mockHttpClient,
+    );
+    const response = builder["_parseResponse"]({
+      _links: {
+        account: {
+          href: "/accounts/{account_id}{?cursor,limit}",
+          templated: true,
+        },
+      },
+    });
+
+    await response.account({
+      account_id: "GA ABC",
+      cursor: "123:456",
+      limit: 10,
+    });
+
+    expect(mockHttpClient.get).toHaveBeenCalledWith(
+      "https://proxy.example.com/accounts/GA%20ABC?cursor=123%3A456&limit=10",
+    );
+  });
+
+  it("drops unset query variables from relative templated Horizon links", async () => {
+    const mockHttpClient = {
+      defaults: {},
+      get: vi.fn().mockResolvedValue({ data: { records: [] } }),
+    } as any;
+    const builder = new CallBuilder(
+      new URL("https://proxy.example.com"),
+      mockHttpClient,
+    );
+    const response = builder["_parseResponse"]({
+      _links: {
+        effects: {
+          href: "/ledgers/1/effects{?cursor,limit,order}",
+          templated: true,
+        },
+      },
+    });
+
+    await response.effects();
+
+    expect(mockHttpClient.get).toHaveBeenCalledWith(
+      "https://proxy.example.com/ledgers/1/effects",
+    );
+  });
+
   it("uses the configured Horizon authority for absolute page links", async () => {
     const mockHttpClient = {
       defaults: {},
