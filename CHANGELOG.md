@@ -5,7 +5,7 @@ A breaking change will get clearly marked in this log.
 ## Unreleased
 
 ### Fixed
-* Templated Horizon `_links` functions now resolve a relative `href` the same way non-templated links do. They previously threw `TypeError: Invalid URL` ([#1717](https://github.com/stellar/js-stellar-sdk/issues/1717)).
+* Templated Horizon `_links` functions now resolve a relative `href` the same way non-templated links do. They previously threw `TypeError: Invalid URL` ([#1771](https://github.com/stellar/js-stellar-sdk/pull/1771)).
 
 ## [v17.2.1](https://github.com/stellar/js-stellar-sdk/compare/v17.2.0...v17.2.1)
 
