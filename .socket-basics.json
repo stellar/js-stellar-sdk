@@ -1,0 +1,11 @@
+{
+  "workspace": ".",
+  "javascript_sast_enabled": true,
+  "javascript_disabled_rules": "js-sensitive-data-in-logs,js-unhandled-promise-rejection",
+  "sast_ignore_overrides": "js-code-injection-eval:src/stellartoml/index.ts,js-express-async-no-error-handler:src/utils/url.ts,js-express-async-no-error-handler:tools/xdrgen/generate.mjs",
+  "secret_scanning_enabled": true,
+  "console_tabular_enabled": true,
+  "socket_tier_1_enabled": false,
+  "trivy_vuln_enabled": false,
+  "trufflehog_exclude_dir": "node_modules,dist,build,.git,yarn.lock,package-lock.json,pnpm-lock.yaml,Cargo.lock,go.sum,poetry.lock,Gemfile.lock,composer.lock,test/e2e/test-contracts"
+}
