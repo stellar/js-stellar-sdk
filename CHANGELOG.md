@@ -6,6 +6,7 @@ A breaking change will get clearly marked in this log.
 
 ### Fixed
 * Templated Horizon `_links` functions now resolve a relative `href` the same way non-templated links do. They previously threw `TypeError: Invalid URL` ([#1771](https://github.com/stellar/js-stellar-sdk/pull/1771)).
+* `rpc.Server.getClaimableBalance()` accepts a hex ID only if the whole string is 64 or 72 hex characters. It used to accept any string that *contained* such a run, so a malformed ID failed later with `XdrError: invalid hex input` instead of the `TypeError` that names the expected format ([#1707](https://github.com/stellar/js-stellar-sdk/issues/1707)).
 
 ## [v17.2.1](https://github.com/stellar/js-stellar-sdk/compare/v17.2.0...v17.2.1)
 

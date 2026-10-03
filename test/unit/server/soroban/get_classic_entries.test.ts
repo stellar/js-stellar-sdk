@@ -3,6 +3,7 @@ import {
   base64ToUint8Array,
   concatUint8Arrays,
   stringToUint8Array,
+  uint8ArrayToHex,
 } from "uint8array-extras";
 import * as StellarSdk from "../../../../src/index.js";
 
@@ -328,4 +329,46 @@ describe("Server#getClaimableBalance", () => {
         expect(error).toBeInstanceOf(TypeError);
         expect(error.message).toMatch(/expected 72-char hex ID or strkey/i);
       }));
+
+  it("accepts a 72-character hex ID", () =>
+    expectLedgerEntryFound(
+      mockPost,
+      ledgerKeyXDR,
+      ledgerEntryXDR,
+      () => server.getClaimableBalance(balanceIdHex),
+      xdr.ClaimableBalanceEntry,
+      claimableBalanceEntry.toXdr("base64"),
+    ));
+
+  it("accepts a 64-character hex ID without the type prefix", () =>
+    expectLedgerEntryFound(
+      mockPost,
+      ledgerKeyXDR,
+      ledgerEntryXDR,
+      () => server.getClaimableBalance(uint8ArrayToHex(balanceIdBytes)),
+      xdr.ClaimableBalanceEntry,
+      claimableBalanceEntry.toXdr("base64"),
+    ));
+
+  it.each([
+    [
+      "64 hex characters followed by other text",
+      (hex64: string) => `${hex64}zz`,
+    ],
+    [
+      "other text followed by 64 hex characters",
+      (hex64: string) => `zz${hex64}`,
+    ],
+    ["65 hex characters", (hex64: string) => `${hex64}a`],
+    ["72 hex characters followed by other text", () => `${balanceIdHex}zz`],
+  ])("rejects an id with %s", (_, makeId) =>
+    server
+      .getClaimableBalance(makeId(uint8ArrayToHex(balanceIdBytes)))
+      .then(() => Promise.reject(new Error("Expected rejection")))
+      .catch((error: any) => {
+        expect(error).toBeInstanceOf(TypeError);
+        expect(error.message).toMatch(/expected 72-char hex ID or strkey/i);
+        expect(mockPost).not.toHaveBeenCalled();
+      }),
+  );
 });
