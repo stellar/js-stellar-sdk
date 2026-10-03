@@ -172,6 +172,16 @@ function contractSpecTypeName(td: ScSpecTypeDef): string {
 }
 
 /**
+ * Builds the rejection value for a failed ledger lookup: a real `Error` (so
+ * it keeps a stack trace and passes `instanceof Error`) carrying a stable,
+ * machine-readable HTTP-like status in `code`, e.g. `404` when the looked-up
+ * entry does not exist on the network.
+ */
+function codedError(code: number, message: string): Error & { code: number } {
+  return Object.assign(new Error(message), { code });
+}
+
+/**
  * Handles the network connection to a Soroban RPC instance, exposing an
  * interface for requests to that instance.
  *
@@ -267,17 +277,22 @@ export class RpcServer {
       }),
     );
 
-    try {
-      const resp = await this.getLedgerEntry(ledgerKey);
-      if (resp.val.type !== "account") {
-        throw new Error(
-          "unexpected ledger entry type for account: " + resp.val.type,
-        );
-      }
-      return resp.val.value;
-    } catch {
-      throw new Error(`Account not found: ${address}`);
+    // `getLedgerEntries` rejects only on transport failure, so a 429, a 5xx,
+    // or a timeout propagates to the caller untouched. Absence is decided
+    // here, by the entry count. The previous `try/catch` around
+    // `getLedgerEntry` collapsed both routes into "Account not found", which
+    // misdiagnosed every rate limit or outage as a missing account.
+    const { entries } = await this.getLedgerEntries(ledgerKey);
+    if (entries.length === 0) {
+      throw codedError(404, `Account not found: ${address}`);
     }
+    const resp = entries[0];
+    if (resp.val.type !== "account") {
+      throw new Error(
+        "unexpected ledger entry type for account: " + resp.val.type,
+      );
+    }
+    return resp.val.value;
   }
 
   /**
@@ -607,25 +622,16 @@ export class RpcServer {
     const contractLedgerKey = new Contract(contractId).getFootprint();
     const response = await this.getLedgerEntries(contractLedgerKey);
     if (!response.entries.length || !response.entries[0]?.val) {
-      return Promise.reject({
-        code: 404,
-        message: "Could not obtain contract instance from server",
-      });
+      throw codedError(404, "Could not obtain contract instance from server");
     }
 
     const ledgerEntryData = response.entries[0].val;
     if (ledgerEntryData.type !== "contractData") {
-      return Promise.reject({
-        code: 404,
-        message: "Expected contractData ledger entry",
-      });
+      throw codedError(404, "Expected contractData ledger entry");
     }
     const scv = ledgerEntryData.value.val;
     if (scv.type !== "scvContractInstance") {
-      return Promise.reject({
-        code: 404,
-        message: "Expected contract instance",
-      });
+      throw codedError(404, "Expected contract instance");
     }
     return scv.value;
   }
@@ -661,12 +667,11 @@ export class RpcServer {
   ): Promise<Uint8Array> {
     const owner = ref.executableOwner;
     if (owner.type !== "scAddressTypeContract") {
-      return Promise.reject({
-        code: 400,
-        message:
-          `External executable owner ${Address.fromScAddress(owner)} is not a ` +
+      throw codedError(
+        400,
+        `External executable owner ${Address.fromScAddress(owner)} is not a ` +
           `contract, so it cannot hold the tag entry that names the Wasm`,
-      });
+      );
     }
 
     // The tag is an unbounded SCString and may be binary, so pass it through
@@ -679,20 +684,16 @@ export class RpcServer {
     );
 
     if (entry.val.type !== "contractData") {
-      return Promise.reject({
-        code: 404,
-        message: "Expected contractData ledger entry",
-      });
+      throw codedError(404, "Expected contractData ledger entry");
     }
 
     const scv = entry.val.value.val;
     if (scv.type !== "scvBytes" || scv.bytes.value.length !== 32) {
-      return Promise.reject({
-        code: 404,
-        message:
-          `External executable tag entry on ${Address.fromScAddress(owner)} ` +
+      throw codedError(
+        404,
+        `External executable tag entry on ${Address.fromScAddress(owner)} ` +
           `does not hold a 32-byte Wasm hash`,
-      });
+      );
     }
 
     return scv.bytes.value;
@@ -734,13 +735,12 @@ export class RpcServer {
 
     const executable = instance.executable;
     if (executable.type === "contractExecutableStellarAsset") {
-      return Promise.reject({
-        code: 400,
-        message:
-          `Contract ${contractId} is a Stellar Asset Contract (SAC), which has ` +
+      throw codedError(
+        400,
+        `Contract ${contractId} is a Stellar Asset Contract (SAC), which has ` +
           `no Wasm bytecode. Use contract.Client.from() to build a client from ` +
           `the built-in SAC spec instead.`,
-      });
+      );
     }
     if (executable.type === "contractExecutableExternalRef") {
       // A CAP-85 reference names its code indirectly; resolve the tag entry on
@@ -750,10 +750,7 @@ export class RpcServer {
       );
     }
     if (executable.type !== "contractExecutableWasm") {
-      return Promise.reject({
-        code: 404,
-        message: `Contract is not a wasm executable`,
-      });
+      throw codedError(404, `Contract is not a wasm executable`);
     }
 
     return this.getContractWasmByHash(executable.value.value);
@@ -807,17 +804,11 @@ export class RpcServer {
 
     const responseWasm = await this.getLedgerEntries(ledgerKeyWasmHash);
     if (!responseWasm.entries.length || !responseWasm.entries[0]?.val) {
-      return Promise.reject({
-        code: 404,
-        message: "Could not obtain contract wasm from server",
-      });
+      throw codedError(404, "Could not obtain contract wasm from server");
     }
     const wasmEntry = responseWasm.entries[0].val;
     if (wasmEntry.type !== "contractCode") {
-      return Promise.reject({
-        code: 404,
-        message: "Expected contractCode ledger entry",
-      });
+      throw codedError(404, "Expected contractCode ledger entry");
     }
     return wasmEntry.value.code;
   }
@@ -1043,7 +1034,10 @@ export class RpcServer {
       parseRawLedgerEntries,
     );
     if (results.entries.length !== 1) {
-      throw new Error(`failed to find an entry for key ${key.toXdr("base64")}`);
+      throw codedError(
+        404,
+        `failed to find an entry for key ${key.toXdr("base64")}`,
+      );
     }
     return results.entries[0];
   }
