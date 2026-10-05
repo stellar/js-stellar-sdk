@@ -423,6 +423,8 @@ export function nativeToScVal(
  * value to return its underlying XDR value.
  *
  * @param scv - the input smart contract value
+ * @throws TypeError if two keys of a map convert to the same object property,
+ *   such as `u32 1` and `symbol "1"`
  *
  * @see nativeToScVal
  */
@@ -455,13 +457,26 @@ export function scValToNative(scv: ScVal): any {
     case "scvAddress":
       return Address.fromScVal(scv).toString();
 
-    case "scvMap":
-      return Object.fromEntries(
-        (scv.value ?? []).map((entry: ScMapEntry) => [
-          scValToNative(entry.key),
-          scValToNative(entry.val),
-        ]),
-      );
+    case "scvMap": {
+      const pairs = (scv.value ?? []).map((entry: ScMapEntry) => [
+        scValToNative(entry.key),
+        scValToNative(entry.val),
+      ]);
+      // Object keys are strings, so distinct ScVal keys such as `u32 1` and
+      // `symbol "1"` would collapse into one property and hide an entry.
+      const seen = new Set<string>();
+      for (const [key] of pairs) {
+        const prop = String(key);
+        if (seen.has(prop)) {
+          throw new TypeError(
+            `scvMap has more than one key that converts to "${prop}"; ` +
+              "read the raw map entries instead",
+          );
+        }
+        seen.add(prop);
+      }
+      return Object.fromEntries(pairs);
+    }
 
     // these return the primitive type directly
     case "scvBool":
