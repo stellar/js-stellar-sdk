@@ -69,10 +69,13 @@ export class Transaction extends TransactionBase<
     envelope: TransactionEnvelope | string,
     networkPassphrase: string,
   ) {
-    if (typeof envelope === "string") {
-      const bytes = base64ToUint8Array(envelope);
-      envelope = TransactionEnvelope.fromXdr(bytes);
-    }
+    // Decode a private copy, so a caller that keeps the envelope object cannot
+    // change what gets hashed and signed.
+    const bytes =
+      typeof envelope === "string"
+        ? base64ToUint8Array(envelope)
+        : envelope.toXdr();
+    envelope = TransactionEnvelope.fromXdr(bytes);
 
     const envelopeType = envelope.type;
     if (

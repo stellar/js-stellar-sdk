@@ -211,6 +211,29 @@ describe("FeeBumpTransaction", () => {
     );
   });
 
+  it("ignores later changes to the envelope object it was built from", () => {
+    const envelope = xdr.TransactionEnvelope.fromXdr(
+      transaction.toEnvelope().toXdr(),
+    );
+    const feeBump = new FeeBumpTransaction(envelope, networkPassphrase);
+    const hashBefore = uint8ArrayToHex(feeBump.hash());
+
+    expectVariant(
+      expectVariant(envelope, "envelopeTypeTxFeeBump").feeBump.tx.innerTx,
+      "envelopeTypeTx",
+    ).v1.tx.operations.push(Operation.payment({ destination, asset, amount }));
+
+    expect(feeBump.operations).toHaveLength(1);
+    expect(uint8ArrayToHex(feeBump.hash())).toBe(hashBefore);
+    expect(
+      expectVariant(
+        expectVariant(feeBump.toEnvelope(), "envelopeTypeTxFeeBump").feeBump.tx
+          .innerTx,
+        "envelopeTypeTx",
+      ).v1.tx.operations,
+    ).toHaveLength(1);
+  });
+
   describe("toEnvelope", () => {
     it("does not return a reference to source signatures", () => {
       const envelope = expectVariant(

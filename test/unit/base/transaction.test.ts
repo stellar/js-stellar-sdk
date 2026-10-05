@@ -272,6 +272,40 @@ describe("Transaction", () => {
     });
   });
 
+  describe("envelope object input", () => {
+    it("ignores later changes to the envelope object it was built from", () => {
+      const source = new Account(Keypair.random().publicKey(), "0");
+      const pay = (amount: string) =>
+        Operation.payment({
+          destination: Keypair.random().publicKey(),
+          asset: Asset.native(),
+          amount,
+        });
+      const built = new TransactionBuilder(source, {
+        fee: "100",
+        networkPassphrase: Networks.TESTNET,
+      })
+        .addOperation(pay("1"))
+        .setTimeout(TimeoutInfinite)
+        .build();
+      const envelope = xdr.TransactionEnvelope.fromXdr(
+        built.toEnvelope().toXdr(),
+      );
+      const tx = TransactionBuilder.fromXdr(envelope, Networks.TESTNET);
+      const hashBefore = uint8ArrayToHex(tx.hash());
+
+      expectVariant(envelope, "envelopeTypeTx").v1.tx.operations.push(
+        pay("1000"),
+      );
+
+      expect(tx.operations).toHaveLength(1);
+      expect(uint8ArrayToHex(tx.hash())).toBe(hashBefore);
+      expect(
+        expectVariant(tx.toEnvelope(), "envelopeTypeTx").v1.tx.operations,
+      ).toHaveLength(1);
+    });
+  });
+
   describe("tx getter immutability", () => {
     it("returns a defensive copy", () => {
       const source = new Account(
