@@ -11,20 +11,24 @@ import {
 
 const MAX_UINT64 = BigInt("18446744073709551615"); // 2^64 - 1
 
-function validateUint64Id(id: string): void {
-  let value: bigint;
-
-  try {
-    value = BigInt(id);
-  } catch {
+// Accepts only decimal digits and returns the canonical form, so one ID has
+// one spelling. BigInt() alone also accepts hex, signs, whitespace and "".
+function canonicalUint64Id(id: string): string {
+  if (typeof id !== "string") {
+    throw new Error("id should be a string representing a number (uint64)");
+  }
+  if (!/^\d+$/.test(id)) {
     throw new Error(`id is not a valid uint64 string: ${id}`);
   }
 
-  if (value < BigInt(0) || value > MAX_UINT64) {
+  const value = BigInt(id);
+  if (value > MAX_UINT64) {
     throw new Error(
       `id value out of range for uint64 [0, ${MAX_UINT64}]: ${id}`,
     );
   }
+
+  return value.toString();
 }
 
 /**
@@ -66,8 +70,8 @@ export class MuxedAccount implements TransactionSource {
   /**
    * @param baseAccount - the {@link Account} instance representing the
    *     underlying G... address
-   * @param id - a stringified uint64 value that represents the ID of the
-   *     muxed account
+   * @param id - the ID of the muxed account, as a uint64 in decimal digits.
+   *     Leading zeros are removed.
    */
   constructor(baseAccount: Account, id: string) {
     const accountId = baseAccount.accountId();
@@ -76,12 +80,12 @@ export class MuxedAccount implements TransactionSource {
       throw new Error("accountId is invalid");
     }
 
-    validateUint64Id(id);
+    const canonicalId = canonicalUint64Id(id);
 
     this.account = baseAccount;
-    this._muxedXdr = encodeMuxedAccount(accountId, id);
+    this._muxedXdr = encodeMuxedAccount(accountId, canonicalId);
     this._mAddress = encodeMuxedAccountToAddress(this._muxedXdr);
-    this._id = id;
+    this._id = canonicalId;
   }
 
   /**
@@ -129,18 +133,19 @@ export class MuxedAccount implements TransactionSource {
   /**
    * Updates the muxed account's ID, regenerating the M-address accordingly.
    *
-   * @param id - a stringified uint64 value to set as the new muxed account ID
+   * @param id - the new muxed account ID, as a uint64 in decimal digits.
+   *     Leading zeros are removed.
    */
   setId(id: string): MuxedAccount {
     if (typeof id !== "string") {
       throw new Error("id should be a string representing a number (uint64)");
     }
 
-    validateUint64Id(id);
+    const canonicalId = canonicalUint64Id(id);
 
-    this._muxedXdr = encodeMuxedAccount(this.account.accountId(), id);
+    this._muxedXdr = encodeMuxedAccount(this.account.accountId(), canonicalId);
     this._mAddress = encodeMuxedAccountToAddress(this._muxedXdr);
-    this._id = id;
+    this._id = canonicalId;
     return this;
   }
 

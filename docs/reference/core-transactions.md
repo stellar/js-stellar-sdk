@@ -724,7 +724,7 @@ class MuxedAccount implements TransactionSource {
 
 - https://developers.stellar.org/docs/glossary/muxed-accounts/
 
-**Source:** [src/base/muxed_account.ts:60](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L60)
+**Source:** [src/base/muxed_account.ts:64](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L64)
 
 ### `new MuxedAccount(baseAccount, id)`
 
@@ -736,10 +736,10 @@ constructor(baseAccount: Account, id: string);
 
 - **`baseAccount`** — `Account` (required) — the [`Account`](#account) instance representing the
       underlying G... address
-- **`id`** — `string` (required) — a stringified uint64 value that represents the ID of the
-      muxed account
+- **`id`** — `string` (required) — the ID of the muxed account, as a uint64 in decimal digits.
+      Leading zeros are removed.
 
-**Source:** [src/base/muxed_account.ts:72](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L72)
+**Source:** [src/base/muxed_account.ts:76](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L76)
 
 ### `MuxedAccount.fromAddress(mAddress, sequenceNum)`
 
@@ -755,7 +755,7 @@ static fromAddress(mAddress: string, sequenceNum: string): MuxedAccount;
 - **`sequenceNum`** — `string` (required) — the sequence number of the underlying [`Account`](#account), to use for the underlying base account [`MuxedAccount.baseAccount`](#muxedaccountbaseaccount). If you're using the SDK, you can use
       `server.loadAccount` to fetch this if you don't know it.
 
-**Source:** [src/base/muxed_account.ts:96](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L96)
+**Source:** [src/base/muxed_account.ts:100](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L100)
 
 ### `muxedAccount.accountId()`
 
@@ -765,7 +765,7 @@ Returns the M-address representing this account's (G-address, ID).
 accountId(): string;
 ```
 
-**Source:** [src/base/muxed_account.ts:118](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L118)
+**Source:** [src/base/muxed_account.ts:122](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L122)
 
 ### `muxedAccount.baseAccount()`
 
@@ -776,7 +776,7 @@ accounts with this Stellar address.
 baseAccount(): Account;
 ```
 
-**Source:** [src/base/muxed_account.ts:111](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L111)
+**Source:** [src/base/muxed_account.ts:115](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L115)
 
 ### `muxedAccount.equals(otherMuxedAccount)`
 
@@ -790,7 +790,7 @@ equals(otherMuxedAccount: MuxedAccount): boolean;
 
 - **`otherMuxedAccount`** — `MuxedAccount` (required) — the MuxedAccount to compare against
 
-**Source:** [src/base/muxed_account.ts:182](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L182)
+**Source:** [src/base/muxed_account.ts:187](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L187)
 
 ### `muxedAccount.id()`
 
@@ -800,7 +800,7 @@ Returns the uint64 ID of this muxed account as a string.
 id(): string;
 ```
 
-**Source:** [src/base/muxed_account.ts:125](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L125)
+**Source:** [src/base/muxed_account.ts:129](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L129)
 
 ### `muxedAccount.incrementSequenceNumber()`
 
@@ -810,7 +810,7 @@ Increments the underlying account's sequence number by one.
 incrementSequenceNumber(): void;
 ```
 
-**Source:** [src/base/muxed_account.ts:157](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L157)
+**Source:** [src/base/muxed_account.ts:162](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L162)
 
 ### `muxedAccount.sequenceNumber()`
 
@@ -820,7 +820,7 @@ Returns the stringified sequence number for the underlying account.
 sequenceNumber(): string;
 ```
 
-**Source:** [src/base/muxed_account.ts:150](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L150)
+**Source:** [src/base/muxed_account.ts:155](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L155)
 
 ### `muxedAccount.setId(id)`
 
@@ -832,9 +832,10 @@ setId(id: string): MuxedAccount;
 
 **Parameters**
 
-- **`id`** — `string` (required) — a stringified uint64 value to set as the new muxed account ID
+- **`id`** — `string` (required) — the new muxed account ID, as a uint64 in decimal digits.
+      Leading zeros are removed.
 
-**Source:** [src/base/muxed_account.ts:134](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L134)
+**Source:** [src/base/muxed_account.ts:139](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L139)
 
 ### `muxedAccount.toXdrObject()`
 
@@ -845,7 +846,7 @@ G-address and uint64 ID.
 toXdrObject(): MuxedAccount;
 ```
 
-**Source:** [src/base/muxed_account.ts:165](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L165)
+**Source:** [src/base/muxed_account.ts:170](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L170)
 
 ### `muxedAccount.toXDRObject()`
 
@@ -856,7 +857,7 @@ Deprecated in version v17.0.0
 toXDRObject(): MuxedAccount;
 ```
 
-**Source:** [src/base/muxed_account.ts:173](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L173)
+**Source:** [src/base/muxed_account.ts:178](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L178)
 
 ## Operation
 
