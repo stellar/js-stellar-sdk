@@ -11,6 +11,42 @@ import { hash } from "./hashing.js";
 import { Keypair } from "./keypair.js";
 
 /**
+ * Returns an envelope of the expected type that no caller holds. A string
+ * decodes to new objects, and an object is copied, so a caller that keeps it
+ * cannot change what gets hashed and signed.
+ *
+ * @ignore
+ */
+export function ownEnvelope<T extends TransactionEnvelope>(
+  envelope: TransactionEnvelope | string,
+  isExpected: (value: TransactionEnvelope) => value is T,
+  expected: string,
+): T {
+  const input =
+    typeof envelope === "string"
+      ? TransactionEnvelope.fromXdr(base64ToUint8Array(envelope))
+      : envelope;
+  // Check the caller's value before the copy, so a wrong object gets this
+  // error and not an XDR error from encoding it.
+  if (!isExpected(input)) {
+    throw new Error(
+      `Invalid TransactionEnvelope: expected an ${expected} but received an ${input.type}.`,
+    );
+  }
+
+  const own =
+    typeof envelope === "string"
+      ? input
+      : TransactionEnvelope.fromXdr(input.toXdr());
+  if (!isExpected(own)) {
+    throw new Error(
+      `TransactionEnvelope changed type in the copy: ${input.type} became ${own.type}.`,
+    );
+  }
+  return own;
+}
+
+/**
  * @ignore
  */
 export class TransactionBase<

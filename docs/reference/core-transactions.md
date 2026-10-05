@@ -208,7 +208,7 @@ The total fee for this transaction, in stroops.
 fee: string;
 ```
 
-**Source:** [src/base/transaction_base.ts:84](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L84)
+**Source:** [src/base/transaction_base.ts:120](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L120)
 
 ### `feeBumpTransaction.feeSource`
 
@@ -218,7 +218,7 @@ The account paying the fee for this transaction.
 readonly feeSource: string;
 ```
 
-**Source:** [src/base/fee_bump_transaction.ts:89](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/fee_bump_transaction.ts#L89)
+**Source:** [src/base/fee_bump_transaction.ts:80](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/fee_bump_transaction.ts#L80)
 
 ### `feeBumpTransaction.innerTransaction`
 
@@ -228,7 +228,7 @@ The inner transaction that this fee bump wraps.
 readonly innerTransaction: Transaction;
 ```
 
-**Source:** [src/base/fee_bump_transaction.ts:75](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/fee_bump_transaction.ts#L75)
+**Source:** [src/base/fee_bump_transaction.ts:66](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/fee_bump_transaction.ts#L66)
 
 ### `feeBumpTransaction.networkPassphrase`
 
@@ -238,7 +238,7 @@ The network passphrase for this transaction.
 networkPassphrase: string;
 ```
 
-**Source:** [src/base/transaction_base.ts:93](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L93)
+**Source:** [src/base/transaction_base.ts:129](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L129)
 
 ### `feeBumpTransaction.operations`
 
@@ -248,7 +248,7 @@ The operations from the inner transaction.
 readonly operations: OperationRecord[];
 ```
 
-**Source:** [src/base/fee_bump_transaction.ts:82](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/fee_bump_transaction.ts#L82)
+**Source:** [src/base/fee_bump_transaction.ts:73](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/fee_bump_transaction.ts#L73)
 
 ### `feeBumpTransaction.signatures`
 
@@ -258,7 +258,7 @@ The list of signatures for this transaction.
 signatures: DecoratedSignature[];
 ```
 
-**Source:** [src/base/transaction_base.ts:43](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L43)
+**Source:** [src/base/transaction_base.ts:79](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L79)
 
 ### `feeBumpTransaction.tx`
 
@@ -275,7 +275,7 @@ tx: TTx;
 
 - if the internal transaction is not a recognized XDR type
 
-**Source:** [src/base/transaction_base.ts:59](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L59)
+**Source:** [src/base/transaction_base.ts:95](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L95)
 
 ### `feeBumpTransaction.addDecoratedSignature(signature)`
 
@@ -294,7 +294,7 @@ addDecoratedSignature(signature: DecoratedSignature): void;
 - - Keypair.signDecorated
  - Keypair.signPayloadDecorated
 
-**Source:** [src/base/transaction_base.ts:204](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L204)
+**Source:** [src/base/transaction_base.ts:240](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L240)
 
 ### `feeBumpTransaction.addSignature(publicKey, signature)`
 
@@ -326,7 +326,7 @@ addSignature(publicKey: string = "", signature: string = ""): void;
 - **`publicKey`** — `string` (optional) (default: `""`) — the public key of the signer
 - **`signature`** — `string` (optional) (default: `""`) — the base64 value of the signature XDR
 
-**Source:** [src/base/transaction_base.ts:164](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L164)
+**Source:** [src/base/transaction_base.ts:200](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L200)
 
 ### `feeBumpTransaction.getKeypairSignature(keypair)`
 
@@ -358,7 +358,7 @@ getKeypairSignature(keypair: Keypair): string;
 
 - **`keypair`** — `Keypair` (required) — Keypair of signer
 
-**Source:** [src/base/transaction_base.ts:137](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L137)
+**Source:** [src/base/transaction_base.ts:173](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L173)
 
 ### `feeBumpTransaction.hash()`
 
@@ -368,7 +368,7 @@ Returns a hash for this transaction, suitable for signing.
 hash(): Uint8Array;
 ```
 
-**Source:** [src/base/transaction_base.ts:230](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L230)
+**Source:** [src/base/transaction_base.ts:266](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L266)
 
 ### `feeBumpTransaction.sign(keypairs)`
 
@@ -382,7 +382,7 @@ sign(...keypairs: Keypair[]): void;
 
 - **`...keypairs`** — `Keypair[]` (required) — Keypairs of signers
 
-**Source:** [src/base/transaction_base.ts:105](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L105)
+**Source:** [src/base/transaction_base.ts:141](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L141)
 
 ### `feeBumpTransaction.signatureBase()`
 
@@ -397,7 +397,7 @@ of this transaction.
 signatureBase(): Uint8Array;
 ```
 
-**Source:** [src/base/fee_bump_transaction.ts:101](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/fee_bump_transaction.ts#L101)
+**Source:** [src/base/fee_bump_transaction.ts:92](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/fee_bump_transaction.ts#L92)
 
 ### `feeBumpTransaction.signHashX(preimage)`
 
@@ -411,7 +411,7 @@ signHashX(preimage: string | Uint8Array<ArrayBufferLike>): void;
 
 - **`preimage`** — `string | Uint8Array<ArrayBufferLike>` (required) — preimage of hash used as signer
 
-**Source:** [src/base/transaction_base.ts:212](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L212)
+**Source:** [src/base/transaction_base.ts:248](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L248)
 
 ### `feeBumpTransaction.toEnvelope()`
 
@@ -421,7 +421,7 @@ To envelope returns a xdr.TransactionEnvelope which can be submitted to the netw
 toEnvelope(): TransactionEnvelope;
 ```
 
-**Source:** [src/base/fee_bump_transaction.ts:118](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/fee_bump_transaction.ts#L118)
+**Source:** [src/base/fee_bump_transaction.ts:109](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/fee_bump_transaction.ts#L109)
 
 ### `feeBumpTransaction.toXdr()`
 
@@ -431,7 +431,7 @@ Returns the transaction envelope as a base64-encoded XDR string.
 toXdr(): string;
 ```
 
-**Source:** [src/base/transaction_base.ts:247](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L247)
+**Source:** [src/base/transaction_base.ts:283](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L283)
 
 ### `feeBumpTransaction.toXDR()`
 
@@ -442,7 +442,7 @@ Deprecated in version v17.0.0
 toXDR(): string;
 ```
 
-**Source:** [src/base/transaction_base.ts:255](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L255)
+**Source:** [src/base/transaction_base.ts:291](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L291)
 
 ## Memo
 
@@ -790,7 +790,7 @@ equals(otherMuxedAccount: MuxedAccount): boolean;
 
 - **`otherMuxedAccount`** — `MuxedAccount` (required) — the MuxedAccount to compare against
 
-**Source:** [src/base/muxed_account.ts:187](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L187)
+**Source:** [src/base/muxed_account.ts:183](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L183)
 
 ### `muxedAccount.id()`
 
@@ -810,7 +810,7 @@ Increments the underlying account's sequence number by one.
 incrementSequenceNumber(): void;
 ```
 
-**Source:** [src/base/muxed_account.ts:162](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L162)
+**Source:** [src/base/muxed_account.ts:158](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L158)
 
 ### `muxedAccount.sequenceNumber()`
 
@@ -820,7 +820,7 @@ Returns the stringified sequence number for the underlying account.
 sequenceNumber(): string;
 ```
 
-**Source:** [src/base/muxed_account.ts:155](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L155)
+**Source:** [src/base/muxed_account.ts:151](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L151)
 
 ### `muxedAccount.setId(id)`
 
@@ -846,7 +846,7 @@ G-address and uint64 ID.
 toXdrObject(): MuxedAccount;
 ```
 
-**Source:** [src/base/muxed_account.ts:170](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L170)
+**Source:** [src/base/muxed_account.ts:166](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L166)
 
 ### `muxedAccount.toXDRObject()`
 
@@ -857,7 +857,7 @@ Deprecated in version v17.0.0
 toXDRObject(): MuxedAccount;
 ```
 
-**Source:** [src/base/muxed_account.ts:178](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L178)
+**Source:** [src/base/muxed_account.ts:174](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L174)
 
 ## Operation
 
@@ -2321,7 +2321,7 @@ class Transaction {
 }
 ```
 
-**Source:** [src/base/transaction.ts:48](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L48)
+**Source:** [src/base/transaction.ts:49](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L49)
 
 ### `new Transaction(envelope, networkPassphrase)`
 
@@ -2335,7 +2335,7 @@ constructor(envelope: string | TransactionEnvelope, networkPassphrase: string);
 - **`networkPassphrase`** — `string` (required) — passphrase of the target stellar network
       (e.g. "Public Global Stellar Network ; September 2015")
 
-**Source:** [src/base/transaction.ts:68](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L68)
+**Source:** [src/base/transaction.ts:69](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L69)
 
 ### `transaction.extraSigners`
 
@@ -2346,7 +2346,7 @@ to convert to StrKey strings.
 extraSigners: SignerKey[] | undefined;
 ```
 
-**Source:** [src/base/transaction.ts:226](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L226)
+**Source:** [src/base/transaction.ts:217](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L217)
 
 ### `transaction.fee`
 
@@ -2356,7 +2356,7 @@ The total fee for this transaction, in stroops.
 fee: string;
 ```
 
-**Source:** [src/base/transaction_base.ts:84](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L84)
+**Source:** [src/base/transaction_base.ts:120](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L120)
 
 ### `transaction.ledgerBounds`
 
@@ -2367,7 +2367,7 @@ The ledger bounds for this transaction, with `minLedger` (uint32) and
 ledgerBounds: { maxLedger: number; minLedger: number } | undefined;
 ```
 
-**Source:** [src/base/transaction.ts:191](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L191)
+**Source:** [src/base/transaction.ts:182](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L182)
 
 ### `transaction.memo`
 
@@ -2377,7 +2377,7 @@ The memo attached to this transaction.
 memo: Memo<MemoType>;
 ```
 
-**Source:** [src/base/transaction.ts:258](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L258)
+**Source:** [src/base/transaction.ts:249](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L249)
 
 ### `transaction.minAccountSequence`
 
@@ -2387,7 +2387,7 @@ The minimum account sequence (64-bit, as a string).
 minAccountSequence: string | undefined;
 ```
 
-**Source:** [src/base/transaction.ts:199](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L199)
+**Source:** [src/base/transaction.ts:190](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L190)
 
 ### `transaction.minAccountSequenceAge`
 
@@ -2397,7 +2397,7 @@ The minimum account sequence age (64-bit number of seconds).
 minAccountSequenceAge: bigint | undefined;
 ```
 
-**Source:** [src/base/transaction.ts:207](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L207)
+**Source:** [src/base/transaction.ts:198](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L198)
 
 ### `transaction.minAccountSequenceLedgerGap`
 
@@ -2407,7 +2407,7 @@ The minimum account sequence ledger gap (32-bit number of ledgers).
 minAccountSequenceLedgerGap: number | undefined;
 ```
 
-**Source:** [src/base/transaction.ts:215](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L215)
+**Source:** [src/base/transaction.ts:206](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L206)
 
 ### `transaction.networkPassphrase`
 
@@ -2417,7 +2417,7 @@ The network passphrase for this transaction.
 networkPassphrase: string;
 ```
 
-**Source:** [src/base/transaction_base.ts:93](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L93)
+**Source:** [src/base/transaction_base.ts:129](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L129)
 
 ### `transaction.operations`
 
@@ -2427,7 +2427,7 @@ The list of operations in this transaction.
 operations: OperationRecord[];
 ```
 
-**Source:** [src/base/transaction.ts:250](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L250)
+**Source:** [src/base/transaction.ts:241](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L241)
 
 ### `transaction.sequence`
 
@@ -2437,7 +2437,7 @@ The sequence number for this transaction.
 sequence: string;
 ```
 
-**Source:** [src/base/transaction.ts:234](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L234)
+**Source:** [src/base/transaction.ts:225](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L225)
 
 ### `transaction.signatures`
 
@@ -2447,7 +2447,7 @@ The list of signatures for this transaction.
 signatures: DecoratedSignature[];
 ```
 
-**Source:** [src/base/transaction_base.ts:43](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L43)
+**Source:** [src/base/transaction_base.ts:79](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L79)
 
 ### `transaction.source`
 
@@ -2457,7 +2457,7 @@ The source account for this transaction.
 source: string;
 ```
 
-**Source:** [src/base/transaction.ts:242](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L242)
+**Source:** [src/base/transaction.ts:233](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L233)
 
 ### `transaction.timeBounds`
 
@@ -2468,7 +2468,7 @@ The time bounds for this transaction, with `minTime` and `maxTime` as
 timeBounds: { maxTime: string; minTime: string } | undefined;
 ```
 
-**Source:** [src/base/transaction.ts:180](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L180)
+**Source:** [src/base/transaction.ts:171](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L171)
 
 ### `transaction.tx`
 
@@ -2485,7 +2485,7 @@ tx: TTx;
 
 - if the internal transaction is not a recognized XDR type
 
-**Source:** [src/base/transaction_base.ts:59](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L59)
+**Source:** [src/base/transaction_base.ts:95](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L95)
 
 ### `transaction.addDecoratedSignature(signature)`
 
@@ -2504,7 +2504,7 @@ addDecoratedSignature(signature: DecoratedSignature): void;
 - - Keypair.signDecorated
  - Keypair.signPayloadDecorated
 
-**Source:** [src/base/transaction_base.ts:204](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L204)
+**Source:** [src/base/transaction_base.ts:240](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L240)
 
 ### `transaction.addSignature(publicKey, signature)`
 
@@ -2536,7 +2536,7 @@ addSignature(publicKey: string = "", signature: string = ""): void;
 - **`publicKey`** — `string` (optional) (default: `""`) — the public key of the signer
 - **`signature`** — `string` (optional) (default: `""`) — the base64 value of the signature XDR
 
-**Source:** [src/base/transaction_base.ts:164](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L164)
+**Source:** [src/base/transaction_base.ts:200](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L200)
 
 ### `transaction.getClaimableBalanceId(opIndex)`
 
@@ -2559,7 +2559,7 @@ getClaimableBalanceId(opIndex: number): string;
 
 - https://github.com/stellar/go/blob/d712346e61e288d450b0c08038c158f8848cc3e4/txnbuild/transaction.go#L392-L435
 
-**Source:** [src/base/transaction.ts:348](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L348)
+**Source:** [src/base/transaction.ts:339](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L339)
 
 ### `transaction.getKeypairSignature(keypair)`
 
@@ -2591,7 +2591,7 @@ getKeypairSignature(keypair: Keypair): string;
 
 - **`keypair`** — `Keypair` (required) — Keypair of signer
 
-**Source:** [src/base/transaction_base.ts:137](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L137)
+**Source:** [src/base/transaction_base.ts:173](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L173)
 
 ### `transaction.hash()`
 
@@ -2601,7 +2601,7 @@ Returns a hash for this transaction, suitable for signing.
 hash(): Uint8Array;
 ```
 
-**Source:** [src/base/transaction_base.ts:230](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L230)
+**Source:** [src/base/transaction_base.ts:266](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L266)
 
 ### `transaction.sign(keypairs)`
 
@@ -2615,7 +2615,7 @@ sign(...keypairs: Keypair[]): void;
 
 - **`...keypairs`** — `Keypair[]` (required) — Keypairs of signers
 
-**Source:** [src/base/transaction_base.ts:105](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L105)
+**Source:** [src/base/transaction_base.ts:141](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L141)
 
 ### `transaction.signatureBase()`
 
@@ -2630,7 +2630,7 @@ of this transaction.
 signatureBase(): Uint8Array;
 ```
 
-**Source:** [src/base/transaction.ts:273](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L273)
+**Source:** [src/base/transaction.ts:264](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L264)
 
 ### `transaction.signHashX(preimage)`
 
@@ -2644,7 +2644,7 @@ signHashX(preimage: string | Uint8Array<ArrayBufferLike>): void;
 
 - **`preimage`** — `string | Uint8Array<ArrayBufferLike>` (required) — preimage of hash used as signer
 
-**Source:** [src/base/transaction_base.ts:212](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L212)
+**Source:** [src/base/transaction_base.ts:248](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L248)
 
 ### `transaction.toEnvelope()`
 
@@ -2654,7 +2654,7 @@ To envelope returns a xdr.TransactionEnvelope which can be submitted to the netw
 toEnvelope(): TransactionEnvelope;
 ```
 
-**Source:** [src/base/transaction.ts:306](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L306)
+**Source:** [src/base/transaction.ts:297](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction.ts#L297)
 
 ### `transaction.toXdr()`
 
@@ -2664,7 +2664,7 @@ Returns the transaction envelope as a base64-encoded XDR string.
 toXdr(): string;
 ```
 
-**Source:** [src/base/transaction_base.ts:247](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L247)
+**Source:** [src/base/transaction_base.ts:283](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L283)
 
 ### `transaction.toXDR()`
 
@@ -2675,7 +2675,7 @@ Deprecated in version v17.0.0
 toXDR(): string;
 ```
 
-**Source:** [src/base/transaction_base.ts:255](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L255)
+**Source:** [src/base/transaction_base.ts:291](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_base.ts#L291)
 
 ## TransactionBuilder
 

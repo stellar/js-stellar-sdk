@@ -93,24 +93,24 @@ export function toXdrOfferId(
     // A number above 2^53 - 1 has already lost precision, so it can name a
     // different offer.
     if (!Number.isSafeInteger(offerId) || offerId < 0) {
-      throw new TypeError(
+      throw new Error(
         "offerId must be a non-negative safe integer; pass a larger ID as a decimal string",
       );
     }
     value = BigInt(offerId);
   } else if (typeof offerId === "bigint") {
     if (offerId < 0n) {
-      throw new TypeError("offerId must not be negative");
+      throw new Error("offerId must not be negative");
     }
     value = offerId;
   } else if (typeof offerId === "string" && /^\d+$/.test(offerId)) {
     value = BigInt(offerId);
   } else {
-    throw new TypeError("offerId must be a string of decimal digits");
+    throw new Error("offerId must be a string of decimal digits");
   }
 
-  if (value > BigInt(MAX_INT64)) {
-    throw new TypeError(`offerId must not exceed ${MAX_INT64}`);
+  if (value > Int64.MAX_VALUE) {
+    throw new Error(`offerId must not exceed ${Int64.MAX_VALUE}`);
   }
   return Int64.fromString(value.toString());
 }

@@ -306,6 +306,34 @@ describe("Transaction", () => {
     });
   });
 
+  describe("envelope type check", () => {
+    it("names the expected envelope types for an object that is not an envelope", () => {
+      const built = new TransactionBuilder(
+        new Account(Keypair.random().publicKey(), "0"),
+        { fee: "100", networkPassphrase: Networks.TESTNET },
+      )
+        .addOperation(
+          Operation.payment({
+            destination: Keypair.random().publicKey(),
+            asset: Asset.native(),
+            amount: "1",
+          }),
+        )
+        .setTimeout(TimeoutInfinite)
+        .build();
+      const innerTx = expectVariant(built.toEnvelope(), "envelopeTypeTx").v1.tx;
+
+      // Reflect.construct passes values that the TypeScript signature forbids.
+      for (const envelope of [{}, innerTx]) {
+        expect(() =>
+          Reflect.construct(Transaction, [envelope, Networks.TESTNET]),
+        ).toThrow(
+          /Invalid TransactionEnvelope: expected an envelopeTypeTxV0 or envelopeTypeTx/,
+        );
+      }
+    });
+  });
+
   describe("tx getter immutability", () => {
     it("returns a defensive copy", () => {
       const source = new Account(

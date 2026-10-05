@@ -234,6 +234,13 @@ describe("FeeBumpTransaction", () => {
     ).toHaveLength(1);
   });
 
+  it("names the expected envelope type for an object that is not an envelope", () => {
+    // Reflect.construct passes values that the TypeScript signature forbids.
+    expect(() =>
+      Reflect.construct(FeeBumpTransaction, [{}, networkPassphrase]),
+    ).toThrow(/Invalid TransactionEnvelope: expected an envelopeTypeTxFeeBump/);
+  });
+
   describe("toEnvelope", () => {
     it("does not return a reference to source signatures", () => {
       const envelope = expectVariant(

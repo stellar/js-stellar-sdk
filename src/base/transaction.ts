@@ -1,5 +1,4 @@
 import { concatUint8Arrays } from "uint8array-extras";
-import { base64ToUint8Array } from "./util/base64.js";
 import {
   ClaimableBalanceId,
   Hash,
@@ -12,6 +11,8 @@ import {
   SignerKey,
   Transaction as XdrTransaction,
   TransactionEnvelope,
+  TransactionEnvelopeTx,
+  TransactionEnvelopeTxV0,
   TransactionSignaturePayload,
   TransactionSignaturePayloadTaggedTransaction,
   TransactionV0,
@@ -25,7 +26,7 @@ import { hash } from "./hashing.js";
 import { StrKey } from "./strkey.js";
 import { Operation } from "./operation.js";
 import { Memo } from "./memo.js";
-import { TransactionBase } from "./transaction_base.js";
+import { TransactionBase, ownEnvelope } from "./transaction_base.js";
 import {
   extractBaseAddress,
   encodeMuxedAccountToAddress,
@@ -69,25 +70,15 @@ export class Transaction extends TransactionBase<
     envelope: TransactionEnvelope | string,
     networkPassphrase: string,
   ) {
-    // Decode a private copy, so a caller that keeps the envelope object cannot
-    // change what gets hashed and signed.
-    const bytes =
-      typeof envelope === "string"
-        ? base64ToUint8Array(envelope)
-        : envelope.toXdr();
-    envelope = TransactionEnvelope.fromXdr(bytes);
+    const own = ownEnvelope(
+      envelope,
+      (value): value is TransactionEnvelopeTxV0 | TransactionEnvelopeTx =>
+        value.type === "envelopeTypeTxV0" || value.type === "envelopeTypeTx",
+      "envelopeTypeTxV0 or envelopeTypeTx",
+    );
+    const envelopeType = own.type;
 
-    const envelopeType = envelope.type;
-    if (
-      envelopeType !== "envelopeTypeTxV0" &&
-      envelopeType !== "envelopeTypeTx"
-    ) {
-      throw new Error(
-        `Invalid TransactionEnvelope: expected an envelopeTypeTxV0 or envelopeTypeTx but received an ${envelopeType}.`,
-      );
-    }
-
-    const txEnvelope = envelope.value as
+    const txEnvelope = own.value as
       TransactionV0Envelope | TransactionV1Envelope;
     const tx = txEnvelope.tx;
     const fee = tx.fee.toString();

@@ -1,16 +1,16 @@
-import { base64ToUint8Array } from "./util/base64.js";
 import {
   FeeBumpTransaction as XdrFeeBumpTransaction,
   FeeBumpTransactionEnvelope,
   Hash,
   TransactionEnvelope,
+  TransactionEnvelopeTxFeeBump,
   TransactionSignaturePayload,
   TransactionSignaturePayloadTaggedTransaction,
 } from "../xdr/index.js";
 import { hash } from "./hashing.js";
 
 import { Transaction } from "./transaction.js";
-import { TransactionBase } from "./transaction_base.js";
+import { TransactionBase, ownEnvelope } from "./transaction_base.js";
 import { encodeMuxedAccountToAddress } from "./util/decode_encode_muxed_account.js";
 
 /**
@@ -35,23 +35,14 @@ export class FeeBumpTransaction extends TransactionBase<XdrFeeBumpTransaction> {
     envelope: TransactionEnvelope | string,
     networkPassphrase: string,
   ) {
-    // Decode a private copy, so a caller that keeps the envelope object cannot
-    // change what gets hashed and signed.
-    const bytes =
-      typeof envelope === "string"
-        ? base64ToUint8Array(envelope)
-        : envelope.toXdr();
-    envelope = TransactionEnvelope.fromXdr(bytes);
+    const own = ownEnvelope(
+      envelope,
+      (value): value is TransactionEnvelopeTxFeeBump =>
+        value.type === "envelopeTypeTxFeeBump",
+      "envelopeTypeTxFeeBump",
+    );
 
-    const envelopeType = envelope.type;
-
-    if (envelopeType !== "envelopeTypeTxFeeBump") {
-      throw new Error(
-        `Invalid TransactionEnvelope: expected an envelopeTypeTxFeeBump but received an ${envelopeType}.`,
-      );
-    }
-
-    const txEnvelope = envelope.value;
+    const txEnvelope = own.value;
     const tx = txEnvelope.tx;
     const fee = tx.fee.toString();
     // clone signatures

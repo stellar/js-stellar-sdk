@@ -137,10 +137,6 @@ export class MuxedAccount implements TransactionSource {
    *     Leading zeros are removed.
    */
   setId(id: string): MuxedAccount {
-    if (typeof id !== "string") {
-      throw new Error("id should be a string representing a number (uint64)");
-    }
-
     const canonicalId = canonicalUint64Id(id);
 
     this._muxedXdr = encodeMuxedAccount(this.account.accountId(), canonicalId);
