@@ -1464,6 +1464,7 @@ static manageBuyOffer: (opts: ManageBuyOfferOpts) => Operation;
       - `n`: If `opts.price` is an object: the price numerator
       - `d`: If `opts.price` is an object: the price denominator
     - `offerId`: If `0`, will create a new offer (default). Otherwise, edits an existing offer.
+      Pass a non-negative safe integer or bigint, or a string of decimal digits for a larger ID.
     - `source`: The source account (defaults to transaction source).
 
 **Throws**
@@ -1508,6 +1509,7 @@ static manageSellOffer: (opts: ManageSellOfferOpts) => Operation;
       - `n`: If `opts.price` is an object: the price numerator
       - `d`: If `opts.price` is an object: the price denominator
     - `offerId`: If `0`, will create a new offer (default). Otherwise, edits an existing offer.
+      Pass a non-negative safe integer or bigint, or a string of decimal digits for a larger ID.
     - `source`: The source account (defaults to transaction source).
 
 **Throws**
@@ -1736,7 +1738,7 @@ static revokeOfferSponsorship: (opts: RevokeOfferSponsorshipOpts = ...) => Opera
 
 - **`opts`** — `RevokeOfferSponsorshipOpts` (optional) (default: `...`) — Options object
     - `seller`: The account ID which created the offer.
-    - `offerId`: The offer ID.
+    - `offerId`: The offer ID, as a string of decimal digits.
     - `source`: The source account for the operation. Defaults to the transaction's source account.
 
 **Example**

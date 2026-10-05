@@ -1,6 +1,5 @@
 import {
   ClaimableBalanceId,
-  Int64,
   LedgerKey,
   LedgerKeyAccount,
   LedgerKeyClaimableBalance,
@@ -32,7 +31,7 @@ import {
   RevokeSignerSponsorshipOpts,
   OperationAttributes,
 } from "./types.js";
-import { setSourceAccount } from "../util/operations.js";
+import { setSourceAccount, toXdrOfferId } from "../util/operations.js";
 
 /**
  * Create a "revoke sponsorship" operation for an account.
@@ -129,7 +128,7 @@ export function revokeTrustlineSponsorship(
  *
  * @param opts - Options object
  *   - `seller`: The account ID which created the offer.
- *   - `offerId`: The offer ID.
+ *   - `offerId`: The offer ID, as a string of decimal digits.
  *   - `source`: The source account for the operation. Defaults to the transaction's source account.
  *
  * @example
@@ -154,7 +153,7 @@ export function revokeOfferSponsorship(
   const ledgerKey = LedgerKey.offer(
     new LedgerKeyOffer({
       sellerId: Keypair.fromPublicKey(opts.seller).xdrAccountId(),
-      offerId: Int64.fromString(opts.offerId),
+      offerId: toXdrOfferId(opts.offerId),
     }),
   );
   const op = RevokeSponsorshipOp.revokeSponsorshipLedgerEntry(ledgerKey);
