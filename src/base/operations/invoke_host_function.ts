@@ -244,7 +244,7 @@ export function createStellarAssetContract(
         `expected Asset in 'opts.asset', got ${String(opts.asset)}`,
       );
     }
-    asset = new Asset(code, parts[1]); // handles 'xlm' by default
+    asset = new Asset(code, parts[1]); // "xlm" with no issuer is native
   }
 
   if (!(asset instanceof Asset)) {

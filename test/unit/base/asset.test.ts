@@ -298,6 +298,36 @@ describe("Asset", () => {
       expect(asset.getAssetType()).toBe("credit_alphanum12");
       expect(asset.toXdrObject().toXdr()).toEqual(assetXdr.toXdr());
     });
+
+    it("keeps the case of an issued XLM code", () => {
+      const assetXdr = xdr.Asset.assetTypeCreditAlphanum4(
+        new xdr.AlphaNum4({
+          assetCode: stringToUint8Array("xlm\0"),
+          issuer: Keypair.fromPublicKey(ISSUER).xdrAccountId(),
+        }),
+      );
+
+      const asset = Asset.fromOperation(assetXdr);
+
+      expect(asset.getCode()).toBe("xlm");
+      expect(asset.isNative()).toBe(false);
+      expect(asset.toXdrObject().toXdr()).toEqual(assetXdr.toXdr());
+    });
+
+    it("keeps the case of an issued XLM code in an alphanum12 arm", () => {
+      const assetXdr = xdr.Asset.assetTypeCreditAlphanum12(
+        new xdr.AlphaNum12({
+          assetCode: stringToUint8Array("xlm".padEnd(12, "\0")),
+          issuer: Keypair.fromPublicKey(ISSUER).xdrAccountId(),
+        }),
+      );
+
+      const asset = Asset.fromOperation(assetXdr);
+
+      expect(asset.getCode()).toBe("xlm");
+      expect(asset.getAssetType()).toBe("credit_alphanum12");
+      expect(asset.toXdrObject().toXdr()).toEqual(assetXdr.toXdr());
+    });
   });
 
   describe("toString()", () => {
@@ -439,6 +469,23 @@ describe("Asset", () => {
       const asset = new Asset("XLM");
       expect(asset.isNative()).toBe(true);
       expect(asset.getIssuer()).toBeUndefined();
+    });
+
+    it("keeps the case of an issued XLM code", () => {
+      for (const code of ["xlm", "xLm", "Xlm", "xLM", "XLM"]) {
+        const asset = new Asset(code, ISSUER);
+        expect(asset.getCode()).toBe(code);
+        expect(asset.getIssuer()).toBe(ISSUER);
+        expect(asset.isNative()).toBe(false);
+        expect(asset.getAssetType()).toBe("credit_alphanum4");
+      }
+    });
+
+    it("treats issued XLM codes that differ only in case as different assets", () => {
+      const lower = new Asset("xlm", ISSUER);
+      const upper = new Asset("XLM", ISSUER);
+      expect(lower.equals(upper)).toBe(false);
+      expect(Asset.compare(lower, upper)).toBe(1);
     });
 
     it("keeps the JSON shape to code and issuer", () => {

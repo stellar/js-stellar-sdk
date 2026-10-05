@@ -6,6 +6,7 @@ A breaking change will get clearly marked in this log.
 
 ### Fixed
 * Templated Horizon `_links` functions now resolve a relative `href` the same way non-templated links do. They previously threw `TypeError: Invalid URL` ([#1771](https://github.com/stellar/js-stellar-sdk/pull/1771)).
+* `new Asset(code, issuer)` keeps an issued asset's code as given. It previously changed every spelling of `xlm` to `XLM`, even when an issuer was present. As a result, `Asset.fromOperation()` and `transaction.operations` showed `XLM:G…` for an operation on `xlm:G…`. Encoding the decoded asset again also changed its bytes. An asset built as `new Asset("xlm", issuer)` now encodes `xlm`, so its contract ID changes ([#TBD](https://github.com/stellar/js-stellar-sdk/pull/TBD)).
 
 ## [v17.2.1](https://github.com/stellar/js-stellar-sdk/compare/v17.2.0...v17.2.1)
 

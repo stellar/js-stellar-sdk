@@ -195,6 +195,7 @@ describe("Operation", () => {
       describe("lets you wrap tokens", () => {
         [
           "USD:GCP2QKBFLLEEWYVKAIXIJIJNCZ6XEBIE4PCDB6BF3GUB6FGE2RQ3HDVP",
+          "xlm:GCP2QKBFLLEEWYVKAIXIJIJNCZ6XEBIE4PCDB6BF3GUB6FGE2RQ3HDVP",
           Asset.native(),
           new Asset(
             "USD",

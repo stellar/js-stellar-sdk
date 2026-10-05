@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import {
+  stringToUint8Array,
   uint8ArrayToBase64,
   uint8ArrayToHex,
   uint8ArrayToString,
@@ -130,6 +131,43 @@ describe("Transaction", () => {
     expect(() => {
       new Transaction(feeBumpEnvelope, Networks.TESTNET);
     }).toThrow(/expected an envelopeTypeTxV0 or envelopeTypeTx/);
+  });
+
+  it("shows the original code of an issued XLM asset in its operations", () => {
+    const issuer = Keypair.random().xdrAccountId();
+    const line = xdr.ChangeTrustAsset.assetTypeCreditAlphanum4(
+      new xdr.AlphaNum4({ assetCode: stringToUint8Array("xlm\0"), issuer }),
+    );
+    const changeTrust = new xdr.Operation({
+      sourceAccount: null,
+      body: xdr.OperationBody.changeTrust(
+        new xdr.ChangeTrustOp({ line, limit: xdr.Int64.fromString("1000") }),
+      ),
+    });
+    const source = new Account(Keypair.random().publicKey(), "0");
+    const envelope = new TransactionBuilder(source, {
+      fee: "100",
+      networkPassphrase: Networks.TESTNET,
+    })
+      .addOperation(changeTrust)
+      .setTimeout(TimeoutInfinite)
+      .build()
+      .toEnvelope()
+      .toXdr("base64");
+
+    const transaction = new Transaction(envelope, Networks.TESTNET);
+    const operation = transaction.operations[0];
+    if (operation?.type !== "changeTrust") {
+      throw new Error("Expected a changeTrust operation");
+    }
+    if (!(operation.line instanceof Asset)) {
+      throw new Error("Expected an Asset trust line");
+    }
+
+    expect(operation.line.getCode()).toBe("xlm");
+    expect(operation.line.toChangeTrustXdrObject().toXdr()).toEqual(
+      line.toXdr(),
+    );
   });
 
   describe("toEnvelope", () => {
