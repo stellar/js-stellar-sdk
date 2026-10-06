@@ -724,7 +724,7 @@ class MuxedAccount implements TransactionSource {
 
 - https://developers.stellar.org/docs/glossary/muxed-accounts/
 
-**Source:** [src/base/muxed_account.ts:64](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L64)
+**Source:** [src/base/muxed_account.ts:66](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L66)
 
 ### `new MuxedAccount(baseAccount, id)`
 
@@ -737,9 +737,9 @@ constructor(baseAccount: Account, id: string);
 - **`baseAccount`** — `Account` (required) — the [`Account`](#account) instance representing the
       underlying G... address
 - **`id`** — `string` (required) — the ID of the muxed account, as a uint64 in decimal digits.
-      Leading zeros are removed.
+      Leading zeros are removed. At most 22 digits.
 
-**Source:** [src/base/muxed_account.ts:76](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L76)
+**Source:** [src/base/muxed_account.ts:78](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L78)
 
 ### `MuxedAccount.fromAddress(mAddress, sequenceNum)`
 
@@ -755,7 +755,7 @@ static fromAddress(mAddress: string, sequenceNum: string): MuxedAccount;
 - **`sequenceNum`** — `string` (required) — the sequence number of the underlying [`Account`](#account), to use for the underlying base account [`MuxedAccount.baseAccount`](#muxedaccountbaseaccount). If you're using the SDK, you can use
       `server.loadAccount` to fetch this if you don't know it.
 
-**Source:** [src/base/muxed_account.ts:100](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L100)
+**Source:** [src/base/muxed_account.ts:102](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L102)
 
 ### `muxedAccount.accountId()`
 
@@ -765,7 +765,7 @@ Returns the M-address representing this account's (G-address, ID).
 accountId(): string;
 ```
 
-**Source:** [src/base/muxed_account.ts:122](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L122)
+**Source:** [src/base/muxed_account.ts:124](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L124)
 
 ### `muxedAccount.baseAccount()`
 
@@ -776,7 +776,7 @@ accounts with this Stellar address.
 baseAccount(): Account;
 ```
 
-**Source:** [src/base/muxed_account.ts:115](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L115)
+**Source:** [src/base/muxed_account.ts:117](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L117)
 
 ### `muxedAccount.equals(otherMuxedAccount)`
 
@@ -790,7 +790,7 @@ equals(otherMuxedAccount: MuxedAccount): boolean;
 
 - **`otherMuxedAccount`** — `MuxedAccount` (required) — the MuxedAccount to compare against
 
-**Source:** [src/base/muxed_account.ts:183](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L183)
+**Source:** [src/base/muxed_account.ts:185](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L185)
 
 ### `muxedAccount.id()`
 
@@ -800,7 +800,7 @@ Returns the uint64 ID of this muxed account as a string.
 id(): string;
 ```
 
-**Source:** [src/base/muxed_account.ts:129](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L129)
+**Source:** [src/base/muxed_account.ts:131](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L131)
 
 ### `muxedAccount.incrementSequenceNumber()`
 
@@ -810,7 +810,7 @@ Increments the underlying account's sequence number by one.
 incrementSequenceNumber(): void;
 ```
 
-**Source:** [src/base/muxed_account.ts:158](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L158)
+**Source:** [src/base/muxed_account.ts:160](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L160)
 
 ### `muxedAccount.sequenceNumber()`
 
@@ -820,7 +820,7 @@ Returns the stringified sequence number for the underlying account.
 sequenceNumber(): string;
 ```
 
-**Source:** [src/base/muxed_account.ts:151](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L151)
+**Source:** [src/base/muxed_account.ts:153](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L153)
 
 ### `muxedAccount.setId(id)`
 
@@ -833,9 +833,9 @@ setId(id: string): MuxedAccount;
 **Parameters**
 
 - **`id`** — `string` (required) — the new muxed account ID, as a uint64 in decimal digits.
-      Leading zeros are removed.
+      Leading zeros are removed. At most 22 digits.
 
-**Source:** [src/base/muxed_account.ts:139](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L139)
+**Source:** [src/base/muxed_account.ts:141](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L141)
 
 ### `muxedAccount.toXdrObject()`
 
@@ -846,7 +846,7 @@ G-address and uint64 ID.
 toXdrObject(): MuxedAccount;
 ```
 
-**Source:** [src/base/muxed_account.ts:166](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L166)
+**Source:** [src/base/muxed_account.ts:168](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L168)
 
 ### `muxedAccount.toXDRObject()`
 
@@ -857,7 +857,7 @@ Deprecated in version v17.0.0
 toXDRObject(): MuxedAccount;
 ```
 
-**Source:** [src/base/muxed_account.ts:174](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L174)
+**Source:** [src/base/muxed_account.ts:176](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L176)
 
 ## Operation
 
@@ -1464,7 +1464,7 @@ static manageBuyOffer: (opts: ManageBuyOfferOpts) => Operation;
       - `n`: If `opts.price` is an object: the price numerator
       - `d`: If `opts.price` is an object: the price denominator
     - `offerId`: If `0`, will create a new offer (default). Otherwise, edits an existing offer.
-      Pass a non-negative safe integer or bigint, or a string of decimal digits for a larger ID.
+      Pass a non-negative safe integer or bigint, or a string of at most 22 decimal digits for a larger ID.
     - `source`: The source account (defaults to transaction source).
 
 **Throws**
@@ -1509,7 +1509,7 @@ static manageSellOffer: (opts: ManageSellOfferOpts) => Operation;
       - `n`: If `opts.price` is an object: the price numerator
       - `d`: If `opts.price` is an object: the price denominator
     - `offerId`: If `0`, will create a new offer (default). Otherwise, edits an existing offer.
-      Pass a non-negative safe integer or bigint, or a string of decimal digits for a larger ID.
+      Pass a non-negative safe integer or bigint, or a string of at most 22 decimal digits for a larger ID.
     - `source`: The source account (defaults to transaction source).
 
 **Throws**
@@ -1738,7 +1738,7 @@ static revokeOfferSponsorship: (opts: RevokeOfferSponsorshipOpts = ...) => Opera
 
 - **`opts`** — `RevokeOfferSponsorshipOpts` (optional) (default: `...`) — Options object
     - `seller`: The account ID which created the offer.
-    - `offerId`: The offer ID, as a string of decimal digits.
+    - `offerId`: The offer ID, as a string of at most 22 decimal digits.
     - `source`: The source account for the operation. Defaults to the transaction's source account.
 
 **Example**

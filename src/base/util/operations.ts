@@ -1,5 +1,6 @@
 import { OperationAttributes } from "../operations/types.js";
 import { Int64, Price } from "../../xdr/index.js";
+import { assertDecimalDigitBudget } from "../../xdr/values/bigint-parts.js";
 import { best_r } from "./continued_fraction.js";
 import { decodeAddressToMuxedAccount } from "./decode_encode_muxed_account.js";
 import type { BigNumber } from "./bignumber.js";
@@ -79,7 +80,7 @@ export function toXdrAmount(value: string): Int64 {
  * new offer.
  *
  * @param offerId - a non-negative safe integer, a non-negative bigint, or a
- *     string of decimal digits, up to the int64 maximum
+ *     string of at most 22 decimal digits, up to the int64 maximum
  */
 export function toXdrOfferId(
   offerId: number | string | bigint | undefined,
@@ -104,6 +105,7 @@ export function toXdrOfferId(
     }
     value = offerId;
   } else if (typeof offerId === "string" && /^\d+$/.test(offerId)) {
+    assertDecimalDigitBudget(offerId, 64, "offerId");
     value = BigInt(offerId);
   } else {
     throw new Error("offerId must be a string of decimal digits");

@@ -8,6 +8,7 @@ import {
   encodeMuxedAccount,
   extractBaseAddress,
 } from "./util/decode_encode_muxed_account.js";
+import { assertDecimalDigitBudget } from "../xdr/values/bigint-parts.js";
 
 const MAX_UINT64 = BigInt("18446744073709551615"); // 2^64 - 1
 
@@ -20,6 +21,7 @@ function canonicalUint64Id(id: string): string {
   if (!/^\d+$/.test(id)) {
     throw new Error(`id is not a valid uint64 string: ${id}`);
   }
+  assertDecimalDigitBudget(id, 64, "id");
 
   const value = BigInt(id);
   if (value > MAX_UINT64) {
@@ -71,7 +73,7 @@ export class MuxedAccount implements TransactionSource {
    * @param baseAccount - the {@link Account} instance representing the
    *     underlying G... address
    * @param id - the ID of the muxed account, as a uint64 in decimal digits.
-   *     Leading zeros are removed.
+   *     Leading zeros are removed. At most 22 digits.
    */
   constructor(baseAccount: Account, id: string) {
     const accountId = baseAccount.accountId();
@@ -134,7 +136,7 @@ export class MuxedAccount implements TransactionSource {
    * Updates the muxed account's ID, regenerating the M-address accordingly.
    *
    * @param id - the new muxed account ID, as a uint64 in decimal digits.
-   *     Leading zeros are removed.
+   *     Leading zeros are removed. At most 22 digits.
    */
   setId(id: string): MuxedAccount {
     const canonicalId = canonicalUint64Id(id);

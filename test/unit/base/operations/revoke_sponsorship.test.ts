@@ -181,6 +181,15 @@ describe("Operation.revokeOfferSponsorship()", () => {
     }
   });
 
+  it("rejects an offerId longer than the 64-bit digit budget before parsing it", () => {
+    expect(() =>
+      Operation.revokeOfferSponsorship({
+        seller: account,
+        offerId: "1".repeat(1_000_000),
+      }),
+    ).toThrow(/exceeds the 22-character budget/);
+  });
+
   it("fails with a missing offerId", () => {
     expect(() =>
       // @ts-expect-error: intentionally omitting required field to test runtime validation

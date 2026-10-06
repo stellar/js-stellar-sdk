@@ -296,5 +296,11 @@ describe("Operation.manageBuyOffer()", () => {
         );
       }
     });
+
+    it("rejects a string longer than the 64-bit digit budget before parsing it", () => {
+      expect(() => build("1".repeat(1_000_000))).toThrow(
+        /exceeds the 22-character budget/,
+      );
+    });
   });
 });

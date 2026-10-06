@@ -171,6 +171,17 @@ describe("MuxedAccount ID format", () => {
     expect(mux.id()).toBe("1");
   });
 
+  it("rejects an ID longer than the 64-bit digit budget before parsing it", () => {
+    const base = new Account(PUBKEY, "0");
+    const mux = new MuxedAccount(base, "1");
+    const longId = "1".repeat(1_000_000);
+    expect(() => new MuxedAccount(base, longId)).toThrow(
+      /exceeds the 22-character budget/,
+    );
+    expect(() => mux.setId(longId)).toThrow(/exceeds the 22-character budget/);
+    expect(new MuxedAccount(base, `${"0".repeat(21)}1`).id()).toBe("1");
+  });
+
   it("rejects an ID that is not a string", () => {
     const base = new Account(PUBKEY, "0");
     // Reflect.construct passes values that the TypeScript signature forbids.
