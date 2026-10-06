@@ -148,7 +148,7 @@ export interface CreatePassiveSellOfferOpts {
 }
 
 export interface ManageSellOfferOpts extends CreatePassiveSellOfferOpts {
-  offerId?: number | string;
+  offerId?: number | string | bigint;
 }
 
 export interface ManageBuyOfferOpts {
@@ -156,7 +156,7 @@ export interface ManageBuyOfferOpts {
   buying: Asset;
   buyAmount: string;
   price: BigNumber | number | string | { n: number; d: number };
-  offerId?: number | string;
+  offerId?: number | string | bigint;
   source?: string;
 }
 

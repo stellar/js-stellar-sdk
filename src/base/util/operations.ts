@@ -75,6 +75,54 @@ export function toXdrAmount(value: string): Int64 {
 }
 
 /**
+ * Converts an offer ID to an XDR Int64. A missing ID is 0, which creates a
+ * new offer.
+ *
+ * @param offerId - a non-negative safe integer, a non-negative bigint, or a
+ *     string of at most 22 decimal digits, up to the int64 maximum
+ */
+export function toXdrOfferId(
+  offerId: number | string | bigint | undefined,
+): Int64 {
+  if (offerId === undefined) {
+    return Int64.fromString("0");
+  }
+
+  let value: bigint;
+  if (typeof offerId === "number") {
+    // A number above 2^53 - 1 has already lost precision, so it can name a
+    // different offer.
+    if (!Number.isSafeInteger(offerId) || offerId < 0) {
+      throw new Error(
+        "offerId must be a non-negative safe integer; pass a larger ID as a decimal string",
+      );
+    }
+    value = BigInt(offerId);
+  } else if (typeof offerId === "bigint") {
+    if (offerId < 0n) {
+      throw new Error("offerId must not be negative");
+    }
+    value = offerId;
+  } else if (typeof offerId === "string") {
+    // Checked first, so a very long string never reaches BigInt().
+    if (offerId.length > 22) {
+      throw new Error("offerId must have at most 22 digits");
+    }
+    if (!/^\d+$/.test(offerId)) {
+      throw new Error("offerId must be a string of decimal digits");
+    }
+    value = BigInt(offerId);
+  } else {
+    throw new Error("offerId must be a string of decimal digits");
+  }
+
+  if (value > Int64.MAX_VALUE) {
+    throw new Error(`offerId must not exceed ${Int64.MAX_VALUE}`);
+  }
+  return Int64.fromString(value.toString());
+}
+
+/**
  * Converts an XDR Int64 amount to a decimal string (divided by 10^7).
  *
  * @param value - the XDR amount

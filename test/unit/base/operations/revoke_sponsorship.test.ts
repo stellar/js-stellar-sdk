@@ -161,6 +161,47 @@ describe("Operation.revokeOfferSponsorship()", () => {
     ).toThrow(/seller is invalid/);
   });
 
+  it("removes leading zeros from the offerId", () => {
+    const op = Operation.revokeOfferSponsorship({
+      seller: account,
+      offerId: "016",
+    });
+    const obj = expectOperationType(
+      Operation.fromXdrObject(op),
+      "revokeOfferSponsorship",
+    );
+    expect(obj.offerId).toBe("16");
+  });
+
+  it("rejects an offerId that is not decimal digits", () => {
+    for (const offerId of ["", " 16 ", "0x10", "-1"]) {
+      expect(() =>
+        Operation.revokeOfferSponsorship({ seller: account, offerId }),
+      ).toThrow(/offerId must be a string of decimal digits/);
+    }
+  });
+
+  it("rejects an offerId longer than 22 characters before parsing it", () => {
+    for (const offerId of [
+      "1".repeat(1_000_000),
+      `${"1".repeat(1_000_000)}a`,
+      `${"0".repeat(22)}1`,
+    ]) {
+      expect(() =>
+        Operation.revokeOfferSponsorship({ seller: account, offerId }),
+      ).toThrow(/must have at most 22 digits/);
+    }
+    const op = Operation.revokeOfferSponsorship({
+      seller: account,
+      offerId: `${"0".repeat(21)}1`,
+    });
+    const obj = expectOperationType(
+      Operation.fromXdrObject(op),
+      "revokeOfferSponsorship",
+    );
+    expect(obj.offerId).toBe("1");
+  });
+
   it("fails with a missing offerId", () => {
     expect(() =>
       // @ts-expect-error: intentionally omitting required field to test runtime validation

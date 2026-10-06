@@ -233,4 +233,79 @@ describe("Operation.manageSellOffer()", () => {
     const roundtripped = xdr.Operation.fromXdr(hex, "hex");
     expect(roundtripped.body.type).toBe("manageSellOffer");
   });
+
+  describe("offerId", () => {
+    const build = (offerId: number | string | bigint) =>
+      expectOperationType(
+        Operation.fromXdrObject(
+          Operation.manageSellOffer({
+            selling,
+            buying,
+            amount: "1",
+            price: "1",
+            offerId,
+          }),
+        ),
+        "manageSellOffer",
+      ).offerId;
+
+    it("encodes the largest safe number and a larger decimal string exactly", () => {
+      expect(build(Number.MAX_SAFE_INTEGER)).toBe("9007199254740991");
+      expect(build("9007199254740993")).toBe("9007199254740993");
+    });
+
+    it("removes leading zeros from a decimal string", () => {
+      expect(build("016")).toBe("16");
+    });
+
+    it("rejects a number that is not a non-negative safe integer", () => {
+      for (const offerId of [
+        Number.MAX_SAFE_INTEGER + 2,
+        1.5,
+        -1,
+        NaN,
+        Infinity,
+      ]) {
+        expect(() => build(offerId)).toThrow(
+          /offerId must be a non-negative safe integer/,
+        );
+      }
+    });
+
+    it("accepts a non-negative bigint", () => {
+      expect(build(123n)).toBe("123");
+    });
+
+    it("rejects a negative bigint", () => {
+      expect(() => build(-1n)).toThrow(/offerId must not be negative/);
+    });
+
+    it("accepts the int64 maximum and rejects a larger ID", () => {
+      expect(build("9223372036854775807")).toBe("9223372036854775807");
+      for (const offerId of ["9223372036854775808", 2n ** 63n]) {
+        expect(() => build(offerId)).toThrow(
+          /offerId must not exceed 9223372036854775807/,
+        );
+      }
+    });
+
+    it("rejects a string that is not decimal digits", () => {
+      for (const offerId of ["", " 16 ", "0x10", "-1", "+1", "1e3"]) {
+        expect(() => build(offerId)).toThrow(
+          /offerId must be a string of decimal digits/,
+        );
+      }
+    });
+
+    it("rejects a string longer than 22 characters before parsing it", () => {
+      for (const offerId of [
+        "1".repeat(1_000_000),
+        `${"1".repeat(1_000_000)}a`,
+        `${"0".repeat(22)}1`,
+      ]) {
+        expect(() => build(offerId)).toThrow(/must have at most 22 digits/);
+      }
+      expect(build(`${"0".repeat(21)}1`)).toBe("1");
+    });
+  });
 });
