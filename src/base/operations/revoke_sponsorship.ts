@@ -128,7 +128,7 @@ export function revokeTrustlineSponsorship(
  *
  * @param opts - Options object
  *   - `seller`: The account ID which created the offer.
- *   - `offerId`: The offer ID, as a string of at most 22 decimal digits.
+ *   - `offerId`: The offer ID, as a string of at most 22 decimal digits, up to 9223372036854775807 (the int64 maximum).
  *   - `source`: The source account for the operation. Defaults to the transaction's source account.
  *
  * @example

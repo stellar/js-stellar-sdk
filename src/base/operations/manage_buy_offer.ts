@@ -27,7 +27,7 @@ import { ManageBuyOfferOpts, OperationAttributes } from "./types.js";
  *     - `n`: If `opts.price` is an object: the price numerator
  *     - `d`: If `opts.price` is an object: the price denominator
  *   - `offerId`: If `0`, will create a new offer (default). Otherwise, edits an existing offer.
- *     Pass a non-negative safe integer or bigint, or a string of at most 22 decimal digits for a larger ID.
+ *     Pass a non-negative safe integer or bigint, or a string of at most 22 decimal digits for a larger ID. The ID must not exceed 9223372036854775807 (the int64 maximum).
  *   - `source`: The source account (defaults to transaction source).
  * @throws when the best rational approximation of `price` cannot be found.
  */

@@ -1464,7 +1464,7 @@ static manageBuyOffer: (opts: ManageBuyOfferOpts) => Operation;
       - `n`: If `opts.price` is an object: the price numerator
       - `d`: If `opts.price` is an object: the price denominator
     - `offerId`: If `0`, will create a new offer (default). Otherwise, edits an existing offer.
-      Pass a non-negative safe integer or bigint, or a string of at most 22 decimal digits for a larger ID.
+      Pass a non-negative safe integer or bigint, or a string of at most 22 decimal digits for a larger ID. The ID must not exceed 9223372036854775807 (the int64 maximum).
     - `source`: The source account (defaults to transaction source).
 
 **Throws**
@@ -1509,7 +1509,7 @@ static manageSellOffer: (opts: ManageSellOfferOpts) => Operation;
       - `n`: If `opts.price` is an object: the price numerator
       - `d`: If `opts.price` is an object: the price denominator
     - `offerId`: If `0`, will create a new offer (default). Otherwise, edits an existing offer.
-      Pass a non-negative safe integer or bigint, or a string of at most 22 decimal digits for a larger ID.
+      Pass a non-negative safe integer or bigint, or a string of at most 22 decimal digits for a larger ID. The ID must not exceed 9223372036854775807 (the int64 maximum).
     - `source`: The source account (defaults to transaction source).
 
 **Throws**
@@ -1738,7 +1738,7 @@ static revokeOfferSponsorship: (opts: RevokeOfferSponsorshipOpts = ...) => Opera
 
 - **`opts`** — `RevokeOfferSponsorshipOpts` (optional) (default: `...`) — Options object
     - `seller`: The account ID which created the offer.
-    - `offerId`: The offer ID, as a string of at most 22 decimal digits.
+    - `offerId`: The offer ID, as a string of at most 22 decimal digits, up to 9223372036854775807 (the int64 maximum).
     - `source`: The source account for the operation. Defaults to the transaction's source account.
 
 **Example**
