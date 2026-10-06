@@ -10,6 +10,66 @@ import {
 import { hash } from "./hashing.js";
 import { Keypair } from "./keypair.js";
 
+// Envelopes that the SDK built from its own copy. No caller holds them, so
+// ownEnvelope does not copy them again.
+const sdkOwned = new WeakSet<TransactionEnvelope>();
+
+/**
+ * Marks an envelope that the SDK built from its own copy, so that
+ * {@link ownEnvelope} uses it as is.
+ *
+ * @ignore
+ */
+export function markSdkOwned(
+  envelope: TransactionEnvelope,
+): TransactionEnvelope {
+  sdkOwned.add(envelope);
+  return envelope;
+}
+
+/**
+ * Returns an envelope of the expected type that no caller holds. A string
+ * decodes to new objects, and an object is copied, so a caller that keeps it
+ * cannot change what gets hashed and signed.
+ *
+ * @ignore
+ */
+export function ownEnvelope<T extends TransactionEnvelope>(
+  envelope: TransactionEnvelope | string,
+  isExpected: (value: TransactionEnvelope) => value is T,
+  expected: string,
+): T {
+  const isString = typeof envelope === "string";
+  const input = isString
+    ? TransactionEnvelope.fromXdr(base64ToUint8Array(envelope))
+    : envelope;
+  // Check the caller's value before the copy: a bare TransactionV1Envelope
+  // can decode as an envelope of the wrong type.
+  if (!isExpected(input)) {
+    throw new Error(
+      `Invalid TransactionEnvelope: expected an ${expected} but received an ${input.type}.`,
+    );
+  }
+  if (isString || sdkOwned.has(input)) {
+    return input;
+  }
+
+  let own: TransactionEnvelope;
+  try {
+    own = TransactionEnvelope.fromXdr(input.toXdr());
+  } catch (error) {
+    throw new Error(
+      `Invalid TransactionEnvelope: ${error instanceof Error ? error.message : String(error)}`,
+    );
+  }
+  if (!isExpected(own)) {
+    throw new Error(
+      `TransactionEnvelope changed type in the copy: ${input.type} became ${own.type}.`,
+    );
+  }
+  return own;
+}
+
 /**
  * @ignore
  */

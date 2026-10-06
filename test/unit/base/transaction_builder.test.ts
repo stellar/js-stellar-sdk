@@ -1226,6 +1226,25 @@ describe("TransactionBuilder", () => {
     });
   });
 
+  describe("build", () => {
+    it("throws for a transaction that cannot be encoded", () => {
+      const source = new Account(
+        "GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGSNFHEYVXM3XOJMDS674JZ",
+        "0",
+      );
+      const builder = new TransactionBuilder(source, {
+        fee: "100",
+        networkPassphrase: Networks.TESTNET,
+      }).setTimeout(TimeoutInfinite);
+      for (let i = 0; i < 101; i++) {
+        builder.addOperation(Operation.bumpSequence({ bumpTo: "1" }));
+      }
+
+      expect(() => builder.build()).toThrow(/exceeds maximum 100/);
+      expect(source.sequenceNumber()).toBe("0");
+    });
+  });
+
   describe(".buildFeeBumpTransaction", () => {
     it("builds a fee bump transaction", () => {
       const networkPassphrase = "Standalone Network ; February 2017";
