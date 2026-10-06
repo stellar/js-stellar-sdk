@@ -18,10 +18,10 @@ function canonicalUint64Id(id: string): string {
   if (typeof id !== "string") {
     throw new Error("id should be a string representing a number (uint64)");
   }
+  assertDecimalDigitBudget(id, 64, "id");
   if (!/^\d+$/.test(id)) {
     throw new Error(`id is not a valid uint64 string: ${id}`);
   }
-  assertDecimalDigitBudget(id, 64, "id");
 
   const value = BigInt(id);
   if (value > MAX_UINT64) {

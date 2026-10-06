@@ -182,12 +182,14 @@ describe("Operation.revokeOfferSponsorship()", () => {
   });
 
   it("rejects an offerId longer than the 64-bit digit budget before parsing it", () => {
-    expect(() =>
-      Operation.revokeOfferSponsorship({
-        seller: account,
-        offerId: "1".repeat(1_000_000),
-      }),
-    ).toThrow(/exceeds the 22-character budget/);
+    for (const offerId of [
+      "1".repeat(1_000_000),
+      `${"1".repeat(1_000_000)}a`,
+    ]) {
+      expect(() =>
+        Operation.revokeOfferSponsorship({ seller: account, offerId }),
+      ).toThrow(/exceeds the 22-character budget/);
+    }
   });
 
   it("fails with a missing offerId", () => {

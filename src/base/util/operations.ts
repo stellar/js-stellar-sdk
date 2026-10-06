@@ -104,8 +104,11 @@ export function toXdrOfferId(
       throw new Error("offerId must not be negative");
     }
     value = offerId;
-  } else if (typeof offerId === "string" && /^\d+$/.test(offerId)) {
+  } else if (typeof offerId === "string") {
     assertDecimalDigitBudget(offerId, 64, "offerId");
+    if (!/^\d+$/.test(offerId)) {
+      throw new Error("offerId must be a string of decimal digits");
+    }
     value = BigInt(offerId);
   } else {
     throw new Error("offerId must be a string of decimal digits");
