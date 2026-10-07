@@ -7,6 +7,7 @@ A breaking change will get clearly marked in this log.
 ### Fixed
 * `scValToNative()` throws a `TypeError` when two keys of an `scvMap` convert to the same object property, such as `u32 1` and `symbol "1"`. It previously kept only the last entry. Maps whose keys all convert to distinct properties decode as before. Because any contract can emit such a map, `humanizeEvents()` and contract-client decoding of `Val`-typed values can now throw on data read from the network ([#1778](https://github.com/stellar/js-stellar-sdk/pull/1778)).
 * Templated Horizon `_links` functions now resolve a relative `href` the same way non-templated links do. They previously threw `TypeError: Invalid URL` ([#1771](https://github.com/stellar/js-stellar-sdk/pull/1771)).
+* `WebAuth.readChallengeTx()`, `verifyChallengeTxSigners()` and `verifyChallengeTxThreshold()` throw an `InvalidChallengeError` when a challenge's `client_domain` operation has no source account. SEP-10 requires that source to be the client domain's signing key. The verifiers previously skipped the client domain signature check for such a challenge.
 
 ## [v17.2.1](https://github.com/stellar/js-stellar-sdk/compare/v17.2.0...v17.2.1)
 
