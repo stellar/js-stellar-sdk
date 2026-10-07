@@ -724,7 +724,7 @@ class MuxedAccount implements TransactionSource {
 
 - https://developers.stellar.org/docs/glossary/muxed-accounts/
 
-**Source:** [src/base/muxed_account.ts:68](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L68)
+**Source:** [src/base/muxed_account.ts:43](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L43)
 
 ### `new MuxedAccount(baseAccount, id)`
 
@@ -739,7 +739,7 @@ constructor(baseAccount: Account, id: string);
 - **`id`** — `string` (required) — the ID of the muxed account, as a uint64 in decimal digits.
       Leading zeros are removed. At most 22 digits.
 
-**Source:** [src/base/muxed_account.ts:80](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L80)
+**Source:** [src/base/muxed_account.ts:55](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L55)
 
 ### `MuxedAccount.fromAddress(mAddress, sequenceNum)`
 
@@ -755,7 +755,7 @@ static fromAddress(mAddress: string, sequenceNum: string): MuxedAccount;
 - **`sequenceNum`** — `string` (required) — the sequence number of the underlying [`Account`](#account), to use for the underlying base account [`MuxedAccount.baseAccount`](#muxedaccountbaseaccount). If you're using the SDK, you can use
       `server.loadAccount` to fetch this if you don't know it.
 
-**Source:** [src/base/muxed_account.ts:104](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L104)
+**Source:** [src/base/muxed_account.ts:79](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L79)
 
 ### `muxedAccount.accountId()`
 
@@ -765,7 +765,7 @@ Returns the M-address representing this account's (G-address, ID).
 accountId(): string;
 ```
 
-**Source:** [src/base/muxed_account.ts:126](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L126)
+**Source:** [src/base/muxed_account.ts:101](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L101)
 
 ### `muxedAccount.baseAccount()`
 
@@ -776,7 +776,7 @@ accounts with this Stellar address.
 baseAccount(): Account;
 ```
 
-**Source:** [src/base/muxed_account.ts:119](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L119)
+**Source:** [src/base/muxed_account.ts:94](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L94)
 
 ### `muxedAccount.equals(otherMuxedAccount)`
 
@@ -790,7 +790,7 @@ equals(otherMuxedAccount: MuxedAccount): boolean;
 
 - **`otherMuxedAccount`** — `MuxedAccount` (required) — the MuxedAccount to compare against
 
-**Source:** [src/base/muxed_account.ts:187](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L187)
+**Source:** [src/base/muxed_account.ts:162](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L162)
 
 ### `muxedAccount.id()`
 
@@ -800,7 +800,7 @@ Returns the uint64 ID of this muxed account as a string.
 id(): string;
 ```
 
-**Source:** [src/base/muxed_account.ts:133](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L133)
+**Source:** [src/base/muxed_account.ts:108](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L108)
 
 ### `muxedAccount.incrementSequenceNumber()`
 
@@ -810,7 +810,7 @@ Increments the underlying account's sequence number by one.
 incrementSequenceNumber(): void;
 ```
 
-**Source:** [src/base/muxed_account.ts:162](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L162)
+**Source:** [src/base/muxed_account.ts:137](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L137)
 
 ### `muxedAccount.sequenceNumber()`
 
@@ -820,7 +820,7 @@ Returns the stringified sequence number for the underlying account.
 sequenceNumber(): string;
 ```
 
-**Source:** [src/base/muxed_account.ts:155](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L155)
+**Source:** [src/base/muxed_account.ts:130](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L130)
 
 ### `muxedAccount.setId(id)`
 
@@ -835,7 +835,7 @@ setId(id: string): MuxedAccount;
 - **`id`** — `string` (required) — the new muxed account ID, as a uint64 in decimal digits.
       Leading zeros are removed. At most 22 digits.
 
-**Source:** [src/base/muxed_account.ts:143](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L143)
+**Source:** [src/base/muxed_account.ts:118](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L118)
 
 ### `muxedAccount.toXdrObject()`
 
@@ -846,7 +846,7 @@ G-address and uint64 ID.
 toXdrObject(): MuxedAccount;
 ```
 
-**Source:** [src/base/muxed_account.ts:170](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L170)
+**Source:** [src/base/muxed_account.ts:145](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L145)
 
 ### `muxedAccount.toXDRObject()`
 
@@ -857,7 +857,7 @@ Deprecated in version v17.0.0
 toXDRObject(): MuxedAccount;
 ```
 
-**Source:** [src/base/muxed_account.ts:178](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L178)
+**Source:** [src/base/muxed_account.ts:153](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/muxed_account.ts#L153)
 
 ## Operation
 
@@ -1738,7 +1738,7 @@ static revokeOfferSponsorship: (opts: RevokeOfferSponsorshipOpts = ...) => Opera
 
 - **`opts`** — `RevokeOfferSponsorshipOpts` (optional) (default: `...`) — Options object
     - `seller`: The account ID which created the offer.
-    - `offerId`: The offer ID, as a string of at most 22 decimal digits, up to 9223372036854775807 (the int64 maximum).
+    - `offerId`: The offer ID, as a non-negative safe integer, a non-negative bigint, or a string of at most 22 decimal digits, up to 9223372036854775807 (the int64 maximum).
     - `source`: The source account for the operation. Defaults to the transaction's source account.
 
 **Example**
@@ -3574,7 +3574,7 @@ decodeAddressToMuxedAccount(address: string): MuxedAccount
 
 - **`address`** — `string` (required) — G... or M... address to encode into XDR
 
-**Source:** [src/base/util/decode_encode_muxed_account.ts:14](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/util/decode_encode_muxed_account.ts#L14)
+**Source:** [src/base/util/decode_encode_muxed_account.ts:40](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/util/decode_encode_muxed_account.ts#L40)
 
 ## encodeMuxedAccount
 
@@ -3587,9 +3587,10 @@ encodeMuxedAccount(address: string, id: string): MuxedAccount
 **Parameters**
 
 - **`address`** — `string` (required) — a Stellar G... address
-- **`id`** — `string` (required) — a Uint64 ID represented as a string
+- **`id`** — `string` (required) — the ID, as a uint64 in decimal digits. Leading zeros are
+      removed. At most 22 digits.
 
-**Source:** [src/base/util/decode_encode_muxed_account.ts:48](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/util/decode_encode_muxed_account.ts#L48)
+**Source:** [src/base/util/decode_encode_muxed_account.ts:75](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/util/decode_encode_muxed_account.ts#L75)
 
 ## encodeMuxedAccountToAddress
 
@@ -3610,7 +3611,7 @@ encodeMuxedAccountToAddress(muxedAccount: MuxedAccount): string
 
 - https://stellar.org/protocol/sep-23
 
-**Source:** [src/base/util/decode_encode_muxed_account.ts:32](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/util/decode_encode_muxed_account.ts#L32)
+**Source:** [src/base/util/decode_encode_muxed_account.ts:58](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/util/decode_encode_muxed_account.ts#L58)
 
 ## extractBaseAddress
 
@@ -3624,7 +3625,7 @@ extractBaseAddress(address: string): string
 
 - **`address`** — `string` (required) — an account address (either M... or G...)
 
-**Source:** [src/base/util/decode_encode_muxed_account.ts:67](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/util/decode_encode_muxed_account.ts#L67)
+**Source:** [src/base/util/decode_encode_muxed_account.ts:91](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/util/decode_encode_muxed_account.ts#L91)
 
 ## getClaimableBalanceIdFromResult
 

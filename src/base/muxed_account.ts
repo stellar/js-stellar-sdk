@@ -3,37 +3,12 @@ import { Account } from "./account.js";
 import { StrKey } from "./strkey.js";
 import type { TransactionSource } from "./transaction_source.js";
 import {
+  canonicalUint64Id,
   decodeAddressToMuxedAccount,
   encodeMuxedAccountToAddress,
   encodeMuxedAccount,
   extractBaseAddress,
 } from "./util/decode_encode_muxed_account.js";
-
-const MAX_UINT64 = BigInt("18446744073709551615"); // 2^64 - 1
-
-// Accepts only decimal digits and returns the canonical form, so one ID has
-// one spelling. BigInt() alone also accepts hex, signs, whitespace and "".
-function canonicalUint64Id(id: string): string {
-  if (typeof id !== "string") {
-    throw new Error("id should be a string representing a number (uint64)");
-  }
-  // Checked first, so a very long string never reaches BigInt().
-  if (id.length > 22) {
-    throw new Error("id must have at most 22 digits");
-  }
-  if (!/^\d+$/.test(id)) {
-    throw new Error(`id is not a valid uint64 string: ${id}`);
-  }
-
-  const value = BigInt(id);
-  if (value > MAX_UINT64) {
-    throw new Error(
-      `id value out of range for uint64 [0, ${MAX_UINT64}]: ${id}`,
-    );
-  }
-
-  return value.toString();
-}
 
 /**
  * Represents a muxed account for transactions and operations.

@@ -212,7 +212,7 @@ export interface RevokeTrustlineSponsorshipOpts {
 
 export interface RevokeOfferSponsorshipOpts {
   seller: string;
-  offerId: string;
+  offerId: number | string | bigint;
   source?: string;
 }
 
