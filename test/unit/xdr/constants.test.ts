@@ -14,8 +14,8 @@ describe("XDR constants keep their canonical names and values", () => {
     (d: any) => d.kind === "const",
   );
 
-  it("finds all 17 constants (suite sanity check)", () => {
-    expect(consts.length).toBe(17);
+  it("finds all 18 constants (suite sanity check)", () => {
+    expect(consts.length).toBe(18);
   });
 
   for (const { name, value } of consts) {

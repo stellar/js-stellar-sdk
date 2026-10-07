@@ -20,7 +20,7 @@ export interface ScSpecUdtEnumV0Wire {
  * {
  *     string doc<SC_SPEC_DOC_LIMIT>;
  *     string lib<80>;
- *     string name<60>;
+ *     string name<SC_SPEC_TYPE_NAME_LIMIT>;
  *     SCSpecUDTEnumCaseV0 cases<>;
  * };
  * ```
@@ -36,7 +36,7 @@ export class ScSpecUdtEnumV0 extends XdrValue {
     {
       doc: xdrString(1024),
       lib: xdrString(80),
-      name: xdrString(60),
+      name: xdrString(1024),
       cases: array(ScSpecUdtEnumCaseV0.schema, UNBOUNDED_MAX_LENGTH),
     },
   );
