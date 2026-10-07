@@ -54,7 +54,9 @@
       "sha256": "1bf41da09307489c04c454d9081a3ddcd52d04ed9af173abeb308fe4907dc590"
     }
   ],
-  "resolved_features": [],
+  "resolved_features": [
+    "cap_0084_muxed_contract"
+  ],
   "definitions": [
     {
       "kind": "typedef",
@@ -3498,6 +3500,10 @@
         {
           "name": "SC_ADDRESS_TYPE_LIQUIDITY_POOL",
           "value": 4
+        },
+        {
+          "name": "SC_ADDRESS_TYPE_MUXED_CONTRACT",
+          "value": 5
         }
       ]
     },
@@ -3520,6 +3526,29 @@
           "type": {
             "kind": "ref",
             "name": "uint256"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "struct",
+      "name": "MuxedContract",
+      "fixed_size": 40,
+      "source": "struct MuxedContract\n{\n    uint64 id;\n    ContractID contractId;\n};",
+      "file_index": 5,
+      "fields": [
+        {
+          "name": "id",
+          "type": {
+            "kind": "ref",
+            "name": "uint64"
+          }
+        },
+        {
+          "name": "contractId",
+          "type": {
+            "kind": "ref",
+            "name": "ContractID"
           }
         }
       ]
@@ -3601,6 +3630,19 @@
           "type": {
             "kind": "ref",
             "name": "PoolID"
+          }
+        },
+        {
+          "cases": [
+            {
+              "value": 5,
+              "name": "SC_ADDRESS_TYPE_MUXED_CONTRACT"
+            }
+          ],
+          "name": "muxedContract",
+          "type": {
+            "kind": "ref",
+            "name": "MuxedContract"
           }
         }
       ]
