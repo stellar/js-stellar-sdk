@@ -94,7 +94,7 @@ export function toXdrOfferId(
     // different offer.
     if (!Number.isSafeInteger(offerId) || offerId < 0) {
       throw new Error(
-        "offerId must be a non-negative safe integer; pass a larger ID as a decimal string",
+        "offerId must be a non-negative safe integer; pass a larger ID as a bigint or a decimal string",
       );
     }
     value = BigInt(offerId);
@@ -113,7 +113,9 @@ export function toXdrOfferId(
     }
     value = BigInt(offerId);
   } else {
-    throw new Error("offerId must be a string of decimal digits");
+    throw new Error(
+      "offerId must be a number, a bigint, or a string of decimal digits",
+    );
   }
 
   if (value > Int64.MAX_VALUE) {

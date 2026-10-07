@@ -272,6 +272,21 @@ describe("Operation.manageSellOffer()", () => {
       }
     });
 
+    it("names every lossless form in the unsafe-number message", () => {
+      expect(() => build(Number.MAX_SAFE_INTEGER + 2)).toThrow(
+        /pass a larger ID as a bigint or a decimal string/,
+      );
+    });
+
+    it("names every accepted type when offerId has the wrong type", () => {
+      // Reflect.apply passes values that the TypeScript signature forbids.
+      for (const offerId of [null, true, {}]) {
+        expect(() => Reflect.apply(build, undefined, [offerId])).toThrow(
+          /offerId must be a number, a bigint, or a string of decimal digits/,
+        );
+      }
+    });
+
     it("accepts a non-negative bigint", () => {
       expect(build(123n)).toBe("123");
     });
