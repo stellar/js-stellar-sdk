@@ -45,6 +45,7 @@ import {
 
 import { Transaction } from "./transaction.js";
 import { FeeBumpTransaction } from "./fee_bump_transaction.js";
+import { markSdkOwned } from "./transaction_base.js";
 import { SorobanDataBuilder } from "./sorobandata_builder.js";
 
 import { StrKey } from "./strkey.js";
@@ -1261,7 +1262,7 @@ export class TransactionBuilder {
     networkPassphrase: string,
   ): FeeBumpTransaction | Transaction {
     if (typeof envelope === "string") {
-      envelope = TransactionEnvelope.fromXdr(envelope, "base64");
+      envelope = markSdkOwned(TransactionEnvelope.fromXdr(envelope, "base64"));
     }
 
     if (envelope.type === "envelopeTypeTxFeeBump") {

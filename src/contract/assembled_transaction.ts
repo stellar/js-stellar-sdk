@@ -63,7 +63,6 @@ import {
   SorobanAuthorizationEntry,
   SorobanCredentials,
   SorobanTransactionData,
-  TransactionEnvelope,
 } from "../xdr/index.js";
 import { getAddressCredentials } from "../base/auth.js";
 import { base64ToUint8Array } from "../base/util/base64.js";
@@ -532,9 +531,8 @@ export class AssembledTransaction<T> {
     encodedXDR: string,
     spec: Spec,
   ): AssembledTransaction<T> {
-    const envelope = TransactionEnvelope.fromXdr(encodedXDR, "base64");
     const built = TransactionBuilder.fromXdr(
-      envelope,
+      encodedXDR,
       options.networkPassphrase,
     ) as Tx;
 

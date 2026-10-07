@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import { concatUint8Arrays } from "uint8array-extras";
 import {
   TransactionBuilder,
@@ -1425,6 +1425,17 @@ describe("TransactionBuilder", () => {
 
       expect(tx).toBeInstanceOf(Transaction);
       expect(tx.toXdr()).toBe(xdrStr);
+    });
+    it("does not copy an envelope decoded from a string", () => {
+      const xdrStr =
+        "AAAAAAW8Dk9idFR5Le+xi0/h/tU47bgC1YWjtPH1vIVO3BklAAAAZACoKlYAAAABAAAAAAAAAAEAAAALdmlhIGtleWJhc2UAAAAAAQAAAAAAAAAIAAAAAN7aGcXNPO36J1I8MR8S4QFhO79T5JGG2ZeS5Ka1m4mJAAAAAAAAAAFO3BklAAAAQP0ccCoeHdm3S7bOhMjXRMn3EbmETJ9glxpKUZjPSPIxpqZ7EkyTgl3FruieqpZd9LYOzdJrNik1GNBLhgTh/AU=";
+      const toXdr = vi.spyOn(xdr.TransactionEnvelope.prototype, "toXdr");
+      try {
+        TransactionBuilder.fromXdr(xdrStr, Networks.TESTNET);
+        expect(toXdr).not.toHaveBeenCalled();
+      } finally {
+        toXdr.mockRestore();
+      }
     });
   });
 
