@@ -2529,6 +2529,66 @@ describe("Utils", () => {
         ),
       );
     });
+
+    it("throws an error if a client_domain operation with no source account precedes one with a source account", () => {
+      serverKP = Keypair.random();
+      const clientKP = Keypair.random();
+      const clientSigningKeypair = Keypair.random();
+
+      const serverAccount = new Account(serverKP.publicKey(), "-1");
+
+      const transaction = new TransactionBuilder(serverAccount, txBuilderOpts)
+        .addOperation(
+          Operation.manageData({
+            source: clientKP.publicKey(),
+            name: "testanchor.stellar.org auth",
+            value: uint8ArrayToBase64(
+              crypto.getRandomValues(new Uint8Array(48)),
+            ),
+          }),
+        )
+        .addOperation(
+          Operation.manageData({
+            name: "client_domain",
+            value: "testdomain",
+          }),
+        )
+        .addOperation(
+          Operation.manageData({
+            source: clientSigningKeypair.publicKey(),
+            name: "client_domain",
+            value: "testdomain2",
+          }),
+        )
+        .setTimeout(30)
+        .build();
+
+      vi.advanceTimersByTime(200);
+
+      transaction.sign(serverKP);
+      transaction.sign(clientKP);
+      transaction.sign(clientSigningKeypair);
+
+      const signedChallenge = transaction
+        .toEnvelope()
+        .toXdr("base64")
+        .toString();
+
+      expect(() =>
+        WebAuth.verifyChallengeTxSigners(
+          signedChallenge,
+          serverKP.publicKey(),
+          Networks.TESTNET,
+          [clientKP.publicKey()],
+          "testanchor.stellar.org",
+          "testanchor.stellar.org",
+        ),
+      ).toThrow(
+        new WebAuth.InvalidChallengeError(
+          "The transaction's 'client_domain' operation should contain a source account",
+        ),
+      );
+    });
   });
 
   describe("WebAuth.verifyTxSignedBy", () => {
