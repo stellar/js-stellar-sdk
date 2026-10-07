@@ -14,7 +14,7 @@ export interface TransactionEventWire {
 
 /**
  * ```xdr
- * struct TransactionEvent {
+ * struct TransactionEvent {  
  *     TransactionEventStage stage;  // Stage at which an event has occurred.
  *     ContractEvent event;  // The contract event that has occurred.
  * };

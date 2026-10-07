@@ -34,7 +34,7 @@ RS_XDR_REPO ?= https://github.com/stellar/rs-stellar-xdr
 RS_XDR_REF  ?= 3305b3e31f19fdb4e64e4b7a4354bb120cdf4415
 
 # Feature symbols resolving #ifdef-gated protocol changes, e.g. cap_0083.
-XDR_FEATURES ?=
+XDR_FEATURES ?= cap_0084_muxed_contract
 
 # Rust toolchain image, pinned by digest so the build stays reproducible
 # (rust:slim is a mutable tag). Currently rustc 1.97.1. To move it:

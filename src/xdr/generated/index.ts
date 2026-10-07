@@ -236,6 +236,7 @@ export * from "./memo-type.js";
 export * from "./message-type.js";
 export * from "./muxed-account.js";
 export * from "./muxed-account-med25519.js";
+export * from "./muxed-contract.js";
 export * from "./muxed-ed25519-account.js";
 export * from "./node-id.js";
 export * from "./offer-entry.js";
