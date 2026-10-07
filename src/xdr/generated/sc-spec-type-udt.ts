@@ -11,7 +11,7 @@ export interface ScSpecTypeUdtWire {
  * ```xdr
  * struct SCSpecTypeUDT
  * {
- *     string name<60>;
+ *     string name<SC_SPEC_TYPE_NAME_LIMIT>;
  * };
  * ```
  */
@@ -19,7 +19,7 @@ export class ScSpecTypeUdt extends XdrValue {
   readonly name: XdrString;
 
   static readonly schema: XdrType<ScSpecTypeUdtWire> = struct("ScSpecTypeUdt", {
-    name: xdrString(60),
+    name: xdrString(1024),
   });
 
   constructor(input: { name: XdrString | string | Uint8Array }) {
