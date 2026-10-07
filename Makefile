@@ -27,14 +27,14 @@
 
 # Pinned stellar/stellar-xdr commit the schema is generated from.
 XDR_REPO   ?= https://github.com/stellar/stellar-xdr
-XDR_COMMIT ?= ee040cd65310cd4f66d41fc74ebbbb3b6604dcc6
+XDR_COMMIT ?= 4f524bbac80c781c06e4fb5fc93a2d0d331d6705
 
 # Pinned stellar/rs-stellar-xdr commit providing generator-definitions-json.
 RS_XDR_REPO ?= https://github.com/stellar/rs-stellar-xdr
-RS_XDR_REF  ?= 3305b3e31f19fdb4e64e4b7a4354bb120cdf4415
+RS_XDR_REF  ?= 28f34cf5a963e3cb13a25456eb9bbda7e0e1ad64
 
 # Feature symbols resolving #ifdef-gated protocol changes, e.g. cap_0083.
-XDR_FEATURES ?= cap_0084_muxed_contract,cap_0087_ml_dsa
+XDR_FEATURES ?=
 
 # Rust toolchain image, pinned by digest so the build stays reproducible
 # (rust:slim is a mutable tag). Currently rustc 1.97.1. To move it:
