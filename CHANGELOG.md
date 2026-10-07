@@ -4,9 +4,12 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Changed
+* `TransactionBuilder.setTimeout()` now throws "timeout ends before min_time" when a positive timeout ends before an existing `minTime`. Before, it built a transaction with `minTime` after `maxTime`, which is never valid ([#1781](https://github.com/stellar/js-stellar-sdk/pull/1781)).
+
 ### Fixed
 * Templated Horizon `_links` functions now resolve a relative `href` the same way non-templated links do. They previously threw `TypeError: Invalid URL` ([#1771](https://github.com/stellar/js-stellar-sdk/pull/1771)).
-* `TransactionBuilder.setTimeout(TimeoutInfinite)` keeps an existing `minTime`. Before, it reset both time bounds to 0, so a transaction meant to become valid later was valid at once. `setTimeout()` with a positive timeout that ends before `minTime` now throws "min_time cannot be greater than max_time", as the constructor and `setTimebounds()` already do ([#1781](https://github.com/stellar/js-stellar-sdk/pull/1781)).
+* `TransactionBuilder.setTimeout(TimeoutInfinite)` keeps an existing `minTime`. Before, it reset both time bounds to 0, so a transaction meant to become valid later was valid at once ([#1781](https://github.com/stellar/js-stellar-sdk/pull/1781)).
 
 ## [v17.2.1](https://github.com/stellar/js-stellar-sdk/compare/v17.2.0...v17.2.1)
 

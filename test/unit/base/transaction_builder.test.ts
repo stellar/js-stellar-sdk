@@ -1238,15 +1238,15 @@ describe("TransactionBuilder", () => {
       it("rejects a timeout that ends before minTime", () => {
         const minTime = Math.floor(Date.now() / 1000) + 3600;
         expect(() => builder({ minTime, maxTime: 0 }).setTimeout(300)).toThrow(
-          /min_time cannot be greater than max_time/,
+          /timeout ends before min_time/,
         );
         expect(() =>
           builder().setTimebounds(minTime, 0).setTimeout(300),
-        ).toThrow(/min_time cannot be greater than max_time/);
+        ).toThrow(/timeout ends before min_time/);
         for (const value of [new Date(minTime * 1000), String(minTime)]) {
           expect(() =>
             builder({ minTime: value, maxTime: 0 }).setTimeout(300),
-          ).toThrow(/min_time cannot be greater than max_time/);
+          ).toThrow(/timeout ends before min_time/);
         }
       });
 

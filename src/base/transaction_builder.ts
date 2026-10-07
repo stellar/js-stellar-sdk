@@ -495,7 +495,9 @@ export class TransactionBuilder {
       const timeoutTimestamp = Math.floor(Date.now() / 1000) + timeoutSeconds;
       const minSeconds = toEpochSeconds(minTime) ?? 0;
       if (minSeconds > timeoutTimestamp) {
-        throw new Error("min_time cannot be greater than max_time");
+        throw new Error(
+          `timeout ends before min_time (${timeoutTimestamp} < ${minSeconds})`,
+        );
       }
       this.timebounds = { minTime, maxTime: timeoutTimestamp };
     } else {
