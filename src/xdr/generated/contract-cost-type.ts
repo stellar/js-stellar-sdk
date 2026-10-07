@@ -289,9 +289,7 @@ export type ContractCostTypeName =
  *      // Cost of performing BN254 scalar element inversion
  *     Bn254FrInv = 84,
  *     // Cost of performing BN254 G1 multi-scalar multiplication (MSM)
- *     Bn254G1Msm = 85
- * #ifdef CAP_0087_ML_DSA
- *     ,
+ *     Bn254G1Msm = 85,
  *     // Cost of decoding and expanding an ML-DSA-44 verifying key
  *     MlDsa44DecodeVerifyingKey = 86,
  *     // Cost of decoding and expanding an ML-DSA-65 verifying key
@@ -310,7 +308,6 @@ export type ContractCostTypeName =
  *     VerifyMlDsa65Sig = 93,
  *     // Cost of verifying an ML-DSA-87 signature, linear in message + context length
  *     VerifyMlDsa87Sig = 94
- * #endif
  * };
  * ```
  */
