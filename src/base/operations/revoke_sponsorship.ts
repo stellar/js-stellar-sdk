@@ -1,6 +1,5 @@
 import {
   ClaimableBalanceId,
-  Int64,
   LedgerKey,
   LedgerKeyAccount,
   LedgerKeyClaimableBalance,
@@ -32,7 +31,7 @@ import {
   RevokeSignerSponsorshipOpts,
   OperationAttributes,
 } from "./types.js";
-import { setSourceAccount } from "../util/operations.js";
+import { setSourceAccount, toXdrOfferId } from "../util/operations.js";
 
 /**
  * Create a "revoke sponsorship" operation for an account.
@@ -129,7 +128,7 @@ export function revokeTrustlineSponsorship(
  *
  * @param opts - Options object
  *   - `seller`: The account ID which created the offer.
- *   - `offerId`: The offer ID.
+ *   - `offerId`: The offer ID, as a non-negative safe integer, a non-negative bigint, or a string of at most 22 decimal digits, up to 9223372036854775807 (the int64 maximum).
  *   - `source`: The source account for the operation. Defaults to the transaction's source account.
  *
  * @example
@@ -147,14 +146,16 @@ export function revokeOfferSponsorship(
     throw new Error("seller is invalid");
   }
 
-  if (typeof opts.offerId !== "string") {
+  // The type requires offerId, but untyped callers can omit it, and
+  // toXdrOfferId() would silently map that to offer 0.
+  if (opts.offerId === undefined) {
     throw new Error("offerId is invalid");
   }
 
   const ledgerKey = LedgerKey.offer(
     new LedgerKeyOffer({
       sellerId: Keypair.fromPublicKey(opts.seller).xdrAccountId(),
-      offerId: Int64.fromString(opts.offerId),
+      offerId: toXdrOfferId(opts.offerId),
     }),
   );
   const op = RevokeSponsorshipOp.revokeSponsorshipLedgerEntry(ledgerKey);

@@ -1352,6 +1352,48 @@ describe("Utils", () => {
         ),
       );
     });
+
+    it("throws an error if a 'client_domain' operation has no source account", () => {
+      const serverKP = Keypair.random();
+      const clientKP = Keypair.random();
+      const serverAccount = new Account(serverKP.publicKey(), "-1");
+
+      const transaction = new TransactionBuilder(serverAccount, txBuilderOpts)
+        .addOperation(
+          Operation.manageData({
+            source: clientKP.publicKey(),
+            name: "testanchor.stellar.org auth",
+            value: uint8ArrayToBase64(
+              crypto.getRandomValues(new Uint8Array(48)),
+            ),
+          }),
+        )
+        .addOperation(
+          Operation.manageData({
+            name: "client_domain",
+            value: "testdomain",
+          }),
+        )
+        .setTimeout(30)
+        .build();
+
+      transaction.sign(serverKP);
+      const challenge = transaction.toEnvelope().toXdr("base64").toString();
+
+      expect(() =>
+        WebAuth.readChallengeTx(
+          challenge,
+          serverKP.publicKey(),
+          Networks.TESTNET,
+          "testanchor.stellar.org",
+          "testanchor.stellar.org",
+        ),
+      ).toThrow(
+        new WebAuth.InvalidChallengeError(
+          "The transaction's 'client_domain' operation should contain a source account",
+        ),
+      );
+    });
   });
 
   describe("WebAuth.verifyChallengeTxThreshold", () => {
@@ -1416,6 +1458,43 @@ describe("Utils", () => {
       ).toThrow(
         new WebAuth.InvalidChallengeError(
           `Transaction not signed by server: '${serverKP.publicKey()}'`,
+        ),
+      );
+    });
+
+    it("throws an error if a client_domain operation has no source account", () => {
+      const transaction = new TransactionBuilder(txAccount, txBuilderOpts)
+        .addOperation(operation)
+        .addOperation(
+          Operation.manageData({
+            name: "client_domain",
+            value: "testdomain",
+          }),
+        )
+        .setTimeout(30)
+        .build();
+
+      const threshold = 1;
+      const signerSummary = [newClientSigner(clientKP1.publicKey(), 1)];
+
+      transaction.sign(serverKP);
+      transaction.sign(clientKP1);
+
+      const challenge = transaction.toEnvelope().toXdr("base64").toString();
+
+      expect(() =>
+        WebAuth.verifyChallengeTxThreshold(
+          challenge,
+          serverKP.publicKey(),
+          Networks.TESTNET,
+          threshold,
+          signerSummary,
+          "SDF-test",
+          "testanchor.stellar.org",
+        ),
+      ).toThrow(
+        new WebAuth.InvalidChallengeError(
+          "The transaction's 'client_domain' operation should contain a source account",
         ),
       );
     });
@@ -2542,6 +2621,124 @@ describe("Utils", () => {
         clientKP1.publicKey(),
         clientKP2.publicKey(),
       ]);
+    });
+
+    it("throws an error if a client_domain operation has no source account", () => {
+      serverKP = Keypair.random();
+      const clientKP = Keypair.random();
+
+      const serverAccount = new Account(serverKP.publicKey(), "-1");
+
+      const transaction = new TransactionBuilder(serverAccount, txBuilderOpts)
+        .addOperation(
+          Operation.manageData({
+            source: clientKP.publicKey(),
+            name: "testanchor.stellar.org auth",
+            value: uint8ArrayToBase64(
+              crypto.getRandomValues(new Uint8Array(48)),
+            ),
+          }),
+        )
+        .addOperation(
+          Operation.manageData({
+            source: serverKP.publicKey(),
+            name: "web_auth_domain",
+            value: "testanchor.stellar.org",
+          }),
+        )
+        .addOperation(
+          Operation.manageData({
+            name: "client_domain",
+            value: "testdomain",
+          }),
+        )
+        .setTimeout(30)
+        .build();
+
+      vi.advanceTimersByTime(200);
+
+      transaction.sign(serverKP);
+      transaction.sign(clientKP);
+
+      const signedChallenge = transaction
+        .toEnvelope()
+        .toXdr("base64")
+        .toString();
+
+      expect(() =>
+        WebAuth.verifyChallengeTxSigners(
+          signedChallenge,
+          serverKP.publicKey(),
+          Networks.TESTNET,
+          [clientKP.publicKey()],
+          "testanchor.stellar.org",
+          "testanchor.stellar.org",
+        ),
+      ).toThrow(
+        new WebAuth.InvalidChallengeError(
+          "The transaction's 'client_domain' operation should contain a source account",
+        ),
+      );
+    });
+
+    it("throws an error if a client_domain operation with no source account precedes one with a source account", () => {
+      serverKP = Keypair.random();
+      const clientKP = Keypair.random();
+      const clientSigningKeypair = Keypair.random();
+
+      const serverAccount = new Account(serverKP.publicKey(), "-1");
+
+      const transaction = new TransactionBuilder(serverAccount, txBuilderOpts)
+        .addOperation(
+          Operation.manageData({
+            source: clientKP.publicKey(),
+            name: "testanchor.stellar.org auth",
+            value: uint8ArrayToBase64(
+              crypto.getRandomValues(new Uint8Array(48)),
+            ),
+          }),
+        )
+        .addOperation(
+          Operation.manageData({
+            name: "client_domain",
+            value: "testdomain",
+          }),
+        )
+        .addOperation(
+          Operation.manageData({
+            source: clientSigningKeypair.publicKey(),
+            name: "client_domain",
+            value: "testdomain2",
+          }),
+        )
+        .setTimeout(30)
+        .build();
+
+      vi.advanceTimersByTime(200);
+
+      transaction.sign(serverKP);
+      transaction.sign(clientKP);
+      transaction.sign(clientSigningKeypair);
+
+      const signedChallenge = transaction
+        .toEnvelope()
+        .toXdr("base64")
+        .toString();
+
+      expect(() =>
+        WebAuth.verifyChallengeTxSigners(
+          signedChallenge,
+          serverKP.publicKey(),
+          Networks.TESTNET,
+          [clientKP.publicKey()],
+          "testanchor.stellar.org",
+          "testanchor.stellar.org",
+        ),
+      ).toThrow(
+        new WebAuth.InvalidChallengeError(
+          "The transaction's 'client_domain' operation should contain a source account",
+        ),
+      );
     });
   });
 

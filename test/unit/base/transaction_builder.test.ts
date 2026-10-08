@@ -1,7 +1,8 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import { concatUint8Arrays } from "uint8array-extras";
 import {
   TransactionBuilder,
+  type TransactionBuilderOptions,
   BASE_FEE,
   TimeoutInfinite,
   isValidDate,
@@ -1178,6 +1179,92 @@ describe("TransactionBuilder", () => {
       );
     });
 
+    describe("with an existing minTime", () => {
+      const MIN_TIME = 2000000000;
+      const builder = (
+        timebounds?: TransactionBuilderOptions["timebounds"],
+      ): TransactionBuilder =>
+        new TransactionBuilder(
+          new Account(
+            "GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGSNFHEYVXM3XOJMDS674JZ",
+            "0",
+          ),
+          { fee: "100", networkPassphrase: Networks.TESTNET, timebounds },
+        ).addOperation(
+          Operation.payment({
+            destination:
+              "GDJJRRMBK4IWLEPJGIE6SXD2LP7REGZODU7WDC3I2D6MR37F4XSHBKX2",
+            asset: Asset.native(),
+            amount: "1000",
+          }),
+        );
+
+      it("keeps minTime from the options when the timeout is infinite", () => {
+        const tx = builder({ minTime: MIN_TIME, maxTime: 0 })
+          .setTimeout(TimeoutInfinite)
+          .build();
+        expect(tx.timeBounds).toEqual({
+          minTime: String(MIN_TIME),
+          maxTime: "0",
+        });
+      });
+
+      it("keeps minTime from setTimebounds when the timeout is infinite", () => {
+        const tx = builder()
+          .setTimebounds(MIN_TIME, 0)
+          .setTimeout(TimeoutInfinite)
+          .build();
+        expect(tx.timeBounds).toEqual({
+          minTime: String(MIN_TIME),
+          maxTime: "0",
+        });
+      });
+
+      it("keeps a Date minTime when the timeout is infinite", () => {
+        const tx = builder({ minTime: new Date(MIN_TIME * 1000), maxTime: 0 })
+          .setTimeout(TimeoutInfinite)
+          .build();
+        expect(tx.timeBounds).toEqual({
+          minTime: String(MIN_TIME),
+          maxTime: "0",
+        });
+      });
+
+      it("sets both bounds to zero when the timeout is infinite and no timebounds exist", () => {
+        const tx = builder().setTimeout(TimeoutInfinite).build();
+        expect(tx.timeBounds).toEqual({ minTime: "0", maxTime: "0" });
+      });
+
+      it("rejects a timeout that ends before minTime", () => {
+        const minTime = Math.floor(Date.now() / 1000) + 3600;
+        expect(() => builder({ minTime, maxTime: 0 }).setTimeout(300)).toThrow(
+          /timeout ends before min_time/,
+        );
+        expect(() =>
+          builder().setTimebounds(minTime, 0).setTimeout(300),
+        ).toThrow(/timeout ends before min_time/);
+        for (const value of [new Date(minTime * 1000), String(minTime)]) {
+          expect(() =>
+            builder({ minTime: value, maxTime: 0 }).setTimeout(300),
+          ).toThrow(/timeout ends before min_time/);
+        }
+      });
+
+      it("keeps minTime when the timeout ends after it", () => {
+        const minTime = Math.floor(Date.now() / 1000) - 10;
+        for (const value of [
+          minTime,
+          new Date(minTime * 1000),
+          String(minTime),
+        ]) {
+          const tx = builder({ minTime: value, maxTime: 0 })
+            .setTimeout(300)
+            .build();
+          expect(tx.timeBounds?.minTime).toBe(String(minTime));
+        }
+      });
+    });
+
     it("sets timebounds.maxTime when minTime already set", () => {
       const timebounds = {
         minTime: "1455287522",
@@ -1223,6 +1310,25 @@ describe("TransactionBuilder", () => {
           .setTimeout(0)
           .build();
       }).not.toThrow();
+    });
+  });
+
+  describe("build", () => {
+    it("throws for a transaction that cannot be encoded", () => {
+      const source = new Account(
+        "GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGSNFHEYVXM3XOJMDS674JZ",
+        "0",
+      );
+      const builder = new TransactionBuilder(source, {
+        fee: "100",
+        networkPassphrase: Networks.TESTNET,
+      }).setTimeout(TimeoutInfinite);
+      for (let i = 0; i < 101; i++) {
+        builder.addOperation(Operation.bumpSequence({ bumpTo: "1" }));
+      }
+
+      expect(() => builder.build()).toThrow(/exceeds maximum 100/);
+      expect(source.sequenceNumber()).toBe("0");
     });
   });
 
@@ -1406,6 +1512,17 @@ describe("TransactionBuilder", () => {
 
       expect(tx).toBeInstanceOf(Transaction);
       expect(tx.toXdr()).toBe(xdrStr);
+    });
+    it("does not copy an envelope decoded from a string", () => {
+      const xdrStr =
+        "AAAAAAW8Dk9idFR5Le+xi0/h/tU47bgC1YWjtPH1vIVO3BklAAAAZACoKlYAAAABAAAAAAAAAAEAAAALdmlhIGtleWJhc2UAAAAAAQAAAAAAAAAIAAAAAN7aGcXNPO36J1I8MR8S4QFhO79T5JGG2ZeS5Ka1m4mJAAAAAAAAAAFO3BklAAAAQP0ccCoeHdm3S7bOhMjXRMn3EbmETJ9glxpKUZjPSPIxpqZ7EkyTgl3FruieqpZd9LYOzdJrNik1GNBLhgTh/AU=";
+      const toXdr = vi.spyOn(xdr.TransactionEnvelope.prototype, "toXdr");
+      try {
+        TransactionBuilder.fromXdr(xdrStr, Networks.TESTNET);
+        expect(toXdr).not.toHaveBeenCalled();
+      } finally {
+        toXdr.mockRestore();
+      }
     });
   });
 

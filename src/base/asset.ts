@@ -91,8 +91,9 @@ export class Asset {
       throw new Error("Issuer is invalid");
     }
 
-    if (String(code).toLowerCase() === "xlm") {
-      // transform all xLM, Xlm, etc. variants -> XLM
+    // Issued asset codes are case-sensitive on the network, so only a code
+    // with no issuer means native XLM.
+    if (!issuer && String(code).toLowerCase() === "xlm") {
       this.code = "XLM";
     } else {
       this.code = code;

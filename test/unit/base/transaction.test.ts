@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import {
+  stringToUint8Array,
   uint8ArrayToBase64,
   uint8ArrayToHex,
   uint8ArrayToString,
@@ -132,6 +133,43 @@ describe("Transaction", () => {
     }).toThrow(/expected an envelopeTypeTxV0 or envelopeTypeTx/);
   });
 
+  it("shows the original code of an issued XLM asset in its operations", () => {
+    const issuer = Keypair.random().xdrAccountId();
+    const line = xdr.ChangeTrustAsset.assetTypeCreditAlphanum4(
+      new xdr.AlphaNum4({ assetCode: stringToUint8Array("xlm\0"), issuer }),
+    );
+    const changeTrust = new xdr.Operation({
+      sourceAccount: null,
+      body: xdr.OperationBody.changeTrust(
+        new xdr.ChangeTrustOp({ line, limit: xdr.Int64.fromString("1000") }),
+      ),
+    });
+    const source = new Account(Keypair.random().publicKey(), "0");
+    const envelope = new TransactionBuilder(source, {
+      fee: "100",
+      networkPassphrase: Networks.TESTNET,
+    })
+      .addOperation(changeTrust)
+      .setTimeout(TimeoutInfinite)
+      .build()
+      .toEnvelope()
+      .toXdr("base64");
+
+    const transaction = new Transaction(envelope, Networks.TESTNET);
+    const operation = transaction.operations[0];
+    if (operation?.type !== "changeTrust") {
+      throw new Error("Expected a changeTrust operation");
+    }
+    if (!(operation.line instanceof Asset)) {
+      throw new Error("Expected an Asset trust line");
+    }
+
+    expect(operation.line.getCode()).toBe("xlm");
+    expect(operation.line.toChangeTrustXdrObject().toXdr()).toEqual(
+      line.toXdr(),
+    );
+  });
+
   describe("toEnvelope", () => {
     let transaction: Transaction;
 
@@ -231,6 +269,92 @@ describe("Transaction", () => {
       transaction.addDecoratedSignature(sig);
       expect(transaction.signatures.length).toBe(1);
       expect(transaction.signatures[0]).toBe(sig);
+    });
+  });
+
+  describe("envelope object input", () => {
+    it("ignores later changes to the envelope object it was built from", () => {
+      const source = new Account(Keypair.random().publicKey(), "0");
+      const pay = (amount: string) =>
+        Operation.payment({
+          destination: Keypair.random().publicKey(),
+          asset: Asset.native(),
+          amount,
+        });
+      const built = new TransactionBuilder(source, {
+        fee: "100",
+        networkPassphrase: Networks.TESTNET,
+      })
+        .addOperation(pay("1"))
+        .setTimeout(TimeoutInfinite)
+        .build();
+      const envelope = xdr.TransactionEnvelope.fromXdr(
+        built.toEnvelope().toXdr(),
+      );
+      const tx = TransactionBuilder.fromXdr(envelope, Networks.TESTNET);
+      const hashBefore = uint8ArrayToHex(tx.hash());
+
+      expectVariant(envelope, "envelopeTypeTx").v1.tx.operations.push(
+        pay("1000"),
+      );
+
+      expect(tx.operations).toHaveLength(1);
+      expect(uint8ArrayToHex(tx.hash())).toBe(hashBefore);
+      expect(
+        expectVariant(tx.toEnvelope(), "envelopeTypeTx").v1.tx.operations,
+      ).toHaveLength(1);
+    });
+  });
+
+  describe("envelope type check", () => {
+    it("names the expected envelope types for an object that is not an envelope", () => {
+      const built = new TransactionBuilder(
+        new Account(Keypair.random().publicKey(), "0"),
+        { fee: "100", networkPassphrase: Networks.TESTNET },
+      )
+        .addOperation(
+          Operation.payment({
+            destination: Keypair.random().publicKey(),
+            asset: Asset.native(),
+            amount: "1",
+          }),
+        )
+        .setTimeout(TimeoutInfinite)
+        .build();
+      const innerTx = expectVariant(built.toEnvelope(), "envelopeTypeTx").v1.tx;
+
+      // Reflect.construct passes values that the TypeScript signature forbids.
+      for (const envelope of [{}, innerTx]) {
+        expect(() =>
+          Reflect.construct(Transaction, [envelope, Networks.TESTNET]),
+        ).toThrow(
+          /Invalid TransactionEnvelope: expected an envelopeTypeTxV0 or envelopeTypeTx/,
+        );
+      }
+    });
+
+    it("names the problem for an envelope object that it cannot encode", () => {
+      const built = new TransactionBuilder(
+        new Account(Keypair.random().publicKey(), "0"),
+        { fee: "100", networkPassphrase: Networks.TESTNET },
+      )
+        .addOperation(Operation.bumpSequence({ bumpTo: "1" }))
+        .setTimeout(TimeoutInfinite)
+        .build();
+      const v1 = expectVariant(built.toEnvelope(), "envelopeTypeTx").v1;
+
+      // Reflect.construct passes values that the TypeScript signature forbids.
+      const noSignatures = xdr.TransactionEnvelope.envelopeTypeTx(
+        Reflect.construct(xdr.TransactionV1Envelope, [{ tx: v1.tx }]),
+      );
+      for (const envelope of [
+        { type: "envelopeTypeTx", value: v1 },
+        noSignatures,
+      ]) {
+        expect(() =>
+          Reflect.construct(Transaction, [envelope, Networks.TESTNET]),
+        ).toThrow(/Invalid TransactionEnvelope/);
+      }
     });
   });
 

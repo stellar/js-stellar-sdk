@@ -235,7 +235,7 @@ export function readChallengeTx(
       "The transaction's operation should contain a source account",
     );
   }
-  const clientAccountID: string = operation.source!;
+  const clientAccountID: string = operation.source;
 
   let memo: string | null = null;
   if (transaction.memo.type !== MemoNone) {
@@ -329,11 +329,16 @@ export function readChallengeTx(
     );
   }
 
-  // verify any subsequent operations are manage data ops and source account is the server
+  // verify any subsequent operations are manage data ops sourced by the server, except 'client_domain', which needs its own source
   for (const op of subsequentOperations) {
     if (op.type !== "manageData") {
       throw new InvalidChallengeError(
         "The transaction has operations that are not of type 'manageData'",
+      );
+    }
+    if (op.name === "client_domain" && !op.source) {
+      throw new InvalidChallengeError(
+        "The transaction's 'client_domain' operation should contain a source account",
       );
     }
     if (op.name === "client_domain" && op.source === serverAccountID) {
