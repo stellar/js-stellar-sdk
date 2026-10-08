@@ -161,6 +161,90 @@ describe("Operation.revokeOfferSponsorship()", () => {
     ).toThrow(/seller is invalid/);
   });
 
+  it("removes leading zeros from the offerId", () => {
+    const op = Operation.revokeOfferSponsorship({
+      seller: account,
+      offerId: "016",
+    });
+    const obj = expectOperationType(
+      Operation.fromXdrObject(op),
+      "revokeOfferSponsorship",
+    );
+    expect(obj.offerId).toBe("16");
+  });
+
+  it("rejects an offerId that is not decimal digits", () => {
+    for (const offerId of ["", " 16 ", "0x10", "-1"]) {
+      expect(() =>
+        Operation.revokeOfferSponsorship({ seller: account, offerId }),
+      ).toThrow(/offerId must be a string of decimal digits/);
+    }
+  });
+
+  it("rejects an offerId longer than 22 characters before parsing it", () => {
+    for (const offerId of [
+      "1".repeat(1_000_000),
+      `${"1".repeat(1_000_000)}a`,
+      `${"0".repeat(22)}1`,
+    ]) {
+      expect(() =>
+        Operation.revokeOfferSponsorship({ seller: account, offerId }),
+      ).toThrow(/must have at most 22 digits/);
+    }
+    const op = Operation.revokeOfferSponsorship({
+      seller: account,
+      offerId: `${"0".repeat(21)}1`,
+    });
+    const obj = expectOperationType(
+      Operation.fromXdrObject(op),
+      "revokeOfferSponsorship",
+    );
+    expect(obj.offerId).toBe("1");
+  });
+
+  it("accepts a number and a bigint offerId", () => {
+    for (const offerId of [123, 123n]) {
+      const obj = expectOperationType(
+        Operation.fromXdrObject(
+          Operation.revokeOfferSponsorship({ seller: account, offerId }),
+        ),
+        "revokeOfferSponsorship",
+      );
+      expect(obj.offerId).toBe("123");
+    }
+  });
+
+  it("accepts the offerId of a decoded LedgerKeyOffer", () => {
+    const key = xdr.LedgerKeyOffer.fromXdr(
+      new xdr.LedgerKeyOffer({
+        sellerId: Keypair.fromPublicKey(account).xdrAccountId(),
+        offerId: xdr.Int64.fromString("9223372036854775807"),
+      }).toXdr(),
+    );
+    const obj = expectOperationType(
+      Operation.fromXdrObject(
+        Operation.revokeOfferSponsorship({
+          seller: account,
+          offerId: key.offerId,
+        }),
+      ),
+      "revokeOfferSponsorship",
+    );
+    expect(obj.offerId).toBe("9223372036854775807");
+  });
+
+  it("rejects an unsafe number and a negative bigint", () => {
+    expect(() =>
+      Operation.revokeOfferSponsorship({
+        seller: account,
+        offerId: Number.MAX_SAFE_INTEGER + 2,
+      }),
+    ).toThrow(/offerId must be a non-negative safe integer/);
+    expect(() =>
+      Operation.revokeOfferSponsorship({ seller: account, offerId: -1n }),
+    ).toThrow(/offerId must not be negative/);
+  });
+
   it("fails with a missing offerId", () => {
     expect(() =>
       // @ts-expect-error: intentionally omitting required field to test runtime validation

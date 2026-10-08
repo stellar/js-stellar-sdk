@@ -45,6 +45,7 @@ import {
 
 import { Transaction } from "./transaction.js";
 import { FeeBumpTransaction } from "./fee_bump_transaction.js";
+import { markSdkOwned } from "./transaction_base.js";
 import { SorobanDataBuilder } from "./sorobandata_builder.js";
 
 import { StrKey } from "./strkey.js";
@@ -471,7 +472,8 @@ export class TransactionBuilder {
    *
    * @param timeoutSeconds - Number of seconds the transaction is good.
    *     Can't be negative. If the value is {@link TimeoutInfinite}, the
-   *     transaction is good indefinitely.
+   *     transaction is good indefinitely. An existing `minTime` is kept in
+   *     both cases, and a timeout that ends before it throws.
    *
    * @see {@link TimeoutInfinite}
    * @see https://developers.stellar.org/docs/tutorials/handling-errors/
@@ -487,22 +489,20 @@ export class TransactionBuilder {
       throw new Error("timeout cannot be negative");
     }
 
+    // Both branches keep an existing minTime: a timeout sets only maxTime.
+    const minTime = this.timebounds?.minTime ?? 0;
+
     if (timeoutSeconds > 0) {
       const timeoutTimestamp = Math.floor(Date.now() / 1000) + timeoutSeconds;
-
-      if (this.timebounds === null) {
-        this.timebounds = { minTime: 0, maxTime: timeoutTimestamp };
-      } else {
-        this.timebounds = {
-          minTime: this.timebounds.minTime ?? 0,
-          maxTime: timeoutTimestamp,
-        };
+      const minSeconds = toEpochSeconds(minTime) ?? 0;
+      if (minSeconds > timeoutTimestamp) {
+        throw new Error(
+          `timeout ends before min_time (${timeoutTimestamp} < ${minSeconds})`,
+        );
       }
+      this.timebounds = { minTime, maxTime: timeoutTimestamp };
     } else {
-      this.timebounds = {
-        minTime: 0,
-        maxTime: 0,
-      };
+      this.timebounds = { minTime, maxTime: 0 };
     }
 
     return this;
@@ -1261,7 +1261,7 @@ export class TransactionBuilder {
     networkPassphrase: string,
   ): FeeBumpTransaction | Transaction {
     if (typeof envelope === "string") {
-      envelope = TransactionEnvelope.fromXdr(envelope, "base64");
+      envelope = markSdkOwned(TransactionEnvelope.fromXdr(envelope, "base64"));
     }
 
     if (envelope.type === "envelopeTypeTxFeeBump") {

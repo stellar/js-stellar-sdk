@@ -9,6 +9,7 @@ import {
 import { sign, verify, generate } from "./signing.js";
 import { StrKey } from "./strkey.js";
 import { hash } from "./hashing.js";
+import { canonicalUint64Id } from "./util/decode_encode_muxed_account.js";
 
 import {
   AccountId,
@@ -192,8 +193,8 @@ export class Keypair {
    * You will get a different type of muxed account depending on whether or not
    * you pass an ID.
    *
-   * @param id - stringified integer indicating the underlying muxed
-   *     ID of the new account object
+   * @param id - the underlying muxed ID of the new account object, as a
+   *     uint64 in decimal digits. Leading zeros are removed. At most 22 digits.
    */
   xdrMuxedAccount(id?: string): MuxedAccount {
     if (typeof id !== "undefined") {
@@ -203,7 +204,7 @@ export class Keypair {
 
       return MuxedAccount.keyTypeMuxedEd25519(
         new MuxedAccountMed25519({
-          id: Uint64.fromString(id),
+          id: Uint64.fromString(canonicalUint64Id(id)),
           ed25519: this._publicKey,
         }),
       );
