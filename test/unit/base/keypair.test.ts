@@ -495,6 +495,29 @@ describe("Keypair.xdrMuxedAccount with id", () => {
       /expected string for ID/,
     );
   });
+
+  it("encodes an id with leading zeros as its canonical form", () => {
+    const kp = Keypair.fromPublicKey(
+      "GAXDYNIBA5E4DXR5TJN522RRYESFQ5UNUXHIPTFGVLLD5O5K552DF5ZH",
+    );
+    expect(kp.xdrMuxedAccount("016").toXdr("hex")).toBe(
+      kp.xdrMuxedAccount("16").toXdr("hex"),
+    );
+  });
+
+  it("rejects an id that is not plain decimal digits", () => {
+    const kp = Keypair.fromPublicKey(
+      "GAXDYNIBA5E4DXR5TJN522RRYESFQ5UNUXHIPTFGVLLD5O5K552DF5ZH",
+    );
+    for (const id of ["0x10", "+16", "-1", " 16 ", "", "1e1"]) {
+      expect(() => kp.xdrMuxedAccount(id)).toThrow(
+        /id is not a valid uint64 string/,
+      );
+    }
+    expect(() => kp.xdrMuxedAccount("1".repeat(1_000_000))).toThrow(
+      /id must have at most 22 digits/,
+    );
+  });
 });
 
 describe("Keypair.xdrAccountId", () => {
