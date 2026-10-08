@@ -139,6 +139,28 @@ describe("encodeMuxedAccount", () => {
       /id should be a string/,
     );
   });
+
+  it("encodes an ID with leading zeros as its canonical form", () => {
+    expect(encodeMuxedAccountToAddress(encodeMuxedAccount(PUBKEY, "016"))).toBe(
+      encodeMuxedAccountToAddress(encodeMuxedAccount(PUBKEY, "16")),
+    );
+  });
+
+  it("rejects an id that is not plain decimal digits", () => {
+    for (const id of ["0x10", "+16", "-1", " 16 ", "", "1e1"]) {
+      expect(() => encodeMuxedAccount(PUBKEY, id)).toThrow(
+        /id is not a valid uint64 string/,
+      );
+    }
+  });
+
+  it("rejects an id longer than 22 characters before parsing it", () => {
+    for (const id of ["1".repeat(1_000_000), `${"0".repeat(22)}1`]) {
+      expect(() => encodeMuxedAccount(PUBKEY, id)).toThrow(
+        /id must have at most 22 digits/,
+      );
+    }
+  });
 });
 
 describe("extractBaseAddress", () => {

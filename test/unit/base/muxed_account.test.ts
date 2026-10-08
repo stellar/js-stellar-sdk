@@ -137,6 +137,67 @@ describe("MuxedAccount uint64 overflow", () => {
   });
 });
 
+describe("MuxedAccount ID format", () => {
+  it("returns the canonical decimal form of an ID with leading zeros", () => {
+    const base = new Account(PUBKEY, "0");
+    const mux = new MuxedAccount(base, "016");
+    expect(mux.id()).toBe("16");
+    expect(mux.accountId()).toBe(new MuxedAccount(base, "16").accountId());
+    expect(new MuxedAccount(base, "00").id()).toBe("0");
+    expect(mux.setId("007").id()).toBe("7");
+  });
+
+  it("rejects IDs that are not plain decimal digits", () => {
+    const base = new Account(PUBKEY, "0");
+    const mux = new MuxedAccount(base, "1");
+    for (const id of [
+      "0x10",
+      "0o20",
+      "0b10000",
+      "+16",
+      "-0",
+      "-1",
+      " 16 ",
+      "16\n",
+      "",
+      "  ",
+      "1e1",
+    ]) {
+      expect(() => new MuxedAccount(base, id)).toThrow(
+        /id is not a valid uint64 string/,
+      );
+      expect(() => mux.setId(id)).toThrow(/id is not a valid uint64 string/);
+    }
+    expect(mux.id()).toBe("1");
+  });
+
+  it("rejects an ID longer than 22 characters before parsing it", () => {
+    const base = new Account(PUBKEY, "0");
+    const mux = new MuxedAccount(base, "1");
+    for (const longId of [
+      "1".repeat(1_000_000),
+      `${"1".repeat(1_000_000)}a`,
+      `${"0".repeat(22)}1`,
+    ]) {
+      expect(() => new MuxedAccount(base, longId)).toThrow(
+        /id must have at most 22 digits/,
+      );
+      expect(() => mux.setId(longId)).toThrow(/id must have at most 22 digits/);
+    }
+    expect(new MuxedAccount(base, `${"0".repeat(21)}1`).id()).toBe("1");
+  });
+
+  it("rejects an ID that is not a string", () => {
+    const base = new Account(PUBKEY, "0");
+    // Reflect.construct passes values that the TypeScript signature forbids.
+    for (const id of [42, Number.MAX_SAFE_INTEGER + 2, ["16"]]) {
+      expect(() => Reflect.construct(MuxedAccount, [base, id])).toThrow(
+        /id should be a string representing a number/,
+      );
+    }
+  });
+});
+
 describe("MuxedAccount.fromAddress (error cases)", () => {
   it("throws when given a G-address instead of an M-address", () => {
     expect(() => MuxedAccount.fromAddress(PUBKEY, "0")).toThrow();
