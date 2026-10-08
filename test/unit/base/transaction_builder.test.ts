@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach } from "vitest";
 import { concatUint8Arrays } from "uint8array-extras";
 import {
   TransactionBuilder,
+  type TransactionBuilderOptions,
   BASE_FEE,
   TimeoutInfinite,
   isValidDate,
@@ -1176,6 +1177,92 @@ describe("TransactionBuilder", () => {
       expect(() => transactionBuilder.setTimeout(10)).toThrow(
         /TimeBounds.max_time has been already set/,
       );
+    });
+
+    describe("with an existing minTime", () => {
+      const MIN_TIME = 2000000000;
+      const builder = (
+        timebounds?: TransactionBuilderOptions["timebounds"],
+      ): TransactionBuilder =>
+        new TransactionBuilder(
+          new Account(
+            "GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGSNFHEYVXM3XOJMDS674JZ",
+            "0",
+          ),
+          { fee: "100", networkPassphrase: Networks.TESTNET, timebounds },
+        ).addOperation(
+          Operation.payment({
+            destination:
+              "GDJJRRMBK4IWLEPJGIE6SXD2LP7REGZODU7WDC3I2D6MR37F4XSHBKX2",
+            asset: Asset.native(),
+            amount: "1000",
+          }),
+        );
+
+      it("keeps minTime from the options when the timeout is infinite", () => {
+        const tx = builder({ minTime: MIN_TIME, maxTime: 0 })
+          .setTimeout(TimeoutInfinite)
+          .build();
+        expect(tx.timeBounds).toEqual({
+          minTime: String(MIN_TIME),
+          maxTime: "0",
+        });
+      });
+
+      it("keeps minTime from setTimebounds when the timeout is infinite", () => {
+        const tx = builder()
+          .setTimebounds(MIN_TIME, 0)
+          .setTimeout(TimeoutInfinite)
+          .build();
+        expect(tx.timeBounds).toEqual({
+          minTime: String(MIN_TIME),
+          maxTime: "0",
+        });
+      });
+
+      it("keeps a Date minTime when the timeout is infinite", () => {
+        const tx = builder({ minTime: new Date(MIN_TIME * 1000), maxTime: 0 })
+          .setTimeout(TimeoutInfinite)
+          .build();
+        expect(tx.timeBounds).toEqual({
+          minTime: String(MIN_TIME),
+          maxTime: "0",
+        });
+      });
+
+      it("sets both bounds to zero when the timeout is infinite and no timebounds exist", () => {
+        const tx = builder().setTimeout(TimeoutInfinite).build();
+        expect(tx.timeBounds).toEqual({ minTime: "0", maxTime: "0" });
+      });
+
+      it("rejects a timeout that ends before minTime", () => {
+        const minTime = Math.floor(Date.now() / 1000) + 3600;
+        expect(() => builder({ minTime, maxTime: 0 }).setTimeout(300)).toThrow(
+          /timeout ends before min_time/,
+        );
+        expect(() =>
+          builder().setTimebounds(minTime, 0).setTimeout(300),
+        ).toThrow(/timeout ends before min_time/);
+        for (const value of [new Date(minTime * 1000), String(minTime)]) {
+          expect(() =>
+            builder({ minTime: value, maxTime: 0 }).setTimeout(300),
+          ).toThrow(/timeout ends before min_time/);
+        }
+      });
+
+      it("keeps minTime when the timeout ends after it", () => {
+        const minTime = Math.floor(Date.now() / 1000) - 10;
+        for (const value of [
+          minTime,
+          new Date(minTime * 1000),
+          String(minTime),
+        ]) {
+          const tx = builder({ minTime: value, maxTime: 0 })
+            .setTimeout(300)
+            .build();
+          expect(tx.timeBounds?.minTime).toBe(String(minTime));
+        }
+      });
     });
 
     it("sets timebounds.maxTime when minTime already set", () => {
