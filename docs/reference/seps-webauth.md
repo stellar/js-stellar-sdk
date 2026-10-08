@@ -47,6 +47,8 @@ A base64 encoded string of the raw TransactionEnvelope xdr
    is present.
 - Will throw if `clientDomain` is provided, but
    `clientSigningKey` is missing
+- Will throw if `clientDomain` is provided, and
+   `clientSigningKey` is the server's public key
 
 **Example**
 
@@ -67,7 +69,7 @@ let challenge = WebAuth.buildChallengeTx(
 
 - `SEP-10: Stellar Web Auth`
 
-**Source:** [src/webauth/challenge_transaction.ts:69](https://github.com/stellar/js-stellar-sdk/blob/main/src/webauth/challenge_transaction.ts#L69)
+**Source:** [src/webauth/challenge_transaction.ts:71](https://github.com/stellar/js-stellar-sdk/blob/main/src/webauth/challenge_transaction.ts#L71)
 
 ## WebAuth.gatherTxSigners
 
@@ -148,7 +150,7 @@ The actual transaction and the
 
 - `SEP-10: Stellar Web Auth`
 
-**Source:** [src/webauth/challenge_transaction.ts:169](https://github.com/stellar/js-stellar-sdk/blob/main/src/webauth/challenge_transaction.ts#L169)
+**Source:** [src/webauth/challenge_transaction.ts:174](https://github.com/stellar/js-stellar-sdk/blob/main/src/webauth/challenge_transaction.ts#L174)
 
 ## WebAuth.verifyChallengeTxSigners
 
@@ -193,7 +195,8 @@ verifyChallengeTxSigners(challengeTx: string, serverAccountID: string, networkPa
 **Returns**
 
 The list of signers public keys that have signed
-   the transaction, excluding the server account ID.
+   the transaction, excluding the server account ID and the
+   'client_domain' signing key.
 
 **Example**
 
@@ -236,7 +239,7 @@ WebAuth.verifyChallengeTxSigners(
 
 - `SEP-10: Stellar Web Auth`
 
-**Source:** [src/webauth/challenge_transaction.ts:437](https://github.com/stellar/js-stellar-sdk/blob/main/src/webauth/challenge_transaction.ts#L437)
+**Source:** [src/webauth/challenge_transaction.ts:448](https://github.com/stellar/js-stellar-sdk/blob/main/src/webauth/challenge_transaction.ts#L448)
 
 ## WebAuth.verifyChallengeTxThreshold
 
@@ -282,8 +285,8 @@ verifyChallengeTxThreshold(challengeTx: string, serverAccountID: string, network
 **Returns**
 
 The list of signers public keys that have signed
-   the transaction, excluding the server account ID, given that the threshold
-   was met.
+   the transaction, excluding the server account ID and the 'client_domain'
+   signing key, given that the threshold was met.
 
 **Throws**
 
@@ -346,7 +349,7 @@ WebAuth.verifyChallengeTxThreshold(
 
 - `SEP-10: Stellar Web Auth`
 
-**Source:** [src/webauth/challenge_transaction.ts:663](https://github.com/stellar/js-stellar-sdk/blob/main/src/webauth/challenge_transaction.ts#L663)
+**Source:** [src/webauth/challenge_transaction.ts:671](https://github.com/stellar/js-stellar-sdk/blob/main/src/webauth/challenge_transaction.ts#L671)
 
 ## WebAuth.verifyTxSignedBy
 

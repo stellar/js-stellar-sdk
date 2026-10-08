@@ -51,6 +51,8 @@ import { base64ToUint8Array, uint8ArrayToBase64 } from "../base/util/base64.js";
  *    is present.
  * @throws Will throw if `clientDomain` is provided, but
  *    `clientSigningKey` is missing
+ * @throws Will throw if `clientDomain` is provided, and
+ *    `clientSigningKey` is the server's public key
  * @see {@link https://stellar.org/protocol/sep-10 | SEP-10: Stellar Web Auth}
  * @example
  * ```ts
@@ -118,6 +120,9 @@ export function buildChallengeTx(
   if (clientDomain) {
     if (!clientSigningKey) {
       throw Error("clientSigningKey is required if clientDomain is provided");
+    }
+    if (clientSigningKey === serverKeypair.publicKey()) {
+      throw Error("clientSigningKey cannot be the server's public key");
     }
     builder.addOperation(
       Operation.manageData({
@@ -336,6 +341,11 @@ export function readChallengeTx(
         "The transaction's 'client_domain' operation should contain a source account",
       );
     }
+    if (op.name === "client_domain" && op.source === serverAccountID) {
+      throw new InvalidChallengeError(
+        "The transaction's 'client_domain' operation source account should not be the server account",
+      );
+    }
     if (op.source !== serverAccountID && op.name !== "client_domain") {
       throw new InvalidChallengeError(
         "The transaction has operations that are unrecognized",
@@ -396,7 +406,8 @@ export function readChallengeTx(
  *    as the value of the Manage Data operation with the 'web_auth_domain' key,
  *    if present. Used in readChallengeTx().
  * @returns The list of signers public keys that have signed
- *    the transaction, excluding the server account ID.
+ *    the transaction, excluding the server account ID and the
+ *    'client_domain' signing key.
  * @see {@link https://stellar.org/protocol/sep-10 | SEP-10: Stellar Web Auth}
  * @example
  * ```ts
@@ -491,7 +502,7 @@ export function verifyChallengeTxSigners(
     );
   }
 
-  let clientSigningKey;
+  let clientSigningKey: string | undefined;
   for (const op of tx.operations) {
     if (op.type === "manageData" && op.name === "client_domain") {
       if (clientSigningKey) {
@@ -555,20 +566,17 @@ export function verifyChallengeTxSigners(
     throw new InvalidChallengeError("Transaction has unrecognized signatures");
   }
 
-  // Remove the server public key before returning
-  signersFound.splice(signersFound.indexOf(serverKP.publicKey()), 1);
-  if (clientSigningKey) {
-    // Remove the client domain public key public key before returning
-    signersFound.splice(signersFound.indexOf(clientSigningKey), 1);
-  }
+  const clientSignersFound = signersFound.filter(
+    (signer) => signer !== serverKP.publicKey() && signer !== clientSigningKey,
+  );
 
-  if (signersFound.length === 0) {
+  if (clientSignersFound.length === 0) {
     throw new InvalidChallengeError(
       "None of the given signers match the transaction signatures",
     );
   }
 
-  return signersFound;
+  return clientSignersFound;
 }
 
 /**
@@ -604,8 +612,8 @@ export function verifyChallengeTxSigners(
  *    as the value of the Manage Data operation with the 'web_auth_domain' key,
  *    if present. Used in `verifyChallengeTxSigners() => readChallengeTx()`.
  * @returns The list of signers public keys that have signed
- *    the transaction, excluding the server account ID, given that the threshold
- *    was met.
+ *    the transaction, excluding the server account ID and the 'client_domain'
+ *    signing key, given that the threshold was met.
  * @throws Will throw if the collective
  *    weight of the transaction's signers does not meet the necessary threshold
  *    to verify this transaction.
