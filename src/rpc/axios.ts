@@ -3,12 +3,16 @@ import { create, type HttpClient } from "../http-client/index.js";
 declare const __PACKAGE_VERSION__: string;
 export const version = __PACKAGE_VERSION__;
 
-export function createHttpClient(headers?: Record<string, string>): HttpClient {
+export function createHttpClient(
+  headers?: Record<string, string>,
+  timeout?: number,
+): HttpClient {
   return create({
     headers: {
       ...headers,
       "X-Client-Name": "js-stellar-sdk",
       "X-Client-Version": version,
     },
+    timeout,
   });
 }
