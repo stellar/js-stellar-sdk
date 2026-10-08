@@ -1179,11 +1179,16 @@ scValToNative(scv: ScVal): any
 
 - **`scv`** — `ScVal` (required) — the input smart contract value
 
+**Throws**
+
+- TypeError if two keys of a map convert to the same object property,
+  such as `u32 1` and `symbol "1"`
+
 **See also**
 
 - nativeToScVal
 
-**Source:** [src/base/scval.ts:430](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L430)
+**Source:** [src/base/scval.ts:432](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L432)
 
 ## scvSortedMap
 
@@ -1198,7 +1203,7 @@ scvSortedMap(items: ScMapEntry[]): ScVal
 
 - **`items`** — `ScMapEntry[]` (required) — the unsorted map entries
 
-**Source:** [src/base/scval.ts:530](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L530)
+**Source:** [src/base/scval.ts:545](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L545)
 
 ## walkInvocationTree
 

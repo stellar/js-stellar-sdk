@@ -1427,6 +1427,88 @@ describe("scValToNative", () => {
       expect(scValToNative(scv)).toEqual({});
     });
 
+    describe("keys that convert to the same property", () => {
+      const entry = (key: xdr.ScVal, val: xdr.ScVal) =>
+        new xdr.ScMapEntry({ key, val });
+
+      it.each([
+        ["u32 and i64", xdr.ScVal.scvU32(1), xdr.ScVal.scvI64(1n), "1"],
+        ["u32 and symbol", xdr.ScVal.scvU32(1), xdr.ScVal.scvSymbol("1"), "1"],
+        [
+          "string and symbol",
+          xdr.ScVal.scvString("a"),
+          xdr.ScVal.scvSymbol("a"),
+          "a",
+        ],
+        [
+          "bool and symbol",
+          xdr.ScVal.scvBool(true),
+          xdr.ScVal.scvSymbol("true"),
+          "true",
+        ],
+        [
+          "void and symbol",
+          xdr.ScVal.scvVoid(),
+          xdr.ScVal.scvSymbol("null"),
+          "null",
+        ],
+        [
+          "bytes and vec",
+          xdr.ScVal.scvBytes(new Uint8Array([1, 2])),
+          xdr.ScVal.scvVec([xdr.ScVal.scvU32(1), xdr.ScVal.scvU32(2)]),
+          "1,2",
+        ],
+        [
+          "two maps",
+          xdr.ScVal.scvMap([
+            entry(xdr.ScVal.scvSymbol("a"), xdr.ScVal.scvU32(1)),
+          ]),
+          xdr.ScVal.scvMap([
+            entry(xdr.ScVal.scvSymbol("b"), xdr.ScVal.scvU32(2)),
+          ]),
+          "[object Object]",
+        ],
+      ])("throws for %s keys", (_name, a, b, prop) => {
+        const scv = scvSortedMap([
+          entry(a, xdr.ScVal.scvBool(true)),
+          entry(b, xdr.ScVal.scvBool(false)),
+        ]);
+        expect(() => scValToNative(scv)).toThrow(
+          new TypeError(
+            `scvMap has more than one key that converts to "${prop}"; ` +
+              "read the raw map entries instead",
+          ),
+        );
+      });
+
+      it("throws for a colliding map nested inside a vec", () => {
+        const inner = scvSortedMap([
+          entry(xdr.ScVal.scvU32(1), xdr.ScVal.scvBool(true)),
+          entry(xdr.ScVal.scvI64(1n), xdr.ScVal.scvBool(false)),
+        ]);
+        expect(() => scValToNative(xdr.ScVal.scvVec([inner]))).toThrow(
+          TypeError,
+        );
+      });
+
+      it("still decodes distinct keys of mixed types", () => {
+        const scv = scvSortedMap([
+          entry(xdr.ScVal.scvU32(1), xdr.ScVal.scvU32(10)),
+          entry(xdr.ScVal.scvSymbol("b"), xdr.ScVal.scvU32(20)),
+        ]);
+        expect(scValToNative(scv)).toEqual({ 1: 10, b: 20 });
+      });
+
+      it("keeps a __proto__ key as an own property", () => {
+        const scv = xdr.ScVal.scvMap([
+          entry(xdr.ScVal.scvSymbol("__proto__"), xdr.ScVal.scvU32(1)),
+        ]);
+        const native = scValToNative(scv);
+        expect(Object.hasOwn(native, "__proto__")).toBe(true);
+        expect(Object.getPrototypeOf(native)).toBe(Object.prototype);
+      });
+    });
+
     it("converts scvMap with non-string keys (coerced)", () => {
       const scv = xdr.ScVal.scvMap([
         new xdr.ScMapEntry({
