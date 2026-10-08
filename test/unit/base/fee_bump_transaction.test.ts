@@ -6,19 +6,24 @@ import {
 } from "uint8array-extras";
 import { FeeBumpTransaction } from "../../../src/base/fee_bump_transaction.js";
 import { Transaction } from "../../../src/base/transaction.js";
-import { TransactionBuilder } from "../../../src/base/transaction_builder.js";
+import {
+  TransactionBuilder,
+  TimeoutInfinite,
+} from "../../../src/base/transaction_builder.js";
 import { Account } from "../../../src/base/account.js";
 import { Keypair } from "../../../src/base/keypair.js";
 import { Asset } from "../../../src/base/asset.js";
 import { Memo, MemoText } from "../../../src/base/memo.js";
 import { Operation } from "../../../src/base/operation.js";
 import { StrKey } from "../../../src/base/strkey.js";
+import { Contract } from "../../../src/base/contract.js";
 import { hash } from "../../../src/base/hashing.js";
 import { encodeMuxedAccountToAddress } from "../../../src/base/util/decode_encode_muxed_account.js";
 import { expectDefined } from "./support/expect_defined.js";
 import * as xdr from "../../../src/xdr/index.js";
 import type { DecoratedSignature } from "../../../src/xdr/index.js";
 import { expectVariant } from "./support/xdr.js";
+import { expectOperationType } from "./support/operation.js";
 
 function expectBytesToBeEqual(left: Uint8Array, right: Uint8Array): void {
   const leftHex = uint8ArrayToHex(left);
@@ -209,6 +214,88 @@ describe("FeeBumpTransaction", () => {
     expect(() => transaction.signHashX(preimage)).toThrow(
       /preimage cannot be longer than 64 bytes/,
     );
+  });
+
+  it("ignores later changes to the envelope object it was built from", () => {
+    const envelope = xdr.TransactionEnvelope.fromXdr(
+      transaction.toEnvelope().toXdr(),
+    );
+    const feeBump = new FeeBumpTransaction(envelope, networkPassphrase);
+    const hashBefore = uint8ArrayToHex(feeBump.hash());
+
+    expectVariant(
+      expectVariant(envelope, "envelopeTypeTxFeeBump").feeBump.tx.innerTx,
+      "envelopeTypeTx",
+    ).v1.tx.operations.push(Operation.payment({ destination, asset, amount }));
+
+    expect(feeBump.operations).toHaveLength(1);
+    expect(uint8ArrayToHex(feeBump.hash())).toBe(hashBefore);
+    expect(
+      expectVariant(
+        expectVariant(feeBump.toEnvelope(), "envelopeTypeTxFeeBump").feeBump.tx
+          .innerTx,
+        "envelopeTypeTx",
+      ).v1.tx.operations,
+    ).toHaveLength(1);
+  });
+
+  it("signs the operations that it shows", () => {
+    const contract = new Contract(
+      "CA3D5KRYM6CB7OWQ6TWYRR3Z4T7GNZLKERYNZGGA5SOAOPIFY6YQGAXE",
+    );
+    const inner = new TransactionBuilder(innerAccount, {
+      fee: "100",
+      networkPassphrase,
+    })
+      .addOperation(contract.call("hello"))
+      .setTimeout(TimeoutInfinite)
+      .build();
+    const feeBump = new FeeBumpTransaction(
+      TransactionBuilder.buildFeeBumpTransaction(
+        feeSource,
+        "200",
+        inner,
+        networkPassphrase,
+      ).toXdr(),
+      networkPassphrase,
+    );
+    const entry = new xdr.SorobanAuthorizationEntry({
+      credentials: xdr.SorobanCredentials.sorobanCredentialsSourceAccount(),
+      rootInvocation: new xdr.SorobanAuthorizedInvocation({
+        function:
+          xdr.SorobanAuthorizedFunction.sorobanAuthorizedFunctionTypeContractFn(
+            new xdr.InvokeContractArgs({
+              contractAddress: contract.address().toScAddress(),
+              functionName: "hello",
+              args: [],
+            }),
+          ),
+        subInvocations: [],
+      }),
+    });
+
+    // AssembledTransaction.signAuthEntries writes signed entries this way.
+    expectDefined(
+      expectOperationType(
+        expectDefined(feeBump.operations[0]),
+        "invokeHostFunction",
+      ).auth,
+    ).push(entry);
+
+    const decoded = new FeeBumpTransaction(feeBump.toXdr(), networkPassphrase);
+    expect(
+      expectOperationType(
+        expectDefined(decoded.operations[0]),
+        "invokeHostFunction",
+      ).auth,
+    ).toHaveLength(1);
+  });
+
+  it("names the expected envelope type for an object that is not an envelope", () => {
+    // Reflect.construct passes values that the TypeScript signature forbids.
+    expect(() =>
+      Reflect.construct(FeeBumpTransaction, [{}, networkPassphrase]),
+    ).toThrow(/Invalid TransactionEnvelope: expected an envelopeTypeTxFeeBump/);
   });
 
   describe("toEnvelope", () => {

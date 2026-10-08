@@ -1,4 +1,3 @@
-import { base64ToUint8Array } from "./util/base64.js";
 import {
   FeeBumpTransaction as XdrFeeBumpTransaction,
   FeeBumpTransactionEnvelope,
@@ -10,7 +9,12 @@ import {
 import { hash } from "./hashing.js";
 
 import { Transaction } from "./transaction.js";
-import { TransactionBase } from "./transaction_base.js";
+import {
+  TransactionBase,
+  markSdkOwned,
+  ownEnvelope,
+} from "./transaction_base.js";
+import { isUnionVariant } from "../xdr/util.js";
 import { encodeMuxedAccountToAddress } from "./util/decode_encode_muxed_account.js";
 
 /**
@@ -35,20 +39,13 @@ export class FeeBumpTransaction extends TransactionBase<XdrFeeBumpTransaction> {
     envelope: TransactionEnvelope | string,
     networkPassphrase: string,
   ) {
-    if (typeof envelope === "string") {
-      const bytes = base64ToUint8Array(envelope);
-      envelope = TransactionEnvelope.fromXdr(bytes);
-    }
+    const own = ownEnvelope(
+      envelope,
+      (value) => isUnionVariant(value, "envelopeTypeTxFeeBump"),
+      "envelopeTypeTxFeeBump",
+    );
 
-    const envelopeType = envelope.type;
-
-    if (envelopeType !== "envelopeTypeTxFeeBump") {
-      throw new Error(
-        `Invalid TransactionEnvelope: expected an envelopeTypeTxFeeBump but received an ${envelopeType}.`,
-      );
-    }
-
-    const txEnvelope = envelope.value;
+    const txEnvelope = own.value;
     const tx = txEnvelope.tx;
     const fee = tx.fee.toString();
     // clone signatures
@@ -60,8 +57,10 @@ export class FeeBumpTransaction extends TransactionBase<XdrFeeBumpTransaction> {
       tx.innerTx.value,
     );
     this._feeSource = encodeMuxedAccountToAddress(this.tx.feeSource);
+    // The inner envelope wraps this fee bump's own copy. Sharing it keeps
+    // `operations` tied to what hash() and sign() use.
     this._innerTransaction = new Transaction(
-      innerTxEnvelope,
+      markSdkOwned(innerTxEnvelope),
       networkPassphrase,
     );
   }

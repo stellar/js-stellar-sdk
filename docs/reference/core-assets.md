@@ -70,7 +70,7 @@ static compare(assetA: Asset, assetB: Asset): -1 | 0 | 1;
 - **`assetA`** — `Asset` (required) — the first asset
 - **`assetB`** — `Asset` (required) — the second asset
 
-**Source:** [src/base/asset.ts:365](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L365)
+**Source:** [src/base/asset.ts:366](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L366)
 
 ### `Asset.fromOperation(assetXdr)`
 
@@ -84,7 +84,7 @@ static fromOperation(assetXdr: Asset): Asset;
 
 - **`assetXdr`** — `Asset` (required) — The asset xdr object.
 
-**Source:** [src/base/asset.ts:128](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L128)
+**Source:** [src/base/asset.ts:129](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L129)
 
 ### `Asset.native()`
 
@@ -94,7 +94,7 @@ Returns an asset object for the native asset.
 static native(): Asset;
 ```
 
-**Source:** [src/base/asset.ts:120](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L120)
+**Source:** [src/base/asset.ts:121](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L121)
 
 ### `asset.code`
 
@@ -131,7 +131,7 @@ contractId(networkPassphrase: string): string;
      ID should refer to, since every network will have a unique ID for the
      same contract (see [`Networks`](/reference/core-transactions/#networks) for options)
 
-**Source:** [src/base/asset.ts:218](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L218)
+**Source:** [src/base/asset.ts:219](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L219)
 
 ### `asset.equals(asset)`
 
@@ -145,7 +145,7 @@ equals(asset: Asset): boolean;
 
 - **`asset`** — `Asset` (required) — Asset to compare
 
-**Source:** [src/base/asset.ts:334](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L334)
+**Source:** [src/base/asset.ts:335](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L335)
 
 ### `asset.getAssetType()`
 
@@ -166,7 +166,7 @@ Returns the asset type. Can be one of following types:
  - `credit_alphanum4`,
  - `credit_alphanum12`
 
-**Source:** [src/base/asset.ts:292](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L292)
+**Source:** [src/base/asset.ts:293](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L293)
 
 ### `asset.getCode()`
 
@@ -176,7 +176,7 @@ Returns the asset code
 getCode(): string;
 ```
 
-**Source:** [src/base/asset.ts:269](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L269)
+**Source:** [src/base/asset.ts:270](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L270)
 
 ### `asset.getIssuer()`
 
@@ -186,7 +186,7 @@ Returns the asset issuer
 getIssuer(): string | undefined;
 ```
 
-**Source:** [src/base/asset.ts:276](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L276)
+**Source:** [src/base/asset.ts:277](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L277)
 
 ### `asset.getRawAssetType()`
 
@@ -196,7 +196,7 @@ Returns the raw XDR representation of the asset type
 getRawAssetType(): AssetType;
 ```
 
-**Source:** [src/base/asset.ts:311](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L311)
+**Source:** [src/base/asset.ts:312](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L312)
 
 ### `asset.isNative()`
 
@@ -206,7 +206,7 @@ Returns true if this asset object is the native asset.
 isNative(): boolean;
 ```
 
-**Source:** [src/base/asset.ts:325](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L325)
+**Source:** [src/base/asset.ts:326](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L326)
 
 ### `asset.toChangeTrustXdrObject()`
 
@@ -216,7 +216,7 @@ Returns the xdr.ChangeTrustAsset object for this asset.
 toChangeTrustXdrObject(): ChangeTrustAsset;
 ```
 
-**Source:** [src/base/asset.ts:172](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L172)
+**Source:** [src/base/asset.ts:173](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L173)
 
 ### `asset.toChangeTrustXDRObject()`
 
@@ -227,7 +227,7 @@ Deprecated in version v17.0.0
 toChangeTrustXDRObject(): ChangeTrustAsset;
 ```
 
-**Source:** [src/base/asset.ts:195](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L195)
+**Source:** [src/base/asset.ts:196](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L196)
 
 ### `asset.toString()`
 
@@ -239,7 +239,7 @@ Native assets return `"native"`. Non-native assets return `"code:issuer"`.
 toString(): string;
 ```
 
-**Source:** [src/base/asset.ts:347](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L347)
+**Source:** [src/base/asset.ts:348](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L348)
 
 ### `asset.toTrustLineXdrObject()`
 
@@ -249,7 +249,7 @@ Returns the xdr.TrustLineAsset object for this asset.
 toTrustLineXdrObject(): TrustLineAsset;
 ```
 
-**Source:** [src/base/asset.ts:179](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L179)
+**Source:** [src/base/asset.ts:180](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L180)
 
 ### `asset.toTrustLineXDRObject()`
 
@@ -260,7 +260,7 @@ Deprecated in version v17.0.0
 toTrustLineXDRObject(): TrustLineAsset;
 ```
 
-**Source:** [src/base/asset.ts:203](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L203)
+**Source:** [src/base/asset.ts:204](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L204)
 
 ### `asset.toXdrObject()`
 
@@ -270,7 +270,7 @@ Returns the xdr.Asset object for this asset.
 toXdrObject(): Asset;
 ```
 
-**Source:** [src/base/asset.ts:165](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L165)
+**Source:** [src/base/asset.ts:166](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L166)
 
 ### `asset.toXDRObject()`
 
@@ -281,7 +281,7 @@ Deprecated in version v17.0.0
 toXDRObject(): Asset;
 ```
 
-**Source:** [src/base/asset.ts:187](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L187)
+**Source:** [src/base/asset.ts:188](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/asset.ts#L188)
 
 ## AssetType
 
