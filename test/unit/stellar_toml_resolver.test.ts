@@ -258,6 +258,33 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
       }
     });
 
+    it("rejects a redirect to a data: URL when allowedRedirects is specified", async () => {
+      if (typeof window !== "undefined") {
+        return;
+      }
+
+      const tempServer = http
+        .createServer((_req, res) => {
+          res.writeHead(302, {
+            location: `data:text/plain,${encodeURIComponent('VERSION="x"')}`,
+          });
+          res.end();
+        })
+        .listen(0);
+
+      try {
+        const port = (tempServer.address() as AddressInfo).port;
+        await expect(
+          Resolver.resolve(`localhost:${port}`, {
+            allowHttp: true,
+            allowedRedirects: 1,
+          }),
+        ).rejects.toThrow(/data:/);
+      } finally {
+        tempServer.close();
+      }
+    });
+
     describe("domain validation", () => {
       it.each([
         "legitimate-bank.com@127.0.0.1:8000",

@@ -265,6 +265,10 @@ function applyRedirectSemantics(
   headers.delete("content-type");
   headers.delete("content-length");
   headers.delete("transfer-encoding");
+  headers.delete("content-encoding");
+  headers.delete("content-language");
+  headers.delete("content-location");
+  headers.delete("content-range");
   next.headers = headers;
   return next;
 }
@@ -275,17 +279,10 @@ function applyRedirectSemantics(
 // happily hand "Authorization: Bearer …" to whatever URL Location points
 function stripCrossOriginAuth(
   init: RequestInit,
-  fromUrl: string,
-  toUrl: string,
+  fromUrl: URL,
+  toUrl: URL,
 ): RequestInit {
-  let sameOrigin: boolean;
-  try {
-    sameOrigin = new URL(fromUrl).origin === new URL(toUrl).origin;
-  } catch {
-    // Malformed URL: treat as cross-origin (the safer default).
-    sameOrigin = false;
-  }
-  if (sameOrigin) return init;
+  if (fromUrl.origin === toUrl.origin) return init;
   const headers = new Headers(init.headers || {});
   headers.delete("authorization");
   headers.delete("proxy-authorization");
@@ -375,6 +372,8 @@ async function boundedFetchAdapter<T>(
   };
 
   let currentUrl = buildBoundedUrl(config);
+  // Parsed only once a redirect arrives, so other requests pay nothing.
+  let parsedUrl: URL | undefined;
   let redirectsRemaining = maxRedirects ?? 0;
   let response: Response;
 
@@ -405,10 +404,20 @@ async function boundedFetchAdapter<T>(
     }
     const location = response.headers.get("location");
     if (!location) break;
-    const nextUrl = new URL(location, currentUrl).toString();
+    const from = parsedUrl ?? new URL(currentUrl);
+    const target = new URL(location, from);
+    // Node's fetch serves data: URLs without a request. The message matches
+    // the one inside axios's "Redirected request failed: …" error.
+    if (target.protocol !== "http:" && target.protocol !== "https:") {
+      throw new Error(`Unsupported protocol ${target.protocol}`);
+    }
+    if (from.protocol === "https:" && target.protocol === "http:") {
+      throw new Error("Redirect from https: to http: is not allowed");
+    }
     currentInit = applyRedirectSemantics(currentInit, response.status);
-    currentInit = stripCrossOriginAuth(currentInit, currentUrl, nextUrl);
-    currentUrl = nextUrl;
+    currentInit = stripCrossOriginAuth(currentInit, from, target);
+    parsedUrl = target;
+    currentUrl = target.href;
     redirectsRemaining -= 1;
   }
 
