@@ -19,7 +19,6 @@ import {
 } from "uint8array-extras";
 import { base64ToUint8Array } from "../base/util/base64.js";
 import type { TransactionBuilder } from "../base/index.js";
-import type { Config } from "../config.js";
 import { createHttpClient } from "./axios.js";
 import type { Api as FriendbotApi } from "../friendbot/index.js";
 import * as jsonrpc from "./jsonrpc.js";
@@ -114,7 +113,7 @@ const DEFAULT_GET_TRANSACTION_TIMEOUT: number = 30;
 
 // Node's timers overflow above this and fire at once, so a larger request
 // timeout would end every request almost immediately.
-const MAX_TIMEOUT_MS = 2 ** 31 - 1;
+export const MAX_TIMEOUT_MS = 2 ** 31 - 1;
 
 /// A strategy that will sleep 1 second each time
 
@@ -184,7 +183,8 @@ function contractSpecTypeName(td: ScSpecTypeDef): string {
  * @param opts - (optional) Options object
  *   - `allowHttp` (optional): Allows connecting to insecure http servers
  *    (default: `false`). This must be set to false in production deployments!
- *    You can also use {@link Config} class to set this globally.
+ *   - `timeout` (optional): Timeout for each request, in whole milliseconds,
+ *    at most 2147483647. `0` or unset means no limit.
  *   - `headers` (optional): Allows setting custom headers
  *
  * @see {@link https://developers.stellar.org/docs/data/rpc/api-reference/methods | API reference docs}

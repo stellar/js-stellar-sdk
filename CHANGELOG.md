@@ -5,7 +5,7 @@ A breaking change will get clearly marked in this log.
 ## Unreleased
 
 ### Changed
-* The `rpc.Server` constructor throws when `timeout` is not `0` or a whole number of milliseconds up to 2147483647, for example `NaN`, a negative number or a fraction. Before, it accepted any value and ignored it.
+* The `rpc.Server` constructor throws when `timeout` is not `0` or a whole number of milliseconds up to 2147483647. Examples are `NaN`, a negative number or a fraction. Before, it accepted any value and ignored it. The CLI's `--timeout` flag has the same upper limit.
 * `TransactionBuilder.setTimeout()` now throws "timeout ends before min_time" when a positive timeout ends before an existing `minTime`. Before, it built a transaction with `minTime` after `maxTime`, which is never valid ([#1781](https://github.com/stellar/js-stellar-sdk/pull/1781)).
 
 ### Fixed
@@ -18,7 +18,7 @@ A breaking change will get clearly marked in this log.
 * `Transaction` and `FeeBumpTransaction` now decode their own copy of a `TransactionEnvelope` object passed to the constructor, to `TransactionBuilder.fromXdr()` or from `TransactionBuilder.build()`. Before, they kept the caller's object. A later change to that object altered what `hash()`, `sign()` and `toXdr()` used, but not always what `operations` showed. An envelope that cannot be encoded, such as one with more than 100 operations, now fails in the constructor and in `TransactionBuilder.build()`, not later in `toXdr()` or `sign()` ([#1784](https://github.com/stellar/js-stellar-sdk/pull/1784)).
 * `WebAuth.readChallengeTx()`, `verifyChallengeTxSigners()` and `verifyChallengeTxThreshold()` throw an `InvalidChallengeError` when a challenge's `client_domain` operation has no source account. SEP-10 requires that source to be the client domain's signing key. The verifiers previously skipped the client domain signature check for such a challenge. ([#1788](https://github.com/stellar/js-stellar-sdk/pull/1788))
 * `WebAuth.buildChallengeTx()` throws when `clientSigningKey` is the server's public key. `WebAuth.readChallengeTx()`, `verifyChallengeTxSigners()` and `verifyChallengeTxThreshold()` throw `InvalidChallengeError` when the `client_domain` operation's source account is the server account. The server signature previously also counted as the client domain signature, and `verifyChallengeTxSigners()` could leave a valid client signer out of its result. ([#1791](https://github.com/stellar/js-stellar-sdk/pull/1791))
-* `rpc.Server` now applies its `timeout` option to each request. Before, the option was ignored, so a request to a server that did not answer stayed pending.
+* `rpc.Server` now applies its `timeout` option to each request. Before, the option was ignored, so a request to a server that did not answer stayed pending. This also fixes the `--timeout` flag of the bindings CLI, which had no effect.
 
 ## [v17.2.1](https://github.com/stellar/js-stellar-sdk/compare/v17.2.0...v17.2.1)
 

@@ -83,7 +83,7 @@ True if the response indicates success, false otherwise.
 const BasicSleepStrategy: SleepStrategy
 ```
 
-**Source:** [src/rpc/server.ts:121](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L121)
+**Source:** [src/rpc/server.ts:120](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L120)
 
 ## rpc.LinearSleepStrategy
 
@@ -91,7 +91,7 @@ const BasicSleepStrategy: SleepStrategy
 const LinearSleepStrategy: SleepStrategy
 ```
 
-**Source:** [src/rpc/server.ts:124](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L124)
+**Source:** [src/rpc/server.ts:123](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L123)
 
 ## rpc.Server
 
@@ -148,7 +148,7 @@ class Server {
 
 - `API reference docs`
 
-**Source:** [src/rpc/server.ts:80](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L80)
+**Source:** [src/rpc/server.ts:79](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L79)
 
 ### `new Server(serverURL, opts)`
 
@@ -4702,7 +4702,7 @@ enum Durability
 - - `State Archival docs`
  - `Rust SDK Storage docs`
 
-**Source:** [src/rpc/server.ts:75](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L75)
+**Source:** [src/rpc/server.ts:74](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L74)
 
 ### rpc.Server.GetEventsRequest
 
@@ -4716,7 +4716,7 @@ type GetEventsRequest = Api.GetEventsRequest
 
 - [`Api.GetEventsRequest`](#rpcapigeteventsrequest)
 
-**Source:** [src/rpc/server.ts:85](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L85)
+**Source:** [src/rpc/server.ts:84](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L84)
 
 ### rpc.Server.Options
 
@@ -4730,7 +4730,7 @@ interface Options {
 }
 ```
 
-**Source:** [src/rpc/server.ts:103](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L103)
+**Source:** [src/rpc/server.ts:102](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L102)
 
 #### `options.allowHttp`
 
@@ -4740,7 +4740,7 @@ Allow connecting to http servers, default: `false`. This must be set to false in
 allowHttp?: boolean;
 ```
 
-**Source:** [src/rpc/server.ts:105](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L105)
+**Source:** [src/rpc/server.ts:104](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L104)
 
 #### `options.headers`
 
@@ -4750,7 +4750,7 @@ Additional headers that should be added to any requests to the RPC server.
 headers?: Record<string, string>;
 ```
 
-**Source:** [src/rpc/server.ts:109](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L109)
+**Source:** [src/rpc/server.ts:108](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L108)
 
 #### `options.timeout`
 
@@ -4760,7 +4760,7 @@ Timeout for each request, in whole milliseconds, at most 2147483647. `0` or unse
 timeout?: number;
 ```
 
-**Source:** [src/rpc/server.ts:107](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L107)
+**Source:** [src/rpc/server.ts:106](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L106)
 
 ### rpc.Server.PollingOptions
 
@@ -4771,7 +4771,7 @@ interface PollingOptions {
 }
 ```
 
-**Source:** [src/rpc/server.ts:87](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L87)
+**Source:** [src/rpc/server.ts:86](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L86)
 
 #### `pollingOptions.attempts`
 
@@ -4779,7 +4779,7 @@ interface PollingOptions {
 attempts?: number;
 ```
 
-**Source:** [src/rpc/server.ts:88](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L88)
+**Source:** [src/rpc/server.ts:87](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L87)
 
 #### `pollingOptions.sleepStrategy`
 
@@ -4787,7 +4787,7 @@ attempts?: number;
 sleepStrategy?: SleepStrategy;
 ```
 
-**Source:** [src/rpc/server.ts:89](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L89)
+**Source:** [src/rpc/server.ts:88](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L88)
 
 ### rpc.Server.ResourceLeeway
 
@@ -4799,7 +4799,7 @@ interface ResourceLeeway {
 }
 ```
 
-**Source:** [src/rpc/server.ts:95](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L95)
+**Source:** [src/rpc/server.ts:94](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L94)
 
 #### `resourceLeeway.cpuInstructions`
 
@@ -4809,4 +4809,4 @@ Simulate the transaction with more CPU instructions available.
 cpuInstructions: number;
 ```
 
-**Source:** [src/rpc/server.ts:97](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L97)
+**Source:** [src/rpc/server.ts:96](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L96)
