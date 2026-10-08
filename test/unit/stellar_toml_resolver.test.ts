@@ -279,7 +279,7 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
             allowHttp: true,
             allowedRedirects: 1,
           }),
-        ).rejects.toThrow(/data:/);
+        ).rejects.toThrow(/Unsupported protocol data:/);
       } finally {
         tempServer.close();
       }

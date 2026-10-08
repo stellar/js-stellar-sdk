@@ -371,15 +371,15 @@ async function boundedFetchAdapter<T>(
     ...(signal ? { signal } : {}),
   };
 
-  let currentUrl = buildBoundedUrl(config);
-  // Parsed only once a redirect arrives, so other requests pay nothing.
-  let parsedUrl: URL | undefined;
+  const startUrl = buildBoundedUrl(config);
+  // Set only once a redirect arrives, so other requests skip the URL parse.
+  let current: URL | undefined;
   let redirectsRemaining = maxRedirects ?? 0;
   let response: Response;
 
   while (true) {
     try {
-      response = await fetch(currentUrl, currentInit);
+      response = await fetch(current?.href ?? startUrl, currentInit);
     } catch (err: any) {
       if (err?.name === "TimeoutError") {
         throw new Error(`timeout of ${config.timeout}ms exceeded`);
@@ -404,7 +404,7 @@ async function boundedFetchAdapter<T>(
     }
     const location = response.headers.get("location");
     if (!location) break;
-    const from = parsedUrl ?? new URL(currentUrl);
+    const from = current ?? new URL(startUrl);
     const target = new URL(location, from);
     // Node's fetch serves data: URLs without a request. The message matches
     // the one inside axios's "Redirected request failed: …" error.
@@ -416,8 +416,7 @@ async function boundedFetchAdapter<T>(
     }
     currentInit = applyRedirectSemantics(currentInit, response.status);
     currentInit = stripCrossOriginAuth(currentInit, from, target);
-    parsedUrl = target;
-    currentUrl = target.href;
+    current = target;
     redirectsRemaining -= 1;
   }
 

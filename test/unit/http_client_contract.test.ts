@@ -368,7 +368,7 @@ describe("HttpClient contract", () => {
           maxRedirects: 1,
           maxContentLength: 10_000,
         }),
-      ).rejects.toThrow(/data:/);
+      ).rejects.toThrow(/Unsupported protocol data:/);
     });
 
     it("follows a protocol-relative Location on the same scheme", async () => {
@@ -828,6 +828,37 @@ describe.skipIf(
       expect(fetchMock).toHaveBeenCalledTimes(1);
     },
   );
+
+  it("rejects a downgrade on a later hop", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(
+        new Response(null, {
+          status: 302,
+          headers: { location: "https://b.example/hop" },
+        }),
+      )
+      .mockResolvedValueOnce(
+        new Response(null, {
+          status: 302,
+          headers: { location: "http://c.example/after" },
+        }),
+      )
+      .mockResolvedValue(
+        new Response("{}", {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        }),
+      );
+    vi.stubGlobal("fetch", fetchMock);
+    await expect(
+      httpClient.get("http://a.example/start", {
+        maxRedirects: 2,
+        maxContentLength: 10_000,
+      }),
+    ).rejects.toThrow(/https: to http:/);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
 
   it.each([
     ["http://a.example/start", "https://a.example/after"],
