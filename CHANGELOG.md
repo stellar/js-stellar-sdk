@@ -5,6 +5,7 @@ A breaking change will get clearly marked in this log.
 ## Unreleased
 
 ### Changed
+* The `rpc.Server` constructor throws when `timeout` is not `0` or a whole number of milliseconds up to 2147483647. Examples are `NaN`, a negative number or a fraction. Before, it accepted any value and ignored it. The CLI's `--timeout` flag has the same upper limit ([#1802](https://github.com/stellar/js-stellar-sdk/pull/1802)).
 * `TransactionBuilder.setTimeout()` now throws "timeout ends before min_time" when a positive timeout ends before an existing `minTime`. Before, it built a transaction with `minTime` after `maxTime`, which is never valid ([#1781](https://github.com/stellar/js-stellar-sdk/pull/1781)).
 
 ### Fixed
@@ -18,6 +19,7 @@ A breaking change will get clearly marked in this log.
 * `WebAuth.readChallengeTx()`, `verifyChallengeTxSigners()` and `verifyChallengeTxThreshold()` throw an `InvalidChallengeError` when a challenge's `client_domain` operation has no source account. SEP-10 requires that source to be the client domain's signing key. The verifiers previously skipped the client domain signature check for such a challenge. ([#1788](https://github.com/stellar/js-stellar-sdk/pull/1788))
 * `WebAuth.buildChallengeTx()` throws when `clientSigningKey` is the server's public key. `WebAuth.readChallengeTx()`, `verifyChallengeTxSigners()` and `verifyChallengeTxThreshold()` throw `InvalidChallengeError` when the `client_domain` operation's source account is the server account. The server signature previously also counted as the client domain signature, and `verifyChallengeTxSigners()` could leave a valid client signer out of its result. ([#1791](https://github.com/stellar/js-stellar-sdk/pull/1791))
 * In Node, when `maxRedirects` is set, the Fetch client rejects a redirect to a URL that is not `http:` or `https:`. It also rejects a redirect from `https:` to `http:`. Before, it followed both. For example, `StellarToml.Resolver.resolve()` with `allowedRedirects` returned the content of a `data:` URL. When a redirect changes the method to GET, the client now also removes the `Content-Encoding`, `Content-Language`, `Content-Location` and `Content-Range` headers. ([#1799](https://github.com/stellar/js-stellar-sdk/pull/1799))
+* `rpc.Server` now applies its `timeout` option to each request. Before, the option was ignored, so a request to a server that did not answer stayed pending. This also fixes the `--timeout` flag of the bindings CLI, which had no effect ([#1802](https://github.com/stellar/js-stellar-sdk/pull/1802)).
 
 ## [v17.2.1](https://github.com/stellar/js-stellar-sdk/compare/v17.2.0...v17.2.1)
 

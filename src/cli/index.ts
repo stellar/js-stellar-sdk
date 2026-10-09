@@ -9,6 +9,7 @@ import {
   deriveContractName,
 } from "./util.js";
 import { Networks } from "../base/index.js";
+import { MAX_TIMEOUT_MS } from "../rpc/server.js";
 
 // Default RPC URLs for each network
 const NETWORK_CONFIG: Record<
@@ -127,9 +128,13 @@ function runCli() {
           timeout = parseInt(options.timeout, 10);
           // require digits only, so values parseInt would otherwise silently
           // truncate ("10abc" -> 10, "10.9" -> 10) are rejected
-          if (!/^\d+$/.test(options.timeout.trim()) || timeout <= 0) {
+          if (
+            !/^\d+$/.test(options.timeout.trim()) ||
+            timeout <= 0 ||
+            timeout > MAX_TIMEOUT_MS
+          ) {
             throw new Error(
-              `Invalid timeout value: ${options.timeout}. Must be a positive integer.`,
+              `Invalid timeout value: ${options.timeout}. Must be a positive integer up to ${MAX_TIMEOUT_MS}.`,
             );
           }
         }

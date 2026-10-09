@@ -1,5 +1,7 @@
 import { describe, it, beforeEach, afterEach, expect, vi } from "vitest";
+import http from "http";
 import * as StellarSdk from "../../../../src/index.js";
+import { create } from "../../../../src/http-client/index.js";
 
 import { serverUrl } from "../../../constants.js";
 
@@ -59,5 +61,68 @@ describe("Server.constructor", () => {
     expect(
       serverB.httpClient.defaults.headers["Custom-Header-A"],
     ).toBeUndefined();
+  });
+
+  describe("timeout", () => {
+    it("applies opts.timeout to the HTTP client", () => {
+      const s = new Server(serverUrl, { timeout: 200 });
+      expect(s.httpClient.defaults.timeout).toBe(200);
+    });
+
+    it("leaves the HTTP client's timeout as is when opts.timeout is not set", () => {
+      const s = new Server(serverUrl);
+      expect(s.httpClient.defaults.timeout).toBe(create().defaults.timeout);
+    });
+
+    it.each([0, 1, 2_147_483_647])("accepts %s", (timeout) => {
+      expect(() => new Server(serverUrl, { timeout })).not.toThrow();
+    });
+
+    it.each([-1, 1.5, NaN, Infinity, 2_147_483_648])(
+      "rejects %s",
+      (timeout) => {
+        expect(() => new Server(serverUrl, { timeout })).toThrow(/timeout/);
+      },
+    );
+
+    it.each(["200", null])("rejects %j from a plain-JS caller", (timeout) => {
+      expect(() => Reflect.construct(Server, [serverUrl, { timeout }])).toThrow(
+        /timeout/,
+      );
+    });
+
+    it("rejects a request that exceeds opts.timeout", async () => {
+      // Unable to create temp server in a browser
+      if (typeof window !== "undefined") {
+        return;
+      }
+
+      const hanging = http.createServer(() => undefined).listen(0);
+      try {
+        const address = hanging.address();
+        if (address === null || typeof address === "string") {
+          throw new Error("expected a TCP address");
+        }
+        const s = new Server(`http://localhost:${address.port}`, {
+          allowHttp: true,
+          timeout: 200,
+        });
+        let ceiling: ReturnType<typeof setTimeout> | undefined;
+        const outcome = await Promise.race([
+          s.getHealth().then(
+            () => "resolved",
+            (error: Error) => error.message,
+          ),
+          new Promise<string>((resolve) => {
+            ceiling = setTimeout(() => resolve("still pending"), 2000);
+          }),
+        ]);
+        clearTimeout(ceiling);
+        expect(outcome).toMatch(/timeout/i);
+      } finally {
+        hanging.closeAllConnections();
+        hanging.close();
+      }
+    });
   });
 });

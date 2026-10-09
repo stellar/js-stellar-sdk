@@ -370,6 +370,30 @@ describe("CLI generate command", () => {
       expect(result.stderr).toContain("Invalid timeout");
     });
 
+    it("fails with a timeout above the RPC limit", () => {
+      const wasmPath = contracts.customTypes.path;
+      const testOutputDir = path.join(outputDir, "too-large-timeout");
+
+      const result = runCli(
+        `generate --wasm ${wasmPath} --output-dir ${testOutputDir} --timeout 2147483648`,
+      );
+
+      expect(result.status).toBe(1);
+      expect(result.stderr).toContain("up to 2147483647");
+    });
+
+    it("accepts a timeout at the RPC limit", () => {
+      const wasmPath = contracts.customTypes.path;
+      const testOutputDir = path.join(outputDir, "max-timeout");
+
+      const result = runCli(
+        `generate --wasm ${wasmPath} --output-dir ${testOutputDir} --contract-name TestContract --timeout 2147483647 --overwrite`,
+      );
+
+      expect(result.status).toBe(0);
+      expect(result.stdout).toContain("Successfully generated bindings");
+    });
+
     it("fails with invalid JSON for --headers", () => {
       const wasmPath = contracts.customTypes.path;
       const testOutputDir = path.join(outputDir, "invalid-headers");

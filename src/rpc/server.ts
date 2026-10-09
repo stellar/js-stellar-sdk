@@ -19,7 +19,6 @@ import {
 } from "uint8array-extras";
 import { base64ToUint8Array } from "../base/util/base64.js";
 import type { TransactionBuilder } from "../base/index.js";
-import type { Config } from "../config.js";
 import { createHttpClient } from "./axios.js";
 import type { Api as FriendbotApi } from "../friendbot/index.js";
 import * as jsonrpc from "./jsonrpc.js";
@@ -103,7 +102,7 @@ export namespace RpcServer {
   export interface Options {
     /** Allow connecting to http servers, default: `false`. This must be set to false in production deployments! */
     allowHttp?: boolean;
-    /** Allow a timeout, default: 0. Allows user to avoid nasty lag. */
+    /** Timeout for each request, in whole milliseconds, at most 2147483647. `0` or unset means no limit. */
     timeout?: number;
     /** Additional headers that should be added to any requests to the RPC server. */
     headers?: Record<string, string>;
@@ -111,6 +110,10 @@ export namespace RpcServer {
 }
 
 const DEFAULT_GET_TRANSACTION_TIMEOUT: number = 30;
+
+// Node's timers overflow above this and fire at once, so a larger request
+// timeout would end every request almost immediately.
+export const MAX_TIMEOUT_MS = 2 ** 31 - 1;
 
 /// A strategy that will sleep 1 second each time
 
@@ -180,7 +183,8 @@ function contractSpecTypeName(td: ScSpecTypeDef): string {
  * @param opts - (optional) Options object
  *   - `allowHttp` (optional): Allows connecting to insecure http servers
  *    (default: `false`). This must be set to false in production deployments!
- *    You can also use {@link Config} class to set this globally.
+ *   - `timeout` (optional): Timeout for each request, in whole milliseconds,
+ *    at most 2147483647. `0` or unset means no limit.
  *   - `headers` (optional): Allows setting custom headers
  *
  * @see {@link https://developers.stellar.org/docs/data/rpc/api-reference/methods | API reference docs}
@@ -209,7 +213,16 @@ export class RpcServer {
      * RPC Server URL (ex. `http://localhost:8000/soroban/rpc`).
      */
     this.serverURL = new URL(serverURL);
-    this.httpClient = createHttpClient(opts.headers);
+    const { timeout } = opts;
+    if (
+      timeout !== undefined &&
+      !(Number.isInteger(timeout) && timeout >= 0 && timeout <= MAX_TIMEOUT_MS)
+    ) {
+      throw new Error(
+        `timeout must be 0 or a whole number of milliseconds up to ${MAX_TIMEOUT_MS}, got ${String(timeout)}`,
+      );
+    }
+    this.httpClient = createHttpClient(opts.headers, timeout);
     if (this.serverURL.protocol !== "https:" && !opts.allowHttp) {
       throw new Error(
         "Cannot connect to insecure Soroban RPC server if `allowHttp` isn't set",
