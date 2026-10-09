@@ -134,6 +134,22 @@ describe("HttpClient contract", () => {
       expect(requests[0].url).toContain("a=1");
       expect(requests[0].url).toContain("b=two");
     });
+
+    it("sends config.params on the bounded path when the URL has a fragment", async () => {
+      await httpClient.get(`${baseUrl}/q#frag`, {
+        params: { a: "1" },
+        maxContentLength: 10_000,
+      });
+      expect(requests[0].url).toBe("/q?a=1");
+    });
+
+    it("keeps an existing query and adds config.params when the URL has a fragment", async () => {
+      await httpClient.get(`${baseUrl}/q?x=1#frag?y=2`, {
+        params: { b: "2" },
+        maxContentLength: 10_000,
+      });
+      expect(requests[0].url).toBe("/q?x=1&b=2");
+    });
   });
 
   describe("request headers", () => {
@@ -874,5 +890,81 @@ describe.skipIf(
     expect(fetchMock.mock.calls[1][0]).toBe(
       new URL(location, start).toString(),
     );
+  });
+});
+
+// TOML and network JSON must be UTF-8 (TOML v1.0.0, RFC 8259 section 8.1),
+// so the bounded Fetch adapter ignores the charset label and rejects a body
+// that is not valid UTF-8. The Axios and feaxios paths decode leniently.
+describe.skipIf(
+  typeof window !== "undefined" || process.env.TRANSPORT === "axios",
+)("bounded path — UTF-8 response body (fetch adapter)", () => {
+  // "café" in ISO-8859-1. The last byte is not valid UTF-8 on its own.
+  const latin1Cafe = new Uint8Array([0x63, 0x61, 0x66, 0xe9]);
+
+  function stubResponse(body: Uint8Array<ArrayBuffer>, init: ResponseInit) {
+    vi.stubGlobal(
+      "fetch",
+      vi
+        .fn()
+        .mockImplementation(() => Promise.resolve(new Response(body, init))),
+    );
+  }
+
+  it.each([
+    ["no Content-Type", {}],
+    ["text/plain", { "content-type": "text/plain" }],
+    [
+      "charset=iso-8859-1",
+      { "content-type": "text/plain; charset=iso-8859-1" },
+    ],
+    ["charset=utf8mb4", { "content-type": "text/plain; charset=utf8mb4" }],
+    ['charset="utf-8', { "content-type": 'text/plain; charset="utf-8' }],
+  ])("decodes a UTF-8 body as UTF-8 with %s", async (_label, headers) => {
+    stubResponse(new TextEncoder().encode("café"), { headers });
+    const resp = await httpClient.get("https://a.example/x", {
+      maxContentLength: 10_000,
+    });
+    expect(resp.data).toBe("café");
+  });
+
+  it("parses a UTF-8 JSON body labelled with another charset", async () => {
+    stubResponse(new TextEncoder().encode('{"name":"café"}'), {
+      headers: { "content-type": "application/json; charset=iso-8859-1" },
+    });
+    const resp = await httpClient.get("https://a.example/x", {
+      maxContentLength: 10_000,
+    });
+    expect(resp.data).toEqual({ name: "café" });
+  });
+
+  it.each([
+    ["no Content-Type", {}],
+    [
+      "charset=iso-8859-1",
+      { "content-type": "text/plain; charset=iso-8859-1" },
+    ],
+  ])(
+    "rejects a body that is not valid UTF-8 with %s",
+    async (_label, headers) => {
+      stubResponse(latin1Cafe, { headers });
+      await expect(
+        httpClient.get("https://a.example/x", { maxContentLength: 10_000 }),
+      ).rejects.toThrow("Response body is not valid UTF-8");
+    },
+  );
+
+  it("keeps the HTTP error for a non-2xx body that is not valid UTF-8", async () => {
+    stubResponse(latin1Cafe, {
+      status: 404,
+      headers: { "content-type": "text/plain" },
+    });
+    try {
+      await httpClient.get("https://a.example/x", { maxContentLength: 10_000 });
+      throw new Error("expected rejection");
+    } catch (err: any) {
+      expect(err.response?.status).toBe(404);
+      expect(err.response?.data).toBe("caf\uFFFD");
+    }
   });
 });

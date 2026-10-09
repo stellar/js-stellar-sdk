@@ -111,6 +111,9 @@ function buildBoundedUrl(config: HttpClientRequestConfig): string {
     const qs = new URLSearchParams(
       config.params as Record<string, string>,
     ).toString();
+    // Params after a fragment never reach the server. Axios drops it too.
+    const hashIndex = url.indexOf("#");
+    if (hashIndex !== -1) url = url.slice(0, hashIndex);
     url += (url.includes("?") ? "&" : "?") + qs;
   }
   return url;
@@ -443,7 +446,14 @@ async function boundedFetchAdapter<T>(
   }
 
   const bytes = await readBodyBounded(response, maxContentLength);
-  const text = new TextDecoder().decode(bytes);
+  // TOML and network JSON must be UTF-8 (TOML v1.0.0, RFC 8259), so the
+  // charset label is ignored and invalid bytes throw instead of becoming U+FFFD.
+  let text: string;
+  try {
+    text = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+  } catch {
+    throw new Error("Response body is not valid UTF-8");
+  }
   let data: any = text;
   try {
     data = JSON.parse(text);
