@@ -928,6 +928,14 @@ describe.skipIf(
     expect(resp.data).toBe("café");
   });
 
+  it("loads without a global TextDecoder", async () => {
+    vi.resetModules();
+    vi.stubGlobal("TextDecoder", undefined);
+    await expect(
+      import("../../src/http-client/fetch-client.js"),
+    ).resolves.toHaveProperty("fetchClient");
+  });
+
   it("parses a UTF-8 JSON body labelled with another charset", async () => {
     stubResponse(new TextEncoder().encode('{"name":"café"}'), {
       headers: { "content-type": "application/json; charset=iso-8859-1" },
@@ -950,7 +958,10 @@ describe.skipIf(
       stubResponse(latin1Cafe, { headers });
       await expect(
         httpClient.get("https://a.example/x", { maxContentLength: 10_000 }),
-      ).rejects.toThrow("Response body is not valid UTF-8");
+      ).rejects.toMatchObject({
+        message: "Response body is not valid UTF-8",
+        cause: expect.any(TypeError),
+      });
     },
   );
 
