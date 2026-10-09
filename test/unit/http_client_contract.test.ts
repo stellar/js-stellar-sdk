@@ -7,7 +7,7 @@
 // Tests run in Node only (they spin up real HTTP servers to exercise
 // wire-level behavior rather than mocking the adapter). Browser tests are
 // covered separately.
-import { describe, it, expect, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import http, { IncomingMessage, ServerResponse } from "http";
 import { AddressInfo } from "net";
 import { httpClient } from "../../src/http-client/index.js";
@@ -357,6 +357,98 @@ describe("HttpClient contract", () => {
       ).rejects.toThrow();
       expect(visited).toEqual(["/start"]);
     });
+
+    it("rejects a redirect to a data: URL", async () => {
+      respond = (_req, res) => {
+        res.writeHead(302, { location: "data:text/plain,from-a-data-url" });
+        res.end();
+      };
+      await expect(
+        httpClient.get(`${baseUrl}/start`, {
+          maxRedirects: 1,
+          maxContentLength: 10_000,
+        }),
+      ).rejects.toThrow(/Unsupported protocol data:/);
+    });
+
+    it("follows a protocol-relative Location on the same scheme", async () => {
+      const visited: string[] = [];
+      respond = (req, res) => {
+        visited.push(req.url || "");
+        if (req.url === "/start") {
+          res.writeHead(302, { location: `//${new URL(baseUrl).host}/after` });
+          return res.end();
+        }
+        res.setHeader("Content-Type", "application/json");
+        res.writeHead(200);
+        return res.end("{}");
+      };
+      await httpClient.get(`${baseUrl}/start`, {
+        maxRedirects: 1,
+        maxContentLength: 10_000,
+      });
+      expect(visited).toEqual(["/start", "/after"]);
+    });
+
+    const contentHeaders = {
+      "Content-Encoding": "identity",
+      "Content-Language": "en",
+      "Content-Location": "/original",
+      "Content-Range": "bytes 0-6/7",
+    };
+
+    it("drops every request-body header when a 302 switches POST to GET", async () => {
+      respond = (req, res) => {
+        if (req.url === "/start") {
+          res.writeHead(302, { location: "/after" });
+          return res.end();
+        }
+        res.setHeader("Content-Type", "application/json");
+        res.writeHead(200);
+        return res.end("{}");
+      };
+      await httpClient.post(
+        `${baseUrl}/start`,
+        { a: 1 },
+        {
+          headers: contentHeaders,
+          maxRedirects: 1,
+          maxContentLength: 10_000,
+        },
+      );
+      const after = requests[1].headers;
+      expect(
+        Object.keys(after).filter((name) => name.startsWith("content-")),
+      ).toEqual([]);
+      expect(after["transfer-encoding"]).toBeUndefined();
+    });
+
+    it("keeps the content headers on a 307", async () => {
+      respond = (req, res) => {
+        if (req.url === "/start") {
+          res.writeHead(307, { location: "/after" });
+          return res.end();
+        }
+        res.setHeader("Content-Type", "application/json");
+        res.writeHead(200);
+        return res.end("{}");
+      };
+      await httpClient.post(
+        `${baseUrl}/start`,
+        { a: 1 },
+        {
+          headers: contentHeaders,
+          maxRedirects: 1,
+          maxContentLength: 10_000,
+        },
+      );
+      expect(requests[1].headers).toMatchObject({
+        "content-encoding": "identity",
+        "content-language": "en",
+        "content-location": "/original",
+        "content-range": "bytes 0-6/7",
+      });
+    });
   });
 
   describe("bounded path — response size cap", () => {
@@ -681,5 +773,106 @@ describe("HttpClient contract", () => {
       expect(requests[0].url).toContain("a=1");
       expect(requests[0].headers["x-default"]).toBe("yes");
     });
+  });
+});
+
+// The Axios build follows an https: -> http: redirect, so the downgrade
+// rule is Fetch only. A stubbed fetch stands in for an https: server, and
+// the adapter follows redirects itself only in Node.
+describe.skipIf(
+  typeof window !== "undefined" || process.env.TRANSPORT === "axios",
+)("bounded path — redirect targets (fetch adapter)", () => {
+  function stubRedirectTo(location: string) {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(
+        new Response(null, { status: 302, headers: { location } }),
+      )
+      .mockResolvedValue(
+        new Response("{}", {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        }),
+      );
+    vi.stubGlobal("fetch", fetchMock);
+    return fetchMock;
+  }
+
+  it.each([
+    "data:text/plain,x",
+    "DATA:text/plain,x",
+    "file:///etc/passwd",
+    "ftp://a.example/x",
+    "javascript:alert(1)",
+  ])("rejects a redirect to %s without fetching it", async (location) => {
+    const fetchMock = stubRedirectTo(location);
+    await expect(
+      httpClient.get("https://a.example/start", {
+        maxRedirects: 1,
+        maxContentLength: 10_000,
+      }),
+    ).rejects.toThrow(/Unsupported protocol/);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it.each(["https://a.example/start", "HTTPS://A.EXAMPLE/start"])(
+    "rejects a redirect from %s to http: without fetching it",
+    async (start) => {
+      const fetchMock = stubRedirectTo("http://a.example/after");
+      await expect(
+        httpClient.get(start, {
+          maxRedirects: 1,
+          maxContentLength: 10_000,
+        }),
+      ).rejects.toThrow(/https: to http:/);
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+    },
+  );
+
+  it("rejects a downgrade on a later hop", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(
+        new Response(null, {
+          status: 302,
+          headers: { location: "https://b.example/hop" },
+        }),
+      )
+      .mockResolvedValueOnce(
+        new Response(null, {
+          status: 302,
+          headers: { location: "http://c.example/after" },
+        }),
+      )
+      .mockResolvedValue(
+        new Response("{}", {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        }),
+      );
+    vi.stubGlobal("fetch", fetchMock);
+    await expect(
+      httpClient.get("http://a.example/start", {
+        maxRedirects: 2,
+        maxContentLength: 10_000,
+      }),
+    ).rejects.toThrow(/https: to http:/);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it.each([
+    ["http://a.example/start", "https://a.example/after"],
+    ["https://a.example/start", "https://b.example/after"],
+    ["https://a.example/start", "/after"],
+  ])("follows a redirect from %s to %s", async (start, location) => {
+    const fetchMock = stubRedirectTo(location);
+    await httpClient.get(start, {
+      maxRedirects: 1,
+      maxContentLength: 10_000,
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(fetchMock.mock.calls[1][0]).toBe(
+      new URL(location, start).toString(),
+    );
   });
 });
