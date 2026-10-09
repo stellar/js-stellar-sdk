@@ -111,6 +111,9 @@ function buildBoundedUrl(config: HttpClientRequestConfig): string {
     const qs = new URLSearchParams(
       config.params as Record<string, string>,
     ).toString();
+    // Params after a fragment never reach the server. Axios drops it too.
+    const hashIndex = url.indexOf("#");
+    if (hashIndex !== -1) url = url.slice(0, hashIndex);
     url += (url.includes("?") ? "&" : "?") + qs;
   }
   return url;
@@ -316,6 +319,9 @@ function buildHttpError(
   return err;
 }
 
+// Created on first use, so importing the SDK needs no TextDecoder.
+let strictUtf8Decoder: TextDecoder | undefined;
+
 // feaxios ignores maxRedirects and maxContentLength. When either is set,
 // perform the request via native fetch with explicit enforcement — otherwise
 // the "security" config is silently a no-op, allowing redirect-based SSRF and
@@ -443,7 +449,15 @@ async function boundedFetchAdapter<T>(
   }
 
   const bytes = await readBodyBounded(response, maxContentLength);
-  const text = new TextDecoder().decode(bytes);
+  // TOML and network JSON must be UTF-8 (TOML v1.0.0, RFC 8259), so the
+  // charset label is ignored and invalid bytes throw instead of becoming U+FFFD.
+  strictUtf8Decoder ??= new TextDecoder("utf-8", { fatal: true });
+  let text: string;
+  try {
+    text = strictUtf8Decoder.decode(bytes);
+  } catch (err) {
+    throw new Error("Response body is not valid UTF-8", { cause: err });
+  }
   let data: any = text;
   try {
     data = JSON.parse(text);
