@@ -16,7 +16,7 @@ export interface SorobanResourcesWire {
 /**
  * ```xdr
  * struct SorobanResources
- * {
+ * {  
  *     // The ledger footprint of the transaction.
  *     LedgerFootprint footprint;
  *     // The maximum number of instructions this transaction can use

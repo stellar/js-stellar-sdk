@@ -13,7 +13,8 @@ export type ScAddressTypeName =
   | "scAddressTypeContract"
   | "scAddressTypeMuxedAccount"
   | "scAddressTypeClaimableBalance"
-  | "scAddressTypeLiquidityPool";
+  | "scAddressTypeLiquidityPool"
+  | "scAddressTypeMuxedContract";
 
 /**
  * ```xdr
@@ -52,6 +53,10 @@ export class ScAddressType extends EnumValue<ScAddressTypeName> {
     "scAddressTypeLiquidityPool",
     4,
   );
+  static readonly scAddressTypeMuxedContract = new ScAddressType(
+    "scAddressTypeMuxedContract",
+    5,
+  );
 
   static readonly schema = withMemberPrefix(
     enumType("ScAddressType", {
@@ -60,6 +65,7 @@ export class ScAddressType extends EnumValue<ScAddressTypeName> {
       scAddressTypeMuxedAccount: 2,
       scAddressTypeClaimableBalance: 3,
       scAddressTypeLiquidityPool: 4,
+      scAddressTypeMuxedContract: 5,
     }),
     "scAddressType",
   );
