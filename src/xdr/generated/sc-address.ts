@@ -49,10 +49,8 @@ export type ScAddressVariantName =
  *     ClaimableBalanceID claimableBalanceId;
  * case SC_ADDRESS_TYPE_LIQUIDITY_POOL:
  *     PoolID liquidityPoolId;
- * #ifdef CAP_0084_MUXED_CONTRACT
  * case SC_ADDRESS_TYPE_MUXED_CONTRACT:
  *     MuxedContract muxedContract;
- * #endif
  * };
  * ```
  */
