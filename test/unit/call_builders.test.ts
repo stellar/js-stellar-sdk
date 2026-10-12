@@ -360,3 +360,162 @@ describe("CallBuilder path segments", () => {
     );
   });
 });
+
+describe("CallBuilder link names", () => {
+  const HORIZON = "https://horizon.example.com";
+
+  function okResponse(data: unknown) {
+    return { data, headers: {}, config: {}, status: 200, statusText: "OK" };
+  }
+
+  // Bodies are JSON text, because an object literal does not make an own
+  // `__proto__` key and JSON.parse does.
+  function mockServer(...bodies: string[]) {
+    const server = new Horizon.Server(HORIZON);
+    const get = vi
+      .spyOn(server.httpClient, "get")
+      .mockResolvedValue(okResponse({}));
+    bodies.forEach((body) => {
+      get.mockResolvedValueOnce(okResponse(JSON.parse(body)));
+    });
+    return { server, get };
+  }
+
+  function links(...keys: string[]) {
+    const entries = ["self", ...keys].map(
+      (key) => `"${key}":{"href":"${HORIZON}/operations/1/${key}"}`,
+    );
+    return `"_links":{${entries.join(",")}}`;
+  }
+
+  async function settlesInOneSecond<T>(promise: Promise<T>): Promise<T> {
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const timeout = new Promise<never>((_, reject) => {
+      timer = setTimeout(
+        () => reject(new Error("did not settle within 1 second")),
+        1000,
+      );
+    });
+    try {
+      return await Promise.race([promise, timeout]);
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("does not add a then method, so call() resolves", async () => {
+    const { server, get } = mockServer(`{"id":"1",${links("then")}}`);
+
+    const record = await settlesInOneSecond(
+      server.operations().operation("1").call(),
+    );
+
+    expect(get).toHaveBeenCalledTimes(1);
+    expect("then" in record).toBe(false);
+    expect(Object.keys(record)).toEqual(["id", "_links", "self"]);
+    expect(Object.keys(record._links)).toEqual(["self", "then"]);
+  });
+
+  it("keeps the prototype when a link is named __proto__", async () => {
+    const { server } = mockServer(`{"id":"1",${links("__proto__")}}`);
+
+    const record = await server.operations().operation("1").call();
+
+    expect(Object.getPrototypeOf(record)).toBe(Object.prototype);
+    expect(Object.keys(record)).toEqual(["id", "_links", "self"]);
+  });
+
+  it("keeps the constructor when a link is named constructor", async () => {
+    const { server } = mockServer(`{"id":"1",${links("constructor")}}`);
+
+    const record = await server.operations().operation("1").call();
+
+    expect(record.constructor).toBe(Object);
+    expect(Object.keys(record)).toEqual(["id", "_links", "self"]);
+  });
+
+  it("resolves when links are named __proto__ and constructor", async () => {
+    const { server } = mockServer(
+      `{"id":"1",${links("__proto__", "constructor")}}`,
+    );
+
+    const record = await server.operations().operation("1").call();
+
+    expect(Object.getPrototypeOf(record)).toBe(Object.prototype);
+    expect(record.constructor).toBe(Object);
+  });
+
+  it("keeps toString when a link is named toString", async () => {
+    const { server } = mockServer(`{"id":"1",${links("toString")}}`);
+
+    const record = await server.operations().operation("1").call();
+
+    expect(String(record)).toBe("[object Object]");
+    expect(Object.keys(record)).toEqual(["id", "_links", "self"]);
+  });
+
+  it("keeps JSON.stringify working when a link is named toJSON", async () => {
+    const { server, get } = mockServer(`{"id":"1",${links("toJSON")}}`);
+
+    const record = await server.operations().operation("1").call();
+
+    expect(JSON.parse(JSON.stringify(record))).toMatchObject({ id: "1" });
+    expect(get).toHaveBeenCalledTimes(1);
+    expect(Object.keys(record)).toEqual(["id", "_links", "self"]);
+  });
+
+  it("keeps a data field that has the same name as a skipped link", async () => {
+    const { server } = mockServer(
+      `{"constructor":"data","id":"1",${links("constructor")}}`,
+    );
+
+    const record = await server.operations().operation("1").call();
+
+    expect(record.constructor).toBe("data");
+    expect(Object.keys(record)).toEqual([
+      "constructor",
+      "id",
+      "_links",
+      "self",
+    ]);
+  });
+
+  it("skips a then link in a collection page record", async () => {
+    const { server } = mockServer(
+      `{${links("next", "prev")},"_embedded":{"records":[{"id":"1",${links("then")}}]}}`,
+    );
+
+    const page = await server.operations().call();
+
+    expect("then" in page.records[0]).toBe(false);
+  });
+
+  it("skips a then link in a joined transaction record", async () => {
+    const { server } = mockServer(
+      `{"id":"1",${links("transaction")},"transaction":{"id":"tx",${links("then")}}}`,
+    );
+
+    const record = await server
+      .operations()
+      .operation("1")
+      .join("transactions")
+      .call();
+    const transaction = await settlesInOneSecond(record.transaction());
+
+    expect(transaction.id).toBe("tx");
+    expect("then" in transaction).toBe(false);
+  });
+
+  it("still turns a normal link into a method that loads it", async () => {
+    const { server, get } = mockServer(`{"id":"1",${links("effects")}}`);
+
+    const record = await server.operations().operation("1").call();
+    await record.effects();
+
+    expect(get).toHaveBeenLastCalledWith(`${HORIZON}/operations/1/effects`);
+  });
+});

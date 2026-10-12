@@ -227,6 +227,83 @@ describe("integration tests: streaming", () => {
   });
 });
 
+describe("integration tests: stream events that cannot be parsed", () => {
+  if (typeof window !== "undefined") {
+    return;
+  }
+
+  const GOOD_EVENT = `data: ${JSON.stringify({ id: "2", paging_token: "2" })}\n\n`;
+
+  // Writes `events` on each request and keeps the socket open.
+  async function serveEvents(events: string[]) {
+    const server = http.createServer((_request, response) => {
+      response.writeHead(200, { "Content-Type": "text/event-stream" });
+      response.write(events.join(""));
+    });
+    const port = await listenOnFreePort(server);
+    const stop = () => {
+      server.closeAllConnections();
+      server.close();
+    };
+    return { port, stop };
+  }
+
+  async function streamUntilRecord(
+    port: number,
+    onerror?: (event: MessageEvent) => void,
+  ) {
+    let closeStream = () => {};
+    const record = await new Promise<{ id: string }>((resolve) => {
+      closeStream = new Horizon.Server(`http://localhost:${port}`, {
+        allowHttp: true,
+      })
+        .operations()
+        .stream({ onmessage: resolve, onerror });
+    });
+    closeStream();
+    return record;
+  }
+
+  it("passes bad JSON to onerror and keeps the stream open", async () => {
+    const { port, stop } = await serveEvents([
+      'data: {"id": "1", "paging_token":\n\n',
+      GOOD_EVENT,
+    ]);
+    const errors: MessageEvent[] = [];
+
+    const record = await streamUntilRecord(port, (event) =>
+      errors.push(event),
+    ).finally(stop);
+
+    expect(record.id).toBe("2");
+    expect(errors).toHaveLength(1);
+    expect(errors[0]).toBeInstanceOf(MessageEvent);
+    expect(errors[0].type).toBe("error");
+    expect(errors[0].data).toBeInstanceOf(SyntaxError);
+  });
+
+  it("passes a null record to onerror and keeps the stream open", async () => {
+    const { port, stop } = await serveEvents(["data: null\n\n", GOOD_EVENT]);
+    const errors: MessageEvent[] = [];
+
+    const record = await streamUntilRecord(port, (event) =>
+      errors.push(event),
+    ).finally(stop);
+
+    expect(record.id).toBe("2");
+    expect(errors).toHaveLength(1);
+    expect(errors[0].data).toBeInstanceOf(TypeError);
+  });
+
+  it("skips bad JSON when onerror is not set", async () => {
+    const { port, stop } = await serveEvents(["data: {\n\n", GOOD_EVENT]);
+
+    const record = await streamUntilRecord(port).finally(stop);
+
+    expect(record.id).toBe("2");
+  });
+});
+
 describe("end-to-end tests: real streaming", () => {
   if (typeof window !== "undefined") {
     return;
