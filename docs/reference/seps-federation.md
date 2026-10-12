@@ -46,7 +46,7 @@ constructor(serverURL: string, domain: string, opts: Options = {});
 - **`domain`** — `string` (required)
 - **`opts`** — `Options` (optional) (default: `{}`)
 
-**Source:** [src/federation/server.ts:138](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L138)
+**Source:** [src/federation/server.ts:160](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L160)
 
 ### `Server.createForDomain(domain, opts)`
 
@@ -56,6 +56,15 @@ file for a given domain.
 
 If `stellar.toml` file does not exist for a given domain or it does not
 contain information about a federation server Promise will reject.
+
+The `FEDERATION_SERVER` URL comes from a remote file, so it is checked
+before use. The Promise rejects if the URL uses a scheme other than
+`http:` or `https:`, contains a user name or password, or has a private,
+local or unspecified IP address as its host. The SDK does not resolve
+host names, so a host name that resolves to a private address is not
+rejected. When `allowedRedirects` is set, redirect targets are not
+checked. A server-side application that resolves untrusted addresses
+must add its own DNS filtering and protection against DNS rebinding.
 
 ```ts
 static createForDomain(domain: string, opts: Options = {}): Promise<FederationServer>;
@@ -90,7 +99,7 @@ StellarSdk.FederationServer.createForDomain('acme.com')
 
 - <a href="https://developers.stellar.org/docs/issuing-assets/publishing-asset-info" target="_blank">Stellar.toml doc</a>
 
-**Source:** [src/federation/server.ts:124](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L124)
+**Source:** [src/federation/server.ts:140](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L140)
 
 ### `Server.resolve(value, opts)`
 
@@ -103,6 +112,8 @@ server exists and user has been found and rejects in all other cases.
 * For Account ID (ex. `GB5XVAABEQMY63WTHDQ5RXADGYF345VWMNPTN2GFUDZT57D57ZQTJ7PS`) it returns a `Promise` which
 resolves if Account ID is valid and rejects in all other cases. Please note that this method does not check
 if the account actually exists in a ledger.
+
+The `FEDERATION_SERVER` URL is checked as described in [`FederationServer.createForDomain`](#servercreatefordomaindomain-opts).
 
 ```ts
 static resolve(value: string, opts: Options = {}): Promise<Record>;
@@ -139,7 +150,7 @@ StellarSdk.FederationServer.resolve('bob*stellar.org')
 - - <a href="https://developers.stellar.org/docs/learn/encyclopedia/federation" target="_blank">Federation doc</a>
  - <a href="https://developers.stellar.org/docs/issuing-assets/publishing-asset-info" target="_blank">Stellar.toml doc</a>
 
-**Source:** [src/federation/server.ts:73](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L73)
+**Source:** [src/federation/server.ts:80](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L80)
 
 ### `server.resolveAccountId(accountId)`
 
@@ -167,7 +178,7 @@ A promise that resolves to the federation record
 
 - <a href="https://developers.stellar.org/docs/encyclopedia/federation" target="_blank">Federation doc</a>
 
-**Source:** [src/federation/server.ts:195](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L195)
+**Source:** [src/federation/server.ts:219](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L219)
 
 ### `server.resolveAddress(address)`
 
@@ -193,7 +204,7 @@ A promise that resolves to the federation record
 
 - <a href="https://developers.stellar.org/docs/encyclopedia/federation" target="_blank">Federation doc</a>
 
-**Source:** [src/federation/server.ts:167](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L167)
+**Source:** [src/federation/server.ts:191](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L191)
 
 ### `server.resolveTransactionId(transactionId)`
 
@@ -221,7 +232,7 @@ A promise that resolves to the federation record
 
 - <a href="https://developers.stellar.org/docs/glossary/federation/" target="_blank">Federation doc</a>
 
-**Source:** [src/federation/server.ts:212](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L212)
+**Source:** [src/federation/server.ts:236](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L236)
 
 ## Types
 
@@ -231,12 +242,23 @@ Options for configuring connections to federation servers. You can also use [`Co
 
 ```ts
 interface Options {
+  allowedRedirects?: number;
   allowHttp?: boolean;
   timeout?: number;
 }
 ```
 
 **Source:** [src/federation/api.ts:25](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/api.ts#L25)
+
+#### `options.allowedRedirects`
+
+The number of redirects to follow, default: 0. Also applies to the `stellar.toml` request in `createForDomain` and `resolve`.
+
+```ts
+allowedRedirects?: number;
+```
+
+**Source:** [src/federation/api.ts:37](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/api.ts#L37)
 
 #### `options.allowHttp`
 

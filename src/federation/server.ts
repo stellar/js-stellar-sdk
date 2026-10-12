@@ -7,7 +7,7 @@ import { Resolver } from "../stellartoml/index.js";
 
 import type { Api } from "./api.js";
 import { httpClient } from "../http-client/index.js";
-import { validateDomain } from "./utils.js";
+import { validateDomain, validateFederationServer } from "./utils.js";
 
 /**
  * The maximum size of response from a federation server
@@ -41,6 +41,11 @@ export class FederationServer {
   private readonly timeout: number; // TODO: public or private? readonly?
 
   /**
+   * The number of redirects to follow, default: 0.
+   */
+  private readonly allowedRedirects: number;
+
+  /**
    * A helper method for handling user inputs that contain `destination` value.
    * It accepts two types of values:
    *
@@ -50,6 +55,8 @@ export class FederationServer {
    * * For Account ID (ex. `GB5XVAABEQMY63WTHDQ5RXADGYF345VWMNPTN2GFUDZT57D57ZQTJ7PS`) it returns a `Promise` which
    * resolves if Account ID is valid and rejects in all other cases. Please note that this method does not check
    * if the account actually exists in a ledger.
+   *
+   * The `FEDERATION_SERVER` URL is checked as described in {@link FederationServer.createForDomain}.
    *
    * @example
    * ```ts
@@ -104,6 +111,15 @@ export class FederationServer {
    * If `stellar.toml` file does not exist for a given domain or it does not
    * contain information about a federation server Promise will reject.
    *
+   * The `FEDERATION_SERVER` URL comes from a remote file, so it is checked
+   * before use. The Promise rejects if the URL uses a scheme other than
+   * `http:` or `https:`, contains a user name or password, or has a private,
+   * local or unspecified IP address as its host. The SDK does not resolve
+   * host names, so a host name that resolves to a private address is not
+   * rejected. When `allowedRedirects` is set, redirect targets are not
+   * checked. A server-side application that resolves untrusted addresses
+   * must add its own DNS filtering and protection against DNS rebinding.
+   *
    * @example
    * ```ts
    * StellarSdk.FederationServer.createForDomain('acme.com')
@@ -132,7 +148,13 @@ export class FederationServer {
         new Error("stellar.toml does not contain FEDERATION_SERVER field"),
       );
     }
-    return new FederationServer(tomlObject.FEDERATION_SERVER, domain, opts);
+    const federationServer = new FederationServer(
+      tomlObject.FEDERATION_SERVER,
+      domain,
+      opts,
+    );
+    validateFederationServer(federationServer.serverURL);
+    return federationServer;
   }
 
   public constructor(
@@ -151,6 +173,8 @@ export class FederationServer {
 
     this.timeout =
       typeof opts.timeout === "undefined" ? Config.getTimeout() : opts.timeout;
+
+    this.allowedRedirects = opts.allowedRedirects ?? 0;
 
     if (this.serverURL.protocol !== "https:" && !allowHttp) {
       throw new Error("Cannot connect to insecure federation server");
@@ -225,6 +249,7 @@ export class FederationServer {
     return httpClient
       .get(url.toString(), {
         maxContentLength: FEDERATION_RESPONSE_MAX_SIZE,
+        maxRedirects: this.allowedRedirects,
         timeout,
       })
       .then((response) => {

@@ -31,5 +31,9 @@ export namespace Api {
      * Allow a timeout, default: 0. Allows user to avoid nasty lag due to TOML resolve issue.
      */
     timeout?: number;
+    /**
+     * The number of redirects to follow, default: 0. Also applies to the `stellar.toml` request in `createForDomain` and `resolve`.
+     */
+    allowedRedirects?: number;
   }
 }

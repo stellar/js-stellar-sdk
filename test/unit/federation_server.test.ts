@@ -177,6 +177,105 @@ describe("federation-server.js tests", () => {
     });
   });
 
+  describe("FederationServer redirects", () => {
+    const record = {
+      stellar_address: "bob*stellar.org",
+      account_id: "GB5XVAABEQMY63WTHDQ5RXADGYF345VWMNPTN2GFUDZT57D57ZQTJ7PS",
+    };
+
+    it("refuses redirects when allowedRedirects is not specified", async () => {
+      mockHttpClient.mockResolvedValue({ data: record });
+
+      await server.resolveAddress("bob*stellar.org");
+
+      expect(mockHttpClient.mock.calls[0][1].maxRedirects).toEqual(0);
+    });
+
+    it("passes allowedRedirects to the request", async () => {
+      mockHttpClient.mockResolvedValue({ data: record });
+
+      await new Server("https://acme.com:1337/federation", "stellar.org", {
+        allowedRedirects: 2,
+      }).resolveAddress("bob*stellar.org");
+
+      expect(mockHttpClient.mock.calls[0][1].maxRedirects).toEqual(2);
+    });
+
+    it("passes allowedRedirects to the stellar.toml request", async () => {
+      mockHttpClient.mockResolvedValue({
+        data: 'FEDERATION_SERVER="https://api.stellar.org/federation"',
+      });
+
+      await Server.createForDomain("acme.com", { allowedRedirects: 1 });
+
+      expect(mockHttpClient.mock.calls[0][1].maxRedirects).toEqual(1);
+    });
+
+    it("rejects redirect response when allowedRedirects is not specified", async () => {
+      // Unable to create temp server in a browser
+      if (typeof window !== "undefined") {
+        return;
+      }
+      mockHttpClient.mockRestore();
+
+      const requested: string[] = [];
+      const tempServer = http
+        .createServer((req, res) => {
+          requested.push(req.url ?? "");
+          if (req.url?.startsWith("/federation")) {
+            res.writeHead(302, { location: "/redirect" });
+            return res.end();
+          }
+          res.setHeader("Content-Type", "application/json; charset=UTF-8");
+          return res.end(JSON.stringify(record));
+        })
+        .listen(0);
+
+      try {
+        const port = (tempServer.address() as AddressInfo).port;
+        await expect(
+          new Server(`http://localhost:${port}/federation`, "stellar.org", {
+            allowHttp: true,
+          }).resolveAddress("bob*stellar.org"),
+        ).rejects.toThrow(/Server responded: 302/);
+        expect(requested).not.toContain("/redirect");
+      } finally {
+        tempServer.close();
+      }
+    });
+
+    it("returns handled redirect when allowedRedirects is specified", async () => {
+      // Unable to create temp server in a browser
+      if (typeof window !== "undefined") {
+        return;
+      }
+      mockHttpClient.mockRestore();
+
+      const tempServer = http
+        .createServer((req, res) => {
+          if (req.url?.startsWith("/federation")) {
+            res.writeHead(302, { location: "/redirect" });
+            return res.end();
+          }
+          res.setHeader("Content-Type", "application/json; charset=UTF-8");
+          return res.end(JSON.stringify(record));
+        })
+        .listen(0);
+
+      try {
+        const port = (tempServer.address() as AddressInfo).port;
+        const response = await new Server(
+          `http://localhost:${port}/federation`,
+          "stellar.org",
+          { allowHttp: true, allowedRedirects: 1 },
+        ).resolveAddress("bob*stellar.org");
+        expect(response).toEqual(record);
+      } finally {
+        tempServer.close();
+      }
+    });
+  });
+
   describe("FederationServer.createForDomain", () => {
     it("creates correct object", async () => {
       mockHttpClient.mockImplementation((url: string) => {
@@ -219,6 +318,134 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
       await expect(Server.createForDomain("acme.com")).rejects.toThrow(
         /stellar.toml does not contain FEDERATION_SERVER field/,
       );
+    });
+
+    describe("FEDERATION_SERVER validation", () => {
+      const mockToml = (federationServer: string) =>
+        mockHttpClient.mockImplementation((url: string) => {
+          if (url.includes("://acme.com/.well-known/stellar.toml")) {
+            return Promise.resolve({
+              data: `FEDERATION_SERVER=${JSON.stringify(federationServer)}`,
+            });
+          }
+          return Promise.reject(new Error(`Unexpected URL: ${url}`));
+        });
+
+      it.each([
+        "127.0.0.1",
+        "127.255.255.254",
+        "0x7f.1",
+        "2130706433",
+        "10.0.0.5",
+        "172.16.0.1",
+        "172.31.255.255",
+        "192.168.1.1",
+        "169.254.169.254",
+        "0.0.0.0",
+        "0",
+        "[::1]",
+        "[0:0:0:0:0:0:0:1]",
+        "[::]",
+        "[fe80::1]",
+        "[febf::1]",
+        "[fc00::1]",
+        "[fd12:3456::1]",
+        "[::ffff:127.0.0.1]",
+        "[::ffff:10.0.0.5]",
+        "[::ffff:169.254.169.254]",
+        "[::127.0.0.1]",
+        "[::10.0.0.5]",
+        "[::2]",
+        "[64:ff9b::127.0.0.1]",
+        "[64:ff9b::10.0.0.5]",
+      ])("rejects the IP address %s", async (host) => {
+        mockToml(`https://${host}:8443/federation`);
+
+        await expect(Server.createForDomain("acme.com")).rejects.toThrow(
+          /Invalid FEDERATION_SERVER: .*private, local or unspecified IP address/,
+        );
+      });
+
+      it.each([
+        "8.8.8.8",
+        "11.0.0.1",
+        "172.15.255.255",
+        "172.32.0.1",
+        "192.169.0.1",
+        "169.255.0.1",
+        "[2001:db8::1]",
+        "[fec0::1]",
+        "[fe00::1]",
+        "[::ffff:8.8.8.8]",
+        "[::8.8.8.8]",
+        "[64:ff9b::8.8.8.8]",
+        "api.stellar.org",
+        // Only IP addresses are checked; names are not resolved.
+        "localhost",
+      ])("accepts the host %s", async (host) => {
+        mockToml(`https://${host}/federation`);
+
+        const federationServer = await Server.createForDomain("acme.com");
+
+        expect(federationServer["serverURL"].href).toEqual(
+          new URL(`https://${host}/federation`).href,
+        );
+      });
+
+      it.each([
+        "https://user:pw@api.stellar.org/federation",
+        "https://user@api.stellar.org/federation",
+        "https://:pw@api.stellar.org/federation",
+      ])(
+        "rejects the user name or password in %s",
+        async (federationServer) => {
+          mockToml(federationServer);
+
+          await expect(Server.createForDomain("acme.com")).rejects.toThrow(
+            /Invalid FEDERATION_SERVER: .*user name or password/,
+          );
+        },
+      );
+
+      it.each([
+        "ftp://api.stellar.org/federation",
+        "file:///etc/passwd",
+        "data:application/json,{}",
+      ])("rejects %s even when allowHttp is set", async (federationServer) => {
+        mockToml(federationServer);
+
+        await expect(
+          Server.createForDomain("acme.com", { allowHttp: true }),
+        ).rejects.toThrow(/Invalid FEDERATION_SERVER: .*Unsupported protocol/);
+      });
+
+      it("accepts http when allowHttp is set", async () => {
+        mockToml("http://api.stellar.org/federation");
+
+        const federationServer = await Server.createForDomain("acme.com", {
+          allowHttp: true,
+        });
+
+        expect(federationServer["serverURL"].protocol).toEqual("http:");
+      });
+
+      it("rejects a private IP address in resolve before any federation request", async () => {
+        mockToml("https://10.0.0.5/federation");
+
+        await expect(Server.resolve("bob*acme.com")).rejects.toThrow(
+          /Invalid FEDERATION_SERVER/,
+        );
+        expect(mockHttpClient).toHaveBeenCalledTimes(1);
+      });
+
+      it("does not check the URL that the caller passes to the constructor", () => {
+        expect(
+          () =>
+            new Server("http://127.0.0.1:8000/federation", "stellar.org", {
+              allowHttp: true,
+            }),
+        ).not.toThrow();
+      });
     });
   });
 
