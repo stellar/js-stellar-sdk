@@ -112,7 +112,7 @@ export class CallBuilder<
    * @see [MDN EventSource](https://developer.mozilla.org/en-US/docs/Web/API/EventSource)
    * @param options - (optional) EventSource options.
    *   - `onmessage` (optional): Callback function to handle incoming messages.
-   *   - `onerror` (optional): Callback function to handle errors. For an event that the SDK cannot parse, it gets a `MessageEvent` of type `"error"` whose `data` is the error.
+   *   - `onerror` (optional): Callback function to handle errors. For an event that the SDK cannot parse, it gets a `MessageEvent` of type `"error"` whose `data` is the error. Without `onerror`, the SDK skips such an event silently.
    *   - `reconnectTimeout` (optional): Custom stream connection timeout in ms, default is 15 seconds.
    * @returns Close function. Run to close the connection and stop listening for new events.
    */
@@ -209,6 +209,10 @@ export class CallBuilder<
             : message;
         } catch (err) {
           // An error thrown from this listener would be an uncaught exception.
+          // Horizon's SSE id is the paging token, so a reconnect skips this event.
+          if (message.lastEventId) {
+            streamUrl.searchParams.set("cursor", message.lastEventId);
+          }
           if (options.onerror) {
             options.onerror(new MessageEvent("error", { data: err }));
           }

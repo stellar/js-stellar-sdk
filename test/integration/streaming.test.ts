@@ -302,6 +302,44 @@ describe("integration tests: stream events that cannot be parsed", () => {
 
     expect(record.id).toBe("2");
   });
+
+  it("moves the cursor to the id of a bad event, so a reconnect skips it", async () => {
+    let resolveCursor: (cursor: string | null) => void = () => {};
+    const reconnectCursor = new Promise<string | null>((resolve) => {
+      resolveCursor = resolve;
+    });
+    let requests = 0;
+    const server = http.createServer((request, response) => {
+      requests += 1;
+      response.writeHead(200, { "Content-Type": "text/event-stream" });
+      if (requests === 1) {
+        response.write(
+          `id: 1\ndata: ${JSON.stringify({ id: "1", paging_token: "1" })}\n\n`,
+        );
+        response.write("id: 7\ndata: {\n\n");
+        response.write("event: close\ndata: byebye\n\n");
+        response.end();
+        return;
+      }
+      const url = new URL(request.url ?? "", "http://localhost");
+      resolveCursor(url.searchParams.get("cursor"));
+    });
+    const port = await listenOnFreePort(server);
+
+    const closeStream = new Horizon.Server(`http://localhost:${port}`, {
+      allowHttp: true,
+    })
+      .operations()
+      .stream({ onerror: () => {} });
+
+    try {
+      expect(await reconnectCursor).toBe("7");
+    } finally {
+      closeStream();
+      server.closeAllConnections();
+      server.close();
+    }
+  });
 });
 
 describe("end-to-end tests: real streaming", () => {
