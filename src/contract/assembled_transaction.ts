@@ -671,11 +671,10 @@ export class AssembledTransaction<T> {
     options: AssembledTransactionOptions<T>,
     sorobanData: SorobanDataBuilder | SorobanTransactionData,
     account: Account,
-    fee: string,
   ): Promise<AssembledTransaction<T>> {
     const tx = new AssembledTransaction(options);
     tx.raw = new TransactionBuilder(account, {
-      fee,
+      fee: options.fee ?? BASE_FEE,
       networkPassphrase: options.networkPassphrase,
     })
       .setSorobanData(
@@ -887,8 +886,8 @@ export class AssembledTransaction<T> {
     }
 
     const timeoutInSeconds = this.options.timeoutInSeconds ?? DEFAULT_TIMEOUT;
+    // no `fee`: `built.fee` includes the resource fee, which build() adds again
     this.built = TransactionBuilder.cloneFrom(this.built!, {
-      fee: this.built!.fee,
       timebounds: undefined,
       sorobanData: this.simulationData.transactionData,
     })
@@ -1257,10 +1256,13 @@ export class AssembledTransaction<T> {
    * 3. Send the signed transaction to the network.
    * 4. Await and return the response from the network.
    *
+   * The restore transaction uses the `fee` option (default: {@link BASE_FEE}) as
+   * its inclusion fee, and takes its resource fee from its own simulation.
+   * `restorePreamble.minResourceFee` is not used.
+   *
    * Preconditions:
    * - A `signTransaction` function must be provided during the Client initialization.
-   * - The provided `restorePreamble` should include a minimum resource fee and valid
-   *   transaction data.
+   * - The provided `restorePreamble` should include valid transaction data.
    *
    * @throws - Throws an error if no `signTransaction` function is provided during
    * Client initialization.
@@ -1291,7 +1293,6 @@ export class AssembledTransaction<T> {
         { ...this.options },
         restorePreamble.transactionData,
         account,
-        restorePreamble.minResourceFee,
       );
     const sentTransaction = await restoreTx.signAndSend();
     if (!sentTransaction.getTransactionResponse) {

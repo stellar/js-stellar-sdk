@@ -23,6 +23,35 @@ const restoreTxnData = SorobanDataBuilder.fromXdr(
   "AAAAAAAAAAAAAAAEAAAABgAAAAHZ4Y4l0GNoS97QH0fa5Jbbm61Ou3t9McQ09l7wREKJYwAAAA8AAAAJUEVSU19DTlQxAAAAAAAAAQAAAAYAAAAB2eGOJdBjaEve0B9H2uSW25utTrt7fTHENPZe8ERCiWMAAAAPAAAACVBFUlNfQ05UMgAAAAAAAAEAAAAGAAAAAdnhjiXQY2hL3tAfR9rkltubrU67e30xxDT2XvBEQoljAAAAFAAAAAEAAAAH+BoQswzzGTKRzrdC6axxKaM4qnyDP8wgQv8Id3S4pbsAAAAAAAAGNAAABjQAAAAAAADNoQ==",
 );
 
+const restoreSimulateResponse = {
+  transactionData: restoreTxnData,
+  minResourceFee: "52641",
+  cost: { cpuInsns: "0", memBytes: "0" },
+  latestLedger: 17027,
+};
+
+const restoreSendResponse = {
+  status: "PENDING",
+  hash: "05870e35fc94e5424f72d125959760b5f60631d91452bde2d11126fb5044e35d",
+  latestLedger: 17034,
+  latestLedgerCloseTime: "1716483573",
+};
+const restoreGetResponse = {
+  status: "SUCCESS",
+  latestLedger: 17037,
+  latestLedgerCloseTime: "1716483576",
+  oldestLedger: 15598,
+  oldestLedgerCloseTime: "1716482133",
+  applicationOrder: 1,
+  envelopeXdr:
+    "AAAAAgAAAAARwpJYOq4lKj/RdtS7ds3ciGSMfZUp+7d4xgg9vsN7qQABm0IAAAvWAAAAAwAAAAEAAAAAAAAAAAAAAABmT3cbAAAAAAAAAAEAAAAAAAAAGgAAAAAAAAABAAAAAAAAAAAAAAAEAAAABgAAAAHZ4Y4l0GNoS97QH0fa5Jbbm61Ou3t9McQ09l7wREKJYwAAAA8AAAAJUEVSU19DTlQxAAAAAAAAAQAAAAYAAAAB2eGOJdBjaEve0B9H2uSW25utTrt7fTHENPZe8ERCiWMAAAAPAAAACVBFUlNfQ05UMgAAAAAAAAEAAAAGAAAAAdnhjiXQY2hL3tAfR9rkltubrU67e30xxDT2XvBEQoljAAAAFAAAAAEAAAAH+BoQswzzGTKRzrdC6axxKaM4qnyDP8wgQv8Id3S4pbsAAAAAAAAGNAAABjQAAAAAAADNoQAAAAG+w3upAAAAQGBfsx+gyi/2Dh6i+7Vbb6Ongw3HDcFDZ48eoadkUUvkq97zdPe3wYGFswZgT5/GXPqGDBi+iqHuZiYx5eSy3Qk=",
+  resultXdr: "AAAAAAAAiRkAAAAAAAAAAQAAAAAAAAAaAAAAAAAAAAA=",
+  resultMetaXdr:
+    "AAAAAwAAAAAAAAACAAAAAwAAQowAAAAAAAAAABHCklg6riUqP9F21Lt2zdyIZIx9lSn7t3jGCD2+w3upAAAAF0h1Pp0AAAvWAAAAAgAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAMAAAAAAAAMMQAAAABmTz9yAAAAAAAAAAEAAEKMAAAAAAAAAAARwpJYOq4lKj/RdtS7ds3ciGSMfZUp+7d4xgg9vsN7qQAAABdIdT6dAAAL1gAAAAMAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAADAAAAAAAAQowAAAAAZk919wAAAAAAAAABAAAACAAAAAMAAAwrAAAACc4pIDe7y0sRFHAghrdpB7ypfj4BVuZStvX4u0BC1S/YAAANVgAAAAAAAAABAABCjAAAAAnOKSA3u8tLERRwIIa3aQe8qX4+AVbmUrb1+LtAQtUv2AAAQ7cAAAAAAAAAAwAADCsAAAAJikpmJa7Pr3lTb+dhRP2N4TOYCqK4tL4tQhDYnNEijtgAAA1WAAAAAAAAAAEAAEKMAAAACYpKZiWuz695U2/nYUT9jeEzmAqiuLS+LUIQ2JzRIo7YAABDtwAAAAAAAAADAAAMMQAAAAlT7LdEin/CaQA3iscHqkwnEFlSh8jfTPTIhSQ5J8Ao0wAADVwAAAAAAAAAAQAAQowAAAAJU+y3RIp/wmkAN4rHB6pMJxBZUofI30z0yIUkOSfAKNMAAEO3AAAAAAAAAAMAAAwxAAAACQycyCYjh7j9CHnTm9OKCYXhgmXw6jdtoMsGHyPk8Aa+AAANXAAAAAAAAAABAABCjAAAAAkMnMgmI4e4/Qh505vTigmF4YJl8Oo3baDLBh8j5PAGvgAAQ7cAAAAAAAAAAgAAAAMAAEKMAAAAAAAAAAARwpJYOq4lKj/RdtS7ds3ciGSMfZUp+7d4xgg9vsN7qQAAABdIdT6dAAAL1gAAAAMAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAADAAAAAAAAQowAAAAAZk919wAAAAAAAAABAABCjAAAAAAAAAAAEcKSWDquJSo/0XbUu3bN3IhkjH2VKfu3eMYIPb7De6kAAAAXSHWDiQAAC9YAAAADAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAwAAAAAAAEKMAAAAAGZPdfcAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAA",
+  ledger: 17036,
+  createdAt: "1716483575",
+};
+
 describe("AssembledTransaction", () => {
   let mockPost: any;
   let server: any;
@@ -51,40 +80,11 @@ describe("AssembledTransaction", () => {
   });
 
   it("buildFootprintRestoreTransaction makes expected RPC calls", async () => {
-    const simulateTransactionResponse = {
-      transactionData: restoreTxnData,
-      minResourceFee: "52641",
-      cost: { cpuInsns: "0", memBytes: "0" },
-      latestLedger: 17027,
-    };
-
-    const sendTransactionResponse = {
-      status: "PENDING",
-      hash: "05870e35fc94e5424f72d125959760b5f60631d91452bde2d11126fb5044e35d",
-      latestLedger: 17034,
-      latestLedgerCloseTime: "1716483573",
-    };
-    const getTransactionResponse = {
-      status: "SUCCESS",
-      latestLedger: 17037,
-      latestLedgerCloseTime: "1716483576",
-      oldestLedger: 15598,
-      oldestLedgerCloseTime: "1716482133",
-      applicationOrder: 1,
-      envelopeXdr:
-        "AAAAAgAAAAARwpJYOq4lKj/RdtS7ds3ciGSMfZUp+7d4xgg9vsN7qQABm0IAAAvWAAAAAwAAAAEAAAAAAAAAAAAAAABmT3cbAAAAAAAAAAEAAAAAAAAAGgAAAAAAAAABAAAAAAAAAAAAAAAEAAAABgAAAAHZ4Y4l0GNoS97QH0fa5Jbbm61Ou3t9McQ09l7wREKJYwAAAA8AAAAJUEVSU19DTlQxAAAAAAAAAQAAAAYAAAAB2eGOJdBjaEve0B9H2uSW25utTrt7fTHENPZe8ERCiWMAAAAPAAAACVBFUlNfQ05UMgAAAAAAAAEAAAAGAAAAAdnhjiXQY2hL3tAfR9rkltubrU67e30xxDT2XvBEQoljAAAAFAAAAAEAAAAH+BoQswzzGTKRzrdC6axxKaM4qnyDP8wgQv8Id3S4pbsAAAAAAAAGNAAABjQAAAAAAADNoQAAAAG+w3upAAAAQGBfsx+gyi/2Dh6i+7Vbb6Ongw3HDcFDZ48eoadkUUvkq97zdPe3wYGFswZgT5/GXPqGDBi+iqHuZiYx5eSy3Qk=",
-      resultXdr: "AAAAAAAAiRkAAAAAAAAAAQAAAAAAAAAaAAAAAAAAAAA=",
-      resultMetaXdr:
-        "AAAAAwAAAAAAAAACAAAAAwAAQowAAAAAAAAAABHCklg6riUqP9F21Lt2zdyIZIx9lSn7t3jGCD2+w3upAAAAF0h1Pp0AAAvWAAAAAgAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAMAAAAAAAAMMQAAAABmTz9yAAAAAAAAAAEAAEKMAAAAAAAAAAARwpJYOq4lKj/RdtS7ds3ciGSMfZUp+7d4xgg9vsN7qQAAABdIdT6dAAAL1gAAAAMAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAADAAAAAAAAQowAAAAAZk919wAAAAAAAAABAAAACAAAAAMAAAwrAAAACc4pIDe7y0sRFHAghrdpB7ypfj4BVuZStvX4u0BC1S/YAAANVgAAAAAAAAABAABCjAAAAAnOKSA3u8tLERRwIIa3aQe8qX4+AVbmUrb1+LtAQtUv2AAAQ7cAAAAAAAAAAwAADCsAAAAJikpmJa7Pr3lTb+dhRP2N4TOYCqK4tL4tQhDYnNEijtgAAA1WAAAAAAAAAAEAAEKMAAAACYpKZiWuz695U2/nYUT9jeEzmAqiuLS+LUIQ2JzRIo7YAABDtwAAAAAAAAADAAAMMQAAAAlT7LdEin/CaQA3iscHqkwnEFlSh8jfTPTIhSQ5J8Ao0wAADVwAAAAAAAAAAQAAQowAAAAJU+y3RIp/wmkAN4rHB6pMJxBZUofI30z0yIUkOSfAKNMAAEO3AAAAAAAAAAMAAAwxAAAACQycyCYjh7j9CHnTm9OKCYXhgmXw6jdtoMsGHyPk8Aa+AAANXAAAAAAAAAABAABCjAAAAAkMnMgmI4e4/Qh505vTigmF4YJl8Oo3baDLBh8j5PAGvgAAQ7cAAAAAAAAAAgAAAAMAAEKMAAAAAAAAAAARwpJYOq4lKj/RdtS7ds3ciGSMfZUp+7d4xgg9vsN7qQAAABdIdT6dAAAL1gAAAAMAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAADAAAAAAAAQowAAAAAZk919wAAAAAAAAABAABCjAAAAAAAAAAAEcKSWDquJSo/0XbUu3bN3IhkjH2VKfu3eMYIPb7De6kAAAAXSHWDiQAAC9YAAAADAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAwAAAAAAAEKMAAAAAGZPdfcAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAA",
-      ledger: 17036,
-      createdAt: "1716483575",
-    };
-
     // Mock the sequence of calls
     mockPost
-      .mockResolvedValueOnce({ data: { result: simulateTransactionResponse } }) // simulateTransaction
-      .mockResolvedValueOnce({ data: { result: sendTransactionResponse } }) // sendTransaction
-      .mockResolvedValueOnce({ data: { result: getTransactionResponse } }); // getTransaction
+      .mockResolvedValueOnce({ data: { result: restoreSimulateResponse } }) // simulateTransaction
+      .mockResolvedValueOnce({ data: { result: restoreSendResponse } }) // sendTransaction
+      .mockResolvedValueOnce({ data: { result: restoreGetResponse } }); // getTransaction
 
     const txn = await contract.AssembledTransaction[
       "buildFootprintRestoreTransaction"
@@ -95,7 +95,6 @@ describe("AssembledTransaction", () => {
         "GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI",
         "1",
       ),
-      "52641",
     );
     const result = await txn.signAndSend({ ...wallet });
     expect(expectDefined(result.getTransactionResponse).status).toBe(
@@ -152,7 +151,6 @@ describe("AssembledTransaction", () => {
         "GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI",
         "1",
       ),
-      "52641",
     );
     expect(mockPost).toHaveBeenLastCalledWith(
       serverUrl,
@@ -261,6 +259,111 @@ describe("AssembledTransaction", () => {
       new contract.KeypairSigner(keypair, networkPassphrase),
     );
     await expectSignedByKeypair(wallet.signTransaction);
+  });
+
+  describe("resource fee", () => {
+    // the resource fee declared in `restoreTxnData`
+    const resourceFee = 52641;
+
+    beforeEach(() => {
+      vi.spyOn(server, "getAccount").mockResolvedValue(
+        new Account(keypair.publicKey(), "1"),
+      );
+    });
+
+    const restoreAndGetSentFee = async (
+      fee?: string,
+      simulateResponse = restoreSimulateResponse,
+    ) => {
+      mockPost
+        .mockResolvedValueOnce({ data: { result: simulateResponse } })
+        .mockResolvedValueOnce({ data: { result: restoreSendResponse } })
+        .mockResolvedValueOnce({ data: { result: restoreGetResponse } });
+      const sendTransaction = vi.spyOn(server, "sendTransaction");
+
+      const txn = await contract.AssembledTransaction.build({
+        ...options,
+        fee,
+        method: "test",
+        args: [],
+        simulate: false,
+      });
+      await txn.restoreFootprint(
+        {
+          minResourceFee: String(resourceFee),
+          transactionData: new SorobanDataBuilder(restoreTxnData),
+        },
+        new Account(keypair.publicKey(), "1"),
+      );
+
+      expect(sendTransaction).toHaveBeenCalledTimes(1);
+      const sent = sendTransaction.mock.calls[0][0];
+      if (!(sent instanceof StellarSdk.Transaction)) {
+        throw new Error("expected a Transaction to be sent");
+      }
+      return sent.fee;
+    };
+
+    it("restores with the default inclusion fee plus the resource fee", async () => {
+      expect(await restoreAndGetSentFee()).toBe(String(100 + resourceFee));
+    });
+
+    it("restores with the caller's inclusion fee plus the resource fee", async () => {
+      expect(await restoreAndGetSentFee("1000")).toBe(
+        String(1000 + resourceFee),
+      );
+    });
+
+    it("restores with the simulated resource fee, not the preamble's", async () => {
+      const simulatedResourceFee = 60000;
+      const simulateResponse = {
+        ...restoreSimulateResponse,
+        minResourceFee: String(simulatedResourceFee),
+        transactionData: new SorobanDataBuilder(restoreTxnData)
+          .setResourceFee(simulatedResourceFee)
+          .build(),
+      };
+      expect(await restoreAndGetSentFee(undefined, simulateResponse)).toBe(
+        String(100 + simulatedResourceFee),
+      );
+    });
+
+    it("signs a contract call with the fee from simulation", async () => {
+      mockPost.mockResolvedValue({
+        data: {
+          result: {
+            id: "1",
+            events: [],
+            latestLedger: 3,
+            minResourceFee: String(resourceFee),
+            transactionData: new SorobanDataBuilder()
+              .setReadWrite([
+                xdr.LedgerKey.contractData(
+                  new xdr.LedgerKeyContractData({
+                    contract: Address.fromString(contractId).toScAddress(),
+                    key: xdr.ScVal.scvU32(0),
+                    durability: xdr.ContractDataDurability.persistent,
+                  }),
+                ),
+              ])
+              .setResourceFee(resourceFee)
+              .build(),
+            results: [{ auth: [], xdr: xdr.ScVal.scvU32(0).toXdr("base64") }],
+            stateChanges: [],
+          },
+        },
+      });
+
+      const txn = await contract.AssembledTransaction.build({
+        ...options,
+        method: "test",
+        args: [],
+      });
+      expect(expectDefined(txn.built).fee).toBe(String(100 + resourceFee));
+
+      await txn.sign({ force: true, signTransaction: wallet.signTransaction });
+      expect(expectDefined(txn.signed).fee).toBe(String(100 + resourceFee));
+    });
   });
 });
 
