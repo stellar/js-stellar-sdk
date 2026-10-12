@@ -7,7 +7,11 @@ import { Resolver } from "../stellartoml/index.js";
 
 import type { Api } from "./api.js";
 import { httpClient } from "../http-client/index.js";
-import { validateDomain, validateFederationServer } from "./utils.js";
+import {
+  validateAllowedRedirects,
+  validateDomain,
+  validateFederationServer,
+} from "./utils.js";
 
 /**
  * The maximum size of response from a federation server
@@ -142,6 +146,7 @@ export class FederationServer {
     opts: Api.Options = {},
   ): Promise<FederationServer> {
     validateDomain(domain);
+    validateAllowedRedirects(opts.allowedRedirects);
     const tomlObject = await Resolver.resolve(domain, opts);
     if (!tomlObject.FEDERATION_SERVER) {
       return Promise.reject(
@@ -174,6 +179,7 @@ export class FederationServer {
     this.timeout =
       typeof opts.timeout === "undefined" ? Config.getTimeout() : opts.timeout;
 
+    validateAllowedRedirects(opts.allowedRedirects);
     this.allowedRedirects = opts.allowedRedirects ?? 0;
 
     if (this.serverURL.protocol !== "https:" && !allowHttp) {

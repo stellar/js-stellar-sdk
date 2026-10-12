@@ -13,7 +13,7 @@ The maximum size of response from a federation server
 const FEDERATION_RESPONSE_MAX_SIZE: number
 ```
 
-**Source:** [src/federation/server.ts:16](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L16)
+**Source:** [src/federation/server.ts:20](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L20)
 
 ## Federation.Server
 
@@ -32,7 +32,7 @@ class Server {
 }
 ```
 
-**Source:** [src/federation/server.ts:27](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L27)
+**Source:** [src/federation/server.ts:31](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L31)
 
 ### `new Server(serverURL, domain, opts)`
 
@@ -46,7 +46,7 @@ constructor(serverURL: string, domain: string, opts: Options = {});
 - **`domain`** — `string` (required)
 - **`opts`** — `Options` (optional) (default: `{}`)
 
-**Source:** [src/federation/server.ts:160](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L160)
+**Source:** [src/federation/server.ts:165](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L165)
 
 ### `Server.createForDomain(domain, opts)`
 
@@ -99,7 +99,7 @@ StellarSdk.FederationServer.createForDomain('acme.com')
 
 - <a href="https://developers.stellar.org/docs/issuing-assets/publishing-asset-info" target="_blank">Stellar.toml doc</a>
 
-**Source:** [src/federation/server.ts:140](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L140)
+**Source:** [src/federation/server.ts:144](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L144)
 
 ### `Server.resolve(value, opts)`
 
@@ -150,7 +150,7 @@ StellarSdk.FederationServer.resolve('bob*stellar.org')
 - - <a href="https://developers.stellar.org/docs/learn/encyclopedia/federation" target="_blank">Federation doc</a>
  - <a href="https://developers.stellar.org/docs/issuing-assets/publishing-asset-info" target="_blank">Stellar.toml doc</a>
 
-**Source:** [src/federation/server.ts:80](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L80)
+**Source:** [src/federation/server.ts:84](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L84)
 
 ### `server.resolveAccountId(accountId)`
 
@@ -178,7 +178,7 @@ A promise that resolves to the federation record
 
 - <a href="https://developers.stellar.org/docs/encyclopedia/federation" target="_blank">Federation doc</a>
 
-**Source:** [src/federation/server.ts:219](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L219)
+**Source:** [src/federation/server.ts:225](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L225)
 
 ### `server.resolveAddress(address)`
 
@@ -204,7 +204,7 @@ A promise that resolves to the federation record
 
 - <a href="https://developers.stellar.org/docs/encyclopedia/federation" target="_blank">Federation doc</a>
 
-**Source:** [src/federation/server.ts:191](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L191)
+**Source:** [src/federation/server.ts:197](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L197)
 
 ### `server.resolveTransactionId(transactionId)`
 
@@ -232,7 +232,7 @@ A promise that resolves to the federation record
 
 - <a href="https://developers.stellar.org/docs/glossary/federation/" target="_blank">Federation doc</a>
 
-**Source:** [src/federation/server.ts:236](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L236)
+**Source:** [src/federation/server.ts:242](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L242)
 
 ## Types
 
@@ -252,7 +252,7 @@ interface Options {
 
 #### `options.allowedRedirects`
 
-The number of redirects to follow, default: 0. Also applies to the `stellar.toml` request in `createForDomain` and `resolve`.
+The number of redirects to follow, as 0 or a whole number, default: 0. Also applies to the `stellar.toml` request in `createForDomain` and `resolve`.
 
 ```ts
 allowedRedirects?: number;

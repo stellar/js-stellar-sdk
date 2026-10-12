@@ -32,7 +32,7 @@ export namespace Api {
      */
     timeout?: number;
     /**
-     * The number of redirects to follow, default: 0. Also applies to the `stellar.toml` request in `createForDomain` and `resolve`.
+     * The number of redirects to follow, as 0 or a whole number, default: 0. Also applies to the `stellar.toml` request in `createForDomain` and `resolve`.
      */
     allowedRedirects?: number;
   }
