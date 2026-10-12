@@ -265,6 +265,27 @@ describe("AssembledTransaction", () => {
     // the resource fee declared in `restoreTxnData`
     const resourceFee = 52641;
 
+    const callSimulateResponse = {
+      id: "1",
+      events: [],
+      latestLedger: 3,
+      minResourceFee: String(resourceFee),
+      transactionData: new SorobanDataBuilder()
+        .setReadWrite([
+          xdr.LedgerKey.contractData(
+            new xdr.LedgerKeyContractData({
+              contract: Address.fromString(contractId).toScAddress(),
+              key: xdr.ScVal.scvU32(0),
+              durability: xdr.ContractDataDurability.persistent,
+            }),
+          ),
+        ])
+        .setResourceFee(resourceFee)
+        .build(),
+      results: [{ auth: [], xdr: xdr.ScVal.scvU32(0).toXdr("base64") }],
+      stateChanges: [],
+    };
+
     beforeEach(() => {
       vi.spyOn(server, "getAccount").mockResolvedValue(
         new Account(keypair.publicKey(), "1"),
@@ -328,31 +349,42 @@ describe("AssembledTransaction", () => {
       );
     });
 
-    it("signs a contract call with the fee from simulation", async () => {
-      mockPost.mockResolvedValue({
-        data: {
-          result: {
-            id: "1",
-            events: [],
-            latestLedger: 3,
-            minResourceFee: String(resourceFee),
-            transactionData: new SorobanDataBuilder()
-              .setReadWrite([
-                xdr.LedgerKey.contractData(
-                  new xdr.LedgerKeyContractData({
-                    contract: Address.fromString(contractId).toScAddress(),
-                    key: xdr.ScVal.scvU32(0),
-                    durability: xdr.ContractDataDurability.persistent,
-                  }),
-                ),
-              ])
-              .setResourceFee(resourceFee)
-              .build(),
-            results: [{ auth: [], xdr: xdr.ScVal.scvU32(0).toXdr("base64") }],
-            stateChanges: [],
+    it("restores automatically with the default inclusion fee plus the resource fee", async () => {
+      mockPost
+        .mockResolvedValueOnce({
+          data: {
+            result: {
+              ...callSimulateResponse,
+              restorePreamble: {
+                minResourceFee: String(resourceFee),
+                transactionData: restoreTxnData,
+              },
+            },
           },
-        },
+        })
+        .mockResolvedValueOnce({ data: { result: restoreSimulateResponse } })
+        .mockResolvedValueOnce({ data: { result: restoreSendResponse } })
+        .mockResolvedValueOnce({ data: { result: restoreGetResponse } })
+        .mockResolvedValueOnce({ data: { result: callSimulateResponse } });
+      const sendTransaction = vi.spyOn(server, "sendTransaction");
+
+      await contract.AssembledTransaction.build({
+        ...options,
+        method: "test",
+        args: [],
+        restore: true,
       });
+
+      expect(sendTransaction).toHaveBeenCalledTimes(1);
+      const sent = sendTransaction.mock.calls[0][0];
+      if (!(sent instanceof StellarSdk.Transaction)) {
+        throw new Error("expected a Transaction to be sent");
+      }
+      expect(sent.fee).toBe(String(100 + resourceFee));
+    });
+
+    it("signs a contract call with the fee from simulation", async () => {
+      mockPost.mockResolvedValue({ data: { result: callSimulateResponse } });
 
       const txn = await contract.AssembledTransaction.build({
         ...options,
@@ -361,6 +393,10 @@ describe("AssembledTransaction", () => {
       });
       expect(expectDefined(txn.built).fee).toBe(String(100 + resourceFee));
 
+      await txn.sign({ force: true, signTransaction: wallet.signTransaction });
+      expect(expectDefined(txn.signed).fee).toBe(String(100 + resourceFee));
+
+      // a retry, e.g. after the wallet rejects the first request
       await txn.sign({ force: true, signTransaction: wallet.signTransaction });
       expect(expectDefined(txn.signed).fee).toBe(String(100 + resourceFee));
     });
