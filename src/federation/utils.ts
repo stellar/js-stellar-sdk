@@ -16,8 +16,8 @@ export function validateDomain(domain: string): void {
 /**
  * Checks a `FEDERATION_SERVER` URL that comes from a `stellar.toml` file. It
  * rejects a scheme other than `http:` and `https:`, a user name or password,
- * and a private, local or unspecified IP address. Host names are not resolved,
- * so a name that resolves to a private address is not rejected.
+ * and a private, shared, local or unspecified IP address. Host names are not
+ * resolved, so a name that resolves to a private address is not rejected.
  */
 export function validateFederationServer(url: URL): void {
   let reason: string | undefined;
@@ -26,7 +26,7 @@ export function validateFederationServer(url: URL): void {
   } else if (url.username || url.password) {
     reason = "The URL must not contain a user name or password.";
   } else if (isBlockedIp(url.hostname)) {
-    reason = "The host is a private, local or unspecified IP address.";
+    reason = "The host is a private, shared, local or unspecified IP address.";
   }
   if (reason) {
     throw new Error(

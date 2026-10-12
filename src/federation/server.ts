@@ -85,6 +85,7 @@ export class FederationServer {
     value: string,
     opts: Api.Options = {},
   ): Promise<Api.Record> {
+    validateAllowedRedirects(opts.allowedRedirects);
     // Check if `value` is in account ID format
     if (value.indexOf("*") < 0) {
       if (!StrKey.isValidEd25519PublicKey(value)) {
@@ -118,7 +119,7 @@ export class FederationServer {
    * The `FEDERATION_SERVER` URL comes from a remote file, so it is checked
    * before use. The Promise rejects if the URL uses a scheme other than
    * `http:` or `https:`, contains a user name or password, or has a private,
-   * local or unspecified IP address as its host. The SDK does not resolve
+   * shared, local or unspecified IP address as its host. The SDK does not resolve
    * host names, so a host name that resolves to a private address is not
    * rejected. When `allowedRedirects` is set, redirect targets are not
    * checked. A server-side application that resolves untrusted addresses

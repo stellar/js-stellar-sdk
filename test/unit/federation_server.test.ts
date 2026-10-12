@@ -411,7 +411,7 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
         mockToml(`https://${host}:8443/federation`);
 
         await expect(Server.createForDomain("acme.com")).rejects.toThrow(
-          /Invalid FEDERATION_SERVER: .*private, local or unspecified IP address/,
+          /Invalid FEDERATION_SERVER: .*private, shared, local or unspecified IP address/,
         );
       });
 
@@ -520,7 +520,7 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
       );
 
       it.each([
-        ["127.0.0.1.", /private, local or unspecified/],
+        ["127.0.0.1.", /private, shared, local or unspecified/],
         ["8.8.8.8.", undefined],
         ["1.2.3.example", undefined],
       ])(
@@ -571,6 +571,15 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
       await expect(Server.resolve("invalid")).rejects.toThrow(
         /Invalid Account ID/,
       );
+    });
+
+    it("rejects a bad allowedRedirects for an account ID", async () => {
+      await expect(
+        Server.resolve(
+          "GAFSZ3VPBC2H2DVKCEWLN3PQWZW6BVDMFROWJUDAJ3KWSOKQIJ4R5W4J",
+          { allowedRedirects: NaN },
+        ),
+      ).rejects.toThrow(/allowedRedirects/);
     });
 
     it("succeeds for a valid Stellar address", async () => {

@@ -46,7 +46,7 @@ constructor(serverURL: string, domain: string, opts: Options = {});
 - **`domain`** — `string` (required)
 - **`opts`** — `Options` (optional) (default: `{}`)
 
-**Source:** [src/federation/server.ts:165](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L165)
+**Source:** [src/federation/server.ts:166](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L166)
 
 ### `Server.createForDomain(domain, opts)`
 
@@ -60,7 +60,7 @@ contain information about a federation server Promise will reject.
 The `FEDERATION_SERVER` URL comes from a remote file, so it is checked
 before use. The Promise rejects if the URL uses a scheme other than
 `http:` or `https:`, contains a user name or password, or has a private,
-local or unspecified IP address as its host. The SDK does not resolve
+shared, local or unspecified IP address as its host. The SDK does not resolve
 host names, so a host name that resolves to a private address is not
 rejected. When `allowedRedirects` is set, redirect targets are not
 checked. A server-side application that resolves untrusted addresses
@@ -99,7 +99,7 @@ StellarSdk.FederationServer.createForDomain('acme.com')
 
 - <a href="https://developers.stellar.org/docs/issuing-assets/publishing-asset-info" target="_blank">Stellar.toml doc</a>
 
-**Source:** [src/federation/server.ts:144](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L144)
+**Source:** [src/federation/server.ts:145](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L145)
 
 ### `Server.resolve(value, opts)`
 
@@ -178,7 +178,7 @@ A promise that resolves to the federation record
 
 - <a href="https://developers.stellar.org/docs/encyclopedia/federation" target="_blank">Federation doc</a>
 
-**Source:** [src/federation/server.ts:225](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L225)
+**Source:** [src/federation/server.ts:226](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L226)
 
 ### `server.resolveAddress(address)`
 
@@ -204,7 +204,7 @@ A promise that resolves to the federation record
 
 - <a href="https://developers.stellar.org/docs/encyclopedia/federation" target="_blank">Federation doc</a>
 
-**Source:** [src/federation/server.ts:197](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L197)
+**Source:** [src/federation/server.ts:198](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L198)
 
 ### `server.resolveTransactionId(transactionId)`
 
@@ -232,7 +232,7 @@ A promise that resolves to the federation record
 
 - <a href="https://developers.stellar.org/docs/glossary/federation/" target="_blank">Federation doc</a>
 
-**Source:** [src/federation/server.ts:242](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L242)
+**Source:** [src/federation/server.ts:243](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L243)
 
 ## Types
 
