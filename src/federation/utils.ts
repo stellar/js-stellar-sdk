@@ -123,10 +123,11 @@ export function validateAllowedRedirects(
   if (
     allowedRedirects !== undefined &&
     allowedRedirects !== null &&
-    !(Number.isInteger(allowedRedirects) && allowedRedirects >= 0)
+    // A safe integer keeps the redirect counter's decrement exact.
+    !(Number.isSafeInteger(allowedRedirects) && allowedRedirects >= 0)
   ) {
     throw new Error(
-      `allowedRedirects must be 0 or a whole number, got ${String(allowedRedirects)}`,
+      `allowedRedirects must be 0 or a whole number up to ${Number.MAX_SAFE_INTEGER}, got ${String(allowedRedirects)}`,
     );
   }
 }

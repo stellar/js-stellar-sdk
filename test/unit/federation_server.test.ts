@@ -54,16 +54,20 @@ describe("federation-server.js tests", () => {
       ).not.toThrow();
     });
 
-    it.each([0, 1, 20])("accepts allowedRedirects %s", (allowedRedirects) => {
-      expect(
-        () =>
-          new Server("https://acme.com:1337/federation", "stellar.org", {
-            allowedRedirects,
-          }),
-      ).not.toThrow();
-    });
+    it.each([0, 1, 20, Number.MAX_SAFE_INTEGER])(
+      "accepts allowedRedirects %s",
+      (allowedRedirects) => {
+        expect(
+          () =>
+            new Server("https://acme.com:1337/federation", "stellar.org", {
+              allowedRedirects,
+            }),
+        ).not.toThrow();
+      },
+    );
 
-    it.each([-1, 1.5, NaN, Infinity])(
+    // Above 2 ** 53 the redirect counter can lose its decrement.
+    it.each([-1, 1.5, NaN, Infinity, 2 ** 54, Number.MAX_VALUE])(
       "rejects allowedRedirects %s",
       (allowedRedirects) => {
         expect(
