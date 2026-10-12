@@ -55,6 +55,9 @@ function isBlockedIp(hostname: string): boolean {
     if ((h[0] & 0xffc0) === 0xfe80 || (h[0] & 0xfe00) === 0xfc00) {
       return true; // fe80::/10 and fc00::/7
     }
+    if (h[0] === 0x64 && h[1] === 0xff9b && h[2] === 1) {
+      return true; // 64:ff9b:1::/48, local-use NAT64 with no fixed IPv4 offset
+    }
     if (IPV4_IN_IPV6_PREFIXES.some((p) => p.every((x, i) => x === h[i]))) {
       return isBlockedIpv4(h[6] >> 8, h[6] & 0xff);
     }

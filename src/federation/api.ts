@@ -32,7 +32,7 @@ export namespace Api {
      */
     timeout?: number;
     /**
-     * The number of redirects to follow, as 0 or a whole number, default: 0. Also applies to the `stellar.toml` request in `createForDomain` and `resolve`.
+     * The number of redirects to follow, as 0 or a whole number, default: 0. Also applies to the `stellar.toml` request in `createForDomain` and `resolve`. In a browser, the Fetch build cannot count redirects, so a value above 0 follows up to the browser's own limit, and the Axios build follows redirects whatever this value is.
      */
     allowedRedirects?: number;
   }
