@@ -17,20 +17,23 @@ import {
   type ClaimableBalanceIdWire,
 } from "./claimable-balance-id.js";
 import { PoolId, type PoolIdWire } from "./pool-id.js";
+import { MuxedContract, type MuxedContractWire } from "./muxed-contract.js";
 
 export type ScAddressWire =
   | { type: 0; accountId: PublicKeyWire }
   | { type: 1; contractId: ContractIdWire }
   | { type: 2; muxedAccount: MuxedEd25519AccountWire }
   | { type: 3; claimableBalanceId: ClaimableBalanceIdWire }
-  | { type: 4; liquidityPoolId: PoolIdWire };
+  | { type: 4; liquidityPoolId: PoolIdWire }
+  | { type: 5; muxedContract: MuxedContractWire };
 
 export type ScAddressVariantName =
   | "scAddressTypeAccount"
   | "scAddressTypeContract"
   | "scAddressTypeMuxedAccount"
   | "scAddressTypeClaimableBalance"
-  | "scAddressTypeLiquidityPool";
+  | "scAddressTypeLiquidityPool"
+  | "scAddressTypeMuxedContract";
 
 /**
  * ```xdr
@@ -89,6 +92,11 @@ abstract class ScAddressBase extends XdrValue {
         4,
         field("liquidityPoolId", PoolId.schema),
       ),
+      case_(
+        "scAddressTypeMuxedContract",
+        5,
+        field("muxedContract", MuxedContract.schema),
+      ),
     ],
   });
 
@@ -118,6 +126,12 @@ abstract class ScAddressBase extends XdrValue {
     return new ScAddressLiquidityPool(liquidityPoolId);
   }
 
+  static scAddressTypeMuxedContract(
+    muxedContract: MuxedContract,
+  ): ScAddressMuxedContract {
+    return new ScAddressMuxedContract(muxedContract);
+  }
+
   static fromXdrObject(wire: ScAddressWire): ScAddress {
     switch (wire.type) {
       case 0:
@@ -135,6 +149,10 @@ abstract class ScAddressBase extends XdrValue {
       case 4:
         return new ScAddressLiquidityPool(
           PoolId.fromXdrObject(wire.liquidityPoolId),
+        );
+      case 5:
+        return new ScAddressMuxedContract(
+          MuxedContract.fromXdrObject(wire.muxedContract),
         );
     }
     // unreachable for a well-typed wire object; a hand-built one can still
@@ -250,10 +268,29 @@ export class ScAddressLiquidityPool extends ScAddressBase {
   }
 }
 
+export class ScAddressMuxedContract extends ScAddressBase {
+  readonly type = "scAddressTypeMuxedContract" as const;
+  readonly muxedContract: MuxedContract;
+
+  constructor(muxedContract: MuxedContract) {
+    super();
+    this.muxedContract = muxedContract;
+  }
+
+  get value(): MuxedContract {
+    return this.muxedContract;
+  }
+
+  toXdrObject(): Extract<ScAddressWire, { type: 5 }> {
+    return { type: 5, muxedContract: this.muxedContract.toXdrObject() };
+  }
+}
+
 export type ScAddress =
   | ScAddressAccount
   | ScAddressContract
   | ScAddressMuxedAccount
   | ScAddressClaimableBalance
-  | ScAddressLiquidityPool;
+  | ScAddressLiquidityPool
+  | ScAddressMuxedContract;
 export const ScAddress = ScAddressBase;
