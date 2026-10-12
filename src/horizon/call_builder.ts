@@ -213,6 +213,8 @@ export class CallBuilder<
           if (message.lastEventId) {
             streamUrl.searchParams.set("cursor", message.lastEventId);
           }
+          clearTimeout(timeout);
+          createTimeout();
           if (options.onerror) {
             options.onerror(new MessageEvent("error", { data: err }));
           }

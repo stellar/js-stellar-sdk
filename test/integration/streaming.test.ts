@@ -303,6 +303,34 @@ describe("integration tests: stream events that cannot be parsed", () => {
     expect(record.id).toBe("2");
   });
 
+  it("counts a bad event as activity for the reconnect timer", async () => {
+    let requests = 0;
+    const timers: ReturnType<typeof setInterval>[] = [];
+    const server = http.createServer((_request, response) => {
+      requests += 1;
+      response.writeHead(200, { "Content-Type": "text/event-stream" });
+      response.write(GOOD_EVENT);
+      timers.push(setInterval(() => response.write("data: {\n\n"), 200));
+    });
+    const port = await listenOnFreePort(server);
+
+    const closeStream = new Horizon.Server(`http://localhost:${port}`, {
+      allowHttp: true,
+    })
+      .operations()
+      .stream({ reconnectTimeout: 500, onerror: () => {} });
+
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 1300));
+      expect(requests).toBe(1);
+    } finally {
+      closeStream();
+      timers.forEach(clearInterval);
+      server.closeAllConnections();
+      server.close();
+    }
+  });
+
   it("moves the cursor to the id of a bad event, so a reconnect skips it", async () => {
     let resolveCursor: (cursor: string | null) => void = () => {};
     const reconnectCursor = new Promise<string | null>((resolve) => {
