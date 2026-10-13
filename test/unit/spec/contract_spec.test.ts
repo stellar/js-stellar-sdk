@@ -5,6 +5,7 @@ import specStream from "../spec_stream.json";
 import { xdr, Address, Contract, contract } from "../../../src/index.js";
 import { expectVariant } from "../base/support/xdr.js";
 import { expectDefined } from "../base/support/expect_defined.js";
+import { withSpecies } from "../base/support/array_species.js";
 import type { JSONSchema7 } from "json-schema";
 import type { Spec } from "../../../src/contract/spec.js";
 
@@ -493,6 +494,60 @@ describe("Can round trip custom types", () => {
     bytes[0] = "J".charCodeAt(0);
 
     expect(scVal.toXdr("hex")).toBe(before);
+  });
+
+  describe("copies arrays whose species returns another array", () => {
+    const cases: [string, unknown, unknown][] = [
+      ["vec", [1, 2, 3], xdr.ScVal.scvU32(9)],
+      ["tuple", ["hello", 1], xdr.ScVal.scvU32(9)],
+      [
+        "map",
+        [
+          [1, true],
+          [2, false],
+        ],
+        new xdr.ScMapEntry({
+          key: xdr.ScVal.scvU32(3),
+          val: xdr.ScVal.scvBool(true),
+        }),
+      ],
+    ];
+    for (const [name, items, extra] of cases) {
+      it(name, () => {
+        const outside: unknown[] = [];
+        if (!Array.isArray(items)) throw new Error("fixture is not an array");
+        const scVal = expectDefined(
+          SPEC.funcArgsToScVals(name, {
+            [name]: withSpecies(items, outside),
+          })[0],
+        );
+        const before = scVal.toXdr("hex");
+
+        outside.push(extra);
+
+        expect(scVal.toXdr("hex")).toBe(before);
+      });
+    }
+
+    it("union tuple values", () => {
+      const outside: unknown[] = [];
+      const scVal = expectDefined(
+        SPEC.funcArgsToScVals("complex", {
+          complex: {
+            tag: "Tuple",
+            values: withSpecies(
+              [[{ a: 0, b: true, c: "hello" }, { tag: "First" }]],
+              outside,
+            ),
+          },
+        })[0],
+      );
+      const before = scVal.toXdr("hex");
+
+      outside.push(xdr.ScVal.scvU32(9));
+
+      expect(scVal.toXdr("hex")).toBe(before);
+    });
   });
 
   it("bytes_n", () => {

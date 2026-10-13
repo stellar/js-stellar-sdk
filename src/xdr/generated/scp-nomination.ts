@@ -1,6 +1,7 @@
 import { array, struct } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
+import { copyArray } from "../values/owned.js";
 import { Hash, type HashWire } from "./hash.js";
 import { Value, type ValueWire } from "./value.js";
 
@@ -41,10 +42,10 @@ export class ScpNomination extends XdrValue {
       input.quorumSetHash instanceof Hash
         ? input.quorumSetHash
         : new Hash(input.quorumSetHash);
-    this.votes = input.votes.map((v) =>
+    this.votes = copyArray(input.votes, (v) =>
       v instanceof Value ? v : new Value(v),
     );
-    this.accepted = input.accepted.map((v) =>
+    this.accepted = copyArray(input.accepted, (v) =>
       v instanceof Value ? v : new Value(v),
     );
   }

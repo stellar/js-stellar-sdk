@@ -2,26 +2,32 @@
 export const OWNED: unique symbol = Symbol("xdr.owned");
 
 /**
- * Copies caller bytes and keeps their class, so a `Buffer` stays a `Buffer`. Not the input's `slice`: `Buffer#slice` returns a view, and the intrinsic `slice` builds its result through the input's species, which a subclass can point at a buffer it keeps.
+ * Copies caller bytes into a plain `Uint8Array`, as decoded values are. Not the input's `slice`: `Buffer#slice` returns a view, and a subclass can point its species at a buffer it keeps.
  *
  * Any other input stays as is, so encoding still rejects it. `new Uint8Array(undefined)` would silently make empty bytes.
  */
 export function copyBytes(bytes: Uint8Array): Uint8Array {
-  if (!(bytes instanceof Uint8Array)) return bytes;
-  const copy = new Uint8Array(bytes);
-  const proto: object | null = Object.getPrototypeOf(bytes);
-  if (proto !== Uint8Array.prototype) Object.setPrototypeOf(copy, proto);
-  return copy;
+  return bytes instanceof Uint8Array ? new Uint8Array(bytes) : bytes;
 }
 
 /**
- * Copies a caller array into a plain array, mapping each item when `map` is given. `Array.from`, not the input's `slice` or `map`: a subclass can override those or set a species that returns an array it keeps.
+ * Copies a caller array into a plain array, mapping each item when `map` is given. Not the input's `slice` or `map`: a subclass can override those or set a species that returns an array it keeps. The mapped form uses an index loop, because `Array.from(items, map)` is about 10 times slower than `map`.
  *
  * Any other input stays as is, so encoding still rejects it. `Array.from` would turn `5` or `{}` into an empty array.
  */
 export function copyArray<T>(items: T[]): T[];
-export function copyArray<T, U>(items: T[], map: (item: T) => U): U[];
-export function copyArray<T, U>(items: T[], map?: (item: T) => U): T[] | U[] {
+export function copyArray<T, U>(
+  items: T[],
+  map: (item: T, index: number) => U,
+): U[];
+export function copyArray<T, U>(
+  items: T[],
+  map?: (item: T, index: number) => U,
+): T[] | U[] {
   if (!Array.isArray(items)) return items;
-  return map === undefined ? Array.from(items) : Array.from(items, map);
+  if (map === undefined) return Array.from(items);
+  const length = items.length;
+  const out = new Array<U>(length);
+  for (let i = 0; i < length; i++) out[i] = map(items[i], i);
+  return out;
 }

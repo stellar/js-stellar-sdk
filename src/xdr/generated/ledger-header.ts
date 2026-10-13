@@ -1,6 +1,7 @@
 import { fixedArray, int64, struct, uint32, uint64 } from "@stellar/js-xdr";
 import type { XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
+import { copyArray } from "../values/owned.js";
 import { Hash, type HashWire } from "./hash.js";
 import { StellarValue, type StellarValueWire } from "./stellar-value.js";
 import {
@@ -144,7 +145,7 @@ export class LedgerHeader extends XdrValue {
     this.baseFee = input.baseFee;
     this.baseReserve = input.baseReserve;
     this.maxTxSetSize = input.maxTxSetSize;
-    this.skipList = input.skipList.map((v) =>
+    this.skipList = copyArray(input.skipList, (v) =>
       v instanceof Hash ? v : new Hash(v),
     );
     this.ext = input.ext;

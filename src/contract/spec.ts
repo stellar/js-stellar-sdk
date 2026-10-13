@@ -43,7 +43,7 @@ import {
   Uint64,
   XdrString,
 } from "../xdr/index.js";
-import { OWNED } from "../xdr/values/owned.js";
+import { OWNED, copyArray } from "../xdr/values/owned.js";
 
 export type { ParsedEvent };
 
@@ -780,10 +780,11 @@ export class Spec {
             case "scSpecTypeVec": {
               const vec = ty.value;
               const elementType = vec.elementType;
-              // OWNED here and below: each array is new, so the
-              // constructor need not copy it.
+              // OWNED here and below: each array is new. `copyArray`, not
+              // `val.map`: a caller's Array subclass can override it or its
+              // species.
               return new ScValVec(
-                val.map((v) => this.nativeToScVal(v, elementType)),
+                copyArray(val, (v) => this.nativeToScVal(v, elementType)),
                 OWNED,
               );
             }
@@ -796,7 +797,7 @@ export class Spec {
                 );
               }
               return new ScValVec(
-                val.map((v, i) => this.nativeToScVal(v, valTypes[i])),
+                copyArray(val, (v, i) => this.nativeToScVal(v, valTypes[i])),
                 OWNED,
               );
             }
@@ -805,7 +806,7 @@ export class Spec {
               const keyType = map.keyType;
               const valueType = map.valueType;
               return new ScValMap(
-                val.map((entry) => {
+                copyArray(val, (entry) => {
                   const key = this.nativeToScVal(entry[0], keyType);
                   const mapVal = this.nativeToScVal(entry[1], valueType);
                   return new ScMapEntry({ key, val: mapVal });
@@ -958,7 +959,7 @@ export class Spec {
               `union ${union_} expects ${types.length} values, but got ${val.values.length}`,
             );
           }
-          const scvals = val.values.map((v: any, i: number) =>
+          const scvals = copyArray(val.values, (v: any, i: number) =>
             this.nativeToScVal(v, types[i]),
           );
           scvals.unshift(key);

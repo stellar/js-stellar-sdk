@@ -1,6 +1,7 @@
 import { array, struct } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
+import { copyArray } from "../values/owned.js";
 import { Hash, type HashWire } from "./hash.js";
 
 export interface FreezeBypassTxsDeltaWire {
@@ -33,10 +34,10 @@ export class FreezeBypassTxsDelta extends XdrValue {
     removeTxs: (Hash | Uint8Array | string)[];
   }) {
     super();
-    this.addTxs = input.addTxs.map((v) =>
+    this.addTxs = copyArray(input.addTxs, (v) =>
       v instanceof Hash ? v : new Hash(v),
     );
-    this.removeTxs = input.removeTxs.map((v) =>
+    this.removeTxs = copyArray(input.removeTxs, (v) =>
       v instanceof Hash ? v : new Hash(v),
     );
   }

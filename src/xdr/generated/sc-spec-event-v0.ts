@@ -69,7 +69,7 @@ export class ScSpecEventV0 extends XdrValue {
       input.lib instanceof XdrString ? input.lib : new XdrString(input.lib);
     this.name =
       input.name instanceof XdrString ? input.name : new XdrString(input.name);
-    this.prefixTopics = input.prefixTopics.map((v) =>
+    this.prefixTopics = copyArray(input.prefixTopics, (v) =>
       v instanceof XdrString ? v : new XdrString(v),
     );
     this.params = owned === OWNED ? input.params : copyArray(input.params);

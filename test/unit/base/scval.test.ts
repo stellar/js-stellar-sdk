@@ -12,6 +12,7 @@ import {
 import { Contract } from "../../../src/base/contract.js";
 import * as xdr from "../../../src/xdr/index.js";
 import { expectVariant } from "./support/xdr.js";
+import { withSpecies } from "./support/array_species.js";
 import {
   nativeToScVal,
   scValToNative,
@@ -663,6 +664,16 @@ describe("nativeToScVal", () => {
   it("handles empty Uint8Array", () => {
     const scv = nativeToScVal(new Uint8Array(0));
     expect(scv.type).toBe("scvBytes");
+  });
+
+  it("copies an array whose species returns another array", () => {
+    const outside: unknown[] = [];
+    const scv = nativeToScVal(withSpecies([1, 2], outside), { type: "u32" });
+    const before = scv.toXDR("hex");
+
+    outside.push(xdr.ScVal.scvU32(9));
+
+    expect(scv.toXDR("hex")).toBe(before);
   });
 
   it("makes a copy of the input buffer", () => {

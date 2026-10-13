@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import { withSpecies } from "../base/support/array_species.js";
 
 import {
   ContractCodeEntry,
@@ -15,12 +16,14 @@ import {
   ParallelTxsComponent,
   Preconditions,
   PublicKey,
+  ScpNomination,
   ScVal,
   Signature,
   Transaction,
   TransactionEnvelope,
   TransactionExt,
   TransactionV1Envelope,
+  Value,
   XdrString,
 } from "../../../src/xdr/index.js";
 
@@ -67,18 +70,6 @@ function withSelfSlice<T>(items: T[]): T[] {
   return SelfSlice.from(items);
 }
 
-// An Array subclass whose species makes slice() and map() return `outside`.
-function withSpecies<T>(items: T[], outside: T[]): T[] {
-  class Hijack extends Array<T> {}
-  Object.defineProperty(Hijack, Symbol.species, {
-    get: () =>
-      function steal() {
-        return outside;
-      },
-  });
-  return Hijack.from(items);
-}
-
 describe("XDR constructors copy their inputs", () => {
   describe("byte inputs", () => {
     it("BytesValue copies a Uint8Array input", () => {
@@ -110,14 +101,27 @@ describe("XDR constructors copy their inputs", () => {
       expect(sig.toXdr("hex")).toBe(before);
     });
 
-    it("BytesValue copies a Uint8Array subclass whose slice() is a view, and keeps its class", () => {
+    it("BytesValue stores a subclass with private fields as a plain Uint8Array", () => {
+      class Tagged extends Uint8Array {
+        #tag = "t";
+        tag(): string {
+          return this.#tag;
+        }
+      }
+      const sig = new Signature(Tagged.from(new Uint8Array(64).fill(7)));
+
+      expect(Object.getPrototypeOf(sig.value)).toBe(Uint8Array.prototype);
+      expect(sig.value[0]).toBe(7);
+    });
+
+    it("BytesValue copies a Uint8Array subclass whose slice() is a view into a plain Uint8Array", () => {
       const bytes = new ViewBytes(64);
       const sig = new Signature(bytes);
       const before = sig.toXdr("hex");
 
       bytes[0] = 0xff;
 
-      expect(sig.value).toBeInstanceOf(ViewBytes);
+      expect(Object.getPrototypeOf(sig.value)).toBe(Uint8Array.prototype);
       expect(sig.toXdr("hex")).toBe(before);
     });
 
@@ -297,6 +301,21 @@ describe("XDR constructors copy their inputs", () => {
 
       expect(t.operations).not.toBe(outside);
       expect(t.toXdr("hex")).toBe(before);
+    });
+
+    it("copies an array whose elements are converted, when its species returns another array", () => {
+      const outside: Value[] = [];
+      const nomination = new ScpNomination({
+        quorumSetHash: new Uint8Array(32),
+        votes: withSpecies([new Uint8Array([1, 2])], outside),
+        accepted: [],
+      });
+      const before = nomination.toXdr("hex");
+
+      outside.push(new Value(new Uint8Array([9])));
+
+      expect(nomination.votes).not.toBe(outside);
+      expect(nomination.toXdr("hex")).toBe(before);
     });
 
     it("copies nested arrays that override slice() or species", () => {

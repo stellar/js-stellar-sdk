@@ -10,7 +10,7 @@ import {
   ScValVec,
   Uint32,
 } from "../xdr/index.js";
-import { OWNED } from "../xdr/values/owned.js";
+import { OWNED, copyArray } from "../xdr/values/owned.js";
 import { Keypair } from "./keypair.js";
 import { Address } from "./address.js";
 import { Contract } from "./contract.js";
@@ -220,9 +220,10 @@ export function nativeToScVal(
       }
 
       if (Array.isArray(val)) {
-        // OWNED: the array is new, so the constructor need not copy it.
+        // OWNED: `copyArray` makes a new array. Not `val.map`: a caller's
+        // Array subclass can override it or its species.
         return new ScValVec(
-          val.map((v: unknown, idx: number) => {
+          copyArray(val, (v: unknown, idx: number) => {
             // There may be different type specifications for each element in
             // the array, so we need to apply those accordingly.
             if (Array.isArray(opts.type)) {

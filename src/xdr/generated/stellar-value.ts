@@ -1,6 +1,7 @@
 import { array, struct, uint64 } from "@stellar/js-xdr";
 import type { XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
+import { copyArray } from "../values/owned.js";
 import { Hash, type HashWire } from "./hash.js";
 import { UpgradeType, type UpgradeTypeWire } from "./upgrade-type.js";
 import {
@@ -89,7 +90,7 @@ export class StellarValue extends XdrValue {
         ? input.txSetHash
         : new Hash(input.txSetHash);
     this.closeTime = input.closeTime;
-    this.upgrades = input.upgrades.map((v) =>
+    this.upgrades = copyArray(input.upgrades, (v) =>
       v instanceof UpgradeType ? v : new UpgradeType(v),
     );
     this.ext = input.ext;

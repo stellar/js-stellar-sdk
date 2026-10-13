@@ -843,7 +843,7 @@ function ctorAssignment(field, ctx) {
 function armAssignmentExpr(t, propName, fromInput, ctx) {
   const lhs = `    this.${propName}`;
   const rhs = fromInput ? `input.${propName}` : propName;
-  const conv = inputToFieldConversion(t, rhs);
+  const conv = inputToFieldConversion(t, rhs, ctx);
   const copy = inputCopyExpr(t, rhs, ctx);
   if (copy !== conv) return `${lhs} = owned === OWNED ? ${conv} : ${copy};`;
   return conv === rhs ? `${lhs} = ${rhs};` : `${lhs} = ${conv};`;
@@ -859,7 +859,7 @@ function needsInputCopy(t) {
  *  `Uint8Array` that the conversion would store as is. Adds the `copyBytes`
  *  import to `ctx` when it emits a call; `needsInputCopy` passes no `ctx`. */
 function inputCopyExpr(t, expr, ctx, depth = 0) {
-  const conv = inputToFieldConversion(t, expr);
+  const conv = inputToFieldConversion(t, expr, ctx);
   if (conv !== expr) return conv;
   const r = resolveType(t);
   if (r.kind === "opaque_fixed" || r.kind === "opaque_var") {
@@ -884,7 +884,7 @@ function inputCopyExpr(t, expr, ctx, depth = 0) {
 /** Recursive: produce an expression that converts a ctorInputType value to
  *  its stored field type. Handles ref-to-class, inline strings, optional
  *  and array nesting. Returns `expr` unchanged when no narrowing is needed. */
-function inputToFieldConversion(t, expr) {
+function inputToFieldConversion(t, expr, ctx) {
   if (t.kind === "ref" && emitsClass(t.name)) {
     const def = registry.get(t.name);
     if (def && def.kind === "typedef" && !isReExport(def)) {
@@ -900,14 +900,16 @@ function inputToFieldConversion(t, expr) {
     return `${expr} instanceof XdrString ? ${expr} : new XdrString(${expr})`;
   }
   if (t.kind === "optional") {
-    const inner = inputToFieldConversion(t.element, expr);
+    const inner = inputToFieldConversion(t.element, expr, ctx);
     if (inner === expr) return expr;
     return `${expr} === null ? null : (${inner})`;
   }
   if (t.kind === "var_array" || t.kind === "array") {
-    const inner = inputToFieldConversion(t.element, "v");
+    const inner = inputToFieldConversion(t.element, "v", ctx);
     if (inner === "v") return expr;
-    return `${expr}.map((v) => ${inner})`;
+    // `copyArray`, not the input's `map`: see inputCopyExpr.
+    ctx?.valueImports.add("copyArray");
+    return `copyArray(${expr}, (v) => ${inner})`;
   }
   return expr;
 }

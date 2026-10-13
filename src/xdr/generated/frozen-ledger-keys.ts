@@ -1,6 +1,7 @@
 import { array, struct } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
+import { copyArray } from "../values/owned.js";
 import {
   EncodedLedgerKey,
   type EncodedLedgerKeyWire,
@@ -29,7 +30,7 @@ export class FrozenLedgerKeys extends XdrValue {
 
   constructor(input: { keys: (EncodedLedgerKey | Uint8Array | string)[] }) {
     super();
-    this.keys = input.keys.map((v) =>
+    this.keys = copyArray(input.keys, (v) =>
       v instanceof EncodedLedgerKey ? v : new EncodedLedgerKey(v),
     );
   }

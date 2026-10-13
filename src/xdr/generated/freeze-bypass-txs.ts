@@ -1,6 +1,7 @@
 import { array, struct } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
+import { copyArray } from "../values/owned.js";
 import { Hash, type HashWire } from "./hash.js";
 
 export interface FreezeBypassTxsWire {
@@ -26,7 +27,7 @@ export class FreezeBypassTxs extends XdrValue {
 
   constructor(input: { txHashes: (Hash | Uint8Array | string)[] }) {
     super();
-    this.txHashes = input.txHashes.map((v) =>
+    this.txHashes = copyArray(input.txHashes, (v) =>
       v instanceof Hash ? v : new Hash(v),
     );
   }
