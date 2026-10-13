@@ -1,7 +1,7 @@
 import { array, struct } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
-import { OWNED } from "../values/owned.js";
+import { OWNED, copyArray } from "../values/owned.js";
 import { ScpEnvelope, type ScpEnvelopeWire } from "./scp-envelope.js";
 import { ScpQuorumSet, type ScpQuorumSetWire } from "./scp-quorum-set.js";
 import {
@@ -49,10 +49,10 @@ export class PersistedScpStateV0 extends XdrValue {
   ) {
     super();
     this.scpEnvelopes =
-      owned === OWNED ? input.scpEnvelopes : input.scpEnvelopes.slice();
+      owned === OWNED ? input.scpEnvelopes : copyArray(input.scpEnvelopes);
     this.quorumSets =
-      owned === OWNED ? input.quorumSets : input.quorumSets.slice();
-    this.txSets = owned === OWNED ? input.txSets : input.txSets.slice();
+      owned === OWNED ? input.quorumSets : copyArray(input.quorumSets);
+    this.txSets = owned === OWNED ? input.txSets : copyArray(input.txSets);
   }
 
   toXdrObject(): PersistedScpStateV0Wire {

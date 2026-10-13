@@ -1,7 +1,7 @@
 import { array, struct } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
-import { OWNED } from "../values/owned.js";
+import { OWNED, copyArray } from "../values/owned.js";
 import { ScVal, type ScValWire } from "./sc-val.js";
 import { ContractEvent, type ContractEventWire } from "./contract-event.js";
 
@@ -38,7 +38,7 @@ export class InvokeHostFunctionSuccessPreImage extends XdrValue {
   ) {
     super();
     this.returnValue = input.returnValue;
-    this.events = owned === OWNED ? input.events : input.events.slice();
+    this.events = owned === OWNED ? input.events : copyArray(input.events);
   }
 
   toXdrObject(): InvokeHostFunctionSuccessPreImageWire {

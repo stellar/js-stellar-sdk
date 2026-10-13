@@ -1,7 +1,7 @@
 import { array, struct } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
-import { OWNED } from "../values/owned.js";
+import { OWNED, copyArray } from "../values/owned.js";
 import { ClaimAtom, type ClaimAtomWire } from "./claim-atom.js";
 import {
   ManageOfferSuccessResultOffer,
@@ -53,7 +53,7 @@ export class ManageOfferSuccessResult extends XdrValue {
   ) {
     super();
     this.offersClaimed =
-      owned === OWNED ? input.offersClaimed : input.offersClaimed.slice();
+      owned === OWNED ? input.offersClaimed : copyArray(input.offersClaimed);
     this.offer = input.offer;
   }
 

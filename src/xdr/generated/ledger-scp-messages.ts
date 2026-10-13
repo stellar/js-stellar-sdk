@@ -1,7 +1,7 @@
 import { array, struct, uint32 } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
-import { OWNED } from "../values/owned.js";
+import { OWNED, copyArray } from "../values/owned.js";
 import { ScpEnvelope, type ScpEnvelopeWire } from "./scp-envelope.js";
 
 export interface LedgerScpMessagesWire {
@@ -39,7 +39,8 @@ export class LedgerScpMessages extends XdrValue {
   ) {
     super();
     this.ledgerSeq = input.ledgerSeq;
-    this.messages = owned === OWNED ? input.messages : input.messages.slice();
+    this.messages =
+      owned === OWNED ? input.messages : copyArray(input.messages);
   }
 
   toXdrObject(): LedgerScpMessagesWire {

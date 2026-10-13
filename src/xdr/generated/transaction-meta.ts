@@ -5,7 +5,7 @@
 import { array, case as case_, field, int32, union } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, XdrError, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
-import { OWNED } from "../values/owned.js";
+import { OWNED, copyArray } from "../values/owned.js";
 import { OperationMeta, type OperationMetaWire } from "./operation-meta.js";
 import {
   TransactionMetaV1,
@@ -159,7 +159,7 @@ export class TransactionMetaOperations extends TransactionMetaBase {
 
   constructor(operations: OperationMeta[], owned?: typeof OWNED) {
     super();
-    this.operations = owned === OWNED ? operations : operations.slice();
+    this.operations = owned === OWNED ? operations : copyArray(operations);
   }
 
   get value(): OperationMeta[] {

@@ -2,7 +2,7 @@ import { array, int64, option, struct, uint32 } from "@stellar/js-xdr";
 import type { XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import { XdrString, xdrString } from "../values/xdr-string.js";
-import { OWNED } from "../values/owned.js";
+import { OWNED, copyArray } from "../values/owned.js";
 import { PublicKey, type PublicKeyWire } from "./public-key.js";
 import { Thresholds, type ThresholdsWire } from "./thresholds.js";
 import { Signer, type SignerWire } from "./signer.js";
@@ -111,7 +111,7 @@ export class AccountEntry extends XdrValue {
       input.thresholds instanceof Thresholds
         ? input.thresholds
         : new Thresholds(input.thresholds);
-    this.signers = owned === OWNED ? input.signers : input.signers.slice();
+    this.signers = owned === OWNED ? input.signers : copyArray(input.signers);
     this.ext = input.ext;
   }
 

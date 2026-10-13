@@ -1,7 +1,7 @@
 import { array, int64, option, struct, uint32 } from "@stellar/js-xdr";
 import type { XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
-import { OWNED } from "../values/owned.js";
+import { OWNED, copyArray } from "../values/owned.js";
 import { Uint256Bytes, type Uint256BytesWire } from "./uint256-bytes.js";
 import { TimeBounds, type TimeBoundsWire } from "./time-bounds.js";
 import { Memo, type MemoWire } from "./memo.js";
@@ -81,7 +81,7 @@ export class TransactionV0 extends XdrValue {
     this.timeBounds = input.timeBounds;
     this.memo = input.memo;
     this.operations =
-      owned === OWNED ? input.operations : input.operations.slice();
+      owned === OWNED ? input.operations : copyArray(input.operations);
     this.ext = input.ext;
   }
 

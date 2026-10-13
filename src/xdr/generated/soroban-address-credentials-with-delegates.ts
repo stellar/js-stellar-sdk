@@ -1,7 +1,7 @@
 import { array, struct } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
-import { OWNED } from "../values/owned.js";
+import { OWNED, copyArray } from "../values/owned.js";
 import {
   SorobanAddressCredentials,
   type SorobanAddressCredentialsWire,
@@ -45,7 +45,7 @@ export class SorobanAddressCredentialsWithDelegates extends XdrValue {
     super();
     this.addressCredentials = input.addressCredentials;
     this.delegates =
-      owned === OWNED ? input.delegates : input.delegates.slice();
+      owned === OWNED ? input.delegates : copyArray(input.delegates);
   }
 
   toXdrObject(): SorobanAddressCredentialsWithDelegatesWire {

@@ -11,7 +11,7 @@ import {
 } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, XdrError, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
-import { OWNED } from "../values/owned.js";
+import { OWNED, copyArray } from "../values/owned.js";
 import { TransactionResultCode } from "./transaction-result-code.js";
 import {
   InnerTransactionResultPair,
@@ -362,7 +362,7 @@ export class TransactionResultResultTxSuccess extends TransactionResultResultBas
 
   constructor(results: OperationResult[], owned?: typeof OWNED) {
     super();
-    this.results = owned === OWNED ? results : results.slice();
+    this.results = owned === OWNED ? results : copyArray(results);
   }
 
   get value(): OperationResult[] {
@@ -380,7 +380,7 @@ export class TransactionResultResultTxFailed extends TransactionResultResultBase
 
   constructor(results: OperationResult[], owned?: typeof OWNED) {
     super();
-    this.results = owned === OWNED ? results : results.slice();
+    this.results = owned === OWNED ? results : copyArray(results);
   }
 
   get value(): OperationResult[] {

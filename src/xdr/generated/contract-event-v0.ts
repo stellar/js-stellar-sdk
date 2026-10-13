@@ -1,7 +1,7 @@
 import { array, struct } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
-import { OWNED } from "../values/owned.js";
+import { OWNED, copyArray } from "../values/owned.js";
 import { ScVal, type ScValWire } from "./sc-val.js";
 
 export interface ContractEventV0Wire {
@@ -38,7 +38,7 @@ export class ContractEventV0 extends XdrValue {
     owned?: typeof OWNED,
   ) {
     super();
-    this.topics = owned === OWNED ? input.topics : input.topics.slice();
+    this.topics = owned === OWNED ? input.topics : copyArray(input.topics);
     this.data = input.data;
   }
 

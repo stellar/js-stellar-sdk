@@ -1,7 +1,7 @@
 import { array, int64, struct, uint32 } from "@stellar/js-xdr";
 import type { XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
-import { OWNED } from "../values/owned.js";
+import { OWNED, copyArray } from "../values/owned.js";
 import { MuxedAccount, type MuxedAccountWire } from "./muxed-account.js";
 import { Preconditions, type PreconditionsWire } from "./preconditions.js";
 import { Memo, type MemoWire } from "./memo.js";
@@ -87,7 +87,7 @@ export class Transaction extends XdrValue {
     this.cond = input.cond;
     this.memo = input.memo;
     this.operations =
-      owned === OWNED ? input.operations : input.operations.slice();
+      owned === OWNED ? input.operations : copyArray(input.operations);
     this.ext = input.ext;
   }
 

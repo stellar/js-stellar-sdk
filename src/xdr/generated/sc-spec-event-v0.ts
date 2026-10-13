@@ -2,7 +2,7 @@ import { array, struct } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import { XdrString, xdrString } from "../values/xdr-string.js";
-import { OWNED } from "../values/owned.js";
+import { OWNED, copyArray } from "../values/owned.js";
 import {
   ScSpecEventParamV0,
   type ScSpecEventParamV0Wire,
@@ -72,7 +72,7 @@ export class ScSpecEventV0 extends XdrValue {
     this.prefixTopics = input.prefixTopics.map((v) =>
       v instanceof XdrString ? v : new XdrString(v),
     );
-    this.params = owned === OWNED ? input.params : input.params.slice();
+    this.params = owned === OWNED ? input.params : copyArray(input.params);
     this.dataFormat = input.dataFormat;
   }
 

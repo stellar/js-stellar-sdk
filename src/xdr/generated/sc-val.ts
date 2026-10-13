@@ -19,7 +19,7 @@ import {
 } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, XdrError, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
-import { OWNED } from "../values/owned.js";
+import { OWNED, copyArray } from "../values/owned.js";
 import { XdrString, xdrString } from "../values/xdr-string.js";
 import {
   ContractExecutable,
@@ -79,7 +79,7 @@ export class ScContractInstance extends XdrValue {
         ? input.storage
         : input.storage === null
           ? null
-          : input.storage.slice();
+          : copyArray(input.storage);
   }
 
   toXdrObject(): ScContractInstanceWire {
@@ -810,7 +810,7 @@ export class ScValVec extends ScValBase {
 
   constructor(vec: ScVal[] | null, owned?: typeof OWNED) {
     super();
-    this.vec = owned === OWNED ? vec : vec === null ? null : vec.slice();
+    this.vec = owned === OWNED ? vec : vec === null ? null : copyArray(vec);
   }
 
   get value(): ScVal[] | null {
@@ -831,7 +831,7 @@ export class ScValMap extends ScValBase {
 
   constructor(map: ScMapEntry[] | null, owned?: typeof OWNED) {
     super();
-    this.map = owned === OWNED ? map : map === null ? null : map.slice();
+    this.map = owned === OWNED ? map : map === null ? null : copyArray(map);
   }
 
   get value(): ScMapEntry[] | null {

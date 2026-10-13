@@ -1,7 +1,7 @@
 import { array, struct } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
-import { OWNED } from "../values/owned.js";
+import { OWNED, copyArray } from "../values/owned.js";
 import {
   LedgerHeaderHistoryEntry,
   type LedgerHeaderHistoryEntryWire,
@@ -81,12 +81,12 @@ export class LedgerCloseMetaV0 extends XdrValue {
     this.ledgerHeader = input.ledgerHeader;
     this.txSet = input.txSet;
     this.txProcessing =
-      owned === OWNED ? input.txProcessing : input.txProcessing.slice();
+      owned === OWNED ? input.txProcessing : copyArray(input.txProcessing);
     this.upgradesProcessing =
       owned === OWNED
         ? input.upgradesProcessing
-        : input.upgradesProcessing.slice();
-    this.scpInfo = owned === OWNED ? input.scpInfo : input.scpInfo.slice();
+        : copyArray(input.upgradesProcessing);
+    this.scpInfo = owned === OWNED ? input.scpInfo : copyArray(input.scpInfo);
   }
 
   toXdrObject(): LedgerCloseMetaV0Wire {

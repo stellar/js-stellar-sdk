@@ -12,7 +12,7 @@ import {
 } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, XdrError, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
-import { OWNED } from "../values/owned.js";
+import { OWNED, copyArray } from "../values/owned.js";
 import { ConfigSettingId } from "./config-setting-id.js";
 import {
   ConfigSettingContractComputeV0,
@@ -754,7 +754,7 @@ export class ConfigSettingEntryContractCostParamsCpuInstructions extends ConfigS
     this.contractCostParamsCpuInsns =
       owned === OWNED
         ? contractCostParamsCpuInsns
-        : contractCostParamsCpuInsns.slice();
+        : copyArray(contractCostParamsCpuInsns);
   }
 
   get value(): ContractCostParamEntry[] {
@@ -783,7 +783,7 @@ export class ConfigSettingEntryContractCostParamsMemoryBytes extends ConfigSetti
     this.contractCostParamsMemBytes =
       owned === OWNED
         ? contractCostParamsMemBytes
-        : contractCostParamsMemBytes.slice();
+        : copyArray(contractCostParamsMemBytes);
   }
 
   get value(): ContractCostParamEntry[] {
@@ -893,7 +893,7 @@ export class ConfigSettingEntryLiveSorobanStateSizeWindow extends ConfigSettingE
     this.liveSorobanStateSizeWindow =
       owned === OWNED
         ? liveSorobanStateSizeWindow
-        : liveSorobanStateSizeWindow.slice();
+        : copyArray(liveSorobanStateSizeWindow);
   }
 
   get value(): bigint[] {

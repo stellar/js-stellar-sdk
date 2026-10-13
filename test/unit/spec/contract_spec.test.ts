@@ -485,6 +485,16 @@ describe("Can round trip custom types", () => {
     roundtrip("bytes", bytes);
   });
 
+  it("bytes are copied from the caller's buffer", () => {
+    const bytes = new TextEncoder().encode("hello");
+    const scVal = expectDefined(SPEC.funcArgsToScVals("bytes", { bytes })[0]);
+    const before = scVal.toXdr("hex");
+
+    bytes[0] = "J".charCodeAt(0);
+
+    expect(scVal.toXdr("hex")).toBe(before);
+  });
+
   it("bytes_n", () => {
     const bytesN = new TextEncoder().encode("123456789"); // what's the correct way to construct bytes_n?
     roundtrip("bytes_n", bytesN);

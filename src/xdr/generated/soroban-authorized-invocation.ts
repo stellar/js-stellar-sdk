@@ -1,7 +1,7 @@
 import { array, lazy, struct } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
-import { OWNED } from "../values/owned.js";
+import { OWNED, copyArray } from "../values/owned.js";
 import {
   SorobanAuthorizedFunction,
   type SorobanAuthorizedFunctionWire,
@@ -46,7 +46,7 @@ export class SorobanAuthorizedInvocation extends XdrValue {
     super();
     this.function = input.function;
     this.subInvocations =
-      owned === OWNED ? input.subInvocations : input.subInvocations.slice();
+      owned === OWNED ? input.subInvocations : copyArray(input.subInvocations);
   }
 
   toXdrObject(): SorobanAuthorizedInvocationWire {

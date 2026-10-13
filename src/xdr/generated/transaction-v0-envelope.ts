@@ -1,7 +1,7 @@
 import { array, struct } from "@stellar/js-xdr";
 import type { XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
-import { OWNED } from "../values/owned.js";
+import { OWNED, copyArray } from "../values/owned.js";
 import { TransactionV0, type TransactionV0Wire } from "./transaction-v0.js";
 import {
   DecoratedSignature,
@@ -46,7 +46,7 @@ export class TransactionV0Envelope extends XdrValue {
     super();
     this.tx = input.tx;
     this.signatures =
-      owned === OWNED ? input.signatures : input.signatures.slice();
+      owned === OWNED ? input.signatures : copyArray(input.signatures);
   }
 
   toXdrObject(): TransactionV0EnvelopeWire {

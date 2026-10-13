@@ -1,7 +1,7 @@
 import { array, struct } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
-import { OWNED } from "../values/owned.js";
+import { OWNED, copyArray } from "../values/owned.js";
 import { HostFunction, type HostFunctionWire } from "./host-function.js";
 import {
   SorobanAuthorizationEntry,
@@ -45,7 +45,7 @@ export class InvokeHostFunctionOp extends XdrValue {
   ) {
     super();
     this.hostFunction = input.hostFunction;
-    this.auth = owned === OWNED ? input.auth : input.auth.slice();
+    this.auth = owned === OWNED ? input.auth : copyArray(input.auth);
   }
 
   toXdrObject(): InvokeHostFunctionOpWire {

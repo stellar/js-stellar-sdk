@@ -1,7 +1,7 @@
 import { array, struct } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
-import { OWNED } from "../values/owned.js";
+import { OWNED, copyArray } from "../values/owned.js";
 import { LedgerKey, type LedgerKeyWire } from "./ledger-key.js";
 
 export interface LedgerFootprintWire {
@@ -38,9 +38,10 @@ export class LedgerFootprint extends XdrValue {
     owned?: typeof OWNED,
   ) {
     super();
-    this.readOnly = owned === OWNED ? input.readOnly : input.readOnly.slice();
+    this.readOnly =
+      owned === OWNED ? input.readOnly : copyArray(input.readOnly);
     this.readWrite =
-      owned === OWNED ? input.readWrite : input.readWrite.slice();
+      owned === OWNED ? input.readWrite : copyArray(input.readWrite);
   }
 
   toXdrObject(): LedgerFootprintWire {

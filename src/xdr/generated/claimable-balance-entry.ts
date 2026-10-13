@@ -1,7 +1,7 @@
 import { array, int64, struct } from "@stellar/js-xdr";
 import type { XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
-import { OWNED } from "../values/owned.js";
+import { OWNED, copyArray } from "../values/owned.js";
 import {
   ClaimableBalanceId,
   type ClaimableBalanceIdWire,
@@ -80,7 +80,7 @@ export class ClaimableBalanceEntry extends XdrValue {
     super();
     this.balanceId = input.balanceId;
     this.claimants =
-      owned === OWNED ? input.claimants : input.claimants.slice();
+      owned === OWNED ? input.claimants : copyArray(input.claimants);
     this.asset = input.asset;
     this.amount = input.amount;
     this.ext = input.ext;

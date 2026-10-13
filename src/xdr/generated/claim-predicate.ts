@@ -14,7 +14,7 @@ import {
 } from "@stellar/js-xdr";
 import { XdrError, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
-import { OWNED } from "../values/owned.js";
+import { OWNED, copyArray } from "../values/owned.js";
 import { ClaimPredicateType } from "./claim-predicate-type.js";
 
 export type ClaimPredicateWire =
@@ -210,7 +210,7 @@ export class ClaimPredicateAnd extends ClaimPredicateBase {
   constructor(andPredicates: ClaimPredicate[], owned?: typeof OWNED) {
     super();
     this.andPredicates =
-      owned === OWNED ? andPredicates : andPredicates.slice();
+      owned === OWNED ? andPredicates : copyArray(andPredicates);
   }
 
   get value(): ClaimPredicate[] {
@@ -231,7 +231,8 @@ export class ClaimPredicateOr extends ClaimPredicateBase {
 
   constructor(orPredicates: ClaimPredicate[], owned?: typeof OWNED) {
     super();
-    this.orPredicates = owned === OWNED ? orPredicates : orPredicates.slice();
+    this.orPredicates =
+      owned === OWNED ? orPredicates : copyArray(orPredicates);
   }
 
   get value(): ClaimPredicate[] {

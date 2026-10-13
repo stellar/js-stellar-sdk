@@ -1,7 +1,7 @@
 import { array, int64, struct } from "@stellar/js-xdr";
 import type { XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
-import { OWNED } from "../values/owned.js";
+import { OWNED, copyArray } from "../values/owned.js";
 import { Asset, type AssetWire } from "./asset.js";
 import { MuxedAccount, type MuxedAccountWire } from "./muxed-account.js";
 
@@ -68,7 +68,7 @@ export class PathPaymentStrictReceiveOp extends XdrValue {
     this.destination = input.destination;
     this.destAsset = input.destAsset;
     this.destAmount = input.destAmount;
-    this.path = owned === OWNED ? input.path : input.path.slice();
+    this.path = owned === OWNED ? input.path : copyArray(input.path);
   }
 
   toXdrObject(): PathPaymentStrictReceiveOpWire {

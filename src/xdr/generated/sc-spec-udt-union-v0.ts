@@ -2,7 +2,7 @@ import { array, struct } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import { XdrString, xdrString } from "../values/xdr-string.js";
-import { OWNED } from "../values/owned.js";
+import { OWNED, copyArray } from "../values/owned.js";
 import {
   ScSpecUdtUnionCaseV0,
   type ScSpecUdtUnionCaseV0Wire,
@@ -58,7 +58,7 @@ export class ScSpecUdtUnionV0 extends XdrValue {
       input.lib instanceof XdrString ? input.lib : new XdrString(input.lib);
     this.name =
       input.name instanceof XdrString ? input.name : new XdrString(input.name);
-    this.cases = owned === OWNED ? input.cases : input.cases.slice();
+    this.cases = owned === OWNED ? input.cases : copyArray(input.cases);
   }
 
   toXdrObject(): ScSpecUdtUnionV0Wire {

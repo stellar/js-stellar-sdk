@@ -1,7 +1,7 @@
 import { array, struct } from "@stellar/js-xdr";
 import type { XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
-import { OWNED } from "../values/owned.js";
+import { OWNED, copyArray } from "../values/owned.js";
 import { Hash, type HashWire } from "./hash.js";
 
 export interface FloodDemandWire {
@@ -33,7 +33,9 @@ export class FloodDemand extends XdrValue {
     this.txHashes =
       owned === OWNED
         ? input.txHashes
-        : input.txHashes.map((v) => (v instanceof Hash ? v : new Hash(v)));
+        : copyArray(input.txHashes, (v) =>
+            v instanceof Hash ? v : new Hash(v),
+          );
   }
 
   toXdrObject(): FloodDemandWire {

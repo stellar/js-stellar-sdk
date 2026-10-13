@@ -1,7 +1,7 @@
 import { array, struct } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
-import { OWNED } from "../values/owned.js";
+import { OWNED, copyArray } from "../values/owned.js";
 import { LedgerUpgrade, type LedgerUpgradeWire } from "./ledger-upgrade.js";
 import {
   LedgerEntryChange,
@@ -43,7 +43,7 @@ export class UpgradeEntryMeta extends XdrValue {
   ) {
     super();
     this.upgrade = input.upgrade;
-    this.changes = owned === OWNED ? input.changes : input.changes.slice();
+    this.changes = owned === OWNED ? input.changes : copyArray(input.changes);
   }
 
   toXdrObject(): UpgradeEntryMetaWire {

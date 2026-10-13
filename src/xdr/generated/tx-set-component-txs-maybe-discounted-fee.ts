@@ -1,7 +1,7 @@
 import { array, int64, option, struct } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
-import { OWNED } from "../values/owned.js";
+import { OWNED, copyArray } from "../values/owned.js";
 import {
   TransactionEnvelope,
   type TransactionEnvelopeWire,
@@ -40,7 +40,7 @@ export class TxSetComponentTxsMaybeDiscountedFee extends XdrValue {
   ) {
     super();
     this.baseFee = input.baseFee;
-    this.txs = owned === OWNED ? input.txs : input.txs.slice();
+    this.txs = owned === OWNED ? input.txs : copyArray(input.txs);
   }
 
   toXdrObject(): TxSetComponentTxsMaybeDiscountedFeeWire {

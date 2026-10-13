@@ -1,7 +1,7 @@
 import { array, option, struct, uint32 } from "@stellar/js-xdr";
 import type { XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
-import { OWNED } from "../values/owned.js";
+import { OWNED, copyArray } from "../values/owned.js";
 import { PublicKey, type PublicKeyWire } from "./public-key.js";
 import {
   AccountEntryExtensionV2Ext,
@@ -65,7 +65,7 @@ export class AccountEntryExtensionV2 extends XdrValue {
     this.signerSponsoringIDs =
       owned === OWNED
         ? input.signerSponsoringIDs
-        : input.signerSponsoringIDs.slice();
+        : copyArray(input.signerSponsoringIDs);
     this.ext = input.ext;
   }
 

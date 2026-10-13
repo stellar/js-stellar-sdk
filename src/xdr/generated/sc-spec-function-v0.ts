@@ -2,7 +2,7 @@ import { array, struct } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import { XdrString, xdrString } from "../values/xdr-string.js";
-import { OWNED } from "../values/owned.js";
+import { OWNED, copyArray } from "../values/owned.js";
 import {
   ScSpecFunctionInputV0,
   type ScSpecFunctionInputV0Wire,
@@ -57,8 +57,8 @@ export class ScSpecFunctionV0 extends XdrValue {
       input.doc instanceof XdrString ? input.doc : new XdrString(input.doc);
     this.name =
       input.name instanceof XdrString ? input.name : new XdrString(input.name);
-    this.inputs = owned === OWNED ? input.inputs : input.inputs.slice();
-    this.outputs = owned === OWNED ? input.outputs : input.outputs.slice();
+    this.inputs = owned === OWNED ? input.inputs : copyArray(input.inputs);
+    this.outputs = owned === OWNED ? input.outputs : copyArray(input.outputs);
   }
 
   toXdrObject(): ScSpecFunctionV0Wire {

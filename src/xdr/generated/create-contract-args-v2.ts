@@ -1,7 +1,7 @@
 import { array, struct } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
-import { OWNED } from "../values/owned.js";
+import { OWNED, copyArray } from "../values/owned.js";
 import {
   ContractIdPreimage,
   type ContractIdPreimageWire,
@@ -55,7 +55,9 @@ export class CreateContractArgsV2 extends XdrValue {
     this.contractIdPreimage = input.contractIdPreimage;
     this.executable = input.executable;
     this.constructorArgs =
-      owned === OWNED ? input.constructorArgs : input.constructorArgs.slice();
+      owned === OWNED
+        ? input.constructorArgs
+        : copyArray(input.constructorArgs);
   }
 
   toXdrObject(): CreateContractArgsV2Wire {

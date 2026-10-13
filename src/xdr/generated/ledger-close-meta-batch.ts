@@ -1,7 +1,7 @@
 import { array, struct, uint32 } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
-import { OWNED } from "../values/owned.js";
+import { OWNED, copyArray } from "../values/owned.js";
 import {
   LedgerCloseMeta,
   type LedgerCloseMetaWire,
@@ -54,7 +54,9 @@ export class LedgerCloseMetaBatch extends XdrValue {
     this.startSequence = input.startSequence;
     this.endSequence = input.endSequence;
     this.ledgerCloseMetas =
-      owned === OWNED ? input.ledgerCloseMetas : input.ledgerCloseMetas.slice();
+      owned === OWNED
+        ? input.ledgerCloseMetas
+        : copyArray(input.ledgerCloseMetas);
   }
 
   toXdrObject(): LedgerCloseMetaBatchWire {

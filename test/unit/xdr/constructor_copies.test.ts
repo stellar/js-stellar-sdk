@@ -57,6 +57,28 @@ class ViewBytes extends Uint8Array {
   }
 }
 
+// An Array subclass whose own slice() returns the array itself.
+function withSelfSlice<T>(items: T[]): T[] {
+  class SelfSlice extends Array<T> {
+    slice(): T[] {
+      return this;
+    }
+  }
+  return SelfSlice.from(items);
+}
+
+// An Array subclass whose species makes slice() and map() return `outside`.
+function withSpecies<T>(items: T[], outside: T[]): T[] {
+  class Hijack extends Array<T> {}
+  Object.defineProperty(Hijack, Symbol.species, {
+    get: () =>
+      function steal() {
+        return outside;
+      },
+  });
+  return Hijack.from(items);
+}
+
 describe("XDR constructors copy their inputs", () => {
   describe("byte inputs", () => {
     it("BytesValue copies a Uint8Array input", () => {
@@ -67,6 +89,24 @@ describe("XDR constructors copy their inputs", () => {
       bytes[0] = 0xff;
 
       expect(sig.value).not.toBe(bytes);
+      expect(sig.toXdr("hex")).toBe(before);
+    });
+
+    it("BytesValue copies a Uint8Array subclass whose species returns another buffer", () => {
+      const outside = new Uint8Array(64);
+      class Hijack extends Uint8Array {}
+      Object.defineProperty(Hijack, Symbol.species, {
+        get: () =>
+          function steal() {
+            return outside;
+          },
+      });
+      const sig = new Signature(Hijack.from(new Uint8Array(64)));
+      const before = sig.toXdr("hex");
+
+      outside[0] = 0xff;
+
+      expect(sig.value).not.toBe(outside);
       expect(sig.toXdr("hex")).toBe(before);
     });
 
@@ -191,11 +231,15 @@ describe("XDR constructors copy their inputs", () => {
       expect(t.operations).toHaveLength(0);
     });
 
-    it("throws a TypeError for a missing array field", () => {
-      // Reflect.construct passes a value that the TypeScript signature forbids.
-      expect(() =>
-        Reflect.construct(LedgerFootprint, [{ readOnly: [] }]),
-      ).toThrow(TypeError);
+    it("does not turn an input that is not an array into an array", () => {
+      for (const readWrite of [5, {}, new Set(), undefined]) {
+        // Reflect.construct passes a value that the TypeScript signature forbids.
+        const footprint = Reflect.construct(LedgerFootprint, [
+          { readOnly: [], readWrite },
+        ]);
+
+        expect(() => footprint.toXdr()).toThrow();
+      }
     });
 
     it("an optional array union arm copies its input", () => {
@@ -230,6 +274,44 @@ describe("XDR constructors copy their inputs", () => {
       expect(component.executionStages).toHaveLength(1);
       expect(component.executionStages[0]).toHaveLength(1);
       expect(component.executionStages[0][0]).toHaveLength(1);
+      expect(component.toXdr("hex")).toBe(before);
+    });
+
+    it("copies an Array subclass whose slice() returns itself", () => {
+      const operations = withSelfSlice([op()]);
+      const t = tx(operations);
+      const before = t.toXdr("hex");
+
+      operations.push(op());
+
+      expect(t.operations).not.toBe(operations);
+      expect(t.toXdr("hex")).toBe(before);
+    });
+
+    it("copies an Array subclass whose species returns another array", () => {
+      const outside: Operation[] = [];
+      const t = tx(withSpecies([op()], outside));
+      const before = t.toXdr("hex");
+
+      outside.push(op(), op());
+
+      expect(t.operations).not.toBe(outside);
+      expect(t.toXdr("hex")).toBe(before);
+    });
+
+    it("copies nested arrays that override slice() or species", () => {
+      const inner = withSelfSlice([envelope()]);
+      const outside: TransactionEnvelope[][][] = [];
+      const component = new ParallelTxsComponent({
+        baseFee: null,
+        executionStages: withSpecies([[inner]], outside),
+      });
+      const before = component.toXdr("hex");
+
+      inner.push(envelope());
+      outside.push([]);
+
+      expect(component.executionStages).not.toBe(outside);
       expect(component.toXdr("hex")).toBe(before);
     });
   });

@@ -1,7 +1,7 @@
 import { array, struct, uint32 } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
-import { OWNED } from "../values/owned.js";
+import { OWNED, copyArray } from "../values/owned.js";
 
 export interface SorobanResourcesExtV0Wire {
   archivedSorobanEntries: number[];
@@ -38,7 +38,7 @@ export class SorobanResourcesExtV0 extends XdrValue {
     this.archivedSorobanEntries =
       owned === OWNED
         ? input.archivedSorobanEntries
-        : input.archivedSorobanEntries.slice();
+        : copyArray(input.archivedSorobanEntries);
   }
 
   toXdrObject(): SorobanResourcesExtV0Wire {

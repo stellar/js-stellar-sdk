@@ -11,7 +11,7 @@ import {
 } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, XdrError, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
-import { OWNED } from "../values/owned.js";
+import { OWNED, copyArray } from "../values/owned.js";
 import { InflationResultCode } from "./inflation-result-code.js";
 import {
   InflationPayout,
@@ -111,7 +111,7 @@ export class InflationResultSuccess extends InflationResultBase {
 
   constructor(payouts: InflationPayout[], owned?: typeof OWNED) {
     super();
-    this.payouts = owned === OWNED ? payouts : payouts.slice();
+    this.payouts = owned === OWNED ? payouts : copyArray(payouts);
   }
 
   get value(): InflationPayout[] {

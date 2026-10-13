@@ -1,7 +1,7 @@
 import { array, int64, option, struct, uint32, uint64 } from "@stellar/js-xdr";
 import type { XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
-import { OWNED } from "../values/owned.js";
+import { OWNED, copyArray } from "../values/owned.js";
 import { TimeBounds, type TimeBoundsWire } from "./time-bounds.js";
 import { LedgerBounds, type LedgerBoundsWire } from "./ledger-bounds.js";
 import { SignerKey, type SignerKeyWire } from "./signer-key.js";
@@ -89,7 +89,7 @@ export class PreconditionsV2 extends XdrValue {
     this.minSeqAge = input.minSeqAge;
     this.minSeqLedgerGap = input.minSeqLedgerGap;
     this.extraSigners =
-      owned === OWNED ? input.extraSigners : input.extraSigners.slice();
+      owned === OWNED ? input.extraSigners : copyArray(input.extraSigners);
   }
 
   toXdrObject(): PreconditionsV2Wire {

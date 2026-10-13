@@ -13,7 +13,7 @@ import {
 } from "@stellar/js-xdr";
 import { XdrError, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
-import { OWNED } from "../values/owned.js";
+import { OWNED, copyArray } from "../values/owned.js";
 import { ScSpecType } from "./sc-spec-type.js";
 import {
   ScSpecTypeBytesN,
@@ -935,7 +935,7 @@ export class ScSpecTypeTuple extends XdrValue {
   ) {
     super();
     this.valueTypes =
-      owned === OWNED ? input.valueTypes : input.valueTypes.slice();
+      owned === OWNED ? input.valueTypes : copyArray(input.valueTypes);
   }
 
   toXdrObject(): ScSpecTypeTupleWire {

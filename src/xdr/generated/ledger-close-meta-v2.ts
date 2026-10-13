@@ -1,7 +1,7 @@
 import { array, struct, uint64 } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
-import { OWNED } from "../values/owned.js";
+import { OWNED, copyArray } from "../values/owned.js";
 import {
   LedgerCloseMetaExt,
   type LedgerCloseMetaExtWire,
@@ -111,16 +111,16 @@ export class LedgerCloseMetaV2 extends XdrValue {
     this.ledgerHeader = input.ledgerHeader;
     this.txSet = input.txSet;
     this.txProcessing =
-      owned === OWNED ? input.txProcessing : input.txProcessing.slice();
+      owned === OWNED ? input.txProcessing : copyArray(input.txProcessing);
     this.upgradesProcessing =
       owned === OWNED
         ? input.upgradesProcessing
-        : input.upgradesProcessing.slice();
-    this.scpInfo = owned === OWNED ? input.scpInfo : input.scpInfo.slice();
+        : copyArray(input.upgradesProcessing);
+    this.scpInfo = owned === OWNED ? input.scpInfo : copyArray(input.scpInfo);
     this.totalByteSizeOfLiveSorobanState =
       input.totalByteSizeOfLiveSorobanState;
     this.evictedKeys =
-      owned === OWNED ? input.evictedKeys : input.evictedKeys.slice();
+      owned === OWNED ? input.evictedKeys : copyArray(input.evictedKeys);
   }
 
   toXdrObject(): LedgerCloseMetaV2Wire {

@@ -1,7 +1,7 @@
 import { array, struct } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
-import { OWNED } from "../values/owned.js";
+import { OWNED, copyArray } from "../values/owned.js";
 import { Hash, type HashWire } from "./hash.js";
 import {
   TransactionEnvelope,
@@ -46,7 +46,7 @@ export class TransactionSet extends XdrValue {
       input.previousLedgerHash instanceof Hash
         ? input.previousLedgerHash
         : new Hash(input.previousLedgerHash);
-    this.txs = owned === OWNED ? input.txs : input.txs.slice();
+    this.txs = owned === OWNED ? input.txs : copyArray(input.txs);
   }
 
   toXdrObject(): TransactionSetWire {

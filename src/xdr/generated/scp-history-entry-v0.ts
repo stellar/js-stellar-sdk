@@ -1,7 +1,7 @@
 import { array, struct } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
-import { OWNED } from "../values/owned.js";
+import { OWNED, copyArray } from "../values/owned.js";
 import { ScpQuorumSet, type ScpQuorumSetWire } from "./scp-quorum-set.js";
 import {
   LedgerScpMessages,
@@ -43,7 +43,7 @@ export class ScpHistoryEntryV0 extends XdrValue {
   ) {
     super();
     this.quorumSets =
-      owned === OWNED ? input.quorumSets : input.quorumSets.slice();
+      owned === OWNED ? input.quorumSets : copyArray(input.quorumSets);
     this.ledgerMessages = input.ledgerMessages;
   }
 

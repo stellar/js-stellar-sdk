@@ -1,7 +1,7 @@
 import { array, struct } from "@stellar/js-xdr";
 import type { XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
-import { OWNED } from "../values/owned.js";
+import { OWNED, copyArray } from "../values/owned.js";
 import {
   TimeSlicedPeerData,
   type TimeSlicedPeerDataWire,
@@ -51,9 +51,9 @@ export class TopologyResponseBodyV2 extends XdrValue {
   ) {
     super();
     this.inboundPeers =
-      owned === OWNED ? input.inboundPeers : input.inboundPeers.slice();
+      owned === OWNED ? input.inboundPeers : copyArray(input.inboundPeers);
     this.outboundPeers =
-      owned === OWNED ? input.outboundPeers : input.outboundPeers.slice();
+      owned === OWNED ? input.outboundPeers : copyArray(input.outboundPeers);
     this.nodeData = input.nodeData;
   }
 

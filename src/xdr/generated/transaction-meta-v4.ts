@@ -1,7 +1,7 @@
 import { array, option, struct } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
-import { OWNED } from "../values/owned.js";
+import { OWNED, copyArray } from "../values/owned.js";
 import { ExtensionPoint, type ExtensionPointWire } from "./extension-point.js";
 import {
   LedgerEntryChange,
@@ -90,15 +90,19 @@ export class TransactionMetaV4 extends XdrValue {
     super();
     this.ext = input.ext;
     this.txChangesBefore =
-      owned === OWNED ? input.txChangesBefore : input.txChangesBefore.slice();
+      owned === OWNED
+        ? input.txChangesBefore
+        : copyArray(input.txChangesBefore);
     this.operations =
-      owned === OWNED ? input.operations : input.operations.slice();
+      owned === OWNED ? input.operations : copyArray(input.operations);
     this.txChangesAfter =
-      owned === OWNED ? input.txChangesAfter : input.txChangesAfter.slice();
+      owned === OWNED ? input.txChangesAfter : copyArray(input.txChangesAfter);
     this.sorobanMeta = input.sorobanMeta;
-    this.events = owned === OWNED ? input.events : input.events.slice();
+    this.events = owned === OWNED ? input.events : copyArray(input.events);
     this.diagnosticEvents =
-      owned === OWNED ? input.diagnosticEvents : input.diagnosticEvents.slice();
+      owned === OWNED
+        ? input.diagnosticEvents
+        : copyArray(input.diagnosticEvents);
   }
 
   toXdrObject(): TransactionMetaV4Wire {

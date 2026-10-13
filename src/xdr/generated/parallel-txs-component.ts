@@ -1,7 +1,7 @@
 import { array, int64, option, struct } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
-import { OWNED } from "../values/owned.js";
+import { OWNED, copyArray } from "../values/owned.js";
 import {
   TransactionEnvelope,
   type TransactionEnvelopeWire,
@@ -54,7 +54,9 @@ export class ParallelTxsComponent extends XdrValue {
     this.executionStages =
       owned === OWNED
         ? input.executionStages
-        : input.executionStages.map((v) => v.map((v1) => v1.slice()));
+        : copyArray(input.executionStages, (v) =>
+            copyArray(v, (v1) => copyArray(v1)),
+          );
   }
 
   toXdrObject(): ParallelTxsComponentWire {

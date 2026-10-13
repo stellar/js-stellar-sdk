@@ -576,7 +576,8 @@ function renderImports(ctx, opts = {}) {
         path = "../values/enum-value.js";
       else if (v === "XdrString" || v === "xdrString")
         path = "../values/xdr-string.js";
-      else if (v === "OWNED" || v === "copyBytes") path = "../values/owned.js";
+      else if (v === "OWNED" || v === "copyBytes" || v === "copyArray")
+        path = "../values/owned.js";
       else path = "../values/xdr-value.js"; // XdrValue, type JsonValue
       if (!valueByPath.has(path)) valueByPath.set(path, new Set());
       valueByPath.get(path).add(v);
@@ -868,8 +869,9 @@ function inputCopyExpr(t, expr, ctx, depth = 0) {
   if (r.kind === "var_array" || r.kind === "array") {
     const param = depth === 0 ? "v" : `v${depth}`;
     const inner = inputCopyExpr(r.element, param, ctx, depth + 1);
-    if (inner === param) return `${expr}.slice()`;
-    return `${expr}.map((${param}) => ${inner})`;
+    ctx?.valueImports.add("copyArray");
+    if (inner === param) return `copyArray(${expr})`;
+    return `copyArray(${expr}, (${param}) => ${inner})`;
   }
   if (r.kind === "optional") {
     const inner = inputCopyExpr(r.element, expr, ctx, depth);

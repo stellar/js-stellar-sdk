@@ -1,7 +1,7 @@
 import { array, lazy, struct, uint32 } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
-import { OWNED } from "../values/owned.js";
+import { OWNED, copyArray } from "../values/owned.js";
 import { PublicKey, type PublicKeyWire } from "./public-key.js";
 
 export interface ScpQuorumSetWire {
@@ -45,9 +45,9 @@ export class ScpQuorumSet extends XdrValue {
     super();
     this.threshold = input.threshold;
     this.validators =
-      owned === OWNED ? input.validators : input.validators.slice();
+      owned === OWNED ? input.validators : copyArray(input.validators);
     this.innerSets =
-      owned === OWNED ? input.innerSets : input.innerSets.slice();
+      owned === OWNED ? input.innerSets : copyArray(input.innerSets);
   }
 
   toXdrObject(): ScpQuorumSetWire {
