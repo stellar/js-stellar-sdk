@@ -111,12 +111,16 @@ function buildBoundedUrl(config: HttpClientRequestConfig): string {
     const qs = new URLSearchParams(
       config.params as Record<string, string>,
     ).toString();
-    // Params after a fragment never reach the server. Axios drops it too.
-    const hashIndex = url.indexOf("#");
-    if (hashIndex !== -1) url = url.slice(0, hashIndex);
+    url = stripFragment(url);
     url += (url.includes("?") ? "&" : "?") + qs;
   }
   return url;
+}
+
+// Params after a fragment never reach the server. Axios drops it too.
+function stripFragment(url: string): string {
+  const hashIndex = url.indexOf("#");
+  return hashIndex === -1 ? url : url.slice(0, hashIndex);
 }
 
 // Mirrors feaxios's defaultTransformer: serialize request bodies based on
@@ -507,6 +511,17 @@ function createFetchClient(
           config.maxContentLength !== undefined
         ) {
           return boundedFetchAdapter(config);
+        }
+        // feaxios appends params after the fragment.
+        if (
+          config.url?.includes("#") &&
+          config.params &&
+          Object.keys(config.params).length > 0
+        ) {
+          return instance.request({
+            ...config,
+            url: stripFragment(config.url),
+          });
         }
         return instance.request(config);
       },

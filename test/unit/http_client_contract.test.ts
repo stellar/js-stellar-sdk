@@ -135,21 +135,41 @@ describe("HttpClient contract", () => {
       expect(requests[0].url).toContain("b=two");
     });
 
-    it("sends config.params on the bounded path when the URL has a fragment", async () => {
-      await httpClient.get(`${baseUrl}/q#frag`, {
-        params: { a: "1" },
+    it.each([
+      {
+        path: "bounded",
         maxContentLength: 10_000,
-      });
-      expect(requests[0].url).toBe("/q?a=1");
-    });
-
-    it("keeps an existing query and adds config.params when the URL has a fragment", async () => {
-      await httpClient.get(`${baseUrl}/q?x=1#frag?y=2`, {
-        params: { b: "2" },
+        url: "/q#frag",
+        expected: "/q?a=1",
+      },
+      {
+        path: "bounded",
         maxContentLength: 10_000,
-      });
-      expect(requests[0].url).toBe("/q?x=1&b=2");
-    });
+        url: "/q?x=1#frag?y=2",
+        expected: "/q?x=1&a=1",
+      },
+      {
+        path: "default",
+        maxContentLength: undefined,
+        url: "/q#frag",
+        expected: "/q?a=1",
+      },
+      {
+        path: "default",
+        maxContentLength: undefined,
+        url: "/q?x=1#frag?y=2",
+        expected: "/q?x=1&a=1",
+      },
+    ])(
+      "sends config.params before the fragment on the $path path: $url",
+      async ({ maxContentLength, url, expected }) => {
+        await httpClient.get(`${baseUrl}${url}`, {
+          params: { a: "1" },
+          maxContentLength,
+        });
+        expect(requests[0].url).toBe(expected);
+      },
+    );
   });
 
   describe("request headers", () => {
@@ -970,12 +990,10 @@ describe.skipIf(
       status: 404,
       headers: { "content-type": "text/plain" },
     });
-    try {
-      await httpClient.get("https://a.example/x", { maxContentLength: 10_000 });
-      throw new Error("expected rejection");
-    } catch (err: any) {
-      expect(err.response?.status).toBe(404);
-      expect(err.response?.data).toBe("caf\uFFFD");
-    }
+    await expect(
+      httpClient.get("https://a.example/x", { maxContentLength: 10_000 }),
+    ).rejects.toMatchObject({
+      response: { status: 404, data: "caf\uFFFD" },
+    });
   });
 });
