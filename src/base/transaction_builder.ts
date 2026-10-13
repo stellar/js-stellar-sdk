@@ -746,7 +746,7 @@ export class TransactionBuilder {
    * This method removes the need for simulation by handling the creation of the
    * appropriate authorization entries and ledger footprint for the transfer operation.
    *
-   * @param destination - the address of the recipient of the SAC transfer (should be a valid Stellar address or contract ID)
+   * @param destination - the address of the recipient of the SAC transfer (a G, M, C or W address)
    * @param asset - the SAC asset to be transferred
    * @param amount - the amount of tokens to be transferred in 7 decimals. IE 1 token with 7 decimals of precision would be represented as "1_0000000"
    * @param sorobanFees - optional Soroban fees for the transaction to override the default fees used
@@ -790,7 +790,9 @@ export class TransactionBuilder {
       }
     }
 
-    const isDestinationContract = StrKey.isValidContract(destination);
+    const isDestinationMuxedContract = StrKey.isValidMuxedContract(destination);
+    const isDestinationContract =
+      isDestinationMuxedContract || StrKey.isValidContract(destination);
     if (!isDestinationContract) {
       if (
         !StrKey.isValidEd25519PublicKey(destination) &&
@@ -802,11 +804,19 @@ export class TransactionBuilder {
       }
     }
 
-    // Resolve M... muxed addresses to their underlying G... address for
-    // ledger key construction (Keypair.fromPublicKey only accepts G... keys).
-    const destinationBaseAddress = isDestinationContract
-      ? destination
-      : extractBaseAddress(destination);
+    // Resolve M... and W... muxed addresses to their underlying G... or C...
+    // address for ledger key construction: balances are held by the base
+    // address, and the mux ID only appears in the transfer event.
+    let destinationBaseAddress: string;
+    if (isDestinationMuxedContract) {
+      destinationBaseAddress = Address.fromString(destination)
+        .baseAddress()
+        .toString();
+    } else if (isDestinationContract) {
+      destinationBaseAddress = destination;
+    } else {
+      destinationBaseAddress = extractBaseAddress(destination);
+    }
 
     if (
       destinationBaseAddress === extractBaseAddress(this.source.accountId())
@@ -867,7 +877,7 @@ export class TransactionBuilder {
             contract: Address.fromString(contractId).toScAddress(),
             key: ScVal.scvVec([
               nativeToScVal("Balance", { type: "symbol" }),
-              nativeToScVal(destination, { type: "address" }),
+              nativeToScVal(destinationBaseAddress, { type: "address" }),
             ]),
             durability: ContractDataDurability.persistent,
           }),

@@ -422,6 +422,47 @@ describe("TransactionBuilder", () => {
         );
       });
 
+      it("destination muxed contract: keys the balance on the base contract", () => {
+        const muxedContract = StrKey.encodeMuxedContract(
+          concatUint8Arrays([
+            StrKey.decodeContract(DESTINATION_CONTRACT),
+            new Uint8Array([0, 0, 0, 0, 0, 0, 0, 42]),
+          ]),
+        );
+        const tx = buildSacTx(muxedContract, asset);
+
+        const v1Tx = expectVariant(tx.toEnvelope(), "envelopeTypeTx").v1.tx;
+        const footprint = expectVariant(v1Tx.ext, "sorobanData").sorobanData
+          .resources.footprint;
+        const expectedReadWrite = [
+          xdr.LedgerKey.contractData(
+            new xdr.LedgerKeyContractData({
+              contract: contractAddressFromId(contractId),
+              key: xdr.ScVal.scvVec([
+                nativeToScVal("Balance", { type: "symbol" }),
+                nativeToScVal(DESTINATION_CONTRACT, { type: "address" }),
+              ]),
+              durability: xdr.ContractDataDurability.persistent,
+            }),
+          ),
+          ledgerKeyAccount(SOURCE_ACCOUNT),
+        ];
+        expect(footprint.readWrite.map((k) => k.toXdr("base64"))).toEqual(
+          expectedReadWrite.map((k) => k.toXdr("base64")),
+        );
+
+        // The transfer itself still names the muxed destination.
+        const hostFn = expectVariant(
+          v1Tx.operations[0]!.body,
+          "invokeHostFunction",
+        ).invokeHostFunctionOp.hostFunction;
+        const args = expectVariant(hostFn, "hostFunctionTypeInvokeContract")
+          .invokeContract.args;
+        expect(args[1]!.toXdr("base64")).toBe(
+          nativeToScVal(muxedContract, { type: "address" }).toXdr("base64"),
+        );
+      });
+
       it("destination account: writes destination and source accounts", () => {
         const tx = buildSacTx(DESTINATION_ACCOUNT, asset);
 
