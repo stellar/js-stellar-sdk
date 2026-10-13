@@ -16,6 +16,16 @@ import { encodeSegment, expandUriTemplate } from "../utils/url.js";
 // query-param.
 const JOINABLE = ["transaction"];
 
+// Link names that JavaScript calls implicitly, that shadow built-ins, or that
+// the SDK reads.
+const SKIPPED_LINK_KEYS = new Set([
+  "then",
+  "toJSON",
+  "paging_token",
+  "_links",
+  ...Object.getOwnPropertyNames(Object.prototype),
+]);
+
 export interface EventSourceOptions<T> {
   onmessage?: (
     value: T extends ServerApi.CollectionPage<infer U> ? U : T,
@@ -105,7 +115,7 @@ export class CallBuilder<
    * @see [MDN EventSource](https://developer.mozilla.org/en-US/docs/Web/API/EventSource)
    * @param options - (optional) EventSource options.
    *   - `onmessage` (optional): Callback function to handle incoming messages.
-   *   - `onerror` (optional): Callback function to handle errors.
+   *   - `onerror` (optional): Callback function to handle errors. For an event that the SDK cannot parse, it gets a `MessageEvent` of type `"error"` whose `data` is the error. Without `onerror`, the SDK skips such an event silently.
    *   - `reconnectTimeout` (optional): Custom stream connection timeout in ms, default is 15 seconds.
    * @returns Close function. Run to close the connection and stop listening for new events.
    */
@@ -195,14 +205,26 @@ export class CallBuilder<
           return;
         }
 
-        const result = message.data
-          ? this._parseRecord(JSON.parse(message.data))
-          : message;
+        clearTimeout(timeout);
+        createTimeout();
+
+        let result;
+        try {
+          result = message.data
+            ? this._parseRecord(JSON.parse(message.data))
+            : message;
+        } catch (err) {
+          // An error thrown from this listener would be an uncaught exception.
+          // Horizon's SSE id is the paging token, so a reconnect skips this event.
+          if (message.lastEventId) {
+            streamUrl.searchParams.set("cursor", message.lastEventId);
+          }
+          onError(new MessageEvent("error", { data: err }));
+          return;
+        }
         if (result.paging_token) {
           streamUrl.searchParams.set("cursor", result.paging_token);
         }
-        clearTimeout(timeout);
-        createTimeout();
         if (typeof options.onmessage !== "undefined") {
           options.onmessage(result);
         }
@@ -357,8 +379,12 @@ export class CallBuilder<
     if (!json._links) {
       return json;
     }
-    Object.keys(json._links).forEach((key) => {
-      const n = json._links[key];
+    const links = json._links;
+    Object.keys(links).forEach((key) => {
+      if (SKIPPED_LINK_KEYS.has(key)) {
+        return;
+      }
+      const n = links[key];
       let included = false;
       // If the key with the link name already exists, create a copy
       if (typeof json[key] !== "undefined") {
