@@ -34,6 +34,7 @@ import {
   TransactionV1Envelope,
   Uint64,
 } from "../xdr/index.js";
+import { OWNED } from "../xdr/values/owned.js";
 
 import { Account } from "./account.js";
 import { MuxedAccount } from "./muxed_account.js";
@@ -1092,8 +1093,10 @@ export class TransactionBuilder {
       operations: this.operations,
     });
 
+    // OWNED: the signatures array is a new literal; the operations array
+    // stays copied, because this builder keeps it.
     const txEnvelope = TransactionEnvelope.envelopeTypeTx(
-      new TransactionV1Envelope({ tx: xtx, signatures: [] }),
+      new TransactionV1Envelope({ tx: xtx, signatures: [] }, OWNED),
     );
 
     if (this.networkPassphrase === null) {

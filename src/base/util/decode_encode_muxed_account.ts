@@ -1,5 +1,11 @@
 import { concatUint8Arrays } from "uint8array-extras";
-import { MuxedAccount, MuxedAccountMed25519, Uint64 } from "../../xdr/index.js";
+import {
+  MuxedAccount,
+  MuxedAccountMed25519,
+  Uint256Bytes,
+  Uint64,
+} from "../../xdr/index.js";
+import { OWNED } from "../../xdr/values/owned.js";
 import { StrKey } from "../strkey.js";
 
 const MAX_UINT64 = BigInt("18446744073709551615"); // 2^64 - 1
@@ -42,7 +48,10 @@ export function decodeAddressToMuxedAccount(address: string): MuxedAccount {
     return _decodeAddressFullyToMuxedAccount(address);
   }
 
-  return MuxedAccount.keyTypeEd25519(StrKey.decodeEd25519PublicKey(address));
+  // OWNED: decodeEd25519PublicKey returns new bytes that nobody else holds.
+  return MuxedAccount.keyTypeEd25519(
+    new Uint256Bytes(StrKey.decodeEd25519PublicKey(address), OWNED),
+  );
 }
 
 /**
@@ -79,7 +88,8 @@ export function encodeMuxedAccount(address: string, id: string): MuxedAccount {
   return MuxedAccount.keyTypeMuxedEd25519(
     new MuxedAccountMed25519({
       id: Uint64.fromString(canonicalUint64Id(id)),
-      ed25519: StrKey.decodeEd25519PublicKey(address),
+      // OWNED: decodeEd25519PublicKey returns new bytes that nobody else holds.
+      ed25519: new Uint256Bytes(StrKey.decodeEd25519PublicKey(address), OWNED),
     }),
   );
 }

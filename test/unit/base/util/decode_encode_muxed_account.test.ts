@@ -35,6 +35,14 @@ const MUXED_CASES = [
   },
 ];
 
+// An SDK-made key that skips the constructor copy must still be a plain
+// Uint8Array over its own 32-byte buffer, not a view of a longer decode.
+function expectOwnKeyBuffer(key: Uint8Array): void {
+  expect(key.constructor).toBe(Uint8Array);
+  expect(key.byteOffset).toBe(0);
+  expect(key.buffer.byteLength).toBe(32);
+}
+
 describe("decodeAddressToMuxedAccount", () => {
   it("decodes a G... address to an ed25519 MuxedAccount", () => {
     const muxed = decodeAddressToMuxedAccount(PUBKEY);
@@ -45,6 +53,22 @@ describe("decodeAddressToMuxedAccount", () => {
     expect(Array.from(muxed.ed25519.toBytes())).toEqual(
       Array.from(StrKey.decodeEd25519PublicKey(PUBKEY)),
     );
+  });
+
+  it("stores a G... key in its own buffer", () => {
+    const muxed = decodeAddressToMuxedAccount(PUBKEY);
+    if (muxed.type !== "keyTypeEd25519") throw new Error("expected ed25519");
+
+    expectOwnKeyBuffer(muxed.ed25519.toBytes());
+  });
+
+  it("stores an M... key in its own buffer, not a view of the decode", () => {
+    const muxed = decodeAddressToMuxedAccount(MPUBKEY);
+    if (muxed.type !== "keyTypeMuxedEd25519") {
+      throw new Error("expected muxed");
+    }
+
+    expectOwnKeyBuffer(muxed.med25519.ed25519.toBytes());
   });
 
   it.each(MUXED_CASES)(
@@ -105,6 +129,15 @@ describe("encodeMuxedAccount", () => {
       Array.from(StrKey.decodeEd25519PublicKey(PUBKEY)),
     );
     expect(inner.id).toEqual(BigInt("420"));
+  });
+
+  it("stores the key in its own buffer", () => {
+    const muxed = encodeMuxedAccount(PUBKEY, "420");
+    if (muxed.type !== "keyTypeMuxedEd25519") {
+      throw new Error("expected muxed");
+    }
+
+    expectOwnKeyBuffer(muxed.med25519.ed25519.toBytes());
   });
 
   it("roundtrips through encodeMuxedAccountToAddress", () => {
