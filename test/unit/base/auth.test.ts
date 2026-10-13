@@ -829,6 +829,21 @@ describe("building authorization entries", () => {
   });
 
   describe("authorizeInvocation", () => {
+    it.each([
+      "MA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJVAAAAAAAAAAAAAJLK",
+      "WA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJVAAAAAAAAAAAACWJY",
+    ])("rejects a muxed publicKey %s", (muxed) => {
+      expect(() =>
+        authorizeInvocation({
+          signer: kp,
+          validUntilLedgerSeq: 10,
+          invocation: authEntry.rootInvocation,
+          networkPassphrase: Networks.TESTNET,
+          publicKey: muxed,
+        }),
+      ).toThrow(/cannot sign authorization entries/);
+    });
+
     // authorizeInvocation defaults to CAP-71 SOROBAN_CREDENTIALS_ADDRESS_V2
     // entries; the legacy arm is opt-in via `authV2: false`.
     it.each([
@@ -1154,6 +1169,56 @@ describe("building authorization entries", () => {
           Address.fromScAddress(node.address).toString(),
         );
         expect(order).toEqual(expectedOrder);
+      });
+
+      it.each([
+        "MA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJVAAAAAAAAAAAAAJLK",
+        "WA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJVAAAAAAAAAAAACWJY",
+      ])("rejects a muxed delegate address %s, at any depth", (muxed) => {
+        for (const delegates of [
+          [{ address: muxed }],
+          [
+            {
+              address: Keypair.random().publicKey(),
+              nestedDelegates: [{ address: muxed }],
+            },
+          ],
+        ]) {
+          expect(() =>
+            buildWithDelegatesEntry({
+              entry: addressV2Entry(),
+              validUntilLedgerSeq: 100,
+              delegates,
+            }),
+          ).toThrow(/cannot sign authorization entries/);
+        }
+      });
+
+      it.each([
+        "MA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJVAAAAAAAAAAAAAJLK",
+        "WA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJVAAAAAAAAAAAACWJY",
+      ])("rejects an entry whose top-level address is muxed: %s", (muxed) => {
+        const entry = addressV2Entry();
+        const creds = (entry.credentials as xdr.SorobanCredentialsAddressV2)
+          .value;
+        const muxedEntry = new xdr.SorobanAuthorizationEntry({
+          rootInvocation: entry.rootInvocation,
+          credentials: xdr.SorobanCredentials.sorobanCredentialsAddressV2(
+            new xdr.SorobanAddressCredentials({
+              address: new Address(muxed).toScAddress(),
+              nonce: creds.nonce,
+              signatureExpirationLedger: creds.signatureExpirationLedger,
+              signature: creds.signature,
+            }),
+          ),
+        });
+        expect(() =>
+          buildWithDelegatesEntry({
+            entry: muxedEntry,
+            validUntilLedgerSeq: 100,
+            delegates: [{ address: Keypair.random().publicKey() }],
+          }),
+        ).toThrow(/cannot sign authorization entries/);
       });
 
       it("throws on duplicate delegate addresses within a level", () => {

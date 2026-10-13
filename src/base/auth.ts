@@ -21,7 +21,7 @@ import { StrKey } from "./strkey.js";
 import type { Networks } from "./network.js";
 import { hash } from "./hashing.js";
 
-import { Address } from "./address.js";
+import { Address, assertNotMuxed } from "./address.js";
 import { nativeToScVal } from "./scval.js";
 
 /**
@@ -480,7 +480,7 @@ export function authorizeInvocation(
   // credential union arm differs. authorizeEntry picks the matching signature
   // preimage (legacy vs. address-bound) off whichever arm we build here.
   const addressCredentials = new SorobanAddressCredentials({
-    address: new Address(pk).toScAddress(),
+    address: credentialAddress(pk),
     nonce,
     signatureExpirationLedger: 0, // replaced
     signature: ScVal.scvVec([]), // replaced
@@ -624,7 +624,8 @@ export interface BuildWithDelegatesParams {
  *
  * @param params - see {@link BuildWithDelegatesParams}
  * @throws `Error` if `entry` is not an `ADDRESS`/`ADDRESS_V2` entry, or if any
- *    delegates array contains a duplicate address.
+ *    delegates array contains a duplicate address. `TypeError` if the entry's
+ *    address or any delegate address is muxed (`M...` or `W...`).
  */
 export function buildWithDelegatesEntry(
   params: BuildWithDelegatesParams,
@@ -646,7 +647,9 @@ export function buildWithDelegatesEntry(
     credentials: SorobanCredentials.sorobanCredentialsAddressWithDelegates(
       new SorobanAddressCredentialsWithDelegates({
         addressCredentials: new SorobanAddressCredentials({
-          address: addrAuth.address,
+          address: credentialAddress(
+            Address.fromScAddress(addrAuth.address).toString(),
+          ),
           nonce: addrAuth.nonce,
           signatureExpirationLedger: validUntilLedgerSeq,
           signature: signature ?? ScVal.scvVoid(),
@@ -655,6 +658,17 @@ export function buildWithDelegatesEntry(
       }),
     ),
   });
+}
+
+// The host rejects muxed (M... / W...) addresses in auth credentials and
+// delegate signers, so fail before building an entry that can never verify.
+function credentialAddress(address: string): ScAddress {
+  const addr = new Address(address);
+  assertNotMuxed(
+    addr,
+    "cannot sign authorization entries; use its base address",
+  );
+  return addr.toScAddress();
 }
 
 /**
@@ -668,7 +682,7 @@ function buildDelegateNodes(
   const nodes = delegates.map(
     (delegate) =>
       new SorobanDelegateSignature({
-        address: new Address(delegate.address).toScAddress(),
+        address: credentialAddress(delegate.address),
         signature: delegate.signature ?? ScVal.scvVoid(),
         nestedDelegates: buildDelegateNodes(delegate.nestedDelegates ?? []),
       }),
