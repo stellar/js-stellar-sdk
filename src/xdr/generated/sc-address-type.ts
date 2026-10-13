@@ -13,7 +13,8 @@ export type ScAddressTypeName =
   | "scAddressTypeContract"
   | "scAddressTypeMuxedAccount"
   | "scAddressTypeClaimableBalance"
-  | "scAddressTypeLiquidityPool";
+  | "scAddressTypeLiquidityPool"
+  | "scAddressTypeMuxedContract";
 
 /**
  * ```xdr
@@ -23,11 +24,8 @@ export type ScAddressTypeName =
  *     SC_ADDRESS_TYPE_CONTRACT = 1,
  *     SC_ADDRESS_TYPE_MUXED_ACCOUNT = 2,
  *     SC_ADDRESS_TYPE_CLAIMABLE_BALANCE = 3,
- *     SC_ADDRESS_TYPE_LIQUIDITY_POOL = 4
- * #ifdef CAP_0084_MUXED_CONTRACT
- *     ,
+ *     SC_ADDRESS_TYPE_LIQUIDITY_POOL = 4,
  *     SC_ADDRESS_TYPE_MUXED_CONTRACT = 5
- * #endif
  * };
  * ```
  */
@@ -52,6 +50,10 @@ export class ScAddressType extends EnumValue<ScAddressTypeName> {
     "scAddressTypeLiquidityPool",
     4,
   );
+  static readonly scAddressTypeMuxedContract = new ScAddressType(
+    "scAddressTypeMuxedContract",
+    5,
+  );
 
   static readonly schema = withMemberPrefix(
     enumType("ScAddressType", {
@@ -60,6 +62,7 @@ export class ScAddressType extends EnumValue<ScAddressTypeName> {
       scAddressTypeMuxedAccount: 2,
       scAddressTypeClaimableBalance: 3,
       scAddressTypeLiquidityPool: 4,
+      scAddressTypeMuxedContract: 5,
     }),
     "scAddressType",
   );
