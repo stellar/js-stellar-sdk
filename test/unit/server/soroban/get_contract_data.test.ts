@@ -117,6 +117,54 @@ describe("Server#getContractData", () => {
     });
   });
 
+  it("rejects keys that contain a muxed address", async () => {
+    const muxed = Address.fromString(
+      "WA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJVAAAAAAAAAAAACWJY",
+    ).toScVal();
+    const muxedAccount = Address.fromString(
+      "MA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJVAAAAAAAAAAAAAJLK",
+    ).toScVal();
+    for (const bad of [
+      muxed,
+      muxedAccount,
+      xdr.ScVal.scvVec([nativeToScVal("Balance"), muxed]),
+      xdr.ScVal.scvMap([
+        new xdr.ScMapEntry({ key: nativeToScVal("owner"), val: muxed }),
+      ]),
+    ]) {
+      await expect(server.getContractData(address, bad)).rejects.toThrow(
+        /cannot contain muxed addresses/,
+      );
+    }
+    expect(mockPost).not.toHaveBeenCalled();
+  });
+
+  it("rejects muxed addresses", async () => {
+    const muxed = Address.muxedContract(
+      new Uint8Array([
+        ...new Address(address).toBuffer(),
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+      ]),
+    );
+    await expect(server.getContractData(muxed, key)).rejects.toThrow(
+      /cannot own contract data/,
+    );
+    await expect(server.getContractData(muxed.toString(), key)).rejects.toThrow(
+      TypeError,
+    );
+    await expect(server.getContractData(muxed.toString(), key)).rejects.toThrow(
+      /cannot own contract data/,
+    );
+    expect(mockPost).not.toHaveBeenCalled();
+  });
+
   // Absence and "could not ask" are different answers. Callers branch on the
   // first to drive deployment status, eviction detection and cache
   // invalidation; for them a transport error misread as 404 is a wrong state

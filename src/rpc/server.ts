@@ -11,6 +11,7 @@ import {
   nativeToScVal,
   scValToNative,
 } from "../base/index.js";
+import { assertNotMuxed } from "../base/address.js";
 
 import {
   concatUint8Arrays,
@@ -160,6 +161,24 @@ function findCreatedAccountSequenceInTransactionMeta(
     }
   }
   throw new Error("No account created in transaction");
+}
+
+function containsMuxedAddress(val: ScVal): boolean {
+  switch (val.type) {
+    case "scvAddress":
+      return (
+        val.value.type === "scAddressTypeMuxedAccount" ||
+        val.value.type === "scAddressTypeMuxedContract"
+      );
+    case "scvVec":
+      return (val.value ?? []).some(containsMuxedAddress);
+    case "scvMap":
+      return (val.value ?? []).some(
+        (e) => containsMuxedAddress(e.key) || containsMuxedAddress(e.val),
+      );
+    default:
+      return false;
+  }
 }
 
 /**
@@ -421,8 +440,8 @@ export class RpcServer {
    * @returns Resolves with balance entry details
    *    when available.
    *
-   * @throws If the supplied `address` is not a valid account or
-   *    contract strkey.
+   * @throws If the supplied `address` is not a valid account or contract
+   *    strkey, or is a muxed address (`M...` or `W...`).
    *
    * @example
    * ```ts
@@ -472,6 +491,8 @@ export class RpcServer {
     } else if (StrKey.isValidContract(addr)) {
       return this.getSACBalance(addr, asset, networkPassphrase);
     }
+    // Balances are held by the base address, never per mux ID.
+    assertNotMuxed(addr, "has no balance of its own; use its base address");
 
     throw new Error(`invalid address: ${address}`);
   }
@@ -517,6 +538,9 @@ export class RpcServer {
    *    or 'persistent' (the default), see {@link rpc.Durability}.
    * @returns The current data value
    *
+   * @throws If `contract` is a muxed address, or `key` contains a muxed
+   *    address (`M...` or `W...`).
+   *
    * **Warning:** If the data entry in question is a 'temporary' entry, it's
    * entirely possible that it has expired out of existence.
    *
@@ -542,6 +566,13 @@ export class RpcServer {
   ): Promise<Api.LedgerEntryResult> {
     // coalesce `contract` param variants to an ScAddress
     let scAddress: ScAddress;
+    // Muxed addresses can never own contract data.
+    if (typeof contract === "string" || contract instanceof Address) {
+      assertNotMuxed(
+        contract,
+        "cannot own contract data; use its base address",
+      );
+    }
     if (typeof contract === "string") {
       scAddress = new Contract(contract).address().toScAddress();
     } else if (contract instanceof Address) {
@@ -550,6 +581,13 @@ export class RpcServer {
       scAddress = contract.address().toScAddress();
     } else {
       throw new TypeError(`unknown contract type: ${contract}`);
+    }
+
+    // The host rejects muxed addresses anywhere in a storage key.
+    if (containsMuxedAddress(key)) {
+      throw new TypeError(
+        "contract data keys cannot contain muxed addresses (M... or W...)",
+      );
     }
 
     let xdrDurability: ContractDataDurability;
@@ -1810,7 +1848,7 @@ export class RpcServer {
    *    entry details if and only if the request returned a valid balance ledger
    *    entry. If it doesn't, the `balanceEntry` field will not exist.
    *
-   * @throws If `address` is not a valid contract ID (C...).
+   * @throws If `address` is not a valid contract ID (`C...`).
    *
    * @see getLedgerEntries
    * @see https://developers.stellar.org/docs/tokens/stellar-asset-contract
@@ -1840,6 +1878,10 @@ export class RpcServer {
   ): Promise<Api.BalanceResponse> {
     const addressString =
       address instanceof Address ? address.toString() : address;
+    assertNotMuxed(
+      addressString,
+      "has no balance of its own; use its base address",
+    );
 
     if (!StrKey.isValidContract(addressString)) {
       throw new TypeError(`expected contract ID, got ${addressString}`);
