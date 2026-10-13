@@ -484,6 +484,42 @@ describe("CallBuilder link names", () => {
     ]);
   });
 
+  it("keeps paging_token when a link is named paging_token", async () => {
+    const { server } = mockServer(
+      `{"id":"1","paging_token":"1",${links("paging_token")}}`,
+    );
+
+    const record = await server.operations().operation("1").call();
+
+    expect(record.paging_token).toBe("1");
+    expect(Object.keys(record)).toEqual([
+      "id",
+      "paging_token",
+      "_links",
+      "self",
+    ]);
+  });
+
+  it("keeps _links when a link is named _links", async () => {
+    const { server } = mockServer(`{"id":"1",${links("_links")}}`);
+
+    const record = await server.operations().operation("1").call();
+
+    expect(record._links.self.href).toBe(`${HORIZON}/operations/1/self`);
+    expect(Object.keys(record)).toEqual(["id", "_links", "self"]);
+  });
+
+  it("loads a link that comes after a link named _links", async () => {
+    const { server, get } = mockServer(
+      `{"id":"1","_links":{"_links":{"href":"${HORIZON}/l"},"self":{"href":"${HORIZON}/operations/1"}}}`,
+    );
+
+    const record = await server.operations().operation("1").call();
+    await record.self();
+
+    expect(get).toHaveBeenLastCalledWith(`${HORIZON}/operations/1`);
+  });
+
   it("skips a then link in a collection page record", async () => {
     const { server } = mockServer(
       `{${links("next", "prev")},"_embedded":{"records":[{"id":"1",${links("then")}}]}}`,

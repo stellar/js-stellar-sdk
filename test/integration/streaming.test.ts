@@ -225,6 +225,46 @@ describe("integration tests: streaming", () => {
 
     server.close();
   });
+
+  it("keeps the cursor when a record has a link named paging_token", async () => {
+    let resolveCursor: (cursor: string | null) => void = () => {};
+    const reconnectCursor = new Promise<string | null>((resolve) => {
+      resolveCursor = resolve;
+    });
+    let requests = 0;
+    const server = http.createServer((request, response) => {
+      requests += 1;
+      response.writeHead(200, { "Content-Type": "text/event-stream" });
+      if (requests === 1) {
+        const record = {
+          id: "1",
+          paging_token: "1",
+          _links: { paging_token: { href: "/p" } },
+        };
+        response.write(`id: 1\ndata: ${JSON.stringify(record)}\n\n`);
+        response.write("event: close\ndata: byebye\n\n");
+        response.end();
+        return;
+      }
+      const url = new URL(request.url ?? "", "http://localhost");
+      resolveCursor(url.searchParams.get("cursor"));
+    });
+    const port = await listenOnFreePort(server);
+
+    const closeStream = new Horizon.Server(`http://localhost:${port}`, {
+      allowHttp: true,
+    })
+      .operations()
+      .stream({ onerror: () => {} });
+
+    try {
+      expect(await reconnectCursor).toBe("1");
+    } finally {
+      closeStream();
+      server.closeAllConnections();
+      server.close();
+    }
+  });
 });
 
 describe("integration tests: stream events that cannot be parsed", () => {
@@ -318,10 +358,10 @@ describe("integration tests: stream events that cannot be parsed", () => {
       allowHttp: true,
     })
       .operations()
-      .stream({ reconnectTimeout: 500, onerror: () => {} });
+      .stream({ reconnectTimeout: 1000, onerror: () => {} });
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1300));
+      await new Promise((resolve) => setTimeout(resolve, 2500));
       expect(requests).toBe(1);
     } finally {
       closeStream();

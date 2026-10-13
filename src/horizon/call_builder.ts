@@ -16,10 +16,13 @@ import { encodeSegment, expandUriTemplate } from "../utils/url.js";
 // query-param.
 const JOINABLE = ["transaction"];
 
-// Link names that JavaScript calls implicitly or that shadow built-ins.
+// Link names that JavaScript calls implicitly, that shadow built-ins, or that
+// the SDK reads.
 const SKIPPED_LINK_KEYS = new Set([
   "then",
   "toJSON",
+  "paging_token",
+  "_links",
   ...Object.getOwnPropertyNames(Object.prototype),
 ]);
 
@@ -202,6 +205,9 @@ export class CallBuilder<
           return;
         }
 
+        clearTimeout(timeout);
+        createTimeout();
+
         let result;
         try {
           result = message.data
@@ -213,18 +219,12 @@ export class CallBuilder<
           if (message.lastEventId) {
             streamUrl.searchParams.set("cursor", message.lastEventId);
           }
-          clearTimeout(timeout);
-          createTimeout();
-          if (options.onerror) {
-            options.onerror(new MessageEvent("error", { data: err }));
-          }
+          onError(new MessageEvent("error", { data: err }));
           return;
         }
         if (result.paging_token) {
           streamUrl.searchParams.set("cursor", result.paging_token);
         }
-        clearTimeout(timeout);
-        createTimeout();
         if (typeof options.onmessage !== "undefined") {
           options.onmessage(result);
         }
@@ -379,11 +379,12 @@ export class CallBuilder<
     if (!json._links) {
       return json;
     }
-    Object.keys(json._links).forEach((key) => {
+    const links = json._links;
+    Object.keys(links).forEach((key) => {
       if (SKIPPED_LINK_KEYS.has(key)) {
         return;
       }
-      const n = json._links[key];
+      const n = links[key];
       let included = false;
       // If the key with the link name already exists, create a copy
       if (typeof json[key] !== "undefined") {
