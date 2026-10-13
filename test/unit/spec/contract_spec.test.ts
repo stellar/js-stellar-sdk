@@ -11,6 +11,9 @@ import type { Spec } from "../../../src/contract/spec.js";
 const publicKey = "GCBVOLOM32I7OD5TWZQCIXCXML3TK56MDY7ZMTAILIBQHHKPCVU42XYW";
 const muxedKey =
   "MA2T2WYMPAPG3PGXIHA7H6BZDBX24ZHFXZFQ7PLAGIHKN5IFB4JBOAAAAAAAAAAAAEJLO";
+const contractKey = "CA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJUWDA";
+const muxedContractKey =
+  "WA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJVAAAAAAAAAAAACWJY";
 const addr = Address.fromString(publicKey);
 const muxedAddr = Address.fromString(muxedKey);
 let SPEC: Spec;
@@ -478,6 +481,39 @@ describe("Can round trip custom types", () => {
 
   it("muxed_address", () => {
     roundtrip("muxed_address", muxedAddr.toString());
+  });
+
+  it("muxed_address with a muxed contract string", () => {
+    roundtrip("muxed_address", muxedContractKey);
+  });
+
+  it("muxed_address accepts Address and Contract objects", () => {
+    for (const val of [
+      muxedAddr,
+      Address.fromString(muxedContractKey),
+      addr,
+      new Contract(contractKey),
+    ]) {
+      const [scVal] = SPEC.funcArgsToScVals("muxed_address", {
+        muxed_address: val,
+      });
+      expect(Address.fromScVal(expectDefined(scVal)).toString()).toBe(
+        val instanceof Contract ? val.contractId() : val.toString(),
+      );
+    }
+  });
+
+  it("addresse rejects muxed addresses", () => {
+    for (const val of [
+      muxedKey,
+      muxedContractKey,
+      muxedAddr,
+      Address.fromString(muxedContractKey),
+    ]) {
+      expect(() =>
+        SPEC.funcArgsToScVals("addresse", { addresse: val }),
+      ).toThrow(/must be MuxedAddress/);
+    }
   });
 
   it("bytes", () => {
