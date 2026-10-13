@@ -1,6 +1,7 @@
 import { array, int64, struct } from "@stellar/js-xdr";
 import type { XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
+import { OWNED } from "../values/owned.js";
 import {
   ClaimableBalanceId,
   type ClaimableBalanceIdWire,
@@ -66,16 +67,20 @@ export class ClaimableBalanceEntry extends XdrValue {
     },
   );
 
-  constructor(input: {
-    balanceId: ClaimableBalanceId;
-    claimants: Claimant[];
-    asset: Asset;
-    amount: bigint;
-    ext: ClaimableBalanceEntryExt;
-  }) {
+  constructor(
+    input: {
+      balanceId: ClaimableBalanceId;
+      claimants: Claimant[];
+      asset: Asset;
+      amount: bigint;
+      ext: ClaimableBalanceEntryExt;
+    },
+    owned?: typeof OWNED,
+  ) {
     super();
     this.balanceId = input.balanceId;
-    this.claimants = input.claimants;
+    this.claimants =
+      owned === OWNED ? input.claimants : input.claimants.slice();
     this.asset = input.asset;
     this.amount = input.amount;
     this.ext = input.ext;
@@ -92,12 +97,15 @@ export class ClaimableBalanceEntry extends XdrValue {
   }
 
   static fromXdrObject(wire: ClaimableBalanceEntryWire): ClaimableBalanceEntry {
-    return new ClaimableBalanceEntry({
-      balanceId: ClaimableBalanceId.fromXdrObject(wire.balanceId),
-      claimants: wire.claimants.map((w) => Claimant.fromXdrObject(w)),
-      asset: Asset.fromXdrObject(wire.asset),
-      amount: wire.amount,
-      ext: ClaimableBalanceEntryExt.fromXdrObject(wire.ext),
-    });
+    return new ClaimableBalanceEntry(
+      {
+        balanceId: ClaimableBalanceId.fromXdrObject(wire.balanceId),
+        claimants: wire.claimants.map((w) => Claimant.fromXdrObject(w)),
+        asset: Asset.fromXdrObject(wire.asset),
+        amount: wire.amount,
+        ext: ClaimableBalanceEntryExt.fromXdrObject(wire.ext),
+      },
+      OWNED,
+    );
   }
 }

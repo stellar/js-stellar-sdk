@@ -1,6 +1,7 @@
 import { array, int64, option, struct, uint32 } from "@stellar/js-xdr";
 import type { XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
+import { OWNED } from "../values/owned.js";
 import { Uint256Bytes, type Uint256BytesWire } from "./uint256-bytes.js";
 import { TimeBounds, type TimeBoundsWire } from "./time-bounds.js";
 import { Memo, type MemoWire } from "./memo.js";
@@ -58,15 +59,18 @@ export class TransactionV0 extends XdrValue {
     ext: TransactionV0Ext.schema,
   });
 
-  constructor(input: {
-    sourceAccountEd25519: Uint256Bytes | Uint8Array | string;
-    fee: number;
-    seqNum: bigint;
-    timeBounds: TimeBounds | null;
-    memo: Memo;
-    operations: Operation[];
-    ext: TransactionV0Ext;
-  }) {
+  constructor(
+    input: {
+      sourceAccountEd25519: Uint256Bytes | Uint8Array | string;
+      fee: number;
+      seqNum: bigint;
+      timeBounds: TimeBounds | null;
+      memo: Memo;
+      operations: Operation[];
+      ext: TransactionV0Ext;
+    },
+    owned?: typeof OWNED,
+  ) {
     super();
     this.sourceAccountEd25519 =
       input.sourceAccountEd25519 instanceof Uint256Bytes
@@ -76,7 +80,8 @@ export class TransactionV0 extends XdrValue {
     this.seqNum = input.seqNum;
     this.timeBounds = input.timeBounds;
     this.memo = input.memo;
-    this.operations = input.operations;
+    this.operations =
+      owned === OWNED ? input.operations : input.operations.slice();
     this.ext = input.ext;
   }
 
@@ -94,19 +99,22 @@ export class TransactionV0 extends XdrValue {
   }
 
   static fromXdrObject(wire: TransactionV0Wire): TransactionV0 {
-    return new TransactionV0({
-      sourceAccountEd25519: Uint256Bytes.fromXdrObject(
-        wire.sourceAccountEd25519,
-      ),
-      fee: wire.fee,
-      seqNum: wire.seqNum,
-      timeBounds:
-        wire.timeBounds === null
-          ? null
-          : TimeBounds.fromXdrObject(wire.timeBounds),
-      memo: Memo.fromXdrObject(wire.memo),
-      operations: wire.operations.map((w) => Operation.fromXdrObject(w)),
-      ext: TransactionV0Ext.fromXdrObject(wire.ext),
-    });
+    return new TransactionV0(
+      {
+        sourceAccountEd25519: Uint256Bytes.fromXdrObject(
+          wire.sourceAccountEd25519,
+        ),
+        fee: wire.fee,
+        seqNum: wire.seqNum,
+        timeBounds:
+          wire.timeBounds === null
+            ? null
+            : TimeBounds.fromXdrObject(wire.timeBounds),
+        memo: Memo.fromXdrObject(wire.memo),
+        operations: wire.operations.map((w) => Operation.fromXdrObject(w)),
+        ext: TransactionV0Ext.fromXdrObject(wire.ext),
+      },
+      OWNED,
+    );
   }
 }

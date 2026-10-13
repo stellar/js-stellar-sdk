@@ -1,5 +1,6 @@
 import { varOpaque } from "@stellar/js-xdr";
 import { BytesValue } from "../values/bytes-value.js";
+import { OWNED } from "../values/owned.js";
 
 export type EncryptedBodyWire = Uint8Array;
 
@@ -13,6 +14,6 @@ export class EncryptedBody extends BytesValue<"EncryptedBody"> {
   static readonly schema = varOpaque(64000, "EncryptedBody");
 
   static fromXdrObject(wire: Uint8Array): EncryptedBody {
-    return new EncryptedBody(wire);
+    return new EncryptedBody(wire, OWNED);
   }
 }

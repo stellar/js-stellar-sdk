@@ -3,6 +3,7 @@ import type { Reader } from "@stellar/js-xdr";
 import type { Writer } from "@stellar/js-xdr";
 import { BaseType, XdrError, type XdrType } from "@stellar/js-xdr";
 import { string as stringBytes } from "@stellar/js-xdr";
+import { OWNED, copyBytes } from "./owned.js";
 
 // Wrapper for XDR `string<N>` values.
 //
@@ -29,7 +30,7 @@ export class XdrString {
   declare readonly [TAG]: true;
   readonly bytes: Uint8Array;
 
-  constructor(input: string | Uint8Array | XdrString) {
+  constructor(input: string | Uint8Array | XdrString, owned?: typeof OWNED) {
     if (input instanceof XdrString) {
       // The migration guide documents this branch as a copy — don't alias
       // the original's bytes.
@@ -37,7 +38,7 @@ export class XdrString {
     } else if (typeof input === "string") {
       this.bytes = new TextEncoder().encode(input);
     } else if (input instanceof Uint8Array) {
-      this.bytes = input;
+      this.bytes = owned === OWNED ? input : copyBytes(input);
     } else {
       throw new TypeError(
         "XdrString: expected string, Uint8Array, or XdrString",
@@ -194,7 +195,7 @@ export class XdrString {
         );
       }
     }
-    return new XdrString(Uint8Array.from(out));
+    return new XdrString(Uint8Array.from(out), OWNED);
   }
 
   equals(other: XdrString): boolean {
@@ -232,7 +233,7 @@ class XdrStringType extends BaseType<XdrString> {
   }
 
   _read(reader: Reader, path: string): XdrString {
-    return new XdrString(this.#inner._read(reader, path));
+    return new XdrString(this.#inner._read(reader, path), OWNED);
   }
 
   _write(
@@ -249,7 +250,8 @@ class XdrStringType extends BaseType<XdrString> {
     ) {
       throw new XdrError(`${path}: expected string, Uint8Array, or XdrString`);
     }
-    const xs = value instanceof XdrString ? value : new XdrString(value);
+    // OWNED: `xs` only lives for this write, so a copy is not needed.
+    const xs = value instanceof XdrString ? value : new XdrString(value, OWNED);
     this.#inner._write(xs.bytes, writer, path);
   }
 }

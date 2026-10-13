@@ -1,6 +1,7 @@
 import { struct, varOpaque } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
+import { OWNED, copyBytes } from "../values/owned.js";
 import {
   ContractCodeEntryExt,
   type ContractCodeEntryExtWire,
@@ -47,15 +48,18 @@ export class ContractCodeEntry extends XdrValue {
     },
   );
 
-  constructor(input: {
-    ext: ContractCodeEntryExt;
-    hash: Hash | Uint8Array | string;
-    code: Uint8Array;
-  }) {
+  constructor(
+    input: {
+      ext: ContractCodeEntryExt;
+      hash: Hash | Uint8Array | string;
+      code: Uint8Array;
+    },
+    owned?: typeof OWNED,
+  ) {
     super();
     this.ext = input.ext;
     this.hash = input.hash instanceof Hash ? input.hash : new Hash(input.hash);
-    this.code = input.code;
+    this.code = owned === OWNED ? input.code : copyBytes(input.code);
   }
 
   toXdrObject(): ContractCodeEntryWire {
@@ -67,10 +71,13 @@ export class ContractCodeEntry extends XdrValue {
   }
 
   static fromXdrObject(wire: ContractCodeEntryWire): ContractCodeEntry {
-    return new ContractCodeEntry({
-      ext: ContractCodeEntryExt.fromXdrObject(wire.ext),
-      hash: Hash.fromXdrObject(wire.hash),
-      code: wire.code,
-    });
+    return new ContractCodeEntry(
+      {
+        ext: ContractCodeEntryExt.fromXdrObject(wire.ext),
+        hash: Hash.fromXdrObject(wire.hash),
+        code: wire.code,
+      },
+      OWNED,
+    );
   }
 }

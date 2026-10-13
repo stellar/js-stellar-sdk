@@ -1,6 +1,7 @@
 import { varOpaque } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH } from "@stellar/js-xdr";
 import { BytesValue } from "../values/bytes-value.js";
+import { OWNED } from "../values/owned.js";
 
 export type EncodedLedgerKeyWire = Uint8Array;
 
@@ -14,6 +15,6 @@ export class EncodedLedgerKey extends BytesValue<"EncodedLedgerKey"> {
   static readonly schema = varOpaque(UNBOUNDED_MAX_LENGTH, "EncodedLedgerKey");
 
   static fromXdrObject(wire: Uint8Array): EncodedLedgerKey {
-    return new EncodedLedgerKey(wire);
+    return new EncodedLedgerKey(wire, OWNED);
   }
 }

@@ -2,6 +2,7 @@ import { array, struct } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import { XdrString, xdrString } from "../values/xdr-string.js";
+import { OWNED } from "../values/owned.js";
 import { ScSpecTypeDef, type ScSpecTypeDefWire } from "./sc-spec-type-def.js";
 
 export interface ScSpecUdtUnionCaseTupleV0Wire {
@@ -34,17 +35,20 @@ export class ScSpecUdtUnionCaseTupleV0 extends XdrValue {
     },
   );
 
-  constructor(input: {
-    doc: XdrString | string | Uint8Array;
-    name: XdrString | string | Uint8Array;
-    type: ScSpecTypeDef[];
-  }) {
+  constructor(
+    input: {
+      doc: XdrString | string | Uint8Array;
+      name: XdrString | string | Uint8Array;
+      type: ScSpecTypeDef[];
+    },
+    owned?: typeof OWNED,
+  ) {
     super();
     this.doc =
       input.doc instanceof XdrString ? input.doc : new XdrString(input.doc);
     this.name =
       input.name instanceof XdrString ? input.name : new XdrString(input.name);
-    this.type = input.type;
+    this.type = owned === OWNED ? input.type : input.type.slice();
   }
 
   toXdrObject(): ScSpecUdtUnionCaseTupleV0Wire {
@@ -58,10 +62,13 @@ export class ScSpecUdtUnionCaseTupleV0 extends XdrValue {
   static fromXdrObject(
     wire: ScSpecUdtUnionCaseTupleV0Wire,
   ): ScSpecUdtUnionCaseTupleV0 {
-    return new ScSpecUdtUnionCaseTupleV0({
-      doc: wire.doc,
-      name: wire.name,
-      type: wire.type.map((w) => ScSpecTypeDef.fromXdrObject(w)),
-    });
+    return new ScSpecUdtUnionCaseTupleV0(
+      {
+        doc: wire.doc,
+        name: wire.name,
+        type: wire.type.map((w) => ScSpecTypeDef.fromXdrObject(w)),
+      },
+      OWNED,
+    );
   }
 }

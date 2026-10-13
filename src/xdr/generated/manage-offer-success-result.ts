@@ -1,6 +1,7 @@
 import { array, struct } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
+import { OWNED } from "../values/owned.js";
 import { ClaimAtom, type ClaimAtomWire } from "./claim-atom.js";
 import {
   ManageOfferSuccessResultOffer,
@@ -43,12 +44,16 @@ export class ManageOfferSuccessResult extends XdrValue {
     },
   );
 
-  constructor(input: {
-    offersClaimed: ClaimAtom[];
-    offer: ManageOfferSuccessResultOffer;
-  }) {
+  constructor(
+    input: {
+      offersClaimed: ClaimAtom[];
+      offer: ManageOfferSuccessResultOffer;
+    },
+    owned?: typeof OWNED,
+  ) {
     super();
-    this.offersClaimed = input.offersClaimed;
+    this.offersClaimed =
+      owned === OWNED ? input.offersClaimed : input.offersClaimed.slice();
     this.offer = input.offer;
   }
 
@@ -62,9 +67,14 @@ export class ManageOfferSuccessResult extends XdrValue {
   static fromXdrObject(
     wire: ManageOfferSuccessResultWire,
   ): ManageOfferSuccessResult {
-    return new ManageOfferSuccessResult({
-      offersClaimed: wire.offersClaimed.map((w) => ClaimAtom.fromXdrObject(w)),
-      offer: ManageOfferSuccessResultOffer.fromXdrObject(wire.offer),
-    });
+    return new ManageOfferSuccessResult(
+      {
+        offersClaimed: wire.offersClaimed.map((w) =>
+          ClaimAtom.fromXdrObject(w),
+        ),
+        offer: ManageOfferSuccessResultOffer.fromXdrObject(wire.offer),
+      },
+      OWNED,
+    );
   }
 }

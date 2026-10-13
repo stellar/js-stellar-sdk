@@ -1,6 +1,7 @@
 import { array, struct } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
+import { OWNED } from "../values/owned.js";
 import {
   SorobanAddressCredentials,
   type SorobanAddressCredentialsWire,
@@ -34,13 +35,17 @@ export class SorobanAddressCredentialsWithDelegates extends XdrValue {
       delegates: array(SorobanDelegateSignature.schema, UNBOUNDED_MAX_LENGTH),
     });
 
-  constructor(input: {
-    addressCredentials: SorobanAddressCredentials;
-    delegates: SorobanDelegateSignature[];
-  }) {
+  constructor(
+    input: {
+      addressCredentials: SorobanAddressCredentials;
+      delegates: SorobanDelegateSignature[];
+    },
+    owned?: typeof OWNED,
+  ) {
     super();
     this.addressCredentials = input.addressCredentials;
-    this.delegates = input.delegates;
+    this.delegates =
+      owned === OWNED ? input.delegates : input.delegates.slice();
   }
 
   toXdrObject(): SorobanAddressCredentialsWithDelegatesWire {
@@ -53,13 +58,16 @@ export class SorobanAddressCredentialsWithDelegates extends XdrValue {
   static fromXdrObject(
     wire: SorobanAddressCredentialsWithDelegatesWire,
   ): SorobanAddressCredentialsWithDelegates {
-    return new SorobanAddressCredentialsWithDelegates({
-      addressCredentials: SorobanAddressCredentials.fromXdrObject(
-        wire.addressCredentials,
-      ),
-      delegates: wire.delegates.map((w) =>
-        SorobanDelegateSignature.fromXdrObject(w),
-      ),
-    });
+    return new SorobanAddressCredentialsWithDelegates(
+      {
+        addressCredentials: SorobanAddressCredentials.fromXdrObject(
+          wire.addressCredentials,
+        ),
+        delegates: wire.delegates.map((w) =>
+          SorobanDelegateSignature.fromXdrObject(w),
+        ),
+      },
+      OWNED,
+    );
   }
 }

@@ -5,6 +5,7 @@
 import { case as case_, field, opaque, union } from "@stellar/js-xdr";
 import { XdrError, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
+import { OWNED, copyBytes } from "../values/owned.js";
 import { IpAddrType } from "./ip-addr-type.js";
 
 export type PeerAddressIpWire =
@@ -58,9 +59,9 @@ abstract class PeerAddressIpBase extends XdrValue {
   static fromXdrObject(wire: PeerAddressIpWire): PeerAddressIp {
     switch (wire.type) {
       case 0:
-        return new PeerAddressIpIPv4(wire.ipv4);
+        return new PeerAddressIpIPv4(wire.ipv4, OWNED);
       case 1:
-        return new PeerAddressIpIPv6(wire.ipv6);
+        return new PeerAddressIpIPv6(wire.ipv6, OWNED);
     }
     // unreachable for a well-typed wire object; a hand-built one can still
     // carry an out-of-range discriminant
@@ -86,9 +87,9 @@ export class PeerAddressIpIPv4 extends PeerAddressIpBase {
   readonly type = "iPv4" as const;
   readonly ipv4: Uint8Array;
 
-  constructor(ipv4: Uint8Array) {
+  constructor(ipv4: Uint8Array, owned?: typeof OWNED) {
     super();
-    this.ipv4 = ipv4;
+    this.ipv4 = owned === OWNED ? ipv4 : copyBytes(ipv4);
   }
 
   get value(): Uint8Array {
@@ -104,9 +105,9 @@ export class PeerAddressIpIPv6 extends PeerAddressIpBase {
   readonly type = "iPv6" as const;
   readonly ipv6: Uint8Array;
 
-  constructor(ipv6: Uint8Array) {
+  constructor(ipv6: Uint8Array, owned?: typeof OWNED) {
     super();
-    this.ipv6 = ipv6;
+    this.ipv6 = owned === OWNED ? ipv6 : copyBytes(ipv6);
   }
 
   get value(): Uint8Array {

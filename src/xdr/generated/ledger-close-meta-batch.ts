@@ -1,6 +1,7 @@
 import { array, struct, uint32 } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
+import { OWNED } from "../values/owned.js";
 import {
   LedgerCloseMeta,
   type LedgerCloseMetaWire,
@@ -41,15 +42,19 @@ export class LedgerCloseMetaBatch extends XdrValue {
     },
   );
 
-  constructor(input: {
-    startSequence: number;
-    endSequence: number;
-    ledgerCloseMetas: LedgerCloseMeta[];
-  }) {
+  constructor(
+    input: {
+      startSequence: number;
+      endSequence: number;
+      ledgerCloseMetas: LedgerCloseMeta[];
+    },
+    owned?: typeof OWNED,
+  ) {
     super();
     this.startSequence = input.startSequence;
     this.endSequence = input.endSequence;
-    this.ledgerCloseMetas = input.ledgerCloseMetas;
+    this.ledgerCloseMetas =
+      owned === OWNED ? input.ledgerCloseMetas : input.ledgerCloseMetas.slice();
   }
 
   toXdrObject(): LedgerCloseMetaBatchWire {
@@ -61,12 +66,15 @@ export class LedgerCloseMetaBatch extends XdrValue {
   }
 
   static fromXdrObject(wire: LedgerCloseMetaBatchWire): LedgerCloseMetaBatch {
-    return new LedgerCloseMetaBatch({
-      startSequence: wire.startSequence,
-      endSequence: wire.endSequence,
-      ledgerCloseMetas: wire.ledgerCloseMetas.map((w) =>
-        LedgerCloseMeta.fromXdrObject(w),
-      ),
-    });
+    return new LedgerCloseMetaBatch(
+      {
+        startSequence: wire.startSequence,
+        endSequence: wire.endSequence,
+        ledgerCloseMetas: wire.ledgerCloseMetas.map((w) =>
+          LedgerCloseMeta.fromXdrObject(w),
+        ),
+      },
+      OWNED,
+    );
   }
 }

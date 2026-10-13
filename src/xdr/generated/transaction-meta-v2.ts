@@ -1,6 +1,7 @@
 import { array, struct } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
+import { OWNED } from "../values/owned.js";
 import {
   LedgerEntryChange,
   type LedgerEntryChangeWire,
@@ -39,15 +40,21 @@ export class TransactionMetaV2 extends XdrValue {
     },
   );
 
-  constructor(input: {
-    txChangesBefore: LedgerEntryChange[];
-    operations: OperationMeta[];
-    txChangesAfter: LedgerEntryChange[];
-  }) {
+  constructor(
+    input: {
+      txChangesBefore: LedgerEntryChange[];
+      operations: OperationMeta[];
+      txChangesAfter: LedgerEntryChange[];
+    },
+    owned?: typeof OWNED,
+  ) {
     super();
-    this.txChangesBefore = input.txChangesBefore;
-    this.operations = input.operations;
-    this.txChangesAfter = input.txChangesAfter;
+    this.txChangesBefore =
+      owned === OWNED ? input.txChangesBefore : input.txChangesBefore.slice();
+    this.operations =
+      owned === OWNED ? input.operations : input.operations.slice();
+    this.txChangesAfter =
+      owned === OWNED ? input.txChangesAfter : input.txChangesAfter.slice();
   }
 
   toXdrObject(): TransactionMetaV2Wire {
@@ -59,14 +66,17 @@ export class TransactionMetaV2 extends XdrValue {
   }
 
   static fromXdrObject(wire: TransactionMetaV2Wire): TransactionMetaV2 {
-    return new TransactionMetaV2({
-      txChangesBefore: wire.txChangesBefore.map((w) =>
-        LedgerEntryChange.fromXdrObject(w),
-      ),
-      operations: wire.operations.map((w) => OperationMeta.fromXdrObject(w)),
-      txChangesAfter: wire.txChangesAfter.map((w) =>
-        LedgerEntryChange.fromXdrObject(w),
-      ),
-    });
+    return new TransactionMetaV2(
+      {
+        txChangesBefore: wire.txChangesBefore.map((w) =>
+          LedgerEntryChange.fromXdrObject(w),
+        ),
+        operations: wire.operations.map((w) => OperationMeta.fromXdrObject(w)),
+        txChangesAfter: wire.txChangesAfter.map((w) =>
+          LedgerEntryChange.fromXdrObject(w),
+        ),
+      },
+      OWNED,
+    );
   }
 }

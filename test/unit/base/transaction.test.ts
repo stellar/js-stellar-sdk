@@ -343,10 +343,11 @@ describe("Transaction", () => {
         .build();
       const v1 = expectVariant(built.toEnvelope(), "envelopeTypeTx").v1;
 
-      // Reflect.construct passes values that the TypeScript signature forbids.
+      // Reflect.set writes a value that the TypeScript type forbids.
       const noSignatures = xdr.TransactionEnvelope.envelopeTypeTx(
-        Reflect.construct(xdr.TransactionV1Envelope, [{ tx: v1.tx }]),
+        new xdr.TransactionV1Envelope({ tx: v1.tx, signatures: [] }),
       );
+      Reflect.set(noSignatures.v1, "signatures", undefined);
       for (const envelope of [
         { type: "envelopeTypeTx", value: v1 },
         noSignatures,

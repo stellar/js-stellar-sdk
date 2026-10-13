@@ -1,6 +1,7 @@
 import { array, lazy, struct, uint32 } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
+import { OWNED } from "../values/owned.js";
 import { PublicKey, type PublicKeyWire } from "./public-key.js";
 
 export interface ScpQuorumSetWire {
@@ -33,15 +34,20 @@ export class ScpQuorumSet extends XdrValue {
     ),
   });
 
-  constructor(input: {
-    threshold: number;
-    validators: PublicKey[];
-    innerSets: ScpQuorumSet[];
-  }) {
+  constructor(
+    input: {
+      threshold: number;
+      validators: PublicKey[];
+      innerSets: ScpQuorumSet[];
+    },
+    owned?: typeof OWNED,
+  ) {
     super();
     this.threshold = input.threshold;
-    this.validators = input.validators;
-    this.innerSets = input.innerSets;
+    this.validators =
+      owned === OWNED ? input.validators : input.validators.slice();
+    this.innerSets =
+      owned === OWNED ? input.innerSets : input.innerSets.slice();
   }
 
   toXdrObject(): ScpQuorumSetWire {
@@ -53,10 +59,13 @@ export class ScpQuorumSet extends XdrValue {
   }
 
   static fromXdrObject(wire: ScpQuorumSetWire): ScpQuorumSet {
-    return new ScpQuorumSet({
-      threshold: wire.threshold,
-      validators: wire.validators.map((w) => PublicKey.fromXdrObject(w)),
-      innerSets: wire.innerSets.map((w) => ScpQuorumSet.fromXdrObject(w)),
-    });
+    return new ScpQuorumSet(
+      {
+        threshold: wire.threshold,
+        validators: wire.validators.map((w) => PublicKey.fromXdrObject(w)),
+        innerSets: wire.innerSets.map((w) => ScpQuorumSet.fromXdrObject(w)),
+      },
+      OWNED,
+    );
   }
 }

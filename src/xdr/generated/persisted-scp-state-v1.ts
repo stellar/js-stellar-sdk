@@ -1,6 +1,7 @@
 import { array, struct } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
+import { OWNED } from "../values/owned.js";
 import { ScpEnvelope, type ScpEnvelopeWire } from "./scp-envelope.js";
 import { ScpQuorumSet, type ScpQuorumSetWire } from "./scp-quorum-set.js";
 
@@ -31,13 +32,18 @@ export class PersistedScpStateV1 extends XdrValue {
     },
   );
 
-  constructor(input: {
-    scpEnvelopes: ScpEnvelope[];
-    quorumSets: ScpQuorumSet[];
-  }) {
+  constructor(
+    input: {
+      scpEnvelopes: ScpEnvelope[];
+      quorumSets: ScpQuorumSet[];
+    },
+    owned?: typeof OWNED,
+  ) {
     super();
-    this.scpEnvelopes = input.scpEnvelopes;
-    this.quorumSets = input.quorumSets;
+    this.scpEnvelopes =
+      owned === OWNED ? input.scpEnvelopes : input.scpEnvelopes.slice();
+    this.quorumSets =
+      owned === OWNED ? input.quorumSets : input.quorumSets.slice();
   }
 
   toXdrObject(): PersistedScpStateV1Wire {
@@ -48,9 +54,14 @@ export class PersistedScpStateV1 extends XdrValue {
   }
 
   static fromXdrObject(wire: PersistedScpStateV1Wire): PersistedScpStateV1 {
-    return new PersistedScpStateV1({
-      scpEnvelopes: wire.scpEnvelopes.map((w) => ScpEnvelope.fromXdrObject(w)),
-      quorumSets: wire.quorumSets.map((w) => ScpQuorumSet.fromXdrObject(w)),
-    });
+    return new PersistedScpStateV1(
+      {
+        scpEnvelopes: wire.scpEnvelopes.map((w) =>
+          ScpEnvelope.fromXdrObject(w),
+        ),
+        quorumSets: wire.quorumSets.map((w) => ScpQuorumSet.fromXdrObject(w)),
+      },
+      OWNED,
+    );
   }
 }

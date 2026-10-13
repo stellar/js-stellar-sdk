@@ -5,6 +5,7 @@
 import { array, case as case_, field, int32, union } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, XdrError, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
+import { OWNED } from "../values/owned.js";
 import { TxSetComponent, type TxSetComponentWire } from "./tx-set-component.js";
 import {
   ParallelTxsComponent,
@@ -85,6 +86,7 @@ abstract class TransactionPhaseBase extends XdrValue {
       case 0:
         return new TransactionPhaseV0Components(
           wire.v0Components.map((w) => TxSetComponent.fromXdrObject(w)),
+          OWNED,
         );
       case 1:
         return new TransactionPhaseParallelTxsComponent(
@@ -115,9 +117,9 @@ export class TransactionPhaseV0Components extends TransactionPhaseBase {
   readonly type = "v0Components" as const;
   readonly v0Components: TxSetComponent[];
 
-  constructor(v0Components: TxSetComponent[]) {
+  constructor(v0Components: TxSetComponent[], owned?: typeof OWNED) {
     super();
-    this.v0Components = v0Components;
+    this.v0Components = owned === OWNED ? v0Components : v0Components.slice();
   }
 
   get value(): TxSetComponent[] {

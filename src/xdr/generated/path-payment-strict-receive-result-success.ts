@@ -1,6 +1,7 @@
 import { array, struct } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
+import { OWNED } from "../values/owned.js";
 import { ClaimAtom, type ClaimAtomWire } from "./claim-atom.js";
 import {
   SimplePaymentResult,
@@ -31,9 +32,15 @@ export class PathPaymentStrictReceiveResultSuccess extends XdrValue {
       last: SimplePaymentResult.schema,
     });
 
-  constructor(input: { offers: ClaimAtom[]; last: SimplePaymentResult }) {
+  constructor(
+    input: {
+      offers: ClaimAtom[];
+      last: SimplePaymentResult;
+    },
+    owned?: typeof OWNED,
+  ) {
     super();
-    this.offers = input.offers;
+    this.offers = owned === OWNED ? input.offers : input.offers.slice();
     this.last = input.last;
   }
 
@@ -47,9 +54,12 @@ export class PathPaymentStrictReceiveResultSuccess extends XdrValue {
   static fromXdrObject(
     wire: PathPaymentStrictReceiveResultSuccessWire,
   ): PathPaymentStrictReceiveResultSuccess {
-    return new PathPaymentStrictReceiveResultSuccess({
-      offers: wire.offers.map((w) => ClaimAtom.fromXdrObject(w)),
-      last: SimplePaymentResult.fromXdrObject(wire.last),
-    });
+    return new PathPaymentStrictReceiveResultSuccess(
+      {
+        offers: wire.offers.map((w) => ClaimAtom.fromXdrObject(w)),
+        last: SimplePaymentResult.fromXdrObject(wire.last),
+      },
+      OWNED,
+    );
   }
 }

@@ -1,6 +1,7 @@
 import { array, struct } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
+import { OWNED } from "../values/owned.js";
 import { ScVal, type ScValWire } from "./sc-val.js";
 import { ContractEvent, type ContractEventWire } from "./contract-event.js";
 
@@ -28,10 +29,16 @@ export class InvokeHostFunctionSuccessPreImage extends XdrValue {
       events: array(ContractEvent.schema, UNBOUNDED_MAX_LENGTH),
     });
 
-  constructor(input: { returnValue: ScVal; events: ContractEvent[] }) {
+  constructor(
+    input: {
+      returnValue: ScVal;
+      events: ContractEvent[];
+    },
+    owned?: typeof OWNED,
+  ) {
     super();
     this.returnValue = input.returnValue;
-    this.events = input.events;
+    this.events = owned === OWNED ? input.events : input.events.slice();
   }
 
   toXdrObject(): InvokeHostFunctionSuccessPreImageWire {
@@ -44,9 +51,12 @@ export class InvokeHostFunctionSuccessPreImage extends XdrValue {
   static fromXdrObject(
     wire: InvokeHostFunctionSuccessPreImageWire,
   ): InvokeHostFunctionSuccessPreImage {
-    return new InvokeHostFunctionSuccessPreImage({
-      returnValue: ScVal.fromXdrObject(wire.returnValue),
-      events: wire.events.map((w) => ContractEvent.fromXdrObject(w)),
-    });
+    return new InvokeHostFunctionSuccessPreImage(
+      {
+        returnValue: ScVal.fromXdrObject(wire.returnValue),
+        events: wire.events.map((w) => ContractEvent.fromXdrObject(w)),
+      },
+      OWNED,
+    );
   }
 }

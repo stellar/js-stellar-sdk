@@ -2,6 +2,7 @@ import { array, struct } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import { XdrString, xdrString } from "../values/xdr-string.js";
+import { OWNED } from "../values/owned.js";
 import { ScAddress, type ScAddressWire } from "./sc-address.js";
 import { ScVal, type ScValWire } from "./sc-val.js";
 
@@ -34,18 +35,21 @@ export class InvokeContractArgs extends XdrValue {
     },
   );
 
-  constructor(input: {
-    contractAddress: ScAddress;
-    functionName: XdrString | string | Uint8Array;
-    args: ScVal[];
-  }) {
+  constructor(
+    input: {
+      contractAddress: ScAddress;
+      functionName: XdrString | string | Uint8Array;
+      args: ScVal[];
+    },
+    owned?: typeof OWNED,
+  ) {
     super();
     this.contractAddress = input.contractAddress;
     this.functionName =
       input.functionName instanceof XdrString
         ? input.functionName
         : new XdrString(input.functionName);
-    this.args = input.args;
+    this.args = owned === OWNED ? input.args : input.args.slice();
   }
 
   toXdrObject(): InvokeContractArgsWire {
@@ -57,10 +61,13 @@ export class InvokeContractArgs extends XdrValue {
   }
 
   static fromXdrObject(wire: InvokeContractArgsWire): InvokeContractArgs {
-    return new InvokeContractArgs({
-      contractAddress: ScAddress.fromXdrObject(wire.contractAddress),
-      functionName: wire.functionName,
-      args: wire.args.map((w) => ScVal.fromXdrObject(w)),
-    });
+    return new InvokeContractArgs(
+      {
+        contractAddress: ScAddress.fromXdrObject(wire.contractAddress),
+        functionName: wire.functionName,
+        args: wire.args.map((w) => ScVal.fromXdrObject(w)),
+      },
+      OWNED,
+    );
   }
 }

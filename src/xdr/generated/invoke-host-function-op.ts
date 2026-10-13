@@ -1,6 +1,7 @@
 import { array, struct } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
+import { OWNED } from "../values/owned.js";
 import { HostFunction, type HostFunctionWire } from "./host-function.js";
 import {
   SorobanAuthorizationEntry,
@@ -35,13 +36,16 @@ export class InvokeHostFunctionOp extends XdrValue {
     },
   );
 
-  constructor(input: {
-    hostFunction: HostFunction;
-    auth: SorobanAuthorizationEntry[];
-  }) {
+  constructor(
+    input: {
+      hostFunction: HostFunction;
+      auth: SorobanAuthorizationEntry[];
+    },
+    owned?: typeof OWNED,
+  ) {
     super();
     this.hostFunction = input.hostFunction;
-    this.auth = input.auth;
+    this.auth = owned === OWNED ? input.auth : input.auth.slice();
   }
 
   toXdrObject(): InvokeHostFunctionOpWire {
@@ -52,9 +56,12 @@ export class InvokeHostFunctionOp extends XdrValue {
   }
 
   static fromXdrObject(wire: InvokeHostFunctionOpWire): InvokeHostFunctionOp {
-    return new InvokeHostFunctionOp({
-      hostFunction: HostFunction.fromXdrObject(wire.hostFunction),
-      auth: wire.auth.map((w) => SorobanAuthorizationEntry.fromXdrObject(w)),
-    });
+    return new InvokeHostFunctionOp(
+      {
+        hostFunction: HostFunction.fromXdrObject(wire.hostFunction),
+        auth: wire.auth.map((w) => SorobanAuthorizationEntry.fromXdrObject(w)),
+      },
+      OWNED,
+    );
   }
 }

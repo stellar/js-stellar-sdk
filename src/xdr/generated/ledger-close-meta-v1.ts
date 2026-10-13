@@ -1,6 +1,7 @@
 import { array, struct, uint64 } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
+import { OWNED } from "../values/owned.js";
 import {
   LedgerCloseMetaExt,
   type LedgerCloseMetaExtWire,
@@ -99,28 +100,36 @@ export class LedgerCloseMetaV1 extends XdrValue {
     },
   );
 
-  constructor(input: {
-    ext: LedgerCloseMetaExt;
-    ledgerHeader: LedgerHeaderHistoryEntry;
-    txSet: GeneralizedTransactionSet;
-    txProcessing: TransactionResultMeta[];
-    upgradesProcessing: UpgradeEntryMeta[];
-    scpInfo: ScpHistoryEntry[];
-    totalByteSizeOfLiveSorobanState: bigint;
-    evictedKeys: LedgerKey[];
-    unused: LedgerEntry[];
-  }) {
+  constructor(
+    input: {
+      ext: LedgerCloseMetaExt;
+      ledgerHeader: LedgerHeaderHistoryEntry;
+      txSet: GeneralizedTransactionSet;
+      txProcessing: TransactionResultMeta[];
+      upgradesProcessing: UpgradeEntryMeta[];
+      scpInfo: ScpHistoryEntry[];
+      totalByteSizeOfLiveSorobanState: bigint;
+      evictedKeys: LedgerKey[];
+      unused: LedgerEntry[];
+    },
+    owned?: typeof OWNED,
+  ) {
     super();
     this.ext = input.ext;
     this.ledgerHeader = input.ledgerHeader;
     this.txSet = input.txSet;
-    this.txProcessing = input.txProcessing;
-    this.upgradesProcessing = input.upgradesProcessing;
-    this.scpInfo = input.scpInfo;
+    this.txProcessing =
+      owned === OWNED ? input.txProcessing : input.txProcessing.slice();
+    this.upgradesProcessing =
+      owned === OWNED
+        ? input.upgradesProcessing
+        : input.upgradesProcessing.slice();
+    this.scpInfo = owned === OWNED ? input.scpInfo : input.scpInfo.slice();
     this.totalByteSizeOfLiveSorobanState =
       input.totalByteSizeOfLiveSorobanState;
-    this.evictedKeys = input.evictedKeys;
-    this.unused = input.unused;
+    this.evictedKeys =
+      owned === OWNED ? input.evictedKeys : input.evictedKeys.slice();
+    this.unused = owned === OWNED ? input.unused : input.unused.slice();
   }
 
   toXdrObject(): LedgerCloseMetaV1Wire {
@@ -138,20 +147,23 @@ export class LedgerCloseMetaV1 extends XdrValue {
   }
 
   static fromXdrObject(wire: LedgerCloseMetaV1Wire): LedgerCloseMetaV1 {
-    return new LedgerCloseMetaV1({
-      ext: LedgerCloseMetaExt.fromXdrObject(wire.ext),
-      ledgerHeader: LedgerHeaderHistoryEntry.fromXdrObject(wire.ledgerHeader),
-      txSet: GeneralizedTransactionSet.fromXdrObject(wire.txSet),
-      txProcessing: wire.txProcessing.map((w) =>
-        TransactionResultMeta.fromXdrObject(w),
-      ),
-      upgradesProcessing: wire.upgradesProcessing.map((w) =>
-        UpgradeEntryMeta.fromXdrObject(w),
-      ),
-      scpInfo: wire.scpInfo.map((w) => ScpHistoryEntry.fromXdrObject(w)),
-      totalByteSizeOfLiveSorobanState: wire.totalByteSizeOfLiveSorobanState,
-      evictedKeys: wire.evictedKeys.map((w) => LedgerKey.fromXdrObject(w)),
-      unused: wire.unused.map((w) => LedgerEntry.fromXdrObject(w)),
-    });
+    return new LedgerCloseMetaV1(
+      {
+        ext: LedgerCloseMetaExt.fromXdrObject(wire.ext),
+        ledgerHeader: LedgerHeaderHistoryEntry.fromXdrObject(wire.ledgerHeader),
+        txSet: GeneralizedTransactionSet.fromXdrObject(wire.txSet),
+        txProcessing: wire.txProcessing.map((w) =>
+          TransactionResultMeta.fromXdrObject(w),
+        ),
+        upgradesProcessing: wire.upgradesProcessing.map((w) =>
+          UpgradeEntryMeta.fromXdrObject(w),
+        ),
+        scpInfo: wire.scpInfo.map((w) => ScpHistoryEntry.fromXdrObject(w)),
+        totalByteSizeOfLiveSorobanState: wire.totalByteSizeOfLiveSorobanState,
+        evictedKeys: wire.evictedKeys.map((w) => LedgerKey.fromXdrObject(w)),
+        unused: wire.unused.map((w) => LedgerEntry.fromXdrObject(w)),
+      },
+      OWNED,
+    );
   }
 }

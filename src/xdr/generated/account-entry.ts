@@ -2,6 +2,7 @@ import { array, int64, option, struct, uint32 } from "@stellar/js-xdr";
 import type { XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import { XdrString, xdrString } from "../values/xdr-string.js";
+import { OWNED } from "../values/owned.js";
 import { PublicKey, type PublicKeyWire } from "./public-key.js";
 import { Thresholds, type ThresholdsWire } from "./thresholds.js";
 import { Signer, type SignerWire } from "./signer.js";
@@ -80,18 +81,21 @@ export class AccountEntry extends XdrValue {
     ext: AccountEntryExt.schema,
   });
 
-  constructor(input: {
-    accountId: PublicKey;
-    balance: bigint;
-    seqNum: bigint;
-    numSubEntries: number;
-    inflationDest: PublicKey | null;
-    flags: number;
-    homeDomain: XdrString | string | Uint8Array;
-    thresholds: Thresholds | Uint8Array | string;
-    signers: Signer[];
-    ext: AccountEntryExt;
-  }) {
+  constructor(
+    input: {
+      accountId: PublicKey;
+      balance: bigint;
+      seqNum: bigint;
+      numSubEntries: number;
+      inflationDest: PublicKey | null;
+      flags: number;
+      homeDomain: XdrString | string | Uint8Array;
+      thresholds: Thresholds | Uint8Array | string;
+      signers: Signer[];
+      ext: AccountEntryExt;
+    },
+    owned?: typeof OWNED,
+  ) {
     super();
     this.accountId = input.accountId;
     this.balance = input.balance;
@@ -107,7 +111,7 @@ export class AccountEntry extends XdrValue {
       input.thresholds instanceof Thresholds
         ? input.thresholds
         : new Thresholds(input.thresholds);
-    this.signers = input.signers;
+    this.signers = owned === OWNED ? input.signers : input.signers.slice();
     this.ext = input.ext;
   }
 
@@ -128,20 +132,23 @@ export class AccountEntry extends XdrValue {
   }
 
   static fromXdrObject(wire: AccountEntryWire): AccountEntry {
-    return new AccountEntry({
-      accountId: PublicKey.fromXdrObject(wire.accountId),
-      balance: wire.balance,
-      seqNum: wire.seqNum,
-      numSubEntries: wire.numSubEntries,
-      inflationDest:
-        wire.inflationDest === null
-          ? null
-          : PublicKey.fromXdrObject(wire.inflationDest),
-      flags: wire.flags,
-      homeDomain: wire.homeDomain,
-      thresholds: Thresholds.fromXdrObject(wire.thresholds),
-      signers: wire.signers.map((w) => Signer.fromXdrObject(w)),
-      ext: AccountEntryExt.fromXdrObject(wire.ext),
-    });
+    return new AccountEntry(
+      {
+        accountId: PublicKey.fromXdrObject(wire.accountId),
+        balance: wire.balance,
+        seqNum: wire.seqNum,
+        numSubEntries: wire.numSubEntries,
+        inflationDest:
+          wire.inflationDest === null
+            ? null
+            : PublicKey.fromXdrObject(wire.inflationDest),
+        flags: wire.flags,
+        homeDomain: wire.homeDomain,
+        thresholds: Thresholds.fromXdrObject(wire.thresholds),
+        signers: wire.signers.map((w) => Signer.fromXdrObject(w)),
+        ext: AccountEntryExt.fromXdrObject(wire.ext),
+      },
+      OWNED,
+    );
   }
 }

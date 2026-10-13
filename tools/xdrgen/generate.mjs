@@ -576,6 +576,7 @@ function renderImports(ctx, opts = {}) {
         path = "../values/enum-value.js";
       else if (v === "XdrString" || v === "xdrString")
         path = "../values/xdr-string.js";
+      else if (v === "OWNED" || v === "copyBytes") path = "../values/owned.js";
       else path = "../values/xdr-value.js"; // XdrValue, type JsonValue
       if (!valueByPath.has(path)) valueByPath.set(path, new Set());
       valueByPath.get(path).add(v);
@@ -727,7 +728,11 @@ function bodyOfStruct(rawDef, ctx) {
     .map((f) => `    ${f.name}: ${ctorInputType(f.type, ctx)};`)
     .join("\n");
 
-  const ctorAssignments = def.fields.map((f) => ctorAssignment(f)).join("\n");
+  const ctorAssignments = def.fields
+    .map((f) => ctorAssignment(f, ctx))
+    .join("\n");
+  const owns = def.fields.some((f) => needsInputCopy(f.type));
+  if (owns) ctx.valueImports.add("OWNED");
 
   // toXdrObject
   const toWireEntries = def.fields
@@ -750,7 +755,7 @@ ${schemaEntries}
 
   constructor(input: {
 ${ctorInputFields}
-  }) {
+  }${owns ? ", owned?: typeof OWNED" : ""}) {
     super();
 ${ctorAssignments}
   }
@@ -764,7 +769,7 @@ ${toWireEntries}
   static fromXdrObject(wire: ${wireName}): ${name} {
     return new ${name}({
 ${fromWireArgs}
-    });
+    }${owns ? ", OWNED" : ""});
   }
 }
 `;
@@ -825,8 +830,8 @@ function isInlineStringTypedef(t) {
   return false;
 }
 
-function ctorAssignment(field) {
-  return armAssignmentExpr(field.type, field.name, /* fromInput */ true);
+function ctorAssignment(field, ctx) {
+  return armAssignmentExpr(field.type, field.name, /* fromInput */ true, ctx);
 }
 
 /** Narrow a constructor parameter (ctorInputType) to the stored field type.
@@ -834,11 +839,44 @@ function ctorAssignment(field) {
  *
  *  `propName` is the local name (variant ctor uses bare name, struct ctor
  *  uses `input.<name>`). Set `fromInput` true for struct fields. */
-function armAssignmentExpr(t, propName, fromInput = false) {
+function armAssignmentExpr(t, propName, fromInput, ctx) {
   const lhs = `    this.${propName}`;
   const rhs = fromInput ? `input.${propName}` : propName;
   const conv = inputToFieldConversion(t, rhs);
+  const copy = inputCopyExpr(t, rhs, ctx);
+  if (copy !== conv) return `${lhs} = owned === OWNED ? ${conv} : ${copy};`;
   return conv === rhs ? `${lhs} = ${rhs};` : `${lhs} = ${conv};`;
+}
+
+/** True iff the stored field would alias a caller's array or `Uint8Array`
+ *  without a copy, so the constructor needs the `owned` parameter. */
+function needsInputCopy(t) {
+  return inputCopyExpr(t, "x") !== inputToFieldConversion(t, "x");
+}
+
+/** Like inputToFieldConversion, but also copies every array and raw
+ *  `Uint8Array` that the conversion would store as is. Adds the `copyBytes`
+ *  import to `ctx` when it emits a call; `needsInputCopy` passes no `ctx`. */
+function inputCopyExpr(t, expr, ctx, depth = 0) {
+  const conv = inputToFieldConversion(t, expr);
+  if (conv !== expr) return conv;
+  const r = resolveType(t);
+  if (r.kind === "opaque_fixed" || r.kind === "opaque_var") {
+    ctx?.valueImports.add("copyBytes");
+    return `copyBytes(${expr})`;
+  }
+  if (r.kind === "var_array" || r.kind === "array") {
+    const param = depth === 0 ? "v" : `v${depth}`;
+    const inner = inputCopyExpr(r.element, param, ctx, depth + 1);
+    if (inner === param) return `${expr}.slice()`;
+    return `${expr}.map((${param}) => ${inner})`;
+  }
+  if (r.kind === "optional") {
+    const inner = inputCopyExpr(r.element, expr, ctx, depth);
+    if (inner === expr) return expr;
+    return `${expr} === null ? null : ${inner}`;
+  }
+  return expr;
 }
 
 /** Recursive: produce an expression that converts a ctorInputType value to
@@ -1457,7 +1495,8 @@ function bodyOfUnion(rawDef, ctx) {
         return `      case ${a.discValue}:\n        return new ${a.variantCls}();`;
       }
       const argExpr = wireToInstance(a.armType, `wire.${a.armName}`, ctx);
-      return `      case ${a.discValue}:\n        return new ${a.variantCls}(${argExpr});`;
+      const ownedArg = needsInputCopy(a.armType) ? ", OWNED" : "";
+      return `      case ${a.discValue}:\n        return new ${a.variantCls}(${argExpr}${ownedArg});`;
     })
     .join("\n");
 
@@ -1489,7 +1528,10 @@ function bodyOfUnion(rawDef, ctx) {
       // Constructor accepts the wider ctorInputType (e.g. `Hash | Uint8Array
       // | string`, or `Uint8Array | string` for string<N>); the stored field
       // is the narrower instance type. Normalize at assignment.
-      const armAssignment = armAssignmentExpr(a.armType, armField);
+      const armAssignment = armAssignmentExpr(a.armType, armField, false, ctx);
+      const ownedParam = needsInputCopy(a.armType)
+        ? (ctx.valueImports.add("OWNED"), ", owned?: typeof OWNED")
+        : "";
       // Primary field is named after the XDR arm (e.g. `fromAddress`,
       // `ed25519`, `paymentOp`). `value` is preserved as a thin getter so
       // existing consumer code keeps working during migration. For inline
@@ -1508,7 +1550,7 @@ function bodyOfUnion(rawDef, ctx) {
   readonly type = "${a.discCamel}" as const;
   readonly ${armField}: ${valueType};
 
-  constructor(${armField}: ${ctorParamType}) {
+  constructor(${armField}: ${ctorParamType}${ownedParam}) {
     super();
 ${armAssignment}
   }
@@ -1660,6 +1702,7 @@ const ASCII_PADDED_OPAQUES = new Set(["AssetCode4", "AssetCode12"]);
 function emitWrappedOpaque(name, inner, sourceDef) {
   const ctx = newCtx();
   ctx.valueImports.add("BytesValue");
+  ctx.valueImports.add("OWNED");
   let schemaText;
   if (inner.kind === "opaque_fixed") {
     ctx.builders.add("opaque");
@@ -1694,7 +1737,7 @@ ${byteLengthDecl}${padToDecl}  static readonly encoding = "${encoding}" as const
   static readonly schema = ${schemaText};
 
   static fromXdrObject(wire: Uint8Array): ${name} {
-    return new ${name}(wire);
+    return new ${name}(wire, OWNED);
   }
 }
 `;

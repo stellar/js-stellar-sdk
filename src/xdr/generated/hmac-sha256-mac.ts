@@ -1,6 +1,7 @@
 import { opaque, struct } from "@stellar/js-xdr";
 import type { XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
+import { OWNED, copyBytes } from "../values/owned.js";
 
 export interface HmacSha256MacWire {
   mac: Uint8Array;
@@ -21,9 +22,14 @@ export class HmacSha256Mac extends XdrValue {
     mac: opaque(32),
   });
 
-  constructor(input: { mac: Uint8Array }) {
+  constructor(
+    input: {
+      mac: Uint8Array;
+    },
+    owned?: typeof OWNED,
+  ) {
     super();
-    this.mac = input.mac;
+    this.mac = owned === OWNED ? input.mac : copyBytes(input.mac);
   }
 
   toXdrObject(): HmacSha256MacWire {
@@ -33,8 +39,11 @@ export class HmacSha256Mac extends XdrValue {
   }
 
   static fromXdrObject(wire: HmacSha256MacWire): HmacSha256Mac {
-    return new HmacSha256Mac({
-      mac: wire.mac,
-    });
+    return new HmacSha256Mac(
+      {
+        mac: wire.mac,
+      },
+      OWNED,
+    );
   }
 }

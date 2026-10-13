@@ -12,6 +12,7 @@ import {
 } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, XdrError, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
+import { OWNED } from "../values/owned.js";
 import { ConfigSettingId } from "./config-setting-id.js";
 import {
   ConfigSettingContractComputeV0,
@@ -526,12 +527,14 @@ abstract class ConfigSettingEntryBase extends XdrValue {
           wire.contractCostParamsCpuInsns.map((w) =>
             ContractCostParamEntry.fromXdrObject(w),
           ),
+          OWNED,
         );
       case 7:
         return new ConfigSettingEntryContractCostParamsMemoryBytes(
           wire.contractCostParamsMemBytes.map((w) =>
             ContractCostParamEntry.fromXdrObject(w),
           ),
+          OWNED,
         );
       case 8:
         return new ConfigSettingEntryContractDataKeySizeBytes(
@@ -554,6 +557,7 @@ abstract class ConfigSettingEntryBase extends XdrValue {
       case 12:
         return new ConfigSettingEntryLiveSorobanStateSizeWindow(
           wire.liveSorobanStateSizeWindow,
+          OWNED,
         );
       case 13:
         return new ConfigSettingEntryEvictionIterator(
@@ -742,9 +746,15 @@ export class ConfigSettingEntryContractCostParamsCpuInstructions extends ConfigS
   readonly type = "configSettingContractCostParamsCpuInstructions" as const;
   readonly contractCostParamsCpuInsns: ContractCostParamEntry[];
 
-  constructor(contractCostParamsCpuInsns: ContractCostParamEntry[]) {
+  constructor(
+    contractCostParamsCpuInsns: ContractCostParamEntry[],
+    owned?: typeof OWNED,
+  ) {
     super();
-    this.contractCostParamsCpuInsns = contractCostParamsCpuInsns;
+    this.contractCostParamsCpuInsns =
+      owned === OWNED
+        ? contractCostParamsCpuInsns
+        : contractCostParamsCpuInsns.slice();
   }
 
   get value(): ContractCostParamEntry[] {
@@ -765,9 +775,15 @@ export class ConfigSettingEntryContractCostParamsMemoryBytes extends ConfigSetti
   readonly type = "configSettingContractCostParamsMemoryBytes" as const;
   readonly contractCostParamsMemBytes: ContractCostParamEntry[];
 
-  constructor(contractCostParamsMemBytes: ContractCostParamEntry[]) {
+  constructor(
+    contractCostParamsMemBytes: ContractCostParamEntry[],
+    owned?: typeof OWNED,
+  ) {
     super();
-    this.contractCostParamsMemBytes = contractCostParamsMemBytes;
+    this.contractCostParamsMemBytes =
+      owned === OWNED
+        ? contractCostParamsMemBytes
+        : contractCostParamsMemBytes.slice();
   }
 
   get value(): ContractCostParamEntry[] {
@@ -872,9 +888,12 @@ export class ConfigSettingEntryLiveSorobanStateSizeWindow extends ConfigSettingE
   readonly type = "configSettingLiveSorobanStateSizeWindow" as const;
   readonly liveSorobanStateSizeWindow: bigint[];
 
-  constructor(liveSorobanStateSizeWindow: bigint[]) {
+  constructor(liveSorobanStateSizeWindow: bigint[], owned?: typeof OWNED) {
     super();
-    this.liveSorobanStateSizeWindow = liveSorobanStateSizeWindow;
+    this.liveSorobanStateSizeWindow =
+      owned === OWNED
+        ? liveSorobanStateSizeWindow
+        : liveSorobanStateSizeWindow.slice();
   }
 
   get value(): bigint[] {

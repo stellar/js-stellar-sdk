@@ -1,6 +1,7 @@
 import { array, int64, option, struct } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
+import { OWNED } from "../values/owned.js";
 import {
   TransactionEnvelope,
   type TransactionEnvelopeWire,
@@ -41,13 +42,19 @@ export class ParallelTxsComponent extends XdrValue {
     },
   );
 
-  constructor(input: {
-    baseFee: bigint | null;
-    executionStages: TransactionEnvelope[][][];
-  }) {
+  constructor(
+    input: {
+      baseFee: bigint | null;
+      executionStages: TransactionEnvelope[][][];
+    },
+    owned?: typeof OWNED,
+  ) {
     super();
     this.baseFee = input.baseFee;
-    this.executionStages = input.executionStages;
+    this.executionStages =
+      owned === OWNED
+        ? input.executionStages
+        : input.executionStages.map((v) => v.map((v1) => v1.slice()));
   }
 
   toXdrObject(): ParallelTxsComponentWire {
@@ -60,11 +67,14 @@ export class ParallelTxsComponent extends XdrValue {
   }
 
   static fromXdrObject(wire: ParallelTxsComponentWire): ParallelTxsComponent {
-    return new ParallelTxsComponent({
-      baseFee: wire.baseFee,
-      executionStages: wire.executionStages.map((w) =>
-        w.map((w1) => w1.map((w2) => TransactionEnvelope.fromXdrObject(w2))),
-      ),
-    });
+    return new ParallelTxsComponent(
+      {
+        baseFee: wire.baseFee,
+        executionStages: wire.executionStages.map((w) =>
+          w.map((w1) => w1.map((w2) => TransactionEnvelope.fromXdrObject(w2))),
+        ),
+      },
+      OWNED,
+    );
   }
 }

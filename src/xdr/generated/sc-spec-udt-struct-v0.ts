@@ -2,6 +2,7 @@ import { array, struct } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import { XdrString, xdrString } from "../values/xdr-string.js";
+import { OWNED } from "../values/owned.js";
 import {
   ScSpecUdtStructFieldV0,
   type ScSpecUdtStructFieldV0Wire,
@@ -41,12 +42,15 @@ export class ScSpecUdtStructV0 extends XdrValue {
     },
   );
 
-  constructor(input: {
-    doc: XdrString | string | Uint8Array;
-    lib: XdrString | string | Uint8Array;
-    name: XdrString | string | Uint8Array;
-    fields: ScSpecUdtStructFieldV0[];
-  }) {
+  constructor(
+    input: {
+      doc: XdrString | string | Uint8Array;
+      lib: XdrString | string | Uint8Array;
+      name: XdrString | string | Uint8Array;
+      fields: ScSpecUdtStructFieldV0[];
+    },
+    owned?: typeof OWNED,
+  ) {
     super();
     this.doc =
       input.doc instanceof XdrString ? input.doc : new XdrString(input.doc);
@@ -54,7 +58,7 @@ export class ScSpecUdtStructV0 extends XdrValue {
       input.lib instanceof XdrString ? input.lib : new XdrString(input.lib);
     this.name =
       input.name instanceof XdrString ? input.name : new XdrString(input.name);
-    this.fields = input.fields;
+    this.fields = owned === OWNED ? input.fields : input.fields.slice();
   }
 
   toXdrObject(): ScSpecUdtStructV0Wire {
@@ -67,11 +71,14 @@ export class ScSpecUdtStructV0 extends XdrValue {
   }
 
   static fromXdrObject(wire: ScSpecUdtStructV0Wire): ScSpecUdtStructV0 {
-    return new ScSpecUdtStructV0({
-      doc: wire.doc,
-      lib: wire.lib,
-      name: wire.name,
-      fields: wire.fields.map((w) => ScSpecUdtStructFieldV0.fromXdrObject(w)),
-    });
+    return new ScSpecUdtStructV0(
+      {
+        doc: wire.doc,
+        lib: wire.lib,
+        name: wire.name,
+        fields: wire.fields.map((w) => ScSpecUdtStructFieldV0.fromXdrObject(w)),
+      },
+      OWNED,
+    );
   }
 }

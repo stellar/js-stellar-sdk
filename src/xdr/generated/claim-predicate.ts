@@ -14,6 +14,7 @@ import {
 } from "@stellar/js-xdr";
 import { XdrError, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
+import { OWNED } from "../values/owned.js";
 import { ClaimPredicateType } from "./claim-predicate-type.js";
 
 export type ClaimPredicateWire =
@@ -152,10 +153,12 @@ abstract class ClaimPredicateBase extends XdrValue {
       case 1:
         return new ClaimPredicateAnd(
           wire.andPredicates.map((w) => ClaimPredicate.fromXdrObject(w)),
+          OWNED,
         );
       case 2:
         return new ClaimPredicateOr(
           wire.orPredicates.map((w) => ClaimPredicate.fromXdrObject(w)),
+          OWNED,
         );
       case 3:
         return new ClaimPredicateNot(
@@ -204,9 +207,10 @@ export class ClaimPredicateAnd extends ClaimPredicateBase {
   readonly type = "claimPredicateAnd" as const;
   readonly andPredicates: ClaimPredicate[];
 
-  constructor(andPredicates: ClaimPredicate[]) {
+  constructor(andPredicates: ClaimPredicate[], owned?: typeof OWNED) {
     super();
-    this.andPredicates = andPredicates;
+    this.andPredicates =
+      owned === OWNED ? andPredicates : andPredicates.slice();
   }
 
   get value(): ClaimPredicate[] {
@@ -225,9 +229,9 @@ export class ClaimPredicateOr extends ClaimPredicateBase {
   readonly type = "claimPredicateOr" as const;
   readonly orPredicates: ClaimPredicate[];
 
-  constructor(orPredicates: ClaimPredicate[]) {
+  constructor(orPredicates: ClaimPredicate[], owned?: typeof OWNED) {
     super();
-    this.orPredicates = orPredicates;
+    this.orPredicates = owned === OWNED ? orPredicates : orPredicates.slice();
   }
 
   get value(): ClaimPredicate[] {

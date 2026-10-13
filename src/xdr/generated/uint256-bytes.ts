@@ -1,5 +1,6 @@
 import { opaque } from "@stellar/js-xdr";
 import { BytesValue } from "../values/bytes-value.js";
+import { OWNED } from "../values/owned.js";
 
 export type Uint256BytesWire = Uint8Array;
 
@@ -14,6 +15,6 @@ export class Uint256Bytes extends BytesValue<"Uint256Bytes"> {
   static readonly schema = opaque(32, "Uint256Bytes");
 
   static fromXdrObject(wire: Uint8Array): Uint256Bytes {
-    return new Uint256Bytes(wire);
+    return new Uint256Bytes(wire, OWNED);
   }
 }

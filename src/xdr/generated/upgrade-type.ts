@@ -1,5 +1,6 @@
 import { varOpaque } from "@stellar/js-xdr";
 import { BytesValue } from "../values/bytes-value.js";
+import { OWNED } from "../values/owned.js";
 
 export type UpgradeTypeWire = Uint8Array;
 
@@ -13,6 +14,6 @@ export class UpgradeType extends BytesValue<"UpgradeType"> {
   static readonly schema = varOpaque(128, "UpgradeType");
 
   static fromXdrObject(wire: Uint8Array): UpgradeType {
-    return new UpgradeType(wire);
+    return new UpgradeType(wire, OWNED);
   }
 }

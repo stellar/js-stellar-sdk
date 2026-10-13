@@ -1,6 +1,7 @@
 import { array, option, struct, uint32 } from "@stellar/js-xdr";
 import type { XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
+import { OWNED } from "../values/owned.js";
 import { PublicKey, type PublicKeyWire } from "./public-key.js";
 import {
   AccountEntryExtensionV2Ext,
@@ -49,16 +50,22 @@ export class AccountEntryExtensionV2 extends XdrValue {
     },
   );
 
-  constructor(input: {
-    numSponsored: number;
-    numSponsoring: number;
-    signerSponsoringIDs: (PublicKey | null)[];
-    ext: AccountEntryExtensionV2Ext;
-  }) {
+  constructor(
+    input: {
+      numSponsored: number;
+      numSponsoring: number;
+      signerSponsoringIDs: (PublicKey | null)[];
+      ext: AccountEntryExtensionV2Ext;
+    },
+    owned?: typeof OWNED,
+  ) {
     super();
     this.numSponsored = input.numSponsored;
     this.numSponsoring = input.numSponsoring;
-    this.signerSponsoringIDs = input.signerSponsoringIDs;
+    this.signerSponsoringIDs =
+      owned === OWNED
+        ? input.signerSponsoringIDs
+        : input.signerSponsoringIDs.slice();
     this.ext = input.ext;
   }
 
@@ -76,13 +83,16 @@ export class AccountEntryExtensionV2 extends XdrValue {
   static fromXdrObject(
     wire: AccountEntryExtensionV2Wire,
   ): AccountEntryExtensionV2 {
-    return new AccountEntryExtensionV2({
-      numSponsored: wire.numSponsored,
-      numSponsoring: wire.numSponsoring,
-      signerSponsoringIDs: wire.signerSponsoringIDs.map((w) =>
-        w === null ? null : PublicKey.fromXdrObject(w),
-      ),
-      ext: AccountEntryExtensionV2Ext.fromXdrObject(wire.ext),
-    });
+    return new AccountEntryExtensionV2(
+      {
+        numSponsored: wire.numSponsored,
+        numSponsoring: wire.numSponsoring,
+        signerSponsoringIDs: wire.signerSponsoringIDs.map((w) =>
+          w === null ? null : PublicKey.fromXdrObject(w),
+        ),
+        ext: AccountEntryExtensionV2Ext.fromXdrObject(wire.ext),
+      },
+      OWNED,
+    );
   }
 }

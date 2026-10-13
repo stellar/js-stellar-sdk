@@ -1,6 +1,7 @@
 import { array, int64, option, struct } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
+import { OWNED } from "../values/owned.js";
 import {
   TransactionEnvelope,
   type TransactionEnvelopeWire,
@@ -30,10 +31,16 @@ export class TxSetComponentTxsMaybeDiscountedFee extends XdrValue {
       txs: array(TransactionEnvelope.schema, UNBOUNDED_MAX_LENGTH),
     });
 
-  constructor(input: { baseFee: bigint | null; txs: TransactionEnvelope[] }) {
+  constructor(
+    input: {
+      baseFee: bigint | null;
+      txs: TransactionEnvelope[];
+    },
+    owned?: typeof OWNED,
+  ) {
     super();
     this.baseFee = input.baseFee;
-    this.txs = input.txs;
+    this.txs = owned === OWNED ? input.txs : input.txs.slice();
   }
 
   toXdrObject(): TxSetComponentTxsMaybeDiscountedFeeWire {
@@ -46,9 +53,12 @@ export class TxSetComponentTxsMaybeDiscountedFee extends XdrValue {
   static fromXdrObject(
     wire: TxSetComponentTxsMaybeDiscountedFeeWire,
   ): TxSetComponentTxsMaybeDiscountedFee {
-    return new TxSetComponentTxsMaybeDiscountedFee({
-      baseFee: wire.baseFee,
-      txs: wire.txs.map((w) => TransactionEnvelope.fromXdrObject(w)),
-    });
+    return new TxSetComponentTxsMaybeDiscountedFee(
+      {
+        baseFee: wire.baseFee,
+        txs: wire.txs.map((w) => TransactionEnvelope.fromXdrObject(w)),
+      },
+      OWNED,
+    );
   }
 }

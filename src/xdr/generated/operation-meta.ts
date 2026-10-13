@@ -1,6 +1,7 @@
 import { array, struct } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
+import { OWNED } from "../values/owned.js";
 import {
   LedgerEntryChange,
   type LedgerEntryChangeWire,
@@ -25,9 +26,14 @@ export class OperationMeta extends XdrValue {
     changes: array(LedgerEntryChange.schema, UNBOUNDED_MAX_LENGTH),
   });
 
-  constructor(input: { changes: LedgerEntryChange[] }) {
+  constructor(
+    input: {
+      changes: LedgerEntryChange[];
+    },
+    owned?: typeof OWNED,
+  ) {
     super();
-    this.changes = input.changes;
+    this.changes = owned === OWNED ? input.changes : input.changes.slice();
   }
 
   toXdrObject(): OperationMetaWire {
@@ -37,8 +43,11 @@ export class OperationMeta extends XdrValue {
   }
 
   static fromXdrObject(wire: OperationMetaWire): OperationMeta {
-    return new OperationMeta({
-      changes: wire.changes.map((w) => LedgerEntryChange.fromXdrObject(w)),
-    });
+    return new OperationMeta(
+      {
+        changes: wire.changes.map((w) => LedgerEntryChange.fromXdrObject(w)),
+      },
+      OWNED,
+    );
   }
 }

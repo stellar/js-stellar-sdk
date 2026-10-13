@@ -19,6 +19,7 @@ import type {
 } from "@stellar/js-xdr";
 import type { JsonValue } from "./xdr-value.js";
 import { XdrString } from "./xdr-string.js";
+import { OWNED } from "./owned.js";
 import {
   acceptedStructJsonKeys,
   legacyStructFieldJsonName,
@@ -721,7 +722,10 @@ OVERRIDES.set("ContractId", {
 // AssetCode4 output) and apply the string-escape rules.
 OVERRIDES.set("AssetCode4", {
   toJson(wire) {
-    return new XdrString(trimTrailingZeros(wire as Uint8Array, 0)).toJson();
+    return new XdrString(
+      trimTrailingZeros(wire as Uint8Array, 0),
+      OWNED,
+    ).toJson();
   },
   fromJson(json) {
     if (typeof json !== "string") {
@@ -733,7 +737,10 @@ OVERRIDES.set("AssetCode4", {
 
 OVERRIDES.set("AssetCode12", {
   toJson(wire) {
-    return new XdrString(trimTrailingZeros(wire as Uint8Array, 5)).toJson();
+    return new XdrString(
+      trimTrailingZeros(wire as Uint8Array, 5),
+      OWNED,
+    ).toJson();
   },
   fromJson(json) {
     if (typeof json !== "string") {
@@ -761,9 +768,10 @@ OVERRIDES.set("AssetCode", {
       assetCode12?: Uint8Array;
     };
     return w.assetCode4 !== undefined
-      ? new XdrString(trimTrailingZeros(w.assetCode4, 0)).toJson()
+      ? new XdrString(trimTrailingZeros(w.assetCode4, 0), OWNED).toJson()
       : new XdrString(
           trimTrailingZeros(w.assetCode12 as Uint8Array, 5),
+          OWNED,
         ).toJson();
   },
   fromJson(json) {

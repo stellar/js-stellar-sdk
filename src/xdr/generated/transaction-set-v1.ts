@@ -1,6 +1,7 @@
 import { array, struct } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
+import { OWNED } from "../values/owned.js";
 import { Hash, type HashWire } from "./hash.js";
 import {
   TransactionPhase,
@@ -33,16 +34,19 @@ export class TransactionSetV1 extends XdrValue {
     },
   );
 
-  constructor(input: {
-    previousLedgerHash: Hash | Uint8Array | string;
-    phases: TransactionPhase[];
-  }) {
+  constructor(
+    input: {
+      previousLedgerHash: Hash | Uint8Array | string;
+      phases: TransactionPhase[];
+    },
+    owned?: typeof OWNED,
+  ) {
     super();
     this.previousLedgerHash =
       input.previousLedgerHash instanceof Hash
         ? input.previousLedgerHash
         : new Hash(input.previousLedgerHash);
-    this.phases = input.phases;
+    this.phases = owned === OWNED ? input.phases : input.phases.slice();
   }
 
   toXdrObject(): TransactionSetV1Wire {
@@ -53,9 +57,12 @@ export class TransactionSetV1 extends XdrValue {
   }
 
   static fromXdrObject(wire: TransactionSetV1Wire): TransactionSetV1 {
-    return new TransactionSetV1({
-      previousLedgerHash: Hash.fromXdrObject(wire.previousLedgerHash),
-      phases: wire.phases.map((w) => TransactionPhase.fromXdrObject(w)),
-    });
+    return new TransactionSetV1(
+      {
+        previousLedgerHash: Hash.fromXdrObject(wire.previousLedgerHash),
+        phases: wire.phases.map((w) => TransactionPhase.fromXdrObject(w)),
+      },
+      OWNED,
+    );
   }
 }

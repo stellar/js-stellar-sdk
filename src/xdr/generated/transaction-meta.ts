@@ -5,6 +5,7 @@
 import { array, case as case_, field, int32, union } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, XdrError, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
+import { OWNED } from "../values/owned.js";
 import { OperationMeta, type OperationMetaWire } from "./operation-meta.js";
 import {
   TransactionMetaV1,
@@ -113,6 +114,7 @@ abstract class TransactionMetaBase extends XdrValue {
       case 0:
         return new TransactionMetaOperations(
           wire.operations.map((w) => OperationMeta.fromXdrObject(w)),
+          OWNED,
         );
       case 1:
         return new TransactionMetaV1Arm(
@@ -155,9 +157,9 @@ export class TransactionMetaOperations extends TransactionMetaBase {
   readonly type = "operations" as const;
   readonly operations: OperationMeta[];
 
-  constructor(operations: OperationMeta[]) {
+  constructor(operations: OperationMeta[], owned?: typeof OWNED) {
     super();
-    this.operations = operations;
+    this.operations = owned === OWNED ? operations : operations.slice();
   }
 
   get value(): OperationMeta[] {

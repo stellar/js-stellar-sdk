@@ -1,6 +1,7 @@
 import { varOpaque } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH } from "@stellar/js-xdr";
 import { BytesValue } from "../values/bytes-value.js";
+import { OWNED } from "../values/owned.js";
 
 export type ScBytesWire = Uint8Array;
 
@@ -14,6 +15,6 @@ export class ScBytes extends BytesValue<"ScBytes"> {
   static readonly schema = varOpaque(UNBOUNDED_MAX_LENGTH, "ScBytes");
 
   static fromXdrObject(wire: Uint8Array): ScBytes {
-    return new ScBytes(wire);
+    return new ScBytes(wire, OWNED);
   }
 }

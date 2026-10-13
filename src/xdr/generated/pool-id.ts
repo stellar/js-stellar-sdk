@@ -1,5 +1,6 @@
 import { opaque } from "@stellar/js-xdr";
 import { BytesValue } from "../values/bytes-value.js";
+import { OWNED } from "../values/owned.js";
 
 export type PoolIdWire = Uint8Array;
 
@@ -14,6 +15,6 @@ export class PoolId extends BytesValue<"PoolId"> {
   static readonly schema = opaque(32, "PoolId");
 
   static fromXdrObject(wire: Uint8Array): PoolId {
-    return new PoolId(wire);
+    return new PoolId(wire, OWNED);
   }
 }

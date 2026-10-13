@@ -1,6 +1,7 @@
 import { array, struct } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
+import { OWNED } from "../values/owned.js";
 import { ExtensionPoint, type ExtensionPointWire } from "./extension-point.js";
 import {
   TransactionResultPair,
@@ -58,19 +59,26 @@ export class TransactionResultMetaV1 extends XdrValue {
     },
   );
 
-  constructor(input: {
-    ext: ExtensionPoint;
-    result: TransactionResultPair;
-    feeProcessing: LedgerEntryChange[];
-    txApplyProcessing: TransactionMeta;
-    postTxApplyFeeProcessing: LedgerEntryChange[];
-  }) {
+  constructor(
+    input: {
+      ext: ExtensionPoint;
+      result: TransactionResultPair;
+      feeProcessing: LedgerEntryChange[];
+      txApplyProcessing: TransactionMeta;
+      postTxApplyFeeProcessing: LedgerEntryChange[];
+    },
+    owned?: typeof OWNED,
+  ) {
     super();
     this.ext = input.ext;
     this.result = input.result;
-    this.feeProcessing = input.feeProcessing;
+    this.feeProcessing =
+      owned === OWNED ? input.feeProcessing : input.feeProcessing.slice();
     this.txApplyProcessing = input.txApplyProcessing;
-    this.postTxApplyFeeProcessing = input.postTxApplyFeeProcessing;
+    this.postTxApplyFeeProcessing =
+      owned === OWNED
+        ? input.postTxApplyFeeProcessing
+        : input.postTxApplyFeeProcessing.slice();
   }
 
   toXdrObject(): TransactionResultMetaV1Wire {
@@ -88,16 +96,21 @@ export class TransactionResultMetaV1 extends XdrValue {
   static fromXdrObject(
     wire: TransactionResultMetaV1Wire,
   ): TransactionResultMetaV1 {
-    return new TransactionResultMetaV1({
-      ext: ExtensionPoint.fromXdrObject(wire.ext),
-      result: TransactionResultPair.fromXdrObject(wire.result),
-      feeProcessing: wire.feeProcessing.map((w) =>
-        LedgerEntryChange.fromXdrObject(w),
-      ),
-      txApplyProcessing: TransactionMeta.fromXdrObject(wire.txApplyProcessing),
-      postTxApplyFeeProcessing: wire.postTxApplyFeeProcessing.map((w) =>
-        LedgerEntryChange.fromXdrObject(w),
-      ),
-    });
+    return new TransactionResultMetaV1(
+      {
+        ext: ExtensionPoint.fromXdrObject(wire.ext),
+        result: TransactionResultPair.fromXdrObject(wire.result),
+        feeProcessing: wire.feeProcessing.map((w) =>
+          LedgerEntryChange.fromXdrObject(w),
+        ),
+        txApplyProcessing: TransactionMeta.fromXdrObject(
+          wire.txApplyProcessing,
+        ),
+        postTxApplyFeeProcessing: wire.postTxApplyFeeProcessing.map((w) =>
+          LedgerEntryChange.fromXdrObject(w),
+        ),
+      },
+      OWNED,
+    );
   }
 }

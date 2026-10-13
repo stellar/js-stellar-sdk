@@ -19,6 +19,7 @@ import {
 } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, XdrError, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
+import { OWNED } from "../values/owned.js";
 import { XdrString, xdrString } from "../values/xdr-string.js";
 import {
   ContractExecutable,
@@ -64,13 +65,21 @@ export class ScContractInstance extends XdrValue {
     },
   );
 
-  constructor(input: {
-    executable: ContractExecutable;
-    storage: ScMapEntry[] | null;
-  }) {
+  constructor(
+    input: {
+      executable: ContractExecutable;
+      storage: ScMapEntry[] | null;
+    },
+    owned?: typeof OWNED,
+  ) {
     super();
     this.executable = input.executable;
-    this.storage = input.storage;
+    this.storage =
+      owned === OWNED
+        ? input.storage
+        : input.storage === null
+          ? null
+          : input.storage.slice();
   }
 
   toXdrObject(): ScContractInstanceWire {
@@ -82,13 +91,16 @@ export class ScContractInstance extends XdrValue {
   }
 
   static fromXdrObject(wire: ScContractInstanceWire): ScContractInstance {
-    return new ScContractInstance({
-      executable: ContractExecutable.fromXdrObject(wire.executable),
-      storage:
-        wire.storage === null
-          ? null
-          : wire.storage.map((w) => ScMapEntry.fromXdrObject(w)),
-    });
+    return new ScContractInstance(
+      {
+        executable: ContractExecutable.fromXdrObject(wire.executable),
+        storage:
+          wire.storage === null
+            ? null
+            : wire.storage.map((w) => ScMapEntry.fromXdrObject(w)),
+      },
+      OWNED,
+    );
   }
 }
 
@@ -468,12 +480,14 @@ abstract class ScValBase extends XdrValue {
           wire.vec === null
             ? null
             : wire.vec.map((w) => ScVal.fromXdrObject(w)),
+          OWNED,
         );
       case 17:
         return new ScValMap(
           wire.map === null
             ? null
             : wire.map.map((w) => ScMapEntry.fromXdrObject(w)),
+          OWNED,
         );
       case 18:
         return new ScValAddress(ScAddress.fromXdrObject(wire.address));
@@ -794,9 +808,9 @@ export class ScValVec extends ScValBase {
   readonly type = "scvVec" as const;
   readonly vec: ScVal[] | null;
 
-  constructor(vec: ScVal[] | null) {
+  constructor(vec: ScVal[] | null, owned?: typeof OWNED) {
     super();
-    this.vec = vec;
+    this.vec = owned === OWNED ? vec : vec === null ? null : vec.slice();
   }
 
   get value(): ScVal[] | null {
@@ -815,9 +829,9 @@ export class ScValMap extends ScValBase {
   readonly type = "scvMap" as const;
   readonly map: ScMapEntry[] | null;
 
-  constructor(map: ScMapEntry[] | null) {
+  constructor(map: ScMapEntry[] | null, owned?: typeof OWNED) {
     super();
-    this.map = map;
+    this.map = owned === OWNED ? map : map === null ? null : map.slice();
   }
 
   get value(): ScMapEntry[] | null {

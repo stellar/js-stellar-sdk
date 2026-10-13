@@ -5,6 +5,7 @@
 import { case as case_, field, union, varOpaque } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, XdrError, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
+import { OWNED, copyBytes } from "../values/owned.js";
 import { HostFunctionType } from "./host-function-type.js";
 import {
   InvokeContractArgs,
@@ -123,7 +124,7 @@ abstract class HostFunctionBase extends XdrValue {
           CreateContractArgs.fromXdrObject(wire.createContract),
         );
       case 2:
-        return new HostFunctionUploadContractWasm(wire.wasm);
+        return new HostFunctionUploadContractWasm(wire.wasm, OWNED);
       case 3:
         return new HostFunctionCreateContractV2(
           CreateContractArgsV2.fromXdrObject(wire.createContractV2),
@@ -189,9 +190,9 @@ export class HostFunctionUploadContractWasm extends HostFunctionBase {
   readonly type = "hostFunctionTypeUploadContractWasm" as const;
   readonly wasm: Uint8Array;
 
-  constructor(wasm: Uint8Array) {
+  constructor(wasm: Uint8Array, owned?: typeof OWNED) {
     super();
-    this.wasm = wasm;
+    this.wasm = owned === OWNED ? wasm : copyBytes(wasm);
   }
 
   get value(): Uint8Array {

@@ -2,6 +2,7 @@ import { array, struct } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import { XdrString, xdrString } from "../values/xdr-string.js";
+import { OWNED } from "../values/owned.js";
 import {
   ScSpecUdtErrorEnumCaseV0,
   type ScSpecUdtErrorEnumCaseV0Wire,
@@ -41,12 +42,15 @@ export class ScSpecUdtErrorEnumV0 extends XdrValue {
     },
   );
 
-  constructor(input: {
-    doc: XdrString | string | Uint8Array;
-    lib: XdrString | string | Uint8Array;
-    name: XdrString | string | Uint8Array;
-    cases: ScSpecUdtErrorEnumCaseV0[];
-  }) {
+  constructor(
+    input: {
+      doc: XdrString | string | Uint8Array;
+      lib: XdrString | string | Uint8Array;
+      name: XdrString | string | Uint8Array;
+      cases: ScSpecUdtErrorEnumCaseV0[];
+    },
+    owned?: typeof OWNED,
+  ) {
     super();
     this.doc =
       input.doc instanceof XdrString ? input.doc : new XdrString(input.doc);
@@ -54,7 +58,7 @@ export class ScSpecUdtErrorEnumV0 extends XdrValue {
       input.lib instanceof XdrString ? input.lib : new XdrString(input.lib);
     this.name =
       input.name instanceof XdrString ? input.name : new XdrString(input.name);
-    this.cases = input.cases;
+    this.cases = owned === OWNED ? input.cases : input.cases.slice();
   }
 
   toXdrObject(): ScSpecUdtErrorEnumV0Wire {
@@ -67,11 +71,14 @@ export class ScSpecUdtErrorEnumV0 extends XdrValue {
   }
 
   static fromXdrObject(wire: ScSpecUdtErrorEnumV0Wire): ScSpecUdtErrorEnumV0 {
-    return new ScSpecUdtErrorEnumV0({
-      doc: wire.doc,
-      lib: wire.lib,
-      name: wire.name,
-      cases: wire.cases.map((w) => ScSpecUdtErrorEnumCaseV0.fromXdrObject(w)),
-    });
+    return new ScSpecUdtErrorEnumV0(
+      {
+        doc: wire.doc,
+        lib: wire.lib,
+        name: wire.name,
+        cases: wire.cases.map((w) => ScSpecUdtErrorEnumCaseV0.fromXdrObject(w)),
+      },
+      OWNED,
+    );
   }
 }

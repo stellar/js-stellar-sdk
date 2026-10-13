@@ -1,6 +1,7 @@
 import { array, lazy, struct } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
+import { OWNED } from "../values/owned.js";
 import {
   SorobanAuthorizedFunction,
   type SorobanAuthorizedFunctionWire,
@@ -35,13 +36,17 @@ export class SorobanAuthorizedInvocation extends XdrValue {
     },
   );
 
-  constructor(input: {
-    function: SorobanAuthorizedFunction;
-    subInvocations: SorobanAuthorizedInvocation[];
-  }) {
+  constructor(
+    input: {
+      function: SorobanAuthorizedFunction;
+      subInvocations: SorobanAuthorizedInvocation[];
+    },
+    owned?: typeof OWNED,
+  ) {
     super();
     this.function = input.function;
-    this.subInvocations = input.subInvocations;
+    this.subInvocations =
+      owned === OWNED ? input.subInvocations : input.subInvocations.slice();
   }
 
   toXdrObject(): SorobanAuthorizedInvocationWire {
@@ -54,11 +59,14 @@ export class SorobanAuthorizedInvocation extends XdrValue {
   static fromXdrObject(
     wire: SorobanAuthorizedInvocationWire,
   ): SorobanAuthorizedInvocation {
-    return new SorobanAuthorizedInvocation({
-      function: SorobanAuthorizedFunction.fromXdrObject(wire.function),
-      subInvocations: wire.subInvocations.map((w) =>
-        SorobanAuthorizedInvocation.fromXdrObject(w),
-      ),
-    });
+    return new SorobanAuthorizedInvocation(
+      {
+        function: SorobanAuthorizedFunction.fromXdrObject(wire.function),
+        subInvocations: wire.subInvocations.map((w) =>
+          SorobanAuthorizedInvocation.fromXdrObject(w),
+        ),
+      },
+      OWNED,
+    );
   }
 }

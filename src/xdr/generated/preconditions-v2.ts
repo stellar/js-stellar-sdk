@@ -1,6 +1,7 @@
 import { array, int64, option, struct, uint32, uint64 } from "@stellar/js-xdr";
 import type { XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
+import { OWNED } from "../values/owned.js";
 import { TimeBounds, type TimeBoundsWire } from "./time-bounds.js";
 import { LedgerBounds, type LedgerBoundsWire } from "./ledger-bounds.js";
 import { SignerKey, type SignerKeyWire } from "./signer-key.js";
@@ -70,21 +71,25 @@ export class PreconditionsV2 extends XdrValue {
     },
   );
 
-  constructor(input: {
-    timeBounds: TimeBounds | null;
-    ledgerBounds: LedgerBounds | null;
-    minSeqNum: bigint | null;
-    minSeqAge: bigint;
-    minSeqLedgerGap: number;
-    extraSigners: SignerKey[];
-  }) {
+  constructor(
+    input: {
+      timeBounds: TimeBounds | null;
+      ledgerBounds: LedgerBounds | null;
+      minSeqNum: bigint | null;
+      minSeqAge: bigint;
+      minSeqLedgerGap: number;
+      extraSigners: SignerKey[];
+    },
+    owned?: typeof OWNED,
+  ) {
     super();
     this.timeBounds = input.timeBounds;
     this.ledgerBounds = input.ledgerBounds;
     this.minSeqNum = input.minSeqNum;
     this.minSeqAge = input.minSeqAge;
     this.minSeqLedgerGap = input.minSeqLedgerGap;
-    this.extraSigners = input.extraSigners;
+    this.extraSigners =
+      owned === OWNED ? input.extraSigners : input.extraSigners.slice();
   }
 
   toXdrObject(): PreconditionsV2Wire {
@@ -101,19 +106,22 @@ export class PreconditionsV2 extends XdrValue {
   }
 
   static fromXdrObject(wire: PreconditionsV2Wire): PreconditionsV2 {
-    return new PreconditionsV2({
-      timeBounds:
-        wire.timeBounds === null
-          ? null
-          : TimeBounds.fromXdrObject(wire.timeBounds),
-      ledgerBounds:
-        wire.ledgerBounds === null
-          ? null
-          : LedgerBounds.fromXdrObject(wire.ledgerBounds),
-      minSeqNum: wire.minSeqNum,
-      minSeqAge: wire.minSeqAge,
-      minSeqLedgerGap: wire.minSeqLedgerGap,
-      extraSigners: wire.extraSigners.map((w) => SignerKey.fromXdrObject(w)),
-    });
+    return new PreconditionsV2(
+      {
+        timeBounds:
+          wire.timeBounds === null
+            ? null
+            : TimeBounds.fromXdrObject(wire.timeBounds),
+        ledgerBounds:
+          wire.ledgerBounds === null
+            ? null
+            : LedgerBounds.fromXdrObject(wire.ledgerBounds),
+        minSeqNum: wire.minSeqNum,
+        minSeqAge: wire.minSeqAge,
+        minSeqLedgerGap: wire.minSeqLedgerGap,
+        extraSigners: wire.extraSigners.map((w) => SignerKey.fromXdrObject(w)),
+      },
+      OWNED,
+    );
   }
 }

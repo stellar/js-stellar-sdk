@@ -1,6 +1,7 @@
 import { array, option, struct } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
+import { OWNED } from "../values/owned.js";
 import { ExtensionPoint, type ExtensionPointWire } from "./extension-point.js";
 import {
   LedgerEntryChange,
@@ -74,23 +75,30 @@ export class TransactionMetaV4 extends XdrValue {
     },
   );
 
-  constructor(input: {
-    ext: ExtensionPoint;
-    txChangesBefore: LedgerEntryChange[];
-    operations: OperationMetaV2[];
-    txChangesAfter: LedgerEntryChange[];
-    sorobanMeta: SorobanTransactionMetaV2 | null;
-    events: TransactionEvent[];
-    diagnosticEvents: DiagnosticEvent[];
-  }) {
+  constructor(
+    input: {
+      ext: ExtensionPoint;
+      txChangesBefore: LedgerEntryChange[];
+      operations: OperationMetaV2[];
+      txChangesAfter: LedgerEntryChange[];
+      sorobanMeta: SorobanTransactionMetaV2 | null;
+      events: TransactionEvent[];
+      diagnosticEvents: DiagnosticEvent[];
+    },
+    owned?: typeof OWNED,
+  ) {
     super();
     this.ext = input.ext;
-    this.txChangesBefore = input.txChangesBefore;
-    this.operations = input.operations;
-    this.txChangesAfter = input.txChangesAfter;
+    this.txChangesBefore =
+      owned === OWNED ? input.txChangesBefore : input.txChangesBefore.slice();
+    this.operations =
+      owned === OWNED ? input.operations : input.operations.slice();
+    this.txChangesAfter =
+      owned === OWNED ? input.txChangesAfter : input.txChangesAfter.slice();
     this.sorobanMeta = input.sorobanMeta;
-    this.events = input.events;
-    this.diagnosticEvents = input.diagnosticEvents;
+    this.events = owned === OWNED ? input.events : input.events.slice();
+    this.diagnosticEvents =
+      owned === OWNED ? input.diagnosticEvents : input.diagnosticEvents.slice();
   }
 
   toXdrObject(): TransactionMetaV4Wire {
@@ -107,23 +115,28 @@ export class TransactionMetaV4 extends XdrValue {
   }
 
   static fromXdrObject(wire: TransactionMetaV4Wire): TransactionMetaV4 {
-    return new TransactionMetaV4({
-      ext: ExtensionPoint.fromXdrObject(wire.ext),
-      txChangesBefore: wire.txChangesBefore.map((w) =>
-        LedgerEntryChange.fromXdrObject(w),
-      ),
-      operations: wire.operations.map((w) => OperationMetaV2.fromXdrObject(w)),
-      txChangesAfter: wire.txChangesAfter.map((w) =>
-        LedgerEntryChange.fromXdrObject(w),
-      ),
-      sorobanMeta:
-        wire.sorobanMeta === null
-          ? null
-          : SorobanTransactionMetaV2.fromXdrObject(wire.sorobanMeta),
-      events: wire.events.map((w) => TransactionEvent.fromXdrObject(w)),
-      diagnosticEvents: wire.diagnosticEvents.map((w) =>
-        DiagnosticEvent.fromXdrObject(w),
-      ),
-    });
+    return new TransactionMetaV4(
+      {
+        ext: ExtensionPoint.fromXdrObject(wire.ext),
+        txChangesBefore: wire.txChangesBefore.map((w) =>
+          LedgerEntryChange.fromXdrObject(w),
+        ),
+        operations: wire.operations.map((w) =>
+          OperationMetaV2.fromXdrObject(w),
+        ),
+        txChangesAfter: wire.txChangesAfter.map((w) =>
+          LedgerEntryChange.fromXdrObject(w),
+        ),
+        sorobanMeta:
+          wire.sorobanMeta === null
+            ? null
+            : SorobanTransactionMetaV2.fromXdrObject(wire.sorobanMeta),
+        events: wire.events.map((w) => TransactionEvent.fromXdrObject(w)),
+        diagnosticEvents: wire.diagnosticEvents.map((w) =>
+          DiagnosticEvent.fromXdrObject(w),
+        ),
+      },
+      OWNED,
+    );
   }
 }

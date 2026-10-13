@@ -2,6 +2,7 @@ import { array, struct } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import { XdrString, xdrString } from "../values/xdr-string.js";
+import { OWNED } from "../values/owned.js";
 import {
   ScSpecEventParamV0,
   type ScSpecEventParamV0Wire,
@@ -50,14 +51,17 @@ export class ScSpecEventV0 extends XdrValue {
     dataFormat: ScSpecEventDataFormat.schema,
   });
 
-  constructor(input: {
-    doc: XdrString | string | Uint8Array;
-    lib: XdrString | string | Uint8Array;
-    name: XdrString | string | Uint8Array;
-    prefixTopics: (XdrString | string | Uint8Array)[];
-    params: ScSpecEventParamV0[];
-    dataFormat: ScSpecEventDataFormat;
-  }) {
+  constructor(
+    input: {
+      doc: XdrString | string | Uint8Array;
+      lib: XdrString | string | Uint8Array;
+      name: XdrString | string | Uint8Array;
+      prefixTopics: (XdrString | string | Uint8Array)[];
+      params: ScSpecEventParamV0[];
+      dataFormat: ScSpecEventDataFormat;
+    },
+    owned?: typeof OWNED,
+  ) {
     super();
     this.doc =
       input.doc instanceof XdrString ? input.doc : new XdrString(input.doc);
@@ -68,7 +72,7 @@ export class ScSpecEventV0 extends XdrValue {
     this.prefixTopics = input.prefixTopics.map((v) =>
       v instanceof XdrString ? v : new XdrString(v),
     );
-    this.params = input.params;
+    this.params = owned === OWNED ? input.params : input.params.slice();
     this.dataFormat = input.dataFormat;
   }
 
@@ -84,13 +88,16 @@ export class ScSpecEventV0 extends XdrValue {
   }
 
   static fromXdrObject(wire: ScSpecEventV0Wire): ScSpecEventV0 {
-    return new ScSpecEventV0({
-      doc: wire.doc,
-      lib: wire.lib,
-      name: wire.name,
-      prefixTopics: wire.prefixTopics,
-      params: wire.params.map((w) => ScSpecEventParamV0.fromXdrObject(w)),
-      dataFormat: ScSpecEventDataFormat.fromXdrObject(wire.dataFormat),
-    });
+    return new ScSpecEventV0(
+      {
+        doc: wire.doc,
+        lib: wire.lib,
+        name: wire.name,
+        prefixTopics: wire.prefixTopics,
+        params: wire.params.map((w) => ScSpecEventParamV0.fromXdrObject(w)),
+        dataFormat: ScSpecEventDataFormat.fromXdrObject(wire.dataFormat),
+      },
+      OWNED,
+    );
   }
 }

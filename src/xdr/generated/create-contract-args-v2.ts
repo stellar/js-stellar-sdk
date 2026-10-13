@@ -1,6 +1,7 @@
 import { array, struct } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
+import { OWNED } from "../values/owned.js";
 import {
   ContractIdPreimage,
   type ContractIdPreimageWire,
@@ -42,15 +43,19 @@ export class CreateContractArgsV2 extends XdrValue {
     },
   );
 
-  constructor(input: {
-    contractIdPreimage: ContractIdPreimage;
-    executable: ContractExecutable;
-    constructorArgs: ScVal[];
-  }) {
+  constructor(
+    input: {
+      contractIdPreimage: ContractIdPreimage;
+      executable: ContractExecutable;
+      constructorArgs: ScVal[];
+    },
+    owned?: typeof OWNED,
+  ) {
     super();
     this.contractIdPreimage = input.contractIdPreimage;
     this.executable = input.executable;
-    this.constructorArgs = input.constructorArgs;
+    this.constructorArgs =
+      owned === OWNED ? input.constructorArgs : input.constructorArgs.slice();
   }
 
   toXdrObject(): CreateContractArgsV2Wire {
@@ -62,12 +67,17 @@ export class CreateContractArgsV2 extends XdrValue {
   }
 
   static fromXdrObject(wire: CreateContractArgsV2Wire): CreateContractArgsV2 {
-    return new CreateContractArgsV2({
-      contractIdPreimage: ContractIdPreimage.fromXdrObject(
-        wire.contractIdPreimage,
-      ),
-      executable: ContractExecutable.fromXdrObject(wire.executable),
-      constructorArgs: wire.constructorArgs.map((w) => ScVal.fromXdrObject(w)),
-    });
+    return new CreateContractArgsV2(
+      {
+        contractIdPreimage: ContractIdPreimage.fromXdrObject(
+          wire.contractIdPreimage,
+        ),
+        executable: ContractExecutable.fromXdrObject(wire.executable),
+        constructorArgs: wire.constructorArgs.map((w) =>
+          ScVal.fromXdrObject(w),
+        ),
+      },
+      OWNED,
+    );
   }
 }

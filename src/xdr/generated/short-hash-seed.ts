@@ -1,6 +1,7 @@
 import { opaque, struct } from "@stellar/js-xdr";
 import type { XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
+import { OWNED, copyBytes } from "../values/owned.js";
 
 export interface ShortHashSeedWire {
   seed: Uint8Array;
@@ -21,9 +22,14 @@ export class ShortHashSeed extends XdrValue {
     seed: opaque(16),
   });
 
-  constructor(input: { seed: Uint8Array }) {
+  constructor(
+    input: {
+      seed: Uint8Array;
+    },
+    owned?: typeof OWNED,
+  ) {
     super();
-    this.seed = input.seed;
+    this.seed = owned === OWNED ? input.seed : copyBytes(input.seed);
   }
 
   toXdrObject(): ShortHashSeedWire {
@@ -33,8 +39,11 @@ export class ShortHashSeed extends XdrValue {
   }
 
   static fromXdrObject(wire: ShortHashSeedWire): ShortHashSeed {
-    return new ShortHashSeed({
-      seed: wire.seed,
-    });
+    return new ShortHashSeed(
+      {
+        seed: wire.seed,
+      },
+      OWNED,
+    );
   }
 }

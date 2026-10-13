@@ -1,6 +1,7 @@
 import { array, struct } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
+import { OWNED } from "../values/owned.js";
 import { ScpQuorumSet, type ScpQuorumSetWire } from "./scp-quorum-set.js";
 import {
   LedgerScpMessages,
@@ -33,12 +34,16 @@ export class ScpHistoryEntryV0 extends XdrValue {
     },
   );
 
-  constructor(input: {
-    quorumSets: ScpQuorumSet[];
-    ledgerMessages: LedgerScpMessages;
-  }) {
+  constructor(
+    input: {
+      quorumSets: ScpQuorumSet[];
+      ledgerMessages: LedgerScpMessages;
+    },
+    owned?: typeof OWNED,
+  ) {
     super();
-    this.quorumSets = input.quorumSets;
+    this.quorumSets =
+      owned === OWNED ? input.quorumSets : input.quorumSets.slice();
     this.ledgerMessages = input.ledgerMessages;
   }
 
@@ -50,9 +55,12 @@ export class ScpHistoryEntryV0 extends XdrValue {
   }
 
   static fromXdrObject(wire: ScpHistoryEntryV0Wire): ScpHistoryEntryV0 {
-    return new ScpHistoryEntryV0({
-      quorumSets: wire.quorumSets.map((w) => ScpQuorumSet.fromXdrObject(w)),
-      ledgerMessages: LedgerScpMessages.fromXdrObject(wire.ledgerMessages),
-    });
+    return new ScpHistoryEntryV0(
+      {
+        quorumSets: wire.quorumSets.map((w) => ScpQuorumSet.fromXdrObject(w)),
+        ledgerMessages: LedgerScpMessages.fromXdrObject(wire.ledgerMessages),
+      },
+      OWNED,
+    );
   }
 }

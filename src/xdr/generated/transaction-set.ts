@@ -1,6 +1,7 @@
 import { array, struct } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
+import { OWNED } from "../values/owned.js";
 import { Hash, type HashWire } from "./hash.js";
 import {
   TransactionEnvelope,
@@ -33,16 +34,19 @@ export class TransactionSet extends XdrValue {
     },
   );
 
-  constructor(input: {
-    previousLedgerHash: Hash | Uint8Array | string;
-    txs: TransactionEnvelope[];
-  }) {
+  constructor(
+    input: {
+      previousLedgerHash: Hash | Uint8Array | string;
+      txs: TransactionEnvelope[];
+    },
+    owned?: typeof OWNED,
+  ) {
     super();
     this.previousLedgerHash =
       input.previousLedgerHash instanceof Hash
         ? input.previousLedgerHash
         : new Hash(input.previousLedgerHash);
-    this.txs = input.txs;
+    this.txs = owned === OWNED ? input.txs : input.txs.slice();
   }
 
   toXdrObject(): TransactionSetWire {
@@ -53,9 +57,12 @@ export class TransactionSet extends XdrValue {
   }
 
   static fromXdrObject(wire: TransactionSetWire): TransactionSet {
-    return new TransactionSet({
-      previousLedgerHash: Hash.fromXdrObject(wire.previousLedgerHash),
-      txs: wire.txs.map((w) => TransactionEnvelope.fromXdrObject(w)),
-    });
+    return new TransactionSet(
+      {
+        previousLedgerHash: Hash.fromXdrObject(wire.previousLedgerHash),
+        txs: wire.txs.map((w) => TransactionEnvelope.fromXdrObject(w)),
+      },
+      OWNED,
+    );
   }
 }

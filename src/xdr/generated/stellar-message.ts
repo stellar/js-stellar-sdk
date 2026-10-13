@@ -5,6 +5,7 @@
 import { array, case as case_, field, uint32, union } from "@stellar/js-xdr";
 import { XdrError, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
+import { OWNED } from "../values/owned.js";
 import { MessageType } from "./message-type.js";
 import { Error, type ErrorWire } from "./error.js";
 import { Hello, type HelloWire } from "./hello.js";
@@ -376,6 +377,7 @@ abstract class StellarMessageBase extends XdrValue {
       case 5:
         return new StellarMessagePeers(
           wire.peers.map((w) => PeerAddress.fromXdrObject(w)),
+          OWNED,
         );
       case 6:
         return new StellarMessageGetTxSet(
@@ -544,9 +546,9 @@ export class StellarMessagePeers extends StellarMessageBase {
   readonly type = "peers" as const;
   readonly peers: PeerAddress[];
 
-  constructor(peers: PeerAddress[]) {
+  constructor(peers: PeerAddress[], owned?: typeof OWNED) {
     super();
-    this.peers = peers;
+    this.peers = owned === OWNED ? peers : peers.slice();
   }
 
   get value(): PeerAddress[] {

@@ -1,14 +1,16 @@
 import { stringToUint8Array, uint8ArrayToString } from "uint8array-extras";
 import { XdrError } from "@stellar/js-xdr";
 import { XdrValue, decodeBytes, encodeBytes } from "./xdr-value.js";
+import { OWNED, copyBytes } from "./owned.js";
 
 export type BytesEncoding = "hex" | "base64" | "ascii";
 
 function decodeBytesInput(
   input: Uint8Array | string,
   encoding: BytesEncoding,
+  owned: boolean,
 ): Uint8Array {
-  if (input instanceof Uint8Array) return input;
+  if (input instanceof Uint8Array) return owned ? input : copyBytes(input);
   if (encoding === "ascii") return stringToUint8Array(input);
   return decodeBytes(input, encoding);
 }
@@ -33,14 +35,14 @@ export abstract class BytesValue<Tag extends string = string> extends XdrValue {
   declare readonly __tag: Tag;
   readonly value: Uint8Array;
 
-  constructor(value: Uint8Array | string) {
+  constructor(value: Uint8Array | string, owned?: typeof OWNED) {
     super();
     const ctor = this.constructor as typeof BytesValue & {
       readonly byteLength?: number;
       readonly encoding: BytesEncoding;
       readonly padTo?: number;
     };
-    let bytes = decodeBytesInput(value, ctor.encoding);
+    let bytes = decodeBytesInput(value, ctor.encoding, owned === OWNED);
     // Padding applies only to string inputs — byte inputs are wire data and
     // stay exact.
     if (

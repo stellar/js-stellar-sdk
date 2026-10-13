@@ -1,6 +1,7 @@
 import { struct, uint32, varOpaque } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
+import { OWNED, copyBytes } from "../values/owned.js";
 import {
   BinaryFuseFilterType,
   type BinaryFuseFilterTypeWire,
@@ -67,17 +68,20 @@ export class SerializedBinaryFuseFilter extends XdrValue {
     },
   );
 
-  constructor(input: {
-    type: BinaryFuseFilterType;
-    inputHashSeed: ShortHashSeed;
-    filterSeed: ShortHashSeed;
-    segmentLength: number;
-    segementLengthMask: number;
-    segmentCount: number;
-    segmentCountLength: number;
-    fingerprintLength: number;
-    fingerprints: Uint8Array;
-  }) {
+  constructor(
+    input: {
+      type: BinaryFuseFilterType;
+      inputHashSeed: ShortHashSeed;
+      filterSeed: ShortHashSeed;
+      segmentLength: number;
+      segementLengthMask: number;
+      segmentCount: number;
+      segmentCountLength: number;
+      fingerprintLength: number;
+      fingerprints: Uint8Array;
+    },
+    owned?: typeof OWNED,
+  ) {
     super();
     this.type = input.type;
     this.inputHashSeed = input.inputHashSeed;
@@ -87,7 +91,8 @@ export class SerializedBinaryFuseFilter extends XdrValue {
     this.segmentCount = input.segmentCount;
     this.segmentCountLength = input.segmentCountLength;
     this.fingerprintLength = input.fingerprintLength;
-    this.fingerprints = input.fingerprints;
+    this.fingerprints =
+      owned === OWNED ? input.fingerprints : copyBytes(input.fingerprints);
   }
 
   toXdrObject(): SerializedBinaryFuseFilterWire {
@@ -107,16 +112,19 @@ export class SerializedBinaryFuseFilter extends XdrValue {
   static fromXdrObject(
     wire: SerializedBinaryFuseFilterWire,
   ): SerializedBinaryFuseFilter {
-    return new SerializedBinaryFuseFilter({
-      type: BinaryFuseFilterType.fromXdrObject(wire.type),
-      inputHashSeed: ShortHashSeed.fromXdrObject(wire.inputHashSeed),
-      filterSeed: ShortHashSeed.fromXdrObject(wire.filterSeed),
-      segmentLength: wire.segmentLength,
-      segementLengthMask: wire.segementLengthMask,
-      segmentCount: wire.segmentCount,
-      segmentCountLength: wire.segmentCountLength,
-      fingerprintLength: wire.fingerprintLength,
-      fingerprints: wire.fingerprints,
-    });
+    return new SerializedBinaryFuseFilter(
+      {
+        type: BinaryFuseFilterType.fromXdrObject(wire.type),
+        inputHashSeed: ShortHashSeed.fromXdrObject(wire.inputHashSeed),
+        filterSeed: ShortHashSeed.fromXdrObject(wire.filterSeed),
+        segmentLength: wire.segmentLength,
+        segementLengthMask: wire.segementLengthMask,
+        segmentCount: wire.segmentCount,
+        segmentCountLength: wire.segmentCountLength,
+        fingerprintLength: wire.fingerprintLength,
+        fingerprints: wire.fingerprints,
+      },
+      OWNED,
+    );
   }
 }

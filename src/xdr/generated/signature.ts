@@ -1,5 +1,6 @@
 import { varOpaque } from "@stellar/js-xdr";
 import { BytesValue } from "../values/bytes-value.js";
+import { OWNED } from "../values/owned.js";
 
 export type SignatureWire = Uint8Array;
 
@@ -13,6 +14,6 @@ export class Signature extends BytesValue<"Signature"> {
   static readonly schema = varOpaque(64, "Signature");
 
   static fromXdrObject(wire: Uint8Array): Signature {
-    return new Signature(wire);
+    return new Signature(wire, OWNED);
   }
 }

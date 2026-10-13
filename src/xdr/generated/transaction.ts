@@ -1,6 +1,7 @@
 import { array, int64, struct, uint32 } from "@stellar/js-xdr";
 import type { XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
+import { OWNED } from "../values/owned.js";
 import { MuxedAccount, type MuxedAccountWire } from "./muxed-account.js";
 import { Preconditions, type PreconditionsWire } from "./preconditions.js";
 import { Memo, type MemoWire } from "./memo.js";
@@ -67,22 +68,26 @@ export class Transaction extends XdrValue {
     ext: TransactionExt.schema,
   });
 
-  constructor(input: {
-    sourceAccount: MuxedAccount;
-    fee: number;
-    seqNum: bigint;
-    cond: Preconditions;
-    memo: Memo;
-    operations: Operation[];
-    ext: TransactionExt;
-  }) {
+  constructor(
+    input: {
+      sourceAccount: MuxedAccount;
+      fee: number;
+      seqNum: bigint;
+      cond: Preconditions;
+      memo: Memo;
+      operations: Operation[];
+      ext: TransactionExt;
+    },
+    owned?: typeof OWNED,
+  ) {
     super();
     this.sourceAccount = input.sourceAccount;
     this.fee = input.fee;
     this.seqNum = input.seqNum;
     this.cond = input.cond;
     this.memo = input.memo;
-    this.operations = input.operations;
+    this.operations =
+      owned === OWNED ? input.operations : input.operations.slice();
     this.ext = input.ext;
   }
 
@@ -99,14 +104,17 @@ export class Transaction extends XdrValue {
   }
 
   static fromXdrObject(wire: TransactionWire): Transaction {
-    return new Transaction({
-      sourceAccount: MuxedAccount.fromXdrObject(wire.sourceAccount),
-      fee: wire.fee,
-      seqNum: wire.seqNum,
-      cond: Preconditions.fromXdrObject(wire.cond),
-      memo: Memo.fromXdrObject(wire.memo),
-      operations: wire.operations.map((w) => Operation.fromXdrObject(w)),
-      ext: TransactionExt.fromXdrObject(wire.ext),
-    });
+    return new Transaction(
+      {
+        sourceAccount: MuxedAccount.fromXdrObject(wire.sourceAccount),
+        fee: wire.fee,
+        seqNum: wire.seqNum,
+        cond: Preconditions.fromXdrObject(wire.cond),
+        memo: Memo.fromXdrObject(wire.memo),
+        operations: wire.operations.map((w) => Operation.fromXdrObject(w)),
+        ext: TransactionExt.fromXdrObject(wire.ext),
+      },
+      OWNED,
+    );
   }
 }

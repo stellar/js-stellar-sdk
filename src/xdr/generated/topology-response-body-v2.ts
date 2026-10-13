@@ -1,6 +1,7 @@
 import { array, struct } from "@stellar/js-xdr";
 import type { XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
+import { OWNED } from "../values/owned.js";
 import {
   TimeSlicedPeerData,
   type TimeSlicedPeerDataWire,
@@ -40,14 +41,19 @@ export class TopologyResponseBodyV2 extends XdrValue {
     },
   );
 
-  constructor(input: {
-    inboundPeers: TimeSlicedPeerData[];
-    outboundPeers: TimeSlicedPeerData[];
-    nodeData: TimeSlicedNodeData;
-  }) {
+  constructor(
+    input: {
+      inboundPeers: TimeSlicedPeerData[];
+      outboundPeers: TimeSlicedPeerData[];
+      nodeData: TimeSlicedNodeData;
+    },
+    owned?: typeof OWNED,
+  ) {
     super();
-    this.inboundPeers = input.inboundPeers;
-    this.outboundPeers = input.outboundPeers;
+    this.inboundPeers =
+      owned === OWNED ? input.inboundPeers : input.inboundPeers.slice();
+    this.outboundPeers =
+      owned === OWNED ? input.outboundPeers : input.outboundPeers.slice();
     this.nodeData = input.nodeData;
   }
 
@@ -62,14 +68,17 @@ export class TopologyResponseBodyV2 extends XdrValue {
   static fromXdrObject(
     wire: TopologyResponseBodyV2Wire,
   ): TopologyResponseBodyV2 {
-    return new TopologyResponseBodyV2({
-      inboundPeers: wire.inboundPeers.map((w) =>
-        TimeSlicedPeerData.fromXdrObject(w),
-      ),
-      outboundPeers: wire.outboundPeers.map((w) =>
-        TimeSlicedPeerData.fromXdrObject(w),
-      ),
-      nodeData: TimeSlicedNodeData.fromXdrObject(wire.nodeData),
-    });
+    return new TopologyResponseBodyV2(
+      {
+        inboundPeers: wire.inboundPeers.map((w) =>
+          TimeSlicedPeerData.fromXdrObject(w),
+        ),
+        outboundPeers: wire.outboundPeers.map((w) =>
+          TimeSlicedPeerData.fromXdrObject(w),
+        ),
+        nodeData: TimeSlicedNodeData.fromXdrObject(wire.nodeData),
+      },
+      OWNED,
+    );
   }
 }

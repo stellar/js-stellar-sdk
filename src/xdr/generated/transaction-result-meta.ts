@@ -1,6 +1,7 @@
 import { array, struct } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
+import { OWNED } from "../values/owned.js";
 import {
   TransactionResultPair,
   type TransactionResultPairWire,
@@ -44,14 +45,18 @@ export class TransactionResultMeta extends XdrValue {
     },
   );
 
-  constructor(input: {
-    result: TransactionResultPair;
-    feeProcessing: LedgerEntryChange[];
-    txApplyProcessing: TransactionMeta;
-  }) {
+  constructor(
+    input: {
+      result: TransactionResultPair;
+      feeProcessing: LedgerEntryChange[];
+      txApplyProcessing: TransactionMeta;
+    },
+    owned?: typeof OWNED,
+  ) {
     super();
     this.result = input.result;
-    this.feeProcessing = input.feeProcessing;
+    this.feeProcessing =
+      owned === OWNED ? input.feeProcessing : input.feeProcessing.slice();
     this.txApplyProcessing = input.txApplyProcessing;
   }
 
@@ -64,12 +69,17 @@ export class TransactionResultMeta extends XdrValue {
   }
 
   static fromXdrObject(wire: TransactionResultMetaWire): TransactionResultMeta {
-    return new TransactionResultMeta({
-      result: TransactionResultPair.fromXdrObject(wire.result),
-      feeProcessing: wire.feeProcessing.map((w) =>
-        LedgerEntryChange.fromXdrObject(w),
-      ),
-      txApplyProcessing: TransactionMeta.fromXdrObject(wire.txApplyProcessing),
-    });
+    return new TransactionResultMeta(
+      {
+        result: TransactionResultPair.fromXdrObject(wire.result),
+        feeProcessing: wire.feeProcessing.map((w) =>
+          LedgerEntryChange.fromXdrObject(w),
+        ),
+        txApplyProcessing: TransactionMeta.fromXdrObject(
+          wire.txApplyProcessing,
+        ),
+      },
+      OWNED,
+    );
   }
 }

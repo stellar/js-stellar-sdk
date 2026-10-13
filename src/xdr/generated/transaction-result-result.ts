@@ -11,6 +11,7 @@ import {
 } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, XdrError, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
+import { OWNED } from "../values/owned.js";
 import { TransactionResultCode } from "./transaction-result-code.js";
 import {
   InnerTransactionResultPair,
@@ -259,10 +260,12 @@ abstract class TransactionResultResultBase extends XdrValue {
       case 0:
         return new TransactionResultResultTxSuccess(
           wire.results.map((w) => OperationResult.fromXdrObject(w)),
+          OWNED,
         );
       case -1:
         return new TransactionResultResultTxFailed(
           wire.results.map((w) => OperationResult.fromXdrObject(w)),
+          OWNED,
         );
       case -2:
         return new TransactionResultResultTxTooEarly();
@@ -357,9 +360,9 @@ export class TransactionResultResultTxSuccess extends TransactionResultResultBas
   readonly type = "txSuccess" as const;
   readonly results: OperationResult[];
 
-  constructor(results: OperationResult[]) {
+  constructor(results: OperationResult[], owned?: typeof OWNED) {
     super();
-    this.results = results;
+    this.results = owned === OWNED ? results : results.slice();
   }
 
   get value(): OperationResult[] {
@@ -375,9 +378,9 @@ export class TransactionResultResultTxFailed extends TransactionResultResultBase
   readonly type = "txFailed" as const;
   readonly results: OperationResult[];
 
-  constructor(results: OperationResult[]) {
+  constructor(results: OperationResult[], owned?: typeof OWNED) {
     super();
-    this.results = results;
+    this.results = owned === OWNED ? results : results.slice();
   }
 
   get value(): OperationResult[] {

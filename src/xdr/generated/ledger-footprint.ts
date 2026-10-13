@@ -1,6 +1,7 @@
 import { array, struct } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
+import { OWNED } from "../values/owned.js";
 import { LedgerKey, type LedgerKeyWire } from "./ledger-key.js";
 
 export interface LedgerFootprintWire {
@@ -29,10 +30,17 @@ export class LedgerFootprint extends XdrValue {
     },
   );
 
-  constructor(input: { readOnly: LedgerKey[]; readWrite: LedgerKey[] }) {
+  constructor(
+    input: {
+      readOnly: LedgerKey[];
+      readWrite: LedgerKey[];
+    },
+    owned?: typeof OWNED,
+  ) {
     super();
-    this.readOnly = input.readOnly;
-    this.readWrite = input.readWrite;
+    this.readOnly = owned === OWNED ? input.readOnly : input.readOnly.slice();
+    this.readWrite =
+      owned === OWNED ? input.readWrite : input.readWrite.slice();
   }
 
   toXdrObject(): LedgerFootprintWire {
@@ -43,9 +51,12 @@ export class LedgerFootprint extends XdrValue {
   }
 
   static fromXdrObject(wire: LedgerFootprintWire): LedgerFootprint {
-    return new LedgerFootprint({
-      readOnly: wire.readOnly.map((w) => LedgerKey.fromXdrObject(w)),
-      readWrite: wire.readWrite.map((w) => LedgerKey.fromXdrObject(w)),
-    });
+    return new LedgerFootprint(
+      {
+        readOnly: wire.readOnly.map((w) => LedgerKey.fromXdrObject(w)),
+        readWrite: wire.readWrite.map((w) => LedgerKey.fromXdrObject(w)),
+      },
+      OWNED,
+    );
   }
 }

@@ -1,6 +1,7 @@
 import { array, struct, uint32 } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
+import { OWNED } from "../values/owned.js";
 import { ScpEnvelope, type ScpEnvelopeWire } from "./scp-envelope.js";
 
 export interface LedgerScpMessagesWire {
@@ -29,10 +30,16 @@ export class LedgerScpMessages extends XdrValue {
     },
   );
 
-  constructor(input: { ledgerSeq: number; messages: ScpEnvelope[] }) {
+  constructor(
+    input: {
+      ledgerSeq: number;
+      messages: ScpEnvelope[];
+    },
+    owned?: typeof OWNED,
+  ) {
     super();
     this.ledgerSeq = input.ledgerSeq;
-    this.messages = input.messages;
+    this.messages = owned === OWNED ? input.messages : input.messages.slice();
   }
 
   toXdrObject(): LedgerScpMessagesWire {
@@ -43,9 +50,12 @@ export class LedgerScpMessages extends XdrValue {
   }
 
   static fromXdrObject(wire: LedgerScpMessagesWire): LedgerScpMessages {
-    return new LedgerScpMessages({
-      ledgerSeq: wire.ledgerSeq,
-      messages: wire.messages.map((w) => ScpEnvelope.fromXdrObject(w)),
-    });
+    return new LedgerScpMessages(
+      {
+        ledgerSeq: wire.ledgerSeq,
+        messages: wire.messages.map((w) => ScpEnvelope.fromXdrObject(w)),
+      },
+      OWNED,
+    );
   }
 }

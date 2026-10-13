@@ -2,6 +2,7 @@ import { array, struct } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
 import { XdrString, xdrString } from "../values/xdr-string.js";
+import { OWNED } from "../values/owned.js";
 import {
   ScSpecFunctionInputV0,
   type ScSpecFunctionInputV0Wire,
@@ -42,19 +43,22 @@ export class ScSpecFunctionV0 extends XdrValue {
     },
   );
 
-  constructor(input: {
-    doc: XdrString | string | Uint8Array;
-    name: XdrString | string | Uint8Array;
-    inputs: ScSpecFunctionInputV0[];
-    outputs: ScSpecTypeDef[];
-  }) {
+  constructor(
+    input: {
+      doc: XdrString | string | Uint8Array;
+      name: XdrString | string | Uint8Array;
+      inputs: ScSpecFunctionInputV0[];
+      outputs: ScSpecTypeDef[];
+    },
+    owned?: typeof OWNED,
+  ) {
     super();
     this.doc =
       input.doc instanceof XdrString ? input.doc : new XdrString(input.doc);
     this.name =
       input.name instanceof XdrString ? input.name : new XdrString(input.name);
-    this.inputs = input.inputs;
-    this.outputs = input.outputs;
+    this.inputs = owned === OWNED ? input.inputs : input.inputs.slice();
+    this.outputs = owned === OWNED ? input.outputs : input.outputs.slice();
   }
 
   toXdrObject(): ScSpecFunctionV0Wire {
@@ -67,11 +71,14 @@ export class ScSpecFunctionV0 extends XdrValue {
   }
 
   static fromXdrObject(wire: ScSpecFunctionV0Wire): ScSpecFunctionV0 {
-    return new ScSpecFunctionV0({
-      doc: wire.doc,
-      name: wire.name,
-      inputs: wire.inputs.map((w) => ScSpecFunctionInputV0.fromXdrObject(w)),
-      outputs: wire.outputs.map((w) => ScSpecTypeDef.fromXdrObject(w)),
-    });
+    return new ScSpecFunctionV0(
+      {
+        doc: wire.doc,
+        name: wire.name,
+        inputs: wire.inputs.map((w) => ScSpecFunctionInputV0.fromXdrObject(w)),
+        outputs: wire.outputs.map((w) => ScSpecTypeDef.fromXdrObject(w)),
+      },
+      OWNED,
+    );
   }
 }

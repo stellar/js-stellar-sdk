@@ -1,6 +1,7 @@
 import { array, struct } from "@stellar/js-xdr";
 import type { XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
+import { OWNED } from "../values/owned.js";
 import { Transaction, type TransactionWire } from "./transaction.js";
 import {
   DecoratedSignature,
@@ -35,10 +36,17 @@ export class TransactionV1Envelope extends XdrValue {
     },
   );
 
-  constructor(input: { tx: Transaction; signatures: DecoratedSignature[] }) {
+  constructor(
+    input: {
+      tx: Transaction;
+      signatures: DecoratedSignature[];
+    },
+    owned?: typeof OWNED,
+  ) {
     super();
     this.tx = input.tx;
-    this.signatures = input.signatures;
+    this.signatures =
+      owned === OWNED ? input.signatures : input.signatures.slice();
   }
 
   toXdrObject(): TransactionV1EnvelopeWire {
@@ -49,11 +57,14 @@ export class TransactionV1Envelope extends XdrValue {
   }
 
   static fromXdrObject(wire: TransactionV1EnvelopeWire): TransactionV1Envelope {
-    return new TransactionV1Envelope({
-      tx: Transaction.fromXdrObject(wire.tx),
-      signatures: wire.signatures.map((w) =>
-        DecoratedSignature.fromXdrObject(w),
-      ),
-    });
+    return new TransactionV1Envelope(
+      {
+        tx: Transaction.fromXdrObject(wire.tx),
+        signatures: wire.signatures.map((w) =>
+          DecoratedSignature.fromXdrObject(w),
+        ),
+      },
+      OWNED,
+    );
   }
 }

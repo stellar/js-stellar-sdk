@@ -1,6 +1,7 @@
 import { array, struct } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
+import { OWNED } from "../values/owned.js";
 import { ExtensionPoint, type ExtensionPointWire } from "./extension-point.js";
 import {
   LedgerEntryChange,
@@ -40,15 +41,18 @@ export class OperationMetaV2 extends XdrValue {
     },
   );
 
-  constructor(input: {
-    ext: ExtensionPoint;
-    changes: LedgerEntryChange[];
-    events: ContractEvent[];
-  }) {
+  constructor(
+    input: {
+      ext: ExtensionPoint;
+      changes: LedgerEntryChange[];
+      events: ContractEvent[];
+    },
+    owned?: typeof OWNED,
+  ) {
     super();
     this.ext = input.ext;
-    this.changes = input.changes;
-    this.events = input.events;
+    this.changes = owned === OWNED ? input.changes : input.changes.slice();
+    this.events = owned === OWNED ? input.events : input.events.slice();
   }
 
   toXdrObject(): OperationMetaV2Wire {
@@ -60,10 +64,13 @@ export class OperationMetaV2 extends XdrValue {
   }
 
   static fromXdrObject(wire: OperationMetaV2Wire): OperationMetaV2 {
-    return new OperationMetaV2({
-      ext: ExtensionPoint.fromXdrObject(wire.ext),
-      changes: wire.changes.map((w) => LedgerEntryChange.fromXdrObject(w)),
-      events: wire.events.map((w) => ContractEvent.fromXdrObject(w)),
-    });
+    return new OperationMetaV2(
+      {
+        ext: ExtensionPoint.fromXdrObject(wire.ext),
+        changes: wire.changes.map((w) => LedgerEntryChange.fromXdrObject(w)),
+        events: wire.events.map((w) => ContractEvent.fromXdrObject(w)),
+      },
+      OWNED,
+    );
   }
 }

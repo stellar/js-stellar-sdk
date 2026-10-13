@@ -1,6 +1,7 @@
 import { array, struct } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
+import { OWNED } from "../values/owned.js";
 import {
   LedgerHeaderHistoryEntry,
   type LedgerHeaderHistoryEntryWire,
@@ -66,19 +67,26 @@ export class LedgerCloseMetaV0 extends XdrValue {
     },
   );
 
-  constructor(input: {
-    ledgerHeader: LedgerHeaderHistoryEntry;
-    txSet: TransactionSet;
-    txProcessing: TransactionResultMeta[];
-    upgradesProcessing: UpgradeEntryMeta[];
-    scpInfo: ScpHistoryEntry[];
-  }) {
+  constructor(
+    input: {
+      ledgerHeader: LedgerHeaderHistoryEntry;
+      txSet: TransactionSet;
+      txProcessing: TransactionResultMeta[];
+      upgradesProcessing: UpgradeEntryMeta[];
+      scpInfo: ScpHistoryEntry[];
+    },
+    owned?: typeof OWNED,
+  ) {
     super();
     this.ledgerHeader = input.ledgerHeader;
     this.txSet = input.txSet;
-    this.txProcessing = input.txProcessing;
-    this.upgradesProcessing = input.upgradesProcessing;
-    this.scpInfo = input.scpInfo;
+    this.txProcessing =
+      owned === OWNED ? input.txProcessing : input.txProcessing.slice();
+    this.upgradesProcessing =
+      owned === OWNED
+        ? input.upgradesProcessing
+        : input.upgradesProcessing.slice();
+    this.scpInfo = owned === OWNED ? input.scpInfo : input.scpInfo.slice();
   }
 
   toXdrObject(): LedgerCloseMetaV0Wire {
@@ -92,16 +100,19 @@ export class LedgerCloseMetaV0 extends XdrValue {
   }
 
   static fromXdrObject(wire: LedgerCloseMetaV0Wire): LedgerCloseMetaV0 {
-    return new LedgerCloseMetaV0({
-      ledgerHeader: LedgerHeaderHistoryEntry.fromXdrObject(wire.ledgerHeader),
-      txSet: TransactionSet.fromXdrObject(wire.txSet),
-      txProcessing: wire.txProcessing.map((w) =>
-        TransactionResultMeta.fromXdrObject(w),
-      ),
-      upgradesProcessing: wire.upgradesProcessing.map((w) =>
-        UpgradeEntryMeta.fromXdrObject(w),
-      ),
-      scpInfo: wire.scpInfo.map((w) => ScpHistoryEntry.fromXdrObject(w)),
-    });
+    return new LedgerCloseMetaV0(
+      {
+        ledgerHeader: LedgerHeaderHistoryEntry.fromXdrObject(wire.ledgerHeader),
+        txSet: TransactionSet.fromXdrObject(wire.txSet),
+        txProcessing: wire.txProcessing.map((w) =>
+          TransactionResultMeta.fromXdrObject(w),
+        ),
+        upgradesProcessing: wire.upgradesProcessing.map((w) =>
+          UpgradeEntryMeta.fromXdrObject(w),
+        ),
+        scpInfo: wire.scpInfo.map((w) => ScpHistoryEntry.fromXdrObject(w)),
+      },
+      OWNED,
+    );
   }
 }

@@ -1,6 +1,7 @@
 import { array, struct } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
+import { OWNED } from "../values/owned.js";
 import {
   ConfigSettingEntry,
   type ConfigSettingEntryWire,
@@ -27,9 +28,15 @@ export class ConfigUpgradeSet extends XdrValue {
     },
   );
 
-  constructor(input: { updatedEntry: ConfigSettingEntry[] }) {
+  constructor(
+    input: {
+      updatedEntry: ConfigSettingEntry[];
+    },
+    owned?: typeof OWNED,
+  ) {
     super();
-    this.updatedEntry = input.updatedEntry;
+    this.updatedEntry =
+      owned === OWNED ? input.updatedEntry : input.updatedEntry.slice();
   }
 
   toXdrObject(): ConfigUpgradeSetWire {
@@ -39,10 +46,13 @@ export class ConfigUpgradeSet extends XdrValue {
   }
 
   static fromXdrObject(wire: ConfigUpgradeSetWire): ConfigUpgradeSet {
-    return new ConfigUpgradeSet({
-      updatedEntry: wire.updatedEntry.map((w) =>
-        ConfigSettingEntry.fromXdrObject(w),
-      ),
-    });
+    return new ConfigUpgradeSet(
+      {
+        updatedEntry: wire.updatedEntry.map((w) =>
+          ConfigSettingEntry.fromXdrObject(w),
+        ),
+      },
+      OWNED,
+    );
   }
 }

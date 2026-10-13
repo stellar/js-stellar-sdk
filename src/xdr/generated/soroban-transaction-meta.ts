@@ -1,6 +1,7 @@
 import { array, struct } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
+import { OWNED } from "../values/owned.js";
 import {
   SorobanTransactionMetaExt,
   type SorobanTransactionMetaExtWire,
@@ -52,17 +53,21 @@ export class SorobanTransactionMeta extends XdrValue {
     },
   );
 
-  constructor(input: {
-    ext: SorobanTransactionMetaExt;
-    events: ContractEvent[];
-    returnValue: ScVal;
-    diagnosticEvents: DiagnosticEvent[];
-  }) {
+  constructor(
+    input: {
+      ext: SorobanTransactionMetaExt;
+      events: ContractEvent[];
+      returnValue: ScVal;
+      diagnosticEvents: DiagnosticEvent[];
+    },
+    owned?: typeof OWNED,
+  ) {
     super();
     this.ext = input.ext;
-    this.events = input.events;
+    this.events = owned === OWNED ? input.events : input.events.slice();
     this.returnValue = input.returnValue;
-    this.diagnosticEvents = input.diagnosticEvents;
+    this.diagnosticEvents =
+      owned === OWNED ? input.diagnosticEvents : input.diagnosticEvents.slice();
   }
 
   toXdrObject(): SorobanTransactionMetaWire {
@@ -77,13 +82,16 @@ export class SorobanTransactionMeta extends XdrValue {
   static fromXdrObject(
     wire: SorobanTransactionMetaWire,
   ): SorobanTransactionMeta {
-    return new SorobanTransactionMeta({
-      ext: SorobanTransactionMetaExt.fromXdrObject(wire.ext),
-      events: wire.events.map((w) => ContractEvent.fromXdrObject(w)),
-      returnValue: ScVal.fromXdrObject(wire.returnValue),
-      diagnosticEvents: wire.diagnosticEvents.map((w) =>
-        DiagnosticEvent.fromXdrObject(w),
-      ),
-    });
+    return new SorobanTransactionMeta(
+      {
+        ext: SorobanTransactionMetaExt.fromXdrObject(wire.ext),
+        events: wire.events.map((w) => ContractEvent.fromXdrObject(w)),
+        returnValue: ScVal.fromXdrObject(wire.returnValue),
+        diagnosticEvents: wire.diagnosticEvents.map((w) =>
+          DiagnosticEvent.fromXdrObject(w),
+        ),
+      },
+      OWNED,
+    );
   }
 }

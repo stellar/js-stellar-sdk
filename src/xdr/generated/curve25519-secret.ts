@@ -1,6 +1,7 @@
 import { opaque, struct } from "@stellar/js-xdr";
 import type { XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
+import { OWNED, copyBytes } from "../values/owned.js";
 
 export interface Curve25519SecretWire {
   key: Uint8Array;
@@ -24,9 +25,14 @@ export class Curve25519Secret extends XdrValue {
     },
   );
 
-  constructor(input: { key: Uint8Array }) {
+  constructor(
+    input: {
+      key: Uint8Array;
+    },
+    owned?: typeof OWNED,
+  ) {
     super();
-    this.key = input.key;
+    this.key = owned === OWNED ? input.key : copyBytes(input.key);
   }
 
   toXdrObject(): Curve25519SecretWire {
@@ -36,8 +42,11 @@ export class Curve25519Secret extends XdrValue {
   }
 
   static fromXdrObject(wire: Curve25519SecretWire): Curve25519Secret {
-    return new Curve25519Secret({
-      key: wire.key,
-    });
+    return new Curve25519Secret(
+      {
+        key: wire.key,
+      },
+      OWNED,
+    );
   }
 }

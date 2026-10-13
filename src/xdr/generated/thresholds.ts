@@ -1,5 +1,6 @@
 import { opaque } from "@stellar/js-xdr";
 import { BytesValue } from "../values/bytes-value.js";
+import { OWNED } from "../values/owned.js";
 
 export type ThresholdsWire = Uint8Array;
 
@@ -14,6 +15,6 @@ export class Thresholds extends BytesValue<"Thresholds"> {
   static readonly schema = opaque(4, "Thresholds");
 
   static fromXdrObject(wire: Uint8Array): Thresholds {
-    return new Thresholds(wire);
+    return new Thresholds(wire, OWNED);
   }
 }

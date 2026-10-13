@@ -1,6 +1,7 @@
 import { array, struct } from "@stellar/js-xdr";
 import { UNBOUNDED_MAX_LENGTH, type XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
+import { OWNED } from "../values/owned.js";
 import {
   TransactionResultPair,
   type TransactionResultPairWire,
@@ -28,9 +29,14 @@ export class TransactionResultSet extends XdrValue {
     },
   );
 
-  constructor(input: { results: TransactionResultPair[] }) {
+  constructor(
+    input: {
+      results: TransactionResultPair[];
+    },
+    owned?: typeof OWNED,
+  ) {
     super();
-    this.results = input.results;
+    this.results = owned === OWNED ? input.results : input.results.slice();
   }
 
   toXdrObject(): TransactionResultSetWire {
@@ -40,8 +46,13 @@ export class TransactionResultSet extends XdrValue {
   }
 
   static fromXdrObject(wire: TransactionResultSetWire): TransactionResultSet {
-    return new TransactionResultSet({
-      results: wire.results.map((w) => TransactionResultPair.fromXdrObject(w)),
-    });
+    return new TransactionResultSet(
+      {
+        results: wire.results.map((w) =>
+          TransactionResultPair.fromXdrObject(w),
+        ),
+      },
+      OWNED,
+    );
   }
 }

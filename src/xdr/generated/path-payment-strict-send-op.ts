@@ -1,6 +1,7 @@
 import { array, int64, struct } from "@stellar/js-xdr";
 import type { XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
+import { OWNED } from "../values/owned.js";
 import { Asset, type AssetWire } from "./asset.js";
 import { MuxedAccount, type MuxedAccountWire } from "./muxed-account.js";
 
@@ -50,21 +51,24 @@ export class PathPaymentStrictSendOp extends XdrValue {
     },
   );
 
-  constructor(input: {
-    sendAsset: Asset;
-    sendAmount: bigint;
-    destination: MuxedAccount;
-    destAsset: Asset;
-    destMin: bigint;
-    path: Asset[];
-  }) {
+  constructor(
+    input: {
+      sendAsset: Asset;
+      sendAmount: bigint;
+      destination: MuxedAccount;
+      destAsset: Asset;
+      destMin: bigint;
+      path: Asset[];
+    },
+    owned?: typeof OWNED,
+  ) {
     super();
     this.sendAsset = input.sendAsset;
     this.sendAmount = input.sendAmount;
     this.destination = input.destination;
     this.destAsset = input.destAsset;
     this.destMin = input.destMin;
-    this.path = input.path;
+    this.path = owned === OWNED ? input.path : input.path.slice();
   }
 
   toXdrObject(): PathPaymentStrictSendOpWire {
@@ -81,13 +85,16 @@ export class PathPaymentStrictSendOp extends XdrValue {
   static fromXdrObject(
     wire: PathPaymentStrictSendOpWire,
   ): PathPaymentStrictSendOp {
-    return new PathPaymentStrictSendOp({
-      sendAsset: Asset.fromXdrObject(wire.sendAsset),
-      sendAmount: wire.sendAmount,
-      destination: MuxedAccount.fromXdrObject(wire.destination),
-      destAsset: Asset.fromXdrObject(wire.destAsset),
-      destMin: wire.destMin,
-      path: wire.path.map((w) => Asset.fromXdrObject(w)),
-    });
+    return new PathPaymentStrictSendOp(
+      {
+        sendAsset: Asset.fromXdrObject(wire.sendAsset),
+        sendAmount: wire.sendAmount,
+        destination: MuxedAccount.fromXdrObject(wire.destination),
+        destAsset: Asset.fromXdrObject(wire.destAsset),
+        destMin: wire.destMin,
+        path: wire.path.map((w) => Asset.fromXdrObject(w)),
+      },
+      OWNED,
+    );
   }
 }

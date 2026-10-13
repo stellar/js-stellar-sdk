@@ -1,6 +1,7 @@
 import { array, int64, struct } from "@stellar/js-xdr";
 import type { XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
+import { OWNED } from "../values/owned.js";
 import { Asset, type AssetWire } from "./asset.js";
 import { Claimant, type ClaimantWire } from "./claimant.js";
 
@@ -34,11 +35,19 @@ export class CreateClaimableBalanceOp extends XdrValue {
     },
   );
 
-  constructor(input: { asset: Asset; amount: bigint; claimants: Claimant[] }) {
+  constructor(
+    input: {
+      asset: Asset;
+      amount: bigint;
+      claimants: Claimant[];
+    },
+    owned?: typeof OWNED,
+  ) {
     super();
     this.asset = input.asset;
     this.amount = input.amount;
-    this.claimants = input.claimants;
+    this.claimants =
+      owned === OWNED ? input.claimants : input.claimants.slice();
   }
 
   toXdrObject(): CreateClaimableBalanceOpWire {
@@ -52,10 +61,13 @@ export class CreateClaimableBalanceOp extends XdrValue {
   static fromXdrObject(
     wire: CreateClaimableBalanceOpWire,
   ): CreateClaimableBalanceOp {
-    return new CreateClaimableBalanceOp({
-      asset: Asset.fromXdrObject(wire.asset),
-      amount: wire.amount,
-      claimants: wire.claimants.map((w) => Claimant.fromXdrObject(w)),
-    });
+    return new CreateClaimableBalanceOp(
+      {
+        asset: Asset.fromXdrObject(wire.asset),
+        amount: wire.amount,
+        claimants: wire.claimants.map((w) => Claimant.fromXdrObject(w)),
+      },
+      OWNED,
+    );
   }
 }
