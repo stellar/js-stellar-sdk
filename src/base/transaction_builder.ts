@@ -750,6 +750,8 @@ export class TransactionBuilder {
    * @param asset - the SAC asset to be transferred
    * @param amount - the amount of tokens to be transferred in 7 decimals. IE 1 token with 7 decimals of precision would be represented as "1_0000000"
    * @param sorobanFees - optional Soroban fees for the transaction to override the default fees used
+   *
+   * @throws If the builder's source is a muxed (`M...`) account.
    */
   addSacTransferOperation(
     destination: string,
@@ -757,6 +759,13 @@ export class TransactionBuilder {
     amount: bigint | string,
     sorobanFees?: SorobanFees,
   ): TransactionBuilder {
+    // Core rejects any Soroban transaction with a muxed source account.
+    if (StrKey.isValidMed25519PublicKey(this.source.accountId())) {
+      throw new Error(
+        "Soroban transactions cannot use a muxed source account; use the base account",
+      );
+    }
+
     if (BigInt(amount) <= 0n) {
       throw new Error("Amount must be a positive integer");
     } else if (BigInt(amount) > Int64.MAX_VALUE) {

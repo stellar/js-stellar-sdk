@@ -2754,7 +2754,7 @@ describe("addSacTransferOperation with invalid destination", () => {
     }).not.toThrow();
   });
 
-  it("succeeds with a MuxedAccount source for native asset transfer", () => {
+  it("throws with a MuxedAccount source", () => {
     const muxedSource = MuxedAccount.fromAddress(
       StrKey.encodeMed25519PublicKey(
         concatUint8Arrays([
@@ -2771,11 +2771,12 @@ describe("addSacTransferOperation with invalid destination", () => {
         fee: "100",
         networkPassphrase,
         timebounds: { minTime: 0, maxTime: 0 },
-      })
-        .addSacTransferOperation(destKp.publicKey(), Asset.native(), "10000000")
-        .setTimeout(TimeoutInfinite)
-        .build();
-    }).not.toThrow();
+      }).addSacTransferOperation(
+        destKp.publicKey(),
+        Asset.native(),
+        "10000000",
+      );
+    }).toThrow(/muxed source account/);
   });
 });
 
