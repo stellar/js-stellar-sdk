@@ -2805,7 +2805,7 @@ static buildFeeBumpTransaction(feeSource: string | Keypair, baseFee: string, inn
 
 - https://developers.stellar.org/docs/glossary/fee-bumps/#replace-by-fee
 
-**Source:** [src/base/transaction_builder.ts:1146](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L1146)
+**Source:** [src/base/transaction_builder.ts:1165](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L1165)
 
 ### `TransactionBuilder.cloneFrom(tx, opts)`
 
@@ -2848,7 +2848,7 @@ static fromXdr(envelope: string | TransactionEnvelope, networkPassphrase: string
       Stellar network (e.g. "Public Global Stellar Network ; September
       2015"), see [`Networks`](#networks).
 
-**Source:** [src/base/transaction_builder.ts:1259](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L1259)
+**Source:** [src/base/transaction_builder.ts:1278](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L1278)
 
 ### `TransactionBuilder.fromXDR(envelope, networkPassphrase)`
 
@@ -2864,7 +2864,7 @@ static fromXDR(envelope: string | TransactionEnvelope, networkPassphrase: string
 - **`envelope`** — `string | TransactionEnvelope` (required)
 - **`networkPassphrase`** — `string` (required)
 
-**Source:** [src/base/transaction_builder.ts:1278](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L1278)
+**Source:** [src/base/transaction_builder.ts:1297](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L1297)
 
 ### `transactionBuilder.baseFee`
 
@@ -3017,12 +3017,16 @@ addSacTransferOperation(destination: string, asset: Asset, amount: string | bigi
 
 **Parameters**
 
-- **`destination`** — `string` (required) — the address of the recipient of the SAC transfer (should be a valid Stellar address or contract ID)
+- **`destination`** — `string` (required) — the address of the recipient of the SAC transfer (a G, M, C or W address)
 - **`asset`** — `Asset` (required) — the SAC asset to be transferred
 - **`amount`** — `string | bigint` (required) — the amount of tokens to be transferred in 7 decimals. IE 1 token with 7 decimals of precision would be represented as "1_0000000"
 - **`sorobanFees`** — `SorobanFees` (optional) — optional Soroban fees for the transaction to override the default fees used
 
-**Source:** [src/base/transaction_builder.ts:754](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L754)
+**Throws**
+
+- If the builder's source is a muxed (`M...`) account.
+
+**Source:** [src/base/transaction_builder.ts:756](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L756)
 
 ### `transactionBuilder.build()`
 
@@ -3033,7 +3037,7 @@ number by 1.
 build(): Transaction;
 ```
 
-**Source:** [src/base/transaction_builder.ts:974](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L974)
+**Source:** [src/base/transaction_builder.ts:993](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L993)
 
 ### `transactionBuilder.clearOperationAt(index)`
 
@@ -3067,7 +3071,7 @@ Checks whether any v2 preconditions have been set on this builder.
 hasV2Preconditions(): boolean;
 ```
 
-**Source:** [src/base/transaction_builder.ts:1113](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L1113)
+**Source:** [src/base/transaction_builder.ts:1132](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L1132)
 
 ### `transactionBuilder.setExtraSigners(extraSigners)`
 
