@@ -50,6 +50,13 @@ const accountKey = () =>
     }),
   );
 
+// Like Buffer, whose slice() returns a view; Buffer has no browser global.
+class ViewBytes extends Uint8Array {
+  slice(start?: number, end?: number): ViewBytes {
+    return this.subarray(start, end);
+  }
+}
+
 describe("XDR constructors copy their inputs", () => {
   describe("byte inputs", () => {
     it("BytesValue copies a Uint8Array input", () => {
@@ -63,13 +70,7 @@ describe("XDR constructors copy their inputs", () => {
       expect(sig.toXdr("hex")).toBe(before);
     });
 
-    // Like Buffer, whose slice() returns a view; Buffer has no browser global.
     it("BytesValue copies a Uint8Array subclass whose slice() is a view, and keeps its class", () => {
-      class ViewBytes extends Uint8Array {
-        slice(start?: number, end?: number): ViewBytes {
-          return this.subarray(start, end);
-        }
-      }
       const bytes = new ViewBytes(64);
       const sig = new Signature(bytes);
       const before = sig.toXdr("hex");
@@ -101,6 +102,15 @@ describe("XDR constructors copy their inputs", () => {
 
       expect(str.bytes).not.toBe(bytes);
       expect(str.toString()).toBe("hello");
+    });
+
+    it("XdrString copies another XdrString whose bytes are a subclass with a view slice()", () => {
+      const source = new XdrString(ViewBytes.from([0x68, 0x69]));
+      const copy = new XdrString(source);
+
+      copy.bytes[0] = "J".charCodeAt(0);
+
+      expect(source.toString()).toBe("hi");
     });
 
     it("a string<N> union arm built from a Uint8Array keeps its bytes", () => {
@@ -226,13 +236,12 @@ describe("XDR constructors copy their inputs", () => {
 
   describe("decode", () => {
     it("a decoded value does not share the input buffer", () => {
-      const bytes = tx([op()]).toXdr();
-      const decoded = Transaction.fromXdr(bytes);
-      const before = decoded.toXdr("hex");
+      const bytes = ScVal.scvBytes(new Uint8Array([1, 2, 3])).toXdr();
+      const decoded = ScVal.fromXdr(bytes);
 
       bytes.fill(0);
 
-      expect(decoded.toXdr("hex")).toBe(before);
+      expect(decoded.toXdr("hex")).toBe("0000000d0000000301020300");
     });
 
     it("decoded bytes survive a round trip unchanged", () => {

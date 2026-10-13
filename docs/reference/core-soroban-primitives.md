@@ -1150,7 +1150,7 @@ scValToNative(scv) == gigaMap;       // true
 
 - scValToNative
 
-**Source:** [src/base/scval.ts:174](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L174)
+**Source:** [src/base/scval.ts:177](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L177)
 
 ## scValToNative
 
@@ -1188,7 +1188,7 @@ scValToNative(scv: ScVal): any
 
 - nativeToScVal
 
-**Source:** [src/base/scval.ts:432](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L432)
+**Source:** [src/base/scval.ts:437](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L437)
 
 ## scvSortedMap
 
@@ -1203,7 +1203,7 @@ scvSortedMap(items: ScMapEntry[]): ScVal
 
 - **`items`** — `ScMapEntry[]` (required) — the unsorted map entries
 
-**Source:** [src/base/scval.ts:545](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L545)
+**Source:** [src/base/scval.ts:550](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L550)
 
 ## walkInvocationTree
 
@@ -1904,7 +1904,7 @@ interface NativeToScValOpts {
 }
 ```
 
-**Source:** [src/base/scval.ts:27](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L27)
+**Source:** [src/base/scval.ts:30](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L30)
 
 #### `nativeToScValOpts.type`
 
@@ -1912,7 +1912,7 @@ interface NativeToScValOpts {
 type?: ScValType | ScValMapTypeSpec | ScValType | null[];
 ```
 
-**Source:** [src/base/scval.ts:28](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L28)
+**Source:** [src/base/scval.ts:31](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L31)
 
 ### SigningCallback
 

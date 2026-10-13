@@ -5,9 +5,12 @@ import {
   ScErrorCode,
   ScMapEntry,
   ScVal,
+  ScValMap,
   ScValType as XdrScValType,
+  ScValVec,
   Uint32,
 } from "../xdr/index.js";
+import { OWNED } from "../xdr/values/owned.js";
 import { Keypair } from "./keypair.js";
 import { Address } from "./address.js";
 import { Contract } from "./contract.js";
@@ -197,18 +200,18 @@ export function nativeToScVal(
         return val.address().toScVal();
       }
 
+      // The ScBytes and XdrString constructors copy the bytes.
       if (val instanceof Uint8Array) {
-        const copy = Uint8Array.from(val);
         switch ((opts?.type as string) ?? "bytes") {
           case "bytes":
-            return ScVal.scvBytes(new ScBytes(copy));
+            return ScVal.scvBytes(new ScBytes(val));
           // Pass the bytes through unchanged — the string factories accept
           // Uint8Array, and decoding to a JS string first would mangle
           // non-UTF-8 content into U+FFFD replacement characters.
           case "symbol":
-            return ScVal.scvSymbol(copy);
+            return ScVal.scvSymbol(val);
           case "string":
-            return ScVal.scvString(copy);
+            return ScVal.scvString(val);
           default:
             throw new TypeError(
               `invalid type (${JSON.stringify(opts.type)}) specified for bytes-like value`,
@@ -217,7 +220,8 @@ export function nativeToScVal(
       }
 
       if (Array.isArray(val)) {
-        return ScVal.scvVec(
+        // OWNED: the array is new, so the constructor need not copy it.
+        return new ScValVec(
           val.map((v: unknown, idx: number) => {
             // There may be different type specifications for each element in
             // the array, so we need to apply those accordingly.
@@ -237,6 +241,7 @@ export function nativeToScVal(
             // Otherwise apply a generic (or missing) type specifier on it.
             return nativeToScVal(v, opts);
           }),
+          OWNED,
         );
       }
 
@@ -544,7 +549,8 @@ export function scValToNative(scv: ScVal): any {
  */
 export function scvSortedMap(items: ScMapEntry[]): ScVal {
   const sorted = Array.from(items).sort((a, b) => compareScVal(a.key, b.key));
-  return ScVal.scvMap(sorted);
+  // OWNED: `sorted` is a new array, so the constructor need not copy it.
+  return new ScValMap(sorted, OWNED);
 }
 
 /**

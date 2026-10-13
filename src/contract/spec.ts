@@ -37,10 +37,13 @@ import {
   ScSpecUdtUnionCaseV0,
   ScSpecUdtUnionV0,
   ScVal,
+  ScValMap,
+  ScValVec,
   Uint32,
   Uint64,
   XdrString,
 } from "../xdr/index.js";
+import { OWNED } from "../xdr/values/owned.js";
 
 export type { ParsedEvent };
 
@@ -752,20 +755,20 @@ export class Spec {
           return val.address().toScVal();
         }
 
+        // The ScBytes constructor copies the bytes.
         if (val instanceof Uint8Array) {
-          const copy = Uint8Array.from(val);
           switch (tyType) {
             case "scSpecTypeBytesN": {
               const bytesN = ty.value;
-              if (copy.length !== bytesN.n) {
+              if (val.length !== bytesN.n) {
                 throw new TypeError(
-                  `expected ${bytesN.n} bytes, but got ${copy.length}`,
+                  `expected ${bytesN.n} bytes, but got ${val.length}`,
                 );
               }
-              return ScVal.scvBytes(new ScBytes(copy));
+              return ScVal.scvBytes(new ScBytes(val));
             }
             case "scSpecTypeBytes":
-              return ScVal.scvBytes(new ScBytes(copy));
+              return ScVal.scvBytes(new ScBytes(val));
             default:
               throw new TypeError(
                 `invalid type (${ty}) specified for Bytes and BytesN`,
@@ -777,8 +780,11 @@ export class Spec {
             case "scSpecTypeVec": {
               const vec = ty.value;
               const elementType = vec.elementType;
-              return ScVal.scvVec(
+              // OWNED here and below: each array is new, so the
+              // constructor need not copy it.
+              return new ScValVec(
                 val.map((v) => this.nativeToScVal(v, elementType)),
+                OWNED,
               );
             }
             case "scSpecTypeTuple": {
@@ -789,20 +795,22 @@ export class Spec {
                   `Tuple expects ${valTypes.length} values, but ${val.length} were provided`,
                 );
               }
-              return ScVal.scvVec(
+              return new ScValVec(
                 val.map((v, i) => this.nativeToScVal(v, valTypes[i])),
+                OWNED,
               );
             }
             case "scSpecTypeMap": {
               const map = ty.value;
               const keyType = map.keyType;
               const valueType = map.valueType;
-              return ScVal.scvMap(
+              return new ScValMap(
                 val.map((entry) => {
                   const key = this.nativeToScVal(entry[0], keyType);
                   const mapVal = this.nativeToScVal(entry[1], valueType);
                   return new ScMapEntry({ key, val: mapVal });
                 }),
+                OWNED,
               );
             }
 
@@ -828,7 +836,7 @@ export class Spec {
             entries.push(new ScMapEntry({ key, val: mapval }));
             res = values.next();
           }
-          return ScVal.scvMap(entries);
+          return new ScValMap(entries, OWNED);
         }
 
         const proto = Object.getPrototypeOf(val);
@@ -940,7 +948,7 @@ export class Spec {
     const key = ScVal.scvSymbol(entryName);
     switch (caseFound.type) {
       case "scSpecUdtUnionCaseVoidV0": {
-        return ScVal.scvVec([key]);
+        return new ScValVec([key], OWNED);
       }
       case "scSpecUdtUnionCaseTupleV0": {
         const types = caseFound.value.type;
@@ -954,7 +962,7 @@ export class Spec {
             this.nativeToScVal(v, types[i]),
           );
           scvals.unshift(key);
-          return ScVal.scvVec(scvals);
+          return new ScValVec(scvals, OWNED);
         }
         throw new Error(`failed to parse union case ${caseFound} with ${val}`);
       }
@@ -971,13 +979,14 @@ export class Spec {
           "mixed numeric and non-numeric field names are not allowed",
         );
       }
-      return ScVal.scvVec(
+      return new ScValVec(
         fields.map((_: ScSpecUdtStructFieldV0, i: number) =>
           this.nativeToScVal(val[i], fields[i].type),
         ),
+        OWNED,
       );
     }
-    return ScVal.scvMap(
+    return new ScValMap(
       fields.map((field: ScSpecUdtStructFieldV0) => {
         const name = field.name.toString();
         return new ScMapEntry({
@@ -985,6 +994,7 @@ export class Spec {
           val: this.nativeToScVal(val[name], field.type),
         });
       }),
+      OWNED,
     );
   }
 

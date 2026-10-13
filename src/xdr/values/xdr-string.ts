@@ -33,8 +33,8 @@ export class XdrString {
   constructor(input: string | Uint8Array | XdrString, owned?: typeof OWNED) {
     if (input instanceof XdrString) {
       // The migration guide documents this branch as a copy — don't alias
-      // the original's bytes.
-      this.bytes = input.bytes.slice();
+      // the original's bytes. `copyBytes`: a `Buffer`'s own slice() is a view.
+      this.bytes = copyBytes(input.bytes);
     } else if (typeof input === "string") {
       this.bytes = new TextEncoder().encode(input);
     } else if (input instanceof Uint8Array) {

@@ -1528,8 +1528,16 @@ function bodyOfUnion(rawDef, ctx) {
       // Constructor accepts the wider ctorInputType (e.g. `Hash | Uint8Array
       // | string`, or `Uint8Array | string` for string<N>); the stored field
       // is the narrower instance type. Normalize at assignment.
+      // The arm constructor names its payload parameter after the arm, next to
+      // the `owned` parameter.
+      const armOwns = needsInputCopy(a.armType);
+      if (armOwns && armField === "owned") {
+        throw new Error(
+          `${def.name}: a union arm named "owned" clashes with the constructor's owned parameter`,
+        );
+      }
       const armAssignment = armAssignmentExpr(a.armType, armField, false, ctx);
-      const ownedParam = needsInputCopy(a.armType)
+      const ownedParam = armOwns
         ? (ctx.valueImports.add("OWNED"), ", owned?: typeof OWNED")
         : "";
       // Primary field is named after the XDR arm (e.g. `fromAddress`,
