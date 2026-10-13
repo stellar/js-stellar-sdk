@@ -190,6 +190,19 @@ describe("Operation", () => {
             }),
           ).toThrow(/expected contract address/);
         });
+
+        it("throws when the owner is a muxed contract", () => {
+          const owner =
+            "WA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJVAAAAAAAAAAAACWJY";
+          expect(() =>
+            Operation.createCustomContract({
+              address: c.address(),
+              externalRef: { owner, tag: "my-executable" },
+            }),
+          ).toThrow(
+            `expected contract address in 'opts.externalRef.owner', got ${owner}`,
+          );
+        });
       });
 
       describe("lets you wrap tokens", () => {

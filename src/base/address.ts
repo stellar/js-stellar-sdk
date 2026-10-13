@@ -5,6 +5,7 @@ import {
   ClaimableBalanceIdV0,
   ContractId,
   Hash,
+  MuxedContract,
   MuxedEd25519Account,
   PoolId,
   PublicKey,
@@ -18,7 +19,8 @@ import {
  *
  * `Address` represents a single address in the Stellar network that can be
  * inputted to or outputted by a smart contract. An address can represent an
- * account, muxed account, contract, claimable balance, or a liquidity pool
+ * account, muxed account, contract, muxed contract, claimable balance, or a
+ * liquidity pool
  * (the latter two can only be present as the *output* of Core in the form
  * of an event, never an input to a smart contract).
  */
@@ -27,7 +29,8 @@ export type AddressType =
   | "claimableBalance"
   | "contract"
   | "liquidityPool"
-  | "muxedAccount";
+  | "muxedAccount"
+  | "muxedContract";
 
 export class Address {
   private _type: AddressType;
@@ -46,6 +49,9 @@ export class Address {
     } else if (StrKey.isValidMed25519PublicKey(address)) {
       this._type = "muxedAccount";
       this._key = StrKey.decodeMed25519PublicKey(address);
+    } else if (StrKey.isValidMuxedContract(address)) {
+      this._type = "muxedContract";
+      this._key = StrKey.decodeMuxedContract(address);
     } else if (StrKey.isValidClaimableBalance(address)) {
       this._type = "claimableBalance";
       this._key = StrKey.decodeClaimableBalance(address);
@@ -112,6 +118,16 @@ export class Address {
   }
 
   /**
+   * Creates a new muxed contract Address object from raw bytes: the 32-byte
+   * contract ID followed by the 8-byte big-endian mux ID.
+   *
+   * @param buffer - The bytes of an address to parse.
+   */
+  static muxedContract(buffer: Uint8Array): Address {
+    return new Address(StrKey.encodeMuxedContract(buffer));
+  }
+
+  /**
    * Convert this from an xdr.ScVal type.
    *
    * @param scVal - The xdr.ScVal type to parse
@@ -155,6 +171,14 @@ export class Address {
       }
       case "scAddressTypeLiquidityPool":
         return Address.liquidityPool(scAddress.value.toBytes());
+      case "scAddressTypeMuxedContract": {
+        // The strkey payload puts the contract ID first, unlike the XDR struct.
+        const muxed = scAddress.value;
+        const raw = new Uint8Array(40);
+        raw.set(muxed.contractId.value, 0);
+        new DataView(raw.buffer).setBigUint64(32, muxed.id);
+        return Address.muxedContract(raw);
+      }
       default:
         throw new Error("Unsupported address type");
     }
@@ -175,6 +199,8 @@ export class Address {
         return StrKey.encodeLiquidityPool(this._key);
       case "muxedAccount":
         return StrKey.encodeMed25519PublicKey(this._key);
+      case "muxedContract":
+        return StrKey.encodeMuxedContract(this._key);
       default:
         throw new Error("Unsupported address type");
     }
@@ -214,6 +240,14 @@ export class Address {
           }),
         );
 
+      case "muxedContract":
+        return ScAddress.scAddressTypeMuxedContract(
+          new MuxedContract({
+            id: Uint64.fromXdr(this._key.subarray(32, 40), "raw"),
+            contractId: new ContractId(this._key.subarray(0, 32)),
+          }),
+        );
+
       default:
         throw new Error("Unsupported address type");
     }
@@ -231,5 +265,59 @@ export class Address {
    */
   get type(): AddressType {
     return this._type;
+  }
+
+  /**
+   * Return the address without its mux ID: G for M, C for W, and this
+   * address for every other type.
+   */
+  baseAddress(): Address {
+    switch (this._type) {
+      case "muxedAccount":
+        return Address.account(this._key.subarray(0, 32));
+      case "muxedContract":
+        return Address.contract(this._key.subarray(0, 32));
+      default:
+        return this;
+    }
+  }
+
+  /**
+   * Return the mux ID of an M or W address, or `undefined` for other types.
+   */
+  muxedId(): bigint | undefined {
+    if (this._type !== "muxedAccount" && this._type !== "muxedContract") {
+      return undefined;
+    }
+    return new DataView(
+      this._key.buffer,
+      this._key.byteOffset,
+      this._key.byteLength,
+    ).getBigUint64(32);
+  }
+
+  /**
+   * Return true for muxed account (M) and muxed contract (W) addresses.
+   */
+  isMuxed(): boolean {
+    return this._type === "muxedAccount" || this._type === "muxedContract";
+  }
+}
+
+/**
+ * Throw a `TypeError` if `address` is a muxed (M... or W...) address. `reason`
+ * finishes the message, e.g. "cannot own contract data; use its base address".
+ */
+export function assertNotMuxed(
+  address: string | Address,
+  reason: string,
+): void {
+  const muxed =
+    typeof address === "string"
+      ? StrKey.isValidMed25519PublicKey(address) ||
+        StrKey.isValidMuxedContract(address)
+      : address.isMuxed();
+  if (muxed) {
+    throw new TypeError(`muxed address ${address.toString()} ${reason}`);
   }
 }
