@@ -4744,7 +4744,7 @@ allowHttp?: boolean;
 
 #### `options.headers`
 
-Additional headers that should be added to any requests to the RPC server. A redirect to another origin can receive these headers, except in Node with the Axios build or with `maxRedirects` set. To refuse redirects in the Fetch build, set `maxRedirects: 0` on each request, for example with a request interceptor on `httpClient`.
+Additional headers that should be added to any requests to the RPC server. A redirect to another origin can receive these headers, except in Node with the Axios build or with `maxRedirects` set. In the Fetch build, set `httpClient.defaults.maxRedirects` to strip them in Node; in a browser, only `0` (refuse redirects) helps.
 
 ```ts
 headers?: Record<string, string>;

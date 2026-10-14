@@ -722,6 +722,22 @@ describe("HttpClient contract", () => {
       expect(headers["x-app-name"]).toBe("app");
     });
 
+    it("keeps range and conditional headers", async () => {
+      redirectTo(`${secondary.url}/after`);
+      await create().get(`${baseUrl}/start`, {
+        headers: {
+          Range: "bytes=0-1023",
+          "If-None-Match": '"etag"',
+          "Cache-Control": "no-cache",
+        },
+        maxRedirects: 1,
+      });
+      const { headers } = secondary.requests[0];
+      expect(headers.range).toBe("bytes=0-1023");
+      expect(headers["if-none-match"]).toBe('"etag"');
+      expect(headers["cache-control"]).toBe("no-cache");
+    });
+
     it("compares header names case-insensitively", async () => {
       redirectTo(`${secondary.url}/after`);
       await create().get(`${baseUrl}/start`, {
