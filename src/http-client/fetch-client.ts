@@ -111,9 +111,16 @@ function buildBoundedUrl(config: HttpClientRequestConfig): string {
     const qs = new URLSearchParams(
       config.params as Record<string, string>,
     ).toString();
+    url = stripFragment(url);
     url += (url.includes("?") ? "&" : "?") + qs;
   }
   return url;
+}
+
+// Params after a fragment never reach the server. Axios drops it too.
+function stripFragment(url: string): string {
+  const hashIndex = url.indexOf("#");
+  return hashIndex === -1 ? url : url.slice(0, hashIndex);
 }
 
 // Mirrors feaxios's defaultTransformer: serialize request bodies based on
@@ -316,6 +323,9 @@ function buildHttpError(
   return err;
 }
 
+// Created on first use, so importing the SDK needs no TextDecoder.
+let strictUtf8Decoder: TextDecoder | undefined;
+
 // feaxios ignores maxRedirects and maxContentLength. When either is set,
 // perform the request via native fetch with explicit enforcement — otherwise
 // the "security" config is silently a no-op, allowing redirect-based SSRF and
@@ -443,7 +453,15 @@ async function boundedFetchAdapter<T>(
   }
 
   const bytes = await readBodyBounded(response, maxContentLength);
-  const text = new TextDecoder().decode(bytes);
+  // TOML and network JSON must be UTF-8 (TOML v1.0.0, RFC 8259), so the
+  // charset label is ignored and invalid bytes throw instead of becoming U+FFFD.
+  strictUtf8Decoder ??= new TextDecoder("utf-8", { fatal: true });
+  let text: string;
+  try {
+    text = strictUtf8Decoder.decode(bytes);
+  } catch (err) {
+    throw new Error("Response body is not valid UTF-8", { cause: err });
+  }
   let data: any = text;
   try {
     data = JSON.parse(text);
@@ -493,6 +511,17 @@ function createFetchClient(
           config.maxContentLength !== undefined
         ) {
           return boundedFetchAdapter(config);
+        }
+        // feaxios appends params after the fragment.
+        if (
+          config.url?.includes("#") &&
+          config.params &&
+          Object.keys(config.params).length > 0
+        ) {
+          return instance.request({
+            ...config,
+            url: stripFragment(config.url),
+          });
         }
         return instance.request(config);
       },

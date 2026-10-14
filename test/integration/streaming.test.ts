@@ -225,6 +225,189 @@ describe("integration tests: streaming", () => {
 
     server.close();
   });
+
+  it("keeps the cursor when a record has a link named paging_token", async () => {
+    let resolveCursor: (cursor: string | null) => void = () => {};
+    const reconnectCursor = new Promise<string | null>((resolve) => {
+      resolveCursor = resolve;
+    });
+    let requests = 0;
+    const server = http.createServer((request, response) => {
+      requests += 1;
+      response.writeHead(200, { "Content-Type": "text/event-stream" });
+      if (requests === 1) {
+        const record = {
+          id: "1",
+          paging_token: "1",
+          _links: { paging_token: { href: "/p" } },
+        };
+        response.write(`id: 1\ndata: ${JSON.stringify(record)}\n\n`);
+        response.write("event: close\ndata: byebye\n\n");
+        response.end();
+        return;
+      }
+      const url = new URL(request.url ?? "", "http://localhost");
+      resolveCursor(url.searchParams.get("cursor"));
+    });
+    const port = await listenOnFreePort(server);
+
+    const closeStream = new Horizon.Server(`http://localhost:${port}`, {
+      allowHttp: true,
+    })
+      .operations()
+      .stream({ onerror: () => {} });
+
+    try {
+      expect(await reconnectCursor).toBe("1");
+    } finally {
+      closeStream();
+      server.closeAllConnections();
+      server.close();
+    }
+  });
+});
+
+describe("integration tests: stream events that cannot be parsed", () => {
+  if (typeof window !== "undefined") {
+    return;
+  }
+
+  const GOOD_EVENT = `data: ${JSON.stringify({ id: "2", paging_token: "2" })}\n\n`;
+
+  // Writes `events` on each request and keeps the socket open.
+  async function serveEvents(events: string[]) {
+    const server = http.createServer((_request, response) => {
+      response.writeHead(200, { "Content-Type": "text/event-stream" });
+      response.write(events.join(""));
+    });
+    const port = await listenOnFreePort(server);
+    const stop = () => {
+      server.closeAllConnections();
+      server.close();
+    };
+    return { port, stop };
+  }
+
+  async function streamUntilRecord(
+    port: number,
+    onerror?: (event: MessageEvent) => void,
+  ) {
+    let closeStream = () => {};
+    const record = await new Promise<{ id: string }>((resolve) => {
+      closeStream = new Horizon.Server(`http://localhost:${port}`, {
+        allowHttp: true,
+      })
+        .operations()
+        .stream({ onmessage: resolve, onerror });
+    });
+    closeStream();
+    return record;
+  }
+
+  it("passes bad JSON to onerror and keeps the stream open", async () => {
+    const { port, stop } = await serveEvents([
+      'data: {"id": "1", "paging_token":\n\n',
+      GOOD_EVENT,
+    ]);
+    const errors: MessageEvent[] = [];
+
+    const record = await streamUntilRecord(port, (event) =>
+      errors.push(event),
+    ).finally(stop);
+
+    expect(record.id).toBe("2");
+    expect(errors).toHaveLength(1);
+    expect(errors[0]).toBeInstanceOf(MessageEvent);
+    expect(errors[0].type).toBe("error");
+    expect(errors[0].data).toBeInstanceOf(SyntaxError);
+  });
+
+  it("passes a null record to onerror and keeps the stream open", async () => {
+    const { port, stop } = await serveEvents(["data: null\n\n", GOOD_EVENT]);
+    const errors: MessageEvent[] = [];
+
+    const record = await streamUntilRecord(port, (event) =>
+      errors.push(event),
+    ).finally(stop);
+
+    expect(record.id).toBe("2");
+    expect(errors).toHaveLength(1);
+    expect(errors[0].data).toBeInstanceOf(TypeError);
+  });
+
+  it("skips bad JSON when onerror is not set", async () => {
+    const { port, stop } = await serveEvents(["data: {\n\n", GOOD_EVENT]);
+
+    const record = await streamUntilRecord(port).finally(stop);
+
+    expect(record.id).toBe("2");
+  });
+
+  it("counts a bad event as activity for the reconnect timer", async () => {
+    let requests = 0;
+    const timers: ReturnType<typeof setInterval>[] = [];
+    const server = http.createServer((_request, response) => {
+      requests += 1;
+      response.writeHead(200, { "Content-Type": "text/event-stream" });
+      response.write(GOOD_EVENT);
+      timers.push(setInterval(() => response.write("data: {\n\n"), 200));
+    });
+    const port = await listenOnFreePort(server);
+
+    const closeStream = new Horizon.Server(`http://localhost:${port}`, {
+      allowHttp: true,
+    })
+      .operations()
+      .stream({ reconnectTimeout: 1000, onerror: () => {} });
+
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 2500));
+      expect(requests).toBe(1);
+    } finally {
+      closeStream();
+      timers.forEach(clearInterval);
+      server.closeAllConnections();
+      server.close();
+    }
+  });
+
+  it("moves the cursor to the id of a bad event, so a reconnect skips it", async () => {
+    let resolveCursor: (cursor: string | null) => void = () => {};
+    const reconnectCursor = new Promise<string | null>((resolve) => {
+      resolveCursor = resolve;
+    });
+    let requests = 0;
+    const server = http.createServer((request, response) => {
+      requests += 1;
+      response.writeHead(200, { "Content-Type": "text/event-stream" });
+      if (requests === 1) {
+        response.write(
+          `id: 1\ndata: ${JSON.stringify({ id: "1", paging_token: "1" })}\n\n`,
+        );
+        response.write("id: 7\ndata: {\n\n");
+        response.write("event: close\ndata: byebye\n\n");
+        response.end();
+        return;
+      }
+      const url = new URL(request.url ?? "", "http://localhost");
+      resolveCursor(url.searchParams.get("cursor"));
+    });
+    const port = await listenOnFreePort(server);
+
+    const closeStream = new Horizon.Server(`http://localhost:${port}`, {
+      allowHttp: true,
+    })
+      .operations()
+      .stream({ onerror: () => {} });
+
+    try {
+      expect(await reconnectCursor).toBe("7");
+    } finally {
+      closeStream();
+      server.closeAllConnections();
+      server.close();
+    }
+  });
 });
 
 describe("end-to-end tests: real streaming", () => {
