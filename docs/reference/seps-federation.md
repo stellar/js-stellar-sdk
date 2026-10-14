@@ -13,7 +13,7 @@ The maximum size of response from a federation server
 const FEDERATION_RESPONSE_MAX_SIZE: number
 ```
 
-**Source:** [src/federation/server.ts:20](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L20)
+**Source:** [src/federation/server.ts:17](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L17)
 
 ## Federation.Server
 
@@ -32,7 +32,7 @@ class Server {
 }
 ```
 
-**Source:** [src/federation/server.ts:31](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L31)
+**Source:** [src/federation/server.ts:28](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L28)
 
 ### `new Server(serverURL, domain, opts)`
 
@@ -46,7 +46,7 @@ constructor(serverURL: string, domain: string, opts: Options = {});
 - **`domain`** — `string` (required)
 - **`opts`** — `Options` (optional) (default: `{}`)
 
-**Source:** [src/federation/server.ts:166](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L166)
+**Source:** [src/federation/server.ts:163](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L163)
 
 ### `Server.createForDomain(domain, opts)`
 
@@ -59,12 +59,12 @@ contain information about a federation server Promise will reject.
 
 The `FEDERATION_SERVER` URL comes from a remote file, so it is checked
 before use. The Promise rejects if the URL uses a scheme other than
-`http:` or `https:`, contains a user name or password, or has a private,
-shared, local or unspecified IP address as its host. The SDK does not resolve
-host names, so a host name that resolves to a private address is not
-rejected. When `allowedRedirects` is set, redirect targets are not
-checked. A server-side application that resolves untrusted addresses
-must add its own DNS filtering and protection against DNS rebinding.
+`http:` or `https:`, or contains a user name or password. The SDK does
+not check the host, so the URL can point to a private or local address.
+When `allowedRedirects` is set, redirect targets are not checked. A
+server-side application that resolves untrusted addresses must filter
+the hosts it connects to, for example with DNS filtering or an egress
+proxy.
 
 ```ts
 static createForDomain(domain: string, opts: Options = {}): Promise<FederationServer>;
@@ -99,7 +99,7 @@ StellarSdk.FederationServer.createForDomain('acme.com')
 
 - <a href="https://developers.stellar.org/docs/issuing-assets/publishing-asset-info" target="_blank">Stellar.toml doc</a>
 
-**Source:** [src/federation/server.ts:145](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L145)
+**Source:** [src/federation/server.ts:143](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L143)
 
 ### `Server.resolve(value, opts)`
 
@@ -150,7 +150,7 @@ StellarSdk.FederationServer.resolve('bob*stellar.org')
 - - <a href="https://developers.stellar.org/docs/learn/encyclopedia/federation" target="_blank">Federation doc</a>
  - <a href="https://developers.stellar.org/docs/issuing-assets/publishing-asset-info" target="_blank">Stellar.toml doc</a>
 
-**Source:** [src/federation/server.ts:84](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L84)
+**Source:** [src/federation/server.ts:81](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L81)
 
 ### `server.resolveAccountId(accountId)`
 
@@ -178,7 +178,7 @@ A promise that resolves to the federation record
 
 - <a href="https://developers.stellar.org/docs/encyclopedia/federation" target="_blank">Federation doc</a>
 
-**Source:** [src/federation/server.ts:226](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L226)
+**Source:** [src/federation/server.ts:223](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L223)
 
 ### `server.resolveAddress(address)`
 
@@ -204,7 +204,7 @@ A promise that resolves to the federation record
 
 - <a href="https://developers.stellar.org/docs/encyclopedia/federation" target="_blank">Federation doc</a>
 
-**Source:** [src/federation/server.ts:198](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L198)
+**Source:** [src/federation/server.ts:195](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L195)
 
 ### `server.resolveTransactionId(transactionId)`
 
@@ -232,7 +232,7 @@ A promise that resolves to the federation record
 
 - <a href="https://developers.stellar.org/docs/glossary/federation/" target="_blank">Federation doc</a>
 
-**Source:** [src/federation/server.ts:243](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L243)
+**Source:** [src/federation/server.ts:240](https://github.com/stellar/js-stellar-sdk/blob/main/src/federation/server.ts#L240)
 
 ## Types
 
@@ -252,7 +252,7 @@ interface Options {
 
 #### `options.allowedRedirects`
 
-The number of redirects to follow, as 0 or a whole number up to `Number.MAX_SAFE_INTEGER`, default: 0. Also applies to the `stellar.toml` request in `createForDomain` and `resolve`. In a browser, the Fetch build cannot count redirects, so a value above 0 follows up to the browser's own limit, and the Axios build follows redirects whatever this value is.
+The number of redirects to follow, as 0 or a whole number up to `Number.MAX_SAFE_INTEGER`, default: 0. Also applies to the `stellar.toml` request in `createForDomain` and `resolve`. Outside Node, the SDK relies on the runtime to refuse redirects. In a browser, the Fetch build cannot count redirects, so a value above 0 follows up to the browser's own limit. The Axios build in a browser, and both builds in React Native, follow redirects whatever this value is.
 
 ```ts
 allowedRedirects?: number;

@@ -4,14 +4,11 @@ import { Config } from "../config.js";
 import { BadResponseError } from "../errors/index.js";
 import { wrapHttpError } from "../errors/wrap_http_error.js";
 import { Resolver } from "../stellartoml/index.js";
+import { validateAllowedRedirects } from "../stellartoml/utils.js";
 
 import type { Api } from "./api.js";
 import { httpClient } from "../http-client/index.js";
-import {
-  validateAllowedRedirects,
-  validateDomain,
-  validateFederationServer,
-} from "./utils.js";
+import { validateDomain, validateFederationServer } from "./utils.js";
 
 /**
  * The maximum size of response from a federation server
@@ -85,9 +82,10 @@ export class FederationServer {
     value: string,
     opts: Api.Options = {},
   ): Promise<Api.Record> {
-    validateAllowedRedirects(opts.allowedRedirects);
     // Check if `value` is in account ID format
     if (value.indexOf("*") < 0) {
+      // A Stellar address gets this check from `Resolver.resolve`.
+      validateAllowedRedirects(opts.allowedRedirects);
       if (!StrKey.isValidEd25519PublicKey(value)) {
         return Promise.reject(new Error("Invalid Account ID"));
       }
@@ -118,12 +116,12 @@ export class FederationServer {
    *
    * The `FEDERATION_SERVER` URL comes from a remote file, so it is checked
    * before use. The Promise rejects if the URL uses a scheme other than
-   * `http:` or `https:`, contains a user name or password, or has a private,
-   * shared, local or unspecified IP address as its host. The SDK does not resolve
-   * host names, so a host name that resolves to a private address is not
-   * rejected. When `allowedRedirects` is set, redirect targets are not
-   * checked. A server-side application that resolves untrusted addresses
-   * must add its own DNS filtering and protection against DNS rebinding.
+   * `http:` or `https:`, or contains a user name or password. The SDK does
+   * not check the host, so the URL can point to a private or local address.
+   * When `allowedRedirects` is set, redirect targets are not checked. A
+   * server-side application that resolves untrusted addresses must filter
+   * the hosts it connects to, for example with DNS filtering or an egress
+   * proxy.
    *
    * @example
    * ```ts
@@ -147,7 +145,6 @@ export class FederationServer {
     opts: Api.Options = {},
   ): Promise<FederationServer> {
     validateDomain(domain);
-    validateAllowedRedirects(opts.allowedRedirects);
     const tomlObject = await Resolver.resolve(domain, opts);
     if (!tomlObject.FEDERATION_SERVER) {
       return Promise.reject(

@@ -3,7 +3,6 @@ import http from "http";
 import { AddressInfo } from "net";
 import * as StellarSdk from "../../src/index.js";
 import { httpClient } from "../../src/http-client/index.js";
-import { validateFederationServer } from "../../src/federation/utils.js";
 
 const { Federation, Config } = StellarSdk;
 const { Server, FEDERATION_RESPONSE_MAX_SIZE } = Federation;
@@ -75,29 +74,6 @@ describe("federation-server.js tests", () => {
             new Server("https://acme.com:1337/federation", "stellar.org", {
               allowedRedirects,
             }),
-        ).toThrow(/allowedRedirects/);
-      },
-    );
-
-    it("treats allowedRedirects null from a plain-JS caller as unset", () => {
-      expect(() =>
-        Reflect.construct(Server, [
-          "https://acme.com:1337/federation",
-          "stellar.org",
-          { allowedRedirects: null },
-        ]),
-      ).not.toThrow();
-    });
-
-    it.each(["2", {}])(
-      "rejects allowedRedirects %j from a plain-JS caller",
-      (allowedRedirects) => {
-        expect(() =>
-          Reflect.construct(Server, [
-            "https://acme.com:1337/federation",
-            "stellar.org",
-            { allowedRedirects },
-          ]),
         ).toThrow(/allowedRedirects/);
       },
     );
@@ -381,67 +357,14 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
         });
 
       it.each([
-        "127.0.0.1",
-        "127.255.255.254",
-        "0x7f.1",
-        "2130706433",
-        "10.0.0.5",
-        "172.16.0.1",
-        "172.31.255.255",
-        "192.168.1.1",
-        "169.254.169.254",
-        "0.0.0.0",
-        "0",
-        "[::1]",
-        "[0:0:0:0:0:0:0:1]",
-        "[::]",
-        "[fe80::1]",
-        "[febf::1]",
-        "[fc00::1]",
-        "[fd12:3456::1]",
-        "[::ffff:127.0.0.1]",
-        "[::ffff:10.0.0.5]",
-        "[::ffff:169.254.169.254]",
-        "[::127.0.0.1]",
-        "[::10.0.0.5]",
-        "[::2]",
-        "[64:ff9b::127.0.0.1]",
-        "[64:ff9b::10.0.0.5]",
-        "[64:ff9b:1::]",
-        "[64:ff9b:1:a00:0:500::]",
-        "[64:ff9b:1::8.8.8.8]",
-        "[64:ff9b:1:ffff:ffff:ffff:ffff:ffff]",
-        "100.64.0.1",
-        "100.100.100.200",
-        "100.127.255.255",
-        "[::ffff:100.64.0.1]",
-      ])("rejects the IP address %s", async (host) => {
-        mockToml(`https://${host}:8443/federation`);
-
-        await expect(Server.createForDomain("acme.com")).rejects.toThrow(
-          /Invalid FEDERATION_SERVER: .*private, shared, local or unspecified IP address/,
-        );
-      });
-
-      it.each([
-        "8.8.8.8",
-        "11.0.0.1",
-        "172.15.255.255",
-        "172.32.0.1",
-        "192.169.0.1",
-        "169.255.0.1",
-        "100.63.255.255",
-        "100.128.0.1",
-        "[2001:db8::1]",
-        "[fec0::1]",
-        "[fe00::1]",
-        "[::ffff:8.8.8.8]",
-        "[::8.8.8.8]",
-        "[64:ff9b::8.8.8.8]",
-        "[64:ff9b:0:ffff::1]",
-        "[64:ff9b:2::1]",
         "api.stellar.org",
-        // Only IP addresses are checked; names are not resolved.
+        "8.8.8.8",
+        // The SDK does not check the host. A name such as 10.0.0.5.nip.io
+        // reaches the same address, so the app must filter it.
+        "10.0.0.5",
+        "127.0.0.1",
+        "169.254.169.254",
+        "[::1]",
         "localhost",
       ])("accepts the host %s", async (host) => {
         mockToml(`https://${host}/federation`);
@@ -490,62 +413,14 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
         expect(federationServer["serverURL"].protocol).toEqual("http:");
       });
 
-      it("rejects a private IP address in resolve before any federation request", async () => {
-        mockToml("https://10.0.0.5/federation");
+      it("rejects a bad FEDERATION_SERVER in resolve before any federation request", async () => {
+        mockToml("https://user@api.stellar.org/federation");
 
         await expect(Server.resolve("bob*acme.com")).rejects.toThrow(
           /Invalid FEDERATION_SERVER/,
         );
         expect(mockHttpClient).toHaveBeenCalledTimes(1);
       });
-
-      it("rejects an IPv6 host that the URL parser did not normalize", () => {
-        // A URL implementation that keeps the dotted IPv4 tail.
-        const url = new URL("https://[::1]/federation");
-        Object.defineProperty(url, "hostname", { value: "[::ffff:127.0.0.1]" });
-
-        expect(() => validateFederationServer(url)).toThrow(
-          /Cannot parse IPv6 address/,
-        );
-      });
-
-      it.each([
-        "127.1",
-        "0x7f.1",
-        "2130706433",
-        "0177.0.0.1",
-        "10.1",
-        "256.0.0.1",
-        "1.2.3.4.5",
-      ])(
-        "rejects the IPv4 host %s that the URL parser did not normalize",
-        (hostname) => {
-          const url = new URL("https://api.stellar.org/federation");
-          Object.defineProperty(url, "hostname", { value: hostname });
-
-          expect(() => validateFederationServer(url)).toThrow(
-            /Cannot parse IPv4 address/,
-          );
-        },
-      );
-
-      it.each([
-        ["127.0.0.1.", /private, shared, local or unspecified/],
-        ["8.8.8.8.", undefined],
-        ["1.2.3.example", undefined],
-      ])(
-        "checks the host %s with a trailing dot or name",
-        (hostname, error) => {
-          const url = new URL("https://api.stellar.org/federation");
-          Object.defineProperty(url, "hostname", { value: hostname });
-
-          if (error) {
-            expect(() => validateFederationServer(url)).toThrow(error);
-          } else {
-            expect(() => validateFederationServer(url)).not.toThrow();
-          }
-        },
-      );
 
       it("rejects a bad allowedRedirects before the stellar.toml request", async () => {
         mockToml("https://api.stellar.org/federation");
@@ -581,6 +456,13 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
       await expect(Server.resolve("invalid")).rejects.toThrow(
         /Invalid Account ID/,
       );
+    });
+
+    it("rejects a bad allowedRedirects for a Stellar address before any request", async () => {
+      await expect(
+        Server.resolve("bob*acme.com", { allowedRedirects: NaN }),
+      ).rejects.toThrow(/allowedRedirects/);
+      expect(mockHttpClient).not.toHaveBeenCalled();
     });
 
     it("rejects a bad allowedRedirects for an account ID", async () => {
