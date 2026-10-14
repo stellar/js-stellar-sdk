@@ -151,6 +151,10 @@ function encodeRequestBody(data: any, headers: Headers): BodyInit | undefined {
     // Let fetch set the multipart boundary.
     return data;
   }
+  // feaxios form-encodes an object under this exact type (`postForm`).
+  if (headers.get("content-type") === "application/x-www-form-urlencoded") {
+    return new URLSearchParams(data);
+  }
   // Default: JSON-encode plain objects.
   if (!headers.has("content-type")) {
     headers.set("content-type", "application/json");
@@ -326,6 +330,19 @@ function buildHttpError(
   return err;
 }
 
+// A timeout can fire during the fetch or while the body is read.
+function rethrowAsTimeout(err: unknown, timeout?: number): never {
+  if (
+    typeof err === "object" &&
+    err !== null &&
+    "name" in err &&
+    err.name === "TimeoutError"
+  ) {
+    throw new Error(`timeout of ${timeout}ms exceeded`);
+  }
+  throw err;
+}
+
 // Created on first use, so importing the SDK needs no TextDecoder.
 let strictUtf8Decoder: TextDecoder | undefined;
 
@@ -343,6 +360,10 @@ async function boundedFetchAdapter<T>(
 
   if (timeout && timeout > 0) {
     signals.push(createTimeoutSignal(timeout));
+  }
+  // `makeRequest` aborts this signal when the cancelToken fires.
+  if ("signal" in config && config.signal instanceof AbortSignal) {
+    signals.push(config.signal);
   }
   const signal = composeSignals(signals);
 
@@ -369,6 +390,12 @@ async function boundedFetchAdapter<T>(
   }
 
   const headers = new Headers(config.headers || {});
+  // feaxios sends `fetchOptions.headers` under the request headers.
+  if (config.fetchOptions?.headers) {
+    new Headers(config.fetchOptions.headers).forEach((value, name) => {
+      if (!headers.has(name)) headers.set(name, value);
+    });
+  }
   const body = encodeRequestBody(config.data, headers);
 
   // IMPORTANT: spread fetchOptions FIRST, then overlay the enforced fields.
@@ -393,11 +420,8 @@ async function boundedFetchAdapter<T>(
   while (true) {
     try {
       response = await fetch(current?.href ?? startUrl, currentInit);
-    } catch (err: any) {
-      if (err?.name === "TimeoutError") {
-        throw new Error(`timeout of ${config.timeout}ms exceeded`);
-      }
-      throw err;
+    } catch (err) {
+      rethrowAsTimeout(err, timeout);
     }
 
     // Only Node's `redirect: "manual"` exposes 3xx status; browsers either
@@ -439,7 +463,6 @@ async function boundedFetchAdapter<T>(
     // preserve that contract — notably federation's caller can still inspect
     // status/body when a 4xx/5xx comes back, matching the axios-build shape.
     let errBody: any;
-    // eslint-disable-next-line no-useless-catch
     try {
       const errBytes = await readBodyBounded(response, maxContentLength);
       const errText = new TextDecoder().decode(errBytes);
@@ -450,12 +473,17 @@ async function boundedFetchAdapter<T>(
       }
     } catch (readErr) {
       // If body reading itself violated the cap, surface that error first.
-      throw readErr;
+      rethrowAsTimeout(readErr, timeout);
     }
     throw buildHttpError(response, config, errBody);
   }
 
-  const bytes = await readBodyBounded(response, maxContentLength);
+  let bytes: Uint8Array;
+  try {
+    bytes = await readBodyBounded(response, maxContentLength);
+  } catch (err) {
+    rethrowAsTimeout(err, timeout);
+  }
   // TOML and network JSON must be UTF-8 (TOML v1.0.0, RFC 8259), so the
   // charset label is ignored and invalid bytes throw instead of becoming U+FFFD.
   strictUtf8Decoder ??= new TextDecoder("utf-8", { fatal: true });
@@ -795,4 +823,21 @@ function createFetchClient(
 
 export const fetchClient = createFetchClient();
 
-export { createFetchClient as create };
+// The Axios build's limit in Node: `follow-redirects` defaults to 21.
+const DEFAULT_MAX_REDIRECTS = 21;
+
+// In Node, a default `maxRedirects` sends every request through the bounded
+// adapter, which removes credential headers on a cross-origin hop. A runtime
+// with a DOM, such as a browser or an Electron renderer with Node
+// integration, does not let the adapter see a hop, so there the default
+// stays off.
+export function create(config: HttpClientRequestConfig = {}): HttpClient {
+  if (
+    config.maxRedirects !== undefined ||
+    !canInspectManualRedirects() ||
+    typeof window !== "undefined"
+  ) {
+    return createFetchClient(config);
+  }
+  return createFetchClient({ ...config, maxRedirects: DEFAULT_MAX_REDIRECTS });
+}

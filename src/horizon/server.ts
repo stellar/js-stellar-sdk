@@ -923,9 +923,9 @@ export namespace HorizonServer {
     appName?: string;
     /** Allow set custom header `X-App-Version`, default: `undefined`. */
     appVersion?: string;
-    /** Allow set custom header `X-Auth-Token`, default: `undefined`. A redirect to another origin can receive this header, except in Node with the Axios build or with `maxRedirects` set. In the Fetch build, set `httpClient.defaults.maxRedirects` to strip it in Node; in a browser, only `0` (refuse redirects) helps. */
+    /** Allow set custom header `X-Auth-Token`, default: `undefined`. In Node, a redirect to another origin does not receive this header. In a browser it can; in the Fetch build, set `httpClient.defaults.maxRedirects` to `0` to refuse redirects. */
     authToken?: string;
-    /** Additional headers for every request to the Horizon server. A redirect to another origin can receive these headers, except in Node with the Axios build or with `maxRedirects` set. In the Fetch build, set `httpClient.defaults.maxRedirects` to strip them in Node; in a browser, only `0` (refuse redirects) helps. */
+    /** Additional headers for every request to the Horizon server. In Node, a redirect to another origin does not receive these headers. In a browser it can; in the Fetch build, set `httpClient.defaults.maxRedirects` to `0` to refuse redirects. */
     headers?: Record<string, string>;
   }
 

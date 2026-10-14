@@ -11,7 +11,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import http, { IncomingMessage, ServerResponse } from "http";
 import { AddressInfo } from "net";
 import { create, httpClient } from "../../src/http-client/index.js";
-import { Horizon } from "../../src/index.js";
+import { Horizon, rpc } from "../../src/index.js";
 
 type RequestRecord = {
   method: string;
@@ -250,6 +250,22 @@ describe("HttpClient contract", () => {
         httpClient.get(`${baseUrl}/`, { timeout: 200 }),
       ).rejects.toThrow(/timeout/i);
     }, 5000);
+
+    // Axios rejects a slow body with "stream has been aborted".
+    it.skipIf(process.env.TRANSPORT === "axios")(
+      "rejects with the timeout message when the body is slow",
+      async () => {
+        respond = (_req, res) => {
+          res.writeHead(200, { "Content-Type": "application/json" });
+          res.write('{"a":');
+          setTimeout(() => res.end("1}"), 500);
+        };
+        await expect(
+          create().get(`${baseUrl}/`, { timeout: 100 }),
+        ).rejects.toThrow("timeout of 100ms exceeded");
+      },
+      5000,
+    );
   });
 
   describe("cancellation", () => {
@@ -881,23 +897,168 @@ describe("HttpClient contract", () => {
       },
     );
 
-    // In the Fetch build, `maxRedirects` selects the bounded path. Horizon's
-    // default path there is the follow-up for this issue.
-    it("removes the Horizon authToken", async () => {
+    it("removes the Horizon authToken and headers", async () => {
       redirectTo(`${secondary.url}/after`);
       const horizon = new Horizon.Server(baseUrl, {
         allowHttp: true,
         authToken: "token",
         appName: "app",
+        headers: { "X-Api-Key": "key" },
       });
-      await horizon.httpClient.get(`${baseUrl}/start`, { maxRedirects: 1 });
+      await horizon.httpClient.get(`${baseUrl}/start`);
       expect(requests[0].headers["x-auth-token"]).toBe("token");
       const { headers } = secondary.requests[0];
       expect(headers["x-auth-token"]).toBeUndefined();
+      expect(headers["x-api-key"]).toBeUndefined();
       expect(headers["x-app-name"]).toBe("app");
       expect(headers["x-client-name"]).toBe("js-stellar-sdk");
     });
+
+    it("removes the RPC headers", async () => {
+      redirectTo(`${secondary.url}/after`);
+      const server = new rpc.Server(baseUrl, {
+        allowHttp: true,
+        headers: { "X-Api-Key": "key" },
+      });
+      await server.httpClient.get(`${baseUrl}/start`);
+      expect(requests[0].headers["x-api-key"]).toBe("key");
+      expect(secondary.requests[0].headers["x-api-key"]).toBeUndefined();
+    });
+
+    // Horizon and RPC set no `maxRedirects`, so this is their default path.
+    describe("with no maxRedirects", () => {
+      it("removes credential headers and keeps the safe set", async () => {
+        redirectTo(`${secondary.url}/after`);
+        await create().get(`${baseUrl}/start`, {
+          headers: {
+            Authorization: "Bearer secret",
+            "X-Auth-Token": "token",
+            "X-Api-Key": "key",
+            Accept: "application/json",
+            "X-Client-Name": "js-stellar-sdk",
+          },
+        });
+        expect(secondary.requests).toHaveLength(1);
+        const { headers } = secondary.requests[0];
+        expect(headers.authorization).toBeUndefined();
+        expect(headers["x-auth-token"]).toBeUndefined();
+        expect(headers["x-api-key"]).toBeUndefined();
+        expect(headers.accept).toBe("application/json");
+        expect(headers["x-client-name"]).toBe("js-stellar-sdk");
+      });
+
+      it("keeps every header on a same-origin redirect", async () => {
+        respond = (req, res) => {
+          if (req.url === "/start") {
+            res.writeHead(302, { location: "/after" });
+            res.end();
+            return;
+          }
+          res.writeHead(200);
+          res.end("{}");
+        };
+        await create().get(`${baseUrl}/start`, {
+          headers: { "X-Auth-Token": "token" },
+        });
+        expect(requests).toHaveLength(2);
+        expect(requests[1].headers["x-auth-token"]).toBe("token");
+      });
+
+      // The Axios build's limit: `follow-redirects` defaults to 21.
+      it("follows 21 redirects, then rejects", async () => {
+        redirectTo("/loop");
+        await expect(create().get(`${baseUrl}/start`)).rejects.toThrow(
+          "Maximum number of redirects exceeded",
+        );
+        expect(requests).toHaveLength(22);
+      });
+
+      it("keeps maxRedirects: 0 from create()", async () => {
+        redirectTo(`${secondary.url}/after`);
+        await expect(
+          create({ maxRedirects: 0 }).get(`${baseUrl}/start`),
+        ).rejects.toThrow(/302/);
+        expect(secondary.requests).toHaveLength(0);
+      });
+    });
   });
+
+  describe("cancellation on the wire", () => {
+    it("closes the request when the cancelToken fires", async () => {
+      let pending: ServerResponse | undefined;
+      let closedEarly = false;
+      respond = (_req, res) => {
+        pending = res;
+        res.on("close", () => {
+          closedEarly = !res.writableEnded;
+        });
+      };
+      const cancelToken = new httpClient.CancelToken((cancel) => {
+        setTimeout(() => cancel("stop"), 20);
+      });
+      try {
+        await expect(
+          create().get(`${baseUrl}/`, { cancelToken, maxRedirects: 1 }),
+        ).rejects.toSatisfy(httpClient.isCancel);
+        await vi.waitFor(() => expect(closedEarly).toBe(true), {
+          timeout: 1000,
+        });
+      } finally {
+        if (pending && !pending.writableEnded) pending.end();
+      }
+    });
+  });
+
+  // `create()` clients in Node use the bounded adapter by default, so it
+  // must keep what the `feaxios` path did for them.
+  describe.skipIf(process.env.TRANSPORT === "axios")(
+    "create() defaults (fetch adapter)",
+    () => {
+      it("form-encodes an object body in postForm", async () => {
+        await create().postForm(`${baseUrl}/f`, { tx: "AAAA" });
+        expect(requests[0].body).toBe("tx=AAAA");
+      });
+
+      it("sends fetchOptions.headers under the request headers", async () => {
+        await create().get(`${baseUrl}/`, {
+          headers: { "X-Both": "request" },
+          fetchOptions: { headers: { "X-Fetch": "f", "X-Both": "fetch" } },
+        });
+        expect(requests[0].headers["x-fetch"]).toBe("f");
+        expect(requests[0].headers["x-both"]).toBe("request");
+      });
+
+      it("removes fetchOptions.headers on a cross-origin redirect", async () => {
+        const secondary = await startServer((_req, res) => {
+          res.writeHead(200);
+          res.end("{}");
+        });
+        try {
+          respond = (_req, res) => {
+            res.writeHead(302, { location: `${secondary.url}/after` });
+            res.end();
+          };
+          await create().get(`${baseUrl}/start`, {
+            fetchOptions: { headers: { "X-Api-Key": "key" } },
+          });
+          expect(requests[0].headers["x-api-key"]).toBe("key");
+          expect(secondary.requests[0].headers["x-api-key"]).toBeUndefined();
+        } finally {
+          await closeServer(secondary.server);
+        }
+      });
+
+      it("sets no default maxRedirects when a DOM is present", () => {
+        vi.stubGlobal("window", {});
+        try {
+          expect(create().defaults.maxRedirects).toBeUndefined();
+        } finally {
+          vi.unstubAllGlobals();
+        }
+        expect(create().defaults.maxRedirects).toBe(21);
+      });
+    },
+  );
 
   describe("form-encoded bodies", () => {
     // Note: the {post,put,patch}Form helpers actually diverge between axios
