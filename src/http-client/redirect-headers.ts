@@ -5,6 +5,7 @@ const SAFE_CROSS_ORIGIN_HEADERS = new Set([
   "accept-language",
   "content-type",
   "content-length",
+  "content-encoding",
   "user-agent",
   "range",
   "if-range",

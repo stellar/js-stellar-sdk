@@ -799,6 +799,20 @@ describe("HttpClient contract", () => {
       expect(rec.headers["x-auth-token"]).toBeUndefined();
     });
 
+    it("keeps Content-Encoding with the body on a cross-origin 307", async () => {
+      redirectTo(`${secondary.url}/after`, 307);
+      await create().post(`${baseUrl}/start`, new TextEncoder().encode("zz"), {
+        headers: {
+          "Content-Type": "application/json",
+          "Content-Encoding": "gzip",
+        },
+        maxRedirects: 1,
+      });
+      const rec = secondary.requests[0];
+      expect(rec.body).toBe("zz");
+      expect(rec.headers["content-encoding"]).toBe("gzip");
+    });
+
     it("removes a header added to the defaults after create()", async () => {
       redirectTo(`${secondary.url}/after`);
       const client = create({ headers: {} });
