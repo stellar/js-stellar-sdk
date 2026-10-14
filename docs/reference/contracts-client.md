@@ -697,10 +697,10 @@ transaction.
 ```ts
 class Client {
   constructor(spec: Spec, options: ClientOptions);
-  static deploy<T = Client>(args: Record<string, any> | null, options: MethodOptions & Omit<ClientOptions, "contractId"> & { salt?: Uint8Array<ArrayBufferLike> | undefined; address?: string | undefined; } & ({ wasmHash: string | Uint8Array<ArrayBufferLike>; format?: "hex" | ... 1 more ... | undefined; externalRef?: undefined; } | { ...; })): Promise<AssembledTransaction<T>>;
+  static deploy<T = Client>(args: Record<string, any> | null, options: MethodOptions & Omit<ClientOptions, "contractId"> & { salt?: Uint8Array<ArrayBufferLike> | undefined; address?: string | undefined; } & ({ wasmHash: string | Uint8Array<ArrayBufferLike>; format?: "base64" | ... 1 more ... | undefined; externalRef?: undefined; } | { ...; })): Promise<AssembledTransaction<T>>;
   static from<T = unknown>(options: ClientOptions): Promise<Client & T>;
   static fromWasm<T = unknown>(wasm: Uint8Array, options: ClientOptions): Promise<Client & T>;
-  static fromWasmHash<T = unknown>(wasmHash: string | Uint8Array<ArrayBufferLike>, options: ClientOptions, format: "hex" | "base64" = "hex"): Promise<Client & T>;
+  static fromWasmHash<T = unknown>(wasmHash: string | Uint8Array<ArrayBufferLike>, options: ClientOptions, format: "base64" | "hex" = "hex"): Promise<Client & T>;
   readonly options: ClientOptions;
   readonly spec: Spec;
   txFromJSON: <T>(json: string) => AssembledTransaction<T>;
@@ -727,13 +727,13 @@ constructor(spec: Spec, options: ClientOptions);
 ### `Client.deploy(args, options)`
 
 ```ts
-static deploy<T = Client>(args: Record<string, any> | null, options: MethodOptions & Omit<ClientOptions, "contractId"> & { salt?: Uint8Array<ArrayBufferLike> | undefined; address?: string | undefined; } & ({ wasmHash: string | Uint8Array<ArrayBufferLike>; format?: "hex" | ... 1 more ... | undefined; externalRef?: undefined; } | { ...; })): Promise<AssembledTransaction<T>>;
+static deploy<T = Client>(args: Record<string, any> | null, options: MethodOptions & Omit<ClientOptions, "contractId"> & { salt?: Uint8Array<ArrayBufferLike> | undefined; address?: string | undefined; } & ({ wasmHash: string | Uint8Array<ArrayBufferLike>; format?: "base64" | ... 1 more ... | undefined; externalRef?: undefined; } | { ...; })): Promise<AssembledTransaction<T>>;
 ```
 
 **Parameters**
 
 - **`args`** — `Record<string, any> | null` (required) — Constructor/Initialization Args for the contract's `__constructor` method
-- **`options`** — `MethodOptions & Omit<ClientOptions, "contractId"> & { salt?: Uint8Array<ArrayBufferLike> | undefined; address?: string | undefined; } & ({ wasmHash: string | Uint8Array<ArrayBufferLike>; format?: "hex" | ... 1 more ... | undefined; externalRef?: undefined; } | { ...; })` (required) — Options for initializing a Client as well as for calling a method, with extras specific to deploying.
+- **`options`** — `MethodOptions & Omit<ClientOptions, "contractId"> & { salt?: Uint8Array<ArrayBufferLike> | undefined; address?: string | undefined; } & ({ wasmHash: string | Uint8Array<ArrayBufferLike>; format?: "base64" | ... 1 more ... | undefined; externalRef?: undefined; } | { ...; })` (required) — Options for initializing a Client as well as for calling a method, with extras specific to deploying.
 
 **Source:** [src/contract/client.ts:27](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L27)
 
@@ -817,14 +817,14 @@ Generates a Client instance from the provided ClientOptions and the contract's w
 The wasmHash can be provided in either hex or base64 format.
 
 ```ts
-static fromWasmHash<T = unknown>(wasmHash: string | Uint8Array<ArrayBufferLike>, options: ClientOptions, format: "hex" | "base64" = "hex"): Promise<Client & T>;
+static fromWasmHash<T = unknown>(wasmHash: string | Uint8Array<ArrayBufferLike>, options: ClientOptions, format: "base64" | "hex" = "hex"): Promise<Client & T>;
 ```
 
 **Parameters**
 
 - **`wasmHash`** — `string | Uint8Array<ArrayBufferLike>` (required) — The hash of the contract's wasm binary, in either hex or base64 format.
 - **`options`** — `ClientOptions` (required) — The ClientOptions object containing the necessary configuration, including the rpcUrl.
-- **`format`** — `"hex" | "base64"` (optional) (default: `"hex"`) — (optional) The format of the provided wasmHash, either "hex" or "base64". Defaults to "hex".
+- **`format`** — `"base64" | "hex"` (optional) (default: `"hex"`) — (optional) The format of the provided wasmHash, either "hex" or "base64". Defaults to "hex".
 
 **Returns**
 
