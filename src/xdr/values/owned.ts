@@ -11,9 +11,9 @@ export function copyBytes(bytes: Uint8Array): Uint8Array {
 }
 
 /**
- * Copies a caller array into a plain array by index, mapping each item when `map` is given. Not the input's `slice` or `map`: a subclass can override those or set a species that returns an array it keeps. Not `Array.from` in general: it runs the input's own or subclass iterator, which can yield other items than the array holds, and with a map function it is about 10 times slower than `map`. A Proxy or a patched `Array.prototype` is outside this guarantee: it controls every read.
+ * Copies a caller array into a plain array by index, mapping each item when `map` is given. Not the input's `slice` or `map`: a subclass can override those or set a species that returns an array it keeps. Not `Array.from` in general: it runs the input's own or subclass iterator, which can yield other items than the array holds. With a map function, `Array.from` is also about 10 times slower than `map`. A Proxy or a patched `Array.prototype` is outside this guarantee: it controls every read.
  *
- * A hole in a sparse array stays a hole, as with `map`, so encoding rejects it. A mapper such as `nativeToScVal` would turn it into a value.
+ * With `map`, a hole in a sparse array stays a hole, as with `Array.prototype.map`, so encoding rejects it. A mapper such as `nativeToScVal` would otherwise turn it into a value. Without `map`, a hole becomes `undefined`, which encoding also rejects.
  *
  * Any other input stays as is, so encoding still rejects it. `Array.from` would turn `5` or `{}` into an empty array.
  */

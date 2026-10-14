@@ -555,6 +555,21 @@ describe("Can round trip custom types", () => {
     roundtrip("bytes_n", bytesN);
   });
 
+  it("checks the BytesN length on the copy, not on the input's length getter", () => {
+    class LongerThanItIs extends Uint8Array {
+      get length() {
+        return 32;
+      }
+    }
+    const type = xdr.ScSpecTypeDef.scSpecTypeBytesN(
+      new xdr.ScSpecTypeBytesN({ n: 32 }),
+    );
+
+    expect(() =>
+      SPEC.nativeToScVal(new LongerThanItIs([1, 2, 3]), type),
+    ).toThrow("expected 32 bytes, but got 3");
+  });
+
   it("card", () => {
     const card = 11;
     roundtrip("card", card);

@@ -760,12 +760,14 @@ export class Spec {
           switch (tyType) {
             case "scSpecTypeBytesN": {
               const bytesN = ty.value;
-              if (val.length !== bytesN.n) {
+              // Check the copy: a subclass can report a false `length`.
+              const bytes = new ScBytes(val);
+              if (bytes.value.length !== bytesN.n) {
                 throw new TypeError(
-                  `expected ${bytesN.n} bytes, but got ${val.length}`,
+                  `expected ${bytesN.n} bytes, but got ${bytes.value.length}`,
                 );
               }
-              return ScVal.scvBytes(new ScBytes(val));
+              return ScVal.scvBytes(bytes);
             }
             case "scSpecTypeBytes":
               return ScVal.scvBytes(new ScBytes(val));
