@@ -980,6 +980,50 @@ describe("HttpClient contract", () => {
         ).rejects.toThrow(/302/);
         expect(secondary.requests).toHaveLength(0);
       });
+
+      it("removes credential headers when maxRedirects is undefined", async () => {
+        redirectTo(`${secondary.url}/after`);
+        await create().get(`${baseUrl}/start`, {
+          headers: { "X-Api-Key": "key" },
+          maxRedirects: undefined,
+        });
+        expect(secondary.requests[0].headers["x-api-key"]).toBeUndefined();
+      });
+    });
+
+    // `follow-redirects` and the Fetch spec change only POST on a 301/302,
+    // and only methods other than GET and HEAD on a 303.
+    describe("method on a redirect", () => {
+      function redirectOnce(status: number) {
+        respond = (req, res) => {
+          if (req.url === "/start") {
+            res.writeHead(status, { location: "/after" });
+            res.end();
+            return;
+          }
+          res.writeHead(200);
+          res.end("{}");
+        };
+      }
+
+      it("keeps PUT and its body on a 302", async () => {
+        redirectOnce(302);
+        await create().put(`${baseUrl}/start`, { a: 1 });
+        expect(requests[1].method).toBe("PUT");
+        expect(requests[1].body).toBe('{"a":1}');
+      });
+
+      it("keeps DELETE on a 301", async () => {
+        redirectOnce(301);
+        await create().delete(`${baseUrl}/start`);
+        expect(requests[1].method).toBe("DELETE");
+      });
+
+      it("keeps HEAD on a 303", async () => {
+        redirectOnce(303);
+        await create().head(`${baseUrl}/start`);
+        expect(requests[1].method).toBe("HEAD");
+      });
     });
   });
 
@@ -1009,11 +1053,151 @@ describe("HttpClient contract", () => {
     });
   });
 
-  // `create()` clients in Node use the bounded adapter by default, so it
-  // must keep what the `feaxios` path did for them.
+  // In Node, every Fetch-build request uses the bounded adapter, so it must
+  // keep what the `feaxios` path did.
   describe.skipIf(process.env.TRANSPORT === "axios")(
-    "create() defaults (fetch adapter)",
+    "every client in Node (fetch adapter)",
     () => {
+      describe("cross-origin redirect", () => {
+        let secondary: Awaited<ReturnType<typeof startServer>>;
+
+        beforeEach(async () => {
+          secondary = await startServer((_req, res) => {
+            res.writeHead(200);
+            res.end("{}");
+          });
+          respond = (_req, res) => {
+            res.writeHead(302, { location: `${secondary.url}/after` });
+            res.end();
+          };
+        });
+
+        afterEach(async () => {
+          await closeServer(secondary.server);
+        });
+
+        it("httpClient removes credential headers", async () => {
+          await httpClient.get(`${baseUrl}/start`, {
+            headers: { "X-Api-Key": "key" },
+          });
+          expect(secondary.requests[0].headers["x-api-key"]).toBeUndefined();
+        });
+
+        it("httpClient.create() removes credential headers", async () => {
+          await httpClient
+            .create({ headers: { "X-Api-Key": "key" } })
+            .get(`${baseUrl}/start`);
+          expect(secondary.requests[0].headers["x-api-key"]).toBeUndefined();
+        });
+
+        // jsdom and happy-dom set `window` but keep Node's fetch.
+        it("removes credential headers when window is defined", async () => {
+          vi.stubGlobal("window", {});
+          try {
+            await create().get(`${baseUrl}/start`, {
+              headers: { "X-Api-Key": "key" },
+            });
+          } finally {
+            vi.unstubAllGlobals();
+          }
+          expect(secondary.requests[0].headers["x-api-key"]).toBeUndefined();
+        });
+
+        // An Electron renderer's fetch hides a manual redirect, so
+        // `maxRedirects: 0` uses `redirect: "error"` there.
+        it("refuses a redirect with fetch's own error in an Electron renderer", async () => {
+          Object.defineProperty(process, "type", {
+            value: "renderer",
+            configurable: true,
+          });
+          try {
+            await expect(
+              create().get(`${baseUrl}/start`, { maxRedirects: 0 }),
+            ).rejects.toThrow("fetch failed");
+          } finally {
+            Reflect.deleteProperty(process, "type");
+          }
+          expect(secondary.requests).toHaveLength(0);
+        });
+
+        it("removes fetchOptions.headers", async () => {
+          await create().get(`${baseUrl}/start`, {
+            fetchOptions: { headers: { "X-Api-Key": "key" } },
+          });
+          expect(requests[0].headers["x-api-key"]).toBe("key");
+          expect(secondary.requests[0].headers["x-api-key"]).toBeUndefined();
+        });
+      });
+
+      // A fetch that hides manual redirects (as in a browser) answers a 3xx
+      // with an opaque response that has no status or Location.
+      it("rejects an opaque redirect it cannot follow", async () => {
+        vi.stubGlobal(
+          "fetch",
+          vi.fn().mockResolvedValue({
+            type: "opaqueredirect",
+            status: 0,
+            ok: false,
+            headers: new Headers(),
+          }),
+        );
+        try {
+          await expect(create().get(`${baseUrl}/start`)).rejects.toThrow(
+            /cannot follow a redirect/i,
+          );
+        } finally {
+          vi.unstubAllGlobals();
+        }
+      });
+
+      it("aborts the request when fetchOptions.signal fires", async () => {
+        let pending: ServerResponse | undefined;
+        let closedEarly = false;
+        respond = (_req, res) => {
+          pending = res;
+          res.on("close", () => {
+            closedEarly = !res.writableEnded;
+          });
+        };
+        const controller = new AbortController();
+        setTimeout(() => controller.abort(), 20);
+        const request = create()
+          .get(`${baseUrl}/`, { fetchOptions: { signal: controller.signal } })
+          .catch((err: unknown) => err);
+        try {
+          await vi.waitFor(() => expect(closedEarly).toBe(true), {
+            timeout: 1000,
+          });
+        } finally {
+          if (pending && !pending.writableEnded) pending.end();
+        }
+        expect(await request).toBeInstanceOf(Error);
+      });
+
+      it("keeps the caller's own timeout error from fetchOptions.signal", async () => {
+        let pending: ServerResponse | undefined;
+        respond = (_req, res) => {
+          pending = res;
+        };
+        try {
+          await expect(
+            create().get(`${baseUrl}/`, {
+              fetchOptions: { signal: AbortSignal.timeout(50) },
+            }),
+          ).rejects.toMatchObject({ name: "TimeoutError" });
+        } finally {
+          if (pending && !pending.writableEnded) pending.end();
+        }
+      });
+
+      it("returns the request URL with baseURL and params in response.config", async () => {
+        const response = await create().get("/ledgers", {
+          baseURL: baseUrl,
+          params: { a: "1" },
+        });
+        expect(response.config.url).toBe(`${baseUrl}/ledgers?a=1`);
+      });
+
       it("form-encodes an object body in postForm", async () => {
         await create().postForm(`${baseUrl}/f`, { tx: "AAAA" });
         expect(requests[0].body).toBe("tx=AAAA");
@@ -1026,36 +1210,6 @@ describe("HttpClient contract", () => {
         });
         expect(requests[0].headers["x-fetch"]).toBe("f");
         expect(requests[0].headers["x-both"]).toBe("request");
-      });
-
-      it("removes fetchOptions.headers on a cross-origin redirect", async () => {
-        const secondary = await startServer((_req, res) => {
-          res.writeHead(200);
-          res.end("{}");
-        });
-        try {
-          respond = (_req, res) => {
-            res.writeHead(302, { location: `${secondary.url}/after` });
-            res.end();
-          };
-          await create().get(`${baseUrl}/start`, {
-            fetchOptions: { headers: { "X-Api-Key": "key" } },
-          });
-          expect(requests[0].headers["x-api-key"]).toBe("key");
-          expect(secondary.requests[0].headers["x-api-key"]).toBeUndefined();
-        } finally {
-          await closeServer(secondary.server);
-        }
-      });
-
-      it("sets no default maxRedirects when a DOM is present", () => {
-        vi.stubGlobal("window", {});
-        try {
-          expect(create().defaults.maxRedirects).toBeUndefined();
-        } finally {
-          vi.unstubAllGlobals();
-        }
-        expect(create().defaults.maxRedirects).toBe(21);
       });
     },
   );
