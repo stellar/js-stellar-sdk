@@ -549,7 +549,11 @@ export function scValToNative(scv: ScVal): any {
  * @param items - the unsorted map entries
  */
 export function scvSortedMap(items: ScMapEntry[]): ScVal {
-  const sorted = Array.from(items).sort((a, b) => compareScVal(a.key, b.key));
+  // `copyArray` ignores an array's own iterator; `Array.from` keeps accepting other iterables, as before.
+  const copy = Array.isArray(items)
+    ? copyArray(items)
+    : Array.from<ScMapEntry>(items);
+  const sorted = copy.sort((a, b) => compareScVal(a.key, b.key));
   // OWNED: `sorted` is a new array, so the constructor need not copy it.
   return new ScValMap(sorted, OWNED);
 }

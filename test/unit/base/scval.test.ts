@@ -676,6 +676,15 @@ describe("nativeToScVal", () => {
     expect(scv.toXDR("hex")).toBe(before);
   });
 
+  it("rejects a hole in a sparse array instead of encoding it as void", () => {
+    const sparse: number[] = [];
+    sparse[0] = 1;
+    sparse[2] = 3;
+    const scv = nativeToScVal(sparse, { type: "u32" });
+
+    expect(() => scv.toXdr()).toThrow();
+  });
+
   it("makes a copy of the input buffer", () => {
     const original = new Uint8Array([1, 2, 3]);
     const scv = nativeToScVal(original, { type: "bytes" });
@@ -1606,6 +1615,22 @@ describe("scValToNative", () => {
 // scvSortedMap
 // ---------------------------------------------------------------------------
 describe("scvSortedMap", () => {
+  it("copies the entries by index, not through their own iterator", () => {
+    const entry = (key: string) =>
+      new xdr.ScMapEntry({
+        key: xdr.ScVal.scvSymbol(key),
+        val: xdr.ScVal.scvU32(1),
+      });
+    const entries = [entry("a"), entry("b"), entry("c")];
+    Object.defineProperty(entries, Symbol.iterator, {
+      *value() {
+        yield entry("z");
+      },
+    });
+
+    expect(scvSortedMap(entries).value).toHaveLength(3);
+  });
+
   it("sorts string-keyed entries", () => {
     const entries = [
       new xdr.ScMapEntry({

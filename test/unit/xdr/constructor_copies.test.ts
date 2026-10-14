@@ -303,6 +303,60 @@ describe("XDR constructors copy their inputs", () => {
       expect(t.toXdr("hex")).toBe(before);
     });
 
+    describe("copies by index, not through the input's own iterator", () => {
+      const ops = (n: number) => Array.from({ length: n }, () => op());
+      function* oneOp() {
+        yield op();
+      }
+
+      it("a short array with an own iterator", () => {
+        const operations = ops(2);
+        Object.defineProperty(operations, Symbol.iterator, { value: oneOp });
+
+        expect(tx(operations).operations).toHaveLength(2);
+      });
+
+      it("a long array with an own iterator", () => {
+        const operations = ops(10);
+        Object.defineProperty(operations, Symbol.iterator, { value: oneOp });
+
+        expect(tx(operations).operations).toHaveLength(10);
+      });
+
+      // Guards against a fix that checks the iterator and then lets Array.from read it again.
+      it("a long array whose own iterator getter changes after the first read", () => {
+        const operations = ops(10);
+        const values = Array.prototype[Symbol.iterator];
+        let reads = 0;
+        Object.defineProperty(operations, Symbol.iterator, {
+          get: () => (reads++ === 0 ? values : oneOp),
+        });
+
+        expect(tx(operations).operations).toHaveLength(10);
+      });
+
+      it("a long Array subclass that overrides the iterator", () => {
+        class OneOp extends Array<Operation> {}
+        Object.defineProperty(OneOp.prototype, Symbol.iterator, {
+          value: oneOp,
+        });
+        const operations = OneOp.from(ops(10));
+
+        expect(tx(operations).operations).toHaveLength(10);
+      });
+
+      it("a long plain array", () => {
+        const operations = ops(10);
+        const t = tx(operations);
+        const before = t.toXdr("hex");
+
+        operations.push(op());
+
+        expect(t.operations).toHaveLength(10);
+        expect(t.toXdr("hex")).toBe(before);
+      });
+    });
+
     it("copies an array whose elements are converted, when its species returns another array", () => {
       const outside: Value[] = [];
       const nomination = new ScpNomination({
