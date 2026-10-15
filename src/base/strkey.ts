@@ -11,6 +11,7 @@ type VersionByteName =
   | "ed25519SecretSeed"
   | "liquidityPool"
   | "med25519PublicKey"
+  | "muxedContract"
   | "preAuthTx"
   | "sha256Hash"
   | "signedPayload";
@@ -25,6 +26,7 @@ const versionBytes: Record<VersionByteName, number> = {
   contract: 2 << 3, // C
   liquidityPool: 11 << 3, // L
   claimableBalance: 1 << 3, // B
+  muxedContract: 22 << 3, // W
 };
 
 const strkeyTypes: Record<string, VersionByteName> = {
@@ -37,6 +39,7 @@ const strkeyTypes: Record<string, VersionByteName> = {
   C: "contract",
   L: "liquidityPool",
   B: "claimableBalance",
+  W: "muxedContract",
 };
 
 type StrKeyPrefix = keyof typeof strkeyTypes;
@@ -60,6 +63,7 @@ function encodedLengthRange(name: VersionByteName): [number, number] {
     case "claimableBalance":
       return [58, 58];
     case "med25519PublicKey":
+    case "muxedContract":
       return [69, 69];
     case "signedPayload":
       return [56, 165];
@@ -382,6 +386,34 @@ export class StrKey {
   }
 
   /**
+   * Encodes raw data to strkey muxed contract (W...): the 32-byte contract ID
+   * followed by the 8-byte big-endian mux ID.
+   *
+   * @param data - data to encode
+   */
+  static encodeMuxedContract(data: Uint8Array): string {
+    return encodeCheck("muxedContract", data);
+  }
+
+  /**
+   * Decodes strkey muxed contract (W...) to raw data.
+   *
+   * @param address - address to decode
+   */
+  static decodeMuxedContract(address: string): Uint8Array {
+    return decodeCheck("muxedContract", address);
+  }
+
+  /**
+   * Checks validity of alleged muxed contract (W...) strkey address.
+   *
+   * @param address - address to check
+   */
+  static isValidMuxedContract(address: string): boolean {
+    return isValid("muxedContract", address);
+  }
+
+  /**
    * Encodes raw data to strkey liquidity pool (L...).
    *
    * @param data - data to encode
@@ -472,6 +504,7 @@ function isValid(versionByteName: string, encoded: unknown): boolean {
       return decoded.length === 32 + 1; // +1 byte for discriminant
 
     case "med25519PublicKey":
+    case "muxedContract":
       return decoded.length === 40; // +8 bytes for the ID
 
     case "signedPayload":

@@ -4,10 +4,15 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Added
+* CAP-84 muxed contract (`W…`) addresses. `StrKey` adds `encodeMuxedContract()`, `decodeMuxedContract()` and `isValidMuxedContract()`. `Address` adds the `muxedContract` type and `Address.muxedContract()`. The new `encodeMuxedContractAddress()` builds a `W…` address from a `C…` address and an ID. `extractBaseAddress()` also accepts a `C…` address, which it returns unchanged, and a `W…` address, for which it returns the base `C…` address. `TransactionBuilder.addSacTransferOperation()` accepts a `W…` destination ([#1811](https://github.com/stellar/js-stellar-sdk/pull/1811)).
+
 ### Changed
 * The `rpc.Server` constructor throws when `timeout` is not `0` or a whole number of milliseconds up to 2147483647. Examples are `NaN`, a negative number or a fraction. Before, it accepted any value and ignored it. The CLI's `--timeout` flag has the same upper limit ([#1802](https://github.com/stellar/js-stellar-sdk/pull/1802)).
 * `TransactionBuilder.setTimeout()` now throws "timeout ends before min_time" when a positive timeout ends before an existing `minTime`. Before, it built a transaction with `minTime` after `maxTime`, which is never valid ([#1781](https://github.com/stellar/js-stellar-sdk/pull/1781)).
 * When you set `maxRedirects` or `maxContentLength`, the Fetch client rejects a successful response whose body is not valid UTF-8, with "Response body is not valid UTF-8". Before, it replaced the invalid bytes with U+FFFD and returned the result. The client still ignores the `charset` of `Content-Type`, because a stellar.toml file and a federation response must be UTF-8. A non-2xx response still rejects with its HTTP error ([#1804](https://github.com/stellar/js-stellar-sdk/pull/1804)).
+
+* Contract clients reject a muxed (`M…` or `W…`) address for an `Address` parameter; pass it to a `MuxedAddress` parameter instead. `authorizeInvocation()` and `buildWithDelegatesEntry()` reject a muxed signer address. `rpc.Server.getContractData()` rejects a muxed owner and a key that contains a muxed address. `rpc.Server.getAssetBalance()` and `getSACBalance()` reject a muxed address, since balances are held by the base address. Before, each of these built a request that the network rejects or can never match ([#1811](https://github.com/stellar/js-stellar-sdk/pull/1811)).
 
 ### Fixed
 * `CallBuilder.stream()` passes an event that it cannot parse to `onerror` and keeps the stream open. `onerror` gets a `MessageEvent` of type `"error"` whose `data` is the parse error. The stream moves its cursor to the event's SSE `id`, so a reconnect does not get the event again. An `onerror` handler that closes the stream now also closes it on such an event. Before, the event listener threw the error as an uncaught exception, which stops a Node.js process that has no handler for it ([#1806](https://github.com/stellar/js-stellar-sdk/pull/1806)).
@@ -25,6 +30,8 @@ A breaking change will get clearly marked in this log.
 * `rpc.Server` now applies its `timeout` option to each request. Before, the option was ignored, so a request to a server that did not answer stayed pending. This also fixes the `--timeout` flag of the bindings CLI, which had no effect ([#1802](https://github.com/stellar/js-stellar-sdk/pull/1802)).
 * The Fetch client sends `params` when the URL has a `#` fragment. Before, it added them after the fragment, so the server did not receive them. When there are `params`, the fragment is now left out of the request URL, as in the Axios build ([#1804](https://github.com/stellar/js-stellar-sdk/pull/1804)).
 * `AssembledTransaction.sign()` and `signAndSend()` keep the fee from simulation. Before, they added the Soroban resource fee to the fee a second time, which raised the inclusion fee bid. The automatic footprint restore now uses the `fee` option (or `BASE_FEE`) as the inclusion fee. Before, it used the restore's resource fee as the inclusion fee and ignored `fee`. Set `fee` to bid more during surge pricing. `restoreFootprint()` still accepts `minResourceFee` but does not use it ([#1808](https://github.com/stellar/js-stellar-sdk/pull/1808)).
+* Contract client `MuxedAddress` parameters accept an `Address` object, as their `string | Address` type says. Before, they threw "was not address, but value was Address" ([#1811](https://github.com/stellar/js-stellar-sdk/pull/1811)).
+* `TransactionBuilder.addSacTransferOperation()` throws when the builder's source is a muxed `M…` account. The network rejects any Soroban transaction with a muxed source account, so the transaction could never succeed ([#1811](https://github.com/stellar/js-stellar-sdk/pull/1811)).
 
 ## [v17.2.1](https://github.com/stellar/js-stellar-sdk/compare/v17.2.0...v17.2.1)
 

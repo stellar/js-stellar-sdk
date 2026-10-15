@@ -415,10 +415,17 @@ describe("Server#getContractWasm", () => {
       expect(mockPost).toHaveBeenCalledTimes(2);
     });
 
-    it("rejects when the owner is not a contract", async () => {
-      const accountOwner = new StellarSdk.Address(
+    it.each([
+      [
+        "an account",
         "GBZXN7PIRZGNMHGA7MUUUF4GWPY5AYPV6LY4UV2GL6VJGIQRXFDNMADI",
-      );
+      ],
+      [
+        "a muxed contract",
+        "WA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJVAAAAAAAAAAAACWJY",
+      ],
+    ])("rejects when the owner is %s", async (_, owner) => {
+      const accountOwner = new StellarSdk.Address(owner);
       const instanceEntry = xdr.LedgerEntryData.contractData(
         new xdr.ContractDataEntry({
           ext: xdr.ExtensionPoint.v0(),
@@ -449,7 +456,7 @@ describe("Server#getContractWasm", () => {
         server.getContractWasmByContractId(contractId),
       ).rejects.toMatchObject({
         code: 400,
-        message: expect.stringContaining("is not a"),
+        message: expect.stringContaining(`${owner} is not a`),
       });
       expect(mockPost).toHaveBeenCalledTimes(1);
     });
