@@ -253,7 +253,7 @@ describe("HttpClient contract", () => {
 
     // Axios rejects a slow body with "stream has been aborted".
     it.skipIf(process.env.TRANSPORT === "axios")(
-      "rejects with the timeout message when the body is slow",
+      "rejects with the timeout message when the body is slow on the bounded path",
       async () => {
         respond = (_req, res) => {
           res.writeHead(200, { "Content-Type": "application/json" });
@@ -261,7 +261,7 @@ describe("HttpClient contract", () => {
           setTimeout(() => res.end("1}"), 500);
         };
         await expect(
-          create().get(`${baseUrl}/`, { timeout: 100 }),
+          create().get(`${baseUrl}/`, { timeout: 100, maxRedirects: 1 }),
         ).rejects.toThrow("timeout of 100ms exceeded");
       },
       5000,
@@ -964,13 +964,52 @@ describe("HttpClient contract", () => {
         expect(requests[1].headers["x-auth-token"]).toBe("token");
       });
 
-      // The Axios build's limit: `follow-redirects` defaults to 21.
-      it("follows 21 redirects, then rejects", async () => {
+      // Node's fetch follows 20 redirects; `follow-redirects` follows 21.
+      it("stops a redirect loop at the build's limit", async () => {
         redirectTo("/loop");
+        const axiosBuild = process.env.TRANSPORT === "axios";
         await expect(create().get(`${baseUrl}/start`)).rejects.toThrow(
-          "Maximum number of redirects exceeded",
+          axiosBuild ? "Maximum number of redirects exceeded" : "fetch failed",
         );
-        expect(requests).toHaveLength(22);
+        expect(requests).toHaveLength(axiosBuild ? 22 : 21);
+      });
+
+      it("removes a header added to the defaults after create()", async () => {
+        redirectTo(`${secondary.url}/after`);
+        const client = create({ headers: {} });
+        const defaults = client.defaults.headers;
+        if (
+          !defaults ||
+          defaults instanceof Headers ||
+          Array.isArray(defaults)
+        ) {
+          throw new Error("expected plain-object default headers");
+        }
+        defaults["X-Api-Key"] = "key";
+        await client.get(`${baseUrl}/start`);
+        expect(requests[0].headers["x-api-key"]).toBe("key");
+        expect(secondary.requests[0].headers["x-api-key"]).toBeUndefined();
+      });
+
+      it("sends params only on the first request", async () => {
+        redirectTo(`${secondary.url}/after`);
+        await create().get(`${baseUrl}/start`, { params: { a: "1" } });
+        expect(requests[0].url).toBe("/start?a=1");
+        expect(secondary.requests[0].url).toBe("/after");
+      });
+
+      it("keeps a POST body on a cross-origin 307", async () => {
+        redirectTo(`${secondary.url}/after`, 307);
+        await create().post(
+          `${baseUrl}/start`,
+          { a: 1 },
+          { headers: { "X-Auth-Token": "token" } },
+        );
+        const rec = secondary.requests[0];
+        expect(rec.method).toBe("POST");
+        expect(rec.body).toBe('{"a":1}');
+        expect(rec.headers["content-type"]).toBe("application/json");
+        expect(rec.headers["x-auth-token"]).toBeUndefined();
       });
 
       it("keeps maxRedirects: 0 from create()", async () => {
@@ -993,7 +1032,10 @@ describe("HttpClient contract", () => {
 
     // `follow-redirects` and the Fetch spec change only POST on a 301/302,
     // and only methods other than GET and HEAD on a 303.
-    describe("method on a redirect", () => {
+    describe.each([
+      ["default path", {}],
+      ["bounded path", { maxRedirects: 1 }],
+    ])("method on a redirect, %s", (_path, config) => {
       function redirectOnce(status: number) {
         respond = (req, res) => {
           if (req.url === "/start") {
@@ -1008,57 +1050,61 @@ describe("HttpClient contract", () => {
 
       it("keeps PUT and its body on a 302", async () => {
         redirectOnce(302);
-        await create().put(`${baseUrl}/start`, { a: 1 });
+        await create().put(`${baseUrl}/start`, { a: 1 }, config);
         expect(requests[1].method).toBe("PUT");
         expect(requests[1].body).toBe('{"a":1}');
       });
 
       it("keeps DELETE on a 301", async () => {
         redirectOnce(301);
-        await create().delete(`${baseUrl}/start`);
+        await create().delete(`${baseUrl}/start`, config);
         expect(requests[1].method).toBe("DELETE");
       });
 
       it("keeps HEAD on a 303", async () => {
         redirectOnce(303);
-        await create().head(`${baseUrl}/start`);
+        await create().head(`${baseUrl}/start`, config);
         expect(requests[1].method).toBe("HEAD");
       });
     });
   });
 
   describe("cancellation on the wire", () => {
-    it("closes the request when the cancelToken fires", async () => {
-      let pending: ServerResponse | undefined;
-      let closedEarly = false;
-      respond = (_req, res) => {
-        pending = res;
-        res.on("close", () => {
-          closedEarly = !res.writableEnded;
+    it.each([
+      ["default path", {}],
+      ["bounded path", { maxRedirects: 1 }],
+    ])(
+      "closes the request when the cancelToken fires, %s",
+      async (_path, config) => {
+        let pending: ServerResponse | undefined;
+        let closedEarly = false;
+        respond = (_req, res) => {
+          pending = res;
+          res.on("close", () => {
+            closedEarly = !res.writableEnded;
+          });
+        };
+        const cancelToken = new httpClient.CancelToken((cancel) => {
+          setTimeout(() => cancel("stop"), 20);
         });
-      };
-      const cancelToken = new httpClient.CancelToken((cancel) => {
-        setTimeout(() => cancel("stop"), 20);
-      });
-      try {
-        await expect(
-          create().get(`${baseUrl}/`, { cancelToken, maxRedirects: 1 }),
-        ).rejects.toSatisfy(httpClient.isCancel);
-        await vi.waitFor(() => expect(closedEarly).toBe(true), {
-          timeout: 1000,
-        });
-      } finally {
-        if (pending && !pending.writableEnded) pending.end();
-      }
-    });
+        try {
+          await expect(
+            create().get(`${baseUrl}/`, { cancelToken, ...config }),
+          ).rejects.toSatisfy(httpClient.isCancel);
+          await vi.waitFor(() => expect(closedEarly).toBe(true), {
+            timeout: 1000,
+          });
+        } finally {
+          if (pending && !pending.writableEnded) pending.end();
+        }
+      },
+    );
   });
 
-  // In Node, every Fetch-build request uses the bounded adapter, so it must
-  // keep what the `feaxios` path did.
   describe.skipIf(process.env.TRANSPORT === "axios")(
-    "every client in Node (fetch adapter)",
+    "Node (fetch adapter)",
     () => {
-      describe("cross-origin redirect", () => {
+      describe("cross-origin redirect with no maxRedirects", () => {
         let secondary: Awaited<ReturnType<typeof startServer>>;
 
         beforeEach(async () => {
@@ -1103,6 +1149,36 @@ describe("HttpClient contract", () => {
           expect(secondary.requests[0].headers["x-api-key"]).toBeUndefined();
         });
 
+        // NW.js sets `process.versions.nw` and uses Chromium's fetch, which
+        // answers a manual redirect with an opaque response.
+        it("lets fetch follow a redirect in NW.js", async () => {
+          const fetchMock = vi.fn((_url: string, init?: RequestInit) =>
+            Promise.resolve(
+              init?.redirect === "manual"
+                ? {
+                    type: "opaqueredirect",
+                    status: 0,
+                    ok: false,
+                    headers: new Headers(),
+                    text: () => Promise.resolve(""),
+                  }
+                : new Response("{}", { status: 200 }),
+            ),
+          );
+          vi.stubGlobal("fetch", fetchMock);
+          Object.defineProperty(process.versions, "nw", {
+            value: "0.90.0",
+            configurable: true,
+          });
+          try {
+            const response = await create().get(`${baseUrl}/start`);
+            expect(response.status).toBe(200);
+          } finally {
+            Reflect.deleteProperty(process.versions, "nw");
+            vi.unstubAllGlobals();
+          }
+        });
+
         // An Electron renderer's fetch hides a manual redirect, so
         // `maxRedirects: 0` uses `redirect: "error"` there.
         it("refuses a redirect with fetch's own error in an Electron renderer", async () => {
@@ -1129,87 +1205,277 @@ describe("HttpClient contract", () => {
         });
       });
 
-      // A fetch that hides manual redirects (as in a browser) answers a 3xx
-      // with an opaque response that has no status or Location.
-      it("rejects an opaque redirect it cannot follow", async () => {
-        vi.stubGlobal(
-          "fetch",
-          vi.fn().mockResolvedValue({
-            type: "opaqueredirect",
-            status: 0,
-            ok: false,
-            headers: new Headers(),
-          }),
-        );
-        try {
-          await expect(create().get(`${baseUrl}/start`)).rejects.toThrow(
-            /cannot follow a redirect/i,
-          );
-        } finally {
-          vi.unstubAllGlobals();
-        }
-      });
-
-      it("aborts the request when fetchOptions.signal fires", async () => {
-        let pending: ServerResponse | undefined;
-        let closedEarly = false;
-        respond = (_req, res) => {
-          pending = res;
-          res.on("close", () => {
-            closedEarly = !res.writableEnded;
-          });
-        };
-        const controller = new AbortController();
-        setTimeout(() => controller.abort(), 20);
-        const request = create()
-          .get(`${baseUrl}/`, { fetchOptions: { signal: controller.signal } })
-          .catch((err: unknown) => err);
-        try {
-          await vi.waitFor(() => expect(closedEarly).toBe(true), {
-            timeout: 1000,
-          });
-        } finally {
-          if (pending && !pending.writableEnded) pending.end();
-        }
-        expect(await request).toBeInstanceOf(Error);
-      });
-
-      it("keeps the caller's own timeout error from fetchOptions.signal", async () => {
-        let pending: ServerResponse | undefined;
-        respond = (_req, res) => {
-          pending = res;
-        };
-        try {
-          await expect(
-            create().get(`${baseUrl}/`, {
-              fetchOptions: { signal: AbortSignal.timeout(50) },
+      describe("bounded path", () => {
+        // A fetch that hides manual redirects (as in a browser) answers a 3xx
+        // with an opaque response that has no status or Location.
+        it("rejects an opaque redirect it cannot follow", async () => {
+          vi.stubGlobal(
+            "fetch",
+            vi.fn().mockResolvedValue({
+              type: "opaqueredirect",
+              status: 0,
+              ok: false,
+              headers: new Headers(),
             }),
-          ).rejects.toMatchObject({ name: "TimeoutError" });
-        } finally {
-          if (pending && !pending.writableEnded) pending.end();
+          );
+          try {
+            await expect(
+              create().get(`${baseUrl}/start`, { maxRedirects: 1 }),
+            ).rejects.toThrow(/cannot follow a redirect/i);
+          } finally {
+            vi.unstubAllGlobals();
+          }
+        });
+
+        it("aborts the request when fetchOptions.signal fires", async () => {
+          let pending: ServerResponse | undefined;
+          let closedEarly = false;
+          respond = (_req, res) => {
+            pending = res;
+            res.on("close", () => {
+              closedEarly = !res.writableEnded;
+            });
+          };
+          const controller = new AbortController();
+          setTimeout(() => controller.abort(), 20);
+          const request = create()
+            .get(`${baseUrl}/`, {
+              fetchOptions: { signal: controller.signal },
+              maxRedirects: 1,
+            })
+            .catch((err: unknown) => err);
+          try {
+            await vi.waitFor(() => expect(closedEarly).toBe(true), {
+              timeout: 1000,
+            });
+          } finally {
+            if (pending && !pending.writableEnded) pending.end();
+          }
+          expect(await request).toBeInstanceOf(Error);
+        });
+
+        it.each([
+          ["without timeout", {}],
+          ["with a longer timeout", { timeout: 10_000 }],
+        ])(
+          "keeps the caller's own timeout error from fetchOptions.signal, %s",
+          async (_name, config) => {
+            let pending: ServerResponse | undefined;
+            respond = (_req, res) => {
+              pending = res;
+            };
+            try {
+              await expect(
+                create().get(`${baseUrl}/`, {
+                  fetchOptions: { signal: AbortSignal.timeout(50) },
+                  maxRedirects: 1,
+                  ...config,
+                }),
+              ).rejects.toMatchObject({ name: "TimeoutError" });
+            } finally {
+              if (pending && !pending.writableEnded) pending.end();
+            }
+          },
+        );
+
+        it("returns the request URL with baseURL and params in response.config", async () => {
+          const response = await create().get("/ledgers", {
+            baseURL: baseUrl,
+            params: { a: "1" },
+            maxRedirects: 1,
+          });
+          expect(response.config.url).toBe(`${baseUrl}/ledgers?a=1`);
+        });
+
+        it("form-encodes an object body in postForm", async () => {
+          await create().postForm(
+            `${baseUrl}/f`,
+            { tx: "AAAA" },
+            { maxRedirects: 1 },
+          );
+          expect(requests[0].body).toBe("tx=AAAA");
+        });
+
+        it("sends fetchOptions.headers under the request headers", async () => {
+          await create().get(`${baseUrl}/`, {
+            headers: { "X-Both": "request" },
+            fetchOptions: { headers: { "X-Fetch": "f", "X-Both": "fetch" } },
+            maxRedirects: 1,
+          });
+          expect(requests[0].headers["x-fetch"]).toBe("f");
+          expect(requests[0].headers["x-both"]).toBe("request");
+        });
+      });
+
+      // `feaxios` behavior on the default path. Decide each one when `feaxios`
+      // is dropped.
+      describe("default path keeps the feaxios behavior", () => {
+        function route(routes: Record<string, (res: ServerResponse) => void>) {
+          respond = (req, res) => {
+            const handler = routes[req.url ?? ""];
+            if (handler) {
+              handler(res);
+              return;
+            }
+            res.writeHead(200, { "Content-Type": "application/json" });
+            res.end('{"a":1}');
+          };
         }
-      });
 
-      it("returns the request URL with baseURL and params in response.config", async () => {
-        const response = await create().get("/ledgers", {
-          baseURL: baseUrl,
-          params: { a: "1" },
+        const redirect =
+          (location: string, status = 302) =>
+          (res: ServerResponse) => {
+            res.writeHead(status, { location });
+            res.end();
+          };
+
+        const notFound = (res: ServerResponse) => {
+          res.writeHead(404, { "Content-Type": "application/json" });
+          res.end('{"title":"nf"}');
+        };
+
+        it("rejects an HTTP error after a redirect with an AxiosError", async () => {
+          route({ "/start": redirect("/missing"), "/missing": notFound });
+          await expect(create().get(`${baseUrl}/start`)).rejects.toMatchObject({
+            name: "AxiosError",
+            message: "Request failed with status code 404",
+            code: "ERR_BAD_REQUEST",
+            isAxiosError: true,
+            config: { url: `${baseUrl}/start` },
+            response: { status: 404, data: { title: "nf" } },
+          });
         });
-        expect(response.config.url).toBe(`${baseUrl}/ledgers?a=1`);
-      });
 
-      it("form-encodes an object body in postForm", async () => {
-        await create().postForm(`${baseUrl}/f`, { tx: "AAAA" });
-        expect(requests[0].body).toBe("tx=AAAA");
-      });
-
-      it("sends fetchOptions.headers under the request headers", async () => {
-        await create().get(`${baseUrl}/`, {
-          headers: { "X-Both": "request" },
-          fetchOptions: { headers: { "X-Fetch": "f", "X-Both": "fetch" } },
+        it("rejects a network error with an AxiosError", async () => {
+          await expect(
+            create().get("http://127.0.0.1:1/"),
+          ).rejects.toMatchObject({
+            name: "AxiosError",
+            message: "fetch failed",
+            isAxiosError: true,
+          });
         });
-        expect(requests[0].headers["x-fetch"]).toBe("f");
-        expect(requests[0].headers["x-both"]).toBe("request");
+
+        function slowChain() {
+          route({
+            "/start": (res) => {
+              setTimeout(() => redirect("/next")(res), 80);
+            },
+            "/next": (res) => {
+              setTimeout(() => res.end("{}"), 80);
+            },
+          });
+        }
+
+        it("applies the timeout to the whole redirect chain", async () => {
+          slowChain();
+          await expect(
+            create().get(`${baseUrl}/start`, { timeout: 120 }),
+          ).rejects.toMatchObject({
+            name: "AxiosError",
+            message: "timeout of 120 ms exceeded",
+            code: "ECONNABORTED",
+          });
+        });
+
+        // `makeRequest` does not merge the defaults; feaxios does.
+        it("applies a default timeout to the whole chain in makeRequest", async () => {
+          slowChain();
+          await expect(
+            create({ timeout: 120 }).makeRequest({
+              url: `${baseUrl}/start`,
+              method: "get",
+            }),
+          ).rejects.toMatchObject({
+            name: "AxiosError",
+            message: "timeout of 120 ms exceeded",
+            code: "ECONNABORTED",
+          });
+        });
+
+        it("replaces invalid UTF-8 bytes with U+FFFD", async () => {
+          route({
+            "/start": (res) => {
+              res.end(
+                new Uint8Array([
+                  0x7b, 0x22, 0x61, 0x22, 0x3a, 0x22, 0xff, 0x22, 0x7d,
+                ]),
+              );
+            },
+          });
+          const response = await create().get(`${baseUrl}/start`);
+          expect(response.data).toEqual({ a: "�" });
+        });
+
+        it("sends a string body as text/plain", async () => {
+          await create().post(`${baseUrl}/`, "x=1");
+          expect(requests[0].headers["content-type"]).toBe("text/plain");
+        });
+
+        it("follows a redirect from https: to http:", async () => {
+          const fetchMock = vi
+            .fn()
+            .mockResolvedValueOnce(
+              new Response(null, {
+                status: 302,
+                headers: { location: "http://a.example/after" },
+              }),
+            )
+            .mockResolvedValue(new Response("{}", { status: 200 }));
+          vi.stubGlobal("fetch", fetchMock);
+          try {
+            await create().get("https://a.example/start");
+          } finally {
+            vi.unstubAllGlobals();
+          }
+          expect(fetchMock).toHaveBeenCalledTimes(2);
+          expect(fetchMock.mock.calls[1][0]).toBe("http://a.example/after");
+        });
+
+        it("does not follow a 300", async () => {
+          route({ "/start": redirect("/next", 300) });
+          await expect(create().get(`${baseUrl}/start`)).rejects.toMatchObject({
+            response: { status: 300 },
+          });
+          expect(requests).toHaveLength(1);
+        });
+
+        it.each([
+          ["a data: URL", () => "data:text/plain,x"],
+          ["a URL that does not parse", () => "http://["],
+          ["a URL with credentials", () => baseUrl.replace("//", "//u:p@")],
+        ])("rejects a redirect to %s with fetch failed", async (_name, to) => {
+          route({ "/start": redirect(to()) });
+          await expect(create().get(`${baseUrl}/start`)).rejects.toMatchObject({
+            name: "AxiosError",
+            message: "fetch failed",
+          });
+          expect(requests).toHaveLength(1);
+        });
+
+        it("keeps fetchOptions.redirect from the caller", async () => {
+          route({ "/start": redirect("/next") });
+          await expect(
+            create().get(`${baseUrl}/start`, {
+              fetchOptions: { redirect: "error" },
+            }),
+          ).rejects.toMatchObject({ message: "fetch failed" });
+          expect(requests).toHaveLength(1);
+        });
+
+        it("applies validateStatus after a redirect", async () => {
+          route({ "/start": redirect("/missing"), "/missing": notFound });
+          // `validateStatus` is a `feaxios` option outside the SDK's config type.
+          const config = { headers: {}, validateStatus: () => true };
+          const response = await create().get(`${baseUrl}/start`, config);
+          expect(response.status).toBe(404);
+        });
+
+        it("returns the start URL in response.config after a redirect", async () => {
+          route({ "/start": redirect("/next") });
+          const response = await create().get(`${baseUrl}/start`);
+          expect(response.config.url).toBe(`${baseUrl}/start`);
+        });
       });
     },
   );

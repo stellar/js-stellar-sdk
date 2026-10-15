@@ -4,8 +4,9 @@ import type {
   AxiosResponse,
   AxiosStatic,
   CreateAxiosDefaults,
+  InternalAxiosRequestConfig,
 } from "feaxios";
-import axios from "feaxios";
+import axios, { AxiosError } from "feaxios";
 import { isSafeCrossOriginHeader } from "./redirect-headers.js";
 import {
   CancelToken,
@@ -255,8 +256,8 @@ function composeSignals(signals: AbortSignal[]): AbortSignal | undefined {
 // opaqueredirect response (status 0, no Location), so hop-by-hop enforcement
 // can't work. There we use `redirect: "error"` for strict zero-redirect and
 // fall back to normal following otherwise — matching axios/XHR browser behavior.
-// Electron renderers and workers set `process.versions.node` but may use the
-// browser's fetch.
+// Electron renderers and workers, and NW.js, set `process.versions.node` but
+// may use the browser's fetch.
 const BROWSER_FETCH_PROCESS_TYPES = new Set([
   "renderer",
   "worker",
@@ -268,6 +269,7 @@ function canInspectManualRedirects(): boolean {
     typeof process !== "undefined" &&
     !!process.versions &&
     !!process.versions.node &&
+    !process.versions.nw &&
     !(
       "type" in process && BROWSER_FETCH_PROCESS_TYPES.has(String(process.type))
     )
@@ -277,18 +279,16 @@ function canInspectManualRedirects(): boolean {
 // The `follow-redirects` and Fetch spec rules: POST becomes GET on a 301/302,
 // and any method but GET and HEAD becomes GET on a 303. Re-sending a POST
 // body to the redirect target is a common footgun.
-function applyRedirectSemantics(
-  init: RequestInit,
-  status: number,
-): RequestInit {
-  const method = init.method ?? "GET";
-  const toGet =
-    ((status === 301 || status === 302) && method === "POST") ||
-    (status === 303 && method !== "GET" && method !== "HEAD");
-  if (!toGet) return init;
-  const next: RequestInit = { ...init, method: "GET", body: undefined };
-  // Drop body-related headers when switching to GET.
-  const headers = new Headers(init.headers || {});
+function redirectChangesToGet(method: string, status: number): boolean {
+  const upper = method.toUpperCase();
+  return (
+    ((status === 301 || status === 302) && upper === "POST") ||
+    (status === 303 && upper !== "GET" && upper !== "HEAD")
+  );
+}
+
+// Drop body-related headers when switching to GET.
+function deleteBodyHeaders(headers: Headers): void {
   headers.delete("content-type");
   headers.delete("content-length");
   headers.delete("transfer-encoding");
@@ -296,12 +296,28 @@ function applyRedirectSemantics(
   headers.delete("content-language");
   headers.delete("content-location");
   headers.delete("content-range");
-  next.headers = headers;
-  return next;
 }
 
 // A cross-origin hop must not receive the credentials meant for the
 // original host, so it gets only the safe headers.
+function safeCrossOriginHeaders(source: Headers): Headers {
+  const headers = new Headers();
+  source.forEach((value, name) => {
+    if (isSafeCrossOriginHeader(name)) headers.set(name, value);
+  });
+  return headers;
+}
+
+function applyRedirectSemantics(
+  init: RequestInit,
+  status: number,
+): RequestInit {
+  if (!redirectChangesToGet(init.method ?? "GET", status)) return init;
+  const headers = new Headers(init.headers || {});
+  deleteBodyHeaders(headers);
+  return { ...init, method: "GET", body: undefined, headers };
+}
+
 function stripCrossOriginHeaders(
   init: RequestInit,
   fromUrl: URL,
@@ -312,11 +328,7 @@ function stripCrossOriginHeaders(
     init.headers instanceof Headers
       ? init.headers
       : new Headers(init.headers || {});
-  const headers = new Headers();
-  source.forEach((value, name) => {
-    if (isSafeCrossOriginHeader(name)) headers.set(name, value);
-  });
-  return { ...init, headers };
+  return { ...init, headers: safeCrossOriginHeaders(source) };
 }
 
 function buildHttpError(
@@ -345,9 +357,6 @@ function buildHttpError(
   return err;
 }
 
-// The Axios build's limit in Node: `follow-redirects` defaults to 21.
-const DEFAULT_MAX_REDIRECTS = 21;
-
 // Created on first use, so importing the SDK needs no TextDecoder.
 let strictUtf8Decoder: TextDecoder | undefined;
 
@@ -356,36 +365,35 @@ let strictUtf8Decoder: TextDecoder | undefined;
 async function boundedFetchAdapter<T>(
   config: HttpClientRequestConfig,
 ): Promise<HttpClientResponse<T>> {
+  const timeoutSignal =
+    config.timeout && config.timeout > 0
+      ? createTimeoutSignal(config.timeout)
+      : undefined;
   try {
-    return await boundedFetch<T>(config);
+    return await boundedFetch<T>(config, timeoutSignal);
   } catch (err) {
-    if (
-      config.timeout &&
-      typeof err === "object" &&
-      err !== null &&
-      "name" in err &&
-      err.name === "TimeoutError"
-    ) {
+    if (timeoutSignal?.aborted) {
       throw new Error(`timeout of ${config.timeout}ms exceeded`);
     }
     throw err;
   }
 }
 
-// feaxios ignores maxRedirects and maxContentLength, and lets fetch follow
-// redirects, so the SDK cannot strip credential headers on a cross-origin
-// hop. In Node, every request comes here; elsewhere, only a request that sets
-// either option. Keep the error message prefix "maxContentLength size"
+// feaxios ignores maxRedirects and maxContentLength. When either is set,
+// perform the request via native fetch with explicit enforcement — otherwise
+// the "security" config is silently a no-op, allowing redirect-based SSRF and
+// unbounded-response DoS. Keep the error message prefix "maxContentLength size"
 // identical to axios's Node adapter — callers (stellartoml, federation) match
 // on it in their catch blocks.
 async function boundedFetch<T>(
   config: HttpClientRequestConfig,
+  timeoutSignal: AbortSignal | undefined,
 ): Promise<HttpClientResponse<T>> {
-  const { maxRedirects, maxContentLength, timeout } = config;
+  const { maxRedirects, maxContentLength } = config;
   const signals: AbortSignal[] = [];
 
-  if (timeout && timeout > 0) {
-    signals.push(createTimeoutSignal(timeout));
+  if (timeoutSignal) {
+    signals.push(timeoutSignal);
   }
   // `makeRequest` aborts this signal when the cancelToken fires.
   if ("signal" in config && config.signal instanceof AbortSignal) {
@@ -397,15 +405,18 @@ async function boundedFetch<T>(
   const signal = composeSignals(signals);
 
   // Redirect policy:
-  //   in Node      → "manual": chain up to maxRedirects hops (default 21),
-  //                  then refuse; 0 rejects the first 3xx
-  //   0  in brwsr  → "error":  fetch throws on the first 3xx (manual would
-  //                            yield an opaqueredirect with no status/Location,
-  //                            which we can't interpret)
-  //   else in brwsr → "follow": we can't count hops cross-origin, so match
-  //                             axios/XHR browser behavior (follow to 20)
+  //   undefined   → let fetch follow freely (caller doesn't care)
+  //   0  in Node  → "manual": read the 3xx, reject before the next hop
+  //   0  in brwsr → "error":  fetch throws on the first 3xx (manual would
+  //                           yield an opaqueredirect with no status/Location,
+  //                           which we can't interpret)
+  //   N>0 in Node → manually chain up to N hops, then refuse
+  //   N>0 in brwsr → "follow": we can't count hops cross-origin, so match
+  //                            axios/XHR browser behavior (follow to 20)
   let redirect: RequestInit["redirect"];
-  if (canInspectManualRedirects()) {
+  if (maxRedirects === undefined) {
+    redirect = "follow";
+  } else if (canInspectManualRedirects()) {
     redirect = "manual";
   } else if (maxRedirects === 0) {
     redirect = "error";
@@ -438,7 +449,7 @@ async function boundedFetch<T>(
   const startUrl = buildBoundedUrl(config);
   // Set only once a redirect arrives, so other requests skip the URL parse.
   let current: URL | undefined;
-  let redirectsRemaining = maxRedirects ?? DEFAULT_MAX_REDIRECTS;
+  let redirectsRemaining = maxRedirects ?? 0;
   let response: Response;
 
   while (true) {
@@ -528,6 +539,138 @@ async function boundedFetch<T>(
   };
 }
 
+const REDIRECT_STATUSES = new Set([301, 302, 303, 307, 308]);
+// Node's fetch follows 20 redirects.
+const FETCH_MAX_REDIRECTS = 20;
+
+// fetch gives a network error for these targets.
+function parseRedirectTarget(location: string, from: URL): URL | undefined {
+  let target: URL;
+  try {
+    target = new URL(location, from);
+  } catch {
+    return undefined;
+  }
+  if (target.protocol !== "http:" && target.protocol !== "https:") {
+    return undefined;
+  }
+  if (target.username || target.password) return undefined;
+  return target;
+}
+
+// feaxios rejects a 3xx unless the caller's `validateStatus` accepts it.
+async function sendHop(
+  client: AxiosInstance,
+  config: AxiosRequestConfig,
+): Promise<{ response: AxiosResponse; error?: AxiosError }> {
+  try {
+    return { response: await client.request(config) };
+  } catch (error) {
+    if (error instanceof AxiosError && error.response) {
+      return { response: error.response, error };
+    }
+    throw error;
+  }
+}
+
+function nextHopConfig(
+  prev: InternalAxiosRequestConfig,
+  status: number,
+  from: URL,
+  target: URL,
+): AxiosRequestConfig {
+  const { headers: fetchHeaders, ...fetchOptions } = prev.fetchOptions ?? {};
+  // feaxios sends `fetchOptions.headers` under the request headers.
+  const headers = new Headers(fetchHeaders);
+  prev.headers.forEach((value, name) => {
+    headers.set(name, value);
+  });
+  let { method, data } = prev;
+  if (redirectChangesToGet(method ?? "get", status)) {
+    method = "get";
+    data = undefined;
+    deleteBodyHeaders(headers);
+  }
+  return {
+    ...prev,
+    url: target.href,
+    // Both are already in `prev.url`.
+    params: undefined,
+    baseURL: undefined,
+    method,
+    data,
+    headers:
+      from.origin === target.origin ? headers : safeCrossOriginHeaders(headers),
+    fetchOptions: { ...fetchOptions, redirect: "manual" },
+  };
+}
+
+// fetch follows a redirect with every header but Authorization, Cookie and
+// Proxy-Authorization. So in Node, feaxios sends each hop with
+// `redirect: "manual"`, and this loop follows the hops with fetch's rules.
+// Delete it when feaxios is dropped.
+async function followRedirectsWithFeaxios(
+  instance: AxiosInstance,
+  bareInstance: AxiosInstance,
+  config: HttpClientRequestConfig,
+): Promise<HttpClientResponse> {
+  const start = Date.now();
+  let first: InternalAxiosRequestConfig | undefined;
+  try {
+    let hop = await sendHop(instance, {
+      ...config,
+      fetchOptions: { ...config.fetchOptions, redirect: "manual" },
+    });
+    first = hop.response.config;
+    // feaxios returned the caller's `fetchOptions` in `config`.
+    first.fetchOptions = config.fetchOptions ?? {};
+    // `timeout` here includes the instance defaults.
+    const deadline = first.timeout ? start + first.timeout : undefined;
+    const timeoutErrorMessage =
+      first.timeoutErrorMessage || `timeout of ${first.timeout} ms exceeded`;
+
+    for (let redirects = 0; ; redirects += 1) {
+      const { response, error } = hop;
+      const location = REDIRECT_STATUSES.has(response.status)
+        ? response.headers.get("location")
+        : null;
+      if (location === null) {
+        if (error) throw error;
+        return { ...response, headers: response.headers as any, config: first };
+      }
+      const prev = response.config;
+      const from = new URL(prev.url ?? "");
+      const target = parseRedirectTarget(location, from);
+      if (!target || redirects === FETCH_MAX_REDIRECTS) {
+        throw new AxiosError("fetch failed", undefined, first);
+      }
+      const next = nextHopConfig(prev, response.status, from, target);
+      // The timeout covers the whole chain, as in fetch.
+      if (deadline !== undefined) {
+        const remaining = deadline - Date.now();
+        if (remaining <= 0) {
+          throw new AxiosError(timeoutErrorMessage, "ECONNABORTED", first);
+        }
+        next.timeout = remaining;
+        next.timeoutErrorMessage = timeoutErrorMessage;
+      }
+      // A bare instance: the defaults would add back removed headers.
+      hop = await sendHop(bareInstance, next);
+    }
+  } catch (err) {
+    // Show the start request in `config`, as when fetch followed the hops.
+    if (err instanceof AxiosError) {
+      const startConfig = first ?? err.config;
+      if (startConfig) {
+        startConfig.fetchOptions = config.fetchOptions ?? {};
+        err.config = startConfig;
+        if (err.response) err.response.config = startConfig;
+      }
+    }
+    throw err;
+  }
+}
+
 function createFetchClient(
   fetchConfig: HttpClientRequestConfig = {},
 ): HttpClient {
@@ -544,6 +687,7 @@ function createFetchClient(
 
   const axiosStatic: AxiosStatic = (axios as any).default ?? axios;
   const instance: AxiosInstance = axiosStatic.create(defaults);
+  const bareInstance: AxiosInstance = axiosStatic.create();
   const requestInterceptors = new InterceptorManager<HttpClientRequestConfig>();
   const responseInterceptors = new InterceptorManager<HttpClientResponse>();
 
@@ -558,23 +702,24 @@ function createFetchClient(
       adapter: (config: HttpClientRequestConfig) => {
         if (
           config.maxRedirects !== undefined ||
-          config.maxContentLength !== undefined ||
-          canInspectManualRedirects()
+          config.maxContentLength !== undefined
         ) {
           return boundedFetchAdapter(config);
         }
         // feaxios appends params after the fragment.
-        if (
+        const request =
           config.url?.includes("#") &&
           config.params &&
           Object.keys(config.params).length > 0
+            ? { ...config, url: stripFragment(config.url) }
+            : config;
+        if (
+          canInspectManualRedirects() &&
+          config.fetchOptions?.redirect === undefined
         ) {
-          return instance.request({
-            ...config,
-            url: stripFragment(config.url),
-          });
+          return followRedirectsWithFeaxios(instance, bareInstance, request);
         }
-        return instance.request(config);
+        return instance.request(request);
       },
     },
 
