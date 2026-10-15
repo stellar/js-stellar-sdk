@@ -217,11 +217,7 @@ function createTimeoutSignal(ms: number): AbortSignal {
   }
   const controller = new AbortController();
   setTimeout(() => {
-    // Must set .name = "TimeoutError" (not .message), because the bounded
-    // adapter's catch rewrites to the axios-shaped message based on the
-    // error's name. An Error whose message happens to be "TimeoutError"
-    // but whose name is "Error" silently falls through to the generic
-    // rethrow branch.
+    // The same reason as AbortSignal.timeout.
     const err = new Error("Timeout") as Error;
     err.name = "TimeoutError";
     controller.abort(err);
@@ -713,11 +709,16 @@ function createFetchClient(
           Object.keys(config.params).length > 0
             ? { ...config, url: stripFragment(config.url) }
             : config;
+        // `makeRequest` does not merge the defaults; feaxios takes these.
+        const fetchOptions = config.fetchOptions ?? defaults.fetchOptions;
         if (
           canInspectManualRedirects() &&
-          config.fetchOptions?.redirect === undefined
+          fetchOptions?.redirect === undefined
         ) {
-          return followRedirectsWithFeaxios(instance, bareInstance, request);
+          return followRedirectsWithFeaxios(instance, bareInstance, {
+            ...request,
+            fetchOptions,
+          });
         }
         return instance.request(request);
       },

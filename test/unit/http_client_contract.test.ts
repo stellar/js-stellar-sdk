@@ -1463,6 +1463,28 @@ describe("HttpClient contract", () => {
           expect(requests).toHaveLength(1);
         });
 
+        // `makeRequest` does not merge the defaults; feaxios does.
+        it("keeps a default fetchOptions.redirect in makeRequest", async () => {
+          route({ "/start": redirect("/next") });
+          await expect(
+            create({ fetchOptions: { redirect: "error" } }).makeRequest({
+              url: `${baseUrl}/start`,
+              method: "get",
+            }),
+          ).rejects.toMatchObject({ message: "fetch failed" });
+          expect(requests).toHaveLength(1);
+        });
+
+        it("sends default fetchOptions.headers on every hop in makeRequest", async () => {
+          route({ "/start": redirect("/next") });
+          await create({
+            fetchOptions: { headers: { "X-Default": "d" } },
+          }).makeRequest({ url: `${baseUrl}/start`, method: "get" });
+          expect(requests).toHaveLength(2);
+          expect(requests[0].headers["x-default"]).toBe("d");
+          expect(requests[1].headers["x-default"]).toBe("d");
+        });
+
         it("applies validateStatus after a redirect", async () => {
           route({ "/start": redirect("/missing"), "/missing": notFound });
           // `validateStatus` is a `feaxios` option outside the SDK's config type.
