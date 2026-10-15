@@ -1862,3 +1862,46 @@ describe.skipIf(
     });
   });
 });
+
+// Only a browser has a second realm: a signal from an iframe fails
+// `instanceof AbortSignal`. The Axios build has no adapter function.
+describe.skipIf(
+  typeof window === "undefined" ||
+    typeof create().defaults.adapter !== "function",
+)("bounded path — caller signal from another realm (fetch adapter)", () => {
+  it("aborts the request when the iframe's controller aborts", async () => {
+    const iframe = document.createElement("iframe");
+    document.body.appendChild(iframe);
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(
+        (_url: string, init?: RequestInit) =>
+          new Promise<Response>((_resolve, reject) => {
+            init?.signal?.addEventListener("abort", () =>
+              reject(new Error("aborted")),
+            );
+          }),
+      ),
+    );
+    try {
+      const FrameController: unknown = Reflect.get(
+        iframe.contentWindow ?? {},
+        "AbortController",
+      );
+      if (typeof FrameController !== "function") {
+        throw new Error("expected an AbortController in the iframe");
+      }
+      const controller = Reflect.construct(FrameController, []);
+      expect(controller.signal instanceof AbortSignal).toBe(false);
+      const request = create().get("https://a.example/x", {
+        maxRedirects: 1,
+        fetchOptions: { signal: controller.signal },
+      });
+      controller.abort();
+      await expect(request).rejects.toThrow("aborted");
+    } finally {
+      vi.unstubAllGlobals();
+      iframe.remove();
+    }
+  }, 3000);
+});

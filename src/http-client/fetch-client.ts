@@ -225,6 +225,18 @@ function createTimeoutSignal(ms: number): AbortSignal {
   return controller.signal;
 }
 
+// A signal from another realm (an iframe) fails `instanceof AbortSignal`.
+function isAbortSignal(value: unknown): value is AbortSignal {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "aborted" in value &&
+    typeof value.aborted === "boolean" &&
+    "addEventListener" in value &&
+    typeof value.addEventListener === "function"
+  );
+}
+
 const noCleanup = () => {};
 
 // The fallback's listeners keep its controller alive until `cleanup` runs.
@@ -384,10 +396,10 @@ async function boundedFetchAdapter<T>(
     signals.push(timeoutSignal);
   }
   // `makeRequest` aborts this signal when the cancelToken fires.
-  if ("signal" in config && config.signal instanceof AbortSignal) {
+  if ("signal" in config && isAbortSignal(config.signal)) {
     signals.push(config.signal);
   }
-  if (config.fetchOptions?.signal instanceof AbortSignal) {
+  if (isAbortSignal(config.fetchOptions?.signal)) {
     signals.push(config.fetchOptions.signal);
   }
   const { signal, cleanup } = composeSignals(signals);
