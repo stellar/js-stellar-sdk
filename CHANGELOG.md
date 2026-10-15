@@ -5,7 +5,7 @@ A breaking change will get clearly marked in this log.
 ## Unreleased
 
 ### Added
-* CAP-84 muxed contract (`W…`) addresses. `StrKey` adds `encodeMuxedContract()`, `decodeMuxedContract()` and `isValidMuxedContract()`. `Address` adds the `muxedContract` type, `Address.muxedContract()`, `baseAddress()`, `muxedId()` and `isMuxed()`. `TransactionBuilder.addSacTransferOperation()` accepts a `W…` destination ([#1811](https://github.com/stellar/js-stellar-sdk/pull/1811)).
+* CAP-84 muxed contract (`W…`) addresses. `StrKey` adds `encodeMuxedContract()`, `decodeMuxedContract()` and `isValidMuxedContract()`. `Address` adds the `muxedContract` type and `Address.muxedContract()`. The new `encodeMuxedContractAddress()` builds a `W…` address from a `C…` address and an ID. `extractBaseAddress()` also accepts a `C…` address, which it returns unchanged, and a `W…` address, for which it returns the base `C…` address. `TransactionBuilder.addSacTransferOperation()` accepts a `W…` destination ([#1811](https://github.com/stellar/js-stellar-sdk/pull/1811)).
 
 ### Changed
 * The `rpc.Server` constructor throws when `timeout` is not `0` or a whole number of milliseconds up to 2147483647. Examples are `NaN`, a negative number or a fraction. Before, it accepted any value and ignored it. The CLI's `--timeout` flag has the same upper limit ([#1802](https://github.com/stellar/js-stellar-sdk/pull/1802)).
