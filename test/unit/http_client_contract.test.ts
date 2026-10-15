@@ -1498,6 +1498,16 @@ describe("HttpClient contract", () => {
           const response = await create().get(`${baseUrl}/start`);
           expect(response.config.url).toBe(`${baseUrl}/start`);
         });
+
+        it("follows a relative redirect on a baseURL request", async () => {
+          route({ "/start?a=1": redirect("after") });
+          const response = await create({ baseURL: baseUrl }).get("/start", {
+            params: { a: "1" },
+          });
+          expect(response.data).toEqual({ a: 1 });
+          expect(response.config.url).toBe(`${baseUrl}/start?a=1`);
+          expect(requests.map((r) => r.url)).toEqual(["/start?a=1", "/after"]);
+        });
       });
     },
   );
