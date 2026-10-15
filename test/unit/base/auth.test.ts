@@ -732,6 +732,23 @@ describe("building authorization entries", () => {
       expect(signer).not.toHaveBeenCalled();
     });
 
+    it("gives the contract remedy for a muxed contract publicKey", async () => {
+      const w = StrKey.encodeMuxedContract(new Uint8Array(40).fill(7));
+      await expect(
+        authorizeEntry(
+          entryWith(
+            xdr.SorobanCredentials.sorobanCredentialsAddressV2(makeAddrCreds()),
+          ),
+          (_preimage, payload) =>
+            Promise.resolve({ signature: kp.sign(payload), publicKey: w }),
+          EXPIRATION,
+          Networks.TESTNET,
+        ),
+      ).rejects.toThrow(
+        `cannot verify an Ed25519 signature against contract ${w}`,
+      );
+    });
+
     it("reports a publicKey that is no address without the contract remedy", async () => {
       await expect(
         authorizeEntry(

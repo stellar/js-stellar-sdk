@@ -341,7 +341,8 @@ export async function authorizeEntry(
     // surfacing StrKey's "invalid version byte".
     if (!StrKey.isValidEd25519PublicKey(publicKey)) {
       throw new TypeError(
-        StrKey.isValidContract(publicKey)
+        StrKey.isValidContract(publicKey) ||
+          StrKey.isValidMuxedContract(publicKey)
           ? `cannot verify an Ed25519 signature against contract ${publicKey}; ` +
               "sign for a contract address with a callback returning " +
               "{ signatureScVal }, or with a custom `authorizeEntry` when " +
