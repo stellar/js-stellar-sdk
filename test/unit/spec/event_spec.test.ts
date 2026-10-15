@@ -495,25 +495,29 @@ describe("Spec events", () => {
       });
     });
 
+    const formats = xdr.ScSpecEventDataFormat;
+    const evtTopics = [xdr.ScVal.scvSymbol("evt")];
+    const declare = (
+      name: string,
+      dataFormat: xdr.ScSpecEventDataFormat,
+      params: xdr.ScSpecEventParamV0[] = [],
+    ): xdr.ScSpecEntry =>
+      entryFor(
+        new xdr.ScSpecEventV0({
+          doc: "",
+          lib: "",
+          name,
+          prefixTopics: ["evt"],
+          params,
+          dataFormat,
+        }),
+      );
+
     it("skips a vec declaration with no data params when the data is not a vec", () => {
-      const vecEvent = new xdr.ScSpecEventV0({
-        doc: "",
-        lib: "",
-        name: "vecEvent",
-        prefixTopics: ["evt"],
-        params: [],
-        dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatVec,
-      });
-      const voidEvent = new xdr.ScSpecEventV0({
-        doc: "",
-        lib: "",
-        name: "voidEvent",
-        prefixTopics: ["evt"],
-        params: [],
-        dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatSingleValue,
-      });
-      const vecSpec = new Spec([entryFor(vecEvent), entryFor(voidEvent)]);
-      const evtTopics = [xdr.ScVal.scvSymbol("evt")];
+      const vecSpec = new Spec([
+        declare("vecEvent", formats.scSpecEventDataFormatVec),
+        declare("voidEvent", formats.scSpecEventDataFormatSingleValue),
+      ]);
 
       expect(vecSpec.parseEvent(evtTopics, xdr.ScVal.scvVoid())?.name).toBe(
         "voidEvent",
@@ -524,16 +528,9 @@ describe("Spec events", () => {
     });
 
     it("matches a map declaration with no data params for an empty map", () => {
-      const mapEvent = new xdr.ScSpecEventV0({
-        doc: "",
-        lib: "",
-        name: "mapEvent",
-        prefixTopics: ["evt"],
-        params: [],
-        dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatMap,
-      });
-      const mapSpec = new Spec([entryFor(mapEvent)]);
-      const evtTopics = [xdr.ScVal.scvSymbol("evt")];
+      const mapSpec = new Spec([
+        declare("mapEvent", formats.scSpecEventDataFormatMap),
+      ]);
 
       expect(mapSpec.parseEvent(evtTopics, xdr.ScVal.scvMap([]))).toEqual({
         name: "mapEvent",
@@ -545,35 +542,41 @@ describe("Spec events", () => {
     });
 
     it("does not accept one container type for the other", () => {
-      const declare = (
-        name: string,
-        dataFormat: xdr.ScSpecEventDataFormat,
-      ): xdr.ScSpecEventV0 =>
-        new xdr.ScSpecEventV0({
-          doc: "",
-          lib: "",
-          name,
-          prefixTopics: ["evt"],
-          params: [],
-          dataFormat,
-        });
-      const formats = xdr.ScSpecEventDataFormat;
       const crossSpec = new Spec([
-        entryFor(declare("mapEvent", formats.scSpecEventDataFormatMap)),
-        entryFor(declare("vecEvent", formats.scSpecEventDataFormatVec)),
+        declare("mapEvent", formats.scSpecEventDataFormatMap),
+        declare("vecEvent", formats.scSpecEventDataFormatVec),
       ]);
-      const evtTopics = [xdr.ScVal.scvSymbol("evt")];
 
       expect(crossSpec.parseEvent(evtTopics, xdr.ScVal.scvVec([]))?.name).toBe(
         "vecEvent",
       );
       const vecFirstSpec = new Spec([
-        entryFor(declare("vecEvent", formats.scSpecEventDataFormatVec)),
-        entryFor(declare("mapEvent", formats.scSpecEventDataFormatMap)),
+        declare("vecEvent", formats.scSpecEventDataFormatVec),
+        declare("mapEvent", formats.scSpecEventDataFormatMap),
       ]);
       expect(
         vecFirstSpec.parseEvent(evtTopics, xdr.ScVal.scvMap([]))?.name,
       ).toBe("mapEvent");
+    });
+
+    it("treats a container with a null body as empty", () => {
+      // XDR allows the vec and map bodies to be absent.
+      const mapSpec = new Spec([
+        declare("mapEvent", formats.scSpecEventDataFormatMap),
+      ]);
+      expect(mapSpec.parseEvent(evtTopics, xdr.ScVal.scvMap(null))).toEqual({
+        name: "mapEvent",
+        data: {},
+      });
+
+      const vecSpec = new Spec([
+        declare("vecEvent", formats.scSpecEventDataFormatVec, [
+          param("value", u32Type, DATA),
+        ]),
+      ]);
+      expect(
+        vecSpec.parseEvent(evtTopics, xdr.ScVal.scvVec(null)),
+      ).toBeUndefined();
     });
   });
 

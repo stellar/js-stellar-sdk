@@ -179,6 +179,7 @@ export function parseEvent(
       continue;
     }
     // Checked before any decoding, so a wrong candidate costs no decode work.
+    // The format branches repeat this check only to narrow `dataVal`.
     const format = event.dataFormat.value;
     if (
       (format === ScSpecEventDataFormat.scSpecEventDataFormatVec.value &&
