@@ -1206,6 +1206,33 @@ describe("HttpClient contract", () => {
       });
 
       describe("bounded path", () => {
+        it("removes its listeners from fetchOptions.signal without AbortSignal.any", async () => {
+          respond = (req, res) => {
+            res.writeHead(req.url === "/missing" ? 404 : 200);
+            res.end("{}");
+          };
+          const { any } = AbortSignal;
+          const controller = new AbortController();
+          const add = vi.spyOn(controller.signal, "addEventListener");
+          const remove = vi.spyOn(controller.signal, "removeEventListener");
+          const config = {
+            maxRedirects: 1,
+            fetchOptions: { signal: controller.signal },
+          };
+          Reflect.deleteProperty(AbortSignal, "any");
+          try {
+            await create().get(`${baseUrl}/`, config);
+            await create().get(`${baseUrl}/`, { ...config, timeout: 5000 });
+            await create()
+              .get(`${baseUrl}/missing`, config)
+              .catch(() => undefined);
+          } finally {
+            AbortSignal.any = any;
+          }
+          expect(add).toHaveBeenCalledTimes(3);
+          expect(remove).toHaveBeenCalledTimes(3);
+        });
+
         // A fetch that hides manual redirects (as in a browser) answers a 3xx
         // with an opaque response that has no status or Location.
         it("rejects an opaque redirect it cannot follow", async () => {

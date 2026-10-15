@@ -225,26 +225,40 @@ function createTimeoutSignal(ms: number): AbortSignal {
   return controller.signal;
 }
 
-function composeSignals(signals: AbortSignal[]): AbortSignal | undefined {
-  if (signals.length === 0) return undefined;
-  if (signals.length === 1) return signals[0];
+const noCleanup = () => {};
+
+// The fallback's listeners keep its controller alive until `cleanup` runs.
+function composeSignals(signals: AbortSignal[]): {
+  signal: AbortSignal | undefined;
+  cleanup: () => void;
+} {
+  if (signals.length === 0) return { signal: undefined, cleanup: noCleanup };
+  if (signals.length === 1) return { signal: signals[0], cleanup: noCleanup };
   if (
     typeof AbortSignal !== "undefined" &&
     typeof AbortSignal.any === "function"
   ) {
-    return AbortSignal.any(signals);
+    return { signal: AbortSignal.any(signals), cleanup: noCleanup };
   }
   const controller = new AbortController();
+  const listeners: Array<[AbortSignal, () => void]> = [];
   for (const s of signals) {
     if (s.aborted) {
       controller.abort(s.reason);
       break;
     }
-    s.addEventListener("abort", () => controller.abort(s.reason), {
-      once: true,
-    });
+    const onAbort = () => controller.abort(s.reason);
+    s.addEventListener("abort", onAbort, { once: true });
+    listeners.push([s, onAbort]);
   }
-  return controller.signal;
+  return {
+    signal: controller.signal,
+    cleanup: () => {
+      for (const [s, onAbort] of listeners) {
+        s.removeEventListener("abort", onAbort);
+      }
+    },
+  };
 }
 
 // Node is the only environment where `redirect: "manual"` reliably exposes
@@ -365,13 +379,27 @@ async function boundedFetchAdapter<T>(
     config.timeout && config.timeout > 0
       ? createTimeoutSignal(config.timeout)
       : undefined;
+  const signals: AbortSignal[] = [];
+  if (timeoutSignal) {
+    signals.push(timeoutSignal);
+  }
+  // `makeRequest` aborts this signal when the cancelToken fires.
+  if ("signal" in config && config.signal instanceof AbortSignal) {
+    signals.push(config.signal);
+  }
+  if (config.fetchOptions?.signal instanceof AbortSignal) {
+    signals.push(config.fetchOptions.signal);
+  }
+  const { signal, cleanup } = composeSignals(signals);
   try {
-    return await boundedFetch<T>(config, timeoutSignal);
+    return await boundedFetch<T>(config, signal);
   } catch (err) {
     if (timeoutSignal?.aborted) {
       throw new Error(`timeout of ${config.timeout}ms exceeded`);
     }
     throw err;
+  } finally {
+    cleanup();
   }
 }
 
@@ -383,22 +411,9 @@ async function boundedFetchAdapter<T>(
 // on it in their catch blocks.
 async function boundedFetch<T>(
   config: HttpClientRequestConfig,
-  timeoutSignal: AbortSignal | undefined,
+  signal: AbortSignal | undefined,
 ): Promise<HttpClientResponse<T>> {
   const { maxRedirects, maxContentLength } = config;
-  const signals: AbortSignal[] = [];
-
-  if (timeoutSignal) {
-    signals.push(timeoutSignal);
-  }
-  // `makeRequest` aborts this signal when the cancelToken fires.
-  if ("signal" in config && config.signal instanceof AbortSignal) {
-    signals.push(config.signal);
-  }
-  if (config.fetchOptions?.signal instanceof AbortSignal) {
-    signals.push(config.fetchOptions.signal);
-  }
-  const signal = composeSignals(signals);
 
   // Redirect policy:
   //   undefined   → let fetch follow freely (caller doesn't care)
