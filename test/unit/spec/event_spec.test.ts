@@ -440,6 +440,143 @@ describe("Spec events", () => {
     });
   });
 
+  describe("data format mismatch", () => {
+    // Same declarations, in the same order, as a published token spec: the
+    // map-format Mint comes before the single-value MintWithAmountOnly.
+    const mint = new xdr.ScSpecEventV0({
+      doc: "",
+      lib: "",
+      name: "Mint",
+      prefixTopics: ["mint"],
+      params: [
+        param("to", addrType, TOPIC),
+        param(
+          "to_muxed_id",
+          xdr.ScSpecTypeDef.scSpecTypeOption(
+            new xdr.ScSpecTypeOption({
+              valueType: xdr.ScSpecTypeDef.scSpecTypeU64(),
+            }),
+          ),
+          DATA,
+        ),
+        param("amount", i128Type, DATA),
+      ],
+      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatMap,
+    });
+    const mintWithAmountOnly = new xdr.ScSpecEventV0({
+      doc: "",
+      lib: "",
+      name: "MintWithAmountOnly",
+      prefixTopics: ["mint"],
+      params: [param("to", addrType, TOPIC), param("amount", i128Type, DATA)],
+      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatSingleValue,
+    });
+    const spec = new Spec([entryFor(mint), entryFor(mintWithAmountOnly)]);
+    const topics = [xdr.ScVal.scvSymbol("mint"), addr.toScVal()];
+    const amount = xdr.ScVal.scvI128(
+      new xdr.Int128Parts({ hi: 0n, lo: 1000n }),
+    );
+
+    it("skips a map declaration when the data is not a map", () => {
+      expect(spec.parseEvent(topics, amount)).toEqual({
+        name: "MintWithAmountOnly",
+        data: { to: addr.toString(), amount: 1000n },
+      });
+    });
+
+    it("still matches the map declaration for map data", () => {
+      // A sparse map leaves out the None to_muxed_id key.
+      const data = xdr.ScVal.scvMap([
+        new xdr.ScMapEntry({ key: xdr.ScVal.scvSymbol("amount"), val: amount }),
+      ]);
+      expect(spec.parseEvent(topics, data)).toEqual({
+        name: "Mint",
+        data: { to: addr.toString(), amount: 1000n },
+      });
+    });
+
+    it("skips a vec declaration with no data params when the data is not a vec", () => {
+      const vecEvent = new xdr.ScSpecEventV0({
+        doc: "",
+        lib: "",
+        name: "vecEvent",
+        prefixTopics: ["evt"],
+        params: [],
+        dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatVec,
+      });
+      const voidEvent = new xdr.ScSpecEventV0({
+        doc: "",
+        lib: "",
+        name: "voidEvent",
+        prefixTopics: ["evt"],
+        params: [],
+        dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatSingleValue,
+      });
+      const vecSpec = new Spec([entryFor(vecEvent), entryFor(voidEvent)]);
+      const evtTopics = [xdr.ScVal.scvSymbol("evt")];
+
+      expect(vecSpec.parseEvent(evtTopics, xdr.ScVal.scvVoid())?.name).toBe(
+        "voidEvent",
+      );
+      expect(vecSpec.parseEvent(evtTopics, xdr.ScVal.scvVec([]))?.name).toBe(
+        "vecEvent",
+      );
+    });
+
+    it("matches a map declaration with no data params for an empty map", () => {
+      const mapEvent = new xdr.ScSpecEventV0({
+        doc: "",
+        lib: "",
+        name: "mapEvent",
+        prefixTopics: ["evt"],
+        params: [],
+        dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatMap,
+      });
+      const mapSpec = new Spec([entryFor(mapEvent)]);
+      const evtTopics = [xdr.ScVal.scvSymbol("evt")];
+
+      expect(mapSpec.parseEvent(evtTopics, xdr.ScVal.scvMap([]))).toEqual({
+        name: "mapEvent",
+        data: {},
+      });
+      expect(
+        mapSpec.parseEvent(evtTopics, xdr.ScVal.scvVoid()),
+      ).toBeUndefined();
+    });
+
+    it("does not accept one container type for the other", () => {
+      const declare = (
+        name: string,
+        dataFormat: xdr.ScSpecEventDataFormat,
+      ): xdr.ScSpecEventV0 =>
+        new xdr.ScSpecEventV0({
+          doc: "",
+          lib: "",
+          name,
+          prefixTopics: ["evt"],
+          params: [],
+          dataFormat,
+        });
+      const formats = xdr.ScSpecEventDataFormat;
+      const crossSpec = new Spec([
+        entryFor(declare("mapEvent", formats.scSpecEventDataFormatMap)),
+        entryFor(declare("vecEvent", formats.scSpecEventDataFormatVec)),
+      ]);
+      const evtTopics = [xdr.ScVal.scvSymbol("evt")];
+
+      expect(crossSpec.parseEvent(evtTopics, xdr.ScVal.scvVec([]))?.name).toBe(
+        "vecEvent",
+      );
+      const vecFirstSpec = new Spec([
+        entryFor(declare("vecEvent", formats.scSpecEventDataFormatVec)),
+        entryFor(declare("mapEvent", formats.scSpecEventDataFormatMap)),
+      ]);
+      expect(
+        vecFirstSpec.parseEvent(evtTopics, xdr.ScVal.scvMap([]))?.name,
+      ).toBe("mapEvent");
+    });
+  });
+
   it("accepts base64 XDR strings for topics and data", () => {
     const event = new xdr.ScSpecEventV0({
       doc: "",

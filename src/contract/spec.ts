@@ -1280,7 +1280,8 @@ export class Spec {
    * Note that matching compares only the prefix topics and the topic count;
    * if two event specs share both (in particular, events with no prefix
    * topics match on arity alone), the first declared spec whose values
-   * decode successfully wins.
+   * decode successfully wins. A `vec` or `map` spec decodes only data of that
+   * container type.
    *
    * @example
    * ```ts

@@ -151,7 +151,8 @@ function matchesTopics(
  * Matching compares only the prefix topics and a minimum topic count, so if
  * two event specs share both (in particular, events with no prefix topics
  * match on arity alone), the first declared spec whose values decode
- * successfully wins.
+ * successfully wins. A `vec` or `map` spec decodes only data of that
+ * container type.
  * @hidden
  */
 export function parseEvent(
@@ -177,6 +178,16 @@ export function parseEvent(
     if (!tlParams) {
       continue;
     }
+    // Checked before any decoding, so a wrong candidate costs no decode work.
+    const format = event.dataFormat.value;
+    if (
+      (format === ScSpecEventDataFormat.scSpecEventDataFormatVec.value &&
+        dataVal.type !== "scvVec") ||
+      (format === ScSpecEventDataFormat.scSpecEventDataFormatMap.value &&
+        dataVal.type !== "scvMap")
+    ) {
+      continue;
+    }
 
     // Topic matching is fuzzy (prefix symbols + arity only), so a candidate
     // event may still turn out not to fit once its values are decoded — e.g.
@@ -195,7 +206,6 @@ export function parseEvent(
       });
 
       const dParams = dataParams(event);
-      const format = event.dataFormat.value;
       if (
         format === ScSpecEventDataFormat.scSpecEventDataFormatSingleValue.value
       ) {
@@ -222,6 +232,7 @@ export function parseEvent(
       } else if (
         format === ScSpecEventDataFormat.scSpecEventDataFormatMap.value
       ) {
+        // Missing keys are expected: a sparse map leaves out void fields.
         const map = (dataVal.type === "scvMap" ? dataVal.value : null) ?? [];
         dParams.forEach((param) => {
           const name = param.name.toString();

@@ -1305,7 +1305,7 @@ a single topic filter row
 const topics = contractSpec.eventTopicFilter('transfer', { to: someAddress });
 ```
 
-**Source:** [src/contract/spec.ts:1322](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1322)
+**Source:** [src/contract/spec.ts:1323](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1323)
 
 ### `spec.findEntry(name)`
 
@@ -1488,7 +1488,7 @@ the converted JSON schema
 
 - if the contract spec is invalid
 
-**Source:** [src/contract/spec.ts:1346](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1346)
+**Source:** [src/contract/spec.ts:1347](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1347)
 
 ### `spec.nativeToScVal(val, ty)`
 
@@ -1541,7 +1541,8 @@ the parsed event (its name plus all decoded params — topic-list
 Note that matching compares only the prefix topics and the topic count;
 if two event specs share both (in particular, events with no prefix
 topics match on arity alone), the first declared spec whose values
-decode successfully wins.
+decode successfully wins. A `vec` or `map` spec decodes only data of that
+container type.
 
 **Example**
 
@@ -1552,7 +1553,7 @@ if (parsed) {
 }
 ```
 
-**Source:** [src/contract/spec.ts:1293](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1293)
+**Source:** [src/contract/spec.ts:1294](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1294)
 
 ### `spec.scValStrToNative(scv, typeDef)`
 
