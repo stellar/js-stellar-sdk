@@ -347,38 +347,6 @@ describe("Address", () => {
     });
   });
 
-  describe(".baseAddress / .muxedId / .isMuxed", () => {
-    it("strips the mux ID from muxed contracts", () => {
-      const w = new Address(MUXED_CONTRACT);
-      expect(w.baseAddress().toString()).toBe(MUXED_CONTRACT_BASE);
-      expect(w.muxedId()).toBe(BigInt(MUXED_CONTRACT_ID));
-      expect(w.isMuxed()).toBe(true);
-    });
-
-    it("strips the mux ID from muxed accounts", () => {
-      const m = new Address(MUXED_ADDRESS);
-      expect(m.baseAddress().toString()).toBe(MUXED_ADDRESS_BASE);
-      expect(m.muxedId()).toBe(BigInt(MUXED_ADDRESS_ID));
-      expect(m.isMuxed()).toBe(true);
-    });
-
-    it("reads the mux ID from a subarray-backed key", () => {
-      const w = Address.fromScAddress(
-        new Address(MUXED_CONTRACT).toScAddress(),
-      );
-      expect(w.muxedId()).toBe(BigInt(MUXED_CONTRACT_ID));
-    });
-
-    it("returns non-muxed addresses unchanged", () => {
-      for (const s of [ACCOUNT, CONTRACT]) {
-        const a = new Address(s);
-        expect(a.baseAddress().toString()).toBe(s);
-        expect(a.muxedId()).toBeUndefined();
-        expect(a.isMuxed()).toBe(false);
-      }
-    });
-  });
-
   describe(".toBuffer", () => {
     it("returns the raw public-key bytes for accounts", () => {
       const a = new Address(ACCOUNT);

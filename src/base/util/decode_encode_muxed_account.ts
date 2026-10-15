@@ -85,16 +85,51 @@ export function encodeMuxedAccount(address: string, id: string): MuxedAccount {
 }
 
 /**
- * Extracts the underlying base (G...) address from an M-address.
- * @param address - an account address (either M... or G...)
+ * Transform a contract address (C...) and an ID into a muxed contract
+ * address (W...).
+ *
+ * @param contractId - a contract C... address
+ * @param id - the ID, as a uint64 in decimal digits. Leading zeros are
+ *     removed. At most 22 digits.
+ */
+export function encodeMuxedContractAddress(
+  contractId: string,
+  id: string,
+): string {
+  if (!StrKey.isValidContract(contractId)) {
+    throw new Error("contractId should be a contract address (C...)");
+  }
+  // The strkey payload puts the contract ID first, unlike the XDR struct.
+  const raw = new Uint8Array(40);
+  raw.set(StrKey.decodeContract(contractId), 0);
+  new DataView(raw.buffer).setBigUint64(32, BigInt(canonicalUint64Id(id)));
+  return StrKey.encodeMuxedContract(raw);
+}
+
+/**
+ * Extracts the base address from a muxed address: G... from M..., or C...
+ * from W.... A G... or C... address is returned unchanged.
+ * @param address - an account (G... or M...) or contract (C... or W...)
+ *     address
  */
 export function extractBaseAddress(address: string): string {
-  if (StrKey.isValidEd25519PublicKey(address)) {
+  if (
+    StrKey.isValidEd25519PublicKey(address) ||
+    StrKey.isValidContract(address)
+  ) {
     return address;
   }
 
+  if (StrKey.isValidMuxedContract(address)) {
+    return StrKey.encodeContract(
+      StrKey.decodeMuxedContract(address).subarray(0, 32),
+    );
+  }
+
   if (!StrKey.isValidMed25519PublicKey(address)) {
-    throw new TypeError(`expected muxed account (M...), got ${address}`);
+    throw new TypeError(
+      `expected an account or contract address (G..., M..., C... or W...), got ${address}`,
+    );
   }
 
   const muxedAccount = decodeAddressToMuxedAccount(address);

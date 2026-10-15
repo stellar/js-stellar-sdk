@@ -266,42 +266,6 @@ export class Address {
   get type(): AddressType {
     return this._type;
   }
-
-  /**
-   * Return the address without its mux ID: G for M, C for W, and this
-   * address for every other type.
-   */
-  baseAddress(): Address {
-    switch (this._type) {
-      case "muxedAccount":
-        return Address.account(this._key.subarray(0, 32));
-      case "muxedContract":
-        return Address.contract(this._key.subarray(0, 32));
-      default:
-        return this;
-    }
-  }
-
-  /**
-   * Return the mux ID of an M or W address, or `undefined` for other types.
-   */
-  muxedId(): bigint | undefined {
-    if (this._type !== "muxedAccount" && this._type !== "muxedContract") {
-      return undefined;
-    }
-    return new DataView(
-      this._key.buffer,
-      this._key.byteOffset,
-      this._key.byteLength,
-    ).getBigUint64(32);
-  }
-
-  /**
-   * Return true for muxed account (M) and muxed contract (W) addresses.
-   */
-  isMuxed(): boolean {
-    return this._type === "muxedAccount" || this._type === "muxedContract";
-  }
 }
 
 /**
@@ -316,7 +280,7 @@ export function assertNotMuxed(
     typeof address === "string"
       ? StrKey.isValidMed25519PublicKey(address) ||
         StrKey.isValidMuxedContract(address)
-      : address.isMuxed();
+      : address.type === "muxedAccount" || address.type === "muxedContract";
   if (muxed) {
     throw new TypeError(`muxed address ${address.toString()} ${reason}`);
   }

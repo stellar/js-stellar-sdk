@@ -799,9 +799,9 @@ export class TransactionBuilder {
       }
     }
 
-    const isDestinationMuxedContract = StrKey.isValidMuxedContract(destination);
     const isDestinationContract =
-      isDestinationMuxedContract || StrKey.isValidContract(destination);
+      StrKey.isValidContract(destination) ||
+      StrKey.isValidMuxedContract(destination);
     if (!isDestinationContract) {
       if (
         !StrKey.isValidEd25519PublicKey(destination) &&
@@ -816,16 +816,7 @@ export class TransactionBuilder {
     // Resolve M... and W... muxed addresses to their underlying G... or C...
     // address for ledger key construction: balances are held by the base
     // address, and the mux ID only appears in the transfer event.
-    let destinationBaseAddress: string;
-    if (isDestinationMuxedContract) {
-      destinationBaseAddress = Address.fromString(destination)
-        .baseAddress()
-        .toString();
-    } else if (isDestinationContract) {
-      destinationBaseAddress = destination;
-    } else {
-      destinationBaseAddress = extractBaseAddress(destination);
-    }
+    const destinationBaseAddress = extractBaseAddress(destination);
 
     if (
       destinationBaseAddress === extractBaseAddress(this.source.accountId())
