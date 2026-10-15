@@ -6944,7 +6944,7 @@ appVersion?: string;
 
 #### `options.authToken`
 
-Allow set custom header `X-Auth-Token`, default: `undefined`. In Node, a redirect to another origin does not receive this header, except in the Fetch build when `maxContentLength` is set without `maxRedirects`. In a browser it can; in the Fetch build, set `httpClient.defaults.maxRedirects` to `0` to refuse redirects.
+Allow set custom header `X-Auth-Token`, default: `undefined`. In Node, a redirect to another origin does not receive this header, except in the Fetch build when `maxContentLength` is set without `maxRedirects`, or when `fetchOptions.redirect` is `"follow"`. In a browser it can; in the Fetch build, set `httpClient.defaults.maxRedirects` to `0` to refuse redirects.
 
 ```ts
 authToken?: string;
@@ -6954,7 +6954,7 @@ authToken?: string;
 
 #### `options.headers`
 
-Additional headers for every request to the Horizon server. In Node, a redirect to another origin does not receive these headers, except in the Fetch build when `maxContentLength` is set without `maxRedirects`. In a browser it can; in the Fetch build, set `httpClient.defaults.maxRedirects` to `0` to refuse redirects.
+Additional headers for every request to the Horizon server. In Node, a redirect to another origin does not receive these headers, except in the Fetch build when `maxContentLength` is set without `maxRedirects`, or when `fetchOptions.redirect` is `"follow"`. In a browser it can; in the Fetch build, set `httpClient.defaults.maxRedirects` to `0` to refuse redirects.
 
 ```ts
 headers?: Record<string, string>;

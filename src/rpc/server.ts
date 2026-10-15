@@ -104,7 +104,7 @@ export namespace RpcServer {
     allowHttp?: boolean;
     /** Timeout for each request, in whole milliseconds, at most 2147483647. `0` or unset means no limit. */
     timeout?: number;
-    /** Additional headers that should be added to any requests to the RPC server. In Node, a redirect to another origin does not receive these headers, except in the Fetch build when `maxContentLength` is set without `maxRedirects`. In a browser it can; in the Fetch build, set `httpClient.defaults.maxRedirects` to `0` to refuse redirects. */
+    /** Additional headers that should be added to any requests to the RPC server. In Node, a redirect to another origin does not receive these headers, except in the Fetch build when `maxContentLength` is set without `maxRedirects`, or when `fetchOptions.redirect` is `"follow"`. In a browser it can; in the Fetch build, set `httpClient.defaults.maxRedirects` to `0` to refuse redirects. */
     headers?: Record<string, string>;
   }
 }
