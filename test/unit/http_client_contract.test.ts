@@ -1490,6 +1490,26 @@ describe("HttpClient contract", () => {
           expect(requests).toHaveLength(1);
         });
 
+        it("checks fetchOptions.integrity on the final response", async () => {
+          async function sha256(text: string): Promise<string> {
+            const digest = await crypto.subtle.digest(
+              "SHA-256",
+              new TextEncoder().encode(text),
+            );
+            return `sha256-${btoa(String.fromCharCode(...new Uint8Array(digest)))}`;
+          }
+          route({ "/start": redirect("/next") });
+          const response = await create().get(`${baseUrl}/start`, {
+            fetchOptions: { integrity: await sha256('{"a":1}') },
+          });
+          expect(response.data).toEqual({ a: 1 });
+          await expect(
+            create().get(`${baseUrl}/start`, {
+              fetchOptions: { integrity: await sha256("other") },
+            }),
+          ).rejects.toMatchObject({ message: "fetch failed" });
+        });
+
         // `makeRequest` does not merge the defaults; feaxios does.
         it("keeps a default fetchOptions.redirect in makeRequest", async () => {
           route({ "/start": redirect("/next") });

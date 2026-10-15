@@ -738,9 +738,11 @@ function createFetchClient(
             : config;
         // `makeRequest` does not merge the defaults; feaxios takes these.
         const fetchOptions = config.fetchOptions ?? defaults.fetchOptions;
+        // In manual mode, fetch checks `integrity` against the 3xx body.
         if (
           canInspectManualRedirects() &&
-          fetchOptions?.redirect === undefined
+          fetchOptions?.redirect === undefined &&
+          fetchOptions?.integrity === undefined
         ) {
           return followRedirectsWithFeaxios(instance, bareInstance, {
             ...request,
