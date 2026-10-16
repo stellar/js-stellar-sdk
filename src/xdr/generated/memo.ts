@@ -143,6 +143,11 @@ export class MemoText extends MemoBase {
     this.text = text instanceof XdrString ? text : new XdrString(text);
   }
 
+  /**
+   * Decodes `text` leniently: invalid bytes become U+FFFD, so a
+   * value rebuilt from this string can differ on the wire. Use
+   * `text` to keep the bytes.
+   */
   get value(): string {
     return this.text.toString();
   }

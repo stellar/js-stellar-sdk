@@ -763,6 +763,11 @@ export class ScValString extends ScValBase {
     this.str = str instanceof XdrString ? str : new XdrString(str);
   }
 
+  /**
+   * Decodes `str` leniently: invalid bytes become U+FFFD, so a
+   * value rebuilt from this string can differ on the wire. Use
+   * `str` to keep the bytes.
+   */
   get value(): string {
     return this.str.toString();
   }
@@ -781,6 +786,11 @@ export class ScValSymbol extends ScValBase {
     this.sym = sym instanceof XdrString ? sym : new XdrString(sym);
   }
 
+  /**
+   * Decodes `sym` leniently: invalid bytes become U+FFFD, so a
+   * value rebuilt from this string can differ on the wire. Use
+   * `sym` to keep the bytes.
+   */
   get value(): string {
     return this.sym.toString();
   }
@@ -910,6 +920,11 @@ export class ScValExecutableTag extends ScValBase {
         : new XdrString(executableTag);
   }
 
+  /**
+   * Decodes `executableTag` leniently: invalid bytes become U+FFFD, so a
+   * value rebuilt from this string can differ on the wire. Use
+   * `executableTag` to keep the bytes.
+   */
   get value(): string {
     return this.executableTag.toString();
   }

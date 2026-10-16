@@ -17,7 +17,8 @@ import { string as stringBytes } from "@stellar/js-xdr";
 //   - accepting either a JS string (UTF-8 encoded) or bytes at construction
 //   - exposing `asString()` / `asStringOrBytes()` / `bytes` as explicit
 //     access patterns — the caller picks the semantics they want
-//   - rendering to SEP-0051's escape form for `toString()` (debug/JSON)
+//   - decoding leniently in `toString()` (invalid bytes become U+FFFD)
+//   - rendering SEP-0051's escape form in `toJson()` (debug/JSON)
 //
 // Branded by a Symbol-typed `__xdrString` so it's distinct from `string`
 // and `Uint8Array` at the type level.
@@ -29,6 +30,12 @@ export class XdrString {
   declare readonly [TAG]: true;
   readonly bytes: Uint8Array;
 
+  /**
+   * A string input is UTF-8 encoded. A lone surrogate (for example from
+   * a `slice()` that cuts a surrogate pair) encodes as U+FFFD with no
+   * error. Check `String.prototype.isWellFormed()` (ES2024) first when the
+   * input can be cut text.
+   */
   constructor(input: string | Uint8Array | XdrString) {
     if (input instanceof XdrString) {
       // The migration guide documents this branch as a copy — don't alias
