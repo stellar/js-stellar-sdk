@@ -31,5 +31,9 @@ export namespace Api {
      * Allow a timeout, default: 0. Allows user to avoid nasty lag due to TOML resolve issue.
      */
     timeout?: number;
+    /**
+     * The number of redirects to follow, as 0 or a whole number up to `Number.MAX_SAFE_INTEGER`, default: 0. Also applies to the `stellar.toml` request in `createForDomain` and `resolve`. Outside Node, the SDK relies on the runtime to refuse redirects. In a browser, the Fetch build cannot count redirects, so a value above 0 follows up to the browser's own limit. The Axios build in a browser, and both builds in React Native, follow redirects whatever this value is.
+     */
+    allowedRedirects?: number;
   }
 }
