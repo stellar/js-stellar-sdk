@@ -6,7 +6,6 @@ import type {
   CreateAxiosDefaults,
 } from "feaxios";
 import axios from "feaxios";
-import { isSafeCrossOriginHeader } from "./redirect-headers.js";
 import {
   CancelToken,
   type HttpClient,
@@ -281,6 +280,33 @@ function applyRedirectSemantics(
   return next;
 }
 
+// An allowlist also catches credential headers the SDK cannot name, such as
+// a provider API key in `opts.headers`.
+const SAFE_CROSS_ORIGIN_HEADERS = new Set([
+  "accept",
+  "accept-encoding",
+  "accept-language",
+  "content-type",
+  "content-length",
+  "content-encoding",
+  "content-language",
+  "content-location",
+  "content-range",
+  "user-agent",
+  "range",
+  "if-range",
+  "if-match",
+  "if-none-match",
+  "if-modified-since",
+  "if-unmodified-since",
+  "cache-control",
+  "pragma",
+  "x-client-name",
+  "x-client-version",
+  "x-app-name",
+  "x-app-version",
+]);
+
 // A cross-origin hop must not receive the credentials meant for the
 // original host, so it gets only the safe headers.
 function stripCrossOriginHeaders(
@@ -295,7 +321,7 @@ function stripCrossOriginHeaders(
       : new Headers(init.headers || {});
   const headers = new Headers();
   source.forEach((value, name) => {
-    if (isSafeCrossOriginHeader(name)) headers.set(name, value);
+    if (SAFE_CROSS_ORIGIN_HEADERS.has(name)) headers.set(name, value);
   });
   return { ...init, headers };
 }

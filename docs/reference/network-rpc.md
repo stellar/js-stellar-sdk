@@ -120,7 +120,7 @@ class Server {
   getContractInstance(contractId: string): Promise<ScContractInstance>;
   getContractMethods(contractId: string, networkPassphrase?: string): Promise<ContractMethod[]>;
   getContractWasmByContractId(contractId: string): Promise<Uint8Array<ArrayBufferLike>>;
-  getContractWasmByHash(wasmHash: string | Uint8Array<ArrayBufferLike>, format: "base64" | "hex" | undefined = undefined): Promise<Uint8Array<ArrayBufferLike>>;
+  getContractWasmByHash(wasmHash: string | Uint8Array<ArrayBufferLike>, format: "hex" | "base64" | undefined = undefined): Promise<Uint8Array<ArrayBufferLike>>;
   getEvents(request: GetEventsRequest): Promise<GetEventsResponse>;
   getExternalRefWasmHash(ref: ContractExecutableExternalRef): Promise<Uint8Array<ArrayBufferLike>>;
   getFeeStats(): Promise<GetFeeStatsResponse>;
@@ -673,13 +673,13 @@ deployed on the Soroban network using the contract's WASM hash. The WASM bytecod
 represents the executable code of the contract.
 
 ```ts
-getContractWasmByHash(wasmHash: string | Uint8Array<ArrayBufferLike>, format: "base64" | "hex" | undefined = undefined): Promise<Uint8Array<ArrayBufferLike>>;
+getContractWasmByHash(wasmHash: string | Uint8Array<ArrayBufferLike>, format: "hex" | "base64" | undefined = undefined): Promise<Uint8Array<ArrayBufferLike>>;
 ```
 
 **Parameters**
 
 - **`wasmHash`** — `string | Uint8Array<ArrayBufferLike>` (required) — The WASM hash of the contract
-- **`format`** — `"base64" | "hex" | undefined` (optional) (default: `undefined`)
+- **`format`** — `"hex" | "base64" | undefined` (optional) (default: `undefined`)
 
 **Returns**
 
@@ -4744,7 +4744,7 @@ allowHttp?: boolean;
 
 #### `options.headers`
 
-Additional headers that should be added to any requests to the RPC server. A redirect to another origin can receive these headers, except in Node with the Axios build or with `maxRedirects` set. In the Fetch build, set `httpClient.defaults.maxRedirects` to strip them in Node; in a browser, only `0` (refuse redirects) helps.
+Additional headers that should be added to any requests to the RPC server. A redirect to another origin can receive these headers. In the Fetch build, set `maxRedirects` on `server.httpClient.defaults` to strip them in Node, or `maxRedirects: 0` to refuse redirects.
 
 ```ts
 headers?: Record<string, string>;
