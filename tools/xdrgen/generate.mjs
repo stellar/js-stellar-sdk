@@ -1500,7 +1500,7 @@ function bodyOfUnion(rawDef, ctx) {
       if (armField === "value") {
         valueAlias = "";
       } else if (isInlineStringTypedef(a.armType)) {
-        valueAlias = `\n  get value(): string {\n    return this.${armField}.toString();\n  }\n`;
+        valueAlias = `\n  /**\n   * Decodes \`${armField}\` leniently: invalid bytes become U+FFFD, so a\n   * value rebuilt from this string can differ on the wire. Use\n   * \`${armField}\` to keep the bytes.\n   */\n  get value(): string {\n    return this.${armField}.toString();\n  }\n`;
       } else {
         valueAlias = `\n  get value(): ${valueType} {\n    return this.${armField};\n  }\n`;
       }
