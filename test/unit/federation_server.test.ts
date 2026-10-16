@@ -52,6 +52,31 @@ describe("federation-server.js tests", () => {
           }),
       ).not.toThrow();
     });
+
+    it.each([0, 1, 20, Number.MAX_SAFE_INTEGER])(
+      "accepts allowedRedirects %s",
+      (allowedRedirects) => {
+        expect(
+          () =>
+            new Server("https://acme.com:1337/federation", "stellar.org", {
+              allowedRedirects,
+            }),
+        ).not.toThrow();
+      },
+    );
+
+    // Above 2 ** 53 the redirect counter can lose its decrement.
+    it.each([-1, 1.5, NaN, Infinity, 2 ** 54, Number.MAX_VALUE])(
+      "rejects allowedRedirects %s",
+      (allowedRedirects) => {
+        expect(
+          () =>
+            new Server("https://acme.com:1337/federation", "stellar.org", {
+              allowedRedirects,
+            }),
+        ).toThrow(/allowedRedirects/);
+      },
+    );
   });
 
   describe("FederationServer.resolveAddress", () => {
@@ -177,6 +202,105 @@ describe("federation-server.js tests", () => {
     });
   });
 
+  describe("FederationServer redirects", () => {
+    const record = {
+      stellar_address: "bob*stellar.org",
+      account_id: "GB5XVAABEQMY63WTHDQ5RXADGYF345VWMNPTN2GFUDZT57D57ZQTJ7PS",
+    };
+
+    it("refuses redirects when allowedRedirects is not specified", async () => {
+      mockHttpClient.mockResolvedValue({ data: record });
+
+      await server.resolveAddress("bob*stellar.org");
+
+      expect(mockHttpClient.mock.calls[0][1].maxRedirects).toEqual(0);
+    });
+
+    it("passes allowedRedirects to the request", async () => {
+      mockHttpClient.mockResolvedValue({ data: record });
+
+      await new Server("https://acme.com:1337/federation", "stellar.org", {
+        allowedRedirects: 2,
+      }).resolveAddress("bob*stellar.org");
+
+      expect(mockHttpClient.mock.calls[0][1].maxRedirects).toEqual(2);
+    });
+
+    it("passes allowedRedirects to the stellar.toml request", async () => {
+      mockHttpClient.mockResolvedValue({
+        data: 'FEDERATION_SERVER="https://api.stellar.org/federation"',
+      });
+
+      await Server.createForDomain("acme.com", { allowedRedirects: 1 });
+
+      expect(mockHttpClient.mock.calls[0][1].maxRedirects).toEqual(1);
+    });
+
+    it("rejects redirect response when allowedRedirects is not specified", async () => {
+      // Unable to create temp server in a browser
+      if (typeof window !== "undefined") {
+        return;
+      }
+      mockHttpClient.mockRestore();
+
+      const requested: string[] = [];
+      const tempServer = http
+        .createServer((req, res) => {
+          requested.push(req.url ?? "");
+          if (req.url?.startsWith("/federation")) {
+            res.writeHead(302, { location: "/redirect" });
+            return res.end();
+          }
+          res.setHeader("Content-Type", "application/json; charset=UTF-8");
+          return res.end(JSON.stringify(record));
+        })
+        .listen(0);
+
+      try {
+        const port = (tempServer.address() as AddressInfo).port;
+        await expect(
+          new Server(`http://localhost:${port}/federation`, "stellar.org", {
+            allowHttp: true,
+          }).resolveAddress("bob*stellar.org"),
+        ).rejects.toThrow(/Server responded: 302/);
+        expect(requested).not.toContain("/redirect");
+      } finally {
+        tempServer.close();
+      }
+    });
+
+    it("returns handled redirect when allowedRedirects is specified", async () => {
+      // Unable to create temp server in a browser
+      if (typeof window !== "undefined") {
+        return;
+      }
+      mockHttpClient.mockRestore();
+
+      const tempServer = http
+        .createServer((req, res) => {
+          if (req.url?.startsWith("/federation")) {
+            res.writeHead(302, { location: "/redirect" });
+            return res.end();
+          }
+          res.setHeader("Content-Type", "application/json; charset=UTF-8");
+          return res.end(JSON.stringify(record));
+        })
+        .listen(0);
+
+      try {
+        const port = (tempServer.address() as AddressInfo).port;
+        const response = await new Server(
+          `http://localhost:${port}/federation`,
+          "stellar.org",
+          { allowHttp: true, allowedRedirects: 1 },
+        ).resolveAddress("bob*stellar.org");
+        expect(response).toEqual(record);
+      } finally {
+        tempServer.close();
+      }
+    });
+  });
+
   describe("FederationServer.createForDomain", () => {
     it("creates correct object", async () => {
       mockHttpClient.mockImplementation((url: string) => {
@@ -220,6 +344,102 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
         /stellar.toml does not contain FEDERATION_SERVER field/,
       );
     });
+
+    describe("FEDERATION_SERVER validation", () => {
+      const mockToml = (federationServer: string) =>
+        mockHttpClient.mockImplementation((url: string) => {
+          if (url.includes("://acme.com/.well-known/stellar.toml")) {
+            return Promise.resolve({
+              data: `FEDERATION_SERVER=${JSON.stringify(federationServer)}`,
+            });
+          }
+          return Promise.reject(new Error(`Unexpected URL: ${url}`));
+        });
+
+      it.each([
+        "api.stellar.org",
+        "8.8.8.8",
+        // The SDK does not check the host. A name such as 10.0.0.5.nip.io
+        // reaches the same address, so the app must filter it.
+        "10.0.0.5",
+        "127.0.0.1",
+        "169.254.169.254",
+        "[::1]",
+        "localhost",
+      ])("accepts the host %s", async (host) => {
+        mockToml(`https://${host}/federation`);
+
+        const federationServer = await Server.createForDomain("acme.com");
+
+        expect(federationServer["serverURL"].href).toEqual(
+          new URL(`https://${host}/federation`).href,
+        );
+      });
+
+      it.each([
+        "https://user:pw@api.stellar.org/federation",
+        "https://user@api.stellar.org/federation",
+        "https://:pw@api.stellar.org/federation",
+      ])(
+        "rejects the user name or password in %s",
+        async (federationServer) => {
+          mockToml(federationServer);
+
+          await expect(Server.createForDomain("acme.com")).rejects.toThrow(
+            /Invalid FEDERATION_SERVER: .*user name or password/,
+          );
+        },
+      );
+
+      it.each([
+        "ftp://api.stellar.org/federation",
+        "file:///etc/passwd",
+        "data:application/json,{}",
+      ])("rejects %s even when allowHttp is set", async (federationServer) => {
+        mockToml(federationServer);
+
+        await expect(
+          Server.createForDomain("acme.com", { allowHttp: true }),
+        ).rejects.toThrow(/Invalid FEDERATION_SERVER: .*Unsupported protocol/);
+      });
+
+      it("accepts http when allowHttp is set", async () => {
+        mockToml("http://api.stellar.org/federation");
+
+        const federationServer = await Server.createForDomain("acme.com", {
+          allowHttp: true,
+        });
+
+        expect(federationServer["serverURL"].protocol).toEqual("http:");
+      });
+
+      it("rejects a bad FEDERATION_SERVER in resolve before any federation request", async () => {
+        mockToml("https://user@api.stellar.org/federation");
+
+        await expect(Server.resolve("bob*acme.com")).rejects.toThrow(
+          /Invalid FEDERATION_SERVER/,
+        );
+        expect(mockHttpClient).toHaveBeenCalledTimes(1);
+      });
+
+      it("rejects a bad allowedRedirects before the stellar.toml request", async () => {
+        mockToml("https://api.stellar.org/federation");
+
+        await expect(
+          Server.createForDomain("acme.com", { allowedRedirects: NaN }),
+        ).rejects.toThrow(/allowedRedirects/);
+        expect(mockHttpClient).not.toHaveBeenCalled();
+      });
+
+      it("does not check the URL that the caller passes to the constructor", () => {
+        expect(
+          () =>
+            new Server("http://127.0.0.1:8000/federation", "stellar.org", {
+              allowHttp: true,
+            }),
+        ).not.toThrow();
+      });
+    });
   });
 
   describe("FederationServer.resolve", () => {
@@ -236,6 +456,22 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
       await expect(Server.resolve("invalid")).rejects.toThrow(
         /Invalid Account ID/,
       );
+    });
+
+    it("rejects a bad allowedRedirects for a Stellar address before any request", async () => {
+      await expect(
+        Server.resolve("bob*acme.com", { allowedRedirects: NaN }),
+      ).rejects.toThrow(/allowedRedirects/);
+      expect(mockHttpClient).not.toHaveBeenCalled();
+    });
+
+    it("rejects a bad allowedRedirects for an account ID", async () => {
+      await expect(
+        Server.resolve(
+          "GAFSZ3VPBC2H2DVKCEWLN3PQWZW6BVDMFROWJUDAJ3KWSOKQIJ4R5W4J",
+          { allowedRedirects: NaN },
+        ),
+      ).rejects.toThrow(/allowedRedirects/);
     });
 
     it("succeeds for a valid Stellar address", async () => {
