@@ -10,7 +10,8 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import http, { IncomingMessage, ServerResponse } from "http";
 import { AddressInfo } from "net";
-import { httpClient } from "../../src/http-client/index.js";
+import { create, httpClient } from "../../src/http-client/index.js";
+import { Horizon } from "../../src/index.js";
 
 type RequestRecord = {
   method: string;
@@ -671,6 +672,189 @@ describe("HttpClient contract", () => {
       } finally {
         await closeServer(secondary.server);
       }
+    });
+  });
+
+  // `maxRedirects` sends the Fetch build through the bounded adapter, which
+  // follows redirects itself only in Node. The Axios build keeps the header
+  // rules of `follow-redirects`.
+  describe.skipIf(
+    typeof window !== "undefined" || process.env.TRANSPORT === "axios",
+  )("cross-origin redirect keeps only safe headers", () => {
+    let secondary: Awaited<ReturnType<typeof startServer>>;
+
+    beforeEach(async () => {
+      secondary = await startServer((_req, res) => {
+        res.setHeader("Content-Type", "application/json");
+        res.writeHead(200);
+        res.end("{}");
+      });
+    });
+
+    afterEach(async () => {
+      await closeServer(secondary.server);
+    });
+
+    function redirectTo(location: string, status = 302) {
+      respond = (_req, res) => {
+        res.writeHead(status, { location });
+        res.end();
+      };
+    }
+
+    it("removes credential headers and keeps the safe set", async () => {
+      redirectTo(`${secondary.url}/after`);
+      await create().get(`${baseUrl}/start`, {
+        headers: {
+          Authorization: "Bearer secret",
+          "X-Auth-Token": "token",
+          "X-Api-Key": "key",
+          Accept: "application/json",
+          "X-Client-Name": "js-stellar-sdk",
+          "X-App-Name": "app",
+        },
+        maxRedirects: 1,
+      });
+      expect(secondary.requests).toHaveLength(1);
+      const { headers } = secondary.requests[0];
+      expect(headers.authorization).toBeUndefined();
+      expect(headers["x-auth-token"]).toBeUndefined();
+      expect(headers["x-api-key"]).toBeUndefined();
+      expect(headers.accept).toBe("application/json");
+      expect(headers["x-client-name"]).toBe("js-stellar-sdk");
+      expect(headers["x-app-name"]).toBe("app");
+    });
+
+    it("keeps range and conditional headers", async () => {
+      redirectTo(`${secondary.url}/after`);
+      await create().get(`${baseUrl}/start`, {
+        headers: {
+          Range: "bytes=0-1023",
+          "If-None-Match": '"etag"',
+          "Cache-Control": "no-cache",
+        },
+        maxRedirects: 1,
+      });
+      const { headers } = secondary.requests[0];
+      expect(headers.range).toBe("bytes=0-1023");
+      expect(headers["if-none-match"]).toBe('"etag"');
+      expect(headers["cache-control"]).toBe("no-cache");
+    });
+
+    it("compares header names case-insensitively", async () => {
+      redirectTo(`${secondary.url}/after`);
+      await create().get(`${baseUrl}/start`, {
+        headers: { "x-AUTH-token": "token", "x-client-NAME": "js-stellar-sdk" },
+        maxRedirects: 1,
+      });
+      const { headers } = secondary.requests[0];
+      expect(headers["x-auth-token"]).toBeUndefined();
+      expect(headers["x-client-name"]).toBe("js-stellar-sdk");
+    });
+
+    it("keeps every header on a same-origin redirect", async () => {
+      respond = (req, res) => {
+        if (req.url === "/start") {
+          res.writeHead(302, { location: "/after" });
+          res.end();
+          return;
+        }
+        res.writeHead(200);
+        res.end("{}");
+      };
+      await create().get(`${baseUrl}/start`, {
+        headers: { "X-Auth-Token": "token", "X-Api-Key": "key" },
+        maxRedirects: 1,
+      });
+      expect(requests).toHaveLength(2);
+      expect(requests[1].headers["x-auth-token"]).toBe("token");
+      expect(requests[1].headers["x-api-key"]).toBe("key");
+    });
+
+    it("removes credential headers on a later cross-origin hop", async () => {
+      respond = (req, res) => {
+        const location =
+          req.url === "/start" ? "/mid" : `${secondary.url}/after`;
+        res.writeHead(302, { location });
+        res.end();
+      };
+      await create().get(`${baseUrl}/start`, {
+        headers: { "X-Auth-Token": "token" },
+        maxRedirects: 2,
+      });
+      expect(requests).toHaveLength(2);
+      expect(requests[1].headers["x-auth-token"]).toBe("token");
+      expect(secondary.requests).toHaveLength(1);
+      expect(secondary.requests[0].headers["x-auth-token"]).toBeUndefined();
+    });
+
+    it("keeps the body and Content-Type on a cross-origin 307", async () => {
+      redirectTo(`${secondary.url}/after`, 307);
+      await create().post(
+        `${baseUrl}/start`,
+        { a: 1 },
+        { headers: { "X-Auth-Token": "token" }, maxRedirects: 1 },
+      );
+      const rec = secondary.requests[0];
+      expect(rec.method).toBe("POST");
+      expect(rec.body).toBe('{"a":1}');
+      expect(String(rec.headers["content-type"])).toMatch(/application\/json/);
+      expect(rec.headers["x-auth-token"]).toBeUndefined();
+    });
+
+    it("keeps the body headers with the body on a cross-origin 307", async () => {
+      redirectTo(`${secondary.url}/after`, 307);
+      await create().put(`${baseUrl}/start`, new TextEncoder().encode("def"), {
+        headers: {
+          "Content-Type": "application/octet-stream",
+          "Content-Encoding": "gzip",
+          "Content-Language": "en",
+          "Content-Location": "/doc",
+          "Content-Range": "bytes 3-5/6",
+        },
+        maxRedirects: 1,
+      });
+      const rec = secondary.requests[0];
+      expect(rec.method).toBe("PUT");
+      expect(rec.body).toBe("def");
+      expect(rec.headers).toMatchObject({
+        "content-type": "application/octet-stream",
+        "content-encoding": "gzip",
+        "content-language": "en",
+        "content-location": "/doc",
+        "content-range": "bytes 3-5/6",
+      });
+    });
+
+    it("removes a header added to the defaults after create()", async () => {
+      redirectTo(`${secondary.url}/after`);
+      const client = create({ headers: {} });
+      const defaults = client.defaults.headers;
+      if (!defaults || defaults instanceof Headers || Array.isArray(defaults)) {
+        throw new Error("expected plain-object default headers");
+      }
+      defaults["X-Api-Key"] = "key";
+      await client.get(`${baseUrl}/start`, { maxRedirects: 1 });
+      expect(requests[0].headers["x-api-key"]).toBe("key");
+      expect(secondary.requests[0].headers["x-api-key"]).toBeUndefined();
+    });
+
+    // Horizon does not set `maxRedirects`, so its default path is native
+    // `fetch`.
+    it("removes the Horizon authToken", async () => {
+      redirectTo(`${secondary.url}/after`);
+      const horizon = new Horizon.Server(baseUrl, {
+        allowHttp: true,
+        authToken: "token",
+        appName: "app",
+      });
+      horizon.httpClient.defaults.maxRedirects = 1;
+      await horizon.httpClient.get(`${baseUrl}/start`);
+      expect(requests[0].headers["x-auth-token"]).toBe("token");
+      const { headers } = secondary.requests[0];
+      expect(headers["x-auth-token"]).toBeUndefined();
+      expect(headers["x-app-name"]).toBe("app");
+      expect(headers["x-client-name"]).toBe("js-stellar-sdk");
     });
   });
 

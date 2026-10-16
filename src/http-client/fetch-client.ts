@@ -280,20 +280,49 @@ function applyRedirectSemantics(
   return next;
 }
 
-// Axios's Node adapter strips credential-bearing headers on cross-origin
-// redirects so a malicious/compromised hop can't harvest bearer tokens
-// intended for the original host. Without this the bounded adapter would
-// happily hand "Authorization: Bearer …" to whatever URL Location points
-function stripCrossOriginAuth(
+// An allowlist also catches credential headers the SDK cannot name, such as
+// a provider API key in `opts.headers`.
+const SAFE_CROSS_ORIGIN_HEADERS = new Set([
+  "accept",
+  "accept-encoding",
+  "accept-language",
+  "content-type",
+  "content-length",
+  "content-encoding",
+  "content-language",
+  "content-location",
+  "content-range",
+  "user-agent",
+  "range",
+  "if-range",
+  "if-match",
+  "if-none-match",
+  "if-modified-since",
+  "if-unmodified-since",
+  "cache-control",
+  "pragma",
+  "x-client-name",
+  "x-client-version",
+  "x-app-name",
+  "x-app-version",
+]);
+
+// A cross-origin hop must not receive the credentials meant for the
+// original host, so it gets only the safe headers.
+function stripCrossOriginHeaders(
   init: RequestInit,
   fromUrl: URL,
   toUrl: URL,
 ): RequestInit {
   if (fromUrl.origin === toUrl.origin) return init;
-  const headers = new Headers(init.headers || {});
-  headers.delete("authorization");
-  headers.delete("proxy-authorization");
-  headers.delete("cookie");
+  const source =
+    init.headers instanceof Headers
+      ? init.headers
+      : new Headers(init.headers || {});
+  const headers = new Headers();
+  source.forEach((value, name) => {
+    if (SAFE_CROSS_ORIGIN_HEADERS.has(name)) headers.set(name, value);
+  });
   return { ...init, headers };
 }
 
@@ -425,7 +454,7 @@ async function boundedFetchAdapter<T>(
       throw new Error("Redirect from https: to http: is not allowed");
     }
     currentInit = applyRedirectSemantics(currentInit, response.status);
-    currentInit = stripCrossOriginAuth(currentInit, from, target);
+    currentInit = stripCrossOriginHeaders(currentInit, from, target);
     current = target;
     redirectsRemaining -= 1;
   }

@@ -923,8 +923,9 @@ export namespace HorizonServer {
     appName?: string;
     /** Allow set custom header `X-App-Version`, default: `undefined`. */
     appVersion?: string;
-    /** Allow set custom header `X-Auth-Token`, default: `undefined`. */
+    /** Allow set custom header `X-Auth-Token`, default: `undefined`. A redirect to another origin can receive this header. In the Fetch build, set `maxRedirects` on `server.httpClient.defaults` to strip it in Node, or `maxRedirects: 0` to refuse redirects. */
     authToken?: string;
+    /** Additional headers for every request to the Horizon server. A redirect to another origin can receive these headers. In the Fetch build, set `maxRedirects` on `server.httpClient.defaults` to strip them in Node, or `maxRedirects: 0` to refuse redirects. */
     headers?: Record<string, string>;
   }
 
