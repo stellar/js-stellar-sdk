@@ -1277,11 +1277,11 @@ export class Spec {
    *          no event spec matches (e.g. when filtering a mixed stream of
    *          events from multiple contracts/specs)
    *
-   * Note that matching compares only the prefix topics and the topic count;
-   * if two event specs share both (in particular, events with no prefix
-   * topics match on arity alone), the first declared spec whose values
-   * decode successfully wins. A `vec` or `map` spec decodes only data of that
-   * container type.
+   * Note that matching compares only the prefix topics and a minimum topic
+   * count; if more than one event spec matches (in particular, events with
+   * no prefix topics match on arity alone), the first declared spec whose
+   * values decode successfully wins. A `vec` or `map` spec decodes only data
+   * of that container type.
    *
    * @example
    * ```ts

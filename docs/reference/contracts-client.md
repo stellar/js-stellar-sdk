@@ -1538,11 +1538,11 @@ the parsed event (its name plus all decoded params — topic-list
          no event spec matches (e.g. when filtering a mixed stream of
          events from multiple contracts/specs)
 
-Note that matching compares only the prefix topics and the topic count;
-if two event specs share both (in particular, events with no prefix
-topics match on arity alone), the first declared spec whose values
-decode successfully wins. A `vec` or `map` spec decodes only data of that
-container type.
+Note that matching compares only the prefix topics and a minimum topic
+count; if more than one event spec matches (in particular, events with
+no prefix topics match on arity alone), the first declared spec whose
+values decode successfully wins. A `vec` or `map` spec decodes only data
+of that container type.
 
 **Example**
 
@@ -1760,7 +1760,7 @@ interface ParsedEvent {
 
 - Spec.parseEvent
 
-**Source:** [src/contract/event_spec.ts:18](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/event_spec.ts#L18)
+**Source:** [src/contract/event_spec.ts:17](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/event_spec.ts#L17)
 
 #### `parsedEvent.data`
 
@@ -1773,7 +1773,7 @@ the topic list is just a way to mark which fields are indexed.
 data: Record<string, any>;
 ```
 
-**Source:** [src/contract/event_spec.ts:27](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/event_spec.ts#L27)
+**Source:** [src/contract/event_spec.ts:26](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/event_spec.ts#L26)
 
 #### `parsedEvent.name`
 
@@ -1783,7 +1783,7 @@ The name of the matched event (the event spec's declared name).
 name: string;
 ```
 
-**Source:** [src/contract/event_spec.ts:20](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/event_spec.ts#L20)
+**Source:** [src/contract/event_spec.ts:19](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/event_spec.ts#L19)
 
 ### contract.Result
 
