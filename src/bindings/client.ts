@@ -3,6 +3,8 @@ import {
   parseTypeFromTypeDef,
   generateTypeImports,
   sanitizeIdentifier,
+  RESERVED_CLIENT_NAMES,
+  clientMethodNames,
   escapeStringLiteral,
   propertyKey,
   formatJSDocComment,
@@ -15,6 +17,13 @@ import {
   ScSpecFunctionInputV0,
   ScSpecFunctionV0,
 } from "../xdr/index.js";
+
+// The generated class also declares `fromJson` and `fromJSON` fields.
+const GENERATED_CLIENT_NAMES: ReadonlySet<string> = new Set([
+  ...RESERVED_CLIENT_NAMES,
+  "fromJson",
+  "fromJSON",
+]);
 
 interface MethodInput {
   /** Property key in the args object type: the raw spec name, quoted if needed. */
@@ -42,6 +51,13 @@ export class ClientGenerator {
    * Generate client class
    */
   generate(): string {
+    // One function per property, so a name declared twice is written once.
+    const methodFuncs = [
+      ...clientMethodNames(
+        this.spec.funcs().map((func) => func.name.toString()),
+        GENERATED_CLIENT_NAMES,
+      ).values(),
+    ].map((name) => this.spec.getFunc(name));
     // Generate constructor method if it exists
     let deployMethod = "";
     try {
@@ -52,9 +68,7 @@ export class ClientGenerator {
       deployMethod = this.generateDeployMethod(undefined);
     }
     // Generate interface methods
-    const interfaceMethods = this.spec
-      .funcs()
-      .filter((func) => func.name.toString() !== "__constructor")
+    const interfaceMethods = methodFuncs
       .map((func) => this.generateInterfaceMethod(func))
       .join("\n");
 
@@ -64,9 +78,7 @@ export class ClientGenerator {
       (entry) => `"${entry.toXdr("base64")}"`,
     );
 
-    const fromJson = this.spec
-      .funcs()
-      .filter((func) => func.name.toString() !== "__constructor")
+    const fromJson = methodFuncs
       .map((func) => this.generateFromJsonMethod(func))
       .join(",");
 

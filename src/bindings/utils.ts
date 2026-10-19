@@ -87,6 +87,59 @@ export function sanitizeIdentifier(identifier: string): string {
 }
 
 /**
+ * Property names that a contract function must not take on a `contract.Client`
+ * instance: its own members, `then` (an `await` would call the contract), and
+ * the inherited `Object.prototype` names.
+ */
+export const RESERVED_CLIENT_NAMES: ReadonlySet<string> = new Set([
+  "spec",
+  "options",
+  "txFromJson",
+  "txFromJSON",
+  "txFromXDR",
+  "then",
+  ...Object.getOwnPropertyNames(Object.prototype),
+]);
+
+/**
+ * Map each client property to the contract function it calls. `__constructor`
+ * and functions whose property is in `reserved` get no property, so the client
+ * member keeps its value.
+ * @param names - The raw contract function names, in spec order
+ * @param reserved - Property names that a contract function must not take
+ * @returns The sanitized property name of each function, mapped to its raw name
+ * @throws If two different function names map to one property
+ */
+export function clientMethodNames(
+  names: string[],
+  reserved: ReadonlySet<string> = RESERVED_CLIENT_NAMES,
+): Map<string, string> {
+  // property -> first raw name, reserved ones included
+  const owners = new Map<string, string>();
+  const methods = new Map<string, string>();
+  for (const name of names) {
+    if (name === "__constructor") {
+      continue;
+    }
+    const property = sanitizeIdentifier(name);
+    const owner = owners.get(property);
+    if (owner !== undefined) {
+      if (owner !== name) {
+        throw new Error(
+          `Contract function "${name}" maps to the client property "${property}", which is already used by contract function "${owner}".`,
+        );
+      }
+      continue;
+    }
+    owners.set(property, name);
+    if (!reserved.has(property)) {
+      methods.set(property, name);
+    }
+  }
+  return methods;
+}
+
+/**
  * Escape a string for safe interpolation inside a double-quoted JavaScript string literal.
  */
 export function escapeStringLiteral(str: string): string {

@@ -171,4 +171,48 @@ describe("Server#getContractMethods", () => {
     expect(documented.doc).toBe("Returns the token decimals.");
     expect(undocumented).not.toHaveProperty("doc");
   });
+
+  describe("with a real contract.Client", () => {
+    // Runs the real constructor, so its method-name checks apply.
+    const fromSpec = (...names: string[]) =>
+      vi
+        .spyOn(Client, "from")
+        .mockImplementation((options) =>
+          Promise.resolve(
+            new Client(
+              new StellarSdk.contract.Spec(
+                names.map((name) =>
+                  xdr.ScSpecEntry.scSpecEntryFunctionV0(func({ name })),
+                ),
+              ),
+              options,
+            ),
+          ),
+        );
+
+    it("lists a function whose name is reserved by the client", async () => {
+      fromSpec("options", "toString", "balance");
+
+      const methods = await server.getContractMethods(
+        contractId,
+        networkPassphrase,
+      );
+
+      expect(methods.map((m: { name: string }) => m.name)).toEqual([
+        "options",
+        "toString",
+        "balance",
+      ]);
+    });
+
+    it("throws when two functions map to one client property", async () => {
+      fromSpec("delete", "delete_");
+
+      await expect(
+        server.getContractMethods(contractId, networkPassphrase),
+      ).rejects.toThrow(
+        'Contract function "delete_" maps to the client property "delete_", which is already used by contract function "delete".',
+      );
+    });
+  });
 });
