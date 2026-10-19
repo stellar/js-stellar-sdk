@@ -191,4 +191,69 @@ describe("Server#queryContract", () => {
       /no method 'missing'/,
     );
   });
+
+  it.each(["toString", "txFromXDR", "options"])(
+    "builds the call for a function named %j, which the client does not attach",
+    async (name) => {
+      const build = vi
+        .spyOn(StellarSdk.contract.AssembledTransaction, "build")
+        .mockImplementation(() => {
+          throw new Error("build called");
+        });
+      vi.spyOn(Client, "from").mockImplementation((options) =>
+        Promise.resolve(
+          new Client(
+            new StellarSdk.contract.Spec(
+              [name, "balance"].map((fn) =>
+                StellarSdk.xdr.ScSpecEntry.scSpecEntryFunctionV0(
+                  new StellarSdk.xdr.ScSpecFunctionV0({
+                    doc: "",
+                    name: fn,
+                    inputs: [],
+                    outputs: [],
+                  }),
+                ),
+              ),
+            ),
+            options,
+          ),
+        ),
+      );
+
+      await expect(
+        server.queryContract(contractId, name, {}, networkPassphrase),
+      ).rejects.toThrow("build called");
+      expect(build).toHaveBeenCalledWith(
+        expect.objectContaining({ contractId, method: name }),
+      );
+    },
+  );
+
+  it("throws for __constructor, which the client does not attach", async () => {
+    const build = vi.spyOn(StellarSdk.contract.AssembledTransaction, "build");
+    vi.spyOn(Client, "from").mockImplementation((options) =>
+      Promise.resolve(
+        new Client(
+          new StellarSdk.contract.Spec(
+            ["__constructor", "balance"].map((fn) =>
+              StellarSdk.xdr.ScSpecEntry.scSpecEntryFunctionV0(
+                new StellarSdk.xdr.ScSpecFunctionV0({
+                  doc: "",
+                  name: fn,
+                  inputs: [],
+                  outputs: [],
+                }),
+              ),
+            ),
+          ),
+          options,
+        ),
+      ),
+    );
+
+    await expect(
+      server.queryContract(contractId, "__constructor", {}, networkPassphrase),
+    ).rejects.toThrow(`Contract ${contractId} has no method '__constructor'`);
+    expect(build).not.toHaveBeenCalled();
+  });
 });

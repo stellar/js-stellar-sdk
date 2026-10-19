@@ -223,4 +223,49 @@ describe("contract.Client.deploy", () => {
       ).rejects.toMatchObject({ code: 400 });
     });
   });
+
+  describe("with colliding function names", () => {
+    const collidingWasm = wasmWithSpec(
+      ["delete", "delete_"].map((name) =>
+        xdr.ScSpecEntry.scSpecEntryFunctionV0(
+          new xdr.ScSpecFunctionV0({ doc: "", name, inputs: [], outputs: [] }),
+        ),
+      ),
+    );
+    const collidingHash = hash(collidingWasm);
+    const collidingKey = xdr.LedgerKey.contractCode(
+      new xdr.LedgerKeyContractCode({ hash: collidingHash }),
+    );
+    const collidingCode = xdr.LedgerEntryData.contractCode(
+      new xdr.ContractCodeEntry({
+        ext: xdr.ContractCodeEntryExt.fromXdr(
+          "AAAAAQAAAAAAAAAAAAAVqAAAAJwAAAADAAAAAwAAABgAAAABAAAAAQAAABEAAAAgAAABpA==",
+          "base64",
+        ),
+        hash: collidingHash,
+        code: collidingWasm,
+      }),
+    );
+
+    it("rejects before it builds the deploy transaction", async () => {
+      mockPost.mockResolvedValueOnce(
+        ledgerEntriesResponse(collidingCode, collidingKey),
+      );
+
+      await expect(
+        Client.deploy(null, {
+          wasmHash: collidingHash,
+          address: deployer,
+          networkPassphrase,
+          rpcUrl: serverUrl,
+          server,
+          simulate: false,
+        }),
+      ).rejects.toThrow(
+        'Contract function "delete_" maps to the client property "delete_", which is already used by contract function "delete".',
+      );
+      // Only the wasm fetch: nothing is simulated or sent.
+      expect(mockPost).toHaveBeenCalledTimes(1);
+    });
+  });
 });

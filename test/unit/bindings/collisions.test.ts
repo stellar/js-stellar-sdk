@@ -316,3 +316,81 @@ describe("bindings generated-name collision resolution", () => {
     expect(generator.generate()).toBe(generator.generate());
   });
 });
+
+describe("bindings client method names", () => {
+  const generate = (...names: string[]) =>
+    new ClientGenerator(new Spec(names.map(funcEntry))).generate();
+
+  it.each([
+    ["delete", "delete_", "delete_"],
+    ["__", "___", "_unnamed"],
+    ["safe-withdraw", "safe_withdraw", "safe_withdraw"],
+  ])("throws when %j and %j both map to %j", (first, second, property) => {
+    expect(() => generate(first, second)).toThrow(
+      `Contract function "${second}" maps to the client property "${property}", which is already used by contract function "${first}".`,
+    );
+  });
+
+  // Method names in the generated `interface Client` and keys of `fromJson`.
+  const generatedNames = (output: string) => ({
+    methods: [
+      ...(
+        output.match(/export interface Client \{[\s\S]*?\n\}/)?.[0] ?? ""
+      ).matchAll(/^ {2}(\w+)\(/gm),
+    ].map((m) => m[1]),
+    fromJson: [...output.matchAll(/(\w+) : this\.txFromJson/g)].map(
+      (m) => m[1],
+    ),
+  });
+
+  it.each(["fromJson", "fromJSON", "then", "toString", "__proto__", "spec"])(
+    "leaves out a function that maps to the reserved name %j",
+    (name) => {
+      expect(generatedNames(generate(name, "other"))).toEqual({
+        methods: ["other"],
+        fromJson: ["other"],
+      });
+    },
+  );
+
+  it("reserves every member of contract.Client", () => {
+    const client = new contract.Client(new Spec([funcEntry("hello")]), {
+      contractId: "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM",
+      networkPassphrase: "Standalone Network ; February 2017",
+      rpcUrl: "https://example.com",
+    });
+    const members = [
+      ...Object.keys(client).filter((name) => name !== "hello"),
+      ...Object.getOwnPropertyNames(contract.Client.prototype).filter(
+        (name) => name !== "constructor",
+      ),
+    ];
+    expect(members.length).toBeGreaterThan(0);
+    members.forEach((name) => {
+      expect(generatedNames(generate(name, "other")).methods).toEqual([
+        "other",
+      ]);
+    });
+  });
+
+  it("writes a function name that appears twice only once", () => {
+    expect(generatedNames(generate("init", "init", "other"))).toEqual({
+      methods: ["init", "other"],
+      fromJson: ["init", "other"],
+    });
+  });
+
+  it("allows the same raw name twice and a single reserved word", () => {
+    expect(() => generate("init", "init", "delete")).not.toThrow();
+  });
+
+  it("writes a function whose name an earlier type entry also uses", () => {
+    const output = new ClientGenerator(
+      new Spec([structEntry("transfer"), funcEntry("transfer")]),
+    ).generate();
+    expect(generatedNames(output)).toEqual({
+      methods: ["transfer"],
+      fromJson: ["transfer"],
+    });
+  });
+});
