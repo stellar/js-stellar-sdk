@@ -383,4 +383,14 @@ describe("bindings client method names", () => {
   it("allows the same raw name twice and a single reserved word", () => {
     expect(() => generate("init", "init", "delete")).not.toThrow();
   });
+
+  it("writes a function whose name an earlier type entry also uses", () => {
+    const output = new ClientGenerator(
+      new Spec([structEntry("transfer"), funcEntry("transfer")]),
+    ).generate();
+    expect(generatedNames(output)).toEqual({
+      methods: ["transfer"],
+      fromJson: ["transfer"],
+    });
+  });
 });

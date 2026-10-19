@@ -228,4 +228,32 @@ describe("Server#queryContract", () => {
       );
     },
   );
+
+  it("throws for __constructor, which the client does not attach", async () => {
+    const build = vi.spyOn(StellarSdk.contract.AssembledTransaction, "build");
+    vi.spyOn(Client, "from").mockImplementation((options) =>
+      Promise.resolve(
+        new Client(
+          new StellarSdk.contract.Spec(
+            ["__constructor", "balance"].map((fn) =>
+              StellarSdk.xdr.ScSpecEntry.scSpecEntryFunctionV0(
+                new StellarSdk.xdr.ScSpecFunctionV0({
+                  doc: "",
+                  name: fn,
+                  inputs: [],
+                  outputs: [],
+                }),
+              ),
+            ),
+          ),
+          options,
+        ),
+      ),
+    );
+
+    await expect(
+      server.queryContract(contractId, "__constructor", {}, networkPassphrase),
+    ).rejects.toThrow(`Contract ${contractId} has no method '__constructor'`);
+    expect(build).not.toHaveBeenCalled();
+  });
 });

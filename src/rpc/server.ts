@@ -905,36 +905,47 @@ export class RpcServer {
     // Validate against the contract spec (keyed by the real on-chain name)
     // first, so a `method` that names a built-in `Client`/prototype member
     // (e.g. `txFromJson`) but no contract function is rejected.
-    const names = client.spec.funcs().map((fn) => fn.name.toString());
-    if (!names.includes(method)) {
+    const isContractMethod = client.spec
+      .funcs()
+      .some((fn) => fn.name.toString() === method);
+    if (!isContractMethod) {
       throw new TypeError(`Contract ${contractId} has no method '${method}'`);
     }
 
-    // Resolve the property the `Client` constructor attached for this on-chain
-    // name (e.g. `delete` becomes `delete_`). A function whose name the client
-    // reserves, such as `toString`, has no property, so its call is built
-    // directly and a built-in member is never invoked in its place.
-    const { clientMethodNames } = await import("../bindings/utils.js");
-    const property = [...clientMethodNames(names)].find(
-      ([, name]) => name === method,
-    )?.[0];
-
-    // Methods are attached dynamically from the spec, so they aren't on the
-    // static `Client` type — hence the cast.
-    const invoke =
-      property === undefined
-        ? undefined
-        : (client as unknown as Record<string, unknown>)[property];
+    // The `Client` constructor attaches each method under a sanitized
+    // identifier (e.g. `delete` becomes `delete_`), and it already threw on a
+    // collision. A function whose identifier the client reserves, such as
+    // `toString`, is not attached, so its call is built directly and a
+    // built-in member is never invoked in its place.
+    const { RESERVED_CLIENT_NAMES, sanitizeIdentifier } =
+      await import("../bindings/utils.js");
+    const property = sanitizeIdentifier(method);
 
     // Awaiting builds + simulates the read-only call (`simulate` defaults to
     // true); `.result` is the spec-decoded return value and `.isReadCall`
     // reports whether this call wrote no state and needed no auth.
-    const assembled =
-      typeof invoke === "function"
-        ? await invoke(args)
-        : await (
-            await import("../contract/method_call.js")
-          ).buildMethodCall(client.spec, client.options, method, args);
+    if (RESERVED_CLIENT_NAMES.has(property)) {
+      const { buildMethodCall } = await import("../contract/method_call.js");
+      const assembled = await buildMethodCall(
+        client.spec,
+        client.options,
+        method,
+        args,
+      );
+      return {
+        result: assembled.result as T,
+        isReadCall: assembled.isReadCall,
+      };
+    }
+
+    // Methods are attached dynamically from the spec, so they aren't on the
+    // static `Client` type — hence the cast. `__constructor` is never attached.
+    const invoke = (client as unknown as Record<string, unknown>)[property];
+    if (typeof invoke !== "function") {
+      throw new TypeError(`Contract ${contractId} has no method '${method}'`);
+    }
+
+    const assembled = await invoke(args);
     return { result: assembled.result as T, isReadCall: assembled.isReadCall };
   }
 

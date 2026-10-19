@@ -4,14 +4,13 @@ import type { ClientOptions, MethodOptions } from "./types.js";
 import type { ScVal } from "../xdr/index.js";
 
 /**
- * Build the call to a contract function by its on-chain name, as a
- * `contract.Client` method does. Not exported from the package.
+ * Build the call to a contract function by its on-chain name, as a `contract.Client` method does. Not exported from the package.
  */
 export function buildMethodCall(
   spec: Spec,
   options: ClientOptions,
   method: string,
-  args?: Record<string, any>,
+  args?: Record<string, unknown>,
   methodOptions?: MethodOptions,
 ) {
   return AssembledTransaction.build({

@@ -51,13 +51,16 @@ export class ClientGenerator {
    * Generate client class
    */
   generate(): string {
-    // One function per property, so a name declared twice is written once.
-    const methodFuncs = [
-      ...clientMethodNames(
+    const methodNames = new Set(
+      clientMethodNames(
         this.spec.funcs().map((func) => func.name.toString()),
         GENERATED_CLIENT_NAMES,
       ).values(),
-    ].map((name) => this.spec.getFunc(name));
+    );
+    // `delete` is true only once, so a name declared twice is written once.
+    const methodFuncs = this.spec
+      .funcs()
+      .filter((func) => methodNames.delete(func.name.toString()));
     // Generate constructor method if it exists
     let deployMethod = "";
     try {
