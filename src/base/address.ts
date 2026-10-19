@@ -13,6 +13,7 @@ import {
   ScVal,
   Uint64,
 } from "../xdr/index.js";
+import { assertBigIntFits } from "../xdr/values/bigint-parts.js";
 
 /**
  * Create a new Address object.
@@ -174,6 +175,7 @@ export class Address {
       case "scAddressTypeMuxedContract": {
         // The strkey payload puts the contract ID first, unlike the XDR struct.
         const muxed = scAddress.value;
+        assertBigIntFits(muxed.id, false, 64, "MuxedContract.id");
         const raw = new Uint8Array(40);
         raw.set(muxed.contractId.value, 0);
         new DataView(raw.buffer).setBigUint64(32, muxed.id);

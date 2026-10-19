@@ -435,6 +435,7 @@ interface Med25519Wire {
 }
 
 function med25519ToStrkey(w: Med25519Wire): string {
+  assertBigIntFits(w.id, false, 64, "MuxedEd25519Account.id");
   const payload = new Uint8Array(40);
   payload.set(w.ed25519, 0);
   asDataView(payload).setBigUint64(32, w.id);
@@ -451,6 +452,7 @@ function med25519FromStrkey(json: string): Med25519Wire {
 
 // The strkey payload puts the contract ID first, unlike the XDR struct.
 function muxedContractToStrkey(w: MuxedContractWire): string {
+  assertBigIntFits(w.id, false, 64, "MuxedContract.id");
   const payload = new Uint8Array(40);
   payload.set(w.contractId, 0);
   asDataView(payload).setBigUint64(32, w.id);

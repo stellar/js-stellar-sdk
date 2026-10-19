@@ -151,6 +151,20 @@ describe("Address", () => {
         }
       });
 
+      it("rejects muxed-contract IDs outside uint64", () => {
+        for (const id of [-1n, 2n ** 64n]) {
+          const sc = xdr.ScAddress.scAddressTypeMuxedContract(
+            new xdr.MuxedContract({
+              id,
+              contractId: new xdr.ContractId(
+                StrKey.decodeContract(MUXED_CONTRACT_BASE),
+              ),
+            }),
+          );
+          expect(() => Address.fromScAddress(sc)).toThrow(/out of range/);
+        }
+      });
+
       it("parses claimable-balance addresses", () => {
         const sc = xdr.ScAddress.scAddressTypeClaimableBalance(
           xdr.ClaimableBalanceId.claimableBalanceIdTypeV0(

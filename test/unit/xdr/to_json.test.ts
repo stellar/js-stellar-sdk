@@ -170,6 +170,25 @@ describe("walker — overrides (StrKey)", () => {
     );
   });
 
+  it("rejects muxed IDs outside uint64 instead of wrapping them", () => {
+    for (const id of [-1n, 2n ** 64n]) {
+      const muxedContract = new MuxedContract({
+        id,
+        contractId: new ContractId(ED),
+      });
+      expect(() => muxedContract.toJson()).toThrow(/out of range/);
+      expect(() =>
+        ScAddress.scAddressTypeMuxedContract(muxedContract).toJson(),
+      ).toThrow(/out of range/);
+
+      const muxedAccount = new MuxedEd25519Account({ id, ed25519: ED });
+      expect(() => muxedAccount.toJson()).toThrow(/out of range/);
+      expect(() =>
+        ScAddress.scAddressTypeMuxedAccount(muxedAccount).toJson(),
+      ).toThrow(/out of range/);
+    }
+  });
+
   // Keyed by variant name so a new ScAddress arm fails to typecheck here until
   // it has a sample.
   const scAddressSamples: Record<ScAddressVariantName, ScAddress> = {
