@@ -64,6 +64,7 @@ export {
   encodeMuxedAccountToAddress,
   extractBaseAddress,
   encodeMuxedAccount,
+  encodeMuxedContractAddress,
 } from "./util/decode_encode_muxed_account.js";
 
 //

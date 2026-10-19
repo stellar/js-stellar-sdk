@@ -1317,32 +1317,41 @@ describe("AssembledTransaction auth entry credential types (CAP-71)", () => {
       );
     });
 
-    it("rejects a contract signerAddress and points at a custom authorizeEntry", async () => {
-      const entry = authEntry(addressCred(kpA.publicKey()));
-      const wallet = contract.basicNodeSigner(kpA, networkPassphrase);
-      const contractId = StellarSdk.StrKey.encodeContract(
-        new Uint8Array(32).fill(7),
-      );
-      const assembled = assembledWith([entry], {
-        signAuthEntry: async (preimage: string) => ({
-          ...(await wallet.signAuthEntry(preimage)),
-          signerAddress: contractId,
-        }),
-      });
+    it.each([
+      [
+        "contract",
+        StellarSdk.StrKey.encodeContract(new Uint8Array(32).fill(7)),
+      ],
+      [
+        "muxed contract",
+        StellarSdk.StrKey.encodeMuxedContract(new Uint8Array(40).fill(7)),
+      ],
+    ])(
+      "rejects a %s signerAddress and points at a custom authorizeEntry",
+      async (_kind, contractId) => {
+        const entry = authEntry(addressCred(kpA.publicKey()));
+        const wallet = contract.basicNodeSigner(kpA, networkPassphrase);
+        const assembled = assembledWith([entry], {
+          signAuthEntry: async (preimage: string) => ({
+            ...(await wallet.signAuthEntry(preimage)),
+            signerAddress: contractId,
+          }),
+        });
 
-      await expect(
-        assembled.signAuthEntries({
-          expiration: 1000,
-          address: kpA.publicKey(),
-        }),
-      ).rejects.toThrow(
-        new TypeError(
-          `the wallet's signerAddress names contract ${contractId}, but the ` +
-            "default authorizer verifies Ed25519 signatures only; sign for a " +
-            "contract account with a custom `authorizeEntry`",
-        ),
-      );
-    });
+        await expect(
+          assembled.signAuthEntries({
+            expiration: 1000,
+            address: kpA.publicKey(),
+          }),
+        ).rejects.toThrow(
+          new TypeError(
+            `the wallet's signerAddress names contract ${contractId}, but the ` +
+              "default authorizer verifies Ed25519 signatures only; sign for a " +
+              "contract account with a custom `authorizeEntry`",
+          ),
+        );
+      },
+    );
 
     it("reports a custom authorizer that signed nothing, naming the address default", async () => {
       // A custom authorizer skips the `needsNonInvokerSigningBy` pre-flight, so

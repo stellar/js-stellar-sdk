@@ -40,6 +40,17 @@ describe("Contract", () => {
           ),
       ).toThrow(/Invalid contract ID/);
     });
+
+    it("throws on a muxed contract strkey and names the base address", () => {
+      expect(
+        () =>
+          new Contract(
+            "WA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJVAAAAAAAAAAAACWJY",
+          ),
+      ).toThrow(
+        /is a muxed contract address; use its base address \(C\.\.\.\)/,
+      );
+    });
   });
 
   describe("contractId", () => {

@@ -9,6 +9,7 @@ import {
   nativeToScVal,
   scValToNative,
 } from "../base/index.js";
+import { assertNotMuxed } from "../base/address.js";
 import { Ok, Err } from "./rust_result.js";
 import { processSpecEntryStream } from "./utils.js";
 import { specFromWasm } from "./wasm_spec_parser.js";
@@ -100,6 +101,16 @@ function findCase(name: string) {
   };
 }
 
+// The host rejects muxed (M... / W...) addresses for `Address` parameters;
+// only `MuxedAddress` parameters accept them.
+function plainAddress(address: Address): Address {
+  assertNotMuxed(
+    address,
+    "is not allowed for an Address parameter; the parameter must be MuxedAddress",
+  );
+  return address;
+}
+
 function stringToScVal(str: string, ty: string): ScVal {
   switch (ty) {
     case "scSpecTypeString":
@@ -107,6 +118,7 @@ function stringToScVal(str: string, ty: string): ScVal {
     case "scSpecTypeSymbol":
       return ScVal.scvSymbol(str);
     case "scSpecTypeAddress":
+      return plainAddress(Address.fromString(str)).toScVal();
     case "scSpecTypeMuxedAddress":
       return Address.fromString(str).toScVal();
     case "scSpecTypeU64":
@@ -203,7 +215,7 @@ const PRIMITIVE_DEFINITONS: { [key: string]: JSONSchema7Definition } = {
     type: "string",
     format: "address",
     description:
-      "Stellar public key with M prefix combining a G address and unique ID",
+      "Account or contract address, optionally muxed: an M address (G address plus ID) or W address (C address plus ID)",
   },
   ScString: {
     type: "string",
@@ -734,22 +746,18 @@ export class Spec {
           return val;
         }
 
-        if (val instanceof Address) {
-          if (ty.type !== "scSpecTypeAddress") {
-            throw new TypeError(
-              `Type ${ty} was not address, but value was Address`,
-            );
+        if (val instanceof Address || val instanceof Contract) {
+          const address = val instanceof Contract ? val.address() : val;
+          switch (ty.type) {
+            case "scSpecTypeAddress":
+              return plainAddress(address).toScVal();
+            case "scSpecTypeMuxedAddress":
+              return address.toScVal();
+            default:
+              throw new TypeError(
+                `Type ${ty} was not address, but value was Address`,
+              );
           }
-          return val.toScVal();
-        }
-
-        if (val instanceof Contract) {
-          if (ty.type !== "scSpecTypeAddress") {
-            throw new TypeError(
-              `Type ${ty} was not address, but value was Address`,
-            );
-          }
-          return val.address().toScVal();
         }
 
         if (val instanceof Uint8Array) {

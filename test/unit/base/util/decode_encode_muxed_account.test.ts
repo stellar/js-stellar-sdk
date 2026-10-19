@@ -3,6 +3,7 @@ import {
   decodeAddressToMuxedAccount,
   encodeMuxedAccountToAddress,
   encodeMuxedAccount,
+  encodeMuxedContractAddress,
   extractBaseAddress,
 } from "../../../../src/base/util/decode_encode_muxed_account.js";
 import { StrKey } from "../../../../src/base/strkey.js";
@@ -11,6 +12,12 @@ import * as xdr from "../../../../src/xdr/index.js";
 const PUBKEY = "GA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJVSGZ";
 const MPUBKEY =
   "MA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJVAAAAAAAAAAAAAJLK";
+
+// SEP-23 (stellar-protocol#2020) vectors
+const CONTRACT = "CA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJUWDA";
+const WCONTRACT =
+  "WA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJVAAAAAAAAAAAACWJY";
+const WCONTRACT_ID = "9223372036854775808";
 
 const MUXED_CASES = [
   {
@@ -179,9 +186,59 @@ describe("extractBaseAddress", () => {
     },
   );
 
+  it("returns C... address unchanged", () => {
+    expect(extractBaseAddress(CONTRACT)).toBe(CONTRACT);
+  });
+
+  it("extracts C... address from a W... address", () => {
+    expect(extractBaseAddress(WCONTRACT)).toBe(CONTRACT);
+  });
+
   it("throws for an invalid address", () => {
     expect(() => extractBaseAddress("INVALIDADDRESS")).toThrow(
-      /expected muxed account/,
+      /expected an account or contract address/,
     );
+  });
+});
+
+describe("encodeMuxedContractAddress", () => {
+  it("encodes the SEP-23 vector", () => {
+    expect(encodeMuxedContractAddress(CONTRACT, WCONTRACT_ID)).toBe(WCONTRACT);
+  });
+
+  it("round-trips with extractBaseAddress and the strkey payload", () => {
+    for (const id of ["0", "1234", "18446744073709551615"]) {
+      const w = encodeMuxedContractAddress(CONTRACT, id);
+      expect(extractBaseAddress(w)).toBe(CONTRACT);
+      const raw = StrKey.decodeMuxedContract(w);
+      expect(new DataView(raw.buffer, raw.byteOffset).getBigUint64(32)).toBe(
+        BigInt(id),
+      );
+    }
+  });
+
+  it("encodes an ID with leading zeros as its canonical form", () => {
+    expect(encodeMuxedContractAddress(CONTRACT, "016")).toBe(
+      encodeMuxedContractAddress(CONTRACT, "16"),
+    );
+  });
+
+  it("rejects an id that is not a uint64 in decimal digits", () => {
+    for (const id of ["0x10", "-1", " 16 ", "", "1.5"]) {
+      expect(() => encodeMuxedContractAddress(CONTRACT, id)).toThrow(
+        /id is not a valid uint64 string/,
+      );
+    }
+    expect(() =>
+      encodeMuxedContractAddress(CONTRACT, "18446744073709551616"),
+    ).toThrow(/id value out of range/);
+  });
+
+  it("rejects an address that is not a C... address", () => {
+    for (const address of [PUBKEY, MPUBKEY, WCONTRACT, "INVALID"]) {
+      expect(() => encodeMuxedContractAddress(address, "1")).toThrow(
+        /contractId should be a contract address/,
+      );
+    }
   });
 });

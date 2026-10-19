@@ -38,6 +38,8 @@ import {
   type Int256Parts,
 } from "./bigint-parts.js";
 import { StrKey } from "../../base/strkey.js";
+import type { ScAddressWire } from "../generated/sc-address.js";
+import type { MuxedContractWire } from "../generated/muxed-contract.js";
 
 // The enum's camelized `member_prefix`, stripped before snake_casing to
 // recover the SEP-0051 JSON name. `memberPrefix` is attached by
@@ -433,6 +435,7 @@ interface Med25519Wire {
 }
 
 function med25519ToStrkey(w: Med25519Wire): string {
+  assertBigIntFits(w.id, false, 64, "MuxedEd25519Account.id");
   const payload = new Uint8Array(40);
   payload.set(w.ed25519, 0);
   asDataView(payload).setBigUint64(32, w.id);
@@ -444,6 +447,23 @@ function med25519FromStrkey(json: string): Med25519Wire {
   return {
     id: asDataView(raw).getBigUint64(32),
     ed25519: raw.subarray(0, 32),
+  };
+}
+
+// The strkey payload puts the contract ID first, unlike the XDR struct.
+function muxedContractToStrkey(w: MuxedContractWire): string {
+  assertBigIntFits(w.id, false, 64, "MuxedContract.id");
+  const payload = new Uint8Array(40);
+  payload.set(w.contractId, 0);
+  asDataView(payload).setBigUint64(32, w.id);
+  return StrKey.encodeMuxedContract(payload);
+}
+
+function muxedContractFromStrkey(json: string): MuxedContractWire {
+  const raw = StrKey.decodeMuxedContract(json);
+  return {
+    id: asDataView(raw).getBigUint64(32),
+    contractId: raw.subarray(0, 32),
   };
 }
 
@@ -536,6 +556,19 @@ const MED25519_OVERRIDE: JsonOverride = {
 OVERRIDES.set("MuxedEd25519Account", MED25519_OVERRIDE);
 OVERRIDES.set("MuxedAccountMed25519", MED25519_OVERRIDE);
 
+// A standalone muxed contract renders as a W-address in the reference.
+OVERRIDES.set("MuxedContract", {
+  toJson(wire) {
+    return muxedContractToStrkey(wire as MuxedContractWire);
+  },
+  fromJson(json) {
+    if (typeof json !== "string") {
+      throw new XdrError("MuxedContract: expected W-strkey string");
+    }
+    return muxedContractFromStrkey(json);
+  },
+});
+
 OVERRIDES.set("SignerKey", {
   toJson(wire) {
     const w = wire as
@@ -602,18 +635,9 @@ OVERRIDES.set("SignerKeyEd25519SignedPayload", {
 
 OVERRIDES.set("ScAddress", {
   toJson(wire) {
-    const w = wire as
-      | { type: 0; accountId: { type: 0; ed25519: Uint8Array } }
-      | { type: 1; contractId: Uint8Array }
-      | {
-          type: 2;
-          muxedAccount: { id: bigint; ed25519: Uint8Array };
-        }
-      | {
-          type: 3;
-          claimableBalanceId: { type: 0; v0: Uint8Array };
-        }
-      | { type: 4; liquidityPoolId: Uint8Array };
+    // Typed against the generated wire so a new arm fails to compile here
+    // instead of serializing to `undefined`.
+    const w = wire as ScAddressWire;
     switch (w.type) {
       case 0:
         return StrKey.encodeEd25519PublicKey(w.accountId.ed25519);
@@ -630,6 +654,14 @@ OVERRIDES.set("ScAddress", {
       }
       case 4:
         return StrKey.encodeLiquidityPool(w.liquidityPoolId);
+      case 5:
+        return muxedContractToStrkey(w.muxedContract);
+      default: {
+        const unknown: never = w;
+        throw new XdrError(
+          `ScAddress: unsupported type ${(unknown as { type: number }).type}`,
+        );
+      }
     }
   },
   fromJson(json) {
@@ -666,6 +698,9 @@ OVERRIDES.set("ScAddress", {
         type: 4,
         liquidityPoolId: StrKey.decodeLiquidityPool(json),
       };
+    }
+    if (json.startsWith("W")) {
+      return { type: 5, muxedContract: muxedContractFromStrkey(json) };
     }
     throw new XdrError(`ScAddress: unsupported strkey prefix in ${json}`);
   },

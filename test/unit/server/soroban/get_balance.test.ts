@@ -3,7 +3,7 @@ import * as StellarSdk from "../../../../src/index.js";
 
 import { serverUrl } from "../../../constants.js";
 
-const { Address, Asset, Keypair, Networks, xdr, nativeToScVal, rpc } =
+const { Address, Asset, Keypair, Networks, StrKey, xdr, nativeToScVal, rpc } =
   StellarSdk;
 const { Server } = rpc;
 
@@ -164,6 +164,45 @@ describe("Server#getSACBalance|getAssetBalance", () => {
       params: null,
     });
     expect(mockPost).toHaveBeenCalledTimes(2);
+  });
+
+  it("rejects muxed addresses", async () => {
+    const muxedContract = Address.muxedContract(
+      new Uint8Array([
+        ...StrKey.decodeContract(contract),
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        7,
+      ]),
+    ).toString();
+    const muxedAccount = StrKey.encodeMed25519PublicKey(
+      new Uint8Array([
+        ...Keypair.random().rawPublicKey(),
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        7,
+      ]),
+    );
+
+    for (const muxed of [muxedContract, muxedAccount]) {
+      await expect(
+        server.getSACBalance(muxed, token, Networks.TESTNET),
+      ).rejects.toThrow(/use its base address/);
+      await expect(
+        server.getAssetBalance(muxed, token, Networks.TESTNET),
+      ).rejects.toThrow(/use its base address/);
+    }
+    expect(mockPost).not.toHaveBeenCalled();
   });
 
   it("throws on account addresses", async () => {
