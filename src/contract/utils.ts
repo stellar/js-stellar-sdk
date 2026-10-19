@@ -164,9 +164,8 @@ export function parseWasmCustomSections(
           const name = new TextDecoder("utf-8", { fatal: true }).decode(
             nameBytes,
           );
-          if (payload.length > 0) {
-            sections.set(name, (sections.get(name) || []).concat(payload));
-          }
+          // Empty payloads are kept so callers can count every section.
+          sections.set(name, (sections.get(name) || []).concat(payload));
         } catch {
           /* Invalid UTF-8 */
         }

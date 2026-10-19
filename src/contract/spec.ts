@@ -532,6 +532,7 @@ export class Spec {
    * @param wasm - The contract's wasm binary as a Uint8Array.
    * @returns A Promise that resolves to a Spec instance.
    * @throws If the contract spec cannot be obtained from the provided wasm binary.
+   * @throws If the wasm binary has more than one `contractspecv0` section.
    */
   static fromWasm(wasm: Uint8Array): Spec {
     const spec = specFromWasm(wasm);

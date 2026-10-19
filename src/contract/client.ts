@@ -233,6 +233,7 @@ export class Client {
    * @param options - The ClientOptions object containing the necessary configuration.
    * @returns A Promise that resolves to a Client instance.
    * @throws If the contract spec cannot be obtained from the provided wasm binary.
+   * @throws If the wasm binary has more than one `contractspecv0` section.
    *
    * @example
    * ```ts

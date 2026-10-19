@@ -14,21 +14,24 @@ function leb128(value: number): Uint8Array {
   return Uint8Array.from(bytes);
 }
 
-// Builds a minimal valid WASM binary whose only content is a `contractspecv0`
-// custom section carrying the given spec entries. This is browser-safe (pure
-// Uint8Array ops, no filesystem) and is enough for `Spec.fromWasm` to parse,
-// which only scans for that custom section.
+// Builds a minimal valid WASM binary whose only content is one `contractspecv0`
+// custom section per argument, each carrying the given spec entries (an empty
+// array gives an empty section). This is browser-safe (pure Uint8Array ops, no
+// filesystem) and is enough for `Spec.fromWasm` to parse, which only scans for
+// that custom section.
 export function wasmWithSpec(
-  entries: StellarSdk.xdr.ScSpecEntry[],
+  ...sections: StellarSdk.xdr.ScSpecEntry[][]
 ): Uint8Array {
   const name = stringToUint8Array("contractspecv0");
-  const payload = concatUint8Arrays(entries.map((e) => e.toXdr()));
-  const sectionBody = concatUint8Arrays([leb128(name.length), name, payload]);
-  const customSection = concatUint8Arrays([
-    Uint8Array.of(0x00), // custom section id
-    leb128(sectionBody.length),
-    sectionBody,
-  ]);
+  const customSections = sections.map((entries) => {
+    const payload = concatUint8Arrays(entries.map((e) => e.toXdr()));
+    const sectionBody = concatUint8Arrays([leb128(name.length), name, payload]);
+    return concatUint8Arrays([
+      Uint8Array.of(0x00), // custom section id
+      leb128(sectionBody.length),
+      sectionBody,
+    ]);
+  });
   const header = Uint8Array.of(
     0x00,
     0x61,
@@ -39,5 +42,5 @@ export function wasmWithSpec(
     0x00,
     0x00, // version 1
   );
-  return concatUint8Arrays([header, customSection]);
+  return concatUint8Arrays([header, ...customSections]);
 }
