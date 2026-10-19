@@ -6944,7 +6944,7 @@ appVersion?: string;
 
 #### `options.authToken`
 
-Allow set custom header `X-Auth-Token`, default: `undefined`.
+Allow set custom header `X-Auth-Token`, default: `undefined`. A redirect to another origin can receive this header. In the Fetch build, set `maxRedirects` on `server.httpClient.defaults` to strip it in Node, or `maxRedirects: 0` to refuse redirects.
 
 ```ts
 authToken?: string;
@@ -6954,11 +6954,13 @@ authToken?: string;
 
 #### `options.headers`
 
+Additional headers for every request to the Horizon server. A redirect to another origin can receive these headers. In the Fetch build, set `maxRedirects` on `server.httpClient.defaults` to strip them in Node, or `maxRedirects: 0` to refuse redirects.
+
 ```ts
 headers?: Record<string, string>;
 ```
 
-**Source:** [src/horizon/server.ts:928](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L928)
+**Source:** [src/horizon/server.ts:929](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L929)
 
 ### Horizon.Server.SubmitTransactionOptions
 
@@ -6968,7 +6970,7 @@ interface SubmitTransactionOptions {
 }
 ```
 
-**Source:** [src/horizon/server.ts:936](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L936)
+**Source:** [src/horizon/server.ts:937](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L937)
 
 #### `submitTransactionOptions.skipMemoRequiredCheck`
 
@@ -6976,7 +6978,7 @@ interface SubmitTransactionOptions {
 skipMemoRequiredCheck?: boolean;
 ```
 
-**Source:** [src/horizon/server.ts:937](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L937)
+**Source:** [src/horizon/server.ts:938](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L938)
 
 ### Horizon.Server.Timebounds
 
@@ -6987,7 +6989,7 @@ interface Timebounds {
 }
 ```
 
-**Source:** [src/horizon/server.ts:931](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L931)
+**Source:** [src/horizon/server.ts:932](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L932)
 
 #### `timebounds.maxTime`
 
@@ -6995,7 +6997,7 @@ interface Timebounds {
 maxTime: number;
 ```
 
-**Source:** [src/horizon/server.ts:933](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L933)
+**Source:** [src/horizon/server.ts:934](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L934)
 
 #### `timebounds.minTime`
 
@@ -7003,7 +7005,7 @@ maxTime: number;
 minTime: number;
 ```
 
-**Source:** [src/horizon/server.ts:932](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L932)
+**Source:** [src/horizon/server.ts:933](https://github.com/stellar/js-stellar-sdk/blob/main/src/horizon/server.ts#L933)
 
 ### Horizon.ServerApi.AccountMergeOperationRecord
 

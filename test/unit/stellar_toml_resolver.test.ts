@@ -3,6 +3,7 @@ import http from "http";
 import { AddressInfo } from "net";
 import * as StellarSdk from "../../src/index.js";
 import { httpClient } from "../../src/http-client/index.js";
+import { validateAllowedRedirects } from "../../src/stellartoml/utils.js";
 
 const { StellarToml, Config } = StellarSdk;
 const { Resolver, STELLAR_TOML_MAX_SIZE } = StellarToml;
@@ -285,6 +286,39 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
       }
     });
 
+    // `NaN` and `Infinity` make the redirect counter never reach 0.
+    it.each([-1, 1.5, NaN, Infinity, 2 ** 54])(
+      "rejects allowedRedirects %s before the request",
+      async (allowedRedirects) => {
+        mockHttpClient.mockResolvedValue({ data: 'VERSION="2.0.0"' });
+
+        await expect(
+          Resolver.resolve("acme.com", { allowedRedirects }),
+        ).rejects.toThrow(/allowedRedirects/);
+        expect(mockHttpClient).not.toHaveBeenCalled();
+      },
+    );
+
+    it.each([undefined, 0, Number.MAX_SAFE_INTEGER])(
+      "sends allowedRedirects %s as maxRedirects",
+      async (allowedRedirects) => {
+        mockHttpClient.mockResolvedValue({ data: 'VERSION="2.0.0"' });
+
+        await expect(
+          Resolver.resolve("acme.com", { allowedRedirects }),
+        ).resolves.toEqual({ VERSION: "2.0.0" });
+        expect(mockHttpClient.mock.calls[0][1].maxRedirects).toBe(
+          allowedRedirects ?? 0,
+        );
+      },
+    );
+
+    it("checks the domain before allowedRedirects, as createForDomain does", async () => {
+      await expect(
+        Resolver.resolve("acme.com/evil", { allowedRedirects: NaN }),
+      ).rejects.toThrow(/Invalid domain/);
+    });
+
     describe("domain validation", () => {
       it.each([
         "legitimate-bank.com@127.0.0.1:8000",
@@ -388,5 +422,24 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
         );
       });
     });
+  });
+
+  // Plain-JS callers can pass any value, so the helper takes `unknown`.
+  describe("validateAllowedRedirects", () => {
+    it.each([undefined, null, 0, 1, Number.MAX_SAFE_INTEGER])(
+      "accepts %s",
+      (allowedRedirects) => {
+        expect(() => validateAllowedRedirects(allowedRedirects)).not.toThrow();
+      },
+    );
+
+    it.each([-1, 1.5, NaN, Infinity, 2 ** 54, "2", "", {}, true, 1n])(
+      "rejects %s",
+      (allowedRedirects) => {
+        expect(() => validateAllowedRedirects(allowedRedirects)).toThrow(
+          /allowedRedirects/,
+        );
+      },
+    );
   });
 });

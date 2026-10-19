@@ -1,7 +1,6 @@
 import {
   ScSpecEntry,
   ScSpecEntryEventV0,
-  ScSpecEventDataFormat,
   ScSpecEventParamLocationV0,
   ScSpecEventParamV0,
   ScSpecEventV0,
@@ -149,9 +148,10 @@ function matchesTopics(
  * @returns the parsed event, or `undefined` if no event spec matches
  *
  * Matching compares only the prefix topics and a minimum topic count, so if
- * two event specs share both (in particular, events with no prefix topics
- * match on arity alone), the first declared spec whose values decode
- * successfully wins.
+ * more than one event spec matches (in particular, events with no prefix
+ * topics match on arity alone), the first declared spec whose values decode
+ * successfully wins. A `vec` or `map` spec decodes only data of that
+ * container type.
  * @hidden
  */
 export function parseEvent(
@@ -177,10 +177,58 @@ export function parseEvent(
     if (!tlParams) {
       continue;
     }
+    // Checked before any decoding, so a wrong candidate costs no decode work.
+    const dParams = dataParams(event);
+    const dataPairs: [ScSpecEventParamV0, ScVal][] = [];
+    switch (event.dataFormat.name) {
+      case "scSpecEventDataFormatSingleValue": {
+        const param = dParams[0];
+        if (param) {
+          dataPairs.push([param, dataVal]);
+        }
+        break;
+      }
+      case "scSpecEventDataFormatVec": {
+        if (dataVal.type !== "scvVec") {
+          continue;
+        }
+        const vec = dataVal.value ?? [];
+        if (vec.length < dParams.length) {
+          continue;
+        }
+        dParams.forEach((param, i) => {
+          dataPairs.push([param, vec[i]]);
+        });
+        break;
+      }
+      case "scSpecEventDataFormatMap": {
+        if (dataVal.type !== "scvMap") {
+          continue;
+        }
+        // Missing keys are expected: a sparse map leaves out void fields.
+        const map = dataVal.value ?? [];
+        dParams.forEach((param) => {
+          const name = param.name.toString();
+          const entry = map.find(
+            (e) =>
+              e.key.type === "scvSymbol" && e.key.value.toString() === name,
+          );
+          if (entry) {
+            dataPairs.push([param, entry.val]);
+          }
+        });
+        break;
+      }
+      default: {
+        // Fails to compile when the XDR adds a data format.
+        const unhandled: never = event.dataFormat.name;
+        throw new Error(`unknown event data format: ${unhandled}`);
+      }
+    }
 
-    // Topic matching is fuzzy (prefix symbols + arity only), so a candidate
-    // event may still turn out not to fit once its values are decoded — e.g.
-    // an unrelated contract's event sharing the same prefix and topic count.
+    // Topic matching is fuzzy (prefix symbols + a minimum topic count), so a
+    // candidate event may still turn out not to fit once its values are
+    // decoded — e.g. an unrelated contract's event sharing the same prefix.
     // Treat any decode failure as a non-match and try the next candidate.
     try {
       const prefixLen = event.prefixTopics.length;
@@ -194,46 +242,9 @@ export function parseEvent(
         dataOut[param.name.toString()] = spec.scValToNative(val, param.type);
       });
 
-      const dParams = dataParams(event);
-      const format = event.dataFormat.value;
-      if (
-        format === ScSpecEventDataFormat.scSpecEventDataFormatSingleValue.value
-      ) {
-        const param = dParams[0];
-        if (param) {
-          dataOut[param.name.toString()] = spec.scValToNative(
-            dataVal,
-            param.type,
-          );
-        }
-      } else if (
-        format === ScSpecEventDataFormat.scSpecEventDataFormatVec.value
-      ) {
-        const vec = (dataVal.type === "scvVec" ? dataVal.value : null) ?? [];
-        if (vec.length < dParams.length) {
-          continue;
-        }
-        dParams.forEach((param, i) => {
-          dataOut[param.name.toString()] = spec.scValToNative(
-            vec[i],
-            param.type,
-          );
-        });
-      } else if (
-        format === ScSpecEventDataFormat.scSpecEventDataFormatMap.value
-      ) {
-        const map = (dataVal.type === "scvMap" ? dataVal.value : null) ?? [];
-        dParams.forEach((param) => {
-          const name = param.name.toString();
-          const entry = map.find(
-            (e) =>
-              e.key.type === "scvSymbol" && e.key.value.toString() === name,
-          );
-          if (entry) {
-            dataOut[name] = spec.scValToNative(entry.val, param.type);
-          }
-        });
-      }
+      dataPairs.forEach(([param, val]) => {
+        dataOut[param.name.toString()] = spec.scValToNative(val, param.type);
+      });
 
       return {
         name: event.name.toString(),

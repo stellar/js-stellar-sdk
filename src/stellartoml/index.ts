@@ -3,6 +3,7 @@ import { Networks } from "../base/index.js";
 import { httpClient } from "../http-client/index.js";
 
 import { Config } from "../config.js";
+import { validateAllowedRedirects } from "./utils.js";
 
 /**
  * The maximum size of stellar.toml file, in bytes
@@ -35,8 +36,9 @@ export class Resolver {
    * @param opts - (optional) Options object
    *   - `allowHttp` (optional): Allow connecting to http servers. This must be set to false in production deployments!
    *   - `timeout` (optional): Allow a timeout. Allows user to avoid nasty lag due to TOML resolve issue.
+   *   - `allowedRedirects` (optional): The number of redirects to follow, as 0 or a whole number up to `Number.MAX_SAFE_INTEGER`, default: 0. Outside Node, the SDK relies on the runtime to refuse redirects. In a browser, the Fetch build cannot count redirects, so a value above 0 follows up to the browser's own limit. The Axios build in a browser, and both builds in React Native, follow redirects whatever this value is.
    * @returns A `Promise` that resolves to the parsed stellar.toml object
-   * @throws `Error` if `domain` is not a plain host name, before any request is made
+   * @throws `Error` if `domain` is not a plain host name, or `allowedRedirects` is not valid, before any request is made
    *
    * @example
    * ```ts
@@ -89,6 +91,7 @@ export class Resolver {
         `Invalid domain: ${JSON.stringify(domain)}. A domain must be a host name with an optional port.`,
       );
     }
+    validateAllowedRedirects(opts.allowedRedirects);
 
     return httpClient
       .get(url.href, {
