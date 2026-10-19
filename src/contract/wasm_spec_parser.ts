@@ -10,20 +10,16 @@ export function specFromWasm(wasm: Uint8Array): Uint8Array {
   const customData = parseWasmCustomSections(wasm);
   const xdrSections = customData.get("contractspecv0");
 
-  if (!xdrSections || xdrSections.length === 0) {
-    throw new Error("Could not obtain contract spec from wasm");
-  }
-
-  // SEP-48 stores the spec in one section; other readers pick a different one
-  // or join them, so any choice here can show a different interface. Empty
-  // sections count, because a reader that takes the first one sees it.
-  if (xdrSections.length > 1) {
+  // SEP-48 allows one section, and readers disagree on which of several to
+  // use. Reject them all; empty ones count, because a first-section reader
+  // sees them.
+  if (xdrSections && xdrSections.length > 1) {
     throw new Error(
       `Expected at most one 'contractspecv0' section in wasm, found ${xdrSections.length}`,
     );
   }
 
-  if (xdrSections[0].length === 0) {
+  if (!xdrSections || xdrSections[0].length === 0) {
     throw new Error("Could not obtain contract spec from wasm");
   }
 

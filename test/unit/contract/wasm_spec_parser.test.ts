@@ -5,19 +5,19 @@ import { wasmWithSpec } from "./support/wasm.js";
 
 const { Spec } = contract;
 
-function hello(type: xdr.ScSpecTypeDef): xdr.ScSpecEntry {
+function func(name: string, type: xdr.ScSpecTypeDef): xdr.ScSpecEntry {
   return xdr.ScSpecEntry.scSpecEntryFunctionV0(
     new xdr.ScSpecFunctionV0({
       doc: "",
-      name: "hello",
+      name,
       inputs: [new xdr.ScSpecFunctionInputV0({ doc: "", name: "to", type })],
       outputs: [],
     }),
   );
 }
 
-const symbolHello = hello(xdr.ScSpecTypeDef.scSpecTypeSymbol());
-const u32Hello = hello(xdr.ScSpecTypeDef.scSpecTypeU32());
+const symbolHello = func("hello", xdr.ScSpecTypeDef.scSpecTypeSymbol());
+const u32Hello = func("hello", xdr.ScSpecTypeDef.scSpecTypeU32());
 
 const duplicateError =
   "Expected at most one 'contractspecv0' section in wasm, found";
@@ -36,6 +36,17 @@ describe("specFromWasm", () => {
   it("reports the real number of sections", () => {
     const wasm = wasmWithSpec([symbolHello], [u32Hello], [symbolHello]);
     expect(() => Spec.fromWasm(wasm)).toThrow(`${duplicateError} 3`);
+  });
+
+  it("rejects duplicate sections in Client.fromWasm", async () => {
+    const wasm = wasmWithSpec([symbolHello], [u32Hello]);
+    await expect(
+      contract.Client.fromWasm(wasm, {
+        contractId: "CCN57TGC6EXFCYIQJ4UCD2UDZ4C3AQCHVMK74DGZ3JYCA5HD4BY7FNPC",
+        networkPassphrase: "Test SDF Network ; September 2015",
+        rpcUrl: "https://rpc.example.com",
+      }),
+    ).rejects.toThrow(`${duplicateError} 2`);
   });
 
   it("rejects duplicate sections in the bindings generator", () => {
@@ -68,8 +79,10 @@ describe("specFromWasm", () => {
   });
 
   it("reads a single contractspecv0 section", () => {
-    const spec = Spec.fromWasm(wasmWithSpec([symbolHello, u32Hello]));
+    const u32Goodbye = func("goodbye", xdr.ScSpecTypeDef.scSpecTypeU32());
+    const spec = Spec.fromWasm(wasmWithSpec([symbolHello, u32Goodbye]));
     expect(spec.entries).toHaveLength(2);
     expect(spec.getFunc("hello").inputs[0].type.type).toBe("scSpecTypeSymbol");
+    expect(spec.getFunc("goodbye").inputs[0].type.type).toBe("scSpecTypeU32");
   });
 });

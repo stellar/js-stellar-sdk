@@ -15,8 +15,8 @@ function leb128(value: number): Uint8Array {
 }
 
 // Builds a minimal valid WASM binary whose only content is one `contractspecv0`
-// custom section per argument, each carrying the given spec entries (an empty
-// array gives an empty section). This is browser-safe (pure Uint8Array ops, no
+// custom section per argument, each carrying the given spec entries. An empty
+// array gives an empty section. This is browser-safe (pure Uint8Array ops, no
 // filesystem) and is enough for `Spec.fromWasm` to parse, which only scans for
 // that custom section.
 export function wasmWithSpec(
