@@ -27,7 +27,7 @@ class Address {
 }
 ```
 
-**Source:** [src/base/address.ts:35](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L35)
+**Source:** [src/base/address.ts:36](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L36)
 
 ### `new Address(address)`
 
@@ -39,7 +39,7 @@ constructor(address: string);
 
 - **`address`** — `string` (required) — a [`StrKey`](/reference/core-keys/#strkey) of the address value
 
-**Source:** [src/base/address.ts:42](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L42)
+**Source:** [src/base/address.ts:43](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L43)
 
 ### `Address.account(buffer)`
 
@@ -53,7 +53,7 @@ static account(buffer: Uint8Array): Address;
 
 - **`buffer`** — `Uint8Array` (required) — The bytes of an address to parse.
 
-**Source:** [src/base/address.ts:80](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L80)
+**Source:** [src/base/address.ts:81](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L81)
 
 ### `Address.claimableBalance(buffer)`
 
@@ -67,7 +67,7 @@ static claimableBalance(buffer: Uint8Array): Address;
 
 - **`buffer`** — `Uint8Array` (required) — The bytes of a claimable balance ID to parse.
 
-**Source:** [src/base/address.ts:98](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L98)
+**Source:** [src/base/address.ts:99](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L99)
 
 ### `Address.contract(buffer)`
 
@@ -81,7 +81,7 @@ static contract(buffer: Uint8Array): Address;
 
 - **`buffer`** — `Uint8Array` (required) — The bytes of an address to parse.
 
-**Source:** [src/base/address.ts:89](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L89)
+**Source:** [src/base/address.ts:90](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L90)
 
 ### `Address.fromScAddress(scAddress)`
 
@@ -95,7 +95,7 @@ static fromScAddress(scAddress: ScAddress): Address;
 
 - **`scAddress`** — `ScAddress` (required) — The xdr.ScAddress type to parse
 
-**Source:** [src/base/address.ts:147](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L147)
+**Source:** [src/base/address.ts:148](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L148)
 
 ### `Address.fromScVal(scVal)`
 
@@ -109,7 +109,7 @@ static fromScVal(scVal: ScVal): Address;
 
 - **`scVal`** — `ScVal` (required) — The xdr.ScVal type to parse
 
-**Source:** [src/base/address.ts:135](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L135)
+**Source:** [src/base/address.ts:136](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L136)
 
 ### `Address.fromString(address)`
 
@@ -123,7 +123,7 @@ static fromString(address: string): Address;
 
 - **`address`** — `string` (required) — The address to parse. ex. `GB3KJPLFUYN5VL6R3GU3EGCGVCKFDSD7BEDX42HWG5BWFKB3KQGJJRMA`
 
-**Source:** [src/base/address.ts:71](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L71)
+**Source:** [src/base/address.ts:72](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L72)
 
 ### `Address.liquidityPool(buffer)`
 
@@ -137,7 +137,7 @@ static liquidityPool(buffer: Uint8Array): Address;
 
 - **`buffer`** — `Uint8Array` (required) — The bytes of an LP ID to parse.
 
-**Source:** [src/base/address.ts:107](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L107)
+**Source:** [src/base/address.ts:108](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L108)
 
 ### `Address.muxedAccount(buffer)`
 
@@ -151,7 +151,7 @@ static muxedAccount(buffer: Uint8Array): Address;
 
 - **`buffer`** — `Uint8Array` (required) — The bytes of an address to parse.
 
-**Source:** [src/base/address.ts:116](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L116)
+**Source:** [src/base/address.ts:117](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L117)
 
 ### `Address.muxedContract(buffer)`
 
@@ -166,7 +166,7 @@ static muxedContract(buffer: Uint8Array): Address;
 
 - **`buffer`** — `Uint8Array` (required) — The bytes of an address to parse.
 
-**Source:** [src/base/address.ts:126](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L126)
+**Source:** [src/base/address.ts:127](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L127)
 
 ### `address.type`
 
@@ -176,7 +176,7 @@ Return the type of this address.
 readonly type: AddressType;
 ```
 
-**Source:** [src/base/address.ts:266](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L266)
+**Source:** [src/base/address.ts:268](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L268)
 
 ### `address.toBuffer()`
 
@@ -186,7 +186,7 @@ Return the raw public key bytes for this address.
 toBuffer(): Uint8Array;
 ```
 
-**Source:** [src/base/address.ts:259](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L259)
+**Source:** [src/base/address.ts:261](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L261)
 
 ### `address.toScAddress()`
 
@@ -196,7 +196,7 @@ Convert this Address to an xdr.ScAddress type.
 toScAddress(): ScAddress;
 ```
 
-**Source:** [src/base/address.ts:219](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L219)
+**Source:** [src/base/address.ts:221](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L221)
 
 ### `address.toScVal()`
 
@@ -206,7 +206,7 @@ Convert this Address to an xdr.ScVal type.
 toScVal(): ScVal;
 ```
 
-**Source:** [src/base/address.ts:212](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L212)
+**Source:** [src/base/address.ts:214](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L214)
 
 ### `address.toString()`
 
@@ -216,7 +216,7 @@ Serialize an address to string.
 toString(): string;
 ```
 
-**Source:** [src/base/address.ts:190](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L190)
+**Source:** [src/base/address.ts:192](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/address.ts#L192)
 
 ## Contract
 
