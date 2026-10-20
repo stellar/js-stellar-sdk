@@ -910,9 +910,6 @@ export class Spec {
         }
       }
 
-      case "function": // FIXME: Is this too helpful?
-        return this.nativeToScVal(val(), ty);
-
       default:
         throw new TypeError(`failed to convert typeof ${typeof val} (${val})`);
     }
@@ -988,9 +985,19 @@ export class Spec {
     return ScVal.scvMap(
       fields.map((field: ScSpecUdtStructFieldV0) => {
         const name = field.name.toString();
+        const fieldVal = val[name];
+        // A field named like an inherited `Object.prototype` function, such
+        // as `toString`, must not read that function as its value.
+        const isInherited =
+          typeof fieldVal === "function" &&
+          fieldVal === Reflect.get(Object.prototype, name) &&
+          !Object.hasOwn(val, name);
         return new ScMapEntry({
           key: this.nativeToScVal(name, ScSpecTypeDef.scSpecTypeSymbol()),
-          val: this.nativeToScVal(val[name], field.type),
+          val: this.nativeToScVal(
+            isInherited ? undefined : fieldVal,
+            field.type,
+          ),
         });
       }),
     );

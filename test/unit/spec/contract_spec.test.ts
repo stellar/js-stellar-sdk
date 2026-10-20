@@ -1036,6 +1036,136 @@ describe("Spec scValToNative with scSpecTypeVal", () => {
   });
 });
 
+describe("Spec nativeToScVal with function values", () => {
+  const structType = xdr.ScSpecTypeDef.scSpecTypeUdt(
+    new xdr.ScSpecTypeUdt({ name: "S" }),
+  );
+  const localSpec = new contract.Spec([
+    xdr.ScSpecEntry.scSpecEntryUdtStructV0(
+      new xdr.ScSpecUdtStructV0({
+        doc: "",
+        lib: "",
+        name: "S",
+        fields: [
+          new xdr.ScSpecUdtStructFieldV0({
+            doc: "",
+            name: "amount",
+            type: xdr.ScSpecTypeDef.scSpecTypeU32(),
+          }),
+          new xdr.ScSpecUdtStructFieldV0({
+            doc: "",
+            name: "toString",
+            type: xdr.ScSpecTypeDef.scSpecTypeString(),
+          }),
+        ],
+      }),
+    ).toXdr("base64"),
+  ]);
+
+  it("rejects a function value without calling it", () => {
+    let calls = 0;
+    const fn = () => {
+      calls += 1;
+      return 7;
+    };
+    expect(() =>
+      localSpec.nativeToScVal(fn, xdr.ScSpecTypeDef.scSpecTypeU32()),
+    ).toThrow(/failed to convert typeof function/);
+    expect(() =>
+      localSpec.nativeToScVal({ amount: fn, toString: "hi" }, structType),
+    ).toThrow(/failed to convert typeof function/);
+    expect(calls).toBe(0);
+  });
+
+  it("treats an inherited Object.prototype member as a missing field", () => {
+    expect(() => localSpec.nativeToScVal({ amount: 1 }, structType)).toThrow(
+      /was not void, but value was undefined/,
+    );
+
+    const optionOf = (valueType: xdr.ScSpecTypeDef) =>
+      xdr.ScSpecTypeDef.scSpecTypeOption(
+        new xdr.ScSpecTypeOption({ valueType }),
+      );
+    const optionalSpec = new contract.Spec([
+      xdr.ScSpecEntry.scSpecEntryUdtStructV0(
+        new xdr.ScSpecUdtStructV0({
+          doc: "",
+          lib: "",
+          name: "S",
+          fields: [
+            new xdr.ScSpecUdtStructFieldV0({
+              doc: "",
+              name: "amount",
+              type: xdr.ScSpecTypeDef.scSpecTypeU32(),
+            }),
+            new xdr.ScSpecUdtStructFieldV0({
+              doc: "",
+              name: "constructor",
+              type: optionOf(xdr.ScSpecTypeDef.scSpecTypeU32()),
+            }),
+            new xdr.ScSpecUdtStructFieldV0({
+              doc: "",
+              name: "toString",
+              type: optionOf(xdr.ScSpecTypeDef.scSpecTypeString()),
+            }),
+            new xdr.ScSpecUdtStructFieldV0({
+              doc: "",
+              name: "valueOf",
+              type: xdr.ScSpecTypeDef.scSpecTypeVal(),
+            }),
+          ],
+        }),
+      ).toXdr("base64"),
+    ]);
+    const scv = optionalSpec.nativeToScVal({ amount: 1 }, structType);
+    const entries = expectDefined(expectVariant(scv, "scvMap").value);
+    expect(entries.map((e) => e.val.type)).toEqual([
+      "scvU32",
+      "scvVoid",
+      "scvVoid",
+      "scvVoid",
+    ]);
+
+    const withValues = optionalSpec.nativeToScVal(
+      { amount: 1, constructor: 5, toString: "hi", valueOf: true },
+      structType,
+    );
+    expect(optionalSpec.scValToNative(withValues, structType)).toEqual({
+      amount: 1,
+      constructor: 5,
+      toString: "hi",
+      valueOf: true,
+    });
+  });
+
+  it("does not call a struct field's method on a class instance", () => {
+    let calls = 0;
+    class Order {
+      amount = 1;
+
+      toString() {
+        calls += 1;
+        return "from-method";
+      }
+    }
+    expect(() => localSpec.nativeToScVal(new Order(), structType)).toThrow(
+      /failed to convert typeof function/,
+    );
+    expect(calls).toBe(0);
+  });
+
+  it("still encodes a struct whose fields are own data values", () => {
+    const scv = localSpec.nativeToScVal(
+      { amount: 1, toString: "hi" },
+      structType,
+    );
+    expect(localSpec.scValToNative(scv, structType)).toEqual({
+      amount: 1,
+      toString: "hi",
+    });
+  });
+});
+
 describe.skip("Print contract spec", () => {
   it("print", () => {
     const res = JSON.stringify(SPEC.jsonSchema("complex"), null, 2);

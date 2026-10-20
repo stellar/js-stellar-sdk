@@ -1205,7 +1205,7 @@ scValToNative(scv: ScVal): any
 
 - nativeToScVal
 
-**Source:** [src/base/scval.ts:432](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L432)
+**Source:** [src/base/scval.ts:429](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L429)
 
 ## scvSortedMap
 
@@ -1220,7 +1220,7 @@ scvSortedMap(items: ScMapEntry[]): ScVal
 
 - **`items`** — `ScMapEntry[]` (required) — the unsorted map entries
 
-**Source:** [src/base/scval.ts:545](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L545)
+**Source:** [src/base/scval.ts:542](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L542)
 
 ## walkInvocationTree
 
