@@ -2821,6 +2821,56 @@ describe("addSacTransferOperation with invalid destination", () => {
       ).not.toThrow();
     });
   });
+
+  describe("build() with an invalid Soroban transaction", () => {
+    const builder = () =>
+      new TransactionBuilder(new Account(source.accountId(), "0"), {
+        fee: "100",
+        networkPassphrase,
+        timebounds: { minTime: 0, maxTime: 0 },
+      });
+    const invoke = (opSource?: string) =>
+      Operation.invokeContractFunction({
+        contract: "CA3D5KRYM6CB7OWQ6TWYRR3Z4T7GNZLKERYNZGGA5SOAOPIFY6YQGAXE",
+        function: "hello",
+        args: [],
+        ...(opSource && { source: opSource }),
+      });
+    const muxedAddress = new MuxedAccount(
+      new Account(source.accountId(), "0"),
+      "42",
+    ).accountId();
+
+    it("throws for a muxed operation source", () => {
+      expect(() =>
+        builder().addOperation(invoke(muxedAddress)).build(),
+      ).toThrow(/Soroban operations cannot use a muxed source account/);
+    });
+
+    it("builds with a G operation source", () => {
+      expect(() =>
+        builder().addOperation(invoke(source.accountId())).build(),
+      ).not.toThrow();
+    });
+
+    it.each([
+      ["text", Memo.text("x")],
+      ["id", Memo.id("1")],
+    ])("throws for a %s memo", (_name, memo) => {
+      expect(() =>
+        builder().addOperation(invoke()).addMemo(memo).build(),
+      ).toThrow(/cannot have a memo/);
+    });
+
+    it("builds a classic transaction with a memo and muxed operation source", () => {
+      expect(() =>
+        builder()
+          .addOperation(Operation.inflation({ source: muxedAddress }))
+          .addMemo(Memo.text("x"))
+          .build(),
+      ).not.toThrow();
+    });
+  });
 });
 
 describe("fee overflow protection", () => {

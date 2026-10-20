@@ -984,18 +984,36 @@ export class TransactionBuilder {
     }
   }
 
+  // Core also rejects a muxed operation source and a memo.
+  private assertValidSoroban(): void {
+    this.assertSorobanSourceNotMuxed();
+    if (
+      this.operations.some(
+        (op) => op.sourceAccount?.type === "keyTypeMuxedEd25519",
+      )
+    ) {
+      throw new Error(
+        "Soroban operations cannot use a muxed source account; use the base account",
+      );
+    }
+    if (this.memo.type !== "none") {
+      throw new Error("Soroban transactions cannot have a memo");
+    }
+  }
+
   /**
    * Builds the transaction and increments the source account's sequence
    * number by 1.
    *
-   * @throws If a Soroban transaction has a muxed (`M...`) source account.
+   * @throws If a Soroban transaction has a muxed (`M...`) source account,
+   *     on the transaction or an operation, or has a memo.
    */
   build(): Transaction {
     const isSoroban =
       this.sorobanData !== null ||
       this.operations.some((op) => SOROBAN_OPERATION_TYPES.has(op.body.type));
     if (isSoroban) {
-      this.assertSorobanSourceNotMuxed();
+      this.assertValidSoroban();
     }
 
     const sequenceNumber = new BigNumber(this.source.sequenceNumber()).plus(1);
