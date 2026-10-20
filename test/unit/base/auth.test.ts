@@ -1302,6 +1302,309 @@ describe("building authorization entries", () => {
         );
       });
     });
+
+    describe("shared expiration ledger", () => {
+      const top = kp;
+      const [alice, bob] = [Keypair.random(), Keypair.random()];
+
+      function twoDelegates(
+        validUntilLedgerSeq = 0,
+        placeholder?: xdr.ScVal,
+      ): xdr.SorobanAuthorizationEntry {
+        return buildWithDelegatesEntry({
+          entry: addressV2Entry(top.publicKey()),
+          validUntilLedgerSeq,
+          delegates: [
+            { address: alice.publicKey(), signature: placeholder },
+            { address: bob.publicKey(), signature: placeholder },
+          ],
+          signature: placeholder,
+        });
+      }
+
+      // true when `signer`'s ed25519 signature on its node verifies against
+      // the payload for the entry's stored expiration
+      function verifiesAtStored(
+        entry: xdr.SorobanAuthorizationEntry,
+        signer: Keypair,
+      ): boolean {
+        const node = inspectAuthEntry(entry).signers.find(
+          (s) => s.address === signer.publicKey(),
+        );
+        const stored = inspectAuthEntry(entry).signatureExpirationLedger;
+        if (node === undefined || stored === null) return false;
+        const payload = hash(
+          buildAuthorizationEntryPreimage(
+            entry,
+            stored,
+            Networks.TESTNET,
+          ).toXdr(),
+        );
+        const sig = node.signatures?.[0]?.signature;
+        return sig !== undefined && signer.verify(payload, sig);
+      }
+
+      // addresses of the nodes that hold a signature
+      const signedBy = (entry: xdr.SorobanAuthorizationEntry): string[] =>
+        inspectAuthEntry(entry)
+          .signers.filter((s) => s.signed)
+          .map((s) => s.address);
+
+      it("clears an earlier delegate's signature when a later delegate signs with a new expiration", async () => {
+        const signed = await authorizeEntry(
+          twoDelegates(),
+          alice,
+          1000,
+          Networks.TESTNET,
+          alice.publicKey(),
+        );
+
+        const resigned = await authorizeEntry(
+          signed,
+          bob,
+          2000,
+          Networks.TESTNET,
+          bob.publicKey(),
+        );
+
+        expect(inspectAuthEntry(resigned).signatureExpirationLedger).toBe(2000);
+        expect(signedBy(resigned)).toEqual([bob.publicKey()]);
+        expect(verifiesAtStored(resigned, bob)).toBe(true);
+      });
+
+      it.each([
+        ["a Keypair", () => top],
+        [
+          "a bare-signature callback",
+          () => (_preimage: xdr.HashIdPreimage, payload: Uint8Array) =>
+            Promise.resolve(top.sign(payload)),
+        ],
+      ])(
+        "clears a delegate's signature when the top-level account signs with a new expiration through %s",
+        async (_name, makeSigner) => {
+          const signed = await authorizeEntry(
+            twoDelegates(),
+            alice,
+            1000,
+            Networks.TESTNET,
+            alice.publicKey(),
+          );
+
+          const resigned = await authorizeEntry(
+            signed,
+            makeSigner(),
+            2000,
+            Networks.TESTNET,
+          );
+
+          expect(signedBy(resigned)).toEqual([top.publicKey()]);
+          expect(verifiesAtStored(resigned, top)).toBe(true);
+        },
+      );
+
+      it("clears the top-level signature when a delegate signs with a new expiration", async () => {
+        const signed = await authorizeEntry(
+          twoDelegates(),
+          top,
+          1000,
+          Networks.TESTNET,
+        );
+
+        const resigned = await authorizeEntry(
+          signed,
+          alice,
+          2000,
+          Networks.TESTNET,
+          alice.publicKey(),
+        );
+
+        expect(signedBy(resigned)).toEqual([alice.publicKey()]);
+        expect(verifiesAtStored(resigned, alice)).toBe(true);
+      });
+
+      it("clears a custom signature on another node when the expiration changes", async () => {
+        const entry = buildWithDelegatesEntry({
+          entry: addressV2Entry(top.publicKey()),
+          validUntilLedgerSeq: 1000,
+          delegates: [
+            {
+              address: alice.publicKey(),
+              signature: xdr.ScVal.scvBytes(new Uint8Array([1, 2, 3])),
+            },
+          ],
+        });
+
+        const resigned = await authorizeEntry(
+          entry,
+          top,
+          2000,
+          Networks.TESTNET,
+        );
+
+        expect(signedBy(resigned)).toEqual([top.publicKey()]);
+      });
+
+      it("keeps a delegate's signature made for the new expiration while the stored one is still 0", async () => {
+        // the delegate signs for 5000 first, then its node is placed on an
+        // entry that still stores simulation's 0
+        const presigned = await authorizeEntry(
+          twoDelegates(),
+          alice,
+          5000,
+          Networks.TESTNET,
+          alice.publicKey(),
+        );
+        const aliceNode = expectDefined(
+          inspectAuthEntry(presigned).signers.find(
+            (s) => s.address === alice.publicKey(),
+          ),
+        );
+        const entry = buildWithDelegatesEntry({
+          entry: addressV2Entry(top.publicKey()),
+          validUntilLedgerSeq: 0,
+          delegates: [
+            { address: alice.publicKey(), signature: aliceNode.rawSignature },
+          ],
+        });
+
+        const signed = await authorizeEntry(entry, top, 5000, Networks.TESTNET);
+
+        expect(signedBy(signed)).toEqual([top.publicKey(), alice.publicKey()]);
+        expect(verifiesAtStored(signed, top)).toBe(true);
+        expect(verifiesAtStored(signed, alice)).toBe(true);
+      });
+
+      it("clears a nested delegate's signature when a top-level delegate signs with a new expiration", async () => {
+        const entry = buildWithDelegatesEntry({
+          entry: addressV2Entry(top.publicKey()),
+          validUntilLedgerSeq: 0,
+          delegates: [
+            {
+              address: alice.publicKey(),
+              nestedDelegates: [{ address: bob.publicKey() }],
+            },
+          ],
+        });
+        const signed = await authorizeEntry(
+          entry,
+          bob,
+          1000,
+          Networks.TESTNET,
+          bob.publicKey(),
+        );
+
+        const resigned = await authorizeEntry(
+          signed,
+          alice,
+          2000,
+          Networks.TESTNET,
+          alice.publicKey(),
+        );
+
+        expect(signedBy(resigned)).toEqual([alice.publicKey()]);
+      });
+
+      it("refreshes a fully signed entry to a new expiration one node at a time", async () => {
+        let entry = twoDelegates();
+        for (const ledger of [1000, 2000]) {
+          for (const signer of [alice, bob]) {
+            entry = await authorizeEntry(
+              entry,
+              signer,
+              ledger,
+              Networks.TESTNET,
+              signer.publicKey(),
+            );
+          }
+        }
+
+        expect(inspectAuthEntry(entry).signatureExpirationLedger).toBe(2000);
+        expect(verifiesAtStored(entry, alice)).toBe(true);
+        expect(verifiesAtStored(entry, bob)).toBe(true);
+      });
+
+      it("keeps every signature valid when the delegates sign with the same expiration", async () => {
+        let signed = await authorizeEntry(
+          twoDelegates(),
+          alice,
+          1000,
+          Networks.TESTNET,
+          alice.publicKey(),
+        );
+        signed = await authorizeEntry(
+          signed,
+          bob,
+          1000,
+          Networks.TESTNET,
+          bob.publicKey(),
+        );
+
+        expect(verifiesAtStored(signed, alice)).toBe(true);
+        expect(verifiesAtStored(signed, bob)).toBe(true);
+      });
+
+      it.each([
+        ["ADDRESS", () => authEntry],
+        ["ADDRESS_V2", () => addressV2Entry()],
+      ])(
+        "re-signs a %s entry with a new expiration",
+        async (_type, makeEntry) => {
+          const first = await authorizeEntry(
+            makeEntry(),
+            kp,
+            1000,
+            Networks.TESTNET,
+          );
+          const second = await authorizeEntry(
+            first,
+            kp,
+            2000,
+            Networks.TESTNET,
+          );
+
+          expect(inspectAuthEntry(second).signatureExpirationLedger).toBe(2000);
+          expect(verifiesAtStored(second, kp)).toBe(true);
+        },
+      );
+
+      it("lets a delegate re-sign its own node with a new expiration when no other node is signed", async () => {
+        const first = await authorizeEntry(
+          twoDelegates(),
+          alice,
+          1000,
+          Networks.TESTNET,
+          alice.publicKey(),
+        );
+        const second = await authorizeEntry(
+          first,
+          alice,
+          2000,
+          Networks.TESTNET,
+          alice.publicKey(),
+        );
+
+        expect(inspectAuthEntry(second).signatureExpirationLedger).toBe(2000);
+        expect(verifiesAtStored(second, alice)).toBe(true);
+      });
+
+      it.each([
+        ["scvVoid", xdr.ScVal.scvVoid()],
+        ["empty scvVec", xdr.ScVal.scvVec([])],
+      ])(
+        "signs over a %s placeholder on the other nodes",
+        async (_name, placeholder) => {
+          const signed = await authorizeEntry(
+            twoDelegates(1000, placeholder),
+            alice,
+            2000,
+            Networks.TESTNET,
+            alice.publicKey(),
+          );
+
+          expect(verifiesAtStored(signed, alice)).toBe(true);
+        },
+      );
+    });
   });
 
   describe("signing payload passed to the callback", () => {
@@ -1456,6 +1759,33 @@ describe("building authorization entries", () => {
       expect(wd.delegates[0].signature.toXdr("hex")).toBe(
         customSig.toXdr("hex"),
       );
+    });
+
+    it("clears the other nodes, not the node that the returned address picks, on a new expiration", async () => {
+      const delegate = Keypair.random();
+      const wrapped = buildWithDelegatesEntry({
+        entry: authEntry,
+        validUntilLedgerSeq: 10,
+        delegates: [{ address: delegate.publicKey(), signature: customSig }],
+      });
+      const topSigned = await authorizeEntry(wrapped, kp, 10, Networks.TESTNET);
+
+      const resigned = await authorizeEntry(
+        topSigned,
+        () =>
+          Promise.resolve({
+            signatureScVal: customSig,
+            address: delegate.publicKey(),
+          }),
+        20,
+        Networks.TESTNET,
+      );
+
+      const info = inspectAuthEntry(resigned);
+      expect(info.signatureExpirationLedger).toBe(20);
+      expect(
+        info.signers.filter((s) => s.signed).map((s) => s.address),
+      ).toEqual([delegate.publicKey()]);
     });
 
     it("throws when the returned address matches no node", async () => {

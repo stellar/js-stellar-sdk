@@ -109,6 +109,14 @@ function toScVal(value: unknown): ScVal | null {
  * anything with a `sign(Uint8Array): Uint8Array` method) or a callback function (see
  * {@link SigningCallback}) to handle signing the envelope hash.
  *
+ * When `validUntilLedgerSeq` differs from the entry's stored expiration and the
+ * stored expiration is not 0, every other node's signature is replaced with
+ * `scvVoid`, because it commits to the stored expiration and would no longer
+ * verify. This includes a custom signature that does not depend on the
+ * payload. A stored 0 (as simulation returns) keeps the other signatures. Use
+ * {@link checkAuthEntryReadiness} to find the nodes that need to sign again, or
+ * sign every node with the same `validUntilLedgerSeq`.
+ *
  * @param entry - an unsigned authorization entry
  * @param signer - either a {@link Keypair} instance or a function (see
  *    {@link SigningCallback}) which receives the
@@ -755,7 +763,8 @@ export function getAddressCredentials(
  * node commits to the same payload (bound to the top-level address), so the
  * caller can fill any of them with a signature produced from that shared
  * payload. When `forAddress` is omitted, only the top-level address credentials
- * receive the signature.
+ * receive the signature. When a non-zero stored expiration changes, every other
+ * node's signature becomes `scvVoid`.
  *
  * @returns the rebuilt credentials and the number of nodes that received the
  *    signature (`0` means `forAddress` matched no node).
@@ -779,11 +788,19 @@ function applyExpirationAndSignature(
     matched++;
   }
 
+  // The other nodes' signatures commit to the stored expiration, so a new one
+  // leaves them unable to verify. A stored 0 is the simulation placeholder; no
+  // signature is valid for it, so they may already commit to the new one.
+  const stored = topAddr.signatureExpirationLedger;
+  const clearOthers = stored !== 0 && stored !== validUntilLedgerSeq;
+
   const newTopAddr = new SorobanAddressCredentials({
     address: topAddr.address,
     nonce: topAddr.nonce,
     signatureExpirationLedger: validUntilLedgerSeq,
-    signature: topIsTarget ? signature : topAddr.signature,
+    signature: topIsTarget
+      ? signature
+      : carryOver(topAddr.signature, clearOthers),
   });
 
   switch (credentials.type) {
@@ -800,12 +817,13 @@ function applyExpirationAndSignature(
     case "sorobanCredentialsAddressWithDelegates": {
       const withDelegates = credentials.addressWithDelegates;
       const newDelegates =
-        forAddress === undefined
+        forAddress === undefined && !clearOthers
           ? withDelegates.delegates
           : rebuildDelegatesWithSignature(
               withDelegates.delegates,
               forAddress,
               signature,
+              clearOthers,
               () => {
                 matched++;
               },
@@ -826,29 +844,44 @@ function applyExpirationAndSignature(
 }
 
 /**
+ * Internal helper. Returns the signature of a node that this call does not
+ * sign: `scvVoid` when `clear` is set and the node holds a signature, otherwise
+ * the signature unchanged (placeholders stay as they are).
+ */
+function carryOver(signature: ScVal, clear: boolean): ScVal {
+  return clear && signaturePresent(signature) ? ScVal.scvVoid() : signature;
+}
+
+/**
  * Internal helper. Recursively rebuilds a delegate tree, writing `signature`
  * onto every (possibly nested) node whose address matches `forAddress` and
- * invoking `onMatch` for each one, leaving all other nodes untouched.
+ * invoking `onMatch` for each one. Every other node's signature is cleared when
+ * `clearOthers` is set (see {@link carryOver}).
  */
 function rebuildDelegatesWithSignature(
   delegates: SorobanDelegateSignature[],
-  forAddress: string,
+  forAddress: string | undefined,
   signature: ScVal,
+  clearOthers: boolean,
   onMatch: () => void,
 ): SorobanDelegateSignature[] {
   return delegates.map((delegate) => {
     const isMatch =
+      forAddress !== undefined &&
       Address.fromScAddress(delegate.address).toString() === forAddress;
     if (isMatch) {
       onMatch();
     }
     return new SorobanDelegateSignature({
       address: delegate.address,
-      signature: isMatch ? signature : delegate.signature,
+      signature: isMatch
+        ? signature
+        : carryOver(delegate.signature, clearOthers),
       nestedDelegates: rebuildDelegatesWithSignature(
         delegate.nestedDelegates,
         forAddress,
         signature,
+        clearOthers,
         onMatch,
       ),
     });

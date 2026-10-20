@@ -1091,7 +1091,8 @@ export class AssembledTransaction<T> {
     /**
      * When to set each auth entry to expire. Could be any number of blocks in
      * the future. Can be supplied as a promise or a raw number. Default:
-     * about 8.3 minutes from now.
+     * about 8.3 minutes from now. On an entry whose delegates already signed,
+     * a different value clears their signatures (see `authorizeEntry`).
      */
     expiration?: number | Promise<number>;
     /**
