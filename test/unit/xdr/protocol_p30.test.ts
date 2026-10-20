@@ -6,6 +6,8 @@
 import { describe, it, expect } from "vitest";
 
 import xdr from "../../../src/base/xdr.js";
+import { Address } from "../../../src/base/address.js";
+import { scValToNative } from "../../../src/base/scval.js";
 
 const CONTRACT_HASH = Buffer.alloc(32, 3);
 
@@ -33,6 +35,14 @@ describe("CAP-84: muxed contract addresses", () => {
       "18446744073709551615",
     );
     expect(decoded.toXDR()).toEqual(address.toXDR());
+  });
+
+  // v16 decodes the new arm but does not support it above the XDR layer.
+  it("is rejected by Address and scValToNative", () => {
+    const address = xdr.ScAddress.scAddressTypeMuxedContract(muxedContract);
+    const message = "Unsupported address type: scAddressTypeMuxedContract";
+    expect(() => Address.fromScAddress(address)).toThrow(message);
+    expect(() => scValToNative(xdr.ScVal.scvAddress(address))).toThrow(message);
   });
 });
 
@@ -86,6 +96,22 @@ describe("CAP-88: millisecond close time stellar values", () => {
 });
 
 describe("contract spec type name limit", () => {
+  it("defines SC_SPEC_TYPE_NAME_LIMIT", () => {
+    expect((xdr as any).SC_SPEC_TYPE_NAME_LIMIT).toBe(1024);
+  });
+
+  it.each([
+    ["ScSpecUdtStructV0", { fields: [] }],
+    ["ScSpecUdtUnionV0", { cases: [] }],
+    ["ScSpecUdtEnumV0", { cases: [] }],
+    ["ScSpecUdtErrorEnumV0", { cases: [] }],
+  ] as const)("accepts %s names longer than 60 bytes", (type, rest) => {
+    const name = "u".repeat(200);
+    const Struct = (xdr as any)[type];
+    const udt = new Struct({ doc: "", lib: "", name, ...rest });
+    expect(Struct.fromXDR(udt.toXDR()).name().toString()).toBe(name);
+  });
+
   it("accepts UDT names longer than the old 60-byte limit", () => {
     const name = "a".repeat(200);
     const udt = new xdr.ScSpecTypeUdt({ name });
