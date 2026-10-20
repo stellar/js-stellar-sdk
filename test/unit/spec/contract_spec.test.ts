@@ -1077,6 +1077,61 @@ describe("Spec nativeToScVal with function values", () => {
     expect(calls).toBe(0);
   });
 
+  it("rejects a function value where a struct is expected", () => {
+    const udt = (name: string) =>
+      xdr.ScSpecTypeDef.scSpecTypeUdt(new xdr.ScSpecTypeUdt({ name }));
+    const struct = (name: string, fields: [string, xdr.ScSpecTypeDef][]) =>
+      xdr.ScSpecEntry.scSpecEntryUdtStructV0(
+        new xdr.ScSpecUdtStructV0({
+          doc: "",
+          lib: "",
+          name,
+          fields: fields.map(
+            ([fieldName, type]) =>
+              new xdr.ScSpecUdtStructFieldV0({
+                doc: "",
+                name: fieldName,
+                type,
+              }),
+          ),
+        }),
+      ).toXdr("base64");
+    const structSpec = new contract.Spec([
+      struct("Inner", [
+        [
+          "amount",
+          xdr.ScSpecTypeDef.scSpecTypeOption(
+            new xdr.ScSpecTypeOption({
+              valueType: xdr.ScSpecTypeDef.scSpecTypeU32(),
+            }),
+          ),
+        ],
+      ]),
+      struct("Outer", [["nested", udt("Inner")]]),
+      struct("Named", [
+        ["length", xdr.ScSpecTypeDef.scSpecTypeU32()],
+        ["name", xdr.ScSpecTypeDef.scSpecTypeString()],
+      ]),
+    ]);
+    let calls = 0;
+    function namedFn() {
+      calls += 1;
+      return 7;
+    }
+
+    expect(() => structSpec.nativeToScVal(namedFn, udt("Inner"))).toThrow(
+      /failed to convert typeof function/,
+    );
+    expect(() =>
+      structSpec.nativeToScVal({ nested: namedFn }, udt("Outer")),
+    ).toThrow(/failed to convert typeof function/);
+    // A function's own `name` and `length` must not become field values.
+    expect(() => structSpec.nativeToScVal(namedFn, udt("Named"))).toThrow(
+      /failed to convert typeof function/,
+    );
+    expect(calls).toBe(0);
+  });
+
   it("treats an inherited Object.prototype member as a missing field", () => {
     expect(() => localSpec.nativeToScVal({ amount: 1 }, structType)).toThrow(
       /was not void, but value was undefined/,

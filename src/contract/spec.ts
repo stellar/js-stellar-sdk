@@ -707,6 +707,11 @@ export class Spec {
    * @throws if value cannot be converted to the given type
    */
   nativeToScVal(val: any, ty: ScSpecTypeDef): ScVal {
+    // Before type dispatch: a struct type would read a function's own
+    // properties, such as `name`, as field values.
+    if (typeof val === "function") {
+      throw new TypeError(`failed to convert typeof function (${val})`);
+    }
     const tyType = ty.type;
     if (tyType === "scSpecTypeUdt") {
       const udt = ty.value;
