@@ -988,6 +988,7 @@ export class Spec {
         const fieldVal = val[name];
         // A field named like an inherited `Object.prototype` function, such
         // as `toString`, must not read that function as its value.
+        // The `typeof` check is a fast path: those members are all functions.
         const isInherited =
           typeof fieldVal === "function" &&
           fieldVal === Reflect.get(Object.prototype, name) &&
