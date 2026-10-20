@@ -1,7 +1,11 @@
 import { describe, it, expect } from "vitest";
 import { xdr, contract } from "../../../src/index.js";
 import { BindingGenerator } from "../../../src/bindings/generator.js";
-import { wasmWithSpec } from "./support/wasm.js";
+import {
+  specSectionName,
+  wasmWithNamedSections,
+  wasmWithSpec,
+} from "./support/wasm.js";
 
 const { Spec } = contract;
 
@@ -21,6 +25,9 @@ const u32Hello = func("hello", xdr.ScSpecTypeDef.scSpecTypeU32());
 
 const duplicateError =
   "Expected at most one 'contractspecv0' section in wasm, found";
+
+// EF BB BF is the UTF-8 byte-order mark.
+const bomSpecName = Uint8Array.of(0xef, 0xbb, 0xbf, ...specSectionName);
 
 describe("specFromWasm", () => {
   it("rejects two different contractspecv0 sections", () => {
@@ -76,6 +83,25 @@ describe("specFromWasm", () => {
     expect(() => Spec.fromWasm(wasmWithSpec([]))).toThrow(
       "Could not obtain contract spec from wasm",
     );
+  });
+
+  it("ignores a section whose name has a leading BOM", () => {
+    const wasm = wasmWithNamedSections([
+      { name: bomSpecName, entries: [u32Hello] },
+    ]);
+    expect(() => Spec.fromWasm(wasm)).toThrow(
+      "Could not obtain contract spec from wasm",
+    );
+  });
+
+  it("does not count a BOM-prefixed section as a duplicate", () => {
+    const wasm = wasmWithNamedSections([
+      { name: specSectionName, entries: [symbolHello] },
+      { name: bomSpecName, entries: [u32Hello] },
+    ]);
+    const spec = Spec.fromWasm(wasm);
+    expect(spec.entries).toHaveLength(1);
+    expect(spec.getFunc("hello").inputs[0].type.type).toBe("scSpecTypeSymbol");
   });
 
   it("reads a single contractspecv0 section", () => {
