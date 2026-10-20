@@ -4,12 +4,22 @@ import { parseWasmCustomSections } from "./utils.js";
  * @param wasm - The contract's wasm binary as a Uint8Array.
  * @returns The XDR bytes representing the contract spec.
  * @throws If the contract spec cannot be obtained from the provided wasm binary.
+ * @throws If the wasm binary has more than one `contractspecv0` section.
  */
 export function specFromWasm(wasm: Uint8Array): Uint8Array {
   const customData = parseWasmCustomSections(wasm);
   const xdrSections = customData.get("contractspecv0");
 
-  if (!xdrSections || xdrSections.length === 0) {
+  // SEP-48 allows one section, and readers disagree on which of several to
+  // use. Reject them all; empty ones count, because a first-section reader
+  // sees them.
+  if (xdrSections && xdrSections.length > 1) {
+    throw new Error(
+      `Expected at most one 'contractspecv0' section in wasm, found ${xdrSections.length}`,
+    );
+  }
+
+  if (!xdrSections || xdrSections[0].length === 0) {
     throw new Error("Could not obtain contract spec from wasm");
   }
 
