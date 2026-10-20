@@ -3,8 +3,10 @@ import {
   Asset,
   BASE_FEE,
   Keypair,
+  MuxedAccount,
   Operation,
   TransactionBuilder,
+  nativeToScVal,
   rpc,
 } from "../../../lib/esm/index.js";
 import { generateFundedKeypair, networkPassphrase, server } from "./util.js";
@@ -170,6 +172,61 @@ describe("Non-simulated SAC Transfer", () => {
         attempts: 10,
       });
       expect(result.status).toBe(rpc.Api.GetTransactionStatus.SUCCESS);
+    });
+  });
+
+  describe("muxed source account", () => {
+    it("addSacTransferOperation throws for a MuxedAccount source", async () => {
+      const { sender, receiver } = context;
+
+      const account = await server.getAccount(sender.publicKey());
+      const builder = new TransactionBuilder(new MuxedAccount(account, "42"), {
+        fee: BASE_FEE,
+        networkPassphrase,
+      });
+      expect(() =>
+        builder.addSacTransferOperation(
+          receiver.publicKey(),
+          Asset.native(),
+          TRANSFER_AMOUNT,
+        ),
+      ).toThrow(/muxed source account/);
+    });
+
+    it("the network rejects a Soroban transaction with a muxed source", async () => {
+      const { sender, receiver } = context;
+
+      // The same transfer, with the base account as `from`, built past the
+      // SDK check: core refuses the muxed transaction source itself.
+      const account = await server.getAccount(sender.publicKey());
+      const tx = new TransactionBuilder(new MuxedAccount(account, "42"), {
+        fee: BASE_FEE,
+        networkPassphrase,
+      })
+        .setTimeout(30)
+        .addOperation(
+          Operation.invokeContractFunction({
+            contract: Asset.native().contractId(networkPassphrase),
+            function: "transfer",
+            args: [
+              nativeToScVal(sender.publicKey(), { type: "address" }),
+              nativeToScVal(receiver.publicKey(), { type: "address" }),
+              nativeToScVal(TRANSFER_AMOUNT, { type: "i128" }),
+            ],
+          }),
+        )
+        .build();
+
+      const sim = await server.simulateTransaction(tx);
+      if (rpc.Api.isSimulationError(sim)) {
+        throw new Error(`simulation failed: ${sim.error}`);
+      }
+      const assembled = rpc.assembleTransaction(tx, sim).build();
+      assembled.sign(sender);
+
+      const response = await server.sendTransaction(assembled);
+      expect(response.status).toBe("ERROR");
+      expect(response.errorResult?.result.type).toBe("txSorobanInvalid");
     });
   });
 

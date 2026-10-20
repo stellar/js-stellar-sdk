@@ -4,6 +4,7 @@ import { StrKey } from "../../../src/base/strkey.js";
 import * as xdr from "../../../src/xdr/index.js";
 import type {
   ScAddressMuxedAccount,
+  ScAddressMuxedContract,
   ScValAddress,
 } from "../../../src/xdr/index.js";
 
@@ -15,6 +16,14 @@ describe("Address", () => {
   const MUXED_ADDRESS_ID = "9223372036854775808";
   const MUXED_ADDRESS_BASE =
     "GA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJVSGZ";
+
+  // SEP-23 (stellar-protocol#2020) vectors
+  const MUXED_CONTRACT =
+    "WA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJVAAAAAAAAAAAACWJY";
+  const MUXED_CONTRACT_ID = "9223372036854775808";
+  const MUXED_CONTRACT_BASE =
+    "CA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJUWDA";
+  const MUXED_CONTRACT_ZERO = StrKey.encodeMuxedContract(new Uint8Array(40));
 
   const MUXED_ZERO = StrKey.encodeMed25519PublicKey(new Uint8Array(40));
   const CLAIMABLE_BALANCE_ZERO = StrKey.encodeClaimableBalance(
@@ -31,6 +40,7 @@ describe("Address", () => {
       ACCOUNT,
       CONTRACT,
       MUXED_ADDRESS,
+      MUXED_CONTRACT,
       CLAIMABLE_BALANCE_ZERO,
       LIQUIDITY_POOL_ZERO,
     ].forEach((strkey) => {
@@ -64,6 +74,12 @@ describe("Address", () => {
     it(".muxedAccount", () => {
       const m = Address.muxedAccount(new Uint8Array(40));
       expect(m.toString()).toBe(MUXED_ZERO);
+    });
+
+    it(".muxedContract", () => {
+      const m = Address.muxedContract(new Uint8Array(40));
+      expect(m.toString()).toBe(MUXED_CONTRACT_ZERO);
+      expect(m.type).toBe("muxedContract");
     });
 
     it(".claimableBalance", () => {
@@ -104,6 +120,49 @@ describe("Address", () => {
         );
         const m = Address.fromScAddress(sc);
         expect(m.toString()).toBe(MUXED_ADDRESS);
+      });
+
+      it("parses muxed-contract addresses", () => {
+        const sc = xdr.ScAddress.scAddressTypeMuxedContract(
+          new xdr.MuxedContract({
+            id: BigInt(MUXED_CONTRACT_ID),
+            contractId: new xdr.ContractId(
+              StrKey.decodeContract(MUXED_CONTRACT_BASE),
+            ),
+          }),
+        );
+        const m = Address.fromScAddress(sc);
+        expect(m.type).toBe("muxedContract");
+        expect(m.toString()).toBe(MUXED_CONTRACT);
+      });
+
+      it("parses muxed-contract addresses at the mux ID bounds", () => {
+        for (const id of [0n, 2n ** 64n - 1n]) {
+          const sc = xdr.ScAddress.scAddressTypeMuxedContract(
+            new xdr.MuxedContract({
+              id,
+              contractId: new xdr.ContractId(
+                StrKey.decodeContract(MUXED_CONTRACT_BASE),
+              ),
+            }),
+          );
+          const back = Address.fromScAddress(sc).toScAddress();
+          expect(back.toXdr("base64")).toBe(sc.toXdr("base64"));
+        }
+      });
+
+      it("rejects muxed-contract IDs outside uint64", () => {
+        for (const id of [-1n, 2n ** 64n]) {
+          const sc = xdr.ScAddress.scAddressTypeMuxedContract(
+            new xdr.MuxedContract({
+              id,
+              contractId: new xdr.ContractId(
+                StrKey.decodeContract(MUXED_CONTRACT_BASE),
+              ),
+            }),
+          );
+          expect(() => Address.fromScAddress(sc)).toThrow(/out of range/);
+        }
       });
 
       it("parses claimable-balance addresses", () => {
@@ -225,6 +284,20 @@ describe("Address", () => {
         StrKey.decodeEd25519PublicKey(MUXED_ADDRESS_BASE),
       );
       expect(muxed.id.toString()).toBe(MUXED_ADDRESS_ID);
+      expect(xdr.ScAddress.fromXdr(s.toXdr()).toXdr("base64")).toBe(
+        s.toXdr("base64"),
+      );
+    });
+
+    it("converts muxed contracts", () => {
+      const m = new Address(MUXED_CONTRACT);
+      const s = m.toScAddress();
+      expect(s.type).toBe("scAddressTypeMuxedContract");
+      const muxed = (s as ScAddressMuxedContract).muxedContract;
+      expect(muxed.contractId.value).toEqual(
+        StrKey.decodeContract(MUXED_CONTRACT_BASE),
+      );
+      expect(muxed.id.toString()).toBe(MUXED_CONTRACT_ID);
       expect(xdr.ScAddress.fromXdr(s.toXdr()).toXdr("base64")).toBe(
         s.toXdr("base64"),
       );

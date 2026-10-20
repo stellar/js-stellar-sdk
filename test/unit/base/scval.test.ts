@@ -261,6 +261,7 @@ describe("parsing and building ScVals - from scval_test.js", () => {
     [
       "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM",
       "CA3D5KRYM6CB7OWQ6TWYRR3Z4T7GNZLKERYNZGGA5SOAOPIFY6YQGAXE",
+      "WA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJVAAAAAAAAAAAACWJY",
       Keypair.random().publicKey(),
       Keypair.random().publicKey(),
     ].forEach((addr) => {
@@ -1376,6 +1377,24 @@ describe("scValToNative", () => {
       const scv = new Address(contractId).toScVal();
       const result = scValToNative(scv);
       expect(result).toBe(contractId);
+    });
+
+    it("converts scvAddress (muxed contract) to string", () => {
+      const scv = xdr.ScVal.scvAddress(
+        xdr.ScAddress.scAddressTypeMuxedContract(
+          new xdr.MuxedContract({
+            id: 2n ** 63n,
+            contractId: new xdr.ContractId(
+              StrKey.decodeContract(
+                "CA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJUWDA",
+              ),
+            ),
+          }),
+        ),
+      );
+      expect(scValToNative(scv)).toBe(
+        "WA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJVAAAAAAAAAAAACWJY",
+      );
     });
   });
 

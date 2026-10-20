@@ -496,7 +496,7 @@ static fromXdrObject(object: Memo): Memo;
 
 - **`object`** — `Memo` (required) — XDR memo object
 
-**Source:** [src/base/memo.ts:299](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L299)
+**Source:** [src/base/memo.ts:300](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L300)
 
 ### `Memo.fromXDRObject(object)`
 
@@ -511,7 +511,7 @@ static fromXDRObject(object: Memo): Memo;
 
 - **`object`** — `Memo` (required)
 
-**Source:** [src/base/memo.ts:330](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L330)
+**Source:** [src/base/memo.ts:331](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L331)
 
 ### `Memo.hash(hash)`
 
@@ -525,7 +525,7 @@ static hash(hash: string | Uint8Array<ArrayBufferLike>): Memo<"hash">;
 
 - **`hash`** — `string | Uint8Array<ArrayBufferLike>` (required) — 32 byte hash or hex encoded string
 
-**Source:** [src/base/memo.ts:258](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L258)
+**Source:** [src/base/memo.ts:259](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L259)
 
 ### `Memo.id(id)`
 
@@ -539,7 +539,7 @@ static id(id: string): Memo<"id">;
 
 - **`id`** — `string` (required) — 64-bit number represented as a string
 
-**Source:** [src/base/memo.ts:249](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L249)
+**Source:** [src/base/memo.ts:250](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L250)
 
 ### `Memo.none()`
 
@@ -563,7 +563,7 @@ static return(hash: string | Uint8Array<ArrayBufferLike>): Memo<"return">;
 
 - **`hash`** — `string | Uint8Array<ArrayBufferLike>` (required) — 32 byte hash or hex encoded string
 
-**Source:** [src/base/memo.ts:267](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L267)
+**Source:** [src/base/memo.ts:268](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L268)
 
 ### `Memo.text(text)`
 
@@ -575,11 +575,12 @@ static text(text: string | Uint8Array<ArrayBufferLike>): Memo<"text">;
 
 **Parameters**
 
-- **`text`** — `string | Uint8Array<ArrayBufferLike>` (required) — memo text. A JS string is UTF-8 encoded on the wire;
-    pass a `Uint8Array` for byte-exact content. A plain `number[]` is not
+- **`text`** — `string | Uint8Array<ArrayBufferLike>` (required) — memo text. A JS string is UTF-8 encoded on the wire, and
+    a lone surrogate becomes U+FFFD with no error; pass a `Uint8Array`
+    for byte-exact content. A plain `number[]` is not
     accepted (16.2.0 and earlier took one); wrap it: `new Uint8Array(arr)`.
 
-**Source:** [src/base/memo.ts:240](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L240)
+**Source:** [src/base/memo.ts:241](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L241)
 
 ### `memo.type`
 
@@ -613,7 +614,7 @@ Returns XDR memo object.
 toXdrObject(): Memo;
 ```
 
-**Source:** [src/base/memo.ts:274](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L274)
+**Source:** [src/base/memo.ts:275](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L275)
 
 ### `memo.toXDRObject()`
 
@@ -624,7 +625,7 @@ Deprecated in version v17.0.0
 toXDRObject(): Memo;
 ```
 
-**Source:** [src/base/memo.ts:322](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L322)
+**Source:** [src/base/memo.ts:323](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/memo.ts#L323)
 
 ## MemoHash
 
@@ -2805,7 +2806,7 @@ static buildFeeBumpTransaction(feeSource: string | Keypair, baseFee: string, inn
 
 - https://developers.stellar.org/docs/glossary/fee-bumps/#replace-by-fee
 
-**Source:** [src/base/transaction_builder.ts:1146](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L1146)
+**Source:** [src/base/transaction_builder.ts:1156](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L1156)
 
 ### `TransactionBuilder.cloneFrom(tx, opts)`
 
@@ -2848,7 +2849,7 @@ static fromXdr(envelope: string | TransactionEnvelope, networkPassphrase: string
       Stellar network (e.g. "Public Global Stellar Network ; September
       2015"), see [`Networks`](#networks).
 
-**Source:** [src/base/transaction_builder.ts:1259](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L1259)
+**Source:** [src/base/transaction_builder.ts:1269](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L1269)
 
 ### `TransactionBuilder.fromXDR(envelope, networkPassphrase)`
 
@@ -2864,7 +2865,7 @@ static fromXDR(envelope: string | TransactionEnvelope, networkPassphrase: string
 - **`envelope`** — `string | TransactionEnvelope` (required)
 - **`networkPassphrase`** — `string` (required)
 
-**Source:** [src/base/transaction_builder.ts:1278](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L1278)
+**Source:** [src/base/transaction_builder.ts:1288](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L1288)
 
 ### `transactionBuilder.baseFee`
 
@@ -3017,12 +3018,16 @@ addSacTransferOperation(destination: string, asset: Asset, amount: string | bigi
 
 **Parameters**
 
-- **`destination`** — `string` (required) — the address of the recipient of the SAC transfer (should be a valid Stellar address or contract ID)
+- **`destination`** — `string` (required) — the address of the recipient of the SAC transfer (a G, M, C or W address)
 - **`asset`** — `Asset` (required) — the SAC asset to be transferred
 - **`amount`** — `string | bigint` (required) — the amount of tokens to be transferred in 7 decimals. IE 1 token with 7 decimals of precision would be represented as "1_0000000"
 - **`sorobanFees`** — `SorobanFees` (optional) — optional Soroban fees for the transaction to override the default fees used
 
-**Source:** [src/base/transaction_builder.ts:754](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L754)
+**Throws**
+
+- If the builder's source is a muxed (`M...`) account.
+
+**Source:** [src/base/transaction_builder.ts:756](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L756)
 
 ### `transactionBuilder.build()`
 
@@ -3033,7 +3038,7 @@ number by 1.
 build(): Transaction;
 ```
 
-**Source:** [src/base/transaction_builder.ts:974](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L974)
+**Source:** [src/base/transaction_builder.ts:984](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L984)
 
 ### `transactionBuilder.clearOperationAt(index)`
 
@@ -3067,7 +3072,7 @@ Checks whether any v2 preconditions have been set on this builder.
 hasV2Preconditions(): boolean;
 ```
 
-**Source:** [src/base/transaction_builder.ts:1113](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L1113)
+**Source:** [src/base/transaction_builder.ts:1123](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L1123)
 
 ### `transactionBuilder.setExtraSigners(extraSigners)`
 
@@ -3614,9 +3619,27 @@ encodeMuxedAccountToAddress(muxedAccount: MuxedAccount): string
 
 **Source:** [src/base/util/decode_encode_muxed_account.ts:58](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/util/decode_encode_muxed_account.ts#L58)
 
+## encodeMuxedContractAddress
+
+Transform a contract address (C...) and an ID into a muxed contract
+address (W...).
+
+```ts
+encodeMuxedContractAddress(contractId: string, id: string): string
+```
+
+**Parameters**
+
+- **`contractId`** — `string` (required) — a contract C... address
+- **`id`** — `string` (required) — the ID, as a uint64 in decimal digits. Leading zeros are
+      removed. At most 22 digits.
+
+**Source:** [src/base/util/decode_encode_muxed_account.ts:95](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/util/decode_encode_muxed_account.ts#L95)
+
 ## extractBaseAddress
 
-Extracts the underlying base (G...) address from an M-address.
+Extracts the base address from a muxed address: G... from M..., or C...
+from W.... A G... or C... address is returned unchanged.
 
 ```ts
 extractBaseAddress(address: string): string
@@ -3624,9 +3647,10 @@ extractBaseAddress(address: string): string
 
 **Parameters**
 
-- **`address`** — `string` (required) — an account address (either M... or G...)
+- **`address`** — `string` (required) — an account (G... or M...) or contract (C... or W...)
+      address
 
-**Source:** [src/base/util/decode_encode_muxed_account.ts:91](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/util/decode_encode_muxed_account.ts#L91)
+**Source:** [src/base/util/decode_encode_muxed_account.ts:115](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/util/decode_encode_muxed_account.ts#L115)
 
 ## getClaimableBalanceIdFromResult
 

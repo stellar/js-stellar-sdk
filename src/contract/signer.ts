@@ -188,7 +188,8 @@ export function walletSigningKey(signerAddress: unknown): string | undefined {
     return extractBaseAddress(signerAddress);
   }
   throw new TypeError(
-    StrKey.isValidContract(signerAddress)
+    StrKey.isValidContract(signerAddress) ||
+      StrKey.isValidMuxedContract(signerAddress)
       ? `the wallet's signerAddress names contract ${signerAddress}, but the ` +
           "default authorizer verifies Ed25519 signatures only; sign for a " +
           "contract account with a custom `authorizeEntry`"

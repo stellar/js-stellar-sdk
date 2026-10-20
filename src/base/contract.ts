@@ -29,6 +29,13 @@ export class Contract {
       // First, try it as a strkey
       this._id = StrKey.decodeContract(contractId);
     } catch {
+      // A W... address is a C... address plus a mux ID; it cannot be invoked.
+      if (StrKey.isValidMuxedContract(contractId)) {
+        throw new Error(
+          `Invalid contract ID: ${contractId} is a muxed contract address; ` +
+            "use its base address (C...)",
+        );
+      }
       throw new Error(`Invalid contract ID: ${contractId}`);
     }
   }

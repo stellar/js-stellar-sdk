@@ -768,6 +768,12 @@ scv.str.bytes; // Uint8Array
 This split keeps the `.value` shortcut convenient for the 99% case while still
 letting binary callers reach the raw bytes through the arm field.
 
+The decode is lenient: bytes that are not valid UTF-8 become U+FFFD, so a value
+rebuilt from `.value` can have different bytes. Rebuild from the arm field to
+keep the bytes. The encode side has a similar gap: a JS string with a lone
+surrogate (for example from a `slice()` that cuts a surrogate pair) encodes as
+U+FFFD with no error.
+
 The decode is specific to `string<N>` arms, so don't generalize it to the rest
 of `xdr.Memo`: `memoHash` and `memoReturn` hand back an `xdr.Hash` wrapper from
 both the arm field and `.value`, and need `.toBytes()` (§ 6.1).

@@ -39,6 +39,8 @@ import {
   AssetCode,
   AssetCode12,
   MuxedEd25519Account,
+  MuxedContract,
+  type ScAddressVariantName,
   ContractEvent,
   ContractEventBody,
   ContractEventType,
@@ -137,6 +139,84 @@ describe("walker — overrides (StrKey)", () => {
     const round = ScAddress.fromJson(addr.toJson());
     expect(round.toXdr()).toEqual(addr.toXdr());
   });
+
+  it("ScAddress muxed contract emits W-strkey (SEP-23 vector)", () => {
+    const contractId = new Uint8Array(32);
+    contractId.set([
+      0x3f, 0x0c, 0x34, 0xbf, 0x93, 0xad, 0x0d, 0x99, 0x71, 0xd0, 0x4c, 0xcc,
+      0x90, 0xf7, 0x05, 0x51, 0x1c, 0x83, 0x8a, 0xad, 0x97, 0x34, 0xa4, 0xa2,
+      0xfb, 0x0d, 0x7a, 0x03, 0xfc, 0x7f, 0xe8, 0x9a,
+    ]);
+    const addr = ScAddress.scAddressTypeMuxedContract(
+      new MuxedContract({
+        id: 2n ** 63n,
+        contractId: new ContractId(contractId),
+      }),
+    );
+    expect(addr.toJson()).toBe(
+      "WA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJVAAAAAAAAAAAACWJY",
+    );
+    const round = ScAddress.fromJson(addr.toJson());
+    expect(round.toXdr()).toEqual(addr.toXdr());
+  });
+
+  it("standalone MuxedContract emits W-strkey and round-trips", () => {
+    const muxed = new MuxedContract({ id: 7n, contractId: new ContractId(ED) });
+    const json = muxed.toJson();
+    expect(json).toBe(ScAddress.scAddressTypeMuxedContract(muxed).toJson());
+    expect(MuxedContract.fromJson(json).toXdr()).toEqual(muxed.toXdr());
+    expect(() => MuxedContract.fromJson({ id: "7" })).toThrow(
+      /expected W-strkey string/,
+    );
+  });
+
+  it("rejects muxed IDs outside uint64 instead of wrapping them", () => {
+    for (const id of [-1n, 2n ** 64n]) {
+      const muxedContract = new MuxedContract({
+        id,
+        contractId: new ContractId(ED),
+      });
+      expect(() => muxedContract.toJson()).toThrow(/out of range/);
+      expect(() =>
+        ScAddress.scAddressTypeMuxedContract(muxedContract).toJson(),
+      ).toThrow(/out of range/);
+
+      const muxedAccount = new MuxedEd25519Account({ id, ed25519: ED });
+      expect(() => muxedAccount.toJson()).toThrow(/out of range/);
+      expect(() =>
+        ScAddress.scAddressTypeMuxedAccount(muxedAccount).toJson(),
+      ).toThrow(/out of range/);
+    }
+  });
+
+  // Keyed by variant name so a new ScAddress arm fails to typecheck here until
+  // it has a sample.
+  const scAddressSamples: Record<ScAddressVariantName, ScAddress> = {
+    scAddressTypeAccount: ScAddress.scAddressTypeAccount(
+      PublicKey.publicKeyTypeEd25519(ED),
+    ),
+    scAddressTypeContract: ScAddress.scAddressTypeContract(new ContractId(ED)),
+    scAddressTypeMuxedAccount: ScAddress.scAddressTypeMuxedAccount(
+      new MuxedEd25519Account({ id: 7n, ed25519: ED }),
+    ),
+    scAddressTypeClaimableBalance: ScAddress.scAddressTypeClaimableBalance(
+      ClaimableBalanceId.claimableBalanceIdTypeV0(new Hash(ED)),
+    ),
+    scAddressTypeLiquidityPool: ScAddress.scAddressTypeLiquidityPool(
+      new PoolId(ED),
+    ),
+    scAddressTypeMuxedContract: ScAddress.scAddressTypeMuxedContract(
+      new MuxedContract({ id: 7n, contractId: new ContractId(ED) }),
+    ),
+  };
+
+  for (const [name, addr] of Object.entries(scAddressSamples)) {
+    it(`ScAddress ${name} emits a strkey and round-trips`, () => {
+      const json = addr.toJson();
+      expect(typeof json).toBe("string");
+      expect(ScAddress.fromJson(json).toXdr()).toEqual(addr.toXdr());
+    });
+  }
 });
 
 describe("walker — wide-int parts collapse to decimal string", () => {

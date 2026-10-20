@@ -590,6 +590,61 @@ describe("StrKey", () => {
     });
   });
 
+  describe("#muxedContracts", () => {
+    // Vectors from SEP-23 (stellar-protocol#2020).
+    const contractHex =
+      "3f0c34bf93ad0d9971d04ccc90f705511c838aad9734a4a2fb0d7a03fc7fe89a";
+
+    const valid = [
+      {
+        strkey:
+          "WA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJUAAAAAAAAAAAAAWWC",
+        id: "0000000000000000",
+      },
+      {
+        strkey:
+          "WA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJVAAAAAAAAAAAACWJY",
+        id: "8000000000000000",
+      },
+    ];
+
+    for (const { strkey, id } of valid) {
+      it(`round-trips ${strkey}`, () => {
+        expect(StrKey.isValidMuxedContract(strkey)).toBe(true);
+        const decoded = StrKey.decodeMuxedContract(strkey);
+        expect(uint8ArrayToHex(decoded)).toBe(contractHex + id);
+        expect(StrKey.encodeMuxedContract(decoded)).toBe(strkey);
+      });
+    }
+
+    it("matches the base contract strkey", () => {
+      const decoded = StrKey.decodeMuxedContract(valid[0]!.strkey);
+      expect(StrKey.encodeContract(decoded.subarray(0, 32))).toBe(
+        "CA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJUWDA",
+      );
+    });
+
+    const invalid = [
+      // unused trailing bit is not zero
+      "WA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJUAAAAAAAAAAAAAWWD",
+      // length congruent to 6 mod 8
+      "WA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJUAAAAAAAAAAAAAWWCA",
+      // decodes to 44 bytes, not 43
+      "WA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJUAAAAAAAAAAAAAAIOUI",
+      // algorithm bits are 7
+      "W47QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJUAAAAAAAAAAAADXHW",
+      // bad checksum
+      "WA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJUAAAAAAAAAAAAAWWA",
+    ];
+
+    for (const strkey of invalid) {
+      it(`rejects ${strkey}`, () => {
+        expect(StrKey.isValidMuxedContract(strkey)).toBe(false);
+        expect(() => StrKey.decodeMuxedContract(strkey)).toThrow();
+      });
+    }
+  });
+
   describe("#liquidityPools", () => {
     it("valid w/ 32-byte hash", () => {
       const strkey = "LA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJUPJN";
@@ -679,6 +734,7 @@ describe("StrKey", () => {
       contract: StrKey.encodeContract(seed32),
       liquidityPool: StrKey.encodeLiquidityPool(seed32),
       claimableBalance: StrKey.encodeClaimableBalance(seed33),
+      muxedContract: StrKey.encodeMuxedContract(seed40),
       signedPayload:
         "PA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJUAAAAAQACAQDAQCQMBYIBEFAWDANBYHRAEISCMKBKFQXDAMRUGY4DUPB6IBZGM",
     };
@@ -690,6 +746,7 @@ describe("StrKey", () => {
       contract: StrKey.isValidContract,
       liquidityPool: StrKey.isValidLiquidityPool,
       claimableBalance: StrKey.isValidClaimableBalance,
+      muxedContract: StrKey.isValidMuxedContract,
       signedPayload: StrKey.isValidSignedPayload,
     };
 
