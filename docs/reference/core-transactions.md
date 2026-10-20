@@ -2806,7 +2806,7 @@ static buildFeeBumpTransaction(feeSource: string | Keypair, baseFee: string, inn
 
 - https://developers.stellar.org/docs/glossary/fee-bumps/#replace-by-fee
 
-**Source:** [src/base/transaction_builder.ts:1172](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L1172)
+**Source:** [src/base/transaction_builder.ts:1190](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L1190)
 
 ### `TransactionBuilder.cloneFrom(tx, opts)`
 
@@ -2849,7 +2849,7 @@ static fromXdr(envelope: string | TransactionEnvelope, networkPassphrase: string
       Stellar network (e.g. "Public Global Stellar Network ; September
       2015"), see [`Networks`](#networks).
 
-**Source:** [src/base/transaction_builder.ts:1285](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L1285)
+**Source:** [src/base/transaction_builder.ts:1303](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L1303)
 
 ### `TransactionBuilder.fromXDR(envelope, networkPassphrase)`
 
@@ -2865,7 +2865,7 @@ static fromXDR(envelope: string | TransactionEnvelope, networkPassphrase: string
 - **`envelope`** — `string | TransactionEnvelope` (required)
 - **`networkPassphrase`** — `string` (required)
 
-**Source:** [src/base/transaction_builder.ts:1304](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L1304)
+**Source:** [src/base/transaction_builder.ts:1322](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L1322)
 
 ### `transactionBuilder.baseFee`
 
@@ -3040,9 +3040,10 @@ build(): Transaction;
 
 **Throws**
 
-- If a Soroban transaction has a muxed (`M...`) source account.
+- If a Soroban transaction has a muxed (`M...`) source account,
+    on the transaction or an operation, or has a memo.
 
-**Source:** [src/base/transaction_builder.ts:993](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L993)
+**Source:** [src/base/transaction_builder.ts:1011](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L1011)
 
 ### `transactionBuilder.clearOperationAt(index)`
 
@@ -3076,7 +3077,7 @@ Checks whether any v2 preconditions have been set on this builder.
 hasV2Preconditions(): boolean;
 ```
 
-**Source:** [src/base/transaction_builder.ts:1139](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L1139)
+**Source:** [src/base/transaction_builder.ts:1157](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L1157)
 
 ### `transactionBuilder.setExtraSigners(extraSigners)`
 
