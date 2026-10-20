@@ -24,6 +24,9 @@ import { hash } from "./hashing.js";
 import { Address, assertNotMuxed } from "./address.js";
 import { nativeToScVal } from "./scval.js";
 
+const MUXED_CREDENTIAL_REASON =
+  "cannot sign authorization entries; use its base address";
+
 /**
  * A callback for signing an XDR structure representing all of the details
  * necessary to authorize an invocation tree.
@@ -146,6 +149,8 @@ function toScVal(value: unknown): ScVal | null {
  *    differs from the credential address (e.g. multisig). A bare signature is
  *    verified against this address.
  *
+ * @throws `TypeError` if the entry's address or any delegate address is muxed
+ *    (`M...` or `W...`).
  * @see authorizeInvocation
  * @example
  * ```ts
@@ -237,12 +242,17 @@ export async function authorizeEntry(
     throw new Error(`unsupported credential type ${credentials.type}`);
   }
 
-  // Checked before signing, so a wallet isn't prompted for a discarded signature.
+  // Both checks run before signing, so a wallet isn't prompted for a
+  // discarded signature.
+  const addresses = collectSignatureNodes(credentials).map((node) =>
+    Address.fromScAddress(node.address),
+  );
+  addresses.forEach((address) =>
+    assertNotMuxed(address, MUXED_CREDENTIAL_REASON),
+  );
   if (
     forAddress !== undefined &&
-    !collectSignatureNodes(credentials).some(
-      (node) => Address.fromScAddress(node.address).toString() === forAddress,
-    )
+    !addresses.some((address) => address.toString() === forAddress)
   ) {
     throw new Error(
       `the authorization entry has no credential node for address ${forAddress}`,
@@ -643,14 +653,17 @@ export function buildWithDelegatesEntry(
     );
   }
 
+  assertNotMuxed(
+    Address.fromScAddress(addrAuth.address),
+    MUXED_CREDENTIAL_REASON,
+  );
+
   return new SorobanAuthorizationEntry({
     rootInvocation: entry.rootInvocation,
     credentials: SorobanCredentials.sorobanCredentialsAddressWithDelegates(
       new SorobanAddressCredentialsWithDelegates({
         addressCredentials: new SorobanAddressCredentials({
-          address: credentialAddress(
-            Address.fromScAddress(addrAuth.address).toString(),
-          ),
+          address: addrAuth.address,
           nonce: addrAuth.nonce,
           signatureExpirationLedger: validUntilLedgerSeq,
           signature: signature ?? ScVal.scvVoid(),
@@ -665,10 +678,7 @@ export function buildWithDelegatesEntry(
 // delegate signers, so fail before building an entry that can never verify.
 function credentialAddress(address: string): ScAddress {
   const addr = new Address(address);
-  assertNotMuxed(
-    addr,
-    "cannot sign authorization entries; use its base address",
-  );
+  assertNotMuxed(addr, MUXED_CREDENTIAL_REASON);
   return addr.toScAddress();
 }
 
