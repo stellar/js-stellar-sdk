@@ -335,7 +335,11 @@ export namespace Api {
     ledgerClosedAt: string;
     transactionIndex: number;
     operationIndex: number;
-    inSuccessfulContractCall: boolean;
+    /**
+     * @deprecated Newer RPC servers no longer return this field; it will be
+     * removed in the next major release.
+     */
+    inSuccessfulContractCall?: boolean;
     txHash: string;
   }
 
