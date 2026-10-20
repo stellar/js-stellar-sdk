@@ -37,7 +37,11 @@ import {
   type Int128Parts,
   type Int256Parts,
 } from "./bigint-parts.js";
-import { StrKey } from "../../base/strkey.js";
+import {
+  StrKey,
+  packMuxedContract,
+  unpackMuxedContract,
+} from "../../base/strkey.js";
 import type { ScAddressWire } from "../generated/sc-address.js";
 import type { MuxedContractWire } from "../generated/muxed-contract.js";
 
@@ -450,21 +454,12 @@ function med25519FromStrkey(json: string): Med25519Wire {
   };
 }
 
-// The strkey payload puts the contract ID first, unlike the XDR struct.
 function muxedContractToStrkey(w: MuxedContractWire): string {
-  assertBigIntFits(w.id, false, 64, "MuxedContract.id");
-  const payload = new Uint8Array(40);
-  payload.set(w.contractId, 0);
-  asDataView(payload).setBigUint64(32, w.id);
-  return StrKey.encodeMuxedContract(payload);
+  return StrKey.encodeMuxedContract(packMuxedContract(w.contractId, w.id));
 }
 
 function muxedContractFromStrkey(json: string): MuxedContractWire {
-  const raw = StrKey.decodeMuxedContract(json);
-  return {
-    id: asDataView(raw).getBigUint64(32),
-    contractId: raw.subarray(0, 32),
-  };
+  return unpackMuxedContract(StrKey.decodeMuxedContract(json));
 }
 
 interface SignedPayloadWire {

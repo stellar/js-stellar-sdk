@@ -3,6 +3,7 @@
 import { concatUint8Arrays } from "uint8array-extras";
 import { fromBase32, toBase32 } from "@exodus/bytes/base32.js";
 import { verifyChecksum } from "./util/checksum.js";
+import { assertBigIntFits } from "../xdr/values/bigint-parts.js";
 
 type VersionByteName =
   | "claimableBalance"
@@ -647,4 +648,29 @@ function calculateChecksum(payload: Uint8Array): Uint8Array {
   checksum[0] = crc16 & 0xff;
   checksum[1] = (crc16 >> 8) & 0xff;
   return checksum;
+}
+
+// The W... payload is the 32-byte contract ID then the 8-byte big-endian mux
+// ID, unlike the XDR struct, which puts the ID first.
+export function packMuxedContract(
+  contractId: Uint8Array,
+  id: bigint,
+): Uint8Array {
+  assertBigIntFits(id, false, 64, "MuxedContract.id");
+  const raw = new Uint8Array(40);
+  raw.set(contractId, 0);
+  new DataView(raw.buffer).setBigUint64(32, id);
+  return raw;
+}
+
+export function unpackMuxedContract(raw: Uint8Array): {
+  contractId: Uint8Array;
+  id: bigint;
+} {
+  return {
+    contractId: raw.subarray(0, 32),
+    id: new DataView(raw.buffer, raw.byteOffset, raw.byteLength).getBigUint64(
+      32,
+    ),
+  };
 }
