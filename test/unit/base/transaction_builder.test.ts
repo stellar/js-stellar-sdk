@@ -1993,6 +1993,12 @@ describe("TransactionBuilder.cloneFrom", () => {
       );
     });
 
+    it("keeps 0 when the fee and the resource fee are both 0", () => {
+      expect(TransactionBuilder.cloneFrom(sorobanTx(0, 0n, 1)).baseFee).toBe(
+        "0",
+      );
+    });
+
     it("falls back when the inclusion fee per operation rounds down to 0", () => {
       expect(
         TransactionBuilder.cloneFrom(sorobanTx(102, 100n, 3)).baseFee,
