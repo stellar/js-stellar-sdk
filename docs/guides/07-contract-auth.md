@@ -138,7 +138,14 @@ Simulation never returns a CAP-71 `AddressWithDelegates` entry (it returns
 `ADDRESS_V2`, or legacy `ADDRESS` with `useUpgradedAuth: false`), so delegated
 signing is up to you: wrap the simulated entry with `buildWithDelegatesEntry`,
 then sign each delegate node with `authorizeEntry` and its `forAddress`
-argument. `signAuthEntries` does not select delegate nodes.
+argument. `signAuthEntries` does not select delegate nodes. All nodes sign one
+payload that includes the expiration, so sign every node with the same
+`validUntilLedgerSeq`. When a node signs with a different value,
+`authorizeEntry` clears the signatures of the other nodes. On an entry that
+still stores 0, it keeps an ed25519 signature that verifies at the new value,
+and keeps a custom signature as it is. `signAuthEntries` keeps the stored
+expiration of a delegates entry while it lies within the next 100 ledgers, so
+the top-level account can sign last without an `expiration` argument.
 
 Once delegates are attached, the heuristic reports only what the signatures
 show. A `G…` account must sign its own top-level entry on protocol 27, and its
