@@ -394,9 +394,6 @@ export function nativeToScVal(
     case "undefined":
       return ScVal.scvVoid();
 
-    case "function": // FIXME: Is this too helpful?
-      return nativeToScVal((val as () => unknown)());
-
     default:
       throw new TypeError(
         `failed to convert typeof ${typeof val} (${JSON.stringify(val)})`,
