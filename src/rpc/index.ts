@@ -8,5 +8,9 @@ export {
   LinearSleepStrategy,
   Durability,
 } from "./server.js";
-export { parseRawSimulation, parseRawEvents } from "./parsers.js";
+export {
+  parseRawSimulation,
+  parseRawEvents,
+  parseRawQueryEvents,
+} from "./parsers.js";
 export * from "./transaction.js";

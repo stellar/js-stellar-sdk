@@ -4,6 +4,9 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Added
+* `rpc.Server.queryEvents()` fetches one page of events with the new `queryEvents` RPC method. Only the archival RPC node serves it, and it is in beta. A request is a ledger range query or a cursor continuation, and filter topics can be `ScVal`s. `rpc.Api.isQueryEventsError()` narrows its typed errors, and `rpc.parseRawQueryEvents()` parses a raw response from `_queryEvents()`. `getEvents()` is unchanged.
+
 ## [v17.3.0](https://github.com/stellar/js-stellar-sdk/compare/v17.2.1...v17.3.0)
 
 ### Added
