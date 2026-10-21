@@ -2292,10 +2292,22 @@ describe("edge cases and stress tests", () => {
     expect(scValToBigInt(neg)).toBe(-1n);
   });
 
-  it("auto-invokes function values and converts the result", () => {
-    const scv = nativeToScVal(() => 42);
-    expect(scv.type).toBe("scvU64");
-    expect(scValToNative(scv)).toBe(42n);
+  it("rejects function values without calling them", () => {
+    let calls = 0;
+    const fn = () => {
+      calls += 1;
+      return 42;
+    };
+    expect(() => nativeToScVal(fn)).toThrow(
+      /failed to convert typeof function/,
+    );
+    expect(() => nativeToScVal([fn])).toThrow(
+      /failed to convert typeof function/,
+    );
+    expect(() => nativeToScVal({ a: fn })).toThrow(
+      /failed to convert typeof function/,
+    );
+    expect(calls).toBe(0);
   });
 
   it("throws when u32 value exceeds max", () => {

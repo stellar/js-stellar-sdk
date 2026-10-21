@@ -386,4 +386,25 @@ describe("Server#getEvents", () => {
     expect(response.events[0].topic).toEqual([]);
     expect(mockPost).toHaveBeenCalledTimes(1);
   });
+
+  it("handles events without the inSuccessfulContractCall field", async () => {
+    const { inSuccessfulContractCall: _, ...event } =
+      getEventsResponseFixture[1];
+    const result = {
+      latestLedger: 2,
+      oldestLedger: 2,
+      oldestLedgerCloseTime: "0",
+      latestLedgerCloseTime: "0",
+      cursor: "164090849041387521-3",
+      events: [event],
+    };
+    setupMock(mockPost, { startLedger: 2 }, result);
+
+    const response = await server.getEvents({ startLedger: 2 });
+    expect(response).toEqual(parseEvents(result));
+    expect(response.events).toHaveLength(1);
+    expect(response.events[0]).not.toHaveProperty("inSuccessfulContractCall");
+    expect(response.events[0].inSuccessfulContractCall).toBeUndefined();
+    expect(response.events[0].contractId.contractId()).toBe(contractId);
+  });
 });
