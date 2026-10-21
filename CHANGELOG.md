@@ -4,6 +4,8 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+## [v16.4.1](https://github.com/stellar/js-stellar-sdk/compare/v16.4.0...v16.4.1)
+
 ### Fixed
 - Bumped `axios` from 1.18.0 to 1.20.0 to pick up fixes for its published security advisories, matching v17 ([#1777](https://github.com/stellar/js-stellar-sdk/issues/1777)).
 
