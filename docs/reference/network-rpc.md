@@ -1637,12 +1637,16 @@ assembleTransaction(raw: Transaction | FeeBumpTransaction, simulation: SimulateT
 
 a new, cloned transaction with the proper auth and resource (fee, footprint) simulation data applied
 
+**Throws**
+
+- If the transaction's `resourceFee` is below 0 or above 2^50.
+
 **See also**
 
 - - [`rpc.Server.simulateTransaction`](#serversimulatetransactiontx-addlresources-authmode-useupgradedauth)
  - [`rpc.Server.prepareTransaction`](#serverpreparetransactiontx-useupgradedauth)
 
-**Source:** [src/rpc/transaction.ts:45](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/transaction.ts#L45)
+**Source:** [src/rpc/transaction.ts:46](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/transaction.ts#L46)
 
 ## rpc.parseRawEvents
 

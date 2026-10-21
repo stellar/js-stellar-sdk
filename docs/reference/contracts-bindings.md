@@ -89,7 +89,7 @@ const generator = await BindingGenerator.fromContractId(
 );
 ```
 
-**Source:** [src/bindings/generator.ts:211](https://github.com/stellar/js-stellar-sdk/blob/main/src/bindings/generator.ts#L211)
+**Source:** [src/bindings/generator.ts:212](https://github.com/stellar/js-stellar-sdk/blob/main/src/bindings/generator.ts#L212)
 
 ### `BindingGenerator.fromSpec(spec)`
 
@@ -141,6 +141,7 @@ A Promise resolving to a new BindingGenerator instance
 **Throws**
 
 - If the WASM file doesn't contain a valid contract spec
+- If the WASM file has more than one `contractspecv0` section
 
 **Example**
 
@@ -149,7 +150,7 @@ const wasmBytes = fs.readFileSync("./target/wasm32-unknown-unknown/release/my_co
 const generator = await BindingGenerator.fromWasm(wasmBytes);
 ```
 
-**Source:** [src/bindings/generator.ts:154](https://github.com/stellar/js-stellar-sdk/blob/main/src/bindings/generator.ts#L154)
+**Source:** [src/bindings/generator.ts:155](https://github.com/stellar/js-stellar-sdk/blob/main/src/bindings/generator.ts#L155)
 
 ### `BindingGenerator.fromWasmHash(wasmHash, rpcServer)`
 
@@ -186,7 +187,7 @@ const generator = await BindingGenerator.fromWasmHash(
 );
 ```
 
-**Source:** [src/bindings/generator.ts:180](https://github.com/stellar/js-stellar-sdk/blob/main/src/bindings/generator.ts#L180)
+**Source:** [src/bindings/generator.ts:181](https://github.com/stellar/js-stellar-sdk/blob/main/src/bindings/generator.ts#L181)
 
 ### `bindingGenerator.generate(options)`
 
@@ -233,4 +234,4 @@ fs.writeFileSync("./src/client.ts", bindings.client);
 fs.writeFileSync("./src/types.ts", bindings.types);
 ```
 
-**Source:** [src/bindings/generator.ts:255](https://github.com/stellar/js-stellar-sdk/blob/main/src/bindings/generator.ts#L255)
+**Source:** [src/bindings/generator.ts:256](https://github.com/stellar/js-stellar-sdk/blob/main/src/bindings/generator.ts#L256)

@@ -149,7 +149,7 @@ const BASE_FEE: "100"
 
 - [Fees](https://developers.stellar.org/docs/glossary/fees/)
 
-**Source:** [src/base/transaction_builder.ts:77](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L77)
+**Source:** [src/base/transaction_builder.ts:87](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L87)
 
 ## FeeBumpTransaction
 
@@ -2287,7 +2287,7 @@ const TimeoutInfinite: 0
 - - [`TransactionBuilder#setTimeout`](#transactionbuildersettimeouttimeoutseconds)
  - [Timeout](https://developers.stellar.org/api/resources/transactions/post/)
 
-**Source:** [src/base/transaction_builder.ts:83](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L83)
+**Source:** [src/base/transaction_builder.ts:93](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L93)
 
 ## Transaction
 
@@ -2765,7 +2765,7 @@ class TransactionBuilder {
 }
 ```
 
-**Source:** [src/base/transaction_builder.ts:191](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L191)
+**Source:** [src/base/transaction_builder.ts:201](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L201)
 
 ### `new TransactionBuilder(sourceAccount, opts)`
 
@@ -2778,7 +2778,7 @@ constructor(sourceAccount: TransactionSource, opts: TransactionBuilderOptions = 
 - **`sourceAccount`** — `TransactionSource` (required) — source account for this transaction
 - **`opts`** — `TransactionBuilderOptions` (optional) (default: `...`) — options object (see `TransactionBuilderOptions`)
 
-**Source:** [src/base/transaction_builder.ts:212](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L212)
+**Source:** [src/base/transaction_builder.ts:222](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L222)
 
 ### `TransactionBuilder.buildFeeBumpTransaction(feeSource, baseFee, innerTx, networkPassphrase)`
 
@@ -2802,11 +2802,15 @@ static buildFeeBumpTransaction(feeSource: string | Keypair, baseFee: string, inn
       Stellar network (e.g. "Public Global Stellar Network ; September 2015",
       see [`Networks`](#networks))
 
+**Throws**
+
+- If the inner transaction's `resourceFee` is below 0 or above 2^50.
+
 **See also**
 
 - https://developers.stellar.org/docs/glossary/fee-bumps/#replace-by-fee
 
-**Source:** [src/base/transaction_builder.ts:1190](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L1190)
+**Source:** [src/base/transaction_builder.ts:1212](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L1212)
 
 ### `TransactionBuilder.cloneFrom(tx, opts)`
 
@@ -2830,7 +2834,11 @@ static cloneFrom(tx: Transaction, opts: Partial<TransactionBuilderOptions> = {})
      `{fee: '1000'}` will override the existing base fee derived from `tx` (see
      the [`TransactionBuilder`](#transactionbuilder) constructor for detailed options)
 
-**Source:** [src/base/transaction_builder.ts:320](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L320)
+**Throws**
+
+- If the transaction's `resourceFee` is below 0 or above 2^50.
+
+**Source:** [src/base/transaction_builder.ts:332](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L332)
 
 ### `TransactionBuilder.fromXdr(envelope, networkPassphrase)`
 
@@ -2849,7 +2857,7 @@ static fromXdr(envelope: string | TransactionEnvelope, networkPassphrase: string
       Stellar network (e.g. "Public Global Stellar Network ; September
       2015"), see [`Networks`](#networks).
 
-**Source:** [src/base/transaction_builder.ts:1303](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L1303)
+**Source:** [src/base/transaction_builder.ts:1328](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L1328)
 
 ### `TransactionBuilder.fromXDR(envelope, networkPassphrase)`
 
@@ -2865,7 +2873,7 @@ static fromXDR(envelope: string | TransactionEnvelope, networkPassphrase: string
 - **`envelope`** — `string | TransactionEnvelope` (required)
 - **`networkPassphrase`** — `string` (required)
 
-**Source:** [src/base/transaction_builder.ts:1322](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L1322)
+**Source:** [src/base/transaction_builder.ts:1347](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L1347)
 
 ### `transactionBuilder.baseFee`
 
@@ -2873,7 +2881,7 @@ static fromXDR(envelope: string | TransactionEnvelope, networkPassphrase: string
 baseFee: string;
 ```
 
-**Source:** [src/base/transaction_builder.ts:194](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L194)
+**Source:** [src/base/transaction_builder.ts:204](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L204)
 
 ### `transactionBuilder.extraSigners`
 
@@ -2881,7 +2889,7 @@ baseFee: string;
 extraSigners: string[] | null;
 ```
 
-**Source:** [src/base/transaction_builder.ts:203](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L203)
+**Source:** [src/base/transaction_builder.ts:213](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L213)
 
 ### `transactionBuilder.ledgerbounds`
 
@@ -2889,7 +2897,7 @@ extraSigners: string[] | null;
 ledgerbounds: { maxLedger?: number; minLedger?: number } | null;
 ```
 
-**Source:** [src/base/transaction_builder.ts:199](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L199)
+**Source:** [src/base/transaction_builder.ts:209](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L209)
 
 ### `transactionBuilder.memo`
 
@@ -2897,7 +2905,7 @@ ledgerbounds: { maxLedger?: number; minLedger?: number } | null;
 memo: Memo;
 ```
 
-**Source:** [src/base/transaction_builder.ts:204](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L204)
+**Source:** [src/base/transaction_builder.ts:214](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L214)
 
 ### `transactionBuilder.minAccountSequence`
 
@@ -2905,7 +2913,7 @@ memo: Memo;
 minAccountSequence: string | null;
 ```
 
-**Source:** [src/base/transaction_builder.ts:200](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L200)
+**Source:** [src/base/transaction_builder.ts:210](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L210)
 
 ### `transactionBuilder.minAccountSequenceAge`
 
@@ -2913,7 +2921,7 @@ minAccountSequence: string | null;
 minAccountSequenceAge: bigint | null;
 ```
 
-**Source:** [src/base/transaction_builder.ts:201](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L201)
+**Source:** [src/base/transaction_builder.ts:211](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L211)
 
 ### `transactionBuilder.minAccountSequenceLedgerGap`
 
@@ -2921,7 +2929,7 @@ minAccountSequenceAge: bigint | null;
 minAccountSequenceLedgerGap: number | null;
 ```
 
-**Source:** [src/base/transaction_builder.ts:202](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L202)
+**Source:** [src/base/transaction_builder.ts:212](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L212)
 
 ### `transactionBuilder.networkPassphrase`
 
@@ -2929,7 +2937,7 @@ minAccountSequenceLedgerGap: number | null;
 networkPassphrase: string | null;
 ```
 
-**Source:** [src/base/transaction_builder.ts:205](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L205)
+**Source:** [src/base/transaction_builder.ts:215](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L215)
 
 ### `transactionBuilder.operations`
 
@@ -2937,7 +2945,7 @@ networkPassphrase: string | null;
 operations: Operation[];
 ```
 
-**Source:** [src/base/transaction_builder.ts:193](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L193)
+**Source:** [src/base/transaction_builder.ts:203](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L203)
 
 ### `transactionBuilder.sorobanData`
 
@@ -2945,7 +2953,7 @@ operations: Operation[];
 sorobanData: SorobanTransactionData | null;
 ```
 
-**Source:** [src/base/transaction_builder.ts:206](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L206)
+**Source:** [src/base/transaction_builder.ts:216](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L216)
 
 ### `transactionBuilder.source`
 
@@ -2953,7 +2961,7 @@ sorobanData: SorobanTransactionData | null;
 source: TransactionSource;
 ```
 
-**Source:** [src/base/transaction_builder.ts:192](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L192)
+**Source:** [src/base/transaction_builder.ts:202](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L202)
 
 ### `transactionBuilder.timebounds`
 
@@ -2961,7 +2969,7 @@ source: TransactionSource;
 timebounds: { maxTime?: string | number | Date; minTime?: string | number | Date } | null;
 ```
 
-**Source:** [src/base/transaction_builder.ts:195](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L195)
+**Source:** [src/base/transaction_builder.ts:205](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L205)
 
 ### `transactionBuilder.addMemo(memo)`
 
@@ -2975,7 +2983,7 @@ addMemo(memo: Memo): TransactionBuilder;
 
 - **`memo`** — `Memo` (required) — [`Memo`](#memo) object
 
-**Source:** [src/base/transaction_builder.ts:452](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L452)
+**Source:** [src/base/transaction_builder.ts:468](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L468)
 
 ### `transactionBuilder.addOperation(operation)`
 
@@ -2989,7 +2997,7 @@ addOperation(operation: Operation): TransactionBuilder;
 
 - **`operation`** — `Operation` (required) — The xdr operation object, use `Operation` static methods.
 
-**Source:** [src/base/transaction_builder.ts:414](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L414)
+**Source:** [src/base/transaction_builder.ts:430](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L430)
 
 ### `transactionBuilder.addOperationAt(operation, index)`
 
@@ -3004,7 +3012,7 @@ addOperationAt(operation: Operation, index: number): TransactionBuilder;
 - **`operation`** — `Operation` (required) — The xdr operation object to add, use [`Operation`](#operation) static methods.
 - **`index`** — `number` (required) — The index at which to insert the operation.
 
-**Source:** [src/base/transaction_builder.ts:425](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L425)
+**Source:** [src/base/transaction_builder.ts:441](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L441)
 
 ### `transactionBuilder.addSacTransferOperation(destination, asset, amount, sorobanFees)`
 
@@ -3027,7 +3035,7 @@ addSacTransferOperation(destination: string, asset: Asset, amount: string | bigi
 
 - If the builder's source is a muxed (`M...`) account.
 
-**Source:** [src/base/transaction_builder.ts:762](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L762)
+**Source:** [src/base/transaction_builder.ts:778](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L778)
 
 ### `transactionBuilder.build()`
 
@@ -3041,9 +3049,11 @@ build(): Transaction;
 **Throws**
 
 - If a Soroban transaction has a muxed (`M...`) source account,
-    on the transaction or an operation, or has a memo.
+   on the transaction or an operation, or has a memo. Also if the Soroban
+   data's `resourceFee` is below 0, or if the total fee is above the uint32
+   maximum.
 
-**Source:** [src/base/transaction_builder.ts:1011](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L1011)
+**Source:** [src/base/transaction_builder.ts:1029](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L1029)
 
 ### `transactionBuilder.clearOperationAt(index)`
 
@@ -3057,7 +3067,7 @@ clearOperationAt(index: number): TransactionBuilder;
 
 - **`index`** — `number` (required) — The index of the operation to remove.
 
-**Source:** [src/base/transaction_builder.ts:443](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L443)
+**Source:** [src/base/transaction_builder.ts:459](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L459)
 
 ### `transactionBuilder.clearOperations()`
 
@@ -3067,7 +3077,7 @@ Removes the operations from the builder (useful when cloning).
 clearOperations(): TransactionBuilder;
 ```
 
-**Source:** [src/base/transaction_builder.ts:433](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L433)
+**Source:** [src/base/transaction_builder.ts:449](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L449)
 
 ### `transactionBuilder.hasV2Preconditions()`
 
@@ -3077,7 +3087,7 @@ Checks whether any v2 preconditions have been set on this builder.
 hasV2Preconditions(): boolean;
 ```
 
-**Source:** [src/base/transaction_builder.ts:1157](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L1157)
+**Source:** [src/base/transaction_builder.ts:1177](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L1177)
 
 ### `transactionBuilder.setExtraSigners(extraSigners)`
 
@@ -3094,7 +3104,7 @@ setExtraSigners(extraSigners: string[]): TransactionBuilder;
 
 - **`extraSigners`** — `string[]` (required) — required extra signers (as [`StrKey`](/reference/core-keys/#strkey)s)
 
-**Source:** [src/base/transaction_builder.ts:695](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L695)
+**Source:** [src/base/transaction_builder.ts:711](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L711)
 
 ### `transactionBuilder.setLedgerbounds(minLedger, maxLedger)`
 
@@ -3115,7 +3125,7 @@ setLedgerbounds(minLedger: number, maxLedger: number): TransactionBuilder;
       before. Cannot be negative. If the value is `0`, the transaction is
       valid indefinitely.
 
-**Source:** [src/base/transaction_builder.ts:581](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L581)
+**Source:** [src/base/transaction_builder.ts:597](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L597)
 
 ### `transactionBuilder.setMinAccountSequence(minAccountSequence)`
 
@@ -3141,7 +3151,7 @@ setMinAccountSequence(minAccountSequence: string): TransactionBuilder;
       default), the transaction is valid when
       `sourceAccount's sequence number == tx.seqNum - 1`.
 
-**Source:** [src/base/transaction_builder.ts:620](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L620)
+**Source:** [src/base/transaction_builder.ts:636](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L636)
 
 ### `transactionBuilder.setMinAccountSequenceAge(durationInSeconds)`
 
@@ -3160,7 +3170,7 @@ setMinAccountSequenceAge(durationInSeconds: bigint): TransactionBuilder;
       will become valid. If the value is `0`, the transaction is unrestricted
       by the account sequence age. Cannot be negative.
 
-**Source:** [src/base/transaction_builder.ts:642](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L642)
+**Source:** [src/base/transaction_builder.ts:658](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L658)
 
 ### `transactionBuilder.setMinAccountSequenceLedgerGap(gap)`
 
@@ -3179,7 +3189,7 @@ setMinAccountSequenceLedgerGap(gap: number): TransactionBuilder;
       If the value is `0`, the transaction is unrestricted by the account
       sequence ledger. Cannot be negative.
 
-**Source:** [src/base/transaction_builder.ts:671](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L671)
+**Source:** [src/base/transaction_builder.ts:687](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L687)
 
 ### `transactionBuilder.setNetworkPassphrase(networkPassphrase)`
 
@@ -3194,7 +3204,7 @@ setNetworkPassphrase(networkPassphrase: string): TransactionBuilder;
 - **`networkPassphrase`** — `string` (required) — passphrase of the target Stellar
       network (e.g. "Public Global Stellar Network ; September 2015").
 
-**Source:** [src/base/transaction_builder.ts:721](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L721)
+**Source:** [src/base/transaction_builder.ts:737](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L737)
 
 ### `transactionBuilder.setSorobanData(sorobanData)`
 
@@ -3222,7 +3232,7 @@ setSorobanData(sorobanData: string | SorobanTransactionData): TransactionBuilder
 
 - [`SorobanDataBuilder`](/reference/core-soroban-primitives/#sorobandatabuilder)
 
-**Source:** [src/base/transaction_builder.ts:743](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L743)
+**Source:** [src/base/transaction_builder.ts:759](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L759)
 
 ### `transactionBuilder.setTimebounds(minEpochOrDate, maxEpochOrDate)`
 
@@ -3246,7 +3256,7 @@ setTimebounds(minEpochOrDate: number | Date, maxEpochOrDate: number | Date): Tra
       Can't be negative. If the value is `0`, the transaction is valid
       indefinitely.
 
-**Source:** [src/base/transaction_builder.ts:532](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L532)
+**Source:** [src/base/transaction_builder.ts:548](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L548)
 
 ### `transactionBuilder.setTimeout(timeoutSeconds)`
 
@@ -3287,7 +3297,7 @@ setTimeout(timeoutSeconds: number): TransactionBuilder;
 - - [`TimeoutInfinite`](#timeoutinfinite)
  - https://developers.stellar.org/docs/tutorials/handling-errors/
 
-**Source:** [src/base/transaction_builder.ts:487](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L487)
+**Source:** [src/base/transaction_builder.ts:503](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L503)
 
 ## XdrLargeInt
 
@@ -4608,7 +4618,7 @@ interface SorobanFees {
 }
 ```
 
-**Source:** [src/base/transaction_builder.ts:88](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L88)
+**Source:** [src/base/transaction_builder.ts:98](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L98)
 
 #### `sorobanFees.instructions`
 
@@ -4618,7 +4628,7 @@ The number of instructions executed by the transaction.
 instructions: number;
 ```
 
-**Source:** [src/base/transaction_builder.ts:90](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L90)
+**Source:** [src/base/transaction_builder.ts:100](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L100)
 
 #### `sorobanFees.readBytes`
 
@@ -4628,7 +4638,7 @@ The number of bytes read from the ledger by the transaction.
 readBytes: number;
 ```
 
-**Source:** [src/base/transaction_builder.ts:92](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L92)
+**Source:** [src/base/transaction_builder.ts:102](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L102)
 
 #### `sorobanFees.resourceFee`
 
@@ -4638,7 +4648,7 @@ The fee to be paid for the transaction, in stroops.
 resourceFee: bigint;
 ```
 
-**Source:** [src/base/transaction_builder.ts:96](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L96)
+**Source:** [src/base/transaction_builder.ts:106](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L106)
 
 #### `sorobanFees.writeBytes`
 
@@ -4648,7 +4658,7 @@ The number of bytes written to the ledger by the transaction.
 writeBytes: number;
 ```
 
-**Source:** [src/base/transaction_builder.ts:94](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L94)
+**Source:** [src/base/transaction_builder.ts:104](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_builder.ts#L104)
 
 ### TransactionSource
 

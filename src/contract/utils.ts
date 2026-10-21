@@ -147,6 +147,12 @@ export function parseWasmCustomSections(
   if ([...read(4)].join() !== "1,0,0,0")
     throw new Error("Invalid WASM version");
 
+  // ignoreBOM keeps a BOM-prefixed name distinct, as wasmparser does.
+  const nameDecoder = new TextDecoder("utf-8", {
+    fatal: true,
+    ignoreBOM: true,
+  });
+
   while (offset < buffer.byteLength) {
     const sectionId = read(1)[0];
     const sectionLength = readVarUint32();
@@ -161,12 +167,9 @@ export function parseWasmCustomSections(
         const payload = read(sectionLength - (offset - start));
 
         try {
-          const name = new TextDecoder("utf-8", { fatal: true }).decode(
-            nameBytes,
-          );
-          if (payload.length > 0) {
-            sections.set(name, (sections.get(name) || []).concat(payload));
-          }
+          const name = nameDecoder.decode(nameBytes);
+          // Empty payloads are kept so callers can count every section.
+          sections.set(name, (sections.get(name) || []).concat(payload));
         } catch {
           /* Invalid UTF-8 */
         }
