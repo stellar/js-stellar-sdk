@@ -144,6 +144,7 @@ export class BindingGenerator {
    * @param wasmBytes - The raw WASM binary as a Uint8Array
    * @returns A Promise resolving to a new BindingGenerator instance
    * @throws If the WASM file doesn't contain a valid contract spec
+   * @throws If the WASM file has more than one `contractspecv0` section
    *
    * @example
    * ```ts

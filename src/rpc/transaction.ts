@@ -38,6 +38,7 @@ function isSorobanTransaction(tx: Transaction): boolean {
  * @param raw - the initial transaction, w/o simulation applied
  * @param simulation - the Soroban RPC simulation result (see {@link rpc.Server.simulateTransaction})
  * @returns a new, cloned transaction with the proper auth and resource (fee, footprint) simulation data applied
+ * @throws If the transaction's `resourceFee` is below 0 or above 2^50.
  *
  * @see {@link rpc.Server.simulateTransaction}
  * @see {@link rpc.Server.prepareTransaction}
@@ -82,9 +83,10 @@ export function assembleTransaction(
   }
 
   // If the incoming raw transaction already has Soroban data,
-  // we need to be careful to handle the fee to prevent double-counting,
+  // we need to be careful to handle the fee to prevent double-counting.
+  // cloneFrom() below rejects an out-of-range resourceFee.
   if (rawSorobanData) {
-    if (classicFeeNum - rawSorobanData.resourceFee > BigInt(0)) {
+    if (classicFeeNum >= rawSorobanData.resourceFee) {
       classicFeeNum -= rawSorobanData.resourceFee;
     }
   }
