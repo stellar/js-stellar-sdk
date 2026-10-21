@@ -3,6 +3,7 @@ import { Operation } from "../../../../src/base/operation.js";
 import { Asset } from "../../../../src/base/asset.js";
 import { LiquidityPoolAsset } from "../../../../src/base/liquidity_pool_asset.js";
 import { LiquidityPoolFeeV18 } from "../../../../src/base/get_liquidity_pool_id.js";
+import { StrKey } from "../../../../src/base/strkey.js";
 import * as xdr from "../../../../src/xdr/index.js";
 import { expectOperationType } from "../support/operation.js";
 import { expectVariant } from "../support/xdr.js";
@@ -130,6 +131,43 @@ describe("Operation.changeTrust()", () => {
     const rebuilt = Operation.changeTrust(parsed);
     expect(rebuilt).toBeInstanceOf(xdr.Operation);
     expect(rebuilt.toXdr("hex")).toBe(xdrHex);
+  });
+
+  it("decodes a pool share whose issuers sort differently as strkey text", () => {
+    // Core orders issuers by key bytes: 0x00… (GAA…) before 0x3a… (GA5…)
+    const assetA = new Asset(
+      "USD",
+      StrKey.encodeEd25519PublicKey(new Uint8Array(32)),
+    );
+    const assetB = new Asset(
+      "USD",
+      StrKey.encodeEd25519PublicKey(new Uint8Array(32).fill(0x3a)),
+    );
+    const op = new xdr.Operation({
+      sourceAccount: null,
+      body: xdr.OperationBody.changeTrust(
+        new xdr.ChangeTrustOp({
+          line: xdr.ChangeTrustAsset.assetTypePoolShare(
+            xdr.LiquidityPoolParameters.liquidityPoolConstantProduct(
+              new xdr.LiquidityPoolConstantProductParameters({
+                assetA: assetA.toXdrObject(),
+                assetB: assetB.toXdrObject(),
+                fee: LiquidityPoolFeeV18,
+              }),
+            ),
+          ),
+          limit: 1000n,
+        }),
+      ),
+    });
+
+    const parsed = expectOperationType(
+      Operation.fromXdrObject(op),
+      "changeTrust",
+    );
+    const line = parsed.line as LiquidityPoolAsset;
+    expect(line.assetA.equals(assetA)).toBe(true);
+    expect(line.assetB.equals(assetB)).toBe(true);
   });
 
   it("preserves an optional source account", () => {
