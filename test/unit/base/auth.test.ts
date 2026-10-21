@@ -56,6 +56,64 @@ describe("building authorization entries", () => {
   });
 
   describe("authorizeEntry", () => {
+    const signatureScValSigner = () =>
+      vi.fn<SigningCallback>(() =>
+        Promise.resolve({ signatureScVal: xdr.ScVal.scvVoid() }),
+      );
+
+    it.each([
+      "MA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJVAAAAAAAAAAAAAJLK",
+      "WA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJVAAAAAAAAAAAACWJY",
+    ])("rejects an entry whose address is muxed: %s", async (muxed) => {
+      const entry = new xdr.SorobanAuthorizationEntry({
+        rootInvocation: authEntry.rootInvocation,
+        credentials: xdr.SorobanCredentials.sorobanCredentialsAddress(
+          new xdr.SorobanAddressCredentials({
+            address: new Address(muxed).toScAddress(),
+            nonce: 1n,
+            signatureExpirationLedger: 0,
+            signature: xdr.ScVal.scvVec([]),
+          }),
+        ),
+      });
+      const signer = signatureScValSigner();
+      await expect(
+        authorizeEntry(entry, signer, 10, Networks.TESTNET),
+      ).rejects.toThrow(/cannot sign authorization entries/);
+      expect(signer).not.toHaveBeenCalled();
+    });
+
+    it("rejects an entry with a muxed delegate address", async () => {
+      const entry = new xdr.SorobanAuthorizationEntry({
+        rootInvocation: authEntry.rootInvocation,
+        credentials:
+          xdr.SorobanCredentials.sorobanCredentialsAddressWithDelegates(
+            new xdr.SorobanAddressCredentialsWithDelegates({
+              addressCredentials: new xdr.SorobanAddressCredentials({
+                address: new Address(kp.publicKey()).toScAddress(),
+                nonce: 1n,
+                signatureExpirationLedger: 0,
+                signature: xdr.ScVal.scvVoid(),
+              }),
+              delegates: [
+                new xdr.SorobanDelegateSignature({
+                  address: new Address(
+                    "MA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJVAAAAAAAAAAAAAJLK",
+                  ).toScAddress(),
+                  signature: xdr.ScVal.scvVoid(),
+                  nestedDelegates: [],
+                }),
+              ],
+            }),
+          ),
+      });
+      const signer = signatureScValSigner();
+      await expect(
+        authorizeEntry(entry, signer, 10, Networks.TESTNET),
+      ).rejects.toThrow(/cannot sign authorization entries/);
+      expect(signer).not.toHaveBeenCalled();
+    });
+
     it("signs the entry correctly with a Keypair", async () => {
       const signedEntry = await authorizeEntry(
         authEntry,

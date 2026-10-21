@@ -1878,12 +1878,12 @@ export class RpcServer {
   ): Promise<Api.BalanceResponse> {
     const addressString =
       address instanceof Address ? address.toString() : address;
-    assertNotMuxed(
-      addressString,
-      "has no balance of its own; use its base address",
-    );
 
     if (!StrKey.isValidContract(addressString)) {
+      assertNotMuxed(
+        addressString,
+        "has no balance of its own; use its base address",
+      );
       throw new TypeError(`expected contract ID, got ${addressString}`);
     }
 

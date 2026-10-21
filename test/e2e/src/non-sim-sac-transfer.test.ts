@@ -5,9 +5,11 @@ import {
   Keypair,
   MuxedAccount,
   Operation,
+  Transaction,
   TransactionBuilder,
   nativeToScVal,
   rpc,
+  xdr,
 } from "../../../lib/esm/index.js";
 import { generateFundedKeypair, networkPassphrase, server } from "./util.js";
 
@@ -196,10 +198,11 @@ describe("Non-simulated SAC Transfer", () => {
     it("the network rejects a Soroban transaction with a muxed source", async () => {
       const { sender, receiver } = context;
 
-      // The same transfer, with the base account as `from`, built past the
-      // SDK check: core refuses the muxed transaction source itself.
+      // The same transfer, with the base account as `from`. build() refuses a
+      // muxed source, so the source is swapped in the envelope after
+      // assembly: core refuses the muxed transaction source itself.
       const account = await server.getAccount(sender.publicKey());
-      const tx = new TransactionBuilder(new MuxedAccount(account, "42"), {
+      const tx = new TransactionBuilder(account, {
         fee: BASE_FEE,
         networkPassphrase,
       })
@@ -222,9 +225,25 @@ describe("Non-simulated SAC Transfer", () => {
         throw new Error(`simulation failed: ${sim.error}`);
       }
       const assembled = rpc.assembleTransaction(tx, sim).build();
-      assembled.sign(sender);
+      const envelope = assembled.toEnvelope();
+      if (envelope.type !== "envelopeTypeTx") {
+        throw new Error(`unexpected envelope type ${envelope.type}`);
+      }
+      const muxedTx = new Transaction(
+        xdr.TransactionEnvelope.envelopeTypeTx(
+          new xdr.TransactionV1Envelope({
+            tx: new xdr.Transaction({
+              ...envelope.value.tx,
+              sourceAccount: new MuxedAccount(account, "42").toXdrObject(),
+            }),
+            signatures: [],
+          }),
+        ),
+        networkPassphrase,
+      );
+      muxedTx.sign(sender);
 
-      const response = await server.sendTransaction(assembled);
+      const response = await server.sendTransaction(muxedTx);
       expect(response.status).toBe("ERROR");
       expect(response.errorResult?.result.type).toBe("txSorobanInvalid");
     });

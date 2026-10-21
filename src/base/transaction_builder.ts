@@ -69,6 +69,12 @@ function checkResourceFee(resourceFee: bigint): void {
   }
 }
 
+const SOROBAN_OPERATION_TYPES: ReadonlySet<string> = new Set([
+  "invokeHostFunction",
+  "extendFootprintTtl",
+  "restoreFootprint",
+]);
+
 /**
  * Minimum base fee for transactions. If this fee is below the network
  * minimum, the transaction will fail. The more operations in the
@@ -775,12 +781,7 @@ export class TransactionBuilder {
     amount: bigint | string,
     sorobanFees?: SorobanFees,
   ): TransactionBuilder {
-    // Core rejects any Soroban transaction with a muxed source account.
-    if (StrKey.isValidMed25519PublicKey(this.source.accountId())) {
-      throw new Error(
-        "Soroban transactions cannot use a muxed source account; use the base account",
-      );
-    }
+    this.assertSorobanSourceNotMuxed();
 
     if (BigInt(amount) <= 0n) {
       throw new Error("Amount must be a positive integer");
@@ -833,10 +834,9 @@ export class TransactionBuilder {
     // address for ledger key construction: balances are held by the base
     // address, and the mux ID only appears in the transfer event.
     const destinationBaseAddress = extractBaseAddress(destination);
+    const source = this.source.accountId();
 
-    if (
-      destinationBaseAddress === extractBaseAddress(this.source.accountId())
-    ) {
+    if (destinationBaseAddress === source) {
       throw new Error("Destination cannot be the same as the source account.");
     }
 
@@ -848,8 +848,6 @@ export class TransactionBuilder {
 
     const contractId = asset.contractId(this.networkPassphrase);
     const functionName = "transfer";
-    const source = this.source.accountId();
-    const sourceBaseAddress = extractBaseAddress(source);
     const args = [
       nativeToScVal(source, { type: "address" }),
       nativeToScVal(destination, { type: "address" }),
@@ -943,15 +941,15 @@ export class TransactionBuilder {
       footprint.readWrite.push(
         LedgerKey.account(
           new LedgerKeyAccount({
-            accountId: Keypair.fromPublicKey(sourceBaseAddress).xdrPublicKey(),
+            accountId: Keypair.fromPublicKey(source).xdrPublicKey(),
           }),
         ),
       );
-    } else if (asset.getIssuer() !== sourceBaseAddress) {
+    } else if (asset.getIssuer() !== source) {
       footprint.readWrite.push(
         LedgerKey.trustline(
           new LedgerKeyTrustLine({
-            accountId: Keypair.fromPublicKey(sourceBaseAddress).xdrPublicKey(),
+            accountId: Keypair.fromPublicKey(source).xdrPublicKey(),
             asset: asset.toTrustLineXdrObject(),
           }),
         ),
@@ -993,14 +991,49 @@ export class TransactionBuilder {
     return this.addOperation(operation);
   }
 
+  // Core rejects any Soroban transaction with a muxed source account.
+  private assertSorobanSourceNotMuxed(): void {
+    if (StrKey.isValidMed25519PublicKey(this.source.accountId())) {
+      throw new Error(
+        "Soroban transactions cannot use a muxed source account; use the base account",
+      );
+    }
+  }
+
+  // Core also rejects a muxed operation source and a memo.
+  private assertValidSoroban(): void {
+    this.assertSorobanSourceNotMuxed();
+    if (
+      this.operations.some(
+        (op) => op.sourceAccount?.type === "keyTypeMuxedEd25519",
+      )
+    ) {
+      throw new Error(
+        "Soroban operations cannot use a muxed source account; use the base account",
+      );
+    }
+    if (this.memo.type !== "none") {
+      throw new Error("Soroban transactions cannot have a memo");
+    }
+  }
+
   /**
    * Builds the transaction and increments the source account's sequence
    * number by 1.
    *
-   * @throws If the Soroban data's `resourceFee` is below 0, or if the total
-   *    fee is above the uint32 maximum.
+   * @throws If a Soroban transaction has a muxed (`M...`) source account,
+   *    on the transaction or an operation, or has a memo. Also if the Soroban
+   *    data's `resourceFee` is below 0, or if the total fee is above the uint32
+   *    maximum.
    */
   build(): Transaction {
+    const isSoroban =
+      this.sorobanData !== null ||
+      this.operations.some((op) => SOROBAN_OPERATION_TYPES.has(op.body.type));
+    if (isSoroban) {
+      this.assertValidSoroban();
+    }
+
     const sequenceNumber = new BigNumber(this.source.sequenceNumber()).plus(1);
     const fee = new BigNumber(this.baseFee)
       .times(this.operations.length)

@@ -114,7 +114,7 @@ Since we've skipped simulation, we can now edit the `raw` transaction and
 then manually call `simulate`:
 
 ```ts
-tx.raw.addMemo(Memo.text('Nice memo, friend!'))
+tx.raw.setLedgerbounds(0, latestLedger + 100)
 await tx.simulate()
 ```
 
@@ -411,7 +411,7 @@ const tx = await myContract.myMethod(
   { args: 'for', my: 'method', ... },
   { simulate: false }
 );
-tx.raw.addMemo(Memo.text('Nice memo, friend!'))
+tx.raw.setLedgerbounds(0, latestLedger + 100)
 await tx.simulate();
 ```
 

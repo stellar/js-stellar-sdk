@@ -175,7 +175,7 @@ import { base64ToUint8Array } from "../base/util/base64.js";
  * then manually call `simulate`:
  *
  * ```ts
- * tx.raw.addMemo(Memo.text('Nice memo, friend!'))
+ * tx.raw.setLedgerbounds(0, latestLedger + 100)
  * await tx.simulate()
  * ```
  *
@@ -282,7 +282,7 @@ export class AssembledTransaction<T> {
    *   { args: 'for', my: 'method', ... },
    *   { simulate: false }
    * );
-   * tx.raw.addMemo(Memo.text('Nice memo, friend!'))
+   * tx.raw.setLedgerbounds(0, latestLedger + 100)
    * await tx.simulate();
    * ```
    */

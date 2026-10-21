@@ -1,12 +1,16 @@
 import { concatUint8Arrays } from "uint8array-extras";
 import { MuxedAccount, MuxedAccountMed25519, Uint64 } from "../../xdr/index.js";
-import { StrKey } from "../strkey.js";
+import { StrKey, packMuxedContract } from "../strkey.js";
 
 const MAX_UINT64 = BigInt("18446744073709551615"); // 2^64 - 1
 
 // Accepts only decimal digits and returns the canonical form, so one ID has
 // one spelling. BigInt() alone also accepts hex, signs, whitespace and "".
 export function canonicalUint64Id(id: string): string {
+  return parseUint64Id(id).toString();
+}
+
+function parseUint64Id(id: string): bigint {
   if (typeof id !== "string") {
     throw new Error("id should be a string representing a number (uint64)");
   }
@@ -25,7 +29,7 @@ export function canonicalUint64Id(id: string): string {
     );
   }
 
-  return value.toString();
+  return value;
 }
 
 /**
@@ -99,11 +103,9 @@ export function encodeMuxedContractAddress(
   if (!StrKey.isValidContract(contractId)) {
     throw new Error("contractId should be a contract address (C...)");
   }
-  // The strkey payload puts the contract ID first, unlike the XDR struct.
-  const raw = new Uint8Array(40);
-  raw.set(StrKey.decodeContract(contractId), 0);
-  new DataView(raw.buffer).setBigUint64(32, BigInt(canonicalUint64Id(id)));
-  return StrKey.encodeMuxedContract(raw);
+  return StrKey.encodeMuxedContract(
+    packMuxedContract(StrKey.decodeContract(contractId), parseUint64Id(id)),
+  );
 }
 
 /**

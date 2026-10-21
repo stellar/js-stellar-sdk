@@ -2822,6 +2822,99 @@ describe("addSacTransferOperation with invalid destination", () => {
       );
     }).toThrow(/muxed source account/);
   });
+
+  describe("build() with a MuxedAccount source", () => {
+    const muxedSource = () =>
+      new MuxedAccount(new Account(source.accountId(), "0"), "42");
+    const builder = () =>
+      new TransactionBuilder(muxedSource(), {
+        fee: "100",
+        networkPassphrase,
+        timebounds: { minTime: 0, maxTime: 0 },
+      });
+
+    it.each([
+      [
+        "invokeHostFunction",
+        Operation.invokeContractFunction({
+          contract: "CA3D5KRYM6CB7OWQ6TWYRR3Z4T7GNZLKERYNZGGA5SOAOPIFY6YQGAXE",
+          function: "hello",
+          args: [],
+        }),
+      ],
+      ["extendFootprintTtl", Operation.extendFootprintTtl({ extendTo: 100 })],
+      ["restoreFootprint", Operation.restoreFootprint({})],
+    ])("throws for a %s operation", (_name, op) => {
+      expect(() => builder().addOperation(op).build()).toThrow(
+        /muxed source account/,
+      );
+    });
+
+    it("throws when only Soroban data is set", () => {
+      expect(() =>
+        builder()
+          .addOperation(Operation.inflation({}))
+          .setSorobanData(new SorobanDataBuilder().build())
+          .build(),
+      ).toThrow(/muxed source account/);
+    });
+
+    it("builds a classic transaction", () => {
+      expect(() =>
+        builder().addOperation(Operation.inflation({})).build(),
+      ).not.toThrow();
+    });
+  });
+
+  describe("build() with an invalid Soroban transaction", () => {
+    const builder = () =>
+      new TransactionBuilder(new Account(source.accountId(), "0"), {
+        fee: "100",
+        networkPassphrase,
+        timebounds: { minTime: 0, maxTime: 0 },
+      });
+    const invoke = (opSource?: string) =>
+      Operation.invokeContractFunction({
+        contract: "CA3D5KRYM6CB7OWQ6TWYRR3Z4T7GNZLKERYNZGGA5SOAOPIFY6YQGAXE",
+        function: "hello",
+        args: [],
+        ...(opSource && { source: opSource }),
+      });
+    const muxedAddress = new MuxedAccount(
+      new Account(source.accountId(), "0"),
+      "42",
+    ).accountId();
+
+    it("throws for a muxed operation source", () => {
+      expect(() =>
+        builder().addOperation(invoke(muxedAddress)).build(),
+      ).toThrow(/Soroban operations cannot use a muxed source account/);
+    });
+
+    it("builds with a G operation source", () => {
+      expect(() =>
+        builder().addOperation(invoke(source.accountId())).build(),
+      ).not.toThrow();
+    });
+
+    it.each([
+      ["text", Memo.text("x")],
+      ["id", Memo.id("1")],
+    ])("throws for a %s memo", (_name, memo) => {
+      expect(() =>
+        builder().addOperation(invoke()).addMemo(memo).build(),
+      ).toThrow(/cannot have a memo/);
+    });
+
+    it("builds a classic transaction with a memo and muxed operation source", () => {
+      expect(() =>
+        builder()
+          .addOperation(Operation.inflation({ source: muxedAddress }))
+          .addMemo(Memo.text("x"))
+          .build(),
+      ).not.toThrow();
+    });
+  });
 });
 
 describe("fee overflow protection", () => {

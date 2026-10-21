@@ -1,5 +1,5 @@
 import { concatUint8Arrays } from "uint8array-extras";
-import { StrKey } from "./strkey.js";
+import { StrKey, packMuxedContract, unpackMuxedContract } from "./strkey.js";
 import {
   ClaimableBalanceIdType,
   ClaimableBalanceIdV0,
@@ -13,7 +13,6 @@ import {
   ScVal,
   Uint64,
 } from "../xdr/index.js";
-import { assertBigIntFits } from "../xdr/values/bigint-parts.js";
 
 /**
  * Create a new Address object.
@@ -173,13 +172,10 @@ export class Address {
       case "scAddressTypeLiquidityPool":
         return Address.liquidityPool(scAddress.value.toBytes());
       case "scAddressTypeMuxedContract": {
-        // The strkey payload puts the contract ID first, unlike the XDR struct.
         const muxed = scAddress.value;
-        assertBigIntFits(muxed.id, false, 64, "MuxedContract.id");
-        const raw = new Uint8Array(40);
-        raw.set(muxed.contractId.value, 0);
-        new DataView(raw.buffer).setBigUint64(32, muxed.id);
-        return Address.muxedContract(raw);
+        return Address.muxedContract(
+          packMuxedContract(muxed.contractId.value, muxed.id),
+        );
       }
       default:
         throw new Error("Unsupported address type");
@@ -242,13 +238,12 @@ export class Address {
           }),
         );
 
-      case "muxedContract":
+      case "muxedContract": {
+        const { contractId, id } = unpackMuxedContract(this._key);
         return ScAddress.scAddressTypeMuxedContract(
-          new MuxedContract({
-            id: Uint64.fromXdr(this._key.subarray(32, 40), "raw"),
-            contractId: new ContractId(this._key.subarray(0, 32)),
-          }),
+          new MuxedContract({ id, contractId: new ContractId(contractId) }),
         );
+      }
 
       default:
         throw new Error("Unsupported address type");
