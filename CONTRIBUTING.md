@@ -73,31 +73,8 @@ When you do open a pull request:
 
 ## Releasing
 
-Releases publish to npm via the
-[`npm publish`](.github/workflows/npm_publish.yml) GitHub Actions workflow,
-which fires on `release.published`. The workflow runs `pnpm run preversion`
-(clean, format, build, test) and publishes with OIDC trusted publishing — no
-manual npm token needed.
-
-To cut a release:
-
-1. **Update [CHANGELOG.md](CHANGELOG.md):** move entries under `## Unreleased`
-   into a new versioned section. Heading format:
-   `## [vX.Y.Z](https://github.com/stellar/js-stellar-sdk/compare/v<previous>...v<new>)`.
-2. **Bump `"version"` in [package.json](package.json)** per
-   [semver](https://semver.org/): patch for fixes, minor for additions, major
-   for breaking changes.
-3. **Run `pnpm install`** so [pnpm-lock.yaml](pnpm-lock.yaml) picks up the new
-   version.
-4. **Open a release PR** with the changelog and version bump.
-5. **After it merges,** draft a GitHub release at
-   <https://github.com/stellar/js-stellar-sdk/releases/new> with tag `vX.Y.Z`
-   targeting `main`. Paste the new changelog section into the release notes.
-   Publishing the release triggers
-   [`npm_publish.yml`](.github/workflows/npm_publish.yml).
-
-If the publish workflow fails, fix the issue and re-run via `workflow_dispatch`
-from the Actions tab — no need to cut a new tag.
+Maintainers cut releases. The steps for stable, prerelease and maintenance-line
+releases are in [RELEASING.md](RELEASING.md).
 
 ## Documentation
 
