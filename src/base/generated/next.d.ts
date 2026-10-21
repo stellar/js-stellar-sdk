@@ -536,15 +536,21 @@ export namespace xdr {
     readonly name:
       | "stellarValueBasic"
       | "stellarValueSigned"
-      | "stellarValueEmptyTxSet";
+      | "stellarValueEmptyTxSet"
+      | "stellarValueSignedMs"
+      | "stellarValueEmptyTxSetMs";
 
-    readonly value: 0 | 1 | 2;
+    readonly value: 0 | 1 | 2 | 3 | 4;
 
     static stellarValueBasic(): StellarValueType;
 
     static stellarValueSigned(): StellarValueType;
 
     static stellarValueEmptyTxSet(): StellarValueType;
+
+    static stellarValueSignedMs(): StellarValueType;
+
+    static stellarValueEmptyTxSetMs(): StellarValueType;
   }
 
   class LedgerHeaderFlags {
@@ -2147,9 +2153,10 @@ export namespace xdr {
       | "scAddressTypeContract"
       | "scAddressTypeMuxedAccount"
       | "scAddressTypeClaimableBalance"
-      | "scAddressTypeLiquidityPool";
+      | "scAddressTypeLiquidityPool"
+      | "scAddressTypeMuxedContract";
 
-    readonly value: 0 | 1 | 2 | 3 | 4;
+    readonly value: 0 | 1 | 2 | 3 | 4 | 5;
 
     static scAddressTypeAccount(): ScAddressType;
 
@@ -2160,6 +2167,8 @@ export namespace xdr {
     static scAddressTypeClaimableBalance(): ScAddressType;
 
     static scAddressTypeLiquidityPool(): ScAddressType;
+
+    static scAddressTypeMuxedContract(): ScAddressType;
   }
 
   class ScEnvMetaKind {
@@ -2436,7 +2445,16 @@ export namespace xdr {
       | "bn254FrMul"
       | "bn254FrPow"
       | "bn254FrInv"
-      | "bn254G1Msm";
+      | "bn254G1Msm"
+      | "mlDsa44DecodeVerifyingKey"
+      | "mlDsa65DecodeVerifyingKey"
+      | "mlDsa87DecodeVerifyingKey"
+      | "mlDsa44DecodeSignature"
+      | "mlDsa65DecodeSignature"
+      | "mlDsa87DecodeSignature"
+      | "verifyMlDsa44Sig"
+      | "verifyMlDsa65Sig"
+      | "verifyMlDsa87Sig";
 
     readonly value:
       | 0
@@ -2524,7 +2542,16 @@ export namespace xdr {
       | 82
       | 83
       | 84
-      | 85;
+      | 85
+      | 86
+      | 87
+      | 88
+      | 89
+      | 90
+      | 91
+      | 92
+      | 93
+      | 94;
 
     static wasmInsnExec(): ContractCostType;
 
@@ -2697,6 +2724,24 @@ export namespace xdr {
     static bn254FrInv(): ContractCostType;
 
     static bn254G1Msm(): ContractCostType;
+
+    static mlDsa44DecodeVerifyingKey(): ContractCostType;
+
+    static mlDsa65DecodeVerifyingKey(): ContractCostType;
+
+    static mlDsa87DecodeVerifyingKey(): ContractCostType;
+
+    static mlDsa44DecodeSignature(): ContractCostType;
+
+    static mlDsa65DecodeSignature(): ContractCostType;
+
+    static mlDsa87DecodeSignature(): ContractCostType;
+
+    static verifyMlDsa44Sig(): ContractCostType;
+
+    static verifyMlDsa65Sig(): ContractCostType;
+
+    static verifyMlDsa87Sig(): ContractCostType;
   }
 
   class ConfigSettingId {
@@ -2840,6 +2885,8 @@ export namespace xdr {
   type TimePoint = Uint64;
 
   type Duration = Uint64;
+
+  type TimePointMs = Uint64;
 
   const Signature: VarOpaque;
 
@@ -4536,6 +4583,87 @@ export namespace xdr {
       input: string,
       format: "hex" | "base64",
     ): StellarValueProposedValue;
+
+    static validateXDR(input: Buffer, format?: "raw"): boolean;
+
+    static validateXDR(input: string, format: "hex" | "base64"): boolean;
+  }
+
+  class StellarValueSignedMsValue {
+    constructor(attributes: {
+      closeTimeMs: TimePointMs;
+      lcValueSignature: LedgerCloseValueSignature;
+    });
+
+    closeTimeMs(value?: TimePointMs): TimePointMs;
+
+    lcValueSignature(
+      value?: LedgerCloseValueSignature,
+    ): LedgerCloseValueSignature;
+
+    toXDR(format?: "raw"): Buffer;
+
+    toXDR(format: "hex" | "base64"): string;
+
+    static read(io: Buffer): StellarValueSignedMsValue;
+
+    static write(value: StellarValueSignedMsValue, io: Buffer): void;
+
+    static isValid(value: StellarValueSignedMsValue): boolean;
+
+    static toXDR(value: StellarValueSignedMsValue): Buffer;
+
+    static fromXDR(input: Buffer, format?: "raw"): StellarValueSignedMsValue;
+
+    static fromXDR(
+      input: string,
+      format: "hex" | "base64",
+    ): StellarValueSignedMsValue;
+
+    static validateXDR(input: Buffer, format?: "raw"): boolean;
+
+    static validateXDR(input: string, format: "hex" | "base64"): boolean;
+  }
+
+  class StellarValueProposedMsValue {
+    constructor(attributes: {
+      closeTimeMs: TimePointMs;
+      txSetHash: Buffer;
+      previousLedgerHash: Buffer;
+      previousLedgerVersion: number;
+      lcValueSignature: LedgerCloseValueSignature;
+    });
+
+    closeTimeMs(value?: TimePointMs): TimePointMs;
+
+    txSetHash(value?: Buffer): Buffer;
+
+    previousLedgerHash(value?: Buffer): Buffer;
+
+    previousLedgerVersion(value?: number): number;
+
+    lcValueSignature(
+      value?: LedgerCloseValueSignature,
+    ): LedgerCloseValueSignature;
+
+    toXDR(format?: "raw"): Buffer;
+
+    toXDR(format: "hex" | "base64"): string;
+
+    static read(io: Buffer): StellarValueProposedMsValue;
+
+    static write(value: StellarValueProposedMsValue, io: Buffer): void;
+
+    static isValid(value: StellarValueProposedMsValue): boolean;
+
+    static toXDR(value: StellarValueProposedMsValue): Buffer;
+
+    static fromXDR(input: Buffer, format?: "raw"): StellarValueProposedMsValue;
+
+    static fromXDR(
+      input: string,
+      format: "hex" | "base64",
+    ): StellarValueProposedMsValue;
 
     static validateXDR(input: Buffer, format?: "raw"): boolean;
 
@@ -12027,6 +12155,12 @@ export namespace xdr {
 
     proposedValue(value?: StellarValueProposedValue): StellarValueProposedValue;
 
+    signedMsValue(value?: StellarValueSignedMsValue): StellarValueSignedMsValue;
+
+    proposedMsValue(
+      value?: StellarValueProposedMsValue,
+    ): StellarValueProposedMsValue;
+
     static stellarValueBasic(): StellarValueExt;
 
     static stellarValueSigned(
@@ -12037,7 +12171,20 @@ export namespace xdr {
       value: StellarValueProposedValue,
     ): StellarValueExt;
 
-    value(): LedgerCloseValueSignature | StellarValueProposedValue | void;
+    static stellarValueSignedMs(
+      value: StellarValueSignedMsValue,
+    ): StellarValueExt;
+
+    static stellarValueEmptyTxSetMs(
+      value: StellarValueProposedMsValue,
+    ): StellarValueExt;
+
+    value():
+      | LedgerCloseValueSignature
+      | StellarValueProposedValue
+      | StellarValueSignedMsValue
+      | StellarValueProposedMsValue
+      | void;
 
     toXDR(format?: "raw"): Buffer;
 
@@ -15677,6 +15824,34 @@ export namespace xdr {
     static validateXDR(input: string, format: "hex" | "base64"): boolean;
   }
 
+  class MuxedContract {
+    constructor(attributes: { id: Uint64; contractId: ContractId });
+
+    id(value?: Uint64): Uint64;
+
+    contractId(value?: ContractId): ContractId;
+
+    toXDR(format?: "raw"): Buffer;
+
+    toXDR(format: "hex" | "base64"): string;
+
+    static read(io: Buffer): MuxedContract;
+
+    static write(value: MuxedContract, io: Buffer): void;
+
+    static isValid(value: MuxedContract): boolean;
+
+    static toXDR(value: MuxedContract): Buffer;
+
+    static fromXDR(input: Buffer, format?: "raw"): MuxedContract;
+
+    static fromXDR(input: string, format: "hex" | "base64"): MuxedContract;
+
+    static validateXDR(input: Buffer, format?: "raw"): boolean;
+
+    static validateXDR(input: string, format: "hex" | "base64"): boolean;
+  }
+
   class ContractExecutableExternalRef {
     constructor(attributes: {
       executableOwner: ScAddress;
@@ -15767,6 +15942,8 @@ export namespace xdr {
 
     liquidityPoolId(value?: PoolId): PoolId;
 
+    muxedContract(value?: MuxedContract): MuxedContract;
+
     static scAddressTypeAccount(value: AccountId): ScAddress;
 
     static scAddressTypeContract(value: ContractId): ScAddress;
@@ -15777,12 +15954,15 @@ export namespace xdr {
 
     static scAddressTypeLiquidityPool(value: PoolId): ScAddress;
 
+    static scAddressTypeMuxedContract(value: MuxedContract): ScAddress;
+
     value():
       | AccountId
       | ContractId
       | MuxedEd25519Account
       | ClaimableBalanceId
-      | PoolId;
+      | PoolId
+      | MuxedContract;
 
     toXDR(format?: "raw"): Buffer;
 

@@ -8,6 +8,13 @@ import * as XDR from '@stellar/js-xdr';
 
 
 var types = XDR.config(xdr => {
+// Workaround for https://github.com/stellar/xdrgen/issues/152
+//
+// The "correct" way would be to replace bare instances of each constant with
+// xdr.lookup("..."), but that's more error-prone.
+const SCSYMBOL_LIMIT = 32;
+const SC_SPEC_DOC_LIMIT = 1024;
+const SC_SPEC_TYPE_NAME_LIMIT = 1024;
 
 // === xdr source ============================================================
 //
@@ -2183,7 +2190,9 @@ xdr.typedef("UpgradeType", xdr.varOpaque(128));
 //   {
 //       STELLAR_VALUE_BASIC = 0,
 //       STELLAR_VALUE_SIGNED = 1,
-//       STELLAR_VALUE_EMPTY_TX_SET = 2
+//       STELLAR_VALUE_EMPTY_TX_SET = 2,
+//       STELLAR_VALUE_SIGNED_MS = 3,
+//       STELLAR_VALUE_EMPTY_TX_SET_MS = 4
 //   };
 //
 // ===========================================================================
@@ -2191,6 +2200,8 @@ xdr.enum("StellarValueType", {
   stellarValueBasic: 0,
   stellarValueSigned: 1,
   stellarValueEmptyTxSet: 2,
+  stellarValueSignedMs: 3,
+  stellarValueEmptyTxSetMs: 4,
 });
 
 // === xdr source ============================================================
@@ -2227,6 +2238,40 @@ xdr.struct("StellarValueProposedValue", [
 
 // === xdr source ============================================================
 //
+//   struct
+//           {
+//               TimePointMs closeTimeMs; // closeTime == closeTimeMs / 1000
+//               LedgerCloseValueSignature lcValueSignature;
+//           }
+//
+// ===========================================================================
+xdr.struct("StellarValueSignedMsValue", [
+  ["closeTimeMs", xdr.lookup("TimePointMs")],
+  ["lcValueSignature", xdr.lookup("LedgerCloseValueSignature")],
+]);
+
+// === xdr source ============================================================
+//
+//   struct
+//           {
+//               TimePointMs closeTimeMs; // closeTime == closeTimeMs / 1000
+//               Hash txSetHash;
+//               Hash previousLedgerHash;
+//               uint32 previousLedgerVersion;
+//               LedgerCloseValueSignature lcValueSignature;
+//           }
+//
+// ===========================================================================
+xdr.struct("StellarValueProposedMsValue", [
+  ["closeTimeMs", xdr.lookup("TimePointMs")],
+  ["txSetHash", xdr.lookup("Hash")],
+  ["previousLedgerHash", xdr.lookup("Hash")],
+  ["previousLedgerVersion", xdr.lookup("Uint32")],
+  ["lcValueSignature", xdr.lookup("LedgerCloseValueSignature")],
+]);
+
+// === xdr source ============================================================
+//
 //   union switch (StellarValueType v)
 //       {
 //       case STELLAR_VALUE_BASIC:
@@ -2241,6 +2286,21 @@ xdr.struct("StellarValueProposedValue", [
 //               uint32 previousLedgerVersion;
 //               LedgerCloseValueSignature lcValueSignature;
 //           } proposedValue;
+//       case STELLAR_VALUE_SIGNED_MS:
+//           struct
+//           {
+//               TimePointMs closeTimeMs; // closeTime == closeTimeMs / 1000
+//               LedgerCloseValueSignature lcValueSignature;
+//           } signedMsValue;
+//       case STELLAR_VALUE_EMPTY_TX_SET_MS:
+//           struct
+//           {
+//               TimePointMs closeTimeMs; // closeTime == closeTimeMs / 1000
+//               Hash txSetHash;
+//               Hash previousLedgerHash;
+//               uint32 previousLedgerVersion;
+//               LedgerCloseValueSignature lcValueSignature;
+//           } proposedMsValue;
 //       }
 //
 // ===========================================================================
@@ -2251,10 +2311,14 @@ xdr.union("StellarValueExt", {
     ["stellarValueBasic", xdr.void()],
     ["stellarValueSigned", "lcValueSignature"],
     ["stellarValueEmptyTxSet", "proposedValue"],
+    ["stellarValueSignedMs", "signedMsValue"],
+    ["stellarValueEmptyTxSetMs", "proposedMsValue"],
   ],
   arms: {
     lcValueSignature: xdr.lookup("LedgerCloseValueSignature"),
     proposedValue: xdr.lookup("StellarValueProposedValue"),
+    signedMsValue: xdr.lookup("StellarValueSignedMsValue"),
+    proposedMsValue: xdr.lookup("StellarValueProposedMsValue"),
   },
 });
 
@@ -2287,6 +2351,21 @@ xdr.union("StellarValueExt", {
 //               uint32 previousLedgerVersion;
 //               LedgerCloseValueSignature lcValueSignature;
 //           } proposedValue;
+//       case STELLAR_VALUE_SIGNED_MS:
+//           struct
+//           {
+//               TimePointMs closeTimeMs; // closeTime == closeTimeMs / 1000
+//               LedgerCloseValueSignature lcValueSignature;
+//           } signedMsValue;
+//       case STELLAR_VALUE_EMPTY_TX_SET_MS:
+//           struct
+//           {
+//               TimePointMs closeTimeMs; // closeTime == closeTimeMs / 1000
+//               Hash txSetHash;
+//               Hash previousLedgerHash;
+//               uint32 previousLedgerVersion;
+//               LedgerCloseValueSignature lcValueSignature;
+//           } proposedMsValue;
 //       }
 //       ext;
 //   };
@@ -8774,6 +8853,13 @@ xdr.typedef("Duration", xdr.lookup("Uint64"));
 
 // === xdr source ============================================================
 //
+//   typedef uint64 TimePointMs;
+//
+// ===========================================================================
+xdr.typedef("TimePointMs", xdr.lookup("Uint64"));
+
+// === xdr source ============================================================
+//
 //   union ExtensionPoint switch (int v)
 //   {
 //   case 0:
@@ -9401,7 +9487,8 @@ xdr.enum("ContractExecutableType", {
 //       SC_ADDRESS_TYPE_CONTRACT = 1,
 //       SC_ADDRESS_TYPE_MUXED_ACCOUNT = 2,
 //       SC_ADDRESS_TYPE_CLAIMABLE_BALANCE = 3,
-//       SC_ADDRESS_TYPE_LIQUIDITY_POOL = 4
+//       SC_ADDRESS_TYPE_LIQUIDITY_POOL = 4,
+//       SC_ADDRESS_TYPE_MUXED_CONTRACT = 5
 //   };
 //
 // ===========================================================================
@@ -9411,6 +9498,7 @@ xdr.enum("ScAddressType", {
   scAddressTypeMuxedAccount: 2,
   scAddressTypeClaimableBalance: 3,
   scAddressTypeLiquidityPool: 4,
+  scAddressTypeMuxedContract: 5,
 });
 
 // === xdr source ============================================================
@@ -9429,6 +9517,20 @@ xdr.struct("MuxedEd25519Account", [
 
 // === xdr source ============================================================
 //
+//   struct MuxedContract
+//   {
+//       uint64 id;
+//       ContractID contractId;
+//   };
+//
+// ===========================================================================
+xdr.struct("MuxedContract", [
+  ["id", xdr.lookup("Uint64")],
+  ["contractId", xdr.lookup("ContractId")],
+]);
+
+// === xdr source ============================================================
+//
 //   union SCAddress switch (SCAddressType type)
 //   {
 //   case SC_ADDRESS_TYPE_ACCOUNT:
@@ -9441,6 +9543,8 @@ xdr.struct("MuxedEd25519Account", [
 //       ClaimableBalanceID claimableBalanceId;
 //   case SC_ADDRESS_TYPE_LIQUIDITY_POOL:
 //       PoolID liquidityPoolId;
+//   case SC_ADDRESS_TYPE_MUXED_CONTRACT:
+//       MuxedContract muxedContract;
 //   };
 //
 // ===========================================================================
@@ -9453,6 +9557,7 @@ xdr.union("ScAddress", {
     ["scAddressTypeMuxedAccount", "muxedAccount"],
     ["scAddressTypeClaimableBalance", "claimableBalanceId"],
     ["scAddressTypeLiquidityPool", "liquidityPoolId"],
+    ["scAddressTypeMuxedContract", "muxedContract"],
   ],
   arms: {
     accountId: xdr.lookup("AccountId"),
@@ -9460,6 +9565,7 @@ xdr.union("ScAddress", {
     muxedAccount: xdr.lookup("MuxedEd25519Account"),
     claimableBalanceId: xdr.lookup("ClaimableBalanceId"),
     liquidityPoolId: xdr.lookup("PoolId"),
+    muxedContract: xdr.lookup("MuxedContract"),
   },
 });
 
@@ -9778,6 +9884,13 @@ xdr.const("SC_SPEC_DOC_LIMIT", 1024);
 
 // === xdr source ============================================================
 //
+//   const SC_SPEC_TYPE_NAME_LIMIT = 1024;
+//
+// ===========================================================================
+xdr.const("SC_SPEC_TYPE_NAME_LIMIT", 1024);
+
+// === xdr source ============================================================
+//
 //   enum SCSpecType
 //   {
 //       SC_SPEC_TYPE_VAL = 0,
@@ -9924,12 +10037,12 @@ xdr.struct("ScSpecTypeBytesN", [
 //
 //   struct SCSpecTypeUDT
 //   {
-//       string name<60>;
+//       string name<SC_SPEC_TYPE_NAME_LIMIT>;
 //   };
 //
 // ===========================================================================
 xdr.struct("ScSpecTypeUdt", [
-  ["name", xdr.string(60)],
+  ["name", xdr.string(SC_SPEC_TYPE_NAME_LIMIT)],
 ]);
 
 // === xdr source ============================================================
@@ -10037,7 +10150,7 @@ xdr.struct("ScSpecUdtStructFieldV0", [
 //   {
 //       string doc<SC_SPEC_DOC_LIMIT>;
 //       string lib<80>;
-//       string name<60>;
+//       string name<SC_SPEC_TYPE_NAME_LIMIT>;
 //       SCSpecUDTStructFieldV0 fields<>;
 //   };
 //
@@ -10045,7 +10158,7 @@ xdr.struct("ScSpecUdtStructFieldV0", [
 xdr.struct("ScSpecUdtStructV0", [
   ["doc", xdr.string(SC_SPEC_DOC_LIMIT)],
   ["lib", xdr.string(80)],
-  ["name", xdr.string(60)],
+  ["name", xdr.string(SC_SPEC_TYPE_NAME_LIMIT)],
   ["fields", xdr.varArray(xdr.lookup("ScSpecUdtStructFieldV0"), 2147483647)],
 ]);
 
@@ -10123,7 +10236,7 @@ xdr.union("ScSpecUdtUnionCaseV0", {
 //   {
 //       string doc<SC_SPEC_DOC_LIMIT>;
 //       string lib<80>;
-//       string name<60>;
+//       string name<SC_SPEC_TYPE_NAME_LIMIT>;
 //       SCSpecUDTUnionCaseV0 cases<>;
 //   };
 //
@@ -10131,7 +10244,7 @@ xdr.union("ScSpecUdtUnionCaseV0", {
 xdr.struct("ScSpecUdtUnionV0", [
   ["doc", xdr.string(SC_SPEC_DOC_LIMIT)],
   ["lib", xdr.string(80)],
-  ["name", xdr.string(60)],
+  ["name", xdr.string(SC_SPEC_TYPE_NAME_LIMIT)],
   ["cases", xdr.varArray(xdr.lookup("ScSpecUdtUnionCaseV0"), 2147483647)],
 ]);
 
@@ -10157,7 +10270,7 @@ xdr.struct("ScSpecUdtEnumCaseV0", [
 //   {
 //       string doc<SC_SPEC_DOC_LIMIT>;
 //       string lib<80>;
-//       string name<60>;
+//       string name<SC_SPEC_TYPE_NAME_LIMIT>;
 //       SCSpecUDTEnumCaseV0 cases<>;
 //   };
 //
@@ -10165,7 +10278,7 @@ xdr.struct("ScSpecUdtEnumCaseV0", [
 xdr.struct("ScSpecUdtEnumV0", [
   ["doc", xdr.string(SC_SPEC_DOC_LIMIT)],
   ["lib", xdr.string(80)],
-  ["name", xdr.string(60)],
+  ["name", xdr.string(SC_SPEC_TYPE_NAME_LIMIT)],
   ["cases", xdr.varArray(xdr.lookup("ScSpecUdtEnumCaseV0"), 2147483647)],
 ]);
 
@@ -10191,7 +10304,7 @@ xdr.struct("ScSpecUdtErrorEnumCaseV0", [
 //   {
 //       string doc<SC_SPEC_DOC_LIMIT>;
 //       string lib<80>;
-//       string name<60>;
+//       string name<SC_SPEC_TYPE_NAME_LIMIT>;
 //       SCSpecUDTErrorEnumCaseV0 cases<>;
 //   };
 //
@@ -10199,7 +10312,7 @@ xdr.struct("ScSpecUdtErrorEnumCaseV0", [
 xdr.struct("ScSpecUdtErrorEnumV0", [
   ["doc", xdr.string(SC_SPEC_DOC_LIMIT)],
   ["lib", xdr.string(80)],
-  ["name", xdr.string(60)],
+  ["name", xdr.string(SC_SPEC_TYPE_NAME_LIMIT)],
   ["cases", xdr.varArray(xdr.lookup("ScSpecUdtErrorEnumCaseV0"), 2147483647)],
 ]);
 
@@ -10291,7 +10404,7 @@ xdr.enum("ScSpecEventDataFormat", {
 //   {
 //       string doc<SC_SPEC_DOC_LIMIT>;
 //       string lib<80>;
-//       SCSymbol name;
+//       string name<SC_SPEC_TYPE_NAME_LIMIT>;
 //       SCSymbol prefixTopics<2>;
 //       SCSpecEventParamV0 params<>;
 //       SCSpecEventDataFormat dataFormat;
@@ -10301,7 +10414,7 @@ xdr.enum("ScSpecEventDataFormat", {
 xdr.struct("ScSpecEventV0", [
   ["doc", xdr.string(SC_SPEC_DOC_LIMIT)],
   ["lib", xdr.string(80)],
-  ["name", xdr.lookup("ScSymbol")],
+  ["name", xdr.string(SC_SPEC_TYPE_NAME_LIMIT)],
   ["prefixTopics", xdr.varArray(xdr.lookup("ScSymbol"), 2)],
   ["params", xdr.varArray(xdr.lookup("ScSpecEventParamV0"), 2147483647)],
   ["dataFormat", xdr.lookup("ScSpecEventDataFormat")],
@@ -10737,7 +10850,25 @@ xdr.struct("ConfigSettingContractBandwidthV0", [
 //        // Cost of performing BN254 scalar element inversion
 //       Bn254FrInv = 84,
 //       // Cost of performing BN254 G1 multi-scalar multiplication (MSM)
-//       Bn254G1Msm = 85
+//       Bn254G1Msm = 85,
+//       // Cost of decoding and expanding an ML-DSA-44 verifying key
+//       MlDsa44DecodeVerifyingKey = 86,
+//       // Cost of decoding and expanding an ML-DSA-65 verifying key
+//       MlDsa65DecodeVerifyingKey = 87,
+//       // Cost of decoding and expanding an ML-DSA-87 verifying key
+//       MlDsa87DecodeVerifyingKey = 88,
+//       // Cost of decoding an ML-DSA-44 signature
+//       MlDsa44DecodeSignature = 89,
+//       // Cost of decoding an ML-DSA-65 signature
+//       MlDsa65DecodeSignature = 90,
+//       // Cost of decoding an ML-DSA-87 signature
+//       MlDsa87DecodeSignature = 91,
+//       // Cost of verifying an ML-DSA-44 signature, linear in message + context length
+//       VerifyMlDsa44Sig = 92,
+//       // Cost of verifying an ML-DSA-65 signature, linear in message + context length
+//       VerifyMlDsa65Sig = 93,
+//       // Cost of verifying an ML-DSA-87 signature, linear in message + context length
+//       VerifyMlDsa87Sig = 94
 //   };
 //
 // ===========================================================================
@@ -10828,6 +10959,15 @@ xdr.enum("ContractCostType", {
   bn254FrPow: 83,
   bn254FrInv: 84,
   bn254G1Msm: 85,
+  mlDsa44DecodeVerifyingKey: 86,
+  mlDsa65DecodeVerifyingKey: 87,
+  mlDsa87DecodeVerifyingKey: 88,
+  mlDsa44DecodeSignature: 89,
+  mlDsa65DecodeSignature: 90,
+  mlDsa87DecodeSignature: 91,
+  verifyMlDsa44Sig: 92,
+  verifyMlDsa65Sig: 93,
+  verifyMlDsa87Sig: 94,
 });
 
 // === xdr source ============================================================

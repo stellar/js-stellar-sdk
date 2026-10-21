@@ -2,6 +2,11 @@
 
 A breaking change will get clearly marked in this log.
 
+## Unreleased
+
+### Added
+- Protocol 30 XDR: the bundled schema is regenerated from [stellar-xdr v30.0](https://github.com/stellar/stellar-xdr/releases/tag/v30.0). v16 can decode the new types, including CAP-84 muxed contract addresses, but `Address`, `scValToNative` and the helpers built on them throw on muxed contract addresses ([#1828](https://github.com/stellar/js-stellar-sdk/pull/1828)).
+
 ## [v16.3.1](https://github.com/stellar/js-stellar-sdk/compare/v16.3.0...v16.3.1)
 
 ### Fixed
