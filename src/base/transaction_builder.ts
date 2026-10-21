@@ -58,6 +58,16 @@ import { Address } from "./address.js";
 import { Keypair } from "./keypair.js";
 
 const UINT32_MAX = 4294967295; // 2^32 - 1
+// stellar-core's `MAX_RESOURCE_FEE`; it rejects a resourceFee outside [0, 2^50]
+const MAX_RESOURCE_FEE = 2n ** 50n;
+
+function checkResourceFee(resourceFee: bigint): void {
+  if (resourceFee < 0n || resourceFee > MAX_RESOURCE_FEE) {
+    throw new Error(
+      `Invalid resourceFee ${resourceFee}: must be between 0 and ${MAX_RESOURCE_FEE}`,
+    );
+  }
+}
 
 /**
  * Minimum base fee for transactions. If this fee is below the network
@@ -310,6 +320,8 @@ export class TransactionBuilder {
    *    as needed, instead..
    *
    * **TODO:** This cannot clone {@link FeeBumpTransaction}s, yet.
+   *
+   * @throws If the transaction's `resourceFee` is below 0 or above 2^50.
    */
   static cloneFrom(
     tx: Transaction,
@@ -349,10 +361,14 @@ export class TransactionBuilder {
       sorobanData = ext.type === "sorobanData" ? ext.value : undefined;
     }
     let totalFee = parseInt(tx.fee, 10);
+    let zeroInclusionFee = false;
     if (sorobanData) {
-      const resourceFee = Number(sorobanData.resourceFee.toString());
-      // only subtract if it leaves a positive inclusion fee: a malformed tx
-      // can declare a resource fee that eats the entire fee (or more)
+      checkResourceFee(sorobanData.resourceFee);
+      const resourceFee = Number(sorobanData.resourceFee);
+      // compare before subtracting: the remainder can equal the resource fee
+      zeroInclusionFee = totalFee === resourceFee;
+      // only subtract if it leaves a positive inclusion fee: a protocol 23+
+      // fee-bump inner tx can declare a resource fee above its total fee
       if (totalFee - resourceFee > 0) {
         totalFee -= resourceFee;
       }
@@ -363,7 +379,7 @@ export class TransactionBuilder {
     const unscaledFee = Math.floor(totalFee / tx.operations.length);
 
     const builderOpts: TransactionBuilderOptions = {
-      fee: (unscaledFee || BASE_FEE).toString(),
+      fee: (zeroInclusionFee ? 0 : unscaledFee || BASE_FEE).toString(),
       memo: tx.memo,
       networkPassphrase: tx.networkPassphrase,
     };
@@ -980,6 +996,9 @@ export class TransactionBuilder {
   /**
    * Builds the transaction and increments the source account's sequence
    * number by 1.
+   *
+   * @throws If the Soroban data's `resourceFee` is below 0, or if the total
+   *    fee is above the uint32 maximum.
    */
   build(): Transaction {
     const sequenceNumber = new BigNumber(this.source.sequenceNumber()).plus(1);
@@ -1093,6 +1112,8 @@ export class TransactionBuilder {
             `Got ${attrs.fee}.`,
         );
       }
+      // after the uint32 check, so a value above 2^50 keeps that error
+      checkResourceFee(this.sorobanData.resourceFee);
     } else {
       attrs.ext = TransactionExt.v0();
     }
@@ -1152,6 +1173,8 @@ export class TransactionBuilder {
    *
    * Your fee-bump amount should be `>= 10x` the original fee.
    * @see  https://developers.stellar.org/docs/glossary/fee-bumps/#replace-by-fee
+   *
+   * @throws If the inner transaction's `resourceFee` is below 0 or above 2^50.
    */
   static buildFeeBumpTransaction(
     feeSource: Keypair | string,
@@ -1171,7 +1194,10 @@ export class TransactionBuilder {
       case "envelopeTypeTx": {
         const ext = env.value.tx.ext;
         const sorobanData = ext.type === "sorobanData" ? ext.value : undefined;
-        resourceFee = new BigNumber(sorobanData?.resourceFee.toString() ?? 0);
+        if (sorobanData) {
+          checkResourceFee(sorobanData.resourceFee);
+          resourceFee = new BigNumber(sorobanData.resourceFee.toString());
+        }
 
         break;
       }

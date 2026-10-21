@@ -333,6 +333,10 @@ export interface ContractCredited
   type_i: EffectType.contract_credited;
   contract: string;
   amount: string;
+  /** The muxed contract (`W…`) address, when the destination was muxed. */
+  contract_muxed?: string;
+  /** The muxed contract's ID as a decimal string, when the destination was muxed. */
+  contract_muxed_id?: string;
 }
 export interface ContractDebited
   extends BaseEffectRecord<"contract_debited">, OfferAsset {

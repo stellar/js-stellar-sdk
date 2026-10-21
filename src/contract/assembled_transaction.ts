@@ -1082,16 +1082,18 @@ export class AssembledTransaction<T> {
    * the key the signature is verified against, which may differ from `address`.
    */
   signAuthEntries = async ({
-    expiration = (async () =>
-      (await this.server.getLatestLedger()).sequence + 100)(),
+    expiration,
     signAuthEntry = this.options.signAuthEntry,
     address: addressArg,
     authorizeEntry = stellarBaseAuthorizeEntry,
   }: {
     /**
      * When to set each auth entry to expire. Could be any number of blocks in
-     * the future. Can be supplied as a promise or a raw number. Default:
-     * about 8.3 minutes from now.
+     * the future. Can be supplied as a promise or a raw number. Default: the
+     * stored expiration of a `SOROBAN_CREDENTIALS_ADDRESS_WITH_DELEGATES`
+     * entry while it lies within the next 100 ledgers, otherwise about 8.3
+     * minutes from now. A different value clears the signatures of the nodes
+     * that already signed (see `authorizeEntry`).
      */
     expiration?: number | Promise<number>;
     /**
@@ -1181,6 +1183,25 @@ export class AssembledTransaction<T> {
     const authEntries = rawInvokeHostFunctionOp.auth ?? [];
     let signedAny = false;
 
+    // Fetched once, and only for an entry that gets the default.
+    let latestLedger: Promise<number> | undefined;
+    const defaultExpiration = async (
+      credentials: SorobanCredentials,
+      stored: number,
+    ): Promise<number> => {
+      latestLedger ??= this.server
+        .getLatestLedger()
+        .then((ledger) => ledger.sequence);
+      const latest = await latestLedger;
+      // see `authorizeEntry`: the delegates sign for the stored value; the
+      // default never commits further ahead than it did before
+      return credentials.type === "sorobanCredentialsAddressWithDelegates" &&
+        stored > latest &&
+        stored <= latest + 100
+        ? stored
+        : latest + 100;
+    };
+
     for (const [i, entry] of authEntries.entries()) {
       // workaround for https://github.com/stellar/js-stellar-sdk/issues/1070
       const credentials = SorobanCredentials.fromXdr(entry.credentials.toXdr());
@@ -1221,7 +1242,8 @@ export class AssembledTransaction<T> {
             ? signature
             : { signature, publicKey: signingKey };
         },
-        await expiration,
+        await (expiration ??
+          defaultExpiration(credentials, addrAuth.signatureExpirationLedger)),
         this.options.networkPassphrase,
       );
       signedAny = true;
