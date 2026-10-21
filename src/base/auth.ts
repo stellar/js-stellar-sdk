@@ -770,8 +770,9 @@ export function getAddressCredentials(
  * node commits to the same payload (bound to the top-level address), so the
  * caller can fill any of them with a signature produced from that shared
  * payload. When `forAddress` is omitted, only the top-level address credentials
- * receive the signature. When the stored expiration changes, every other node's
- * signature that no longer verifies becomes `scvVoid`.
+ * receive the signature. When a non-zero stored expiration changes, every other
+ * node's signature becomes `scvVoid`. When the stored expiration is 0, a
+ * signature stays only when it verifies at the new value (see `keepOther`).
  *
  * @returns the rebuilt credentials and the number of nodes that received the
  *    signature (`0` means `forAddress` matched no node).

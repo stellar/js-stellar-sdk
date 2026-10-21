@@ -1091,7 +1091,7 @@ export class AssembledTransaction<T> {
      * When to set each auth entry to expire. Could be any number of blocks in
      * the future. Can be supplied as a promise or a raw number. Default: the
      * stored expiration of a `SOROBAN_CREDENTIALS_ADDRESS_WITH_DELEGATES`
-     * entry while it is ahead of the latest ledger, otherwise about 8.3
+     * entry while it lies within the next 100 ledgers, otherwise about 8.3
      * minutes from now. A different value clears the signatures of the nodes
      * that already signed (see `authorizeEntry`).
      */
@@ -1193,9 +1193,11 @@ export class AssembledTransaction<T> {
         .getLatestLedger()
         .then((ledger) => ledger.sequence);
       const latest = await latestLedger;
-      // see `authorizeEntry`: the delegates sign for the stored value
+      // see `authorizeEntry`: the delegates sign for the stored value; the
+      // default never commits further ahead than it did before
       return credentials.type === "sorobanCredentialsAddressWithDelegates" &&
-        stored > latest
+        stored > latest &&
+        stored <= latest + 100
         ? stored
         : latest + 100;
     };

@@ -996,9 +996,9 @@ describe("AssembledTransaction auth entry credential types (CAP-71)", () => {
         return expectDefined(operation.auth);
       };
 
-      it("keeps the expiration a delegate already signed for while it is ahead of the latest ledger", async () => {
+      it("keeps the expiration a delegate already signed for while it lies within the default window", async () => {
         const { assembled, getLatestLedger } = setup([
-          await delegateSignedAt(6000),
+          await delegateSignedAt(5050),
         ]);
 
         await assembled.signAuthEntries({ signAuthEntry });
@@ -1006,9 +1006,27 @@ describe("AssembledTransaction auth entry credential types (CAP-71)", () => {
         const [entry] = signedAuth(assembled);
         expect(
           StellarSdk.inspectAuthEntry(entry).signatureExpirationLedger,
-        ).toBe(6000);
+        ).toBe(5050);
         expect(verifiesAtStored(entry, kpA, networkPassphrase)).toBe(true);
         expect(verifiesAtStored(entry, kpB, networkPassphrase)).toBe(true);
+        expect(getLatestLedger).toHaveBeenCalledTimes(1);
+      });
+
+      it("refreshes a delegates entry whose stored expiration is past the default window", async () => {
+        // the default never commits further ahead than latest + 100; pass
+        // `expiration` to keep a longer window
+        const { assembled, getLatestLedger } = setup([
+          await delegateSignedAt(6000),
+        ]);
+
+        await assembled.signAuthEntries({ signAuthEntry });
+
+        const [entry] = signedAuth(assembled);
+        const info = StellarSdk.inspectAuthEntry(entry);
+        expect(info.signatureExpirationLedger).toBe(LATEST + 100);
+        expect(
+          info.signers.filter((s) => s.signed).map((s) => s.address),
+        ).toEqual([kpA.publicKey()]);
         expect(getLatestLedger).toHaveBeenCalledTimes(1);
       });
 
@@ -1032,8 +1050,8 @@ describe("AssembledTransaction auth entry credential types (CAP-71)", () => {
 
       it("keeps a different stored expiration on each entry", async () => {
         const { assembled } = setup([
-          await delegateSignedAt(6000),
-          await delegateSignedAt(7000),
+          await delegateSignedAt(5050),
+          await delegateSignedAt(5100),
         ]);
 
         await assembled.signAuthEntries({ signAuthEntry });
@@ -1043,7 +1061,7 @@ describe("AssembledTransaction auth entry credential types (CAP-71)", () => {
           entries.map(
             (e) => StellarSdk.inspectAuthEntry(e).signatureExpirationLedger,
           ),
-        ).toEqual([6000, 7000]);
+        ).toEqual([5050, 5100]);
         expect(
           entries.map((e) => verifiesAtStored(e, kpB, networkPassphrase)),
         ).toEqual([true, true]);
@@ -1052,7 +1070,7 @@ describe("AssembledTransaction auth entry credential types (CAP-71)", () => {
       it("uses the latest ledger + 100, fetched once, for entries that store 0", async () => {
         const { assembled, getLatestLedger } = setup([
           authEntry(addressV2Cred(kpA.publicKey())),
-          await delegateSignedAt(6000),
+          await delegateSignedAt(5050),
           authEntry(addressV2Cred(kpA.publicKey())),
         ]);
 
@@ -1062,7 +1080,7 @@ describe("AssembledTransaction auth entry credential types (CAP-71)", () => {
           signedAuth(assembled).map(
             (e) => StellarSdk.inspectAuthEntry(e).signatureExpirationLedger,
           ),
-        ).toEqual([LATEST + 100, 6000, LATEST + 100]);
+        ).toEqual([LATEST + 100, 5050, LATEST + 100]);
         expect(getLatestLedger).toHaveBeenCalledTimes(1);
       });
 

@@ -1329,6 +1329,42 @@ describe("building authorization entries", () => {
           .signers.filter((s) => s.signed)
           .map((s) => s.address);
 
+      // one entry of the SDK's multisig signature format
+      const pairVal = (publicKey: Uint8Array, signature: Uint8Array) =>
+        xdr.ScVal.scvMap([
+          new xdr.ScMapEntry({
+            key: xdr.ScVal.scvSymbol("public_key"),
+            val: xdr.ScVal.scvBytes(publicKey),
+          }),
+          new xdr.ScMapEntry({
+            key: xdr.ScVal.scvSymbol("signature"),
+            val: xdr.ScVal.scvBytes(signature),
+          }),
+        ]);
+
+      // `signer`'s pair for the shared payload at `ledger`
+      const signedPair = (signer: Keypair, ledger: number) =>
+        pairVal(
+          StrKey.decodeEd25519PublicKey(signer.publicKey()),
+          signer.sign(
+            hash(
+              buildAuthorizationEntryPreimage(
+                twoDelegates(),
+                ledger,
+                Networks.TESTNET,
+              ).toXdr(),
+            ),
+          ),
+        );
+
+      // a stored-0 entry whose alice node holds `signature`
+      const aliceHolding = (signature: xdr.ScVal) =>
+        buildWithDelegatesEntry({
+          entry: addressV2Entry(top.publicKey()),
+          validUntilLedgerSeq: 0,
+          delegates: [{ address: alice.publicKey(), signature }],
+        });
+
       it("clears an earlier delegate's signature when a later delegate signs with a new expiration", async () => {
         const signed = await authorizeEntry(
           twoDelegates(),
@@ -1517,6 +1553,43 @@ describe("building authorization entries", () => {
         const signed = await authorizeEntry(entry, top, 2000, Networks.TESTNET);
 
         expect(signedBy(signed)).toEqual([top.publicKey(), alice.publicKey()]);
+      });
+
+      it("keeps a multi-pair signature on a stored-0 entry only when every pair verifies", async () => {
+        const allValid = await authorizeEntry(
+          aliceHolding(
+            xdr.ScVal.scvVec([signedPair(alice, 2000), signedPair(bob, 2000)]),
+          ),
+          top,
+          2000,
+          Networks.TESTNET,
+        );
+        expect(signedBy(allValid)).toEqual([
+          top.publicKey(),
+          alice.publicKey(),
+        ]);
+
+        const oneStale = await authorizeEntry(
+          aliceHolding(
+            xdr.ScVal.scvVec([signedPair(alice, 2000), signedPair(bob, 1000)]),
+          ),
+          top,
+          2000,
+          Networks.TESTNET,
+        );
+        expect(signedBy(oneStale)).toEqual([top.publicKey()]);
+      });
+
+      it("clears a stored-0 signature whose public key is not an ed25519 point, without throwing", async () => {
+        const entry = aliceHolding(
+          xdr.ScVal.scvVec([
+            pairVal(new Uint8Array(32).fill(0xff), new Uint8Array(64).fill(1)),
+          ]),
+        );
+
+        const signed = await authorizeEntry(entry, top, 2000, Networks.TESTNET);
+
+        expect(signedBy(signed)).toEqual([top.publicKey()]);
       });
 
       it("clears a nested delegate's signature when a top-level delegate signs with a new expiration", async () => {
