@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import * as StellarSdk from "../../src/index.js";
 import { expectVariant } from "./base/support/xdr.js";
+import { withFees } from "./base/support/transaction.js";
 
 const {
   xdr,
@@ -304,6 +305,36 @@ describe("assembleTransaction", () => {
 
         // Should be identical — no double-counting
         expect(feeAfterSecond).toBe(feeAfterFirst);
+      });
+
+      it("uses an inclusion fee of 0 when the old resourceFee equals raw.fee", () => {
+        const txn = txWithPreExistingSorobanData("0");
+        expect(parseInt(txn.fee)).toBe(oldResourceFee);
+
+        const result = rpc.assembleTransaction(txn, simulationResponse).build();
+
+        expect(result.fee).toBe(String(newResourceFee));
+      });
+
+      it("rejects a raw transaction with a negative resourceFee", () => {
+        // build() rejects a negative value, so rebuild the envelope
+        const txn = withFees(txWithPreExistingSorobanData("100"), 500, -500n);
+
+        expect(() => rpc.assembleTransaction(txn, simulationResponse)).toThrow(
+          /Invalid resourceFee -500/,
+        );
+      });
+
+      it("rejects a raw transaction with a resourceFee above 2^50", () => {
+        const txn = withFees(
+          txWithPreExistingSorobanData("100"),
+          100,
+          2n ** 50n + 1n,
+        );
+
+        expect(() => rpc.assembleTransaction(txn, simulationResponse)).toThrow(
+          /Invalid resourceFee 1125899906842625/,
+        );
       });
     });
   });

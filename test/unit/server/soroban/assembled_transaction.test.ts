@@ -400,6 +400,21 @@ describe("AssembledTransaction", () => {
       await txn.sign({ force: true, signTransaction: wallet.signTransaction });
       expect(expectDefined(txn.signed).fee).toBe(String(100 + resourceFee));
     });
+
+    it("signs a contract call with an inclusion fee of 0", async () => {
+      mockPost.mockResolvedValue({ data: { result: callSimulateResponse } });
+
+      const txn = await contract.AssembledTransaction.build({
+        ...options,
+        fee: "0",
+        method: "test",
+        args: [],
+      });
+      expect(expectDefined(txn.built).fee).toBe(String(resourceFee));
+
+      await txn.sign({ force: true, signTransaction: wallet.signTransaction });
+      expect(expectDefined(txn.signed).fee).toBe(String(resourceFee));
+    });
   });
 });
 

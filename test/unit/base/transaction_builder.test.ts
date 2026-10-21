@@ -26,6 +26,7 @@ import { SignerKey } from "../../../src/base/signerkey.js";
 import { encodeMuxedAccountToAddress } from "../../../src/base/util/decode_encode_muxed_account.js";
 import * as xdr from "../../../src/xdr/index.js";
 import { expectVariant } from "./support/xdr.js";
+import { withFees } from "./support/transaction.js";
 
 describe("TransactionBuilder", () => {
   describe("constructs a native payment transaction with one operation", () => {
@@ -1947,7 +1948,71 @@ describe("TransactionBuilder.cloneFrom", () => {
     expect(cloneTx.fee).toBe("150");
   });
 
-  it("skips the resource fee subtraction when it would zero out the fee", () => {
+  it("uses an inclusion fee of 0 when the resource fee equals the fee", () => {
+    const tx = new TransactionBuilder(source, {
+      fee: "0",
+      timebounds: { minTime: 0, maxTime: 0 },
+      networkPassphrase,
+    })
+      .addOperation(op)
+      .setSorobanData(new SorobanDataBuilder().setResourceFee("50000").build())
+      .build();
+    expect(tx.fee).toBe("50000");
+
+    expect(TransactionBuilder.cloneFrom(tx).baseFee).toBe("0");
+  });
+
+  it("falls back to BASE_FEE for a classic transaction with a fee of 0", () => {
+    const tx = new TransactionBuilder(source, {
+      fee: "0",
+      timebounds: { minTime: 0, maxTime: 0 },
+      networkPassphrase,
+    })
+      .addOperation(op)
+      .build();
+
+    expect(TransactionBuilder.cloneFrom(tx).baseFee).toBe(BASE_FEE);
+  });
+
+  describe("BASE_FEE fallback for a Soroban transaction", () => {
+    const sorobanTx = (fee: number, resourceFee: bigint, ops: number) => {
+      let builder = new TransactionBuilder(source, {
+        fee: "100",
+        timebounds: { minTime: 0, maxTime: 0 },
+        networkPassphrase,
+      });
+      for (let i = 0; i < ops; i++) {
+        builder = builder.addOperation(op);
+      }
+      return withFees(builder.build(), fee, resourceFee);
+    };
+
+    it("falls back when the resource fee exceeds a fee of 0", () => {
+      expect(TransactionBuilder.cloneFrom(sorobanTx(0, 5000n, 1)).baseFee).toBe(
+        BASE_FEE,
+      );
+    });
+
+    it("keeps 0 when the fee and the resource fee are both 0", () => {
+      expect(TransactionBuilder.cloneFrom(sorobanTx(0, 0n, 1)).baseFee).toBe(
+        "0",
+      );
+    });
+
+    it("falls back when the inclusion fee per operation rounds down to 0", () => {
+      expect(
+        TransactionBuilder.cloneFrom(sorobanTx(102, 100n, 3)).baseFee,
+      ).toBe(BASE_FEE);
+    });
+
+    it("subtracts the resource fee once when the remainder equals it", () => {
+      expect(
+        TransactionBuilder.cloneFrom(sorobanTx(200, 100n, 1)).baseFee,
+      ).toBe("100");
+    });
+  });
+
+  it("keeps the total fee when the resource fee exceeds it", () => {
     const tx = new TransactionBuilder(source, {
       fee: "150",
       timebounds: { minTime: 0, maxTime: 0 },
@@ -1957,30 +2022,9 @@ describe("TransactionBuilder.cloneFrom", () => {
       .setSorobanData(new SorobanDataBuilder().setResourceFee("50000").build())
       .build();
 
-    // simulate a malformed tx whose declared resource fee exceeds the total
-    // fee by building the envelope fresh with a fee (100) lower than the
-    // declared resource fee. Fields are readonly in the new XDR layer, so we
-    // reconstruct the envelope rather than mutating it post-build.
-    const baseV1 = expectVariant(tx.toEnvelope(), "envelopeTypeTx").v1;
-    const baseTxObj = baseV1.tx;
-    const malformedEnvelope = xdr.TransactionEnvelope.envelopeTypeTx(
-      new xdr.TransactionV1Envelope({
-        tx: new xdr.Transaction({
-          sourceAccount: baseTxObj.sourceAccount,
-          fee: 100,
-          seqNum: baseTxObj.seqNum,
-          cond: baseTxObj.cond,
-          memo: baseTxObj.memo,
-          operations: baseTxObj.operations,
-          ext: baseTxObj.ext,
-        }),
-        signatures: baseV1.signatures,
-      }),
-    );
-    const malformedTx = new Transaction(malformedEnvelope, networkPassphrase);
-
-    const builder = TransactionBuilder.cloneFrom(malformedTx);
-    // subtraction would go negative, so the full fee is used instead
+    // since protocol 23, a fee-bump inner tx may declare a resource fee
+    // above its total fee (100 here)
+    const builder = TransactionBuilder.cloneFrom(withFees(tx, 100));
     expect(builder.baseFee).toBe("100");
   });
 
@@ -2812,5 +2856,124 @@ describe("fee overflow protection", () => {
         .addOperation(Operation.inflation({}))
         .build();
     }).not.toThrow();
+  });
+});
+
+describe("resource fee bounds", () => {
+  const networkPassphrase = Networks.TESTNET;
+  const source = new Account(
+    "GCEZWKCA5VLDNRLN3RPRJMRZOX3Z6G5CHCGSNFHEYVXM3XOJMDS674JZ",
+    "0",
+  );
+  const op = Operation.payment({
+    destination: "GDJJRRMBK4IWLEPJGIE6SXD2LP7REGZODU7WDC3I2D6MR37F4XSHBKX2",
+    asset: Asset.native(),
+    amount: "100",
+  });
+  const maxResourceFee = 2n ** 50n;
+
+  function sorobanBuilder(resourceFee: bigint) {
+    return new TransactionBuilder(source, {
+      fee: "100",
+      timebounds: { minTime: 0, maxTime: 0 },
+      networkPassphrase,
+    })
+      .addOperation(op)
+      .setSorobanData(
+        new SorobanDataBuilder().setResourceFee(resourceFee).build(),
+      );
+  }
+
+  // build() rejects out-of-range values, so rebuild the envelope, as a
+  // decoded transaction arrives
+  const decodedSorobanTx = (fee: number, resourceFee: bigint) =>
+    withFees(sorobanBuilder(0n).build(), fee, resourceFee);
+
+  describe("build()", () => {
+    it("rejects a negative resource fee", () => {
+      expect(() => sorobanBuilder(-1n).build()).toThrow(
+        /Invalid resourceFee -1/,
+      );
+    });
+
+    it("keeps the uint32 error for a resource fee above 2^50", () => {
+      expect(() => sorobanBuilder(maxResourceFee + 1n).build()).toThrow(
+        /exceeds the maximum uint32 value/,
+      );
+    });
+
+    it("accepts a resource fee of 0", () => {
+      expect(sorobanBuilder(0n).build().fee).toBe("100");
+    });
+  });
+
+  describe("cloneFrom()", () => {
+    it("rejects a negative resource fee", () => {
+      expect(() =>
+        TransactionBuilder.cloneFrom(decodedSorobanTx(500, -500n)),
+      ).toThrow(/Invalid resourceFee -500/);
+    });
+
+    it("rejects a resource fee above 2^50", () => {
+      expect(() =>
+        TransactionBuilder.cloneFrom(
+          decodedSorobanTx(100, maxResourceFee + 1n),
+        ),
+      ).toThrow(/Invalid resourceFee 1125899906842625/);
+    });
+
+    it("accepts a resource fee of 2^50", () => {
+      expect(
+        TransactionBuilder.cloneFrom(decodedSorobanTx(100, maxResourceFee))
+          .baseFee,
+      ).toBe("100");
+    });
+  });
+
+  describe("buildFeeBumpTransaction()", () => {
+    const feeSource = Keypair.random();
+
+    it("rejects a negative inner resource fee", () => {
+      expect(() =>
+        TransactionBuilder.buildFeeBumpTransaction(
+          feeSource,
+          "100",
+          decodedSorobanTx(500, -500n),
+          networkPassphrase,
+        ),
+      ).toThrow(/Invalid resourceFee -500/);
+    });
+
+    it("rejects an inner resource fee above 2^50", () => {
+      expect(() =>
+        TransactionBuilder.buildFeeBumpTransaction(
+          feeSource,
+          "100",
+          decodedSorobanTx(100, maxResourceFee + 1n),
+          networkPassphrase,
+        ),
+      ).toThrow(/Invalid resourceFee 1125899906842625/);
+    });
+
+    it("accepts an inner resource fee above the inner fee", () => {
+      const feeBump = TransactionBuilder.buildFeeBumpTransaction(
+        feeSource,
+        "100",
+        decodedSorobanTx(100, 50000n),
+        networkPassphrase,
+      );
+      // 100 * (1 op + 1) + 50000
+      expect(feeBump.fee).toBe("50200");
+    });
+
+    it("accepts an inner resource fee of 2^50", () => {
+      const feeBump = TransactionBuilder.buildFeeBumpTransaction(
+        feeSource,
+        "100",
+        decodedSorobanTx(100, maxResourceFee),
+        networkPassphrase,
+      );
+      expect(feeBump.fee).toBe((maxResourceFee + 200n).toString());
+    });
   });
 });
