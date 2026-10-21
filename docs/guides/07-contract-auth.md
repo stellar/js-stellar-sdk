@@ -141,7 +141,10 @@ then sign each delegate node with `authorizeEntry` and its `forAddress`
 argument. `signAuthEntries` does not select delegate nodes. All nodes sign one
 payload that includes the expiration, so sign every node with the same
 `validUntilLedgerSeq`. When a node signs with a different value,
-`authorizeEntry` clears the signatures of the other nodes.
+`authorizeEntry` clears the signatures of the other nodes. `signAuthEntries`
+keeps the stored expiration of a delegates entry while it is ahead of the
+latest ledger, so the top-level account can sign last without an `expiration`
+argument.
 
 Once delegates are attached, the heuristic reports only what the signatures
 show. A `G…` account must sign its own top-level entry on protocol 27, and its

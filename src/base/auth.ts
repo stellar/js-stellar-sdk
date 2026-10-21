@@ -109,13 +109,14 @@ function toScVal(value: unknown): ScVal | null {
  * anything with a `sign(Uint8Array): Uint8Array` method) or a callback function (see
  * {@link SigningCallback}) to handle signing the envelope hash.
  *
- * When `validUntilLedgerSeq` differs from the entry's stored expiration and the
- * stored expiration is not 0, every other node's signature is replaced with
- * `scvVoid`, because it commits to the stored expiration and would no longer
- * verify. This includes a custom signature that does not depend on the
- * payload. A stored 0 (as simulation returns) keeps the other signatures. Use
- * {@link checkAuthEntryReadiness} to find the nodes that need to sign again, or
- * sign every node with the same `validUntilLedgerSeq`.
+ * When `validUntilLedgerSeq` differs from a non-zero stored expiration, every
+ * other node's signature is replaced with `scvVoid`, because it commits to the
+ * stored expiration and would no longer verify. This includes a custom
+ * signature that does not depend on the payload. A stored 0 (as simulation
+ * returns) commits to nothing: a signature in the SDK's ed25519 format is kept
+ * only when it verifies at `validUntilLedgerSeq`, and a custom signature is
+ * kept as it is. Use {@link checkAuthEntryReadiness} to find the nodes that
+ * need to sign again, or sign every node with the same `validUntilLedgerSeq`.
  *
  * @param entry - an unsigned authorization entry
  * @param signer - either a {@link Keypair} instance or a function (see
@@ -398,6 +399,7 @@ export async function authorizeEntry(
       credentials,
       validUntilLedgerSeq,
       signatureScVal,
+      payload,
       targetAddress,
     );
 
@@ -600,7 +602,12 @@ export interface BuildWithDelegatesParams {
    * simulation — whose address credentials should be wrapped.
    */
   entry: SorobanAuthorizationEntry;
-  /** the expiration ledger sequence stored on the top-level credentials. */
+  /**
+   * the expiration ledger sequence stored on the top-level credentials. Every
+   * signature commits to it, so pass the value the signatures were made for.
+   * With `0` (as simulation returns), {@link authorizeEntry} keeps an ed25519
+   * signature only when it verifies at the expiration it is given.
+   */
   validUntilLedgerSeq: number;
   /** the delegate signers to attach. */
   delegates: DelegateSignature[];
@@ -763,8 +770,8 @@ export function getAddressCredentials(
  * node commits to the same payload (bound to the top-level address), so the
  * caller can fill any of them with a signature produced from that shared
  * payload. When `forAddress` is omitted, only the top-level address credentials
- * receive the signature. When a non-zero stored expiration changes, every other
- * node's signature becomes `scvVoid`.
+ * receive the signature. When the stored expiration changes, every other node's
+ * signature that no longer verifies becomes `scvVoid`.
  *
  * @returns the rebuilt credentials and the number of nodes that received the
  *    signature (`0` means `forAddress` matched no node).
@@ -773,6 +780,7 @@ function applyExpirationAndSignature(
   credentials: SorobanCredentials,
   validUntilLedgerSeq: number,
   signature: ScVal,
+  payload: Uint8Array,
   forAddress: string | undefined,
 ): { credentials: SorobanCredentials; matched: number } {
   const topAddr = getAddressCredentials(credentials);
@@ -788,11 +796,24 @@ function applyExpirationAndSignature(
     matched++;
   }
 
-  // The other nodes' signatures commit to the stored expiration, so a new one
-  // leaves them unable to verify. A stored 0 is the simulation placeholder; no
-  // signature is valid for it, so they may already commit to the new one.
+  // see `authorizeEntry`: a stored 0 commits to nothing, so a signature on it
+  // is kept only when it verifies at the new expiration
   const stored = topAddr.signatureExpirationLedger;
-  const clearOthers = stored !== 0 && stored !== validUntilLedgerSeq;
+  const keepOther = (other: ScVal): boolean => {
+    if (stored === validUntilLedgerSeq || !signaturePresent(other)) {
+      return true;
+    }
+    if (stored !== 0) {
+      return false;
+    }
+    const pairs = parseEd25519Signatures(other);
+    return (
+      pairs === null ||
+      pairs.every((pair) =>
+        Keypair.fromPublicKey(pair.publicKey).verify(payload, pair.signature),
+      )
+    );
+  };
 
   const newTopAddr = new SorobanAddressCredentials({
     address: topAddr.address,
@@ -800,7 +821,7 @@ function applyExpirationAndSignature(
     signatureExpirationLedger: validUntilLedgerSeq,
     signature: topIsTarget
       ? signature
-      : carryOver(topAddr.signature, clearOthers),
+      : carryOver(topAddr.signature, keepOther),
   });
 
   switch (credentials.type) {
@@ -817,13 +838,13 @@ function applyExpirationAndSignature(
     case "sorobanCredentialsAddressWithDelegates": {
       const withDelegates = credentials.addressWithDelegates;
       const newDelegates =
-        forAddress === undefined && !clearOthers
+        forAddress === undefined && stored === validUntilLedgerSeq
           ? withDelegates.delegates
           : rebuildDelegatesWithSignature(
               withDelegates.delegates,
               forAddress,
               signature,
-              clearOthers,
+              keepOther,
               () => {
                 matched++;
               },
@@ -845,24 +866,26 @@ function applyExpirationAndSignature(
 
 /**
  * Internal helper. Returns the signature of a node that this call does not
- * sign: `scvVoid` when `clear` is set and the node holds a signature, otherwise
- * the signature unchanged (placeholders stay as they are).
+ * sign: unchanged when `keep` accepts it, otherwise `scvVoid`.
  */
-function carryOver(signature: ScVal, clear: boolean): ScVal {
-  return clear && signaturePresent(signature) ? ScVal.scvVoid() : signature;
+function carryOver(
+  signature: ScVal,
+  keep: (signature: ScVal) => boolean,
+): ScVal {
+  return keep(signature) ? signature : ScVal.scvVoid();
 }
 
 /**
  * Internal helper. Recursively rebuilds a delegate tree, writing `signature`
  * onto every (possibly nested) node whose address matches `forAddress` and
- * invoking `onMatch` for each one. Every other node's signature is cleared when
- * `clearOthers` is set (see {@link carryOver}).
+ * invoking `onMatch` for each one. Every other node's signature is passed
+ * through `keepOther` (see {@link carryOver}).
  */
 function rebuildDelegatesWithSignature(
   delegates: SorobanDelegateSignature[],
   forAddress: string | undefined,
   signature: ScVal,
-  clearOthers: boolean,
+  keepOther: (signature: ScVal) => boolean,
   onMatch: () => void,
 ): SorobanDelegateSignature[] {
   return delegates.map((delegate) => {
@@ -874,14 +897,12 @@ function rebuildDelegatesWithSignature(
     }
     return new SorobanDelegateSignature({
       address: delegate.address,
-      signature: isMatch
-        ? signature
-        : carryOver(delegate.signature, clearOthers),
+      signature: isMatch ? signature : carryOver(delegate.signature, keepOther),
       nestedDelegates: rebuildDelegatesWithSignature(
         delegate.nestedDelegates,
         forAddress,
         signature,
-        clearOthers,
+        keepOther,
         onMatch,
       ),
     });

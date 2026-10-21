@@ -20,6 +20,7 @@ import { StrKey } from "../../../src/base/strkey.js";
 import { hash } from "../../../src/base/hashing.js";
 import { scValToNative } from "../../../src/base/scval.js";
 import { expectDefined } from "./support/expect_defined.js";
+import { verifiesAtStored } from "./support/verifies_at_stored.js";
 import { Networks } from "../../../src/base/network.js";
 import { expectUnionVariant } from "../../../src/xdr/index.js";
 import * as xdr from "../../../src/xdr/index.js";
@@ -1322,28 +1323,6 @@ describe("building authorization entries", () => {
         });
       }
 
-      // true when `signer`'s ed25519 signature on its node verifies against
-      // the payload for the entry's stored expiration
-      function verifiesAtStored(
-        entry: xdr.SorobanAuthorizationEntry,
-        signer: Keypair,
-      ): boolean {
-        const node = inspectAuthEntry(entry).signers.find(
-          (s) => s.address === signer.publicKey(),
-        );
-        const stored = inspectAuthEntry(entry).signatureExpirationLedger;
-        if (node === undefined || stored === null) return false;
-        const payload = hash(
-          buildAuthorizationEntryPreimage(
-            entry,
-            stored,
-            Networks.TESTNET,
-          ).toXdr(),
-        );
-        const sig = node.signatures?.[0]?.signature;
-        return sig !== undefined && signer.verify(payload, sig);
-      }
-
       // addresses of the nodes that hold a signature
       const signedBy = (entry: xdr.SorobanAuthorizationEntry): string[] =>
         inspectAuthEntry(entry)
@@ -1369,7 +1348,7 @@ describe("building authorization entries", () => {
 
         expect(inspectAuthEntry(resigned).signatureExpirationLedger).toBe(2000);
         expect(signedBy(resigned)).toEqual([bob.publicKey()]);
-        expect(verifiesAtStored(resigned, bob)).toBe(true);
+        expect(verifiesAtStored(resigned, bob, Networks.TESTNET)).toBe(true);
       });
 
       it.each([
@@ -1398,7 +1377,7 @@ describe("building authorization entries", () => {
           );
 
           expect(signedBy(resigned)).toEqual([top.publicKey()]);
-          expect(verifiesAtStored(resigned, top)).toBe(true);
+          expect(verifiesAtStored(resigned, top, Networks.TESTNET)).toBe(true);
         },
       );
 
@@ -1419,7 +1398,7 @@ describe("building authorization entries", () => {
         );
 
         expect(signedBy(resigned)).toEqual([alice.publicKey()]);
-        expect(verifiesAtStored(resigned, alice)).toBe(true);
+        expect(verifiesAtStored(resigned, alice, Networks.TESTNET)).toBe(true);
       });
 
       it("clears a custom signature on another node when the expiration changes", async () => {
@@ -1441,6 +1420,27 @@ describe("building authorization entries", () => {
           Networks.TESTNET,
         );
 
+        expect(signedBy(resigned)).toEqual([top.publicKey()]);
+      });
+
+      it("clears a signature made for expiration 0 when another node signs with a new one", async () => {
+        // it does not verify at 2000, so it goes like any stale signature
+        const signed = await authorizeEntry(
+          twoDelegates(),
+          alice,
+          0,
+          Networks.TESTNET,
+          alice.publicKey(),
+        );
+
+        const resigned = await authorizeEntry(
+          signed,
+          top,
+          2000,
+          Networks.TESTNET,
+        );
+
+        expect(inspectAuthEntry(resigned).signatureExpirationLedger).toBe(2000);
         expect(signedBy(resigned)).toEqual([top.publicKey()]);
       });
 
@@ -1470,8 +1470,53 @@ describe("building authorization entries", () => {
         const signed = await authorizeEntry(entry, top, 5000, Networks.TESTNET);
 
         expect(signedBy(signed)).toEqual([top.publicKey(), alice.publicKey()]);
-        expect(verifiesAtStored(signed, top)).toBe(true);
-        expect(verifiesAtStored(signed, alice)).toBe(true);
+        expect(verifiesAtStored(signed, top, Networks.TESTNET)).toBe(true);
+        expect(verifiesAtStored(signed, alice, Networks.TESTNET)).toBe(true);
+      });
+
+      it("clears a delegate's signature made for another expiration while the stored one is still 0", async () => {
+        const presigned = await authorizeEntry(
+          twoDelegates(),
+          alice,
+          1000,
+          Networks.TESTNET,
+          alice.publicKey(),
+        );
+        const aliceNode = expectDefined(
+          inspectAuthEntry(presigned).signers.find(
+            (s) => s.address === alice.publicKey(),
+          ),
+        );
+        const entry = buildWithDelegatesEntry({
+          entry: addressV2Entry(top.publicKey()),
+          validUntilLedgerSeq: 0,
+          delegates: [
+            { address: alice.publicKey(), signature: aliceNode.rawSignature },
+          ],
+        });
+
+        const signed = await authorizeEntry(entry, top, 2000, Networks.TESTNET);
+
+        expect(signedBy(signed)).toEqual([top.publicKey()]);
+        expect(verifiesAtStored(signed, top, Networks.TESTNET)).toBe(true);
+      });
+
+      it("keeps a custom signature on another node while the stored one is still 0", async () => {
+        // a custom signature cannot be checked against the payload
+        const entry = buildWithDelegatesEntry({
+          entry: addressV2Entry(top.publicKey()),
+          validUntilLedgerSeq: 0,
+          delegates: [
+            {
+              address: alice.publicKey(),
+              signature: xdr.ScVal.scvBytes(new Uint8Array([1, 2, 3])),
+            },
+          ],
+        });
+
+        const signed = await authorizeEntry(entry, top, 2000, Networks.TESTNET);
+
+        expect(signedBy(signed)).toEqual([top.publicKey(), alice.publicKey()]);
       });
 
       it("clears a nested delegate's signature when a top-level delegate signs with a new expiration", async () => {
@@ -1519,8 +1564,8 @@ describe("building authorization entries", () => {
         }
 
         expect(inspectAuthEntry(entry).signatureExpirationLedger).toBe(2000);
-        expect(verifiesAtStored(entry, alice)).toBe(true);
-        expect(verifiesAtStored(entry, bob)).toBe(true);
+        expect(verifiesAtStored(entry, alice, Networks.TESTNET)).toBe(true);
+        expect(verifiesAtStored(entry, bob, Networks.TESTNET)).toBe(true);
       });
 
       it("keeps every signature valid when the delegates sign with the same expiration", async () => {
@@ -1539,8 +1584,8 @@ describe("building authorization entries", () => {
           bob.publicKey(),
         );
 
-        expect(verifiesAtStored(signed, alice)).toBe(true);
-        expect(verifiesAtStored(signed, bob)).toBe(true);
+        expect(verifiesAtStored(signed, alice, Networks.TESTNET)).toBe(true);
+        expect(verifiesAtStored(signed, bob, Networks.TESTNET)).toBe(true);
       });
 
       it.each([
@@ -1563,7 +1608,7 @@ describe("building authorization entries", () => {
           );
 
           expect(inspectAuthEntry(second).signatureExpirationLedger).toBe(2000);
-          expect(verifiesAtStored(second, kp)).toBe(true);
+          expect(verifiesAtStored(second, kp, Networks.TESTNET)).toBe(true);
         },
       );
 
@@ -1584,7 +1629,7 @@ describe("building authorization entries", () => {
         );
 
         expect(inspectAuthEntry(second).signatureExpirationLedger).toBe(2000);
-        expect(verifiesAtStored(second, alice)).toBe(true);
+        expect(verifiesAtStored(second, alice, Networks.TESTNET)).toBe(true);
       });
 
       it.each([
@@ -1601,7 +1646,7 @@ describe("building authorization entries", () => {
             alice.publicKey(),
           );
 
-          expect(verifiesAtStored(signed, alice)).toBe(true);
+          expect(verifiesAtStored(signed, alice, Networks.TESTNET)).toBe(true);
         },
       );
     });

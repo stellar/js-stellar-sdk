@@ -5,6 +5,7 @@ import * as StellarSdk from "../../../../src/index.js";
 import * as xdr from "../../../../src/xdr/index.js";
 import { expectDefined } from "../../base/support/expect_defined.js";
 import { expectVariant } from "../../base/support/xdr.js";
+import { verifiesAtStored } from "../../base/support/verifies_at_stored.js";
 
 const {
   Account,
@@ -950,6 +951,158 @@ describe("AssembledTransaction auth entry credential types (CAP-71)", () => {
           .signAuthEntry,
       });
       expect(assembled.needsNonInvokerSigningBy()).toEqual([kpC.publicKey()]);
+    });
+
+    describe("default expiration", () => {
+      const LATEST = 5000;
+      const signAuthEntry = contract.basicNodeSigner(
+        kpA,
+        networkPassphrase,
+      ).signAuthEntry;
+
+      // a WITH_DELEGATES entry for kpA whose delegate kpB signed at `ledger`
+      const delegateSignedAt = (ledger: number) =>
+        StellarSdk.authorizeEntry(
+          StellarSdk.buildWithDelegatesEntry({
+            entry: authEntry(addressV2Cred(kpA.publicKey())),
+            validUntilLedgerSeq: 0,
+            delegates: [{ address: kpB.publicKey() }],
+          }),
+          kpB,
+          ledger,
+          networkPassphrase,
+          kpB.publicKey(),
+        );
+
+      // `signAuthEntries` only needs `getLatestLedger` from the server
+      function setup(auth: xdr.SorobanAuthorizationEntry[]) {
+        const getLatestLedger = vi.fn(() =>
+          Promise.resolve({ sequence: LATEST }),
+        );
+        const assembled = assembledWith(auth, {
+          publicKey: kpA.publicKey(),
+          server: { getLatestLedger },
+        });
+        return { assembled, getLatestLedger };
+      }
+
+      const signedAuth = (
+        assembled: ReturnType<typeof assembledWith>,
+      ): xdr.SorobanAuthorizationEntry[] => {
+        const operation = expectDefined(assembled.built).operations[0];
+        if (operation.type !== "invokeHostFunction") {
+          throw new Error("Expected an invokeHostFunction operation");
+        }
+        return expectDefined(operation.auth);
+      };
+
+      it("keeps the expiration a delegate already signed for while it is ahead of the latest ledger", async () => {
+        const { assembled, getLatestLedger } = setup([
+          await delegateSignedAt(6000),
+        ]);
+
+        await assembled.signAuthEntries({ signAuthEntry });
+
+        const [entry] = signedAuth(assembled);
+        expect(
+          StellarSdk.inspectAuthEntry(entry).signatureExpirationLedger,
+        ).toBe(6000);
+        expect(verifiesAtStored(entry, kpA, networkPassphrase)).toBe(true);
+        expect(verifiesAtStored(entry, kpB, networkPassphrase)).toBe(true);
+        expect(getLatestLedger).toHaveBeenCalledTimes(1);
+      });
+
+      it("refreshes a delegates entry whose stored expiration is behind the latest ledger", async () => {
+        // the delegate's signature is expired anyway, so it is cleared and
+        // listed for signing again
+        const { assembled, getLatestLedger } = setup([
+          await delegateSignedAt(1000),
+        ]);
+
+        await assembled.signAuthEntries({ signAuthEntry });
+
+        const [entry] = signedAuth(assembled);
+        const info = StellarSdk.inspectAuthEntry(entry);
+        expect(info.signatureExpirationLedger).toBe(LATEST + 100);
+        expect(
+          info.signers.filter((s) => s.signed).map((s) => s.address),
+        ).toEqual([kpA.publicKey()]);
+        expect(getLatestLedger).toHaveBeenCalledTimes(1);
+      });
+
+      it("keeps a different stored expiration on each entry", async () => {
+        const { assembled } = setup([
+          await delegateSignedAt(6000),
+          await delegateSignedAt(7000),
+        ]);
+
+        await assembled.signAuthEntries({ signAuthEntry });
+
+        const entries = signedAuth(assembled);
+        expect(
+          entries.map(
+            (e) => StellarSdk.inspectAuthEntry(e).signatureExpirationLedger,
+          ),
+        ).toEqual([6000, 7000]);
+        expect(
+          entries.map((e) => verifiesAtStored(e, kpB, networkPassphrase)),
+        ).toEqual([true, true]);
+      });
+
+      it("uses the latest ledger + 100, fetched once, for entries that store 0", async () => {
+        const { assembled, getLatestLedger } = setup([
+          authEntry(addressV2Cred(kpA.publicKey())),
+          await delegateSignedAt(6000),
+          authEntry(addressV2Cred(kpA.publicKey())),
+        ]);
+
+        await assembled.signAuthEntries({ signAuthEntry });
+
+        expect(
+          signedAuth(assembled).map(
+            (e) => StellarSdk.inspectAuthEntry(e).signatureExpirationLedger,
+          ),
+        ).toEqual([LATEST + 100, 6000, LATEST + 100]);
+        expect(getLatestLedger).toHaveBeenCalledTimes(1);
+      });
+
+      it("refreshes a signed ADDRESS_V2 entry with the latest ledger + 100", async () => {
+        const signedEarlier = await StellarSdk.authorizeEntry(
+          authEntry(addressV2Cred(kpA.publicKey())),
+          kpA,
+          1000,
+          networkPassphrase,
+        );
+        const { assembled, getLatestLedger } = setup([
+          signedEarlier,
+          authEntry(addressV2Cred(kpA.publicKey())),
+        ]);
+
+        await assembled.signAuthEntries({ signAuthEntry });
+
+        expect(
+          signedAuth(assembled).map(
+            (e) => StellarSdk.inspectAuthEntry(e).signatureExpirationLedger,
+          ),
+        ).toEqual([LATEST + 100, LATEST + 100]);
+        expect(getLatestLedger).toHaveBeenCalledTimes(1);
+      });
+
+      it("applies an explicit expiration to every entry", async () => {
+        const { assembled, getLatestLedger } = setup([
+          await delegateSignedAt(1000),
+        ]);
+
+        await assembled.signAuthEntries({ expiration: 2000, signAuthEntry });
+
+        const [entry] = signedAuth(assembled);
+        const info = StellarSdk.inspectAuthEntry(entry);
+        expect(info.signatureExpirationLedger).toBe(2000);
+        expect(
+          info.signers.filter((s) => s.signed).map((s) => s.address),
+        ).toEqual([kpA.publicKey()]);
+        expect(getLatestLedger).not.toHaveBeenCalled();
+      });
     });
 
     describe("sign()", () => {
