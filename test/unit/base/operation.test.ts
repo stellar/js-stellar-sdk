@@ -158,6 +158,10 @@ describe("toXdrPrice()", () => {
     expect(() => toXdrPrice({ n: 0, d: 0 })).toThrow(/price must be positive/);
   });
 
+  it("throws for a zero numerator", () => {
+    expect(() => toXdrPrice({ n: 0, d: 1 })).toThrow(/price must be positive/);
+  });
+
   it("throws 'price must be positive' for zero numeric price", () => {
     expect(() => toXdrPrice("0")).toThrow(/price must be positive/);
     expect(() => toXdrPrice(0)).toThrow(/price must be positive/);

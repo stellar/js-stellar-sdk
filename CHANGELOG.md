@@ -4,6 +4,9 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Fixed
+* `Operation.toXdrPrice()` throws "price must be positive" for a `{n, d}` price whose `n` is `0`. Before, it returned a zero price, which the network rejects as malformed. This affects `manageSellOffer()`, `manageBuyOffer()`, `createPassiveSellOffer()` and `liquidityPoolDeposit()`. A zero price in number or string form already threw ([#1843](https://github.com/stellar/js-stellar-sdk/pull/1843)).
+
 ## [v17.3.0](https://github.com/stellar/js-stellar-sdk/compare/v17.2.1...v17.3.0)
 
 ### Added

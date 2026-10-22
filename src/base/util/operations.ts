@@ -167,7 +167,7 @@ export function toXdrPrice(
     });
   }
 
-  if (xdrObject.n < 0 || xdrObject.d <= 0) {
+  if (xdrObject.n <= 0 || xdrObject.d <= 0) {
     throw new Error("price must be positive");
   }
 
