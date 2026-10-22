@@ -370,7 +370,10 @@ export namespace Api {
   }
 
   export type QueryEventsRangeRequest = QueryEventsPaging & {
-    /** Required by the server when `order` is `"asc"`. */
+    /**
+     * Required unless `order` is `"desc"`, since the server defaults to
+     * ascending. Use `1` to start from genesis.
+     */
     minLedger?: number;
     maxLedger?: number;
     order?: QueryEventsOrder;
@@ -403,6 +406,7 @@ export namespace Api {
   export type RawQueryEventsRequest = (
     | (Omit<QueryEventsRangeRequest, "filters"> & {
         filters?: RawQueryEventsFilter[];
+        xdrInputFormat?: "base64" | "json";
       })
     | QueryEventsCursorRequest
   ) & { xdrFormat?: "base64" | "json" };

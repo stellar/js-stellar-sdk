@@ -187,7 +187,7 @@ describe("Server#queryEvents", () => {
     expect(req.filters[0].topic0).toBe(transferTopic);
   });
 
-  it("drops zero ledgers and empty strings but sends limit 0 and empty topics", async () => {
+  it("drops zero ledgers and empty strings but sends limit 0", async () => {
     respond();
     await server.queryEvents({
       minLedger: 0,
@@ -199,8 +199,27 @@ describe("Server#queryEvents", () => {
     const params = postedParams();
     expect(Object.keys(params).sort()).toEqual(["filters", "limit"]);
     expect(params.limit).toBe(0);
-    expect(params.filters).toEqual([{ topic0: "" }]);
+    expect(params.filters).toEqual([{}]);
   });
+
+  it("rejects a * topic", async () => {
+    respond();
+    await expect(
+      server.queryEvents({ minLedger: 1, filters: [{ topic1: "*" }] }),
+    ).rejects.toThrow(TypeError);
+    expect(mockPost).not.toHaveBeenCalled();
+  });
+
+  it.each([{ type: "contract" }, "contract"])(
+    "rejects non-array filters %j",
+    async (filters) => {
+      respond();
+      await expect(
+        server.queryEvents({ minLedger: 1, filters } as any),
+      ).rejects.toThrow(new TypeError("queryEvents filters must be an array"));
+      expect(mockPost).not.toHaveBeenCalled();
+    },
+  );
 
   it.each([
     ["undefined", { cursor: undefined }],
@@ -208,6 +227,15 @@ describe("Server#queryEvents", () => {
     ["null", { cursor: null }],
     ["a number", { cursor: 123 }],
   ])("rejects a %s cursor without a range", async (_name, req) => {
+    respond();
+    await expect(server.queryEvents(req as any)).rejects.toThrow(TypeError);
+    expect(mockPost).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ["empty", { cursor: "", order: "desc" }],
+    ["a number", { cursor: 123, minLedger: 5 }],
+  ])("rejects a %s cursor next to a range", async (_name, req) => {
     respond();
     await expect(server.queryEvents(req as any)).rejects.toThrow(TypeError);
     expect(mockPost).not.toHaveBeenCalled();
@@ -222,13 +250,27 @@ describe("Server#queryEvents", () => {
   });
 
   describe.each(["minLedger", "maxLedger", "limit"])("%s", (key) => {
-    it.each([NaN, Infinity, -Infinity, "5"])("rejects %s", async (value) => {
-      respond();
-      const req = { order: "desc", [key]: value };
-      await expect(server.queryEvents(req as any)).rejects.toThrow(TypeError);
-      expect(mockPost).not.toHaveBeenCalled();
-    });
+    it.each([NaN, Infinity, -Infinity, "5", -1, 1.5])(
+      "rejects %s",
+      async (value) => {
+        respond();
+        const req = { order: "desc", [key]: value };
+        await expect(server.queryEvents(req as any)).rejects.toThrow(TypeError);
+        expect(mockPost).not.toHaveBeenCalled();
+      },
+    );
   });
+
+  it.each(["minLedger", "maxLedger"])(
+    "rejects %s above uint32",
+    async (key) => {
+      respond();
+      await expect(
+        server.queryEvents({ order: "desc", [key]: 2 ** 32 } as any),
+      ).rejects.toThrow(TypeError);
+      expect(mockPost).not.toHaveBeenCalled();
+    },
+  );
 
   it.each([null, 5, "x", true])("rejects a %j filter entry", async (entry) => {
     respond();

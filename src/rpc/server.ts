@@ -122,14 +122,30 @@ function isSet(value: unknown): boolean {
   return value !== undefined && value !== null;
 }
 
-function encodeQueryEventsNumber(name: string, value: unknown): number {
-  if (typeof value !== "number" || !Number.isFinite(value)) {
-    throw new TypeError(`queryEvents ${name} must be a finite number`);
+// The server decodes ledgers as uint32 and limit as uint.
+function encodeQueryEventsNumber(
+  name: string,
+  value: unknown,
+  max: number = Number.MAX_SAFE_INTEGER,
+): number {
+  if (
+    !Number.isInteger(value) ||
+    (value as number) < 0 ||
+    (value as number) > max
+  ) {
+    throw new TypeError(
+      `queryEvents ${name} must be an integer from 0 to ${max}`,
+    );
   }
-  return value;
+  return value as number;
 }
 
 function encodeQueryEventsTopic(name: string, topic: unknown): string {
+  if (topic === "*") {
+    throw new TypeError(
+      `queryEvents filter ${name} cannot be "*"; omit it to match any value`,
+    );
+  }
   if (typeof topic === "string") {
     return topic;
   }
@@ -160,7 +176,7 @@ function encodeQueryEventsFilter(filter: unknown): Api.RawQueryEventsFilter {
     out.contractId = f.contractId;
   }
   for (const key of ["topic0", "topic1", "topic2", "topic3"] as const) {
-    if (isSet(f[key])) {
+    if (isSet(f[key]) && f[key] !== "") {
       out[key] = encodeQueryEventsTopic(key, f[key]);
     }
   }
@@ -174,10 +190,11 @@ function encodeQueryEventsRequest(
   const rangeKeySet = ["minLedger", "maxLedger", "order", "filters"].some(
     (key) => isSet(r[key]),
   );
+  // A set cursor must be valid; an unset one is only allowed next to a range.
   if (
     "cursor" in r &&
-    (typeof r.cursor !== "string" || r.cursor === "") &&
-    !rangeKeySet
+    (isSet(r.cursor) || !rangeKeySet) &&
+    (typeof r.cursor !== "string" || r.cursor === "")
   ) {
     throw new TypeError("queryEvents cursor must be a non-empty string");
   }
@@ -185,7 +202,7 @@ function encodeQueryEventsRequest(
   const out: Record<string, unknown> = {};
   for (const key of ["minLedger", "maxLedger"] as const) {
     if (isSet(r[key])) {
-      const value = encodeQueryEventsNumber(key, r[key]);
+      const value = encodeQueryEventsNumber(key, r[key], 2 ** 32 - 1);
       if (value !== 0) {
         out[key] = value;
       }
@@ -195,6 +212,9 @@ function encodeQueryEventsRequest(
     out.order = r.order;
   }
   if (isSet(r.filters)) {
+    if (!Array.isArray(r.filters)) {
+      throw new TypeError("queryEvents filters must be an array");
+    }
     out.filters = (r.filters as unknown[]).map(encodeQueryEventsFilter);
   }
   if (isSet(r.cursor)) {
