@@ -19,7 +19,7 @@ A release event runs the workflow file **from the tagged commit**, so the
 | Release                         | Branch       | Workflow publish line                      | npm dist-tag |
 | :------------------------------ | :----------- | :----------------------------------------- | :----------- |
 | Stable, Active line             | `main`       | `npm publish --access public --provenance` | `latest`     |
-| Stable, Maintenance line        | `release/vN` | `... --tag lts-N`                          | `lts-N`      |
+| Stable, Maintenance line        | `release/vN` | `... --tag lts`                            | `lts`        |
 | Prerelease (`-rc.N`, `-beta.N`) | `main`       | `... --tag rc`                             | `rc`         |
 
 Get this wrong and users get the wrong version from `npm install`. A 16.x or rc
@@ -72,10 +72,9 @@ Same as a stable release, with these changes:
 
 ## Maintenance release from `release/vN`
 
-The Maintenance line lives on `release/vN` (today: `release/v16`, dist-tag
-`lts-16`). Its workflow already has `--tag lts-N`. Do not merge that change into
-`main`. A dist-tag cannot be `vN` because npm rejects names that parse as a
-semver range.
+The Maintenance line lives on `release/vN` (today: `release/v16`). Its workflow
+already has `--tag lts`. Do not merge that change into `main`. A dist-tag cannot
+be `vN` because npm rejects names that parse as a semver range.
 
 1. Land the fix on `main` first when it applies there, then backport it with a
    PR into `release/vN`. Branch names like `backport/vN-<topic>` work. Never
@@ -89,8 +88,11 @@ semver range.
    - Steps 5 and 6: use `release/vN` as the PR base and the release target.
    - Step 6: leave "Set as the latest release" **unchecked**.
 
-When cutting a new `release/vN` branch at a major release, add `--tag lts-N` to
-its `npm_publish.yml` in the first commit on that branch.
+When cutting a new `release/vN` branch at a major release, add `--tag lts` to
+its `npm_publish.yml` in the first commit on that branch. `lts` always points at
+the newest Maintenance line, so if an older line is still supported, change its
+workflow to `--tag lts-N` at the same time. Otherwise its next release moves
+`lts` back to the older line.
 
 ## If the publish fails
 
