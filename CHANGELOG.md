@@ -7,6 +7,9 @@ A breaking change will get clearly marked in this log.
 ### Added
 * `rpc.Server.queryEvents()` fetches one page of events with the new `queryEvents` RPC method. Only the archival RPC node serves it, and it is in beta. A request is a ledger range query or a cursor continuation, and filter topics can be `ScVal`s. `rpc.Api.isQueryEventsError()` narrows its typed errors, and `rpc.parseRawQueryEvents()` parses a raw response from `_queryEvents()`. `getEvents()` is unchanged. ([#1839](https://github.com/stellar/js-stellar-sdk/pull/1839))
 
+### Fixed
+* `Operation.toXdrPrice()` throws "price must be positive" for a `{n, d}` price whose `n` is `0`. Before, it returned a zero price, which the network rejects as malformed. This affects `manageSellOffer()`, `manageBuyOffer()`, `createPassiveSellOffer()` and `liquidityPoolDeposit()`. A zero price in number or string form already threw ([#1843](https://github.com/stellar/js-stellar-sdk/pull/1843)).
+
 ## [v17.3.0](https://github.com/stellar/js-stellar-sdk/compare/v17.2.1...v17.3.0)
 
 ### Added
