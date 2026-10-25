@@ -119,20 +119,50 @@ export function parseRawEvents(
     oldestLedgerCloseTime: raw.oldestLedgerCloseTime,
 
     cursor: raw.cursor,
-    events: (raw.events ?? []).map((evt) => {
-      const clone: Omit<Api.RawEventResponse, "contractId"> = { ...evt };
-      delete (clone as any).contractId; // `as any` hack because contractId field isn't optional
+    events: (raw.events ?? []).map(parseRawEvent),
+  };
+}
 
-      // the contractId may be empty so we omit the field in that case
-      return {
-        ...clone,
-        ...(evt.contractId !== "" && {
-          contractId: new Contract(evt.contractId),
-        }),
-        topic: (evt.topic ?? []).map((topic) => ScVal.fromXdr(topic, "base64")),
-        value: ScVal.fromXdr(evt.value, "base64"),
-      };
+function parseRawEvent(evt: Api.RawEventResponse): Api.EventResponse {
+  const clone: Omit<Api.RawEventResponse, "contractId"> = { ...evt };
+  delete (clone as any).contractId; // `as any` hack because contractId field isn't optional
+
+  // the contractId may be empty so we omit the field in that case
+  return {
+    ...clone,
+    ...(evt.contractId !== "" && {
+      contractId: new Contract(evt.contractId),
     }),
+    topic: (evt.topic ?? []).map((topic) => ScVal.fromXdr(topic, "base64")),
+    value: ScVal.fromXdr(evt.value, "base64"),
+  };
+}
+
+/**
+ * Parse a raw `queryEvents` response. It needs base64 events, so it throws on
+ * a response fetched with `xdrFormat: "json"`.
+ *
+ * @param raw - the raw `queryEvents` response from the RPC server to parse
+ * @returns the page of events parsed from the RPC server's response
+ */
+export function parseRawQueryEvents(
+  raw: Api.RawQueryEventsResponse,
+): Api.QueryEventsResponse {
+  return {
+    events: (raw.events ?? []).map((evt) => {
+      const { value } = evt;
+      if (typeof value !== "string") {
+        throw new Error(
+          'queryEvents event has no base64 value; was xdrFormat "json"?',
+        );
+      }
+      return parseRawEvent({ ...evt, value });
+    }),
+    ...(raw.cursor !== undefined && { cursor: raw.cursor }),
+    scanStatus: raw.scanStatus,
+    scannedLedger: raw.scannedLedger,
+    oldestLedger: raw.oldestLedger,
+    latestLedger: raw.latestLedger,
   };
 }
 
