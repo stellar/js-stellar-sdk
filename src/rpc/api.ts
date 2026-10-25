@@ -349,6 +349,152 @@ export namespace Api {
     value: string;
   }
 
+  export type QueryEventsOrder = "asc" | "desc";
+
+  /** One `queryEvents` filter. Each topic is base64 XDR or an `ScVal`. */
+  export interface QueryEventsFilter {
+    type?: EventType;
+    contractId?: string;
+    topic0?: string | ScVal;
+    topic1?: string | ScVal;
+    topic2?: string | ScVal;
+    topic3?: string | ScVal;
+  }
+
+  interface QueryEventsPaging {
+    /**
+     * Page size, 1 to 1000 (server default 100). The cursor does not store
+     * it, so pass it again with each cursor.
+     */
+    limit?: number;
+  }
+
+  export type QueryEventsRangeRequest = QueryEventsPaging & {
+    /**
+     * Required unless `order` is `"desc"`, since the server defaults to
+     * ascending. Use `1` to start from genesis.
+     */
+    minLedger?: number;
+    maxLedger?: number;
+    order?: QueryEventsOrder;
+    filters?: QueryEventsFilter[];
+    cursor?: never;
+  };
+
+  export type QueryEventsCursorRequest = QueryEventsPaging & {
+    cursor: string;
+    minLedger?: never;
+    maxLedger?: never;
+    order?: never;
+    filters?: never;
+  };
+
+  /** A `queryEvents` request: a ledger range query or a cursor continuation. */
+  export type QueryEventsRequest =
+    QueryEventsRangeRequest | QueryEventsCursorRequest;
+
+  export interface RawQueryEventsFilter {
+    type?: EventType;
+    contractId?: string;
+    topic0?: string;
+    topic1?: string;
+    topic2?: string;
+    topic3?: string;
+  }
+
+  /** The `queryEvents` wire params, posted as is by `_queryEvents`. */
+  export type RawQueryEventsRequest = (
+    | (Omit<QueryEventsRangeRequest, "filters"> & {
+        filters?: RawQueryEventsFilter[];
+        xdrInputFormat?: "base64" | "json";
+      })
+    | QueryEventsCursorRequest
+  ) & { xdrFormat?: "base64" | "json" };
+
+  /**
+   * How far a `queryEvents` scan got. A `switch` over it needs a `default`
+   * branch, since the server may add statuses.
+   */
+  export enum QueryEventsScanStatus {
+    HAS_MORE = "HAS_MORE",
+    WAITING_FOR_LEDGERS = "WAITING_FOR_LEDGERS",
+    OLDEST_REACHED = "OLDEST_REACHED",
+    COMPLETE = "COMPLETE",
+  }
+
+  export interface QueryEventsResponse {
+    events: EventResponse[];
+    /** Absent only when `scanStatus` is `COMPLETE`. */
+    cursor?: string;
+    scanStatus: QueryEventsScanStatus;
+    scannedLedger: number;
+    oldestLedger: number;
+    latestLedger: number;
+  }
+
+  export interface RawQueryEventResponse extends BaseEventResponse {
+    /** `""` for events without a contract. */
+    contractId: string;
+    topic?: string[];
+    value?: string;
+    topicJson?: unknown[];
+    valueJson?: unknown;
+  }
+
+  export interface RawQueryEventsResponse {
+    events: RawQueryEventResponse[] | null;
+    cursor?: string;
+    scanStatus: QueryEventsScanStatus;
+    scannedLedger: number;
+    oldestLedger: number;
+    latestLedger: number;
+  }
+
+  /** JSON-RPC error code for every `queryEvents` rejection with typed data. */
+  export const QUERY_EVENTS_INVALID_PARAMS = -32602;
+
+  export type QueryEventsErrorData =
+    | { reason: "invalid_params"; termsUsed?: number; termBudget?: number }
+    | {
+        reason: "ledger_out_of_range";
+        missingLedger: number;
+        oldestLedger: number;
+        latestLedger: number;
+      }
+    | {
+        reason: "cursor_malformed";
+        oldestLedger: number;
+        latestLedger: number;
+      };
+
+  const QUERY_EVENTS_ERROR_REASONS: ReadonlySet<string> = new Set([
+    "invalid_params",
+    "ledger_out_of_range",
+    "cursor_malformed",
+  ]);
+
+  /**
+   * Checks whether a value thrown by `queryEvents` is a JSON-RPC error with
+   * typed `queryEvents` error data.
+   */
+  export function isQueryEventsError(
+    err: unknown,
+  ): err is { code: number; message?: string; data: QueryEventsErrorData } {
+    if (typeof err !== "object" || err === null) {
+      return false;
+    }
+    const { code, data } = err as { code?: unknown; data?: unknown };
+    if (
+      code !== QUERY_EVENTS_INVALID_PARAMS ||
+      typeof data !== "object" ||
+      data === null
+    ) {
+      return false;
+    }
+    const { reason } = data as { reason?: unknown };
+    return typeof reason === "string" && QUERY_EVENTS_ERROR_REASONS.has(reason);
+  }
+
   interface RawLedgerEntryChange {
     type: number;
     /** This is LedgerKey in base64 */

@@ -30,6 +30,7 @@ import {
   parseRawSimulation,
   parseRawLedgerEntries,
   parseRawEvents,
+  parseRawQueryEvents,
   parseRawTransactions,
   parseTransactionInfo,
   parseRawLedger,
@@ -115,6 +116,115 @@ const DEFAULT_GET_TRANSACTION_TIMEOUT: number = 30;
 // Node's timers overflow above this and fire at once, so a larger request
 // timeout would end every request almost immediately.
 export const MAX_TIMEOUT_MS = 2 ** 31 - 1;
+
+// "Set" means neither undefined nor null.
+function isSet(value: unknown): boolean {
+  return value !== undefined && value !== null;
+}
+
+// The server decodes ledgers as uint32 and limit as uint.
+function encodeQueryEventsNumber(
+  name: string,
+  value: unknown,
+  max: number = Number.MAX_SAFE_INTEGER,
+): number {
+  if (
+    !Number.isInteger(value) ||
+    (value as number) < 0 ||
+    (value as number) > max
+  ) {
+    throw new TypeError(
+      `queryEvents ${name} must be an integer from 0 to ${max}`,
+    );
+  }
+  return value as number;
+}
+
+function encodeQueryEventsTopic(name: string, topic: unknown): string {
+  if (topic === "*") {
+    throw new TypeError(
+      `queryEvents filter ${name} cannot be "*"; omit it to match any value`,
+    );
+  }
+  if (typeof topic === "string") {
+    return topic;
+  }
+  // Duck-typed: the built package has several ScVal copies, so `instanceof`
+  // would reject an ScVal from another copy.
+  if (
+    typeof topic === "object" &&
+    topic !== null &&
+    typeof (topic as { toXdr?: unknown }).toXdr === "function"
+  ) {
+    return (topic as { toXdr(format: "base64"): string }).toXdr("base64");
+  }
+  throw new TypeError(
+    `queryEvents filter ${name} must be a base64 string or an ScVal`,
+  );
+}
+
+function encodeQueryEventsFilter(filter: unknown): Api.RawQueryEventsFilter {
+  if (typeof filter !== "object" || filter === null) {
+    throw new TypeError("queryEvents filter must be an object");
+  }
+  const f = filter as Api.QueryEventsFilter;
+  const out: Api.RawQueryEventsFilter = {};
+  if (isSet(f.type) && f.type !== ("" as unknown)) {
+    out.type = f.type;
+  }
+  if (isSet(f.contractId) && f.contractId !== "") {
+    out.contractId = f.contractId;
+  }
+  for (const key of ["topic0", "topic1", "topic2", "topic3"] as const) {
+    if (isSet(f[key]) && f[key] !== "") {
+      out[key] = encodeQueryEventsTopic(key, f[key]);
+    }
+  }
+  return out;
+}
+
+function encodeQueryEventsRequest(
+  request: Api.QueryEventsRequest,
+): Api.RawQueryEventsRequest {
+  const r = request as Record<string, unknown>;
+  const rangeKeySet = ["minLedger", "maxLedger", "order", "filters"].some(
+    (key) => isSet(r[key]),
+  );
+  // A set cursor must be valid; an unset one is only allowed next to a range.
+  if (
+    "cursor" in r &&
+    (isSet(r.cursor) || !rangeKeySet) &&
+    (typeof r.cursor !== "string" || r.cursor === "")
+  ) {
+    throw new TypeError("queryEvents cursor must be a non-empty string");
+  }
+
+  const out: Record<string, unknown> = {};
+  for (const key of ["minLedger", "maxLedger"] as const) {
+    if (isSet(r[key])) {
+      const value = encodeQueryEventsNumber(key, r[key], 2 ** 32 - 1);
+      if (value !== 0) {
+        out[key] = value;
+      }
+    }
+  }
+  if (isSet(r.order) && r.order !== "") {
+    out.order = r.order;
+  }
+  if (isSet(r.filters)) {
+    if (!Array.isArray(r.filters)) {
+      throw new TypeError("queryEvents filters must be an array");
+    }
+    out.filters = (r.filters as unknown[]).map(encodeQueryEventsFilter);
+  }
+  if (isSet(r.cursor)) {
+    out.cursor = r.cursor;
+  }
+  if (isSet(r.limit)) {
+    out.limit = encodeQueryEventsNumber("limit", r.limit);
+  }
+  return out as Api.RawQueryEventsRequest;
+}
 
 /// A strategy that will sleep 1 second each time
 
@@ -1333,6 +1443,49 @@ export class RpcServer {
           endLedger: request.endLedger,
         }),
       },
+    );
+  }
+
+  /**
+   * Fetch one page of contract and system events with the `queryEvents`
+   * method, which only the archival RPC node serves (in beta). To page, send
+   * `{ cursor, limit }` from the response while `scanStatus` is `HAS_MORE`,
+   * wait and retry on `WAITING_FOR_LEDGERS`, and stop on `OLDEST_REACHED` or
+   * `COMPLETE`.
+   *
+   * @param request - a ledger range query or a cursor continuation
+   * @returns one page of parsed events and the scan status
+   *
+   * @example
+   * ```ts
+   * let res = await server.queryEvents({ minLedger: 1000, limit: 50 });
+   * for (;;) {
+   *   handle(res.events);
+   *   if (res.scanStatus === rpc.Api.QueryEventsScanStatus.WAITING_FOR_LEDGERS) {
+   *     await new Promise((resolve) => setTimeout(resolve, 5000));
+   *   } else if (res.scanStatus !== rpc.Api.QueryEventsScanStatus.HAS_MORE) {
+   *     break;
+   *   }
+   *   res = await server.queryEvents({ cursor: res.cursor!, limit: 50 });
+   * }
+   * ```
+   */
+  public async queryEvents(
+    request: Api.QueryEventsRequest,
+  ): Promise<Api.QueryEventsResponse> {
+    return this._queryEvents(encodeQueryEventsRequest(request)).then(
+      parseRawQueryEvents,
+    );
+  }
+
+  public async _queryEvents(
+    request: Api.RawQueryEventsRequest,
+  ): Promise<Api.RawQueryEventsResponse> {
+    return jsonrpc.postObject(
+      this.httpClient,
+      this.serverURL.toString(),
+      "queryEvents",
+      request,
     );
   }
 
