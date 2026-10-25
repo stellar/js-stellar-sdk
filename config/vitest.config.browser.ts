@@ -75,7 +75,7 @@ export default defineConfig({
     // Run all unit tests in browser
     include: ["test/unit/**/*.test.ts"],
     exclude: [
-      "test/unit/call_builders.test.ts",
+      // Node-only: `msw/node` loads @mswjs/interceptors, which needs node:http.
       "test/unit/server/horizon/server.test.ts",
       // Node-only class-XDR tests: they read corpus/fixture files from disk
       // via `node:fs`, which isn't available in the browser environment.
