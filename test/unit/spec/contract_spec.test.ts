@@ -1238,3 +1238,40 @@ describe("parsing and building ScVals", () => {
     expect(fn).deep.equal(func);
   });
 });
+
+describe("Spec scValToNative primitive type checks (#1842)", () => {
+  const SPEC = new contract.Spec([
+    xdr.ScSpecEntry.scSpecEntryFunctionV0(
+      new xdr.ScSpecFunctionV0({
+        doc: "",
+        name: "decimals",
+        inputs: [],
+        outputs: [xdr.ScSpecTypeDef.scSpecTypeU32()],
+      }),
+    ),
+  ]);
+
+  it("throws when an i32 ScVal is decoded as u32", () => {
+    expect(() =>
+      SPEC.funcResToNative("decimals", xdr.ScVal.scvI32(-6)),
+    ).toThrow(/does not match ScVal/);
+  });
+
+  it("throws when a bool ScVal is decoded as i128", () => {
+    const type = xdr.ScSpecTypeDef.scSpecTypeI128();
+    expect(() => SPEC.scValToNative(xdr.ScVal.scvBool(true), type)).toThrow(
+      /does not match ScVal/,
+    );
+  });
+
+  it("throws when void is decoded as Address", () => {
+    const type = xdr.ScSpecTypeDef.scSpecTypeAddress();
+    expect(() => SPEC.scValToNative(xdr.ScVal.scvVoid(), type)).toThrow(
+      /does not match ScVal/,
+    );
+  });
+
+  it("still accepts a matching u32", () => {
+    expect(SPEC.funcResToNative("decimals", xdr.ScVal.scvU32(6))).toBe(6);
+  });
+});

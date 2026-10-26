@@ -1256,7 +1256,7 @@ errorCases(): ScSpecUdtErrorEnumCaseV0[];
 
 all contract functions
 
-**Source:** [src/contract/spec.ts:1245](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1245)
+**Source:** [src/contract/spec.ts:1304](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1304)
 
 ### `spec.events()`
 
@@ -1270,7 +1270,7 @@ events(): ScSpecEventV0[];
 
 all contract events
 
-**Source:** [src/contract/spec.ts:1256](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1256)
+**Source:** [src/contract/spec.ts:1315](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1315)
 
 ### `spec.eventTopicFilter(name, topicValues, occurrence)`
 
@@ -1307,7 +1307,7 @@ a single topic filter row
 const topics = contractSpec.eventTopicFilter('transfer', { to: someAddress });
 ```
 
-**Source:** [src/contract/spec.ts:1345](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1345)
+**Source:** [src/contract/spec.ts:1404](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1404)
 
 ### `spec.findEntry(name)`
 
@@ -1367,7 +1367,7 @@ if (contractSpec.findEvent("transfer")) {
 }
 ```
 
-**Source:** [src/contract/spec.ts:1283](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1283)
+**Source:** [src/contract/spec.ts:1342](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1342)
 
 ### `spec.funcArgsToScVals(name, args)`
 
@@ -1490,7 +1490,7 @@ the converted JSON schema
 
 - if the contract spec is invalid
 
-**Source:** [src/contract/spec.ts:1369](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1369)
+**Source:** [src/contract/spec.ts:1428](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1428)
 
 ### `spec.nativeToScVal(val, ty)`
 
@@ -1555,7 +1555,7 @@ if (parsed) {
 }
 ```
 
-**Source:** [src/contract/spec.ts:1316](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1316)
+**Source:** [src/contract/spec.ts:1375](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1375)
 
 ### `spec.scValStrToNative(scv, typeDef)`
 
@@ -1601,7 +1601,7 @@ the converted native JS value
 
 - if ScVal cannot be converted to the given type
 
-**Source:** [src/contract/spec.ts:1042](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1042)
+**Source:** [src/contract/spec.ts:1099](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1099)
 
 ## contract.Watcher
 
