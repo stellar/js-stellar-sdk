@@ -1039,6 +1039,63 @@ export class Spec {
    *
    * @throws if ScVal cannot be converted to the given type
    */
+
+  /**
+   * Ensure a decoded ScVal's XDR arm matches the declared Spec type for
+   * primitives (and bytesN). Container/UDT/option/string checks stay in
+   * their branches. Mirrors nativeToScVal throwing on type mismatches.
+   */
+  private assertScValMatchesDeclaredType(
+    scv: ScVal,
+    typeDef: ScSpecTypeDef,
+  ): void {
+    const tyType = typeDef.type;
+    if (
+      tyType === "scSpecTypeOption" ||
+      tyType === "scSpecTypeUdt" ||
+      tyType === "scSpecTypeVal" ||
+      tyType === "scSpecTypeVec" ||
+      tyType === "scSpecTypeTuple" ||
+      tyType === "scSpecTypeMap" ||
+      tyType === "scSpecTypeResult" ||
+      tyType === "scSpecTypeString" ||
+      tyType === "scSpecTypeSymbol"
+    ) {
+      return;
+    }
+
+    // Both Address and MuxedAddress encode as scvAddress; Bytes and BytesN
+    // as scvBytes. Length of BytesN is enforced on encode for Uint8Array
+    // inputs; the string/base64 path historically does not, so decode only
+    // checks the ScVal arm here.
+    const allowedByScv: Record<string, ReadonlySet<string>> = {
+      scvVoid: new Set(["scSpecTypeVoid"]),
+      scvBool: new Set(["scSpecTypeBool"]),
+      scvU32: new Set(["scSpecTypeU32"]),
+      scvI32: new Set(["scSpecTypeI32"]),
+      scvU64: new Set(["scSpecTypeU64"]),
+      scvI64: new Set(["scSpecTypeI64"]),
+      scvTimepoint: new Set(["scSpecTypeTimepoint"]),
+      scvDuration: new Set(["scSpecTypeDuration"]),
+      scvU128: new Set(["scSpecTypeU128"]),
+      scvI128: new Set(["scSpecTypeI128"]),
+      scvU256: new Set(["scSpecTypeU256"]),
+      scvI256: new Set(["scSpecTypeI256"]),
+      scvAddress: new Set(["scSpecTypeAddress", "scSpecTypeMuxedAddress"]),
+      scvBytes: new Set(["scSpecTypeBytes", "scSpecTypeBytesN"]),
+    };
+
+    const allowed = allowedByScv[scv.type];
+    if (!allowed) {
+      return;
+    }
+    if (!allowed.has(tyType)) {
+      throw new TypeError(
+        `ScSpecType ${tyType} does not match ScVal ${scv.type}`,
+      );
+    }
+  }
+
   scValToNative<T>(scv: ScVal, typeDef: ScSpecTypeDef): T {
     const tyType = typeDef.type;
 
@@ -1061,6 +1118,8 @@ export class Spec {
     if (tyType === "scSpecTypeVal") {
       return scValToNative(scv) as T;
     }
+
+    this.assertScValMatchesDeclaredType(scv, typeDef);
 
     switch (scv.type) {
       case "scvVoid":
