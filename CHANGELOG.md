@@ -4,6 +4,9 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Fixed
+* `Horizon.Server.liquidityPools().liquidityPoolId()` throws its `TypeError` for an ID that is not exactly 64 hex characters. Before, it accepted any string that contained 64 hex characters, for example `"prefix-" + id`. Uppercase IDs are still accepted and sent in lowercase ([#1849](https://github.com/stellar/js-stellar-sdk/pull/1849)).
+
 ## [v17.4.0](https://github.com/stellar/js-stellar-sdk/compare/v17.3.0...v17.4.0)
 
 ### Added
