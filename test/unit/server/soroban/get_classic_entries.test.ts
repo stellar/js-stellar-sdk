@@ -312,6 +312,32 @@ describe("Server#getClaimableBalance", () => {
       claimableBalanceEntry.toXdr("base64"),
     ));
 
+  it.each([
+    ["without the version prefix", balanceIdHex.slice(8)],
+    ["with a partial version prefix", balanceIdHex.slice(6)],
+    ["with an odd-length version prefix", balanceIdHex.slice(7)],
+  ])("accepts a hex id %s", (_, hex) =>
+    expectLedgerEntryFound(
+      mockPost,
+      ledgerKeyXDR,
+      ledgerEntryXDR,
+      () => server.getClaimableBalance(hex),
+      xdr.ClaimableBalanceEntry,
+      claimableBalanceEntry.toXdr("base64"),
+    ),
+  );
+
+  it.each([
+    ["0x + 64-char hex", `0x${balanceIdHex.slice(8)}`],
+    ["0x + 72-char hex", `0x${balanceIdHex}`],
+    ["73-char hex", `${balanceIdHex}0`],
+  ])("rejects a malformed hex id (%s) before any request", async (_, id) => {
+    const call = server.getClaimableBalance(id);
+    await expect(call).rejects.toBeInstanceOf(TypeError);
+    await expect(call).rejects.toThrow(/expected 72-char hex ID or strkey/i);
+    expect(mockPost).not.toHaveBeenCalled();
+  });
+
   it("throws an error when the claimable balance does not exist", () =>
     expectLedgerEntryNotFound(
       mockPost,
