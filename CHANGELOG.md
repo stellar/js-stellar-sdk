@@ -5,7 +5,7 @@ A breaking change will get clearly marked in this log.
 ## Unreleased
 
 ### Fixed
-* `rpc.Server.getClaimableBalance()` rejects an ID that contains non-hex characters or more than 72 hex characters with a `TypeError`. Before, it passed the ID to the decoder, which threw an `XdrError`. Every hex ID of 64 to 72 characters works as before.
+* `rpc.Server.getClaimableBalance()` rejects an ID that contains non-hex characters or more than 72 hex characters with a `TypeError`. Before, it passed the ID to the decoder, which threw an `XdrError`. Every hex ID of 64 to 72 characters works as before ([#1847](https://github.com/stellar/js-stellar-sdk/pull/1847)).
 
 ## [v17.4.0](https://github.com/stellar/js-stellar-sdk/compare/v17.3.0...v17.4.0)
 
