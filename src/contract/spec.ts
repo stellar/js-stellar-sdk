@@ -1031,19 +1031,10 @@ export class Spec {
   }
 
   /**
-   * Converts an ScVal back to a native JS value based on the given type.
-   *
-   * @param scv - the ScVal
-   * @param typeDef - the expected type
-   * @returns the converted native JS value
-   *
-   * @throws if ScVal cannot be converted to the given type
-   */
-
-  /**
    * Ensure a decoded ScVal's XDR arm matches the declared Spec type for
-   * primitives (and bytesN). Container/UDT/option/string checks stay in
-   * their branches. Mirrors nativeToScVal throwing on type mismatches.
+   * primitives. Container/UDT/option/string checks stay in their branches.
+   * Mirrors nativeToScVal throwing on type mismatches. Address and
+   * MuxedAddress both use scvAddress; Bytes and BytesN both use scvBytes.
    */
   private assertScValMatchesDeclaredType(
     scv: ScVal,
@@ -1096,6 +1087,15 @@ export class Spec {
     }
   }
 
+  /**
+   * Converts an ScVal back to a native JS value based on the given type.
+   *
+   * @param scv - the ScVal
+   * @param typeDef - the expected type
+   * @returns the converted native JS value
+   *
+   * @throws if ScVal cannot be converted to the given type
+   */
   scValToNative<T>(scv: ScVal, typeDef: ScSpecTypeDef): T {
     const tyType = typeDef.type;
 
