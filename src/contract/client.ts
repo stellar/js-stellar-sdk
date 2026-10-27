@@ -281,6 +281,17 @@ export class Client {
    * const client = await contract.Client.from<MyContract>(options);
    * const tx = await client.increment(); // typed
    * ```
+   *
+   * @example
+   * ```ts
+   * // Set a request timeout through your own rpc.Server
+   * const client = await contract.Client.from({
+   *   contractId,
+   *   networkPassphrase,
+   *   rpcUrl,
+   *   server: new rpc.Server(rpcUrl, { timeout: 30_000 }),
+   * });
+   * ```
    */
   static async from<T = unknown>(options: ClientOptions): Promise<Client & T> {
     if (!options || !options.rpcUrl || !options.contractId) {
