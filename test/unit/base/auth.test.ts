@@ -12,8 +12,10 @@ import {
   buildWithDelegatesEntry,
   inspectAuthEntry,
   checkAuthEntryReadiness,
+  getAddressCredentials,
   SigningCallback,
 } from "../../../src/base/auth.js";
+import * as StellarBase from "../../../src/base/index.js";
 import { Keypair } from "../../../src/base/keypair.js";
 import { Address } from "../../../src/base/address.js";
 import { StrKey } from "../../../src/base/strkey.js";
@@ -2331,6 +2333,55 @@ describe("inspecting authorization entries", () => {
         expired: false,
         unsignedBy: [],
       });
+    });
+  });
+
+  describe("getAddressCredentials", () => {
+    const addressCredentials = makeAddressCredentials(xdr.ScVal.scvVoid());
+
+    it("returns the credentials of an ADDRESS entry", () => {
+      const result = getAddressCredentials(
+        xdr.SorobanCredentials.sorobanCredentialsAddress(addressCredentials),
+      );
+      expect(expectDefined(result).toXdr()).toEqual(addressCredentials.toXdr());
+    });
+
+    it("returns the credentials of an ADDRESS_V2 entry", () => {
+      const result = getAddressCredentials(
+        xdr.SorobanCredentials.sorobanCredentialsAddressV2(addressCredentials),
+      );
+      expect(expectDefined(result).toXdr()).toEqual(addressCredentials.toXdr());
+    });
+
+    it("returns the inner credentials of an ADDRESS_WITH_DELEGATES entry", () => {
+      const result = getAddressCredentials(
+        xdr.SorobanCredentials.sorobanCredentialsAddressWithDelegates(
+          new xdr.SorobanAddressCredentialsWithDelegates({
+            addressCredentials,
+            delegates: [],
+          }),
+        ),
+      );
+      expect(expectDefined(result).toXdr()).toEqual(addressCredentials.toXdr());
+    });
+
+    it("returns null for source-account credentials", () => {
+      expect(
+        getAddressCredentials(
+          xdr.SorobanCredentials.sorobanCredentialsSourceAccount(),
+        ),
+      ).toBeNull();
+    });
+
+    it("returns null for an unknown credential type", () => {
+      const unknownArm = {
+        type: "sorobanCredentialsFuture",
+      } as unknown as xdr.SorobanCredentials;
+      expect(getAddressCredentials(unknownArm)).toBeNull();
+    });
+
+    it("is exported from the base barrel", () => {
+      expect(StellarBase.getAddressCredentials).toBe(getAddressCredentials);
     });
   });
 });

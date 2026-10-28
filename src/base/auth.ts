@@ -12,6 +12,7 @@ import {
   SorobanAuthorizationEntry,
   SorobanAuthorizedInvocation,
   SorobanCredentials,
+  type SorobanCredentialsSourceAccount,
   SorobanDelegateSignature,
 } from "../xdr/index.js";
 
@@ -737,11 +738,6 @@ function buildDelegateNodes(
 }
 
 /**
- * Internal helper — intentionally NOT re-exported from `base/index.js`, so it
- * is not part of the public SDK API. Shared with the contract package, which
- * imports it directly from this module. If a public need arises, add it to the
- * explicit auth re-exports in `base/index.ts`.
- *
  * Extracts the {@link xdr.SorobanAddressCredentials} from any address-based
  * Soroban credential, regardless of which credential type variant is used.
  *
@@ -753,7 +749,8 @@ function buildDelegateNodes(
  *
  * @param credentials - the credentials to inspect
  * @returns the inner address credentials, or `null` for source-account
- *    credentials (which carry no address payload)
+ *    credentials (which carry no address payload). The result for a value
+ *    that is not an `xdr.SorobanCredentials` is unspecified.
  */
 export function getAddressCredentials(
   credentials: SorobanCredentials,
@@ -766,6 +763,9 @@ export function getAddressCredentials(
     case "sorobanCredentialsAddressWithDelegates":
       return credentials.addressWithDelegates.addressCredentials;
     default:
+      // A new credential arm fails compilation here instead of returning
+      // `null` for an entry that needs a signature.
+      credentials satisfies SorobanCredentialsSourceAccount;
       return null;
   }
 }
