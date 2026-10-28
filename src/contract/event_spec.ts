@@ -262,7 +262,9 @@ export function parseEvent(
  * Builds a `getEvents` topic filter (a single row of `Api.EventFilter.topics`)
  * for the named event: the event's prefix topics (base64-encoded `scvSymbol`s)
  * followed by one entry per topic-list param — either the base64-encoded
- * ScVal for a value supplied in `topicValues`, or the wildcard `"*"`.
+ * ScVal for a value supplied in `topicValues`, or the wildcard `"*"`, and a
+ * trailing `"**"` to also match zero or more topics the spec doesn't declare
+ * (for example the SEP-11 asset topic every SAC event carries).
  *
  * @param spec - the Spec instance to encode values with (for `nativeToScVal`)
  * @param entries - the contract's XDR spec entries
@@ -306,6 +308,13 @@ export function eventTopicFilter(
       filter.push("*");
     }
   });
+
+  // getEvents requires an exact topic-count match unless the filter ends in
+  // "**". SAC events (and any contract whose spec under-declares its topics)
+  // carry topics this filter doesn't know about — matchesTopics already
+  // tolerates that on the decode side (see "tolerates trailing undeclared
+  // topics" above), so the query side should too.
+  filter.push("**");
 
   return filter;
 }

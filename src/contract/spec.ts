@@ -1339,7 +1339,7 @@ export class Spec {
    *
    * @example
    * ```ts
-   * const topics = contractSpec.eventTopicFilter('transfer', { to: someAddress });
+   * const topics = contractSpec.eventTopicFilter('Transfer', { to: someAddress });
    * ```
    */
   eventTopicFilter(
