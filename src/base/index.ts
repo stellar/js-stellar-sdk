@@ -77,7 +77,7 @@ export { Address } from "./address.js";
 export * from "./scval.js";
 export * from "./events.js";
 export * from "./sorobandata_builder.js";
-// Explicit (not `export *`) so `getAddressCredentials` stays internal: it's
+// Explicit (not `export *`) so `signaturePresent` stays internal: it's
 // shared with the contract package but intentionally excluded from the public API.
 export {
   authorizeEntry,
@@ -86,6 +86,7 @@ export {
   buildWithDelegatesEntry,
   inspectAuthEntry,
   checkAuthEntryReadiness,
+  getAddressCredentials,
 } from "./auth.js";
 export type {
   SigningCallback,
