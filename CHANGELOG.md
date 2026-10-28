@@ -5,7 +5,7 @@ A breaking change will get clearly marked in this log.
 ## Unreleased
 
 ### Added
-* `getAddressCredentials()` is exported. It returns the `xdr.SorobanAddressCredentials` of an `address`, `addressV2` or `addressWithDelegates` credential, and `null` for a `sourceAccount` credential.
+* `getAddressCredentials()` is exported. It returns the `xdr.SorobanAddressCredentials` of an `address`, `addressV2` or `addressWithDelegates` credential, and `null` for a `sourceAccount` credential ([#1854](https://github.com/stellar/js-stellar-sdk/pull/1854)).
 
 ## [v17.4.0](https://github.com/stellar/js-stellar-sdk/compare/v17.3.0...v17.4.0)
 
