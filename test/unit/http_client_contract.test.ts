@@ -675,6 +675,39 @@ describe("HttpClient contract", () => {
     });
   });
 
+  // `fetchOptions` is a bounded-fetch-adapter-only escape hatch (raw
+  // RequestInit passthrough) with no axios equivalent, and the bounded
+  // adapter's form encoding is meant to match feaxios's, not axios's own
+  // (axios sends multipart/form-data for postForm; feaxios and the bounded
+  // adapter send application/x-www-form-urlencoded). Fetch-build only.
+  describe.skipIf(
+    typeof window !== "undefined" || process.env.TRANSPORT === "axios",
+  )("bounded path — fetch adapter specifics", () => {
+    it("fetchOptions.headers are sent on the bounded path, config.headers wins on conflict", async () => {
+      await httpClient.get(`${baseUrl}/`, {
+        maxContentLength: 10_000,
+        headers: { "X-Win": "config" },
+        fetchOptions: {
+          headers: { "X-Extra": "fetchOptions", "X-Win": "fetchOptions" },
+        },
+      } as any);
+      expect(requests[0].headers["x-extra"]).toBe("fetchOptions");
+      expect(requests[0].headers["x-win"]).toBe("config");
+    });
+
+    it("postForm form-encodes a plain object on the bounded path", async () => {
+      await httpClient.postForm(
+        `${baseUrl}/`,
+        { a: "1", b: "2" },
+        { maxContentLength: 10_000 },
+      );
+      expect(requests[0].body).toBe("a=1&b=2");
+      expect(String(requests[0].headers["content-type"])).toMatch(
+        /application\/x-www-form-urlencoded/,
+      );
+    });
+  });
+
   // `maxRedirects` sends the Fetch build through the bounded adapter, which
   // follows redirects itself only in Node. The Axios build keeps the header
   // rules of `follow-redirects`.
