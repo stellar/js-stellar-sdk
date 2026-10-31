@@ -502,6 +502,41 @@ function unionToJsonSchema(udt: ScSpecUdtUnionV0): any {
   return res;
 }
 
+const UDT_ENTRY_TYPES = new Set([
+  "scSpecEntryUdtStructV0",
+  "scSpecEntryUdtUnionV0",
+  "scSpecEntryUdtEnumV0",
+  "scSpecEntryUdtErrorEnumV0",
+]);
+
+/**
+ * Throws if `entries` declares the same user-defined type (struct, union,
+ * enum, or error enum) name more than once — e.g. a struct `Foo` in one
+ * source module and an enum `Foo` in another, both exported by the same
+ * contract. `soroban-sdk`'s own exporter only warns on this ("spec entry
+ * 'Foo' is defined more than once"), not an error, and `contractimport!`
+ * refuses to compile it, but nothing stopped the SDK from loading such a
+ * spec silently. `findEntry` (used by `funcArgsToScVals`/`nativeToUdt`)
+ * resolves a name to its first matching entry; `jsonSchema()` builds its
+ * `definitions` map by iterating in declaration order, so a later entry
+ * overwrites an earlier one. The two would pick different types for the
+ * same name with neither raising an error. See #1762.
+ * @hidden
+ */
+function checkNoDuplicateTypeNames(entries: ScSpecEntry[]): void {
+  const seen = new Set<string>();
+  for (const entry of entries) {
+    if (!UDT_ENTRY_TYPES.has(entry.type)) continue;
+    const name = (entry.value as { name: XdrString }).name.toString();
+    if (seen.has(name)) {
+      throw new Error(
+        `duplicate type name in contract spec: "${name}" is declared more than once`,
+      );
+    }
+    seen.add(name);
+  }
+}
+
 /**
  * Provides a ContractSpec class which can contains the XDR types defined by the contract.
  * This allows the class to be used to convert between native and raw `ScVal`s.
@@ -545,10 +580,15 @@ export class Spec {
    * @returns A Promise that resolves to a Spec instance.
    * @throws If the contract spec cannot be obtained from the provided wasm binary.
    * @throws If the wasm binary has more than one `contractspecv0` section.
+   * @throws If the spec declares the same struct/union/enum/error-enum name
+   *         more than once — `funcArgsToScVals` and `jsonSchema()` would
+   *         otherwise silently disagree about which type a shared name means.
    */
   static fromWasm(wasm: Uint8Array): Spec {
     const spec = specFromWasm(wasm);
-    return new Spec(spec);
+    const parsed = new Spec(spec);
+    checkNoDuplicateTypeNames(parsed.entries);
+    return parsed;
   }
 
   /**

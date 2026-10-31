@@ -23,8 +23,38 @@ function func(name: string, type: xdr.ScSpecTypeDef): xdr.ScSpecEntry {
 const symbolHello = func("hello", xdr.ScSpecTypeDef.scSpecTypeSymbol());
 const u32Hello = func("hello", xdr.ScSpecTypeDef.scSpecTypeU32());
 
+function struct(name: string): xdr.ScSpecEntry {
+  return xdr.ScSpecEntry.scSpecEntryUdtStructV0(
+    new xdr.ScSpecUdtStructV0({
+      doc: "",
+      lib: "",
+      name,
+      fields: [
+        new xdr.ScSpecUdtStructFieldV0({
+          doc: "",
+          name: "a",
+          type: xdr.ScSpecTypeDef.scSpecTypeU32(),
+        }),
+      ],
+    }),
+  );
+}
+
+function enumType(name: string): xdr.ScSpecEntry {
+  return xdr.ScSpecEntry.scSpecEntryUdtEnumV0(
+    new xdr.ScSpecUdtEnumV0({
+      doc: "",
+      lib: "",
+      name,
+      cases: [new xdr.ScSpecUdtEnumCaseV0({ doc: "", name: "X", value: 0 })],
+    }),
+  );
+}
+
 const duplicateError =
   "Expected at most one 'contractspecv0' section in wasm, found";
+
+const duplicateTypeNameError = 'duplicate type name in contract spec: "Foo"';
 
 // EF BB BF is the UTF-8 byte-order mark.
 const bomSpecName = Uint8Array.of(0xef, 0xbb, 0xbf, ...specSectionName);
@@ -110,5 +140,39 @@ describe("specFromWasm", () => {
     expect(spec.entries).toHaveLength(2);
     expect(spec.getFunc("hello").inputs[0].type.type).toBe("scSpecTypeSymbol");
     expect(spec.getFunc("goodbye").inputs[0].type.type).toBe("scSpecTypeU32");
+  });
+
+  // #1762: a struct and an enum (or any two UDTs) sharing a name compile
+  // fine on-chain (soroban-sdk's own exporter only warns), but
+  // funcArgsToScVals and jsonSchema() would silently disagree about which
+  // one a shared name means. fromWasm now rejects the spec outright instead
+  // of loading it into an inconsistent state.
+  describe("duplicate type names", () => {
+    it("rejects a struct and an enum sharing a name", () => {
+      const wasm = wasmWithSpec([struct("Foo"), enumType("Foo")]);
+      expect(() => Spec.fromWasm(wasm)).toThrow(duplicateTypeNameError);
+    });
+
+    it("rejects two structs sharing a name", () => {
+      const wasm = wasmWithSpec([struct("Foo"), struct("Foo")]);
+      expect(() => Spec.fromWasm(wasm)).toThrow(duplicateTypeNameError);
+    });
+
+    it("does not reject distinct type names", () => {
+      const wasm = wasmWithSpec([struct("Foo"), enumType("Bar")]);
+      expect(() => Spec.fromWasm(wasm)).not.toThrow();
+    });
+
+    it("does not reject a type name that collides only with a function name", () => {
+      // funcArgsToScVals/getFunc and nativeToUdt/findEntry for types are
+      // different lookups keyed by different XDR entry kinds, and
+      // jsonSchema() already covers this combination without a bug — only
+      // UDT-vs-UDT is in scope here (see #1762).
+      const wasm = wasmWithSpec([
+        func("Foo", xdr.ScSpecTypeDef.scSpecTypeU32()),
+        struct("Foo"),
+      ]);
+      expect(() => Spec.fromWasm(wasm)).not.toThrow();
+    });
   });
 });
