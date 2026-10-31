@@ -150,6 +150,13 @@ function encodeRequestBody(data: any, headers: Headers): BodyInit | undefined {
     // Let fetch set the multipart boundary.
     return data;
   }
+  // The caller (postForm/putForm/patchForm) already set this content-type on
+  // `headers`. Mirror feaxios's defaultTransformer: form-encode a plain
+  // object instead of falling through to JSON, which sends a JSON body under
+  // a form content-type.
+  if (headers.get("content-type") === "application/x-www-form-urlencoded") {
+    return new URLSearchParams(data);
+  }
   // Default: JSON-encode plain objects.
   if (!headers.has("content-type")) {
     headers.set("content-type", "application/json");
@@ -394,7 +401,14 @@ async function boundedFetchAdapter<T>(
     redirect = "follow";
   }
 
-  const headers = new Headers(config.headers || {});
+  // Merge fetchOptions.headers under config.headers (config.headers wins on a
+  // conflict, matching feaxios) — `headers` below is spread into `currentInit`
+  // after `...config.fetchOptions`, so building it from config.headers alone
+  // silently dropped every header set via fetchOptions.headers.
+  const headers = new Headers(config.fetchOptions?.headers || {});
+  new Headers(config.headers || {}).forEach((value, key) => {
+    headers.set(key, value);
+  });
   const body = encodeRequestBody(config.data, headers);
 
   // IMPORTANT: spread fetchOptions FIRST, then overlay the enforced fields.
