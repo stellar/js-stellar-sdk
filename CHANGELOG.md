@@ -5,7 +5,7 @@ A breaking change will get clearly marked in this log.
 ## Unreleased
 
 ### Fixed
-* `Spec.fromWasm()` now throws if the parsed contract spec declares the same struct/union/enum/error-enum name more than once. Before, `findEntry` (backing `funcArgsToScVals`/`nativeToUdt`) and `jsonSchema()` resolved such a duplicate differently — the first and the last declared entry, respectively — so the SDK silently used the wrong type for one of them with no error pointing at why. `soroban-sdk`'s own exporter only warns on this, not an error ([#1762](https://github.com/stellar/js-stellar-sdk/issues/1762), [#1853](https://github.com/stellar/js-stellar-sdk/pull/1853)).
+* `Spec.fromWasm()` now throws if the parsed contract spec declares the same struct/union/enum/error-enum name more than once. Before, `findEntry` (backing `funcArgsToScVals`/`nativeToUdt`) and `jsonSchema()` resolved such a duplicate differently, the first and the last declared entry, respectively, so the SDK silently used the wrong type for one of them with no error pointing at why. `soroban-sdk`'s own exporter only warns on this, not an error ([#1762](https://github.com/stellar/js-stellar-sdk/issues/1762), [#1853](https://github.com/stellar/js-stellar-sdk/pull/1853)).
 
 ## [v17.4.0](https://github.com/stellar/js-stellar-sdk/compare/v17.3.0...v17.4.0)
 
