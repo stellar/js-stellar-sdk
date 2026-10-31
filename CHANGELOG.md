@@ -4,6 +4,9 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Fixed
+* `boundedFetchAdapter` (used when `maxRedirects` or `maxContentLength` is set) dropped `fetchOptions.headers` and sent `postForm`/`putForm`/`patchForm` bodies as JSON instead of `application/x-www-form-urlencoded`. Both are fixed: `fetchOptions.headers` now merges into the request, and a plain object body is form-encoded when the headers declare the form content type, matching the default (non-bounded) path in both cases ([#1821](https://github.com/stellar/js-stellar-sdk/issues/1821), [#1851](https://github.com/stellar/js-stellar-sdk/pull/1851)).
+
 ## [v17.4.0](https://github.com/stellar/js-stellar-sdk/compare/v17.3.0...v17.4.0)
 
 ### Added
