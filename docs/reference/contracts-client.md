@@ -1304,7 +1304,7 @@ a single topic filter row
 **Example**
 
 ```ts
-const topics = contractSpec.eventTopicFilter('transfer', { to: someAddress });
+const topics = contractSpec.eventTopicFilter('Transfer', { to: someAddress });
 ```
 
 **Source:** [src/contract/spec.ts:1345](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1345)

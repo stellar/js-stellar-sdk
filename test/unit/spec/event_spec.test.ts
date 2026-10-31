@@ -648,13 +648,16 @@ describe("Spec events", () => {
     });
     const spec = new Spec([entryFor(event)]);
 
-    // No values provided: wildcard for both topic-list params
+    // No values provided: wildcard for both topic-list params, plus a
+    // trailing "**" so the filter also matches undeclared topics (e.g. a
+    // SAC event's trailing SEP-11 asset topic) — see #1749.
     const filterAll = spec.eventTopicFilter("transfer");
-    expect(filterAll.length).toBe(3);
+    expect(filterAll.length).toBe(4);
     const nameTopic = xdr.ScVal.fromXdr(filterAll[0], "base64");
     expect(expectVariant(nameTopic, "scvSymbol").value).toBe("transfer");
     expect(filterAll[1]).toBe("*");
     expect(filterAll[2]).toBe("*");
+    expect(filterAll[3]).toBe("**");
 
     // Provide a value for "from" only
     const filterPartial = spec.eventTopicFilter("transfer", {
@@ -664,6 +667,7 @@ describe("Spec events", () => {
     const decoded = xdr.ScVal.fromXdr(filterPartial[1], "base64");
     expect(Address.fromScVal(decoded).toString()).toBe(publicKey);
     expect(filterPartial[2]).toBe("*");
+    expect(filterPartial[3]).toBe("**");
 
     expect(() => spec.eventTopicFilter("nonexistent")).toThrow();
   });

@@ -4,6 +4,9 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Fixed
+* `Spec.eventTopicFilter()` built a filter matching the exact topic count declared in the spec, with no allowance for the trailing SEP-11 asset topic that Stellar Asset Contract events carry but the embedded SAC spec leaves undeclared. A real SAC `Transfer`/`Approve`/`Mint`/`Burn` event therefore never matched. The filter now ends in `"**"`, so SAC events match while an exact-arity event from a Wasm contract still matches exactly as before. Also fixes the method's `@example`, which called `eventTopicFilter('transfer', ...)`. The real SAC event name is `Transfer` (capital T). Partial fix for [#1749](https://github.com/stellar/js-stellar-sdk/issues/1749); `parseEvent` dropping transfers with a text memo is a separate issue in `stellar-asset-contract-spec` ([#1852](https://github.com/stellar/js-stellar-sdk/pull/1852)).
+
 ## [v17.4.0](https://github.com/stellar/js-stellar-sdk/compare/v17.3.0...v17.4.0)
 
 ### Added
