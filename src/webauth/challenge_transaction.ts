@@ -329,6 +329,18 @@ export function readChallengeTx(
     );
   }
 
+  // a challenge carries at most one 'client_domain' operation; check this
+  // before validating individual operations so the error does not depend on
+  // the order in which the duplicate operations appear
+  const clientDomainOps = subsequentOperations.filter(
+    (op) => op.type === "manageData" && op.name === "client_domain",
+  );
+  if (clientDomainOps.length > 1) {
+    throw new InvalidChallengeError(
+      "Found more than one client_domain operation",
+    );
+  }
+
   // verify any subsequent operations are manage data ops sourced by the server, except 'client_domain', which needs its own source
   for (const op of subsequentOperations) {
     if (op.type !== "manageData") {
@@ -502,12 +514,23 @@ export function verifyChallengeTxSigners(
     );
   }
 
+  // Track whether a 'client_domain' operation exists separately from its
+  // source, so that a missing source can never be mistaken for "no
+  // client_domain operation". readChallengeTx already enforces both rules;
+  // they are repeated here so this function does not depend on that.
+  let clientDomainOpFound = false;
   let clientSigningKey: string | undefined;
   for (const op of tx.operations) {
     if (op.type === "manageData" && op.name === "client_domain") {
-      if (clientSigningKey) {
+      if (clientDomainOpFound) {
         throw new InvalidChallengeError(
           "Found more than one client_domain operation",
+        );
+      }
+      clientDomainOpFound = true;
+      if (!op.source) {
+        throw new InvalidChallengeError(
+          "The transaction's 'client_domain' operation should contain a source account",
         );
       }
       clientSigningKey = op.source;

@@ -239,7 +239,7 @@ WebAuth.verifyChallengeTxSigners(
 
 - `SEP-10: Stellar Web Auth`
 
-**Source:** [src/webauth/challenge_transaction.ts:448](https://github.com/stellar/js-stellar-sdk/blob/main/src/webauth/challenge_transaction.ts#L448)
+**Source:** [src/webauth/challenge_transaction.ts:460](https://github.com/stellar/js-stellar-sdk/blob/main/src/webauth/challenge_transaction.ts#L460)
 
 ## WebAuth.verifyChallengeTxThreshold
 
@@ -349,7 +349,7 @@ WebAuth.verifyChallengeTxThreshold(
 
 - `SEP-10: Stellar Web Auth`
 
-**Source:** [src/webauth/challenge_transaction.ts:671](https://github.com/stellar/js-stellar-sdk/blob/main/src/webauth/challenge_transaction.ts#L671)
+**Source:** [src/webauth/challenge_transaction.ts:694](https://github.com/stellar/js-stellar-sdk/blob/main/src/webauth/challenge_transaction.ts#L694)
 
 ## WebAuth.verifyTxSignedBy
 

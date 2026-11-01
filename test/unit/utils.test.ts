@@ -1394,6 +1394,65 @@ describe("Utils", () => {
         ),
       );
     });
+
+    it.each([
+      ["both have a source account", true],
+      ["the first one has no source account", false],
+    ])(
+      "throws an error if a challenge has multiple 'client_domain' operations (%s)",
+      (_, firstHasSource) => {
+        const serverKP = Keypair.random();
+        const clientKP = Keypair.random();
+        const clientSigningKeypair = Keypair.random();
+        const serverAccount = new Account(serverKP.publicKey(), "-1");
+
+        const transaction = new TransactionBuilder(serverAccount, txBuilderOpts)
+          .addOperation(
+            Operation.manageData({
+              source: clientKP.publicKey(),
+              name: "testanchor.stellar.org auth",
+              value: uint8ArrayToBase64(
+                crypto.getRandomValues(new Uint8Array(48)),
+              ),
+            }),
+          )
+          .addOperation(
+            Operation.manageData({
+              ...(firstHasSource
+                ? { source: clientSigningKeypair.publicKey() }
+                : {}),
+              name: "client_domain",
+              value: "testdomain",
+            }),
+          )
+          .addOperation(
+            Operation.manageData({
+              source: clientSigningKeypair.publicKey(),
+              name: "client_domain",
+              value: "testdomain2",
+            }),
+          )
+          .setTimeout(30)
+          .build();
+
+        transaction.sign(serverKP);
+        const challenge = transaction.toEnvelope().toXdr("base64").toString();
+
+        expect(() =>
+          WebAuth.readChallengeTx(
+            challenge,
+            serverKP.publicKey(),
+            Networks.TESTNET,
+            "testanchor.stellar.org",
+            "testanchor.stellar.org",
+          ),
+        ).toThrow(
+          new WebAuth.InvalidChallengeError(
+            "Found more than one client_domain operation",
+          ),
+        );
+      },
+    );
   });
 
   describe("WebAuth.verifyChallengeTxThreshold", () => {
@@ -2681,7 +2740,7 @@ describe("Utils", () => {
       );
     });
 
-    it("throws an error if a client_domain operation with no source account precedes one with a source account", () => {
+    it("reports duplicate client_domain operations even when the first one has no source account", () => {
       serverKP = Keypair.random();
       const clientKP = Keypair.random();
       const clientSigningKeypair = Keypair.random();
@@ -2736,7 +2795,7 @@ describe("Utils", () => {
         ),
       ).toThrow(
         new WebAuth.InvalidChallengeError(
-          "The transaction's 'client_domain' operation should contain a source account",
+          "Found more than one client_domain operation",
         ),
       );
     });
