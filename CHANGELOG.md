@@ -4,6 +4,9 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Fixed
+* Horizon streams update the cursor only from a `paging_token` that is a string. Before, a `paging_token` such as `{"toString":null}` threw an uncaught exception. A token such as `{"a":1}` set the cursor to `[object Object]` for the next reconnect. The stream now sends these records to `onmessage` and keeps the last cursor.
+
 ## [v17.4.0](https://github.com/stellar/js-stellar-sdk/compare/v17.3.0...v17.4.0)
 
 ### Added
