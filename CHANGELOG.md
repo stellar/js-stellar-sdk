@@ -5,7 +5,7 @@ A breaking change will get clearly marked in this log.
 ## Unreleased
 
 ### Fixed
-* `WebAuth.readChallengeTx()` throws "Found more than one client_domain operation" for a challenge with more than one `client_domain` operation. Before, only `verifyChallengeTxSigners()` checked this, and a duplicate whose first copy had no source account was reported as a missing source instead. `verifyChallengeTxSigners()` also tracks whether a `client_domain` operation exists separately from its source account ([#1794](https://github.com/stellar/js-stellar-sdk/issues/1794)).
+* `WebAuth.readChallengeTx()` throws "Found more than one client_domain operation" for a challenge with more than one `client_domain` operation. Before, only `verifyChallengeTxSigners()` checked this, and a duplicate whose first copy had no source account was reported as a missing source instead. `verifyChallengeTxSigners()` also tracks whether a `client_domain` operation exists separately from its source account ([#1794](https://github.com/stellar/js-stellar-sdk/issues/1794), [#1868](https://github.com/stellar/js-stellar-sdk/pull/1868)).
 
 ## [v17.4.0](https://github.com/stellar/js-stellar-sdk/compare/v17.3.0...v17.4.0)
 
