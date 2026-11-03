@@ -687,7 +687,7 @@ class LiquidityPoolId {
 }
 ```
 
-**Source:** [src/base/liquidity_pool_id.ts:8](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/liquidity_pool_id.ts#L8)
+**Source:** [src/base/liquidity_pool_id.ts:13](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/liquidity_pool_id.ts#L13)
 
 ### `new LiquidityPoolId(liquidityPoolId)`
 
@@ -699,7 +699,7 @@ constructor(liquidityPoolId: string);
 
 - **`liquidityPoolId`** — `string` (required) — The ID of the liquidity pool in string 'hex'.
 
-**Source:** [src/base/liquidity_pool_id.ts:14](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/liquidity_pool_id.ts#L14)
+**Source:** [src/base/liquidity_pool_id.ts:19](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/liquidity_pool_id.ts#L19)
 
 ### `LiquidityPoolId.fromOperation(tlAssetXdr)`
 
@@ -713,7 +713,7 @@ static fromOperation(tlAssetXdr: TrustLineAsset): LiquidityPoolId;
 
 - **`tlAssetXdr`** — `TrustLineAsset` (required) — The asset XDR object.
 
-**Source:** [src/base/liquidity_pool_id.ts:29](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/liquidity_pool_id.ts#L29)
+**Source:** [src/base/liquidity_pool_id.ts:34](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/liquidity_pool_id.ts#L34)
 
 ### `liquidityPoolId.liquidityPoolId`
 
@@ -721,7 +721,7 @@ static fromOperation(tlAssetXdr: TrustLineAsset): LiquidityPoolId;
 liquidityPoolId: string;
 ```
 
-**Source:** [src/base/liquidity_pool_id.ts:9](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/liquidity_pool_id.ts#L9)
+**Source:** [src/base/liquidity_pool_id.ts:14](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/liquidity_pool_id.ts#L14)
 
 ### `liquidityPoolId.equals(asset)`
 
@@ -735,7 +735,7 @@ equals(asset: LiquidityPoolId): boolean;
 
 - **`asset`** — `LiquidityPoolId` (required) — LiquidityPoolId to compare.
 
-**Source:** [src/base/liquidity_pool_id.ts:83](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/liquidity_pool_id.ts#L83)
+**Source:** [src/base/liquidity_pool_id.ts:88](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/liquidity_pool_id.ts#L88)
 
 ### `liquidityPoolId.getAssetType()`
 
@@ -749,7 +749,7 @@ getAssetType(): "liquidity_pool_shares";
 
 - [Assets concept](https://developers.stellar.org/docs/glossary/assets/)
 
-**Source:** [src/base/liquidity_pool_id.ts:74](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/liquidity_pool_id.ts#L74)
+**Source:** [src/base/liquidity_pool_id.ts:79](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/liquidity_pool_id.ts#L79)
 
 ### `liquidityPoolId.getLiquidityPoolId()`
 
@@ -759,7 +759,7 @@ Returns the liquidity pool ID as a hex string.
 getLiquidityPoolId(): string;
 ```
 
-**Source:** [src/base/liquidity_pool_id.ts:65](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/liquidity_pool_id.ts#L65)
+**Source:** [src/base/liquidity_pool_id.ts:70](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/liquidity_pool_id.ts#L70)
 
 ### `liquidityPoolId.toString()`
 
@@ -769,7 +769,7 @@ Returns a string representation of this liquidity pool ID.
 toString(): string;
 ```
 
-**Source:** [src/base/liquidity_pool_id.ts:90](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/liquidity_pool_id.ts#L90)
+**Source:** [src/base/liquidity_pool_id.ts:95](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/liquidity_pool_id.ts#L95)
 
 ### `liquidityPoolId.toXdrObject()`
 
@@ -783,7 +783,7 @@ refer to the
 toXdrObject(): TrustLineAsset;
 ```
 
-**Source:** [src/base/liquidity_pool_id.ts:49](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/liquidity_pool_id.ts#L49)
+**Source:** [src/base/liquidity_pool_id.ts:54](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/liquidity_pool_id.ts#L54)
 
 ### `liquidityPoolId.toXDRObject()`
 
@@ -794,7 +794,7 @@ Deprecated in version v17.0.0
 toXDRObject(): TrustLineAsset;
 ```
 
-**Source:** [src/base/liquidity_pool_id.ts:58](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/liquidity_pool_id.ts#L58)
+**Source:** [src/base/liquidity_pool_id.ts:63](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/liquidity_pool_id.ts#L63)
 
 ## getLiquidityPoolId
 

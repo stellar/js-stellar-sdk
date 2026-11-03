@@ -1,6 +1,11 @@
 import { uint8ArrayToHex } from "uint8array-extras";
 import { PoolId, TrustLineAsset } from "../xdr/index.js";
 
+/** Returns true if `id` is exactly 64 lowercase hex characters. */
+export function isValidLiquidityPoolId(id: string): boolean {
+  return /^[a-f0-9]{64}$/.test(id);
+}
+
 /**
  * LiquidityPoolId class represents the asset referenced by a trustline to a
  * liquidity pool.
@@ -15,7 +20,7 @@ export class LiquidityPoolId {
     if (!liquidityPoolId) {
       throw new Error("liquidityPoolId cannot be empty");
     }
-    if (!/^[a-f0-9]{64}$/.test(liquidityPoolId)) {
+    if (!isValidLiquidityPoolId(liquidityPoolId)) {
       throw new Error("Liquidity pool ID is not a valid hash");
     }
 

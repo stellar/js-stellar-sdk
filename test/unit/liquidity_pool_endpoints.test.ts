@@ -189,6 +189,24 @@ describe("/liquidity_pools tests", () => {
       expect(() => server.liquidityPools().liquidityPoolId(lpId)).not.toThrow();
     });
 
+    it.each([
+      ["the empty string", ""],
+      ["a prefix", `some-prefix-${lpId}`],
+      ["a suffix", `${lpId}/extra`],
+    ])("rejects an ID with %s", (_, id) => {
+      expect(() => server.liquidityPools().liquidityPoolId(id)).toThrow(
+        new TypeError(`${id} does not look like a liquidity pool ID`),
+      );
+    });
+
+    it("accepts an uppercase ID and requests it in lowercase", async () => {
+      mockGet.mockResolvedValue({ data: {} });
+
+      await server.liquidityPools().liquidityPoolId(lpId.toUpperCase()).call();
+
+      expect(mockGet).toHaveBeenCalledWith(`${LP_URL}/${lpId}`);
+    });
+
     it("filters by specific ID", async () => {
       const poolResponse = {
         id: lpId,
