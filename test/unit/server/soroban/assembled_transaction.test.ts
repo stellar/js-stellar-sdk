@@ -203,7 +203,7 @@ describe("AssembledTransaction", () => {
     options.args = [];
     options.contractId = contractId;
     const txn = await contract.AssembledTransaction.build(options);
-    expect(txn.sign({ ...wallet })).rejects.toThrow(
+    await expect(txn.sign({ ...wallet })).rejects.toThrow(
       contract.AssembledTransaction.Errors.FakeAccount,
     );
   });
