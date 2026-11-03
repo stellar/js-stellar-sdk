@@ -5,6 +5,10 @@ A breaking change will get clearly marked in this log.
 ## Unreleased
 
 ### Fixed
+* `Spec.getFunc()` finds a function when a struct, union, enum or event with the same name comes before it in the spec. `Spec` also finds the type of a UDT value when another entry with the same name comes first. Before, `contract.Client` construction threw "is not a function", and so did `funcArgsToScVals()` and `funcResToNative()`. Encoding or decoding the UDT value threw "failed to parse udt". The error messages for a name that is missing or has no entry of the right kind stay the same ([#1871](https://github.com/stellar/js-stellar-sdk/pull/1871)).
+* `WebAuth.verifyChallengeTxThreshold()` no longer adds a stray `"` to the end of its "do not meet threshold" error message ([#1871](https://github.com/stellar/js-stellar-sdk/pull/1871)).
+* `rpc.Server.getClaimableBalance()` rejects an ID that contains non-hex characters or more than 72 hex characters with a `TypeError`. Before, it passed the ID to the decoder, which threw an `XdrError`. Every hex ID of 64 to 72 characters works as before ([#1847](https://github.com/stellar/js-stellar-sdk/pull/1847)).
+* `Horizon.Server.liquidityPools().liquidityPoolId()` throws its `TypeError` for an ID that is not exactly 64 hex characters. Before, it accepted any string that contained 64 hex characters, for example `"prefix-" + id`. Uppercase IDs are still accepted and sent in lowercase ([#1849](https://github.com/stellar/js-stellar-sdk/pull/1849)).
 * Horizon streams update the cursor only from a `paging_token` that is a string. Before, a `paging_token` such as `{"toString":null}` threw an uncaught exception. A token such as `{"a":1}` set the cursor to `[object Object]` for the next reconnect. The stream now sends these records to `onmessage` and keeps the last cursor ([#1870](https://github.com/stellar/js-stellar-sdk/pull/1870)).
 
 ## [v17.4.0](https://github.com/stellar/js-stellar-sdk/compare/v17.3.0...v17.4.0)

@@ -4,7 +4,10 @@ import {
   stringToUint8Array,
   uint8ArrayToHex,
 } from "uint8array-extras";
-import { LiquidityPoolId } from "../../../src/base/liquidity_pool_id.js";
+import {
+  LiquidityPoolId,
+  isValidLiquidityPoolId,
+} from "../../../src/base/liquidity_pool_id.js";
 import { StrKey } from "../../../src/base/strkey.js";
 import * as xdr from "../../../src/xdr/index.js";
 
@@ -38,6 +41,25 @@ describe("LiquidityPoolId", () => {
 
     it("does not throw an error when pool ID is a valid hash", () => {
       expect(() => new LiquidityPoolId(POOL_ID)).not.toThrow();
+    });
+  });
+
+  describe("isValidLiquidityPoolId()", () => {
+    it("accepts 64 lowercase hex characters", () => {
+      expect(isValidLiquidityPoolId(POOL_ID)).toBe(true);
+    });
+
+    it.each([
+      ["the empty string", ""],
+      ["63 characters", POOL_ID.slice(1)],
+      ["65 characters", `${POOL_ID}0`],
+      ["uppercase hex", POOL_ID.toUpperCase()],
+      ["a non-hex character", `${POOL_ID.slice(1)}g`],
+      ["a prefix", `some-prefix-${POOL_ID}`],
+      ["a suffix", `${POOL_ID}/extra`],
+      ["a trailing newline", `${POOL_ID}\n`],
+    ])("rejects %s", (_, id) => {
+      expect(isValidLiquidityPoolId(id)).toBe(false);
     });
   });
 

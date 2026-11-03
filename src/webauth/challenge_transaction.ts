@@ -696,7 +696,7 @@ export function verifyChallengeTxThreshold(
 
   if (weight < threshold) {
     throw new InvalidChallengeError(
-      `signers with weight ${weight} do not meet threshold ${threshold}"`,
+      `signers with weight ${weight} do not meet threshold ${threshold}`,
     );
   }
 
