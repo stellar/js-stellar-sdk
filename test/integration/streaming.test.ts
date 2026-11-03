@@ -265,6 +265,46 @@ describe("integration tests: streaming", () => {
       server.close();
     }
   });
+
+  it("keeps the cursor when a record has a paging_token that is not a string", async () => {
+    let resolveCursor: (cursor: string | null) => void = () => {};
+    const reconnectCursor = new Promise<string | null>((resolve) => {
+      resolveCursor = resolve;
+    });
+    let requests = 0;
+    const server = http.createServer((request, response) => {
+      requests += 1;
+      response.writeHead(200, { "Content-Type": "text/event-stream" });
+      if (requests === 1) {
+        response.write(
+          `data: ${JSON.stringify({ id: "1", paging_token: "1" })}\n\n`,
+        );
+        response.write(
+          `data: ${JSON.stringify({ id: "2", paging_token: { a: 1 } })}\n\n`,
+        );
+        response.write("event: close\ndata: byebye\n\n");
+        response.end();
+        return;
+      }
+      const url = new URL(request.url ?? "", "http://localhost");
+      resolveCursor(url.searchParams.get("cursor"));
+    });
+    const port = await listenOnFreePort(server);
+
+    const closeStream = new Horizon.Server(`http://localhost:${port}`, {
+      allowHttp: true,
+    })
+      .operations()
+      .stream({ onerror: () => {} });
+
+    try {
+      expect(await reconnectCursor).toBe("1");
+    } finally {
+      closeStream();
+      server.closeAllConnections();
+      server.close();
+    }
+  });
 });
 
 describe("integration tests: stream events that cannot be parsed", () => {
@@ -333,6 +373,21 @@ describe("integration tests: stream events that cannot be parsed", () => {
     expect(record.id).toBe("2");
     expect(errors).toHaveLength(1);
     expect(errors[0].data).toBeInstanceOf(TypeError);
+  });
+
+  it("passes a record whose paging_token cannot become a string to onmessage", async () => {
+    const { port, stop } = await serveEvents([
+      'data: {"id": "1", "paging_token": {"toString": null}}\n\n',
+      GOOD_EVENT,
+    ]);
+    const errors: MessageEvent[] = [];
+
+    const record = await streamUntilRecord(port, (event) =>
+      errors.push(event),
+    ).finally(stop);
+
+    expect(record.id).toBe("1");
+    expect(errors).toHaveLength(0);
   });
 
   it("skips bad JSON when onerror is not set", async () => {

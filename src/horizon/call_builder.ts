@@ -222,7 +222,7 @@ export class CallBuilder<
           onError(new MessageEvent("error", { data: err }));
           return;
         }
-        if (result.paging_token) {
+        if (typeof result.paging_token === "string" && result.paging_token) {
           streamUrl.searchParams.set("cursor", result.paging_token);
         }
         if (typeof options.onmessage !== "undefined") {
