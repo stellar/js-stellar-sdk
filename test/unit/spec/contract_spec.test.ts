@@ -1238,3 +1238,131 @@ describe("parsing and building ScVals", () => {
     expect(fn).deep.equal(func);
   });
 });
+
+describe("Spec lookups when a function and another entry share a name", () => {
+  const u32Type = xdr.ScSpecTypeDef.scSpecTypeU32();
+  const transferType = xdr.ScSpecTypeDef.scSpecTypeUdt(
+    new xdr.ScSpecTypeUdt({ name: "transfer" }),
+  );
+  const structEntry = xdr.ScSpecEntry.scSpecEntryUdtStructV0(
+    new xdr.ScSpecUdtStructV0({
+      doc: "",
+      lib: "",
+      name: "transfer",
+      fields: [
+        new xdr.ScSpecUdtStructFieldV0({
+          doc: "",
+          name: "value",
+          type: u32Type,
+        }),
+      ],
+    }),
+  );
+  const eventEntry = xdr.ScSpecEntry.scSpecEntryEventV0(
+    new xdr.ScSpecEventV0({
+      doc: "",
+      lib: "",
+      name: "transfer",
+      prefixTopics: ["transfer"],
+      params: [],
+      dataFormat: xdr.ScSpecEventDataFormat.scSpecEventDataFormatSingleValue,
+    }),
+  );
+  const funcEntry = xdr.ScSpecEntry.scSpecEntryFunctionV0(
+    new xdr.ScSpecFunctionV0({
+      doc: "",
+      name: "transfer",
+      inputs: [],
+      outputs: [transferType],
+    }),
+  );
+  const structScVal = xdr.ScVal.scvMap([
+    new xdr.ScMapEntry({
+      key: xdr.ScVal.scvSymbol("value"),
+      val: xdr.ScVal.scvU32(1),
+    }),
+  ]);
+
+  it("finds the function when a struct comes first", () => {
+    const localSpec = new contract.Spec([structEntry, funcEntry]);
+
+    expect(localSpec.getFunc("transfer")).toBe(funcEntry.value);
+    const client = new contract.Client(localSpec, {
+      contractId: contractKey,
+      networkPassphrase: "Test SDF Network ; September 2015",
+      rpcUrl: "https://rpc.example.com",
+    });
+    expect(Reflect.get(client, "transfer")).toBeTypeOf("function");
+  });
+
+  it("finds the function when an event comes first", () => {
+    const localSpec = new contract.Spec([eventEntry, funcEntry]);
+
+    expect(localSpec.getFunc("transfer")).toBe(funcEntry.value);
+  });
+
+  it("decodes a struct when the function comes first", () => {
+    const localSpec = new contract.Spec([funcEntry, structEntry]);
+
+    expect(localSpec.funcResToNative("transfer", structScVal)).toEqual({
+      value: 1,
+    });
+  });
+
+  it("encodes a struct when the function comes first", () => {
+    const localSpec = new contract.Spec([funcEntry, structEntry]);
+
+    expect(
+      localSpec.nativeToScVal({ value: 1 }, transferType).toXdr("base64"),
+    ).toBe(structScVal.toXdr("base64"));
+  });
+
+  it("encodes a union when the function comes first", () => {
+    const unionEntry = xdr.ScSpecEntry.scSpecEntryUdtUnionV0(
+      new xdr.ScSpecUdtUnionV0({
+        doc: "",
+        lib: "",
+        name: "transfer",
+        cases: [
+          xdr.ScSpecUdtUnionCaseV0.scSpecUdtUnionCaseVoidV0(
+            new xdr.ScSpecUdtUnionCaseVoidV0({ doc: "", name: "A" }),
+          ),
+        ],
+      }),
+    );
+    const localSpec = new contract.Spec([funcEntry, unionEntry]);
+
+    expect(
+      localSpec
+        .nativeToScVal({ tag: "A", values: undefined }, transferType)
+        .toXdr("base64"),
+    ).toBe(xdr.ScVal.scvVec([xdr.ScVal.scvSymbol("A")]).toXdr("base64"));
+  });
+
+  it("encodes an enum when the function comes first", () => {
+    const enumEntry = xdr.ScSpecEntry.scSpecEntryUdtEnumV0(
+      new xdr.ScSpecUdtEnumV0({
+        doc: "",
+        lib: "",
+        name: "transfer",
+        cases: [new xdr.ScSpecUdtEnumCaseV0({ doc: "", name: "A", value: 1 })],
+      }),
+    );
+    const localSpec = new contract.Spec([funcEntry, enumEntry]);
+
+    expect(localSpec.nativeToScVal(1, transferType).toXdr("base64")).toBe(
+      xdr.ScVal.scvU32(1).toXdr("base64"),
+    );
+  });
+
+  it("keeps the errors for a name that is not a function or not declared", () => {
+    const localSpec = new contract.Spec([structEntry]);
+
+    expect(() => localSpec.getFunc("transfer")).toThrow(
+      "transfer is not a function",
+    );
+    expect(() => localSpec.getFunc("missing")).toThrow(
+      "no such entry: missing",
+    );
+  });
+});
