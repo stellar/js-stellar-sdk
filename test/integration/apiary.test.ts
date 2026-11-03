@@ -8,9 +8,10 @@ import * as StellarSdk from "../../src/index.js";
 
 const { Horizon } = StellarSdk;
 
+// Skipped: Apiary shut down its mock service (403 APIARY_EOL since 2026-11-03).
 const MOCK_SERVER = "https://private-d133c-ammmock.apiary-mock.com";
 
-describe("tests the /liquidity_pools endpoint", () => {
+describe.skip("tests the /liquidity_pools endpoint", () => {
   const lpId =
     "0569b19c75d7ecadce50501fffad6fe8ba4652455df9e1cc96dc408141124dd5";
   const server = new Horizon.Server(MOCK_SERVER, { allowHttp: true });
@@ -76,7 +77,7 @@ describe("tests the /liquidity_pools endpoint", () => {
   });
 });
 
-describe("tests the /accounts endpoint", () => {
+describe.skip("tests the /accounts endpoint", () => {
   const server = new Horizon.Server(MOCK_SERVER, { allowHttp: true });
 
   it("GET /", async () => {
