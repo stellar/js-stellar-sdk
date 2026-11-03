@@ -502,6 +502,15 @@ function unionToJsonSchema(udt: ScSpecUdtUnionV0): any {
   return res;
 }
 
+const FUNCTION_ENTRY_TYPES: ReadonlySet<ScSpecEntry["type"]> = new Set([
+  "scSpecEntryFunctionV0",
+]);
+const UDT_ENTRY_TYPES: ReadonlySet<ScSpecEntry["type"]> = new Set([
+  "scSpecEntryUdtEnumV0",
+  "scSpecEntryUdtStructV0",
+  "scSpecEntryUdtUnionV0",
+]);
+
 /**
  * Provides a ContractSpec class which can contains the XDR types defined by the contract.
  * This allows the class to be used to convert between native and raw `ScVal`s.
@@ -601,7 +610,7 @@ export class Spec {
    * @throws if no function with the given name exists
    */
   getFunc(name: string): ScSpecFunctionV0 {
-    const entry = this.findEntry(name);
+    const entry = this.findEntryOfType(name, FUNCTION_ENTRY_TYPES);
     if (entry.type !== "scSpecEntryFunctionV0") {
       throw new Error(`${name} is not a function`);
     }
@@ -696,6 +705,19 @@ export class Spec {
       throw new Error(`no such entry: ${name}`);
     }
     return entry;
+  }
+
+  // A function, a UDT and an event can share a name. Without an entry of the
+  // wanted kind, fall back to findEntry so the callers keep their errors.
+  private findEntryOfType(
+    name: string,
+    types: ReadonlySet<ScSpecEntry["type"]>,
+  ): ScSpecEntry {
+    return (
+      this.entries.find(
+        (e) => types.has(e.type) && e.value.name.toString() === name,
+      ) ?? this.findEntry(name)
+    );
   }
 
   /**
@@ -922,7 +944,7 @@ export class Spec {
   }
 
   private nativeToUdt(val: any, name: string): ScVal {
-    const entry = this.findEntry(name);
+    const entry = this.findEntryOfType(name, UDT_ENTRY_TYPES);
     switch (entry.type) {
       case "scSpecEntryUdtEnumV0":
         if (typeof val !== "number") {
@@ -1152,7 +1174,7 @@ export class Spec {
   }
 
   private scValUdtToNative(scv: ScVal, udt: ScSpecTypeUdt): any {
-    const entry = this.findEntry(udt.name.toString());
+    const entry = this.findEntryOfType(udt.name.toString(), UDT_ENTRY_TYPES);
     switch (entry.type) {
       case "scSpecEntryUdtEnumV0":
         return this.enumToNative(scv);

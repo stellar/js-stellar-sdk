@@ -196,7 +196,18 @@ export type ClientOptions = {
   errorTypes?: Record<number, { message: string }>;
   /**
    * The Server instance to use for RPC calls. If not provided, one will be
-   * created automatically from `rpcUrl` and `serverOptions`.
+   * created automatically from `rpcUrl`, `allowHttp` and `headers`. Pass your
+   * own Server to set other {@link Server.Options}, such as `timeout`.
+   *
+   * @example
+   * ```ts
+   * const client = await contract.Client.from({
+   *   contractId,
+   *   networkPassphrase,
+   *   rpcUrl,
+   *   server: new rpc.Server(rpcUrl, { timeout: 30_000 }),
+   * });
+   * ```
    */
   server?: Server;
 };

@@ -1697,7 +1697,7 @@ describe("Utils", () => {
         ),
       ).toThrow(
         new WebAuth.InvalidChallengeError(
-          `signers with weight 3 do not meet threshold ${threshold}"`,
+          `signers with weight 3 do not meet threshold ${threshold}`,
         ),
       );
     });
