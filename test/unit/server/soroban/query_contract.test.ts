@@ -191,4 +191,84 @@ describe("Server#queryContract", () => {
       /no method 'missing'/,
     );
   });
+
+  describe("with a real contract.Client", () => {
+    // Runs the real constructor, so its method-name rules apply.
+    const fromSpec = (...names: string[]) =>
+      vi.spyOn(Client, "from").mockImplementation((options) =>
+        Promise.resolve(
+          new Client(
+            new StellarSdk.contract.Spec(
+              names.map((fn) =>
+                StellarSdk.xdr.ScSpecEntry.scSpecEntryFunctionV0(
+                  new StellarSdk.xdr.ScSpecFunctionV0({
+                    doc: "",
+                    name: fn,
+                    inputs: [
+                      new StellarSdk.xdr.ScSpecFunctionInputV0({
+                        doc: "",
+                        name: "amount",
+                        type: StellarSdk.xdr.ScSpecTypeDef.scSpecTypeU32(),
+                      }),
+                    ],
+                    outputs: [],
+                  }),
+                ),
+              ),
+            ),
+            options,
+          ),
+        ),
+      );
+    const spyBuild = () =>
+      vi
+        .spyOn(StellarSdk.contract.AssembledTransaction, "build")
+        .mockImplementation(() => {
+          throw new Error("build called");
+        });
+
+    it.each([
+      ["delete", ["delete", "delete_", "balance"]],
+      ["delete_", ["delete", "delete_", "balance"]],
+      ["toString", ["toString", "balance"]],
+      ["then", ["then", "balance"]],
+      ["options", ["options", "balance"]],
+      ["txFromXDR", ["txFromXDR", "balance"]],
+    ])("calls %j by its on-chain name", async (method, names) => {
+      const build = spyBuild();
+      fromSpec(...names);
+
+      await expect(
+        server.queryContract(
+          contractId,
+          method,
+          { amount: 1 },
+          networkPassphrase,
+        ),
+      ).rejects.toThrow("build called");
+      expect(build).toHaveBeenCalledOnce();
+      expect(build).toHaveBeenCalledWith(
+        expect.objectContaining({
+          contractId,
+          method,
+          args: [StellarSdk.xdr.ScVal.scvU32(1)],
+        }),
+      );
+    });
+
+    it("throws for __constructor, which the client does not attach", async () => {
+      const build = vi.spyOn(StellarSdk.contract.AssembledTransaction, "build");
+      fromSpec("__constructor", "balance");
+
+      await expect(
+        server.queryContract(
+          contractId,
+          "__constructor",
+          {},
+          networkPassphrase,
+        ),
+      ).rejects.toThrow(`Contract ${contractId} has no method '__constructor'`);
+      expect(build).not.toHaveBeenCalled();
+    });
+  });
 });

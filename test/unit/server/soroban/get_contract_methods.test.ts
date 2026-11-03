@@ -171,4 +171,44 @@ describe("Server#getContractMethods", () => {
     expect(documented.doc).toBe("Returns the token decimals.");
     expect(undocumented).not.toHaveProperty("doc");
   });
+
+  describe("with a real contract.Client", () => {
+    // Runs the real constructor, so its method-name rules apply.
+    const fromSpec = (...names: string[]) =>
+      vi
+        .spyOn(Client, "from")
+        .mockImplementation((options) =>
+          Promise.resolve(
+            new Client(
+              new StellarSdk.contract.Spec(
+                names.map((name) =>
+                  xdr.ScSpecEntry.scSpecEntryFunctionV0(func({ name })),
+                ),
+              ),
+              options,
+            ),
+          ),
+        );
+
+    it.each([
+      ["reserved", ["spec", "options", "then", "toString", "balance"]],
+      ["colliding", ["delete", "delete_", "balance"]],
+    ])("lists functions whose names are %s", async (_, names) => {
+      // A thenable client would call its `then` function here.
+      vi.spyOn(
+        StellarSdk.contract.AssembledTransaction,
+        "build",
+      ).mockImplementation(() => {
+        throw new Error("build called");
+      });
+      fromSpec(...names);
+
+      const methods = await server.getContractMethods(
+        contractId,
+        networkPassphrase,
+      );
+
+      expect(methods.map((m: { name: string }) => m.name)).toEqual(names);
+    });
+  });
 });

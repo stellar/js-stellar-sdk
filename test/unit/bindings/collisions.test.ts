@@ -316,3 +316,109 @@ describe("bindings generated-name collision resolution", () => {
     expect(generator.generate()).toBe(generator.generate());
   });
 });
+
+describe("bindings client method names", () => {
+  const generate = (...names: string[]) =>
+    new ClientGenerator(new Spec(names.map(funcEntry))).generate();
+
+  // Method names in the generated `interface Client` and keys of `fromJson`.
+  const generatedNames = (output: string) => ({
+    methods: [
+      ...(
+        output.match(/export interface Client \{[\s\S]*?\n\}/)?.[0] ?? ""
+      ).matchAll(/^ {2}(\w+)\(/gm),
+    ].map((m) => m[1]),
+    fromJson: [...output.matchAll(/(\w+) : this\.txFromJson/g)].map(
+      (m) => m[1],
+    ),
+  });
+
+  it.each([
+    ["delete", "delete_"],
+    ["__", "___"],
+    ["safe-withdraw", "safe_withdraw"],
+  ])("leaves out both %j and %j when they map to one name", (first, second) => {
+    expect(generatedNames(generate(first, second, "other"))).toEqual({
+      methods: ["other"],
+      fromJson: ["other"],
+    });
+  });
+
+  it.each([
+    "fromJson",
+    "fromJSON",
+    "then",
+    "toJSON",
+    "toString",
+    "__proto__",
+    "spec",
+  ])("leaves out a function that maps to the reserved name %j", (name) => {
+    expect(generatedNames(generate(name, "other"))).toEqual({
+      methods: ["other"],
+      fromJson: ["other"],
+    });
+  });
+
+  it("reserves every member of contract.Client", () => {
+    const client = new contract.Client(new Spec([funcEntry("hello")]), {
+      contractId: "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM",
+      networkPassphrase: "Standalone Network ; February 2017",
+      rpcUrl: "https://example.com",
+    });
+    const members = [
+      ...Object.keys(client).filter((name) => name !== "hello"),
+      ...Object.getOwnPropertyNames(contract.Client.prototype).filter(
+        (name) => name !== "constructor",
+      ),
+    ];
+    expect(members.length).toBeGreaterThan(0);
+    members.forEach((name) => {
+      expect(generatedNames(generate(name, "other")).methods).toEqual([
+        "other",
+      ]);
+    });
+  });
+
+  it("writes a function name that appears twice only once", () => {
+    expect(generatedNames(generate("init", "init", "other"))).toEqual({
+      methods: ["init", "other"],
+      fromJson: ["init", "other"],
+    });
+  });
+
+  it("allows the same raw name twice and a single reserved word", () => {
+    expect(() => generate("init", "init", "delete")).not.toThrow();
+  });
+
+  it("imports only the types that the written methods use", () => {
+    const takes = (name: string, type: string) =>
+      xdr.ScSpecEntry.scSpecEntryFunctionV0(
+        new xdr.ScSpecFunctionV0({
+          doc: "",
+          name,
+          inputs: [
+            new xdr.ScSpecFunctionInputV0({
+              doc: "",
+              name: "value",
+              type: xdr.ScSpecTypeDef.scSpecTypeUdt(
+                new xdr.ScSpecTypeUdt({ name: type }),
+              ),
+            }),
+          ],
+          outputs: [],
+        }),
+      );
+    const output = new ClientGenerator(
+      new Spec([
+        structEntry("Skipped"),
+        structEntry("Init"),
+        takes("toString", "Skipped"),
+        takes("__constructor", "Init"),
+        funcEntry("other"),
+      ]),
+    ).generate();
+
+    expect(output).toMatch(/^import \{Init\} from '\.\/types\.js';$/m);
+    expect(output).not.toMatch(/Skipped/);
+  });
+});

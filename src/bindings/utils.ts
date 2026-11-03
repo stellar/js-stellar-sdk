@@ -87,6 +87,59 @@ export function sanitizeIdentifier(identifier: string): string {
 }
 
 /**
+ * Property names that a contract function must not take on a `contract.Client`
+ * instance: its own members, `then` (an `await` would call the contract),
+ * `toJSON` (`JSON.stringify` would call it), and the inherited
+ * `Object.prototype` names.
+ */
+export const RESERVED_CLIENT_NAMES: ReadonlySet<string> = new Set([
+  "spec",
+  "options",
+  "txFromJson",
+  "txFromJSON",
+  "txFromXDR",
+  "then",
+  "toJSON",
+  ...Object.getOwnPropertyNames(Object.prototype),
+]);
+
+/**
+ * Map each client property to the contract function it calls. It never
+ * throws. `__constructor`, functions whose property is in `reserved`, and
+ * functions whose property another function name also maps to get no
+ * property, so a call never reaches a function the caller did not name.
+ * @param names - The raw contract function names, in spec order
+ * @param reserved - Property names that a contract function must not take
+ * @returns The sanitized property name of each function, mapped to its raw name
+ */
+export function clientMethodNames(
+  names: string[],
+  reserved: ReadonlySet<string> = RESERVED_CLIENT_NAMES,
+): Map<string, string> {
+  const methods = new Map<string, string>();
+  // Properties that two different raw names map to.
+  const shared = new Set<string>();
+  for (const name of names) {
+    const property = sanitizeIdentifier(name);
+    if (
+      name === "__constructor" ||
+      reserved.has(property) ||
+      shared.has(property)
+    ) {
+      continue;
+    }
+    const owner = methods.get(property);
+    if (owner === undefined) {
+      methods.set(property, name);
+    } else if (owner !== name) {
+      methods.delete(property);
+      shared.add(property);
+    }
+  }
+  return methods;
+}
+
+/**
  * Escape a string for safe interpolation inside a double-quoted JavaScript string literal.
  */
 export function escapeStringLiteral(str: string): string {
