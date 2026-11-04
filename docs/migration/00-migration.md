@@ -41,8 +41,11 @@ at all**:
 - `Buffer` methods on a `Uint8Array` fail silently. `.toString("hex")` returns
   comma-joined decimals (`"185,77,39,…"`), and `.toString("utf8")` returns
   `"104,105"`. Nothing throws, so the wrong string is used downstream.
-- Absent optional XDR fields decode to `null` instead of `undefined`, so
-  `=== undefined` checks stop matching. Prefer `== null`.
+- Absent optional fields on raw `xdr.*` values decode to `null` instead of
+  `undefined`, so `=== undefined` checks on them stop matching. Prefer
+  `== null` there. Parsed `Transaction` and operation records (from
+  `TransactionBuilder.fromXdr` or `Operation.fromXdrObject`) still use
+  `undefined`, so leave those checks alone.
 - `scValToNative` can now return a `Uint8Array` for a `scvString` or `scvSymbol`
   whose contents aren't valid UTF-8, where it always returned a string before.
 
