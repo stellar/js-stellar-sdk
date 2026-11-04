@@ -93,8 +93,9 @@ export default defineConfig({
     // plugins; the heading-id deference our anchor plugin relies on (see
     // rehypeHeadingAnchors) is a markdown-remark behavior, so stay on the
     // unified pipeline explicitly.
-    processor: unified(),
-    rehypePlugins: [rehypeBaseInternalLinks, rehypeHeadingAnchors],
+    processor: unified({
+      rehypePlugins: [rehypeBaseInternalLinks, rehypeHeadingAnchors],
+    }),
   },
   fonts: [
     {
