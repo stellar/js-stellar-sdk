@@ -62,6 +62,10 @@ warning instead of a package that cannot be required
 ([#1664](https://github.com/stellar/js-stellar-sdk/issues/1664)). ESM consumers
 were never affected. Upgrade Node, or use the ESM entry point.
 
+Jest does not support `require(esm)` even on 22.12+, so test suites that load
+the SDK need a `transformIgnorePatterns` entry. See
+[Usage with Jest](/#usage-with-jest).
+
 ### Auth: CAP-71 v2 address credentials are now the default
 
 Protocol 27 ([CAP-71](https://github.com/stellar/stellar-protocol/blob/master/core/cap-0071.md))
