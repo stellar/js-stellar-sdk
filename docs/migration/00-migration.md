@@ -61,7 +61,7 @@ were never affected. Upgrade Node, or use the ESM entry point.
 
 Jest does not support `require(esm)` even on 22.12+, so test suites that load
 the SDK need a `transformIgnorePatterns` entry. See
-[Usage with Jest](../index.md#usage-with-jest).
+[Usage with Jest](/#usage-with-jest).
 
 ### Auth: CAP-71 v2 address credentials are now the default
 
