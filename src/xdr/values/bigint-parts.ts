@@ -63,6 +63,71 @@ export function assertBigIntFits(
 }
 
 /**
+ * Returns `value` after checking it is a bigint that fits a `bits`-wide
+ * integer. Generated wide-int XDR fields call this from their constructors.
+ */
+export function checkBigInt(
+  value: bigint,
+  signed: boolean,
+  bits: number,
+  name: string,
+): bigint {
+  if (typeof value !== "bigint") {
+    throw new TypeError(`${name}: expected a bigint, got ${typeof value}`);
+  }
+  assertBigIntFits(value, signed, bits, name);
+  return value;
+}
+
+/**
+ * Returns `value` after checking it looks like a wide-int parts struct. This
+ * is a shape check, not `instanceof`, so parts from another copy of the SDK
+ * (ESM and CJS builds both loaded, or two installs) still work.
+ */
+export function checkPartsLike<T>(value: T, name: string): T {
+  if (
+    typeof value !== "object" ||
+    value === null ||
+    typeof (value as { toXdrObject?: unknown }).toXdrObject !== "function"
+  ) {
+    throw new TypeError(
+      `${name}: expected a bigint or ${name}, got ${value === null ? "null" : typeof value}`,
+    );
+  }
+  return value;
+}
+
+/**
+ * Returns `parts` after checking each limb is a bigint in range: the top limb
+ * (`hi`) is int64 when `signed`, else uint64, and `lo` is always uint64.
+ */
+export function check128Parts<T extends Int128Parts>(
+  parts: T,
+  signed: boolean,
+  name: string,
+): T {
+  checkBigInt(parts.hi, signed, 64, `${name}.hi`);
+  checkBigInt(parts.lo, false, 64, `${name}.lo`);
+  return parts;
+}
+
+/**
+ * Returns `parts` after checking each limb is a bigint in range: the top limb
+ * (`hiHi`) is int64 when `signed`, else uint64, and the rest are uint64.
+ */
+export function check256Parts<T extends Int256Parts>(
+  parts: T,
+  signed: boolean,
+  name: string,
+): T {
+  checkBigInt(parts.hiHi, signed, 64, `${name}.hiHi`);
+  checkBigInt(parts.hiLo, false, 64, `${name}.hiLo`);
+  checkBigInt(parts.loHi, false, 64, `${name}.loHi`);
+  checkBigInt(parts.loLo, false, 64, `${name}.loLo`);
+  return parts;
+}
+
+/**
  * Reject decimal strings whose length alone rules out fitting a `bits`-wide
  * integer, BEFORE the string reaches `BigInt(...)`. Parsing an
  * attacker-supplied multi-megabyte string costs work per input byte and
