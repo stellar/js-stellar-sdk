@@ -254,6 +254,11 @@ describe("inspectTransaction", () => {
       });
     });
 
+    it('reports an explicit zero minimum sequence as "0", not null', () => {
+      const tx = classicTx(undefined, { minAccountSequence: "0" });
+      expect(asSummary(tx).preconditions?.minAccountSequence).toBe("0");
+    });
+
     it("reports v2 numeric fields that were left unset as zero, not null", () => {
       const tx = classicTx(undefined, {
         ledgerbounds: { minLedger: 0, maxLedger: 10 },

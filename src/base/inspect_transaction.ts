@@ -172,12 +172,15 @@ export function inspectTransaction(
 
 function summarizeTransaction(tx: Transaction): TransactionSummary {
   const memo = tx.memo;
+  // `tx.tx` returns a copy of the raw body; it is the cheapest public path to
+  // the Soroban extension and the raw `minSeqNum`, which no getter exposes.
+  const raw = tx.tx;
   return {
     source: tx.source,
     sequence: tx.sequence,
     memo: summarizeMemo(memo.type, memo.value),
-    fees: summarizeFees(tx),
-    preconditions: summarizePreconditions(tx),
+    fees: summarizeFees(tx, raw),
+    preconditions: summarizePreconditions(tx, raw),
     operations: tx.operations.map((details, index) =>
       summarizeOperation(details, index, tx.source),
     ),
@@ -210,10 +213,10 @@ function memoText(bytes: Uint8Array): string {
   return text.toJson();
 }
 
-function summarizeFees(tx: Transaction): TransactionSummary["fees"] {
-  // `tx.tx` returns a copy of the raw body; it is the cheapest public path to
-  // the Soroban extension, which no getter exposes.
-  const raw = tx.tx;
+function summarizeFees(
+  tx: Transaction,
+  raw: Transaction["tx"],
+): TransactionSummary["fees"] {
   const resource =
     raw instanceof XdrTransaction && raw.ext.type === "sorobanData"
       ? raw.ext.value.resourceFee
@@ -230,8 +233,12 @@ function summarizeFees(tx: Transaction): TransactionSummary["fees"] {
 
 function summarizePreconditions(
   tx: Transaction,
+  raw: Transaction["tx"],
 ): InspectedPreconditions | null {
   const { timeBounds, ledgerBounds, minAccountSequenceAge } = tx;
+  // The `Transaction` constructor drops a zero `minSeqNum`; read the raw value.
+  const cond = raw instanceof XdrTransaction ? raw.cond : null;
+  const minSeq = cond?.type === "precondV2" ? cond.value.minSeqNum : null;
   // The age is set only from a v2 precondition, where it is always present.
   const hasV2 = minAccountSequenceAge !== undefined;
   if (timeBounds === undefined && !hasV2) {
@@ -244,7 +251,7 @@ function summarizePreconditions(
     ledgerBounds: ledgerBounds
       ? { minLedger: ledgerBounds.minLedger, maxLedger: ledgerBounds.maxLedger }
       : null,
-    minAccountSequence: tx.minAccountSequence ?? null,
+    minAccountSequence: minSeq === null ? null : minSeq.toString(),
     minAccountSequenceAge: hasV2 ? minAccountSequenceAge.toString() : null,
     minAccountSequenceLedgerGap: hasV2
       ? (tx.minAccountSequenceLedgerGap ?? null)
