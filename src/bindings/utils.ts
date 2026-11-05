@@ -100,6 +100,9 @@ export const RESERVED_CLIENT_NAMES: ReadonlySet<string> = new Set([
   "txFromXDR",
   "then",
   "toJSON",
+  // Missing from the list below under `node --disable-proto=delete`, but a
+  // generated `__proto__:` literal key still sets the prototype.
+  "__proto__",
   ...Object.getOwnPropertyNames(Object.prototype),
 ]);
 

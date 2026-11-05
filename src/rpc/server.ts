@@ -1049,38 +1049,13 @@ export class RpcServer {
       server: this,
     });
 
-    // Validate against the contract spec (keyed by the real on-chain name)
-    // first, so a `method` that names a built-in `Client`/prototype member
-    // (e.g. `txFromJson`) but no contract function is rejected.
+    // A `Client` member such as `txFromJson` is not a contract function.
     const names = client.spec.funcs().map((fn) => fn.name.toString());
     if (method === "__constructor" || !names.includes(method)) {
       throw new TypeError(`Contract ${contractId} has no method '${method}'`);
     }
 
-    // The `Client` constructor attaches each method under a sanitized
-    // identifier (e.g. `delete` becomes `delete_`). It attaches no method for
-    // a reserved or shared identifier, so that call is built by the on-chain
-    // name, and a client member or another function is never invoked instead.
-    const { clientMethodNames, sanitizeIdentifier } =
-      await import("../bindings/utils.js");
-    const property = sanitizeIdentifier(method);
-    // Methods are attached dynamically from the spec, so they aren't on the
-    // static `Client` type — hence the cast.
-    const invoke =
-      clientMethodNames(names).get(property) === method
-        ? (client as unknown as Record<string, unknown>)[property]
-        : undefined;
-
-    // Awaiting builds + simulates the read-only call (`simulate` defaults to
-    // true); `.result` is the spec-decoded return value and `.isReadCall`
-    // reports whether this call wrote no state and needed no auth.
-    if (typeof invoke === "function") {
-      const assembled = await invoke(args);
-      return {
-        result: assembled.result as T,
-        isReadCall: assembled.isReadCall,
-      };
-    }
+    // Not the attached method: with no inputs, it reads `args` as options.
     const { buildMethodCall } = await import("../contract/method_call.js");
     const assembled = await buildMethodCall(
       client.spec,
