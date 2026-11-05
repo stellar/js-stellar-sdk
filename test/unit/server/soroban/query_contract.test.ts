@@ -232,6 +232,36 @@ describe("Server#queryContract", () => {
     expect(build.mock.calls[0][0]).not.toHaveProperty("simulate");
   });
 
+  it("builds the call through contract.Client.invoke", async () => {
+    spyBuild();
+    const invoke = vi
+      .spyOn(Client, "invoke")
+      .mockRejectedValue(new Error("invoke called"));
+    fromSpec(func("balance", ["amount"]));
+
+    await expect(
+      server.queryContract(
+        contractId,
+        "balance",
+        { amount: 1 },
+        networkPassphrase,
+      ),
+    ).rejects.toThrow("invoke called");
+    expect(invoke).toHaveBeenCalledWith(expect.any(Client), "balance", {
+      amount: 1,
+    });
+  });
+
+  it("treats null args as no arguments", async () => {
+    const build = spyBuild();
+    fromSpec(func("balance", ["amount"]));
+
+    await expect(
+      server.queryContract(contractId, "balance", null, networkPassphrase),
+    ).rejects.toThrow("Missing field amount");
+    expect(build).not.toHaveBeenCalled();
+  });
+
   it("throws for __constructor, which the client does not attach", async () => {
     const build = vi.spyOn(AssembledTransaction, "build");
     fromSpec(func("__constructor"), func("balance"));

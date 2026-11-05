@@ -693,8 +693,8 @@ identifier: for example, `delete` becomes `delete_`.
 
 A function gets no method when its method name is a `Client` member or
 another reserved name, such as `then` or `toString`. Two functions that map
-to one method name both get no method. `rpc.Server.queryContract()` still
-calls such a function by its on-chain name.
+to one method name both get no method. [`Client.invoke`](#clientinvokeclient-name-args-options) still calls
+such a function by its on-chain name.
 
 Each method returns an [`AssembledTransaction`](#contractassembledtransaction) that can
 be used to modify, simulate, decode results, and possibly sign, & submit the
@@ -707,6 +707,7 @@ class Client {
   static from<T = unknown>(options: ClientOptions): Promise<Client & T>;
   static fromWasm<T = unknown>(wasm: Uint8Array, options: ClientOptions): Promise<Client & T>;
   static fromWasmHash<T = unknown>(wasmHash: string | Uint8Array<ArrayBufferLike>, options: ClientOptions, format: "hex" | "base64" = "hex"): Promise<Client & T>;
+  static invoke<T = unknown>(client: Client, name: string, args?: Record<string, unknown> | null, options?: MethodOptions): Promise<AssembledTransaction<T>>;
   readonly options: ClientOptions;
   readonly spec: Spec;
   txFromJSON: <T>(json: string) => AssembledTransaction<T>;
@@ -865,6 +866,44 @@ const tx = await client.increment(); // typed
 
 **Source:** [src/contract/client.ts:196](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L196)
 
+### `Client.invoke(client, name, args, options)`
+
+Builds a call to a contract function by its on-chain name, as the
+function's client method does. It also reaches a function that has no
+client method because its name is reserved or shared.
+
+```ts
+static invoke<T = unknown>(client: Client, name: string, args?: Record<string, unknown> | null, options?: MethodOptions): Promise<AssembledTransaction<T>>;
+```
+
+**Parameters**
+
+- **`client`** — `Client` (required) — The client of the contract to call.
+- **`name`** — `string` (required) — The on-chain function name, such as `delete`, not `delete_`.
+- **`args`** — `Record<string, unknown> | null` (optional) — The function arguments by parameter name. `undefined` and
+     `null` mean no arguments. They are never read as call options.
+- **`options`** — `MethodOptions` (optional) — The call options, as for a client method.
+
+**Returns**
+
+The assembled call, simulated unless `options.simulate` is
+   `false`. Sign and send it for a write.
+
+**Throws**
+
+- If the contract has no function with this name, or if the name is
+   `__constructor`.
+
+**Example**
+
+```ts
+// `delete` and `delete_` both map to `delete_`, so neither has a method.
+const tx = await contract.Client.invoke(client, "delete", { id: 7 });
+await tx.signAndSend();
+```
+
+**Source:** [src/contract/client.ts:347](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L347)
+
 ### `client.options`
 
 ```ts
@@ -893,7 +932,7 @@ txFromJSON: <T>(json: string) => AssembledTransaction<T>;
 
 - **`json`** — `string` (required)
 
-**Source:** [src/contract/client.ts:340](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L340)
+**Source:** [src/contract/client.ts:386](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L386)
 
 ### `client.txFromJson(json)`
 
@@ -905,7 +944,7 @@ txFromJson<T>(json: string): AssembledTransaction<T>;
 
 - **`json`** — `string` (required)
 
-**Source:** [src/contract/client.ts:324](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L324)
+**Source:** [src/contract/client.ts:370](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L370)
 
 ### `client.txFromXDR(xdrBase64)`
 
@@ -917,7 +956,7 @@ txFromXDR<T>(xdrBase64: string): AssembledTransaction<T>;
 
 - **`xdrBase64`** — `string` (required)
 
-**Source:** [src/contract/client.ts:342](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L342)
+**Source:** [src/contract/client.ts:388](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L388)
 
 ## contract.DEFAULT_TIMEOUT
 

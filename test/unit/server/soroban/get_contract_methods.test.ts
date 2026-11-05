@@ -116,11 +116,17 @@ describe("Server#getContractMethods", () => {
     const methods = await server.getContractMethods(contractId);
 
     expect(methods).toEqual([
-      { name: "decimals", inputs: [], outputs: ["U32"] },
+      {
+        name: "decimals",
+        inputs: [],
+        outputs: ["U32"],
+        clientMethod: "decimals",
+      },
       {
         name: "balance",
         inputs: [{ name: "id", type: "Address" }],
         outputs: ["I128"],
+        clientMethod: "balance",
       },
       {
         name: "transfer",
@@ -130,6 +136,7 @@ describe("Server#getContractMethods", () => {
           { name: "amount", type: "I128" },
         ],
         outputs: [],
+        clientMethod: "transfer",
       },
     ]);
   });
@@ -209,6 +216,53 @@ describe("Server#getContractMethods", () => {
       );
 
       expect(methods.map((m: { name: string }) => m.name)).toEqual(names);
+    });
+
+    it("reports each function's client method, or why it has none", async () => {
+      fromSpec(
+        "balance",
+        "delete",
+        "__constructor",
+        "then",
+        "toString",
+        "txFromXDR",
+        "safe-withdraw",
+        "safe_withdraw",
+      );
+
+      const methods = await server.getContractMethods(
+        contractId,
+        networkPassphrase,
+      );
+
+      expect(
+        methods.map(
+          ({
+            name,
+            clientMethod,
+            noMethodReason,
+          }: StellarSdk.rpc.Api.ContractMethod) => ({
+            name,
+            clientMethod,
+            noMethodReason,
+          }),
+        ),
+      ).toEqual([
+        { name: "balance", clientMethod: "balance" },
+        { name: "delete", clientMethod: "delete_" },
+        { name: "__constructor", noMethodReason: "constructor" },
+        { name: "then", noMethodReason: "reserved" },
+        { name: "toString", noMethodReason: "reserved" },
+        { name: "txFromXDR", noMethodReason: "reserved" },
+        { name: "safe-withdraw", noMethodReason: "shared" },
+        { name: "safe_withdraw", noMethodReason: "shared" },
+      ]);
+      for (const method of methods) {
+        expect(
+          Object.hasOwn(method, "clientMethod") !==
+            Object.hasOwn(method, "noMethodReason"),
+        ).toBe(true);
+      }
     });
   });
 });

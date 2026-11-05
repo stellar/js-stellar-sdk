@@ -19,8 +19,8 @@ const CONSTRUCTOR_FUNC = "__constructor";
  *
  * A function gets no method when its method name is a `Client` member or
  * another reserved name, such as `then` or `toString`. Two functions that map
- * to one method name both get no method. `rpc.Server.queryContract()` still
- * calls such a function by its on-chain name.
+ * to one method name both get no method. {@link Client.invoke} still calls
+ * such a function by its on-chain name.
  *
  * Each method returns an {@link contract.AssembledTransaction | AssembledTransaction} that can
  * be used to modify, simulate, decode results, and possibly sign, & submit the
@@ -319,6 +319,52 @@ export class Client {
     const wasm = await server.getContractWasmByHash(wasmHash);
 
     return Client.fromWasm<T>(wasm, options);
+  }
+
+  /**
+   * Builds a call to a contract function by its on-chain name, as the
+   * function's client method does. It also reaches a function that has no
+   * client method because its name is reserved or shared.
+   *
+   * @typeParam T - The type of the function's decoded result.
+   * @param client - The client of the contract to call.
+   * @param name - The on-chain function name, such as `delete`, not `delete_`.
+   * @param args - The function arguments by parameter name. `undefined` and
+   *    `null` mean no arguments. They are never read as call options.
+   * @param options - The call options, as for a client method.
+   * @returns The assembled call, simulated unless `options.simulate` is
+   *    `false`. Sign and send it for a write.
+   * @throws If the contract has no function with this name, or if the name is
+   *    `__constructor`.
+   *
+   * @example
+   * ```ts
+   * // `delete` and `delete_` both map to `delete_`, so neither has a method.
+   * const tx = await contract.Client.invoke(client, "delete", { id: 7 });
+   * await tx.signAndSend();
+   * ```
+   */
+  static async invoke<T = unknown>(
+    client: Client,
+    name: string,
+    args?: Record<string, unknown> | null,
+    options?: MethodOptions,
+  ): Promise<AssembledTransaction<T>> {
+    if (
+      name === CONSTRUCTOR_FUNC ||
+      !client.spec.funcs().some((fn) => fn.name.toString() === name)
+    ) {
+      throw new TypeError(
+        `Contract ${client.options.contractId} has no method '${name}'`,
+      );
+    }
+    return buildMethodCall(
+      client.spec,
+      client.options,
+      name,
+      args ?? {},
+      options,
+    );
   }
 
   txFromJson = <T>(json: string): AssembledTransaction<T> => {

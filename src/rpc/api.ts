@@ -884,5 +884,19 @@ export namespace Api {
     outputs: string[];
     /** the method's spec doc string, when the contract declares one */
     doc?: string;
+    /**
+     * The property name of the method that `contract.Client` attaches for
+     * this function, such as `delete_` for `delete`. Absent when the client
+     * attaches no method. Generated bindings also reserve `fromJson` and
+     * `fromJSON`, so they have no method for a function with either name.
+     */
+    clientMethod?: string;
+    /**
+     * Why `contract.Client` attaches no method for this function: it is the
+     * `constructor`, its method name is `reserved` (a client member or a name
+     * such as `then` or `toString`), or another function `shared` the method
+     * name. Call it with `contract.Client.invoke()`.
+     */
+    noMethodReason?: "constructor" | "reserved" | "shared";
   }
 }
