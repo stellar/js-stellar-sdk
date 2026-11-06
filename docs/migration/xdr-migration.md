@@ -675,7 +675,7 @@ i128.size, i128.unsigned     →   (no longer exposed — pick the right class)
 scInt.int / xli.int          →   scInt.value / xli.value  (bigint) — `.int` is gone
 
 // ============== OPTIONALS (§ 14) ==============
-x === undefined              →   x == null    // decoded absent = null now
+x === undefined              →   x == null    // raw xdr.* values only; parsed tx/op records keep undefined
 
 // ============== REMOVED (§ 13) ==============
 xdr.scvSortedMap(entries)    →   scvSortedMap(entries)   // top-level export
@@ -1003,9 +1003,10 @@ runtime for legacy code, install it under an alias:
 
 ---
 
-## 14. Optional fields: `null`, not `undefined`
+## 14. Optional fields on raw XDR: `null`, not `undefined`
 
-An absent optional (`T*` in the XDR) now decodes to **`null`**. The legacy layer
+On raw `xdr.*` values, an absent optional (`T*` in the XDR) now decodes to
+**`null`**. The legacy layer
 used `undefined`:
 
 ```ts
@@ -1046,8 +1047,24 @@ though where it does so depends on the field's type:
   coerce their input in the constructor, so they throw a `TypeError` right
   there — `new xdr.SetOptionsOp({})` never reaches an encode call.
 
-Decoded values are always `null`. Prefer `== null` / falsy checks over
-`=== undefined` everywhere.
+Decoded raw `xdr.*` values are always `null`. Prefer `== null` / falsy checks
+over `=== undefined` on them.
+
+This does **not** apply to the parsed records the SDK builds on top. A
+`Transaction` (`timeBounds`, `ledgerBounds`, `minAccountSequence`, …) and the
+operation records from `Operation.fromXdrObject` or
+`TransactionBuilder.fromXdr(...).operations` still report absent fields as
+`undefined`:
+
+```ts
+const op = TransactionBuilder.fromXdr(xdrString, passphrase).operations[0];
+op.homeDomain; // undefined when unset, as before
+
+tx.toEnvelope().v1.tx.operations[0].body.value.homeDomain; // null (raw layer)
+```
+
+Leave `=== undefined` checks on these records as they are. Rewriting them is
+harmless only if you use `== null`; a strict `=== null` never matches.
 
 In JSON output an unset optional is `null` too (§ 12).
 

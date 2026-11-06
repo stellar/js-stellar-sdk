@@ -5,6 +5,7 @@ A breaking change will get clearly marked in this log.
 ## Unreleased
 
 ### Added
+* `inspectTransaction()` decodes a `Transaction` or `FeeBumpTransaction` into a typed summary to show before signing. The summary includes the source, memo, fees and each operation, with its Soroban authorization entries and top-level contract call. The function makes no network calls. A part that the SDK cannot decode becomes an `unreadable` node, and the rest of the summary stays complete ([#1881](https://github.com/stellar/js-stellar-sdk/pull/1881)).
 * `contract.Client.invoke(client, name, args?, options?)` builds a call to a contract function by its on-chain name, as the function's client method does. It also reaches a function that has no client method because its name is reserved or shared. `args` are always function arguments, never call options. It is a static method, so it takes no name that a contract function could use ([#1875](https://github.com/stellar/js-stellar-sdk/pull/1875)).
 * `rpc.Server.getContractMethods()` reports the client method of each function in `clientMethod`, for example `delete_` for `delete`. When `contract.Client` attaches no method, `noMethodReason` says why: `constructor`, `reserved` or `shared` ([#1875](https://github.com/stellar/js-stellar-sdk/pull/1875)).
 

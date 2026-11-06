@@ -99,4 +99,5 @@ export type {
   AuthEntryReadiness,
 } from "./auth.js";
 export * from "./invocation.js";
+export * from "./inspect_transaction.js";
 export * from "./numbers/index.js";

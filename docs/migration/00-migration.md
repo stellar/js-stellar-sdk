@@ -41,8 +41,11 @@ at all**:
 - `Buffer` methods on a `Uint8Array` fail silently. `.toString("hex")` returns
   comma-joined decimals (`"185,77,39,…"`), and `.toString("utf8")` returns
   `"104,105"`. Nothing throws, so the wrong string is used downstream.
-- Absent optional XDR fields decode to `null` instead of `undefined`, so
-  `=== undefined` checks stop matching. Prefer `== null`.
+- Absent optional fields on raw `xdr.*` values decode to `null` instead of
+  `undefined`, so `=== undefined` checks on them stop matching. Prefer
+  `== null` there. Parsed `Transaction` and operation records (from
+  `TransactionBuilder.fromXdr` or `Operation.fromXdrObject`) still use
+  `undefined`, so leave those checks alone.
 - `scValToNative` can now return a `Uint8Array` for a `scvString` or `scvSymbol`
   whose contents aren't valid UTF-8, where it always returned a string before.
 
@@ -58,6 +61,10 @@ from 22.12.0 — on 22.0–22.11 `require("@stellar/stellar-sdk")` fails with
 warning instead of a package that cannot be required
 ([#1664](https://github.com/stellar/js-stellar-sdk/issues/1664)). ESM consumers
 were never affected. Upgrade Node, or use the ESM entry point.
+
+Jest does not support `require(esm)` even on 22.12+, so test suites that load
+the SDK need a `transformIgnorePatterns` entry. See
+[Usage with Jest](/#usage-with-jest).
 
 ### Auth: CAP-71 v2 address credentials are now the default
 
