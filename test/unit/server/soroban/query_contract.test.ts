@@ -3,30 +3,70 @@ import * as StellarSdk from "../../../../src/index.js";
 
 import { serverUrl } from "../../../constants.js";
 
+const { Address, SorobanDataBuilder, xdr } = StellarSdk;
 const { Server } = StellarSdk.rpc;
-const { Client } = StellarSdk.contract;
+const { AssembledTransaction, Client, Spec } = StellarSdk.contract;
 
-/**
- * Build a fake `contract.Client`: `spec.funcs()` reports the declared on-chain
- * method names, and `attached` holds the dynamically-attached method functions
- * (keyed by their sanitized identifiers, exactly as the real Client does).
- */
-function fakeClient(opts: {
-  specNames: string[];
-  attached?: Record<string, any>;
-}) {
-  return {
-    spec: {
-      funcs: () => opts.specNames.map((name) => ({ name })),
-    },
-    ...(opts.attached ?? {}),
-  };
+// A contract function with a `u32` input per name in `inputs`, returning `u32`.
+function func(name: string, inputs: string[] = []): StellarSdk.xdr.ScSpecEntry {
+  return xdr.ScSpecEntry.scSpecEntryFunctionV0(
+    new xdr.ScSpecFunctionV0({
+      doc: "",
+      name,
+      inputs: inputs.map(
+        (input) =>
+          new xdr.ScSpecFunctionInputV0({
+            doc: "",
+            name: input,
+            type: xdr.ScSpecTypeDef.scSpecTypeU32(),
+          }),
+      ),
+      outputs: [xdr.ScSpecTypeDef.scSpecTypeU32()],
+    }),
+  );
 }
+
+// Runs the real `Client` constructor, so its method-name rules apply.
+const fromSpec = (...entries: StellarSdk.xdr.ScSpecEntry[]) =>
+  vi
+    .spyOn(Client, "from")
+    .mockImplementation((options) =>
+      Promise.resolve(new Client(new Spec(entries), options)),
+    );
+
+const spyBuild = () =>
+  vi.spyOn(AssembledTransaction, "build").mockImplementation(() => {
+    throw new Error("build called");
+  });
 
 describe("Server#queryContract", () => {
   let server: any;
   const contractId = "CCJZ5DGASBWQXR5MPFCJXMBI333XE5U3FSJTNQU7RIKE3P5GN2K2WYD5";
   const networkPassphrase = "Test SDF Network ; September 2015";
+
+  // A read-write footprint entry makes the simulated call a write call.
+  const simulates = (retval: StellarSdk.xdr.ScVal, write = false) =>
+    vi.spyOn(server, "simulateTransaction").mockResolvedValue({
+      id: "1",
+      latestLedger: 3,
+      events: [],
+      _parsed: true,
+      minResourceFee: "15",
+      result: { auth: [], retval },
+      transactionData: new SorobanDataBuilder().setReadWrite(
+        write
+          ? [
+              xdr.LedgerKey.contractData(
+                new xdr.LedgerKeyContractData({
+                  contract: Address.fromString(contractId).toScAddress(),
+                  key: xdr.ScVal.scvU32(0),
+                  durability: xdr.ContractDataDurability.persistent,
+                }),
+              ),
+            ]
+          : [],
+      ),
+    });
 
   beforeEach(() => {
     server = new Server(serverUrl);
@@ -39,15 +79,9 @@ describe("Server#queryContract", () => {
   it("defaults the network passphrase to getNetwork() when not provided", async () => {
     const getNetwork = vi
       .spyOn(server, "getNetwork")
-      .mockResolvedValue({ passphrase: networkPassphrase } as any);
-    const from = vi.spyOn(Client, "from").mockResolvedValue(
-      fakeClient({
-        specNames: ["decimals"],
-        attached: {
-          decimals: vi.fn().mockResolvedValue({ result: 7, isReadCall: true }),
-        },
-      }) as any,
-    );
+      .mockResolvedValue({ passphrase: networkPassphrase });
+    const from = fromSpec(func("decimals"));
+    simulates(xdr.ScVal.scvU32(7));
 
     const { result, isReadCall } = await server.queryContract(
       contractId,
@@ -69,12 +103,8 @@ describe("Server#queryContract", () => {
 
   it("uses the provided networkPassphrase and skips getNetwork()", async () => {
     const getNetwork = vi.spyOn(server, "getNetwork");
-    const from = vi.spyOn(Client, "from").mockResolvedValue(
-      fakeClient({
-        specNames: ["decimals"],
-        attached: { decimals: vi.fn().mockResolvedValue({ result: 7 }) },
-      }) as any,
-    );
+    const from = fromSpec(func("decimals"));
+    simulates(xdr.ScVal.scvU32(7));
 
     await server.queryContract(
       contractId,
@@ -90,105 +120,155 @@ describe("Server#queryContract", () => {
   });
 
   it("forwards named args to the contract method and returns the decoded result", async () => {
-    const balance = vi
-      .fn()
-      .mockResolvedValue({ result: 100n, isReadCall: true });
-    vi.spyOn(server, "getNetwork").mockResolvedValue({
-      passphrase: networkPassphrase,
-    } as any);
-    vi.spyOn(Client, "from").mockResolvedValue(
-      fakeClient({ specNames: ["balance"], attached: { balance } }) as any,
+    const build = vi.spyOn(AssembledTransaction, "build");
+    fromSpec(func("balance", ["amount"]));
+    simulates(xdr.ScVal.scvU32(100));
+
+    const { result } = await server.queryContract(
+      contractId,
+      "balance",
+      { amount: 5 },
+      networkPassphrase,
     );
 
-    const args = {
-      id: "GA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJVSGZ",
-    };
-    const { result } = await server.queryContract(contractId, "balance", args);
-
-    expect(balance).toHaveBeenCalledWith(args);
-    expect(result).toBe(100n);
+    expect(build).toHaveBeenCalledWith(
+      expect.objectContaining({
+        method: "balance",
+        args: [xdr.ScVal.scvU32(5)],
+      }),
+    );
+    expect(result).toBe(100);
   });
 
   it("surfaces isReadCall:false for a call that would change state", async () => {
     // `queryContract` still simulates and decodes a write method, but the
     // returned value is only a preview — isReadCall flags that.
-    const transfer = vi
-      .fn()
-      .mockResolvedValue({ result: null, isReadCall: false });
-    vi.spyOn(server, "getNetwork").mockResolvedValue({
-      passphrase: networkPassphrase,
-    } as any);
-    vi.spyOn(Client, "from").mockResolvedValue(
-      fakeClient({ specNames: ["transfer"], attached: { transfer } }) as any,
-    );
+    fromSpec(func("transfer", ["amount"]));
+    simulates(xdr.ScVal.scvU32(0), true);
 
     const { result, isReadCall } = await server.queryContract(
       contractId,
       "transfer",
+      { amount: 5 },
+      networkPassphrase,
     );
 
-    expect(result).toBeNull();
+    expect(result).toBe(0);
     expect(isReadCall).toBe(false);
   });
 
-  it("resolves methods whose names are sanitized by Client (e.g. reserved words)", async () => {
-    // A contract method named `delete` is declared as `delete` in the spec but
-    // attached on the Client under the sanitized key `delete_`.
-    const deleteFn = vi
-      .fn()
-      .mockResolvedValue({ result: true, isReadCall: true });
-    vi.spyOn(server, "getNetwork").mockResolvedValue({
-      passphrase: networkPassphrase,
-    } as any);
-    vi.spyOn(Client, "from").mockResolvedValue(
-      fakeClient({
-        specNames: ["delete"],
-        attached: { delete_: deleteFn },
-      }) as any,
-    );
-
-    const { result } = await server.queryContract(contractId, "delete");
-
-    expect(deleteFn).toHaveBeenCalledOnce();
-    expect(result).toBe(true);
-  });
-
   it("does not invoke built-in Client members that aren't contract methods", async () => {
-    // `txFromJSON` is a real Client method but not a contract method; passing it
-    // must throw, not call the built-in.
-    const txFromJSON = vi.fn();
-    vi.spyOn(server, "getNetwork").mockResolvedValue({
-      passphrase: networkPassphrase,
-    } as any);
-    vi.spyOn(Client, "from").mockResolvedValue(
-      fakeClient({
-        specNames: ["balance"],
-        attached: { balance: vi.fn(), txFromJSON },
-      }) as any,
-    );
+    const build = spyBuild();
+    fromSpec(func("balance"));
 
     await expect(
-      server.queryContract(contractId, "txFromJSON"),
+      server.queryContract(contractId, "txFromJSON", {}, networkPassphrase),
     ).rejects.toThrow(/no method 'txFromJSON'/);
-    expect(txFromJSON).not.toHaveBeenCalled();
+    expect(build).not.toHaveBeenCalled();
   });
 
   it("throws a TypeError when the contract has no such method", async () => {
-    vi.spyOn(server, "getNetwork").mockResolvedValue({
-      passphrase: networkPassphrase,
-    } as any);
-    vi.spyOn(Client, "from").mockResolvedValue(
-      fakeClient({
-        specNames: ["decimals"],
-        attached: { decimals: vi.fn().mockResolvedValue({ result: 7 }) },
-      }) as any,
-    );
+    fromSpec(func("decimals"));
 
-    await expect(server.queryContract(contractId, "missing")).rejects.toThrow(
-      TypeError,
+    await expect(
+      server.queryContract(contractId, "missing", {}, networkPassphrase),
+    ).rejects.toThrow(
+      new TypeError(`Contract ${contractId} has no method 'missing'`),
     );
-    await expect(server.queryContract(contractId, "missing")).rejects.toThrow(
-      /no method 'missing'/,
+  });
+
+  it.each([
+    ["delete", ["delete", "delete_", "balance"]],
+    ["delete_", ["delete", "delete_", "balance"]],
+    ["toString", ["toString", "balance"]],
+    ["then", ["then", "balance"]],
+    ["options", ["options", "balance"]],
+    ["txFromXDR", ["txFromXDR", "balance"]],
+  ])("calls %j by its on-chain name", async (method, names) => {
+    const build = spyBuild();
+    fromSpec(...names.map((name) => func(name, ["amount"])));
+
+    await expect(
+      server.queryContract(
+        contractId,
+        method,
+        { amount: 1 },
+        networkPassphrase,
+      ),
+    ).rejects.toThrow("build called");
+    expect(build).toHaveBeenCalledOnce();
+    expect(build).toHaveBeenCalledWith(
+      expect.objectContaining({
+        contractId,
+        method,
+        args: [xdr.ScVal.scvU32(1)],
+      }),
     );
+  });
+
+  it("does not take call options from the args of a function with no inputs", async () => {
+    const build = spyBuild();
+    fromSpec(func("decimals"));
+
+    await expect(
+      server.queryContract(
+        contractId,
+        "decimals",
+        {
+          contractId:
+            "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM",
+          method: "balance",
+          simulate: false,
+        },
+        networkPassphrase,
+      ),
+    ).rejects.toThrow("build called");
+    expect(build).toHaveBeenCalledOnce();
+    expect(build.mock.calls[0][0]).toMatchObject({
+      contractId,
+      method: "decimals",
+      args: [],
+    });
+    expect(build.mock.calls[0][0]).not.toHaveProperty("simulate");
+  });
+
+  it("builds the call through contract.Client.invoke", async () => {
+    spyBuild();
+    const invoke = vi
+      .spyOn(Client, "invoke")
+      .mockRejectedValue(new Error("invoke called"));
+    fromSpec(func("balance", ["amount"]));
+
+    await expect(
+      server.queryContract(
+        contractId,
+        "balance",
+        { amount: 1 },
+        networkPassphrase,
+      ),
+    ).rejects.toThrow("invoke called");
+    expect(invoke).toHaveBeenCalledWith(expect.any(Client), "balance", {
+      amount: 1,
+    });
+  });
+
+  it("treats null args as no arguments", async () => {
+    const build = spyBuild();
+    fromSpec(func("balance", ["amount"]));
+
+    await expect(
+      server.queryContract(contractId, "balance", null, networkPassphrase),
+    ).rejects.toThrow("Missing field amount");
+    expect(build).not.toHaveBeenCalled();
+  });
+
+  it("throws for __constructor, which the client does not attach", async () => {
+    const build = vi.spyOn(AssembledTransaction, "build");
+    fromSpec(func("__constructor"), func("balance"));
+
+    await expect(
+      server.queryContract(contractId, "__constructor", {}, networkPassphrase),
+    ).rejects.toThrow(`Contract ${contractId} has no method '__constructor'`);
+    expect(build).not.toHaveBeenCalled();
   });
 });

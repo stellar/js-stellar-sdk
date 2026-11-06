@@ -3,6 +3,8 @@ import {
   parseTypeFromTypeDef,
   generateTypeImports,
   sanitizeIdentifier,
+  RESERVED_CLIENT_NAMES,
+  clientMethodNames,
   escapeStringLiteral,
   propertyKey,
   formatJSDocComment,
@@ -15,6 +17,13 @@ import {
   ScSpecFunctionInputV0,
   ScSpecFunctionV0,
 } from "../xdr/index.js";
+
+// The generated class also declares `fromJson` and `fromJSON` fields.
+const GENERATED_CLIENT_NAMES: ReadonlySet<string> = new Set([
+  ...RESERVED_CLIENT_NAMES,
+  "fromJson",
+  "fromJSON",
+]);
 
 interface MethodInput {
   /** Property key in the args object type: the raw spec name, quoted if needed. */
@@ -42,31 +51,35 @@ export class ClientGenerator {
    * Generate client class
    */
   generate(): string {
+    const methodFuncs = Array.from(
+      clientMethodNames(
+        this.spec.funcs().map((func) => func.name.toString()),
+        GENERATED_CLIENT_NAMES,
+      ).values(),
+      (name) => this.spec.getFunc(name),
+    );
     // Generate constructor method if it exists
-    let deployMethod = "";
+    let constructorFunc: ScSpecFunctionV0 | undefined;
     try {
-      const constructorFunc = this.spec.getFunc("__constructor");
-      deployMethod = this.generateDeployMethod(constructorFunc);
+      constructorFunc = this.spec.getFunc("__constructor");
     } catch {
       // For specs without a constructor, generate a deploy method without params
-      deployMethod = this.generateDeployMethod(undefined);
     }
+    const deployMethod = this.generateDeployMethod(constructorFunc);
     // Generate interface methods
-    const interfaceMethods = this.spec
-      .funcs()
-      .filter((func) => func.name.toString() !== "__constructor")
+    const interfaceMethods = methodFuncs
       .map((func) => this.generateInterfaceMethod(func))
       .join("\n");
 
-    const imports = this.generateImports();
+    const imports = this.generateImports(
+      constructorFunc ? [...methodFuncs, constructorFunc] : methodFuncs,
+    );
 
     const specEntries = this.spec.entries.map(
       (entry) => `"${entry.toXdr("base64")}"`,
     );
 
-    const fromJson = this.spec
-      .funcs()
-      .filter((func) => func.name.toString() !== "__constructor")
+    const fromJson = methodFuncs
       .map((func) => this.generateFromJsonMethod(func))
       .join(",");
 
@@ -106,9 +119,9 @@ ${eventMethods}
 }`;
   }
 
-  private generateImports(): string {
+  private generateImports(funcs: ScSpecFunctionV0[]): string {
     const imports = generateTypeImports(
-      this.spec.funcs().flatMap((func) => {
+      funcs.flatMap((func) => {
         const inputs = func.inputs;
         const outputs = func.outputs;
         const defs = inputs.map((input) => input.type).concat(outputs);

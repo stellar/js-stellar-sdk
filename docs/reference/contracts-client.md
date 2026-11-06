@@ -687,8 +687,14 @@ toXDR(): string;
 
 ## contract.Client
 
-Generate a class from the contract spec that where each contract method
-gets included with an identical name.
+Generate a class from the contract spec where each contract function gets a
+method. The method name is the function name, made safe as a JavaScript
+identifier: for example, `delete` becomes `delete_`.
+
+A function gets no method when its method name is a `Client` member or
+another reserved name, such as `then` or `toString`. Two functions that map
+to one method name both get no method. [`Client.invoke`](#clientinvokeclient-name-args-options) still calls
+such a function by its on-chain name.
 
 Each method returns an [`AssembledTransaction`](#contractassembledtransaction) that can
 be used to modify, simulate, decode results, and possibly sign, & submit the
@@ -701,6 +707,7 @@ class Client {
   static from<T = unknown>(options: ClientOptions): Promise<Client & T>;
   static fromWasm<T = unknown>(wasm: Uint8Array, options: ClientOptions): Promise<Client & T>;
   static fromWasmHash<T = unknown>(wasmHash: string | Uint8Array<ArrayBufferLike>, options: ClientOptions, format: "hex" | "base64" = "hex"): Promise<Client & T>;
+  static invoke<T = unknown>(client: Client, name: string, args?: Record<string, unknown> | null, options?: MethodOptions): Promise<AssembledTransaction<T>>;
   readonly options: ClientOptions;
   readonly spec: Spec;
   txFromJSON: <T>(json: string) => AssembledTransaction<T>;
@@ -709,7 +716,7 @@ class Client {
 }
 ```
 
-**Source:** [src/contract/client.ts:26](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L26)
+**Source:** [src/contract/client.ts:33](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L33)
 
 ### `new Client(spec, options)`
 
@@ -722,7 +729,7 @@ constructor(spec: Spec, options: ClientOptions);
 - **`spec`** — `Spec` (required)
 - **`options`** — `ClientOptions` (required)
 
-**Source:** [src/contract/client.ts:134](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L134)
+**Source:** [src/contract/client.ts:141](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L141)
 
 ### `Client.deploy(args, options)`
 
@@ -735,7 +742,7 @@ static deploy<T = Client>(args: Record<string, any> | null, options: MethodOptio
 - **`args`** — `Record<string, any> | null` (required) — Constructor/Initialization Args for the contract's `__constructor` method
 - **`options`** — `MethodOptions & Omit<ClientOptions, "contractId"> & { salt?: Uint8Array<ArrayBufferLike> | undefined; address?: string | undefined; } & ({ wasmHash: string | Uint8Array<ArrayBufferLike>; format?: "hex" | ... 1 more ... | undefined; externalRef?: undefined; } | { ...; })` (required) — Options for initializing a Client as well as for calling a method, with extras specific to deploying.
 
-**Source:** [src/contract/client.ts:27](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L27)
+**Source:** [src/contract/client.ts:34](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L34)
 
 ### `Client.from(options)`
 
@@ -788,7 +795,7 @@ const client = await contract.Client.from({
 });
 ```
 
-**Source:** [src/contract/client.ts:296](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L296)
+**Source:** [src/contract/client.ts:288](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L288)
 
 ### `Client.fromWasm(wasm, options)`
 
@@ -822,7 +829,7 @@ const client = await contract.Client.fromWasm<MyContract>(wasm, options);
 const tx = await client.increment(); // typed
 ```
 
-**Source:** [src/contract/client.ts:247](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L247)
+**Source:** [src/contract/client.ts:239](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L239)
 
 ### `Client.fromWasmHash(wasmHash, options, format)`
 
@@ -857,7 +864,45 @@ const client = await contract.Client.fromWasmHash<MyContract>(hash, options);
 const tx = await client.increment(); // typed
 ```
 
-**Source:** [src/contract/client.ts:204](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L204)
+**Source:** [src/contract/client.ts:196](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L196)
+
+### `Client.invoke(client, name, args, options)`
+
+Builds a call to a contract function by its on-chain name, as the
+function's client method does. It also reaches a function that has no
+client method because its name is reserved or shared.
+
+```ts
+static invoke<T = unknown>(client: Client, name: string, args?: Record<string, unknown> | null, options?: MethodOptions): Promise<AssembledTransaction<T>>;
+```
+
+**Parameters**
+
+- **`client`** — `Client` (required) — The client of the contract to call.
+- **`name`** — `string` (required) — The on-chain function name, such as `delete`, not `delete_`.
+- **`args`** — `Record<string, unknown> | null` (optional) — The function arguments by parameter name. `undefined` and
+     `null` mean no arguments. They are never read as call options.
+- **`options`** — `MethodOptions` (optional) — The call options, as for a client method.
+
+**Returns**
+
+The assembled call, simulated unless `options.simulate` is
+   `false`. Sign and send it for a write.
+
+**Throws**
+
+- If the contract has no function with this name, or if the name is
+   `__constructor`.
+
+**Example**
+
+```ts
+// `delete` and `delete_` both map to `delete_`, so neither has a method.
+const tx = await contract.Client.invoke(client, "delete", { id: 7 });
+await tx.signAndSend();
+```
+
+**Source:** [src/contract/client.ts:347](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L347)
 
 ### `client.options`
 
@@ -865,7 +910,7 @@ const tx = await client.increment(); // typed
 readonly options: ClientOptions;
 ```
 
-**Source:** [src/contract/client.ts:136](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L136)
+**Source:** [src/contract/client.ts:143](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L143)
 
 ### `client.spec`
 
@@ -873,7 +918,7 @@ readonly options: ClientOptions;
 readonly spec: Spec;
 ```
 
-**Source:** [src/contract/client.ts:135](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L135)
+**Source:** [src/contract/client.ts:142](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L142)
 
 ### `client.txFromJSON`
 
@@ -887,7 +932,7 @@ txFromJSON: <T>(json: string) => AssembledTransaction<T>;
 
 - **`json`** — `string` (required)
 
-**Source:** [src/contract/client.ts:348](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L348)
+**Source:** [src/contract/client.ts:386](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L386)
 
 ### `client.txFromJson(json)`
 
@@ -899,7 +944,7 @@ txFromJson<T>(json: string): AssembledTransaction<T>;
 
 - **`json`** — `string` (required)
 
-**Source:** [src/contract/client.ts:332](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L332)
+**Source:** [src/contract/client.ts:370](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L370)
 
 ### `client.txFromXDR(xdrBase64)`
 
@@ -911,7 +956,7 @@ txFromXDR<T>(xdrBase64: string): AssembledTransaction<T>;
 
 - **`xdrBase64`** — `string` (required)
 
-**Source:** [src/contract/client.ts:350](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L350)
+**Source:** [src/contract/client.ts:388](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/client.ts#L388)
 
 ## contract.DEFAULT_TIMEOUT
 
