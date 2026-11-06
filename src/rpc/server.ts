@@ -1072,8 +1072,9 @@ export class RpcServer {
    * The complement to {@link queryContract}: list methods here, then call a
    * read-only one with `server.queryContract(contractId, method, args?)`.
    * Each entry also says which `contract.Client` method calls the function
-   * (`clientMethod`), or why the client has none (`noMethodReason`). Such a
-   * function can still be called with `contract.Client.invoke()`.
+   * (`clientMethod`), or why the client has none (`noMethodReason`). A
+   * `reserved` or `shared` function can still be called with
+   * `contract.Client.invoke()`; the constructor runs only on deploy.
    *
    * @param contractId - the contract to inspect (`C...`)
    * @param networkPassphrase - (optional) the network passphrase. If omitted, a

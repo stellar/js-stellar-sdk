@@ -895,7 +895,9 @@ export namespace Api {
      * Why `contract.Client` attaches no method for this function: it is the
      * `constructor`, its method name is `reserved` (a client member or a name
      * such as `then` or `toString`), or another function `shared` the method
-     * name. Call it with `contract.Client.invoke()`.
+     * name. Call a `reserved` or `shared` function with
+     * `contract.Client.invoke()`. The constructor runs only on deploy, through
+     * `contract.Client.deploy()`.
      */
     noMethodReason?: "constructor" | "reserved" | "shared";
   }
