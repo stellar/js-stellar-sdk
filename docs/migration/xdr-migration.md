@@ -317,14 +317,28 @@ xdr.Int128.fromJson("42"); // JSON deserialize
 ```
 
 To reconstruct a bigint from XDR parts (the old `new Int128(lo, hi).toBigInt()`
-pattern), use `XdrLargeInt`, one of the few XDR-adjacent classes exported
-top-level, alongside `ScInt`. As in the legacy SDK, it accepts slices in
-**little-endian** order (parts[0] is least significant):
+pattern), call `toBigInt()` on the parts struct. `fromBigInt()` goes the other
+way, and the `ScVal` wide-int factories take a bigint directly:
+
+```ts
+new xdr.Int128Parts({ hi, lo }).toBigInt();
+new xdr.Uint256Parts({ hiHi, hiLo, loHi, loLo }).toBigInt();
+xdr.Int128Parts.fromBigInt(-5n); // Int128Parts { hi: -1n, lo: 2n ** 64n - 5n }
+
+xdr.ScVal.scvI128(-5n); // same as scvI128(xdr.Int128Parts.fromBigInt(-5n))
+xdr.ScVal.scvU256(2n ** 200n);
+```
+
+`toBigInt()` throws if a limb is out of range for its 64-bit field, and
+`fromBigInt()` and the factories throw if the bigint doesn't fit the type.
+
+`XdrLargeInt`, exported top-level alongside `ScInt`, still works too. As in the
+legacy SDK, it takes slices in **little-endian** order (parts[0] is least
+significant):
 
 ```ts
 import { XdrLargeInt } from "@stellar/stellar-sdk";
 
-const { hi, lo } = i128.toParts(); // no `.lo` / `.hi` directly on the instance
 new XdrLargeInt("i128", [lo, hi]).toBigInt();
 new XdrLargeInt("u256", [loLo, loHi, hiLo, hiHi]).toBigInt();
 ```
@@ -667,8 +681,8 @@ scvString.str (was string)   →   scvString.str.bytes (or scvString.value: stri
                                  Type.fromJson(json)      // SEP-0051 decode
 
 // ============== WIDE INTS ==============
-new xdr.Int128(lo, hi)       →   new XdrLargeInt("i128", [lo, hi])
-new xdr.Int256(loLo, …)      →   new XdrLargeInt("i256", [loLo, …, hiHi])
+new xdr.Int128(lo, hi)       →   new xdr.Int128Parts({ hi, lo }).toBigInt()
+new xdr.Int256(loLo, …)      →   new xdr.Int256Parts({ hiHi, hiLo, loHi, loLo }).toBigInt()
 new xdr.Int128(42n).toBigInt() → new xdr.Int128(42n).value
 i128.lo, i128.hi             →   i128.toParts()  // { hi, lo }
 i128.size, i128.unsigned     →   (no longer exposed — pick the right class)
@@ -829,7 +843,7 @@ in. New in this release; no legacy equivalent.
 xdr.Asset.assetTypeNative().toJson();
 //   → "native"
 
-xdr.ScVal.scvI128(new xdr.Int128Parts({ hi: 0n, lo: 12345n })).toJson();
+xdr.ScVal.scvI128(12345n).toJson();
 //   → { i128: "12345" }
 
 xdr.ScAddress.scAddressTypeAccount(pubkey).toJson();

@@ -739,6 +739,30 @@ function bodyOfStruct(rawDef, ctx) {
     .map((f) => `      ${f.name}: ${fromWireExpr(f, ctx)},`)
     .join("\n");
 
+  // Bigint bridge for the wide-int parts structs.
+  let bigIntMethods = "";
+  const wide = WIDE_INT_PARTS[name];
+  if (wide) {
+    const toParts = `bigIntTo${wide.bits}Parts`;
+    const fromParts = `partsTo${wide.bits}BigInt`;
+    const checkParts = `check${wide.bits}Parts`;
+    for (const fn of ["checkBigInt", checkParts, toParts, fromParts]) {
+      addExternal(ctx, BIGINT_PARTS_PATH, fn);
+    }
+    bigIntMethods = `
+  /** The integer these parts encode. Throws if a limb is out of range. */
+  toBigInt(): bigint {
+    return ${fromParts}(${checkParts}(this, ${wide.signed}, "${name}"), ${wide.signed});
+  }
+
+  /** Splits \`value\` into parts. Throws unless it is a bigint in range. */
+  static fromBigInt(value: bigint): ${name} {
+    const checked = checkBigInt(value, ${wide.signed}, ${wide.bits}, "${wide.name}");
+    return new ${name}(${toParts}(checked, ${wide.signed}));
+  }
+`;
+  }
+
   return `${wireDecl}
 
 ${sourceDoc(rawDef)}export class ${name} extends XdrValue {
@@ -760,7 +784,7 @@ ${ctorAssignments}
 ${toWireEntries}
     };
   }
-
+${bigIntMethods}
   static fromXdrObject(wire: ${wireName}): ${name} {
     return new ${name}({
 ${fromWireArgs}
@@ -779,7 +803,29 @@ function emitStruct(rawDef) {
   return `${imports}\n\n${body}`;
 }
 
+// Wide-int parts structs. Each gets `toBigInt()` / `static fromBigInt()`, and
+// a field of one of these types also accepts a plain bigint, which is split
+// into parts on construction. Helpers live in `src/xdr/values/bigint-parts.ts`.
+const WIDE_INT_PARTS = {
+  Int128Parts: { name: "Int128", signed: true, bits: 128 },
+  Uint128Parts: { name: "Uint128", signed: false, bits: 128 },
+  Int256Parts: { name: "Int256", signed: true, bits: 256 },
+  Uint256Parts: { name: "Uint256", signed: false, bits: 256 },
+};
+
+function wideIntOf(t) {
+  return t.kind === "ref" ? WIDE_INT_PARTS[t.name] : undefined;
+}
+
+const BIGINT_PARTS_PATH = "../values/bigint-parts.js";
+
 function ctorInputType(t, ctx) {
+  if (wideIntOf(t)) {
+    ctx.classImports.add(t.name);
+    // Used by the matching inputToFieldConversion expression.
+    addExternal(ctx, BIGINT_PARTS_PATH, "checkPartsLike");
+    return `${t.name} | bigint`;
+  }
   // For typedef opaque types that emit a wrapper class (Hash, AssetCode4, …),
   // accept Type | Uint8Array | string. Inline-typedef refs (uint256 → Uint8Array)
   // and other types use their plain TS type — except `string<N>` accepts
@@ -845,6 +891,11 @@ function armAssignmentExpr(t, propName, fromInput = false) {
  *  its stored field type. Handles ref-to-class, inline strings, optional
  *  and array nesting. Returns `expr` unchanged when no narrowing is needed. */
 function inputToFieldConversion(t, expr) {
+  if (wideIntOf(t)) {
+    // `typeof`, not `instanceof`: parts from another copy of the SDK must
+    // still pass through unchanged, as they did before bigint support.
+    return `typeof ${expr} === "bigint" ? ${t.name}.fromBigInt(${expr}) : checkPartsLike(${expr}, "${t.name}")`;
+  }
   if (t.kind === "ref" && emitsClass(t.name)) {
     const def = registry.get(t.name);
     if (def && def.kind === "typedef" && !isReExport(def)) {

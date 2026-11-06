@@ -1,3 +1,9 @@
+import {
+  bigIntTo256Parts,
+  check256Parts,
+  checkBigInt,
+  partsTo256BigInt,
+} from "../values/bigint-parts.js";
 import { int64, struct, uint64 } from "@stellar/js-xdr";
 import type { XdrType } from "@stellar/js-xdr";
 import { XdrValue } from "../values/xdr-value.js";
@@ -52,6 +58,17 @@ export class Int256Parts extends XdrValue {
       loHi: this.loHi,
       loLo: this.loLo,
     };
+  }
+
+  /** The integer these parts encode. Throws if a limb is out of range. */
+  toBigInt(): bigint {
+    return partsTo256BigInt(check256Parts(this, true, "Int256Parts"), true);
+  }
+
+  /** Splits `value` into parts. Throws unless it is a bigint in range. */
+  static fromBigInt(value: bigint): Int256Parts {
+    const checked = checkBigInt(value, true, 256, "Int256");
+    return new Int256Parts(bigIntTo256Parts(checked, true));
   }
 
   static fromXdrObject(wire: Int256PartsWire): Int256Parts {

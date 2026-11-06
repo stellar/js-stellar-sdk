@@ -1,10 +1,4 @@
-import {
-  Int128Parts,
-  Int256Parts,
-  ScVal,
-  Uint128Parts,
-  Uint256Parts,
-} from "../../xdr/index.js";
+import { ScVal } from "../../xdr/index.js";
 import { intRange } from "../../xdr/values/bigint-parts.js";
 
 type BigIntLike = { toBigInt(): bigint };
@@ -195,12 +189,7 @@ export class XdrLargeInt {
     this._sizeCheck(128);
     const v = this.value;
     assertInRange(v, "i128", 128, true);
-    return ScVal.scvI128(
-      new Int128Parts({
-        hi: BigInt.asIntN(64, v >> 64n),
-        lo: BigInt.asUintN(64, v),
-      }),
-    );
+    return ScVal.scvI128(v);
   }
 
   /**
@@ -211,12 +200,7 @@ export class XdrLargeInt {
   toU128(): ScVal {
     this._sizeCheck(128);
     const v = this.value;
-    return ScVal.scvU128(
-      new Uint128Parts({
-        hi: BigInt.asUintN(64, v >> 64n),
-        lo: BigInt.asUintN(64, v),
-      }),
-    );
+    return ScVal.scvU128(BigInt.asUintN(128, v));
   }
 
   /**
@@ -227,14 +211,7 @@ export class XdrLargeInt {
   toI256(): ScVal {
     const v = this.value;
     assertInRange(v, "i256", 256, true);
-    return ScVal.scvI256(
-      new Int256Parts({
-        hiHi: BigInt.asIntN(64, v >> 192n),
-        hiLo: BigInt.asUintN(64, v >> 128n),
-        loHi: BigInt.asUintN(64, v >> 64n),
-        loLo: BigInt.asUintN(64, v),
-      }),
-    );
+    return ScVal.scvI256(v);
   }
 
   /**
@@ -244,14 +221,7 @@ export class XdrLargeInt {
    */
   toU256(): ScVal {
     const v = this.value;
-    return ScVal.scvU256(
-      new Uint256Parts({
-        hiHi: BigInt.asUintN(64, v >> 192n),
-        hiLo: BigInt.asUintN(64, v >> 128n),
-        loHi: BigInt.asUintN(64, v >> 64n),
-        loLo: BigInt.asUintN(64, v),
-      }),
-    );
+    return ScVal.scvU256(BigInt.asUintN(256, v));
   }
 
   /** The smallest interpretation of the stored value */
