@@ -4,6 +4,9 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Added
+* `inspectTransaction()` decodes a `Transaction` or `FeeBumpTransaction` into a typed summary to show before signing. The summary includes the source, memo, fees and each operation, with its Soroban authorization entries and top-level contract call. The function makes no network calls. A part that the SDK cannot decode becomes an `unreadable` node, and the rest of the summary stays complete ([#1881](https://github.com/stellar/js-stellar-sdk/pull/1881)).
+
 ### Fixed
 * `Spec.getFunc()` finds a function when a struct, union, enum or event with the same name comes before it in the spec. `Spec` also finds the type of a UDT value when another entry with the same name comes first. Before, `contract.Client` construction threw "is not a function", and so did `funcArgsToScVals()` and `funcResToNative()`. Encoding or decoding the UDT value threw "failed to parse udt". The error messages for a name that is missing or has no entry of the right kind stay the same ([#1871](https://github.com/stellar/js-stellar-sdk/pull/1871)).
 * `WebAuth.verifyChallengeTxThreshold()` no longer adds a stray `"` to the end of its "do not meet threshold" error message ([#1871](https://github.com/stellar/js-stellar-sdk/pull/1871)).
