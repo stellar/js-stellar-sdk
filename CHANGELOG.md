@@ -5,7 +5,7 @@ A breaking change will get clearly marked in this log.
 ## Unreleased
 
 ### Changed
-* `ScInt`, `XdrLargeInt` and `scValToBigInt()` are deprecated and will be removed in the next major release. To build an integer `ScVal`, pass a bigint to the `ScVal` factory, e.g. `xdr.ScVal.scvU128(value)`, or use `nativeToScVal(value, { type })`. To read one, use `scValToNative()` ([#1884](https://github.com/stellar/js-stellar-sdk/pull/1884)).
+* `ScInt`, `XdrLargeInt` and `scValToBigInt()` are deprecated and will be removed no earlier than v19.0.0. To build an integer `ScVal`, pass a bigint to the `ScVal` factory, e.g. `xdr.ScVal.scvU128(value)`, or use `nativeToScVal(value, { type })`. To read one, use `scValToNative()` ([#1884](https://github.com/stellar/js-stellar-sdk/pull/1884)).
 
 ### Fixed
 * `Spec.getFunc()` finds a function when a struct, union, enum or event with the same name comes before it in the spec. `Spec` also finds the type of a UDT value when another entry with the same name comes first. Before, `contract.Client` construction threw "is not a function", and so did `funcArgsToScVals()` and `funcResToNative()`. Encoding or decoding the UDT value threw "failed to parse udt". The error messages for a name that is missing or has no entry of the right kind stay the same ([#1871](https://github.com/stellar/js-stellar-sdk/pull/1871)).

@@ -71,8 +71,8 @@ function assertInRange(
  *
  * @deprecated Use the bigint `ScVal` factories, e.g. `xdr.ScVal.scvI128(value)`,
  * or `nativeToScVal(value, { type })`. To combine limbs, use the parts structs,
- * e.g. `new xdr.Int128Parts({ hi, lo }).toBigInt()`. Will be removed in the
- * next major release.
+ * e.g. `new xdr.Int128Parts({ hi, lo }).toBigInt()`. Will be removed no
+ * earlier than v19.0.0.
  */
 export class XdrLargeInt {
   /** The underlying bigint value (always exact, untruncated). */

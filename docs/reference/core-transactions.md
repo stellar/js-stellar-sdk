@@ -1948,8 +1948,8 @@ static fromXDRObject<T extends OperationRecord = OperationRecord>(operation: Ope
 ## ScInt
 
 **Deprecated.** Use the bigint `ScVal` factories, e.g. `xdr.ScVal.scvU128(value)`,
-or `nativeToScVal(value, { type })`. Will be removed in the next major
-release.
+or `nativeToScVal(value, { type })`. Will be removed no earlier than
+v19.0.0.
 
 Provides an easier way to manipulate large numbers for Stellar operations.
 
@@ -3307,8 +3307,8 @@ setTimeout(timeoutSeconds: number): TransactionBuilder;
 
 **Deprecated.** Use the bigint `ScVal` factories, e.g. `xdr.ScVal.scvI128(value)`,
 or `nativeToScVal(value, { type })`. To combine limbs, use the parts structs,
-e.g. `new xdr.Int128Parts({ hi, lo }).toBigInt()`. Will be removed in the
-next major release.
+e.g. `new xdr.Int128Parts({ hi, lo }).toBigInt()`. Will be removed no
+earlier than v19.0.0.
 
 A wrapper class to represent large XDR-encodable integers.
 
@@ -3716,7 +3716,7 @@ getClaimableBalanceIdFromResult(result: TransactionResult, opIndex: number): str
 
 **Deprecated.** Use `scValToNative()`, which returns a bigint for 64-bit and
 wider integers, or read `scv.value` (call `.toBigInt()` on 128- and 256-bit
-parts). Will be removed in the next major release.
+parts). Will be removed no earlier than v19.0.0.
 
 Transforms an opaque `xdr.ScVal` into a native bigint, if possible.
 

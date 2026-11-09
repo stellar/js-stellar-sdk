@@ -14,7 +14,7 @@ export type { ScIntType };
  *
  * @deprecated Use `scValToNative()`, which returns a bigint for 64-bit and
  * wider integers, or read `scv.value` (call `.toBigInt()` on 128- and 256-bit
- * parts). Will be removed in the next major release.
+ * parts). Will be removed no earlier than v19.0.0.
  *
  * @param scv - the XDR smart contract value to convert
  *

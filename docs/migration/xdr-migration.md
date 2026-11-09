@@ -333,8 +333,8 @@ xdr.ScVal.scvU256(2n ** 200n);
 `fromBigInt()` and the factories throw if the bigint doesn't fit the type.
 
 `XdrLargeInt`, exported top-level alongside `ScInt`, still works but is
-deprecated, as are `ScInt` and `scValToBigInt()`. All three will be removed in
-the next major release; use the parts structs and `ScVal` factories above, and
+deprecated, as are `ScInt` and `scValToBigInt()`. None of them will be
+removed before v19.0.0; use the parts structs and `ScVal` factories above, and
 `scValToNative()` to read an integer `ScVal`. As in the legacy SDK,
 `XdrLargeInt` takes slices in **little-endian** order (parts[0] is least
 significant):
