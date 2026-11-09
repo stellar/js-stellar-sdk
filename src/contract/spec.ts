@@ -5,11 +5,11 @@ import {
   XdrLargeInt,
   Address,
   Contract,
-  scValToBigInt,
   nativeToScVal,
   scValToNative,
 } from "../base/index.js";
 import { assertNotMuxed } from "../base/address.js";
+import { intScValToBigInt } from "../base/numbers/int_scval.js";
 import { Ok, Err } from "./rust_result.js";
 import { processSpecEntryStream } from "./utils.js";
 import { specFromWasm } from "./wasm_spec_parser.js";
@@ -1100,7 +1100,7 @@ export class Spec {
       case "scvI128":
       case "scvU256":
       case "scvI256":
-        return scValToBigInt(scv) as T;
+        return intScValToBigInt(scv) as T;
 
       case "scvVec": {
         if (tyType === "scSpecTypeVec") {
