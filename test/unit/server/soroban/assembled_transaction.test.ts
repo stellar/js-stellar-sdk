@@ -994,8 +994,8 @@ describe("AssembledTransaction auth entry credential types (CAP-71)", () => {
       ).rejects.toThrow(
         new contract.AssembledTransaction.Errors.NoSignatureNeeded(
           `\`sign\` returned address "${kpB.publicKey()}", but ` +
-            `\`signAuthEntries\` signs "${accountC}" only. Sign a ` +
-            "delegate with `authorizeEntry` and `forAddress`.",
+            `\`signAuthEntries\` signs "${accountC}" only. Return ` +
+            "`{ signatureScVal }` without `address`.",
         ),
       );
       expect(expectDefined(assembled.built).toXdr()).toBe(before);
@@ -2009,6 +2009,51 @@ describe("AssembledTransaction auth entry credential types (CAP-71)", () => {
         ).rejects.toThrow("Pass either `sign` or `signAuthEntry`, not both");
         expect(sign).not.toHaveBeenCalled();
         expect(signAuthEntry).not.toHaveBeenCalled();
+      });
+
+      it("requires address with a custom authorizeEntry too", async () => {
+        const assembled = assembledWith(
+          [authEntry(addressV2Cred(kpA.publicKey()))],
+          { publicKey: kpA.publicKey() },
+        );
+        const authorizeEntry = vi.fn<typeof StellarSdk.authorizeEntry>(
+          (entry) => Promise.resolve(entry),
+        );
+
+        await expect(
+          assembled.signAuthEntries({
+            expiration: 1000,
+            sign: (_preimage, payload) => Promise.resolve(kpA.sign(payload)),
+            authorizeEntry,
+          }),
+        ).rejects.toThrow(
+          contract.AssembledTransaction.Errors.NoSignatureNeeded,
+        );
+        expect(authorizeEntry).not.toHaveBeenCalled();
+      });
+
+      it("rejects a sign result that names an address in no node", async () => {
+        const assembled = assembledWith([
+          authEntry(addressV2Cred(kpA.publicKey())),
+        ]);
+
+        await expect(
+          assembled.signAuthEntries({
+            expiration: 1000,
+            address: kpA.publicKey(),
+            sign: () =>
+              Promise.resolve({
+                signatureScVal: xdr.ScVal.scvBytes(new Uint8Array([1])),
+                address: kpC.publicKey(),
+              }),
+          }),
+        ).rejects.toThrow(
+          new contract.AssembledTransaction.Errors.NoSignatureNeeded(
+            `\`sign\` returned address "${kpC.publicKey()}", but ` +
+              `\`signAuthEntries\` signs "${kpA.publicKey()}" only. Return ` +
+              "`{ signatureScVal }` without `address`.",
+          ),
+        );
       });
 
       it("takes precedence over the Client's signAuthEntry", async () => {

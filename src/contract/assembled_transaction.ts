@@ -1234,8 +1234,8 @@ export class AssembledTransaction<T> {
                 ) {
                   throw new AssembledTransaction.Errors.NoSignatureNeeded(
                     `\`sign\` returned address "${result.address}", but ` +
-                      `\`signAuthEntries\` signs "${address}" only. Sign a ` +
-                      "delegate with `authorizeEntry` and `forAddress`.",
+                      `\`signAuthEntries\` signs "${address}" only. Return ` +
+                      "`{ signatureScVal }` without `address`.",
                   );
                 }
                 return { signatureScVal: result.signatureScVal };
