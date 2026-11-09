@@ -11,7 +11,8 @@ import {
 import { Keypair } from "./keypair.js";
 import { Address } from "./address.js";
 import { Contract } from "./contract.js";
-import { ScInt, XdrLargeInt, scValToBigInt } from "./numbers/index.js";
+import { ScInt, XdrLargeInt } from "./numbers/index.js";
+import { intScValToBigInt } from "./numbers/int_scval.js";
 import type { ScIntType } from "./numbers/index.js";
 
 type ScValIntType = ScIntType | "i32" | "u32";
@@ -44,7 +45,7 @@ export interface NativeToScValOpts {
  *  - boolean → scvBool
  *
  *  - number/bigint → the smallest possible XDR integer type that will fit the
- *    input value (if you want a specific type, use {@link ScInt})
+ *    input value (pass `opts.type` to pick a specific type)
  *
  *  - {@link Address} or {@link Contract} → scvAddress (for contracts and
  *    public keys)
@@ -69,7 +70,7 @@ export interface NativeToScValOpts {
  *     types for `val`:
  *
  *     - when `val` is an integer-like type (i.e. number|bigint), this will be
- *       forwarded to {@link ScInt} or forced to be u32/i32.
+ *       used as the integer type (e.g. `"u128"`) or forced to be u32/i32.
  *
  *     - when `val` is an array type, this is forwarded to the recursion
  *
@@ -137,7 +138,6 @@ export interface NativeToScValOpts {
  * import {
  *   nativeToScVal,
  *   scValToNative,
- *   ScInt,
  *   xdr
  * } from '@stellar/stellar-sdk';
  *
@@ -148,10 +148,10 @@ export interface NativeToScValOpts {
  *   i32: xdr.ScVal.scvI32(1),
  *   u64: 1n,
  *   i64: -1n,
- *   u128: new ScInt(1).toU128(),
- *   i128: new ScInt(1).toI128(),
- *   u256: new ScInt(1).toU256(),
- *   i256: new ScInt(1).toI256(),
+ *   u128: xdr.ScVal.scvU128(1n),
+ *   i128: xdr.ScVal.scvI128(1n),
+ *   u256: xdr.ScVal.scvU256(1n),
+ *   i256: xdr.ScVal.scvI256(1n),
  *   map: {
  *     arbitrary: 1n,
  *     nested: 'values',
@@ -446,7 +446,7 @@ export function scValToNative(scv: ScVal): any {
     case "scvI128":
     case "scvU256":
     case "scvI256":
-      return scValToBigInt(scv);
+      return intScValToBigInt(scv);
 
     case "scvVec":
       return (scv.value ?? []).map(scValToNative);
@@ -572,7 +572,7 @@ function compareScVal(a: ScVal, b: ScVal): number {
     case "scvI128":
     case "scvU256":
     case "scvI256":
-      return compareBigInts(scValToBigInt(a), scValToBigInt(b));
+      return compareBigInts(intScValToBigInt(a), intScValToBigInt(b));
 
     case "scvBytes":
       return compareUint8Arrays(a.bytes.value, (b as typeof a).bytes.value);

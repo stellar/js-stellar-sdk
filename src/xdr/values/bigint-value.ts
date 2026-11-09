@@ -26,8 +26,8 @@ export abstract class BigIntValue extends XdrValue {
     if (legacySlices.length > 0) {
       throw new TypeError(
         `${this.constructor.name} takes a single value; to combine ` +
-          `little-endian 64-bit slices use ` +
-          `new XdrLargeInt("<type>", [lo, hi, …]).toBigInt()`,
+          `64-bit limbs use the parts struct, e.g. ` +
+          `new xdr.Int128Parts({ hi, lo }).toBigInt()`,
       );
     }
     const ctor = this.constructor as typeof BigIntValue & {

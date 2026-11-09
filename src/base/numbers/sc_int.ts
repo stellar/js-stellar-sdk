@@ -56,6 +56,10 @@ import { XdrLargeInt, type ScIntType } from "./xdr_large_int.js";
  * i.toI64(); // throws RangeError: cannot encode u256 as 64 bits
  * ```
  *
+ * @deprecated Use the bigint `ScVal` factories, e.g. `xdr.ScVal.scvU128(value)`,
+ * or `nativeToScVal(value, { type })`. Will be removed in the next major
+ * release.
+ *
  * @throws a `TypeError` if the `value` is invalid (e.g. floating point), too
  *    large (i.e. exceeds a 256-bit value), doesn't fit in the `opts.type`,
  *    the signedness of `opts.type` doesn't match the input `value`, or a
