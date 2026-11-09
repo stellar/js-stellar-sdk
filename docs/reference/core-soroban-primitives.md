@@ -1041,7 +1041,7 @@ The conversions are as follows:
  - boolean → scvBool
 
  - number/bigint → the smallest possible XDR integer type that will fit the
-   input value (if you want a specific type, use [`ScInt`](/reference/core-transactions/#scint))
+   input value (pass `opts.type` to pick a specific type)
 
  - [`Address`](#address) or [`Contract`](#contract) → scvAddress (for contracts and
    public keys)
@@ -1072,7 +1072,7 @@ nativeToScVal(val: unknown, opts: NativeToScValOpts = {}): ScVal
       types for `val`:
   
       - when `val` is an integer-like type (i.e. number|bigint), this will be
-        forwarded to [`ScInt`](/reference/core-transactions/#scint) or forced to be u32/i32.
+        used as the integer type (e.g. `"u128"`) or forced to be u32/i32.
   
       - when `val` is an array type, this is forwarded to the recursion
   
@@ -1143,7 +1143,6 @@ nativeToScVal({ 'hello': 1, 'world': [ true, false ] }, {
 import {
   nativeToScVal,
   scValToNative,
-  ScInt,
   xdr
 } from '@stellar/stellar-sdk';
 
@@ -1154,10 +1153,10 @@ let gigaMap = {
   i32: xdr.ScVal.scvI32(1),
   u64: 1n,
   i64: -1n,
-  u128: new ScInt(1).toU128(),
-  i128: new ScInt(1).toI128(),
-  u256: new ScInt(1).toU256(),
-  i256: new ScInt(1).toI256(),
+  u128: xdr.ScVal.scvU128(1n),
+  i128: xdr.ScVal.scvI128(1n),
+  u256: xdr.ScVal.scvU256(1n),
+  i256: xdr.ScVal.scvI256(1n),
   map: {
     arbitrary: 1n,
     nested: 'values',
@@ -1938,7 +1937,7 @@ interface NativeToScValOpts {
 }
 ```
 
-**Source:** [src/base/scval.ts:27](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L27)
+**Source:** [src/base/scval.ts:28](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L28)
 
 #### `nativeToScValOpts.type`
 
@@ -1946,7 +1945,7 @@ interface NativeToScValOpts {
 type?: ScValType | ScValMapTypeSpec | ScValType | null[];
 ```
 
-**Source:** [src/base/scval.ts:28](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L28)
+**Source:** [src/base/scval.ts:29](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L29)
 
 ### SigningCallback
 
