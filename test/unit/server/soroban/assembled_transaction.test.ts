@@ -951,6 +951,82 @@ describe("AssembledTransaction auth entry credential types (CAP-71)", () => {
       );
     });
 
+    it("keeps the unsigned-delegate check when a sign callback is given", async () => {
+      const assembled = assembledWith([
+        delegatesEntry(accountC, [{ address: kpC.publicKey() }], true),
+      ]);
+      const sign = vi.fn<StellarSdk.SigningCallback>((_preimage, payload) =>
+        Promise.resolve(kpC.sign(payload)),
+      );
+
+      await expect(
+        assembled.signAuthEntries({
+          expiration: 1000,
+          address: kpC.publicKey(),
+          sign,
+        }),
+      ).rejects.toThrow(
+        new contract.AssembledTransaction.Errors.NoSignatureNeeded(
+          `"${kpC.publicKey()}" is an unsigned delegate, and \`signAuthEntries\` ` +
+            "signs top-level addresses only. Sign it with `authorizeEntry` " +
+            "and `forAddress`.",
+        ),
+      );
+      expect(sign).not.toHaveBeenCalled();
+    });
+
+    it("rejects a sign result that names a delegate", async () => {
+      const assembled = assembledWith([
+        delegatesEntry(accountC, [{ address: kpB.publicKey() }]),
+      ]);
+      const before = expectDefined(assembled.built).toXdr();
+
+      await expect(
+        assembled.signAuthEntries({
+          expiration: 1000,
+          address: accountC,
+          sign: () =>
+            Promise.resolve({
+              signatureScVal: xdr.ScVal.scvBytes(new Uint8Array([1])),
+              address: kpB.publicKey(),
+            }),
+        }),
+      ).rejects.toThrow(
+        new contract.AssembledTransaction.Errors.NoSignatureNeeded(
+          `\`sign\` returned address "${kpB.publicKey()}", but ` +
+            `\`signAuthEntries\` signs "${accountC}" only. Sign a ` +
+            "delegate with `authorizeEntry` and `forAddress`.",
+        ),
+      );
+      expect(expectDefined(assembled.built).toXdr()).toBe(before);
+    });
+
+    it("signs only the top-level node when a sign result names the same address", async () => {
+      const assembled = assembledWith([
+        delegatesEntry(accountC, [{ address: accountC }]),
+      ]);
+      const signatureScVal = xdr.ScVal.scvBytes(new Uint8Array([1]));
+
+      await assembled.signAuthEntries({
+        expiration: 1000,
+        address: accountC,
+        sign: () => Promise.resolve({ signatureScVal, address: accountC }),
+      });
+
+      const operation = expectDefined(assembled.built).operations[0];
+      if (operation.type !== "invokeHostFunction") {
+        throw new Error("Expected an invokeHostFunction operation");
+      }
+      const credentials = expectVariant(
+        expectDefined(operation.auth)[0].credentials,
+        "sorobanCredentialsAddressWithDelegates",
+      ).addressWithDelegates;
+      expect(credentials.addressCredentials.signature.toXdr()).toEqual(
+        signatureScVal.toXdr(),
+      );
+      expect(credentials.delegates[0].signature.type).toBe("scvVoid");
+    });
+
     it("signs a top-level entry when the address is also a delegate elsewhere", async () => {
       const assembled = assembledWith(
         [
@@ -1780,6 +1856,270 @@ describe("AssembledTransaction auth entry credential types (CAP-71)", () => {
           address: signer.publicKey(),
         }),
       ).rejects.toThrow(contract.AssembledTransaction.Errors.NoSigner);
+    });
+
+    describe("sign callback", () => {
+      function signedAuth(
+        assembled: ReturnType<typeof assembledWith>,
+      ): xdr.SorobanAuthorizationEntry[] {
+        const operation = expectDefined(assembled.built).operations[0];
+        if (operation.type !== "invokeHostFunction") {
+          throw new Error("Expected an invokeHostFunction operation");
+        }
+        return expectDefined(operation.auth);
+      }
+
+      function ed25519Signature(entry: xdr.SorobanAuthorizationEntry) {
+        const info = StellarSdk.inspectAuthEntry(entry);
+        const [{ publicKey, signature }] = expectDefined(
+          info.signers[0].signatures,
+        );
+        return { info, publicKey, signature };
+      }
+
+      it("signs with a digest-only callback", async () => {
+        const assembled = assembledWith([
+          authEntry(addressV2Cred(kpA.publicKey())),
+        ]);
+        const sign = vi.fn<StellarSdk.SigningCallback>((_preimage, payload) =>
+          Promise.resolve(kpA.sign(payload)),
+        );
+
+        await assembled.signAuthEntries({
+          expiration: 1000,
+          address: kpA.publicKey(),
+          sign,
+        });
+
+        expect(sign).toHaveBeenCalledOnce();
+        const [preimage, payload] = sign.mock.calls[0];
+        expect(payload).toHaveLength(32);
+        expect(payload).toEqual(StellarSdk.hash(preimage.toXdr()));
+        const { info, publicKey, signature } = ed25519Signature(
+          signedAuth(assembled)[0],
+        );
+        expect(info.address).toBe(kpA.publicKey());
+        expect(info.signatureExpirationLedger).toBe(1000);
+        expect(publicKey).toBe(kpA.publicKey());
+        expect(kpA.verify(payload, signature)).toBe(true);
+      });
+
+      it("signs every top-level entry for the address", async () => {
+        const assembled = assembledWith([
+          authEntry(addressV2Cred(kpA.publicKey())),
+          authEntry(addressV2Cred(kpA.publicKey())),
+        ]);
+        const sign = vi.fn<StellarSdk.SigningCallback>((_preimage, payload) =>
+          Promise.resolve(kpA.sign(payload)),
+        );
+
+        await assembled.signAuthEntries({
+          expiration: 1000,
+          address: kpA.publicKey(),
+          sign,
+        });
+
+        expect(sign).toHaveBeenCalledTimes(2);
+        for (const entry of signedAuth(assembled)) {
+          expect(ed25519Signature(entry).publicKey).toBe(kpA.publicKey());
+        }
+      });
+
+      it("stores a returned signatureScVal as is on a contract entry", async () => {
+        const account = StellarSdk.StrKey.encodeContract(
+          Keypair.random().rawPublicKey(),
+        );
+        const assembled = assembledWith([authEntry(addressV2Cred(account))]);
+        const signatureScVal = xdr.ScVal.scvBytes(new Uint8Array([1, 2, 3]));
+
+        await assembled.signAuthEntries({
+          expiration: 1000,
+          address: account,
+          sign: () => Promise.resolve({ signatureScVal }),
+        });
+
+        const credentials = expectVariant(
+          signedAuth(assembled)[0].credentials,
+          "sorobanCredentialsAddressV2",
+        ).addressV2;
+        expect(credentials.signature.toXdr()).toEqual(signatureScVal.toXdr());
+      });
+
+      it("stores the key from a returned { signature, publicKey }", async () => {
+        const assembled = assembledWith([
+          authEntry(addressV2Cred(kpA.publicKey())),
+        ]);
+
+        await assembled.signAuthEntries({
+          expiration: 1000,
+          address: kpA.publicKey(),
+          sign: (_preimage, payload) =>
+            Promise.resolve({
+              signature: kpB.sign(payload),
+              publicKey: kpB.publicKey(),
+            }),
+        });
+
+        const { publicKey } = ed25519Signature(signedAuth(assembled)[0]);
+        expect(publicKey).toBe(kpB.publicKey());
+      });
+
+      it("requires address, with no fallback to publicKey", async () => {
+        const signAuthEntry = vi.fn(
+          contract.basicNodeSigner(kpA, networkPassphrase).signAuthEntry,
+        );
+        const assembled = assembledWith(
+          [authEntry(addressV2Cred(kpA.publicKey()))],
+          { publicKey: kpA.publicKey(), signAuthEntry },
+        );
+        const sign = vi.fn<StellarSdk.SigningCallback>((_preimage, payload) =>
+          Promise.resolve(kpA.sign(payload)),
+        );
+
+        await expect(
+          assembled.signAuthEntries({ expiration: 1000, sign }),
+        ).rejects.toThrow(
+          new contract.AssembledTransaction.Errors.NoSignatureNeeded(
+            "`sign` does not name an account. Pass `address` to say who " +
+              "is signing.",
+          ),
+        );
+        expect(sign).not.toHaveBeenCalled();
+        expect(signAuthEntry).not.toHaveBeenCalled();
+      });
+
+      it("rejects sign and signAuthEntry given together", async () => {
+        const assembled = assembledWith([
+          authEntry(addressV2Cred(kpA.publicKey())),
+        ]);
+        const signAuthEntry = vi.fn(
+          contract.basicNodeSigner(kpA, networkPassphrase).signAuthEntry,
+        );
+        const sign = vi.fn<StellarSdk.SigningCallback>((_preimage, payload) =>
+          Promise.resolve(kpA.sign(payload)),
+        );
+
+        await expect(
+          assembled.signAuthEntries({
+            expiration: 1000,
+            address: kpA.publicKey(),
+            signAuthEntry,
+            sign,
+          }),
+        ).rejects.toThrow("Pass either `sign` or `signAuthEntry`, not both");
+        expect(sign).not.toHaveBeenCalled();
+        expect(signAuthEntry).not.toHaveBeenCalled();
+      });
+
+      it("takes precedence over the Client's signAuthEntry", async () => {
+        const signAuthEntry = vi.fn(
+          contract.basicNodeSigner(kpA, networkPassphrase).signAuthEntry,
+        );
+        const assembled = assembledWith(
+          [authEntry(addressV2Cred(kpA.publicKey()))],
+          { signAuthEntry },
+        );
+        const sign = vi.fn<StellarSdk.SigningCallback>((_preimage, payload) =>
+          Promise.resolve(kpA.sign(payload)),
+        );
+
+        await assembled.signAuthEntries({
+          expiration: 1000,
+          address: kpA.publicKey(),
+          sign,
+        });
+
+        expect(sign).toHaveBeenCalledOnce();
+        expect(signAuthEntry).not.toHaveBeenCalled();
+      });
+
+      it("keeps the already-signed check", async () => {
+        const assembled = assembledWith([
+          authEntry(addressV2Cred(kpA.publicKey(), true)),
+        ]);
+        const sign = vi.fn<StellarSdk.SigningCallback>((_preimage, payload) =>
+          Promise.resolve(kpA.sign(payload)),
+        );
+
+        await expect(
+          assembled.signAuthEntries({
+            expiration: 1000,
+            address: kpA.publicKey(),
+            sign,
+          }),
+        ).rejects.toThrow(
+          contract.AssembledTransaction.Errors.NoUnsignedNonInvokerAuthEntries,
+        );
+        expect(sign).not.toHaveBeenCalled();
+      });
+
+      it("rejects a sign that is not a function", async () => {
+        const assembled = assembledWith([
+          authEntry(addressV2Cred(kpA.publicKey())),
+        ]);
+
+        // Reflect.apply passes values that the TypeScript signature forbids.
+        await expect(
+          Reflect.apply(assembled.signAuthEntries, undefined, [
+            { expiration: 1000, address: kpA.publicKey(), sign: "x" },
+          ]),
+        ).rejects.toThrow(new TypeError("`sign` must be a function"));
+      });
+
+      it("treats sign: null as absent and uses the Client's signAuthEntry", async () => {
+        const signAuthEntry = vi.fn(
+          contract.basicNodeSigner(kpA, networkPassphrase).signAuthEntry,
+        );
+        const assembled = assembledWith(
+          [authEntry(addressV2Cred(kpA.publicKey()))],
+          { signAuthEntry },
+        );
+
+        // Reflect.apply passes values that the TypeScript signature forbids.
+        await Reflect.apply(assembled.signAuthEntries, undefined, [
+          { expiration: 1000, address: kpA.publicKey(), sign: null },
+        ]);
+
+        expect(signAuthEntry).toHaveBeenCalledOnce();
+      });
+
+      it("propagates an error from the callback", async () => {
+        const assembled = assembledWith([
+          authEntry(addressV2Cred(kpA.publicKey())),
+        ]);
+        const before = expectDefined(assembled.built).toXdr();
+
+        await expect(
+          assembled.signAuthEntries({
+            expiration: 1000,
+            address: kpA.publicKey(),
+            sign: () => Promise.reject(new Error("hsm offline")),
+          }),
+        ).rejects.toThrow("hsm offline");
+        expect(expectDefined(assembled.built).toXdr()).toBe(before);
+      });
+
+      it("hands the callback to a custom authorizeEntry", async () => {
+        const assembled = assembledWith([
+          authEntry(addressV2Cred(kpA.publicKey())),
+        ]);
+        const sign = vi.fn<StellarSdk.SigningCallback>((_preimage, payload) =>
+          Promise.resolve(kpA.sign(payload)),
+        );
+        const authorizeEntry = vi.fn<typeof StellarSdk.authorizeEntry>(
+          (entry) => Promise.resolve(entry),
+        );
+
+        await assembled.signAuthEntries({
+          expiration: 1000,
+          address: kpA.publicKey(),
+          sign,
+          authorizeEntry,
+        });
+
+        expect(authorizeEntry).toHaveBeenCalledOnce();
+        expect(authorizeEntry.mock.calls[0][1]).toBe(sign);
+      });
     });
   });
 });
