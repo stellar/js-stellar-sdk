@@ -2069,7 +2069,7 @@ static getType(scvType: string): ScIntType | undefined;
 the corresponding [`ScIntType`](#scinttype-1) if it's an integer type, or
    `undefined` if it's not an integer type
 
-**Source:** [src/base/numbers/xdr_large_int.ts:340](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L340)
+**Source:** [src/base/numbers/xdr_large_int.ts:310](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L310)
 
 ### `ScInt.isType(type)`
 
@@ -2083,7 +2083,7 @@ static isType(type: string): type is ScIntType;
 
 - **`type`** — `string` (required)
 
-**Source:** [src/base/numbers/xdr_large_int.ts:316](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L316)
+**Source:** [src/base/numbers/xdr_large_int.ts:286](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L286)
 
 ### `scInt.type`
 
@@ -2091,7 +2091,7 @@ static isType(type: string): type is ScIntType;
 readonly type: ScIntType;
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:81](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L81)
+**Source:** [src/base/numbers/xdr_large_int.ts:75](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L75)
 
 ### `scInt.value`
 
@@ -2101,7 +2101,7 @@ The underlying bigint value (always exact, untruncated).
 readonly value: bigint;
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:80](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L80)
+**Source:** [src/base/numbers/xdr_large_int.ts:74](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L74)
 
 ### `scInt.toBigInt()`
 
@@ -2111,7 +2111,7 @@ Converts to a native BigInt.
 toBigInt(): bigint;
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:155](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L155)
+**Source:** [src/base/numbers/xdr_large_int.ts:149](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L149)
 
 ### `scInt.toDuration()`
 
@@ -2121,7 +2121,7 @@ The integer encoded with `ScValType = Duration`
 toDuration(): ScVal;
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:184](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L184)
+**Source:** [src/base/numbers/xdr_large_int.ts:178](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L178)
 
 ### `scInt.toI128()`
 
@@ -2135,7 +2135,7 @@ toI128(): ScVal;
 
 - a `RangeError` if the value cannot fit in 128 bits
 
-**Source:** [src/base/numbers/xdr_large_int.ts:194](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L194)
+**Source:** [src/base/numbers/xdr_large_int.ts:188](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L188)
 
 ### `scInt.toI256()`
 
@@ -2149,7 +2149,7 @@ toI256(): ScVal;
 
 - a `RangeError` if the value cannot fit in a signed 256-bit integer
 
-**Source:** [src/base/numbers/xdr_large_int.ts:227](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L227)
+**Source:** [src/base/numbers/xdr_large_int.ts:211](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L211)
 
 ### `scInt.toI64()`
 
@@ -2163,7 +2163,7 @@ toI64(): ScVal;
 
 - a `RangeError` if the value cannot fit in 64 bits
 
-**Source:** [src/base/numbers/xdr_large_int.ts:164](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L164)
+**Source:** [src/base/numbers/xdr_large_int.ts:158](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L158)
 
 ### `scInt.toJson()`
 
@@ -2173,7 +2173,7 @@ Returns a JSON-friendly representation with `value` and `type` fields.
 toJson(): { type: string; value: string };
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:292](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L292)
+**Source:** [src/base/numbers/xdr_large_int.ts:262](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L262)
 
 ### `scInt.toJSON()`
 
@@ -2184,7 +2184,7 @@ enumerate the bigint `value` field and throw a TypeError.
 toJSON(): { type: string; value: string };
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:303](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L303)
+**Source:** [src/base/numbers/xdr_large_int.ts:273](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L273)
 
 ### `scInt.toNumber()`
 
@@ -2198,7 +2198,7 @@ toNumber(): number;
 
 - a `RangeError` if the value can't fit into a Number
 
-**Source:** [src/base/numbers/xdr_large_int.ts:143](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L143)
+**Source:** [src/base/numbers/xdr_large_int.ts:137](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L137)
 
 ### `scInt.toScVal()`
 
@@ -2208,7 +2208,7 @@ The smallest interpretation of the stored value
 toScVal(): ScVal;
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:258](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L258)
+**Source:** [src/base/numbers/xdr_large_int.ts:228](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L228)
 
 ### `scInt.toString()`
 
@@ -2218,7 +2218,7 @@ Returns the string representation of this integer.
 toString(): string;
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:287](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L287)
+**Source:** [src/base/numbers/xdr_large_int.ts:257](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L257)
 
 ### `scInt.toTimepoint()`
 
@@ -2228,7 +2228,7 @@ The integer encoded with `ScValType = Timepoint`
 toTimepoint(): ScVal;
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:178](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L178)
+**Source:** [src/base/numbers/xdr_large_int.ts:172](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L172)
 
 ### `scInt.toU128()`
 
@@ -2242,7 +2242,7 @@ toU128(): ScVal;
 
 - a `RangeError` if the value cannot fit in 128 bits
 
-**Source:** [src/base/numbers/xdr_large_int.ts:211](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L211)
+**Source:** [src/base/numbers/xdr_large_int.ts:200](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L200)
 
 ### `scInt.toU256()`
 
@@ -2254,7 +2254,7 @@ Note: No size check needed - U256 is the largest unsigned type.
 toU256(): ScVal;
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:245](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L245)
+**Source:** [src/base/numbers/xdr_large_int.ts:222](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L222)
 
 ### `scInt.toU64()`
 
@@ -2264,7 +2264,7 @@ The integer encoded with `ScValType = U64`
 toU64(): ScVal;
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:172](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L172)
+**Source:** [src/base/numbers/xdr_large_int.ts:166](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L166)
 
 ### `scInt.valueOf()`
 
@@ -2274,7 +2274,7 @@ Returns the primitive value of this integer.
 valueOf(): bigint;
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:282](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L282)
+**Source:** [src/base/numbers/xdr_large_int.ts:252](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L252)
 
 ## TimeoutInfinite
 
@@ -3332,7 +3332,7 @@ class XdrLargeInt {
 }
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:78](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L78)
+**Source:** [src/base/numbers/xdr_large_int.ts:72](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L72)
 
 ### `new XdrLargeInt(type, values)`
 
@@ -3352,7 +3352,7 @@ constructor(type: ScIntType, values: XdrLargeIntValues);
      `SIZE[type] / values.length`; each slice must fit its width or a
      `RangeError` is thrown.
 
-**Source:** [src/base/numbers/xdr_large_int.ts:94](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L94)
+**Source:** [src/base/numbers/xdr_large_int.ts:88](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L88)
 
 ### `XdrLargeInt.getType(scvType)`
 
@@ -3372,7 +3372,7 @@ static getType(scvType: string): ScIntType | undefined;
 the corresponding [`ScIntType`](#scinttype-1) if it's an integer type, or
    `undefined` if it's not an integer type
 
-**Source:** [src/base/numbers/xdr_large_int.ts:340](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L340)
+**Source:** [src/base/numbers/xdr_large_int.ts:310](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L310)
 
 ### `XdrLargeInt.isType(type)`
 
@@ -3386,7 +3386,7 @@ static isType(type: string): type is ScIntType;
 
 - **`type`** — `string` (required)
 
-**Source:** [src/base/numbers/xdr_large_int.ts:316](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L316)
+**Source:** [src/base/numbers/xdr_large_int.ts:286](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L286)
 
 ### `xdrLargeInt.type`
 
@@ -3394,7 +3394,7 @@ static isType(type: string): type is ScIntType;
 readonly type: ScIntType;
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:81](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L81)
+**Source:** [src/base/numbers/xdr_large_int.ts:75](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L75)
 
 ### `xdrLargeInt.value`
 
@@ -3404,7 +3404,7 @@ The underlying bigint value (always exact, untruncated).
 readonly value: bigint;
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:80](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L80)
+**Source:** [src/base/numbers/xdr_large_int.ts:74](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L74)
 
 ### `xdrLargeInt.toBigInt()`
 
@@ -3414,7 +3414,7 @@ Converts to a native BigInt.
 toBigInt(): bigint;
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:155](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L155)
+**Source:** [src/base/numbers/xdr_large_int.ts:149](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L149)
 
 ### `xdrLargeInt.toDuration()`
 
@@ -3424,7 +3424,7 @@ The integer encoded with `ScValType = Duration`
 toDuration(): ScVal;
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:184](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L184)
+**Source:** [src/base/numbers/xdr_large_int.ts:178](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L178)
 
 ### `xdrLargeInt.toI128()`
 
@@ -3438,7 +3438,7 @@ toI128(): ScVal;
 
 - a `RangeError` if the value cannot fit in 128 bits
 
-**Source:** [src/base/numbers/xdr_large_int.ts:194](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L194)
+**Source:** [src/base/numbers/xdr_large_int.ts:188](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L188)
 
 ### `xdrLargeInt.toI256()`
 
@@ -3452,7 +3452,7 @@ toI256(): ScVal;
 
 - a `RangeError` if the value cannot fit in a signed 256-bit integer
 
-**Source:** [src/base/numbers/xdr_large_int.ts:227](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L227)
+**Source:** [src/base/numbers/xdr_large_int.ts:211](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L211)
 
 ### `xdrLargeInt.toI64()`
 
@@ -3466,7 +3466,7 @@ toI64(): ScVal;
 
 - a `RangeError` if the value cannot fit in 64 bits
 
-**Source:** [src/base/numbers/xdr_large_int.ts:164](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L164)
+**Source:** [src/base/numbers/xdr_large_int.ts:158](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L158)
 
 ### `xdrLargeInt.toJson()`
 
@@ -3476,7 +3476,7 @@ Returns a JSON-friendly representation with `value` and `type` fields.
 toJson(): { type: string; value: string };
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:292](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L292)
+**Source:** [src/base/numbers/xdr_large_int.ts:262](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L262)
 
 ### `xdrLargeInt.toJSON()`
 
@@ -3487,7 +3487,7 @@ enumerate the bigint `value` field and throw a TypeError.
 toJSON(): { type: string; value: string };
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:303](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L303)
+**Source:** [src/base/numbers/xdr_large_int.ts:273](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L273)
 
 ### `xdrLargeInt.toNumber()`
 
@@ -3501,7 +3501,7 @@ toNumber(): number;
 
 - a `RangeError` if the value can't fit into a Number
 
-**Source:** [src/base/numbers/xdr_large_int.ts:143](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L143)
+**Source:** [src/base/numbers/xdr_large_int.ts:137](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L137)
 
 ### `xdrLargeInt.toScVal()`
 
@@ -3511,7 +3511,7 @@ The smallest interpretation of the stored value
 toScVal(): ScVal;
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:258](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L258)
+**Source:** [src/base/numbers/xdr_large_int.ts:228](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L228)
 
 ### `xdrLargeInt.toString()`
 
@@ -3521,7 +3521,7 @@ Returns the string representation of this integer.
 toString(): string;
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:287](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L287)
+**Source:** [src/base/numbers/xdr_large_int.ts:257](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L257)
 
 ### `xdrLargeInt.toTimepoint()`
 
@@ -3531,7 +3531,7 @@ The integer encoded with `ScValType = Timepoint`
 toTimepoint(): ScVal;
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:178](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L178)
+**Source:** [src/base/numbers/xdr_large_int.ts:172](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L172)
 
 ### `xdrLargeInt.toU128()`
 
@@ -3545,7 +3545,7 @@ toU128(): ScVal;
 
 - a `RangeError` if the value cannot fit in 128 bits
 
-**Source:** [src/base/numbers/xdr_large_int.ts:211](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L211)
+**Source:** [src/base/numbers/xdr_large_int.ts:200](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L200)
 
 ### `xdrLargeInt.toU256()`
 
@@ -3557,7 +3557,7 @@ Note: No size check needed - U256 is the largest unsigned type.
 toU256(): ScVal;
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:245](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L245)
+**Source:** [src/base/numbers/xdr_large_int.ts:222](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L222)
 
 ### `xdrLargeInt.toU64()`
 
@@ -3567,7 +3567,7 @@ The integer encoded with `ScValType = U64`
 toU64(): ScVal;
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:172](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L172)
+**Source:** [src/base/numbers/xdr_large_int.ts:166](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L166)
 
 ### `xdrLargeInt.valueOf()`
 
@@ -3577,7 +3577,7 @@ Returns the primitive value of this integer.
 valueOf(): bigint;
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:282](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L282)
+**Source:** [src/base/numbers/xdr_large_int.ts:252](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L252)
 
 ## decodeAddressToMuxedAccount
 
@@ -3771,7 +3771,8 @@ scValToBigInt(scv: ScVal): bigint
 
 **Throws**
 
-- a `TypeError` if the `scv` input value doesn't represent an integer
+- a `TypeError` if the `scv` input value doesn't represent an integer,
+  or an `XdrError` if its value is out of range for its type
 
 **Example**
 
@@ -3783,7 +3784,7 @@ new ScInt(bigi);               // if you don't care about types, and
 new XdrLargeInt('i128', bigi); // if you do
 ```
 
-**Source:** [src/base/numbers/index.ts:30](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/index.ts#L30)
+**Source:** [src/base/numbers/index.ts:38](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/index.ts#L38)
 
 ## Types
 
@@ -4769,7 +4770,7 @@ type SetTrustLineFlags = "setTrustLineFlags"
 type ScIntType = "duration" | "i64" | "i128" | "i256" | "timepoint" | "u64" | "u128" | "u256"
 ```
 
-**Source:** [src/base/numbers/xdr_large_int.ts:18](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L18)
+**Source:** [src/base/numbers/xdr_large_int.ts:12](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/numbers/xdr_large_int.ts#L12)
 
 ### Signer
 

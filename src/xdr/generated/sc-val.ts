@@ -2,6 +2,7 @@
 // Abstract base ↔ concrete subclass references below are intentional and safe
 // under class hoisting — every reference site runs after both classes are fully
 // initialized.
+import { checkPartsLike } from "../values/bigint-parts.js";
 import {
   array,
   bool,
@@ -369,19 +370,19 @@ abstract class ScValBase extends XdrValue {
     return new ScValDuration(duration);
   }
 
-  static scvU128(u128: Uint128Parts): ScValU128 {
+  static scvU128(u128: Uint128Parts | bigint): ScValU128 {
     return new ScValU128(u128);
   }
 
-  static scvI128(i128: Int128Parts): ScValI128 {
+  static scvI128(i128: Int128Parts | bigint): ScValI128 {
     return new ScValI128(i128);
   }
 
-  static scvU256(u256: Uint256Parts): ScValU256 {
+  static scvU256(u256: Uint256Parts | bigint): ScValU256 {
     return new ScValU256(u256);
   }
 
-  static scvI256(i256: Int256Parts): ScValI256 {
+  static scvI256(i256: Int256Parts | bigint): ScValI256 {
     return new ScValI256(i256);
   }
 
@@ -668,9 +669,12 @@ export class ScValU128 extends ScValBase {
   readonly type = "scvU128" as const;
   readonly u128: Uint128Parts;
 
-  constructor(u128: Uint128Parts) {
+  constructor(u128: Uint128Parts | bigint) {
     super();
-    this.u128 = u128;
+    this.u128 =
+      typeof u128 === "bigint"
+        ? Uint128Parts.fromBigInt(u128)
+        : checkPartsLike(u128, "Uint128Parts");
   }
 
   get value(): Uint128Parts {
@@ -686,9 +690,12 @@ export class ScValI128 extends ScValBase {
   readonly type = "scvI128" as const;
   readonly i128: Int128Parts;
 
-  constructor(i128: Int128Parts) {
+  constructor(i128: Int128Parts | bigint) {
     super();
-    this.i128 = i128;
+    this.i128 =
+      typeof i128 === "bigint"
+        ? Int128Parts.fromBigInt(i128)
+        : checkPartsLike(i128, "Int128Parts");
   }
 
   get value(): Int128Parts {
@@ -704,9 +711,12 @@ export class ScValU256 extends ScValBase {
   readonly type = "scvU256" as const;
   readonly u256: Uint256Parts;
 
-  constructor(u256: Uint256Parts) {
+  constructor(u256: Uint256Parts | bigint) {
     super();
-    this.u256 = u256;
+    this.u256 =
+      typeof u256 === "bigint"
+        ? Uint256Parts.fromBigInt(u256)
+        : checkPartsLike(u256, "Uint256Parts");
   }
 
   get value(): Uint256Parts {
@@ -722,9 +732,12 @@ export class ScValI256 extends ScValBase {
   readonly type = "scvI256" as const;
   readonly i256: Int256Parts;
 
-  constructor(i256: Int256Parts) {
+  constructor(i256: Int256Parts | bigint) {
     super();
-    this.i256 = i256;
+    this.i256 =
+      typeof i256 === "bigint"
+        ? Int256Parts.fromBigInt(i256)
+        : checkPartsLike(i256, "Int256Parts");
   }
 
   get value(): Int256Parts {
