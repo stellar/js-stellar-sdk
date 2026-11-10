@@ -37,6 +37,11 @@ import {
   parseRawLatestLedger,
 } from "./parsers.js";
 import { Utils } from "../utils.js";
+import {
+  RESERVED_CLIENT_NAMES,
+  clientMethodNames,
+  sanitizeIdentifier,
+} from "../bindings/utils.js";
 import type { HttpClient } from "../http-client/index.js";
 import {
   AccountEntry,
@@ -999,7 +1004,7 @@ export class RpcServer {
    * @param contractId - the contract to query (`C...`)
    * @param method - the contract method to call
    * @param args - named arguments for the method, keyed by parameter name
-   *    (omit for methods that take no arguments)
+   *    (omit, or pass `null`, for methods that take no arguments)
    * @param networkPassphrase - (optional) the network passphrase. If omitted, a
    *    request about network information will be made (see {@link getNetwork}).
    *    You can refer to {@link Networks} for a list of built-in passphrases,
@@ -1028,7 +1033,7 @@ export class RpcServer {
   public async queryContract<T = any>(
     contractId: string,
     method: string,
-    args: Record<string, unknown> = {},
+    args: Record<string, unknown> | null = {},
     networkPassphrase?: string,
   ): Promise<{ result: T; isReadCall: boolean }> {
     const passphrase =
@@ -1049,33 +1054,9 @@ export class RpcServer {
       server: this,
     });
 
-    // Validate against the contract spec (keyed by the real on-chain name)
-    // first, so a `method` that collides with a built-in `Client`/prototype
-    // member (e.g. `txFromJson`, `toString`) is rejected rather than silently
-    // invoking the wrong function.
-    const isContractMethod = client.spec
-      .funcs()
-      .some((fn) => fn.name.toString() === method);
-
-    // Methods are attached dynamically from the spec, so they aren't on the
-    // static `Client` type — hence the cast. The `Client` constructor attaches
-    // each method under a sanitized identifier (e.g. a contract method named
-    // `delete` becomes `delete_`), so resolve the key the same way; the method
-    // still invokes under its real on-chain name.
-    const { sanitizeIdentifier } = await import("../bindings/utils.js");
-    const invoke = (client as unknown as Record<string, unknown>)[
-      sanitizeIdentifier(method)
-    ];
-
-    if (!isContractMethod || typeof invoke !== "function") {
-      throw new TypeError(`Contract ${contractId} has no method '${method}'`);
-    }
-
-    // Awaiting builds + simulates the read-only call (`simulate` defaults to
-    // true); `.result` is the spec-decoded return value and `.isReadCall`
-    // reports whether this call wrote no state and needed no auth.
-    const assembled = await invoke(args);
-    return { result: assembled.result as T, isReadCall: assembled.isReadCall };
+    // Not the attached method: with no inputs, it reads `args` as options.
+    const assembled = await Client.invoke<T>(client, method, args);
+    return { result: assembled.result, isReadCall: assembled.isReadCall };
   }
 
   /**
@@ -1090,6 +1071,10 @@ export class RpcServer {
    *
    * The complement to {@link queryContract}: list methods here, then call a
    * read-only one with `server.queryContract(contractId, method, args?)`.
+   * Each entry also says which `contract.Client` method calls the function
+   * (`clientMethod`), or why the client has none (`noMethodReason`). A
+   * `reserved` or `shared` function can still be called with
+   * `contract.Client.invoke()`; the constructor runs only on deploy.
    *
    * @param contractId - the contract to inspect (`C...`)
    * @param networkPassphrase - (optional) the network passphrase. If omitted, a
@@ -1104,9 +1089,9 @@ export class RpcServer {
    *   "CCJZ5DGASBWQXR5MPFCJXMBI333XE5U3FSJTNQU7RIKE3P5GN2K2WYD5",
    * );
    * // [
-   * //   { name: "decimals", inputs: [], outputs: ["U32"] },
-   * //   { name: "balance", inputs: [{ name: "id", type: "Address" }], outputs: ["I128"] },
-   * //   { name: "transfer", inputs: [...], outputs: [] },
+   * //   { name: "decimals", inputs: [], outputs: ["U32"], clientMethod: "decimals" },
+   * //   { name: "balance", inputs: [{ name: "id", type: "Address" }], outputs: ["I128"], clientMethod: "balance" },
+   * //   { name: "transfer", inputs: [...], outputs: [], clientMethod: "transfer" },
    * // ]
    * ```
    */
@@ -1132,7 +1117,13 @@ export class RpcServer {
       server: this,
     });
 
-    return client.spec.funcs().map((fn) => {
+    const funcs = client.spec.funcs();
+    const clientMethods = new Map<string, string>();
+    clientMethodNames(funcs.map((fn) => fn.name.toString())).forEach(
+      (name, property) => clientMethods.set(name, property),
+    );
+
+    return funcs.map((fn) => {
       const doc = fn.doc.toString();
       const method: Api.ContractMethod = {
         name: fn.name.toString(),
@@ -1144,6 +1135,17 @@ export class RpcServer {
       };
       if (doc) {
         method.doc = doc;
+      }
+      const clientMethod = clientMethods.get(method.name);
+      if (clientMethod !== undefined) {
+        method.clientMethod = clientMethod;
+      } else if (method.name === "__constructor") {
+        method.noMethodReason = "constructor";
+      } else if (RESERVED_CLIENT_NAMES.has(sanitizeIdentifier(method.name))) {
+        method.noMethodReason = "reserved";
+      } else {
+        // The last of the three skip rules in `clientMethodNames`.
+        method.noMethodReason = "shared";
       }
       return method;
     });
