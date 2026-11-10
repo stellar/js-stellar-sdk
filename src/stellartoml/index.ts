@@ -1,4 +1,5 @@
 import { parse } from "smol-toml";
+import type { TomlTable, TomlValue } from "smol-toml";
 import { Networks } from "../base/index.js";
 import { httpClient } from "../http-client/index.js";
 
@@ -23,6 +24,27 @@ const INVALID_DOMAIN_CHARS = /[\s@/?#\\]/;
 // before this check existed, so strip them rather than reject them. Only the
 // trailing ones: a leading `/` names a different host.
 const TRAILING_SEPARATORS = /[/\\]+$/;
+
+// smol-toml 1.9 builds each table with a null prototype, and dates and
+// arrays with their usual one.
+function isTable(value: TomlValue): value is TomlTable {
+  return typeof value === "object" && Object.getPrototypeOf(value) === null;
+}
+
+// Gives each table `Object.prototype` again, as smol-toml 1.8 returned. A
+// loop, not recursion: dotted keys can nest deeper than the call stack.
+function toPlainTable(root: TomlTable): TomlTable {
+  const pending: TomlValue[] = [root];
+  for (let value = pending.pop(); value !== undefined; value = pending.pop()) {
+    if (Array.isArray(value)) {
+      for (const item of value) pending.push(item);
+    } else if (isTable(value)) {
+      Object.setPrototypeOf(value, Object.prototype);
+      for (const item of Object.values(value)) pending.push(item);
+    }
+  }
+  return root;
+}
 
 /**
  * Resolver allows resolving `stellar.toml` files.
@@ -109,7 +131,7 @@ export class Resolver {
       })
       .then((response) => {
         try {
-          const tomlObject = parse(response.data);
+          const tomlObject = toPlainTable(parse(response.data));
           return Promise.resolve(tomlObject);
         } catch (e: any) {
           return Promise.reject(
