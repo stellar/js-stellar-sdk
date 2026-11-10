@@ -264,7 +264,7 @@ _getLedgers(request: GetLedgersRequest): Promise<RawGetLedgersResponse>;
 
 - **`request`** — `GetLedgersRequest` (required)
 
-**Source:** [src/rpc/server.ts:2163](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L2163)
+**Source:** [src/rpc/server.ts:2166](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L2166)
 
 ### `server._getTransaction(hash)`
 
@@ -312,7 +312,7 @@ _sendTransaction(transaction: Transaction | FeeBumpTransaction): Promise<RawSend
 
 - **`transaction`** — `Transaction | FeeBumpTransaction` (required)
 
-**Source:** [src/rpc/server.ts:1798](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1798)
+**Source:** [src/rpc/server.ts:1801](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1801)
 
 ### `server._simulateTransaction(transaction, addlResources, authMode, useUpgradedAuth)`
 
@@ -327,7 +327,7 @@ _simulateTransaction(transaction: Transaction | FeeBumpTransaction, addlResource
 - **`authMode`** — `SimulationAuthMode` (optional)
 - **`useUpgradedAuth`** — `boolean` (optional) (default: `true`)
 
-**Source:** [src/rpc/server.ts:1627](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1627)
+**Source:** [src/rpc/server.ts:1628](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1628)
 
 ### `server.fundAddress(address, friendbotUrl)`
 
@@ -380,7 +380,7 @@ console.log("Contract funded! Hash:", tx.txHash);
 
 - `Friendbot docs`
 
-**Source:** [src/rpc/server.ts:1918](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1918)
+**Source:** [src/rpc/server.ts:1921](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1921)
 
 ### `server.getAccount(address)`
 
@@ -869,7 +869,7 @@ the fee stats
 
 - https://developers.stellar.org/docs/data/rpc/api-reference/methods/getFeeStats
 
-**Source:** [src/rpc/server.ts:1964](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1964)
+**Source:** [src/rpc/server.ts:1967](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1967)
 
 ### `server.getHealth()`
 
@@ -1055,7 +1055,7 @@ const nextPage = await server.getLedgers({
 
 - `getLedgers docs`
 
-**Source:** [src/rpc/server.ts:2147](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L2147)
+**Source:** [src/rpc/server.ts:2150](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L2150)
 
 ### `server.getNetwork()`
 
@@ -1143,7 +1143,7 @@ console.log(
 - - getLedgerEntries
  - https://developers.stellar.org/docs/tokens/stellar-asset-contract
 
-**Source:** [src/rpc/server.ts:2028](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L2028)
+**Source:** [src/rpc/server.ts:2031](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L2031)
 
 ### `server.getTransaction(hash)`
 
@@ -1274,7 +1274,7 @@ the version info
 
 - https://developers.stellar.org/docs/data/rpc/api-reference/methods/getVersionInfo
 
-**Source:** [src/rpc/server.ts:1978](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1978)
+**Source:** [src/rpc/server.ts:1981](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1981)
 
 ### `server.pollTransaction(hash, opts)`
 
@@ -1378,8 +1378,9 @@ A copy of the
 const contractId = 'CA3D5KRYM6CB7OWQ6TWYRR3Z4T7GNZLKERYNZGGA5SOAOPIFY6YQGAXE';
 const contract = new StellarSdk.Contract(contractId);
 
-// Right now, this is just the default fee for this example.
-const fee = StellarSdk.BASE_FEE;
+// The most you'll pay per operation. BASE_FEE is the network minimum and
+// gets outbid when the network is busy.
+const fee = "<your max fee per operation, in stroops>";
 const transaction = new StellarSdk.TransactionBuilder(account, { fee })
   // Uncomment the following line to build transactions for the live network. Be
   // sure to also change the horizon hostname.
@@ -1411,7 +1412,7 @@ server.sendTransaction(transaction).then(result => {
 - - module:rpc.assembleTransaction
  - `simulateTransaction docs`
 
-**Source:** [src/rpc/server.ts:1729](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1729)
+**Source:** [src/rpc/server.ts:1731](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1731)
 
 ### `server.queryContract(contractId, method, args, networkPassphrase)`
 
@@ -1556,7 +1557,7 @@ server
 - - `Friendbot docs`
  - [`Friendbot.Api.Response`](/reference/network-friendbot/#friendbotapiresponse)
 
-**Source:** [src/rpc/server.ts:1843](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1843)
+**Source:** [src/rpc/server.ts:1846](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1846)
 
 ### `server.sendTransaction(transaction)`
 
@@ -1586,8 +1587,9 @@ the
 const contractId = 'CA3D5KRYM6CB7OWQ6TWYRR3Z4T7GNZLKERYNZGGA5SOAOPIFY6YQGAXE';
 const contract = new StellarSdk.Contract(contractId);
 
-// Right now, this is just the default fee for this example.
-const fee = StellarSdk.BASE_FEE;
+// The most you'll pay per operation. BASE_FEE is the network minimum and
+// gets outbid when the network is busy.
+const fee = "<your max fee per operation, in stroops>";
 const transaction = new StellarSdk.TransactionBuilder(account, { fee })
   // Uncomment the following line to build transactions for the live network. Be
   // sure to also change the horizon hostname.
@@ -1617,7 +1619,7 @@ server.sendTransaction(transaction).then((result) => {
 - - `transaction docs`
  - `sendTransaction docs`
 
-**Source:** [src/rpc/server.ts:1792](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1792)
+**Source:** [src/rpc/server.ts:1795](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1795)
 
 ### `server.simulateTransaction(tx, addlResources, authMode, useUpgradedAuth)`
 
@@ -1663,8 +1665,9 @@ An object with the
 const contractId = 'CA3D5KRYM6CB7OWQ6TWYRR3Z4T7GNZLKERYNZGGA5SOAOPIFY6YQGAXE';
 const contract = new StellarSdk.Contract(contractId);
 
-// Right now, this is just the default fee for this example.
-const fee = StellarSdk.BASE_FEE;
+// The most you'll pay per operation. BASE_FEE is the network minimum and
+// gets outbid when the network is busy.
+const fee = "<your max fee per operation, in stroops>";
 const transaction = new StellarSdk.TransactionBuilder(account, { fee })
   // Uncomment the following line to build transactions for the live network. Be
   // sure to also change the horizon hostname.
@@ -1691,7 +1694,7 @@ server.simulateTransaction(transaction).then((sim) => {
  - module:rpc.Server#prepareTransaction
  - module:rpc.assembleTransaction
 
-**Source:** [src/rpc/server.ts:1613](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1613)
+**Source:** [src/rpc/server.ts:1614](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1614)
 
 ## rpc.assembleTransaction
 

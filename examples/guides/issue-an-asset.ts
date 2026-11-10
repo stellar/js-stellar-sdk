@@ -20,10 +20,14 @@ import {
   TransactionBuilder,
   Operation,
   Networks,
-  BASE_FEE,
 } from "@stellar/stellar-sdk";
 
 const horizon = new Horizon.Server("https://horizon-testnet.stellar.org");
+
+// Bid what recent transactions paid, capped at what you're willing to spend.
+const { fee_charged } = await horizon.feeStats();
+const MAX_FEE = 100_000; // stroops per operation (0.01 XLM): pick your own cap
+const fee = String(Math.min(Number(fee_charged.p90), MAX_FEE));
 // #endregion trust
 
 const issuer = Keypair.random();
@@ -41,7 +45,7 @@ const astro = new Asset("ASTRO", issuer.publicKey());
 // #region trust
 const account = await horizon.loadAccount(distributor.publicKey());
 const tx = new TransactionBuilder(account, {
-  fee: BASE_FEE,
+  fee,
   networkPassphrase: Networks.TESTNET,
 })
   .addOperation(Operation.changeTrust({ asset: astro }))
@@ -55,7 +59,7 @@ await horizon.submitTransaction(tx);
 // #region issue
 const issuerAccount = await horizon.loadAccount(issuer.publicKey());
 const issueTx = new TransactionBuilder(issuerAccount, {
-  fee: BASE_FEE,
+  fee,
   networkPassphrase: Networks.TESTNET,
 })
   .addOperation(
