@@ -4,6 +4,12 @@ A breaking change will get clearly marked in this log.
 
 ## Unreleased
 
+### Added
+* `xdr.Int128Parts`, `xdr.Uint128Parts`, `xdr.Int256Parts` and `xdr.Uint256Parts` have `toBigInt()` and a static `fromBigInt()`. `xdr.ScVal.scvU128()`, `scvI128()`, `scvU256()` and `scvI256()` accept a `bigint` as well as a parts struct, for example `xdr.ScVal.scvI128(-5n)`. Both throw if the value does not fit the type ([#1882](https://github.com/stellar/js-stellar-sdk/pull/1882)).
+
+### Changed
+* `scValToBigInt()` throws a `TypeError` when the value of an integer `ScVal`, or a limb of its parts, is not a `bigint`. Before, it converted the value. It throws an `XdrError` instead of a `RangeError` for a value out of range for its type, and it rejects a limb that is out of range for its 64-bit field. The wide-int `ScVal` factories throw a `TypeError` for a value that is neither a `bigint` nor a parts struct. None of these values could be encoded before, so only hand-built `ScVal`s are affected ([#1882](https://github.com/stellar/js-stellar-sdk/pull/1882)).
+
 ### Fixed
 * `Spec.getFunc()` finds a function when a struct, union, enum or event with the same name comes before it in the spec. `Spec` also finds the type of a UDT value when another entry with the same name comes first. Before, `contract.Client` construction threw "is not a function", and so did `funcArgsToScVals()` and `funcResToNative()`. Encoding or decoding the UDT value threw "failed to parse udt". The error messages for a name that is missing or has no entry of the right kind stay the same ([#1871](https://github.com/stellar/js-stellar-sdk/pull/1871)).
 * `WebAuth.verifyChallengeTxThreshold()` no longer adds a stray `"` to the end of its "do not meet threshold" error message ([#1871](https://github.com/stellar/js-stellar-sdk/pull/1871)).
