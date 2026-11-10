@@ -3703,6 +3703,57 @@ getClaimableBalanceIdFromResult(result: TransactionResult, opIndex: number): str
 
 **Source:** [src/base/get_claimable_balance_id.ts:75](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/get_claimable_balance_id.ts#L75)
 
+## inspectTransaction
+
+Decodes a transaction into a plain, typed summary of what it does: its
+source, sequence, memo, fees and preconditions, and for each operation the
+account it runs as, its Soroban authorization entries and its contract
+invocation. Use it to show a user what they are about to sign.
+
+The function is pure: it makes no network calls. Content that the SDK does
+not recognize, such as a new authorization credential type, becomes an
+`unreadable` node in place; it does not throw. The summary is not
+JSON-safe: for a lossless rendering of the whole envelope that serializes,
+use `tx.toEnvelope().toJson()` instead.
+
+```ts
+inspectTransaction(tx: Transaction | FeeBumpTransaction): InspectedTransaction
+```
+
+**Parameters**
+
+- **`tx`** — `Transaction | FeeBumpTransaction` (required) — the transaction or fee-bump transaction to inspect
+
+**Returns**
+
+a [`TransactionSummary`](#transactionsummary), or a [`FeeBumpSummary`](#feebumpsummary) for a
+  fee-bump transaction
+
+**Throws**
+
+- `TypeError` if `tx` is not a `Transaction` or `FeeBumpTransaction`
+
+**Example**
+
+```ts
+const summary = inspectTransaction(tx);
+const body = "inner" in summary ? summary.inner : summary;
+for (const op of body.operations) {
+  console.log(`#${op.index} ${op.type} as ${op.source}`);
+  for (const entry of op.authEntries) {
+    if (
+      entry.type === "entry" &&
+      entry.info.address !== null &&
+      !entry.info.signed
+    ) {
+      console.log(`  needs a signature from ${entry.info.address}`);
+    }
+  }
+}
+```
+
+**Source:** [src/base/inspect_transaction.ts:155](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/inspect_transaction.ts#L155)
+
 ## scValToBigInt
 
 Transforms an opaque `xdr.ScVal` into a native bigint, if possible.
@@ -3798,6 +3849,156 @@ type ExternalExecutableRef = ContractExecutableExternalRef | { owner: Address | 
 ```
 
 **Source:** [src/base/operations/types.ts:277](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L277)
+
+### FeeBumpSummary
+
+A plain view of a [`FeeBumpTransaction`](#feebumptransaction), returned by [`inspectTransaction`](#inspecttransaction).
+
+```ts
+interface FeeBumpSummary {
+  feeSource: string;
+  inner: TransactionSummary;
+  maxFee: string;
+}
+```
+
+**Source:** [src/base/inspect_transaction.ts:111](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/inspect_transaction.ts#L111)
+
+#### `feeBumpSummary.feeSource`
+
+the account that pays the fee, as on the wire: a muxed `M…` address stays muxed.
+
+```ts
+feeSource: string;
+```
+
+**Source:** [src/base/inspect_transaction.ts:113](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/inspect_transaction.ts#L113)
+
+#### `feeBumpSummary.inner`
+
+the inner transaction, with the same shape as a standalone summary.
+
+```ts
+inner: TransactionSummary;
+```
+
+**Source:** [src/base/inspect_transaction.ts:117](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/inspect_transaction.ts#L117)
+
+#### `feeBumpSummary.maxFee`
+
+the outer fee, in stroops.
+
+```ts
+maxFee: string;
+```
+
+**Source:** [src/base/inspect_transaction.ts:115](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/inspect_transaction.ts#L115)
+
+### InspectedAuthEntry
+
+A decoded authorization entry, or `unreadable` when
+[`inspectAuthEntry`](/reference/core-soroban-primitives/#inspectauthentry) cannot decode it. The other entries are still
+decoded.
+
+```ts
+type InspectedAuthEntry = { info: AuthEntryInfo; type: "entry" } | { reason: string; type: "unreadable" }
+```
+
+**Source:** [src/base/inspect_transaction.ts:106](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/inspect_transaction.ts#L106)
+
+### InspectedPreconditions
+
+The preconditions of a transaction. The three `minAccountSequence*` fields
+are `null` unless the transaction carries v2 preconditions; in v2, the age
+and the ledger gap are always present, so an unset value is zero.
+
+```ts
+interface InspectedPreconditions {
+  extraSigners: string[];
+  ledgerBounds: { maxLedger: number; minLedger: number } | null;
+  minAccountSequence: string | null;
+  minAccountSequenceAge: string | null;
+  minAccountSequenceLedgerGap: number | null;
+  timeBounds: { maxTime: string; minTime: string } | null;
+}
+```
+
+**Source:** [src/base/inspect_transaction.ts:57](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/inspect_transaction.ts#L57)
+
+#### `inspectedPreconditions.extraSigners`
+
+extra signer keys, as strkeys. Empty when there are none.
+
+```ts
+extraSigners: string[];
+```
+
+**Source:** [src/base/inspect_transaction.ts:66](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/inspect_transaction.ts#L66)
+
+#### `inspectedPreconditions.ledgerBounds`
+
+```ts
+ledgerBounds: { maxLedger: number; minLedger: number } | null;
+```
+
+**Source:** [src/base/inspect_transaction.ts:60](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/inspect_transaction.ts#L60)
+
+#### `inspectedPreconditions.minAccountSequence`
+
+```ts
+minAccountSequence: string | null;
+```
+
+**Source:** [src/base/inspect_transaction.ts:61](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/inspect_transaction.ts#L61)
+
+#### `inspectedPreconditions.minAccountSequenceAge`
+
+in seconds, as a decimal string.
+
+```ts
+minAccountSequenceAge: string | null;
+```
+
+**Source:** [src/base/inspect_transaction.ts:63](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/inspect_transaction.ts#L63)
+
+#### `inspectedPreconditions.minAccountSequenceLedgerGap`
+
+```ts
+minAccountSequenceLedgerGap: number | null;
+```
+
+**Source:** [src/base/inspect_transaction.ts:64](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/inspect_transaction.ts#L64)
+
+#### `inspectedPreconditions.timeBounds`
+
+unix timestamps in seconds, as decimal strings.
+
+```ts
+timeBounds: { maxTime: string; minTime: string } | null;
+```
+
+**Source:** [src/base/inspect_transaction.ts:59](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/inspect_transaction.ts#L59)
+
+### InspectedTransaction
+
+The result of [`inspectTransaction`](#inspecttransaction). Narrow it with `"inner" in summary`.
+
+```ts
+type InspectedTransaction = TransactionSummary | FeeBumpSummary
+```
+
+**Source:** [src/base/inspect_transaction.ts:19](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/inspect_transaction.ts#L19)
+
+### InvocationNode
+
+An [`InvocationTree`](/reference/core-soroban-primitives/#invocationtree), or `unreadable` when the SDK cannot decode the
+invocation. The rest of the summary is still complete.
+
+```ts
+type InvocationNode = InvocationTree | { reason: string; type: "unreadable" }
+```
+
+**Source:** [src/base/inspect_transaction.ts:98](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/inspect_transaction.ts#L98)
 
 ### MemoType
 
@@ -4199,6 +4400,87 @@ type OperationRecord = AccountMergeResult | AllowTrustResult | BeginSponsoringFu
 ```
 
 **Source:** [src/base/operations/types.ts:740](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/operations/types.ts#L740)
+
+### OperationSummary
+
+One operation of a [`TransactionSummary`](#transactionsummary).
+
+```ts
+interface OperationSummary {
+  authEntries: InspectedAuthEntry[];
+  details: OperationRecord;
+  index: number;
+  invocation: InvocationNode | null;
+  source: string;
+  type: OperationType;
+}
+```
+
+**Source:** [src/base/inspect_transaction.ts:70](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/inspect_transaction.ts#L70)
+
+#### `operationSummary.authEntries`
+
+the Soroban authorization entries of an `invokeHostFunction` operation,
+each decoded with [`inspectAuthEntry`](/reference/core-soroban-primitives/#inspectauthentry). Empty for other operations.
+Each `info.invocation` stays raw XDR; pass it to
+[`buildInvocationTree`](/reference/core-soroban-primitives/#buildinvocationtree) to read it.
+
+```ts
+authEntries: InspectedAuthEntry[];
+```
+
+**Source:** [src/base/inspect_transaction.ts:82](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/inspect_transaction.ts#L82)
+
+#### `operationSummary.details`
+
+the operation as [`Operation.fromXdrObject`](#operationfromxdrobjectoperation) returns it.
+
+```ts
+details: OperationRecord;
+```
+
+**Source:** [src/base/inspect_transaction.ts:91](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/inspect_transaction.ts#L91)
+
+#### `operationSummary.index`
+
+the position of the operation in the transaction.
+
+```ts
+index: number;
+```
+
+**Source:** [src/base/inspect_transaction.ts:72](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/inspect_transaction.ts#L72)
+
+#### `operationSummary.invocation`
+
+the top-level contract call or deployment of an `invokeHostFunction`
+operation, as an [`InvocationTree`](/reference/core-soroban-primitives/#invocationtree) with no nested `invocations`.
+Nested calls that need authorization appear only in `authEntries`. `null`
+for other operations and for a wasm upload, which invokes no contract.
+
+```ts
+invocation: InvocationNode | null;
+```
+
+**Source:** [src/base/inspect_transaction.ts:89](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/inspect_transaction.ts#L89)
+
+#### `operationSummary.source`
+
+the account the operation runs as: its own source, else the transaction source.
+
+```ts
+source: string;
+```
+
+**Source:** [src/base/inspect_transaction.ts:75](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/inspect_transaction.ts#L75)
+
+#### `operationSummary.type`
+
+```ts
+type: OperationType;
+```
+
+**Source:** [src/base/inspect_transaction.ts:73](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/inspect_transaction.ts#L73)
 
 ### OperationType
 
@@ -4720,6 +5002,90 @@ sequenceNumber(): string;
 ```
 
 **Source:** [src/base/transaction_source.ts:25](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/transaction_source.ts#L25)
+
+### TransactionSummary
+
+A plain view of a [`Transaction`](#transaction), returned by [`inspectTransaction`](#inspecttransaction).
+The large numbers in its own fields are decimal strings, so they keep their
+precision. The nested `details` and `info` values keep their SDK types,
+which include XDR objects and `bigint`s.
+
+```ts
+interface TransactionSummary {
+  fees: { inclusion: string; max: string; resource: string | null };
+  memo: { type: MemoType; value: string | null };
+  operations: OperationSummary[];
+  preconditions: InspectedPreconditions | null;
+  sequence: string;
+  source: string;
+}
+```
+
+**Source:** [src/base/inspect_transaction.ts:27](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/inspect_transaction.ts#L27)
+
+#### `transactionSummary.fees`
+
+the declared fees, in stroops. `max` is the fee field of the transaction.
+`resource` is the Soroban resource fee, or `null` for a classic
+transaction. `inclusion` is `max - resource` (or `max` for a classic
+transaction); it can be negative for a fee-bump inner transaction. These
+are upper bounds: the charged fee is known only after execution.
+
+```ts
+fees: { inclusion: string; max: string; resource: string | null };
+```
+
+**Source:** [src/base/inspect_transaction.ts:46](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/inspect_transaction.ts#L46)
+
+#### `transactionSummary.memo`
+
+the memo. `value` is `null` for `none`, a decimal string for `id`, and
+lowercase hex for `hash` and `return`. A `text` memo is decoded as UTF-8
+when its bytes are valid UTF-8; otherwise `value` is the SEP-51 escaped
+form that `toJson()` uses. The two forms can give the same string: the
+byte `0xff` and the text `\xff` both give `\xff`.
+
+```ts
+memo: { type: MemoType; value: string | null };
+```
+
+**Source:** [src/base/inspect_transaction.ts:38](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/inspect_transaction.ts#L38)
+
+#### `transactionSummary.operations`
+
+```ts
+operations: OperationSummary[];
+```
+
+**Source:** [src/base/inspect_transaction.ts:49](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/inspect_transaction.ts#L49)
+
+#### `transactionSummary.preconditions`
+
+the preconditions, or `null` when the transaction has none.
+
+```ts
+preconditions: InspectedPreconditions | null;
+```
+
+**Source:** [src/base/inspect_transaction.ts:48](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/inspect_transaction.ts#L48)
+
+#### `transactionSummary.sequence`
+
+```ts
+sequence: string;
+```
+
+**Source:** [src/base/inspect_transaction.ts:30](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/inspect_transaction.ts#L30)
+
+#### `transactionSummary.source`
+
+the source account, as on the wire: a muxed `M…` address stays muxed.
+
+```ts
+source: string;
+```
+
+**Source:** [src/base/inspect_transaction.ts:29](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/inspect_transaction.ts#L29)
 
 ### TrustLineFlag
 

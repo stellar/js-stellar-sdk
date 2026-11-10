@@ -5,6 +5,7 @@ A breaking change will get clearly marked in this log.
 ## Unreleased
 
 ### Added
+* `inspectTransaction()` decodes a `Transaction` or `FeeBumpTransaction` into a typed summary to show before signing. The summary includes the source, memo, fees and each operation, with its Soroban authorization entries and top-level contract call. The function makes no network calls. A part that the SDK cannot decode becomes an `unreadable` node, and the rest of the summary stays complete ([#1881](https://github.com/stellar/js-stellar-sdk/pull/1881)).
 * `xdr.Int128Parts`, `xdr.Uint128Parts`, `xdr.Int256Parts` and `xdr.Uint256Parts` have `toBigInt()` and a static `fromBigInt()`. `xdr.ScVal.scvU128()`, `scvI128()`, `scvU256()` and `scvI256()` accept a `bigint` as well as a parts struct, for example `xdr.ScVal.scvI128(-5n)`. Both throw if the value does not fit the type ([#1882](https://github.com/stellar/js-stellar-sdk/pull/1882)).
 
 ### Changed
