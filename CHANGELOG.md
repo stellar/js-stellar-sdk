@@ -9,6 +9,9 @@ A breaking change will get clearly marked in this log.
 * `contract.Client.invoke(client, name, args?, options?)` builds a call to a contract function by its on-chain name, as the function's client method does. It also reaches a function that has no client method because its name is reserved or shared. `args` are always function arguments, never call options. It is a static method, so it takes no name that a contract function could use ([#1875](https://github.com/stellar/js-stellar-sdk/pull/1875)).
 * `rpc.Server.getContractMethods()` reports the client method of each function in `clientMethod`, for example `delete_` for `delete`. When `contract.Client` attaches no method, `noMethodReason` says why: `constructor`, `reserved` or `shared` ([#1875](https://github.com/stellar/js-stellar-sdk/pull/1875)).
 
+### Changed
+* Updated the production `smol-toml` dependency from `^1.6.1` to `^1.9.1`. Version 1.9.0 fixes a slow `parse()` that a hostile `stellar.toml` can trigger ([GHSA-r4xh-jqrq-34v2](https://github.com/advisories/GHSA-r4xh-jqrq-34v2)). Some parse errors in a `StellarToml.Resolver.resolve()` rejection have new wording, for example `illegal leading zero` instead of `leading zeroes are not allowed`.
+
 ### Fixed
 * `Spec.getFunc()` finds a function when a struct, union, enum or event with the same name comes before it in the spec. `Spec` also finds the type of a UDT value when another entry with the same name comes first. Before, `contract.Client` construction threw "is not a function", and so did `funcArgsToScVals()` and `funcResToNative()`. Encoding or decoding the UDT value threw "failed to parse udt". The error messages for a name that is missing or has no entry of the right kind stay the same ([#1871](https://github.com/stellar/js-stellar-sdk/pull/1871)).
 * `WebAuth.verifyChallengeTxThreshold()` no longer adds a stray `"` to the end of its "do not meet threshold" error message ([#1871](https://github.com/stellar/js-stellar-sdk/pull/1871)).

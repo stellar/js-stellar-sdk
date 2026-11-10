@@ -207,7 +207,7 @@
     "commander": "^14.0.3",
     "eventsource": "^4.1.0",
     "feaxios": "^0.0.23",
-    "smol-toml": "^1.6.1",
+    "smol-toml": "^1.9.1",
     "uint8array-extras": "^1.5.0"
   }
 }

@@ -89,6 +89,78 @@ FEDERATION_SERVER="http://api.stellar.org/federation"
       );
     });
 
+    // smol-toml 1.9 builds tables with a null prototype. resolve() keeps
+    // the plain objects that smol-toml 1.8 returned.
+    it("returns every table with Object.prototype", async () => {
+      mockHttpClient.mockResolvedValue({
+        data: `
+VERSION="2.0.0"
+PRINCIPALS=[{ name="Jane" }]
+NESTED=[[{ b=1 }]]
+[DOCUMENTATION]
+ORG_NAME="Acme"
+INLINE={ y={ z=1 } }
+[[CURRENCIES]]
+code="USD"
+`,
+      });
+
+      const stellarToml = await Resolver.resolve("acme.com");
+      const at = (value: unknown, ...path: (string | number)[]) =>
+        path.reduce<unknown>((v, key) => Reflect.get(Object(v), key), value);
+      const tables = [
+        stellarToml,
+        stellarToml.DOCUMENTATION,
+        stellarToml.PRINCIPALS?.[0],
+        stellarToml.CURRENCIES?.[0],
+        at(stellarToml, "NESTED", 0, 0),
+        at(stellarToml, "DOCUMENTATION", "INLINE"),
+        at(stellarToml, "DOCUMENTATION", "INLINE", "y"),
+      ];
+      for (const table of tables) {
+        expect(Object.getPrototypeOf(table)).toBe(Object.prototype);
+      }
+      expect(String(stellarToml)).toBe("[object Object]");
+    });
+
+    it("keeps a __proto__ key as an own property", async () => {
+      mockHttpClient.mockResolvedValue({ data: '["__proto__"]\nfoo = 1\n' });
+
+      const stellarToml = await Resolver.resolve("acme.com");
+      const value = Object.getOwnPropertyDescriptor(
+        stellarToml,
+        "__proto__",
+      )?.value;
+      expect(Object.getPrototypeOf(stellarToml)).toBe(Object.prototype);
+      expect(Object.getPrototypeOf(value)).toBe(Object.prototype);
+      expect(value).toEqual({ foo: 1 });
+    });
+
+    it("keeps date values as dates", async () => {
+      mockHttpClient.mockResolvedValue({
+        data: "UPDATED=1979-05-27T07:32:00Z\n",
+      });
+
+      const stellarToml = await Resolver.resolve("acme.com");
+      expect(stellarToml.UPDATED).toBeInstanceOf(Date);
+    });
+
+    // smol-toml limits the depth of arrays, but not of dotted keys.
+    it("resolves dotted keys nested deeper than the call stack", async () => {
+      const depth = 50000;
+      mockHttpClient.mockResolvedValue({
+        data: `a${".a".repeat(depth)} = 1\n`,
+      });
+
+      let table: unknown = await Resolver.resolve("acme.com");
+      for (let i = 0; i < depth; i++) {
+        expect(Object.getPrototypeOf(table)).toBe(Object.prototype);
+        table = Reflect.get(Object(table), "a");
+      }
+      expect(Object.getPrototypeOf(table)).toBe(Object.prototype);
+      expect(table).toEqual({ a: 1 });
+    });
+
     it("rejects when stellar.toml file is invalid", async () => {
       mockHttpClient.mockImplementation((url: string) => {
         if (url.includes("https://acme.com/.well-known/stellar.toml")) {
