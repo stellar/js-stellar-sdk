@@ -164,7 +164,7 @@ import { base64ToUint8Array } from "../base/util/base64.js";
  *     my: 'method',
  *     ...
  *   }, {
- *     fee: '<your max fee per operation, in stroops>', // default: {@link BASE_FEE}, the network minimum
+ *     fee: '<your max inclusion fee per operation, in stroops>', // default: {@link BASE_FEE}, the network minimum
  *     simulate: false,
  *     timeoutInSeconds: 20, // default: {@link DEFAULT_TIMEOUT}
  *   }

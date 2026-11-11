@@ -1589,9 +1589,9 @@ export class RpcServer {
    * const contractId = 'CA3D5KRYM6CB7OWQ6TWYRR3Z4T7GNZLKERYNZGGA5SOAOPIFY6YQGAXE';
    * const contract = new StellarSdk.Contract(contractId);
    *
-   * // The most you'll pay per operation. BASE_FEE is the network minimum and
-   * // gets outbid when the network is busy.
-   * const fee = "<your max fee per operation, in stroops>";
+   * // Your max inclusion fee per operation. BASE_FEE is the network minimum
+   * // and gets outbid when the network is busy.
+   * const fee = "<your max inclusion fee per operation, in stroops>";
    * const transaction = new StellarSdk.TransactionBuilder(account, { fee })
    *   // Uncomment the following line to build transactions for the live network. Be
    *   // sure to also change the horizon hostname.
@@ -1699,9 +1699,9 @@ export class RpcServer {
    * const contractId = 'CA3D5KRYM6CB7OWQ6TWYRR3Z4T7GNZLKERYNZGGA5SOAOPIFY6YQGAXE';
    * const contract = new StellarSdk.Contract(contractId);
    *
-   * // The most you'll pay per operation. BASE_FEE is the network minimum and
-   * // gets outbid when the network is busy.
-   * const fee = "<your max fee per operation, in stroops>";
+   * // Your max inclusion fee per operation. BASE_FEE is the network minimum
+   * // and gets outbid when the network is busy.
+   * const fee = "<your max inclusion fee per operation, in stroops>";
    * const transaction = new StellarSdk.TransactionBuilder(account, { fee })
    *   // Uncomment the following line to build transactions for the live network. Be
    *   // sure to also change the horizon hostname.
@@ -1765,9 +1765,9 @@ export class RpcServer {
    * const contractId = 'CA3D5KRYM6CB7OWQ6TWYRR3Z4T7GNZLKERYNZGGA5SOAOPIFY6YQGAXE';
    * const contract = new StellarSdk.Contract(contractId);
    *
-   * // The most you'll pay per operation. BASE_FEE is the network minimum and
-   * // gets outbid when the network is busy.
-   * const fee = "<your max fee per operation, in stroops>";
+   * // Your max inclusion fee per operation. BASE_FEE is the network minimum
+   * // and gets outbid when the network is busy.
+   * const fee = "<your max inclusion fee per operation, in stroops>";
    * const transaction = new StellarSdk.TransactionBuilder(account, { fee })
    *   // Uncomment the following line to build transactions for the live network. Be
    *   // sure to also change the horizon hostname.

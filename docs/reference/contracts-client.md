@@ -103,7 +103,7 @@ const tx = await client.myWriteMethod(
     my: 'method',
     ...
   }, {
-    fee: '<your max fee per operation, in stroops>', // default: {@link BASE_FEE}, the network minimum
+    fee: '<your max inclusion fee per operation, in stroops>', // default: {@link BASE_FEE}, the network minimum
     simulate: false,
     timeoutInSeconds: 20, // default: {@link DEFAULT_TIMEOUT}
   }
