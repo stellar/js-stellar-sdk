@@ -19,7 +19,6 @@ import {
   Asset,
   Memo,
   Networks,
-  BASE_FEE,
 } from "@stellar/stellar-sdk";
 
 const horizon = new Horizon.Server("https://horizon-testnet.stellar.org");
@@ -38,8 +37,13 @@ await Promise.all([
 // #region build
 const account = await horizon.loadAccount(source.publicKey());
 
+// Bid what recent transactions paid, capped at what you're willing to spend.
+const { fee_charged } = await horizon.feeStats();
+const MAX_FEE = 100_000; // stroops per operation (0.01 XLM): pick your own cap
+const fee = String(Math.min(Number(fee_charged.p90), MAX_FEE));
+
 const tx = new TransactionBuilder(account, {
-  fee: BASE_FEE,
+  fee,
   networkPassphrase: Networks.TESTNET,
 })
   .addOperation(

@@ -29,11 +29,13 @@ is the recipient's public key (a `G...` string):
 
 <!-- snippet: send-a-payment.ts#build -->
 
-`fee` is the *maximum* per-operation fee you're willing to pay, in stroops
-(`BASE_FEE` is 100; one XLM is ten million stroops). It's a cap, not a fixed
-charge — the network only deducts what it actually needs at submission time, so
-a high `fee` (say, 5 XLM) makes the transaction more likely to be included when
-the network is busy without meaning all 5 XLM gets spent. `amount` is a string
+`fee` is the *maximum* per-operation fee you're willing to pay, in stroops (one
+XLM is ten million stroops). It's a bid, not a fixed charge: the network only
+deducts what it actually needs at submission time. The snippet bids what 90% of
+recent transactions paid, so it keeps up when the network is busy, and
+`MAX_FEE` caps what you'll spend. Set the cap for your app. `BASE_FEE` (100
+stroops) is the minimum inclusion fee the network requires, and it will likely
+not be enough when the network is busy. `amount` is a string
 in whole units (`"100"` is 100 XLM). The
 destination must already exist on the network; to create and fund a brand-new
 account, use `Operation.createAccount` instead.

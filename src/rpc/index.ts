@@ -14,3 +14,5 @@ export {
   parseRawQueryEvents,
 } from "./parsers.js";
 export * from "./transaction.js";
+export { inspectChargedFees } from "./fees.js";
+export type { ChargedFees, ChargedFeesInput } from "./fees.js";

@@ -264,7 +264,7 @@ _getLedgers(request: GetLedgersRequest): Promise<RawGetLedgersResponse>;
 
 - **`request`** — `GetLedgersRequest` (required)
 
-**Source:** [src/rpc/server.ts:2156](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L2156)
+**Source:** [src/rpc/server.ts:2159](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L2159)
 
 ### `server._getTransaction(hash)`
 
@@ -312,7 +312,7 @@ _sendTransaction(transaction: Transaction | FeeBumpTransaction): Promise<RawSend
 
 - **`transaction`** — `Transaction | FeeBumpTransaction` (required)
 
-**Source:** [src/rpc/server.ts:1791](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1791)
+**Source:** [src/rpc/server.ts:1794](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1794)
 
 ### `server._simulateTransaction(transaction, addlResources, authMode, useUpgradedAuth)`
 
@@ -327,7 +327,7 @@ _simulateTransaction(transaction: Transaction | FeeBumpTransaction, addlResource
 - **`authMode`** — `SimulationAuthMode` (optional)
 - **`useUpgradedAuth`** — `boolean` (optional) (default: `true`)
 
-**Source:** [src/rpc/server.ts:1620](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1620)
+**Source:** [src/rpc/server.ts:1621](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1621)
 
 ### `server.fundAddress(address, friendbotUrl)`
 
@@ -380,7 +380,7 @@ console.log("Contract funded! Hash:", tx.txHash);
 
 - `Friendbot docs`
 
-**Source:** [src/rpc/server.ts:1911](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1911)
+**Source:** [src/rpc/server.ts:1914](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1914)
 
 ### `server.getAccount(address)`
 
@@ -869,7 +869,7 @@ the fee stats
 
 - https://developers.stellar.org/docs/data/rpc/api-reference/methods/getFeeStats
 
-**Source:** [src/rpc/server.ts:1957](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1957)
+**Source:** [src/rpc/server.ts:1960](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1960)
 
 ### `server.getHealth()`
 
@@ -1055,7 +1055,7 @@ const nextPage = await server.getLedgers({
 
 - `getLedgers docs`
 
-**Source:** [src/rpc/server.ts:2140](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L2140)
+**Source:** [src/rpc/server.ts:2143](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L2143)
 
 ### `server.getNetwork()`
 
@@ -1143,7 +1143,7 @@ console.log(
 - - getLedgerEntries
  - https://developers.stellar.org/docs/tokens/stellar-asset-contract
 
-**Source:** [src/rpc/server.ts:2021](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L2021)
+**Source:** [src/rpc/server.ts:2024](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L2024)
 
 ### `server.getTransaction(hash)`
 
@@ -1274,7 +1274,7 @@ the version info
 
 - https://developers.stellar.org/docs/data/rpc/api-reference/methods/getVersionInfo
 
-**Source:** [src/rpc/server.ts:1971](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1971)
+**Source:** [src/rpc/server.ts:1974](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1974)
 
 ### `server.pollTransaction(hash, opts)`
 
@@ -1378,8 +1378,9 @@ A copy of the
 const contractId = 'CA3D5KRYM6CB7OWQ6TWYRR3Z4T7GNZLKERYNZGGA5SOAOPIFY6YQGAXE';
 const contract = new StellarSdk.Contract(contractId);
 
-// Right now, this is just the default fee for this example.
-const fee = StellarSdk.BASE_FEE;
+// Your max inclusion fee per operation. BASE_FEE is the network minimum
+// and gets outbid when the network is busy.
+const fee = "<your max inclusion fee per operation, in stroops>";
 const transaction = new StellarSdk.TransactionBuilder(account, { fee })
   // Uncomment the following line to build transactions for the live network. Be
   // sure to also change the horizon hostname.
@@ -1411,7 +1412,7 @@ server.sendTransaction(transaction).then(result => {
 - - module:rpc.assembleTransaction
  - `simulateTransaction docs`
 
-**Source:** [src/rpc/server.ts:1722](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1722)
+**Source:** [src/rpc/server.ts:1724](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1724)
 
 ### `server.queryContract(contractId, method, args, networkPassphrase)`
 
@@ -1556,7 +1557,7 @@ server
 - - `Friendbot docs`
  - [`Friendbot.Api.Response`](/reference/network-friendbot/#friendbotapiresponse)
 
-**Source:** [src/rpc/server.ts:1836](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1836)
+**Source:** [src/rpc/server.ts:1839](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1839)
 
 ### `server.sendTransaction(transaction)`
 
@@ -1586,8 +1587,9 @@ the
 const contractId = 'CA3D5KRYM6CB7OWQ6TWYRR3Z4T7GNZLKERYNZGGA5SOAOPIFY6YQGAXE';
 const contract = new StellarSdk.Contract(contractId);
 
-// Right now, this is just the default fee for this example.
-const fee = StellarSdk.BASE_FEE;
+// Your max inclusion fee per operation. BASE_FEE is the network minimum
+// and gets outbid when the network is busy.
+const fee = "<your max inclusion fee per operation, in stroops>";
 const transaction = new StellarSdk.TransactionBuilder(account, { fee })
   // Uncomment the following line to build transactions for the live network. Be
   // sure to also change the horizon hostname.
@@ -1617,7 +1619,7 @@ server.sendTransaction(transaction).then((result) => {
 - - `transaction docs`
  - `sendTransaction docs`
 
-**Source:** [src/rpc/server.ts:1785](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1785)
+**Source:** [src/rpc/server.ts:1788](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1788)
 
 ### `server.simulateTransaction(tx, addlResources, authMode, useUpgradedAuth)`
 
@@ -1663,8 +1665,9 @@ An object with the
 const contractId = 'CA3D5KRYM6CB7OWQ6TWYRR3Z4T7GNZLKERYNZGGA5SOAOPIFY6YQGAXE';
 const contract = new StellarSdk.Contract(contractId);
 
-// Right now, this is just the default fee for this example.
-const fee = StellarSdk.BASE_FEE;
+// Your max inclusion fee per operation. BASE_FEE is the network minimum
+// and gets outbid when the network is busy.
+const fee = "<your max inclusion fee per operation, in stroops>";
 const transaction = new StellarSdk.TransactionBuilder(account, { fee })
   // Uncomment the following line to build transactions for the live network. Be
   // sure to also change the horizon hostname.
@@ -1691,7 +1694,7 @@ server.simulateTransaction(transaction).then((sim) => {
  - module:rpc.Server#prepareTransaction
  - module:rpc.assembleTransaction
 
-**Source:** [src/rpc/server.ts:1606](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1606)
+**Source:** [src/rpc/server.ts:1607](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/server.ts#L1607)
 
 ## rpc.assembleTransaction
 
@@ -1727,6 +1730,32 @@ a new, cloned transaction with the proper auth and resource (fee, footprint) sim
  - [`rpc.Server.prepareTransaction`](#serverpreparetransactiontx-useupgradedauth)
 
 **Source:** [src/rpc/transaction.ts:46](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/transaction.ts#L46)
+
+## rpc.inspectChargedFees
+
+Reports what a landed transaction declared and was charged, with the Soroban
+resource fee split out. It makes no network calls.
+
+The inclusion fee and refund are read from the fee events in meta v4. Without
+them (before protocol 23) the inclusion fee is the fee charged less the
+resource fee consumed. If core skipped the refund, that counts the kept
+refund as inclusion fee, or gives `null` for both when it passes the
+declared inclusion fee.
+
+```ts
+inspectChargedFees(tx: ChargedFeesInput): ChargedFees
+```
+
+**Parameters**
+
+- **`tx`** — `ChargedFeesInput` (required) — a `getTransaction` response with status `SUCCESS` or `FAILED`,
+  or a `getTransactions` entry
+
+**Throws**
+
+- if `tx` has no envelope, result or meta, as a `NOT_FOUND` response
+
+**Source:** [src/rpc/fees.ts:70](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/fees.ts#L70)
 
 ## rpc.parseRawEvents
 
@@ -5282,6 +5311,100 @@ txHash: string;
 ```
 
 **Source:** [src/rpc/api.ts:213](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L213)
+
+### rpc.ChargedFees
+
+The fees a transaction declared and was charged, in stroops, as decimal strings.
+
+```ts
+interface ChargedFees {
+  charged: { inclusion: string | null; resource: { nonRefundable: string; refundable: string; rent: string; total: string } | null; total: string };
+  declared: { inclusion: string; max: string; resource: string | null };
+  refunded: string | null;
+}
+```
+
+**Source:** [src/rpc/fees.ts:21](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/fees.ts#L21)
+
+#### `chargedFees.charged`
+
+the charged fees. `total` is what the fee source paid, after any refund.
+`resource` is what the transaction consumed, and is `null` when the meta
+has no Soroban fee breakdown or one that doesn't fit the declared
+resource fee. `inclusion` is `null` when it can't be worked out or falls
+outside the declared one. For a classic transaction, `inclusion` is the
+total. `rent` is part of `refundable`.
+
+```ts
+charged: { inclusion: string | null; resource: { nonRefundable: string; refundable: string; rent: string; total: string } | null; total: string };
+```
+
+**Source:** [src/rpc/fees.ts:36](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/fees.ts#L36)
+
+#### `chargedFees.declared`
+
+the declared fees. `inclusion` is `max - resource`, and is negative if
+the envelope declares a resource fee above `max`. For a fee bump, `max`
+is the outer fee and `resource` comes from the inner transaction.
+
+```ts
+declared: { inclusion: string; max: string; resource: string | null };
+```
+
+**Source:** [src/rpc/fees.ts:27](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/fees.ts#L27)
+
+#### `chargedFees.refunded`
+
+the resource fee core paid back, or `null` when unknown or for a classic
+transaction. Core skips the refund if the fee source was merged in the
+same ledger or its liabilities block the credit. With fee events this is
+then `"0"`, and `charged.total` is above `inclusion` plus `resource.total`
+by the lost amount.
+
+```ts
+refunded: string | null;
+```
+
+**Source:** [src/rpc/fees.ts:53](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/fees.ts#L53)
+
+### rpc.ChargedFeesInput
+
+The input to [`inspectChargedFees`](#rpcinspectchargedfees): a `getTransaction` response with
+status `SUCCESS` or `FAILED`, or a `getTransactions` entry.
+
+```ts
+interface ChargedFeesInput {
+  envelopeXdr: TransactionEnvelope;
+  resultMetaXdr: TransactionMeta;
+  resultXdr: TransactionResult;
+}
+```
+
+**Source:** [src/rpc/fees.ts:14](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/fees.ts#L14)
+
+#### `chargedFeesInput.envelopeXdr`
+
+```ts
+envelopeXdr: TransactionEnvelope;
+```
+
+**Source:** [src/rpc/fees.ts:15](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/fees.ts#L15)
+
+#### `chargedFeesInput.resultMetaXdr`
+
+```ts
+resultMetaXdr: TransactionMeta;
+```
+
+**Source:** [src/rpc/fees.ts:17](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/fees.ts#L17)
+
+#### `chargedFeesInput.resultXdr`
+
+```ts
+resultXdr: TransactionResult;
+```
+
+**Source:** [src/rpc/fees.ts:16](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/fees.ts#L16)
 
 ### rpc.Durability
 

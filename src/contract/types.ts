@@ -217,7 +217,8 @@ export type ClientOptions = {
  */
 export type MethodOptions = {
   /**
-   * The fee to pay for the transaction.
+   * The max inclusion fee per operation, in stroops. Simulation adds the
+   * resource fee on top. The default is `BASE_FEE`, the network minimum.
    * @defaultValue 100
    */
   fee?: string;
