@@ -87,6 +87,8 @@ export default defineConfig({
       // Tests the docs snippet-expansion machinery (config/snippets.ts),
       // which reads snippet files with node:fs — Node-only, not SDK code.
       "test/unit/guide-snippets.test.ts",
+      // Node-only: the CLI (src/cli) reads and writes files with node:fs.
+      "test/unit/cli/**",
     ],
     // Setup files to load the browser bundle
     setupFiles: [resolve(__dirname, "../test/setup-browser.ts")],

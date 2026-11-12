@@ -6,8 +6,9 @@ import { contracts, rpcUrl, clientFor, installContract } from "./util.js";
 
 const CLI_PATH = path.resolve(__dirname, "../../../bin/stellar-js");
 
-const runCli = (args: string) => {
-  const result = spawnSync("node", [CLI_PATH, ...args.split(" ")], {
+const runCli = (args: string | string[]) => {
+  const argv = typeof args === "string" ? args.split(" ") : args;
+  const result = spawnSync("node", [CLI_PATH, ...argv], {
     encoding: "utf8",
     env: { ...process.env },
   });
@@ -47,6 +48,9 @@ describe("CLI generate command", () => {
     expect(result.stdout).toContain("--allow-http");
     expect(result.stdout).toContain("--timeout");
     expect(result.stdout).toContain("--headers");
+    expect(result.stdout).toContain("--id <id>");
+    expect(result.stdout).toContain("--network-passphrase <passphrase>");
+    expect(result.stdout).toContain("--rpc-header <header>");
   });
 
   it("generates bindings from local WASM file", () => {
@@ -156,7 +160,9 @@ describe("CLI generate command", () => {
     );
 
     expect(result.status).toBe(1);
-    expect(result.stderr).toContain("network");
+    expect(result.stderr).toContain(
+      "--network or --network-passphrase is required when fetching from network",
+    );
   });
 
   it("fails with --contract-id but without --network", () => {
@@ -167,7 +173,9 @@ describe("CLI generate command", () => {
     );
 
     expect(result.status).toBe(1);
-    expect(result.stderr).toContain("network");
+    expect(result.stderr).toContain(
+      "--network or --network-passphrase is required when fetching from network",
+    );
   });
 
   it("derives contract name from WASM filename when not provided", () => {
@@ -255,6 +263,199 @@ describe("CLI generate command", () => {
       "utf8",
     );
     expect(indexContent).toContain("export { Client }");
+    // only a contract ID source knows a deployed contract to export
+    expect(indexContent).not.toContain("networks");
+  });
+
+  describe("contract ID and network parity flags", () => {
+    const STANDALONE = "Standalone Network ; February 2017";
+
+    it("exports networks when generating from a contract ID", async () => {
+      const { contractId } = await clientFor("customTypes");
+      const testOutputDir = path.join(outputDir, "networks-export");
+
+      const result = runCli(
+        `generate --contract-id ${contractId} --network localnet --output-dir ${testOutputDir} --overwrite`,
+      );
+
+      expect(result.status).toBe(0);
+      const indexContent = fs.readFileSync(
+        path.join(testOutputDir, "src/index.ts"),
+        "utf8",
+      );
+      const entry =
+        `{\n    networkPassphrase: "${STANDALONE}",\n` +
+        `    contractId: "${contractId}",\n  },`;
+      expect(indexContent).toContain("export const networks = {");
+      expect(indexContent).toContain(`  local: ${entry}`);
+      expect(indexContent).toContain(`  standalone: ${entry}`);
+
+      const readme = fs.readFileSync(
+        path.join(testOutputDir, "README.md"),
+        "utf8",
+      );
+      expect(readme).toContain(`contractId: "${contractId}",`);
+      expect(readme).toContain(`networkPassphrase: "${STANDALONE}",`);
+    });
+
+    it("accepts --id as an alias of --contract-id", async () => {
+      const { contractId } = await clientFor("customTypes");
+      const testOutputDir = path.join(outputDir, "id-alias");
+
+      const result = runCli(
+        `generate --id ${contractId} --network localnet --output-dir ${testOutputDir} --overwrite`,
+      );
+
+      expect(result.status).toBe(0);
+      expect(result.stdout).toContain(`Address: ${contractId}`);
+      expect(
+        fs.readFileSync(path.join(testOutputDir, "src/index.ts"), "utf8"),
+      ).toContain(`contractId: "${contractId}",`);
+    });
+
+    it("fails when --id and --contract-id differ", () => {
+      const testOutputDir = path.join(outputDir, "id-conflict");
+
+      const result = runCli(
+        `generate --id CABC --contract-id CXYZ --network localnet --output-dir ${testOutputDir}`,
+      );
+
+      expect(result.status).toBe(1);
+      expect(result.stderr).toContain(
+        "--contract-id (CXYZ) and --id (CABC) are aliases and must not differ",
+      );
+    });
+
+    it("generates with --rpc-url and --network-passphrase and no --network", async () => {
+      const { contractId } = await clientFor("customTypes");
+      const testOutputDir = path.join(outputDir, "custom-passphrase");
+
+      const result = runCli([
+        "generate",
+        "--contract-id",
+        contractId,
+        "--rpc-url",
+        rpcUrl,
+        "--network-passphrase",
+        STANDALONE,
+        "--allow-http",
+        "--output-dir",
+        testOutputDir,
+        "--overwrite",
+      ]);
+
+      expect(result.status).toBe(0);
+      expect(result.stdout).toContain(`Network: ${STANDALONE}`);
+      expect(
+        fs.readFileSync(path.join(testOutputDir, "src/index.ts"), "utf8"),
+      ).toContain("export const networks = {");
+    });
+
+    it("does not auto-enable allowHttp for --network-passphrase", async () => {
+      const { contractId } = await clientFor("customTypes");
+      const testOutputDir = path.join(outputDir, "custom-passphrase-http");
+
+      const result = runCli([
+        "generate",
+        "--contract-id",
+        contractId,
+        "--rpc-url",
+        rpcUrl,
+        "--network-passphrase",
+        STANDALONE,
+        "--output-dir",
+        testOutputDir,
+        "--overwrite",
+      ]);
+
+      expect(result.status).toBe(1);
+      expect(result.stderr).toContain(
+        "Cannot connect to insecure Soroban RPC server if `allowHttp` isn't set",
+      );
+    });
+
+    it("fails when --network-passphrase is not the server's passphrase", async () => {
+      const { contractId } = await clientFor("customTypes");
+      const testOutputDir = path.join(outputDir, "wrong-passphrase");
+
+      const result = runCli([
+        "generate",
+        "--contract-id",
+        contractId,
+        "--rpc-url",
+        rpcUrl,
+        "--network-passphrase",
+        "Not This Network",
+        "--allow-http",
+        "--output-dir",
+        testOutputDir,
+        "--overwrite",
+      ]);
+
+      expect(result.status).toBe(1);
+      expect(result.stderr).toContain(
+        `Network mismatch: expected "Not This Network", got "${STANDALONE}"`,
+      );
+    });
+
+    it("fails when --network-passphrase differs from the --network passphrase", () => {
+      const testOutputDir = path.join(outputDir, "passphrase-conflict");
+
+      const result = runCli([
+        "generate",
+        "--wasm",
+        contracts.customTypes.path,
+        "--network",
+        "testnet",
+        "--network-passphrase",
+        STANDALONE,
+        "--output-dir",
+        testOutputDir,
+      ]);
+
+      expect(result.status).toBe(1);
+      expect(result.stderr).toContain(
+        `--network-passphrase "${STANDALONE}" does not match the testnet passphrase`,
+      );
+    });
+
+    it("accepts repeated --rpc-header options next to --headers", async () => {
+      const { contractId } = await clientFor("customTypes");
+      const testOutputDir = path.join(outputDir, "rpc-header");
+
+      const result = runCli([
+        "generate",
+        "--contract-id",
+        contractId,
+        "--network",
+        "localnet",
+        "--headers",
+        '{"X-Test": "json"}',
+        "--rpc-header",
+        "X-Test: 1",
+        "--rpc-header",
+        "X-Other: 2",
+        "--output-dir",
+        testOutputDir,
+        "--overwrite",
+      ]);
+
+      expect(result.status).toBe(0);
+      expect(fs.existsSync(path.join(testOutputDir, "src/client.ts"))).toBe(
+        true,
+      );
+    });
+
+    it("fails with an --rpc-header that has no colon", () => {
+      const testOutputDir = path.join(outputDir, "invalid-rpc-header");
+
+      const result = runCli(
+        `generate --wasm ${contracts.customTypes.path} --output-dir ${testOutputDir} --rpc-header no-colon`,
+      );
+
+      expect(result.status).toBe(1);
+      expect(result.stderr).toContain("Invalid --rpc-header");
+    });
   });
 
   describe("server options", () => {
