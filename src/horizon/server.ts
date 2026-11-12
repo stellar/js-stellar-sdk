@@ -149,9 +149,9 @@ export class HorizonServer {
    *
    * @example
    * ```ts
-   * const transaction = new StellarSdk.TransactionBuilder(accountId, {
-   *   fee: await StellarSdk.Server.fetchBaseFee(),
-   *   timebounds: await StellarSdk.Server.fetchTimebounds(100)
+   * const transaction = new StellarSdk.TransactionBuilder(account, {
+   *   fee: "<your max fee per operation, in stroops>",
+   *   timebounds: await server.fetchTimebounds(100)
    * })
    *   .addOperation(operation)
    *   // normally we would need to call setTimeout here, but setting timebounds
@@ -198,9 +198,8 @@ export class HorizonServer {
   }
 
   /**
-   * Fetch the base fee. Since this hits the server, if the server call fails,
-   * you might get an error. You should be prepared to use a default value if
-   * that happens!
+   * Fetch the last ledger's base fee: the network minimum, not a recommended
+   * fee. For a fee that keeps up with demand, use {@link feeStats}.
    * @returns Promise that resolves to the base fee.
    */
   public async fetchBaseFee(): Promise<number> {

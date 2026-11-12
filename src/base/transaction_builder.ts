@@ -76,11 +76,10 @@ const SOROBAN_OPERATION_TYPES: ReadonlySet<string> = new Set([
 ]);
 
 /**
- * Minimum base fee for transactions. If this fee is below the network
- * minimum, the transaction will fail. The more operations in the
- * transaction, the greater the required fee. Use
- * `Horizon.Server.fetchBaseFee()` to get an accurate value of minimum
- * transaction fee on the network.
+ * The network's minimum per-operation fee, in stroops. It is a floor, not a
+ * recommended fee: a transaction bidding only this gets outbid when the network
+ * is busy. Base your `fee` on recent fee stats (`Horizon.Server.feeStats()` or
+ * `rpc.Server.getFeeStats()`), capped at what you're willing to pay.
  *
  * @see [Fees](https://developers.stellar.org/docs/glossary/fees/)
  */

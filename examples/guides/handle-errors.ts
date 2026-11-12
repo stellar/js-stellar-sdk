@@ -19,7 +19,6 @@ import {
   Operation,
   Asset,
   Networks,
-  BASE_FEE,
 } from "@stellar/stellar-sdk";
 // #region result-codes
 import { TransactionFailedError } from "@stellar/stellar-sdk";
@@ -39,9 +38,14 @@ const sender = Keypair.random();
 await horizon.friendbot(sender.publicKey()).call();
 const account = await horizon.loadAccount(sender.publicKey());
 
+// Bid what recent transactions paid, capped at what you're willing to spend.
+const { fee_charged } = await horizon.feeStats();
+const MAX_FEE = 100_000; // stroops per operation (0.01 XLM): pick your own cap
+const fee = String(Math.min(Number(fee_charged.p90), MAX_FEE));
+
 // Pay an account that does not exist -> the transaction fails.
 const tx = new TransactionBuilder(account, {
-  fee: BASE_FEE,
+  fee,
   networkPassphrase: Networks.TESTNET,
 })
   .addOperation(
