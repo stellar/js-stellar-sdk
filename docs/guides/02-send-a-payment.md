@@ -33,9 +33,10 @@ is the recipient's public key (a `G...` string):
 XLM is ten million stroops). It's a bid, not a fixed charge: the network only
 deducts what it actually needs at submission time. The snippet bids what 90% of
 recent transactions paid, so it keeps up when the network is busy, and
-`MAX_FEE` caps what you'll spend. Set the cap for your app. Don't use
-`BASE_FEE` (100 stroops) as your fee: it is the network minimum, and it gets
-outbid as soon as there is demand. `amount` is a string
+`MAX_FEE` caps what you'll spend. Set the cap for your app. `BASE_FEE` (100
+stroops) is the network minimum. It often works on testnet, but it might not be
+enough when the network is busy, so consider a fee strategy like this one for
+production. `amount` is a string
 in whole units (`"100"` is 100 XLM). The
 destination must already exist on the network; to create and fund a brand-new
 account, use `Operation.createAccount` instead.
