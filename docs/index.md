@@ -391,23 +391,51 @@ npx @stellar/stellar-sdk generate \
   --network localnet \
   --output-dir ./my-contract-client \
   --allow-http
+
+# One header per --rpc-header, as "Name: value" (repeatable)
+npx @stellar/stellar-sdk generate \
+  --id CABC...XYZ \
+  --rpc-url https://my-rpc-server.com \
+  --network mainnet \
+  --output-dir ./my-contract-client \
+  --rpc-header "Authorization: Bearer my-token" \
+  --rpc-header "X-Api-Key: my-key"
 ```
+
+#### On a custom network
+
+For a network that `--network` does not name, pass its RPC URL and passphrase:
+
+```shell
+npx @stellar/stellar-sdk generate \
+  --contract-id CABC...XYZ \
+  --rpc-url https://rpc.my-network.example \
+  --network-passphrase "My Custom Network ; 2026" \
+  --output-dir ./my-contract-client
+```
+
+The CLI checks the passphrase against the one the RPC server reports. If the
+RPC URL uses HTTP, you must also pass `--allow-http`. It is enabled
+automatically only for `--network localnet` on its default URL.
 
 ### CLI Options
 
-| Option                   | Description                                                                                     |
-| ------------------------ | ----------------------------------------------------------------------------------------------- |
-| `--wasm <path>`          | Path to a local WASM file                                                                       |
-| `--wasm-hash <hash>`     | Hex-encoded hash of WASM blob on the network                                                    |
-| `--contract-id <id>`     | Contract ID of a deployed contract                                                              |
-| `--rpc-url <url>`        | Stellar RPC server URL (has defaults for testnet/futurenet/localnet, required for mainnet)      |
-| `--network <network>`    | Network to use: `testnet`, `mainnet`, `futurenet`, or `localnet` (required for network sources) |
-| `--output-dir <dir>`     | Output directory for generated bindings (required)                                              |
-| `--contract-name <name>` | Name for the generated package (derived from filename if not provided)                          |
-| `--overwrite`            | Overwrite existing files in the output directory                                                |
-| `--allow-http`           | Allow insecure HTTP connections to RPC server (default: false)                                  |
-| `--timeout <ms>`         | RPC request timeout in milliseconds                                                             |
-| `--headers <json>`       | Custom headers as JSON object (e.g., `'{"Authorization": "Bearer token"}'`)                     |
+| Option                              | Description                                                                                                                             |
+| ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `--wasm <path>`                     | Path to a local WASM file                                                                                                               |
+| `--wasm-hash <hash>`                | Hex-encoded hash of WASM blob on the network                                                                                            |
+| `--contract-id <id>`                | Contract ID of a deployed contract                                                                                                      |
+| `--id <id>`                         | Alias of `--contract-id`. Passing both with different values is an error                                                                |
+| `--rpc-url <url>`                   | Stellar RPC server URL (has defaults for testnet/futurenet/localnet, required for mainnet)                                              |
+| `--network <network>`               | Network to use: `testnet`, `mainnet`, `futurenet`, or `localnet` (this or `--network-passphrase` is required for network sources)       |
+| `--network-passphrase <passphrase>` | Passphrase of a network that `--network` does not name; use with `--rpc-url`. With `--network`, it must match that network's passphrase |
+| `--output-dir <dir>`                | Output directory for generated bindings (required)                                                                                      |
+| `--contract-name <name>`            | Name for the generated package (derived from filename if not provided)                                                                  |
+| `--overwrite`                       | Overwrite existing files in the output directory                                                                                        |
+| `--allow-http`                      | Allow insecure HTTP connections to RPC server (default: false)                                                                          |
+| `--timeout <ms>`                    | RPC request timeout in milliseconds                                                                                                     |
+| `--headers <json>`                  | Custom headers as JSON object (e.g., `'{"Authorization": "Bearer token"}'`)                                                             |
+| `--rpc-header <header>`             | Custom header as `"Name: value"`. Repeat it for more headers. Overrides `--headers` on the same name                                    |
 
 #### Default RPC URLs
 
@@ -435,6 +463,23 @@ my-contract-client/
 ├── README.md
 └── .gitignore
 ```
+
+When you generate from `--contract-id`, `src/index.ts` also exports a `networks`
+constant with the contract ID and network passphrase, as the native
+`stellar contract bindings typescript` command does:
+
+```ts
+export const networks = {
+  testnet: {
+    networkPassphrase: "Test SDF Network ; September 2015",
+    contractId: "CABC...XYZ",
+  },
+} as const;
+```
+
+The key is `testnet` or `futurenet` for those networks, `local` (and the
+deprecated `standalone`) for the standalone network, and `unknown` for any
+other network, mainnet included.
 
 ### Using Generated Bindings
 
