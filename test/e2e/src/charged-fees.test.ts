@@ -144,6 +144,88 @@ function expectChargedAsReported(
   return fees;
 }
 
+// Lands a fee bump whose fee source is merged away in the same ledger, so
+// core has no account to refund. The two transactions race for a ledger, so
+// this retries until they share one.
+async function landFeeBumpWithMergedFeeSource(
+  source: Keypair,
+  baseFee: string,
+): Promise<rpc.Api.GetSuccessfulTransactionResponse> {
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const feeSource = await generateFundedKeypair();
+    const bump = TransactionBuilder.buildFeeBumpTransaction(
+      feeSource,
+      baseFee,
+      await preparedSorobanTx(source),
+      networkPassphrase,
+    );
+    bump.sign(feeSource);
+    // Core queues one transaction per source account, so a third account
+    // sends the merge with the fee source as the operation's source.
+    const merger = await generateFundedKeypair();
+    const merge = new TransactionBuilder(
+      await server.getAccount(merger.publicKey()),
+      { fee: "1000", networkPassphrase },
+    )
+      .addOperation(
+        Operation.accountMerge({
+          source: feeSource.publicKey(),
+          destination: merger.publicKey(),
+        }),
+      )
+      .setTimeout(30)
+      .build();
+    merge.sign(merger, feeSource);
+
+    const [sentBump, sentMerge] = await Promise.all([
+      server.sendTransaction(bump),
+      server.sendTransaction(merge),
+    ]);
+    expect(sentBump.status).toBe("PENDING");
+    expect(sentMerge.status).toBe("PENDING");
+    const [result, merged] = await Promise.all([
+      server.pollTransaction(sentBump.hash, { attempts: 10 }),
+      server.pollTransaction(sentMerge.hash, { attempts: 10 }),
+    ]);
+    if (
+      result.status === rpc.Api.GetTransactionStatus.SUCCESS &&
+      merged.status === rpc.Api.GetTransactionStatus.SUCCESS &&
+      result.ledger === merged.ledger
+    ) {
+      return result;
+    }
+    // They landed in different ledgers, or one didn't land. Try again.
+  }
+  throw new Error("the fee bump and the merge never shared a ledger");
+}
+
+// What a transaction added to the fee pool: the pool's rise over its ledger,
+// from the ledger headers, less the fees of the ledger's other transactions.
+async function feePoolShare(result: Landed): Promise<bigint> {
+  const { ledgers } = await server.getLedgers({
+    startLedger: result.ledger - 1,
+    pagination: { limit: 2 },
+  });
+  expect(ledgers.map(({ sequence }) => sequence)).toEqual([
+    result.ledger - 1,
+    result.ledger,
+  ]);
+  const [previous, current] = ledgers.map(
+    ({ headerXdr }) => headerXdr.header.feePool,
+  );
+  const { transactions } = await server.getTransactions({
+    startLedger: result.ledger,
+    pagination: { limit: 200 },
+  });
+  const others = transactions
+    .filter(
+      ({ ledger, txHash }) =>
+        ledger === result.ledger && txHash !== result.txHash,
+    )
+    .reduce((sum, tx) => sum + tx.resultXdr.feeCharged, 0n);
+  return current! - previous! - others;
+}
+
 describe("rpc.inspectChargedFees", () => {
   let source: Keypair;
 
@@ -226,79 +308,77 @@ describe("rpc.inspectChargedFees", () => {
   // pay for a fee bump and be merged away in the same ledger. The refund then
   // has no account to go to and core keeps it.
   it("reports no refund when the fee source was merged in the same ledger", async () => {
-    for (let attempt = 0; attempt < 5; attempt++) {
-      const feeSource = await generateFundedKeypair();
-      const bump = TransactionBuilder.buildFeeBumpTransaction(
-        feeSource,
-        "2000",
-        await preparedSorobanTx(source),
-        networkPassphrase,
-      );
-      bump.sign(feeSource);
-      // Core queues one transaction per source account, so a third account
-      // sends the merge with the fee source as the operation's source.
-      const merger = await generateFundedKeypair();
-      const merge = new TransactionBuilder(
-        await server.getAccount(merger.publicKey()),
-        { fee: "1000", networkPassphrase },
-      )
-        .addOperation(
-          Operation.accountMerge({
-            source: feeSource.publicKey(),
-            destination: merger.publicKey(),
-          }),
-        )
-        .setTimeout(30)
-        .build();
-      merge.sign(merger, feeSource);
+    const result = await landFeeBumpWithMergedFeeSource(source, "2000");
+    const fees = rpc.inspectChargedFees(result);
+    const declared = BigInt(fees.declared.resource!);
+    const consumed = BigInt(fees.charged.resource!.total);
+    const keptRefund = declared - consumed;
+    expect(keptRefund).toBeGreaterThan(0n);
+    expect(metaFeeEvents(result)).toEqual([
+      {
+        stage: "transactionEventStageBeforeAllTxs",
+        topicType: "scvSymbol",
+        topic: "fee",
+        dataType: "scvI128",
+        amount: 200n + declared,
+      },
+    ]);
+    expect(fees.refunded).toBe("0");
+    expect(fees.charged.inclusion).toBe("200");
+    expect(BigInt(fees.charged.total)).toBe(200n + declared);
 
-      const [sentBump, sentMerge] = await Promise.all([
-        server.sendTransaction(bump),
-        server.sendTransaction(merge),
-      ]);
-      expect(sentBump.status).toBe("PENDING");
-      expect(sentMerge.status).toBe("PENDING");
-      const [result, merged] = await Promise.all([
-        server.pollTransaction(sentBump.hash, { attempts: 10 }),
-        server.pollTransaction(sentMerge.hash, { attempts: 10 }),
-      ]);
-      if (
-        result.status !== rpc.Api.GetTransactionStatus.SUCCESS ||
-        merged.status !== rpc.Api.GetTransactionStatus.SUCCESS ||
-        result.ledger !== merged.ledger
-      ) {
-        // They landed in different ledgers, or one didn't land. Try again.
-        continue;
-      }
+    // The fee pool in the ledger header kept the refund: this transaction's
+    // share of the pool's rise is the inclusion fee plus the whole declared
+    // resource fee, not just the part it consumed.
+    expect(await feePoolShare(result)).toBe(200n + consumed + keptRefund);
 
-      const fees = rpc.inspectChargedFees(result);
-      const declared = BigInt(fees.declared.resource!);
-      const consumed = BigInt(fees.charged.resource!.total);
-      expect(metaFeeEvents(result)).toEqual([
-        {
-          stage: "transactionEventStageBeforeAllTxs",
-          topicType: "scvSymbol",
-          topic: "fee",
-          dataType: "scvI128",
-          amount: 200n + declared,
-        },
-      ]);
-      expect(consumed).toBeLessThan(declared);
-      expect(fees.refunded).toBe("0");
-      expect(fees.charged.inclusion).toBe("200");
-      expect(BigInt(fees.charged.total)).toBe(200n + declared);
+    // Without the events the kept refund would count as inclusion fee.
+    // That is above the bid here, so the derived path gives up.
+    expect(200n + keptRefund).toBeGreaterThan(BigInt(fees.declared.inclusion));
+    const derived = rpc.inspectChargedFees(withoutFeeEvents(result));
+    expect(derived.charged.inclusion).toBeNull();
+    expect(derived.refunded).toBeNull();
+  });
 
-      // Without the events the lost refund would count as inclusion fee.
-      // That is above the bid here, so the derived path gives up.
-      expect(200n + declared - consumed).toBeGreaterThan(
-        BigInt(fees.declared.inclusion),
-      );
-      const derived = rpc.inspectChargedFees(withoutFeeEvents(result));
-      expect(derived.charged.inclusion).toBeNull();
-      expect(derived.refunded).toBeNull();
-      return;
-    }
-    throw new Error("the fee bump and the merge never shared a ledger");
+  // This pins a known wrong answer, and the server behavior that causes it.
+  //
+  // Without fee events, the only rule the protocol gives for the inclusion
+  // fee is the one documented on SorobanTransactionMetaExtV1 in
+  // Stellar-ledger.x: `feeCharged = resourceFeeCharged + inclusionFeeCharged`.
+  // Core breaks that rule when it keeps the refund. `feeCharged` holds the
+  // whole declared resource fee, but the breakdown still shows only what the
+  // transaction consumed, and nothing in it says the refund was skipped.
+  //
+  // So the derived path counts the kept refund as inclusion fee and reports a
+  // refund that was never paid. With a low bid the result is above the bid
+  // and it returns null (the test above). With a high bid, as here, it can't
+  // tell this from a transaction that paid a high inclusion fee and got its
+  // refund.
+  //
+  // RPC always turns fee events on, so this only affects input without them,
+  // such as meta from before protocol 23. If this test fails, core has
+  // changed what it records for a skipped refund and the derived path, its
+  // docs and this test need another look.
+  it("counts a kept refund as inclusion fee without fee events, under a high bid", async () => {
+    const result = await landFeeBumpWithMergedFeeSource(source, "10000000");
+    const fees = rpc.inspectChargedFees(result);
+    const keptRefund =
+      BigInt(fees.declared.resource!) - BigInt(fees.charged.resource!.total);
+    expect(keptRefund).toBeGreaterThan(0n);
+
+    // The truth, from the fee events.
+    expect(fees.charged.inclusion).toBe("200");
+    expect(fees.refunded).toBe("0");
+
+    // The bid is high enough to hide the kept refund.
+    expect(200n + keptRefund).toBeLessThanOrEqual(
+      BigInt(fees.declared.inclusion),
+    );
+    const derived = rpc.inspectChargedFees(withoutFeeEvents(result));
+    expect(derived.charged.inclusion).toBe((200n + keptRefund).toString());
+    expect(derived.refunded).toBe(keptRefund.toString());
+    expect(derived.charged.resource).toEqual(fees.charged.resource);
+    expect(derived.charged.total).toBe(fees.charged.total);
   });
 
   it("reports a landed classic transaction's whole fee as inclusion", async () => {
