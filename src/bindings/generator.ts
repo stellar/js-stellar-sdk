@@ -1,6 +1,12 @@
 import { Spec } from "../contract/index.js";
 import { ConfigGenerator } from "./config.js";
-import { sanitizeIdentifier, toCamelCase, toPascalCase } from "./utils.js";
+import {
+  clientMethodNames,
+  GENERATED_CLIENT_NAMES,
+  sanitizeIdentifier,
+  toCamelCase,
+  toPascalCase,
+} from "./utils.js";
 import { TypeGenerator } from "./types.js";
 import { ClientGenerator } from "./client.js";
 import { specFromWasm } from "../contract/wasm_spec_parser.js";
@@ -43,6 +49,22 @@ export type EventDiagnostic = {
 };
 
 /**
+ * A contract function that the generated `Client` has no method for. Call it
+ * by its raw name with `contract.Client.invoke()`.
+ */
+export type FunctionDiagnostic = {
+  /** The function name exactly as declared in the contract spec */
+  rawName: string;
+  /** The method name that the function would take */
+  methodName: string;
+  /**
+   * `reserved`: the method name is a client member or another reserved name.
+   * `shared`: another function maps to the same method name.
+   */
+  reason: "reserved" | "shared";
+};
+
+/**
  * The output of the binding generation process.
  *
  * Contains all generated TypeScript source files and configuration files
@@ -68,6 +90,11 @@ export type GeneratedBindings = {
    * declarations or collision-driven renames); empty when there are none
    */
   diagnostics: EventDiagnostic[];
+  /**
+   * Contract functions that the generated `Client` has no method for; empty
+   * when every function has one
+   */
+  functionDiagnostics: FunctionDiagnostic[];
 };
 
 /**
@@ -262,6 +289,7 @@ export class BindingGenerator {
     const types = typeGenerator.generate();
     const client = clientGenerator.generate();
     const diagnostics = this.eventDiagnostics(typeGenerator, clientGenerator);
+    const functionDiagnostics = this.functionDiagnostics();
 
     let index = `export { Client } from "./client.js";`;
     if (types.trim() !== "") {
@@ -282,7 +310,37 @@ export class BindingGenerator {
       readme,
       gitignore,
       diagnostics,
+      functionDiagnostics,
     };
+  }
+
+  /**
+   * Collect a {@link FunctionDiagnostic} for every contract function, other
+   * than the constructor, that the generated `Client` has no method for.
+   */
+  private functionDiagnostics(): FunctionDiagnostic[] {
+    const names = [
+      ...new Set(this.spec.funcs().map((func) => func.name.toString())),
+    ];
+    const withMethod = new Set(
+      clientMethodNames(names, GENERATED_CLIENT_NAMES).values(),
+    );
+    return names.flatMap((rawName) => {
+      if (rawName === "__constructor" || withMethod.has(rawName)) {
+        return [];
+      }
+      const methodName = sanitizeIdentifier(rawName);
+      return [
+        {
+          rawName,
+          methodName,
+          reason: GENERATED_CLIENT_NAMES.has(methodName)
+            ? "reserved"
+            : // The last of the three skip rules in `clientMethodNames`.
+              "shared",
+        },
+      ];
+    });
   }
 
   /**

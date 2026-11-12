@@ -422,3 +422,33 @@ describe("bindings client method names", () => {
     expect(output).not.toMatch(/Skipped/);
   });
 });
+
+describe("bindings function diagnostics", () => {
+  const functionDiagnostics = (...names: string[]) =>
+    BindingGenerator.fromSpec(new Spec(names.map(funcEntry))).generate({
+      contractName: "test-contract",
+    }).functionDiagnostics;
+
+  it("reports a function whose method name is reserved", () => {
+    // `fromJson` is reserved only in the generated bindings.
+    expect(functionDiagnostics("toString", "fromJson", "other")).toEqual([
+      { rawName: "toString", methodName: "toString", reason: "reserved" },
+      { rawName: "fromJson", methodName: "fromJson", reason: "reserved" },
+    ]);
+  });
+
+  it("reports each function whose method name another function shares", () => {
+    expect(functionDiagnostics("delete", "delete_", "other", "delete")).toEqual(
+      [
+        { rawName: "delete", methodName: "delete_", reason: "shared" },
+        { rawName: "delete_", methodName: "delete_", reason: "shared" },
+      ],
+    );
+  });
+
+  it("reports nothing when every function has a method", () => {
+    expect(
+      functionDiagnostics("__constructor", "init", "init", "other"),
+    ).toEqual([]);
+  });
+});

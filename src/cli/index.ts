@@ -2,6 +2,7 @@ import { Command } from "commander";
 import * as path from "path";
 
 import { WasmFetchError } from "../bindings/wasm_fetcher.js";
+import { functionWarning, quoteName } from "./messages.js";
 import {
   createGenerator,
   generateAndWrite,
@@ -168,7 +169,7 @@ function runCli() {
         for (const d of bindings.diagnostics) {
           if (d.declarations > 1) {
             console.warn(
-              `\n⚠ Event "${d.rawName}" is declared ${d.declarations} times; ` +
+              `\n⚠ Event ${quoteName(d.rawName)} is declared ${d.declarations} times; ` +
                 `declaration ${d.occurrence + 1} generated as ` +
                 `${d.interfaceName} with filter ${d.filterMethodName}(). ` +
                 `Review the generated bindings to confirm which declaration ` +
@@ -180,12 +181,16 @@ function runCli() {
               ...(d.filterMethodRenamed ? [`${d.filterMethodName}()`] : []),
             ];
             console.warn(
-              `\n⚠ Event "${d.rawName}": generated name` +
+              `\n⚠ Event ${quoteName(d.rawName)}: generated name` +
                 `${renamed.length > 1 ? "s" : ""} ${renamed.join(" and ")} ` +
                 `${renamed.length > 1 ? "were" : "was"} renamed to avoid a ` +
                 `collision with another generated name.`,
             );
           }
+        }
+
+        for (const d of bindings.functionDiagnostics) {
+          console.warn(`\n${functionWarning(d)}`);
         }
 
         console.log(

@@ -107,6 +107,16 @@ export const RESERVED_CLIENT_NAMES: ReadonlySet<string> = new Set([
 ]);
 
 /**
+ * {@link RESERVED_CLIENT_NAMES} plus the `fromJson` and `fromJSON` fields that
+ * the generated bindings `Client` class declares.
+ */
+export const GENERATED_CLIENT_NAMES: ReadonlySet<string> = new Set([
+  ...RESERVED_CLIENT_NAMES,
+  "fromJson",
+  "fromJSON",
+]);
+
+/**
  * Map each client property to the contract function it calls. It never
  * throws. `__constructor`, functions whose property is in `reserved`, and
  * functions whose property another function name also maps to get no
