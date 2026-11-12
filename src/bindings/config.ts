@@ -4,10 +4,16 @@
 // relative path `../../package.json` resolved into the output tree rather
 // than the project root.
 
+import { escapeStringLiteral } from "./utils.js";
+
 declare const __PACKAGE_VERSION__: string;
+
+const TESTNET_PASSPHRASE = "Test SDF Network ; September 2015";
 
 export interface ConfigGenerateOptions {
   contractName: string;
+  contractId?: string;
+  networkPassphrase?: string;
 }
 
 export interface Configs {
@@ -25,14 +31,14 @@ export class ConfigGenerator {
    * Generate the complete TypeScript project
    */
   generate(options: ConfigGenerateOptions): Configs {
-    const { contractName } = options;
+    const { contractName, contractId, networkPassphrase } = options;
 
     // Generate all project files
     return {
       packageJson: this.generatePackageJson(contractName),
       tsConfig: this.generateTsConfig(),
       gitignore: this.generateGitignore(),
-      readme: this.generateReadme(contractName),
+      readme: this.generateReadme(contractName, contractId, networkPassphrase),
     };
   }
 
@@ -117,7 +123,16 @@ export class ConfigGenerator {
   /**
    * Generate README.md
    */
-  private generateReadme(contractName: string): string {
+  private generateReadme(
+    contractName: string,
+    contractId: string = "YOUR_CONTRACT_ID",
+    networkPassphrase: string = TESTNET_PASSPHRASE,
+  ): string {
+    // the RPC URL is never written: it is not known here and may hold a key
+    const rpcUrl =
+      networkPassphrase === TESTNET_PASSPHRASE
+        ? "https://soroban-testnet.stellar.org:443"
+        : "YOUR_RPC_URL";
     const readme = [
       `# ${contractName} Contract Bindings`,
       "",
@@ -141,9 +156,9 @@ export class ConfigGenerator {
       'import { Client } from "./src";',
       "",
       "const client = new Client({",
-      '  contractId: "YOUR_CONTRACT_ID",',
-      '  rpcUrl: "https://soroban-testnet.stellar.org:443",',
-      '  networkPassphrase: "Test SDF Network ; September 2015",',
+      `  contractId: "${escapeStringLiteral(contractId)}",`,
+      `  rpcUrl: "${rpcUrl}",`,
+      `  networkPassphrase: "${escapeStringLiteral(networkPassphrase)}",`,
       "});",
       "",
       "// Call contract methods",
