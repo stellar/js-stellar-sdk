@@ -181,6 +181,15 @@ function assertClaimableBalanceDiscriminant(data: Uint8Array): void {
  * StrKey is a helper class that allows encoding and decoding Stellar keys
  * to/from strings, i.e. between their binary (Uint8Array, xdr.PublicKey, etc.) and
  * string (i.e. "GABCD...", etc.) representations.
+ *
+ * For input validation in UIs or form layers, prefer the `isValid*` static
+ * methods on this class (e.g. {@link StrKey.isValidEd25519PublicKey},
+ * {@link StrKey.isValidContract}) rather than reimplementing base32 + version
+ * byte + CRC16-XModem checks by hand. The naive approaches to that decoding
+ * are easy to get subtly wrong (for example, JavaScript's bitwise operators
+ * coerce to a signed 32-bit int, which truncates intermediate state when
+ * decoding the full 56-char payload), and silently accept some invalid
+ * addresses while rejecting valid ones.
  */
 export class StrKey {
   static types = strkeyTypes;
@@ -209,7 +218,21 @@ export class StrKey {
   /**
    * Returns true if the given Stellar public key is a valid ed25519 public key.
    *
+   * Validates the full strkey envelope: length, version byte prefix (`G...`),
+   * base32 alphabet, and the CRC16-XModem checksum at the tail. Prefer this
+   * over writing a prefix + length regex in a form validator.
+   *
    * @param publicKey - public key to check
+   *
+   * @example
+   * ```ts
+   * import { StrKey } from "@stellar/stellar-sdk";
+   *
+   * const zod = z.string().refine(
+   *   (addr) => StrKey.isValidEd25519PublicKey(addr),
+   *   { message: "Enter a valid Stellar account address (G...)" },
+   * );
+   * ```
    */
   static isValidEd25519PublicKey(publicKey: string): boolean {
     return isValid("ed25519PublicKey", publicKey);
@@ -353,7 +376,20 @@ export class StrKey {
   /**
    * Checks validity of alleged contract (C...) strkey address.
    *
+   * Validates length, the `C` version byte, base32 alphabet, and the
+   * CRC16-XModem checksum. Use this when accepting a Soroban contract
+   * address from user input, QR scan, or clipboard paste.
+   *
    * @param address - signer key to check
+   *
+   * @example
+   * ```ts
+   * import { StrKey } from "@stellar/stellar-sdk";
+   *
+   * function acceptsGOrC(addr: string): boolean {
+   *   return StrKey.isValidEd25519PublicKey(addr) || StrKey.isValidContract(addr);
+   * }
+   * ```
    */
   static isValidContract(address: string): boolean {
     return isValid("contract", address);
