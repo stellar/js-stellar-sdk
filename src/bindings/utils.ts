@@ -106,18 +106,16 @@ export const RESERVED_CLIENT_NAMES: ReadonlySet<string> = new Set([
   ...Object.getOwnPropertyNames(Object.prototype),
 ]);
 
-/**
- * {@link RESERVED_CLIENT_NAMES} plus the `fromJson` and `fromJSON` fields that
- * the generated bindings `Client` class declares.
- */
-export const GENERATED_CLIENT_NAMES: ReadonlySet<string> = new Set([
-  ...RESERVED_CLIENT_NAMES,
-  "fromJson",
-  "fromJSON",
-]);
-
 /** Why a contract function gets no client property. */
 export type NoMethodReason = "constructor" | "reserved" | "shared";
+
+/** The result of {@link clientMethodNames}. */
+export type ClientMethodNames = {
+  /** The sanitized property name of each function, mapped to its raw name */
+  methods: Map<string, string>;
+  /** Each raw name with no property, mapped to the reason */
+  skipped: Map<string, NoMethodReason>;
+};
 
 /**
  * Map each client property to the contract function it calls. It never
@@ -126,13 +124,13 @@ export type NoMethodReason = "constructor" | "reserved" | "shared";
  * property, so a call never reaches a function the caller did not name.
  * @param names - The raw contract function names, in spec order
  * @param reserved - Property names that a contract function must not take
- * @returns `methods`: the sanitized property name of each function, mapped to
- * its raw name. `skipped`: each raw name with no property, mapped to the reason.
+ * @returns The property of each function, and the reason for each function
+ * without one
  */
 export function clientMethodNames(
   names: string[],
   reserved: ReadonlySet<string> = RESERVED_CLIENT_NAMES,
-): { methods: Map<string, string>; skipped: Map<string, NoMethodReason> } {
+): ClientMethodNames {
   const methods = new Map<string, string>();
   const skipped = new Map<string, NoMethodReason>();
   // Properties that two different raw names map to.

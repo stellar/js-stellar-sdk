@@ -318,20 +318,24 @@ export class BindingGenerator {
     clientGenerator: ClientGenerator,
   ): FunctionDiagnostic[] {
     const skipped = clientGenerator.skippedFunctions();
-    const names = new Set(
-      this.spec.funcs().map((func) => func.name.toString()),
-    );
-    return [...names].flatMap((rawName) => {
+    const seen = new Set<string>();
+    return this.spec.funcs().flatMap((func) => {
+      const rawName = func.name.toString();
       const reason = skipped.get(rawName);
-      if (reason === undefined || reason === "constructor") {
+      if (
+        seen.has(rawName) ||
+        reason === undefined ||
+        reason === "constructor"
+      ) {
         return [];
       }
+      seen.add(rawName);
       return [
         {
           rawName,
           methodName: sanitizeIdentifier(rawName),
           reason,
-          hasInputs: this.spec.getFunc(rawName).inputs.length > 0,
+          hasInputs: func.inputs.length > 0,
         },
       ];
     });

@@ -3,8 +3,9 @@ import {
   parseTypeFromTypeDef,
   generateTypeImports,
   sanitizeIdentifier,
-  GENERATED_CLIENT_NAMES,
+  RESERVED_CLIENT_NAMES,
   clientMethodNames,
+  type ClientMethodNames,
   escapeStringLiteral,
   type NoMethodReason,
   propertyKey,
@@ -18,6 +19,13 @@ import {
   ScSpecFunctionInputV0,
   ScSpecFunctionV0,
 } from "../xdr/index.js";
+
+// The generated class also declares `fromJson` and `fromJSON` fields.
+const GENERATED_CLIENT_NAMES: ReadonlySet<string> = new Set([
+  ...RESERVED_CLIENT_NAMES,
+  "fromJson",
+  "fromJSON",
+]);
 
 interface MethodInput {
   /** Property key in the args object type: the raw spec name, quoted if needed. */
@@ -38,7 +46,7 @@ export class ClientGenerator {
   private eventFilterMethodNames: Map<number, string> | null = null;
 
   // Lazily computed on first use; see resolveMethodNames().
-  private methodNames: ReturnType<typeof clientMethodNames> | null = null;
+  private methodNames: ClientMethodNames | null = null;
 
   constructor(spec: Spec) {
     this.spec = spec;
@@ -239,7 +247,7 @@ ${eventMethods}
     return resolved;
   }
 
-  private resolveMethodNames(): ReturnType<typeof clientMethodNames> {
+  private resolveMethodNames(): ClientMethodNames {
     if (this.methodNames === null) {
       this.methodNames = clientMethodNames(
         this.spec.funcs().map((func) => func.name.toString()),
