@@ -1,12 +1,6 @@
 import { Spec } from "../contract/index.js";
 import { ConfigGenerator } from "./config.js";
-import {
-  clientMethodNames,
-  GENERATED_CLIENT_NAMES,
-  sanitizeIdentifier,
-  toCamelCase,
-  toPascalCase,
-} from "./utils.js";
+import { sanitizeIdentifier, toCamelCase, toPascalCase } from "./utils.js";
 import { TypeGenerator } from "./types.js";
 import { ClientGenerator } from "./client.js";
 import { specFromWasm } from "../contract/wasm_spec_parser.js";
@@ -62,6 +56,8 @@ export type FunctionDiagnostic = {
    * `shared`: another function maps to the same method name.
    */
   reason: "reserved" | "shared";
+  /** Whether the function takes arguments */
+  hasInputs: boolean;
 };
 
 /**
@@ -289,7 +285,7 @@ export class BindingGenerator {
     const types = typeGenerator.generate();
     const client = clientGenerator.generate();
     const diagnostics = this.eventDiagnostics(typeGenerator, clientGenerator);
-    const functionDiagnostics = this.functionDiagnostics();
+    const functionDiagnostics = this.functionDiagnostics(clientGenerator);
 
     let index = `export { Client } from "./client.js";`;
     if (types.trim() !== "") {
@@ -318,26 +314,24 @@ export class BindingGenerator {
    * Collect a {@link FunctionDiagnostic} for every contract function, other
    * than the constructor, that the generated `Client` has no method for.
    */
-  private functionDiagnostics(): FunctionDiagnostic[] {
-    const names = [
-      ...new Set(this.spec.funcs().map((func) => func.name.toString())),
-    ];
-    const withMethod = new Set(
-      clientMethodNames(names, GENERATED_CLIENT_NAMES).values(),
+  private functionDiagnostics(
+    clientGenerator: ClientGenerator,
+  ): FunctionDiagnostic[] {
+    const skipped = clientGenerator.skippedFunctions();
+    const names = new Set(
+      this.spec.funcs().map((func) => func.name.toString()),
     );
-    return names.flatMap((rawName) => {
-      if (rawName === "__constructor" || withMethod.has(rawName)) {
+    return [...names].flatMap((rawName) => {
+      const reason = skipped.get(rawName);
+      if (reason === undefined || reason === "constructor") {
         return [];
       }
-      const methodName = sanitizeIdentifier(rawName);
       return [
         {
           rawName,
-          methodName,
-          reason: GENERATED_CLIENT_NAMES.has(methodName)
-            ? "reserved"
-            : // The last of the three skip rules in `clientMethodNames`.
-              "shared",
+          methodName: sanitizeIdentifier(rawName),
+          reason,
+          hasInputs: this.spec.getFunc(rawName).inputs.length > 0,
         },
       ];
     });

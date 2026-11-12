@@ -6,6 +6,7 @@ import {
   GENERATED_CLIENT_NAMES,
   clientMethodNames,
   escapeStringLiteral,
+  type NoMethodReason,
   propertyKey,
   formatJSDocComment,
   formatImports,
@@ -36,6 +37,9 @@ export class ClientGenerator {
   // Lazily computed on first use; see resolveEventFilterMethodNames().
   private eventFilterMethodNames: Map<number, string> | null = null;
 
+  // Lazily computed on first use; see resolveMethodNames().
+  private methodNames: ReturnType<typeof clientMethodNames> | null = null;
+
   constructor(spec: Spec) {
     this.spec = spec;
   }
@@ -45,10 +49,7 @@ export class ClientGenerator {
    */
   generate(): string {
     const methodFuncs = Array.from(
-      clientMethodNames(
-        this.spec.funcs().map((func) => func.name.toString()),
-        GENERATED_CLIENT_NAMES,
-      ).values(),
+      this.resolveMethodNames().methods.values(),
       (name) => this.spec.getFunc(name),
     );
     // Generate constructor method if it exists
@@ -236,6 +237,25 @@ ${eventMethods}
 
     this.eventFilterMethodNames = resolved;
     return resolved;
+  }
+
+  private resolveMethodNames(): ReturnType<typeof clientMethodNames> {
+    if (this.methodNames === null) {
+      this.methodNames = clientMethodNames(
+        this.spec.funcs().map((func) => func.name.toString()),
+        GENERATED_CLIENT_NAMES,
+      );
+    }
+    return this.methodNames;
+  }
+
+  /**
+   * Each contract function that the generated client has no method for,
+   * mapped to the reason. Exposed so the bindings generator's diagnostics
+   * describe what the client emits.
+   */
+  skippedFunctions(): ReadonlyMap<string, NoMethodReason> {
+    return this.resolveMethodNames().skipped;
   }
 
   /**

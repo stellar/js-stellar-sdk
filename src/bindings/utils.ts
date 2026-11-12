@@ -116,6 +116,9 @@ export const GENERATED_CLIENT_NAMES: ReadonlySet<string> = new Set([
   "fromJSON",
 ]);
 
+/** Why a contract function gets no client property. */
+export type NoMethodReason = "constructor" | "reserved" | "shared";
+
 /**
  * Map each client property to the contract function it calls. It never
  * throws. `__constructor`, functions whose property is in `reserved`, and
@@ -123,22 +126,29 @@ export const GENERATED_CLIENT_NAMES: ReadonlySet<string> = new Set([
  * property, so a call never reaches a function the caller did not name.
  * @param names - The raw contract function names, in spec order
  * @param reserved - Property names that a contract function must not take
- * @returns The sanitized property name of each function, mapped to its raw name
+ * @returns `methods`: the sanitized property name of each function, mapped to
+ * its raw name. `skipped`: each raw name with no property, mapped to the reason.
  */
 export function clientMethodNames(
   names: string[],
   reserved: ReadonlySet<string> = RESERVED_CLIENT_NAMES,
-): Map<string, string> {
+): { methods: Map<string, string>; skipped: Map<string, NoMethodReason> } {
   const methods = new Map<string, string>();
+  const skipped = new Map<string, NoMethodReason>();
   // Properties that two different raw names map to.
   const shared = new Set<string>();
   for (const name of names) {
     const property = sanitizeIdentifier(name);
-    if (
-      name === "__constructor" ||
-      reserved.has(property) ||
-      shared.has(property)
-    ) {
+    if (name === "__constructor") {
+      skipped.set(name, "constructor");
+      continue;
+    }
+    if (reserved.has(property)) {
+      skipped.set(name, "reserved");
+      continue;
+    }
+    if (shared.has(property)) {
+      skipped.set(name, "shared");
       continue;
     }
     const owner = methods.get(property);
@@ -147,9 +157,11 @@ export function clientMethodNames(
     } else if (owner !== name) {
       methods.delete(property);
       shared.add(property);
+      skipped.set(owner, "shared");
+      skipped.set(name, "shared");
     }
   }
-  return methods;
+  return { methods, skipped };
 }
 
 /**
