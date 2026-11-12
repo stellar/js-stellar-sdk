@@ -1731,6 +1731,32 @@ a new, cloned transaction with the proper auth and resource (fee, footprint) sim
 
 **Source:** [src/rpc/transaction.ts:46](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/transaction.ts#L46)
 
+## rpc.inspectChargedFees
+
+Reports what a landed transaction declared and was charged, with the Soroban
+resource fee split out. It makes no network calls.
+
+The inclusion fee and refund are read from the fee events in meta v4. Without
+them (before protocol 23) the inclusion fee is the fee charged less the
+resource fee consumed. If core skipped the refund, that counts the kept
+refund as inclusion fee, or gives `null` for both when it passes the
+declared inclusion fee.
+
+```ts
+inspectChargedFees(tx: ChargedFeesInput): ChargedFees
+```
+
+**Parameters**
+
+- **`tx`** — `ChargedFeesInput` (required) — a `getTransaction` response with status `SUCCESS` or `FAILED`,
+  or a `getTransactions` entry
+
+**Throws**
+
+- if `tx` has no envelope, result or meta, as a `NOT_FOUND` response
+
+**Source:** [src/rpc/fees.ts:70](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/fees.ts#L70)
+
 ## rpc.parseRawEvents
 
 Parse and return the retrieved events, if any, from a raw response from a
@@ -5285,6 +5311,100 @@ txHash: string;
 ```
 
 **Source:** [src/rpc/api.ts:213](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/api.ts#L213)
+
+### rpc.ChargedFees
+
+The fees a transaction declared and was charged, in stroops, as decimal strings.
+
+```ts
+interface ChargedFees {
+  charged: { inclusion: string | null; resource: { nonRefundable: string; refundable: string; rent: string; total: string } | null; total: string };
+  declared: { inclusion: string; max: string; resource: string | null };
+  refunded: string | null;
+}
+```
+
+**Source:** [src/rpc/fees.ts:21](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/fees.ts#L21)
+
+#### `chargedFees.charged`
+
+the charged fees. `total` is what the fee source paid, after any refund.
+`resource` is what the transaction consumed, and is `null` when the meta
+has no Soroban fee breakdown or one that doesn't fit the declared
+resource fee. `inclusion` is `null` when it can't be worked out or falls
+outside the declared one. For a classic transaction, `inclusion` is the
+total. `rent` is part of `refundable`.
+
+```ts
+charged: { inclusion: string | null; resource: { nonRefundable: string; refundable: string; rent: string; total: string } | null; total: string };
+```
+
+**Source:** [src/rpc/fees.ts:36](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/fees.ts#L36)
+
+#### `chargedFees.declared`
+
+the declared fees. `inclusion` is `max - resource`, and is negative if
+the envelope declares a resource fee above `max`. For a fee bump, `max`
+is the outer fee and `resource` comes from the inner transaction.
+
+```ts
+declared: { inclusion: string; max: string; resource: string | null };
+```
+
+**Source:** [src/rpc/fees.ts:27](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/fees.ts#L27)
+
+#### `chargedFees.refunded`
+
+the resource fee core paid back, or `null` when unknown or for a classic
+transaction. Core skips the refund if the fee source was merged in the
+same ledger or its liabilities block the credit. With fee events this is
+then `"0"`, and `charged.total` is above `inclusion` plus `resource.total`
+by the lost amount.
+
+```ts
+refunded: string | null;
+```
+
+**Source:** [src/rpc/fees.ts:53](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/fees.ts#L53)
+
+### rpc.ChargedFeesInput
+
+The input to [`inspectChargedFees`](#rpcinspectchargedfees): a `getTransaction` response with
+status `SUCCESS` or `FAILED`, or a `getTransactions` entry.
+
+```ts
+interface ChargedFeesInput {
+  envelopeXdr: TransactionEnvelope;
+  resultMetaXdr: TransactionMeta;
+  resultXdr: TransactionResult;
+}
+```
+
+**Source:** [src/rpc/fees.ts:14](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/fees.ts#L14)
+
+#### `chargedFeesInput.envelopeXdr`
+
+```ts
+envelopeXdr: TransactionEnvelope;
+```
+
+**Source:** [src/rpc/fees.ts:15](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/fees.ts#L15)
+
+#### `chargedFeesInput.resultMetaXdr`
+
+```ts
+resultMetaXdr: TransactionMeta;
+```
+
+**Source:** [src/rpc/fees.ts:17](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/fees.ts#L17)
+
+#### `chargedFeesInput.resultXdr`
+
+```ts
+resultXdr: TransactionResult;
+```
+
+**Source:** [src/rpc/fees.ts:16](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/fees.ts#L16)
 
 ### rpc.Durability
 
