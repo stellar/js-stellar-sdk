@@ -1734,8 +1734,10 @@ Reports what a landed transaction declared and was charged, with the Soroban
 resource fee split out. It makes no network calls.
 
 The inclusion fee and refund are read from the fee events in meta v4. Without
-them (before protocol 23) they are worked out from the fee breakdown, and
-both are `null` if that shows core skipped the refund.
+them (before protocol 23) the inclusion fee is the fee charged less the
+resource fee consumed. If core skipped the refund, that counts the kept
+refund as inclusion fee, or gives `null` for both when it passes the
+declared inclusion fee.
 
 ```ts
 inspectChargedFees(tx: ChargedFeesInput): ChargedFees
@@ -1750,7 +1752,7 @@ inspectChargedFees(tx: ChargedFeesInput): ChargedFees
 
 - if `tx` has no envelope, result or meta, as a `NOT_FOUND` response
 
-**Source:** [src/rpc/fees.ts:68](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/fees.ts#L68)
+**Source:** [src/rpc/fees.ts:70](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/fees.ts#L70)
 
 ## rpc.parseRawEvents
 
@@ -5352,9 +5354,9 @@ declared: { inclusion: string; max: string; resource: string | null };
 
 the resource fee core paid back, or `null` when unknown or for a classic
 transaction. Core skips the refund if the fee source was merged in the
-same ledger or its liabilities block the credit. This is then `"0"`, and
-`charged.total` is above `inclusion` plus `resource.total` by the lost
-amount.
+same ledger or its liabilities block the credit. With fee events this is
+then `"0"`, and `charged.total` is above `inclusion` plus `resource.total`
+by the lost amount.
 
 ```ts
 refunded: string | null;
