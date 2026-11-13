@@ -3,6 +3,7 @@ import { xdr, contract } from "../../../src/index.js";
 import { TypeGenerator } from "../../../src/bindings/types.js";
 import { ClientGenerator } from "../../../src/bindings/client.js";
 import { BindingGenerator } from "../../../src/bindings/generator.js";
+import { clientMethodNames } from "../../../src/bindings/utils.js";
 
 const { Spec } = contract;
 
@@ -420,5 +421,127 @@ describe("bindings client method names", () => {
 
     expect(output).toMatch(/^import \{Init\} from '\.\/types\.js';$/m);
     expect(output).not.toMatch(/Skipped/);
+  });
+});
+
+describe("bindings function diagnostics", () => {
+  const functionDiagnostics = (...names: string[]) =>
+    BindingGenerator.fromSpec(new Spec(names.map(funcEntry))).generate({
+      contractName: "test-contract",
+    }).functionDiagnostics;
+
+  it("reports a function whose method name is reserved", () => {
+    // `fromJson` is reserved only in the generated bindings.
+    expect(functionDiagnostics("toString", "fromJson", "other")).toEqual([
+      {
+        rawName: "toString",
+        methodName: "toString",
+        reason: "reserved",
+        hasInputs: false,
+      },
+      {
+        rawName: "fromJson",
+        methodName: "fromJson",
+        reason: "reserved",
+        hasInputs: false,
+      },
+    ]);
+  });
+
+  it("reports each function whose method name another function shares", () => {
+    expect(functionDiagnostics("delete", "delete_", "other", "delete")).toEqual(
+      [
+        {
+          rawName: "delete",
+          methodName: "delete_",
+          reason: "shared",
+          hasInputs: false,
+        },
+        {
+          rawName: "delete_",
+          methodName: "delete_",
+          reason: "shared",
+          hasInputs: false,
+        },
+      ],
+    );
+  });
+
+  it("reports whether a function takes inputs", () => {
+    const toString = xdr.ScSpecEntry.scSpecEntryFunctionV0(
+      new xdr.ScSpecFunctionV0({
+        doc: "",
+        name: "toString",
+        inputs: [
+          new xdr.ScSpecFunctionInputV0({
+            doc: "",
+            name: "radix",
+            type: u32Type,
+          }),
+        ],
+        outputs: [],
+      }),
+    );
+    const { functionDiagnostics } = BindingGenerator.fromSpec(
+      new Spec([toString]),
+    ).generate({ contractName: "test-contract" });
+    expect(functionDiagnostics).toEqual([
+      {
+        rawName: "toString",
+        methodName: "toString",
+        reason: "reserved",
+        hasInputs: true,
+      },
+    ]);
+  });
+
+  it("reports nothing when every function has a method", () => {
+    expect(
+      functionDiagnostics("__constructor", "init", "init", "other"),
+    ).toEqual([]);
+  });
+});
+
+describe("clientMethodNames", () => {
+  it("gives the reason for every function that gets no property", () => {
+    const { methods, skipped } = clientMethodNames([
+      "__constructor",
+      "toString",
+      "delete",
+      "other",
+      "delete_",
+      "delete",
+    ]);
+    expect(methods).toEqual(new Map([["other", "other"]]));
+    expect(skipped).toEqual(
+      new Map([
+        ["__constructor", "constructor"],
+        ["toString", "reserved"],
+        ["delete", "shared"],
+        ["delete_", "shared"],
+      ]),
+    );
+  });
+
+  it("puts every name in methods or skipped, never both", () => {
+    const names = [
+      "__constructor",
+      "toString",
+      "__proto__",
+      "delete",
+      "delete_",
+      "delete",
+      "a-b",
+      "a_b",
+      "init",
+      "init",
+      "",
+      "1a",
+    ];
+    const { methods, skipped } = clientMethodNames(names);
+    const withMethod = new Set(methods.values());
+    expect(
+      names.filter((name) => withMethod.has(name) === skipped.has(name)),
+    ).toEqual([]);
   });
 });

@@ -37,11 +37,7 @@ import {
   parseRawLatestLedger,
 } from "./parsers.js";
 import { Utils } from "../utils.js";
-import {
-  RESERVED_CLIENT_NAMES,
-  clientMethodNames,
-  sanitizeIdentifier,
-} from "../bindings/utils.js";
+import { clientMethodNames } from "../bindings/utils.js";
 import type { HttpClient } from "../http-client/index.js";
 import {
   AccountEntry,
@@ -1118,10 +1114,11 @@ export class RpcServer {
     });
 
     const funcs = client.spec.funcs();
-    const clientMethods = new Map<string, string>();
-    clientMethodNames(funcs.map((fn) => fn.name.toString())).forEach(
-      (name, property) => clientMethods.set(name, property),
+    const { methods, skipped } = clientMethodNames(
+      funcs.map((fn) => fn.name.toString()),
     );
+    const clientMethods = new Map<string, string>();
+    methods.forEach((name, property) => clientMethods.set(name, property));
 
     return funcs.map((fn) => {
       const doc = fn.doc.toString();
@@ -1137,15 +1134,11 @@ export class RpcServer {
         method.doc = doc;
       }
       const clientMethod = clientMethods.get(method.name);
+      const noMethodReason = skipped.get(method.name);
       if (clientMethod !== undefined) {
         method.clientMethod = clientMethod;
-      } else if (method.name === "__constructor") {
-        method.noMethodReason = "constructor";
-      } else if (RESERVED_CLIENT_NAMES.has(sanitizeIdentifier(method.name))) {
-        method.noMethodReason = "reserved";
-      } else {
-        // The last of the three skip rules in `clientMethodNames`.
-        method.noMethodReason = "shared";
+      } else if (noMethodReason !== undefined) {
+        method.noMethodReason = noMethodReason;
       }
       return method;
     });
