@@ -425,7 +425,7 @@ automatically only for `--network localnet` on its default URL.
 | `--wasm <path>`                     | Path to a local WASM file                                                                                                               |
 | `--wasm-hash <hash>`                | Hex-encoded hash of WASM blob on the network                                                                                            |
 | `--contract-id <id>`                | Contract ID of a deployed contract                                                                                                      |
-| `--id <id>`                         | Alias of `--contract-id`. Passing both with different values is an error                                                                |
+| `--id <id>`                         | Alias of `--contract-id`                                                                                                                |
 | `--rpc-url <url>`                   | Stellar RPC server URL (has defaults for testnet/futurenet/localnet, required for mainnet)                                              |
 | `--network <network>`               | Network to use: `testnet`, `mainnet`, `futurenet`, or `localnet` (this or `--network-passphrase` is required for network sources)       |
 | `--network-passphrase <passphrase>` | Passphrase of a network that `--network` does not name; use with `--rpc-url`. With `--network`, it must match that network's passphrase |

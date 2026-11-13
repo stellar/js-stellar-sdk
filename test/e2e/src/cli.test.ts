@@ -48,7 +48,7 @@ describe("CLI generate command", () => {
     expect(result.stdout).toContain("--allow-http");
     expect(result.stdout).toContain("--timeout");
     expect(result.stdout).toContain("--headers");
-    expect(result.stdout).toContain("--id <id>");
+    expect(result.stdout).toContain("--id, --contract-id <id>");
     expect(result.stdout).toContain("--network-passphrase <passphrase>");
     expect(result.stdout).toContain("--rpc-header <header>");
   });
@@ -311,19 +311,6 @@ describe("CLI generate command", () => {
       expect(
         fs.readFileSync(path.join(testOutputDir, "src/index.ts"), "utf8"),
       ).toContain(`contractId: "${contractId}",`);
-    });
-
-    it("fails when --id and --contract-id differ", () => {
-      const testOutputDir = path.join(outputDir, "id-conflict");
-
-      const result = runCli(
-        `generate --id CABC --contract-id CXYZ --network localnet --output-dir ${testOutputDir}`,
-      );
-
-      expect(result.status).toBe(1);
-      expect(result.stderr).toContain(
-        "--contract-id (CXYZ) and --id (CABC) are aliases and must not differ",
-      );
     });
 
     it("generates with --rpc-url and --network-passphrase and no --network", async () => {

@@ -10,7 +10,7 @@ import { RpcServer } from "../rpc/server.js";
 import { Networks } from "../base/index.js";
 
 /** Passphrase and default RPC URL of each network name `--network` accepts. */
-export const NETWORK_CONFIG: Record<
+const NETWORK_CONFIG: Record<
   string,
   { passphrase: string; rpcUrl: string | null }
 > = {
@@ -60,10 +60,6 @@ export function resolveNetwork(args: ResolveNetworkArgs): ResolvedNetwork {
     allowHttp: args.allowHttp ?? false,
   };
 
-  if (args.networkPassphrase === "") {
-    throw new Error("--network-passphrase cannot be empty");
-  }
-
   if (!args.network) {
     return resolved;
   }
@@ -108,22 +104,6 @@ export function resolveNetwork(args: ResolveNetworkArgs): ResolvedNetwork {
   return resolved;
 }
 
-/**
- * Merge `--contract-id` and its `--id` alias into one value, rejecting two
- * different values.
- */
-export function resolveContractId(
-  contractId?: string,
-  id?: string,
-): string | undefined {
-  if (contractId !== undefined && id !== undefined && contractId !== id) {
-    throw new Error(
-      `--contract-id (${contractId}) and --id (${id}) are aliases and must not differ. Pass only one.`,
-    );
-  }
-  return contractId ?? id;
-}
-
 /** Parse one `--rpc-header "Name: value"` into its name and value. */
 export function parseRpcHeader(header: string): [string, string] {
   const separator = header.indexOf(":");
@@ -138,8 +118,9 @@ export function parseRpcHeader(header: string): [string, string] {
 }
 
 /**
- * Merge the `--headers` JSON object with repeated `--rpc-header` values. On a
- * name used by both (compared without case), the `--rpc-header` value wins.
+ * Merge the `--headers` JSON object with repeated `--rpc-header` values. A
+ * `--rpc-header` replaces any earlier header of the same name, compared
+ * without case.
  */
 export function resolveHeaders(
   headersJson?: string,
@@ -157,23 +138,14 @@ export function resolveHeaders(
     return headers;
   }
 
-  if (
-    headers !== undefined &&
-    (headers === null || typeof headers !== "object" || Array.isArray(headers))
-  ) {
-    throw new Error(
-      "--headers must be a JSON object when combined with --rpc-header",
-    );
-  }
-
-  const merged = new Map<string, [string, string]>();
-  Object.entries(headers ?? {}).forEach(([name, value]) => {
-    merged.set(name.toLowerCase(), [name, value]);
-  });
+  const merged: Record<string, string> = { ...headers };
   rpcHeaders.map(parseRpcHeader).forEach(([name, value]) => {
-    merged.set(name.toLowerCase(), [name, value]);
+    Object.keys(merged)
+      .filter((existing) => existing.toLowerCase() === name.toLowerCase())
+      .forEach((existing) => delete merged[existing]);
+    merged[name] = value;
   });
-  return Object.fromEntries(merged.values());
+  return merged;
 }
 
 export type GenerateAndWriteOptions = GenerateOptions & {

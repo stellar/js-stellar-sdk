@@ -1,9 +1,10 @@
+import { createServer } from "node:http";
+import type { AddressInfo } from "node:net";
 import { describe, it, expect } from "vitest";
-import { Networks } from "../../../src/index.js";
+import { Networks, StrKey } from "../../../src/index.js";
 import {
   createGenerator,
   parseRpcHeader,
-  resolveContractId,
   resolveHeaders,
   resolveNetwork,
 } from "../../../src/cli/util.js";
@@ -54,12 +55,6 @@ describe("resolveNetwork", () => {
         allowHttp: true,
       }).allowHttp,
     ).toBe(true);
-  });
-
-  it("rejects an empty --network-passphrase", () => {
-    expect(() => resolveNetwork({ networkPassphrase: "" })).toThrow(
-      "--network-passphrase cannot be empty",
-    );
   });
 
   it("maps a named network to its passphrase and default RPC URL", () => {
@@ -132,27 +127,6 @@ describe("resolveNetwork", () => {
   });
 });
 
-describe("resolveContractId", () => {
-  it("returns undefined when neither flag is given", () => {
-    expect(resolveContractId()).toBeUndefined();
-  });
-
-  it("accepts either flag alone", () => {
-    expect(resolveContractId("CABC")).toBe("CABC");
-    expect(resolveContractId(undefined, "CABC")).toBe("CABC");
-  });
-
-  it("accepts both flags with the same value", () => {
-    expect(resolveContractId("CABC", "CABC")).toBe("CABC");
-  });
-
-  it("rejects both flags with different values", () => {
-    expect(() => resolveContractId("CABC", "CXYZ")).toThrow(
-      "--contract-id (CABC) and --id (CXYZ) are aliases and must not differ",
-    );
-  });
-});
-
 describe("parseRpcHeader", () => {
   it("splits on the first colon and trims both sides", () => {
     expect(parseRpcHeader("X-Test: 1")).toEqual(["X-Test", "1"]);
@@ -167,10 +141,16 @@ describe("parseRpcHeader", () => {
     expect(parseRpcHeader("X-Empty:")).toEqual(["X-Empty", ""]);
   });
 
-  it.each(["no-colon", ": value", "   : value", ""])(
+  it.each(["Bearer secret-token", ": secret-token", "   : secret-token", ""])(
     "rejects %j without echoing it",
     (header) => {
-      expect(() => parseRpcHeader(header)).toThrow(
+      let message = "";
+      try {
+        parseRpcHeader(header);
+      } catch (e) {
+        message = (e as Error).message;
+      }
+      expect(message).toBe(
         'Invalid --rpc-header: expected "Name: value" with a non-empty name',
       );
     },
@@ -217,13 +197,10 @@ describe("resolveHeaders", () => {
     ).toEqual({ Authorization: "new", "X-Keep": "k", "X-New": "n" });
   });
 
-  it("rejects a non-object --headers when merging", () => {
-    expect(() => resolveHeaders('["a"]', ["X-A: 1"])).toThrow(
-      "--headers must be a JSON object when combined with --rpc-header",
-    );
-    expect(() => resolveHeaders('"abc"', ["X-A: 1"])).toThrow(
-      "--headers must be a JSON object",
-    );
+  it("leaves --headers names that differ only by case alone", () => {
+    expect(
+      resolveHeaders('{"X-Dup": "a", "x-dup": "b"}', ["X-Other: 2"]),
+    ).toEqual({ "X-Dup": "a", "x-dup": "b", "X-Other": "2" });
   });
 
   it("rejects a malformed --rpc-header", () => {
@@ -240,5 +217,55 @@ describe("createGenerator", () => {
     ).rejects.toThrow(
       "--network or --network-passphrase is required when fetching from network",
     );
+  });
+
+  it("sends the merged headers to the RPC server", async () => {
+    const seen: Record<string, string | string[] | undefined>[] = [];
+    const server = createServer((req, res) => {
+      seen.push(req.headers);
+      req.resume();
+      res.setHeader("Content-Type", "application/json");
+      res.end(
+        JSON.stringify({
+          jsonrpc: "2.0",
+          id: 1,
+          result: { passphrase: CUSTOM, protocolVersion: 27 },
+        }),
+      );
+    });
+    await new Promise<void>((resolve) => {
+      server.listen(0, "127.0.0.1", resolve);
+    });
+    const { port } = server.address() as AddressInfo;
+
+    try {
+      // the fetch after the network check fails on this stub; only the
+      // headers of the requests matter here
+      await createGenerator({
+        contractId: StrKey.encodeContract(new Uint8Array(32)),
+        rpcUrl: `http://127.0.0.1:${port}`,
+        networkPassphrase: CUSTOM,
+        serverOptions: {
+          allowHttp: true,
+          headers: resolveHeaders('{"x-test": "json", "X-Keep": "k"}', [
+            "X-Test: 1",
+            "X-Other: 2",
+          ]),
+        },
+      }).catch(() => undefined);
+    } finally {
+      await new Promise((resolve) => {
+        server.close(resolve);
+      });
+    }
+
+    expect(seen.length).toBeGreaterThan(0);
+    seen.forEach((headers) => {
+      expect(headers).toMatchObject({
+        "x-test": "1",
+        "x-keep": "k",
+        "x-other": "2",
+      });
+    });
   });
 });

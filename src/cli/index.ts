@@ -7,7 +7,6 @@ import {
   generateAndWrite,
   logSourceInfo,
   deriveContractName,
-  resolveContractId,
   resolveHeaders,
   resolveNetwork,
 } from "./util.js";
@@ -27,8 +26,7 @@ function runCli() {
     .helpOption("-h, --help", "Display help for command")
     .option("--wasm <path>", "Path to local WASM file")
     .option("--wasm-hash <hash>", "Hash of WASM blob on network")
-    .option("--contract-id <id>", "Contract ID on network")
-    .option("--id <id>", "Alias of --contract-id")
+    .option("--id, --contract-id <id>", "Contract ID on network")
     .option("--rpc-url <url>", "RPC server URL")
     .option(
       "--network <network>",
@@ -61,8 +59,6 @@ function runCli() {
     .option("--overwrite", "Overwrite existing files", false)
     .action(async (options) => {
       try {
-        const contractId = resolveContractId(options.contractId, options.id);
-
         // Map network to passphrase and default RPC URL
         const { networkPassphrase, rpcUrl, allowHttp, defaultRpcUrlFor } =
           resolveNetwork({
@@ -70,7 +66,7 @@ function runCli() {
             networkPassphrase: options.networkPassphrase,
             rpcUrl: options.rpcUrl,
             allowHttp: options.allowHttp,
-            needsRpcUrl: Boolean(options.wasmHash || contractId),
+            needsRpcUrl: Boolean(options.wasmHash || options.contractId),
           });
         if (defaultRpcUrlFor) {
           console.log(
@@ -107,7 +103,7 @@ function runCli() {
         const { generator, source } = await createGenerator({
           wasm: options.wasm,
           wasmHash: options.wasmHash,
-          contractId,
+          contractId: options.contractId,
           rpcUrl,
           networkPassphrase,
           serverOptions: { allowHttp, timeout, headers },
