@@ -104,17 +104,31 @@ export function resolveNetwork(args: ResolveNetworkArgs): ResolvedNetwork {
   return resolved;
 }
 
+/** Whether the HTTP transport accepts this header name and value. */
+function isValidHeader(name: string, value: unknown): value is string {
+  if (typeof value !== "string") {
+    return false;
+  }
+  try {
+    new Headers().set(name, value);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /** Parse one `--rpc-header "Name: value"` into its name and value. */
 export function parseRpcHeader(header: string): [string, string] {
   const separator = header.indexOf(":");
   const name = separator === -1 ? "" : header.slice(0, separator).trim();
-  if (name === "") {
+  const value = header.slice(separator + 1).trim();
+  if (!isValidHeader(name, value)) {
     // the header is not echoed back, since its value may be a secret
     throw new Error(
-      'Invalid --rpc-header: expected "Name: value" with a non-empty name',
+      'Invalid --rpc-header: expected "Name: value" with a valid header name and value',
     );
   }
-  return [name, header.slice(separator + 1).trim()];
+  return [name, value];
 }
 
 /**
@@ -128,11 +142,27 @@ export function resolveHeaders(
 ): Record<string, string> | undefined {
   let headers: Record<string, string> | undefined;
   if (headersJson) {
+    // the JSON is not echoed back, since its values may be secrets
+    const invalid = new Error(
+      "Invalid JSON for --headers: expected an object of header names and string values",
+    );
+    let parsed: unknown;
     try {
-      headers = JSON.parse(headersJson);
+      parsed = JSON.parse(headersJson);
     } catch {
-      throw new Error(`Invalid JSON for --headers: ${headersJson}`);
+      throw invalid;
     }
+    if (
+      typeof parsed !== "object" ||
+      parsed === null ||
+      Array.isArray(parsed) ||
+      !Object.entries(parsed).every(([name, value]) =>
+        isValidHeader(name, value),
+      )
+    ) {
+      throw invalid;
+    }
+    headers = parsed as Record<string, string>;
   }
   if (rpcHeaders.length === 0) {
     return headers;

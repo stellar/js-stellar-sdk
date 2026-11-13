@@ -141,20 +141,24 @@ describe("parseRpcHeader", () => {
     expect(parseRpcHeader("X-Empty:")).toEqual(["X-Empty", ""]);
   });
 
-  it.each(["Bearer secret-token", ": secret-token", "   : secret-token", ""])(
-    "rejects %j without echoing it",
-    (header) => {
-      let message = "";
-      try {
-        parseRpcHeader(header);
-      } catch (e) {
-        message = (e as Error).message;
-      }
-      expect(message).toBe(
-        'Invalid --rpc-header: expected "Name: value" with a non-empty name',
-      );
-    },
-  );
+  it.each([
+    "Bearer secret-token",
+    ": secret-token",
+    "   : secret-token",
+    "",
+    "X Api Key: secret-token",
+    "X-Api-Key: secret\ntoken",
+  ])("rejects %j without echoing it", (header) => {
+    let message = "";
+    try {
+      parseRpcHeader(header);
+    } catch (e) {
+      message = (e as Error).message;
+    }
+    expect(message).toBe(
+      'Invalid --rpc-header: expected "Name: value" with a valid header name and value',
+    );
+  });
 });
 
 describe("resolveHeaders", () => {
@@ -169,9 +173,23 @@ describe("resolveHeaders", () => {
     });
   });
 
-  it("rejects invalid --headers JSON", () => {
-    expect(() => resolveHeaders("not-valid-json")).toThrow(
-      "Invalid JSON for --headers: not-valid-json",
+  it.each([
+    "not-valid-json",
+    '"Bearer secret-token"',
+    "null",
+    "[1,2]",
+    '{"X": {"a": 1}}',
+    '{"X": 1}',
+    '{"X Api Key": "secret-token"}',
+  ])("rejects --headers %j without echoing it", (headersJson) => {
+    let message = "";
+    try {
+      resolveHeaders(headersJson, ["X-Api-Key: k"]);
+    } catch (e) {
+      message = (e as Error).message;
+    }
+    expect(message).toBe(
+      "Invalid JSON for --headers: expected an object of header names and string values",
     );
   });
 
