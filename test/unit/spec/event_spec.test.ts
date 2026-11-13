@@ -601,7 +601,7 @@ describe("Spec events", () => {
         ).toBeUndefined();
       });
 
-      it("skips a map declaration when the map has an undeclared key", () => {
+      it("prefers a later declaration that lists every key", () => {
         const data = xdr.ScVal.scvMap([
           entry("amount", amount),
           entry("memo", xdr.ScVal.scvString("hi")),
@@ -612,16 +612,19 @@ describe("Spec events", () => {
         });
       });
 
-      it("returns undefined when no declaration lists every key", () => {
+      it("falls back to the first declaration that fits when none lists every key", () => {
         // For example, an event from a newer contract version.
         const data = xdr.ScVal.scvMap([
           entry("amount", amount),
           entry("extra", xdr.ScVal.scvU32(1)),
         ]);
-        expect(keySpec.parseEvent(evtTopics, data)).toBeUndefined();
+        expect(keySpec.parseEvent(evtTopics, data)).toEqual({
+          name: "Mint",
+          data: { amount: 1000n },
+        });
       });
 
-      it("does not accept a topic-list param name as a map key", () => {
+      it("ignores a map key that names a topic-list param", () => {
         const topicSpec = new Spec([
           declare("evt", formats.scSpecEventDataFormatMap, [
             param("to", u32Type, TOPIC),
@@ -634,10 +637,10 @@ describe("Spec events", () => {
         ]);
         expect(
           topicSpec.parseEvent([...evtTopics, xdr.ScVal.scvU32(9)], data),
-        ).toBeUndefined();
+        ).toEqual({ name: "evt", data: { to: 9, a: 1 } });
       });
 
-      it("skips a map declaration when a key is not a symbol", () => {
+      it("treats a key that is not a symbol as an undeclared key", () => {
         const data = xdr.ScVal.scvMap([
           entry("amount", amount),
           new xdr.ScMapEntry({
@@ -645,7 +648,10 @@ describe("Spec events", () => {
             val: xdr.ScVal.scvU32(2),
           }),
         ]);
-        expect(keySpec.parseEvent(evtTopics, data)).toBeUndefined();
+        expect(keySpec.parseEvent(evtTopics, data)).toEqual({
+          name: "Mint",
+          data: { amount: 1000n },
+        });
       });
 
       it("accepts a missing key for a param that can be void", () => {
@@ -689,7 +695,7 @@ describe("Spec events", () => {
       });
     });
 
-    it("skips a single-value declaration with no data params when the data is not void", () => {
+    it("prefers a later declaration over a single-value declaration with no data params for data that is not void", () => {
       const pingSpec = new Spec([
         declare("Ping", formats.scSpecEventDataFormatSingleValue),
         declare("PingWithInfo", formats.scSpecEventDataFormatMap, [
@@ -706,9 +712,17 @@ describe("Spec events", () => {
         name: "Ping",
         data: {},
       });
+
+      const pingOnly = new Spec([
+        declare("Ping", formats.scSpecEventDataFormatSingleValue),
+      ]);
+      expect(pingOnly.parseEvent(evtTopics, data)).toEqual({
+        name: "Ping",
+        data: {},
+      });
     });
 
-    it("skips a vec declaration when the vec length differs from its data params", () => {
+    it("prefers a vec declaration with one element for each data param", () => {
       const vecSpec = new Spec([
         declare("Evt", formats.scSpecEventDataFormatVec, [
           param("a", u32Type, DATA),
@@ -729,7 +743,39 @@ describe("Spec events", () => {
         name: "Evt2",
         data: { a: 1, b: 2 },
       });
-      expect(vecSpec.parseEvent(evtTopics, vec(1, 2, 3))).toBeUndefined();
+      // No declaration fits exactly, so the first one that fits wins.
+      expect(vecSpec.parseEvent(evtTopics, vec(1, 2, 3))).toEqual({
+        name: "Evt",
+        data: { a: 1 },
+      });
+    });
+
+    it("tries the next declaration when a declaration fails to decode", () => {
+      // The UDT is not in the spec, so decoding a value of this type throws.
+      const missingUdt = xdr.ScSpecTypeDef.scSpecTypeUdt(
+        new xdr.ScSpecTypeUdt({ name: "Missing" }),
+      );
+      const failSpec = new Spec([
+        declare("BadLoose", formats.scSpecEventDataFormatMap, [
+          param("a", missingUdt, DATA),
+        ]),
+        declare("GoodLoose", formats.scSpecEventDataFormatMap, [
+          param("a", u32Type, DATA),
+        ]),
+        declare("BadExact", formats.scSpecEventDataFormatMap, [
+          param("a", missingUdt, DATA),
+          param("b", u32Type, DATA),
+        ]),
+      ]);
+      const data = xdr.ScVal.scvMap([
+        entry("a", xdr.ScVal.scvU32(1)),
+        entry("b", xdr.ScVal.scvU32(2)),
+      ]);
+
+      expect(failSpec.parseEvent(evtTopics, data)).toEqual({
+        name: "GoodLoose",
+        data: { a: 1 },
+      });
     });
   });
 
