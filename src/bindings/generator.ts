@@ -1,12 +1,18 @@
 import { Spec } from "../contract/index.js";
 import { ConfigGenerator } from "./config.js";
-import { sanitizeIdentifier, toCamelCase, toPascalCase } from "./utils.js";
+import {
+  escapeStringLiteral,
+  sanitizeIdentifier,
+  toCamelCase,
+  toPascalCase,
+} from "./utils.js";
 import { TypeGenerator } from "./types.js";
 import { ClientGenerator } from "./client.js";
 import { specFromWasm } from "../contract/wasm_spec_parser.js";
 import { fetchFromContractId, fetchFromWasmHash } from "./wasm_fetcher.js";
 import { SAC_SPEC } from "./sac-spec.js";
 import { Server } from "../rpc/index.js";
+import { Networks } from "../base/index.js";
 
 /**
  * Options for generating TypeScript bindings.
@@ -17,7 +23,42 @@ export type GenerateOptions = {
    * Should be in kebab-case (e.g., "my-contract").
    */
   contractName: string;
+  /**
+   * The deployed contract's ID (C... address). With `networkPassphrase`, adds
+   * a `networks` export to the generated `index.ts`.
+   */
+  contractId?: string;
+  /** The passphrase of the network the contract is deployed on. */
+  networkPassphrase?: string;
 };
+
+/**
+ * Render the `networks` export of the generated `index.ts`. The keys follow
+ * the native `stellar contract bindings typescript` output.
+ */
+function networksExport(contractId: string, networkPassphrase: string): string {
+  const entry = [
+    `    networkPassphrase: "${escapeStringLiteral(networkPassphrase)}",`,
+    `    contractId: "${escapeStringLiteral(contractId)}",`,
+    `  },`,
+  ];
+  let lines: string[];
+  if (networkPassphrase === Networks.STANDALONE) {
+    lines = [
+      `  local: {`,
+      ...entry,
+      "  /** @deprecated Use `local` instead. */",
+      `  standalone: {`,
+      ...entry,
+    ];
+  } else {
+    let key = "unknown";
+    if (networkPassphrase === Networks.TESTNET) key = "testnet";
+    if (networkPassphrase === Networks.FUTURENET) key = "futurenet";
+    lines = [`  ${key}: {`, ...entry];
+  }
+  return [`export const networks = {`, ...lines, `} as const;`].join("\n");
+}
 
 /**
  * A note about an event whose generated names need the user's attention:
@@ -259,6 +300,7 @@ export class BindingGenerator {
    *
    * @param options - Configuration options for generation
    *   - `contractName`: Required. The name for the generated package (kebab-case recommended)
+   *   - `contractId` and `networkPassphrase`: Optional. When both are set, `index.ts` exports `networks`
    * @returns An object containing all generated file contents as strings
    * @throws If contractName is missing or empty
    *
@@ -266,8 +308,7 @@ export class BindingGenerator {
    * ```ts
    * const bindings = generator.generate({
    *   contractName: "my-token",
-   *   contractAddress: "CABC...XYZ",
-   *   rpcUrl: "https://soroban-testnet.stellar.org",
+   *   contractId: "CABC...XYZ",
    *   networkPassphrase: Networks.TESTNET
    * });
    *
@@ -290,6 +331,11 @@ export class BindingGenerator {
     let index = `export { Client } from "./client.js";`;
     if (types.trim() !== "") {
       index = index.concat(`\nexport * from "./types.js";`);
+    }
+    if (options.contractId && options.networkPassphrase) {
+      index = index.concat(
+        `\n\n${networksExport(options.contractId, options.networkPassphrase)}`,
+      );
     }
 
     // Generate config files

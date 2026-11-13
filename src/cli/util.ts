@@ -7,6 +7,176 @@ import {
 } from "../bindings/generator.js";
 import { WasmFetchError } from "../bindings/index.js";
 import { RpcServer } from "../rpc/server.js";
+import { Networks } from "../base/index.js";
+
+/** Passphrase and default RPC URL of each network name `--network` accepts. */
+const NETWORK_CONFIG: Record<
+  string,
+  { passphrase: string; rpcUrl: string | null }
+> = {
+  testnet: {
+    passphrase: Networks.TESTNET,
+    rpcUrl: "https://soroban-testnet.stellar.org",
+  },
+  mainnet: {
+    passphrase: Networks.PUBLIC,
+    rpcUrl: null, // User must provide their own
+  },
+  futurenet: {
+    passphrase: Networks.FUTURENET,
+    rpcUrl: "https://rpc-futurenet.stellar.org",
+  },
+  localnet: {
+    passphrase: Networks.STANDALONE,
+    rpcUrl: "http://localhost:8000/rpc",
+  },
+};
+
+export type ResolveNetworkArgs = {
+  network?: string;
+  networkPassphrase?: string;
+  rpcUrl?: string;
+  allowHttp?: boolean;
+  /** True when the source is fetched over RPC (`--wasm-hash` or `--contract-id`). */
+  needsRpcUrl?: boolean;
+};
+
+export type ResolvedNetwork = {
+  networkPassphrase?: string;
+  rpcUrl?: string;
+  allowHttp: boolean;
+  /** The network name whose default RPC URL was used, if any. */
+  defaultRpcUrlFor?: string;
+};
+
+/**
+ * Resolve `--network`, `--network-passphrase`, `--rpc-url` and `--allow-http`
+ * into the passphrase and RPC settings to use.
+ */
+export function resolveNetwork(args: ResolveNetworkArgs): ResolvedNetwork {
+  const resolved: ResolvedNetwork = {
+    networkPassphrase: args.networkPassphrase,
+    rpcUrl: args.rpcUrl,
+    allowHttp: args.allowHttp ?? false,
+  };
+
+  if (!args.network) {
+    return resolved;
+  }
+
+  const network = args.network.toLowerCase();
+  const config = NETWORK_CONFIG[network];
+
+  if (!config) {
+    throw new Error(
+      `\n✗ Invalid network: ${args.network}. Must be mainnet, testnet, futurenet, or localnet`,
+    );
+  }
+
+  if (
+    args.networkPassphrase !== undefined &&
+    args.networkPassphrase !== config.passphrase
+  ) {
+    throw new Error(
+      `--network-passphrase "${args.networkPassphrase}" does not match the ${network} passphrase "${config.passphrase}". Pass only one of --network or --network-passphrase.`,
+    );
+  }
+
+  resolved.networkPassphrase = config.passphrase;
+
+  // Use default RPC URL if not provided (only needed for network sources)
+  if (!resolved.rpcUrl && args.needsRpcUrl) {
+    if (config.rpcUrl) {
+      resolved.rpcUrl = config.rpcUrl;
+      resolved.defaultRpcUrlFor = network;
+
+      // Auto-enable allowHttp for localnet when using default HTTP URL
+      if (network === "localnet") {
+        resolved.allowHttp = true;
+      }
+    } else if (network === "mainnet") {
+      throw new Error(
+        `\n✗ --rpc-url is required for mainnet. Find RPC providers at: https://developers.stellar.org/docs/data/rpc/rpc-providers`,
+      );
+    }
+  }
+
+  return resolved;
+}
+
+/** Whether the HTTP transport accepts this header name and value. */
+function isValidHeader(name: string, value: unknown): value is string {
+  if (typeof value !== "string") {
+    return false;
+  }
+  try {
+    new Headers().set(name, value);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/** Parse one `--rpc-header "Name: value"` into its name and value. */
+export function parseRpcHeader(header: string): [string, string] {
+  const separator = header.indexOf(":");
+  const name = separator === -1 ? "" : header.slice(0, separator).trim();
+  const value = header.slice(separator + 1).trim();
+  if (!isValidHeader(name, value)) {
+    // the header is not echoed back, since its value may be a secret
+    throw new Error(
+      'Invalid --rpc-header: expected "Name: value" with a valid header name and value',
+    );
+  }
+  return [name, value];
+}
+
+/**
+ * Merge the `--headers` JSON object with repeated `--rpc-header` values. A
+ * `--rpc-header` replaces any earlier header of the same name, compared
+ * without case.
+ */
+export function resolveHeaders(
+  headersJson?: string,
+  rpcHeaders: string[] = [],
+): Record<string, string> | undefined {
+  let headers: Record<string, string> | undefined;
+  if (headersJson) {
+    // the JSON is not echoed back, since its values may be secrets
+    const invalid = new Error(
+      "Invalid JSON for --headers: expected an object of header names and string values",
+    );
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(headersJson);
+    } catch {
+      throw invalid;
+    }
+    if (
+      typeof parsed !== "object" ||
+      parsed === null ||
+      Array.isArray(parsed) ||
+      !Object.entries(parsed).every(([name, value]) =>
+        isValidHeader(name, value),
+      )
+    ) {
+      throw invalid;
+    }
+    headers = parsed as Record<string, string>;
+  }
+  if (rpcHeaders.length === 0) {
+    return headers;
+  }
+
+  const merged: Record<string, string> = { ...headers };
+  rpcHeaders.map(parseRpcHeader).forEach(([name, value]) => {
+    Object.keys(merged)
+      .filter((existing) => existing.toLowerCase() === name.toLowerCase())
+      .forEach((existing) => delete merged[existing]);
+    merged[name] = value;
+  });
+  return merged;
+}
 
 export type GenerateAndWriteOptions = GenerateOptions & {
   outputDir: string;
@@ -91,7 +261,7 @@ export async function createGenerator(
   }
   if (!args.networkPassphrase) {
     throw new WasmFetchError(
-      "--network is required when fetching from network",
+      "--network or --network-passphrase is required when fetching from network",
     );
   }
 
