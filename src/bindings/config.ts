@@ -4,11 +4,10 @@
 // relative path `../../package.json` resolved into the output tree rather
 // than the project root.
 
+import { Networks } from "../base/index.js";
 import { escapeStringLiteral } from "./utils.js";
 
 declare const __PACKAGE_VERSION__: string;
-
-const TESTNET_PASSPHRASE = "Test SDF Network ; September 2015";
 
 export interface ConfigGenerateOptions {
   contractName: string;
@@ -133,10 +132,10 @@ export class ConfigGenerator {
     const [contractId, networkPassphrase] =
       knownContractId && knownPassphrase
         ? [knownContractId, knownPassphrase]
-        : ["YOUR_CONTRACT_ID", TESTNET_PASSPHRASE];
+        : ["YOUR_CONTRACT_ID", Networks.TESTNET];
     // the RPC URL is never written: it is not known here and may hold a key
     const rpcUrl =
-      networkPassphrase === TESTNET_PASSPHRASE
+      networkPassphrase === Networks.TESTNET
         ? "https://soroban-testnet.stellar.org:443"
         : "YOUR_RPC_URL";
     const readme = [
