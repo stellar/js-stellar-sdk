@@ -125,9 +125,15 @@ export class ConfigGenerator {
    */
   private generateReadme(
     contractName: string,
-    contractId: string = "YOUR_CONTRACT_ID",
-    networkPassphrase: string = TESTNET_PASSPHRASE,
+    knownContractId?: string,
+    knownPassphrase?: string,
   ): string {
+    // real values are only used as a pair, so the example never mixes a real
+    // contract ID with another network's passphrase
+    const [contractId, networkPassphrase] =
+      knownContractId && knownPassphrase
+        ? [knownContractId, knownPassphrase]
+        : ["YOUR_CONTRACT_ID", TESTNET_PASSPHRASE];
     // the RPC URL is never written: it is not known here and may hold a key
     const rpcUrl =
       networkPassphrase === TESTNET_PASSPHRASE

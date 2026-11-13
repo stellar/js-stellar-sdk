@@ -187,4 +187,19 @@ describe("bindings networks export", () => {
     expect(readme).not.toContain("soroban-testnet");
     expect(readme).toContain('networkPassphrase: "My Custom Network ; 2026",');
   });
+
+  it.each([
+    { contractId: CONTRACT_ID },
+    { contractId: "", networkPassphrase: "My Custom Network ; 2026" },
+    { networkPassphrase: "My Custom Network ; 2026" },
+  ])("keeps the README placeholders for %j", (options) => {
+    const { index, readme } = generator().generate({
+      contractName: "hello",
+      ...options,
+    });
+
+    expect(index).not.toContain("networks");
+    expect(readme).toContain('contractId: "YOUR_CONTRACT_ID",');
+    expect(readme).toContain(`networkPassphrase: "${Networks.TESTNET}",`);
+  });
 });
