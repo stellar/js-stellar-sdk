@@ -1324,8 +1324,16 @@ export class Spec {
    * Note that matching compares only the prefix topics and a minimum topic
    * count; if more than one event spec matches (in particular, events with
    * no prefix topics match on arity alone), the first declared spec whose
-   * values decode successfully wins. A `vec` or `map` spec decodes only data
-   * of that container type.
+   * values decode successfully wins. A spec whose data has exactly the shape
+   * that soroban-sdk emits for it wins over a spec that fits only loosely.
+   * The exact shape is void data for a single-value spec with no data params,
+   * a vec with one element for each data param, or a map whose keys are all
+   * symbols that name a data param. A loose fit has more values, which are
+   * ignored: data that is not void, extra vec elements, or extra map keys.
+   * So older bindings can still read an event from a newer contract version
+   * that adds fields. A vec cannot have fewer elements than the data params,
+   * and a map key can be missing only for a param of type `Option`, `()` or
+   * `Val`.
    *
    * @example
    * ```ts

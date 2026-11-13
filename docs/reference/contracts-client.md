@@ -1364,7 +1364,7 @@ a single topic filter row
 const topics = contractSpec.eventTopicFilter('transfer', { to: someAddress });
 ```
 
-**Source:** [src/contract/spec.ts:1367](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1367)
+**Source:** [src/contract/spec.ts:1375](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1375)
 
 ### `spec.findEntry(name)`
 
@@ -1547,7 +1547,7 @@ the converted JSON schema
 
 - if the contract spec is invalid
 
-**Source:** [src/contract/spec.ts:1391](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1391)
+**Source:** [src/contract/spec.ts:1399](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1399)
 
 ### `spec.nativeToScVal(val, ty)`
 
@@ -1600,8 +1600,16 @@ the parsed event (its name plus all decoded params — topic-list
 Note that matching compares only the prefix topics and a minimum topic
 count; if more than one event spec matches (in particular, events with
 no prefix topics match on arity alone), the first declared spec whose
-values decode successfully wins. A `vec` or `map` spec decodes only data
-of that container type.
+values decode successfully wins. A spec whose data has exactly the shape
+that soroban-sdk emits for it wins over a spec that fits only loosely.
+The exact shape is void data for a single-value spec with no data params,
+a vec with one element for each data param, or a map whose keys are all
+symbols that name a data param. A loose fit has more values, which are
+ignored: data that is not void, extra vec elements, or extra map keys.
+So older bindings can still read an event from a newer contract version
+that adds fields. A vec cannot have fewer elements than the data params,
+and a map key can be missing only for a param of type `Option`, `()` or
+`Val`.
 
 **Example**
 
@@ -1612,7 +1620,7 @@ if (parsed) {
 }
 ```
 
-**Source:** [src/contract/spec.ts:1338](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1338)
+**Source:** [src/contract/spec.ts:1346](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1346)
 
 ### `spec.scValStrToNative(scv, typeDef)`
 
