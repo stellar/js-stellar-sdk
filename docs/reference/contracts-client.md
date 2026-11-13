@@ -1603,9 +1603,9 @@ no prefix topics match on arity alone), the first declared spec whose
 values decode successfully wins. The data must also have a shape that
 soroban-sdk emits for the spec. A single-value spec with no data params
 takes only void data. A `vec` spec takes only a vec with one element for
-each data param. A `map` spec takes only a map whose keys are all data
-param names. A key can be missing only for a param of type `Option`, `()`
-or `Val`.
+each data param. A `map` spec takes only a map whose keys are all symbols
+that name a data param. A key can be missing only for a param of type
+`Option`, `()` or `Val`.
 
 **Example**
 

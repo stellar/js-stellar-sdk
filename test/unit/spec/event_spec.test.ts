@@ -612,6 +612,31 @@ describe("Spec events", () => {
         });
       });
 
+      it("returns undefined when no declaration lists every key", () => {
+        // For example, an event from a newer contract version.
+        const data = xdr.ScVal.scvMap([
+          entry("amount", amount),
+          entry("extra", xdr.ScVal.scvU32(1)),
+        ]);
+        expect(keySpec.parseEvent(evtTopics, data)).toBeUndefined();
+      });
+
+      it("does not accept a topic-list param name as a map key", () => {
+        const topicSpec = new Spec([
+          declare("evt", formats.scSpecEventDataFormatMap, [
+            param("to", u32Type, TOPIC),
+            param("a", u32Type, DATA),
+          ]),
+        ]);
+        const data = xdr.ScVal.scvMap([
+          entry("a", xdr.ScVal.scvU32(1)),
+          entry("to", xdr.ScVal.scvU32(2)),
+        ]);
+        expect(
+          topicSpec.parseEvent([...evtTopics, xdr.ScVal.scvU32(9)], data),
+        ).toBeUndefined();
+      });
+
       it("skips a map declaration when a key is not a symbol", () => {
         const data = xdr.ScVal.scvMap([
           entry("amount", amount),
@@ -637,6 +662,29 @@ describe("Spec events", () => {
         expect(voidSpec.parseEvent(evtTopics, data)).toEqual({
           name: "evt",
           data: { a: 1 },
+        });
+      });
+
+      it("accepts a void value for a param that can be void", () => {
+        // A dense map (sparse = false, or an older soroban-sdk) writes every
+        // key, with void for None, () and a void Val.
+        const voidSpec = new Spec([
+          declare("evt", formats.scSpecEventDataFormatMap, [
+            param("a", u32Type, DATA),
+            param("o", optionU64, DATA),
+            param("v", xdr.ScSpecTypeDef.scSpecTypeVoid(), DATA),
+            param("x", xdr.ScSpecTypeDef.scSpecTypeVal(), DATA),
+          ]),
+        ]);
+        const data = xdr.ScVal.scvMap([
+          entry("a", xdr.ScVal.scvU32(1)),
+          entry("o", xdr.ScVal.scvVoid()),
+          entry("v", xdr.ScVal.scvVoid()),
+          entry("x", xdr.ScVal.scvVoid()),
+        ]);
+        expect(voidSpec.parseEvent(evtTopics, data)).toEqual({
+          name: "evt",
+          data: { a: 1, o: null, v: null, x: null },
         });
       });
     });

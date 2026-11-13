@@ -16,11 +16,11 @@ A breaking change will get clearly marked in this log.
 
 ### Fixed
 * `Spec.parseEvent()` and the `parseEvent()` method of generated bindings no longer return the wrong event with fields dropped. Before, an earlier declaration with the same prefix topics could take an event that did not fit it. For example, the data `{ amount, memo }` parsed as `Mint { amount }` when `Mint` came before `MintMemo`. Now a declaration matches only data of the shape that soroban-sdk emits for it:
-  * `map`: every key is a data param of the declaration. A key can be missing only for an `Option`, `()` or `Val` param, because soroban-sdk leaves out void values.
+  * `map`: every key is a symbol that names a data param of the declaration. A key can be missing only for an `Option`, `()` or `Val` param, because soroban-sdk leaves out void values.
   * `vec`: the vec has exactly one element for each data param.
   * Single value with no data params: the data is void.
 
-  When no declaration fits, `parseEvent()` returns `undefined`. This includes data from a newer contract version that has fields the spec does not declare. Before, such data parsed with the new fields dropped.
+  When no declaration fits, `parseEvent()` returns `undefined`. This includes data from a newer contract version that has fields the spec does not declare. Before, such data parsed with the new fields dropped ([#1900](https://github.com/stellar/js-stellar-sdk/pull/1900)).
 * `Spec.getFunc()` finds a function when a struct, union, enum or event with the same name comes before it in the spec. `Spec` also finds the type of a UDT value when another entry with the same name comes first. Before, `contract.Client` construction threw "is not a function", and so did `funcArgsToScVals()` and `funcResToNative()`. Encoding or decoding the UDT value threw "failed to parse udt". The error messages for a name that is missing or has no entry of the right kind stay the same ([#1871](https://github.com/stellar/js-stellar-sdk/pull/1871)).
 * `WebAuth.verifyChallengeTxThreshold()` no longer adds a stray `"` to the end of its "do not meet threshold" error message ([#1871](https://github.com/stellar/js-stellar-sdk/pull/1871)).
 * `rpc.Server.getClaimableBalance()` rejects an ID that contains non-hex characters or more than 72 hex characters with a `TypeError`. Before, it passed the ID to the decoder, which threw an `XdrError`. Every hex ID of 64 to 72 characters works as before ([#1847](https://github.com/stellar/js-stellar-sdk/pull/1847)).
