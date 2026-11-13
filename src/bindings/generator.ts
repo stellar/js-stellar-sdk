@@ -43,6 +43,24 @@ export type EventDiagnostic = {
 };
 
 /**
+ * A contract function that the generated `Client` has no method for. Call it
+ * by its raw name with `contract.Client.invoke()`.
+ */
+export type FunctionDiagnostic = {
+  /** The function name exactly as declared in the contract spec */
+  rawName: string;
+  /** The method name that the function would take */
+  methodName: string;
+  /**
+   * `reserved`: the method name is a client member or another reserved name.
+   * `shared`: another function maps to the same method name.
+   */
+  reason: "reserved" | "shared";
+  /** Whether the function takes arguments */
+  hasInputs: boolean;
+};
+
+/**
  * The output of the binding generation process.
  *
  * Contains all generated TypeScript source files and configuration files
@@ -68,6 +86,11 @@ export type GeneratedBindings = {
    * declarations or collision-driven renames); empty when there are none
    */
   diagnostics: EventDiagnostic[];
+  /**
+   * Contract functions that the generated `Client` has no method for; empty
+   * when every function has one
+   */
+  functionDiagnostics: FunctionDiagnostic[];
 };
 
 /**
@@ -262,6 +285,7 @@ export class BindingGenerator {
     const types = typeGenerator.generate();
     const client = clientGenerator.generate();
     const diagnostics = this.eventDiagnostics(typeGenerator, clientGenerator);
+    const functionDiagnostics = this.functionDiagnostics(clientGenerator);
 
     let index = `export { Client } from "./client.js";`;
     if (types.trim() !== "") {
@@ -282,7 +306,39 @@ export class BindingGenerator {
       readme,
       gitignore,
       diagnostics,
+      functionDiagnostics,
     };
+  }
+
+  /**
+   * Collect a {@link FunctionDiagnostic} for every contract function, other
+   * than the constructor, that the generated `Client` has no method for.
+   */
+  private functionDiagnostics(
+    clientGenerator: ClientGenerator,
+  ): FunctionDiagnostic[] {
+    const skipped = clientGenerator.skippedFunctions();
+    const seen = new Set<string>();
+    return this.spec.funcs().flatMap((func) => {
+      const rawName = func.name.toString();
+      const reason = skipped.get(rawName);
+      if (
+        seen.has(rawName) ||
+        reason === undefined ||
+        reason === "constructor"
+      ) {
+        return [];
+      }
+      seen.add(rawName);
+      return [
+        {
+          rawName,
+          methodName: sanitizeIdentifier(rawName),
+          reason,
+          hasInputs: func.inputs.length > 0,
+        },
+      ];
+    });
   }
 
   /**

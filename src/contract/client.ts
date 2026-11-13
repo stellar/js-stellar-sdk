@@ -151,7 +151,7 @@ export class Client {
       });
     }
 
-    const methods = clientMethodNames(
+    const { methods } = clientMethodNames(
       this.spec.funcs().map((xdrFn) => xdrFn.name.toString()),
     );
     methods.forEach((method, name) => {
