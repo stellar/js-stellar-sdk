@@ -337,7 +337,7 @@ export namespace Api {
     operationIndex: number;
     /**
      * @deprecated Newer RPC servers no longer return this field; it will be
-     * removed in the next major release.
+     * removed no earlier than v19.0.0.
      */
     inSuccessfulContractCall?: boolean;
     txHash: string;
