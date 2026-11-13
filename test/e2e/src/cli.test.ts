@@ -47,7 +47,8 @@ describe("CLI generate command", () => {
     expect(result.stdout).toContain("--output-dir");
     expect(result.stdout).toContain("--allow-http");
     expect(result.stdout).toContain("--timeout");
-    expect(result.stdout).toContain("--headers");
+    // deprecated in favor of --rpc-header
+    expect(result.stdout).not.toContain("--headers");
     expect(result.stdout).toContain("--id, --contract-id <id>");
     expect(result.stdout).toContain("--network-passphrase <passphrase>");
     expect(result.stdout).toContain("--rpc-header <header>");
@@ -428,6 +429,7 @@ describe("CLI generate command", () => {
       ]);
 
       expect(result.status).toBe(0);
+      expect(result.stderr).toContain("--headers is deprecated");
       expect(fs.existsSync(path.join(testOutputDir, "src/client.ts"))).toBe(
         true,
       );

@@ -371,7 +371,8 @@ npx @stellar/stellar-sdk generate \
   --network mainnet \
   --output-dir ./my-contract-client \
   --timeout 30000 \
-  --headers '{"Authorization": "Bearer my-token"}'
+  --rpc-header "Authorization: Bearer my-token" \
+  --rpc-header "X-Api-Key: my-key"
 
 # localnet with default RPC URL auto-enables --allow-http
 npx @stellar/stellar-sdk generate \
@@ -386,15 +387,6 @@ npx @stellar/stellar-sdk generate \
   --network localnet \
   --output-dir ./my-contract-client \
   --allow-http
-
-# One header per --rpc-header, as "Name: value" (repeatable)
-npx @stellar/stellar-sdk generate \
-  --id CABC...XYZ \
-  --rpc-url https://my-rpc-server.com \
-  --network mainnet \
-  --output-dir ./my-contract-client \
-  --rpc-header "Authorization: Bearer my-token" \
-  --rpc-header "X-Api-Key: my-key"
 ```
 
 #### On a custom network
@@ -429,8 +421,8 @@ automatically only for `--network localnet` on its default URL.
 | `--overwrite`                       | Overwrite existing files in the output directory                                                                                        |
 | `--allow-http`                      | Allow insecure HTTP connections to RPC server (default: false)                                                                          |
 | `--timeout <ms>`                    | RPC request timeout in milliseconds                                                                                                     |
-| `--headers <json>`                  | Custom headers as JSON object (e.g., `'{"Authorization": "Bearer token"}'`)                                                             |
-| `--rpc-header <header>`             | Custom header as `"Name: value"`. Repeat it for more headers. Overrides `--headers` on the same name                                    |
+| `--rpc-header <header>`             | Custom header as `"Name: value"`, for example `"Authorization: Bearer token"`. Repeat it for more headers                               |
+| `--headers <json>`                  | Deprecated: use `--rpc-header`. Custom headers as a JSON object; `--rpc-header` overrides it on the same name                           |
 
 #### Default RPC URLs
 

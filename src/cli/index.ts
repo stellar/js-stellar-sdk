@@ -1,4 +1,4 @@
-import { Command } from "commander";
+import { Command, Option } from "commander";
 import * as path from "path";
 
 import { WasmFetchError } from "../bindings/wasm_fetcher.js";
@@ -43,13 +43,16 @@ function runCli() {
       false,
     )
     .option("--timeout <ms>", "RPC request timeout in milliseconds")
-    .option(
-      "--headers <json>",
-      'Custom headers as JSON object (e.g., \'{"Authorization": "Bearer token"}\')',
+    .addOption(
+      // deprecated in favor of --rpc-header, so it is kept out of the help
+      new Option(
+        "--headers <json>",
+        "Custom headers as JSON object",
+      ).hideHelp(),
     )
     .option(
       "--rpc-header <header>",
-      'Custom header as "Name: value"; repeat for more headers (overrides --headers on the same name)',
+      'Custom header as "Name: value"; repeat for more headers',
       (value: string, previous: string[] = []) => [...previous, value],
     )
     .option(
@@ -76,6 +79,12 @@ function runCli() {
 
         if (options.outputDir === undefined) {
           throw new Error("Output directory (--output-dir) is required");
+        }
+
+        if (options.headers !== undefined) {
+          console.warn(
+            '⚠ --headers is deprecated. Use --rpc-header "Name: value" instead.',
+          );
         }
 
         // Merge --headers JSON with repeated --rpc-header values
