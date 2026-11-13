@@ -150,8 +150,11 @@ function matchesTopics(
  * Matching compares only the prefix topics and a minimum topic count, so if
  * more than one event spec matches (in particular, events with no prefix
  * topics match on arity alone), the first declared spec whose values decode
- * successfully wins. A `vec` or `map` spec decodes only data of that
- * container type.
+ * successfully wins. The data must also have a shape that soroban-sdk emits
+ * for the spec. A single-value spec with no data params takes only void data.
+ * A `vec` spec takes only a vec with one element for each data param. A `map`
+ * spec takes only a map whose keys are all data param names. A key can be
+ * missing only for a param of type `Option`, `()` or `Val`.
  * @hidden
  */
 export function parseEvent(
@@ -185,6 +188,8 @@ export function parseEvent(
         const param = dParams[0];
         if (param) {
           dataPairs.push([param, dataVal]);
+        } else if (dataVal.type !== "scvVoid") {
+          continue;
         }
         break;
       }
@@ -193,7 +198,7 @@ export function parseEvent(
           continue;
         }
         const vec = dataVal.value ?? [];
-        if (vec.length < dParams.length) {
+        if (vec.length !== dParams.length) {
           continue;
         }
         dParams.forEach((param, i) => {
@@ -205,9 +210,9 @@ export function parseEvent(
         if (dataVal.type !== "scvMap") {
           continue;
         }
-        // Missing keys are expected: a sparse map leaves out void fields.
         const map = dataVal.value ?? [];
-        dParams.forEach((param) => {
+        let missingRequired = false;
+        for (const param of dParams) {
           const name = param.name.toString();
           const entry = map.find(
             (e) =>
@@ -215,8 +220,21 @@ export function parseEvent(
           );
           if (entry) {
             dataPairs.push([param, entry.val]);
+          } else if (
+            // A sparse map leaves out void values, so only a param that can
+            // hold void may be missing.
+            param.type.type !== "scSpecTypeOption" &&
+            param.type.type !== "scSpecTypeVoid" &&
+            param.type.type !== "scSpecTypeVal"
+          ) {
+            missingRequired = true;
           }
-        });
+        }
+        // soroban-sdk writes only declared keys, so each key must match a
+        // param.
+        if (missingRequired || dataPairs.length !== map.length) {
+          continue;
+        }
         break;
       }
       default: {

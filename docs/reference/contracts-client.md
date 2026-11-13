@@ -1364,7 +1364,7 @@ a single topic filter row
 const topics = contractSpec.eventTopicFilter('transfer', { to: someAddress });
 ```
 
-**Source:** [src/contract/spec.ts:1367](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1367)
+**Source:** [src/contract/spec.ts:1371](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1371)
 
 ### `spec.findEntry(name)`
 
@@ -1547,7 +1547,7 @@ the converted JSON schema
 
 - if the contract spec is invalid
 
-**Source:** [src/contract/spec.ts:1391](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1391)
+**Source:** [src/contract/spec.ts:1395](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1395)
 
 ### `spec.nativeToScVal(val, ty)`
 
@@ -1600,8 +1600,12 @@ the parsed event (its name plus all decoded params — topic-list
 Note that matching compares only the prefix topics and a minimum topic
 count; if more than one event spec matches (in particular, events with
 no prefix topics match on arity alone), the first declared spec whose
-values decode successfully wins. A `vec` or `map` spec decodes only data
-of that container type.
+values decode successfully wins. The data must also have a shape that
+soroban-sdk emits for the spec. A single-value spec with no data params
+takes only void data. A `vec` spec takes only a vec with one element for
+each data param. A `map` spec takes only a map whose keys are all data
+param names. A key can be missing only for a param of type `Option`, `()`
+or `Val`.
 
 **Example**
 
@@ -1612,7 +1616,7 @@ if (parsed) {
 }
 ```
 
-**Source:** [src/contract/spec.ts:1338](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1338)
+**Source:** [src/contract/spec.ts:1342](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1342)
 
 ### `spec.scValStrToNative(scv, typeDef)`
 
