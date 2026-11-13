@@ -220,18 +220,25 @@ describe("createGenerator", () => {
   });
 
   it("sends the merged headers to the RPC server", async () => {
-    const seen: Record<string, string | string[] | undefined>[] = [];
+    const seen: {
+      method: string;
+      headers: Record<string, string | string[] | undefined>;
+    }[] = [];
     const server = createServer((req, res) => {
-      seen.push(req.headers);
-      req.resume();
-      res.setHeader("Content-Type", "application/json");
-      res.end(
-        JSON.stringify({
-          jsonrpc: "2.0",
-          id: 1,
-          result: { passphrase: CUSTOM, protocolVersion: 27 },
-        }),
-      );
+      let body = "";
+      req.on("data", (chunk) => {
+        body += chunk;
+      });
+      req.on("end", () => {
+        const { id, method } = JSON.parse(body);
+        seen.push({ method, headers: req.headers });
+        const result =
+          method === "getNetwork"
+            ? { passphrase: CUSTOM, protocolVersion: 27 }
+            : { entries: [], latestLedger: 1 };
+        res.setHeader("Content-Type", "application/json");
+        res.end(JSON.stringify({ jsonrpc: "2.0", id, result }));
+      });
     });
     await new Promise<void>((resolve) => {
       server.listen(0, "127.0.0.1", resolve);
@@ -239,8 +246,8 @@ describe("createGenerator", () => {
     const { port } = server.address() as AddressInfo;
 
     try {
-      // the fetch after the network check fails on this stub; only the
-      // headers of the requests matter here
+      // the stub holds no contract, so the fetch fails after the network
+      // check; only the requests it received matter here
       await createGenerator({
         contractId: StrKey.encodeContract(new Uint8Array(32)),
         rpcUrl: `http://127.0.0.1:${port}`,
@@ -259,8 +266,11 @@ describe("createGenerator", () => {
       });
     }
 
-    expect(seen.length).toBeGreaterThan(0);
-    seen.forEach((headers) => {
+    expect(seen.map(({ method }) => method)).toEqual([
+      "getNetwork",
+      "getLedgerEntries",
+    ]);
+    seen.forEach(({ headers }) => {
       expect(headers).toMatchObject({
         "x-test": "1",
         "x-keep": "k",
