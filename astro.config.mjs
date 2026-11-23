@@ -86,6 +86,15 @@ function rehypeHeadingAnchors() {
 export default defineConfig({
   site: SITE_URL,
   base: BASE_PATH,
+  // Old page paths that were live on the deployed site. Astro prefixes the
+  // base on the source but not on the destination.
+  redirects: {
+    "/guides/00-migration": `${BASE_PATH}/migration/00-migration/`,
+    "/guides/00-protocol-27-soroban-auth": `${BASE_PATH}/migration/protocol-27-soroban-auth/`,
+    "/guides/01-protocol-27-soroban-auth": `${BASE_PATH}/migration/protocol-27-soroban-auth/`,
+    "/uint8array_migration": `${BASE_PATH}/migration/uint8array-migration/`,
+    "/xdr_migration": `${BASE_PATH}/migration/xdr-migration/`,
+  },
   outDir: "./dist/site",
   prefetch: { prefetchAll: true },
   markdown: {
