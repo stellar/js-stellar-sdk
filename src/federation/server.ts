@@ -9,6 +9,7 @@ import { validateAllowedRedirects } from "../stellartoml/utils.js";
 import type { Api } from "./api.js";
 import { httpClient } from "../http-client/index.js";
 import { validateDomain, validateFederationServer } from "./utils.js";
+import { assertSecureUrl } from "../utils/url.js";
 
 /**
  * The maximum size of response from a federation server
@@ -169,20 +170,17 @@ export class FederationServer {
     this.domain = domain;
     validateDomain(domain);
 
-    const allowHttp =
-      typeof opts.allowHttp === "undefined"
-        ? Config.isAllowHttp()
-        : opts.allowHttp;
-
     this.timeout =
       typeof opts.timeout === "undefined" ? Config.getTimeout() : opts.timeout;
 
     validateAllowedRedirects(opts.allowedRedirects);
     this.allowedRedirects = opts.allowedRedirects ?? 0;
 
-    if (this.serverURL.protocol !== "https:" && !allowHttp) {
-      throw new Error("Cannot connect to insecure federation server");
-    }
+    assertSecureUrl(
+      this.serverURL,
+      opts.allowHttp,
+      "Cannot connect to insecure federation server",
+    );
   }
 
   /**

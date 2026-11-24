@@ -37,6 +37,8 @@ import {
   parseRawLatestLedger,
 } from "./parsers.js";
 import { Utils } from "../utils.js";
+import type { Config } from "../config.js";
+import { assertSecureUrl } from "../utils/url.js";
 import { clientMethodNames } from "../bindings/utils.js";
 import type { HttpClient } from "../http-client/index.js";
 import {
@@ -103,7 +105,7 @@ export namespace RpcServer {
    * Options for configuring connections to RPC servers.
    */
   export interface Options {
-    /** Allow connecting to http servers, default: `false`. This must be set to false in production deployments! */
+    /** Allow connecting to http servers, default: `false`. This must be set to false in production deployments! You can also use {@link Config} class to set this globally. */
     allowHttp?: boolean;
     /** Timeout for each request, in whole milliseconds, at most 2147483647. `0` or unset means no limit. */
     timeout?: number;
@@ -313,6 +315,7 @@ function contractSpecTypeName(td: ScSpecTypeDef): string {
  * @param opts - (optional) Options object
  *   - `allowHttp` (optional): Allows connecting to insecure http servers
  *    (default: `false`). This must be set to false in production deployments!
+ *    When unset, the global {@link Config} flag applies.
  *   - `timeout` (optional): Timeout for each request, in whole milliseconds,
  *    at most 2147483647. `0` or unset means no limit.
  *   - `headers` (optional): Allows setting custom headers
@@ -353,11 +356,11 @@ export class RpcServer {
       );
     }
     this.httpClient = createHttpClient(opts.headers, timeout);
-    if (this.serverURL.protocol !== "https:" && !opts.allowHttp) {
-      throw new Error(
-        "Cannot connect to insecure Soroban RPC server if `allowHttp` isn't set",
-      );
-    }
+    assertSecureUrl(
+      this.serverURL,
+      opts.allowHttp,
+      "Cannot connect to insecure Soroban RPC server if `allowHttp` isn't set",
+    );
   }
 
   /**
