@@ -415,6 +415,9 @@ export function nativeToScVal(
  *  - symbol → `string`
  *  - string → `string` IF the underlying buffer can be decoded as ascii/utf8,
  *              `Uint8Array` of the raw contents in any error case
+ *  - error → `{ type: "contract", code }` for a contract error, or
+ *            `{ type: "system", errorType, code, value }` for any other, where
+ *            `errorType` is the error type's name, such as `"sceStorage"`
  *
  * If no viable conversion can be determined, this just "unwraps" the smart
  * value to return its underlying XDR value.
@@ -516,6 +519,7 @@ export function scValToNative(scv: ScVal): any {
       const code = err.value as ScErrorCode;
       return {
         type: "system",
+        errorType: err.type,
         code: code.value,
         value: code.name,
       };

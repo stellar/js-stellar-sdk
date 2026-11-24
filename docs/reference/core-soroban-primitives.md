@@ -1198,6 +1198,9 @@ Possible conversions include:
  - symbol → `string`
  - string → `string` IF the underlying buffer can be decoded as ascii/utf8,
              `Uint8Array` of the raw contents in any error case
+ - error → `{ type: "contract", code }` for a contract error, or
+           `{ type: "system", errorType, code, value }` for any other, where
+           `errorType` is the error type's name, such as `"sceStorage"`
 
 If no viable conversion can be determined, this just "unwraps" the smart
 value to return its underlying XDR value.
@@ -1219,7 +1222,7 @@ scValToNative(scv: ScVal): any
 
 - nativeToScVal
 
-**Source:** [src/base/scval.ts:429](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L429)
+**Source:** [src/base/scval.ts:432](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L432)
 
 ## scvSortedMap
 
@@ -1234,7 +1237,7 @@ scvSortedMap(items: ScMapEntry[]): ScVal
 
 - **`items`** — `ScMapEntry[]` (required) — the unsorted map entries
 
-**Source:** [src/base/scval.ts:542](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L542)
+**Source:** [src/base/scval.ts:546](https://github.com/stellar/js-stellar-sdk/blob/main/src/base/scval.ts#L546)
 
 ## walkInvocationTree
 

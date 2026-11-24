@@ -130,6 +130,39 @@ describe("humanizing raw events", () => {
     });
   });
 
+  // Diagnostic events of two failed mainnet transactions, from issue #1905.
+  it("keeps the error type of error topics", () => {
+    const events = [
+      // topics: ["error", Error(Storage, ExceededLimit)]
+      "AAAAAAAAAAAAAAAB1/5EvQrxHWArEJHy9KH03yEtRE0DIeoyrbPMHLurCgQAAAACAAAAAAAAAAIAAAAPAAAABWVycm9yAAAAAAAAAgAAAAMAAAAFAAAADgAAAE1lc2NhbGF0aW5nIGVycm9yIHRvIFZNIHRyYXAgZnJvbSBmYWlsZWQgaG9zdCBmdW5jdGlvbiBjYWxsOiBoYXNfY29udHJhY3RfZGF0YQAAAA==",
+      // topics: ["error", Error(Budget, ExceededLimit)]
+      "AAAAAAAAAAAAAAAAAAAAAgAAAAAAAAACAAAADwAAAAVlcnJvcgAAAAAAAAIAAAAHAAAABQAAABAAAAABAAAAAwAAAA4AAAA3b3BlcmF0aW9uIGJ5dGUtd3JpdGUgcmVzb3VyY2VzIGV4Y2VlZHMgYW1vdW50IHNwZWNpZmllZAAAAAAFAAAAAAAALjAAAAAFAAAAAAAALAA=",
+    ].map((s) => xdr.DiagnosticEvent.fromXdr(s, "base64"));
+
+    const readable = humanizeEvents(events);
+
+    expect(readable.map((event) => event.topics)).toEqual([
+      [
+        "error",
+        {
+          type: "system",
+          errorType: "sceStorage",
+          code: 5,
+          value: "scecExceededLimit",
+        },
+      ],
+      [
+        "error",
+        {
+          type: "system",
+          errorType: "sceBudget",
+          code: 5,
+          value: "scecExceededLimit",
+        },
+      ],
+    ]);
+  });
+
   it("returns an empty array for empty input", () => {
     const readable = humanizeEvents([]);
 

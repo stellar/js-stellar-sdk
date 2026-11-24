@@ -286,6 +286,7 @@ describe("parsing and building ScVals - from scval_test.js", () => {
       { type: "contract", code: 1234 },
       {
         type: "system",
+        errorType: "sceWasmVm",
         code: sysCode.value,
         value: sysCode.name,
       },
@@ -1606,6 +1607,51 @@ describe("scValToNative", () => {
         const result = scValToNative(scv);
         expect(result.type).toBe("system");
       }
+    });
+
+    it("keeps the error type of every non-contract error", () => {
+      const code = xdr.ScErrorCode.scecExceededLimit;
+      const errors = [
+        xdr.ScError.sceWasmVm(code),
+        xdr.ScError.sceContext(code),
+        xdr.ScError.sceStorage(code),
+        xdr.ScError.sceObject(code),
+        xdr.ScError.sceCrypto(code),
+        xdr.ScError.sceEvents(code),
+        xdr.ScError.sceBudget(code),
+        xdr.ScError.sceValue(code),
+        xdr.ScError.sceAuth(code),
+      ];
+
+      const natives = errors.map((err) =>
+        scValToNative(xdr.ScVal.scvError(err)),
+      );
+
+      expect(natives).toEqual(
+        [
+          "sceWasmVm",
+          "sceContext",
+          "sceStorage",
+          "sceObject",
+          "sceCrypto",
+          "sceEvents",
+          "sceBudget",
+          "sceValue",
+          "sceAuth",
+        ].map((errorType) => ({
+          type: "system",
+          errorType,
+          code: 5,
+          value: "scecExceededLimit",
+        })),
+      );
+    });
+
+    it("adds no error type to a contract error", () => {
+      const scv = xdr.ScVal.scvError(xdr.ScError.sceContract(5));
+      const native = scValToNative(scv);
+      expect(native).toEqual({ type: "contract", code: 5 });
+      expect(Object.keys(native)).toEqual(["type", "code"]);
     });
   });
 });
