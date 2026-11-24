@@ -123,16 +123,22 @@ function prefixTopicText(topic: ScVal): string | undefined {
 function matchesTopics(
   event: ScSpecEventV0,
   topics: ScVal[],
+  topicTexts: (string | undefined)[],
 ): ScSpecEventParamV0[] | undefined {
   const prefixTopics = event.prefixTopics;
+  if (topics.length < prefixTopics.length) {
+    return undefined;
+  }
+  // The prefix is checked first, so a declaration that does not match costs
+  // no param filtering.
+  for (let i = 0; i < prefixTopics.length; i++) {
+    if (topicTexts[i] !== prefixTopics[i].toString()) {
+      return undefined;
+    }
+  }
   const tlParams = topicListParams(event);
   if (topics.length < prefixTopics.length + tlParams.length) {
     return undefined;
-  }
-  for (let i = 0; i < prefixTopics.length; i++) {
-    if (prefixTopicText(topics[i]) !== prefixTopics[i].toString()) {
-      return undefined;
-    }
   }
   return tlParams;
 }
@@ -147,16 +153,21 @@ function matchesTopics(
  * @param data - the event's data, as an `ScVal` or a base64 XDR string
  * @returns the parsed event, or `undefined` if no event spec matches
  *
- * Matching compares only the prefix topics and a minimum topic count, so if
- * more than one event spec matches (in particular, events with no prefix
- * topics match on arity alone), the first declared spec whose values decode
- * successfully wins. A spec whose data has exactly the shape that soroban-sdk
- * emits for it wins over a spec that fits only loosely. The exact shape is
- * void data for a single-value spec with no data params, a vec with one
- * element for each data param, or a map whose keys are all symbols that name
- * a data param. A loose fit has more values, which are ignored: data that is
+ * A spec matches when its prefix topics match and the event has at least one
+ * topic for each prefix topic and topic-list param. If more than one spec
+ * matches (in particular, events with no prefix topics match on arity alone),
+ * the first declared exact fit whose values decode wins, and then the first
+ * declared loose fit. A spec whose topics and data have exactly the shape that
+ * soroban-sdk emits for it wins over a spec that fits only loosely. The exact
+ * shape is one topic for each prefix topic and topic-list param, and void data
+ * for a single-value spec with no data params, a vec with one element for each
+ * data param, or a map whose keys are all symbols that name a data param. A
+ * loose fit has more values, which are ignored: trailing topics, data that is
  * not void, extra vec elements, or extra map keys. So older bindings can still
- * read an event from a newer contract version that adds fields. A vec cannot
+ * read an event from a newer contract version that adds fields, and an event
+ * with an undeclared trailing topic, such as the SEP-11 asset topic of SAC
+ * events, still parses. But if a later spec declares that trailing topic, the
+ * later spec wins, because the event bytes are the same for both. A vec cannot
  * have fewer elements than the data params, and a map key can be missing only
  * for a param of type `Option`, `()` or `Val`.
  * @hidden
@@ -182,8 +193,10 @@ export function parseEvent(
   let loose:
     | [ScSpecEventV0, ScSpecEventParamV0[], [ScSpecEventParamV0, ScVal][]][]
     | undefined;
+  // Read once here, not once for each declaration.
+  const topicTexts = topicVals.map(prefixTopicText);
   for (const event of specEvents) {
-    const tlParams = matchesTopics(event, topicVals);
+    const tlParams = matchesTopics(event, topicVals, topicTexts);
     if (!tlParams) {
       continue;
     }
@@ -253,6 +266,10 @@ export function parseEvent(
         const unhandled: never = event.dataFormat.name;
         throw new Error(`unknown event data format: ${unhandled}`);
       }
+    }
+    // An undeclared trailing topic makes the fit loose, as extra data does.
+    if (topicVals.length !== event.prefixTopics.length + tlParams.length) {
+      exact = false;
     }
 
     if (exact) {

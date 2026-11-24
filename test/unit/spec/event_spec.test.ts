@@ -779,6 +779,141 @@ describe("Spec events", () => {
     });
   });
 
+  describe("topic count", () => {
+    const declare = (
+      name: string,
+      prefixTopics: string[],
+      params: xdr.ScSpecEventParamV0[],
+      dataFormat = xdr.ScSpecEventDataFormat.scSpecEventDataFormatSingleValue,
+    ): xdr.ScSpecEntry =>
+      entryFor(
+        new xdr.ScSpecEventV0({
+          doc: "",
+          lib: "",
+          name,
+          prefixTopics,
+          params,
+          dataFormat,
+        }),
+      );
+    const to = Address.fromString(
+      "GDGQVOKHW4VEJRU2TETD6DBRKEO5ERCNF353LW5WBFW3JJWQ2BRQ6KDD",
+    );
+    const amount = param("amount", u32Type, DATA);
+    const data = xdr.ScVal.scvU32(5);
+
+    it("prefers a later declaration that declares every topic", () => {
+      const evt = declare(
+        "Evt",
+        ["evt"],
+        [param("from", addrType, TOPIC), amount],
+      );
+      const evtTo = declare(
+        "EvtTo",
+        ["evt"],
+        [param("from", addrType, TOPIC), param("to", addrType, TOPIC), amount],
+      );
+      const topics = [xdr.ScVal.scvSymbol("evt"), addr.toScVal(), to.toScVal()];
+      const expected = {
+        name: "EvtTo",
+        data: { from: addr.toString(), to: to.toString(), amount: 5 },
+      };
+
+      expect(new Spec([evt, evtTo]).parseEvent(topics, data)).toEqual(expected);
+      expect(new Spec([evtTo, evt]).parseEvent(topics, data)).toEqual(expected);
+    });
+
+    it("prefers a later declaration with a longer prefix", () => {
+      const spec = new Spec([
+        declare("A", ["a"], [amount]),
+        declare("AB", ["a", "b"], [amount]),
+      ]);
+      const topics = [xdr.ScVal.scvSymbol("a"), xdr.ScVal.scvSymbol("b")];
+
+      expect(spec.parseEvent(topics, data)).toEqual({
+        name: "AB",
+        data: { amount: 5 },
+      });
+    });
+
+    it("prefers a later declaration that declares a trailing topic", () => {
+      // Both declarations fit the same bytes. The declaration that declares
+      // the trailing topic wins, even when the contract emitted Transfer with
+      // an undeclared SAC asset topic.
+      const spec = new Spec([
+        declare(
+          "Transfer",
+          ["transfer"],
+          [
+            param("from", addrType, TOPIC),
+            param("to", addrType, TOPIC),
+            amount,
+          ],
+        ),
+        declare(
+          "TransferTagged",
+          ["transfer"],
+          [
+            param("from", addrType, TOPIC),
+            param("to", addrType, TOPIC),
+            param("tag", xdr.ScSpecTypeDef.scSpecTypeVal(), TOPIC),
+            amount,
+          ],
+        ),
+      ]);
+      const topics = [
+        xdr.ScVal.scvSymbol("transfer"),
+        addr.toScVal(),
+        to.toScVal(),
+        xdr.ScVal.scvString("native"),
+      ];
+
+      expect(spec.parseEvent(topics, data)).toEqual({
+        name: "TransferTagged",
+        data: {
+          from: addr.toString(),
+          to: to.toString(),
+          tag: "native",
+          amount: 5,
+        },
+      });
+    });
+
+    it("uses declaration order when the topics fit one declaration and the data fits the other", () => {
+      const map = xdr.ScSpecEventDataFormat.scSpecEventDataFormatMap;
+      const spec = new Spec([
+        declare(
+          "TopicsFit",
+          ["evt"],
+          [param("x", u32Type, TOPIC), param("a", u32Type, DATA)],
+          map,
+        ),
+        declare(
+          "DataFits",
+          ["evt"],
+          [param("a", u32Type, DATA), param("b", u32Type, DATA)],
+          map,
+        ),
+      ]);
+      const topics = [xdr.ScVal.scvSymbol("evt"), xdr.ScVal.scvU32(9)];
+      const mapData = xdr.ScVal.scvMap([
+        new xdr.ScMapEntry({
+          key: xdr.ScVal.scvSymbol("a"),
+          val: xdr.ScVal.scvU32(1),
+        }),
+        new xdr.ScMapEntry({
+          key: xdr.ScVal.scvSymbol("b"),
+          val: xdr.ScVal.scvU32(2),
+        }),
+      ]);
+
+      expect(spec.parseEvent(topics, mapData)).toEqual({
+        name: "TopicsFit",
+        data: { x: 9, a: 1 },
+      });
+    });
+  });
+
   it("accepts base64 XDR strings for topics and data", () => {
     const event = new xdr.ScSpecEventV0({
       doc: "",
