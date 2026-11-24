@@ -107,6 +107,22 @@ If a method depends on contract state that has expired, pass `restore: true` in
 the method options and simulation will restore it before the call; see
 [State Archival](https://developers.stellar.org/docs/learn/encyclopedia/storage/state-archival).
 
+## See why a call failed
+
+When a contract call fails, the RPC server returns **diagnostic events**: a
+trace of the calls made and the error the host raised. Each response type keeps
+them in a different field.
+[`rpc.inspectDiagnosticEvents`](/reference/network-rpc/#rpcinspectdiagnosticevents)
+takes a `simulateTransaction`, `sendTransaction` or `getTransaction` response
+and returns its events with topics and data as native values, or an empty list
+if there are none. This simulates a call to a function the contract does not
+have:
+
+<!-- snippet: invoke-a-contract.ts#diagnostics -->
+
+RPC servers return diagnostic events by default, but an operator can turn them
+off.
+
 ## Put it together
 
 The whole flow as one script. Set `contractId` to your deployed increment

@@ -19,7 +19,10 @@ import { contract, Keypair, Networks } from "@stellar/stellar-sdk";
 import { rpc } from "@stellar/stellar-sdk";
 // #endregion query
 // #endregion full
-import { Asset, Contract, Operation } from "@stellar/stellar-sdk";
+// #region diagnostics
+import { BASE_FEE, Contract, TransactionBuilder } from "@stellar/stellar-sdk";
+// #endregion diagnostics
+import { Asset, Operation } from "@stellar/stellar-sdk";
 import { deployWasm, submit } from "./setup/deploy.js";
 
 // #region full
@@ -148,4 +151,34 @@ sent.result; // the applied result; send again and the counter advances
 
 if (sent.result !== 1) {
   throw new Error(`increment applied ${sent.result}, expected 1`);
+}
+
+// #region diagnostics
+// The increment contract has no `decrement` function, so this call fails.
+const badCall = new TransactionBuilder(
+  await server.getAccount(keypair.publicKey()),
+  { fee: BASE_FEE, networkPassphrase },
+)
+  .addOperation(new Contract(contractId).call("decrement"))
+  .setTimeout(30)
+  .build();
+const failed = await server.simulateTransaction(badCall);
+
+// Also takes a sendTransaction or getTransaction response.
+const diagnostics = rpc.inspectDiagnosticEvents(failed);
+for (const event of diagnostics) {
+  console.log(event.type, event.contractId, event.topics, event.data);
+}
+
+// The host reports the failure in the event whose first topic is "error".
+const hostError = diagnostics.find((event) => event.topics[0] === "error");
+// #endregion diagnostics
+
+if (!rpc.Api.isSimulationError(failed)) {
+  throw new Error("simulating a missing function did not fail");
+}
+if (hostError === undefined) {
+  throw new Error(
+    `no host error among ${diagnostics.length} diagnostic events`,
+  );
 }
