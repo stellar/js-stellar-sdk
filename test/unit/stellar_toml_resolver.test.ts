@@ -3,7 +3,10 @@ import http from "http";
 import { AddressInfo } from "net";
 import * as StellarSdk from "../../src/index.js";
 import { httpClient } from "../../src/http-client/index.js";
-import { validateAllowedRedirects } from "../../src/stellartoml/utils.js";
+import {
+  stripTrailingSeparators,
+  validateAllowedRedirects,
+} from "../../src/stellartoml/utils.js";
 
 const { StellarToml, Config } = StellarSdk;
 const { Resolver, STELLAR_TOML_MAX_SIZE } = StellarToml;
@@ -493,6 +496,60 @@ FEDERATION_SERVER="https://api.stellar.org/federation"
           expect.anything(),
         );
       });
+
+      // On a quadratic strip this input takes about 4 s; a linear one takes
+      // milliseconds, so the budget leaves room for a slow machine.
+      it("rejects a long separator run that is not trailing in linear time", async () => {
+        const domain = `${"/".repeat(100_000)}x`;
+
+        const start = performance.now();
+        await expect(Resolver.resolve(domain)).rejects.toThrow(
+          /Invalid domain/,
+        );
+        expect(performance.now() - start).toBeLessThan(500);
+        expect(mockHttpClient).not.toHaveBeenCalled();
+      });
+
+      it.each([
+        ["256", `${"/".repeat(255)}x`, `"${"/".repeat(255)}x"`],
+        ["257", `${"/".repeat(256)}x`, `"${"/".repeat(256)}"…`],
+        ["100,000", `${"/".repeat(99_999)}x`, `"${"/".repeat(256)}"…`],
+      ])(
+        "shows a %s-character domain in the error only up to 256 characters",
+        async (_, domain, shown) => {
+          await expect(Resolver.resolve(domain)).rejects.toThrow(
+            `Invalid domain: ${shown}. A domain must be a host name with an optional port.`,
+          );
+        },
+      );
+    });
+  });
+
+  describe("stripTrailingSeparators", () => {
+    it("matches the trailing-separator regex for every short string", () => {
+      const alphabet = ["a", "/", "\\", " "];
+      let inputs = [""];
+      for (let length = 1; length <= 6; length += 1) {
+        inputs = inputs.flatMap((prefix) => alphabet.map((c) => prefix + c));
+        for (const input of inputs) {
+          expect(stripTrailingSeparators(input)).toBe(
+            input.replace(/[/\\]+$/, ""),
+          );
+        }
+      }
+    });
+
+    it.each([
+      ["", ""],
+      ["/", ""],
+      ["\\/", ""],
+      ["acme.com", "acme.com"],
+      ["acme.com/\\/", "acme.com"],
+      ["bücher.example/", "bücher.example"],
+      ["/evil.com", "/evil.com"],
+      ["acme.com/evil/", "acme.com/evil"],
+    ])("strips %j to %j", (input, expected) => {
+      expect(stripTrailingSeparators(input)).toBe(expected);
     });
   });
 

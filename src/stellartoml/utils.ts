@@ -14,3 +14,13 @@ export function validateAllowedRedirects(allowedRedirects: unknown): void {
     );
   }
 }
+
+// A loop, not `/[/\\]+$/`: the regex restarts at each position of a separator
+// run that is not trailing, which takes quadratic time.
+export function stripTrailingSeparators(value: string): string {
+  let end = value.length;
+  while (end > 0 && (value[end - 1] === "/" || value[end - 1] === "\\")) {
+    end -= 1;
+  }
+  return value.slice(0, end);
+}

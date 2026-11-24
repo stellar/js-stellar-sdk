@@ -4,7 +4,7 @@ import { Networks } from "../base/index.js";
 import { httpClient } from "../http-client/index.js";
 
 import { Config } from "../config.js";
-import { validateAllowedRedirects } from "./utils.js";
+import { stripTrailingSeparators, validateAllowedRedirects } from "./utils.js";
 
 /**
  * The maximum size of stellar.toml file, in bytes
@@ -20,10 +20,9 @@ const STELLAR_TOML_PATH = "/.well-known/stellar.toml";
 // Chromium encodes a space into it.
 const INVALID_DOMAIN_CHARS = /[\s@/?#\\]/;
 
-// A trailing separator, and surrounding whitespace, reached the right host
-// before this check existed, so strip them rather than reject them. Only the
-// trailing ones: a leading `/` names a different host.
-const TRAILING_SEPARATORS = /[/\\]+$/;
+// Above the 253-character limit of a host name, so a real host always shows in
+// full. A longer input shows only in part, so it does not fill the logs.
+const MAX_ECHOED_DOMAIN_LENGTH = 256;
 
 // smol-toml 1.9 builds each table with a null prototype, and dates and
 // arrays with their usual one.
@@ -54,7 +53,7 @@ export class Resolver {
    * Returns a parsed `stellar.toml` file for a given domain.
    * @see {@link https://developers.stellar.org/docs/tokens/publishing-asset-info | Stellar.toml doc}
    *
-   * @param domain - Domain to get stellar.toml file for. Must be a host name with an optional port; surrounding whitespace and a trailing `/` are ignored.
+   * @param domain - Domain to get stellar.toml file for. Must be a host name with an optional port; surrounding whitespace and trailing slashes or backslashes are ignored.
    * @param opts - (optional) Options object
    *   - `allowHttp` (optional): Allow connecting to http servers. This must be set to false in production deployments!
    *   - `timeout` (optional): Allow a timeout. Allows user to avoid nasty lag due to TOML resolve issue.
@@ -89,7 +88,10 @@ export class Resolver {
 
     const protocol = allowHttp ? "http" : "https";
 
-    const name = String(domain).trim().replace(TRAILING_SEPARATORS, "");
+    // A trailing separator, and surrounding whitespace, reached the right host
+    // before this check existed, so strip them rather than reject them. Only
+    // the trailing ones: a leading `/` names a different host.
+    const name = stripTrailingSeparators(String(domain).trim());
 
     // The character test alone misses an empty domain, which promotes
     // `.well-known` to the host. The parse test alone misses a leading
@@ -109,8 +111,12 @@ export class Resolver {
       url.host.includes("%") ||
       url.href !== `${protocol}://${url.host}${STELLAR_TOML_PATH}`
     ) {
+      const shown =
+        typeof domain === "string" && domain.length > MAX_ECHOED_DOMAIN_LENGTH
+          ? `${JSON.stringify(domain.slice(0, MAX_ECHOED_DOMAIN_LENGTH))}…`
+          : JSON.stringify(domain);
       throw new Error(
-        `Invalid domain: ${JSON.stringify(domain)}. A domain must be a host name with an optional port.`,
+        `Invalid domain: ${shown}. A domain must be a host name with an optional port.`,
       );
     }
     validateAllowedRedirects(opts.allowedRedirects);
