@@ -2143,7 +2143,7 @@ id: string;
 #### `eventResponse.inSuccessfulContractCall`
 
 **Deprecated.** Newer RPC servers no longer return this field; it will be
-removed in the next major release.
+removed no earlier than v19.0.0.
 
 ```ts
 inSuccessfulContractCall?: boolean;
@@ -3573,7 +3573,7 @@ id: string;
 #### `rawEventResponse.inSuccessfulContractCall`
 
 **Deprecated.** Newer RPC servers no longer return this field; it will be
-removed in the next major release.
+removed no earlier than v19.0.0.
 
 ```ts
 inSuccessfulContractCall?: boolean;
@@ -4229,7 +4229,7 @@ id: string;
 #### `rawQueryEventResponse.inSuccessfulContractCall`
 
 **Deprecated.** Newer RPC servers no longer return this field; it will be
-removed in the next major release.
+removed no earlier than v19.0.0.
 
 ```ts
 inSuccessfulContractCall?: boolean;

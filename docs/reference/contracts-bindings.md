@@ -53,7 +53,7 @@ const generator = BindingGenerator.fromSpec(spec);
 const bindings = generator.generate({ contractName: "my-contract" });
 ```
 
-**Source:** [src/bindings/generator.ts:130](https://github.com/stellar/js-stellar-sdk/blob/main/src/bindings/generator.ts#L130)
+**Source:** [src/bindings/generator.ts:171](https://github.com/stellar/js-stellar-sdk/blob/main/src/bindings/generator.ts#L171)
 
 ### `BindingGenerator.fromContractId(contractId, rpcServer)`
 
@@ -89,7 +89,7 @@ const generator = await BindingGenerator.fromContractId(
 );
 ```
 
-**Source:** [src/bindings/generator.ts:235](https://github.com/stellar/js-stellar-sdk/blob/main/src/bindings/generator.ts#L235)
+**Source:** [src/bindings/generator.ts:276](https://github.com/stellar/js-stellar-sdk/blob/main/src/bindings/generator.ts#L276)
 
 ### `BindingGenerator.fromSpec(spec)`
 
@@ -117,7 +117,7 @@ const spec = new Spec(specEntries);
 const generator = BindingGenerator.fromSpec(spec);
 ```
 
-**Source:** [src/bindings/generator.ts:157](https://github.com/stellar/js-stellar-sdk/blob/main/src/bindings/generator.ts#L157)
+**Source:** [src/bindings/generator.ts:198](https://github.com/stellar/js-stellar-sdk/blob/main/src/bindings/generator.ts#L198)
 
 ### `BindingGenerator.fromWasm(wasmBytes)`
 
@@ -150,7 +150,7 @@ const wasmBytes = fs.readFileSync("./target/wasm32-unknown-unknown/release/my_co
 const generator = await BindingGenerator.fromWasm(wasmBytes);
 ```
 
-**Source:** [src/bindings/generator.ts:178](https://github.com/stellar/js-stellar-sdk/blob/main/src/bindings/generator.ts#L178)
+**Source:** [src/bindings/generator.ts:219](https://github.com/stellar/js-stellar-sdk/blob/main/src/bindings/generator.ts#L219)
 
 ### `BindingGenerator.fromWasmHash(wasmHash, rpcServer)`
 
@@ -187,7 +187,7 @@ const generator = await BindingGenerator.fromWasmHash(
 );
 ```
 
-**Source:** [src/bindings/generator.ts:204](https://github.com/stellar/js-stellar-sdk/blob/main/src/bindings/generator.ts#L204)
+**Source:** [src/bindings/generator.ts:245](https://github.com/stellar/js-stellar-sdk/blob/main/src/bindings/generator.ts#L245)
 
 ### `bindingGenerator.generate(options)`
 
@@ -210,6 +210,7 @@ generate(options: GenerateOptions): GeneratedBindings;
 
 - **`options`** — `GenerateOptions` (required) — Configuration options for generation
     - `contractName`: Required. The name for the generated package (kebab-case recommended)
+    - `contractId` and `networkPassphrase`: Optional. When both are set, `index.ts` exports `networks`
 
 **Returns**
 
@@ -224,8 +225,7 @@ An object containing all generated file contents as strings
 ```ts
 const bindings = generator.generate({
   contractName: "my-token",
-  contractAddress: "CABC...XYZ",
-  rpcUrl: "https://soroban-testnet.stellar.org",
+  contractId: "CABC...XYZ",
   networkPassphrase: Networks.TESTNET
 });
 
@@ -234,4 +234,4 @@ fs.writeFileSync("./src/client.ts", bindings.client);
 fs.writeFileSync("./src/types.ts", bindings.types);
 ```
 
-**Source:** [src/bindings/generator.ts:279](https://github.com/stellar/js-stellar-sdk/blob/main/src/bindings/generator.ts#L279)
+**Source:** [src/bindings/generator.ts:320](https://github.com/stellar/js-stellar-sdk/blob/main/src/bindings/generator.ts#L320)

@@ -1,4 +1,4 @@
-import { Command } from "commander";
+import { Command, Option } from "commander";
 import * as path from "path";
 
 import { WasmFetchError } from "../bindings/wasm_fetcher.js";
@@ -8,32 +8,10 @@ import {
   generateAndWrite,
   logSourceInfo,
   deriveContractName,
+  resolveHeaders,
+  resolveNetwork,
 } from "./util.js";
-import { Networks } from "../base/index.js";
 import { MAX_TIMEOUT_MS } from "../rpc/server.js";
-
-// Default RPC URLs for each network
-const NETWORK_CONFIG: Record<
-  string,
-  { passphrase: string; rpcUrl: string | null }
-> = {
-  testnet: {
-    passphrase: Networks.TESTNET,
-    rpcUrl: "https://soroban-testnet.stellar.org",
-  },
-  mainnet: {
-    passphrase: Networks.PUBLIC,
-    rpcUrl: null, // User must provide their own
-  },
-  futurenet: {
-    passphrase: Networks.FUTURENET,
-    rpcUrl: "https://rpc-futurenet.stellar.org",
-  },
-  localnet: {
-    passphrase: Networks.STANDALONE,
-    rpcUrl: "http://localhost:8000/rpc",
-  },
-};
 
 function runCli() {
   const program = new Command();
@@ -49,11 +27,15 @@ function runCli() {
     .helpOption("-h, --help", "Display help for command")
     .option("--wasm <path>", "Path to local WASM file")
     .option("--wasm-hash <hash>", "Hash of WASM blob on network")
-    .option("--contract-id <id>", "Contract ID on network")
+    .option("--id, --contract-id <id>", "Contract ID on network")
     .option("--rpc-url <url>", "RPC server URL")
     .option(
       "--network <network>",
       "Network options to use: mainnet, testnet, futurenet, or localnet",
+    )
+    .option(
+      "--network-passphrase <passphrase>",
+      "Network passphrase, for a network --network does not name (use with --rpc-url)",
     )
     .option("--output-dir <dir>", "Output directory for generated bindings")
     .option(
@@ -62,9 +44,17 @@ function runCli() {
       false,
     )
     .option("--timeout <ms>", "RPC request timeout in milliseconds")
+    .addOption(
+      // deprecated in favor of --rpc-header, so it is kept out of the help
+      new Option(
+        "--headers <json>",
+        "Custom headers as JSON object",
+      ).hideHelp(),
+    )
     .option(
-      "--headers <json>",
-      'Custom headers as JSON object (e.g., \'{"Authorization": "Bearer token"}\')',
+      "--rpc-header <header>",
+      'Custom header as "Name: value"; repeat for more headers',
+      (value: string, previous: string[] = []) => [...previous, value],
     )
     .option(
       "--contract-name <name>",
@@ -74,54 +64,32 @@ function runCli() {
     .action(async (options) => {
       try {
         // Map network to passphrase and default RPC URL
-        let networkPassphrase: string | undefined;
-        let rpcUrl: string | undefined = options.rpcUrl;
-        let allowHttp: boolean = options.allowHttp;
-
-        if (options.network) {
-          const network = options.network.toLowerCase();
-          const config = NETWORK_CONFIG[network];
-
-          if (!config) {
-            throw new Error(
-              `\n✗ Invalid network: ${options.network}. Must be mainnet, testnet, futurenet, or localnet`,
-            );
-          }
-
-          networkPassphrase = config.passphrase;
-
-          // Use default RPC URL if not provided (only needed for network sources)
-          const needsRpcUrl = options.wasmHash || options.contractId;
-          if (!rpcUrl && needsRpcUrl) {
-            if (config.rpcUrl) {
-              rpcUrl = config.rpcUrl;
-              console.log(`Using default RPC URL for ${network}: ${rpcUrl}`);
-
-              // Auto-enable allowHttp for localnet when using default HTTP URL
-              if (network === "localnet" && !options.allowHttp) {
-                allowHttp = true;
-              }
-            } else if (network === "mainnet") {
-              throw new Error(
-                `\n✗ --rpc-url is required for mainnet. Find RPC providers at: https://developers.stellar.org/docs/data/rpc/rpc-providers`,
-              );
-            }
-          }
+        const { networkPassphrase, rpcUrl, allowHttp, defaultRpcUrlFor } =
+          resolveNetwork({
+            network: options.network,
+            networkPassphrase: options.networkPassphrase,
+            rpcUrl: options.rpcUrl,
+            allowHttp: options.allowHttp,
+            needsRpcUrl: Boolean(options.wasmHash || options.contractId),
+          });
+        if (defaultRpcUrlFor) {
+          console.log(
+            `Using default RPC URL for ${defaultRpcUrlFor}: ${rpcUrl}`,
+          );
         }
 
         if (options.outputDir === undefined) {
           throw new Error("Output directory (--output-dir) is required");
         }
 
-        // Parse headers JSON if provided
-        let headers: Record<string, string> | undefined;
-        if (options.headers) {
-          try {
-            headers = JSON.parse(options.headers);
-          } catch {
-            throw new Error(`Invalid JSON for --headers: ${options.headers}`);
-          }
+        if (options.headers !== undefined) {
+          console.warn(
+            '⚠ --headers is deprecated. Use --rpc-header "Name: value" instead.',
+          );
         }
+
+        // Merge --headers JSON with repeated --rpc-header values
+        const headers = resolveHeaders(options.headers, options.rpcHeader);
 
         // Parse timeout if provided
         let timeout: number | undefined;
@@ -164,6 +132,11 @@ function runCli() {
           contractName,
           outputDir: path.resolve(options.outputDir),
           overwrite: options.overwrite,
+          // the `networks` export is only meaningful for a deployed contract
+          ...(source.type === "contract-id" && {
+            contractId: source.contractId,
+            networkPassphrase: source.network,
+          }),
         });
 
         for (const d of bindings.diagnostics) {

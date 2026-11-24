@@ -193,6 +193,13 @@ Don't add new TSDoc tags to influence frontmatter — the generator handles it.
    [examples/guides/README.md](examples/guides/README.md).
 3. The sidebar picks up the new file automatically — no config change needed.
 
+### Moving or renaming a page
+
+A page URL comes from its file path under `docs/`, lowercased and without `.md`,
+or from `BUCKET_TO_SLUG` in `scripts/build-docs.ts` for reference pages. When
+you move or rename a page, add its old URL path to `redirects` in
+`astro.config.mjs` so that external links to the old URL keep working.
+
 ### Images
 
 - Astro's `<Image>` component for raster images. It emits WebP/AVIF and a
