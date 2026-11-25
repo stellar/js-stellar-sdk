@@ -33,6 +33,26 @@ describe("Server.constructor", () => {
     ).not.toThrow();
   });
 
+  describe("with the global Config.allowHttp flag set", () => {
+    beforeEach(() => {
+      StellarSdk.Config.setAllowHttp(true);
+    });
+
+    afterEach(() => {
+      StellarSdk.Config.setDefault();
+    });
+
+    it("allows an insecure server when opts.allowHttp is unset", () => {
+      expect(() => new Server(insecureServerUrl)).not.toThrow();
+    });
+
+    it("refuses an insecure server when opts.allowHttp is false", () => {
+      expect(() => new Server(insecureServerUrl, { allowHttp: false })).toThrow(
+        "Cannot connect to insecure Soroban RPC server if `allowHttp` isn't set",
+      );
+    });
+  });
+
   it("creates HttpClient instance with provided headers", () => {
     const headersA = { "Custom-Header-A": "CustomValue" };
     const headersB = { "Custom-Header-B": "CustomValue" };

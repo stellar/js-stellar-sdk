@@ -1,6 +1,7 @@
 /* disable PascalCase naming convention, to avoid breaking change */
 
 import { Transaction } from "../base/index.js";
+import type { Config } from "../config.js";
 import type { SentTransaction } from "./sent_transaction.js";
 import type { Client } from "./client.js";
 import type { SignAuthEntryLike, SignTransactionLike } from "./signer.js";
@@ -170,7 +171,8 @@ export type ClientOptions = {
   rpcUrl: string;
   /**
    * If true, will allow HTTP requests to the RPC. If false, will
-   * only allow HTTPS requests.
+   * only allow HTTPS requests. When unset, the global {@link Config} flag
+   * applies.
    * @defaultValue false
    */
   allowHttp?: boolean;

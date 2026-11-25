@@ -1,3 +1,5 @@
+import { Config } from "../config.js";
+
 export type UrlTemplateValue = string | number | boolean | string[];
 
 // A path segment addresses exactly one resource, so a raw "/", a dot segment or
@@ -91,4 +93,17 @@ export function expandUriTemplate(
   });
 
   return url.toString();
+}
+
+// Only `undefined` falls back to the global flag. A JS caller's `null` was
+// refused before this was shared, so it stays refused.
+export function assertSecureUrl(
+  url: URL,
+  allowHttp: boolean | undefined,
+  message: string,
+): void {
+  const allowed = allowHttp === undefined ? Config.isAllowHttp() : allowHttp;
+  if (url.protocol !== "https:" && !allowed) {
+    throw new Error(message);
+  }
 }

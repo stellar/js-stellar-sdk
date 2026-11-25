@@ -46,10 +46,7 @@ describe("federation-server.js tests", () => {
     it("allow insecure server when global Config.allowHttp flag is set", () => {
       Config.setAllowHttp(true);
       expect(
-        () =>
-          new Server("http://acme.com:1337/federation", "stellar.org", {
-            allowHttp: true,
-          }),
+        () => new Server("http://acme.com:1337/federation", "stellar.org"),
       ).not.toThrow();
     });
 
