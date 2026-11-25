@@ -69,12 +69,6 @@ function checkResourceFee(resourceFee: bigint): void {
   }
 }
 
-const SOROBAN_OPERATION_TYPES: ReadonlySet<string> = new Set([
-  "invokeHostFunction",
-  "extendFootprintTtl",
-  "restoreFootprint",
-]);
-
 /**
  * The network's minimum per-operation fee, in stroops. It is a floor, not a
  * recommended fee: a transaction bidding only this gets outbid when the network
@@ -989,17 +983,18 @@ export class TransactionBuilder {
     return this.addOperation(operation);
   }
 
-  // Core rejects any Soroban transaction with a muxed source account.
+  // Core rejects an invokeHostFunction transaction with a muxed source
+  // account. extendFootprintTtl and restoreFootprint are not restricted.
   private assertSorobanSourceNotMuxed(): void {
     if (StrKey.isValidMed25519PublicKey(this.source.accountId())) {
       throw new Error(
-        "Soroban transactions cannot use a muxed source account; use the base account",
+        "invokeHostFunction transactions cannot use a muxed source account; use the base account",
       );
     }
   }
 
   // Core also rejects a muxed operation source and a memo.
-  private assertValidSoroban(): void {
+  private assertValidInvokeHostFunction(): void {
     this.assertSorobanSourceNotMuxed();
     if (
       this.operations.some(
@@ -1007,11 +1002,11 @@ export class TransactionBuilder {
       )
     ) {
       throw new Error(
-        "Soroban operations cannot use a muxed source account; use the base account",
+        "invokeHostFunction operations cannot use a muxed source account; use the base account",
       );
     }
     if (this.memo.type !== "none") {
-      throw new Error("Soroban transactions cannot have a memo");
+      throw new Error("invokeHostFunction transactions cannot have a memo");
     }
   }
 
@@ -1019,17 +1014,14 @@ export class TransactionBuilder {
    * Builds the transaction and increments the source account's sequence
    * number by 1.
    *
-   * @throws If a Soroban transaction has a muxed (`M...`) source account,
-   *    on the transaction or an operation, or has a memo. Also if the Soroban
-   *    data's `resourceFee` is below 0, or if the total fee is above the uint32
-   *    maximum.
+   * @throws If an `invokeHostFunction` transaction has a muxed (`M...`) source
+   *    account, on the transaction or an operation, or has a memo. Also if the
+   *    Soroban data's `resourceFee` is below 0, or if the total fee is above
+   *    the uint32 maximum.
    */
   build(): Transaction {
-    const isSoroban =
-      this.sorobanData !== null ||
-      this.operations.some((op) => SOROBAN_OPERATION_TYPES.has(op.body.type));
-    if (isSoroban) {
-      this.assertValidSoroban();
+    if (this.operations.some((op) => op.body.type === "invokeHostFunction")) {
+      this.assertValidInvokeHostFunction();
     }
 
     const sequenceNumber = new BigNumber(this.source.sequenceNumber()).plus(1);

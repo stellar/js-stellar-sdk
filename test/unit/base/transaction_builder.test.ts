@@ -2833,30 +2833,30 @@ describe("addSacTransferOperation with invalid destination", () => {
         timebounds: { minTime: 0, maxTime: 0 },
       });
 
-    it.each([
-      [
-        "invokeHostFunction",
-        Operation.invokeContractFunction({
-          contract: "CA3D5KRYM6CB7OWQ6TWYRR3Z4T7GNZLKERYNZGGA5SOAOPIFY6YQGAXE",
-          function: "hello",
-          args: [],
-        }),
-      ],
-      ["extendFootprintTtl", Operation.extendFootprintTtl({ extendTo: 100 })],
-      ["restoreFootprint", Operation.restoreFootprint({})],
-    ])("throws for a %s operation", (_name, op) => {
-      expect(() => builder().addOperation(op).build()).toThrow(
-        /muxed source account/,
-      );
-    });
-
-    it("throws when only Soroban data is set", () => {
+    it("throws for an invokeHostFunction operation", () => {
       expect(() =>
         builder()
-          .addOperation(Operation.inflation({}))
-          .setSorobanData(new SorobanDataBuilder().build())
+          .addOperation(
+            Operation.invokeContractFunction({
+              contract:
+                "CA3D5KRYM6CB7OWQ6TWYRR3Z4T7GNZLKERYNZGGA5SOAOPIFY6YQGAXE",
+              function: "hello",
+              args: [],
+            }),
+          )
           .build(),
       ).toThrow(/muxed source account/);
+    });
+
+    it.each([
+      ["extendFootprintTtl", Operation.extendFootprintTtl({ extendTo: 100 })],
+      ["restoreFootprint", Operation.restoreFootprint({})],
+    ])("builds a %s operation", (_name, op) => {
+      const tx = builder()
+        .addOperation(op)
+        .setSorobanData(new SorobanDataBuilder().build())
+        .build();
+      expect(tx.source).toBe(muxedSource().accountId());
     });
 
     it("builds a classic transaction", () => {
@@ -2866,7 +2866,7 @@ describe("addSacTransferOperation with invalid destination", () => {
     });
   });
 
-  describe("build() with an invalid Soroban transaction", () => {
+  describe("build() with an invalid invokeHostFunction transaction", () => {
     const builder = () =>
       new TransactionBuilder(new Account(source.accountId(), "0"), {
         fee: "100",
@@ -2888,7 +2888,9 @@ describe("addSacTransferOperation with invalid destination", () => {
     it("throws for a muxed operation source", () => {
       expect(() =>
         builder().addOperation(invoke(muxedAddress)).build(),
-      ).toThrow(/Soroban operations cannot use a muxed source account/);
+      ).toThrow(
+        /invokeHostFunction operations cannot use a muxed source account/,
+      );
     });
 
     it("builds with a G operation source", () => {
@@ -2904,6 +2906,25 @@ describe("addSacTransferOperation with invalid destination", () => {
       expect(() =>
         builder().addOperation(invoke()).addMemo(memo).build(),
       ).toThrow(/cannot have a memo/);
+    });
+
+    it.each([
+      [
+        "extendFootprintTtl",
+        Operation.extendFootprintTtl({ extendTo: 100, source: muxedAddress }),
+      ],
+      [
+        "restoreFootprint",
+        Operation.restoreFootprint({ source: muxedAddress }),
+      ],
+    ])("builds a %s with a memo and muxed operation source", (_name, op) => {
+      const tx = builder()
+        .addOperation(op)
+        .setSorobanData(new SorobanDataBuilder().build())
+        .addMemo(Memo.text("x"))
+        .build();
+      expect(tx.memo.type).toBe("text");
+      expect(tx.operations[0]?.source).toBe(muxedAddress);
     });
 
     it("builds a classic transaction with a memo and muxed operation source", () => {
