@@ -19,12 +19,8 @@ export function buildMethodCall(
     args: args && spec.funcArgsToScVals(method, args),
     ...options,
     ...methodOptions,
-    errorTypes: spec.errorCases().reduce(
-      (acc, curr) => ({
-        ...acc,
-        [curr.value]: { message: curr.doc.toString() },
-      }),
-      {} as Pick<ClientOptions, "errorTypes">,
+    errorTypes: Object.fromEntries(
+      spec.errorCases().map((c) => [c.value, { message: c.doc.toString() }]),
     ),
     parseResultXdr: (result: ScVal) => spec.funcResToNative(method, result),
   });

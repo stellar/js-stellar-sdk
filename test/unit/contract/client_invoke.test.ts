@@ -48,6 +48,21 @@ const errorEnum = xdr.ScSpecEntry.scSpecEntryUdtErrorEnumV0(
   }),
 );
 
+// An error enum with one case per `[value, doc]` pair.
+function errorEnumOf(name: string, cases: [number, string][]) {
+  return xdr.ScSpecEntry.scSpecEntryUdtErrorEnumV0(
+    new xdr.ScSpecUdtErrorEnumV0({
+      doc: "",
+      lib: "",
+      name,
+      cases: cases.map(
+        ([value, doc], i) =>
+          new xdr.ScSpecUdtErrorEnumCaseV0({ doc, name: `E${i}`, value }),
+      ),
+    }),
+  );
+}
+
 const makeClient = (...entries: xdr.ScSpecEntry[]) =>
   new Client(new Spec(entries), options);
 
@@ -147,5 +162,77 @@ describe("contract.Client.invoke", () => {
       "build called",
     );
     expect(build.mock.calls[0][0]).toMatchObject({ method: "delete_" });
+  });
+});
+
+describe("contract.Client error types", () => {
+  const builtErrorTypes = async (...errorEnums: xdr.ScSpecEntry[]) => {
+    const build = spyBuild();
+    const client = makeClient(func("hello"), ...errorEnums);
+
+    await expect(Client.invoke(client, "hello")).rejects.toThrow(
+      "build called",
+    );
+    return build.mock.calls[0][0].errorTypes;
+  };
+
+  it("is empty when the spec has no error enum", async () => {
+    expect(await builtErrorTypes()).toStrictEqual({});
+  });
+
+  it("merges the cases of every error enum", async () => {
+    expect(
+      await builtErrorTypes(
+        errorEnumOf("A", [[1, "from A"]]),
+        errorEnumOf("B", [[2, "from B"]]),
+      ),
+    ).toStrictEqual({ 1: { message: "from A" }, 2: { message: "from B" } });
+  });
+
+  it("keeps the last case when two error enums share a code", async () => {
+    expect(
+      await builtErrorTypes(
+        errorEnumOf("A", [[1, "from A"]]),
+        errorEnumOf("B", [[1, "from B"]]),
+      ),
+    ).toStrictEqual({ 1: { message: "from B" } });
+  });
+
+  it.each([
+    ["descending", [3, 2, 1]],
+    ["sparse", [1, 100_001, 200_001]],
+    ["boundary", [0, 4_294_967_295]],
+  ])("maps %s codes", async (_, codes) => {
+    expect(
+      await builtErrorTypes(
+        errorEnumOf(
+          "Error",
+          codes.map((code) => [code, `error ${code}`]),
+        ),
+      ),
+    ).toStrictEqual(
+      Object.fromEntries(
+        codes.map((code) => [code, { message: `error ${code}` }]),
+      ),
+    );
+  });
+
+  // Sparse codes force V8's slow dictionary elements, so a quadratic build
+  // takes about 1.7 s here; a linear one takes about 1 ms.
+  it("builds the map for many sparse codes in linear time", async () => {
+    const codes = Array.from({ length: 4000 }, (_, i) => i * 100_000 + 1);
+    const errorEnum4000 = errorEnumOf(
+      "Error",
+      codes.map((code) => [code, `error ${code}`]),
+    );
+
+    const start = performance.now();
+    const errorTypes = await builtErrorTypes(errorEnum4000);
+    expect(performance.now() - start).toBeLessThan(500);
+    expect(errorTypes).toStrictEqual(
+      Object.fromEntries(
+        codes.map((code) => [code, { message: `error ${code}` }]),
+      ),
+    );
   });
 });
