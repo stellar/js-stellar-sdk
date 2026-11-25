@@ -13,6 +13,14 @@ import { walkToJson, walkFromJson } from "./to-json.js";
 
 export type XdrFormat = "raw" | "hex" | "base64";
 
+/**
+ * Nesting limit for every encode and decode in this layer, in place of the
+ * js-xdr default of 1500. stellar-core accepts transactions that reach depth
+ * 1503 inside a `LedgerCloseMetaBatch`. The JS call stack overflows near 1870.
+ */
+export const MAX_XDR_DEPTH = 1550;
+const DEPTH_OPTIONS = { maxDepth: MAX_XDR_DEPTH } as const;
+
 export type JsonValue =
   | string
   | number
@@ -56,7 +64,7 @@ export abstract class XdrValue {
     if (!ctor.schema) {
       throw new XdrError(`${ctor.name}: missing static schema`);
     }
-    const bytes = ctor.schema.encode(this.toXdrObject());
+    const bytes = ctor.schema.encode(this.toXdrObject(), DEPTH_OPTIONS);
     return encodeBytes(bytes, format);
   }
 
@@ -128,7 +136,7 @@ export abstract class XdrValue {
   ): Instance {
     assertXdrType(this, "fromXdr", true);
     const bytes = decodeBytes(input, format);
-    return this.fromXdrObject(this.schema.decode(bytes));
+    return this.fromXdrObject(this.schema.decode(bytes, DEPTH_OPTIONS));
   }
 
   /**
@@ -158,7 +166,7 @@ export abstract class XdrValue {
     format?: "hex" | "base64",
   ): Instance {
     const bytes = decodeBytes(input, format);
-    return this.fromXdrObject(this.schema.decode(bytes));
+    return this.fromXdrObject(this.schema.decode(bytes, DEPTH_OPTIONS));
   }
 
   /**
@@ -192,7 +200,7 @@ export abstract class XdrValue {
     } catch {
       return false;
     }
-    return this.schema.validateXdr(bytes);
+    return this.schema.validateXdr(bytes, DEPTH_OPTIONS);
   }
 
   /**
@@ -227,7 +235,7 @@ export abstract class XdrValue {
     } catch {
       return false;
     }
-    return this.schema.validateXdr(bytes);
+    return this.schema.validateXdr(bytes, DEPTH_OPTIONS);
   }
 
   static fromJson<Wire, Instance extends XdrValue>(
@@ -262,7 +270,7 @@ export function decodeStream<Wire, Instance extends XdrValue>(
   format?: "hex" | "base64",
 ): Instance[] {
   assertXdrType(type, "decodeStream", true);
-  const reader = new Reader(decodeBytes(input, format));
+  const reader = new Reader(decodeBytes(input, format), MAX_XDR_DEPTH);
   const path = type.schema.name ?? type.name;
   const out: Instance[] = [];
   while (reader.remaining > 0) {
@@ -284,7 +292,7 @@ export interface XdrArrayOptions {
   maxLength?: number;
   /**
    * How many nested schemas may be entered, counting the array itself as the
-   * first level.
+   * first level. Defaults to 1550.
    */
   maxDepth?: number;
 }
@@ -328,7 +336,7 @@ export function encodeArray<Wire, Instance extends XdrValue>(
   const codec = array(type.schema, options.maxLength ?? UNBOUNDED_MAX_LENGTH);
   const bytes = codec.encode(
     values.map((v) => v.toXdrObject() as Wire),
-    { maxDepth: options.maxDepth },
+    { maxDepth: options.maxDepth ?? MAX_XDR_DEPTH },
   );
   return encodeBytes(bytes, format ?? "raw");
 }
@@ -365,7 +373,7 @@ export function decodeArray<Wire, Instance extends XdrValue>(
   const codec = array(type.schema, options.maxLength ?? UNBOUNDED_MAX_LENGTH);
   const wires = codec.decode(
     decodeBytes(input, format as "hex" | "base64" | undefined),
-    { maxDepth: options.maxDepth },
+    { maxDepth: options.maxDepth ?? MAX_XDR_DEPTH },
   );
   return wires.map((w) => type.fromXdrObject(w));
 }
