@@ -405,8 +405,8 @@ ${members}
       0,
     );
 
-    // Map-format data entries may be absent from an emitted event's map, in
-    // which case parseEvent omits the key — so those fields are optional.
+    // Map-format data fields are optional. parseEvent omits a key only for an
+    // `Option`, `()` or `Val` param, so this is looser than needed.
     const dataIsMapFormat =
       event.dataFormat.value ===
       ScSpecEventDataFormat.scSpecEventDataFormatMap.value;
