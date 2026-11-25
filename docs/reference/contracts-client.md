@@ -1364,7 +1364,7 @@ a single topic filter row
 const topics = contractSpec.eventTopicFilter('transfer', { to: someAddress });
 ```
 
-**Source:** [src/contract/spec.ts:1367](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1367)
+**Source:** [src/contract/spec.ts:1380](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1380)
 
 ### `spec.findEntry(name)`
 
@@ -1547,7 +1547,7 @@ the converted JSON schema
 
 - if the contract spec is invalid
 
-**Source:** [src/contract/spec.ts:1391](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1391)
+**Source:** [src/contract/spec.ts:1404](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1404)
 
 ### `spec.nativeToScVal(val, ty)`
 
@@ -1597,11 +1597,24 @@ the parsed event (its name plus all decoded params — topic-list
          no event spec matches (e.g. when filtering a mixed stream of
          events from multiple contracts/specs)
 
-Note that matching compares only the prefix topics and a minimum topic
-count; if more than one event spec matches (in particular, events with
-no prefix topics match on arity alone), the first declared spec whose
-values decode successfully wins. A `vec` or `map` spec decodes only data
-of that container type.
+A spec matches when its prefix topics match and the event has at least
+one topic for each prefix topic and topic-list param. If more than one
+spec matches (in particular, events with no prefix topics match on arity
+alone), the first declared exact fit whose values decode wins, and then
+the first declared loose fit. A spec whose topics and data have exactly
+the shape that soroban-sdk emits for it wins over a spec that fits only
+loosely. The exact shape is one topic for each prefix topic and topic-list
+param, and void data for a single-value spec with no data params, a vec
+with one element for each data param, or a map whose keys are all symbols
+that name a data param. A loose fit has more values, which are ignored:
+trailing topics, data that is not void, extra vec elements, or extra map
+keys. So older bindings can still read an event from a newer contract
+version that adds fields, and an event with an undeclared trailing topic,
+such as the SEP-11 asset topic of SAC events, still parses. But if a later
+spec declares that trailing topic, the later spec wins, because the event
+bytes are the same for both. A vec cannot have fewer elements than the
+data params, and a map key can be missing only for a param of type
+`Option`, `()` or `Val`.
 
 **Example**
 
@@ -1612,7 +1625,7 @@ if (parsed) {
 }
 ```
 
-**Source:** [src/contract/spec.ts:1338](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1338)
+**Source:** [src/contract/spec.ts:1351](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1351)
 
 ### `spec.scValStrToNative(scv, typeDef)`
 
