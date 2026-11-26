@@ -149,35 +149,34 @@ export interface TransactionBuilderOptions {
 }
 
 /**
- * <p>Transaction builder helps constructs a new `{@link Transaction}` using the
+ * Transaction builder helps constructs a new `{@link Transaction}` using the
  * given {@link Account} as the transaction's "source account". The transaction
  * will use the current sequence number of the given account as its sequence
  * number and increment the given account's sequence number by one. The given
  * source account must include a private key for signing the transaction or an
- * error will be thrown.</p>
+ * error will be thrown.
  *
- * <p>Operations can be added to the transaction via their corresponding builder
+ * Operations can be added to the transaction via their corresponding builder
  * methods, and each returns the TransactionBuilder object so they can be
  * chained together. After adding the desired operations, call the `build()`
  * method on the `TransactionBuilder` to return a fully constructed
  * {@link Transaction} that can be signed. The returned transaction will contain the
  * sequence number of the source account and include the signature from the
- * source account.</p>
+ * source account.
  *
- * <p><strong>Be careful about unsubmitted transactions!</strong> When you build
+ * **Be careful about unsubmitted transactions!** When you build
  * a transaction, `stellar-sdk` automatically increments the source account's
  * sequence number. If you end up not submitting this transaction and submitting
  * another one instead, it'll fail due to the sequence number being wrong. So if
  * you decide not to use a built transaction, make sure to update the source
- * account's sequence number with
- * [Server.loadAccount](https://stellar.github.io/js-stellar-sdk/Server.html#loadAccount)
- * before creating another transaction.</p>
+ * account's sequence number with {@link Horizon.Server.loadAccount} before
+ * creating another transaction.
  *
- * <p>The following code example creates a new transaction with {@link
+ * The following code example creates a new transaction with {@link
  * Operation.createAccount} and {@link Operation.payment} operations. The
  * Transaction's source account first funds `destinationA`, then sends a payment
  * to `destinationB`. The built transaction is then signed by
- * `sourceKeypair`.</p>
+ * `sourceKeypair`.
  *
  * ```
  * var transaction = new TransactionBuilder(source, { fee, networkPassphrase: Networks.TESTNET })

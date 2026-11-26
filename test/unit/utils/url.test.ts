@@ -1,5 +1,6 @@
-import { describe, expect, it } from "vitest";
-import { expandUriTemplate } from "../../../src/utils/url.js";
+import { afterEach, describe, expect, it } from "vitest";
+import { Config } from "../../../src/config.js";
+import { assertSecureUrl, expandUriTemplate } from "../../../src/utils/url.js";
 
 describe("StellarUrl", () => {
   it("sets path segments without mutating a cloned native URL", () => {
@@ -265,5 +266,57 @@ describe("expandUriTemplate", () => {
         { account_id: "..", key: ".." },
       ),
     ).toThrow('expected a single non-empty path segment, not ".."');
+  });
+});
+
+describe("assertSecureUrl", () => {
+  const secure = new URL("https://example.com");
+  const insecure = new URL("http://example.com");
+  const message = "Cannot connect to insecure test server";
+
+  afterEach(() => {
+    Config.setDefault();
+  });
+
+  it.each([true, false, undefined])(
+    "accepts an https URL with allowHttp %s",
+    (allowHttp) => {
+      expect(() => assertSecureUrl(secure, allowHttp, message)).not.toThrow();
+    },
+  );
+
+  it("refuses an http URL with the caller's message", () => {
+    expect(() => assertSecureUrl(insecure, false, message)).toThrow(
+      new Error(message),
+    );
+  });
+
+  it("refuses an http URL when allowHttp and the global flag are unset", () => {
+    expect(() => assertSecureUrl(insecure, undefined, message)).toThrow(
+      message,
+    );
+  });
+
+  it("accepts an http URL with allowHttp true", () => {
+    expect(() => assertSecureUrl(insecure, true, message)).not.toThrow();
+  });
+
+  it("uses the global flag when allowHttp is unset", () => {
+    Config.setAllowHttp(true);
+    expect(() => assertSecureUrl(insecure, undefined, message)).not.toThrow();
+  });
+
+  it("lets an explicit false override the global flag", () => {
+    Config.setAllowHttp(true);
+    expect(() => assertSecureUrl(insecure, false, message)).toThrow(message);
+  });
+
+  // A JS caller can pass `null`. The servers refused it before the global
+  // fallback was shared, so it must not fall back to the global flag.
+  it("refuses an http URL with allowHttp null, whatever the global flag", () => {
+    Config.setAllowHttp(true);
+    expect(() => assertSecureUrl(insecure, null as never, message)).toThrow(
+      message,
+    );
   });
 });

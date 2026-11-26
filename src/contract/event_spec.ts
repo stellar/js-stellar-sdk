@@ -123,16 +123,22 @@ function prefixTopicText(topic: ScVal): string | undefined {
 function matchesTopics(
   event: ScSpecEventV0,
   topics: ScVal[],
+  topicTexts: (string | undefined)[],
 ): ScSpecEventParamV0[] | undefined {
   const prefixTopics = event.prefixTopics;
+  if (topics.length < prefixTopics.length) {
+    return undefined;
+  }
+  // The prefix is checked first, so a declaration that does not match costs
+  // no param filtering.
+  for (let i = 0; i < prefixTopics.length; i++) {
+    if (topicTexts[i] !== prefixTopics[i].toString()) {
+      return undefined;
+    }
+  }
   const tlParams = topicListParams(event);
   if (topics.length < prefixTopics.length + tlParams.length) {
     return undefined;
-  }
-  for (let i = 0; i < prefixTopics.length; i++) {
-    if (prefixTopicText(topics[i]) !== prefixTopics[i].toString()) {
-      return undefined;
-    }
   }
   return tlParams;
 }
@@ -147,11 +153,23 @@ function matchesTopics(
  * @param data - the event's data, as an `ScVal` or a base64 XDR string
  * @returns the parsed event, or `undefined` if no event spec matches
  *
- * Matching compares only the prefix topics and a minimum topic count, so if
- * more than one event spec matches (in particular, events with no prefix
- * topics match on arity alone), the first declared spec whose values decode
- * successfully wins. A `vec` or `map` spec decodes only data of that
- * container type.
+ * A spec matches when its prefix topics match and the event has at least one
+ * topic for each prefix topic and topic-list param. If more than one spec
+ * matches (in particular, events with no prefix topics match on arity alone),
+ * the first declared exact fit whose values decode wins, and then the first
+ * declared loose fit. A spec whose topics and data have exactly the shape that
+ * soroban-sdk emits for it wins over a spec that fits only loosely. The exact
+ * shape is one topic for each prefix topic and topic-list param, and void data
+ * for a single-value spec with no data params, a vec with one element for each
+ * data param, or a map whose keys are all symbols that name a data param. A
+ * loose fit has more values, which are ignored: trailing topics, data that is
+ * not void, extra vec elements, or extra map keys. So older bindings can still
+ * read an event from a newer contract version that adds fields, and an event
+ * with an undeclared trailing topic, such as the SEP-11 asset topic of SAC
+ * events, still parses. But if a later spec declares that trailing topic, the
+ * later spec wins, because the event bytes are the same for both. A vec cannot
+ * have fewer elements than the data params, and a map key can be missing only
+ * for a param of type `Option`, `()` or `Val`.
  * @hidden
  */
 export function parseEvent(
@@ -172,19 +190,29 @@ export function parseEvent(
   }
 
   const specEvents = events(entries);
+  let loose:
+    | [ScSpecEventV0, ScSpecEventParamV0[], [ScSpecEventParamV0, ScVal][]][]
+    | undefined;
+  // Read once here, not once for each declaration.
+  const topicTexts = topicVals.map(prefixTopicText);
   for (const event of specEvents) {
-    const tlParams = matchesTopics(event, topicVals);
+    const tlParams = matchesTopics(event, topicVals, topicTexts);
     if (!tlParams) {
       continue;
     }
     // Checked before any decoding, so a wrong candidate costs no decode work.
     const dParams = dataParams(event);
     const dataPairs: [ScSpecEventParamV0, ScVal][] = [];
+    // soroban-sdk emits exactly this shape. Data with more values may come
+    // from a newer contract version, so it is a fallback.
+    let exact = true;
     switch (event.dataFormat.name) {
       case "scSpecEventDataFormatSingleValue": {
         const param = dParams[0];
         if (param) {
           dataPairs.push([param, dataVal]);
+        } else if (dataVal.type !== "scvVoid") {
+          exact = false;
         }
         break;
       }
@@ -196,6 +224,7 @@ export function parseEvent(
         if (vec.length < dParams.length) {
           continue;
         }
+        exact = vec.length === dParams.length;
         dParams.forEach((param, i) => {
           dataPairs.push([param, vec[i]]);
         });
@@ -205,9 +234,9 @@ export function parseEvent(
         if (dataVal.type !== "scvMap") {
           continue;
         }
-        // Missing keys are expected: a sparse map leaves out void fields.
         const map = dataVal.value ?? [];
-        dParams.forEach((param) => {
+        let missingRequired = false;
+        for (const param of dParams) {
           const name = param.name.toString();
           const entry = map.find(
             (e) =>
@@ -215,8 +244,21 @@ export function parseEvent(
           );
           if (entry) {
             dataPairs.push([param, entry.val]);
+          } else if (
+            // A sparse map leaves out void values, so only a param that can
+            // hold void may be missing.
+            param.type.type !== "scSpecTypeOption" &&
+            param.type.type !== "scSpecTypeVoid" &&
+            param.type.type !== "scSpecTypeVal"
+          ) {
+            missingRequired = true;
+            break;
           }
-        });
+        }
+        if (missingRequired) {
+          continue;
+        }
+        exact = dataPairs.length === map.length;
         break;
       }
       default: {
@@ -225,37 +267,67 @@ export function parseEvent(
         throw new Error(`unknown event data format: ${unhandled}`);
       }
     }
+    // An undeclared trailing topic makes the fit loose, as extra data does.
+    if (topicVals.length !== event.prefixTopics.length + tlParams.length) {
+      exact = false;
+    }
 
-    // Topic matching is fuzzy (prefix symbols + a minimum topic count), so a
-    // candidate event may still turn out not to fit once its values are
-    // decoded — e.g. an unrelated contract's event sharing the same prefix.
-    // Treat any decode failure as a non-match and try the next candidate.
-    try {
-      const prefixLen = event.prefixTopics.length;
-      // Param names come from an untrusted, on-chain contract spec, so a
-      // param literally named "__proto__" must not be able to reach the
-      // object's prototype via normal property assignment. A null-prototype
-      // object stores it as a plain own property instead.
-      const dataOut: Record<string, any> = Object.create(null);
-      tlParams.forEach((param, i) => {
-        const val = topicVals[prefixLen + i];
-        dataOut[param.name.toString()] = spec.scValToNative(val, param.type);
-      });
-
-      dataPairs.forEach(([param, val]) => {
-        dataOut[param.name.toString()] = spec.scValToNative(val, param.type);
-      });
-
-      return {
-        name: event.name.toString(),
-        data: dataOut,
-      };
-    } catch {
-      continue;
+    if (exact) {
+      const parsed = decodeEvent(spec, event, tlParams, topicVals, dataPairs);
+      if (parsed) {
+        return parsed;
+      }
+    } else {
+      // Decoded after the loop, so a collision costs no extra decode.
+      (loose ??= []).push([event, tlParams, dataPairs]);
     }
   }
 
+  // Declaration order decides among loose fits, as before. Ranking them by
+  // matched params would be a guess.
+  for (const [event, tlParams, dataPairs] of loose ?? []) {
+    const parsed = decodeEvent(spec, event, tlParams, topicVals, dataPairs);
+    if (parsed) {
+      return parsed;
+    }
+  }
   return undefined;
+}
+
+// Topic matching is fuzzy (prefix symbols + a minimum topic count), so a
+// candidate event may still turn out not to fit once its values are decoded —
+// e.g. an unrelated contract's event sharing the same prefix. Any decode
+// failure is a non-match, so the caller tries the next candidate.
+function decodeEvent(
+  spec: Spec,
+  event: ScSpecEventV0,
+  tlParams: ScSpecEventParamV0[],
+  topicVals: ScVal[],
+  dataPairs: [ScSpecEventParamV0, ScVal][],
+): ParsedEvent | undefined {
+  try {
+    const prefixLen = event.prefixTopics.length;
+    // Param names come from an untrusted, on-chain contract spec, so a param
+    // literally named "__proto__" must not be able to reach the object's
+    // prototype via normal property assignment. A null-prototype object
+    // stores it as a plain own property instead.
+    const dataOut: Record<string, any> = Object.create(null);
+    tlParams.forEach((param, i) => {
+      const val = topicVals[prefixLen + i];
+      dataOut[param.name.toString()] = spec.scValToNative(val, param.type);
+    });
+
+    dataPairs.forEach(([param, val]) => {
+      dataOut[param.name.toString()] = spec.scValToNative(val, param.type);
+    });
+
+    return {
+      name: event.name.toString(),
+      data: dataOut,
+    };
+  } catch {
+    return undefined;
+  }
 }
 
 /**

@@ -969,7 +969,7 @@ _before_ transaction signing.
 const DEFAULT_TIMEOUT: number
 ```
 
-**Source:** [src/contract/types.ts:322](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L322)
+**Source:** [src/contract/types.ts:324](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L324)
 
 ## contract.KeypairSigner
 
@@ -1059,7 +1059,7 @@ An impossible account on the Stellar network
 const NULL_ACCOUNT: "GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF"
 ```
 
-**Source:** [src/contract/types.ts:328](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L328)
+**Source:** [src/contract/types.ts:330](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L330)
 
 ## contract.SentTransaction
 
@@ -1364,7 +1364,7 @@ a single topic filter row
 const topics = contractSpec.eventTopicFilter('transfer', { to: someAddress });
 ```
 
-**Source:** [src/contract/spec.ts:1367](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1367)
+**Source:** [src/contract/spec.ts:1380](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1380)
 
 ### `spec.findEntry(name)`
 
@@ -1547,7 +1547,7 @@ the converted JSON schema
 
 - if the contract spec is invalid
 
-**Source:** [src/contract/spec.ts:1391](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1391)
+**Source:** [src/contract/spec.ts:1404](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1404)
 
 ### `spec.nativeToScVal(val, ty)`
 
@@ -1597,11 +1597,24 @@ the parsed event (its name plus all decoded params — topic-list
          no event spec matches (e.g. when filtering a mixed stream of
          events from multiple contracts/specs)
 
-Note that matching compares only the prefix topics and a minimum topic
-count; if more than one event spec matches (in particular, events with
-no prefix topics match on arity alone), the first declared spec whose
-values decode successfully wins. A `vec` or `map` spec decodes only data
-of that container type.
+A spec matches when its prefix topics match and the event has at least
+one topic for each prefix topic and topic-list param. If more than one
+spec matches (in particular, events with no prefix topics match on arity
+alone), the first declared exact fit whose values decode wins, and then
+the first declared loose fit. A spec whose topics and data have exactly
+the shape that soroban-sdk emits for it wins over a spec that fits only
+loosely. The exact shape is one topic for each prefix topic and topic-list
+param, and void data for a single-value spec with no data params, a vec
+with one element for each data param, or a map whose keys are all symbols
+that name a data param. A loose fit has more values, which are ignored:
+trailing topics, data that is not void, extra vec elements, or extra map
+keys. So older bindings can still read an event from a newer contract
+version that adds fields, and an event with an undeclared trailing topic,
+such as the SEP-11 asset topic of SAC events, still parses. But if a later
+spec declares that trailing topic, the later spec wins, because the event
+bytes are the same for both. A vec cannot have fewer elements than the
+data params, and a map key can be missing only for a param of type
+`Option`, `()` or `Val`.
 
 **Example**
 
@@ -1612,7 +1625,7 @@ if (parsed) {
 }
 ```
 
-**Source:** [src/contract/spec.ts:1338](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1338)
+**Source:** [src/contract/spec.ts:1351](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/spec.ts#L1351)
 
 ### `spec.scValStrToNative(scv, typeDef)`
 
@@ -1739,7 +1752,7 @@ basicNodeSigner(keypair: Keypair, networkPassphrase: string): { signAuthEntry: S
 type AssembledTransactionOptions<T = string> = MethodOptions & ClientOptions & { address?: string; args?: any[]; method: string; parseResultXdr: (xdr: ScVal) => T; submit?: boolean; submitUrl?: string }
 ```
 
-**Source:** [src/contract/types.ts:290](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L290)
+**Source:** [src/contract/types.ts:292](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L292)
 
 ### contract.ClientOptions
 
@@ -1749,7 +1762,7 @@ Options for a smart contract client.
 type ClientOptions = { allowHttp?: boolean; contractId: string; errorTypes?: Record<number, { message: string }>; headers?: Record<string, string>; networkPassphrase: string; publicKey?: string; rpcUrl: string; server?: Server; signAuthEntry?: SignAuthEntryLike; signTransaction?: SignTransactionLike }
 ```
 
-**Source:** [src/contract/types.ts:129](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L129)
+**Source:** [src/contract/types.ts:130](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L130)
 
 ### contract.Duration
 
@@ -1759,7 +1772,7 @@ An unsigned 64-bit integer.
 type Duration = bigint
 ```
 
-**Source:** [src/contract/types.ts:55](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L55)
+**Source:** [src/contract/types.ts:56](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L56)
 
 ### contract.ErrorMessage
 
@@ -1793,7 +1806,7 @@ Options for a smart contract method invocation.
 type MethodOptions = { fee?: string; publicKey?: string; restore?: boolean; signAuthEntry?: SignAuthEntryLike; signTransaction?: SignTransactionLike; simulate?: boolean; timeoutInSeconds?: number; useUpgradedAuth?: boolean }
 ```
 
-**Source:** [src/contract/types.ts:218](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L218)
+**Source:** [src/contract/types.ts:220](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L220)
 
 ### contract.Option
 
@@ -1801,7 +1814,7 @@ type MethodOptions = { fee?: string; publicKey?: string; restore?: boolean; sign
 type Option<T> = T | undefined
 ```
 
-**Source:** [src/contract/types.ts:43](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L43)
+**Source:** [src/contract/types.ts:44](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L44)
 
 ### contract.ParsedEvent
 
@@ -1931,7 +1944,7 @@ It returns a signed hash of the same authorization entry and the signer address 
 type SignAuthEntry = (authEntry: string, opts?: { address?: string; networkPassphrase?: string }) => Promise<{ signedAuthEntry: string; signerAddress?: string } & { error?: WalletError }>
 ```
 
-**Source:** [src/contract/types.ts:113](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L113)
+**Source:** [src/contract/types.ts:114](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L114)
 
 ### contract.SignAuthEntryLike
 
@@ -1956,7 +1969,7 @@ and the signer address back to the requester.
 type SignTransaction = (xdr: string, opts?: { address?: string; networkPassphrase?: string; submit?: boolean; submitUrl?: string }) => Promise<{ signedTxXdr: string; signerAddress?: string } & { error?: WalletError }>
 ```
 
-**Source:** [src/contract/types.ts:84](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L84)
+**Source:** [src/contract/types.ts:85](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L85)
 
 ### contract.SignTransactionLike
 
@@ -2041,7 +2054,7 @@ An unsigned 64-bit integer.
 type Timepoint = bigint
 ```
 
-**Source:** [src/contract/types.ts:51](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L51)
+**Source:** [src/contract/types.ts:52](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L52)
 
 ### contract.Tx
 
@@ -2051,7 +2064,7 @@ A "regular" transaction, as opposed to a FeeBumpTransaction.
 type Tx = Transaction
 ```
 
-**Source:** [src/contract/types.ts:60](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L60)
+**Source:** [src/contract/types.ts:61](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L61)
 
 ### contract.Typepoint
 
@@ -2061,7 +2074,7 @@ type Tx = Transaction
 type Typepoint = bigint
 ```
 
-**Source:** [src/contract/types.ts:47](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L47)
+**Source:** [src/contract/types.ts:48](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L48)
 
 ### contract.Union
 
@@ -2100,7 +2113,7 @@ interface WalletError {
 }
 ```
 
-**Source:** [src/contract/types.ts:62](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L62)
+**Source:** [src/contract/types.ts:63](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L63)
 
 #### `walletError.code`
 
@@ -2108,7 +2121,7 @@ interface WalletError {
 code: number;
 ```
 
-**Source:** [src/contract/types.ts:64](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L64)
+**Source:** [src/contract/types.ts:65](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L65)
 
 #### `walletError.ext`
 
@@ -2116,7 +2129,7 @@ code: number;
 ext?: string[];
 ```
 
-**Source:** [src/contract/types.ts:65](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L65)
+**Source:** [src/contract/types.ts:66](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L66)
 
 #### `walletError.message`
 
@@ -2124,7 +2137,7 @@ ext?: string[];
 message: string;
 ```
 
-**Source:** [src/contract/types.ts:63](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L63)
+**Source:** [src/contract/types.ts:64](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L64)
 
 ### contract.XDR_BASE64
 
@@ -2132,7 +2145,7 @@ message: string;
 type XDR_BASE64 = string
 ```
 
-**Source:** [src/contract/types.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L10)
+**Source:** [src/contract/types.ts:11](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L11)
 
 ### contract.i128
 
@@ -2142,7 +2155,7 @@ A signed 128-bit integer.
 type i128 = bigint
 ```
 
-**Source:** [src/contract/types.ts:34](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L34)
+**Source:** [src/contract/types.ts:35](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L35)
 
 ### contract.i256
 
@@ -2152,7 +2165,7 @@ A signed 256-bit integer.
 type i256 = bigint
 ```
 
-**Source:** [src/contract/types.ts:42](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L42)
+**Source:** [src/contract/types.ts:43](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L43)
 
 ### contract.i32
 
@@ -2162,7 +2175,7 @@ A signed 32-bit integer.
 type i32 = number
 ```
 
-**Source:** [src/contract/types.ts:18](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L18)
+**Source:** [src/contract/types.ts:19](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L19)
 
 ### contract.i64
 
@@ -2172,7 +2185,7 @@ A signed 64-bit integer.
 type i64 = bigint
 ```
 
-**Source:** [src/contract/types.ts:26](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L26)
+**Source:** [src/contract/types.ts:27](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L27)
 
 ### contract.u128
 
@@ -2182,7 +2195,7 @@ An unsigned 128-bit integer.
 type u128 = bigint
 ```
 
-**Source:** [src/contract/types.ts:30](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L30)
+**Source:** [src/contract/types.ts:31](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L31)
 
 ### contract.u256
 
@@ -2192,7 +2205,7 @@ An unsigned 256-bit integer.
 type u256 = bigint
 ```
 
-**Source:** [src/contract/types.ts:38](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L38)
+**Source:** [src/contract/types.ts:39](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L39)
 
 ### contract.u32
 
@@ -2202,7 +2215,7 @@ An unsigned 32-bit integer.
 type u32 = number
 ```
 
-**Source:** [src/contract/types.ts:14](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L14)
+**Source:** [src/contract/types.ts:15](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L15)
 
 ### contract.u64
 
@@ -2212,4 +2225,4 @@ An unsigned 64-bit integer.
 type u64 = bigint
 ```
 
-**Source:** [src/contract/types.ts:22](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L22)
+**Source:** [src/contract/types.ts:23](https://github.com/stellar/js-stellar-sdk/blob/main/src/contract/types.ts#L23)

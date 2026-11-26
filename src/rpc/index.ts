@@ -16,3 +16,8 @@ export {
 export * from "./transaction.js";
 export { inspectChargedFees } from "./fees.js";
 export type { ChargedFees, ChargedFeesInput } from "./fees.js";
+export { inspectDiagnosticEvents } from "./diagnostics.js";
+export type {
+  DiagnosticEventInfo,
+  DiagnosticEventsInput,
+} from "./diagnostics.js";

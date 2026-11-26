@@ -11,7 +11,8 @@ import {
 
 import type { TransactionBuilder } from "../base/index.js";
 import { CallBuilder } from "./call_builder.js";
-import { Config } from "../config.js";
+import type { Config } from "../config.js";
+import { assertSecureUrl } from "../utils/url.js";
 import {
   AccountRequiresMemoError,
   BadResponseError,
@@ -108,11 +109,6 @@ export class HorizonServer {
   constructor(serverURL: string, opts: HorizonServer.Options = {}) {
     this.serverURL = new URL(serverURL);
 
-    const allowHttp =
-      typeof opts.allowHttp === "undefined"
-        ? Config.isAllowHttp()
-        : opts.allowHttp;
-
     const customHeaders: Record<string, string> = {};
 
     if (opts.appName) {
@@ -130,9 +126,11 @@ export class HorizonServer {
 
     this.httpClient = createHttpClient(customHeaders);
 
-    if (this.serverURL.protocol !== "https:" && !allowHttp) {
-      throw new Error("Cannot connect to insecure horizon server");
-    }
+    assertSecureUrl(
+      this.serverURL,
+      opts.allowHttp,
+      "Cannot connect to insecure horizon server",
+    );
   }
 
   /**
