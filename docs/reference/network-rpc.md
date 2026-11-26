@@ -1757,6 +1757,27 @@ inspectChargedFees(tx: ChargedFeesInput): ChargedFees
 
 **Source:** [src/rpc/fees.ts:70](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/fees.ts#L70)
 
+## rpc.inspectDiagnosticEvents
+
+Returns the diagnostic events of an RPC response in a readable form, or an
+empty list if it has none. It makes no network calls.
+
+It reads `diagnosticEvents` of a `sendTransaction` response and `events` of
+a `simulateTransaction` response. For a `getTransaction` response or
+`getTransactions` entry it reads `diagnosticEventsXdr`, or the events in
+`resultMetaXdr` when that field is missing or empty.
+
+```ts
+inspectDiagnosticEvents(response: DiagnosticEventsInput): DiagnosticEventInfo[]
+```
+
+**Parameters**
+
+- **`response`** — `DiagnosticEventsInput` (required) — a parsed `sendTransaction`, `getTransaction` or
+  `simulateTransaction` response, or a `getTransactions` entry
+
+**Source:** [src/rpc/diagnostics.ts:39](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/diagnostics.ts#L39)
+
 ## rpc.parseRawEvents
 
 Parse and return the retrieved events, if any, from a raw response from a
@@ -5405,6 +5426,78 @@ resultXdr: TransactionResult;
 ```
 
 **Source:** [src/rpc/fees.ts:16](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/fees.ts#L16)
+
+### rpc.DiagnosticEventInfo
+
+A diagnostic event with its topics and data converted to native values.
+
+```ts
+interface DiagnosticEventInfo {
+  contractId?: string;
+  data: any;
+  inSuccessfulContractCall: boolean;
+  topics: any[];
+  type: "contract" | "system" | "diagnostic";
+}
+```
+
+**Source:** [src/rpc/diagnostics.ts:17](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/diagnostics.ts#L17)
+
+#### `diagnosticEventInfo.contractId`
+
+the emitting contract (`C...`), absent for events from the host itself
+
+```ts
+contractId?: string;
+```
+
+**Source:** [src/rpc/diagnostics.ts:22](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/diagnostics.ts#L22)
+
+#### `diagnosticEventInfo.data`
+
+```ts
+data: any;
+```
+
+**Source:** [src/rpc/diagnostics.ts:24](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/diagnostics.ts#L24)
+
+#### `diagnosticEventInfo.inSuccessfulContractCall`
+
+whether the contract call that emitted the event succeeded
+
+```ts
+inSuccessfulContractCall: boolean;
+```
+
+**Source:** [src/rpc/diagnostics.ts:19](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/diagnostics.ts#L19)
+
+#### `diagnosticEventInfo.topics`
+
+```ts
+topics: any[];
+```
+
+**Source:** [src/rpc/diagnostics.ts:23](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/diagnostics.ts#L23)
+
+#### `diagnosticEventInfo.type`
+
+```ts
+type: "contract" | "system" | "diagnostic";
+```
+
+**Source:** [src/rpc/diagnostics.ts:20](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/diagnostics.ts#L20)
+
+### rpc.DiagnosticEventsInput
+
+The input to [`inspectDiagnosticEvents`](#rpcinspectdiagnosticevents): a parsed `sendTransaction`,
+`getTransaction` or `simulateTransaction` response, or a `getTransactions`
+entry.
+
+```ts
+type DiagnosticEventsInput = Api.SendTransactionResponse | Api.GetTransactionResponse | Api.TransactionInfo | Api.SimulateTransactionResponse
+```
+
+**Source:** [src/rpc/diagnostics.ts:10](https://github.com/stellar/js-stellar-sdk/blob/main/src/rpc/diagnostics.ts#L10)
 
 ### rpc.Durability
 
